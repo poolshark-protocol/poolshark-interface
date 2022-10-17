@@ -1,13 +1,19 @@
+import { AdjustmentsHorizontalIcon, ArrowSmallDownIcon, DocumentArrowDownIcon } from "@heroicons/react/24/outline";
 import Head from "next/head";
 import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="flex items-center w-full h-screen text-white bg-gradient-to-b from-[#000203] to-[#000B14]">
-      <div className="flex flex-col w-full m-4 max-w-lg p-8 mx-auto bg-black border border-[#1C1C1C] rounded-lg">
-        <div className="flex gap-8 py-4 m-auto">
+    <div className="flex items-center w-full h-screen text-white ">
+      <div className="flex flex-col w-full m-4 max-w-md p-6 mx-auto bg-black border border-[#313131] rounded-lg">
+        <div className="flex items-center">
+        <div className="flex gap-4 ">
           <div className="flex">Swap</div>
-            <div className="flex">Limit</div>
+            <div className="flex text-gray-500">Limit</div>
+        </div>
+        <div className="ml-auto">
+            <AdjustmentsHorizontalIcon className="w-5 h-5"/>
+        </div>
         </div>
         <div className="px-4 py-2 ml-auto transition cursor-pointer hover:opacity-80"></div>
         <div className="w-full align-middle items-center sm:flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4  p-4 rounded-xl ">
@@ -22,24 +28,11 @@ export default function Home() {
             placeholder="123"
           />
         </div>
-        <div className="items-center p-2 m-auto border border-gray-400 rounded cursor-pointer">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-3 h-3"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
-            />
-          </svg>
+        <div className="items-center -mt-1 p-2 m-auto border border-[#1E1E1E] z-50 bg-black rounded cursor-pointer">
+         <ArrowSmallDownIcon className="w-4 h-4"/>
         </div>
 
-        <div className="w-full align-middle items-center sm:flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4  p-4 rounded-xl ">
+        <div className="w-full align-middle items-center sm:flex -mt-1 bg-[#0C0C0C] border border-[#1C1C1C] gap-4  p-4 rounded-xl ">
           <span class="absolute flex items-center pl-5 mr-5">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -70,7 +63,7 @@ export default function Home() {
             placeholder="test"
           />
         </div>
-        <div className="px-16 w-full py-4 mx-auto mt-4 text-xs font-bold text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
+        <div className="px-16 w-full py-5 mx-auto mt-4 text-xs font-bold text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
           Swap
         </div>
       </div>
