@@ -1,5 +1,4 @@
 {
-    //NEED TO CHANGE PUBLIC/PRIVATE KEY SETS, THIS IS JUST A PLACEHOLDER!!!!!
     "chain_name": "local_testnet",
     "block_production": "Instant",
     "parent_network": {
