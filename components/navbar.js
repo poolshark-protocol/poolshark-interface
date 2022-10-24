@@ -1,6 +1,11 @@
 import { Fragment } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { Bars3Icon, BellIcon, EllipsisHorizontalIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import {
+  Bars3Icon,
+  BellIcon,
+  EllipsisHorizontalIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import Image from "next/image";
 
 const navigation = [
@@ -71,11 +76,13 @@ export default function Navbar() {
                   className="p-1 text-gray-400 bg-black rounded-md border border-[#1E1E1E] hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
                 >
                   <span className="sr-only">View notifications</span>
-                  <EllipsisHorizontalIcon className="w-6 h-6" aria-hidden="true" />
+                  <EllipsisHorizontalIcon
+                    className="w-6 h-6"
+                    aria-hidden="true"
+                  />
                 </button>
 
                 {/* Profile dropdown */}
-                
               </div>
             </div>
           </div>
