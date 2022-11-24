@@ -22,7 +22,7 @@ export default function Navbar() {
     <Disclosure as="nav" className="">
       {({ open }) => (
         <>
-          <div className="px-2 mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <div className="px-10 pt-3 mx-auto">
             <div className="relative flex items-center justify-between h-16">
               <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
                 {/* Mobile menu button*/}
@@ -35,8 +35,8 @@ export default function Navbar() {
                   )}
                 </Disclosure.Button>
               </div>
-              <div className="flex items-center justify-center flex-1 sm:items-stretch sm:justify-start">
-                <div className="flex items-center flex-shrink-0">
+              <div className="grid grid-cols-3 items-center w-full mx-auto">
+                <div className="flex items-center justify-start flex-shrink-0">
                   <div className="relative w-40 h-40">
                     <Image
                       className="hidden w-auto h-8 lg:block"
@@ -50,17 +50,17 @@ export default function Navbar() {
                     />
                   </div>
                 </div>
-                <div className="hidden m-auto border  border-[#1E1E1E] rounded-2xl  sm:ml-auto sm:block">
-                  <div className="flex space-x-4">
+                <div className="hidden m-auto border flex justify-center border-grey1 rounded-xl p-[2.5px]  sm:ml-auto sm:block bg-black">
+                  <div className="flex gap-x-2">
                     {navigation.map((item) => (
                       <a
                         key={item.name}
                         href={item.href}
                         className={classNames(
                           item.current
-                            ? "bg-[#06172D] text-[#227BED]"
-                            : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                          " py-2 px-6 rounded-xl text-sm font-medium"
+                            ? "bg-background text-main transition-all"
+                            : "text-grey hover:text-white",
+                          " py-2 px-6 rounded-lg text-sm font-medium"
                         )}
                         aria-current={item.current ? "page" : undefined}
                       >
@@ -69,20 +69,20 @@ export default function Navbar() {
                     ))}
                   </div>
                 </div>
-              </div>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                <button
-                  type="button"
-                  className="p-1 text-gray-400 bg-black rounded-md border border-[#1E1E1E] hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                >
-                  <span className="sr-only">View notifications</span>
-                  <EllipsisHorizontalIcon
-                    className="w-6 h-6"
-                    aria-hidden="true"
-                  />
-                </button>
+                <div className="justify-end flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+                  <button
+                    type="button"
+                    className="p-1 text-gray-400 bg-black rounded-md border border-[#1E1E1E] hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                  >
+                    <span className="sr-only">View notifications</span>
+                    <EllipsisHorizontalIcon
+                      className="w-6 h-6"
+                      aria-hidden="true"
+                    />
+                  </button>
 
-                {/* Profile dropdown */}
+                  {/* Profile dropdown */}
+                </div>
               </div>
             </div>
           </div>
