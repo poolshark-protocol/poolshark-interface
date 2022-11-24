@@ -19,6 +19,19 @@ function classNames(...classes) {
 export default function Swap() {
   const [expanded, setExpanded] = useState();
 
+  async function connectToFuel() {
+
+    const isConnected = await window.FuelWeb3.connect();
+    console.log("Connection response", isConnected);
+
+    const accounts = await window.FuelWeb3.accounts();
+    console.log(accounts);
+  }
+
+  async function disconnectFromFuel() {
+    await window.FuelWeb3.disconnect();
+  }
+
   const Option = () => {
     if (expanded) {
       return (
@@ -52,6 +65,8 @@ export default function Swap() {
           <div className="flex gap-4 mb-1.5 text-sm">
             <div className="flex">Swap</div>
             <div className="flex text-grey">Limit</div>
+            <div className="flex" onClick={() => connectToFuel()}>Connect wallet</div>
+            <div className="flex" onClick={() => disconnectFromFuel()}>Disconnect wallet</div>
           </div>
           <div className="ml-auto">
             <AdjustmentsHorizontalIcon className="w-5 h-5" />
