@@ -7,7 +7,10 @@ import Head from "next/head";
 import Image from "next/image";
 import { useState, Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
-import { ChevronDownIcon, InformationCircle } from "@heroicons/react/20/solid";
+import {
+  ChevronDownIcon,
+  InformationCircleIcon,
+} from "@heroicons/react/20/solid";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -19,7 +22,7 @@ export default function Swap() {
   const Option = () => {
     if (expanded) {
       return (
-        <div className="flex flex-col justify-between w-full my-2 break-normal transition duration-500 cursor-pointer h-fit">
+        <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Expected Output</div>
             <div className="ml-auto text-xs">300 DAI</div>
@@ -59,7 +62,7 @@ export default function Swap() {
           <span class="absolute flex items-center pl-5 mr-5"></span>
           <div className="flex-col justify-center w-1/2 p-2 ">
             <input
-              className=" bg-[#0C0C0C] text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
+              className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
               placeholder="300"
             />
             <div className="flex">
@@ -69,14 +72,11 @@ export default function Swap() {
           <div className="flex w-1/2">
             <div class="flex justify-center ml-auto">
               <div class="flex-col">
-                 <div className="flex justify-end">
+                <div className="flex justify-end">
                   <button className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl">
                     <div className="flex items-center gap-x-2">
-                        <img
-                    className="w-7"
-                      src="/static/images/token.png"
-                    />
-                    USDC
+                      <img className="w-7" src="/static/images/token.png" />
+                      USDC
                     </div>
                     <ChevronDownIcon className="w-5" />
                   </button>
@@ -101,7 +101,7 @@ export default function Swap() {
           <span class="absolute flex items-center pl-5 mr-5"></span>
           <div className="flex-col justify-center w-1/2 p-2 ">
             <input
-              className=" bg-[#0C0C0C] text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
+              className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
               placeholder="300"
             />
             <div className="flex">
@@ -114,11 +114,8 @@ export default function Swap() {
                 <div className="flex justify-end">
                   <button className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl">
                     <div className="flex items-center gap-x-2">
-                        <img
-                    className="w-7"
-                      src="/static/images/token.png"
-                    />
-                    USDC
+                      <img className="w-7" src="/static/images/token.png" />
+                      USDC
                     </div>
                     <ChevronDownIcon className="w-5" />
                   </button>
@@ -131,18 +128,23 @@ export default function Swap() {
             </div>
           </div>
         </div>
-        <div className="flex p-2 my-2">
-          <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-            1 USDC = 1 DAI
+        <div className="py-4">
+          <div
+            className="flex px-2 cursor-pointer"
+            onClick={() => setExpanded(!expanded)}
+          >
+            <div className="flex-none text-xs uppercase text-[#C9C9C9]">
+              1 USDC = 1 DA1
+            </div>
+            <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
+              <button>
+                <ChevronDownIcon className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-          <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
-            <button onClick={() => setExpanded(!expanded)}>
-              <ChevronDownIcon className="w-4 h-4" />
-            </button>
+          <div className="flex-wrap w-full break-normal transition ">
+            <Option />
           </div>
-        </div>
-        <div className="flex-wrap w-full break-normal transition ">
-          <Option />
         </div>
         <div className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
           Swap
