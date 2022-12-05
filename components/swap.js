@@ -6,10 +6,12 @@ import {
 import Head from "next/head";
 import Image from "next/image";
 import { useState, Fragment } from "react";
-import { Menu, Transition } from "@headlessui/react";
+import { Menu, Transition, Dialog } from "@headlessui/react";
 import {
   ChevronDownIcon,
   InformationCircleIcon,
+  XMarkIcon,
+  MagnifyingGlassIcon,
 } from "@heroicons/react/20/solid";
 
 function classNames(...classes) {
@@ -17,10 +19,19 @@ function classNames(...classes) {
 }
 
 export default function Swap() {
+  let [isOpen, setIsOpen] = useState(false);
+
+  function closeModal() {
+    setIsOpen(false);
+  }
+
+  function openModal() {
+    setIsOpen(true);
+  }
+
   const [expanded, setExpanded] = useState();
 
   async function connectToFuel() {
-
     const isConnected = await window.FuelWeb3.connect();
     console.log("Connection response", isConnected);
 
@@ -65,8 +76,6 @@ export default function Swap() {
           <div className="flex gap-4 mb-1.5 text-sm">
             <div className="flex">Swap</div>
             <div className="flex text-grey">Limit</div>
-            <div className="flex" onClick={() => connectToFuel()}>Connect wallet</div>
-            <div className="flex" onClick={() => disconnectFromFuel()}>Disconnect wallet</div>
           </div>
           <div className="ml-auto">
             <AdjustmentsHorizontalIcon className="w-5 h-5" />
@@ -88,7 +97,153 @@ export default function Swap() {
             <div class="flex justify-center ml-auto">
               <div class="flex-col">
                 <div className="flex justify-end">
-                  <button className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl">
+                  <Transition appear show={isOpen} as={Fragment}>
+                    <Dialog
+                      as="div"
+                      className="relative z-50"
+                      onClose={closeModal}
+                    >
+                      <Transition.Child
+                        as={Fragment}
+                        enter="ease-out duration-300"
+                        enterFrom="opacity-0"
+                        enterTo="opacity-100"
+                        leave="ease-in duration-200"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0"
+                      >
+                        <div className="fixed inset-0 bg-black bg-opacity-50" />
+                      </Transition.Child>
+
+                      <div className="fixed inset-0 overflow-y-auto">
+                        <div className="flex min-h-full items-center justify-center p-4 text-center">
+                          <Transition.Child
+                            as={Fragment}
+                            enter="ease-out duration-300"
+                            enterFrom="opacity-0 scale-95"
+                            enterTo="opacity-100 scale-100"
+                            leave="ease-in duration-200"
+                            leaveFrom="opacity-100 scale-100"
+                            leaveTo="opacity-0 scale-95"
+                          >
+                            <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-xl bg-black border border-grey2 text-left align-middle shadow-xl transition-all">
+                              <div className="p-5">
+                                <div className="flex justify-between items-center mb-6">
+                                  <h1 className="text-white">Select Token</h1>
+                                  <XMarkIcon onClick={() => setIsOpen(false)} className="w-6 text-white cursor-pointer" />
+                                </div>
+                                <MagnifyingGlassIcon className="w-5 text-white absolute mt-[13px] ml-[14px] text-grey" />
+                                <input
+                                  className="border border-grey2 bg-dark outline-none py-2.5 pl-12 rounded-lg w-full placeholder:text-grey placeholder:font-regular text-white"
+                                  placeholder="Search name or paste address"
+                                ></input>
+                                <div className="flex justify-between flex-wrap mt-4 gap-y-2">
+                                  <div className="flex items-center gap-x-2 text-white border-grey1 border p-1.5 px-3 rounded-xl text-sm">
+                                    <img
+                                      className="w-6"
+                                      src="/static/images/token.png"
+                                    />
+                                    USDC
+                                  </div>
+                                  <div className="flex items-center gap-x-2 text-white border-grey1 border p-1.5 px-3 rounded-xl text-sm">
+                                    <img
+                                      className="w-6"
+                                      src="/static/images/token.png"
+                                    />
+                                    USDC
+                                  </div>
+                                  <div className="flex items-center gap-x-2 text-white border-grey1 border p-1.5 px-3 rounded-xl text-sm">
+                                    <img
+                                      className="w-6"
+                                      src="/static/images/token.png"
+                                    />
+                                    USDC
+                                  </div>
+                                  <div className="flex items-center gap-x-2 text-white border-grey1 border p-1.5 px-3 rounded-xl text-sm">
+                                    <img
+                                      className="w-6"
+                                      src="/static/images/token.png"
+                                    />
+                                    USDC
+                                  </div>
+                                  <div className="flex items-center gap-x-2 text-white border-grey1 border p-1.5 px-3 rounded-xl text-sm">
+                                    <img
+                                      className="w-6"
+                                      src="/static/images/token.png"
+                                    />
+                                    USDC
+                                  </div>
+                                  <div className="flex items-center gap-x-2 text-white border-grey1 border p-1.5 px-3 rounded-xl text-sm">
+                                    <img
+                                      className="w-6"
+                                      src="/static/images/token.png"
+                                    />
+                                    USDC
+                                  </div>
+                                  <div className="flex items-center gap-x-2 text-white border-grey1 border p-1.5 px-3 rounded-xl text-sm">
+                                    <img
+                                      className="w-6"
+                                      src="/static/images/token.png"
+                                    />
+                                    USDC
+                                  </div>
+                                  <div className="flex items-center gap-x-2 text-white border-grey1 border p-1.5 px-3 rounded-xl text-sm">
+                                    <img
+                                      className="w-6"
+                                      src="/static/images/token.png"
+                                    />
+                                    USDC
+                                  </div>
+                                </div>
+                              </div>
+                                                              <div className="bg-dark text-white">
+                                    <div className="border border-t-grey1 border-transparent px-5 py-2 flex justify-between items-center"><div className="flex items-center gap-x-3">
+                                      <img
+                                        className="w-8 h-8"
+                                        src="/static/images/token.png"
+                                      />
+                                      <div>
+                                        <h1 className="w-full text-sm -mb-2">USD Coin</h1>
+                                        <span className="w-full text-[11px] text-grey">USDC</span>
+                                        </div>
+                                    </div>
+                                    200
+                                    </div>
+                                                                        <div className="border border-t-grey1 border-transparent px-5 py-2 flex justify-between items-center"><div className="flex items-center gap-x-3">
+                                      <img
+                                        className="w-8 h-8"
+                                        src="/static/images/token.png"
+                                      />
+                                      <div>
+                                        <h1 className="w-full text-sm -mb-2">USD Coin</h1>
+                                        <span className="w-full text-[11px] text-grey">USDC</span>
+                                        </div>
+                                    </div>
+                                    200
+                                    </div>
+                                                                        <div className="border border-t-grey1 border-transparent px-5 py-2 flex justify-between items-center"><div className="flex items-center gap-x-3">
+                                      <img
+                                        className="w-8 h-8"
+                                        src="/static/images/token.png"
+                                      />
+                                      <div>
+                                        <h1 className="w-full text-sm -mb-2">USD Coin</h1>
+                                        <span className="w-full text-[11px] text-grey">USDC</span>
+                                        </div>
+                                    </div>
+                                    200
+                                    </div>
+                                </div>
+                            </Dialog.Panel>
+                          </Transition.Child>
+                        </div>
+                      </div>
+                    </Dialog>
+                  </Transition>
+                  <button
+                    onClick={() => setIsOpen(true)}
+                    className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
+                  >
                     <div className="flex items-center gap-x-2">
                       <img className="w-7" src="/static/images/token.png" />
                       USDC
@@ -108,7 +263,7 @@ export default function Swap() {
             </div>
           </div>
         </div>
-        <div className="items-center -mb-2 -mt-2 p-2 m-auto border border-[#1E1E1E] z-50 bg-black rounded-lg cursor-pointer">
+        <div className="items-center -mb-2 -mt-2 p-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
           <ArrowSmallDownIcon className="w-4 h-4" />
         </div>
 

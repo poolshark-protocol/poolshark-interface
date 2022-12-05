@@ -5,6 +5,7 @@ import {
   BellIcon,
   EllipsisHorizontalIcon,
   XMarkIcon,
+  ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 import Image from "next/image";
 
@@ -69,19 +70,47 @@ export default function Navbar() {
                     ))}
                   </div>
                 </div>
-                <div className="justify-end flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+                <div className=" flex justify-end items-center gap-x-4">
+                  <div className="flex" onClick={() => disconnectFromFuel()}>
+                    Disconnect wallet
+                  </div>
+                  <button
+                    onClick={() => connectToFuel()}
+                    className=" px-10 py-[9px] text-white text-sm transition rounded-lg cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+                  >
+                    Connect wallet
+                  </button>
+                  {/* AFTER WALLET IS CONNECTED 
+
+                  
+                  <div className="border border-grey1 bg-dark rounded-lg flex items-center h-10 text-white pl-4 mr-3">
+                    <img
+                      className="w-3.5 mr-2.5"
+                      src="/static/images/eth.svg"
+                    />
+                    2000
+                    <span className="text-sm text-grey pl-1.5 mt-[1px] pr-4">
+                      ETH
+                    </span>
+                    <button className="-mr-[1px]  h-10 flex items-center text-white text-sm transition rounded-lg cursor-pointer bg-black border border-grey1 hover:opacity-80">
+                      <span className="px-3"> 0x77d7...Eab2</span>
+                      <ChevronDownIcon
+                        className="w-[38px] border-l-grey1 border-l  h-10 px-[9px]"
+                        aria-hidden="true"
+                      />
+                    </button>
+                  </div>
                   <button
                     type="button"
-                    className="p-1 text-gray-400 bg-black rounded-md border border-[#1E1E1E] hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                    className="p-1.5 text-gray-400 bg-black rounded-md border border-[#1E1E1E] hover:text-white outline-none "
                   >
-                    <span className="sr-only">View notifications</span>
                     <EllipsisHorizontalIcon
                       className="w-6 h-6"
                       aria-hidden="true"
                     />
                   </button>
+                  */}
 
-                  {/* Profile dropdown */}
                 </div>
               </div>
             </div>
