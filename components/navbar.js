@@ -23,6 +23,7 @@ function classNames(...classes) {
 
 export default function Navbar() {
   const [wallet, setWallet] = useState(true);
+  const [account, setAccount] = useState(null);
 
   async function connectToFuel() {
     if(wallet) {
@@ -31,12 +32,14 @@ export default function Navbar() {
 
       const accounts = await window.FuelWeb3.accounts();
       console.log(accounts);
+      setAccount(accounts);
 
      setWallet(false);
-    }
+    } 
     else if (!wallet){
       await window.FuelWeb3.disconnect();
       setWallet(true);
+      setAccount(null);
     } 
   }
   
@@ -71,6 +74,7 @@ export default function Navbar() {
                       objectFit="contain"
                     />
                   </div>
+                  <div className="flex text-grey">{account}</div>
                 </div>
                 <div className="hidden m-auto border flex justify-center border-grey1 rounded-xl p-[2.5px]  sm:ml-auto sm:block bg-black">
                   <div className="flex gap-x-2">
