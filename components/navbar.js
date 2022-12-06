@@ -8,6 +8,7 @@ import {
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 import Image from "next/image";
+import { useState } from "react";
 
 const navigation = [
   { name: "Swap", href: "#", current: true },
@@ -18,7 +19,27 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
+
+
 export default function Navbar() {
+  const [wallet, setWallet] = useState(true);
+
+  async function connectToFuel() {
+    if(wallet) {
+      const isConnected = await window.FuelWeb3.connect();
+      console.log("Connection response", isConnected);
+
+      const accounts = await window.FuelWeb3.accounts();
+      console.log(accounts);
+
+     setWallet(false);
+    }
+    else if (!wallet){
+      await window.FuelWeb3.disconnect();
+      setWallet(true);
+    } 
+  }
+  
   return (
     <Disclosure as="nav" className="">
       {({ open }) => (
@@ -71,14 +92,11 @@ export default function Navbar() {
                   </div>
                 </div>
                 <div className=" flex justify-end items-center gap-x-4">
-                  <div className="flex" onClick={() => disconnectFromFuel()}>
-                    Disconnect wallet
-                  </div>
                   <button
                     onClick={() => connectToFuel()}
                     className=" px-10 py-[9px] text-white text-sm transition rounded-lg cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
                   >
-                    Connect wallet
+                    {wallet ?  "Connect Wallet" : "Disconnect Wallet"}
                   </button>
                   {/* AFTER WALLET IS CONNECTED 
 
