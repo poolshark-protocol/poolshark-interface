@@ -31,18 +31,6 @@ export default function Swap() {
 
   const [expanded, setExpanded] = useState();
 
-  async function connectToFuel() {
-    const isConnected = await window.FuelWeb3.connect();
-    console.log("Connection response", isConnected);
-
-    const accounts = await window.FuelWeb3.accounts();
-    console.log(accounts);
-  }
-
-  async function disconnectFromFuel() {
-    await window.FuelWeb3.disconnect();
-  }
-
   const Option = () => {
     if (expanded) {
       return (
