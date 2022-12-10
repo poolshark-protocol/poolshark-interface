@@ -71,7 +71,7 @@ export default function Swap() {
   };
   return (
     <div className="pt-[10vh]">
-      <div className="flex flex-col w-full max-w-md px-6 pt-5 pb-7 mx-auto bg-black border border-grey2 rounded-xl">
+      <div className="flex flex-col w-full md:max-w-md px-6 pt-5 pb-7 mx-auto bg-black border border-grey2 rounded-xl">
         <div className="flex items-center">
           <div className="flex gap-4 mb-1.5 text-sm">
             <div className="flex">Swap</div>
@@ -81,16 +81,14 @@ export default function Swap() {
             <AdjustmentsHorizontalIcon className="w-5 h-5" />
           </div>
         </div>
-        <div className="px-4 py-2 ml-auto transition cursor-pointer hover:opacity-80"></div>
-        <div className="w-full align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-          <span class="absolute flex items-center pl-5 mr-5"></span>
+        <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
             <input
-              className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
+              className=" bg-[#0C0C0C] w-min placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
               placeholder="300"
             />
             <div className="flex">
-              <div className="flex text-xs text-[#4C4C4C]">-300.50</div>
+              <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
             </div>
           </div>
           <div className="flex w-1/2">
@@ -130,7 +128,10 @@ export default function Swap() {
                               <div className="p-5">
                                 <div className="flex justify-between items-center mb-6">
                                   <h1 className="text-white">Select Token</h1>
-                                  <XMarkIcon onClick={() => setIsOpen(false)} className="w-6 text-white cursor-pointer" />
+                                  <XMarkIcon
+                                    onClick={() => setIsOpen(false)}
+                                    className="w-6 text-white cursor-pointer"
+                                  />
                                 </div>
                                 <MagnifyingGlassIcon className="w-5 text-white absolute mt-[13px] ml-[14px] text-grey" />
                                 <input
@@ -196,44 +197,59 @@ export default function Swap() {
                                   </div>
                                 </div>
                               </div>
-                                                              <div className="bg-dark text-white">
-                                    <div className="border border-t-grey1 border-transparent px-5 py-2 flex justify-between items-center"><div className="flex items-center gap-x-3">
-                                      <img
-                                        className="w-8 h-8"
-                                        src="/static/images/token.png"
-                                      />
-                                      <div>
-                                        <h1 className="w-full text-sm -mb-2">USD Coin</h1>
-                                        <span className="w-full text-[11px] text-grey">USDC</span>
-                                        </div>
+                              <div className="bg-dark text-white">
+                                <div className="border border-t-grey1 border-transparent px-5 py-2 flex justify-between items-center">
+                                  <div className="flex items-center gap-x-3">
+                                    <img
+                                      className="w-8 h-8"
+                                      src="/static/images/token.png"
+                                    />
+                                    <div>
+                                      <h1 className="w-full text-sm -mb-2">
+                                        USD Coin
+                                      </h1>
+                                      <span className="w-full text-[11px] text-grey">
+                                        USDC
+                                      </span>
                                     </div>
-                                    200
-                                    </div>
-                                                                        <div className="border border-t-grey1 border-transparent px-5 py-2 flex justify-between items-center"><div className="flex items-center gap-x-3">
-                                      <img
-                                        className="w-8 h-8"
-                                        src="/static/images/token.png"
-                                      />
-                                      <div>
-                                        <h1 className="w-full text-sm -mb-2">USD Coin</h1>
-                                        <span className="w-full text-[11px] text-grey">USDC</span>
-                                        </div>
-                                    </div>
-                                    200
-                                    </div>
-                                                                        <div className="border border-t-grey1 border-transparent px-5 py-2 flex justify-between items-center"><div className="flex items-center gap-x-3">
-                                      <img
-                                        className="w-8 h-8"
-                                        src="/static/images/token.png"
-                                      />
-                                      <div>
-                                        <h1 className="w-full text-sm -mb-2">USD Coin</h1>
-                                        <span className="w-full text-[11px] text-grey">USDC</span>
-                                        </div>
-                                    </div>
-                                    200
-                                    </div>
+                                  </div>
+                                  200
                                 </div>
+                                <div className="border border-t-grey1 border-transparent px-5 py-2 flex justify-between items-center">
+                                  <div className="flex items-center gap-x-3">
+                                    <img
+                                      className="w-8 h-8"
+                                      src="/static/images/token.png"
+                                    />
+                                    <div>
+                                      <h1 className="w-full text-sm -mb-2">
+                                        USD Coin
+                                      </h1>
+                                      <span className="w-full text-[11px] text-grey">
+                                        USDC
+                                      </span>
+                                    </div>
+                                  </div>
+                                  200
+                                </div>
+                                <div className="border border-t-grey1 border-transparent px-5 py-2 flex justify-between items-center">
+                                  <div className="flex items-center gap-x-3">
+                                    <img
+                                      className="w-8 h-8"
+                                      src="/static/images/token.png"
+                                    />
+                                    <div>
+                                      <h1 className="w-full text-sm -mb-2">
+                                        USD Coin
+                                      </h1>
+                                      <span className="w-full text-[11px] text-grey">
+                                        USDC
+                                      </span>
+                                    </div>
+                                  </div>
+                                  200
+                                </div>
+                              </div>
                             </Dialog.Panel>
                           </Transition.Child>
                         </div>
@@ -268,14 +284,14 @@ export default function Swap() {
         </div>
 
         <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-          <span class="absolute flex items-center pl-5 mr-5"></span>
+
           <div className="flex-col justify-center w-1/2 p-2 ">
             <input
               className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
               placeholder="300"
             />
             <div className="flex">
-              <div className="flex text-xs text-[#4C4C4C]">-300.50</div>
+              <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
             </div>
           </div>
           <div className="flex w-1/2">
