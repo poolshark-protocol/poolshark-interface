@@ -1,5 +1,8 @@
 import Navbar from "../../components/Navbar";
-import { PlusSmallIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import {
+  PlusSmallIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/24/outline";
 import UserPool from "../../components/UserPool";
 import PoolList from "../../components/AllPools";
 import Link from "next/link";
@@ -21,12 +24,12 @@ export default function Pool() {
           </div>
           <div className="bg-black border border-grey2 w-full rounded-t-xl p-6 space-y-4 h-[44rem] overflow-auto">
             <div className="relative">
-                <MagnifyingGlassIcon className="w-5 text-grey absolute ml-[14px] mt-[13px]" />
-                <input
-                  className="border border-grey2 bg-dark rounded-xl py-2.5 w-full placeholder:text-grey outline-none pl-12"
-                  placeholder="Search name, symbol or address"
-                />
-              </div>
+              <MagnifyingGlassIcon className="w-5 text-grey absolute ml-[14px] mt-[13px]" />
+              <input
+                className="border border-grey2 bg-dark rounded-xl py-2.5 w-full placeholder:text-grey outline-none pl-12"
+                placeholder="Search name, symbol or address"
+              />
+            </div>
             <div className="">
               <h1 className="mb-3">My Pools</h1>
               <div className="space-y-2">

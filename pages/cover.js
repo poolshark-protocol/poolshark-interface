@@ -1,10 +1,10 @@
 import Navbar from "../components/Navbar";
 import {
-    InformationCircleIcon,
-    MagnifyingGlassIcon,
-    MinusIcon,
-    PlusIcon,
-    ChevronDownIcon,
+  InformationCircleIcon,
+  MagnifyingGlassIcon,
+  MinusIcon,
+  PlusIcon,
+  ChevronDownIcon,
 } from "@heroicons/react/20/solid";
 import UserPool from "../components/UserPool";
 import PoolList from "../components/AllPools";
@@ -13,7 +13,6 @@ import SelectToken from "../components/SelectToken";
 import { useState, Fragment } from "react";
 
 export default function Cover() {
-
   const [expanded, setExpanded] = useState();
 
   const Option = () => {
@@ -42,7 +41,6 @@ export default function Cover() {
       );
     }
   };
-
 
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-DMSans">
@@ -115,26 +113,26 @@ export default function Cover() {
                 <span className="text-xs text-grey">USDC per DAI</span>
               </div>
               <div className="py-4">
-          <div
-            className="flex px-2 cursor-pointer"
-            onClick={() => setExpanded(!expanded)}
-          >
-            <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-              1 USDC = 1 DA1
-            </div>
-            <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
-              <button>
-                <ChevronDownIcon className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-          <div className="flex-wrap w-full break-normal transition ">
-            <Option />
-          </div>
-        </div>
-        <div className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
-         Create Cover
-        </div>
+                <div
+                  className="flex px-2 cursor-pointer"
+                  onClick={() => setExpanded(!expanded)}
+                >
+                  <div className="flex-none text-xs uppercase text-[#C9C9C9]">
+                    1 USDC = 1 DA1
+                  </div>
+                  <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
+                    <button>
+                      <ChevronDownIcon className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+                <div className="flex-wrap w-full break-normal transition ">
+                  <Option />
+                </div>
+              </div>
+              <div className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
+                Create Cover
+              </div>
             </div>
             <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">
               <div className="relative">
@@ -158,7 +156,7 @@ export default function Cover() {
                   <UserPool />
                   <UserPool />
                   <UserPool />
-                   <UserPool />
+                  <UserPool />
                 </div>
               </div>
             </div>
