@@ -47,7 +47,7 @@ export type IdentityOutput = Enum<{
 
 interface AmmAbiInterface extends Interface {
   functions: {
-    swap: FunctionFragment;
+    Swap: FunctionFragment;
     quote_amount_in: FunctionFragment;
     set_price: FunctionFragment;
     mint: FunctionFragment;
@@ -60,7 +60,7 @@ interface AmmAbiInterface extends Interface {
   };
 
   encodeFunctionData(
-    functionFragment: "swap",
+    functionFragment: "Swap",
     values: [IdentityInput, boolean, BigNumberish, Q64x64Input]
   ): Uint8Array;
   encodeFunctionData(
@@ -100,7 +100,7 @@ interface AmmAbiInterface extends Interface {
     values?: undefined
   ): Uint8Array;
 
-  decodeFunctionData(functionFragment: "swap", data: BytesLike): DecodedValue;
+  decodeFunctionData(functionFragment: "Swap", data: BytesLike): DecodedValue;
   decodeFunctionData(
     functionFragment: "quote_amount_in",
     data: BytesLike
@@ -136,7 +136,7 @@ interface AmmAbiInterface extends Interface {
 export class AmmAbi extends Contract {
   interface: AmmAbiInterface;
   functions: {
-    swap: InvokeFunction<
+    Swap: InvokeFunction<
       [
         recipient: IdentityInput,
         token_zero_to_one: boolean,

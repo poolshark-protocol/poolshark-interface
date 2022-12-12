@@ -1,4 +1,4 @@
-import Swap from "../components/swap";
+import Swap from "../components/Swap";
 import Navbar from "../components/Navbar";
 
 export default function Home() {
