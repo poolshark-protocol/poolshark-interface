@@ -8,7 +8,7 @@ import type { AmmAbi, AmmAbiInterface } from "../AmmAbi";
 const _abi = [
   {
     type: "function",
-    name: "swap",
+    name: "Swap",
     inputs: [
       {
         type: "enum Identity",

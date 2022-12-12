@@ -198,7 +198,7 @@
           "typeArguments": null
         }
       ],
-      "name": "swap",
+      "name": "Swap",
       "output": {
         "name": "",
         "type": 13,
