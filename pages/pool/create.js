@@ -1,4 +1,4 @@
-import Navbar from "../../components/Navbar";
+import Navbar from "../../components/navbar";
 import Link from "next/link";
 import { PlusSmallIcon } from "@heroicons/react/24/outline";
 import { Fragment, useState } from "react";
