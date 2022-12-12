@@ -1,4 +1,4 @@
-import Navbar from "../../components/navbar";
+import Navbar from "../../components/Navbar";
 import Link from "next/link";
 import { PlusSmallIcon } from "@heroicons/react/24/outline";
 import { Fragment, useState } from "react";
@@ -13,7 +13,6 @@ import {
 import { Listbox, Transition, Dialog } from "@headlessui/react";
 import SelectToken from "../../components/SelectToken";
 import ConcentratedPool from "../../components/ConcentratedPool";
-import DirectionalPool from "../../components/DirectionalPool";
 
 export default function CreatePool() {
   const poolTypes = [
