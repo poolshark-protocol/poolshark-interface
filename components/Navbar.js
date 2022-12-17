@@ -11,10 +11,9 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { PoolsharkHedgePool } from "../evm_abis/PoolsharkHedgePool.json";
+import { PoolsharkHedgePoolFactory } from "../evm_abis/PoolsharkHedgePoolFactory.json";
 
-  function classNames(...classes) {
-    return classes.filter(Boolean).join(" ");
-  };
 
 export default function Navbar() {
   const router = useRouter();

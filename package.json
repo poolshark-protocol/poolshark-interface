@@ -25,7 +25,7 @@
     "eslint-config-next": "12.3.1",
     "fuelchain": "^0.17.0",
     "postcss": "^8.4.16",
-    "tailwindcss": "^3.1.8",
+    "tailwindcss": "^3.2.4",
     "typechain-target-fuels": "^0.17.0"
   }
 }

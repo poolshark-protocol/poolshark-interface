@@ -5,6 +5,7 @@ import {
 } from "@heroicons/react/24/outline";
 import Head from "next/head";
 import Image from "next/image";
+import React from 'react';
 import { useState, Fragment } from "react";
 import { Popover } from "@headlessui/react";
 import {
@@ -15,12 +16,156 @@ import {
   ArrowPathIcon
 } from "@heroicons/react/20/solid";
 import SelectToken from "./SelectToken";
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+} from 'wagmi'
+//import { useDebounce } from 'useHooks';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
+/*export const getServerSideProps: GetServerSideProps = async context => {
+  const session = await getSession(context);
+  const token = await getToken({ req: context.req });
+
+  const address = token?.sub ?? null;
+  // If you have a value for "address" here, your
+  // server knows the user is authenticated.
+
+  // You can then pass any data you want
+  // to the page component here.
+  return {
+    props: {
+      address,
+      session,
+    },
+  };
+}*/
+
+/*async function testSwap() {
+  const hedgePoolAddress = '0xbCcb45492338E57cb016F6B69Af122D4A5bb6d8A';
+  const signer = await getServerSideProps.address;
+  //const goerliProvider = new ethers.providers.JsonRpcProvider("https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161");
+  const testContract = new ethers.Contract(hedgePoolAddress, PoolsharkHedgePool.abi, signer);
+
+  await testContract.mint();
+  await testContract.swap();
+  await testContract.burn();
+
+
+}*/
+
+function mintPosition() {
+  const [tokenId, setTokenId] = React.useState('')
+  //const debouncedTokenId = useDebounce(tokenId)
+ 
+  const { config } = usePrepareContractWrite({
+    address: '0xbCcb45492338E57cb016F6B69Af122D4A5bb6d8A',
+    abi: [
+      {
+        name: 'mint',
+        type: 'function',
+        stateMutability: 'nonpayable',
+        inputs: [],
+        outputs: [{ internalType: 'uint256', name: 'liquidityMinted', type: 'uint256' }],
+      },
+    ],
+    functionName: 'mint',
+    //args: [parseInt(debouncedTokenId)],
+    //enabled: Boolean(debouncedTokenId),
+  })
+  const { data, write } = useContractWrite(config)
+ 
+  const { isLoading, isSuccess } = useWaitForTransaction({
+    hash: data?.hash,
+  })
+ 
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        write?.()
+      }}
+    >
+      <label for="tokenId">Token ID</label>
+      <input
+        id="tokenId"
+        onChange={(e) => setTokenId(e.target.value)}
+        placeholder="420"
+        value={tokenId}
+      />
+      <button disabled={!write || isLoading}>
+        {isLoading ? 'Minting...' : 'Mint'}
+      </button>
+      {isSuccess && (
+        <div>
+          Successfully minted your token1
+          <div>
+            <a href={`https://etherscan.io/tx/${data?.hash}`}>Etherscan</a>
+          </div>
+        </div>
+      )}
+    </form>
+  )
+}
+
 export default function Swap() {
+  function mintPosition() {
+    const [tokenId, setTokenId] = useState('')
+    //const debouncedTokenId = useDebounce(tokenId)
+   
+    const { config } = usePrepareContractWrite({
+      address: '0xbCcb45492338E57cb016F6B69Af122D4A5bb6d8A',
+      abi: [
+        {
+          name: 'mint',
+          type: 'function',
+          stateMutability: 'nonpayable',
+          inputs: [],
+          outputs: [{ internalType: 'uint256', name: 'liquidityMinted', type: 'uint256' }],
+        },
+      ],
+      functionName: 'mint',
+      //args: [parseInt(debouncedTokenId)],
+      //enabled: Boolean(debouncedTokenId),
+    })
+    const { data, write } = useContractWrite(config)
+   
+    const { isLoading, isSuccess } = useWaitForTransaction({
+      hash: data?.hash,
+    })
+   
+    return (
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          write?.()
+        }}
+      >
+        <label for="tokenId">Token ID</label>
+        <input
+          id="tokenId"
+          onChange={(e) => setTokenId(e.target.value)}
+          placeholder="420"
+          value={tokenId}
+        />
+        <button disabled={!write || isLoading}>
+          {isLoading ? 'Minting...' : 'Mint'}
+        </button>
+        {isSuccess && (
+          <div>
+            Successfully minted your token1
+            <div>
+              <a href={`https://etherscan.io/tx/${data?.hash}`}>Etherscan</a>
+            </div>
+          </div>
+        )}
+      </form>
+    )
+  }
   let [isOpen, setIsOpen] = useState(false);
   const [LimitActive, setLimitActive] = useState(false);
 
@@ -210,7 +355,7 @@ export default function Swap() {
             <Option />
           </div>
         </div>
-        <div className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
+        <div className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80" onClick={() => mintPosition()}>
           Swap
         </div>
       </div>
