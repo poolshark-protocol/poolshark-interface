@@ -10,6 +10,25 @@ import {
 } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import Link from "next/link";
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { InjectedConnector } from 'wagmi/connectors/injected';
+ 
+function Profile() {
+  const { address, isConnected } = useAccount()
+  const { connect } = useConnect({
+    connector: new InjectedConnector(),
+  })
+  const { disconnect } = useDisconnect()
+ 
+  if (isConnected)
+    return (
+      <div>
+        Connected to {address}
+        <button onClick={() => disconnect()}>Disconnect</button>
+      </div>
+    )
+  return <button onClick={() => connect()}>Connect Wallet</button>
+}
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -83,11 +102,8 @@ export default function Navbar() {
             </div>
           </div>
           <div className=" flex justify-end items-center gap-x-4">
-            <div className="flex" onClick={() => disconnectFromFuel()}>
-              Disconnect wallet
-            </div>
             <button
-              onClick={() => connectToFuel()}
+              onClick={() => Profile()}
               className=" px-10 py-[9px] text-white text-sm transition whitespace-nowrap rounded-lg cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
             >
               Connect wallet
