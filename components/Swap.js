@@ -65,18 +65,16 @@ export default function Swap() {
 
   const { config } = usePrepareContractWrite({
     addressOrName: "0xbCcb45492338E57cb016F6B69Af122D4A5bb6d8A",
-    abi: [
-      "function mint(MintParams memory _mintParams) public lock returns (uint256 _liquidityMinted)",
-    ],
+    abi: PoolsharkHedgePool,
     functionName: "mint",
     args:[{
-      lowerOld: ethers.utils.parseUnits("0"),
-      lower: ethers.utils.parseUnits("0"),
-      upperOld: ethers.utils.parseUnits("0"),
-      upper: ethers.utils.parseUnits("0"),
-      amountDesired: ethers.utils.parseUnits("1"),
-      zeroForOne: true,
-      native: false}],
+      _lowerOld: ethers.utils.parseUnits("0"),
+      _lower: ethers.utils.parseUnits("0"),
+      _upperOld: ethers.utils.parseUnits("1"),
+      _upper: ethers.utils.parseUnits("1"),
+      _amountDesired: ethers.utils.parseUnits("100"),
+      _zeroForOne: true,
+      _native: false}],
     chainId: 5,
     overrides:{
       gasPrice:10000000
@@ -84,6 +82,7 @@ export default function Swap() {
   })
   
   const { data, isLoading, isSuccess, write } = useContractWrite(config)
+  console.log(config)
 
   let [isOpen, setIsOpen] = useState(false);
   const [LimitActive, setLimitActive] = useState(false);
