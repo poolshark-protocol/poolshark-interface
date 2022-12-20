@@ -23,43 +23,10 @@ import {
 } from 'wagmi'
 import PoolsharkHedgePool from "../evm_abis/PoolsharkHedgePool.json";
 import { ethers } from "ethers";
-//import { useDebounce } from 'useHooks';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
-
-/*export const getServerSideProps: GetServerSideProps = async context => {
-  const session = await getSession(context);
-  const token = await getToken({ req: context.req });
-
-  const address = token?.sub ?? null;
-  // If you have a value for "address" here, your
-  // server knows the user is authenticated.
-
-  // You can then pass any data you want
-  // to the page component here.
-  return {
-    props: {
-      address,
-      session,
-    },
-  };
-}*/
-
-/*async function testSwap() {
-  const hedgePoolAddress = '0xbCcb45492338E57cb016F6B69Af122D4A5bb6d8A';
-  const signer = await getServerSideProps.address;
-  //const goerliProvider = new ethers.providers.JsonRpcProvider("https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161");
-  const testContract = new ethers.Contract(hedgePoolAddress, PoolsharkHedgePool.abi, signer);
-
-  await testContract.mint();
-  await testContract.swap();
-  await testContract.burn();
-
-
-}*/
-
 
 export default function Swap() {
 
@@ -68,13 +35,13 @@ export default function Swap() {
     abi: PoolsharkHedgePool,
     functionName: "mint",
     args:[{
-      _lowerOld: ethers.utils.parseUnits("0"),
-      _lower: ethers.utils.parseUnits("0"),
-      _upperOld: ethers.utils.parseUnits("1"),
-      _upper: ethers.utils.parseUnits("1"),
-      _amountDesired: ethers.utils.parseUnits("100"),
-      _zeroForOne: true,
-      _native: false}],
+      lowerOld: ethers.utils.parseUnits("0"),
+      lower: ethers.utils.parseUnits("0"),
+      upperOld: ethers.utils.parseUnits("1"),
+      upper: ethers.utils.parseUnits("1"),
+      amountDesired: ethers.utils.parseUnits("100"),
+      zeroForOne: true,
+      native: false}],
     chainId: 5,
     overrides:{
       gasPrice:10000000
@@ -273,11 +240,9 @@ export default function Swap() {
             <Option />
           </div>
         </div>
-          <button className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80" disabled={!write} onClick={() => write?.()}>
+          <div className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80" onClick={() => write}>
             Swap
-          </button>
-          {isLoading && <div>Check Wallet</div>}
-          {isSuccess && <div>Transaction: {JSON.stringify(data)}</div>}
+          </div>
         </div>
       </div>
   );
