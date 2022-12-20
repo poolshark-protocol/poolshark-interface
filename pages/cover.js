@@ -118,7 +118,7 @@ export default function Cover() {
                   onClick={() => setExpanded(!expanded)}
                 >
                   <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                    1 USDC = 1 DA1
+                    1 USDC = 1 DAI
                   </div>
                   <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
                     <button>

@@ -1,6 +1,6 @@
 import React, { useContext, useState} from 'react';
 import { ethers } from "ethers";
-import ERC20 from "../evm_abis/ERC20.json";
+import { erc20ABI } from 'wagmi'
 import {
     usePrepareContractWrite,
     useContractWrite,

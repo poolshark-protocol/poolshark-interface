@@ -1,6 +1,6 @@
 import useMetamask from "./useMetamask";
 import { ethers } from "ethers";
-import PoolsharkHedgePool from "../evm_abis/PoolsharkHedgePool.json";
+import PoolsharkHedgePool from "../abis/evm/poolsharkHedgePool";
 
 
 export default async function useMinter() {

@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import PoolsharkHedgePool from "../evm_abis/PoolsharkHedgePool.json";
+import { poolsharkHedgePoolABI } from "../abis/evm/poolsharkHedgePool";
 import useMetamask from './useMetamask';
 
 export default async function useApprove() {
