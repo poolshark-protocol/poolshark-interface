@@ -6,7 +6,7 @@ import { getDefaultProvider } from 'ethers'
 const config = {
   readOnlyChainId: Goerli.chainId,
   readOnlyUrls: {
-    [Goerli.chainId]: getDefaultProvider('goerli'),
+    [Goerli.chainId]: 'https://eth-goerli.gateway.pokt.network/v1/lb/06ded497f9f7c86ffb2e880f',
   },
 }
 
