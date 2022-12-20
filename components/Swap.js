@@ -32,8 +32,8 @@ function classNames(...classes) {
 }
 
 export default function Swap() {
-  const { approval } = useApproval();
-  const { mint } = useMint();
+  const { write } = useMint();
+  useApproval();
 
   let [isOpen, setIsOpen] = useState(false);
   const [LimitActive, setLimitActive] = useState(false);
@@ -47,7 +47,6 @@ export default function Swap() {
   }
 
   const [expanded, setExpanded] = useState();
-
 
   const Option = () => {
     if (expanded) {
@@ -224,7 +223,7 @@ export default function Swap() {
             <Option />
           </div>
         </div>
-          <div className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80" onClick={() => write}>
+          <div className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80" onClick={write}>
             Swap
           </div>
         </div>
