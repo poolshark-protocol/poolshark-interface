@@ -33,10 +33,15 @@ import useApproval from "../hooks/useApproval";
 import useMint from "../hooks/useMint";
 import useMetamask from "../hooks/useMetamask";
 import useApprove from "../hooks/useApprove";
+import { formatEther } from '@ethersproject/units'
+import { Mainnet, DAppProvider, useEtherBalance, useEthers, Config, Goerli } from '@usedapp/core'
+import { getDefaultProvider } from 'ethers'
+
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
+
 
 export default function Swap() {
 
@@ -228,7 +233,7 @@ export default function Swap() {
             <Option />
           </div>
         </div>
-          <div className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80" onClick={}>
+          <div className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
             Swap
           </div>
         </div>

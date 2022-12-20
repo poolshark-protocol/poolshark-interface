@@ -10,12 +10,46 @@ import {
 } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import Link from "next/link";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { PoolsharkHedgePool } from "../evm_abis/PoolsharkHedgePool.json";
 import { PoolsharkHedgePoolFactory } from "../evm_abis/PoolsharkHedgePoolFactory.json";
-
+import { formatEther } from '@ethersproject/units'
+import { Mainnet, DAppProvider, useEtherBalance, useEthers, Config, Goerli, useContractFunction } from '@usedapp/core'
+import { getDefaultProvider } from 'ethers'
+import { utils } from 'ethers'
+import { Contract } from '@ethersproject/contracts'
 
 export default function Navbar() {
+  const { account, activateBrowserWallet, deactivate, chainId } = useEthers()
+
+  const WrapEtherComponent = () => {
+    const poolAddress = '0xeB13144982b28D059200DB0b4d1ceDe7d96C4FE7'
+    const wethInterface = new utils.Interface(PoolsharkHedgePool)
+    const contract = new Contract(wethAddress, wethInterface)
+
+    const { state, send } = useContractFunction(contract, 'mint', { transactionName: 'Mint' })
+
+    const { status } = state
+
+    const mintFunction = () => {
+      void send(ethers.utils.parseUnits("0", 0),
+      ethers.utils.parseUnits("20", 0),
+      ethers.utils.parseUnits("887272", 0),
+      ethers.utils.parseUnits("30", 0),
+      ethers.utils.parseUnits("100"),
+      false,
+      false)
+    }
+
+    return (
+      <div>
+        <button onClick={() => mintFunction()}>Mint token1</button>
+        <p>Status: {status}</p>
+      </div>
+    )
+  }
+  
+
+
   const router = useRouter();
   return (
     <div className="md:px-10 px-4 pt-3 mx-auto w-full">
@@ -65,6 +99,7 @@ export default function Navbar() {
                       ? "bg-background text-main transition-all py-2 px-6 rounded-lg text-sm font-medium cursor-pointer"
                       : "text-grey hover:text-white py-2 px-6 rounded-lg text-sm font-medium cursor-pointer"
                   }
+                  onClick={() => mintFunction()}
                 >
                   Pool
                 </div>
@@ -83,7 +118,6 @@ export default function Navbar() {
             </div>
           </div>
           <div className=" flex justify-end items-center gap-x-4">
-            <ConnectButton />
 
             {/* AFTER WALLET IS CONNECTED 
                   <div className="border border-grey1 bg-dark rounded-lg flex items-center h-10 text-white pl-4 mr-3">
@@ -107,8 +141,8 @@ export default function Navbar() {
             <button
               type="button"
               className="p-1.5 text-gray-400 bg-black rounded-md border border-[#1E1E1E] hover:text-white outline-none "
+              onClick={() => activateBrowserWallet()}
             >
-              <EllipsisHorizontalIcon className="w-6 h-6" aria-hidden="true" />
             </button>
           </div>
         </div>
