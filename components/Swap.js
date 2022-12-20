@@ -21,6 +21,8 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from 'wagmi'
+import PoolsharkHedgePool from "../evm_abis/PoolsharkHedgePool.json";
+import { ethers } from "ethers";
 //import { useDebounce } from 'useHooks';
 
 function classNames(...classes) {
@@ -58,114 +60,31 @@ function classNames(...classes) {
 
 }*/
 
-function mintPosition() {
-  const [tokenId, setTokenId] = React.useState('')
-  //const debouncedTokenId = useDebounce(tokenId)
- 
-  const { config } = usePrepareContractWrite({
-    address: '0xbCcb45492338E57cb016F6B69Af122D4A5bb6d8A',
-    abi: [
-      {
-        name: 'mint',
-        type: 'function',
-        stateMutability: 'nonpayable',
-        inputs: [],
-        outputs: [{ internalType: 'uint256', name: 'liquidityMinted', type: 'uint256' }],
-      },
-    ],
-    functionName: 'mint',
-    //args: [parseInt(debouncedTokenId)],
-    //enabled: Boolean(debouncedTokenId),
-  })
-  const { data, write } = useContractWrite(config)
- 
-  const { isLoading, isSuccess } = useWaitForTransaction({
-    hash: data?.hash,
-  })
- 
-  return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault()
-        write?.()
-      }}
-    >
-      <label for="tokenId">Token ID</label>
-      <input
-        id="tokenId"
-        onChange={(e) => setTokenId(e.target.value)}
-        placeholder="420"
-        value={tokenId}
-      />
-      <button disabled={!write || isLoading}>
-        {isLoading ? 'Minting...' : 'Mint'}
-      </button>
-      {isSuccess && (
-        <div>
-          Successfully minted your token1
-          <div>
-            <a href={`https://etherscan.io/tx/${data?.hash}`}>Etherscan</a>
-          </div>
-        </div>
-      )}
-    </form>
-  )
-}
 
 export default function Swap() {
-  function mintPosition() {
-    const [tokenId, setTokenId] = useState('')
-    //const debouncedTokenId = useDebounce(tokenId)
-   
-    const { config } = usePrepareContractWrite({
-      address: '0xbCcb45492338E57cb016F6B69Af122D4A5bb6d8A',
-      abi: [
-        {
-          name: 'mint',
-          type: 'function',
-          stateMutability: 'nonpayable',
-          inputs: [],
-          outputs: [{ internalType: 'uint256', name: 'liquidityMinted', type: 'uint256' }],
-        },
-      ],
-      functionName: 'mint',
-      //args: [parseInt(debouncedTokenId)],
-      //enabled: Boolean(debouncedTokenId),
-    })
-    const { data, write } = useContractWrite(config)
-   
-    const { isLoading, isSuccess } = useWaitForTransaction({
-      hash: data?.hash,
-    })
-   
-    return (
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          write?.()
-        }}
-      >
-        <label for="tokenId">Token ID</label>
-        <input
-          id="tokenId"
-          onChange={(e) => setTokenId(e.target.value)}
-          placeholder="420"
-          value={tokenId}
-        />
-        <button disabled={!write || isLoading}>
-          {isLoading ? 'Minting...' : 'Mint'}
-        </button>
-        {isSuccess && (
-          <div>
-            Successfully minted your token1
-            <div>
-              <a href={`https://etherscan.io/tx/${data?.hash}`}>Etherscan</a>
-            </div>
-          </div>
-        )}
-      </form>
-    )
-  }
+
+  const { config } = usePrepareContractWrite({
+    addressOrName: "0xbCcb45492338E57cb016F6B69Af122D4A5bb6d8A",
+    abi: [
+      "function mint(MintParams memory _mintParams) public lock returns (uint256 _liquidityMinted)",
+    ],
+    functionName: "mint",
+    args:[{
+      lowerOld: ethers.utils.parseUnits("0"),
+      lower: ethers.utils.parseUnits("0"),
+      upperOld: ethers.utils.parseUnits("0"),
+      upper: ethers.utils.parseUnits("0"),
+      amountDesired: ethers.utils.parseUnits("1"),
+      zeroForOne: true,
+      native: false}],
+    chainId: 5,
+    overrides:{
+      gasPrice:10000000
+    },
+  })
+  
+  const { data, isLoading, isSuccess, write } = useContractWrite(config)
+
   let [isOpen, setIsOpen] = useState(false);
   const [LimitActive, setLimitActive] = useState(false);
 
@@ -255,8 +174,8 @@ export default function Swap() {
             </div>
           </div>
           <div className="flex w-1/2">
-            <div class="flex justify-center ml-auto">
-              <div class="flex-col">
+            <div className="flex justify-center ml-auto">
+              <div className="flex-col">
                 <div className="flex justify-end">
                   <SelectToken />
                 </div>
@@ -287,8 +206,8 @@ export default function Swap() {
             </div>
           </div>
           <div className="flex w-1/2">
-            <div class="flex justify-center ml-auto">
-              <div class="flex-col">
+            <div className="flex justify-center ml-auto">
+              <div className="flex-col">
                 <div className="flex justify-end">
                   <SelectToken />
                 </div>
@@ -316,8 +235,8 @@ export default function Swap() {
                 </div>
               </div>
               <div className="flex w-1/2">
-                <div class="flex justify-center ml-auto">
-                  <div class="flex-col">
+                <div className="flex justify-center ml-auto">
+                  <div className="flex-col">
                     <div className="flex justify-end">
                       <button className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl">
                         USDC per DAI
@@ -355,9 +274,11 @@ export default function Swap() {
             <Option />
           </div>
         </div>
-        <div className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80" onClick={() => mintPosition()}>
-          Swap
-        </div>
+          <button className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80" disabled={!write} onClick={() => write?.()}>
+            Swap
+          </button>
+          {isLoading && <div>Check Wallet</div>}
+          {isSuccess && <div>Transaction: {JSON.stringify(data)}</div>}
       </div>
     </div>
   );
