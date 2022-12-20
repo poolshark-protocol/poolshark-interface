@@ -22,34 +22,18 @@ import {
   useWaitForTransaction,
 } from 'wagmi'
 import PoolsharkHedgePool from "../evm_abis/PoolsharkHedgePool.json";
+import ERC20 from "../evm_abis/ERC20.json";
 import { ethers } from "ethers";
+import useApproval from "../hooks/useApproval";
+import useMint from "../hooks/useMint";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
 export default function Swap() {
-
-  const { config } = usePrepareContractWrite({
-    addressOrName: "0xbCcb45492338E57cb016F6B69Af122D4A5bb6d8A",
-    abi: PoolsharkHedgePool,
-    functionName: "mint",
-    args:[{
-      lowerOld: ethers.utils.parseUnits("0"),
-      lower: ethers.utils.parseUnits("0"),
-      upperOld: ethers.utils.parseUnits("1"),
-      upper: ethers.utils.parseUnits("1"),
-      amountDesired: ethers.utils.parseUnits("100"),
-      zeroForOne: true,
-      native: false}],
-    chainId: 5,
-    overrides:{
-      gasPrice:10000000
-    },
-  })
-  
-  const { data, isLoading, isSuccess, write } = useContractWrite(config)
-  console.log(config)
+  const { approval } = useApproval();
+  const { mint } = useMint();
 
   let [isOpen, setIsOpen] = useState(false);
   const [LimitActive, setLimitActive] = useState(false);
