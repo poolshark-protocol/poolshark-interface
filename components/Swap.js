@@ -279,7 +279,7 @@ export default function Swap() {
           </button>
           {isLoading && <div>Check Wallet</div>}
           {isSuccess && <div>Transaction: {JSON.stringify(data)}</div>}
+        </div>
       </div>
-    </div>
   );
 }
