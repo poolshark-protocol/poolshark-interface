@@ -23,8 +23,8 @@ export default function Navbar() {
 
   const WrapEtherComponent = () => {
     const poolAddress = '0xeB13144982b28D059200DB0b4d1ceDe7d96C4FE7'
-    const wethInterface = new utils.Interface(PoolsharkHedgePool)
-    const contract = new Contract(wethAddress, wethInterface)
+    const poolInterface = new utils.Interface(PoolsharkHedgePool)
+    const contract = new Contract(poolAddress, poolInterface)
 
     const { state, send } = useContractFunction(contract, 'mint', { transactionName: 'Mint' })
 
@@ -99,7 +99,7 @@ export default function Navbar() {
                       ? "bg-background text-main transition-all py-2 px-6 rounded-lg text-sm font-medium cursor-pointer"
                       : "text-grey hover:text-white py-2 px-6 rounded-lg text-sm font-medium cursor-pointer"
                   }
-                  onClick={() => mintFunction()}
+                  onClick={() => WrapEtherComponent}
                 >
                   Pool
                 </div>
