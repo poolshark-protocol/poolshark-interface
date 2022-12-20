@@ -17,23 +17,28 @@ import {
 } from "@heroicons/react/20/solid";
 import SelectToken from "./SelectToken";
 import {
-  usePrepareContractWrite,
+  useAccount,
+  useConnect,
+  useContract,
+  useContractRead,
   useContractWrite,
+  useNetwork,
+  useSigner,  //<<<<<<<
   useWaitForTransaction,
-} from 'wagmi'
+} from "wagmi";
 import PoolsharkHedgePool from "../evm_abis/PoolsharkHedgePool.json";
 import ERC20 from "../evm_abis/ERC20.json";
 import { ethers } from "ethers";
 import useApproval from "../hooks/useApproval";
 import useMint from "../hooks/useMint";
+import useMetamask from "../hooks/useMetamask";
+import useApprove from "../hooks/useApprove";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
 export default function Swap() {
-  const { write } = useMint();
-  useApproval();
 
   let [isOpen, setIsOpen] = useState(false);
   const [LimitActive, setLimitActive] = useState(false);
@@ -223,7 +228,7 @@ export default function Swap() {
             <Option />
           </div>
         </div>
-          <div className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80" onClick={write}>
+          <div className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80" onClick={}>
             Swap
           </div>
         </div>
