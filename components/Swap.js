@@ -31,8 +31,7 @@ import { erc20ABI } from 'wagmi'
 import { ethers } from "ethers";
 import useApproval from "../hooks/useApproval";
 import useMint from "../hooks/useMint";
-import useMetamask from "../hooks/useMetamask";
-import useApprove from "../hooks/useApprove";
+
 import { formatEther } from '@ethersproject/units'
 import { Mainnet, DAppProvider, useEtherBalance, useEthers, Config, Goerli } from '@usedapp/core'
 import { getDefaultProvider } from 'ethers'

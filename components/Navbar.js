@@ -1,48 +1,21 @@
-import { Fragment } from "react";
-import { Disclosure, Menu, Transition } from "@headlessui/react";
+import { useAccount } from 'wagmi'
 import { useRouter } from "next/router";
-import {
-  Bars3Icon,
-  BellIcon,
-  EllipsisHorizontalIcon,
-  XMarkIcon,
-  ChevronDownIcon,
-} from "@heroicons/react/24/outline";
 import Image from "next/image";
 import Link from "next/link";
 import { poolsharkHedgePoolABI } from "../abis/evm/poolsharkHedgePool";
-import { poolsharkHedgePoolFactoryABI } from "../abis/evm/poolsharkHedgePoolFactory";
-import { formatEther } from '@ethersproject/units'
-import { Mainnet, DAppProvider, useEtherBalance, useEthers, Config, Goerli, useContractFunction } from '@usedapp/core'
-import { getDefaultProvider } from 'ethers'
 import { utils } from 'ethers'
+import { ethers } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
 
 export default function Navbar() {
-  const { account, activateBrowserWallet, deactivate, chainId } = useEthers()
+  const { isConnected, address } = useAccount();
   console.log('navbar')
-  const poolAddress = '0xeB13144982b28D059200DB0b4d1ceDe7d96C4FE7'
+  /*const poolAddress = '0xeB13144982b28D059200DB0b4d1ceDe7d96C4FE7'
   const poolInterface = new utils.Interface(poolsharkHedgePoolABI)
   const contract = new Contract(poolAddress, poolInterface)
 
-  const { state, send } = useContractFunction(contract, 'mint', { transactionName: 'Mint' })
-  console.log('made it')
-  const { status } = state
-  console.log(account)
-  const mintFunction = () => {
-    console.log('minting position')
-    console.log(account)
-    void send(
-      ethers.utils.parseUnits("0", 0),
-      ethers.utils.parseUnits("20", 0),
-      ethers.utils.parseUnits("887272", 0),
-      ethers.utils.parseUnits("30", 0),
-      ethers.utils.parseUnits("100"),
-      false,
-      false
-    )
-  }
-  console.log(poolAddress)
+  console.log(poolAddress)*/
   // const MintComponent = () => {
   //   const poolAddress = '0xeB13144982b28D059200DB0b4d1ceDe7d96C4FE7'
   //   const poolInterface = new utils.Interface(PoolsharkHedgePool)
@@ -121,7 +94,6 @@ export default function Navbar() {
                       ? "bg-background text-main transition-all py-2 px-6 rounded-lg text-sm font-medium cursor-pointer"
                       : "text-grey hover:text-white py-2 px-6 rounded-lg text-sm font-medium cursor-pointer"
                   }
-                  onClick={() => mintFunction()}
                 >
                   Pool
                 </div>
@@ -160,12 +132,7 @@ export default function Navbar() {
                     </button>
                   </div>
                   */}
-            <button
-              type="button"
-              className="p-1.5 text-gray-400 bg-black rounded-md border border-[#1E1E1E] hover:text-white outline-none "
-              onClick={() => activateBrowserWallet()}
-            >
-            </button>
+            <ConnectButton/>
           </div>
         </div>
       </div>
