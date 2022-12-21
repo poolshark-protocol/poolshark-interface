@@ -1,55 +1,16 @@
-import { Fragment } from "react";
-import { Disclosure, Menu, Transition } from "@headlessui/react";
+import { useAccount } from 'wagmi'
 import { useRouter } from "next/router";
-import {
-  Bars3Icon,
-  BellIcon,
-  EllipsisHorizontalIcon,
-  XMarkIcon,
-  ChevronDownIcon,
-} from "@heroicons/react/24/outline";
 import Image from "next/image";
 import Link from "next/link";
-import { PoolsharkHedgePool } from "../evm_abis/PoolsharkHedgePool.json";
-import { PoolsharkHedgePoolFactory } from "../evm_abis/PoolsharkHedgePoolFactory.json";
-import { formatEther } from '@ethersproject/units'
-import { Mainnet, DAppProvider, useEtherBalance, useEthers, Config, Goerli, useContractFunction } from '@usedapp/core'
-import { getDefaultProvider } from 'ethers'
+import { poolsharkHedgePoolABI } from "../abis/evm/poolsharkHedgePool";
 import { utils } from 'ethers'
+import { ethers } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
 
 export default function Navbar() {
-  const { account, activateBrowserWallet, deactivate, chainId } = useEthers()
-
-  const WrapEtherComponent = () => {
-    const poolAddress = '0xeB13144982b28D059200DB0b4d1ceDe7d96C4FE7'
-    const poolInterface = new utils.Interface(PoolsharkHedgePool)
-    const contract = new Contract(poolAddress, poolInterface)
-
-    const { state, send } = useContractFunction(contract, 'mint', { transactionName: 'Mint' })
-
-    const { status } = state
-
-    const mintFunction = () => {
-      void send(ethers.utils.parseUnits("0", 0),
-      ethers.utils.parseUnits("20", 0),
-      ethers.utils.parseUnits("887272", 0),
-      ethers.utils.parseUnits("30", 0),
-      ethers.utils.parseUnits("100"),
-      false,
-      false)
-    }
-
-    return (
-      <div>
-        <button onClick={() => mintFunction()}>Mint token1</button>
-        <p>Status: {status}</p>
-      </div>
-    )
-  }
-  
-
-
+  const { isConnected, address } = useAccount();
+  console.log('navbar')
   const router = useRouter();
   return (
     <div className="md:px-10 px-4 pt-3 mx-auto w-full">
@@ -99,7 +60,6 @@ export default function Navbar() {
                       ? "bg-background text-main transition-all py-2 px-6 rounded-lg text-sm font-medium cursor-pointer"
                       : "text-grey hover:text-white py-2 px-6 rounded-lg text-sm font-medium cursor-pointer"
                   }
-                  onClick={() => WrapEtherComponent}
                 >
                   Pool
                 </div>
@@ -138,12 +98,7 @@ export default function Navbar() {
                     </button>
                   </div>
                   */}
-            <button
-              type="button"
-              className="p-1.5 text-gray-400 bg-black rounded-md border border-[#1E1E1E] hover:text-white outline-none "
-              onClick={() => activateBrowserWallet()}
-            >
-            </button>
+            <ConnectButton/>
           </div>
         </div>
       </div>

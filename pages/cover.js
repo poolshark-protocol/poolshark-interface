@@ -11,9 +11,13 @@ import PoolList from "../components/AllPools";
 import Link from "next/link";
 import SelectToken from "../components/SelectToken";
 import { useState, Fragment } from "react";
+import write from "../hooks/useApproval";
+import CoverMintButton from "../components/CoverMintButton";
+import CoverApproveButton from "../components/CoverApproveButton";
 
 export default function Cover() {
   const [expanded, setExpanded] = useState();
+  const { approve } = write();
 
   const Option = () => {
     if (expanded) {
@@ -68,8 +72,8 @@ export default function Cover() {
                   </div>
                 </div>
                 <div className="flex w-1/2">
-                  <div class="flex justify-center ml-auto">
-                    <div class="flex-col">
+                  <div className="flex justify-center ml-auto">
+                    <div className="flex-col">
                       <div className="flex justify-end">
                         <SelectToken />
                       </div>
@@ -118,7 +122,7 @@ export default function Cover() {
                   onClick={() => setExpanded(!expanded)}
                 >
                   <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                    1 USDC = 1 DA1
+                    1 USDC = 1 DAI
                   </div>
                   <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
                     <button>
@@ -130,9 +134,8 @@ export default function Cover() {
                   <Option />
                 </div>
               </div>
-              <div className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
-                Create Cover
-              </div>
+             <CoverMintButton/>
+             <CoverApproveButton/>
             </div>
             <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">
               <div className="relative">

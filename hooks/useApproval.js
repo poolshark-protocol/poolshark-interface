@@ -1,27 +1,27 @@
 import React, { useContext, useState} from 'react';
 import { ethers } from "ethers";
-import ERC20 from "../evm_abis/ERC20.json";
+import { erc20ABI } from 'wagmi'
 import {
     usePrepareContractWrite,
     useContractWrite,
     useWaitForTransaction,
 } from 'wagmi';
 
-const useApproval = () =>{
+const useApproval = (address) => {
+    const token1Address = "0xC0baf261c12Fc4a75660F6022948341672Faf95F"
     const { config } = usePrepareContractWrite({
-        address: "0x73Ff5b4FE522C986EE11baD682dfAbCaBDccAb43",
-        abi: ERC20,
+        address: token1Address,
+        abi: erc20ABI,
         functionName: "approve",
-        args:["0x1DcF623EDf118E4B21b4C5Dc263bb735E170F9B8", ethers.utils.parseUnits("1000")],
+        args:["0xd635c93eC40EE626EB48254eACeF419cCA682917", ethers.utils.parseUnits("1000")],
         chainId: 5,
         overrides:{
-            gasLimit:1000000000000000
-        },
+            gasLimit: 10000000
+          },
     })
     const { data, isLoading, isSuccess, write } = useContractWrite(config)
     console.log(config)
 
     return [write]
-    
 }
 export default useApproval;

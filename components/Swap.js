@@ -26,13 +26,12 @@ import {
   useSigner,  //<<<<<<<
   useWaitForTransaction,
 } from "wagmi";
-import PoolsharkHedgePool from "../evm_abis/PoolsharkHedgePool.json";
-import ERC20 from "../evm_abis/ERC20.json";
+import { poolsharkHedgePoolABI } from "../abis/evm/poolsharkHedgePool";
+import { erc20ABI } from 'wagmi'
 import { ethers } from "ethers";
 import useApproval from "../hooks/useApproval";
 import useMint from "../hooks/useMint";
-import useMetamask from "../hooks/useMetamask";
-import useApprove from "../hooks/useApprove";
+
 import { formatEther } from '@ethersproject/units'
 import { Mainnet, DAppProvider, useEtherBalance, useEthers, Config, Goerli } from '@usedapp/core'
 import { getDefaultProvider } from 'ethers'
@@ -221,7 +220,7 @@ export default function Swap() {
             onClick={() => setExpanded(!expanded)}
           >
             <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-              1 USDC = 1 DA1
+              1 USDC = 1 DAI
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
               <button>
