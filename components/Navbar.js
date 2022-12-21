@@ -11,40 +11,6 @@ import { ConnectButton } from '@rainbow-me/rainbowkit'
 export default function Navbar() {
   const { isConnected, address } = useAccount();
   console.log('navbar')
-  /*const poolAddress = '0xeB13144982b28D059200DB0b4d1ceDe7d96C4FE7'
-  const poolInterface = new utils.Interface(poolsharkHedgePoolABI)
-  const contract = new Contract(poolAddress, poolInterface)
-
-  console.log(poolAddress)*/
-  // const MintComponent = () => {
-  //   const poolAddress = '0xeB13144982b28D059200DB0b4d1ceDe7d96C4FE7'
-  //   const poolInterface = new utils.Interface(PoolsharkHedgePool)
-  //   const contract = new Contract(poolAddress, poolInterface)
-
-  //   const { state, send } = useContractFunction(contract, 'mint', { transactionName: 'Mint' })
-  //   console.log('made it')
-  //   const { status } = state
-
-  //   const mintFunction = () => {
-  //     void send(ethers.utils.parseUnits("0", 0),
-  //     ethers.utils.parseUnits("20", 0),
-  //     ethers.utils.parseUnits("887272", 0),
-  //     ethers.utils.parseUnits("30", 0),
-  //     ethers.utils.parseUnits("100"),
-  //     false,
-  //     false)
-  //   }
-
-  //   return (
-  //     <div>
-  //       <button onClick={() => mintFunction()}>Mint token1</button>
-  //       <p>Status: {status}</p>
-  //     </div>
-  //   )
-  // }
-  
-
-
   const router = useRouter();
   return (
     <div className="md:px-10 px-4 pt-3 mx-auto w-full">
