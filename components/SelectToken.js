@@ -6,8 +6,7 @@ import {
 } from "@heroicons/react/20/solid";
 import { Transition, Dialog } from "@headlessui/react";
   
-  
-export default  function SelectToken() {
+export default function SelectToken() {
   
   let [isOpen, setIsOpen] = useState(false);
 

@@ -7,7 +7,7 @@ import {
 import UserPool from "../../components/UserPool";
 import PoolList from "../../components/AllPools";
 import Link from "next/link";
-import { Listbox, Transition, Dialog } from "@headlessui/react";
+import { Listbox, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
 
 

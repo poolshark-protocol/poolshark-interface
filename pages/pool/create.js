@@ -1,17 +1,8 @@
 import Navbar from "../../components/Navbar";
 import Link from "next/link";
-import { PlusSmallIcon } from "@heroicons/react/24/outline";
 import { Fragment, useState } from "react";
-import {
-  CheckIcon,
-  ChevronDownIcon,
-  ArrowsRightLeftIcon,
-  InformationCircleIcon,
-  XMarkIcon,
-  MagnifyingGlassIcon,
-} from "@heroicons/react/20/solid";
-import { Listbox, Transition, Dialog } from "@headlessui/react";
-import SelectToken from "../../components/SelectToken";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import { Listbox, Transition } from "@headlessui/react";
 import ConcentratedPool from "../../components/ConcentratedPool";
 
 export default function CreatePool() {

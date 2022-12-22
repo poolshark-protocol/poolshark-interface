@@ -10,11 +10,9 @@ import {
 } from "@heroicons/react/20/solid";
 import SelectToken from "./SelectToken";
 
-
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
-
 
 export default function Swap() {
 
