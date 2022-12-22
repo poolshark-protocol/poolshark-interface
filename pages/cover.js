@@ -11,7 +11,6 @@ import SelectToken from "../components/SelectToken";
 import { useState } from "react";
 import CoverMintButton from "../components/CoverMintButton";
 import CoverApproveButton from "../components/CoverApproveButton";
-import CoverSwapButton from "../components/CoverSwapButton";
 import CoverBurnButton from "../components/CoverBurnButton";
 
 export default function Cover() {
@@ -135,7 +134,6 @@ export default function Cover() {
               </div>
              <CoverMintButton/>
              <CoverApproveButton/>
-             <CoverSwapButton/>
              <CoverBurnButton/>
             </div>
             <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">

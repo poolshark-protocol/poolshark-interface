@@ -11,7 +11,7 @@ import { poolsharkHedgePoolABI } from "../abis/evm/poolsharkHedgePool";
 const GOERLI_CONTRACT_ADDRESS = '0xd635c93eC40EE626EB48254eACeF419cCA682917'
 const token1Address = "0xC0baf261c12Fc4a75660F6022948341672Faf95F"
 
-export default function CoverSwapButton() {
+export default function SwapButton() {
 
     const { address, isConnecting, isDisconnecting } = useAccount()
 
