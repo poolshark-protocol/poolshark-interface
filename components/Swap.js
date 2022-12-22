@@ -2,7 +2,6 @@ import {
   AdjustmentsHorizontalIcon,
   ArrowSmallDownIcon,
 } from "@heroicons/react/24/outline";
-import React from 'react';
 import { useState } from "react";
 import { Popover } from "@headlessui/react";
 import {

@@ -2,6 +2,7 @@ import { Fragment, useState } from "react";
 import { Transition, Dialog } from "@headlessui/react";
 
 export default function ConcentratedPoolPreview() {
+  
   let [isOpen, setIsOpen] = useState(false);
 
   function closeModal() {

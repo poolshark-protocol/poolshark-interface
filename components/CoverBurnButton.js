@@ -1,4 +1,3 @@
-import React, { useContext, useState } from 'react';
 import { ethers } from "ethers";
 import { BigNumber } from 'ethers';
 import {
@@ -28,9 +27,9 @@ export default function CoverBurnButton() {
         ],
         chainId: 5,
         overrides:{
-            gasLimit: 350000
+            gasLimit: 140000
         },
-        })
+    })
 
     const { data, isLoading, isSuccess, write } = useContractWrite(config)
     console.log(config)

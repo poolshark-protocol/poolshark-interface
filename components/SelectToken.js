@@ -7,7 +7,8 @@ import {
 import { Transition, Dialog } from "@headlessui/react";
   
   
-  export default  function SelectToken() {
+export default  function SelectToken() {
+  
   let [isOpen, setIsOpen] = useState(false);
 
   function closeModal() {
@@ -18,7 +19,7 @@ import { Transition, Dialog } from "@headlessui/react";
     setIsOpen(true);
   }
 
-      return (
+    return (
         <div>
                             <Transition appear show={isOpen} as={Fragment}>
                     <Dialog

@@ -12,12 +12,14 @@ import { Fragment, useState } from "react";
 
 
 export default function Pool() {
+
     const poolTypes = [
       { id: 1, type: "Concentrated Liquidity", unavailable: false },
       { id: 2, type: "Directional Liquidity", unavailable: false },
     ];
 
 function SelectPool() {
+  
   const [selected, setSelected] = useState(poolTypes[0]);
 
   return (

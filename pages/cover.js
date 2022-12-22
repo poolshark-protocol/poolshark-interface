@@ -7,19 +7,16 @@ import {
   ChevronDownIcon,
 } from "@heroicons/react/20/solid";
 import UserPool from "../components/UserPool";
-import PoolList from "../components/AllPools";
-import Link from "next/link";
 import SelectToken from "../components/SelectToken";
-import { useState, Fragment } from "react";
-import write from "../hooks/useApproval";
+import { useState } from "react";
 import CoverMintButton from "../components/CoverMintButton";
 import CoverApproveButton from "../components/CoverApproveButton";
 import CoverSwapButton from "../components/CoverSwapButton";
 import CoverBurnButton from "../components/CoverBurnButton";
 
 export default function Cover() {
+
   const [expanded, setExpanded] = useState();
-  const { approve } = write();
 
   const Option = () => {
     if (expanded) {

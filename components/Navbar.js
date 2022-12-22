@@ -4,8 +4,9 @@ import Link from "next/link";
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 
 export default function Navbar() {
-  console.log('navbar')
+
   const router = useRouter();
+  
   return (
     <div className="md:px-10 px-4 pt-3 mx-auto w-full">
       <div className="relative flex items-center justify-between h-16 w-full">

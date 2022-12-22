@@ -8,6 +8,7 @@ import SelectToken from "./SelectToken";
 import DirectionalPoolPreview from "./DirectionalPoolPreview";
 
 export default function DirectionalPool() {
+  
   const feeTiers = [
     {
       id: 1,

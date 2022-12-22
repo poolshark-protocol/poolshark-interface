@@ -1,21 +1,11 @@
 import Navbar from "../../components/Navbar";
-import Link from "next/link";
-import { PlusSmallIcon } from "@heroicons/react/24/outline";
-import { Fragment, useState } from "react";
 import {
-  CheckIcon,
-  ChevronDownIcon,
   ArrowTopRightOnSquareIcon,
-  ArrowsRightLeftIcon,
-  XMarkIcon,
-  MagnifyingGlassIcon,
+  ArrowsRightLeftIcon
 } from "@heroicons/react/20/solid";
-import { Listbox, Transition, Dialog } from "@headlessui/react";
-import SelectToken from "../../components/SelectToken";
-import ConcentratedPool from "../../components/ConcentratedPool";
-import DirectionalPool from "../../components/DirectionalPool";
 
 export default function View() {
+  
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-DMSans ">
       <Navbar />

@@ -3,6 +3,7 @@ import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
 import { Transition, Dialog } from "@headlessui/react";
 
 export default function DirectionalPoolPreview() {
+  
   let [isOpen, setIsOpen] = useState(false);
 
   function closeModal() {
