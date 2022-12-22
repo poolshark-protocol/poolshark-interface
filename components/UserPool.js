@@ -1,8 +1,3 @@
-import { PlusSmallIcon } from "@heroicons/react/24/outline";
-import Head from "next/head";
-import Image from "next/image";
-import { useState, Fragment } from "react";
-import { Menu, Transition, Dialog } from "@headlessui/react";
 import {
   ArrowsRightLeftIcon,
   ExclamationTriangleIcon

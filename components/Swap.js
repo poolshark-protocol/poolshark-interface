@@ -1,40 +1,15 @@
 import {
   AdjustmentsHorizontalIcon,
   ArrowSmallDownIcon,
-  DocumentArrowDownIcon,
 } from "@heroicons/react/24/outline";
-import Head from "next/head";
-import Image from "next/image";
 import React from 'react';
-import { useState, Fragment } from "react";
+import { useState } from "react";
 import { Popover } from "@headlessui/react";
 import {
   ChevronDownIcon,
-  InformationCircleIcon,
-  XMarkIcon,
-  MagnifyingGlassIcon,
   ArrowPathIcon
 } from "@heroicons/react/20/solid";
 import SelectToken from "./SelectToken";
-import {
-  useAccount,
-  useConnect,
-  useContract,
-  useContractRead,
-  useContractWrite,
-  useNetwork,
-  useSigner,  //<<<<<<<
-  useWaitForTransaction,
-} from "wagmi";
-import { poolsharkHedgePoolABI } from "../abis/evm/poolsharkHedgePool";
-import { erc20ABI } from 'wagmi'
-import { ethers } from "ethers";
-import useApproval from "../hooks/useApproval";
-import useMint from "../hooks/useMint";
-
-import { formatEther } from '@ethersproject/units'
-import { Mainnet, DAppProvider, useEtherBalance, useEthers, Config, Goerli } from '@usedapp/core'
-import { getDefaultProvider } from 'ethers'
 
 
 function classNames(...classes) {

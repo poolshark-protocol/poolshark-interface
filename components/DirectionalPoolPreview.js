@@ -1,12 +1,5 @@
 import { Fragment, useState } from "react";
-import {
-  ChevronDownIcon,
-  XMarkIcon,
-  MagnifyingGlassIcon,
-  PlusIcon,
-  MinusIcon,
-  ArrowLongRightIcon,
-} from "@heroicons/react/20/solid";
+import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
 import { Transition, Dialog } from "@headlessui/react";
 
 export default function DirectionalPoolPreview() {

@@ -1,15 +1,9 @@
-import { useAccount } from 'wagmi'
 import { useRouter } from "next/router";
 import Image from "next/image";
 import Link from "next/link";
-import { poolsharkHedgePoolABI } from "../abis/evm/poolsharkHedgePool";
-import { utils } from 'ethers'
-import { ethers } from 'ethers'
-import { Contract } from '@ethersproject/contracts'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 
 export default function Navbar() {
-  const { isConnected, address } = useAccount();
   console.log('navbar')
   const router = useRouter();
   return (
@@ -78,26 +72,6 @@ export default function Navbar() {
             </div>
           </div>
           <div className=" flex justify-end items-center gap-x-4">
-
-            {/* AFTER WALLET IS CONNECTED 
-                  <div className="border border-grey1 bg-dark rounded-lg flex items-center h-10 text-white pl-4 mr-3">
-                    <img
-                      className="w-3.5 mr-2.5"
-                      src="/static/images/eth.svg"
-                    />
-                    2000
-                    <span className="text-sm text-grey pl-1.5 mt-[1px] pr-4">
-                      ETH
-                    </span>
-                    <button className="-mr-[1px]  h-10 flex items-center text-white text-sm transition rounded-lg cursor-pointer bg-black border border-grey1 hover:opacity-80">
-                      <span className="px-3"> 0x77d7...Eab2</span>
-                      <ChevronDownIcon
-                        className="w-[38px] border-l-grey1 border-l  h-10 px-[9px]"
-                        aria-hidden="true"
-                      />
-                    </button>
-                  </div>
-                  */}
             <ConnectButton/>
           </div>
         </div>

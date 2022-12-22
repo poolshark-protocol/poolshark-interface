@@ -1,11 +1,6 @@
 import { Fragment, useState } from "react";
 import {
-  CheckIcon,
   ChevronDownIcon,
-  ArrowsRightLeftIcon,
-  InformationCircleIcon,
-  XMarkIcon,
-  MagnifyingGlassIcon,
   PlusIcon,
   MinusIcon
 } from "@heroicons/react/20/solid";

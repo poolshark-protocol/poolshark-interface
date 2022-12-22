@@ -1,11 +1,4 @@
 import { Fragment, useState } from "react";
-import {
-  ChevronDownIcon,
-  XMarkIcon,
-  MagnifyingGlassIcon,
-  PlusIcon,
-  MinusIcon
-} from "@heroicons/react/20/solid";
 import { Transition, Dialog } from "@headlessui/react";
 
 export default function ConcentratedPoolPreview() {
