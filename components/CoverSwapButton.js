@@ -14,7 +14,6 @@ const token1Address = "0xC0baf261c12Fc4a75660F6022948341672Faf95F"
 
 export default function CoverSwapButton() {
 
-    console.log('useSwap')
     const { address, isConnecting, isDisconnecting } = useAccount()
 
     const userAddress = address;
@@ -23,6 +22,7 @@ export default function CoverSwapButton() {
       address: token1Address,
       chainId: 5,
     })
+
     const { config } = usePrepareContractWrite({
         address: GOERLI_CONTRACT_ADDRESS,
         abi: poolsharkHedgePoolABI,
@@ -38,6 +38,7 @@ export default function CoverSwapButton() {
           gasLimit: 350000
         },
     })
+    
     const { data, isLoading, isSuccess, write } = useContractWrite(config)
 
     return (

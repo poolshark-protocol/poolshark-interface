@@ -12,7 +12,7 @@ import { poolsharkHedgePoolABI } from "../abis/evm/poolsharkHedgePool";
 const GOERLI_CONTRACT_ADDRESS = '0xd635c93eC40EE626EB48254eACeF419cCA682917'
 
 export default function CoverBurnButton() {
-    console.log('useBurn')
+
     const { address, isConnecting, isDisconnecting } = useAccount()
 
     const { config } = usePrepareContractWrite({
