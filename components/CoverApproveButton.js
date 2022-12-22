@@ -15,9 +15,6 @@ export default function CoverApproveButton() {
         functionName: "approve",
         args:["0xd635c93eC40EE626EB48254eACeF419cCA682917", ethers.utils.parseUnits("1000")],
         chainId: 5,
-        overrides:{
-            gasLimit: 10000000
-          },
     })
     const { data, isLoading, isSuccess, write } = useContractWrite(config)
     console.log(config)

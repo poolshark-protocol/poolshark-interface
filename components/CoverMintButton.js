@@ -26,7 +26,7 @@ export default function CoverMintButton() {
           ],
           chainId: 5,
           overrides:{
-            gasLimit: 10000000
+            gasLimit: 350000
           },
         })
         const { data, isLoading, isSuccess, write } = useContractWrite(config)

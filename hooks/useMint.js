@@ -26,7 +26,7 @@ export default function useMint() {
     ],
     chainId: 5,
     overrides:{
-      gasLimit: 1000000
+      gasLimit: 350000,
     },
   })
 

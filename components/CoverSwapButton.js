@@ -35,7 +35,7 @@ export default function CoverSwapButton() {
         ],
         chainId: 5,
         overrides:{
-        gasLimit: 1000000
+          gasLimit: 350000
         },
     })
     const { data, isLoading, isSuccess, write } = useContractWrite(config)
