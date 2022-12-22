@@ -132,9 +132,9 @@ export default function Cover() {
                   <Option />
                 </div>
               </div>
-             <CoverMintButton/>
-             <CoverApproveButton/>
-             <CoverBurnButton/>
+              <CoverApproveButton/>
+              <CoverMintButton/>
+              <CoverBurnButton/>
             </div>
             <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">
               <div className="relative">
