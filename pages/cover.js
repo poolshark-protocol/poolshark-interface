@@ -25,7 +25,8 @@ import { ethers } from "ethers";
 
 
 function Button () {
-  const tokenOneAddress = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6";
+  const tokenOneAddress = "0xC0baf261c12Fc4a75660F6022948341672Faf95F";
+  const GOERLI_CONTRACT_ADDRESS = '0xd635c93eC40EE626EB48254eACeF419cCA682917'
   const { address } = useAccount()
 
   const { data, isError, isLoading } = useContractRead({
@@ -33,7 +34,7 @@ function Button () {
     abi: erc20ABI,
     functionName: "allowance",
     watch: true,
-    args: [address, tokenOneAddress],
+    args: [address, GOERLI_CONTRACT_ADDRESS],
     chainId: 5,
     onSuccess(data) {
       console.log("Success", data);
@@ -43,8 +44,10 @@ function Button () {
     },
     onSettled(data, error) {
       console.log("Settled", { data, error });
+      console.log(ethers.utils.formatUnits(data, 18));
     },
   });
+
 
   // console.log(ethers.utils.formatUnits(data, 0))
   if (!isError) {
