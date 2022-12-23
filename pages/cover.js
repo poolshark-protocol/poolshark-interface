@@ -9,9 +9,59 @@ import {
 import UserPool from "../components/UserPool";
 import SelectToken from "../components/SelectToken";
 import { useState } from "react";
+import {
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+  useAccount,
+} from "wagmi";
 import CoverMintButton from "../components/CoverMintButton";
 import CoverApproveButton from "../components/CoverApproveButton";
 import CoverBurnButton from "../components/CoverBurnButton";
+import { useContractRead, useSigner } from "wagmi";
+import { erc20ABI } from "wagmi";
+import { ethers } from "ethers";
+
+
+
+function Button () {
+  const tokenOneAddress = "0xC0baf261c12Fc4a75660F6022948341672Faf95F";
+  const { address } = useAccount()
+
+  const { data, isError, isLoading } = useContractRead({
+    address: tokenOneAddress,
+    abi: erc20ABI,
+    functionName: "allowance",
+    watch: true,
+    chainId: 5,
+    args: [tokenOneAddress, address],
+    onSuccess(data) {
+      console.log("Success", data);
+    },
+    onError(error) {
+      console.log("Error", error);
+    },
+    onSettled(data, error) {
+      console.log("Settled", { data, error });
+    },
+  });
+  if (!isError) {
+    return (
+      <>
+      No Error
+      </>
+    )
+  }
+  else {
+    <>
+    Error
+    </>
+  }
+}
+
+
+
+
 
 export default function Cover() {
 
@@ -133,8 +183,10 @@ export default function Cover() {
                 </div>
               </div>
               <CoverApproveButton/>
+              <Button/>
               <CoverMintButton/>
               <CoverBurnButton/>
+              
             </div>
             <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">
               <div className="relative">
