@@ -33,8 +33,8 @@ function Button () {
     abi: erc20ABI,
     functionName: "allowance",
     watch: true,
-    chainId: 5,
     args: [tokenOneAddress, address],
+    chainId: 5,
     onSuccess(data) {
       console.log("Success", data);
     },
@@ -45,6 +45,8 @@ function Button () {
       console.log("Settled", { data, error });
     },
   });
+
+  console.log(ethers.utils.formatUnits(data, 0))
   if (!isError) {
     return (
       <>
