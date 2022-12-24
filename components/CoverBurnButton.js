@@ -32,7 +32,6 @@ export default function CoverBurnButton() {
     })
 
     const { data, isLoading, isSuccess, write } = useContractWrite(config)
-    console.log(config)
     
     return (
         <>

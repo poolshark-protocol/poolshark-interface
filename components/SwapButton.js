@@ -39,7 +39,6 @@ export default function SwapButton() {
     })
 
     const { data, isLoading, isSuccess, write } = useContractWrite(config)
-    console.log(config)
 
     return (
       <>

@@ -20,7 +20,6 @@ export default function CoverApproveButton() {
     })
 
     const { data, isLoading, isSuccess, write } = useContractWrite(config)
-    console.log(config)
     
     return (
         <div className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
