@@ -22,14 +22,13 @@ import { useContractRead, useSigner } from "wagmi";
 import { erc20ABI } from "wagmi";
 import { ethers } from "ethers";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
-import { waitForTransaction } from "wagmi";
 
 function CoverButton() {
   const tokenOneAddress = "0xC0baf261c12Fc4a75660F6022948341672Faf95F";
   const GOERLI_CONTRACT_ADDRESS = "0xd635c93eC40EE626EB48254eACeF419cCA682917";
   const { address, isConnected } = useAccount();
 
-  const { data, isError, isLoading, onSuccess } = useContractRead({
+  const { data, onSuccess } = useContractRead({
     address: tokenOneAddress,
     abi: erc20ABI,
     functionName: "allowance",
@@ -49,19 +48,23 @@ function CoverButton() {
     },
   });
 
-  const waitForTransaction = useWaitForTransaction({
-    hash: useContractRead.data?.hash,
+  const {isError, isLoading} = useWaitForTransaction({
+    hash: data?.hash,
     onSettled(data, error) {
       console.log("Settled", { data, error });
-        if (data._hex == "0x00") {
+    },
+  });
+
+  if (isError) {
+    return(<></>)
+  } else {
+    if (data._hex == "0x00") {
           return <CoverApproveButton />;
         } else {
           return <CoverMintButton />;
         }
-    },
-  });
-  return <waitForTransaction/>
-
+}
+        
 }
 
 export default function Cover() {
@@ -184,12 +187,8 @@ export default function Cover() {
                   <Option />
                 </div>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-3" >
                 {isConnected ? <CoverButton /> : <ConnectWalletButton />}
-
-
-
-                
                 <CoverBurnButton />
               </div>
             </div>
