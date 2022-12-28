@@ -9,7 +9,7 @@ import {
   ArrowPathIcon
 } from "@heroicons/react/20/solid";
 import SelectToken from "./SelectToken";
-import SwapButton from "./SwapButton";
+import SwapButton from "./Buttons/SwapButton";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");

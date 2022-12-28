@@ -15,21 +15,21 @@ import {
   useWaitForTransaction,
   useAccount,
 } from "wagmi";
-import CoverMintButton from "../components/CoverMintButton";
-import CoverApproveButton from "../components/CoverApproveButton";
-import CoverBurnButton from "../components/CoverBurnButton";
+import CoverMintButton from "../components/Buttons/CoverMintButton";
+import CoverApproveButton from "../components/Buttons/CoverApproveButton";
+import CoverBurnButton from "../components/Buttons/CoverBurnButton";
 import { useContractRead, useSigner } from "wagmi";
 import { erc20ABI } from "wagmi";
 import { ethers } from "ethers";
+import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
+import { waitForTransaction } from "wagmi";
 
-
-
-function Button () {
+function CoverButton() {
   const tokenOneAddress = "0xC0baf261c12Fc4a75660F6022948341672Faf95F";
-  const GOERLI_CONTRACT_ADDRESS = '0xd635c93eC40EE626EB48254eACeF419cCA682917'
-  const { address } = useAccount()
+  const GOERLI_CONTRACT_ADDRESS = "0xd635c93eC40EE626EB48254eACeF419cCA682917";
+  const { address, isConnected } = useAccount();
 
-  const { data, isError, isLoading } = useContractRead({
+  const { data, isError, isLoading, onSuccess } = useContractRead({
     address: tokenOneAddress,
     abi: erc20ABI,
     functionName: "allowance",
@@ -38,37 +38,34 @@ function Button () {
     chainId: 5,
     onSuccess(data) {
       console.log("Success", data);
+      console.log(ethers.utils.formatUnits(data, 18));
+      console.log(data._hex);
     },
     onError(error) {
       console.log("Error", error);
     },
     onSettled(data, error) {
       console.log("Settled", { data, error });
-      console.log(ethers.utils.formatUnits(data, 18));
     },
   });
 
+  const waitForTransaction = useWaitForTransaction({
+    hash: useContractRead.data?.hash,
+    onSettled(data, error) {
+      console.log("Settled", { data, error });
+        if (data._hex == "0x00") {
+          return <CoverApproveButton />;
+        } else {
+          return <CoverMintButton />;
+        }
+    },
+  });
+  return <waitForTransaction/>
 
-  // console.log(ethers.utils.formatUnits(data, 0))
-  if (!isError) {
-    return (
-      <>
-      No Error
-      </>
-    )
-  }
-  else {
-    <>
-    Error
-    </>
-  }
 }
 
-
-
-
-
 export default function Cover() {
+  const { address, isConnected } = useAccount();
 
   const [expanded, setExpanded] = useState();
 
@@ -187,11 +184,14 @@ export default function Cover() {
                   <Option />
                 </div>
               </div>
-              <CoverApproveButton/>
-              <Button/>
-              <CoverMintButton/>
-              <CoverBurnButton/>
-              
+              <div className="space-y-3">
+                {isConnected ? <CoverButton /> : <ConnectWalletButton />}
+
+
+
+                
+                <CoverBurnButton />
+              </div>
             </div>
             <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">
               <div className="relative">
