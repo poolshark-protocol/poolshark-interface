@@ -3,9 +3,12 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 
-export const ConfirmingToast = () => {
+export const ConfirmingToast = ({hash}) => {
+
+
+
   return (
-    <div className="absolute bottom-4 right-4 bg-black py-3 px-4 rounded-xl flex gap-x-5">
+    <div className="absolute bottom-4 right-4 bg-black py-3 px-4 rounded-xl flex gap-x-5 pr-7">
       <div>
         <div className="flex gap-x-2 pb-1">
           <div role="status">
@@ -28,11 +31,15 @@ export const ConfirmingToast = () => {
           </div>
           <h1>Your transaction is being confirmed...</h1>
         </div>
-        <a className="text-xs text-blue-500 underline">
+        <a
+          href={`https://goerli.etherscan.io/tx/${hash}`}
+          rel="noreferrer"
+          target="_blank"
+          className="text-xs text-blue-500 underline"
+        >
           View on Block Explorer
         </a>
       </div>
-      <XMarkIcon className="w-6 text-gray-400" />
     </div>
   );
 };
