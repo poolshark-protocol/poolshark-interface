@@ -12,14 +12,15 @@ import SelectToken from "./SelectToken";
 import SwapButton from "./Buttons/SwapButton";
 import { ethers } from "ethers";
 import InputBoxProp from "./InputBoxProp";
+import useInputBox from "../hooks/useInputBox";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
 export default function Swap() {
-
-  const [input, setInput] = useState();
+  const [bnInput, inputBox] = useInputBox();
+  /*const [input, setInput] = useState();
   const [bnInput, setBnInput] = useState();
   
   const handleChange = event => {
@@ -43,7 +44,7 @@ export default function Swap() {
           />
           </div>
       )
-  }
+  }*/
 
   let [isOpen, setIsOpen] = useState(false);
   const [LimitActive, setLimitActive] = useState(false);

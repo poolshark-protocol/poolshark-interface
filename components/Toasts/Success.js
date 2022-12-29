@@ -5,7 +5,7 @@ import {
 
 export const SuccessToast = ({successDisplay, setSuccessDisplay, hash}) => {
   return (
-    <div className="absolute bottom-4 right-4 bg-black py-3 px-4 rounded-xl flex gap-x-5">
+    <div className="bg-black py-3 px-4 rounded-xl flex gap-x-5">
       <div>
         <div className="flex gap-x-2 pb-1">
           <CheckCircleIcon className="w-6 text-green-500" />

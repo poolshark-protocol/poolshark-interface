@@ -61,6 +61,7 @@ export default function CoverMintButton() {
       >
         Create Cover
       </div>
+      <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
       {errorDisplay && (
         <ErrorToast
           hash={data?.hash}
@@ -76,6 +77,7 @@ export default function CoverMintButton() {
           setSuccessDisplay={setSuccessDisplay}
         />
       )}
+      </div>
     </>
   );
 }
