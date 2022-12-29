@@ -7,11 +7,10 @@ import {
     useBalance
 } from 'wagmi';
 import { poolsharkHedgePoolABI } from "../../abis/evm/poolsharkHedgePool";
-
 const GOERLI_CONTRACT_ADDRESS = '0xd635c93eC40EE626EB48254eACeF419cCA682917'
 const token1Address = "0xC0baf261c12Fc4a75660F6022948341672Faf95F"
 
-export default function SwapButton() {
+export default function SwapButton({amount}) {
 
     const { address, isConnecting, isDisconnecting } = useAccount()
 
@@ -29,7 +28,8 @@ export default function SwapButton() {
         args:[
             userAddress,
             false,
-            ethers.utils.parseUnits("100", 18),
+            //ethers.utils.parseUnits("100", 18),
+            amount,
             ethers.utils.parseUnits("30", 0),
         ],
         chainId: 5,
