@@ -24,10 +24,12 @@ export default function Swap() {
   
   const handleChange = event => {
       const result = event.target.value.replace(/[^0-9\.|\,]/g, '')
-      const valueToBn = ethers.utils.parseUnits(result, 18);
       setInput(result);
       console.log('value is:', result);
-      setBnInput(valueToBn);
+      if (result !== "") {
+        const valueToBn = ethers.utils.parseUnits(result, 18);
+        setBnInput(valueToBn);
+      }
   };
 
   function inputBox() {
