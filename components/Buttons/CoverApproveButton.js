@@ -10,8 +10,8 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 
 
-const tokenOneAddress = "0xC0baf261c12Fc4a75660F6022948341672Faf95F"
-const GOERLI_CONTRACT_ADDRESS = '0xd635c93eC40EE626EB48254eACeF419cCA682917'
+const tokenOneAddress = "0xa9bAd443855B62E21BeF630afCdBa59a58680997"
+const GOERLI_CONTRACT_ADDRESS = '0x87B4784C1a8125dfB9Fb16F8A997128f346f5B13'
 
 
 export default function CoverApproveButton() {
@@ -20,7 +20,7 @@ export default function CoverApproveButton() {
         address: tokenOneAddress,
         abi: erc20ABI,
         functionName: "approve",
-        args:[GOERLI_CONTRACT_ADDRESS, ethers.utils.parseUnits("10", 18)],
+        args:[GOERLI_CONTRACT_ADDRESS, ethers.utils.parseUnits("100", 18)],
         chainId: 5,
     })
 

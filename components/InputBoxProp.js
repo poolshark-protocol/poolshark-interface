@@ -25,8 +25,6 @@ export default function InputBoxProp() {
             </div>
         )
     }
-        
-
 
     const switchToBn = () => {
         if (input !== null) {

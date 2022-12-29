@@ -7,8 +7,8 @@ import {
     useBalance
 } from 'wagmi';
 import { poolsharkHedgePoolABI } from "../../abis/evm/poolsharkHedgePool";
-const GOERLI_CONTRACT_ADDRESS = '0xd635c93eC40EE626EB48254eACeF419cCA682917'
-const token1Address = "0xC0baf261c12Fc4a75660F6022948341672Faf95F"
+const GOERLI_CONTRACT_ADDRESS = '0x87B4784C1a8125dfB9Fb16F8A997128f346f5B13'
+const token1Address = "0xa9bAd443855B62E21BeF630afCdBa59a58680997"
 
 export default function SwapButton({amount}) {
 
@@ -28,9 +28,8 @@ export default function SwapButton({amount}) {
         args:[
             userAddress,
             false,
-            //ethers.utils.parseUnits("100", 18),
             amount,
-            ethers.utils.parseUnits("30", 0),
+            ethers.utils.parseUnits("30", 18),
         ],
         chainId: 5,
         overrides:{

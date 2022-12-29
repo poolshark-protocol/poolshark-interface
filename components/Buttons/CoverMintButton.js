@@ -10,7 +10,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 
-const GOERLI_CONTRACT_ADDRESS = "0xd635c93eC40EE626EB48254eACeF419cCA682917";
+const GOERLI_CONTRACT_ADDRESS = "0x87B4784C1a8125dfB9Fb16F8A997128f346f5B13";
 
 export default function CoverMintButton() {
 

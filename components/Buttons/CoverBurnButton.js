@@ -8,7 +8,7 @@ import {
 } from 'wagmi';
 import { poolsharkHedgePoolABI } from "../../abis/evm/poolsharkHedgePool";
 
-const GOERLI_CONTRACT_ADDRESS = '0xd635c93eC40EE626EB48254eACeF419cCA682917'
+const GOERLI_CONTRACT_ADDRESS = '0x87B4784C1a8125dfB9Fb16F8A997128f346f5B13'
 
 export default function CoverBurnButton() {
 

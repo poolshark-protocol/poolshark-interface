@@ -24,8 +24,8 @@ import { ethers } from "ethers";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 
 function CoverButton() {
-  const tokenOneAddress = "0xC0baf261c12Fc4a75660F6022948341672Faf95F";
-  const GOERLI_CONTRACT_ADDRESS = "0xd635c93eC40EE626EB48254eACeF419cCA682917";
+  const tokenOneAddress = "0xa9bAd443855B62E21BeF630afCdBa59a58680997";
+  const GOERLI_CONTRACT_ADDRESS = "0x87B4784C1a8125dfB9Fb16F8A997128f346f5B13";
   const { address, isConnected } = useAccount();
 
   const { data, onSuccess } = useContractRead({
