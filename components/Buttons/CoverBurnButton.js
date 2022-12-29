@@ -27,7 +27,7 @@ export default function CoverBurnButton() {
         ],
         chainId: 5,
         overrides:{
-            gasLimit: 140000
+            gasLimit: 350000
         },
     })
 
