@@ -3,7 +3,7 @@ import {
   ExclamationTriangleIcon
 } from "@heroicons/react/20/solid";
 
-export default function UserPool() {
+export default function UserPool({name}) {
   
   return (
     <div className="w-full flex justify-between items-center bg-dark border border-grey2 rounded-xl py-3.5 px-5">
@@ -18,7 +18,7 @@ export default function UserPool() {
               src="/static/images/token.png"
             />
           </div>
-          DAI-USDC
+          {name}
           <div className="bg-black px-2 py-1 rounded-lg text-grey">1%</div>
         </div>
         <div className="text-sm flex items-center gap-x-3">

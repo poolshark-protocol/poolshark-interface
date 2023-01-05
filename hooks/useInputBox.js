@@ -22,9 +22,10 @@ export default function useInputBox() {
         return (
             <div className="flex gap-x-2">
             <input
-                className="bg-gray-800 text-white rounded-xl py-2 px-4 w-96"
+                className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
                 type="text"
                 value={input}
+                placeholder="0.0"
                 onChange={handleChange}
             />
             </div>

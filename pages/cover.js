@@ -22,6 +22,7 @@ import { useContractRead, useSigner } from "wagmi";
 import { erc20ABI } from "wagmi";
 import { ethers } from "ethers";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
+import { AllowanceButton } from "../components/Buttons/AllowanceButton";
 
 function CoverButton() {
   const tokenOneAddress = "0xa9bAd443855B62E21BeF630afCdBa59a58680997";
@@ -71,6 +72,12 @@ export default function Cover() {
   const { address, isConnected } = useAccount();
 
   const [expanded, setExpanded] = useState();
+
+  const pools = [
+    {
+      name: 'USDC',
+    },
+  ]
 
   const Option = () => {
     if (expanded) {
@@ -203,18 +210,14 @@ export default function Cover() {
               <div>
                 <h1 className="mb-3">Poolshark Pools</h1>
                 <div className="space-y-2">
-                  <UserPool />
-                  <UserPool />
-                  <UserPool />
+                {pools.map((pool) => (
+                  <UserPool name={pool.name}/>
+                  ))}
                 </div>
               </div>
               <div>
                 <h1 className="mb-3 mt-4">UNI-V3 Pools</h1>
                 <div className="space-y-2">
-                  <UserPool />
-                  <UserPool />
-                  <UserPool />
-                  <UserPool />
                 </div>
               </div>
             </div>

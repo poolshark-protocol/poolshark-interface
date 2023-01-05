@@ -11,7 +11,6 @@ import {
 import SelectToken from "./SelectToken";
 import SwapButton from "./Buttons/SwapButton";
 import { ethers } from "ethers";
-import InputBoxProp from "./InputBoxProp";
 import useInputBox from "../hooks/useInputBox";
 
 function classNames(...classes) {
@@ -20,31 +19,6 @@ function classNames(...classes) {
 
 export default function Swap() {
   const [bnInput, inputBox] = useInputBox();
-  /*const [input, setInput] = useState();
-  const [bnInput, setBnInput] = useState();
-  
-  const handleChange = event => {
-      const result = event.target.value.replace(/[^0-9\.|\,]/g, '')
-      setInput(result);
-      console.log('value is:', result);
-      if (result !== "") {
-        const valueToBn = ethers.utils.parseUnits(result, 18);
-        setBnInput(valueToBn);
-      }
-  };
-
-  function inputBox() {
-      return (
-          <div className="flex gap-x-2">
-          <input
-              className="bg-gray-800 text-white rounded-xl py-2 px-4 w-96"
-              type="text"
-              value={input}
-              onChange={handleChange}
-          />
-          </div>
-      )
-  }*/
 
   let [isOpen, setIsOpen] = useState(false);
   const [LimitActive, setLimitActive] = useState(false);
@@ -125,11 +99,6 @@ export default function Swap() {
         </div>
         <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
-            {/*<input
-              className=" bg-[#0C0C0C] w-min placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
-              placeholder="300"
-            />*/}
-            {/*<InputBoxProp />*/}
             {inputBox()}
             <div className="flex">
               <div className="flex text-xs text-[#4C4C4C]">~300.50</div>

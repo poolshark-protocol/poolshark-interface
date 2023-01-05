@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ethers } from "ethers";
 
-export default function InputBoxProp() {
+export default function InputBoxProp(props) {
 
     const [input, setInput] = useState();
     
@@ -42,6 +42,7 @@ export default function InputBoxProp() {
             value={input}
             onChange={handleChange}
         />
+            {props.children}
         </div>
     )
 }
