@@ -23,11 +23,13 @@ import { erc20ABI } from "wagmi";
 import { ethers } from "ethers";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import { AllowanceButton } from "../components/Buttons/AllowanceButton";
+import useInputBox from "../hooks/useInputBox";
 
 function CoverButton() {
   const tokenOneAddress = "0xa9bAd443855B62E21BeF630afCdBa59a58680997";
   const GOERLI_CONTRACT_ADDRESS = "0x87B4784C1a8125dfB9Fb16F8A997128f346f5B13";
   const { address, isConnected } = useAccount();
+  const [inputBox, bnInput] = useInputBox();
 
   const { data, onSuccess } = useContractRead({
     address: tokenOneAddress,
@@ -56,22 +58,34 @@ function CoverButton() {
     },
   });
 
-  if (isError) {
+  return data._hex;
+
+  /*if (isError) {
     return(<></>)
   } else {
     if (data._hex == "0x00") {
-          return <CoverApproveButton />;
+          return <CoverApproveButton amount={bnInput}/>;
         } else {
-          return <CoverMintButton />;
+          return <CoverMintButton amount={bnInput}/>;
         }
-}
+}*/
         
 }
 
+
 export default function Cover() {
   const { address, isConnected } = useAccount();
-
+  const [bnInput, inputBox] = useInputBox();
   const [expanded, setExpanded] = useState();
+
+  function CoverAllowance() {
+    if (CoverButton() == "0x00") {
+      return <CoverApproveButton amount={bnInput}/>;
+    }
+    else {
+      return <CoverMintButton amount={bnInput}/>;
+    }
+  }
 
   const pools = [
     {
@@ -123,10 +137,7 @@ export default function Cover() {
               <h1 className="mb-3">How much do you want to Cover?</h1>
               <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
                 <div className="flex-col justify-center w-1/2 p-2 ">
-                  <input
-                    className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
-                    placeholder="300"
-                  />
+                  {inputBox()}
                   <div className="flex">
                     <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
                   </div>
@@ -195,7 +206,7 @@ export default function Cover() {
                 </div>
               </div>
               <div className="space-y-3" >
-                {isConnected ? <CoverButton /> : <ConnectWalletButton />}
+                {isConnected ? <CoverAllowance /> : <ConnectWalletButton />}
                 <CoverBurnButton />
               </div>
             </div>

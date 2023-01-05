@@ -12,7 +12,7 @@ import React, { useState, useEffect } from "react";
 
 const GOERLI_CONTRACT_ADDRESS = "0x87B4784C1a8125dfB9Fb16F8A997128f346f5B13";
 
-export default function CoverMintButton() {
+export default function CoverMintButton({amount}) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -27,7 +27,7 @@ export default function CoverMintButton() {
       ethers.utils.parseUnits("20", 0),
       ethers.utils.parseUnits("887272", 0),
       ethers.utils.parseUnits("30", 0),
-      ethers.utils.parseUnits("100"),
+      amount,
       false,
       false,
     ],
