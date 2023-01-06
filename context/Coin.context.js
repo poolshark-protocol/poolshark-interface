@@ -1,7 +1,7 @@
 import { useState, createContext, useEffect, useContext } from 'react'
 import axios from 'axios'
 import { useEthers } from '@usedapp/core';
-import {chainIdsToNamesForGitTokenList} from '../helpers/chains'
+import {chainIdsToNamesForGitTokenList} from '../utils/chains'
 
 export const CoinContext = createContext()
 
