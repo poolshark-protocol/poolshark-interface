@@ -10,15 +10,27 @@ import {
 } from "@heroicons/react/20/solid";
 import SelectToken from "./SelectToken";
 import SwapButton from "./Buttons/SwapButton";
-import { ethers } from "ethers";
 import useInputBox from "../hooks/useInputBox";
+import allowance from "../utils/allowance";
+import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
+import CoverApproveButton from "../components/Buttons/CoverApproveButton";
+import { useAccount } from "wagmi";
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
 
 export default function Swap() {
+  const { address, isConnected } = useAccount();
   const [bnInput, inputBox] = useInputBox();
+
+
+  function CoverAllowance() {
+    if (allowance() == "0x00") {
+      return <CoverApproveButton amount={bnInput}/>;
+    }
+    else {
+      return <SwapButton amount={bnInput}/>;
+    }
+  }
+
 
   let [isOpen, setIsOpen] = useState(false);
   const [LimitActive, setLimitActive] = useState(false);
@@ -205,7 +217,7 @@ export default function Swap() {
             <Option />
           </div>
         </div>
-          <SwapButton amount={bnInput} />
+          {isConnected ? <CoverAllowance /> : <ConnectWalletButton />}
         </div>
       </div>
   );
