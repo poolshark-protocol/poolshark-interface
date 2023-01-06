@@ -38,9 +38,9 @@ export default function Cover() {
   async function getPoolData() {
     const data = await fetchPools()
     console.log(data.data.hedgePools[0].id)
-    console.log(data.data.hedgePools[0].token0.name.toString())
+    console.log(data.data.hedgePools[0].token0.name)
     console.log(data.data.hedgePools[0].token1.name)
-    return data.data.hedgePools[0].token1.name.toString();
+    return String(data.data.hedgePools[0].token1.name);
   }
 
   const tokenOneName = getPoolData();
