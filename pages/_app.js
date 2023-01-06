@@ -7,6 +7,7 @@ import {
 import { configureChains, createClient, WagmiConfig } from 'wagmi';
 import { mainnet, goerli } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
+import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 
 const { chains, provider } = configureChains(
   [mainnet, goerli],
@@ -30,14 +31,25 @@ const wagmiClient = createClient({
   provider
 })
 
+const apolloClient = new ApolloClient({
+  uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
+  cache: new InMemoryCache(),
+  cors: {
+      origin: "http://localhost:3000/",
+      credentials: true
+    },
+})
+
 function MyApp({ Component, pageProps }) {
 
   return (
-    <WagmiConfig client={wagmiClient}>
-      <RainbowKitProvider chains={chains}>
-        <Component {...pageProps} />
-      </RainbowKitProvider>
-    </WagmiConfig>
+    <ApolloProvider client={apolloClient}>
+      <WagmiConfig client={wagmiClient}>
+        <RainbowKitProvider chains={chains}>
+          <Component {...pageProps} />
+        </RainbowKitProvider>
+      </WagmiConfig>
+    </ApolloProvider>
   );
 }
 

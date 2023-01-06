@@ -1,4 +1,4 @@
-import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
+import { ApolloClient, InMemoryCache, gql, useQuery } from '@apollo/client'
 
 export const cleanInputValue = (arg) => {
     const re = /^[+-]?\d*(?:[.,]\d*)?$/
@@ -15,6 +15,36 @@ export const countDecimals = (value, tokenDecimals) => {
     }
     return false;
 };
+
+export function fetchReactPools() {
+    const POOLS_QUERY = gql`
+        query hedgePools($id: String!) {
+            hedgePools(orderBy: id, orderDirection: desc, id: $id) {
+                factory
+                id
+                inputPool
+                token0{
+                    id
+                    name
+                    symbol
+                    decimals
+                }
+                token1{
+                    id
+                    name
+                    symbol
+                    decimals
+                }
+            }
+        }
+    `
+    const { loading, error, data } = useQuery(POOLS_QUERY)
+    if (loading) return 'Loading...'
+    if (error) return `Error! ${error.message}`
+    console.log(data)
+
+}
+
 
 export const fetchPositions =  (account) => {
   return new Promise(function(resolve) {
@@ -81,46 +111,47 @@ export const fetchPositions =  (account) => {
 };
 
 export const fetchPools =  () => {
-  return new Promise(function(resolve) {
-    const poolsQuery =`
-        {
-            hedgePools(orderBy: id, orderDirection: desc) {
-                factory
-                id
-                inputPool
-                token0{
+    return new Promise(function(resolve) {
+        const poolsQuery =`
+            query($id: String) {
+                hedgePools(id: $id) {
+                    factory
                     id
-                    name
-                    symbol
-                    decimals
-                }
-                token1{
-                    id
-                    name
-                    symbol
-                    decimals
+                    inputPool
+                    token0{
+                        id
+                        name
+                        symbol
+                        decimals
+                    }
+                    token1{
+                        id
+                        name
+                        symbol
+                        decimals
+                    }
                 }
             }
-        }
-    `
-      const client = new ApolloClient({
-          uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
-          cache: new InMemoryCache(),
-          cors: {
-              origin: "http://localhost:3000/",
-              credentials: true
-            },
-      })
-      client
-          .query({ query: gql(poolsQuery), })
-          .then((data) => {
-              resolve(data)
+        `
+          const client = new ApolloClient({
+              uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
+              cache: new InMemoryCache(),
+              cors: {
+                  origin: "http://localhost:3000/",
+                  credentials: true
+                },
           })
-          .catch((err) => {
-              resolve(err)
-          })
-})
-};
+          client
+              .query({ query: gql(poolsQuery)})
+              .then((data) => {
+                  resolve(data)
+                  console.log(data)
+              })
+              .catch((err) => {
+                  resolve(err)
+              })
+            })
+};  
 
 export const fetchTokens =  (id) => {
     return new Promise(function(resolve) {
