@@ -15,12 +15,12 @@ import allowance from "../utils/allowance";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import { useAccount } from "wagmi";
+import TokenBalance from "../components/TokenBalance";
 
 
 export default function Swap() {
   const { address, isConnected } = useAccount();
   const [bnInput, inputBox] = useInputBox();
-
 
   function CoverAllowance() {
     if (allowance() == "0x00") {
@@ -124,7 +124,7 @@ export default function Swap() {
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
                   <div className="flex text-xs text-[#4C4C4C]">
-                    Balance: 420.69
+                    <TokenBalance />
                   </div>
                   <div className="flex text-xs uppercase text-[#C9C9C9]">
                     Max
@@ -155,8 +155,8 @@ export default function Swap() {
                   <SelectToken />
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                  <div className="text-xs text-[#4C4C4C]">Balance: 420.69</div>
-                  <div className="text-xs uppercase text-[#C9C9C9]">Max</div>
+                  <TokenBalance />
+                <div className="text-xs uppercase text-[#C9C9C9]">Max</div>
                 </div>
               </div>
             </div>

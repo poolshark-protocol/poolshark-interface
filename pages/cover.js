@@ -18,6 +18,7 @@ import allowance from "../utils/allowance";
 import useInputBox from "../hooks/useInputBox";
 import Link  from "next/link";
 import { fetchPools } from "../utils/queries";
+import TokenBalance from "../components/TokenBalance";
 
 
 export default function Cover() {
@@ -105,7 +106,7 @@ export default function Cover() {
                       </div>
                       <div className="flex items-center justify-end gap-2 px-1 mt-2">
                         <div className="text-xs text-[#4C4C4C]">
-                          Balance: 420.69
+                          <TokenBalance />
                         </div>
                         <div className="text-xs uppercase text-[#C9C9C9]">
                           Max
