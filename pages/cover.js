@@ -17,6 +17,7 @@ import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import allowance from "../utils/allowance";
 import useInputBox from "../hooks/useInputBox";
 import Link  from "next/link";
+import { fetchPools } from "../utils/queries";
 
 
 export default function Cover() {
@@ -33,6 +34,13 @@ export default function Cover() {
     }
   }
 
+  async function getPools() {
+    const data = await fetchPools()
+    console.log(data)
+  }
+
+  getPools()
+  
   const pools = [
     {
       name: 'USDC',

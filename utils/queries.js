@@ -83,28 +83,28 @@ export const fetchPositions =  (account) => {
 export const fetchPools =  () => {
   return new Promise(function(resolve) {
     const poolsQuery =`
-      {
-          hedgePools(orderBy: id, orderDirection: desc) {
-              factory
-              id
-              inputPool
-              token0{
-                  id
-                  name
-                  symbol
-                  decimals
+        {
+            hedgePools(orderBy: id, orderDirection: desc) {
+                factory
+                id
+                inputPool
+                token0{
+                    id
+                    name
+                    symbol
+                    decimals
                 }
-              token1{
-                  id
-                  name
-                  symbol
-                  decimals
+                token1{
+                    id
+                    name
+                    symbol
+                    decimals
                 }
-          }
+            }
         }
-      `
+    `
       const client = new ApolloClient({
-          uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool/",
+          uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
           cache: new InMemoryCache(),
           cors: {
               origin: "http://localhost:3000/",
@@ -135,12 +135,12 @@ export const fetchTokens =  (id) => {
           }
         `
         const client = new ApolloClient({
-            uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool/",
+            uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
             cache: new InMemoryCache(),
-            cors: {
+            /*cors: {
                 origin: "http://localhost:3000/",
                 credentials: true
-              },
+              },*/
         })
         client
             .query({ query: gql(tokensQuery), })
@@ -177,7 +177,7 @@ export const fetchUserPosPool =  (id) => {
         }
       `
       const client = new ApolloClient({
-          uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool/",
+          uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
           cache: new InMemoryCache(),
           cors: {
               origin: "http://localhost:3000/",

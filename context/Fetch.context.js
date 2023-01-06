@@ -1,7 +1,7 @@
 import { useState, createContext, useEffect, useContext } from 'react'
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 import { CoinContext } from './Coin.context'
-import { fetchPools, fetchPositions, fetchTokens } from '../utils';
+import { fetchPools, fetchPositions, fetchTokens } from '../utils/queries';
 
 export const OrdersContext = createContext()
 
