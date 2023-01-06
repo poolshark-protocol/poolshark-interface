@@ -36,7 +36,7 @@ export default function Cover() {
 
   async function getPools() {
     const data = await fetchPools()
-    console.log(data)
+    console.log(data.data.hedgePools[0].id)
   }
 
   getPools()
