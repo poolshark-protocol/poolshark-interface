@@ -34,18 +34,15 @@ export default function Cover() {
     }
   }
 
-  async function getPools() {
+  async function getPoolData() {
     const data = await fetchPools()
     console.log(data.data.hedgePools[0].id)
+    console.log(data.data.hedgePools[0].token0.name.toString())
+    console.log(data.data.hedgePools[0].token1.name)
+    return data.data.hedgePools[0].token1.name.toString();
   }
 
-  getPools()
-  
-  const pools = [
-    {
-      name: 'USDC',
-    },
-  ]
+  const tokenOneName = getPoolData();
 
   const Option = () => {
     if (expanded) {
@@ -179,9 +176,7 @@ export default function Cover() {
               <div>
                 <h1 className="mb-3">Poolshark Pools</h1>
                 <div className="space-y-2">
-                {pools.map((pool) => (
-                  <UserPool name={pool.name}/>
-                  ))}
+                  <UserPool name={"aahahaha"}/>
                 </div>
               </div>
               <div>
