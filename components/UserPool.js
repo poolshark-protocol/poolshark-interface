@@ -10,12 +10,12 @@ export default function UserPool({name}) {
       <div className="space-y-2">
         <div className="flex items-center gap-x-5">
           <div className="flex items-center ">
-            <img height="30" width="30" src="/static/images/token.png" />
+            <img height="30" width="30" src="/static/images/one.png" />
             <img
               height="30"
               width="30"
               className="ml-[-8px]"
-              src="/static/images/token.png"
+              src="/static/images/zero.png"
             />
           </div>
           {name}
