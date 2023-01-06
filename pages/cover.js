@@ -16,6 +16,7 @@ import CoverBurnButton from "../components/Buttons/CoverBurnButton";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import allowance from "../utils/allowance";
 import useInputBox from "../hooks/useInputBox";
+import Link  from "next/link";
 
 
 export default function Cover() {
@@ -73,8 +74,12 @@ export default function Cover() {
           <div className="flex justify-between mb-6 items-end">
             <h1 className="text-3xl">Cover</h1>
             <span className="bg-black flex items-center gap-x-2 border border-grey2 rounded-lg text-white px-6 py-[9px] cursor-pointer hover:opacity-80">
-              <InformationCircleIcon className="w-4 text-grey1" />
-              How it works?
+              <InformationCircleIcon className="w-4 text-grey1"  />
+              <Link href="https://docs.poolsharks.io/introduction/cover-pools/">
+                <a target="_blank">
+                  How it works?
+                </a>
+              </Link>
             </span>
           </div>
           <div className="flex space-x-8">
