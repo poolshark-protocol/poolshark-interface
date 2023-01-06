@@ -177,7 +177,7 @@ export default function Cover() {
               <div>
                 <h1 className="mb-3">Poolshark Pools</h1>
                 <div className="space-y-2">
-                  <UserPool name={"aahahaha"}/>
+                  <UserPool name={tokenOneName.toString()}/>
                 </div>
               </div>
               <div>
