@@ -40,7 +40,7 @@ export default function Cover() {
     console.log(data.data.hedgePools[0].id)
     console.log(data.data.hedgePools[0].token0.name)
     console.log(data.data.hedgePools[0].token1.name)
-    return String(data.data.hedgePools[0].token1.name);
+    return JSON.stringify(data.data.hedgePools[0].token1.name);
   }
 
   const tokenOneName = getPoolData();
@@ -177,7 +177,7 @@ export default function Cover() {
               <div>
                 <h1 className="mb-3">Poolshark Pools</h1>
                 <div className="space-y-2">
-                  <UserPool name={tokenOneName.toString()}/>
+                  <UserPool name={tokenOneName}/>
                 </div>
               </div>
               <div>
