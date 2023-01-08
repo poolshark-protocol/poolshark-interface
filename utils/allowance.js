@@ -18,7 +18,7 @@ export default function allowance() {
       onSuccess(data) {
         console.log("Success", data);
         console.log(ethers.utils.formatUnits(data, 18));
-        console.log(data._hex);
+        //console.log(data._hex);
       },
       onError(error) {
         console.log("Error", error);
@@ -35,7 +35,7 @@ export default function allowance() {
       },
     });
     
-    return data._hex;
+    return data?._hex;
 
   }
 

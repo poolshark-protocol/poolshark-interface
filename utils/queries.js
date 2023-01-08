@@ -16,36 +16,6 @@ export const countDecimals = (value, tokenDecimals) => {
     return false;
 };
 
-export function fetchReactPools() {
-    const POOLS_QUERY = gql`
-        query hedgePools($id: String!) {
-            hedgePools(orderBy: id, orderDirection: desc, id: $id) {
-                factory
-                id
-                inputPool
-                token0{
-                    id
-                    name
-                    symbol
-                    decimals
-                }
-                token1{
-                    id
-                    name
-                    symbol
-                    decimals
-                }
-            }
-        }
-    `
-    const { loading, error, data } = useQuery(POOLS_QUERY)
-    if (loading) return 'Loading...'
-    if (error) return `Error! ${error.message}`
-    console.log(data)
-
-}
-
-
 export const fetchPositions =  (account) => {
   return new Promise(function(resolve) {
     const positionsQuery =`

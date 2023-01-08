@@ -10,7 +10,7 @@ export default function InputBoxProp(props) {
         //const result = event.target.value.replace(/\D/g, '');
         const result = event.target.value.replace(/[^0-9\.|\,]/g, '')
         setInput(result);
-        console.log('value is:', result);
+        // console.log('value is:', result);
     };
 
     const inputBox = () => {
@@ -29,7 +29,7 @@ export default function InputBoxProp(props) {
     const switchToBn = () => {
         if (input !== null) {
             const valueToBn = ethers.utils.parseUnits(input, 0);
-            console.log('valueToBn is:', valueToBn);
+            // console.log('valueToBn is:', valueToBn);
             return valueToBn;
         }
     }

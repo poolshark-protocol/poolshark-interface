@@ -8,7 +8,7 @@ import {
 } from "@heroicons/react/20/solid";
 import UserPool from "../components/UserPool";
 import SelectToken from "../components/SelectToken";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import CoverMintButton from "../components/Buttons/CoverMintButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
@@ -20,11 +20,11 @@ import Link  from "next/link";
 import { fetchPools } from "../utils/queries";
 import TokenBalance from "../components/TokenBalance";
 
-
 export default function Cover() {
   const { address, isConnected } = useAccount();
   const [bnInput, inputBox] = useInputBox();
   const [expanded, setExpanded] = useState();
+  const [tokenOneName, setTokenOneName ] = useState();
 
   function CoverAllowance() {
     if (allowance() == "0x00") {
@@ -40,10 +40,17 @@ export default function Cover() {
     console.log(data.data.hedgePools[0].id)
     console.log(data.data.hedgePools[0].token0.name)
     console.log(data.data.hedgePools[0].token1.name)
-    return JSON.stringify(data.data.hedgePools[0].token1.name);
+    console.log(data.data.hedgePools)
+    const token1 = JSON.stringify(data.data.hedgePools[0].token1.name);
+    console.log('token1',token1)
+    setTokenOneName(token1);
   }
 
-  const tokenOneName = getPoolData();
+  //async so needs to be wrapped
+  useEffect(() => {
+    console.log('test')
+    getPoolData();
+  },[])
 
   const Option = () => {
     if (expanded) {
@@ -177,7 +184,7 @@ export default function Cover() {
               <div>
                 <h1 className="mb-3">Poolshark Pools</h1>
                 <div className="space-y-2">
-                  <UserPool name={tokenOneName}/>
+                  <UserPool key={tokenOneName} name={tokenOneName}/>
                 </div>
               </div>
               <div>

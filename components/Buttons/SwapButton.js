@@ -46,7 +46,6 @@ export default function SwapButton({amount}) {
     })
 
     const { data, isSuccess, write } = useContractWrite(config)
-    console.log(config)
 
       const {isLoading} = useWaitForTransaction({
     hash: data?.hash,

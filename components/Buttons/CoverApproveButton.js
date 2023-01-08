@@ -29,7 +29,6 @@ export default function CoverApproveButton({amount}) {
     })
 
     const { data, isSuccess, isError, write } = useContractWrite(config)
-    console.log(config)
 
     const {isLoading} = useWaitForTransaction({
     hash: data?.hash,
