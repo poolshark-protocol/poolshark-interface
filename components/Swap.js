@@ -23,7 +23,7 @@ export default function Swap() {
   const [bnInput, inputBox] = useInputBox();
 
   function CoverAllowance() {
-    if (allowance() == "0x00") {
+    if (allowance() == "0x00") { 
       return <CoverApproveButton amount={bnInput}/>;
     }
     else {
