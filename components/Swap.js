@@ -2,7 +2,7 @@ import {
   AdjustmentsHorizontalIcon,
   ArrowSmallDownIcon,
 } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Popover } from "@headlessui/react";
 import {
   ChevronDownIcon,
@@ -21,16 +21,20 @@ import TokenBalance from "../components/TokenBalance";
 export default function Swap() {
   const { address, isConnected } = useAccount();
   const [bnInput, inputBox] = useInputBox();
+  const [allow, setAllow] = useState();
 
-  function CoverAllowance() {
-    if (allowance() == "0x00") {
-      return <CoverApproveButton amount={bnInput}/>;
-    }
-    else {
-      return <SwapButton amount={bnInput}/>;
-    }
-  }
+  // function CoverAllowance() {
+  //   if (allowance() == "0x00") {
+  //     return <CoverApproveButton amount={bnInput}/>;
+  //   }
+  //   else {
+  //     return <SwapButton amount={bnInput}/>;
+  //   }
+  // }
 
+  useEffect(() => {
+    setAllow(allowance())
+  },[])
 
   let [isOpen, setIsOpen] = useState(false);
   const [LimitActive, setLimitActive] = useState(false);
@@ -217,7 +221,7 @@ export default function Swap() {
             <Option />
           </div>
         </div>
-          {isConnected ? <CoverAllowance /> : <ConnectWalletButton />}
+          {isConnected ? allow === "0x00" ? <CoverApproveButton amount={bnInput}/> :<SwapButton amount={bnInput}/> : <ConnectWalletButton />}
         </div>
       </div>
   );

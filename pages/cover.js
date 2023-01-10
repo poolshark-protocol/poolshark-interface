@@ -14,7 +14,7 @@ import CoverMintButton from "../components/Buttons/CoverMintButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import CoverBurnButton from "../components/Buttons/CoverBurnButton";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
-import allowance from "../utils/allowance";
+import allowanceFunction from "../utils/allowance";
 import useInputBox from "../hooks/useInputBox";
 import Link  from "next/link";
 import { fetchPools } from "../utils/queries";
@@ -25,15 +25,19 @@ export default function Cover() {
   const [bnInput, inputBox] = useInputBox();
   const [expanded, setExpanded] = useState();
   const [tokenOneName, setTokenOneName ] = useState();
+  const allowance = allowanceFunction()
+  // function CoverAllowance() {
+  //   if (allowance() == "0x00") {
+  //     return <CoverApproveButton amount={bnInput}/>;
+  //   }
+  //   else {
+  //     return <CoverMintButton amount={bnInput}/>;
+  //   }
+  // }
 
-  function CoverAllowance() {
-    if (allowance() == "0x00") {
-      return <CoverApproveButton amount={bnInput}/>;
-    }
-    else {
-      return <CoverMintButton amount={bnInput}/>;
-    }
-  }
+  // useEffect(() => {
+  //   CoverAllowance()
+  // })
 
   async function getPoolData() {
     const data = await fetchPools()
@@ -169,7 +173,7 @@ export default function Cover() {
                 </div>
               </div>
               <div className="space-y-3" >
-                {isConnected ? <CoverAllowance /> : <ConnectWalletButton />}
+                {isConnected ? allowance === "0x00" ? <CoverApproveButton amount={bnInput}/> : <CoverMintButton amount={bnInput}/> : <ConnectWalletButton />}
                 <CoverBurnButton />
               </div>
             </div>

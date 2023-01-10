@@ -18,6 +18,7 @@ export default function Navbar() {
                   src="/static/images/poolsharkmain.png"
                   layout="fill"
                   priority={true}
+                  posit
                   width={120}
                   height={72}
                   quality="90"

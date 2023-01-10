@@ -16,47 +16,50 @@ const GOERLI_CONTRACT_ADDRESS = '0x87B4784C1a8125dfB9Fb16F8A997128f346f5B13'
 
 
 export default function CoverApproveButton({amount}) {
+    const [ errorDisplay,    setErrorDisplay   ] = useState(false);
+    const [ successDisplay,  setSuccessDisplay ] = useState(false);
+    const [ configuration,   setConfig         ] = useState();
 
-  const [ errorDisplay, setErrorDisplay ] = useState(false);
-  const [ successDisplay, setSuccessDisplay ] = useState(false);
-
-    const { config } = usePrepareContractWrite({
-        address: tokenOneAddress,
-        abi: erc20ABI,
-        functionName: "approve",
-        args:[GOERLI_CONTRACT_ADDRESS, amount],
-        chainId: 5,
+    const config = usePrepareContractWrite({
+      address: tokenOneAddress,
+      abi: erc20ABI,
+      functionName: "approve",
+      args:[GOERLI_CONTRACT_ADDRESS, amount],
+      chainId: 5,
     })
 
-    const { data, isSuccess, isError, write } = useContractWrite(config)
+    useEffect(() => {
+      setConfig(config)
+    },[])
+
+    const { data, isSuccess, isError, write } = useContractWrite(configuration)
 
     const {isLoading} = useWaitForTransaction({
-    hash: data?.hash,
-    onSuccess() {
-      setSuccessDisplay(true);
-    },
-    onError() {
-      setErrorDisplay(true);
-    },
-  });
+        hash: data?.hash,
+        onSuccess() {
+          setSuccessDisplay(true);
+        },
+        onError() {
+          setErrorDisplay(true);
+        },
+    });
 
     return (
       <>
-
-        <div
-          className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
-          onClick={() => write?.()}
+        {/* <div
+          className="w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+          onClick={() => write()}
         >
           Approve
-        </div>
+        </div> */}
         <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
-      {errorDisplay && (
+      {/* {errorDisplay && (
         <ErrorToast
           hash={data?.hash}
           errorDisplay={errorDisplay}
           setErrorDisplay={setErrorDisplay}
         />
-      )}
+      )} */}
       {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
       {successDisplay && (
         <SuccessToast
