@@ -23,15 +23,6 @@ export default function Swap() {
   const [bnInput, inputBox] = useInputBox();
   const [allow, setAllow] = useState();
 
-  // function CoverAllowance() {
-  //   if (allowance() == "0x00") {
-  //     return <CoverApproveButton amount={bnInput}/>;
-  //   }
-  //   else {
-  //     return <SwapButton amount={bnInput}/>;
-  //   }
-  // }
-
   useEffect(() => {
     setAllow(allowance())
   },[])

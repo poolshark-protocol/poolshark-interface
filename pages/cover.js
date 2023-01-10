@@ -26,18 +26,6 @@ export default function Cover() {
   const [expanded, setExpanded] = useState();
   const [tokenOneName, setTokenOneName ] = useState();
   const allowance = allowanceFunction()
-  // function CoverAllowance() {
-  //   if (allowance() == "0x00") {
-  //     return <CoverApproveButton amount={bnInput}/>;
-  //   }
-  //   else {
-  //     return <CoverMintButton amount={bnInput}/>;
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   CoverAllowance()
-  // })
 
   async function getPoolData() {
     const data = await fetchPools()

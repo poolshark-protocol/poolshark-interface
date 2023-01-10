@@ -14,16 +14,16 @@ export default function Navbar() {
           <div className="flex items-center justify-start flex-shrink-0">
             <div className="relative w-40 md:h-40">
               <div className="hidden md:block">
+                <Link href="/">
                 <Image
                   src="/static/images/poolsharkmain.png"
+                  className="cursor-pointer"
                   layout="fill"
                   priority={true}
-                  posit
-                  width={120}
-                  height={72}
                   quality="90"
                   objectFit="contain"
                 />
+                </Link>
               </div>
               <div className="block md:hidden">
                 <Image
