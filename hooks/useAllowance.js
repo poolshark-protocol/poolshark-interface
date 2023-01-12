@@ -1,6 +1,7 @@
 import { useAccount, useContractRead, useWaitForTransaction } from "wagmi";
 import { erc20ABI } from "wagmi";
 import { ethers } from "ethers";
+import { useEffect, useState } from "react";
 
 export default function useAllowance() { 
     const { address, isConnected } = useAccount();
@@ -29,7 +30,9 @@ export default function useAllowance() {
       },
     });
 
-    setDataState(data?._hex);
+    useEffect(() => {
+      setDataState(data?._hex);
+    }, [data]);
 
     const {isError, isLoading} = useWaitForTransaction({
       hash: data?.hash,

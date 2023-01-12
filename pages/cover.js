@@ -20,9 +20,7 @@ import Link  from "next/link";
 import { fetchPools } from "../utils/queries";
 import TokenBalance from "../components/TokenBalance";
 import { useLazyQuery } from "@apollo/client";
-import { GET_ACTIVE_ITEMS } from "../constants/queries";
 import { POOLS_QUERY } from "../constants/subgraphQueries";
-import useAllowance from "../hooks/useAllowance";
 
 export default function Cover() {
   const { address, isConnected, isDisconnected } = useAccount();
@@ -184,7 +182,7 @@ export default function Cover() {
                 </div>
               </div>
               <div className="space-y-3" >
-                {isConnected ? allowance === "0x00" ? <CoverApproveButton amount={bnInput}/> : <CoverMintButton amount={bnInput}/> : <ConnectWalletButton />}
+                {isConnected ? dataState === "0x00" ? <CoverApproveButton amount={bnInput}/> : <CoverMintButton amount={bnInput}/> : <ConnectWalletButton />}
                 <CoverBurnButton />
               </div>
             </div>

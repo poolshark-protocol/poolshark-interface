@@ -5,7 +5,6 @@ export const POSITIONS_QUERY = gql`
         positions(
             orderBy: createdAtTimestamp
             orderDirection: desc
-            where: { createdBy: "${account.toLowerCase()}" }
         ) {
             id
             inAmount

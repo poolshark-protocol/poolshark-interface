@@ -21,11 +21,7 @@ import TokenBalance from "../components/TokenBalance";
 export default function Swap() {
   const { address, isConnected } = useAccount();
   const [bnInput, inputBox] = useInputBox();
-  const [allow, setAllow] = useState();
-
-  useEffect(() => {
-    setAllow(allowance())
-  },[])
+  const [dataState] = useAllowance();
 
   let [isOpen, setIsOpen] = useState(false);
   const [LimitActive, setLimitActive] = useState(false);
@@ -212,7 +208,7 @@ export default function Swap() {
             <Option />
           </div>
         </div>
-          {isConnected ? allow === "0x00" ? <CoverApproveButton amount={bnInput}/> :<SwapButton amount={bnInput}/> : <ConnectWalletButton />}
+          {isConnected ? dataState === "0x00" ? <CoverApproveButton amount={bnInput}/> :<SwapButton amount={bnInput}/> : <ConnectWalletButton />}
         </div>
       </div>
   );
