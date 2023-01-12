@@ -2,8 +2,9 @@ import { useAccount, useContractRead, useWaitForTransaction } from "wagmi";
 import { erc20ABI } from "wagmi";
 import { ethers } from "ethers";
 
-export default function allowance() { 
+export default function useAllowance() { 
     const { address, isConnected } = useAccount();
+    const [dataState, setDataState] = useState();
 
     const tokenOneAddress = "0xa9bAd443855B62E21BeF630afCdBa59a58680997";
     const GOERLI_CONTRACT_ADDRESS = "0x87B4784C1a8125dfB9Fb16F8A997128f346f5B13";
@@ -28,6 +29,8 @@ export default function allowance() {
       },
     });
 
+    setDataState(data?._hex);
+
     const {isError, isLoading} = useWaitForTransaction({
       hash: data?.hash,
       onSettled(data, error) {
@@ -35,7 +38,7 @@ export default function allowance() {
       },
     });
     
-    return data?._hex;
+    return [dataState];
 
   }
 

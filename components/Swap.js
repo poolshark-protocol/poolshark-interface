@@ -11,7 +11,7 @@ import {
 import SelectToken from "./SelectToken";
 import SwapButton from "./Buttons/SwapButton";
 import useInputBox from "../hooks/useInputBox";
-import allowance from "../utils/allowance";
+import allowance from "../hooks/useAllowance";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import { useAccount } from "wagmi";

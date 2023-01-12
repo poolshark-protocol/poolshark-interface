@@ -14,18 +14,25 @@ import CoverMintButton from "../components/Buttons/CoverMintButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import CoverBurnButton from "../components/Buttons/CoverBurnButton";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
-import allowanceFunction from "../utils/allowance";
+import useAllowance from "../hooks/useAllowance";
 import useInputBox from "../hooks/useInputBox";
 import Link  from "next/link";
 import { fetchPools } from "../utils/queries";
 import TokenBalance from "../components/TokenBalance";
+import { useLazyQuery } from "@apollo/client";
+import { GET_ACTIVE_ITEMS } from "../constants/queries";
+import { POOLS_QUERY } from "../constants/subgraphQueries";
+import useAllowance from "../hooks/useAllowance";
 
 export default function Cover() {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, isDisconnected } = useAccount();
   const [bnInput, inputBox] = useInputBox();
+  const [dataState] = useAllowance();
+
   const [expanded, setExpanded] = useState();
   const [tokenOneName, setTokenOneName ] = useState();
-  const allowance = allowanceFunction()
+
+  //const allowance = allowanceFunction();
 
   async function getPoolData() {
     const data = await fetchPools()
@@ -43,6 +50,22 @@ export default function Cover() {
     console.log('test')
     getPoolData();
   },[])
+
+  const [fetchActiveItems, { loading, error: fetchActiveItemError, data}] =
+    useLazyQuery(POOLS_QUERY);
+  
+  useEffect(() => {
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+    if (!isDisconnected) {
+      try {
+        fetchActiveItems();
+      } catch (error) {
+        console.error(`Fetch active item error: ${error}`);
+      }
+    }
+  }, [isDisconnected]);
 
   const Option = () => {
     if (expanded) {
