@@ -14,7 +14,7 @@ import CoverMintButton from "../components/Buttons/CoverMintButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import CoverBurnButton from "../components/Buttons/CoverBurnButton";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
-import Allowance from "../hooks/useAllowance";
+import useAllowance from "../hooks/useAllowance";
 import useInputBox from "../hooks/useInputBox";
 import Link  from "next/link";
 import { fetchPools } from "../utils/queries";
@@ -26,16 +26,15 @@ import React from "react";
 export default function Cover() {
   const { address, isConnected, isDisconnected } = useAccount();
   const [bnInput, inputBox] = useInputBox();
-  const dataState = useRef(Allowance());
-  const stateRef = useRef(dataState);
-  const allowanceComp = useRef(
-  <div className="space-y-3" >
-    {isConnected ? stateRef === "0x00" ? <CoverApproveButton amount={bnInput}/> : <CoverMintButton amount={bnInput}/> : <ConnectWalletButton />}
-    <CoverBurnButton />
-  </div>)
+
+  const [dataState] = useAllowance();
+
+  const newData = useEffect(() => {
+    newData = dataState;
+  }, []);
 
   const [expanded, setExpanded] = useState();
-  const [tokenOneName, setTokenOneName ] = useState();
+  const [tokenOneName, setTokenOneName] = useState();
 
   //const allowance = allowanceFunction();
 
@@ -188,7 +187,6 @@ export default function Cover() {
                   <Option />
                 </div>
               </div>
-              <div ref={allowanceComp} >
               </div>
             </div>
             <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">
@@ -199,6 +197,10 @@ export default function Cover() {
                   placeholder="Search name, symbol or address"
                 />
               </div>
+                <div className="space-y-3" >
+                  {isConnected ? newData === "0x00" ? <CoverApproveButton amount={bnInput}/> : <CoverMintButton amount={bnInput}/> : <ConnectWalletButton />}
+                  <CoverBurnButton />
+                </div>
               <div>
                 <h1 className="mb-3">Poolshark Pools</h1>
                 <div className="space-y-2">
@@ -214,6 +216,5 @@ export default function Cover() {
           </div>
         </div>
       </div>
-    </div>
   );
 }
