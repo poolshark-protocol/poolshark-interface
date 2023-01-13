@@ -15,7 +15,7 @@ export default function Navbar() {
           <div className="flex items-center justify-start flex-shrink-0">
             <div className="relative w-40 md:h-40">
               <div className="hidden md:block">
-                <Link href={homeHref}>
+                {/*<Link href={homeHref}>*/}
                 <Image
                   src="/static/images/poolsharkmain.png"
                   className="cursor-pointer"
@@ -24,7 +24,7 @@ export default function Navbar() {
                   quality="90"
                   objectFit="contain"
                 />
-              </Link>
+              {/*</Link>*/}
               </div>
               <div className="block md:hidden">
                 <Image
