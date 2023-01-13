@@ -3,13 +3,15 @@ import {
   ExclamationTriangleIcon
 } from "@heroicons/react/20/solid";
 import { Popover } from "@headlessui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 export default function UserPool({name}) {
 const [show, setShow] = useState(false);
 
-  console.log('component name:', name)
+  useEffect(() => {
+    console.log('component name:', name)
+  },[])
   
   
   return (
@@ -22,7 +24,7 @@ const [show, setShow] = useState(false);
         onMouseLeave={(e) => {
           setShow(false);
         }}
-        className="w-full cursor-pointer flex justify-between items-center bg-dark border border-grey2 rounded-xl py-3.5 pl-5 h-24"
+        className="w-full cursor-pointer flex justify-between items-center bg-dark border border-grey2 rounded-xl py-3.5 pl-5 h-24 relative"
       >
         <div className="space-y-2">
           <div className="flex items-center gap-x-5">
@@ -49,7 +51,7 @@ const [show, setShow] = useState(false);
           </div>
         </div>
         {show ? <div
-      className="bg-black rounded-r-xl pt-3 border-l-grey1 border-l"
+      className="bg-black rounded-r-xl pt-3 border-l-grey1 border-l absolute right-0"
       >
         <div className="flex gap-x-10 px-4 text-[#646464] mb-2">
         <div>

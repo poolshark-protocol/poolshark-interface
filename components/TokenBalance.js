@@ -23,9 +23,10 @@ export default function TokenBalance() {
     useEffect(() => {
         setInfo(data)
     },[])
+
     return (
         <div className="text-xs text-[#4C4C4C]">
-            Balance: {info?.formatted + " " + info?.symbol}
+            Balance: {data?.formatted} {data?.symbol}
         </div>
     )
 
