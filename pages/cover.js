@@ -8,24 +8,31 @@ import {
 } from "@heroicons/react/20/solid";
 import UserPool from "../components/UserPool";
 import SelectToken from "../components/SelectToken";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAccount } from "wagmi";
 import CoverMintButton from "../components/Buttons/CoverMintButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import CoverBurnButton from "../components/Buttons/CoverBurnButton";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
-import useAllowance from "../hooks/useAllowance";
+import Allowance from "../hooks/useAllowance";
 import useInputBox from "../hooks/useInputBox";
 import Link  from "next/link";
 import { fetchPools } from "../utils/queries";
 import TokenBalance from "../components/TokenBalance";
 import { useLazyQuery } from "@apollo/client";
 import { POOLS_QUERY } from "../constants/subgraphQueries";
+import React from "react";
 
 export default function Cover() {
   const { address, isConnected, isDisconnected } = useAccount();
   const [bnInput, inputBox] = useInputBox();
-  const [dataState] = useAllowance();
+  const dataState = useRef(Allowance());
+  const stateRef = useRef(dataState);
+  const allowanceComp = useRef(
+  <div className="space-y-3" >
+    {isConnected ? stateRef === "0x00" ? <CoverApproveButton amount={bnInput}/> : <CoverMintButton amount={bnInput}/> : <ConnectWalletButton />}
+    <CoverBurnButton />
+  </div>)
 
   const [expanded, setExpanded] = useState();
   const [tokenOneName, setTokenOneName ] = useState();
@@ -181,9 +188,7 @@ export default function Cover() {
                   <Option />
                 </div>
               </div>
-              <div className="space-y-3" >
-                {isConnected ? dataState === "0x00" ? <CoverApproveButton amount={bnInput}/> : <CoverMintButton amount={bnInput}/> : <ConnectWalletButton />}
-                <CoverBurnButton />
+              <div ref={allowanceComp} >
               </div>
             </div>
             <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">

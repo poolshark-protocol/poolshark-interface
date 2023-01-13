@@ -21,7 +21,7 @@ import TokenBalance from "../components/TokenBalance";
 export default function Swap() {
   const { address, isConnected } = useAccount();
   const [bnInput, inputBox] = useInputBox();
-  const [dataState] = useAllowance();
+  //const [dataState] = useAllowance();
 
   let [isOpen, setIsOpen] = useState(false);
   const [LimitActive, setLimitActive] = useState(false);

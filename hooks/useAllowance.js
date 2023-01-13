@@ -2,8 +2,13 @@ import { useAccount, useContractRead, useWaitForTransaction } from "wagmi";
 import { erc20ABI } from "wagmi";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
+import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
+import CoverMintButton from "../components/Buttons/CoverMintButton";
+import CoverBurnButton from "../components/Buttons/CoverBurnButton";
+import CoverApproveButton from "../components/Buttons/CoverApproveButton";
+import useInputBox from "../hooks/useInputBox";
 
-export default function useAllowance() { 
+export default function Allowance() { 
     const { address, isConnected } = useAccount();
     const [dataState, setDataState] = useState();
 
@@ -17,7 +22,8 @@ export default function useAllowance() {
       watch: true,
       args: [address, GOERLI_CONTRACT_ADDRESS],
       chainId: 5,
-      structuralSharing: true,
+      staleTime: Infinity,
+      scopeKey: 'wagmi',
       onSuccess(data) {
         console.log("Success", data);
         console.log(ethers.utils.formatUnits(data, 18));
@@ -41,7 +47,7 @@ export default function useAllowance() {
       },
     }, []);
     
-    return [dataState];
+    return {dataState}
 
   }
 
