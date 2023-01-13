@@ -17,7 +17,7 @@ const GOERLI_CONTRACT_ADDRESS = '0x87B4784C1a8125dfB9Fb16F8A997128f346f5B13'
 export default function CoverBurnButton() {
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
-  const [ successDisplay, setSuccessDisplay ] = useState(false);
+    const [ successDisplay, setSuccessDisplay ] = useState(false);
 
     const { address, isConnecting, isDisconnecting } = useAccount()
 

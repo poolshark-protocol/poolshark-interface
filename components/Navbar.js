@@ -6,7 +6,6 @@ import { ConnectButton } from '@rainbow-me/rainbowkit'
 export default function Navbar() {
 
   const router = useRouter();
-  const HomeLink = React.forwardRef((props, ref) => <NavLink {...props} ref={ref} />);
   
   return (
     <div className="md:px-10 px-4 pt-3 mx-auto w-full">
@@ -15,7 +14,7 @@ export default function Navbar() {
           <div className="flex items-center justify-start flex-shrink-0">
             <div className="relative w-40 md:h-40">
               <div className="hidden md:block">
-                <Link component={HomeLink}>
+                <Link href="/">
                 <Image
                   src="/static/images/poolsharkmain.png"
                   className="cursor-pointer"
@@ -24,7 +23,7 @@ export default function Navbar() {
                   quality="90"
                   objectFit="contain"
                 />
-                </Link>
+              </Link>
               </div>
               <div className="block md:hidden">
                 <Image
