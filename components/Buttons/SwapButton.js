@@ -20,42 +20,39 @@ export default function SwapButton({amount}) {
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
 
-    const { address, isConnecting, isDisconnecting } = useAccount()
+  const { address, isConnecting, isDisconnecting } = useAccount()
+  const userAddress = address;
 
-    const userAddress = address;
-  
-    const balance = useBalance({
-      address: token1Address,
+  const balance = useBalance({
+    address: token1Address,
+    chainId: 5,
+  })
+  const { config } = usePrepareContractWrite({
+      address: GOERLI_CONTRACT_ADDRESS,
+      abi: poolsharkHedgePoolABI,
+      functionName: "swap",
+      args:[
+          userAddress,
+          false,
+          amount,
+          ethers.utils.parseUnits("30", 18),
+      ],
       chainId: 5,
-    })
-
-    const { config } = usePrepareContractWrite({
-        address: GOERLI_CONTRACT_ADDRESS,
-        abi: poolsharkHedgePoolABI,
-        functionName: "swap",
-        args:[
-            userAddress,
-            false,
-            amount,
-            ethers.utils.parseUnits("30", 18),
-        ],
-        chainId: 5,
-        overrides:{
-          gasLimit: 140000
-        },
-    })
-
+      overrides:{
+        gasLimit: 140000
+      },
+  })
     const { data, isSuccess, write } = useContractWrite(config)
 
-      const {isLoading} = useWaitForTransaction({
-    hash: data?.hash,
-    onSuccess() {
-      setSuccessDisplay(true);
-    },
-    onError() {
-      setErrorDisplay(true);
-    },
-  });
+    const {isLoading} = useWaitForTransaction({
+      hash: data?.hash,
+      onSuccess() {
+        setSuccessDisplay(true);
+      },
+      onError() {
+        setErrorDisplay(true);
+      },
+    });
 
     return (
       <>

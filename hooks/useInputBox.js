@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 
 export default function useInputBox() {
 
-    const [input, setInput] = useState();
+    const [input, setInput] = useState("");
     const [bnInput, setBnInput] = useState();
     
     const handleChange = event => {
@@ -15,7 +15,7 @@ export default function useInputBox() {
         if (result !== "") {
             const valueToBn = ethers.utils.parseUnits(result, 18);
             setBnInput(valueToBn);
-          }
+        }
     };
 
     const inputBox = () => {

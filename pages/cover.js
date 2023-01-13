@@ -8,7 +8,7 @@ import {
 } from "@heroicons/react/20/solid";
 import UserPool from "../components/UserPool";
 import SelectToken from "../components/SelectToken";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import CoverMintButton from "../components/Buttons/CoverMintButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
@@ -99,7 +99,7 @@ export default function Cover() {
   };
 
   return (
-    <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-DMSans">
+<div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-DMSans">
       <Navbar />
       <div className="flex justify-center w-full text-white">
         <div className="mt-[16vh] w-[70rem]">
@@ -187,6 +187,9 @@ export default function Cover() {
                   <Option />
                 </div>
               </div>
+              <div className="space-y-3" >
+                {isConnected ? newData === "0x00" ? <CoverApproveButton amount={bnInput}/> : <CoverMintButton amount={bnInput}/> : <ConnectWalletButton />}
+                <CoverBurnButton />
               </div>
             </div>
             <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">
@@ -197,10 +200,6 @@ export default function Cover() {
                   placeholder="Search name, symbol or address"
                 />
               </div>
-                <div className="space-y-3" >
-                  {isConnected ? newData === "0x00" ? <CoverApproveButton amount={bnInput}/> : <CoverMintButton amount={bnInput}/> : <ConnectWalletButton />}
-                  <CoverBurnButton />
-                </div>
               <div>
                 <h1 className="mb-3">Poolshark Pools</h1>
                 <div className="space-y-2">
@@ -216,5 +215,6 @@ export default function Cover() {
           </div>
         </div>
       </div>
+    </div>
   );
 }
