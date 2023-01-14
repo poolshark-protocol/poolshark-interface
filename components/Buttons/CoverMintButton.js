@@ -15,25 +15,29 @@ const GOERLI_CONTRACT_ADDRESS = "0x87B4784C1a8125dfB9Fb16F8A997128f346f5B13";
 
 export default function CoverMintButton({amount}) {
 
-  // const [ errorDisplay, setErrorDisplay ] = useState(false);
-  // const [ successDisplay, setSuccessDisplay ] = useState(false);
+  const [ errorDisplay, setErrorDisplay ] = useState(false);
+  const [ successDisplay, setSuccessDisplay ] = useState(false);
 
-  const write = () => {
-    contractUtils.write({
-      abi: poolsharkHedgePoolABI,
-      address: GOERLI_CONTRACT_ADDRESS,
-      functionName: 'mint',
-      params: [
-        ethers.utils.parseUnits("0", 0),
-        ethers.utils.parseUnits("20", 0),
-        ethers.utils.parseUnits("887272", 0),
-        ethers.utils.parseUnits("30", 0),
-        amount,
-        false,
-        false,
-      ],
-    });
-  }
+  const { config } = usePrepareContractWrite({
+    address: GOERLI_CONTRACT_ADDRESS,
+    abi: poolsharkHedgePoolABI,
+    functionName: "mint",
+    args: [
+      ethers.utils.parseUnits("0", 0),
+      ethers.utils.parseUnits("20", 0),
+      ethers.utils.parseUnits("887272", 0),
+      ethers.utils.parseUnits("30", 0),
+      amount,
+      false,
+      false,
+    ],
+    chainId: 5,
+    overrides: {
+      gasLimit: 350000,
+    },
+  });
+
+  const { data, write } = useContractWrite(config);
 
   const {isLoading} = useWaitForTransaction({
     hash: data?.hash,
@@ -45,6 +49,7 @@ export default function CoverMintButton({amount}) {
     },
   });
 
+
   return (
     <>
       <div
@@ -53,7 +58,7 @@ export default function CoverMintButton({amount}) {
       >
         Create Cover
       </div>
-      {/* <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
+      <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
       {errorDisplay && (
         <ErrorToast
           hash={data?.hash}
@@ -69,7 +74,7 @@ export default function CoverMintButton({amount}) {
           setSuccessDisplay={setSuccessDisplay}
         />
       )}
-      </div> */}
+      </div>
     </>
   );
 }

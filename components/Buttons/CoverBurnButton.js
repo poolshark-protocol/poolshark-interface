@@ -58,7 +58,7 @@ export default function CoverBurnButton() {
                 Burn position
         </div>
         <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
-      {/* {errorDisplay && (
+      {errorDisplay && (
         <ErrorToast
           hash={data?.hash}
           errorDisplay={errorDisplay}
@@ -72,7 +72,7 @@ export default function CoverBurnButton() {
           successDisplay={successDisplay}
           setSuccessDisplay={setSuccessDisplay}
         />
-      )} */}
+      )}
       </div>
         </>
     );

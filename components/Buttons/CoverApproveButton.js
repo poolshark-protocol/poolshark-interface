@@ -29,40 +29,40 @@ export default function CoverApproveButton({amount}) {
     });
   }
 
-    // const {isLoading} = useWaitForTransaction({
-    //     hash: data?.hash,
-    //     onSuccess() {
-    //       setSuccessDisplay(true);
-    //     },
-    //     onError() {
-    //       setErrorDisplay(true);
-    //     },
-    // });
+    const {isLoading} = useWaitForTransaction({
+        hash: data?.hash,
+        onSuccess() {
+          setSuccessDisplay(true);
+        },
+        onError() {
+          setErrorDisplay(true);
+        },
+    });
 
     return (
       <>
-        {/* <div
+        <div
           className="w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
           onClick={() => write()}
         >
           Approve
-        </div> */}
+        </div>
         <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
-      {/* {errorDisplay && (
+      {errorDisplay && (
         <ErrorToast
           hash={data?.hash}
           errorDisplay={errorDisplay}
           setErrorDisplay={setErrorDisplay}
         />
-      )} */}
-      {/* {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>} */}
-      {/* {successDisplay && (
+      )}
+      {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
+      {successDisplay && (
         <SuccessToast
           hash={data?.hash}
           successDisplay={successDisplay}
           setSuccessDisplay={setSuccessDisplay}
         />
-      )} */}
+      )}
       </div>
       </>
     );

@@ -68,7 +68,7 @@ export default function SwapButton({amount}) {
                 Swap
         </button>
         <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
-      {/* {errorDisplay && (
+      {errorDisplay && (
         <ErrorToast
           hash={data?.hash}
           errorDisplay={errorDisplay}
@@ -82,7 +82,7 @@ export default function SwapButton({amount}) {
           successDisplay={successDisplay}
           setSuccessDisplay={setSuccessDisplay}
         />
-      )} */}
+      )}
       </div>
       </>
     );

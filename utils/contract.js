@@ -45,6 +45,7 @@ const writeResults = useContractWrite({
     onError,
 });
 
+
 return { refetch, prepareWriteError, ...writeResults };
 };
 
