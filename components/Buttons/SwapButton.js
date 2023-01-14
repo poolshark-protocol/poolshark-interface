@@ -54,15 +54,21 @@ export default function SwapButton({amount}) {
       },
     });
 
+    const writeFunction = (address) => {
+      if (address) {
+        write();
+      }
+    }
+
     return (
       <>
-        <div className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
-            onClick={() => address ?  write?.() : null}
+        <button className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+            // onClick={() => writeFunction(address)}
               >
                 Swap
-        </div>
+        </button>
         <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
-      {errorDisplay && (
+      {/* {errorDisplay && (
         <ErrorToast
           hash={data?.hash}
           errorDisplay={errorDisplay}
@@ -76,7 +82,7 @@ export default function SwapButton({amount}) {
           successDisplay={successDisplay}
           setSuccessDisplay={setSuccessDisplay}
         />
-      )}
+      )} */}
       </div>
       </>
     );

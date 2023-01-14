@@ -8,8 +8,7 @@ import CoverBurnButton from "../components/Buttons/CoverBurnButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import useInputBox from "../hooks/useInputBox";
 
-export default function useAllowance() { 
-  const { address, isConnected } = useAccount();
+export default function useAllowance(address, isConnected, isDisconnected) { 
   const [dataState, setDataState] = useState();
   const tokenOneAddress = "0xa9bAd443855B62E21BeF630afCdBa59a58680997";
   const GOERLI_CONTRACT_ADDRESS = "0x87B4784C1a8125dfB9Fb16F8A997128f346f5B13";

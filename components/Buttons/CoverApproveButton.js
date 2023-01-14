@@ -20,29 +20,24 @@ export default function CoverApproveButton({amount}) {
     const [ successDisplay,  setSuccessDisplay ] = useState(false);
     const [ configuration,   setConfig         ] = useState();
 
-    const config = usePrepareContractWrite({
-      address: tokenOneAddress,
+    const write = () => {
+      contractUtils.write({
       abi: erc20ABI,
-      functionName: "approve",
-      args:[GOERLI_CONTRACT_ADDRESS, amount],
-      chainId: 5,
-    })
-
-    useEffect(() => {
-      setConfig(config)
-    },[])
-
-    const { data, isSuccess, isError, write } = useContractWrite(configuration)
-
-    const {isLoading} = useWaitForTransaction({
-        hash: data?.hash,
-        onSuccess() {
-          setSuccessDisplay(true);
-        },
-        onError() {
-          setErrorDisplay(true);
-        },
+      address: tokenOneAddress,
+      functionName: 'approve',
+      params: [GOERLI_CONTRACT_ADDRESS, amount],
     });
+  }
+
+    // const {isLoading} = useWaitForTransaction({
+    //     hash: data?.hash,
+    //     onSuccess() {
+    //       setSuccessDisplay(true);
+    //     },
+    //     onError() {
+    //       setErrorDisplay(true);
+    //     },
+    // });
 
     return (
       <>
@@ -60,14 +55,14 @@ export default function CoverApproveButton({amount}) {
           setErrorDisplay={setErrorDisplay}
         />
       )} */}
-      {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-      {successDisplay && (
+      {/* {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>} */}
+      {/* {successDisplay && (
         <SuccessToast
           hash={data?.hash}
           successDisplay={successDisplay}
           setSuccessDisplay={setSuccessDisplay}
         />
-      )}
+      )} */}
       </div>
       </>
     );

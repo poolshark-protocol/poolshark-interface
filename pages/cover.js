@@ -9,7 +9,7 @@ import {
 import UserPool from "../components/UserPool";
 import SelectToken from "../components/SelectToken";
 import { useState, useEffect } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useProvider } from "wagmi";
 import CoverMintButton from "../components/Buttons/CoverMintButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import CoverBurnButton from "../components/Buttons/CoverBurnButton";
@@ -24,10 +24,30 @@ import { POOLS_QUERY } from "../constants/subgraphQueries";
 import React from "react";
 
 export default function Cover() {
-  const { address, isConnected, isDisconnected } = useAccount();
-  const [bnInput, inputBox] = useInputBox();
+  const {
+    network: { chainId },
+  } = useProvider();
+  const { 
+    address,
+    isConnected, 
+    isDisconnected 
+  } = useAccount();
 
-  const [dataState] = useAllowance();
+  useEffect(() => {
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+    if (!isDisconnected) {
+      try {
+        fetchActiveItems();
+      } catch (error) {
+        console.error(`Fetch active item error: ${error}`);
+      }
+    }
+  }, [isDisconnected]);
+
+  const [bnInput, inputBox] = useInputBox();
+  const [dataState] = useAllowance(address, isConnected, isDisconnected);
 
   const newData = useEffect(() => {
     newData = dataState;
@@ -58,18 +78,7 @@ export default function Cover() {
   const [fetchActiveItems, { loading, error: fetchActiveItemError, data}] =
     useLazyQuery(POOLS_QUERY);
   
-  useEffect(() => {
-    let vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
 
-    if (!isDisconnected) {
-      try {
-        fetchActiveItems();
-      } catch (error) {
-        console.error(`Fetch active item error: ${error}`);
-      }
-    }
-  }, [isDisconnected]);
 
   const Option = () => {
     if (expanded) {
@@ -188,7 +197,7 @@ export default function Cover() {
                 </div>
               </div>
               <div className="space-y-3" >
-                {isConnected ? newData === "0x00" ? <CoverApproveButton amount={bnInput}/> : <CoverMintButton amount={bnInput}/> : <ConnectWalletButton />}
+                {isConnected && newData === "0x00" ? <CoverApproveButton amount={bnInput}/> : <CoverMintButton amount={bnInput}/>}
                 <CoverBurnButton />
               </div>
             </div>
