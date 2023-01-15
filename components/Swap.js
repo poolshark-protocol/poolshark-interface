@@ -122,9 +122,9 @@ export default function Swap() {
                   <div className="flex text-xs text-[#4C4C4C]">
                     {tokenBalanceBox()}
                   </div>
-                  <div className="flex text-xs uppercase text-[#C9C9C9]">
+                  <button className="flex text-xs uppercase text-[#C9C9C9]">
                     Max
-                  </div>
+                  </button>
                 </div>
               </div>
             </div>
@@ -152,7 +152,7 @@ export default function Swap() {
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
                   {/*<TokenBalance />*/}
-                <div className="text-xs uppercase text-[#C9C9C9]">Max</div>
+                <button className="text-xs uppercase text-[#C9C9C9]">Max</button>
                 </div>
               </div>
             </div>
