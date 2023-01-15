@@ -23,6 +23,42 @@ import useTokenBalance from "../hooks/useTokenBalance";
 import React from "react";
 
 export default function Cover() {
+    const [maxPrice, setMaxPrice] = useState(0);
+    const [disabled, setDisabled] = useState(true);
+
+ 
+  const increaseMaxPrice = () => {
+    setMaxPrice(count => count + 1);
+  };
+
+  const [minPrice, setMinPrice] = useState(0);
+ 
+  const increaseMinPrice = () => {
+    setMinPrice(count => count + 1);
+  };
+
+  const decreaseMinPrice = () => {
+  if (minPrice > 0) {
+    setMinPrice(count => count - 1);
+  }
+};
+  const decreaseMaxPrice = () => {
+  if (maxPrice > 0) {
+    setMaxPrice(count => count - 1);
+  }
+};
+
+
+    const handleChange = event => {
+        //const valueToBn = ethers.utils.parseUnits(event.target.value, 0);
+        //const result = event.target.value.replace(/\D/g, '');
+        const result = event.target.value.replace(/[^0-9\.|\,]/g, '')
+        //TODO: make 
+        setMaxPrice(result);
+        setMinPrice(result);
+        // console.log('value is:', result);
+    };
+ 
   const {
     network: { chainId },
   } = useProvider();
@@ -174,11 +210,11 @@ export default function Cover() {
               <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg mb-4">
                 <span className="text-xs text-grey">Min. Price</span>
                 <div className="flex justify-center items-center">
-                  <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white">
+                  <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600" onClick={decreaseMinPrice}>
                     <MinusIcon className="w-5 h-5 ml-[2.5px]" />
                   </div>
-                  <input className="bg-[#0C0C0C] py-2 outline-none text-center" />
-                  <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white">
+                  <input className="bg-[#0C0C0C] py-2 outline-none text-center" placeholder="0" onChange={handleChange} value={minPrice}/>
+                  <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600" onClick={increaseMinPrice}>
                     <PlusIcon className="w-5 h-5" />
                   </div>
                 </div>
@@ -187,11 +223,11 @@ export default function Cover() {
               <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
                 <span className="text-xs text-grey">Max. Price</span>
                 <div className="flex justify-center items-center">
-                  <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white">
+                  <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600" onClick={decreaseMaxPrice}>
                     <MinusIcon className="w-5 h-5 ml-[2.5px]" />
                   </div>
-                  <input className="bg-[#0C0C0C] py-2 outline-none text-center" />
-                  <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white">
+                  <input className="bg-[#0C0C0C] py-2 outline-none text-center" placeholder="0" onChange={handleChange} value={maxPrice}/>
+                  <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600" onClick={increaseMaxPrice}>
                     <PlusIcon className="w-5 h-5" />
                   </div>
                 </div>
