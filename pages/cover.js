@@ -139,9 +139,9 @@ export default function Cover() {
                         <div className="text-xs text-[#4C4C4C]">
                           {tokenBalanceBox()}
                         </div>
-                        <div className="text-xs uppercase text-[#C9C9C9]">
+                        <button className="text-xs uppercase text-[#C9C9C9]" onClick={() => inputBox(tokenBalanceInfo?.formatted)}>
                           Max
-                        </div>
+                        </button>
                       </div>
                     </div>
                   </div>

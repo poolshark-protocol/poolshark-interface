@@ -8,8 +8,6 @@ export default function useTokenBalance() {
 
     const userAddress = address
 
-    //TODO: token balance returns empty value
-
     const { data } = useBalance({
         address: userAddress,
         token: "0xa9bAd443855B62E21BeF630afCdBa59a58680997",
