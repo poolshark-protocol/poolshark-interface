@@ -73,7 +73,7 @@ useEffect
           </div>
         </div>
         {show ? <div
-      className="bg-black rounded-r-xl pt-3 border-l-grey1 border-l absolute right-0"
+      className="bg-black rounded-r-xl pt-1 border-l-grey1 border-l absolute w-full left-0"
       >
         <div className="flex gap-x-10 px-4 text-[#646464] mb-2">
         <div>
@@ -84,7 +84,7 @@ useEffect
           <h1 className="text-xs">Pool: <span>{poolDisplay}</span></h1>
         </div>
         
-        <div className="bg-dark py-2 text-center rounded-br-xl border-t-grey1 border-t">
+        <div className="bg-dark text-sm py-1 text-center rounded-br-xl border-t-grey1 border-t">
           <h1>Unclaimed Rewards: $34.56</h1>
         </div>
       </div> : <div className="pr-5"><div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
