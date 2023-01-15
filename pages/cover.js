@@ -68,10 +68,13 @@ export default function Cover() {
   }
 
   async function getPositionData() {
-    const data = await fetchPositions(address)
+    const data = await fetchPositions()
     const positionOwner = JSON.stringify(data.data.positions[0].owner);
     console.log('positionOwner',positionOwner)
-    setPositionOwner(positionOwner);
+    if (positionOwner === address){
+      console.log("matched address with position owner")
+      setPositionOwner(positionOwner);
+    }
   }
 
   //async so needs to be wrapped

@@ -16,7 +16,7 @@ export const countDecimals = (value, tokenDecimals) => {
     return false;
 };
 
-export const fetchPositions =  (account) => {
+export const fetchPositions =  () => {
   return new Promise(function(resolve) {
     const positionsQuery =`
       query($owner: String) {
