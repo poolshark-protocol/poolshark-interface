@@ -6,7 +6,7 @@ import {
     useAccount,
     useBalance
 } from 'wagmi';
-import { poolsharkHedgePoolABI } from "../../abis/evm/poolsharkHedgePool";
+import { coverPoolABI } from "../../abis/evm/coverPool";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
@@ -27,7 +27,7 @@ export default function SwapButton({amount}) {
   })
   const { config } = usePrepareContractWrite({
       address: coverPoolAddress,
-      abi: poolsharkHedgePoolABI,
+      abi: coverPoolABI,
       functionName: "swap",
       args:[
           userAddress,

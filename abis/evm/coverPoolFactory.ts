@@ -1,4 +1,4 @@
-export const poolsharkHedgePoolFactoryABI = [
+export const coverPoolFactoryABI = [
   {
     "inputs": [
       {
@@ -98,7 +98,7 @@ export const poolsharkHedgePoolFactoryABI = [
         "type": "uint256"
       }
     ],
-    "name": "createHedgePool",
+    "name": "createCoverPool",
     "outputs": [
       {
         "internalType": "address",
@@ -146,7 +146,7 @@ export const poolsharkHedgePoolFactoryABI = [
         "type": "uint256"
       }
     ],
-    "name": "getHedgePool",
+    "name": "getCoverPool",
     "outputs": [
       {
         "internalType": "address",

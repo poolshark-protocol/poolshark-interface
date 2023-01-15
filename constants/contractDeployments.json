@@ -60,7 +60,7 @@
             "created": "2023-01-14T19:51:39.864Z"
         },
         "hedgePoolFactory": {
-            "contractName": "PoolsharkHedgePoolFactory",
+            "contractName": "PoolsharkCoverPoolFactory",
             "contractAddress": "0x20fF24c86cFBD7f6e69ADD5b59Ae4F7EA94DaBF1",
             "constructorArguments": [
                 "0x9371d94bdC9e153aA89428Ed4d937cA94a4dc3C7",
@@ -69,7 +69,7 @@
             "created": "2023-01-14T19:51:50.382Z"
         },
         "hedgePool": {
-            "contractName": "PoolsharkHedgePool",
+            "contractName": "PoolsharkCoverPool",
             "contractAddress": "0xD460400c7C086FFeCeC2AB79C8d2934535A73A4D",
             "constructorArguments": [
                 "0x56F20E1E0b0fcd1Ef799d97f7d645e17bb6d9CC4",

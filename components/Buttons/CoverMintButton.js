@@ -4,21 +4,21 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { poolsharkHedgePoolABI } from "../../abis/evm/poolsharkHedgePool";
+import { coverPoolABI } from "../../abis/evm/coverPool";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { coverPoolAddress } from "../../constants/contractAddresses";
 
-export default function CoverMintButton({amount}) {
+export default function CoverMintButton({address, amount}) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
 
   const { config } = usePrepareContractWrite({
     address: coverPoolAddress,
-    abi: poolsharkHedgePoolABI,
+    abi: coverPoolABI,
     functionName: "mint",
     args: [
       ethers.utils.parseUnits("0", 0),
@@ -52,7 +52,7 @@ export default function CoverMintButton({amount}) {
     <>
       <div
         className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
-        onClick={() => write()}
+        onClick={() => address ?  write?.() : null}
       >
         Create Cover
       </div>

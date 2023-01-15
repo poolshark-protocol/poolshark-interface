@@ -1,4 +1,4 @@
-export const poolsharkHedgePoolABI = [
+export const coverPoolABI = [
   {
     "inputs": [
       {

@@ -216,7 +216,7 @@ export default function Cover() {
                 </div>
               </div>
               <div className="space-y-3" >
-                {isConnected && newData === "0x00" ? <CoverApproveButton amount={bnInput}/> : <CoverMintButton amount={bnInput}/>}
+                {isConnected && newData === "0x00" ? <CoverApproveButton address={address} amount={bnInput}/> : <CoverMintButton address={address} amount={bnInput}/>}
                 {isConnected && positionOwner !== null ? <CoverBurnButton /> : null}
               </div>
             </div>
