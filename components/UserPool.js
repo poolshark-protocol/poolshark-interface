@@ -13,7 +13,29 @@ export default function UserPool({
   tokenZeroAddress, 
   poolAddress}) {
 const [show, setShow] = useState(false);
-   
+const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
+                                                tokenZeroAddress?.substring(0, 6) 
+                                              + "..."  
+                                              + tokenZeroAddress?.substring(
+                                                  tokenZeroAddress?.length-4, 
+                                                  tokenZeroAddress?.length
+                                              ));
+const [tokenOneDisplay, setTokenOneDisplay]  = useState(
+                                                tokenOneAddress?.substring(0, 6) 
+                                              + "..."  
+                                              + tokenOneAddress?.substring(
+                                                  tokenOneAddress?.length-4, 
+                                                  tokenOneAddress?.length
+                                              ));
+const [poolDisplay, setPoolDisplay] = useState(
+                                                poolAddress?.substring(0, 6) 
+                                              + "..."  
+                                              + poolAddress?.substring(
+                                                poolAddress?.length-4, 
+                                                poolAddress?.length
+                                              ));
+
+useEffect
   return (
     <>
     <Link href="/pool/view">
@@ -55,11 +77,11 @@ const [show, setShow] = useState(false);
       >
         <div className="flex gap-x-10 px-4 text-[#646464] mb-2">
         <div>
-        <h1 className="text-xs">{tokenOneName} <span>{tokenOneAddress}</span></h1>
-        <h1 className="text-xs">{tokenZeroName} <span>{tokenZeroAddress}</span></h1>
+        <h1 className="text-xs">{tokenOneName} <span>{tokenOneDisplay}</span></h1>
+        <h1 className="text-xs">{tokenZeroName} <span>{tokenZeroDisplay}</span></h1>
         </div>
        
-          <h1 className="text-xs">Pool: <span>{poolAddress}</span></h1>
+          <h1 className="text-xs">Pool: <span>{poolDisplay}</span></h1>
         </div>
         
         <div className="bg-dark py-2 text-center rounded-br-xl border-t-grey1 border-t">
