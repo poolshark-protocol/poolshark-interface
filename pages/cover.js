@@ -197,8 +197,8 @@ export default function Cover() {
                 </div>
               </div>
               <div className="space-y-3" >
-                {isConnected && newData === "0x00" ? <CoverApproveButton amount={bnInput}/> : <CoverMintButton amount={bnInput}/>}
-                <CoverBurnButton />
+                {isConnected && newData === "0x00" ? <CoverApproveButton address={address} amount={bnInput}/> : <CoverMintButton address={address} amount={bnInput}/>}
+                <CoverBurnButton address={address}/>
               </div>
             </div>
             <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">

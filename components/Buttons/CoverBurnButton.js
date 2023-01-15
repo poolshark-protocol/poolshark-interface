@@ -6,23 +6,21 @@ import {
     useWaitForTransaction,
     useAccount
 } from 'wagmi';
-import { poolsharkHedgePoolABI } from "../../abis/evm/poolsharkHedgePool";
+import { coverPoolABI } from "../../abis/evm/coverPool";
 import { coverPoolAddress } from "../../constants/contractAddresses";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 
-export default function CoverBurnButton() {
+export default function CoverBurnButton({address}) {
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
 
-    const { address, isConnecting, isDisconnecting } = useAccount()
-
     const { config } = usePrepareContractWrite({
         address: coverPoolAddress,
-        abi: poolsharkHedgePoolABI,
+        abi: coverPoolABI,
         functionName: "burn",
         args:[
             ethers.utils.parseUnits("20", 0),

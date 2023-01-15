@@ -9,35 +9,40 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 
 
-export default function CoverApproveButton({amount}) {
+export default function CoverApproveButton({address, amount}) {
     const [ errorDisplay,    setErrorDisplay   ] = useState(false);
     const [ successDisplay,  setSuccessDisplay ] = useState(false);
     const [ configuration,   setConfig         ] = useState();
 
-    const write = () => {
-      contractUtils.write({
-      abi: erc20ABI,
+    const config = usePrepareContractWrite({
       address: tokenOneAddress,
-      functionName: 'approve',
-      params: [coverPoolAddress, amount],
-    });
-  }
+      abi: erc20ABI,
+      functionName: "approve",
+      args:[coverPoolAddress, amount],
+      chainId: 5,
+    })
 
-  const {isLoading} = useWaitForTransaction({
-      hash: data?.hash,
-      onSuccess() {
-        setSuccessDisplay(true);
-      },
-      onError() {
-        setErrorDisplay(true);
-      },
-  });
+    useEffect(() => {
+      setConfig(config)
+    },[])
+
+    const { data, isSuccess, isError, write } = useContractWrite(configuration)
+
+    const {isLoading} = useWaitForTransaction({
+        hash: data?.hash,
+        onSuccess() {
+          setSuccessDisplay(true);
+        },
+        onError() {
+          setErrorDisplay(true);
+        },
+    });
 
     return (
       <>
         <div
           className="w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
-          onClick={() => write()}
+          onClick={() => address ?  write?.() : null}
         >
           Approve
         </div>
