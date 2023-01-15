@@ -11,7 +11,7 @@ export default function TokenBalance() {
 
     //TODO: token balance returns empty value
 
-    const data = useBalance({
+    const { data } = useBalance({
         address: userAddress,
         token: "0xa9bAd443855B62E21BeF630afCdBa59a58680997",
         chainid: 5,
@@ -20,11 +20,11 @@ export default function TokenBalance() {
     useEffect(() => {
         console.log('balance updated')
         setInfo(data)
-    },[])
+    },[isConnected])
 
     return (
         <div className="text-xs text-[#4C4C4C]">
-            Balance: {data?.formatted} {data?.symbol}
+            Balance: {info?.formatted} {info?.symbol}
         </div>
     )
 
