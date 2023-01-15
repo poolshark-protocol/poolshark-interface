@@ -1,18 +1,12 @@
-import { ethers } from "ethers";
 import {
-    usePrepareContractWrite,
-    useContractWrite,
     useWaitForTransaction
 } from 'wagmi';
 import { erc20ABI } from 'wagmi';
+import { coverPoolAddress, tokenOneAddress } from "../../constants/contractAddresses";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
-import React, { useState, useEffect } from "react";
-
-
-const tokenOneAddress = "0xa9bAd443855B62E21BeF630afCdBa59a58680997"
-const GOERLI_CONTRACT_ADDRESS = '0x87B4784C1a8125dfB9Fb16F8A997128f346f5B13'
+import React, { useState } from "react";
 
 
 export default function CoverApproveButton({amount}) {
@@ -25,19 +19,19 @@ export default function CoverApproveButton({amount}) {
       abi: erc20ABI,
       address: tokenOneAddress,
       functionName: 'approve',
-      params: [GOERLI_CONTRACT_ADDRESS, amount],
+      params: [coverPoolAddress, amount],
     });
   }
 
-    const {isLoading} = useWaitForTransaction({
-        hash: data?.hash,
-        onSuccess() {
-          setSuccessDisplay(true);
-        },
-        onError() {
-          setErrorDisplay(true);
-        },
-    });
+  const {isLoading} = useWaitForTransaction({
+      hash: data?.hash,
+      onSuccess() {
+        setSuccessDisplay(true);
+      },
+      onError() {
+        setErrorDisplay(true);
+      },
+  });
 
     return (
       <>

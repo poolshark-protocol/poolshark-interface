@@ -92,7 +92,7 @@ export default function DirectionalPoolPreview() {
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                  ~300.50
+                                  ~300.51
                                 </div>
                               </div>
                             </div>

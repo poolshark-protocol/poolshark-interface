@@ -8,12 +8,9 @@ export default function TokenBalance() {
     const [info, setInfo] = useState()
 
     const userAddress = address
-    //Warning: Text content did not match. Server: "undefined undefined" Client: "0.0 TOKEN20A"
-    //An error occurred during hydration. The server HTML was replaced with client content in <div>.
-    //Hydration failed because the initial UI does not match what was rendered on the server.
-    //Uncaught Error: There was an error while hydrating. Because the error happened outside of a Suspense boundary, the entire root will switch to client rendering.
 
-    //Warning: Prop `className` did not match. Server: "null" Client: " w-full py-4 mx-auto font-medium text-center
+    //TODO: token balance returns empty value
+
     const data = useBalance({
         address: userAddress,
         token: "0xa9bAd443855B62E21BeF630afCdBa59a58680997",
@@ -21,6 +18,7 @@ export default function TokenBalance() {
     })
     
     useEffect(() => {
+        console.log('balance updated')
         setInfo(data)
     },[])
 

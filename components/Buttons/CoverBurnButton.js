@@ -7,12 +7,11 @@ import {
     useAccount
 } from 'wagmi';
 import { poolsharkHedgePoolABI } from "../../abis/evm/poolsharkHedgePool";
+import { coverPoolAddress } from "../../constants/contractAddresses";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
-
-const GOERLI_CONTRACT_ADDRESS = '0x87B4784C1a8125dfB9Fb16F8A997128f346f5B13'
 
 export default function CoverBurnButton() {
 
@@ -22,7 +21,7 @@ export default function CoverBurnButton() {
     const { address, isConnecting, isDisconnecting } = useAccount()
 
     const { config } = usePrepareContractWrite({
-        address: GOERLI_CONTRACT_ADDRESS,
+        address: coverPoolAddress,
         abi: poolsharkHedgePoolABI,
         functionName: "burn",
         args:[
