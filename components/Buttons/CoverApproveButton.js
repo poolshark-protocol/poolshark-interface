@@ -1,12 +1,14 @@
 import {
-    useWaitForTransaction
+    useWaitForTransaction,
+    usePrepareContractWrite,
+    useContractWrite
 } from 'wagmi';
 import { erc20ABI } from 'wagmi';
 import { coverPoolAddress, tokenOneAddress } from "../../constants/contractAddresses";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 
 export default function CoverApproveButton({address, amount}) {
@@ -14,7 +16,7 @@ export default function CoverApproveButton({address, amount}) {
     const [ successDisplay,  setSuccessDisplay ] = useState(false);
     const [ configuration,   setConfig         ] = useState();
 
-    const config = usePrepareContractWrite({
+    const { config } = usePrepareContractWrite({
       address: tokenOneAddress,
       abi: erc20ABI,
       functionName: "approve",
@@ -22,27 +24,23 @@ export default function CoverApproveButton({address, amount}) {
       chainId: 5,
     })
 
-    useEffect(() => {
-      setConfig(config)
-    },[])
-
-    const { data, isSuccess, isError, write } = useContractWrite(configuration)
+    const { data, isSuccess, write } = useContractWrite(config)
 
     const {isLoading} = useWaitForTransaction({
-        hash: data?.hash,
-        onSuccess() {
-          setSuccessDisplay(true);
-        },
-        onError() {
-          setErrorDisplay(true);
-        },
+      hash: data?.hash,
+      onSuccess() {
+        setSuccessDisplay(true);
+      },
+      onError() {
+        setErrorDisplay(true);
+      },
     });
 
     return (
       <>
         <div
           className="w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
-          onClick={() => address ?  write?.() : null}
+          onClick={(address) => address ?  write?.() : null}
         >
           Approve
         </div>

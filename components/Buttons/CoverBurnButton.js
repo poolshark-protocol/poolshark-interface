@@ -38,14 +38,14 @@ export default function CoverBurnButton({address}) {
     const { data, isSuccess, write } = useContractWrite(config)
 
     const {isLoading} = useWaitForTransaction({
-    hash: data?.hash,
-    onSuccess() {
-      setSuccessDisplay(true);
-    },
-    onError() {
-      setErrorDisplay(true);
-    },
-  });
+      hash: data?.hash,
+      onSuccess() {
+        setSuccessDisplay(true);
+      },
+      onError() {
+        setErrorDisplay(true);
+      },
+    });
     
     return (
         <>
