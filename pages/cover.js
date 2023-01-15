@@ -55,6 +55,10 @@ export default function Cover() {
 
   const [expanded, setExpanded] = useState();
   const [tokenOneName, setTokenOneName] = useState();
+  const [tokenZeroName, setTokenZeroName] = useState();
+  const [tokenOneAddress, setTokenOneAddress] = useState();
+  const [tokenZeroAddress, setTokenZeroAddress] = useState();
+  const [poolAddress, setPoolAddress] = useState();
   const [positionOwner, setPositionOwner] = useState(null);
 
   async function getPoolData() {
@@ -63,8 +67,16 @@ export default function Cover() {
     console.log(data.data.hedgePools[0].token0.name)
     console.log(data.data.hedgePools)
     const token1 = JSON.stringify(data.data.hedgePools[0].token1.name);
+    const token0 = JSON.stringify(data.data.hedgePools[0].token0.name);
+    const token1Address = JSON.stringify(data.data.hedgePools[0].token1.id);
+    const token0Address = JSON.stringify(data.data.hedgePools[0].token0.id);
+    const poolAddress = JSON.stringify(data.data.hedgePools[0].id);
     console.log('token1',token1)
     setTokenOneName(token1);
+    setTokenZeroName(token0);
+    setTokenOneAddress(token1Address);
+    setTokenZeroAddress(token0Address);
+    setPoolAddress(poolAddress);
   }
 
   async function getPositionData() {
@@ -219,7 +231,12 @@ export default function Cover() {
               <div>
                 <h1 className="mb-3">Poolshark Pools</h1>
                 <div className="space-y-2">
-                  <UserPool key={tokenOneName} name={tokenOneName}/>
+                  <UserPool key={tokenOneName} 
+                  tokenOneName={tokenOneName}
+                  tokenZeroName={tokenZeroName} 
+                  tokenOneAddress={tokenOneAddress} 
+                  tokenZeroAddress={tokenZeroAddress} 
+                  poolAddress={poolAddress}/>
                 </div>
               </div>
               <div>
