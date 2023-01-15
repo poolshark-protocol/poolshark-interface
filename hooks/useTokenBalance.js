@@ -1,11 +1,10 @@
-// import { data } from 'autoprefixer'
 import { useState, useEffect } from 'react'
 import { useBalance, useAccount } from "wagmi"
 
-export default function TokenBalance() {
+export default function useTokenBalance() {
 
     const { address, isConnected } = useAccount()
-    const [info, setInfo] = useState()
+    const [tokenBalanceInfo, setTokenBalanceInfo] = useState()
 
     const userAddress = address
 
@@ -19,13 +18,16 @@ export default function TokenBalance() {
     
     useEffect(() => {
         console.log('balance updated')
-        setInfo(data)
+        setTokenBalanceInfo(data)
     },[isConnected])
 
-    return (
-        <div className="text-xs text-[#4C4C4C]">
-            Balance: {info?.formatted} {info?.symbol}
-        </div>
-    )
+   const tokenBalanceBox = () => {
+        return (
+            <div className="text-xs text-[#4C4C4C]">
+                Balance: {tokenBalanceInfo?.formatted} {tokenBalanceInfo?.symbol}
+            </div>
+        )
+    }
 
+    return [tokenBalanceInfo, tokenBalanceBox]
 }

@@ -13,14 +13,13 @@ import { useAccount, useProvider } from "wagmi";
 import CoverMintButton from "../components/Buttons/CoverMintButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import CoverBurnButton from "../components/Buttons/CoverBurnButton";
-import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import useAllowance from "../hooks/useAllowance";
 import useInputBox from "../hooks/useInputBox";
 import Link  from "next/link";
 import { fetchPools } from "../utils/queries";
-import TokenBalance from "../components/TokenBalance";
 import { useLazyQuery } from "@apollo/client";
 import { POOLS_QUERY } from "../constants/subgraphQueries";
+import useTokenBalance from "../hooks/useTokenBalance";
 import React from "react";
 
 export default function Cover() {
@@ -47,6 +46,7 @@ export default function Cover() {
   }, [isDisconnected]);
 
   const [bnInput, inputBox] = useInputBox();
+  const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance();
   const [dataState] = useAllowance(address, isConnected, isDisconnected);
 
   const newData = useEffect(() => {
@@ -55,8 +55,6 @@ export default function Cover() {
 
   const [expanded, setExpanded] = useState();
   const [tokenOneName, setTokenOneName] = useState();
-
-  //const allowance = allowanceFunction();
 
   async function getPoolData() {
     const data = await fetchPools()
@@ -78,8 +76,6 @@ export default function Cover() {
   const [fetchActiveItems, { loading, error: fetchActiveItemError, data}] =
     useLazyQuery(POOLS_QUERY);
   
-
-
   const Option = () => {
     if (expanded) {
       return (
@@ -141,7 +137,7 @@ export default function Cover() {
                       </div>
                       <div className="flex items-center justify-end gap-2 px-1 mt-2">
                         <div className="text-xs text-[#4C4C4C]">
-                          <TokenBalance />
+                          {tokenBalanceBox()}
                         </div>
                         <div className="text-xs uppercase text-[#C9C9C9]">
                           Max
