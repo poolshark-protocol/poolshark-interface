@@ -16,6 +16,7 @@ export default function CoverMintButton({address, amount}) {
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
 
+  console.log('address in mint button:', address)
   const { config } = usePrepareContractWrite({
     address: coverPoolAddress,
     abi: coverPoolABI,
