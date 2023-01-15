@@ -16,7 +16,8 @@ export default function useInputBox() {
             setBnInput(valueToBn);
           }
     };
-
+    
+    //TODO: add an optional param for changing value
     const inputBox = (placeholder) => {
         return (
             <div className="flex gap-x-2">
