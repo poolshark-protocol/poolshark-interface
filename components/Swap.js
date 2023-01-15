@@ -209,7 +209,7 @@ export default function Swap() {
             <Option />
           </div>
         </div>
-          {/* {isConnected ? newData === "0x00" ? <CoverApproveButton amount={bnInput}/> :<SwapButton amount={bnInput}/> : <ConnectWalletButton />} */}
+          {isConnected && newData === "0x00" ? <CoverApproveButton amount={bnInput}/> : <SwapButton amount={bnInput}/>}
         </div>
       </div>
   );

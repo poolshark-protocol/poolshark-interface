@@ -19,8 +19,8 @@ export const countDecimals = (value, tokenDecimals) => {
 export const fetchPositions =  (account) => {
   return new Promise(function(resolve) {
     const positionsQuery =`
-      {
-          positions(where: {createdBy:"${account.toLowerCase()}"}, orderBy: createdAtTimestamp, orderDirection: desc) {
+      query($owner: String) {
+          positions(owner: $owner) {
               id
               inAmount
               inToken{

@@ -16,7 +16,7 @@ import CoverBurnButton from "../components/Buttons/CoverBurnButton";
 import useAllowance from "../hooks/useAllowance";
 import useInputBox from "../hooks/useInputBox";
 import Link  from "next/link";
-import { fetchPools } from "../utils/queries";
+import { fetchPools, fetchPositions } from "../utils/queries";
 import { useLazyQuery } from "@apollo/client";
 import { POOLS_QUERY } from "../constants/subgraphQueries";
 import useTokenBalance from "../hooks/useTokenBalance";
@@ -55,22 +55,30 @@ export default function Cover() {
 
   const [expanded, setExpanded] = useState();
   const [tokenOneName, setTokenOneName] = useState();
+  const [positionOwner, setPositionOwner] = useState(null);
 
   async function getPoolData() {
     const data = await fetchPools()
     console.log(data.data.hedgePools[0].id)
     console.log(data.data.hedgePools[0].token0.name)
-    console.log(data.data.hedgePools[0].token1.name)
     console.log(data.data.hedgePools)
     const token1 = JSON.stringify(data.data.hedgePools[0].token1.name);
     console.log('token1',token1)
     setTokenOneName(token1);
   }
 
+  async function getPositionData() {
+    const data = await fetchPositions(address)
+    const positionOwner = JSON.stringify(data.data.positions[0].owner);
+    console.log('positionOwner',positionOwner)
+    setPositionOwner(positionOwner);
+  }
+
   //async so needs to be wrapped
   useEffect(() => {
     console.log('test')
     getPoolData();
+    getPositionData();
   },[])
 
   const [fetchActiveItems, { loading, error: fetchActiveItemError, data}] =
@@ -194,7 +202,7 @@ export default function Cover() {
               </div>
               <div className="space-y-3" >
                 {isConnected && newData === "0x00" ? <CoverApproveButton amount={bnInput}/> : <CoverMintButton amount={bnInput}/>}
-                <CoverBurnButton />
+                {isConnected && positionOwner !== null ? <CoverBurnButton /> : null}
               </div>
             </div>
             <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">
