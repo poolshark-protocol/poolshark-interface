@@ -19,6 +19,7 @@ import Link  from "next/link";
 import { fetchPools, fetchPositions } from "../utils/queries";
 import { useLazyQuery } from "@apollo/client";
 import { POOLS_QUERY } from "../constants/subgraphQueries";
+import { utils } from "ethers";
 import useTokenBalance from "../hooks/useTokenBalance";
 import React from "react";
 
@@ -47,11 +48,7 @@ export default function Cover() {
 
   const [bnInput, inputBox] = useInputBox();
   const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance();
-  const [dataState] = useAllowance(address, isConnected, isDisconnected);
-
-  const newData = useEffect(() => {
-    newData = dataState;
-  }, []);
+  const [dataState, setDataState] = useAllowance(address, isConnected, isDisconnected);
 
   const [expanded, setExpanded] = useState();
   const [tokenOneName, setTokenOneName] = useState();
@@ -91,7 +88,7 @@ export default function Cover() {
 
   //async so needs to be wrapped
   useEffect(() => {
-    console.log('test')
+    setDataState
     getPoolData();
     getPositionData();
   },[])
@@ -216,7 +213,7 @@ export default function Cover() {
                 </div>
               </div>
               <div className="space-y-3" >
-                {isConnected && newData === "0x00" ? <CoverApproveButton address={address} amount={bnInput}/> : <CoverMintButton address={address} amount={bnInput}/>}
+                {isConnected && dataState === "0x00" ? <CoverApproveButton address={address} amount={bnInput}/> : <CoverMintButton address={address} amount={bnInput}/>}
                 {isConnected && positionOwner !== null ? <CoverBurnButton /> : null}
               </div>
             </div>
