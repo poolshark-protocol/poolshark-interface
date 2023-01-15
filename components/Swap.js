@@ -108,7 +108,7 @@ export default function Swap() {
           <div className="flex-col justify-center w-1/2 p-2 ">
             {inputBox()}
             <div className="flex">
-              <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
+              <div className="flex text-xs text-[#4C4C4C]">~300.54</div>
             </div>
           </div>
           <div className="flex w-1/2">
@@ -140,7 +140,7 @@ export default function Swap() {
               placeholder="300"
             />
             <div className="flex">
-              <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
+              <div className="flex text-xs text-[#4C4C4C]">~300.55</div>
             </div>
           </div>
           <div className="flex w-1/2">

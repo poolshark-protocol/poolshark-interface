@@ -10,10 +10,8 @@ import { poolsharkHedgePoolABI } from "../../abis/evm/poolsharkHedgePool";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
-import React, { useState, useEffect } from "react";
-
-const GOERLI_CONTRACT_ADDRESS = '0x87B4784C1a8125dfB9Fb16F8A997128f346f5B13'
-const token1Address = "0xa9bAd443855B62E21BeF630afCdBa59a58680997"
+import { coverPoolAddress, tokenOneAddress } from "../../constants/contractAddresses";
+import React, { useState } from "react";
 
 export default function SwapButton({amount}) {
 
@@ -24,11 +22,11 @@ export default function SwapButton({amount}) {
   const userAddress = address;
 
   const balance = useBalance({
-    address: token1Address,
+    address: tokenOneAddress,
     chainId: 5,
   })
   const { config } = usePrepareContractWrite({
-      address: GOERLI_CONTRACT_ADDRESS,
+      address: coverPoolAddress,
       abi: poolsharkHedgePoolABI,
       functionName: "swap",
       args:[

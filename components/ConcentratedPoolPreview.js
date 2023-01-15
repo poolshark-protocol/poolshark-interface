@@ -89,7 +89,7 @@ export default function ConcentratedPoolPreview() {
                               </div>
                             <div className="flex">
                               <div className="flex text-xs text-[#4C4C4C]">
-                                ~300.50
+                                ~300.53
                               </div>
                             </div>
                           </div>
@@ -125,7 +125,7 @@ export default function ConcentratedPoolPreview() {
                               </div>
                             <div className="flex">
                               <div className="flex text-xs text-[#4C4C4C]">
-                                ~300.50
+                                ~300.52
                               </div>
                             </div>
                           </div>

@@ -9,6 +9,7 @@ export default function InputBoxProp() {
         //const valueToBn = ethers.utils.parseUnits(event.target.value, 0);
         //const result = event.target.value.replace(/\D/g, '');
         const result = event.target.value.replace(/[^0-9\.|\,]/g, '')
+        //TODO: make 
         setInput(result);
         // console.log('value is:', result);
     };
@@ -21,6 +22,7 @@ export default function InputBoxProp() {
                 type="text"
                 value={input}
                 onChange={handleChange}
+                placeholder="10"
             />
             </div>
         )
