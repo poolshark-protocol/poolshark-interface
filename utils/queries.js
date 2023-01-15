@@ -16,11 +16,11 @@ export const countDecimals = (value, tokenDecimals) => {
     return false;
 };
 
-export const fetchPositions =  (account) => {
+export const fetchPositions =  () => {
   return new Promise(function(resolve) {
     const positionsQuery =`
-      {
-          positions(where: {createdBy:"${account.toLowerCase()}"}, orderBy: createdAtTimestamp, orderDirection: desc) {
+      query($owner: String) {
+          positions(owner: $owner) {
               id
               inAmount
               inToken{

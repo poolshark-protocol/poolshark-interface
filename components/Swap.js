@@ -15,13 +15,14 @@ import useAllowance from "../hooks/useAllowance";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import { useAccount } from "wagmi";
-import TokenBalance from "../components/TokenBalance";
+import useTokenBalance from "../hooks/useTokenBalance";
 
 
 export default function Swap() {
   const { address, isConnected } = useAccount();
   const [bnInput, inputBox] = useInputBox();
   const [dataState] = useAllowance(address);
+  const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance();
 
   const newData = useEffect(() => {
     newData = dataState;
@@ -119,11 +120,11 @@ export default function Swap() {
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
                   <div className="flex text-xs text-[#4C4C4C]">
-                    <TokenBalance />
+                    {tokenBalanceBox()}
                   </div>
-                  <div className="flex text-xs uppercase text-[#C9C9C9]">
+                  <button className="flex text-xs uppercase text-[#C9C9C9]">
                     Max
-                  </div>
+                  </button>
                 </div>
               </div>
             </div>
@@ -150,8 +151,8 @@ export default function Swap() {
                   <SelectToken />
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                  <TokenBalance />
-                <div className="text-xs uppercase text-[#C9C9C9]">Max</div>
+                  {/*<TokenBalance />*/}
+                <button className="text-xs uppercase text-[#C9C9C9]">Max</button>
                 </div>
               </div>
             </div>
@@ -208,7 +209,7 @@ export default function Swap() {
             <Option />
           </div>
         </div>
-          {/* {isConnected ? newData === "0x00" ? <CoverApproveButton amount={bnInput}/> :<SwapButton amount={bnInput}/> : <ConnectWalletButton />} */}
+          {isConnected && newData === "0x00" ? <CoverApproveButton amount={bnInput}/> : <SwapButton amount={bnInput}/>}
         </div>
       </div>
   );

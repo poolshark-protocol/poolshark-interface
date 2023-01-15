@@ -13,14 +13,13 @@ import { useAccount, useProvider } from "wagmi";
 import CoverMintButton from "../components/Buttons/CoverMintButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import CoverBurnButton from "../components/Buttons/CoverBurnButton";
-import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import useAllowance from "../hooks/useAllowance";
 import useInputBox from "../hooks/useInputBox";
 import Link  from "next/link";
-import { fetchPools } from "../utils/queries";
-import TokenBalance from "../components/TokenBalance";
+import { fetchPools, fetchPositions } from "../utils/queries";
 import { useLazyQuery } from "@apollo/client";
 import { POOLS_QUERY } from "../constants/subgraphQueries";
+import useTokenBalance from "../hooks/useTokenBalance";
 import React from "react";
 
 export default function Cover() {
@@ -47,6 +46,7 @@ export default function Cover() {
   }, [isDisconnected]);
 
   const [bnInput, inputBox] = useInputBox();
+  const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance();
   const [dataState] = useAllowance(address, isConnected, isDisconnected);
 
   const newData = useEffect(() => {
@@ -55,31 +55,50 @@ export default function Cover() {
 
   const [expanded, setExpanded] = useState();
   const [tokenOneName, setTokenOneName] = useState();
-
-  //const allowance = allowanceFunction();
+  const [tokenZeroName, setTokenZeroName] = useState();
+  const [tokenOneAddress, setTokenOneAddress] = useState();
+  const [tokenZeroAddress, setTokenZeroAddress] = useState();
+  const [poolAddress, setPoolAddress] = useState();
+  const [positionOwner, setPositionOwner] = useState(null);
 
   async function getPoolData() {
     const data = await fetchPools()
     console.log(data.data.hedgePools[0].id)
     console.log(data.data.hedgePools[0].token0.name)
-    console.log(data.data.hedgePools[0].token1.name)
     console.log(data.data.hedgePools)
     const token1 = JSON.stringify(data.data.hedgePools[0].token1.name);
+    const token0 = JSON.stringify(data.data.hedgePools[0].token0.name);
+    const token1Address = JSON.stringify(data.data.hedgePools[0].token1.id);
+    const token0Address = JSON.stringify(data.data.hedgePools[0].token0.id);
+    const poolAddress = JSON.stringify(data.data.hedgePools[0].id);
     console.log('token1',token1)
     setTokenOneName(token1);
+    setTokenZeroName(token0);
+    setTokenOneAddress(token1Address);
+    setTokenZeroAddress(token0Address);
+    setPoolAddress(poolAddress);
+  }
+
+  async function getPositionData() {
+    const data = await fetchPositions()
+    const positionOwner = JSON.stringify(data.data.positions[0].owner);
+    console.log('positionOwner',positionOwner)
+    if (positionOwner === address){
+      console.log("matched address with position owner")
+      setPositionOwner(positionOwner);
+    }
   }
 
   //async so needs to be wrapped
   useEffect(() => {
     console.log('test')
     getPoolData();
+    getPositionData();
   },[])
 
   const [fetchActiveItems, { loading, error: fetchActiveItemError, data}] =
     useLazyQuery(POOLS_QUERY);
   
-
-
   const Option = () => {
     if (expanded) {
       return (
@@ -141,11 +160,11 @@ export default function Cover() {
                       </div>
                       <div className="flex items-center justify-end gap-2 px-1 mt-2">
                         <div className="text-xs text-[#4C4C4C]">
-                          <TokenBalance />
+                          {tokenBalanceBox()}
                         </div>
-                        <div className="text-xs uppercase text-[#C9C9C9]">
+                        <button className="text-xs uppercase text-[#C9C9C9]">
                           Max
-                        </div>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -198,7 +217,7 @@ export default function Cover() {
               </div>
               <div className="space-y-3" >
                 {isConnected && newData === "0x00" ? <CoverApproveButton address={address} amount={bnInput}/> : <CoverMintButton address={address} amount={bnInput}/>}
-                <CoverBurnButton address={address}/>
+                {isConnected && positionOwner !== null ? <CoverBurnButton /> : null}
               </div>
             </div>
             <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">
@@ -212,7 +231,12 @@ export default function Cover() {
               <div>
                 <h1 className="mb-3">Poolshark Pools</h1>
                 <div className="space-y-2">
-                  <UserPool key={tokenOneName} name={tokenOneName}/>
+                  <UserPool key={tokenOneName} 
+                  tokenOneName={tokenOneName}
+                  tokenZeroName={tokenZeroName} 
+                  tokenOneAddress={tokenOneAddress} 
+                  tokenZeroAddress={tokenZeroAddress} 
+                  poolAddress={poolAddress}/>
                 </div>
               </div>
               <div>

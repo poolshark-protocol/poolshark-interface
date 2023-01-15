@@ -6,14 +6,14 @@ import { Popover } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-export default function UserPool({name}) {
+export default function UserPool({ 
+  tokenOneName, 
+  tokenZeroName, 
+  tokenOneAddress, 
+  tokenZeroAddress, 
+  poolAddress}) {
 const [show, setShow] = useState(false);
-
-  useEffect(() => {
-    console.log('component name:', name)
-  },[])
-  
-  
+   
   return (
     <>
     <Link href="/pool/view">
@@ -37,7 +37,7 @@ const [show, setShow] = useState(false);
                 src="/static/images/zero.png"
               />
             </div>
-            {name}
+            {tokenOneName}{"--->"}{tokenZeroName}
             <div className="bg-black px-2 py-1 rounded-lg text-grey">1%</div>
           </div>
           <div className="text-sm flex items-center gap-x-3">
@@ -55,11 +55,11 @@ const [show, setShow] = useState(false);
       >
         <div className="flex gap-x-10 px-4 text-[#646464] mb-2">
         <div>
-        <h1 className="text-xs">DAI: <span>0xB8c...Ee62d</span></h1>
-        <h1 className="text-xs">USDC: <span>0xB8c...Ee62d</span></h1>
+        <h1 className="text-xs">{tokenOneName} <span>{tokenOneAddress}</span></h1>
+        <h1 className="text-xs">{tokenZeroName} <span>{tokenZeroAddress}</span></h1>
         </div>
        
-          <h1 className="text-xs">Pool: <span>0xB8c...Ee62d</span></h1>
+          <h1 className="text-xs">Pool: <span>{poolAddress}</span></h1>
         </div>
         
         <div className="bg-dark py-2 text-center rounded-br-xl border-t-grey1 border-t">
