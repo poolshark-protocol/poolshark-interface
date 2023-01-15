@@ -128,7 +128,7 @@ export default function Cover() {
               <h1 className="mb-3">How much do you want to Cover?</h1>
               <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
                 <div className="flex-col justify-center w-1/2 p-2 ">
-                  {inputBox()}
+                  {inputBox("0")}
                   <div className="flex">
                     <div className="flex text-xs text-[#4C4C4C]">~300.56</div>
                   </div>

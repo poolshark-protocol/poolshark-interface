@@ -21,7 +21,7 @@ import TokenBalance from "../components/TokenBalance";
 export default function Swap() {
   const { address, isConnected } = useAccount();
   const [bnInput, inputBox] = useInputBox();
-  const [dataState] = useAllowance();
+  const [dataState] = useAllowance(address);
 
   const newData = useEffect(() => {
     newData = dataState;
@@ -106,7 +106,7 @@ export default function Swap() {
         </div>
         <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
-            {inputBox()}
+            {inputBox("0")}
             <div className="flex">
               <div className="flex text-xs text-[#4C4C4C]">~300.54</div>
             </div>
@@ -161,11 +161,7 @@ export default function Swap() {
           <div>
             <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-4">
               <div className="flex-col justify-center w-1/2 p-2 ">
-                <input
-                  className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
-                  placeholder="1.90"
-                  value="1.67"
-                />
+              {inputBox("1.90")}
                 <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]">
                     98% above Market Price
