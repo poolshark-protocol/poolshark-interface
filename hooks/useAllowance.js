@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { coverPoolAddress, tokenOneAddress } from "../constants/contractAddresses";
 
-export default function useAllowance(address, isConnected, isDisconnected) { 
+export default function useAllowance(address) { 
   const [dataState, setDataState] = useState();
   
   const { data, onSuccess } = useContractRead({
