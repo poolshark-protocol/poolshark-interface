@@ -23,6 +23,7 @@ export default function Swap() {
   const [bnInput, inputBox] = useInputBox();
   const [dataState] = useAllowance(address);
   const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance();
+  const [tokenOrder, setTokenOrder] = useState(true);
 
   const newData = useEffect(() => {
     newData = dataState;
@@ -40,6 +41,9 @@ export default function Swap() {
   }
 
   const [expanded, setExpanded] = useState();
+
+  const token0 = "TK0"
+  const token1 = "TK1"
 
   const Option = () => {
     if (expanded) {
@@ -173,10 +177,15 @@ export default function Swap() {
                 <div className="flex justify-center ml-auto">
                   <div className="flex-col">
                     <div className="flex justify-end">
-                      <button className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl">
-                        USDC per DAI
+                      {tokenOrder ? <button className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl" onClick={() => setTokenOrder(false)}>
+                        {token0} per {token1}
+                        <ArrowPathIcon className="w-5"/>
+                      </button> : <button className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl" onClick={() => setTokenOrder(true)}>
+                        {token1} per {token0}
                         <ArrowPathIcon className="w-5" />
-                      </button>
+                      </button>}
+                      
+                      
                     </div>
                     <div className="flex items-center justify-end gap-2 px-1 mt-2">
                       <div className="text-xs text-white">
