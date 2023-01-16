@@ -52,26 +52,26 @@ useEffect
         <div className="space-y-2">
           <div className="flex items-center gap-x-5">
             <div className="flex items-center ">
-              <img height="30" width="30" src="/static/images/one.png" />
+              <img height="30" width="30" src="/static/images/eth_icon.png" />
               <img
                 height="30"
                 width="30"
                 className="ml-[-8px]"
-                src="/static/images/zero.png"
+                src="/static/images/dai_icon.png"
               />
             </div>
             <div className="flex gap-x-2">
-              {tokenOneName}<ArrowLongRightIcon className="w-5"/>{tokenZeroName}
+              WETH - DAI
             </div>
-            <div className="bg-black px-2 py-1 rounded-lg text-grey">1%</div>
+            <div className="bg-black px-2 py-1 rounded-lg text-grey">0.5%</div>
           </div>
           <div className="text-sm flex items-center gap-x-3">
             <span>
-              <span className="text-grey">Min:</span> 1.0323 DAI per USDC
+              <span className="text-grey">Min:</span> 1203 DAI per ETH
             </span>
             <ArrowsRightLeftIcon className="w-4 text-grey" />
             <span>
-              <span className="text-grey">Max:</span> 1.0323 DAI per USDC
+              <span className="text-grey">Max:</span> 1643 DAI per ETH
             </span>
           </div>
         </div>
@@ -80,11 +80,11 @@ useEffect
       >
         <div className="flex gap-x-10 px-4 text-[#646464] my-2">
         <div>
-        <h1 className="text-xs">{tokenOneName} <span>{tokenOneDisplay}</span></h1>
-        <h1 className="text-xs mt-2">{tokenZeroName} <span>{tokenZeroDisplay}</span></h1>
+        <h1 className="text-xs">WETH: <span>0xC02a...Cc2</span></h1>
+        <h1 className="text-xs mt-2">DAI: <span>0x6B17...1d0F</span></h1>
         </div>
        
-          <h1 className="text-xs">Pool: <span>{poolDisplay}</span></h1>
+          <h1 className="text-xs">Pool: <span>0x6059...a270</span></h1>
         </div>
         
         <div className="bg-dark text-sm py-1 text-center rounded-br-xl border-t-grey1 border-t mt-3 rounded-b-xl">
