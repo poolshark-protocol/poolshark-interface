@@ -1,6 +1,7 @@
 import {
   ArrowsRightLeftIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  ArrowLongRightIcon
 } from "@heroicons/react/20/solid";
 import { Popover } from "@headlessui/react";
 import { useEffect, useState } from "react";
@@ -59,7 +60,9 @@ useEffect
                 src="/static/images/zero.png"
               />
             </div>
-            {tokenOneName}{"--->"}{tokenZeroName}
+            <div className="flex gap-x-2">
+              {tokenOneName}<ArrowLongRightIcon className="w-5"/>{tokenZeroName}
+            </div>
           </div>
           <div className="text-sm flex items-center gap-x-3">
             <span>
