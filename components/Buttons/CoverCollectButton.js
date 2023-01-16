@@ -13,7 +13,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 
-export default function CoverBurnButton({address}) {
+export default function CoverCollectButton({address}) {
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -21,13 +21,12 @@ export default function CoverBurnButton({address}) {
     const { config } = usePrepareContractWrite({
         address: coverPoolAddress,
         abi: coverPoolABI,
-        functionName: "burn",
+        functionName: "collect",
         args:[
             ethers.utils.parseUnits("20", 0),
             ethers.utils.parseUnits("30", 0),
             ethers.utils.parseUnits("20", 0),
-            false,
-            BigNumber.from("199760153929825488153727")
+            false
         ],
         chainId: 5,
         overrides:{
@@ -54,7 +53,7 @@ export default function CoverBurnButton({address}) {
               address ?  write?.() : null
             }}
                 >
-                Burn position
+                Collect position
         </div>
         <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
       {errorDisplay && (

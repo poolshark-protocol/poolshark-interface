@@ -98,7 +98,7 @@ export const coverPoolFactoryABI = [
         "type": "uint256"
       }
     ],
-    "name": "createCoverPool",
+    "name": "createHedgePool",
     "outputs": [
       {
         "internalType": "address",
@@ -146,7 +146,7 @@ export const coverPoolFactoryABI = [
         "type": "uint256"
       }
     ],
-    "name": "getCoverPool",
+    "name": "getHedgePool",
     "outputs": [
       {
         "internalType": "address",

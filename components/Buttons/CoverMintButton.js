@@ -17,17 +17,18 @@ export default function CoverMintButton({address, amount}) {
   const [ successDisplay, setSuccessDisplay ] = useState(false);
   //TODO: should not call contract hook when address is undefined
   console.log('address in mint button:', address)
+  console.log('amount: ', amount)
   const { config } = usePrepareContractWrite({
     address: coverPoolAddress,
     abi: coverPoolABI,
     functionName: "mint",
     args: [
-      ethers.utils.parseUnits("0", 0),
+      ethers.utils.parseUnits("0"),
       ethers.utils.parseUnits("20", 0),
       ethers.utils.parseUnits("887272", 0),
       ethers.utils.parseUnits("30", 0),
+      ethers.utils.parseUnits("20", 0),
       amount,
-      false,
       false,
     ],
     chainId: 5,
