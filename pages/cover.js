@@ -88,7 +88,7 @@ export default function Cover() {
 
   const [bnInput, inputBox] = useInputBox();
   const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance();
-  const [dataState, setDataState] = useAllowance(address, isConnected, isDisconnected);
+  const [dataState, setDataState] = useAllowance(address);
 
   const [expanded, setExpanded] = useState();
   const [tokenOneName, setTokenOneName] = useState();
