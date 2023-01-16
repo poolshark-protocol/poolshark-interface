@@ -7,6 +7,7 @@ import {
   ChevronDownIcon,
 } from "@heroicons/react/20/solid";
 import UserPool from "../components/UserPool";
+import UserCoverPool from "../components/UserCoverPool";
 import SelectToken from "../components/SelectToken";
 import { useState, useEffect } from "react";
 import { useAccount, useProvider } from "wagmi";
@@ -274,6 +275,15 @@ export default function Cover() {
                   tokenZeroAddress={tokenZeroAddress} 
                   poolAddress={poolAddress}/>
                 </div>
+                <h1 className="my-3 text-grey">Cover Pools</h1>
+                <UserCoverPool
+                key={tokenOneName} 
+                  tokenOneName={tokenOneName}
+                  tokenZeroName={tokenZeroName} 
+                  tokenOneAddress={tokenOneAddress} 
+                  tokenZeroAddress={tokenZeroAddress} 
+                  poolAddress={poolAddress}
+                />
               </div>
               <div>
                 <h1 className="mb-3 mt-4">UNI-V3 Pools</h1>

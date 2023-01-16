@@ -24,6 +24,7 @@ export default function Swap() {
   const [dataState] = useAllowance(address);
   const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance();
   const [tokenOrder, setTokenOrder] = useState(true);
+  const [swapOrder, setSwapOrder] = useState(true);
 
   const newData = useEffect(() => {
     newData = dataState;
@@ -71,6 +72,64 @@ export default function Swap() {
       );
     }
   };
+  const SwapBox1 = () => {
+      return (
+        <div className="w-full align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
+          <div className="flex-col justify-center w-1/2 p-2 ">
+            {inputBox("0")}
+            <div className="flex">
+              <div className="flex text-xs text-[#4C4C4C]">~300.54</div>
+            </div>
+          </div>
+          <div className="flex w-1/2">
+            <div className="flex justify-center ml-auto">
+              <div className="flex-col">
+                <div className="flex justify-end">
+                  <SelectToken />
+                </div>
+                <div className="flex items-center justify-end gap-2 px-1 mt-2">
+                  <div className="flex text-xs text-[#4C4C4C]">
+                    {tokenBalanceBox()}
+                  </div>
+                  <button className="flex text-xs uppercase text-[#C9C9C9]">
+                    Max
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+  };
+    const SwapBox2 = () => {
+      return (
+        <div className="w-full align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
+          <div className="flex-col justify-center w-1/2 p-2 ">
+            {inputBox("0")}
+            <div className="flex">
+              <div className="flex text-xs text-[#4C4C4C]">~300.54</div>
+            </div>
+          </div>
+          <div className="flex w-1/2">
+            <div className="flex justify-center ml-auto">
+              <div className="flex-col">
+                <div className="flex justify-end">
+                  <SelectToken />
+                </div>
+                <div className="flex items-center justify-end gap-2 px-1 mt-2">
+                  <div className="flex text-xs text-[#4C4C4C]">
+                    {tokenBalanceBox()}
+                  </div>
+                  <button className="flex text-xs uppercase text-[#C9C9C9]">
+                    Max
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+  };
 
   return (
     <div className="pt-[10vh]">
@@ -109,59 +168,20 @@ export default function Swap() {
             </Popover>
           </div>
         </div>
-        <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-          <div className="flex-col justify-center w-1/2 p-2 ">
-            {inputBox("0")}
-            <div className="flex">
-              <div className="flex text-xs text-[#4C4C4C]">~300.54</div>
-            </div>
-          </div>
-          <div className="flex w-1/2">
-            <div className="flex justify-center ml-auto">
-              <div className="flex-col">
-                <div className="flex justify-end">
-                  <SelectToken />
-                </div>
-                <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                  <div className="flex text-xs text-[#4C4C4C]">
-                    {tokenBalanceBox()}
-                  </div>
-                  <button className="flex text-xs uppercase text-[#C9C9C9]">
-                    Max
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+        {swapOrder ?         <div className="mt-4">
+          <SwapBox1/>
+        <div className="items-center -mb-2 -mt-2 p-2 w-min relative m-auto transition-all border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer" onClick={() => setSwapOrder(false)}>
+          <ArrowSmallDownIcon className="w-4 h-4"/>
         </div>
-        <div className="items-center -mb-2 -mt-2 p-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
-          <ArrowSmallDownIcon className="w-4 h-4" />
+        <SwapBox2/>
+        </div> :         <div className="mt-4">
+          <SwapBox2/>
+        <div className="items-center -mb-2 -mt-2 p-2 w-min m-auto relative transition-all border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer" onClick={() => setSwapOrder(true)}>
+          <ArrowSmallDownIcon className="w-4 h-4 rotate-180"/>
         </div>
-
-        <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-          <div className="flex-col justify-center w-1/2 p-2 ">
-            <input
-              className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
-              placeholder="300"
-            />
-            <div className="flex">
-              <div className="flex text-xs text-[#4C4C4C]">~300.55</div>
-            </div>
-          </div>
-          <div className="flex w-1/2">
-            <div className="flex justify-center ml-auto">
-              <div className="flex-col">
-                <div className="flex justify-end">
-                  <SelectToken />
-                </div>
-                <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                  {/*<TokenBalance />*/}
-                <button className="text-xs uppercase text-[#C9C9C9]">Max</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <SwapBox1/>
+        
+        </div>}
         {LimitActive ? (
           <div>
             <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-4">

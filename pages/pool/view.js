@@ -110,8 +110,9 @@ export default function View() {
           <div className="bg-black  border border-grey2 border-b-none w-full rounded-t-xl py-6 px-7 h-[70vh]">
             <div className="flex gap-x-20 justify-between">
               <div className="w-1/2">
-                <h1 className="text-lg mb-3">Unclaimed Fees</h1>
-                <span className="text-4xl">$4.50</span>
+                <h1 className="text-lg mb-3">Liquidity</h1>
+                <span className="text-4xl">$603.43</span>
+                
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
@@ -156,8 +157,8 @@ export default function View() {
                 </div>
               </div>
               <div className="w-1/2">
-                <h1 className="text-lg mb-3">Liquidity</h1>
-                <span className="text-4xl">$603.43</span>
+                <h1 className="text-lg mb-3">Unclaimed Fees</h1>
+                <span className="text-4xl">$4.50</span>
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
