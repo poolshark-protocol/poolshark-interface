@@ -1,4 +1,5 @@
 import { ApolloClient, InMemoryCache, gql, useQuery } from '@apollo/client'
+import { addressEqual } from '@usedapp/core'
 
 export const cleanInputValue = (arg) => {
     const re = /^[+-]?\d*(?:[.,]\d*)?$/
@@ -16,7 +17,7 @@ export const countDecimals = (value, tokenDecimals) => {
     return false;
 };
 
-export const fetchPositions =  () => {
+export const fetchPositions =  (address) => {
   return new Promise(function(resolve) {
     const positionsQuery =`
       query($owner: String) {
@@ -70,7 +71,12 @@ export const fetchPositions =  () => {
             },
       })
       client
-          .query({ query: gql(positionsQuery), })
+          .query({ 
+            query: gql(positionsQuery),
+            variables: {
+                owner: address
+            }
+         })
           .then((data) => {
               resolve(data)
           })

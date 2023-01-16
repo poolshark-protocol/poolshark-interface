@@ -100,6 +100,7 @@ export default function Cover() {
   async function getPoolData() {
     const data = await fetchPools()
     console.log(data.data.hedgePools[0].id)
+    console.log(data.data.hedgePools[0].token1.name)
     console.log(data.data.hedgePools[0].token0.name)
     const token1 = JSON.stringify(data.data.hedgePools[0].token1.name);
     const token0 = JSON.stringify(data.data.hedgePools[0].token0.name);
@@ -114,9 +115,12 @@ export default function Cover() {
   }
 
   async function getPositionData() {
-    const data = await fetchPositions()
+    const data = await fetchPositions(address)
     const ownerAddress = JSON.stringify(data.data.positions[0].owner);
+    const idAddress = JSON.stringify(data.data.positions[0].id);
     console.log('positionOwner: ', ownerAddress)
+    console.log('id: ', idAddress)
+    console.log('address: ', address)
     console.log(isConnected && ownerAddress !== null)
     if (ownerAddress === address){
         console.log("matched address with position owner")
@@ -252,7 +256,7 @@ export default function Cover() {
               </div>
               <div className="space-y-3" >
                 {isDisconnected ? <ConnectWalletButton /> : null}
-                {isDisconnected === true ? null : isConnected && dataState === "0x00" ? <CoverApproveButton address={address} amount={bnInput}/> : <CoverMintButton address={address} amount={bnInput}/>}
+                {isDisconnected ? null : isConnected && dataState === "0x00" ? <CoverApproveButton address={address} amount={bnInput}/> : <CoverMintButton address={address} amount={bnInput}/>}
                 {isDisconnected ? null : <CoverBurnButton address={address} />}
                 {isDisconnected ? null : <CoverCollectButton address={address} />}
               </div>
