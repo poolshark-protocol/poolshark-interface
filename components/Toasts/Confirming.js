@@ -27,7 +27,7 @@ export const ConfirmingToast = ({hash}) => {
               />
             </svg>
           </div>
-          <h1>Your transaction is being confirmed...</h1>
+          <h1>Your Transaction is being confirmed...</h1>
         </div>
         <a
           href={`https://goerli.etherscan.io/tx/${hash}`}

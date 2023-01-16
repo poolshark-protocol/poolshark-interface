@@ -16,8 +16,7 @@ export default function CoverMintButton({address, amount}) {
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
   //TODO: should not call contract hook when address is undefined
-  console.log('address in mint button:', address)
-  console.log('amount: ', amount)
+
   const { config } = usePrepareContractWrite({
     address: coverPoolAddress,
     abi: coverPoolABI,

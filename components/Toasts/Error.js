@@ -6,7 +6,7 @@ export const ErrorToast = ({errorDisplay, setErrorDisplay, hash}) => {
       <div>
         <div className="flex gap-x-2 pb-1">
           <ExclamationTriangleIcon className="w-6 text-red-500" />
-          <h1>Your transaction was not completed</h1>
+          <h1>Your Transaction was not completed</h1>
         </div>
         <a
           href={`https://goerli.etherscan.io/tx/${hash}`}

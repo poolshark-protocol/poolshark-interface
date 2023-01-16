@@ -23,6 +23,7 @@ import { utils } from "ethers";
 import useTokenBalance from "../hooks/useTokenBalance";
 import React from "react";
 import CoverCollectButton from "../components/Buttons/CoverCollectButton";
+import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 
 export default function Cover() {
     const [maxPrice, setMaxPrice] = useState(0);
@@ -99,13 +100,11 @@ export default function Cover() {
     const data = await fetchPools()
     console.log(data.data.hedgePools[0].id)
     console.log(data.data.hedgePools[0].token0.name)
-    console.log(data.data.hedgePools)
     const token1 = JSON.stringify(data.data.hedgePools[0].token1.name);
     const token0 = JSON.stringify(data.data.hedgePools[0].token0.name);
     const token1Address = JSON.stringify(data.data.hedgePools[0].token1.id);
     const token0Address = JSON.stringify(data.data.hedgePools[0].token0.id);
     const poolAddress = JSON.stringify(data.data.hedgePools[0].id);
-    console.log('token1',token1)
     setTokenOneName(token1);
     setTokenZeroName(token0);
     setTokenOneAddress(token1Address);
@@ -115,12 +114,12 @@ export default function Cover() {
 
   async function getPositionData() {
     const data = await fetchPositions()
-    const positionOwner = JSON.stringify(data.data.positions[0].owner);
-    console.log('positionOwner: ',positionOwner)
-    console.log(isConnected && positionOwner != null)
-    if (positionOwner === address){
-      console.log("matched address with position owner")
-      setPositionOwner(positionOwner);
+    const ownerAddress = JSON.stringify(data.data.positions[0].owner);
+    console.log('positionOwner: ', ownerAddress)
+    console.log(isConnected && ownerAddress !== null)
+    if (ownerAddress === address){
+        console.log("matched address with position owner")
+        setPositionOwner(ownerAddress);
     }
   }
 
@@ -251,9 +250,10 @@ export default function Cover() {
                 </div>
               </div>
               <div className="space-y-3" >
-                {isConnected && dataState === "0x00" ? <CoverApproveButton address={address} amount={bnInput}/> : <CoverMintButton address={address} amount={bnInput}/>}
-                <CoverBurnButton address={address} />
-                <CoverCollectButton address={address} />
+                {isDisconnected ? <ConnectWalletButton /> : null}
+                {isDisconnected === true ? null : isConnected && dataState === "0x00" ? <CoverApproveButton address={address} amount={bnInput}/> : <CoverMintButton address={address} amount={bnInput}/>}
+                {isDisconnected ? null : <CoverBurnButton address={address} />}
+                {isDisconnected ? null : <CoverCollectButton address={address} />}
               </div>
             </div>
             <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">

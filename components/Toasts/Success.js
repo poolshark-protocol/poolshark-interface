@@ -9,7 +9,7 @@ export const SuccessToast = ({successDisplay, setSuccessDisplay, hash}) => {
       <div>
         <div className="flex gap-x-2 pb-1">
           <CheckCircleIcon className="w-6 text-green-500" />
-          <h1>Your Transacaction was succesful</h1>
+          <h1>Your Transaction was succesful</h1>
         </div>
         <a
           href={`https://goerli.etherscan.io/tx/${hash}`}
