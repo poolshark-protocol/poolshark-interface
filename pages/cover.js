@@ -22,6 +22,7 @@ import { POOLS_QUERY } from "../constants/subgraphQueries";
 import { utils } from "ethers";
 import useTokenBalance from "../hooks/useTokenBalance";
 import React from "react";
+import CoverCollectButton from "../components/Buttons/CoverCollectButton";
 
 export default function Cover() {
     const [maxPrice, setMaxPrice] = useState(0);
@@ -115,7 +116,8 @@ export default function Cover() {
   async function getPositionData() {
     const data = await fetchPositions()
     const positionOwner = JSON.stringify(data.data.positions[0].owner);
-    console.log('positionOwner',positionOwner)
+    console.log('positionOwner: ',positionOwner)
+    console.log(isConnected && positionOwner != null)
     if (positionOwner === address){
       console.log("matched address with position owner")
       setPositionOwner(positionOwner);
@@ -250,7 +252,8 @@ export default function Cover() {
               </div>
               <div className="space-y-3" >
                 {isConnected && dataState === "0x00" ? <CoverApproveButton address={address} amount={bnInput}/> : <CoverMintButton address={address} amount={bnInput}/>}
-                {isConnected && positionOwner !== null ? <CoverBurnButton /> : null}
+                <CoverBurnButton address={address} />
+                <CoverCollectButton address={address} />
               </div>
             </div>
             <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">
