@@ -73,18 +73,18 @@ useEffect
           </div>
         </div>
         {show ? <div
-      className="bg-black rounded-r-xl pt-1 border-l-grey1 border-l absolute w-full left-0"
+      className="bg-black pt-1 absolute w-full h-full left-0 rounded-xl"
       >
-        <div className="flex gap-x-10 px-4 text-[#646464] mb-2">
+        <div className="flex gap-x-10 px-4 text-[#646464] my-2">
         <div>
         <h1 className="text-xs">{tokenOneName} <span>{tokenOneDisplay}</span></h1>
-        <h1 className="text-xs">{tokenZeroName} <span>{tokenZeroDisplay}</span></h1>
+        <h1 className="text-xs mt-2">{tokenZeroName} <span>{tokenZeroDisplay}</span></h1>
         </div>
        
           <h1 className="text-xs">Pool: <span>{poolDisplay}</span></h1>
         </div>
         
-        <div className="bg-dark text-sm py-1 text-center rounded-br-xl border-t-grey1 border-t">
+        <div className="bg-dark text-sm py-1 text-center rounded-br-xl border-t-grey1 border-t mt-3 rounded-b-xl">
           <h1>Unclaimed Rewards: $34.56</h1>
         </div>
       </div> : <div className="pr-5"><div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
