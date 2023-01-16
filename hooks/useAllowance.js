@@ -27,7 +27,7 @@ export default function useAllowance(address, isConnected, isDisconnected) {
 
   useEffect(() => {
     setDataState(data?._hex);
-  }, []);
+  })
   
   return [dataState];
 

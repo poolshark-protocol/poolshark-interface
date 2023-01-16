@@ -18,7 +18,7 @@ export default function useTokenBalance() {
     useEffect(() => {
         console.log('balance updated')
         setTokenBalanceInfo(data)
-    },[isConnected])
+    })
 
    const tokenBalanceBox = () => {
         return (
