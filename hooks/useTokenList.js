@@ -1,13 +1,10 @@
 import { useState, createContext, useEffect, useContext } from 'react'
 import axios from 'axios'
-import { useEthers } from '@usedapp/core';
 import {chainIdsToNamesForGitTokenList} from '../utils/chains'
 
-export const CoinContext = createContext()
 
-export const CoinProvider = (props) => {
+export default function useTokenList() {
   const [coins, setCoins] = useState(null)
-  const [usdcToken, setUsdcToken] = useState()
   const [firstToken, setFirstToken] = useState(null)
   const [secondToken, setSecondToken] = useState(null)
   const [firstTokenVal, setFirstTokenVal] = useState("")
@@ -20,8 +17,6 @@ export const CoinProvider = (props) => {
         .then(function (response) {
           setCoins(null)
           setCoins(response.data.search_tokens)
-          setUsdcToken(response.data.search_tokens.find(coin => coin.symbol === 'USDC'))
-  
         })
         .catch(function (error) {
           // handle error
@@ -31,21 +26,24 @@ export const CoinProvider = (props) => {
 
       await fetch()
     
-  });
+  }, [chainId, account]);
 
   useEffect( () => {
       setFirstToken(null)
       setSecondToken(null)
-  });
+  }, [chainId]);
 
 
-  return (
-    <CoinContext.Provider value={{
-      secondTokenVal, setSecondTokenVal, firstTokenVal, setFirstTokenVal,
-      coins, usdcToken, firstToken, setFirstToken, secondToken, setSecondToken
-    }}>
-      {props.children}
-    </CoinContext.Provider>
-  )
+  return [
+    coins, 
+    firstToken, 
+    secondToken, 
+    firstTokenVal, 
+    secondTokenVal, 
+    setCoins, 
+    setFirstToken, 
+    setSecondToken, 
+    setFirstTokenVal, 
+    setSecondTokenVal]
 }
 
