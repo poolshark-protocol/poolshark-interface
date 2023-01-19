@@ -131,7 +131,6 @@ export default function Cover() {
 
   //async so needs to be wrapped
   useEffect(() => {
-    setDataState
     getPoolData();
     getPositionData();
   },[])

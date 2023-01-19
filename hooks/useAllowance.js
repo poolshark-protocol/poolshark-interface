@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { coverPoolAddress, tokenOneAddress } from "../constants/contractAddresses";
 
 export default function useAllowance(address) { 
-  const [dataState, setDataState] = useState();
+  const [dataState, setDataState] = useState(null);
   
   const { data, onSuccess } = useContractRead({
     address: tokenOneAddress,
@@ -13,9 +13,11 @@ export default function useAllowance(address) {
     functionName: "allowance",
     args: [address, coverPoolAddress],
     chainId: 5,
+    watch: true,
     onSuccess(data) {
       console.log("Success", data);
       console.log(ethers.utils.formatUnits(data, 18));
+      setDataState(data?._hex)
     },
     onError(error) {
       console.log("Error", error);
@@ -23,11 +25,11 @@ export default function useAllowance(address) {
     onSettled(data, error) {
       console.log("Settled", { data, error });
     },
-  }, []);
+  }, [dataState]);
 
-  useEffect(() => {
+  /*useEffect(() => {
     setDataState(data?._hex);
-  })
+  })*/
   
   return [dataState];
 
