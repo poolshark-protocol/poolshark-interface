@@ -26,6 +26,7 @@ import useTokenBalance from "../hooks/useTokenBalance";
 import React from "react";
 import CoverCollectButton from "../components/Buttons/CoverCollectButton";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
+import useTokenList from "../hooks/useTokenList";
 
 export default function Cover() {
     const [maxPrice, setMaxPrice] = useState(0);
@@ -97,6 +98,7 @@ export default function Cover() {
   const [tokenZeroAddress, setTokenZeroAddress] = useState();
   const [poolAddress, setPoolAddress] = useState();
   const [positionOwner, setPositionOwner] = useState(null);
+  const [coins] = useTokenList();
 
   async function getPoolData() {
     const data = await fetchPools()

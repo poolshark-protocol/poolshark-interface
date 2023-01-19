@@ -1,7 +1,7 @@
 import { useState, createContext, useEffect, useContext } from 'react'
 import axios from 'axios'
 import {chainIdsToNamesForGitTokenList} from '../utils/chains'
-import { chain } from 'wagmi'
+import { useAccount, useProvider } from 'wagmi'
 
 
 export default function useTokenList() {
@@ -11,8 +11,10 @@ export default function useTokenList() {
   const [firstTokenVal, setFirstTokenVal] = useState("")
   const [secondTokenVal, setSecondTokenVal] = useState("")
 
-  console.log(chain)
-  useEffect(async () => {
+  const { account } = useAccount()
+  const { chainId } = useProvider()
+
+  useEffect(() => {
     const fetch = async () => {
       const chainName = chainIdsToNamesForGitTokenList[5]
       axios.get(`https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/${chainName === undefined ? "ethereum":chainName}/tokenlist.json`)
@@ -25,15 +27,15 @@ export default function useTokenList() {
           console.log(error);
         })
       }
+    fetch()  
+  }, [chainId, account]);
 
-      await fetch()
-    
-  }, [chain, account]);
-
-  useEffect( () => {
+  useEffect(() => {
       setFirstToken(null)
       setSecondToken(null)
-  }, [chain]);
+  }, [chainId]);
+
+  console.log(coins)
 
 
   return [
@@ -46,6 +48,7 @@ export default function useTokenList() {
     setFirstToken, 
     setSecondToken, 
     setFirstTokenVal, 
-    setSecondTokenVal]
+    setSecondTokenVal
+  ]
 }
 
