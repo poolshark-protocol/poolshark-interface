@@ -20,8 +20,8 @@ export default function useTokenList() {
       axios.get(`https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/${chainName === undefined ? "ethereum":chainName}/tokenlist.json`)
         .then(function (response) {
           setCoins(null)
-          setCoins(response.data.search_tokens)
-          console.log(response.data.search_tokens)
+          setCoins(response.data.listed_tokens)
+          console.log(response.data.listed_tokens)
         })
         .catch(function (error) {
           // handle error

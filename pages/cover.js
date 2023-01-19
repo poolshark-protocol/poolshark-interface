@@ -100,6 +100,8 @@ export default function Cover() {
   const [positionOwner, setPositionOwner] = useState(null);
   const [coins] = useTokenList();
 
+  console.log(coins)
+
   async function getPoolData() {
     const data = await fetchPools()
     console.log(data.data.hedgePools[0].id)
