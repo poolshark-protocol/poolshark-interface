@@ -1,6 +1,7 @@
 import { useState, createContext, useEffect, useContext } from 'react'
 import axios from 'axios'
 import {chainIdsToNamesForGitTokenList} from '../utils/chains'
+import { chain } from 'wagmi'
 
 
 export default function useTokenList() {
@@ -10,6 +11,7 @@ export default function useTokenList() {
   const [firstTokenVal, setFirstTokenVal] = useState("")
   const [secondTokenVal, setSecondTokenVal] = useState("")
 
+  console.log(chain)
   useEffect(async () => {
     const fetch = async () => {
       const chainName = chainIdsToNamesForGitTokenList[5]
@@ -26,12 +28,12 @@ export default function useTokenList() {
 
       await fetch()
     
-  }, [chainId, account]);
+  }, [chain, account]);
 
   useEffect( () => {
       setFirstToken(null)
       setSecondToken(null)
-  }, [chainId]);
+  }, [chain]);
 
 
   return [
