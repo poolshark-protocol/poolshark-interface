@@ -5,7 +5,7 @@ import { tokenOneAddress } from '../constants/contractAddresses'
 export default function useTokenBalance() {
 
     const { address, isConnected } = useAccount()
-    const [tokenBalanceInfo, setTokenBalanceInfo] = useState()
+    const [tokenBalanceInfo, setTokenBalanceInfo] = useState(null)
 
     const userAddress = address
 
@@ -13,12 +13,16 @@ export default function useTokenBalance() {
         address: userAddress,
         token: tokenOneAddress,
         chainid: 5,
-    })
+        watch: true,
+        onSuccess(data){
+            setTokenBalanceInfo(data)
+        }
+    }, [tokenBalanceInfo])
     
-    useEffect(() => {
+    /*useEffect(() => {
         console.log('balance updated')
         setTokenBalanceInfo(data)
-    })
+    })*/
 
    const tokenBalanceBox = () => {
         return (
