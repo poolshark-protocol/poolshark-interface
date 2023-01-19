@@ -21,6 +21,7 @@ export default function useTokenList() {
         .then(function (response) {
           setCoins(null)
           setCoins(response.data.search_tokens)
+          console.log(response.data.search_tokens)
         })
         .catch(function (error) {
           // handle error
@@ -34,9 +35,6 @@ export default function useTokenList() {
       setFirstToken(null)
       setSecondToken(null)
   }, [chainId]);
-
-  console.log(coins)
-
 
   return [
     coins, 
