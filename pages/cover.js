@@ -68,8 +68,6 @@ export default function Cover() {
   const {
     network: { chainId }, chainId: chainIdFromProvider
   } = useProvider();
-
-  console.log("chainId: ", chainId)
   
   const { 
     address,
@@ -102,8 +100,6 @@ export default function Cover() {
   const [poolAddress, setPoolAddress] = useState();
   const [positionOwner, setPositionOwner] = useState(null);
   const [coins] = useTokenList();
-
-  console.log(coins)
 
   async function getPoolData() {
     const data = await fetchPools()
@@ -141,6 +137,11 @@ export default function Cover() {
     getPoolData();
     getPositionData();
   },[])
+
+  useEffect(() => {
+    console.log("chainId: ", chainId)
+    console.log("coin list; ", coins)
+  }, [chainId, coins])
 
   const [fetchActiveItems, { loading, error: fetchActiveItemError, data}] =
     useLazyQuery(POOLS_QUERY);
