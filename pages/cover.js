@@ -140,8 +140,11 @@ export default function Cover() {
 
   useEffect(() => {
     console.log("chainId: ", chainId)
+  }, [chainId])
+
+  useEffect(() => {
     console.log("coin list; ", coins)
-  }, [chainId, coins])
+  }, [coins])
 
   const [fetchActiveItems, { loading, error: fetchActiveItemError, data}] =
     useLazyQuery(POOLS_QUERY);

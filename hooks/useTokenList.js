@@ -5,7 +5,7 @@ import { useAccount, useProvider } from 'wagmi'
 
 
 export default function useTokenList() {
-  const [coins, setCoins] = useState(null)
+  const [coins, setCoins] = useState([])
   const [firstToken, setFirstToken] = useState(null)
   const [secondToken, setSecondToken] = useState(null)
   const [firstTokenVal, setFirstTokenVal] = useState("")
