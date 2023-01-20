@@ -66,8 +66,11 @@ export default function Cover() {
     };
  
   const {
-    network: { chainId },
+    network: { chainId }, chainId: chainIdFromProvider
   } = useProvider();
+
+  console.log("chainId: ", chainId)
+  
   const { 
     address,
     isConnected, 

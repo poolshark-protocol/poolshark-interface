@@ -12,7 +12,9 @@ export default function useTokenList() {
   const [secondTokenVal, setSecondTokenVal] = useState("")
 
   const { account } = useAccount()
-  const { chainId } = useProvider()
+  const {
+    network: { chainId }, chainId: chainIdFromProvider
+  } = useProvider();
 
   useEffect(() => {
     const fetch = async () => {
