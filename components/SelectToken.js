@@ -6,6 +6,8 @@ import {
 } from "@heroicons/react/20/solid";
 import { Transition, Dialog } from "@headlessui/react";
 import useTokenList from "../hooks/useTokenList";
+import CoinListButton from "./Buttons/CoinListButton";
+import CoinListItem from "./Buttons/CoinListItem";
   
 export default function SelectToken() {
 

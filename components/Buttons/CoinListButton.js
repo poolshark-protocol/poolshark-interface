@@ -1,4 +1,4 @@
-function CoinListButton({chooseToken, coin}) {
+function CoinListButton({ chooseToken, coin }) {
     return(
         <div>
             <button onClick={chooseToken}
