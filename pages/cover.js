@@ -146,6 +146,27 @@ export default function Cover() {
     console.log("coin list; ", coins)
   }, [coins])
 
+  const tokenOneFromCoins = coins.map((coin, index) => {
+    return(
+      <div key={index}>
+        {coin.name}
+        {coin.symbol}
+        {coin.id}
+        {coin.decimals}
+        {coin.coingecko_url}
+        {coin.market_cap_usd}
+        {coin.market_cap_rank}
+        {coin.logoURI}
+      </div>
+    )
+  })
+
+  console.log("tokenOneFromCoins: ", tokenOneFromCoins)
+
+  const slicedCoins = coins.slice(0, 10);
+  console.log("slicedCoins: ", slicedCoins)
+
+
   const [fetchActiveItems, { loading, error: fetchActiveItemError, data}] =
     useLazyQuery(POOLS_QUERY);
   
