@@ -116,9 +116,9 @@ const handleChange = event => {
     const ownerAddress = JSON.stringify(data.data.positions[0].owner).replace(/"|'/g, '');
     const idAddress = JSON.stringify(data.data.positions[0].id);
     console.log('positionOwner: ', ownerAddress)
-    console.log('address: ', address.toLowerCase())
+    console.log('address: ', address?.toLowerCase())
 
-    if (ownerAddress === address.toLowerCase()){
+    if (ownerAddress === address?.toLowerCase()){
         console.log("matched address with position owner")
         setPositionOwner(ownerAddress);
         setUserTokenOneName()
