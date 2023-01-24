@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 
-export const POSITIONS_QUERY = gql`
+export const GET_POSITIONS = gql`
     {
         positions(
             orderBy: createdAtTimestamp

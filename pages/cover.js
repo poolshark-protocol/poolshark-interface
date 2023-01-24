@@ -19,9 +19,6 @@ import useAllowance from "../hooks/useAllowance";
 import useInputBox from "../hooks/useInputBox";
 import Link  from "next/link";
 import { fetchPools, fetchPositions } from "../utils/queries";
-import { useLazyQuery } from "@apollo/client";
-import { POOLS_QUERY } from "../constants/subgraphQueries";
-import { utils } from "ethers";
 import useTokenBalance from "../hooks/useTokenBalance";
 import React from "react";
 import CoverCollectButton from "../components/Buttons/CoverCollectButton";
@@ -74,19 +71,6 @@ export default function Cover() {
     isConnected, 
     isDisconnected 
   } = useAccount();
-
-  useEffect(() => {
-    let vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
-
-    if (!isDisconnected) {
-      try {
-        fetchActiveItems();
-      } catch (error) {
-        console.error(`Fetch active item error: ${error}`);
-      }
-    }
-  }, [isDisconnected]);
 
   const [bnInput, inputBox] = useInputBox();
   const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance();
@@ -165,10 +149,6 @@ export default function Cover() {
 
   const slicedCoins = coins.slice(0, 10);
   console.log("slicedCoins: ", slicedCoins)
-
-
-  const [fetchActiveItems, { loading, error: fetchActiveItemError, data}] =
-    useLazyQuery(POOLS_QUERY);
   
   const Option = () => {
     if (expanded) {
