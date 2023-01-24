@@ -52,15 +52,15 @@ export default function Cover() {
 };
 
 
-    const handleChange = event => {
-        //const valueToBn = ethers.utils.parseUnits(event.target.value, 0);
-        //const result = event.target.value.replace(/\D/g, '');
-        const result = event.target.value.replace(/[^0-9\.|\,]/g, '')
-        //TODO: make 
-        setMaxPrice(result);
-        setMinPrice(result);
-        // console.log('value is:', result);
-    };
+const handleChange = event => {
+    //const valueToBn = ethers.utils.parseUnits(event.target.value, 0);
+    //const result = event.target.value.replace(/\D/g, '');
+    const result = event.target.value.replace(/[^0-9\.|\,]/g, '')
+    //TODO: make 
+    setMaxPrice(result);
+    setMinPrice(result);
+    // console.log('value is:', result);
+};
  
   const {
     network: { chainId }, chainId: chainIdFromProvider
@@ -82,19 +82,26 @@ export default function Cover() {
   const [tokenOneAddress, setTokenOneAddress] = useState();
   const [tokenZeroAddress, setTokenZeroAddress] = useState();
   const [poolAddress, setPoolAddress] = useState();
+
+  const [userTokenOneName, setUserTokenOneName] = useState();
+  const [userTokenZeroName, setUserTokenZeroName] = useState();
+  const [userTokenOneAddress, setUserTokenOneAddress] = useState();
+  const [userTokenZeroAddress, setUserTokenZeroAddress] = useState();
+  const [userPoolAddress, setUserPoolAddress] = useState();
   const [positionOwner, setPositionOwner] = useState(null);
+
   const [coins] = useTokenList();
 
   async function getPoolData() {
     const data = await fetchPools()
-    console.log(data.data.hedgePools[0].id)
-    console.log(data.data.hedgePools[0].token1.name)
-    console.log(data.data.hedgePools[0].token0.name)
-    const token1 = JSON.stringify(data.data.hedgePools[0].token1.name);
-    const token0 = JSON.stringify(data.data.hedgePools[0].token0.name);
-    const token1Address = JSON.stringify(data.data.hedgePools[0].token1.id);
-    const token0Address = JSON.stringify(data.data.hedgePools[0].token0.id);
-    const poolAddress = JSON.stringify(data.data.hedgePools[0].id);
+    console.log(data.data.coverPools[0].id)
+    console.log(data.data.coverPools[0].token1.name)
+    console.log(data.data.coverPools[0].token0.name)
+    const token1 = JSON.stringify(data.data.coverPools[0].token1.name);
+    const token0 = JSON.stringify(data.data.coverPools[0].token0.name);
+    const token1Address = JSON.stringify(data.data.coverPools[0].token1.id);
+    const token0Address = JSON.stringify(data.data.coverPools[0].token0.id);
+    const poolAddress = JSON.stringify(data.data.coverPools[0].id);
     setTokenOneName(token1);
     setTokenZeroName(token0);
     setTokenOneAddress(token1Address);
@@ -104,15 +111,20 @@ export default function Cover() {
 
   async function getPositionData() {
     const data = await fetchPositions(address)
+    const positions = data.data.positions
+
     const ownerAddress = JSON.stringify(data.data.positions[0].owner);
     const idAddress = JSON.stringify(data.data.positions[0].id);
     console.log('positionOwner: ', ownerAddress)
-    console.log('id: ', idAddress)
-    console.log('address: ', address)
-    console.log(isConnected && ownerAddress !== null)
+
     if (ownerAddress === address){
         console.log("matched address with position owner")
         setPositionOwner(ownerAddress);
+        setUserTokenOneName()
+        setUserTokenZeroName()
+        setUserTokenOneAddress()
+        setUserTokenZeroAddress()
+        setUserPoolAddress()
     }
   }
 
@@ -128,27 +140,24 @@ export default function Cover() {
 
   useEffect(() => {
     console.log("coin list; ", coins)
+    const tokenOneFromCoins = coins.map((coin, index) => {
+      return(
+        <div key={index}>
+          {coin.name}
+          {coin.symbol}
+          {coin.id}
+          {coin.decimals}
+          {coin.coingecko_url}
+          {coin.market_cap_usd}
+          {coin.market_cap_rank}
+          {coin.logoURI}
+        </div>
+      )
+    })
+    console.log("tokenOneFromCoins: ", tokenOneFromCoins)
+    const slicedCoins = coins.slice(0, 10);
+    console.log("slicedCoins: ", slicedCoins)
   }, [coins])
-
-  const tokenOneFromCoins = coins.map((coin, index) => {
-    return(
-      <div key={index}>
-        {coin.name}
-        {coin.symbol}
-        {coin.id}
-        {coin.decimals}
-        {coin.coingecko_url}
-        {coin.market_cap_usd}
-        {coin.market_cap_rank}
-        {coin.logoURI}
-      </div>
-    )
-  })
-
-  console.log("tokenOneFromCoins: ", tokenOneFromCoins)
-
-  const slicedCoins = coins.slice(0, 10);
-  console.log("slicedCoins: ", slicedCoins)
   
   const Option = () => {
     if (expanded) {

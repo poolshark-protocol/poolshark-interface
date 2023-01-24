@@ -90,7 +90,7 @@ export const fetchPools =  () => {
     return new Promise(function(resolve) {
         const poolsQuery =`
             query($id: String) {
-                hedgePools(id: $id) {
+                coverPools(id: $id) {
                     factory
                     id
                     inputPool
