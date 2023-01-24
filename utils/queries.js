@@ -75,7 +75,7 @@ export const fetchPositions =  (address) => {
             query: gql(positionsQuery),
             variables: {
                 owner: address
-            }
+            },
          })
           .then((data) => {
               resolve(data)
