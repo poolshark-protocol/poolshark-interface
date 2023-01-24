@@ -1,4 +1,4 @@
-import useTokenBalance from "../../hooks/useTokenBalance";
+import useTokenBalance from "../hooks/useTokenBalance";
 
 function CoinListItem({ chooseToken, coin }){
     const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance();

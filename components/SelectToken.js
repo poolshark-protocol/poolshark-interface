@@ -7,7 +7,7 @@ import {
 import { Transition, Dialog } from "@headlessui/react";
 import useTokenList from "../hooks/useTokenList";
 import CoinListButton from "./Buttons/CoinListButton";
-import CoinListItem from "./Buttons/CoinListItem";
+import CoinListItem from "./CoinListItem";
   
 export default function SelectToken() {
 
@@ -105,9 +105,13 @@ export default function SelectToken() {
                                 <input
                                   className="border border-grey2 bg-dark outline-none py-2.5 pl-12 rounded-lg w-full placeholder:text-grey placeholder:font-regular text-white"
                                   placeholder="Search name or paste address"
+                                  value={inputVal}
+                                  onChange={e => setInputVal(e.target.value)}
                                 ></input>
                                 <div className="flex justify-between flex-wrap mt-4 gap-y-2">
-                                  <div className="flex items-center gap-x-2 text-white border-grey1 border p-1.5 px-3 rounded-xl text-sm">
+                                  <div 
+                                    className="flex items-center gap-x-2 text-white border-grey1 border p-1.5 px-3 rounded-xl text-sm"
+                                    onClick={() => setInputVal("")}>
                                     <img
                                       className="w-6"
                                       src="/static/images/token.png"
@@ -164,6 +168,23 @@ export default function SelectToken() {
                                     USDC
                                   </div>
                                 </div>
+                              </div>
+                              <div d="flex" mx="9" pb="6" justifyContent={coinsForListing.length < 4 ? "space-around": "space-between"}>
+                                {coinsForListing != null && coinsForListing.map((coin, index) => {
+                                  return (
+                                    index < 4 && <CoinListButton chooseToken={chooseToken} coin={coin} key={coin.id} />
+                                )
+                                })}
+                              </div>
+                              <div>
+                                {coinsForListing != null && coinsForListing.map((coin) => {
+                                  return (
+                                  <CoinListItem chooseToken={chooseToken} coin={coin} key={coin.id} />
+                                  )
+                              })}
+                                {(coinsForListing === null || coinsForListing.length === 0) &&
+                                <div>No coin</div>
+                                }
                               </div>
                               <div className="bg-dark text-white">
                                 <div className="border border-t-grey1 border-transparent px-5 py-2 flex justify-between items-center">
