@@ -113,11 +113,12 @@ const handleChange = event => {
     const data = await fetchPositions(address)
     const positions = data.data.positions
 
-    const ownerAddress = JSON.stringify(data.data.positions[0].owner);
+    const ownerAddress = JSON.stringify(data.data.positions[0].owner).replace(/"|'/g, '');
     const idAddress = JSON.stringify(data.data.positions[0].id);
     console.log('positionOwner: ', ownerAddress)
+    console.log('address: ', address.toLowerCase())
 
-    if (ownerAddress === address){
+    if (ownerAddress === address.toLowerCase()){
         console.log("matched address with position owner")
         setPositionOwner(ownerAddress);
         setUserTokenOneName()
@@ -278,7 +279,7 @@ const handleChange = event => {
               <div className="space-y-3" >
                 {isDisconnected ? <ConnectWalletButton /> : null}
                 {isDisconnected ? null : isConnected && dataState === "0x00" ? <CoverApproveButton address={address} amount={bnInput}/> : <CoverMintButton address={address} amount={bnInput}/>}
-                {isDisconnected ? null : <CoverBurnButton address={address} />}
+                {isDisconnected || positionOwner === null ? null : <CoverBurnButton address={address} />}
                 {isDisconnected ? null : <CoverCollectButton address={address} />}
               </div>
             </div>
