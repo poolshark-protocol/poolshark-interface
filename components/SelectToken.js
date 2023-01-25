@@ -109,72 +109,12 @@ export default function SelectToken() {
                                   onChange={e => setInputVal(e.target.value)}
                                 ></input>
                                 <div className="flex justify-between flex-wrap mt-4 gap-y-2">
-                                  <div 
-                                    className="flex items-center gap-x-2 text-white border-grey1 border p-1.5 px-3 rounded-xl text-sm"
-                                    onClick={() => setInputVal("")}>
-                                    <img
-                                      className="w-6"
-                                      src="/static/images/token.png"
-                                    />
-                                    USDC
-                                  </div>
-                                  <div className="flex items-center gap-x-2 text-white border-grey1 border p-1.5 px-3 rounded-xl text-sm">
-                                    <img
-                                      className="w-6"
-                                      src="/static/images/token.png"
-                                    />
-                                    USDC
-                                  </div>
-                                  <div className="flex items-center gap-x-2 text-white border-grey1 border p-1.5 px-3 rounded-xl text-sm">
-                                    <img
-                                      className="w-6"
-                                      src="/static/images/token.png"
-                                    />
-                                    USDC
-                                  </div>
-                                  <div className="flex items-center gap-x-2 text-white border-grey1 border p-1.5 px-3 rounded-xl text-sm">
-                                    <img
-                                      className="w-6"
-                                      src="/static/images/token.png"
-                                    />
-                                    USDC
-                                  </div>
-                                  <div className="flex items-center gap-x-2 text-white border-grey1 border p-1.5 px-3 rounded-xl text-sm">
-                                    <img
-                                      className="w-6"
-                                      src="/static/images/token.png"
-                                    />
-                                    USDC
-                                  </div>
-                                  <div className="flex items-center gap-x-2 text-white border-grey1 border p-1.5 px-3 rounded-xl text-sm">
-                                    <img
-                                      className="w-6"
-                                      src="/static/images/token.png"
-                                    />
-                                    USDC
-                                  </div>
-                                  <div className="flex items-center gap-x-2 text-white border-grey1 border p-1.5 px-3 rounded-xl text-sm">
-                                    <img
-                                      className="w-6"
-                                      src="/static/images/token.png"
-                                    />
-                                    USDC
-                                  </div>
-                                  <div className="flex items-center gap-x-2 text-white border-grey1 border p-1.5 px-3 rounded-xl text-sm">
-                                    <img
-                                      className="w-6"
-                                      src="/static/images/token.png"
-                                    />
-                                    USDC
-                                  </div>
-                                </div>
-                              </div>
-                              <div d="flex" mx="9" pb="6" justifyContent={coinsForListing.length < 4 ? "space-around": "space-between"}>
-                                {coinsForListing != null && coinsForListing.map((coin, index) => {
+                                  {coinsForListing != null && coinsForListing.map((coin, index) => {
                                   return (
                                     index < 4 && <CoinListButton chooseToken={chooseToken} coin={coin} key={coin.id} />
                                 )
                                 })}
+                                </div>
                               </div>
                               <div>
                                 {coinsForListing != null && coinsForListing.map((coin) => {
@@ -185,59 +125,6 @@ export default function SelectToken() {
                                 {(coinsForListing === null || coinsForListing.length === 0) &&
                                 <div>No coin</div>
                                 }
-                              </div>
-                              <div className="bg-dark text-white">
-                                <div className="border border-t-grey1 border-transparent px-5 py-2 flex justify-between items-center">
-                                  <div className="flex items-center gap-x-3">
-                                    <img
-                                      className="w-8 h-8"
-                                      src="/static/images/token.png"
-                                    />
-                                    <div>
-                                      <h1 className="w-full text-sm -mb-2">
-                                        USD Coin
-                                      </h1>
-                                      <span className="w-full text-[11px] text-grey">
-                                        USDC
-                                      </span>
-                                    </div>
-                                  </div>
-                                  200
-                                </div>
-                                <div className="border border-t-grey1 border-transparent px-5 py-2 flex justify-between items-center">
-                                  <div className="flex items-center gap-x-3">
-                                    <img
-                                      className="w-8 h-8"
-                                      src="/static/images/token.png"
-                                    />
-                                    <div>
-                                      <h1 className="w-full text-sm -mb-2">
-                                        USD Coin
-                                      </h1>
-                                      <span className="w-full text-[11px] text-grey">
-                                        USDC
-                                      </span>
-                                    </div>
-                                  </div>
-                                  200
-                                </div>
-                                <div className="border border-t-grey1 border-transparent px-5 py-2 flex justify-between items-center">
-                                  <div className="flex items-center gap-x-3">
-                                    <img
-                                      className="w-8 h-8"
-                                      src="/static/images/token.png"
-                                    />
-                                    <div>
-                                      <h1 className="w-full text-sm -mb-2">
-                                        USD Coin
-                                      </h1>
-                                      <span className="w-full text-[11px] text-grey">
-                                        USDC
-                                      </span>
-                                    </div>
-                                  </div>
-                                  200
-                                </div>
                               </div>
                             </Dialog.Panel>
                           </Transition.Child>
