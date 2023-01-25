@@ -232,13 +232,14 @@ const handleChange = event => {
                 </div>
               </div>
               <h1 className="mb-3 mt-6">Set Price Range</h1>
-              <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg mb-4">
+              <div className="flex justify-between w-full gap-x-6">
+                <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
                 <span className="text-xs text-grey">Min. Price</span>
                 <div className="flex justify-center items-center">
                   <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600" onClick={decreaseMinPrice}>
                     <MinusIcon className="w-5 h-5 ml-[2.5px]" />
                   </div>
-                  <input className="bg-[#0C0C0C] py-2 outline-none text-center" placeholder="0" onChange={handleChange} value={minPrice}/>
+                  <input className="bg-[#0C0C0C] py-2 outline-none text-center w-full" placeholder="0" onChange={handleChange} value={minPrice}/>
                   <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600" onClick={increaseMinPrice}>
                     <PlusIcon className="w-5 h-5" />
                   </div>
@@ -251,12 +252,13 @@ const handleChange = event => {
                   <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600" onClick={decreaseMaxPrice}>
                     <MinusIcon className="w-5 h-5 ml-[2.5px]" />
                   </div>
-                  <input className="bg-[#0C0C0C] py-2 outline-none text-center" placeholder="0" onChange={handleChange} value={maxPrice}/>
+                  <input className="bg-[#0C0C0C] py-2 outline-none text-center w-full" placeholder="0" onChange={handleChange} value={maxPrice}/>
                   <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600" onClick={increaseMaxPrice}>
                     <PlusIcon className="w-5 h-5" />
                   </div>
                 </div>
                 <span className="text-xs text-grey">USDC per DAI</span>
+              </div>
               </div>
               <div className="py-4">
                 <div

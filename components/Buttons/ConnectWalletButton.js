@@ -1,4 +1,8 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import {
+  ChevronDownIcon,
+} from "@heroicons/react/20/solid";
+
 export const ConnectWalletButton = () => {
   return (
     <ConnectButton.Custom>
@@ -34,7 +38,7 @@ export const ConnectWalletButton = () => {
               if (!connected) {
                 return (
                   <button
-                    className="w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+                    className="w-full py-2.5 text-sm mx-auto text-white px-8 font-DMSans text-center transition rounded-lg cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
                     onClick={openConnectModal}
                     type="button"
                   >
@@ -50,39 +54,41 @@ export const ConnectWalletButton = () => {
                 );
               }
               return (
-                <div style={{ display: "flex", gap: 12 }}>
+                <div className="flex text-white gap-x-4">
                   <button
                     onClick={openChainModal}
                     style={{ display: "flex", alignItems: "center" }}
                     type="button"
+                    className="bg-black border-grey1 border rounded-lg py-2 px-4 gap-x-2"
                   >
                     {chain.hasIcon && (
                       <div
-                        style={{
-                          background: chain.iconBackground,
-                          width: 12,
-                          height: 12,
-                          borderRadius: 999,
-                          overflow: "hidden",
-                          marginRight: 4,
-                        }}
                       >
                         {chain.iconUrl && (
                           <img
                             alt={chain.name ?? "Chain icon"}
                             src={chain.iconUrl}
-                            style={{ width: 12, height: 12 }}
+                            style={{ width: 14, height: 14 }}
                           />
                         )}
                       </div>
                     )}
                     {chain.name}
                   </button>
-                  <button onClick={openAccountModal} type="button">
-                    {account.displayName}
-                    {account.displayBalance
-                      ? ` (${account.displayBalance})`
-                      : ""}
+                  <button onClick={openAccountModal} type="button" className="flex bg-dark rounded-lg border-grey1 border">
+                    <div className="bg-dark py-2 px-4 rounded-l-lg">
+                      {account.displayBalance
+                      ? ` ${account.displayBalance}`
+                      : "Balance Error"}
+                    </div>
+                    <div className="bg-black flex gap-x-2 rounded-lg border-grey1 border mt-[-1px] mr-[-1px] mb-[-1px] ">
+                    <div className="py-2 pl-5 pr-3">
+                      {account.displayName}
+                    </div>
+                    <div className="border-l border-grey1 py-2.5 px-3">
+                    <ChevronDownIcon className="w-5"/>
+                    </div>
+                    </div>
                   </button>
                 </div>
               );
