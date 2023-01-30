@@ -72,6 +72,8 @@ const handleChange = event => {
     isDisconnected 
   } = useAccount();
 
+  //TODO: manual disconnect through UI and refresh causes hydration issues
+
   const [bnInput, inputBox] = useInputBox();
   const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance();
   const [dataState, setDataState] = useAllowance(address);
@@ -92,7 +94,7 @@ const handleChange = event => {
 
   const [coins] = useTokenList();
 
-  async function getPoolData() {
+  async function getCoverPoolData() {
     const data = await fetchPools()
     console.log(data.data.coverPools[0].id)
     console.log(data.data.coverPools[0].token1.name)
@@ -129,9 +131,12 @@ const handleChange = event => {
     }
   }
 
+
   //async so needs to be wrapped
   useEffect(() => {
-    getPoolData();
+    getCoverPoolData();
+    // getUniV3PoolData();
+    // getRangePoolData();
     getPositionData();
   },[])
 
@@ -278,11 +283,15 @@ const handleChange = event => {
                   <Option />
                 </div>
               </div>
+              {/* //TODO: connect button state change based off click and not actual connection
+  // add a ternary on the response
+  // if user rejects call you don't change the state */}
+
               <div className="space-y-3" >
-                {isDisconnected ? <ConnectWalletButton /> : null}
-                {isDisconnected ? null : isConnected && dataState === "0x00" ? <CoverApproveButton address={address} amount={bnInput}/> : <CoverMintButton address={address} amount={bnInput}/>}
-                {isDisconnected || positionOwner === null ? null : <CoverBurnButton address={address} />}
-                {isDisconnected ? null : <CoverCollectButton address={address} />}
+                {!isConnected ? <ConnectWalletButton /> : null}
+                {!isConnected ? null : dataState === "0x00" ? <CoverApproveButton key={isConnected} address={address} amount={bnInput}/> : <CoverMintButton key={isConnected} address={address} amount={bnInput}/>}
+                {!isConnected || positionOwner === null ? null : <CoverBurnButton key={isConnected} address={address} />}
+                {!isConnected ? null : <CoverCollectButton address={address} />}
               </div>
             </div>
             <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">

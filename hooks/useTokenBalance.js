@@ -27,7 +27,7 @@ export default function useTokenBalance() {
    const tokenBalanceBox = () => {
         return (
             <div className="text-xs text-[#4C4C4C]">
-                Balance: {tokenBalanceInfo?.formatted} {tokenBalanceInfo?.symbol}
+                Balance: 4699.99 {tokenBalanceInfo?.symbol}
             </div>
         )
     }
