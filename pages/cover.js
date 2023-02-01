@@ -129,6 +129,29 @@ const handleChange = event => {
     }
   }
 
+function renderUserPositions() {
+  return(useEffect(() => {
+    async function fetchUserPositions() {
+      const data = await fetchPositions(address)
+      return(
+        <div>
+          {data.data.positions.map((position) => {
+            <UserCoverPool
+          key={JSON.stringify(position.pool.token1.name)}
+            tokenOneName={JSON.stringify(position.pool.token1.name)}
+            tokenZeroName={JSON.stringify(position.pool.token0.name)}
+            tokenOneAddress={JSON.stringify(position.pool.token1.id)}
+            tokenZeroAddress={JSON.stringify(position.pool.token0.id)}
+            poolAddress={JSON.stringify(position.pool.id)}
+          />})}
+        </div>
+      )
+    }
+
+    fetchUserPositions()
+  },[]))
+}
+
   //async so needs to be wrapped
   useEffect(() => {
     getPoolData();
@@ -296,14 +319,15 @@ const handleChange = event => {
               <div>
                 <h1 className="mb-3">Poolshark Cover Pools</h1>
                 <div className="space-y-2">
-                  <UserCoverPool
+                  {/*<UserCoverPool
                 key={tokenOneName} 
                   tokenOneName={tokenOneName}
                   tokenZeroName={tokenZeroName} 
                   tokenOneAddress={tokenOneAddress} 
                   tokenZeroAddress={tokenZeroAddress} 
                   poolAddress={poolAddress}
-                />
+                />*/}
+                  {renderUserPositions()}
                 </div>
               </div>
               <div>
