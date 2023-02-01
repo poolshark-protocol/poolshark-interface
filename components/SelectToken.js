@@ -9,7 +9,7 @@ import useTokenList from "../hooks/useTokenList";
 import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
   
-export default function SelectToken() {
+export default function SelectToken(props) {
 
   const [inputVal, setInputVal] = useState("")
   const [coins] = useTokenList();
