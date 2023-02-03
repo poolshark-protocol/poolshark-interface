@@ -24,6 +24,9 @@ import React from "react";
 import CoverCollectButton from "../components/Buttons/CoverCollectButton";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import useTokenList from "../hooks/useTokenList";
+import Initial from "../components/Cover/Initial";
+import CreateCover from "../components/Cover/CreateCover";
+import CoverExistingPool from "../components/Cover/CoverExistingPool";
 
 export default function Cover() {
     const [maxPrice, setMaxPrice] = useState(0);
@@ -228,6 +231,10 @@ function renderUserPositions() {
           </div>
           <div className="flex space-x-8">
             <div className="bg-black w-2/3 border border-grey2 w-full rounded-t-xl p-6 gap-y-4">
+              <Initial/>
+              {/*<CreateCover/> */}
+              {/*<CoverExistingPool/> */}
+              {/*
               <h1 className="mb-3">How much do you want to Cover?</h1>
               <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
                 <div className="flex-col justify-center w-1/2 p-2 ">
@@ -307,6 +314,7 @@ function renderUserPositions() {
                 {isDisconnected || positionOwner === null ? null : <CoverBurnButton address={address} />}
                 {isDisconnected ? null : <CoverCollectButton address={address} />}
               </div>
+              */}
             </div>
             <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">
               <div className="relative">
@@ -317,7 +325,7 @@ function renderUserPositions() {
                 />
               </div>
               <div>
-                <h1 className="mb-3">Poolshark Cover Pools</h1>
+                <h1 className="mb-3">Cover Pools</h1>
                 <div className="space-y-2">
                   {/*<UserCoverPool
                 key={tokenOneName} 
