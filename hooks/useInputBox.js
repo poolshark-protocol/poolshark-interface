@@ -16,6 +16,16 @@ export default function useInputBox() {
             setBnInput(valueToBn);
           }
     };
+
+    const maxBalance = (balance, placeholder) => {
+        setDisplay(balance)
+        setInput(ethers.utils.parseUnits(balance, 18))
+        if (balance != "") {
+            const valueToBn = ethers.utils.parseUnits(balance, 18);
+            setBnInput(valueToBn);
+          }
+        inputBox(placeholder)
+    }
     
     //TODO: add an optional param for changing value
     const inputBox = (placeholder) => {
@@ -33,5 +43,5 @@ export default function useInputBox() {
         )
     }
     
-    return [bnInput, inputBox]
+    return [bnInput, inputBox, maxBalance]
 }

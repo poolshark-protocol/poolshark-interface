@@ -20,7 +20,7 @@ import useTokenBalance from "../hooks/useTokenBalance";
 
 export default function Swap() {
   const { address, isConnected, isDisconnected } = useAccount();
-  const [bnInput, inputBox] = useInputBox();
+  const [bnInput, inputBox, maxBalance] = useInputBox();
   const [dataState] = useAllowance(address);
   const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance();
   const [tokenOrder, setTokenOrder] = useState(true);
@@ -185,7 +185,7 @@ export default function Swap() {
                   <div className="flex text-xs text-[#4C4C4C]">
                     {tokenBalanceBox()}
                   </div>
-                  <button className="flex text-xs uppercase text-[#C9C9C9]">
+                  <button className="flex text-xs uppercase text-[#C9C9C9]" onClick={() => maxBalance(tokenBalanceInfo?.formatted,"0")}>
                     Max
                   </button>
                 </div>
