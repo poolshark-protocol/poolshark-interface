@@ -1,13 +1,12 @@
 import {
   AdjustmentsHorizontalIcon,
   ArrowSmallDownIcon,
+  ArrowSmallUpIcon,
+
 } from "@heroicons/react/24/outline";
 import { useState, useEffect } from "react";
 import { Popover } from "@headlessui/react";
-import {
-  ChevronDownIcon,
-  ArrowPathIcon
-} from "@heroicons/react/20/solid";
+import { ChevronDownIcon, ArrowPathIcon } from "@heroicons/react/20/solid";
 import SelectToken from "./SelectToken";
 import SwapButton from "./Buttons/SwapButton";
 import useInputBox from "../hooks/useInputBox";
@@ -17,7 +16,6 @@ import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import { useAccount } from "wagmi";
 import useTokenBalance from "../hooks/useTokenBalance";
 
-
 export default function Swap() {
   const { address, isConnected, isDisconnected } = useAccount();
   const [bnInput, inputBox, maxBalance] = useInputBox();
@@ -25,6 +23,16 @@ export default function Swap() {
   const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance();
   const [tokenOrder, setTokenOrder] = useState(true);
   const [swapOrder, setSwapOrder] = useState(true);
+  const [token0, setToken0] = useState({
+    symbol: "USDC",
+    logoURI:
+      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+  });
+  const [token1, setToken1] = useState({
+    symbol: "USDC",
+    logoURI:
+      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+  });
 
   const newData = useEffect(() => {
     newData = dataState;
@@ -37,14 +45,20 @@ export default function Swap() {
     setIsOpen(false);
   }
 
+  function switchDirection() {
+    setTokenOrder(!tokenOrder)
+    const temp = token0
+    setToken0(token1)
+    setToken1(temp)
+  }
+
   function openModal() {
     setIsOpen(true);
   }
 
   const [expanded, setExpanded] = useState();
 
-  const token0 = "TK0"
-  const token1 = "TK1"
+
 
   const Option = () => {
     if (expanded) {
@@ -131,6 +145,7 @@ export default function Swap() {
       );
   };*/
 
+
   return (
     <div className="pt-[10vh]">
       <div className="flex flex-col w-full md:max-w-md px-6 pt-5 pb-7 mx-auto bg-black border border-grey2 rounded-xl">
@@ -163,8 +178,7 @@ export default function Swap() {
                 <AdjustmentsHorizontalIcon className="w-5 h-5 outline-none" />
               </Popover.Button>
 
-              <Popover.Panel className="absolute z-10 ml-20">
-              </Popover.Panel>
+              <Popover.Panel className="absolute z-10 ml-20"></Popover.Panel>
             </Popover>
           </div>
         </div>
@@ -179,11 +193,14 @@ export default function Swap() {
             <div className="flex justify-center ml-auto">
               <div className="flex-col">
                 <div className="flex justify-end">
-                  <SelectToken />
+                  <SelectToken tokenChosen={setToken0} displayToken={token0} />
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
                   <div className="flex text-xs text-[#4C4C4C]">
-                    {tokenBalanceBox()}
+                    Balance:
+                    {Number(tokenBalanceBox().props.children[1]) >= 1000000
+                      ? (Number(tokenBalanceBox().props.children[1])).toExponential(5)
+                      : Number(tokenBalanceBox().props.children[1])}
                   </div>
                   <button className="flex text-xs uppercase text-[#C9C9C9]" onClick={() => maxBalance(tokenBalanceInfo?.formatted,"0")}>
                     Max
@@ -194,7 +211,8 @@ export default function Swap() {
           </div>
         </div>
         <div className="items-center -mb-2 -mt-2 p-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
-          <ArrowSmallDownIcon className="w-4 h-4" />
+          {tokenOrder ? <ArrowSmallDownIcon className="w-4 h-4" onClick={() => switchDirection()} /> :
+          <ArrowSmallUpIcon className="w-4 h-4" onClick={() => switchDirection()} />}
         </div>
 
         <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
@@ -211,11 +229,18 @@ export default function Swap() {
             <div className="flex justify-center ml-auto">
               <div className="flex-col">
                 <div className="flex justify-end">
-                  <SelectToken />
+                  <SelectToken tokenChosen={setToken1} displayToken={token1} />
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                  {/*<TokenBalance />*/}
-                <button className="text-xs uppercase text-[#C9C9C9]">Max</button>
+                <div className="flex text-xs text-[#4C4C4C]">
+                    Balance:
+                    {Number(tokenBalanceBox().props.children[1]) >= 1000000
+                      ? (Number(tokenBalanceBox().props.children[1])).toExponential(5)
+                      : Number(tokenBalanceBox().props.children[1])}
+                  </div>
+                  <button className="text-xs uppercase text-[#C9C9C9]">
+                    Max
+                  </button>
                 </div>
               </div>
             </div>
@@ -225,7 +250,7 @@ export default function Swap() {
           <div>
             <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-4">
               <div className="flex-col justify-center w-1/2 p-2 ">
-              {inputBox("1.90")}
+                {inputBox("1.90")}
                 <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]">
                     98% above Market Price
@@ -236,15 +261,23 @@ export default function Swap() {
                 <div className="flex justify-center ml-auto">
                   <div className="flex-col">
                     <div className="flex justify-end">
-                      {tokenOrder ? <button className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl" onClick={() => setTokenOrder(false)}>
-                        {token0} per {token1}
-                        <ArrowPathIcon className="w-5"/>
-                      </button> : <button className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl" onClick={() => setTokenOrder(true)}>
-                        {token1} per {token0}
-                        <ArrowPathIcon className="w-5" />
-                      </button>}
-                      
-                      
+                      {tokenOrder ? (
+                        <button
+                          className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
+                          onClick={() => setTokenOrder(false)}
+                        >
+                          {token0} per {token1}
+                          <ArrowPathIcon className="w-5" />
+                        </button>
+                      ) : (
+                        <button
+                          className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
+                          onClick={() => setTokenOrder(true)}
+                        >
+                          {token1} per {token0}
+                          <ArrowPathIcon className="w-5" />
+                        </button>
+                      )}
                     </div>
                     <div className="flex items-center justify-end gap-2 px-1 mt-2">
                       <div className="text-xs text-white">
@@ -277,10 +310,13 @@ export default function Swap() {
             <Option />
           </div>
         </div>
-          {isDisconnected ? <ConnectWalletButton /> : null}
-          {isDisconnected ? null: dataState === "0x00" ? <CoverApproveButton address={address} amount={bnInput}/> : <SwapButton amount={bnInput}/>}
-        </div>
+        {isDisconnected ? <ConnectWalletButton /> : null}
+        {isDisconnected ? null : dataState === "0x00" ? (
+          <CoverApproveButton address={address} amount={bnInput} />
+        ) : (
+          <SwapButton amount={bnInput} />
+        )}
       </div>
+    </div>
   );
-  }
-
+}

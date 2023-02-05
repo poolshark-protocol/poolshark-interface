@@ -5,7 +5,7 @@ import { useAccount, useProvider } from 'wagmi'
 
 
 export default function useTokenList() {
-  const [coins, setCoins] = useState([])
+  const [coins, setCoins] = useState({})
   const [firstToken, setFirstToken] = useState(null)
   const [secondToken, setSecondToken] = useState(null)
   const [firstTokenVal, setFirstTokenVal] = useState("")
@@ -22,7 +22,8 @@ export default function useTokenList() {
       axios.get(`https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/${chainName === undefined ? "ethereum":chainName}/tokenlist.json`)
         .then(function (response) {
           setCoins(null)
-          setCoins(response.data.listed_tokens)
+          setCoins({listed_tokens: response.data.listed_tokens, search_tokens:response.data.search_tokens })
+          
         })
         .catch(function (error) {
           // handle error
@@ -32,22 +33,22 @@ export default function useTokenList() {
     fetch()  
   }, [chainId, account]);
 
-  useEffect(() => {
-      setFirstToken(null)
-      setSecondToken(null)
-  }, [chainId]);
+  // useEffect(() => {
+  //     setFirstToken(null)
+  //     setSecondToken(null)
+  // }, [chainId]);
 
   return [
     coins, 
-    firstToken, 
-    secondToken, 
-    firstTokenVal, 
-    secondTokenVal, 
-    setCoins, 
-    setFirstToken, 
-    setSecondToken, 
-    setFirstTokenVal, 
-    setSecondTokenVal
+    // firstToken, 
+    // secondToken, 
+    // firstTokenVal, 
+    // secondTokenVal, 
+    // setCoins, 
+    // setFirstToken, 
+    // setSecondToken, 
+    // setFirstTokenVal, 
+    // setSecondTokenVal
   ]
 }
 

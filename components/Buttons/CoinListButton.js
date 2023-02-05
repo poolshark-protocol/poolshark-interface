@@ -1,7 +1,7 @@
 function CoinListButton({ chooseToken, coin }) {
     return(
-        <div
-        onClick={chooseToken}
+        <button
+        // onClick={chooseToken(coin)}
                 data-name={coin.name}
                 data-logouri={coin.logoURI}
                 data-symbol={coin.symbol}
@@ -13,7 +13,7 @@ function CoinListButton({ chooseToken, coin }) {
                                       src={coin.logoURI} 
                                     />
                                     {coin.symbol}
-                                  </div>
+                                  </button>
     );
 }
 
