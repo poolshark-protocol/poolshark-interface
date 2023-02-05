@@ -110,7 +110,7 @@ export default function SelectToken(props) {
                     ></input>
                     <div className="flex justify-between flex-wrap mt-4 gap-y-2">
                       {coinsForListing?.map((coin, index) => {
-                        return <CoinListButton coin={coin} />;
+                        return <CoinListButton coin={coin} chooseToken={chooseToken}  />;
                       })}
                     </div>
                   </div>
