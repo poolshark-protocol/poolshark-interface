@@ -86,13 +86,8 @@ const handleChange = event => {
   const [tokenOneAddress, setTokenOneAddress] = useState();
   const [tokenZeroAddress, setTokenZeroAddress] = useState();
   const [poolAddress, setPoolAddress] = useState();
-
-  const [userTokenOneName, setUserTokenOneName] = useState();
-  const [userTokenZeroName, setUserTokenZeroName] = useState();
-  const [userTokenOneAddress, setUserTokenOneAddress] = useState();
-  const [userTokenZeroAddress, setUserTokenZeroAddress] = useState();
-  const [userPoolAddress, setUserPoolAddress] = useState();
-  const [positionOwner, setPositionOwner] = useState(null);
+  
+  const [userPositions, setUserPositions] = useState([]);
 
   const coins = useTokenList()[0];
   const [coinsForListing, setCoinsForListing] = useState(coins.listed_tokens);
@@ -117,58 +112,54 @@ const handleChange = event => {
     setPoolAddress(poolAddress);
   }
 
-  async function getPositionData() {
+  async function getUserPositionData() {
     const data = await fetchPositions(address)
     const positions = data.data.positions
 
-    const ownerAddress = JSON.stringify(data.data.positions[0].owner).replace(/"|'/g, '');
-    const idAddress = JSON.stringify(data.data.positions[0].id);
-    console.log('positionOwner: ', ownerAddress)
-    console.log('address: ', address?.toLowerCase())
-
-    if (ownerAddress === address?.toLowerCase()){
-        console.log("matched address with position owner")
-        setPositionOwner(ownerAddress);
-        setUserTokenOneName()
-        setUserTokenZeroName()
-        setUserTokenOneAddress()
-        setUserTokenZeroAddress()
-        setUserPoolAddress()
-    }
+    setUserPositions(positions)
   }
 
-function renderUserPositions() {
-  return(useEffect(() => {
-    async function fetchUserPositions() {
-      const data = await fetchPositions(address)
-      return(
-        <div>
-          {data.data.positions.map((position) => {
-            <UserCoverPool
-          key={JSON.stringify(position.pool.token1.name)}
-            tokenOneName={JSON.stringify(position.pool.token1.name)}
-            tokenZeroName={JSON.stringify(position.pool.token0.name)}
-            tokenOneAddress={JSON.stringify(position.pool.token1.id)}
-            tokenZeroAddress={JSON.stringify(position.pool.token0.id)}
-            poolAddress={JSON.stringify(position.pool.id)}
-          />})}
-        </div>
-      )
-    }
+function renderUserCoverPools() {
+    const listItems = userPositions.map(userPosition => {
+      const userToken1 = JSON.stringify(userPosition.pool.token1.name);
+      const userToken0 = JSON.stringify(userPosition.pool.token0.name);
+      const userToken1Address = JSON.stringify(userPosition.pool.token1.id);
+      const userToken0Address = JSON.stringify(userPosition.pool.token0.id);
 
-    fetchUserPositions()
-  },[]))
-}
+      const userPoolAddress = JSON.stringify(userPosition.pool.id);
+      const userOwnerAddress = JSON.stringify(userPosition.owner).replace(/"|'/g, '');;
+
+      console.log("current position: ", userPosition)
+
+      if (userOwnerAddress === address?.toLowerCase()) {
+        console.log("got in here");
+
+        <li key={userOwnerAddress}>
+        <UserCoverPool
+        tokenOneName={userToken1}
+        tokenZeroName={userToken0}
+        tokenOneAddress={userToken1Address}
+        tokenZeroAddress={userToken0Address}
+        poolAddress={userPoolAddress}
+        />
+        </li>
+        }
+    })
+
+    return <ul>{listItems}</ul>
+  }      
+
 
   //async so needs to be wrapped
   useEffect(() => {
     getPoolData();
-    getPositionData();
+    getUserPositionData();
   },[])
 
   useEffect(() => {
     console.log("chainId: ", chainId)
   }, [chainId])
+
 
   useEffect(() => {
     // console.log("coin list; ", coins)
@@ -190,6 +181,8 @@ function renderUserPositions() {
     // const slicedCoins = coins.slice(0, 10);
     // console.log("slicedCoins: ", slicedCoins)
   }, [])
+
+
   
   const Option = () => {
     if (expanded) {
@@ -340,7 +333,7 @@ function renderUserPositions() {
                   tokenZeroAddress={tokenZeroAddress} 
                   poolAddress={poolAddress}
                 />*/}
-                  {renderUserPositions()}
+                  {renderUserCoverPools()}
                 </div>
               </div>
               <div>
