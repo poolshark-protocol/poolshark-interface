@@ -144,8 +144,11 @@ function renderUserCoverPools() {
   useEffect(() => {
     //getPoolData();
     getUserPositionData();
-    renderUserCoverPools();
   },[])
+
+  useEffect(() => {
+    renderUserCoverPools();
+  },[userPositions])
 
   useEffect(() => {
     console.log("chainId: ", chainId)
@@ -293,7 +296,7 @@ function renderUserCoverPools() {
                 <h1 className="mb-3">Cover Pools</h1>
                 <div className="space-y-2">
                   {allCoverPools.map(allCoverPool => {
-                    if(userOwnerAddress === address?.toLowerCase()){
+                    if(allCoverPool.userOwnerAddress === address?.toLowerCase()){
                       return(
                       <UserCoverPool
                     key={allCoverPool.tokenOneName}
