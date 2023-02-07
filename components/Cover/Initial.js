@@ -1,20 +1,15 @@
 import {
-  InformationCircleIcon,
-  MagnifyingGlassIcon,
   MinusIcon,
-  PlusIcon,
-  ChevronDownIcon,
+  PlusIcon
 } from "@heroicons/react/20/solid";
-import { useState} from "react";
+import { useState } from "react";
 import PoolsModal from "./PoolsModal";
 
 
 
 export default function Initial() {
 
-      const [isOpen, setIsOpen] = useState(false);
-
-
+    const [isOpen, setIsOpen] = useState(false);
 
     return(
         <>

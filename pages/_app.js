@@ -4,7 +4,7 @@ import {
   getDefaultWallets,
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
-import { chain, configureChains, createClient, WagmiConfig } from 'wagmi';
+import { configureChains, createClient, WagmiConfig } from 'wagmi';
 import { mainnet, goerli } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
@@ -35,10 +35,6 @@ const wagmiClient = createClient({
 const apolloClient = new ApolloClient({
   cache: new InMemoryCache(),
   uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
-  // cors: {
-  //     origin: "http://localhost:3000/",
-  //     credentials: true
-  //   },
 })
 
 function MyApp({ Component, pageProps }) {

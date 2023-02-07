@@ -1,7 +1,6 @@
 import { useRouter } from "next/router";
 import Image from "next/image";
 import Link from "next/link";
-import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { ConnectWalletButton } from "./Buttons/ConnectWalletButton";
 
 export default function Navbar() {

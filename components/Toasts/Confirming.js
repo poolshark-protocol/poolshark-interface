@@ -1,8 +1,3 @@
-import {
-  ExclamationTriangleIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
-
 export const ConfirmingToast = ({hash}) => {
 
   return (

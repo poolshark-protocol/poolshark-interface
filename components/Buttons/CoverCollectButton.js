@@ -1,17 +1,15 @@
 import { ethers } from "ethers";
-import { BigNumber } from 'ethers';
 import {
     usePrepareContractWrite,
     useContractWrite,
-    useWaitForTransaction,
-    useAccount
+    useWaitForTransaction
 } from 'wagmi';
 import { coverPoolABI } from "../../abis/evm/coverPool";
 import { coverPoolAddress } from "../../constants/contractAddresses";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 export default function CoverCollectButton({address}) {
 

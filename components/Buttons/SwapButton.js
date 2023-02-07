@@ -10,7 +10,7 @@ import { coverPoolABI } from "../../abis/evm/coverPool";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
-import { coverPoolAddress, tokenOneAddress } from "../../constants/contractAddresses";
+import { coverPoolAddress } from "../../constants/contractAddresses";
 import React, { useState } from "react";
 
 export default function SwapButton({amount}) {
@@ -18,13 +18,9 @@ export default function SwapButton({amount}) {
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
 
-  const { address, isConnecting, isDisconnecting } = useAccount()
+  const { address } = useAccount()
   const userAddress = address;
 
-  const balance = useBalance({
-    address: tokenOneAddress,
-    chainId: 5,
-  })
   const { config } = usePrepareContractWrite({
       address: coverPoolAddress,
       abi: coverPoolABI,
@@ -40,7 +36,7 @@ export default function SwapButton({amount}) {
         gasLimit: 140000
       },
   })
-    const { data, isSuccess, write } = useContractWrite(config)
+    const { data, write } = useContractWrite(config)
 
     const {isLoading} = useWaitForTransaction({
       hash: data?.hash,

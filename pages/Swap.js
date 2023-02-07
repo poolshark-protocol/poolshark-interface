@@ -1,14 +1,12 @@
 import {
   AdjustmentsHorizontalIcon,
-  ArrowSmallDownIcon,
-  ArrowSmallUpIcon,
-
+  ArrowSmallDownIcon
 } from "@heroicons/react/24/outline";
 import { useState, useEffect } from "react";
 import { Popover } from "@headlessui/react";
 import { ChevronDownIcon, ArrowPathIcon } from "@heroicons/react/20/solid";
-import SelectToken from "./SelectToken";
-import SwapButton from "./Buttons/SwapButton";
+import SelectToken from "../components/SelectToken";
+import SwapButton from "../components/Buttons/SwapButton";
 import useInputBox from "../hooks/useInputBox";
 import useAllowance from "../hooks/useAllowance";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
@@ -17,7 +15,7 @@ import { useAccount } from "wagmi";
 import useTokenBalance from "../hooks/useTokenBalance";
 
 export default function Swap() {
-  const { address, isConnected, isDisconnected } = useAccount();
+  const { address, isDisconnected } = useAccount();
   const [bnInput, inputBox, maxBalance] = useInputBox();
   const [dataState] = useAllowance(address);
   const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance();
@@ -86,65 +84,6 @@ export default function Swap() {
       );
     }
   };
-  /*const SwapBox1 = () => {
-      return (
-        <div className="w-full align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-          <div className="flex-col justify-center w-1/2 p-2 ">
-            {inputBox("0")}
-            <div className="flex">
-              <div className="flex text-xs text-[#4C4C4C]">~300.54</div>
-            </div>
-          </div>
-          <div className="flex w-1/2">
-            <div className="flex justify-center ml-auto">
-              <div className="flex-col">
-                <div className="flex justify-end">
-                  <SelectToken />
-                </div>
-                <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                  <div className="flex text-xs text-[#4C4C4C]">
-                    {tokenBalanceBox()}
-                  </div>
-                  <button className="flex text-xs uppercase text-[#C9C9C9]">
-                    Max
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-  };
-    const SwapBox2 = () => {
-      return (
-        <div className="w-full align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-          <div className="flex-col justify-center w-1/2 p-2 ">
-            {inputBox("0")}
-            <div className="flex">
-              <div className="flex text-xs text-[#4C4C4C]">~300.54</div>
-            </div>
-          </div>
-          <div className="flex w-1/2">
-            <div className="flex justify-center ml-auto">
-              <div className="flex-col">
-                <div className="flex justify-end">
-                  <SelectToken />
-                </div>
-                <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                  <div className="flex text-xs text-[#4C4C4C]">
-                    {tokenBalanceBox()}
-                  </div>
-                  <button className="flex text-xs uppercase text-[#C9C9C9]">
-                    Max
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-  };*/
-
 
   return (
     <div className="pt-[10vh]">

@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useBalance, useAccount } from "wagmi"
 import { tokenOneAddress } from '../constants/contractAddresses'
 
 export default function useTokenBalance() {
 
-    const { address, isConnected } = useAccount()
+    const { address } = useAccount()
     const [tokenBalanceInfo, setTokenBalanceInfo] = useState(null)
 
     const userAddress = address
@@ -18,11 +18,6 @@ export default function useTokenBalance() {
             setTokenBalanceInfo(data)
         }
     }, [tokenBalanceInfo])
-    
-    /*useEffect(() => {
-        console.log('balance updated')
-        setTokenBalanceInfo(data)
-    })*/
 
    const tokenBalanceBox = () => {
         return (

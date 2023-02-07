@@ -8,7 +8,7 @@ import { coverPoolABI } from "../../abis/evm/coverPool";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { coverPoolAddress } from "../../constants/contractAddresses";
 
 export default function CoverMintButton({address, amount}) {

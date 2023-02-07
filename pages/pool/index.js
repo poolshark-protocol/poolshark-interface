@@ -4,8 +4,8 @@ import {
   MagnifyingGlassIcon,
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
-import UserPool from "../../components/UserPool";
-import PoolList from "../../components/AllPools";
+import UserPool from "../../components/Pools/UserPool";
+import PoolList from "../../components/Pools/AllPools";
 import Link from "next/link";
 import { Listbox, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";

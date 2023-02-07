@@ -1,30 +1,22 @@
 import {
-  InformationCircleIcon,
-  MagnifyingGlassIcon,
-  MinusIcon,
-  PlusIcon,
   ChevronDownIcon,
   ArrowLongRightIcon
 } from "@heroicons/react/20/solid";
-import SelectToken from "../SelectToken";
-import { useAccount, useProvider } from "wagmi";
+import { useAccount } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import CoverApproveButton from "../Buttons/CoverApproveButton";
-import CoverBurnButton from "../Buttons/CoverBurnButton";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import useAllowance from "../../hooks/useAllowance";
 import useInputBox from "../../hooks/useInputBox";
 
 export default function CoverExistingPool() {
   const [expanded, setExpanded] = useState();
-  const [bnInput, inputBox] = useInputBox();
 
   const { 
     address,
     isConnected, 
     isDisconnected 
   } = useAccount();
-
 
   const [dataState, setDataState] = useAllowance(address);
 

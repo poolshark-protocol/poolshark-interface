@@ -1,9 +1,7 @@
 import {
   ArrowsRightLeftIcon,
-  ExclamationTriangleIcon,
   ArrowLongRightIcon
 } from "@heroicons/react/20/solid";
-import { Popover } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 

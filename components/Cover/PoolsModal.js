@@ -3,14 +3,10 @@ import { Fragment, useState, useEffect } from "react";
 import {
   MagnifyingGlassIcon, XMarkIcon,
 } from "@heroicons/react/20/solid";
-import UserCoverPool from "../UserCoverPool";
-import StaticUniPool from "../StaticUniPool";
+import UserCoverPool from "../Pools/UserCoverPool";
+import StaticUniPool from "../Pools/StaticUniPool";
 import { fetchPools, fetchPositions } from "../../utils/queries";
 import { useAccount, useProvider } from "wagmi";
-
-
-
-
 
 
 export default function PoolsModal({ isOpen, setIsOpen }) {
@@ -18,7 +14,7 @@ export default function PoolsModal({ isOpen, setIsOpen }) {
     const { address, isConnected, isDisconnected } = useAccount();
 
 
-    function renderUserPositions() {
+    /*function renderUserPositions() {
   return useEffect(() => {
     async function fetchUserPositions() {
       const data = await fetchPositions(address);
@@ -40,7 +36,7 @@ export default function PoolsModal({ isOpen, setIsOpen }) {
 
     fetchUserPositions();
   }, []);
-}
+}*/
 
 
   return (
@@ -92,7 +88,7 @@ export default function PoolsModal({ isOpen, setIsOpen }) {
                   tokenZeroAddress={tokenZeroAddress} 
                   poolAddress={poolAddress}
                 />*/}
-                  {renderUserPositions()}
+                  {/*renderUserPositions()*/}
                 </div>
               </div>
               <div>

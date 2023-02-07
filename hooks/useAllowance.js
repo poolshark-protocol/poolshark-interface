@@ -1,7 +1,7 @@
 import { useContractRead } from "wagmi";
 import { erc20ABI } from "wagmi";
 import { ethers } from "ethers";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { coverPoolAddress, tokenOneAddress } from "../constants/contractAddresses";
 
 export default function useAllowance(address) { 
@@ -26,10 +26,6 @@ export default function useAllowance(address) {
       console.log("Settled", { data, error });
     },
   }, [dataState]);
-
-  /*useEffect(() => {
-    setDataState(data?._hex);
-  })*/
   
   return [dataState];
 

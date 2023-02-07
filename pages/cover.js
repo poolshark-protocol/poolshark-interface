@@ -6,9 +6,9 @@ import {
   PlusIcon,
   ChevronDownIcon,
 } from "@heroicons/react/20/solid";
-import UserPool from "../components/UserPool";
-import UserCoverPool from "../components/UserCoverPool";
-import StaticUniPool from "../components/StaticUniPool";
+import UserPool from "../components/Pools/UserPool";
+import UserCoverPool from "../components/Pools/UserCoverPool";
+import StaticUniPool from "../components/Pools/StaticUniPool";
 import SelectToken from "../components/SelectToken";
 import { useState, useEffect } from "react";
 import { useAccount, useProvider } from "wagmi";
@@ -76,26 +76,24 @@ const handleChange = event => {
     isDisconnected 
   } = useAccount();
 
-  const [bnInput, inputBox] = useInputBox();
-  const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance();
-  const [dataState, setDataState] = useAllowance(address);
-
   const [expanded, setExpanded] = useState();
-  const [tokenOneName, setTokenOneName] = useState();
+  /*const [tokenOneName, setTokenOneName] = useState();
   const [tokenZeroName, setTokenZeroName] = useState();
   const [tokenOneAddress, setTokenOneAddress] = useState();
   const [tokenZeroAddress, setTokenZeroAddress] = useState();
-  const [poolAddress, setPoolAddress] = useState();
+  const [poolAddress, setPoolAddress] = useState();*/
   
   const [userPositions, setUserPositions] = useState([]);
+  const [allCoverPools, setAllCoverPools] = useState([]);
 
   const coins = useTokenList()[0];
   const [coinsForListing, setCoinsForListing] = useState(coins.listed_tokens);
+
   useEffect(() => {
     console.log(coinsForListing)
   },[coinsForListing])
 
-  async function getPoolData() {
+  /*async function getPoolData() {
     const data = await fetchPools()
     console.log(data.data.coverPools[0].id)
     console.log(data.data.coverPools[0].token1.name)
@@ -110,7 +108,7 @@ const handleChange = event => {
     setTokenOneAddress(token1Address);
     setTokenZeroAddress(token0Address);
     setPoolAddress(poolAddress);
-  }
+  }*/
 
   async function getUserPositionData() {
     const data = await fetchPositions(address)
@@ -120,18 +118,22 @@ const handleChange = event => {
   }
 
 function renderUserCoverPools() {
-    const listItems = userPositions.map(userPosition => {
-      const userToken1 = JSON.stringify(userPosition.pool.token1.name);
-      const userToken0 = JSON.stringify(userPosition.pool.token0.name);
-      const userToken1Address = JSON.stringify(userPosition.pool.token1.id);
-      const userToken0Address = JSON.stringify(userPosition.pool.token0.id);
+    const coverPools = []
+    userPositions.map(userPosition => {
 
-      const userPoolAddress = JSON.stringify(userPosition.pool.id);
-      const userOwnerAddress = JSON.stringify(userPosition.owner).replace(/"|'/g, '');;
+      const coverPosition = {
+        tokenOneName: userPosition.pool.token1.name,
+        tokenZeroName: userPosition.pool.token0.name,
+        tokenOneAddress: userPosition.pool.token1.id,
+        tokenZeroAddress: userPosition.pool.token0.id,
+        poolAddress: userPosition.pool.id,
+        userOwnerAddress: userPosition.owner.replace(/"|'/g, '')}
 
-      console.log("current position: ", userPosition)
+      coverPools.push(coverPosition)
 
-      if (userOwnerAddress === address?.toLowerCase()) {
+      console.log("current position: ", userToken1Address)
+
+      /*if (userOwnerAddress === address?.toLowerCase()) {
         console.log("got in here");
 
         <li key={userOwnerAddress}>
@@ -144,45 +146,22 @@ function renderUserCoverPools() {
         />
         </li>
         }
-    })
+    })*/})
 
-    return <ul>{listItems}</ul>
+    setAllCoverPools(coverPools)
   }      
 
 
   //async so needs to be wrapped
   useEffect(() => {
-    getPoolData();
+    //getPoolData();
     getUserPositionData();
+    renderUserCoverPools();
   },[])
 
   useEffect(() => {
     console.log("chainId: ", chainId)
   }, [chainId])
-
-
-  useEffect(() => {
-    // console.log("coin list; ", coins)
-    // const tokenOneFromCoins = (coins.listed_tokens).map((coin, index) => {
-    //   return(
-    //     <div key={index}>
-    //       {coin.name}
-    //       {coin.symbol}
-    //       {coin.id}
-    //       {coin.decimals}
-    //       {coin.coingecko_url}
-    //       {coin.market_cap_usd}
-    //       {coin.market_cap_rank}
-    //       {coin.logoURI}
-    //     </div>
-    //   )
-    // })
-    // console.log("tokenOneFromCoins: ", tokenOneFromCoins)
-    // const slicedCoins = coins.slice(0, 10);
-    // console.log("slicedCoins: ", slicedCoins)
-  }, [])
-
-
   
   const Option = () => {
     if (expanded) {
@@ -325,6 +304,17 @@ function renderUserCoverPools() {
               <div>
                 <h1 className="mb-3">Cover Pools</h1>
                 <div className="space-y-2">
+                  {allCoverPools.map(allCoverPool => {
+                    return(
+                    <UserCoverPool
+                  key={allCoverPool.tokenOneName}
+                    tokenOneName={allCoverPool.tokenOneName}
+                    tokenZeroName={allCoverPool.tokenZeroName}
+                    tokenOneAddress={allCoverPool.tokenOneAddress}
+                    tokenZeroAddress={allCoverPool.tokenZeroAddress}
+                    poolAddress={allCoverPool.poolAddress}
+                    />)
+                  })}
                   {/*<UserCoverPool
                 key={tokenOneName} 
                   tokenOneName={tokenOneName}
@@ -333,7 +323,6 @@ function renderUserCoverPools() {
                   tokenZeroAddress={tokenZeroAddress} 
                   poolAddress={poolAddress}
                 />*/}
-                  {renderUserCoverPools()}
                 </div>
               </div>
               <div>
