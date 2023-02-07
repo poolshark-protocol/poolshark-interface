@@ -211,8 +211,7 @@ export default function Swap() {
           </div>
         </div>
         <div className="items-center -mb-2 -mt-2 p-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
-          {tokenOrder ? <ArrowSmallDownIcon className="w-4 h-4" onClick={() => switchDirection()} /> :
-          <ArrowSmallUpIcon className="w-4 h-4" onClick={() => switchDirection()} />}
+         <ArrowSmallDownIcon className="w-4 h-4" onClick={() => switchDirection()} />
         </div>
 
         <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
@@ -222,7 +221,7 @@ export default function Swap() {
               placeholder="300"
             />
             <div className="flex">
-              <div className="flex text-xs text-[#4C4C4C]">~300.55</div>
+              <div className="flex text-xs text-[#4C4C4C] ">~300.55</div>
             </div>
           </div>
           <div className="flex w-1/2">
@@ -266,7 +265,7 @@ export default function Swap() {
                           className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
                           onClick={() => setTokenOrder(false)}
                         >
-                          {token0} per {token1}
+                          {token0.symbol} per {token1.symbol}
                           <ArrowPathIcon className="w-5" />
                         </button>
                       ) : (
@@ -274,7 +273,7 @@ export default function Swap() {
                           className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
                           onClick={() => setTokenOrder(true)}
                         >
-                          {token1} per {token0}
+                          {token1.symbol} per {token0.symbol}
                           <ArrowPathIcon className="w-5" />
                         </button>
                       )}
