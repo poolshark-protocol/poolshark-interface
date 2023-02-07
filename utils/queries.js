@@ -1,5 +1,4 @@
-import { ApolloClient, InMemoryCache, gql, useQuery } from '@apollo/client'
-import { addressEqual } from '@usedapp/core'
+import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 
 export const cleanInputValue = (arg) => {
     const re = /^[+-]?\d*(?:[.,]\d*)?$/
@@ -118,7 +117,7 @@ export const fetchPools =  () => {
                 },
           })
           client
-              .query({ query: gql(poolsQuery)})
+              .query({ query: gql(poolsQuery) })
               .then((data) => {
                   resolve(data)
                   console.log(data)
@@ -144,10 +143,6 @@ export const fetchTokens =  (id) => {
         const client = new ApolloClient({
             uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
             cache: new InMemoryCache(),
-            /*cors: {
-                origin: "http://localhost:3000/",
-                credentials: true
-              },*/
         })
         client
             .query({ query: gql(tokensQuery), })
@@ -158,48 +153,7 @@ export const fetchTokens =  (id) => {
                 resolve(err)
             })
   })
-  };
-
-export const fetchUserPosPool =  (id) => {
-  return new Promise(function(resolve) {
-    const userPosQuery =`
-      {
-          hedgePool(where: {id:"${id.toLowerCase()}"}) {
-              factory
-              id
-              inputPool
-              token0{
-                  id
-                  name
-                  symbol
-                  decimals
-              }
-              token1{
-                  id
-                  name
-                  symbol
-                  decimals
-              }
-          }
-        }
-      `
-      const client = new ApolloClient({
-          uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
-          cache: new InMemoryCache(),
-          cors: {
-              origin: "http://localhost:3000/",
-              credentials: true
-            },
-      })
-      client
-          .query({ query: gql(userPosQuery), })
-          .then((data) => {
-              resolve(data)
-          })
-          .catch((err) => {
-              resolve(err)
-          })
-})
 };
+
 
 

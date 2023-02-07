@@ -75,13 +75,8 @@ const handleChange = event => {
   } = useAccount();
 
   const [expanded, setExpanded] = useState();
-  /*const [tokenOneName, setTokenOneName] = useState();
-  const [tokenZeroName, setTokenZeroName] = useState();
-  const [tokenOneAddress, setTokenOneAddress] = useState();
-  const [tokenZeroAddress, setTokenZeroAddress] = useState();
-  const [poolAddress, setPoolAddress] = useState();*/
   
-  const [userPositions, setUserPositions] = useState([]);
+  const [coverPools, setCoverPools] = useState([]);
   const [allCoverPools, setAllCoverPools] = useState([]);
 
   const coins = useTokenList()[0];
@@ -91,64 +86,40 @@ const handleChange = event => {
     console.log(coinsForListing)
   },[coinsForListing])
 
-  /*async function getPoolData() {
+  async function getPoolData() {
     const data = await fetchPools()
-    console.log(data.data.coverPools[0].id)
-    console.log(data.data.coverPools[0].token1.name)
-    console.log(data.data.coverPools[0].token0.name)
-    const token1 = JSON.stringify(data.data.coverPools[0].token1.name);
-    const token0 = JSON.stringify(data.data.coverPools[0].token0.name);
-    const token1Address = JSON.stringify(data.data.coverPools[0].token1.id);
-    const token0Address = JSON.stringify(data.data.coverPools[0].token0.id);
-    const poolAddress = JSON.stringify(data.data.coverPools[0].id);
-    setTokenOneName(token1);
-    setTokenZeroName(token0);
-    setTokenOneAddress(token1Address);
-    setTokenZeroAddress(token0Address);
-    setPoolAddress(poolAddress);
-  }*/
+    const pools = data.data.coverPools
 
-  async function getUserPositionData() {
-    const data = await fetchPositions(address)
-    const positions = data.data.positions
-
-    setUserPositions(positions)
-    console.log(userPositions)
+    setCoverPools(pools)
   }
 
-function renderUserCoverPools() {
-    const coverPools = []
-    userPositions.map(userPosition => {
+function mapCoverPools() {
+    const mappedCoverPools = []
 
-    const coverPosition = {
-      tokenOneName: userPosition.pool.token1.name,
-      tokenZeroName: userPosition.pool.token0.name,
-      tokenOneAddress: userPosition.pool.token1.id,
-      tokenZeroAddress: userPosition.pool.token0.id,
-      poolAddress: userPosition.pool.id,
-      userOwnerAddress: userPosition.owner.replace(/"|'/g, '')
-    }
+    coverPools.map(coverPool => {
 
-    coverPools.push(coverPosition)
-    console.log("coverPools inside: ", coverPools)
+      const coverPoolData = {
+        tokenOneName: coverPool.token1.name,
+        tokenZeroName: coverPool.token0.name,
+        tokenOneAddress: coverPool.token1.id,
+        tokenZeroAddress: coverPool.token0.id,
+        poolAddress: coverPool.id
+      }
 
+      mappedCoverPools.push(coverPoolData)
     })
 
-    console.log("coverPools: ", coverPools)
-    setAllCoverPools(coverPools)
-    console.log("allUserPools: ", allCoverPools)
+    setAllCoverPools(mappedCoverPools)
   }      
-
 
   //async so needs to be wrapped
   useEffect(() => {
-    //getPoolData();
-    getUserPositionData();
+    getPoolData();
   },[])
 
   useEffect(() => {
-    renderUserCoverPools();
-  },[userPositions])
+    mapCoverPools();
+  },[coverPools])
 
   useEffect(() => {
     console.log("chainId: ", chainId)
@@ -199,9 +170,9 @@ function renderUserCoverPools() {
           </div>
           <div className="flex space-x-8">
             <div className="bg-black w-2/3 border border-grey2 w-full rounded-t-xl p-6 gap-y-4">
-              <Initial/>
-              {/*<CreateCover/> */}
-              {/*<CoverExistingPool/> */}
+              {/*<Initial/>*/}
+              <CreateCover/>
+              {/*<CoverExistingPool/>*/}
               {/*
               <h1 className="mb-3">How much do you want to Cover?</h1>
               <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
@@ -296,17 +267,15 @@ function renderUserCoverPools() {
                 <h1 className="mb-3">Cover Pools</h1>
                 <div className="space-y-2">
                   {allCoverPools.map(allCoverPool => {
-                    if(allCoverPool.userOwnerAddress === address?.toLowerCase()){
-                      return(
-                      <UserCoverPool
-                    key={allCoverPool.tokenOneName}
-                      tokenOneName={allCoverPool.tokenOneName}
-                      tokenZeroName={allCoverPool.tokenZeroName}
-                      tokenOneAddress={allCoverPool.tokenOneAddress}
-                      tokenZeroAddress={allCoverPool.tokenZeroAddress}
-                      poolAddress={allCoverPool.poolAddress}
-                    />)
-                    }
+                    return(
+                    <UserCoverPool
+                  key={allCoverPool.tokenOneName}
+                    tokenOneName={allCoverPool.tokenOneName}
+                    tokenZeroName={allCoverPool.tokenZeroName}
+                    tokenOneAddress={allCoverPool.tokenOneAddress}
+                    tokenZeroAddress={allCoverPool.tokenZeroAddress}
+                    poolAddress={allCoverPool.poolAddress}
+                  />)
                   })}
                 </div>
               </div>

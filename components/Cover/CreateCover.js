@@ -149,7 +149,7 @@ export default function CreateCover() {
               </div>
               <div className="space-y-3" >
                 {isDisconnected ? <ConnectWalletButton /> : null}
-                {isDisconnected ? null : isConnected && dataState === "0x00" ? <CoverApproveButton address={address} amount={"0"}/> : <CoverMintButton address={address} amount={"0"}/>}
+                {isDisconnected ? null : isConnected && dataState === "0x00" ? <CoverApproveButton address={address} amount={bnInput}/> : <CoverMintButton address={address} amount={bnInput}/>}
               </div>
               </>
     )

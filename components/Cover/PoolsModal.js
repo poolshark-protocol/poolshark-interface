@@ -5,39 +5,51 @@ import {
 } from "@heroicons/react/20/solid";
 import UserCoverPool from "../Pools/UserCoverPool";
 import StaticUniPool from "../Pools/StaticUniPool";
-import { fetchPools, fetchPositions } from "../../utils/queries";
-import { useAccount, useProvider } from "wagmi";
+import { fetchPositions } from "../../utils/queries";
+import { useAccount } from "wagmi";
 
 
 export default function PoolsModal({ isOpen, setIsOpen }) {
 
-    const { address, isConnected, isDisconnected } = useAccount();
+  const { address } = useAccount();
 
+  const [coverPositions, setCoverPositions] = useState([]);
+  const [allCoverPositions, setAllCoverPositions] = useState([]);
 
-    /*function renderUserPositions() {
-  return useEffect(() => {
-    async function fetchUserPositions() {
-      const data = await fetchPositions(address);
-      return (
-        <div>
-          {data.data.positions.map((position) => {
-            <UserCoverPool
-              key={JSON.stringify(position.pool.token1.name)}
-              tokenOneName={JSON.stringify(position.pool.token1.name)}
-              tokenZeroName={JSON.stringify(position.pool.token0.name)}
-              tokenOneAddress={JSON.stringify(position.pool.token1.id)}
-              tokenZeroAddress={JSON.stringify(position.pool.token0.id)}
-              poolAddress={JSON.stringify(position.pool.id)}
-            />;
-          })}
-        </div>
-      );
+  async function getUserPositionData() {
+    const data = await fetchPositions(address)
+    const positions = data.data.positions
+
+    setCoverPositions(positions)
+  }
+
+function mapUserCoverPositions() {
+    const mappedCoverPositions = []
+    coverPositions.map(coverPosition => {
+
+    const coverPositionData = {
+      tokenOneName: coverPosition.pool.token1.name,
+      tokenZeroName: coverPosition.pool.token0.name,
+      tokenOneAddress: coverPosition.pool.token1.id,
+      tokenZeroAddress: coverPosition.pool.token0.id,
+      poolAddress: coverPosition.pool.id,
+      userOwnerAddress: coverPosition.owner.replace(/"|'/g, '')
     }
 
-    fetchUserPositions();
-  }, []);
-}*/
+    mappedCoverPositions.push(coverPositionData)
+    })
 
+    setAllCoverPositions(mappedCoverPositions)
+  }      
+
+  //async so needs to be wrapped
+  useEffect(() => {
+    getUserPositionData();
+  },[])
+
+  useEffect(() => {
+    mapUserCoverPositions();
+  },[coverPositions])
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -80,15 +92,19 @@ export default function PoolsModal({ isOpen, setIsOpen }) {
               <div>
                 <h1 className="mb-3">Poolshark Pools</h1>
                 <div className="space-y-2">
-                  {/*<UserCoverPool
-                key={tokenOneName} 
-                  tokenOneName={tokenOneName}
-                  tokenZeroName={tokenZeroName} 
-                  tokenOneAddress={tokenOneAddress} 
-                  tokenZeroAddress={tokenZeroAddress} 
-                  poolAddress={poolAddress}
-                />*/}
-                  {/*renderUserPositions()*/}
+                  {allCoverPositions.map(allCoverPosition => {
+                      if(allCoverPool.userOwnerAddress === address?.toLowerCase()){
+                        return(
+                        <UserCoverPool
+                      key={allCoverPosition.tokenOneName}
+                        tokenOneName={allCoverPosition.tokenOneName}
+                        tokenZeroName={allCoverPosition.tokenZeroName}
+                        tokenOneAddress={allCoverPosition.tokenOneAddress}
+                        tokenZeroAddress={allCoverPosition.tokenZeroAddress}
+                        poolAddress={allCoverPosition.poolAddress}
+                      />)
+                      }
+                    })}
                 </div>
               </div>
               <div>
