@@ -29,11 +29,9 @@ import CreateCover from "../components/Cover/CreateCover";
 import CoverExistingPool from "../components/Cover/CoverExistingPool";
 
 export default function Cover() {
-    const [maxPrice, setMaxPrice] = useState(0);
-    const [disabled, setDisabled] = useState(true);
+  const [maxPrice, setMaxPrice] = useState(0);
+  const [disabled, setDisabled] = useState(true);
 
-    
- 
   const increaseMaxPrice = () => {
     setMaxPrice(count => count + 1);
   };
@@ -115,40 +113,30 @@ const handleChange = event => {
     const positions = data.data.positions
 
     setUserPositions(positions)
+    console.log(userPositions)
   }
 
 function renderUserCoverPools() {
     const coverPools = []
     userPositions.map(userPosition => {
 
-      const coverPosition = {
-        tokenOneName: userPosition.pool.token1.name,
-        tokenZeroName: userPosition.pool.token0.name,
-        tokenOneAddress: userPosition.pool.token1.id,
-        tokenZeroAddress: userPosition.pool.token0.id,
-        poolAddress: userPosition.pool.id,
-        userOwnerAddress: userPosition.owner.replace(/"|'/g, '')}
+    const coverPosition = {
+      tokenOneName: userPosition.pool.token1.name,
+      tokenZeroName: userPosition.pool.token0.name,
+      tokenOneAddress: userPosition.pool.token1.id,
+      tokenZeroAddress: userPosition.pool.token0.id,
+      poolAddress: userPosition.pool.id,
+      userOwnerAddress: userPosition.owner.replace(/"|'/g, '')
+    }
 
-      coverPools.push(coverPosition)
+    coverPools.push(coverPosition)
+    console.log("coverPools inside: ", coverPools)
 
-      console.log("current position: ", userToken1Address)
+    })
 
-      /*if (userOwnerAddress === address?.toLowerCase()) {
-        console.log("got in here");
-
-        <li key={userOwnerAddress}>
-        <UserCoverPool
-        tokenOneName={userToken1}
-        tokenZeroName={userToken0}
-        tokenOneAddress={userToken1Address}
-        tokenZeroAddress={userToken0Address}
-        poolAddress={userPoolAddress}
-        />
-        </li>
-        }
-    })*/})
-
+    console.log("coverPools: ", coverPools)
     setAllCoverPools(coverPools)
+    console.log("allUserPools: ", allCoverPools)
   }      
 
 
@@ -177,7 +165,7 @@ function renderUserCoverPools() {
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">
-              Mininum recieved after slippage (0.50%)
+              Mininum received after slippage (0.50%)
             </div>
             <div className="ml-auto text-xs">299.92 DAI</div>
           </div>
@@ -305,24 +293,18 @@ function renderUserCoverPools() {
                 <h1 className="mb-3">Cover Pools</h1>
                 <div className="space-y-2">
                   {allCoverPools.map(allCoverPool => {
-                    return(
-                    <UserCoverPool
-                  key={allCoverPool.tokenOneName}
-                    tokenOneName={allCoverPool.tokenOneName}
-                    tokenZeroName={allCoverPool.tokenZeroName}
-                    tokenOneAddress={allCoverPool.tokenOneAddress}
-                    tokenZeroAddress={allCoverPool.tokenZeroAddress}
-                    poolAddress={allCoverPool.poolAddress}
+                    if(userOwnerAddress === address?.toLowerCase()){
+                      return(
+                      <UserCoverPool
+                    key={allCoverPool.tokenOneName}
+                      tokenOneName={allCoverPool.tokenOneName}
+                      tokenZeroName={allCoverPool.tokenZeroName}
+                      tokenOneAddress={allCoverPool.tokenOneAddress}
+                      tokenZeroAddress={allCoverPool.tokenZeroAddress}
+                      poolAddress={allCoverPool.poolAddress}
                     />)
+                    }
                   })}
-                  {/*<UserCoverPool
-                key={tokenOneName} 
-                  tokenOneName={tokenOneName}
-                  tokenZeroName={tokenZeroName} 
-                  tokenOneAddress={tokenOneAddress} 
-                  tokenZeroAddress={tokenZeroAddress} 
-                  poolAddress={poolAddress}
-                />*/}
                 </div>
               </div>
               <div>
