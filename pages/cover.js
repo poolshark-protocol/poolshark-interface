@@ -32,6 +32,7 @@ export default function Cover() {
     const [maxPrice, setMaxPrice] = useState(0);
     const [disabled, setDisabled] = useState(true);
 
+    
  
   const increaseMaxPrice = () => {
     setMaxPrice(count => count + 1);
@@ -93,7 +94,11 @@ const handleChange = event => {
   const [userPoolAddress, setUserPoolAddress] = useState();
   const [positionOwner, setPositionOwner] = useState(null);
 
-  const [coins] = useTokenList();
+  const coins = useTokenList()[0];
+  const [coinsForListing, setCoinsForListing] = useState(coins.listed_tokens);
+  useEffect(() => {
+    console.log(coinsForListing)
+  },[coinsForListing])
 
   async function getPoolData() {
     const data = await fetchPools()
@@ -166,25 +171,25 @@ function renderUserPositions() {
   }, [chainId])
 
   useEffect(() => {
-    console.log("coin list; ", coins)
-    const tokenOneFromCoins = coins.map((coin, index) => {
-      return(
-        <div key={index}>
-          {coin.name}
-          {coin.symbol}
-          {coin.id}
-          {coin.decimals}
-          {coin.coingecko_url}
-          {coin.market_cap_usd}
-          {coin.market_cap_rank}
-          {coin.logoURI}
-        </div>
-      )
-    })
-    console.log("tokenOneFromCoins: ", tokenOneFromCoins)
-    const slicedCoins = coins.slice(0, 10);
-    console.log("slicedCoins: ", slicedCoins)
-  }, [coins])
+    // console.log("coin list; ", coins)
+    // const tokenOneFromCoins = (coins.listed_tokens).map((coin, index) => {
+    //   return(
+    //     <div key={index}>
+    //       {coin.name}
+    //       {coin.symbol}
+    //       {coin.id}
+    //       {coin.decimals}
+    //       {coin.coingecko_url}
+    //       {coin.market_cap_usd}
+    //       {coin.market_cap_rank}
+    //       {coin.logoURI}
+    //     </div>
+    //   )
+    // })
+    // console.log("tokenOneFromCoins: ", tokenOneFromCoins)
+    // const slicedCoins = coins.slice(0, 10);
+    // console.log("slicedCoins: ", slicedCoins)
+  }, [])
   
   const Option = () => {
     if (expanded) {
