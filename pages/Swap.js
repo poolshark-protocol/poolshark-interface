@@ -2,8 +2,8 @@ import {
   AdjustmentsHorizontalIcon,
   ArrowSmallDownIcon
 } from "@heroicons/react/24/outline";
-import { useState, useEffect } from "react";
-import { Popover } from "@headlessui/react";
+import { useState, useEffect, Fragment } from "react";
+import { Popover, Transition } from "@headlessui/react";
 import { ChevronDownIcon, ArrowPathIcon } from "@heroicons/react/20/solid";
 import SelectToken from "../components/SelectToken";
 import SwapButton from "../components/Buttons/SwapButton";
@@ -127,8 +127,25 @@ export default function Swap() {
               <Popover.Button className="outline-none">
                 <AdjustmentsHorizontalIcon className="w-5 h-5 outline-none" />
               </Popover.Button>
-
-              <Popover.Panel className="absolute z-10 ml-20"></Popover.Panel>
+                        <Transition
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+              <Popover.Panel className="absolute z-10 ml-14 -mt-[48px] bg-black border border-grey2 rounded-xl p-5">
+                <div className="w-full">
+                  <h1>Slippage Tolerance</h1>
+                  <div className="flex mt-3 gap-x-3">
+                    <input placeholder="0%" className="bg-dark rounded-xl outline-none border border-grey1 pl-3 placeholder:text-grey1"/>
+                    <button className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">Auto</button>
+                  </div>
+                </div>
+              </Popover.Panel>
+              </Transition>
             </Popover>
           </div>
         </div>
