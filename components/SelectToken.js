@@ -47,6 +47,7 @@ export default function SelectToken(props) {
       logoURI: coin?.logoURI,
       decimals: coin?.decimals,
     })
+    props.balance(coin?.id)
     closeModal();
   };
 

@@ -13,12 +13,16 @@ import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import { useAccount } from "wagmi";
 import useTokenBalance from "../hooks/useTokenBalance";
+import { tokenOneAddress } from "../constants/contractAddresses"
 
 export default function Swap() {
   const { address, isDisconnected } = useAccount();
   const [bnInput, inputBox, maxBalance] = useInputBox();
   const [dataState] = useAllowance(address);
-  const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance();
+  const [queryToken0, setQueryToken0] = useState(tokenOneAddress)
+  const [queryToken1, setQueryToken1] = useState(tokenOneAddress)
+  const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance(queryToken0);
+
   const [tokenOrder, setTokenOrder] = useState(true);
   const [swapOrder, setSwapOrder] = useState(true);
   const [token0, setToken0] = useState({
@@ -35,6 +39,13 @@ export default function Swap() {
   const newData = useEffect(() => {
     newData = dataState;
   }, []);
+
+
+ useEffect(() => {
+  console.log(queryToken0)
+}, [])
+  
+
 
   let [isOpen, setIsOpen] = useState(false);
   const [LimitActive, setLimitActive] = useState(false);
@@ -132,10 +143,10 @@ export default function Swap() {
             <div className="flex justify-center ml-auto">
               <div className="flex-col">
                 <div className="flex justify-end">
-                  <SelectToken tokenChosen={setToken0} displayToken={token0} />
+                  <SelectToken tokenChosen={setToken0} displayToken={token0} balance={setQueryToken0} />
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                  <div className="flex text-xs text-[#4C4C4C]">
+                  <div className="flex text-xs text-[#4C4C4C]" >
                     Balance:
                     {Number(tokenBalanceBox().props.children[1]) >= 1000000
                       ? (Number(tokenBalanceBox().props.children[1])).toExponential(5)
@@ -167,7 +178,7 @@ export default function Swap() {
             <div className="flex justify-center ml-auto">
               <div className="flex-col">
                 <div className="flex justify-end">
-                  <SelectToken tokenChosen={setToken1} displayToken={token1} />
+                  <SelectToken tokenChosen={setToken1} displayToken={token1} balance={setQueryToken1} />
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
                 <div className="flex text-xs text-[#4C4C4C]">
