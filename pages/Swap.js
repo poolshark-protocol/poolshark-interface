@@ -19,6 +19,7 @@ export default function Swap() {
   const { address, isDisconnected } = useAccount();
   const [bnInput, inputBox, maxBalance] = useInputBox();
   const [dataState] = useAllowance(address);
+  const [hasSelected, setHasSelected] = useState(false)
   const [queryToken0, setQueryToken0] = useState(tokenOneAddress)
   const [queryToken1, setQueryToken1] = useState(tokenOneAddress)
   const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance(queryToken0);
@@ -31,9 +32,7 @@ export default function Swap() {
       "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
   });
   const [token1, setToken1] = useState({
-    symbol: "USDC",
-    logoURI:
-      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+    symbol: "SELECT TOKEN",
   });
 
   const newData = useEffect(() => {
@@ -45,6 +44,15 @@ export default function Swap() {
   console.log(queryToken0)
 }, [])
   
+
+  const changeDefault0 = (token) => {
+    setToken0(token)
+  }
+
+  const changeDefault1 = (token) => {
+    setToken1(token)
+    setHasSelected(true)
+  }
 
 
   let [isOpen, setIsOpen] = useState(false);
@@ -160,7 +168,7 @@ export default function Swap() {
             <div className="flex justify-center ml-auto">
               <div className="flex-col">
                 <div className="flex justify-end">
-                  <SelectToken tokenChosen={setToken0} displayToken={token0} balance={setQueryToken0} />
+                  <SelectToken index="0"  selected={hasSelected} tokenChosen={changeDefault0} displayToken={token0} balance={setQueryToken0} />
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
                   <div className="flex text-xs text-[#4C4C4C]" >
@@ -195,8 +203,9 @@ export default function Swap() {
             <div className="flex justify-center ml-auto">
               <div className="flex-col">
                 <div className="flex justify-end">
-                  <SelectToken tokenChosen={setToken1} displayToken={token1} balance={setQueryToken1} />
+                 { hasSelected ? <SelectToken index="1" selected={hasSelected} tokenChosen={changeDefault1} displayToken={token1} balance={setQueryToken1} /> : <SelectToken index="1" selected={hasSelected} tokenChosen={changeDefault1} displayToken={token1} balance={setQueryToken1} /> }
                 </div>
+                 {hasSelected ? 
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
                 <div className="flex text-xs text-[#4C4C4C]">
                     Balance:
@@ -207,8 +216,8 @@ export default function Swap() {
                   <button className="text-xs uppercase text-[#C9C9C9]">
                     Max
                   </button>
-                </div>
-              </div>
+                </div> : <></>  } 
+              </div> 
             </div>
           </div>
         </div>

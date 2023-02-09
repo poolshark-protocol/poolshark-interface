@@ -15,6 +15,7 @@ export default function SelectToken(props) {
   const coins = useTokenList()[0];
   const [coinsForListing, setCoinsForListing] = useState(coins.listed_tokens);
 
+
   const findCoin = () => {
     if (inputVal.length === 0) {
       setCoinsForListing(coins.listed_tokens);
@@ -133,11 +134,14 @@ export default function SelectToken(props) {
       </Transition>
       <button
         onClick={() => openModal()}
-        className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
+        className={props.index === "0" || props.index === "1" && props.selected === true  ? "flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl":
+       "flex items-center gap-x-3 bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80 border border-grey1 px-2 py-1.5 rounded-xl" }
       >
         <div className="flex items-center gap-x-2 w-full">
-          <img className="w-7" src={props.displayToken?.logoURI} />
+          { props.index === "0" || props.index === "1" && props.selected === true  ? <img className="w-7" src={props.displayToken?.logoURI} /> : <></>}
           {props.displayToken?.symbol?.toUpperCase()}
+          {/* {!props.index === "0"  ?  */}
+          {/*   : props.displayToken?.symbol?.toUpperCase()} */}
         </div>
         <ChevronDownIcon className="w-5" />
       </button>
