@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Fragment, useState } from "react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { Listbox, Transition } from "@headlessui/react";
-import ConcentratedPool from "../../components/ConcentratedPool";
+import ConcentratedPool from "../../components/Pools/ConcentratedPool";
 
 export default function CreatePool() {
 
