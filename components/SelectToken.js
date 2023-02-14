@@ -140,8 +140,6 @@ export default function SelectToken(props) {
         <div className="flex items-center gap-x-2 w-full">
           { props.index === "0" || props.index === "1" && props.selected === true  ? <img className="w-7" src={props.displayToken?.logoURI} /> : <></>}
           {props.displayToken?.symbol?.toUpperCase()}
-          {/* {!props.index === "0"  ?  */}
-          {/*   : props.displayToken?.symbol?.toUpperCase()} */}
         </div>
         <ChevronDownIcon className="w-5" />
       </button>

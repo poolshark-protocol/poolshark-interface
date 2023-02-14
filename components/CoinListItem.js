@@ -1,7 +1,7 @@
 import useTokenBalance from "../hooks/useTokenBalance";
 
 function CoinListItem({ chooseToken, coin }){
-    const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance();
+    const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance(coin?.id);
 
     return(
                                       <div className="bg-dark text-white"

@@ -1,6 +1,6 @@
 import {
   AdjustmentsHorizontalIcon,
-  ArrowSmallDownIcon
+  ArrowSmallDownIcon,
 } from "@heroicons/react/24/outline";
 import { useState, useEffect, Fragment } from "react";
 import { Popover, Transition } from "@headlessui/react";
@@ -13,19 +13,17 @@ import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import { useAccount } from "wagmi";
 import useTokenBalance from "../hooks/useTokenBalance";
-import { tokenOneAddress } from "../constants/contractAddresses"
+import { tokenOneAddress } from "../constants/contractAddresses";
+import TokenBalance from "../components/TokenBalance";
 
 export default function Swap() {
   const { address, isDisconnected } = useAccount();
   const [bnInput, inputBox, maxBalance] = useInputBox();
   const [dataState] = useAllowance(address);
-  const [hasSelected, setHasSelected] = useState(false)
-  const [queryToken0, setQueryToken0] = useState(tokenOneAddress)
-  const [queryToken1, setQueryToken1] = useState(tokenOneAddress)
-  const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance(queryToken0);
+  const [hasSelected, setHasSelected] = useState(false);
+  const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
+  const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
 
-  const [tokenOrder, setTokenOrder] = useState(true);
-  const [swapOrder, setSwapOrder] = useState(true);
   const [token0, setToken0] = useState({
     symbol: "USDC",
     logoURI:
@@ -34,26 +32,45 @@ export default function Swap() {
   const [token1, setToken1] = useState({
     symbol: "SELECT TOKEN",
   });
+ 
+  const balanceZero = TokenBalance(queryToken0);
+  const balanceOne = TokenBalance(queryToken1);
 
-  const newData = useEffect(() => {
-    newData = dataState;
-  }, []);
+  const [balance0, setBalance0] = useState();
+  const [balance1, setBalance1] = useState();
 
 
- useEffect(() => {
-  console.log(queryToken0)
-}, [])
-  
+  useEffect(() => {
+    if ((Number(balanceZero().props.children[1])) >= 1000000) {
+      setBalance0(Number(balanceZero().props.children[1]).toExponential(5));
+    }
+    setBalance0(Number(balanceZero().props.children[1]).toFixed(2));
+  }, [queryToken0, balanceZero]);
 
-  const changeDefault0 = (token) => {
+  useEffect(() => {
+    if (Number(balanceOne().props.children[1]) >= 1000000) {
+      setBalance1(Number(balanceOne().props.children[1]).toExponential(5));
+    }
+    setBalance1(Number(balanceOne().props.children[1]).toFixed(2));
+  }, [queryToken1, balanceOne]);
+
+
+  function changeDefault0(token) {
+    if (token.symbol === token1.symbol) {
+      return;
+    }
     setToken0(token)
   }
 
+  const [tokenOrder, setTokenOrder] = useState(true);
+
   const changeDefault1 = (token) => {
+    if (token.symbol === token0.symbol) {
+      return;
+    }
     setToken1(token)
     setHasSelected(true)
-  }
-
+  };
 
   let [isOpen, setIsOpen] = useState(false);
   const [LimitActive, setLimitActive] = useState(false);
@@ -63,10 +80,13 @@ export default function Swap() {
   }
 
   function switchDirection() {
-    setTokenOrder(!tokenOrder)
-    const temp = token0
-    setToken0(token1)
-    setToken1(temp)
+    setTokenOrder(!tokenOrder);
+    const temp = token0;
+    setToken0(token1);
+    setToken1(temp);
+    const tempBal = queryToken0;
+    setQueryToken0(queryToken1);
+    setQueryToken1(tempBal);
   }
 
   function openModal() {
@@ -74,8 +94,6 @@ export default function Swap() {
   }
 
   const [expanded, setExpanded] = useState();
-
-
 
   const Option = () => {
     if (expanded) {
@@ -135,24 +153,29 @@ export default function Swap() {
               <Popover.Button className="outline-none">
                 <AdjustmentsHorizontalIcon className="w-5 h-5 outline-none" />
               </Popover.Button>
-                        <Transition
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-              <Popover.Panel className="absolute z-10 ml-14 -mt-[48px] bg-black border border-grey2 rounded-xl p-5">
-                <div className="w-full">
-                  <h1>Slippage Tolerance</h1>
-                  <div className="flex mt-3 gap-x-3">
-                    <input placeholder="0%" className="bg-dark rounded-xl outline-none border border-grey1 pl-3 placeholder:text-grey1"/>
-                    <button className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">Auto</button>
+              <Transition
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <Popover.Panel className="absolute z-10 ml-14 -mt-[48px] bg-black border border-grey2 rounded-xl p-5">
+                  <div className="w-full">
+                    <h1>Slippage Tolerance</h1>
+                    <div className="flex mt-3 gap-x-3">
+                      <input
+                        placeholder="0%"
+                        className="bg-dark rounded-xl outline-none border border-grey1 pl-3 placeholder:text-grey1"
+                      />
+                      <button className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
+                        Auto
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </Popover.Panel>
+                </Popover.Panel>
               </Transition>
             </Popover>
           </div>
@@ -168,16 +191,25 @@ export default function Swap() {
             <div className="flex justify-center ml-auto">
               <div className="flex-col">
                 <div className="flex justify-end">
-                  <SelectToken index="0"  selected={hasSelected} tokenChosen={changeDefault0} displayToken={token0} balance={setQueryToken0} />
+                  <SelectToken
+                    index="0"
+                    selected={hasSelected}
+                    tokenChosen={changeDefault0}
+                    displayToken={token0}
+                    balance={setQueryToken0}
+                    key={queryToken0}
+                  />
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                  <div className="flex text-xs text-[#4C4C4C]" >
-                    Balance:
-                    {Number(tokenBalanceBox().props.children[1]) >= 1000000
-                      ? (Number(tokenBalanceBox().props.children[1])).toExponential(5)
-                      : Number(tokenBalanceBox().props.children[1])}
+                  <div
+                    className="flex text-xs text-[#4C4C4C]"
+                  >
+                    Balance: {balance0}
                   </div>
-                  <button className="flex text-xs uppercase text-[#C9C9C9]" onClick={() => maxBalance(tokenBalanceInfo?.formatted,"0")}>
+                  <button
+                    className="flex text-xs uppercase text-[#C9C9C9]"
+                    onClick={() => maxBalance(balance0, "0")}
+                  >
                     Max
                   </button>
                 </div>
@@ -186,7 +218,10 @@ export default function Swap() {
           </div>
         </div>
         <div className="items-center -mb-2 -mt-2 p-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
-         <ArrowSmallDownIcon className="w-4 h-4" onClick={() => switchDirection()} />
+          <ArrowSmallDownIcon
+            className="w-4 h-4"
+            onClick={() => switchDirection()}
+          />
         </div>
 
         <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
@@ -203,21 +238,38 @@ export default function Swap() {
             <div className="flex justify-center ml-auto">
               <div className="flex-col">
                 <div className="flex justify-end">
-                 { hasSelected ? <SelectToken index="1" selected={hasSelected} tokenChosen={changeDefault1} displayToken={token1} balance={setQueryToken1} /> : <SelectToken index="1" selected={hasSelected} tokenChosen={changeDefault1} displayToken={token1} balance={setQueryToken1} /> }
+                  {hasSelected ? (
+                    <SelectToken
+                      index="1"
+                      selected={hasSelected}
+                      tokenChosen={changeDefault1}
+                      displayToken={token1}
+                      balance={setQueryToken1}
+                      key={queryToken1}
+                    />
+                  ) : (
+                    <SelectToken
+                      index="1"
+                      selected={hasSelected}
+                      tokenChosen={changeDefault1}
+                      displayToken={token1}
+                      balance={setQueryToken1}
+                    />
+                  )}
                 </div>
-                 {hasSelected ? 
-                <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                <div className="flex text-xs text-[#4C4C4C]">
-                    Balance:
-                    {Number(tokenBalanceBox().props.children[1]) >= 1000000
-                      ? (Number(tokenBalanceBox().props.children[1])).toExponential(5)
-                      : Number(tokenBalanceBox().props.children[1])}
+                {hasSelected ? (
+                  <div className="flex items-center justify-end gap-2 px-1 mt-2">
+                    <div className="flex text-xs text-[#4C4C4C]">
+                      Balance: {balance1}
+                    </div>
+                    <button className="text-xs uppercase text-[#C9C9C9]">
+                      Max
+                    </button>
                   </div>
-                  <button className="text-xs uppercase text-[#C9C9C9]">
-                    Max
-                  </button>
-                </div> : <></>  } 
-              </div> 
+                ) : (
+                  <></>
+                )}
+              </div>
             </div>
           </div>
         </div>
