@@ -5,6 +5,7 @@ import {
   MinusIcon,
   PlusIcon,
   ChevronDownIcon,
+  ArrowLongLeftIcon
 } from "@heroicons/react/20/solid";
 import UserPool from "../components/Pools/UserPool";
 import UserCoverPool from "../components/Pools/UserCoverPool";
@@ -248,7 +249,13 @@ export default function Cover() {
               </div>
               */}
             </div>
+            {isDisconnected ? (
+   
             <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">
+    <ArrowLongLeftIcon className="flex flex-row h-1/2 w-1/2 justify-center items-center m-auto" />
+    </div>
+  ) : (
+    <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">
               <div className="relative">
                 <MagnifyingGlassIcon className="w-5 text-grey absolute ml-[14px] mt-[13px]" />
                 <input
@@ -279,7 +286,7 @@ export default function Cover() {
                   <StaticUniPool />
                 </div>
               </div>
-            </div>
+            </div>)}
           </div>
         </div>
       </div>

@@ -8,6 +8,7 @@ import SelectToken from "../SelectToken";
 import { useAccount } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import CoverApproveButton from "../Buttons/CoverApproveButton";
+import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import { useState, useEffect } from "react";
 // import useAllowance from "../../hooks/useAllowance";
 import useInputBox from "../../hooks/useInputBox";
@@ -152,7 +153,10 @@ export default function CreateCover() {
   };
 
   return isDisconnected ? (
-    <h1>Connect a Wallet</h1>
+    <>
+    <h1 className="mb-5">Connect a Wallet</h1>
+    <ConnectWalletButton />
+    </>
   ) : (
     <>
       <div className="mb-6">
