@@ -31,7 +31,7 @@ export default function CreateCover() {
   const [token1, setToken1] = useState({
     symbol: "SELECT TOKEN",
   });
-  const collateralBalance = TokenBalance(tokenOneAddress)
+  const collateralBalance = TokenBalance(tokenOneAddress);
   const balanceZero = TokenBalance(queryToken0);
   const balanceOne = TokenBalance(queryToken1);
 
@@ -56,7 +56,9 @@ export default function CreateCover() {
 
   useEffect(() => {
     if (Number(collateralBalance().props.children[1]) >= 1000000) {
-      setUsdcBalance(Number(collateralBalance().props.children[1]).toExponential(5));
+      setUsdcBalance(
+        Number(collateralBalance().props.children[1]).toExponential(5)
+      );
     }
     setUsdcBalance(Number(collateralBalance().props.children[1]).toFixed(2));
   }, [collateralBalance]);
@@ -79,12 +81,12 @@ export default function CreateCover() {
   };
 
   const handleValueChange = () => {
-      if (document.getElementById("input").value === undefined) {
-        return;
-      }
-      const current = document.getElementById("input");
-        setAmountToPay(Number(current.value))
+    if (document.getElementById("input").value === undefined) {
+      return;
     }
+    const current = document.getElementById("input");
+    setAmountToPay(Number(current.value));
+  };
 
   const changePrice = (direction, minMax) => {
     if (direction === "plus" && minMax === "min") {
@@ -92,7 +94,7 @@ export default function CreateCover() {
         const current = document.getElementById("minInput");
         current.value = 1;
       }
-      const current = Number(document.getElementById("minInput").value)
+      const current = Number(document.getElementById("minInput").value);
       document.getElementById("minInput").value = current + 1;
     }
     if (direction === "minus" && minMax === "min") {
@@ -108,7 +110,7 @@ export default function CreateCover() {
         const current = document.getElementById("maxInput");
         current.value = 1;
       }
-      const current = Number(document.getElementById("maxInput").value)
+      const current = Number(document.getElementById("maxInput").value);
       document.getElementById("maxInput").value = current + 1;
     }
     if (direction === "minus" && minMax === "max") {
@@ -149,8 +151,9 @@ export default function CreateCover() {
     }
   };
 
-  return (
-isDisconnected ? <h1>Connect a Wallet</h1> :
+  return isDisconnected ? (
+    <h1>Connect a Wallet</h1>
+  ) : (
     <>
       <div className="mb-6">
         <h1 className="mb-3">Select Pair</h1>
@@ -202,7 +205,6 @@ isDisconnected ? <h1>Connect a Wallet</h1> :
               </div>
               <div className="flex items-center justify-end gap-2 px-1 mt-2">
                 <button className="text-xs uppercase cursor-default text-[#0C0C0C]">
-                 
                   Max
                 </button>
               </div>
@@ -295,7 +297,6 @@ isDisconnected ? <h1>Connect a Wallet</h1> :
         )}
       </div>
     </>
-        
   );
 }
 
