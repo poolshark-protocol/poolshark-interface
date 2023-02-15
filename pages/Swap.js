@@ -17,7 +17,7 @@ import { tokenOneAddress } from "../constants/contractAddresses";
 import TokenBalance from "../components/TokenBalance";
 
 export default function Swap() {
-  const { address, isDisconnected } = useAccount();
+  const { address, isDisconnected, isConnected } = useAccount();
   const [bnInput, inputBox, maxBalance] = useInputBox();
   const [dataState] = useAllowance(address);
   const [hasSelected, setHasSelected] = useState(false);
@@ -41,17 +41,21 @@ export default function Swap() {
 
 
   useEffect(() => {
-    if ((Number(balanceZero().props.children[1])) >= 1000000) {
-      setBalance0(Number(balanceZero().props.children[1]).toExponential(5));
+    if (isConnected) {
+      if ((Number(balanceZero().props.children[1])) >= 1000000) {
+        setBalance0(Number(balanceZero().props.children[1]).toExponential(5));
+      }
+      setBalance0(Number(balanceZero().props.children[1]).toFixed(2));
     }
-    setBalance0(Number(balanceZero().props.children[1]).toFixed(2));
   }, [queryToken0, balanceZero]);
 
   useEffect(() => {
-    if (Number(balanceOne().props.children[1]) >= 1000000) {
-      setBalance1(Number(balanceOne().props.children[1]).toExponential(5));
+    if (isConnected) {
+      if (Number(balanceOne().props.children[1]) >= 1000000) {
+        setBalance1(Number(balanceOne().props.children[1]).toExponential(5));
+      }
+      setBalance1(Number(balanceOne().props.children[1]).toFixed(2));
     }
-    setBalance1(Number(balanceOne().props.children[1]).toFixed(2));
   }, [queryToken1, balanceOne]);
 
 

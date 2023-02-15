@@ -4,7 +4,7 @@ import { tokenOneAddress } from "../constants/contractAddresses"
 
 export default function useTokenBalance(tokenAddress) {
 
-    const { address } = useAccount()
+    const { address, isConnected } = useAccount()
     const [tokenBalanceInfo, setTokenBalanceInfo] = useState(0)
     const [queryToken, setQueryToken] = useState(tokenOneAddress)
 
@@ -30,11 +30,13 @@ export default function useTokenBalance(tokenAddress) {
     }, [queryToken])
 
    const tokenBalanceBox = () => {
-        return (
-            <div className="text-xs text-[#4C4C4C]">
-                Balance: {Number(tokenBalanceInfo?.formatted).toFixed(3)} 
-            </div>
-        )
+        if (isConnected){
+            return (
+                <div className="text-xs text-[#4C4C4C]">
+                    Balance: {Number(tokenBalanceInfo?.formatted).toFixed(3)} 
+                </div>
+            )
+        }
     }
 
     return [tokenBalanceInfo, tokenBalanceBox]
