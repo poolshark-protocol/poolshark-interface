@@ -204,7 +204,7 @@ export default function Swap() {
                   <div
                     className="flex text-xs text-[#4C4C4C]"
                   >
-                    Balance: {balance0}
+                    Balance: {balance0 === "NaN" ? 0 : balance0}
                   </div>
                   <button
                     className="flex text-xs uppercase text-[#C9C9C9]"
