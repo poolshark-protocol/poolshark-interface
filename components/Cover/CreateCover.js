@@ -201,7 +201,7 @@ export default function CreateCover() {
               </div>
               <div className="flex items-center justify-end gap-2 px-1 mt-2">
                 <button className="text-xs uppercase cursor-default text-[#0C0C0C]">
-                  {/*this text is just here for styling purposes*/}
+                 
                   Max
                 </button>
               </div>
