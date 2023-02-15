@@ -26,9 +26,34 @@ export default function ConcentratedPool() {
     { id: 3, tier: "0.3%", text: "Best for most pairs", unavailable: false },
     { id: 4, tier: "1%", text: "Best for exotic pairs", unavailable: false },
   ];
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(0);
+
+  const changePrice = (direction, minMax ) => {
+    if (direction === "plus" && minMax === "min" ) {
+      setMinPrice(minPrice + 1)
+    }
+    if (direction === "minus" && minMax === "min" ) {
+      if (minPrice === 0 ) {
+        return;
+      }
+      setMinPrice(minPrice - 1)
+    }
+
+    if (direction === "plus" && minMax === "max" ) {
+      setMaxPrice(maxPrice + 1)
+    }
+    if (direction === "minus" && minMax === "max" ) {
+      if (maxPrice === 0 ) {
+        return;
+      }
+      setMaxPrice(maxPrice - 1)
+    }
+  }
 
   function SelectFee() {
     const [selected, setSelected] = useState(feeTiers[0]);
+   
 
     return (
       <Listbox value={selected} onChange={setSelected}>
@@ -195,9 +220,11 @@ export default function ConcentratedPool() {
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white">
               <MinusIcon className="w-5 h-5 ml-[2.5px]" />
             </div>
-            <input className="bg-[#0C0C0C] py-2 outline-none text-center" />
+            <input key={maxPrice} placeholder={100} value={maxPrice} className="bg-[#0C0C0C] py-2 outline-none text-center" />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white">
+              <button onClick={changePrice("plus", "max")}>
               <PlusIcon className="w-5 h-5" />
+              </button>
             </div>
           </div>
           <span className="text-xs text-grey">USDC per DAI</span>
@@ -208,7 +235,7 @@ export default function ConcentratedPool() {
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white">
               <MinusIcon className="w-5 h-5 ml-[2.5px]" />
             </div>
-            <input className="bg-[#0C0C0C] py-2 outline-none text-center" />
+            <input  placeholder={minPrice} value={maxPrice} className="bg-[#0C0C0C] py-2 outline-none text-center" />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white">
               <PlusIcon className="w-5 h-5" />
             </div>

@@ -17,7 +17,7 @@ import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import CoverBurnButton from "../components/Buttons/CoverBurnButton";
 import useAllowance from "../hooks/useAllowance";
 import useInputBox from "../hooks/useInputBox";
-import Link  from "next/link";
+import Link from "next/link";
 import { fetchPools, fetchPositions } from "../utils/queries";
 import useTokenBalance from "../hooks/useTokenBalance";
 import React from "react";
@@ -33,49 +33,45 @@ export default function Cover() {
   const [disabled, setDisabled] = useState(true);
 
   const increaseMaxPrice = () => {
-    setMaxPrice(count => count + 1);
+    setMaxPrice((count) => count + 1);
   };
 
   const [minPrice, setMinPrice] = useState(0);
- 
+
   const increaseMinPrice = () => {
-    setMinPrice(count => count + 1);
+    setMinPrice((count) => count + 1);
   };
 
   const decreaseMinPrice = () => {
-  if (minPrice > 0) {
-    setMinPrice(count => count - 1);
-  }
-};
+    if (minPrice > 0) {
+      setMinPrice((count) => count - 1);
+    }
+  };
   const decreaseMaxPrice = () => {
-  if (maxPrice > 0) {
-    setMaxPrice(count => count - 1);
-  }
-};
+    if (maxPrice > 0) {
+      setMaxPrice((count) => count - 1);
+    }
+  };
 
-
-const handleChange = event => {
+  const handleChange = (event) => {
     //const valueToBn = ethers.utils.parseUnits(event.target.value, 0);
     //const result = event.target.value.replace(/\D/g, '');
-    const result = event.target.value.replace(/[^0-9\.|\,]/g, '')
-    //TODO: make 
+    const result = event.target.value.replace(/[^0-9\.|\,]/g, "");
+    //TODO: make
     setMaxPrice(result);
     setMinPrice(result);
     // console.log('value is:', result);
-};
- 
+  };
+
   const {
-    network: { chainId }, chainId: chainIdFromProvider
+    network: { chainId },
+    chainId: chainIdFromProvider,
   } = useProvider();
-  
-  const { 
-    address,
-    isConnected, 
-    isDisconnected 
-  } = useAccount();
+
+  const { address, isConnected, isDisconnected } = useAccount();
 
   const [expanded, setExpanded] = useState();
-  
+
   const [coverPools, setCoverPools] = useState([]);
   const [allCoverPools, setAllCoverPools] = useState([]);
 
@@ -83,48 +79,47 @@ const handleChange = event => {
   const [coinsForListing, setCoinsForListing] = useState(coins.listed_tokens);
 
   useEffect(() => {
-    console.log(coinsForListing)
-  },[coinsForListing])
+    console.log(coinsForListing);
+  }, [coinsForListing]);
 
   async function getPoolData() {
-    const data = await fetchPools()
-    const pools = data.data.coverPools
+    const data = await fetchPools();
+    const pools = data.data.coverPools;
 
-    setCoverPools(pools)
+    setCoverPools(pools);
   }
 
-function mapCoverPools() {
-    const mappedCoverPools = []
+  function mapCoverPools() {
+    const mappedCoverPools = [];
 
-    coverPools.map(coverPool => {
-
+    coverPools.map((coverPool) => {
       const coverPoolData = {
         tokenOneName: coverPool.token1.name,
         tokenZeroName: coverPool.token0.name,
         tokenOneAddress: coverPool.token1.id,
         tokenZeroAddress: coverPool.token0.id,
-        poolAddress: coverPool.id
-      }
+        poolAddress: coverPool.id,
+      };
 
-      mappedCoverPools.push(coverPoolData)
-    })
+      mappedCoverPools.push(coverPoolData);
+    });
 
-    setAllCoverPools(mappedCoverPools)
-  }      
+    setAllCoverPools(mappedCoverPools);
+  }
 
   //async so needs to be wrapped
   useEffect(() => {
     getPoolData();
-  },[])
+  }, []);
 
   useEffect(() => {
     mapCoverPools();
-  },[coverPools])
+  }, [coverPools]);
 
   useEffect(() => {
-    console.log("chainId: ", chainId)
-  }, [chainId])
-  
+    console.log("chainId: ", chainId);
+  }, [chainId]);
+
   const Option = () => {
     if (expanded) {
       return (
@@ -153,25 +148,23 @@ function mapCoverPools() {
   };
 
   return (
-<div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-DMSans">
+    <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-DMSans">
       <Navbar />
       <div className="flex justify-center w-full text-white">
         <div className="mt-[16vh] w-[70rem]">
           <div className="flex justify-between mb-6 items-end">
             <h1 className="text-3xl">Cover</h1>
             <span className="bg-black flex items-center gap-x-2 border border-grey2 rounded-lg text-white px-6 py-[9px] cursor-pointer hover:opacity-80">
-              <InformationCircleIcon className="w-4 text-grey1"  />
+              <InformationCircleIcon className="w-4 text-grey1" />
               <Link href="https://docs.poolsharks.io/introduction/cover-pools/">
-                <a target="_blank">
-                  How it works?
-                </a>
+                <a target="_blank">How it works?</a>
               </Link>
             </span>
           </div>
           <div className="flex space-x-8">
             <div className="bg-black w-2/3 border border-grey2 w-full rounded-t-xl p-6 gap-y-4">
               {/*<Initial/>*/}
-              <CreateCover/>
+              <CreateCover />
               {/*<CoverExistingPool/>*/}
               {/*
               <h1 className="mb-3">How much do you want to Cover?</h1>
@@ -266,24 +259,24 @@ function mapCoverPools() {
               <div>
                 <h1 className="mb-3">Cover Pools</h1>
                 <div className="space-y-2">
-                  {allCoverPools.map(allCoverPool => {
-                    return(
-                    <UserCoverPool
-                  key={allCoverPool.tokenOneName}
-                    tokenOneName={allCoverPool.tokenOneName}
-                    tokenZeroName={allCoverPool.tokenZeroName}
-                    tokenOneAddress={allCoverPool.tokenOneAddress}
-                    tokenZeroAddress={allCoverPool.tokenZeroAddress}
-                    poolAddress={allCoverPool.poolAddress}
-                  />)
+                  {allCoverPools.map((allCoverPool) => {
+                    return (
+                      <UserCoverPool
+                        key={allCoverPool.tokenOneName}
+                        tokenOneName={allCoverPool.tokenOneName}
+                        tokenZeroName={allCoverPool.tokenZeroName}
+                        tokenOneAddress={allCoverPool.tokenOneAddress}
+                        tokenZeroAddress={allCoverPool.tokenZeroAddress}
+                        poolAddress={allCoverPool.poolAddress}
+                      />
+                    );
                   })}
                 </div>
               </div>
               <div>
                 <h1 className="mb-3 mt-4">UNI-V3 Pools</h1>
                 <div className="space-y-2">
-                  <StaticUniPool 
-                />
+                  <StaticUniPool />
                 </div>
               </div>
             </div>
