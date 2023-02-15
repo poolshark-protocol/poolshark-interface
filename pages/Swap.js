@@ -16,6 +16,8 @@ import useTokenBalance from "../hooks/useTokenBalance";
 import { tokenOneAddress } from "../constants/contractAddresses";
 import TokenBalance from "../components/TokenBalance";
 import MaxButton from "../components/Buttons/MaxButton";
+import { useProvider } from "wagmi";
+import { chainIdsToNamesForGitTokenList } from '../utils/chains'
 
 export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -40,9 +42,15 @@ export default function Swap() {
   const [balance0, setBalance0] = useState();
   const [balance1, setBalance1] = useState();
 
+  const {
+    network: { chainId }, chainId: chainIdFromProvider
+  } = useProvider();
+
+  const chainName = chainIdsToNamesForGitTokenList[chainId]
+
 
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && chainName === "goerli") {
       if ((Number(balanceZero().props.children[1])) >= 1000000) {
         setBalance0(Number(balanceZero().props.children[1]).toExponential(5));
       }
@@ -51,7 +59,7 @@ export default function Swap() {
   }, [queryToken0, balanceZero]);
 
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && chainName === "goerli") {
       if (Number(balanceOne().props.children[1]) >= 1000000) {
         setBalance1(Number(balanceOne().props.children[1]).toExponential(5));
       }

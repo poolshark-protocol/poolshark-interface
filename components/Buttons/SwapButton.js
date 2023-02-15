@@ -4,6 +4,7 @@ import {
     useContractWrite,
     useWaitForTransaction,
     useAccount,
+    useProvider,
     useBalance
 } from 'wagmi';
 import { coverPoolABI } from "../../abis/evm/coverPool";
@@ -12,6 +13,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import { coverPoolAddress } from "../../constants/contractAddresses";
 import React, { useState } from "react";
+import { chainIdsToNamesForGitTokenList } from '../../utils/chains'
 
 export default function SwapButton({amount}) {
 
@@ -19,23 +21,32 @@ export default function SwapButton({amount}) {
   const [ successDisplay, setSuccessDisplay ] = useState(false);
 
   const { address } = useAccount()
+  const { isConnected } = useAccount();
   const userAddress = address;
+  
+  const {
+    network: { chainId }, chainId: chainIdFromProvider
+  } = useProvider();
 
-  const { config } = usePrepareContractWrite({
-      address: coverPoolAddress,
-      abi: coverPoolABI,
-      functionName: "swap",
-      args:[
-          userAddress,
-          false,
-          amount,
-          ethers.utils.parseUnits("30", 18),
-      ],
-      chainId: 5,
-      overrides:{
-        gasLimit: 140000
-      },
-  })
+  const chainName = chainIdsToNamesForGitTokenList[chainId]
+
+  if(isConnected && chainName === "goerli"){
+    const { config } = usePrepareContractWrite({
+        address: coverPoolAddress,
+        abi: coverPoolABI,
+        functionName: "swap",
+        args:[
+            userAddress,
+            false,
+            amount,
+            ethers.utils.parseUnits("30", 18),
+        ],
+        chainId: 5,
+        overrides:{
+          gasLimit: 140000
+        },
+    })
+
     const { data, write } = useContractWrite(config)
 
     const {isLoading} = useWaitForTransaction({
@@ -74,4 +85,5 @@ export default function SwapButton({amount}) {
       </div>
       </>
     );
+  }
 }

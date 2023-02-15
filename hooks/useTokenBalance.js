@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useBalance, useAccount } from "wagmi"
+import { useBalance, useAccount, useProvider } from "wagmi"
 import { tokenOneAddress } from "../constants/contractAddresses"
+import { chainIdsToNamesForGitTokenList } from '../utils/chains'
 
 export default function useTokenBalance(tokenAddress) {
 
@@ -9,6 +10,12 @@ export default function useTokenBalance(tokenAddress) {
     const [queryToken, setQueryToken] = useState(tokenOneAddress)
 
     const userAddress = address
+
+    const {
+        network: { chainId }, chainId: chainIdFromProvider
+      } = useProvider();
+    
+    const chainName = chainIdsToNamesForGitTokenList[chainId]
 
     const tokenBalanceSetting = () => {
       setQueryToken(tokenAddress)
@@ -30,7 +37,7 @@ export default function useTokenBalance(tokenAddress) {
     }, [queryToken])
 
    const tokenBalanceBox = () => {
-        if (isConnected){
+        if (isConnected && chainName === "goerli"){
             return (
                 <div className="text-xs text-[#4C4C4C]">
                     Balance: {Number(tokenBalanceInfo?.formatted).toFixed(3)} 
