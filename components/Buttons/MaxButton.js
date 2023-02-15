@@ -1,7 +1,7 @@
 import { useAccount } from "wagmi";
 import useInputBox from "../../hooks/useInputBox";
 
-export default function MaxButton() {
+export default function MaxButton(balance0) {
     const [maxBalance] = useInputBox();
     const { isConnected } = useAccount();
 

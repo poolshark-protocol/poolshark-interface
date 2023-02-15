@@ -19,7 +19,7 @@ import MaxButton from "../components/Buttons/MaxButton";
 
 export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount();
-  const [bnInput, inputBox, maxBalance] = useInputBox();
+  const [bnInput, inputBox] = useInputBox();
   const [dataState] = useAllowance(address);
   const [hasSelected, setHasSelected] = useState(false);
   const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
@@ -211,7 +211,7 @@ export default function Swap() {
                   >
                     Balance: {balance0}
                   </div>
-                  <MaxButton />
+                  <MaxButton balance0={balance0}/>
                 </div>
               </div>
             </div>
@@ -262,7 +262,7 @@ export default function Swap() {
                     <div className="flex text-xs text-[#4C4C4C]">
                       Balance: {balance1}
                     </div>
-                    <MaxButton />
+                    <MaxButton balance0={balance0}/>
                   </div>
                 ) : (
                   <></>
