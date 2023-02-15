@@ -150,6 +150,7 @@ export default function CreateCover() {
   };
 
   return (
+isDisconnected ? <h1>Connect a Wallet</h1> :
     <>
       <div className="mb-6">
         <h1 className="mb-3">Select Pair</h1>
@@ -294,6 +295,7 @@ export default function CreateCover() {
         )}
       </div>
     </>
+        
   );
 }
 
