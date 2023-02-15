@@ -31,11 +31,14 @@ export default function CreateCover() {
   const [token1, setToken1] = useState({
     symbol: "SELECT TOKEN",
   });
+  const collateralBalance = TokenBalance(tokenOneAddress)
   const balanceZero = TokenBalance(queryToken0);
   const balanceOne = TokenBalance(queryToken1);
 
+  const [usdcBalance, setUsdcBalance] = useState();
   const [balance0, setBalance0] = useState();
   const [balance1, setBalance1] = useState();
+  const [amountToPay, setAmountToPay] = useState(0);
 
   useEffect(() => {
     if (Number(balanceZero().props.children[1]) >= 1000000) {
@@ -50,6 +53,13 @@ export default function CreateCover() {
     }
     setBalance1(Number(balanceOne().props.children[1]).toFixed(2));
   }, [queryToken1, balanceOne]);
+
+  useEffect(() => {
+    if (Number(collateralBalance().props.children[1]) >= 1000000) {
+      setUsdcBalance(Number(collateralBalance().props.children[1]).toExponential(5));
+    }
+    setUsdcBalance(Number(collateralBalance().props.children[1]).toFixed(2));
+  }, [collateralBalance]);
 
   function changeDefault0(token) {
     if (token.symbol === token1.symbol) {
@@ -67,6 +77,14 @@ export default function CreateCover() {
     setToken1(token);
     setHasSelected(true);
   };
+
+  const handleValueChange = () => {
+      if (document.getElementById("input").value === undefined) {
+        return;
+      }
+      const current = document.getElementById("input");
+        setAmountToPay(Number(current.value))
+    }
 
   const changePrice = (direction, minMax) => {
     if (direction === "plus" && minMax === "min") {
@@ -167,8 +185,8 @@ export default function CreateCover() {
       <h1 className="mb-3">How much do you want to Cover?</h1>
       <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
         <div className="flex-col justify-center w-1/2 p-2 ">
-          {inputBox("0")}
-          <div className="flex text-xs text-[#4C4C4C]">~300.56</div>
+          {inputBox("0", setAmountToPay)}
+          <div className="flex text-xs text-[#4C4C4C]">~$1.00</div>
         </div>
         <div className="flex w-1/2">
           <div className="flex justify-center ml-auto">
@@ -194,11 +212,11 @@ export default function CreateCover() {
       <div className="mt-3 space-y-2">
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Balance</div>
-          <div>500 USDC</div>
+          <div>{usdcBalance} USDC</div>
         </div>
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Amount to pay</div>
-          <div>301 USDC</div>
+          <div>{amountToPay} USDC</div>
         </div>
       </div>
       <h1 className="mb-3 mt-4">Set Price Range</h1>
