@@ -3,15 +3,14 @@ import {
     usePrepareContractWrite,
     useContractWrite,
     useWaitForTransaction,
-    useAccount,
-    useBalance
+    useAccount
 } from 'wagmi';
 import { coverPoolABI } from "../../abis/evm/coverPool";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import { coverPoolAddress } from "../../constants/contractAddresses";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function SwapButton({amount}) {
 
@@ -21,21 +20,22 @@ export default function SwapButton({amount}) {
   const { address } = useAccount()
   const userAddress = address;
 
-  const { config } = usePrepareContractWrite({
-      address: coverPoolAddress,
-      abi: coverPoolABI,
-      functionName: "swap",
-      args:[
-          userAddress,
-          false,
-          amount,
-          ethers.utils.parseUnits("30", 18),
-      ],
-      chainId: 5,
-      overrides:{
-        gasLimit: 140000
-      },
-  })
+    const { config } = usePrepareContractWrite({
+        address: coverPoolAddress,
+        abi: coverPoolABI,
+        functionName: "swap",
+        args:[
+            userAddress,
+            false,
+            amount,
+            ethers.utils.parseUnits("30", 18),
+        ],
+        chainId: 5,
+        overrides:{
+          gasLimit: 140000
+        },
+    })
+
     const { data, write } = useContractWrite(config)
 
     const {isLoading} = useWaitForTransaction({

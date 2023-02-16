@@ -77,11 +77,17 @@ useEffect
       >
         <div className="flex gap-x-10 px-4 text-[#646464] my-2">
         <div>
-        <h1 className="text-xs">{tokenOneName} <span>{tokenOneDisplay}</span></h1>
+        <h1 className="text-xs" >{tokenOneName} <span>{tokenOneDisplay}</span></h1>
+        <button
+        onClick={() => {navigator.clipboard.writeText(tokenOneAddress)}}> Copy </button>
         <h1 className="text-xs mt-2">{tokenZeroName} <span>{tokenZeroDisplay}</span></h1>
+        <button
+        onClick={() => {navigator.clipboard.writeText(tokenZeroAddress)}}> Copy </button>
         </div>
        
           <h1 className="text-xs">Pool: <span>{poolDisplay}</span></h1>
+          <button
+          onClick={() => {navigator.clipboard.writeText(poolAddress)}}> Copy </button>
         </div>
         
         <div className="bg-dark text-sm py-1 text-center rounded-br-xl border-t-grey1 border-t mt-3 rounded-b-xl">

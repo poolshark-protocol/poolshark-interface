@@ -12,12 +12,13 @@ import useAllowance from "../hooks/useAllowance";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import { useAccount } from "wagmi";
-import useTokenBalance from "../hooks/useTokenBalance";
 import { tokenOneAddress } from "../constants/contractAddresses";
 import TokenBalance from "../components/TokenBalance";
+import { useProvider } from "wagmi";
+import { chainIdsToNamesForGitTokenList } from '../utils/chains'
 
 export default function Swap() {
-  const { address, isDisconnected } = useAccount();
+  const { address, isDisconnected, isConnected } = useAccount();
   const [bnInput, inputBox, maxBalance] = useInputBox();
   const allowance = useAllowance(address);
   const [hasSelected, setHasSelected] = useState(false);
@@ -38,20 +39,32 @@ export default function Swap() {
 
   const [balance0, setBalance0] = useState();
   const [balance1, setBalance1] = useState();
+  const [stateChainName, setStateChainName] = useState();
 
+  const {
+    network: { chainId }, chainId: chainIdFromProvider
+  } = useProvider();
 
   useEffect(() => {
-    if ((Number(balanceZero().props.children[1])) >= 1000000) {
-      setBalance0(Number(balanceZero().props.children[1]).toExponential(5));
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
+  }, [chainId])
+
+  useEffect(() => {
+    if (isConnected && stateChainName === "goerli") {
+      if ((Number(balanceZero().props.children[1])) >= 1000000) {
+        setBalance0(Number(balanceZero().props.children[1]).toExponential(5));
+      }
+      setBalance0(Number(balanceZero().props.children[1]).toFixed(2));
     }
-    setBalance0(Number(balanceZero().props.children[1]).toFixed(2));
   }, [queryToken0, balanceZero]);
 
   useEffect(() => {
-    if (Number(balanceOne().props.children[1]) >= 1000000) {
-      setBalance1(Number(balanceOne().props.children[1]).toExponential(5));
+    if (isConnected && stateChainName === "goerli") {
+      if (Number(balanceOne().props.children[1]) >= 1000000) {
+        setBalance1(Number(balanceOne().props.children[1]).toExponential(5));
+      }
+      setBalance1(Number(balanceOne().props.children[1]).toFixed(2));
     }
-    setBalance1(Number(balanceOne().props.children[1]).toFixed(2));
   }, [queryToken1, balanceOne]);
 
 
@@ -206,12 +219,12 @@ export default function Swap() {
                   >
                     Balance: {balance0 === "NaN" ? 0 : balance0}
                   </div>
-                  <button
-                    className="flex text-xs uppercase text-[#C9C9C9]"
-                    onClick={() => maxBalance(balance0, "0")}
-                  >
-                    Max
-                  </button>
+                  {isConnected && stateChainName === "goerli" ? <button
+            className="flex text-xs uppercase text-[#C9C9C9]"
+            onClick={() => maxBalance(balance0, "0")}
+        >
+            Max
+        </button> : null}
                 </div>
               </div>
             </div>
@@ -262,9 +275,12 @@ export default function Swap() {
                     <div className="flex text-xs text-[#4C4C4C]">
                       Balance: {balance1}
                     </div>
-                    <button className="text-xs uppercase text-[#C9C9C9]">
-                      Max
-                    </button>
+                    {isConnected && stateChainName === "goerli" ? <button
+            className="flex text-xs uppercase text-[#C9C9C9]"
+            onClick={() => maxBalance(balance1, "0")}
+        >
+            Max
+        </button> : null}
                   </div>
                 ) : (
                   <></>
@@ -338,11 +354,11 @@ export default function Swap() {
           </div>
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {isDisconnected ? null : allowance === 0.0 ? (
+        {isDisconnected ? null : allowance === 0.0 && stateChainName === "goerli" ? (
           <CoverApproveButton address={address} amount={bnInput} />
-        ) : (
+        ) : stateChainName === "goerli" ? (
           <SwapButton amount={bnInput} />
-        )}
+        ) : null}
       </div>
     </div>
   );

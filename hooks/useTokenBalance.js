@@ -1,14 +1,21 @@
 import { useEffect, useState } from 'react'
-import { useBalance, useAccount } from "wagmi"
+import { useBalance, useAccount, useProvider } from "wagmi"
 import { tokenOneAddress } from "../constants/contractAddresses"
+import { chainIdsToNamesForGitTokenList } from '../utils/chains'
 
 export default function useTokenBalance(tokenAddress) {
 
-    const { address } = useAccount()
+    const { address, isConnected } = useAccount()
     const [tokenBalanceInfo, setTokenBalanceInfo] = useState(0)
     const [queryToken, setQueryToken] = useState(tokenOneAddress)
 
     const userAddress = address
+
+    const {
+        network: { chainId }, chainId: chainIdFromProvider
+      } = useProvider();
+    
+    const chainName = chainIdsToNamesForGitTokenList[chainId]
 
     const tokenBalanceSetting = () => {
       setQueryToken(tokenAddress)

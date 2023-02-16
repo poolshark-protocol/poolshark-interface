@@ -1,8 +1,9 @@
-import { useContractRead } from "wagmi";
+import { useContractRead, useProvider, useAccount } from "wagmi";
 import { erc20ABI } from "wagmi";
 import { ethers } from "ethers";
 import { useState } from "react";
 import { coverPoolAddress, tokenOneAddress } from "../constants/contractAddresses";
+import { chainIdsToNamesForGitTokenList } from '../utils/chains'
 
 export default function useAllowance(address) { 
   const [allowance, setAllowance] = useState(null);
@@ -28,7 +29,6 @@ export default function useAllowance(address) {
   }, [allowance]);
   
   return allowance;
-
 }
 
 

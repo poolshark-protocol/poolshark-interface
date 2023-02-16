@@ -3,6 +3,8 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
+  useAccount,
+  useProvider
 } from "wagmi";
 import { coverPoolABI } from "../../abis/evm/coverPool";
 import { SuccessToast } from "../Toasts/Success";
@@ -15,38 +17,37 @@ export default function CoverMintButton({address, amount, disabled}) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
-  //TODO: should not call contract hook when address is undefined
+    const { config } = usePrepareContractWrite({
+      address: coverPoolAddress,
+      abi: coverPoolABI,
+      functionName: "mint",
+      args: [
+        ethers.utils.parseUnits("0"),
+        ethers.utils.parseUnits("20", 0),
+        ethers.utils.parseUnits("887272", 0),
+        ethers.utils.parseUnits("30", 0),
+        ethers.utils.parseUnits("20", 0),
+        amount,
+        false,
+      ],
+      chainId: 5,
+      overrides: {
+        gasLimit: 350000,
+      },
+    });
 
-  const { config } = usePrepareContractWrite({
-    address: coverPoolAddress,
-    abi: coverPoolABI,
-    functionName: "mint",
-    args: [
-      ethers.utils.parseUnits("0"),
-      ethers.utils.parseUnits("20", 0),
-      ethers.utils.parseUnits("887272", 0),
-      ethers.utils.parseUnits("30", 0),
-      ethers.utils.parseUnits("20", 0),
-      amount,
-      false,
-    ],
-    chainId: 5,
-    overrides: {
-      gasLimit: 350000,
-    },
-  });
+    const { data, write } = useContractWrite(config);
 
-  const { data, write } = useContractWrite(config);
+    const {isLoading} = useWaitForTransaction({
+      hash: data?.hash,
+      onSuccess() {
+        setSuccessDisplay(true);
+      },
+      onError() {
+        setErrorDisplay(true);
+      },
+    });
 
-  const {isLoading} = useWaitForTransaction({
-    hash: data?.hash,
-    onSuccess() {
-      setSuccessDisplay(true);
-    },
-    onError() {
-      setErrorDisplay(true);
-    },
-  });
 
 
   return (

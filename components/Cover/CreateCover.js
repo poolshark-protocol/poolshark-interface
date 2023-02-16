@@ -5,9 +5,12 @@ import {
   ArrowLongRightIcon,
 } from "@heroicons/react/20/solid";
 import SelectToken from "../SelectToken";
-import { useAccount } from "wagmi";
+import { useAccount, useProvider } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import CoverApproveButton from "../Buttons/CoverApproveButton";
+import CoverBurnButton from "../Buttons/CoverBurnButton";
+import CoverCollectButton from "../Buttons/CoverCollectButton";
+import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import { useState, useEffect } from "react";
 import useAllowance from "../../hooks/useAllowance";
@@ -19,6 +22,22 @@ import TokenBalance from "../TokenBalance";
 export default function CreateCover() {
   const [expanded, setExpanded] = useState();
   const [bnInput, inputBox] = useInputBox();
+  const [stateChainName, setStateChainName] = useState();
+  
+  const {
+    network: { chainId }, chainId: chainIdFromProvider
+  } = useProvider();
+
+  useEffect(() => {
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
+  }, [chainId])
+  
+  const { 
+    address,
+    isConnected, 
+    isDisconnected 
+  } = useAccount();
+  
 
   const { address, isConnected, isDisconnected } = useAccount();
   const [isDisabled, setDisabled] = useState(true);
@@ -88,8 +107,6 @@ export default function CreateCover() {
     setHasSelected(true);
     setDisabled(false);
   };
-
-
 
   const handleValueChange = () => {
     if (document.getElementById("input").value === undefined) {
@@ -302,11 +319,16 @@ export default function CreateCover() {
         </div>
       </div>
       <div className="space-y-3" key={allowance}>
-      { isConnected && allowance <= amountToPay ? (
+      { isConnected && allowance <= amountToPay && stateChainName === "goerli" ? (
           <CoverApproveButton address={tokenOneAddress} amount={bnInput} />
-        ) : (
+        ) : stateChainName === "goerli" ? (
           <CoverMintButton disabled={isDisabled} address={tokenOneAddress} amount={bnInput} />
-        )}
+        ) : null}
+      </div>
+      <div className="space-y-3">
+        {isDisconnected ? null : stateChainName === "goerli" ? <CoverBurnButton address={address} /> : null}
+        {isDisconnected ? null : stateChainName === "goerli" ? <CoverCollectButton address={address} /> : null}
+        {/*TO-DO: add positionOwner ternary again*/}
       </div>
     </>
   );
