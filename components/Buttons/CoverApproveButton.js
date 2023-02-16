@@ -16,13 +16,14 @@ export default function CoverApproveButton({address, amount}) {
     const [ successDisplay,  setSuccessDisplay ] = useState(false);
     const [ configuration,   setConfig         ] = useState();
 
-      const { config } = usePrepareContractWrite({
-        address: tokenOneAddress,
-        abi: erc20ABI,
-        functionName: "approve",
-        args:[coverPoolAddress, amount],
-        chainId: 5,
-      })
+    console.log("approve amount:" , Number(amount))
+    const { config } = usePrepareContractWrite({
+      address: tokenOneAddress,
+      abi: erc20ABI,
+      functionName: "approve",
+      args:[coverPoolAddress, amount],
+      chainId: 5,
+    })
 
       const { data, isSuccess, write } = useContractWrite(config)
 
