@@ -19,7 +19,7 @@ import TokenBalance from "../components/TokenBalance";
 export default function Swap() {
   const { address, isDisconnected } = useAccount();
   const [bnInput, inputBox, maxBalance] = useInputBox();
-  const [dataState] = useAllowance(address);
+  const allowance = useAllowance(address);
   const [hasSelected, setHasSelected] = useState(false);
   const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
   const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
@@ -338,7 +338,7 @@ export default function Swap() {
           </div>
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {isDisconnected ? null : dataState === "0x00" ? (
+        {allowance === 0 ? (
           <CoverApproveButton address={address} amount={bnInput} />
         ) : (
           <SwapButton amount={bnInput} />
