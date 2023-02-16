@@ -15,7 +15,6 @@ export default function useAllowance(address) {
 
   const chainName = chainIdsToNamesForGitTokenList[chainId]
   
-  if (isConnected && chainName === "goerli") {
     const { data, onSuccess } = useContractRead({
       address: tokenOneAddress,
       abi: erc20ABI,
@@ -36,7 +35,6 @@ export default function useAllowance(address) {
       },
     }, [dataState]);
 
-  }
 
   return [dataState];
 }

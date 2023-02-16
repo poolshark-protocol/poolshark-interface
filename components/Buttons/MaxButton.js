@@ -2,7 +2,7 @@ import { useAccount, useProvider } from "wagmi";
 import useInputBox from "../../hooks/useInputBox";
 import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
 
-export default function MaxButton(balance0) {
+export default function MaxButton(balance) {
     const [maxBalance] = useInputBox();
 
     const { isConnected } = useAccount();
@@ -13,14 +13,12 @@ export default function MaxButton(balance0) {
     
     const chainName = chainIdsToNamesForGitTokenList[chainId]
 
-    if (isConnected && chainName === "goerli") {
-        return (
-            <button
-                className="flex text-xs uppercase text-[#C9C9C9]"
-                onClick={() => maxBalance(balance0, "0")}
-            >
-                Max
-            </button>
-        )
-    }
+    return (
+        <button
+            className="flex text-xs uppercase text-[#C9C9C9]"
+            onClick={() => maxBalance(balance, "0")}
+        >
+            Max
+        </button>
+    )
 }

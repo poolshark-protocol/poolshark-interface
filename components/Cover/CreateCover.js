@@ -8,6 +8,8 @@ import SelectToken from "../SelectToken";
 import { useAccount } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import CoverApproveButton from "../Buttons/CoverApproveButton";
+import CoverBurnButton from "../Buttons/CoverBurnButton";
+import CoverCollectButton from "../Buttons/CoverCollectButton";
 import { useState } from "react";
 import useAllowance from "../../hooks/useAllowance";
 import useInputBox from "../../hooks/useInputBox";

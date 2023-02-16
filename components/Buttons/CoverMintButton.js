@@ -26,8 +26,7 @@ export default function CoverMintButton({address, amount}) {
 
   const chainName = chainIdsToNamesForGitTokenList[chainId]
 
-  if(address && isConnected && chainName === "goerli"){
-
+  //if (address && isConnected && chainName === "goerli"){
     const { config } = usePrepareContractWrite({
       address: coverPoolAddress,
       abi: coverPoolABI,
@@ -87,5 +86,5 @@ export default function CoverMintButton({address, amount}) {
         </div>
       </>
     );
-  }
+  //}
 }

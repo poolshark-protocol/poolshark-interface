@@ -30,7 +30,7 @@ export default function SwapButton({amount}) {
 
   const chainName = chainIdsToNamesForGitTokenList[chainId]
 
-  if(isConnected && chainName === "goerli"){
+  //if(isConnected && chainName === "goerli"){
     const { config } = usePrepareContractWrite({
         address: coverPoolAddress,
         abi: coverPoolABI,
@@ -85,5 +85,5 @@ export default function SwapButton({amount}) {
       </div>
       </>
     );
-  }
+  //}
 }

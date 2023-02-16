@@ -41,6 +41,7 @@ export default function Swap() {
 
   const [balance0, setBalance0] = useState();
   const [balance1, setBalance1] = useState();
+  const [stateChainName, setStateChainName] = useState();
 
   const {
     network: { chainId }, chainId: chainIdFromProvider
@@ -48,6 +49,9 @@ export default function Swap() {
 
   const chainName = chainIdsToNamesForGitTokenList[chainId]
 
+  useEffect(() => {
+    setStateChainName(chainName)
+  }, [chainId])
 
   useEffect(() => {
     if (isConnected && chainName === "goerli") {
@@ -219,7 +223,7 @@ export default function Swap() {
                   >
                     Balance: {balance0}
                   </div>
-                  <MaxButton balance0={balance0}/>
+                  {isConnected && stateChainName === "goerli" ? <MaxButton balance0={balance0}/> : null}
                 </div>
               </div>
             </div>
@@ -270,7 +274,7 @@ export default function Swap() {
                     <div className="flex text-xs text-[#4C4C4C]">
                       Balance: {balance1}
                     </div>
-                    <MaxButton balance0={balance1}/>
+                    <MaxButton balance={balance1}/>
                   </div>
                 ) : (
                   <></>
