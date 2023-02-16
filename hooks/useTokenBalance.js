@@ -37,13 +37,11 @@ export default function useTokenBalance(tokenAddress) {
     }, [queryToken])
 
    const tokenBalanceBox = () => {
-        if (isConnected && chainName === "goerli"){
-            return (
-                <div className="text-xs text-[#4C4C4C]">
-                    Balance: {Number(tokenBalanceInfo?.formatted).toFixed(3)} 
-                </div>
-            )
-        }
+        return (
+            <div className="text-xs text-[#4C4C4C]">
+                Balance: {Number(tokenBalanceInfo?.formatted).toFixed(3)} 
+            </div>
+        )
     }
 
     return [tokenBalanceInfo, tokenBalanceBox]

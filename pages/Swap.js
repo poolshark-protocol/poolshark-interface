@@ -14,14 +14,13 @@ import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import { useAccount } from "wagmi";
 import { tokenOneAddress } from "../constants/contractAddresses";
 import TokenBalance from "../components/TokenBalance";
-import MaxButton from "../components/Buttons/MaxButton";
 import { useProvider } from "wagmi";
 import { chainIdsToNamesForGitTokenList } from '../utils/chains'
 
 export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount();
-  const [bnInput, inputBox] = useInputBox();
-  const [dataState] = useAllowance(address);
+  const [bnInput, inputBox, maxBalance] = useInputBox();
+  const [dataState] = useAllowance(address);  
   const [hasSelected, setHasSelected] = useState(false);
   const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
   const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
@@ -220,7 +219,12 @@ export default function Swap() {
                   >
                     Balance: {balance0}
                   </div>
-                  {isConnected && stateChainName === "goerli" ? <MaxButton balance0={balance0}/> : null}
+                  {isConnected && stateChainName === "goerli" ? <button
+            className="flex text-xs uppercase text-[#C9C9C9]"
+            onClick={() => maxBalance(balance0, "0")}
+        >
+            Max
+        </button> : null}
                 </div>
               </div>
             </div>
@@ -271,7 +275,12 @@ export default function Swap() {
                     <div className="flex text-xs text-[#4C4C4C]">
                       Balance: {balance1}
                     </div>
-                    {isConnected && stateChainName === "goerli" ? <MaxButton balance={balance1}/> : null}
+                    {isConnected && stateChainName === "goerli" ? <button
+            className="flex text-xs uppercase text-[#C9C9C9]"
+            onClick={() => maxBalance(balance1, "0")}
+        >
+            Max
+        </button> : null}
                   </div>
                 ) : (
                   <></>
