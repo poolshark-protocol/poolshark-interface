@@ -7,7 +7,6 @@ import CoverMintButton from "../Buttons/CoverMintButton";
 import CoverApproveButton from "../Buttons/CoverApproveButton";
 import { useState } from "react";
 import useAllowance from "../../hooks/useAllowance";
-import useInputBox from "../../hooks/useInputBox";
 
 export default function CoverExistingPool() {
   const [expanded, setExpanded] = useState();

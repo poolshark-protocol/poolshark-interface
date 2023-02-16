@@ -18,7 +18,6 @@ import useInputBox from "../../hooks/useInputBox";
 import { tokenOneAddress } from "../../constants/contractAddresses";
 import TokenBalance from "../TokenBalance";
 
-
 export default function CreateCover() {
   const [expanded, setExpanded] = useState();
   const [bnInput, inputBox] = useInputBox();
@@ -38,8 +37,6 @@ export default function CreateCover() {
     isDisconnected 
   } = useAccount();
   
-
-  const { address, isConnected, isDisconnected } = useAccount();
   const [isDisabled, setDisabled] = useState(true);
   const [hasSelected, setHasSelected] = useState(false);
   const [queryToken0, setQueryToken0] = useState(tokenOneAddress);

@@ -5,8 +5,6 @@ import {
 import { useState } from "react";
 import PoolsModal from "./PoolsModal";
 
-
-
 export default function Initial() {
 
     const [isOpen, setIsOpen] = useState(false);

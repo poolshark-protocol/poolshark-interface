@@ -8,7 +8,6 @@ import StaticUniPool from "../Pools/StaticUniPool";
 import { fetchPositions } from "../../utils/queries";
 import { useAccount } from "wagmi";
 
-
 export default function PoolsModal({ isOpen, setIsOpen }) {
 
   const { address } = useAccount();

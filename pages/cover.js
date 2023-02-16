@@ -2,28 +2,15 @@ import Navbar from "../components/Navbar";
 import {
   InformationCircleIcon,
   MagnifyingGlassIcon,
-  MinusIcon,
-  PlusIcon,
-  ChevronDownIcon,
   ArrowLongLeftIcon
 } from "@heroicons/react/20/solid";
-import UserPool from "../components/Pools/UserPool";
 import UserCoverPool from "../components/Pools/UserCoverPool";
 import StaticUniPool from "../components/Pools/StaticUniPool";
-import SelectToken from "../components/SelectToken";
 import { useState, useEffect } from "react";
 import { useAccount, useProvider } from "wagmi";
-import CoverMintButton from "../components/Buttons/CoverMintButton";
-import CoverApproveButton from "../components/Buttons/CoverApproveButton";
-import CoverBurnButton from "../components/Buttons/CoverBurnButton";
-import useAllowance from "../hooks/useAllowance";
-import useInputBox from "../hooks/useInputBox";
 import Link from "next/link";
-import { fetchPools, fetchPositions } from "../utils/queries";
-import useTokenBalance from "../hooks/useTokenBalance";
+import { fetchPools } from "../utils/queries";
 import React from "react";
-import CoverCollectButton from "../components/Buttons/CoverCollectButton";
-import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import useTokenList from "../hooks/useTokenList";
 import Initial from "../components/Cover/Initial";
 import CreateCover from "../components/Cover/CreateCover";
@@ -167,87 +154,6 @@ export default function Cover() {
               {/*<Initial/>*/}
               <CreateCover />
               {/*<CoverExistingPool/>*/}
-              {/*
-              <h1 className="mb-3">How much do you want to Cover?</h1>
-              <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-                <div className="flex-col justify-center w-1/2 p-2 ">
-                  {inputBox("0")}
-                  <div className="flex">
-                    <div className="flex text-xs text-[#4C4C4C]">~300.56</div>
-                  </div>
-                </div>
-                <div className="flex w-1/2">
-                  <div className="flex justify-center ml-auto">
-                    <div className="flex-col">
-                      <div className="flex justify-end">
-                        <SelectToken />
-                      </div>
-                      <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                        <div className="text-xs text-[#4C4C4C]">
-                          {tokenBalanceBox()}
-                        </div>
-                        <button className="text-xs uppercase text-[#C9C9C9]">
-                          Max
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <h1 className="mb-3 mt-6">Set Price Range</h1>
-              <div className="flex justify-between w-full gap-x-6">
-                <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-                <span className="text-xs text-grey">Min. Price</span>
-                <div className="flex justify-center items-center">
-                  <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600" onClick={decreaseMinPrice}>
-                    <MinusIcon className="w-5 h-5 ml-[2.5px]" />
-                  </div>
-                  <input className="bg-[#0C0C0C] py-2 outline-none text-center w-full" placeholder="0" onChange={handleChange} value={minPrice}/>
-                  <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600" onClick={increaseMinPrice}>
-                    <PlusIcon className="w-5 h-5" />
-                  </div>
-                </div>
-                <span className="text-xs text-grey">USDC per DAI</span>
-              </div>
-              <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-                <span className="text-xs text-grey">Max. Price</span>
-                <div className="flex justify-center items-center">
-                  <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600" onClick={decreaseMaxPrice}>
-                    <MinusIcon className="w-5 h-5 ml-[2.5px]" />
-                  </div>
-                  <input className="bg-[#0C0C0C] py-2 outline-none text-center w-full" placeholder="0" onChange={handleChange} value={maxPrice}/>
-                  <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600" onClick={increaseMaxPrice}>
-                    <PlusIcon className="w-5 h-5" />
-                  </div>
-                </div>
-                <span className="text-xs text-grey">USDC per DAI</span>
-              </div>
-              </div>
-              <div className="py-4">
-                <div
-                  className="flex px-2 cursor-pointer"
-                  onClick={() => setExpanded(!expanded)}
-                >
-                  <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                    1 USDC = 1 DAI
-                  </div>
-                  <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
-                    <button>
-                      <ChevronDownIcon className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-                <div className="flex-wrap w-full break-normal transition ">
-                  <Option />
-                </div>
-              </div>
-              <div className="space-y-3" >
-                {isDisconnected ? <ConnectWalletButton /> : null}
-                {isDisconnected ? null : isConnected && dataState === "0x00" ? <CoverApproveButton address={address} amount={bnInput}/> : <CoverMintButton address={address} amount={bnInput}/>}
-                {isDisconnected || positionOwner === null ? null : <CoverBurnButton address={address} />}
-                {isDisconnected ? null : <CoverCollectButton address={address} />}
-              </div>
-              */}
             </div>
             {isDisconnected ? (
    
