@@ -12,13 +12,14 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import { coverPoolAddress } from "../../constants/contractAddresses";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { chainIdsToNamesForGitTokenList } from '../../utils/chains'
 
 export default function SwapButton({amount}) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
+  const [ stateChainName, setStateChainName ] = useState(null);
 
   const { address } = useAccount()
   const { isConnected } = useAccount();
@@ -30,7 +31,10 @@ export default function SwapButton({amount}) {
 
   const chainName = chainIdsToNamesForGitTokenList[chainId]
 
-  //if(isConnected && chainName === "goerli"){
+  useEffect(() => {
+    setStateChainName(chainName)
+  }, [chainId])
+
     const { config } = usePrepareContractWrite({
         address: coverPoolAddress,
         abi: coverPoolABI,
@@ -85,5 +89,4 @@ export default function SwapButton({amount}) {
       </div>
       </>
     );
-  //}
 }

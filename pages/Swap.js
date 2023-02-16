@@ -12,7 +12,6 @@ import useAllowance from "../hooks/useAllowance";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import { useAccount } from "wagmi";
-import useTokenBalance from "../hooks/useTokenBalance";
 import { tokenOneAddress } from "../constants/contractAddresses";
 import TokenBalance from "../components/TokenBalance";
 import MaxButton from "../components/Buttons/MaxButton";
@@ -274,7 +273,7 @@ export default function Swap() {
                     <div className="flex text-xs text-[#4C4C4C]">
                       Balance: {balance1}
                     </div>
-                    <MaxButton balance={balance1}/>
+                    {isConnected && stateChainName === "goerli" ? <MaxButton balance={balance1}/> : null}
                   </div>
                 ) : (
                   <></>
@@ -348,11 +347,11 @@ export default function Swap() {
           </div>
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {isDisconnected ? null : dataState === "0x00" ? (
+        {isDisconnected ? null : dataState === "0x00" && stateChainName === "goerli" ? (
           <CoverApproveButton address={address} amount={bnInput} />
-        ) : (
+        ) : stateChainName === "goerli" ? (
           <SwapButton amount={bnInput} />
-        )}
+        ) : null}
       </div>
     </div>
   );
