@@ -2,18 +2,111 @@ import Navbar from "../components/Navbar";
 import {
   InformationCircleIcon,
   MagnifyingGlassIcon,
-  MinusIcon,
-  PlusIcon,
-  ChevronDownIcon,
+  ArrowLongLeftIcon
 } from "@heroicons/react/20/solid";
-import UserPool from "../components/UserPool";
-import PoolList from "../components/AllPools";
+import UserCoverPool from "../components/Pools/UserCoverPool";
+import StaticUniPool from "../components/Pools/StaticUniPool";
+import { useState, useEffect } from "react";
+import { useAccount, useProvider } from "wagmi";
 import Link from "next/link";
-import SelectToken from "../components/SelectToken";
-import { useState, Fragment } from "react";
+import { fetchPools } from "../utils/queries";
+import React from "react";
+import useTokenList from "../hooks/useTokenList";
+import Initial from "../components/Cover/Initial";
+import CreateCover from "../components/Cover/CreateCover";
+import CoverExistingPool from "../components/Cover/CoverExistingPool";
 
 export default function Cover() {
+  const [maxPrice, setMaxPrice] = useState(0);
+  const [disabled, setDisabled] = useState(true);
+
+  const increaseMaxPrice = () => {
+    setMaxPrice((count) => count + 1);
+  };
+
+  const [minPrice, setMinPrice] = useState(0);
+
+  const increaseMinPrice = () => {
+    setMinPrice((count) => count + 1);
+  };
+
+  const decreaseMinPrice = () => {
+    if (minPrice > 0) {
+      setMinPrice((count) => count - 1);
+    }
+  };
+  const decreaseMaxPrice = () => {
+    if (maxPrice > 0) {
+      setMaxPrice((count) => count - 1);
+    }
+  };
+
+  const handleChange = (event) => {
+    //const valueToBn = ethers.utils.parseUnits(event.target.value, 0);
+    //const result = event.target.value.replace(/\D/g, '');
+    const result = event.target.value.replace(/[^0-9\.|\,]/g, "");
+    //TODO: make
+    setMaxPrice(result);
+    setMinPrice(result);
+    // console.log('value is:', result);
+  };
+
+  const {
+    network: { chainId },
+    chainId: chainIdFromProvider,
+  } = useProvider();
+
+  const { address, isConnected, isDisconnected } = useAccount();
+
   const [expanded, setExpanded] = useState();
+
+  const [coverPools, setCoverPools] = useState([]);
+  const [allCoverPools, setAllCoverPools] = useState([]);
+
+  const coins = useTokenList()[0];
+  const [coinsForListing, setCoinsForListing] = useState(coins.listed_tokens);
+
+  useEffect(() => {
+    console.log(coinsForListing);
+  }, [coinsForListing]);
+
+  async function getPoolData() {
+    const data = await fetchPools();
+    const pools = data.data.coverPools;
+
+    setCoverPools(pools);
+  }
+
+  function mapCoverPools() {
+    const mappedCoverPools = [];
+
+    coverPools.map((coverPool) => {
+      const coverPoolData = {
+        tokenOneName: coverPool.token1.name,
+        tokenZeroName: coverPool.token0.name,
+        tokenOneAddress: coverPool.token1.id,
+        tokenZeroAddress: coverPool.token0.id,
+        poolAddress: coverPool.id,
+      };
+
+      mappedCoverPools.push(coverPoolData);
+    });
+
+    setAllCoverPools(mappedCoverPools);
+  }
+
+  //async so needs to be wrapped
+  useEffect(() => {
+    getPoolData();
+  }, []);
+
+  useEffect(() => {
+    mapCoverPools();
+  }, [coverPools]);
+
+  useEffect(() => {
+    console.log("chainId: ", chainId);
+  }, [chainId]);
 
   const Option = () => {
     if (expanded) {
@@ -29,7 +122,7 @@ export default function Cover() {
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">
-              Mininum recieved after slippage (0.50%)
+              Mininum received after slippage (0.50%)
             </div>
             <div className="ml-auto text-xs">299.92 DAI</div>
           </div>
@@ -51,90 +144,24 @@ export default function Cover() {
             <h1 className="text-3xl">Cover</h1>
             <span className="bg-black flex items-center gap-x-2 border border-grey2 rounded-lg text-white px-6 py-[9px] cursor-pointer hover:opacity-80">
               <InformationCircleIcon className="w-4 text-grey1" />
-              How it works?
+              <Link href="https://docs.poolsharks.io/introduction/cover-pools/">
+                <a target="_blank">How it works?</a>
+              </Link>
             </span>
           </div>
           <div className="flex space-x-8">
             <div className="bg-black w-2/3 border border-grey2 w-full rounded-t-xl p-6 gap-y-4">
-              <h1 className="mb-3">How much do you want to Cover?</h1>
-              <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-                <div className="flex-col justify-center w-1/2 p-2 ">
-                  <input
-                    className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
-                    placeholder="300"
-                  />
-                  <div className="flex">
-                    <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
-                  </div>
-                </div>
-                <div className="flex w-1/2">
-                  <div class="flex justify-center ml-auto">
-                    <div class="flex-col">
-                      <div className="flex justify-end">
-                        <SelectToken />
-                      </div>
-                      <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                        <div className="text-xs text-[#4C4C4C]">
-                          Balance: 420.69
-                        </div>
-                        <div className="text-xs uppercase text-[#C9C9C9]">
-                          Max
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <h1 className="mb-3 mt-6">Set Price Range</h1>
-              <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg mb-4">
-                <span className="text-xs text-grey">Min. Price</span>
-                <div className="flex justify-center items-center">
-                  <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white">
-                    <MinusIcon className="w-5 h-5 ml-[2.5px]" />
-                  </div>
-                  <input className="bg-[#0C0C0C] py-2 outline-none text-center" />
-                  <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white">
-                    <PlusIcon className="w-5 h-5" />
-                  </div>
-                </div>
-                <span className="text-xs text-grey">USDC per DAI</span>
-              </div>
-              <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-                <span className="text-xs text-grey">Max. Price</span>
-                <div className="flex justify-center items-center">
-                  <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white">
-                    <MinusIcon className="w-5 h-5 ml-[2.5px]" />
-                  </div>
-                  <input className="bg-[#0C0C0C] py-2 outline-none text-center" />
-                  <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white">
-                    <PlusIcon className="w-5 h-5" />
-                  </div>
-                </div>
-                <span className="text-xs text-grey">USDC per DAI</span>
-              </div>
-              <div className="py-4">
-                <div
-                  className="flex px-2 cursor-pointer"
-                  onClick={() => setExpanded(!expanded)}
-                >
-                  <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                    1 USDC = 1 DA1
-                  </div>
-                  <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
-                    <button>
-                      <ChevronDownIcon className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-                <div className="flex-wrap w-full break-normal transition ">
-                  <Option />
-                </div>
-              </div>
-              <div className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
-                Create Cover
-              </div>
+              {/*<Initial/>*/}
+              <CreateCover />
+              {/*<CoverExistingPool/>*/}
             </div>
+            {isDisconnected ? (
+   
             <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">
+    <ArrowLongLeftIcon className="flex flex-row h-1/2 w-1/2 justify-center items-center m-auto" />
+    </div>
+  ) : (
+    <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">
               <div className="relative">
                 <MagnifyingGlassIcon className="w-5 text-grey absolute ml-[14px] mt-[13px]" />
                 <input
@@ -143,23 +170,29 @@ export default function Cover() {
                 />
               </div>
               <div>
-                <h1 className="mb-3">Poolshark Pools</h1>
+                <h1 className="mb-3">Cover Pools</h1>
                 <div className="space-y-2">
-                  <UserPool />
-                  <UserPool />
-                  <UserPool />
+                  {allCoverPools.map((allCoverPool) => {
+                    return (
+                      <UserCoverPool
+                        key={allCoverPool.tokenOneName}
+                        tokenOneName={allCoverPool.tokenOneName}
+                        tokenZeroName={allCoverPool.tokenZeroName}
+                        tokenOneAddress={allCoverPool.tokenOneAddress}
+                        tokenZeroAddress={allCoverPool.tokenZeroAddress}
+                        poolAddress={allCoverPool.poolAddress}
+                      />
+                    );
+                  })}
                 </div>
               </div>
               <div>
                 <h1 className="mb-3 mt-4">UNI-V3 Pools</h1>
                 <div className="space-y-2">
-                  <UserPool />
-                  <UserPool />
-                  <UserPool />
-                  <UserPool />
+                  <StaticUniPool />
                 </div>
               </div>
-            </div>
+            </div>)}
           </div>
         </div>
       </div>

@@ -1,19 +1,15 @@
 import { Fragment, useState } from "react";
 import {
-  CheckIcon,
   ChevronDownIcon,
-  ArrowsRightLeftIcon,
-  InformationCircleIcon,
-  XMarkIcon,
-  MagnifyingGlassIcon,
   PlusIcon,
   MinusIcon
 } from "@heroicons/react/20/solid";
-import { Listbox, Transition, Dialog } from "@headlessui/react";
-import SelectToken from "./SelectToken";
+import { Listbox, Transition } from "@headlessui/react";
+import SelectToken from "../SelectToken";
 import ConcentratedPoolPreview from "./ConcentratedPoolPreview";
 
 export default function ConcentratedPool() {
+  
   const feeTiers = [
     {
       id: 1,

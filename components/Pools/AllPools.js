@@ -1,14 +1,5 @@
-import { PlusSmallIcon } from "@heroicons/react/24/outline";
-import Head from "next/head";
-import Image from "next/image";
-import { useState, Fragment } from "react";
-import { Menu, Transition, Dialog } from "@headlessui/react";
-import {
-  ArrowsRightLeftIcon,
-  ExclamationTriangleIcon,
-} from "@heroicons/react/20/solid";
-
 export default function PoolList() {
+  
   return (
     <table className="w-full table-auto">
       <thead className="mb-3">

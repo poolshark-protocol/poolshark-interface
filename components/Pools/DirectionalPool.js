@@ -1,18 +1,14 @@
 import { Fragment, useState } from "react";
 import {
-  CheckIcon,
   ChevronDownIcon,
-  ArrowsRightLeftIcon,
-  InformationCircleIcon,
-  XMarkIcon,
-  MagnifyingGlassIcon,
-  ArrowLongRightIcon,
+  ArrowLongRightIcon
 } from "@heroicons/react/20/solid";
-import { Listbox, Transition, Dialog } from "@headlessui/react";
-import SelectToken from "./SelectToken";
+import { Listbox, Transition } from "@headlessui/react";
+import SelectToken from "../SelectToken";
 import DirectionalPoolPreview from "./DirectionalPoolPreview";
 
 export default function DirectionalPool() {
+  
   const feeTiers = [
     {
       id: 1,

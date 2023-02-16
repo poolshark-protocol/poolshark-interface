@@ -4,20 +4,22 @@ import {
   MagnifyingGlassIcon,
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
-import UserPool from "../../components/UserPool";
-import PoolList from "../../components/AllPools";
+import UserPool from "../../components/Pools/UserPool";
+import PoolList from "../../components/Pools/AllPools";
 import Link from "next/link";
-import { Listbox, Transition, Dialog } from "@headlessui/react";
+import { Listbox, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
 
 
 export default function Pool() {
+
     const poolTypes = [
       { id: 1, type: "Concentrated Liquidity", unavailable: false },
       { id: 2, type: "Directional Liquidity", unavailable: false },
     ];
 
 function SelectPool() {
+  
   const [selected, setSelected] = useState(poolTypes[0]);
 
   return (

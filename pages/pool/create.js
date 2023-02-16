@@ -1,26 +1,19 @@
 import Navbar from "../../components/Navbar";
 import Link from "next/link";
-import { PlusSmallIcon } from "@heroicons/react/24/outline";
 import { Fragment, useState } from "react";
-import {
-  CheckIcon,
-  ChevronDownIcon,
-  ArrowsRightLeftIcon,
-  InformationCircleIcon,
-  XMarkIcon,
-  MagnifyingGlassIcon,
-} from "@heroicons/react/20/solid";
-import { Listbox, Transition, Dialog } from "@headlessui/react";
-import SelectToken from "../../components/SelectToken";
-import ConcentratedPool from "../../components/ConcentratedPool";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import { Listbox, Transition } from "@headlessui/react";
+import ConcentratedPool from "../../components/Pools/ConcentratedPool";
 
 export default function CreatePool() {
+
   const poolTypes = [
     { id: 1, type: "Concentrated Liquidity", unavailable: false },
     { id: 2, type: "Directional Liquidity", unavailable: false },
   ];
 
   function SelectPool() {
+    
     const [selected, setSelected] = useState(poolTypes[0]);
 
     return (

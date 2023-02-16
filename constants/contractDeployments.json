@@ -1,0 +1,84 @@
+{
+    "goerli": {
+        "tokenA": {
+            "contractName": "Token20",
+            "contractAddress": "0x86Ba6A724EC82951d3769ADE454Db9913CA66163",
+            "constructorArguments": [
+                "Token20A",
+                "TOKEN20A",
+                18
+            ],
+            "created": "2023-01-14T19:50:48.051Z"
+        },
+        "tokenB": {
+            "contractName": "Token20",
+            "contractAddress": "0x2F0cb0741A0210b7f09dE503E587E0a5c8153b1C",
+            "constructorArguments": [
+                "Token20B",
+                "TOKEN20B",
+                18
+            ],
+            "created": "2023-01-14T19:51:13.797Z"
+        },
+        "token0": {
+            "contractName": "Token20",
+            "contractAddress": "0x2F0cb0741A0210b7f09dE503E587E0a5c8153b1C",
+            "constructorArguments": [
+                "Token20B",
+                "TOKEN20B",
+                18
+            ],
+            "created": "2023-01-14T19:51:13.831Z"
+        },
+        "token1": {
+            "contractName": "Token20",
+            "contractAddress": "0x86Ba6A724EC82951d3769ADE454Db9913CA66163",
+            "constructorArguments": [
+                "Token20A",
+                "TOKEN20A",
+                18
+            ],
+            "created": "2023-01-14T19:51:13.835Z"
+        },
+        "concentratedFactoryMock": {
+            "contractName": "ConcentratedFactoryMock",
+            "contractAddress": "0x9371d94bdC9e153aA89428Ed4d937cA94a4dc3C7",
+            "constructorArguments": [
+                "0x2F0cb0741A0210b7f09dE503E587E0a5c8153b1C",
+                "0x86Ba6A724EC82951d3769ADE454Db9913CA66163"
+            ],
+            "created": "2023-01-14T19:51:39.340Z"
+        },
+        "concentratedPoolMock": {
+            "contractName": "ConcentratedPoolMock",
+            "contractAddress": "0x56F20E1E0b0fcd1Ef799d97f7d645e17bb6d9CC4",
+            "constructorArguments": [
+                "0x2F0cb0741A0210b7f09dE503E587E0a5c8153b1C",
+                "0x86Ba6A724EC82951d3769ADE454Db9913CA66163",
+                "500"
+            ],
+            "created": "2023-01-14T19:51:39.864Z"
+        },
+        "hedgePoolFactory": {
+            "contractName": "PoolsharkCoverPoolFactory",
+            "contractAddress": "0x20fF24c86cFBD7f6e69ADD5b59Ae4F7EA94DaBF1",
+            "constructorArguments": [
+                "0x9371d94bdC9e153aA89428Ed4d937cA94a4dc3C7",
+                "0x47804e4Ec0ADd6B903D6B7809349331AB6199405"
+            ],
+            "created": "2023-01-14T19:51:50.382Z"
+        },
+        "hedgePool": {
+            "contractName": "PoolsharkCoverPool",
+            "contractAddress": "0xD460400c7C086FFeCeC2AB79C8d2934535A73A4D",
+            "constructorArguments": [
+                "0x56F20E1E0b0fcd1Ef799d97f7d645e17bb6d9CC4",
+                "0x47804e4Ec0ADd6B903D6B7809349331AB6199405",
+                "500",
+                "10"
+            ],
+            "created": "2023-01-14T19:52:04.577Z"
+        }
+    },
+    "hardhat": {}
+}

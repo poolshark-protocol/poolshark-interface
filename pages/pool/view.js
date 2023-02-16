@@ -1,27 +1,60 @@
 import Navbar from "../../components/Navbar";
-import Link from "next/link";
-import { PlusSmallIcon } from "@heroicons/react/24/outline";
-import { Fragment, useState } from "react";
 import {
-  CheckIcon,
-  ChevronDownIcon,
   ArrowTopRightOnSquareIcon,
-  ArrowsRightLeftIcon,
-  XMarkIcon,
-  MagnifyingGlassIcon,
+  ArrowsRightLeftIcon
 } from "@heroicons/react/20/solid";
-import { Listbox, Transition, Dialog } from "@headlessui/react";
-import SelectToken from "../../components/SelectToken";
-import ConcentratedPool from "../../components/ConcentratedPool";
-import DirectionalPool from "../../components/DirectionalPool";
+import { useState, useEffect } from "react";
 
 export default function View() {
+  const [is0Copied, setIs0Copied] = useState(false);
+  const [is1Copied, setIs1Copied] = useState(false);
+  const [isPoolCopied, setIsPoolCopied] = useState(false);
+
+  function copyAddress0() {
+    navigator.clipboard.writeText("0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d");
+    setIs0Copied(true)
+  }
+    useEffect(() => {
+    if (copyAddress0) {
+      const timer = setTimeout(() => {
+        setIs0Copied(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }},);
+
+
+      function copyAddress1() {
+    navigator.clipboard.writeText("0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d");
+    setIs1Copied(true)
+  }
+    useEffect(() => {
+    if (copyAddress1) {
+      const timer = setTimeout(() => {
+        setIs1Copied(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }},);
+
+
+
+      function copyPoolAddress() {
+    navigator.clipboard.writeText("0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d");
+    setIsPoolCopied(true)
+  }
+    useEffect(() => {
+    if (copyPoolAddress) {
+      const timer = setTimeout(() => {
+        setIsPoolCopied(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }},);
+  
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-DMSans ">
       <Navbar />
       <div className="flex justify-center w-full text-white">
         <div className="mt-[16vh] w-[55rem]">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-center mb-2">
             <div className="text-left flex items-center gap-x-5 py-2.5">
               <div className="flex items-center">
                 <img height="50" width="50" src="/static/images/token.png" />
@@ -48,11 +81,38 @@ export default function View() {
               </span>
             </a>
           </div>
+          <div className="mb-6">
+            <div className="flex text-[#646464] justify-between">
+              <div className="flex gap-x-10 pl-2">
+                <h1
+                onClick={() => copyAddress0()}
+                 className="text-xs cursor-pointer">
+                  USDC:
+                  {is0Copied ? <span className="ml-1">Copied</span> :  <span className="ml-1">0xB8c...Ee62d</span> }
+                </h1>
+                 <h1
+                onClick={() => copyAddress1()}
+                 className="text-xs cursor-pointer">
+                  DAI:
+                  {is1Copied ? <span className="ml-1">Copied</span> :  <span className="ml-1">0xB8c...Ee62d</span> }
+                  
+                </h1>
+              </div>
+               <h1
+                onClick={() => copyPoolAddress()}
+                 className="text-xs cursor-pointer">
+                  Pool:
+                  {isPoolCopied ? <span className="ml-1">Copied</span> :  <span className="ml-1">0xB8c...Ee62d</span> }
+                  
+                </h1>
+            </div>
+          </div>
           <div className="bg-black  border border-grey2 border-b-none w-full rounded-t-xl py-6 px-7 h-[70vh]">
             <div className="flex gap-x-20 justify-between">
               <div className="w-1/2">
-                <h1 className="text-lg mb-3">Unclaimed Fees</h1>
-                <span className="text-4xl">$4.50</span>
+                <h1 className="text-lg mb-3">Liquidity</h1>
+                <span className="text-4xl">$603.43</span>
+                
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
@@ -97,8 +157,8 @@ export default function View() {
                 </div>
               </div>
               <div className="w-1/2">
-                <h1 className="text-lg mb-3">Liquidity</h1>
-                <span className="text-4xl">$603.43</span>
+                <h1 className="text-lg mb-3">Unclaimed Fees</h1>
+                <span className="text-4xl">$4.50</span>
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
