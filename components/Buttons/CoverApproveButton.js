@@ -3,7 +3,7 @@ import {
     usePrepareContractWrite,
     useContractWrite
 } from 'wagmi';
-import { erc20ABI } from 'wagmi';
+import { erc20ABI, useProvider, useAccount } from 'wagmi';
 import { coverPoolAddress, tokenOneAddress } from "../../constants/contractAddresses";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
@@ -16,6 +16,8 @@ export default function CoverApproveButton({address, amount}) {
     const [ errorDisplay,    setErrorDisplay   ] = useState(false);
     const [ successDisplay,  setSuccessDisplay ] = useState(false);
     const [ configuration,   setConfig         ] = useState();
+
+    const { isConnected } = useAccount();
 
     const {
       network: { chainId }, chainId: chainIdFromProvider

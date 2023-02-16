@@ -18,7 +18,7 @@ export default function CoverMintButton({address, amount}) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
-  const { account, isConnected } = useAccount();
+  const { isConnected } = useAccount();
 
   const {
     network: { chainId }, chainId: chainIdFromProvider

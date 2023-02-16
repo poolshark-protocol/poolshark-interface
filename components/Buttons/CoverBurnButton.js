@@ -20,6 +20,8 @@ export default function CoverBurnButton({address}) {
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
 
+    const { isConnected } = useAccount();
+
     const {
       network: { chainId }, chainId: chainIdFromProvider
     } = useProvider();

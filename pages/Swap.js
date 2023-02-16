@@ -270,7 +270,7 @@ export default function Swap() {
                     <div className="flex text-xs text-[#4C4C4C]">
                       Balance: {balance1}
                     </div>
-                    <MaxButton balance0={balance0}/>
+                    <MaxButton balance0={balance1}/>
                   </div>
                 ) : (
                   <></>
