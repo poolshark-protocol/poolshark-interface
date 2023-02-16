@@ -5,18 +5,68 @@ import {
   ArrowLongRightIcon
 } from "@heroicons/react/20/solid";
 import SelectToken from "../SelectToken";
-import { useAccount } from "wagmi";
+import { useAccount, useProvider } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import CoverApproveButton from "../Buttons/CoverApproveButton";
 import CoverBurnButton from "../Buttons/CoverBurnButton";
 import CoverCollectButton from "../Buttons/CoverCollectButton";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { fetchPositions } from "../../utils/queries";
+import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
 import useAllowance from "../../hooks/useAllowance";
 import useInputBox from "../../hooks/useInputBox";
 
 export default function CreateCover() {
   const [expanded, setExpanded] = useState();
   const [bnInput, inputBox] = useInputBox();
+
+  const [stateChainName, setStateChainName] = useState();
+  const [positionOwner, setPositionOwner] = useState();
+  const [coverPositions, setCoverPositions] = useState([]);
+  const [allCoverPositions, setAllCoverPositions] = useState([]);
+
+  const {
+    network: { chainId }, chainId: chainIdFromProvider
+  } = useProvider();
+
+  useEffect(() => {
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
+  }, [chainId])
+
+  async function getUserPositionData() {
+    const data = await fetchPositions(address)
+    const positions = data.data.positions
+
+    setCoverPositions(positions)
+  }
+
+function mapUserCoverPositions() {
+    const mappedCoverPositions = []
+    coverPositions.map(coverPosition => {
+
+    const coverPositionData = {
+      tokenOneName: coverPosition.pool.token1.name,
+      tokenZeroName: coverPosition.pool.token0.name,
+      tokenOneAddress: coverPosition.pool.token1.id,
+      tokenZeroAddress: coverPosition.pool.token0.id,
+      poolAddress: coverPosition.pool.id,
+      userOwnerAddress: coverPosition.owner.replace(/"|'/g, '')
+    }
+
+    mappedCoverPositions.push(coverPositionData)
+    })
+
+    setAllCoverPositions(mappedCoverPositions)
+  }      
+
+  //async so needs to be wrapped
+  useEffect(() => {
+    getUserPositionData();
+  },[])
+
+  useEffect(() => {
+    mapUserCoverPositions();
+  },[coverPositions])
 
   const { 
     address,
@@ -151,9 +201,9 @@ export default function CreateCover() {
               </div>
               <div className="space-y-3" >
                 {isDisconnected ? <ConnectWalletButton /> : null}
-                {isDisconnected ? null : isConnected && dataState === "0x00" ? <CoverApproveButton address={address} amount={bnInput}/> : <CoverMintButton address={address} amount={bnInput}/>}
-                {isDisconnected || positionOwner === null ? null : <CoverBurnButton address={address} />}
-                {isDisconnected ? null : isConnected &&  <CoverCollectButton address={address} />}
+                {isDisconnected ? null : isConnected && dataState === "0x00" && stateChainName === "goerli" ? <CoverApproveButton address={address} amount={bnInput}/> : stateChainName ==="goerli" ? <CoverMintButton address={address} amount={bnInput}/> : null}
+                {isDisconnected ? null : stateChainName === "goerli" ? <CoverBurnButton address={address} /> : null}
+                {isDisconnected ? null : stateChainName === "goerli" ? <CoverCollectButton address={address} /> : null}
               </div>
               </>
     )
