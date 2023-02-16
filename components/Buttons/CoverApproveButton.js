@@ -19,10 +19,10 @@ export default function CoverApproveButton({address, amount}) {
 
     console.log("approve amount:" , Number(amount))
     const { config } = usePrepareContractWrite({
-      address: coverPoolAddress,
+      address: tokenOneAddress,
       abi: erc20ABI,
       functionName: "approve",
-      args:[tokenOneAddress, amount],
+      args:[coverPoolAddress, amount],
       chainId: 5,
     })
 

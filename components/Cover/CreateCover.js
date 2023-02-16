@@ -21,14 +21,15 @@ export default function CreateCover() {
   const [bnInput, inputBox] = useInputBox();
 
   const { address, isConnected, isDisconnected } = useAccount();
+  const [isDisabled, setDisabled] = useState(true);
   const [hasSelected, setHasSelected] = useState(false);
   const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
   const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
 
   const [token0, setToken0] = useState({
-    symbol: "USDC",
+    symbol: "DAI",
     logoURI:
-      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+    "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
   });
   const [token1, setToken1] = useState({
     symbol: "SELECT TOKEN",
@@ -85,6 +86,7 @@ export default function CreateCover() {
     }
     setToken1(token);
     setHasSelected(true);
+    setDisabled(false);
   };
 
 
@@ -256,7 +258,7 @@ export default function CreateCover() {
               </button>
             </div>
           </div>
-          <span className="text-xs text-grey">USDC per DAI</span>
+          <span className="text-xs text-grey">{token0.symbol} per {token1.symbol === "SELECT TOKEN" ? "?": token1.symbol}</span>
         </div>
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
           <span className="text-xs text-grey">Max. Price</span>
@@ -278,7 +280,7 @@ export default function CreateCover() {
               </button>
             </div>
           </div>
-          <span className="text-xs text-grey">USDC per DAI</span>
+          <span className="text-xs text-grey">{token0.symbol} per {token1.symbol === "SELECT TOKEN" ? "?": token1.symbol}</span>
         </div>
       </div>
       <div className="py-4">
@@ -287,7 +289,7 @@ export default function CreateCover() {
           onClick={() => setExpanded(!expanded)}
         >
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-            1 USDC = 1 DAI
+          1 {token0.symbol} = 1 {token1.symbol === "SELECT TOKEN" ? "?": token1.symbol}
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
             <button>
@@ -300,10 +302,10 @@ export default function CreateCover() {
         </div>
       </div>
       <div className="space-y-3" key={allowance}>
-        { isConnected && allowance <= amountToPay ? (
+      { isConnected && allowance <= amountToPay ? (
           <CoverApproveButton address={tokenOneAddress} amount={bnInput} />
         ) : (
-          <CoverMintButton address={tokenOneAddress} amount={bnInput} />
+          <CoverMintButton disabled={isDisabled} address={tokenOneAddress} amount={bnInput} />
         )}
       </div>
     </>
