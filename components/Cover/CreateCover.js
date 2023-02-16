@@ -110,10 +110,11 @@ export default function CreateCover() {
     }
     if (direction === "minus" && minMax === "min") {
       const current = Number(document.getElementById("minInput").value);
-      if (current === 0) {
+      if (current === 0 || current - 1 < 0) {
+        document.getElementById("minInput").value = 0
         return;
       }
-      document.getElementById("minInput").value = current - 1;
+      document.getElementById("minInput").value = (current - 1).toFixed(2);
     }
 
     if (direction === "plus" && minMax === "max") {
@@ -126,10 +127,11 @@ export default function CreateCover() {
     }
     if (direction === "minus" && minMax === "max") {
       const current = Number(document.getElementById("maxInput").value);
-      if (current === 0) {
+      if (current === 0 || current - 1 < 0) {
+        document.getElementById("maxInput").value = 0
         return;
       }
-      document.getElementById("maxInput").value = current - 1;
+      document.getElementById("maxInput").value = (current - 1).toFixed(2);
     }
   };
 
