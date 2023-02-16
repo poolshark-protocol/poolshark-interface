@@ -43,8 +43,9 @@ export default function CreateCover() {
   const [amountToPay, setAmountToPay] = useState(0);
 
   const allowance = useAllowance(address);
-
-  console.log(allowance)
+  useEffect(() => {
+    
+  },[allowance])
 
   useEffect(() => {
     if (Number(balanceZero().props.children[1]) >= 1000000) {
@@ -298,7 +299,7 @@ export default function CreateCover() {
           <Option />
         </div>
       </div>
-      <div className="space-y-3">
+      <div className="space-y-3" key={allowance}>
         { isConnected && allowance <= amountToPay ? (
           <CoverApproveButton address={tokenOneAddress} amount={bnInput} />
         ) : (
