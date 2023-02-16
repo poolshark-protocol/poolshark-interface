@@ -46,14 +46,12 @@ export default function Swap() {
     network: { chainId }, chainId: chainIdFromProvider
   } = useProvider();
 
-  const chainName = chainIdsToNamesForGitTokenList[chainId]
-
   useEffect(() => {
-    setStateChainName(chainName)
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
   }, [chainId])
 
   useEffect(() => {
-    if (isConnected && chainName === "goerli") {
+    if (isConnected && stateChainName === "goerli") {
       if ((Number(balanceZero().props.children[1])) >= 1000000) {
         setBalance0(Number(balanceZero().props.children[1]).toExponential(5));
       }
@@ -62,7 +60,7 @@ export default function Swap() {
   }, [queryToken0, balanceZero]);
 
   useEffect(() => {
-    if (isConnected && chainName === "goerli") {
+    if (isConnected && stateChainName === "goerli") {
       if (Number(balanceOne().props.children[1]) >= 1000000) {
         setBalance1(Number(balanceOne().props.children[1]).toExponential(5));
       }

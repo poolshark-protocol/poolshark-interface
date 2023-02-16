@@ -9,7 +9,6 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import { chainIdsToNamesForGitTokenList } from '../../utils/chains'
 
 
 export default function CoverApproveButton({address, amount}) {
@@ -17,15 +16,6 @@ export default function CoverApproveButton({address, amount}) {
     const [ successDisplay,  setSuccessDisplay ] = useState(false);
     const [ configuration,   setConfig         ] = useState();
 
-    const { isConnected } = useAccount();
-
-    const {
-      network: { chainId }, chainId: chainIdFromProvider
-    } = useProvider();
-  
-    const chainName = chainIdsToNamesForGitTokenList[chainId]
-
-    if (isConnected && chainName === "goerli") {
       const { config } = usePrepareContractWrite({
         address: tokenOneAddress,
         abi: erc20ABI,
@@ -73,5 +63,5 @@ export default function CoverApproveButton({address, amount}) {
         </div>
         </>
       );
-    }
+  
 }

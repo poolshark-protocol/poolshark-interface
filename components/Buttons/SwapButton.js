@@ -3,9 +3,7 @@ import {
     usePrepareContractWrite,
     useContractWrite,
     useWaitForTransaction,
-    useAccount,
-    useProvider,
-    useBalance
+    useAccount
 } from 'wagmi';
 import { coverPoolABI } from "../../abis/evm/coverPool";
 import { SuccessToast } from "../Toasts/Success";
@@ -13,27 +11,14 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import { coverPoolAddress } from "../../constants/contractAddresses";
 import React, { useState, useEffect } from "react";
-import { chainIdsToNamesForGitTokenList } from '../../utils/chains'
 
 export default function SwapButton({amount}) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
-  const [ stateChainName, setStateChainName ] = useState(null);
 
   const { address } = useAccount()
-  const { isConnected } = useAccount();
   const userAddress = address;
-  
-  const {
-    network: { chainId }, chainId: chainIdFromProvider
-  } = useProvider();
-
-  const chainName = chainIdsToNamesForGitTokenList[chainId]
-
-  useEffect(() => {
-    setStateChainName(chainName)
-  }, [chainId])
 
     const { config } = usePrepareContractWrite({
         address: coverPoolAddress,

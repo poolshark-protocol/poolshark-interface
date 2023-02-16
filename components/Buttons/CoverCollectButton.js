@@ -12,22 +12,11 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import { chainIdsToNamesForGitTokenList } from '../../utils/chains';
 
 export default function CoverCollectButton({address}) {
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
-
-    const { isConnected } = useAccount();
-
-    const {
-      network: { chainId }, chainId: chainIdFromProvider
-    } = useProvider();
-  
-    const chainName = chainIdsToNamesForGitTokenList[chainId]
-  
-    if(isConnected && chainName === "goerli"){
 
       const { config } = usePrepareContractWrite({
           address: coverPoolAddress,
@@ -86,4 +75,3 @@ export default function CoverCollectButton({address}) {
           </>
       );
     }
-}

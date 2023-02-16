@@ -1,17 +1,7 @@
-import { useAccount, useProvider } from "wagmi";
 import useInputBox from "../../hooks/useInputBox";
-import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
 
 export default function MaxButton(balance) {
     const [maxBalance] = useInputBox();
-
-    const { isConnected } = useAccount();
-
-    const {
-        network: { chainId }, chainId: chainIdFromProvider
-      } = useProvider();
-    
-    const chainName = chainIdsToNamesForGitTokenList[chainId]
 
     return (
         <button
