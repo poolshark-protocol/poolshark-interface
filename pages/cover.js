@@ -270,8 +270,8 @@ export default function Cover() {
                     return (
                       <UserCoverPool
                         key={allCoverPool.tokenOneName}
-                        tokenOneName={allCoverPool.tokenOneName}
-                        tokenZeroName={allCoverPool.tokenZeroName}
+                        tokenOneName={"DAI"}
+                        tokenZeroName={"USDC"}
                         tokenOneAddress={allCoverPool.tokenOneAddress}
                         tokenZeroAddress={allCoverPool.tokenZeroAddress}
                         poolAddress={allCoverPool.poolAddress}

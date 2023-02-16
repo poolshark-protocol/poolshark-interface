@@ -25,7 +25,7 @@ export default function Swap() {
   const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
 
   const [token0, setToken0] = useState({
-    symbol: "DAI",
+    symbol: "TOKEN20A",
     logoURI:
     "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
   });
@@ -325,7 +325,7 @@ export default function Swap() {
             onClick={() => setExpanded(!expanded)}
           >
             <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-              1 USDC = 1 DAI
+            1 {token0.symbol} = 1 {token1.symbol === "SELECT TOKEN" ? "?": token1.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
               <button>
