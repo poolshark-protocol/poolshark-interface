@@ -1,6 +1,6 @@
 import {
   ChevronDownIcon,
-  ArrowLongRightIcon
+  ArrowLongRightIcon,
 } from "@heroicons/react/20/solid";
 import { useAccount } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
@@ -55,8 +55,8 @@ export default function CoverExistingPool() {
     }
   };
 
-    return(
-        <>
+  return (
+    <>
         <div className="mb-6">
         <h1 className="mb-3">Selected Pool</h1>
         <div className="flex gap-x-4 items-center">

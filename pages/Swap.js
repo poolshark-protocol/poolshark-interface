@@ -19,15 +19,15 @@ import TokenBalance from "../components/TokenBalance";
 export default function Swap() {
   const { address, isDisconnected } = useAccount();
   const [bnInput, inputBox, maxBalance] = useInputBox();
-  const [dataState] = useAllowance(address);
+  const allowance = useAllowance(address);
   const [hasSelected, setHasSelected] = useState(false);
   const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
   const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
 
   const [token0, setToken0] = useState({
-    symbol: "USDC",
+    symbol: "DAI",
     logoURI:
-      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+    "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
   });
   const [token1, setToken1] = useState({
     symbol: "SELECT TOKEN",
@@ -204,7 +204,7 @@ export default function Swap() {
                   <div
                     className="flex text-xs text-[#4C4C4C]"
                   >
-                    Balance: {balance0}
+                    Balance: {balance0 === "NaN" ? 0 : balance0}
                   </div>
                   <button
                     className="flex text-xs uppercase text-[#C9C9C9]"
@@ -338,7 +338,7 @@ export default function Swap() {
           </div>
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {isDisconnected ? null : dataState === "0x00" ? (
+        {isDisconnected ? null : allowance === 0.0 ? (
           <CoverApproveButton address={address} amount={bnInput} />
         ) : (
           <SwapButton amount={bnInput} />

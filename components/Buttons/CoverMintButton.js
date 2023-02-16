@@ -11,7 +11,7 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { coverPoolAddress } from "../../constants/contractAddresses";
 
-export default function CoverMintButton({address, amount}) {
+export default function CoverMintButton({address, amount, disabled}) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -51,12 +51,13 @@ export default function CoverMintButton({address, amount}) {
 
   return (
     <>
-      <div
-        className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+      <button
+        disabled={disabled}
+        className={disabled ? "w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50": "w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80" }
         onClick={() => address ?  write?.() : null}
       >
         Create Cover
-      </div>
+      </button>
       <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
       {errorDisplay && (
         <ErrorToast
