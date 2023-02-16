@@ -228,10 +228,10 @@ export default function Swap() {
           <div className="flex-col justify-center w-1/2 p-2 ">
             <input
               className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
-              placeholder="300"
+              placeholder="0"
             />
             <div className="flex">
-              <div className="flex text-xs text-[#4C4C4C] ">~300.55</div>
+              <div className="flex text-xs text-[#4C4C4C] ">~$1.00</div>
             </div>
           </div>
           <div className="flex w-1/2">

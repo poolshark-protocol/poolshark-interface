@@ -10,7 +10,15 @@ export default function useInputBox() {
         const result = event.target.value.replace(/[^0-9\.|\,]/g, '')
         //TODO: do not allow for exceeding max decimals
         setDisplay(result == "" ? "" : result)
-        updateValue(result == "" ? 0 : result)
+        if (updateValue !== undefined) {
+          updateValue(result == "" ? 0 : result)
+          setInput(result == "" ? "" : ethers.utils.parseUnits(result, 18))
+          if (result !== "") {
+              const valueToBn = ethers.utils.parseUnits(result, 18);
+              setBnInput(valueToBn);
+            }
+        }
+        
         setInput(result == "" ? "" : ethers.utils.parseUnits(result, 18))
         if (result !== "") {
             const valueToBn = ethers.utils.parseUnits(result, 18);
