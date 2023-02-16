@@ -10,10 +10,11 @@ import CoverMintButton from "../Buttons/CoverMintButton";
 import CoverApproveButton from "../Buttons/CoverApproveButton";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import { useState, useEffect } from "react";
-// import useAllowance from "../../hooks/useAllowance";
+import useAllowance from "../../hooks/useAllowance";
 import useInputBox from "../../hooks/useInputBox";
 import { tokenOneAddress } from "../../constants/contractAddresses";
 import TokenBalance from "../TokenBalance";
+
 
 export default function CreateCover() {
   const [expanded, setExpanded] = useState();
@@ -40,6 +41,10 @@ export default function CreateCover() {
   const [balance0, setBalance0] = useState();
   const [balance1, setBalance1] = useState();
   const [amountToPay, setAmountToPay] = useState(0);
+
+  const allowance = useAllowance(address);
+
+  console.log(allowance)
 
   useEffect(() => {
     if (Number(balanceZero().props.children[1]) >= 1000000) {
@@ -80,6 +85,8 @@ export default function CreateCover() {
     setToken1(token);
     setHasSelected(true);
   };
+
+
 
   const handleValueChange = () => {
     if (document.getElementById("input").value === undefined) {
@@ -202,8 +209,8 @@ export default function CreateCover() {
               <div className="flex justify-end">
                 <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
                   <div className="flex items-center gap-x-2 w-full">
-                    <img className="w-7" src="/static/images/token.png" />
-                    USDC
+                    <img className="w-7" src={token0.logoURI}/>
+                    {token0.symbol}
                   </div>
                 </button>
               </div>
@@ -219,11 +226,11 @@ export default function CreateCover() {
       <div className="mt-3 space-y-2">
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Balance</div>
-          <div>{usdcBalance} USDC</div>
+          <div>{usdcBalance} {token0.symbol}</div>
         </div>
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Amount to pay</div>
-          <div>{amountToPay} USDC</div>
+          <div>{amountToPay} {token0.symbol}</div>
         </div>
       </div>
       <h1 className="mb-3 mt-4">Set Price Range</h1>
@@ -292,12 +299,10 @@ export default function CreateCover() {
         </div>
       </div>
       <div className="space-y-3">
-        {isDisconnected ? <ConnectWalletButton /> : null}
-
-        {isDisconnected ? null : isConnected ? (
-          <CoverApproveButton address={address} amount={bnInput} />
+        { isConnected && allowance <= amountToPay ? (
+          <CoverApproveButton address={tokenOneAddress} amount={bnInput} />
         ) : (
-          <CoverMintButton address={address} amount={bnInput} />
+          <CoverMintButton address={tokenOneAddress} amount={bnInput} />
         )}
       </div>
     </>
@@ -306,3 +311,5 @@ export default function CreateCover() {
 
 //Line 265 after is connected
 //&& dataState === "0x00"
+
+//Make lines 303 - 305 ynamic and pull from current selected token
