@@ -9,7 +9,7 @@ import StaticUniPool from "../components/Pools/StaticUniPool";
 import { useState, useEffect } from "react";
 import { useAccount, useProvider } from "wagmi";
 import Link from "next/link";
-import { fetchPools } from "../utils/queries";
+import { fetchPools, fetchPositions } from "../utils/queries";
 import React from "react";
 import useTokenList from "../hooks/useTokenList";
 import Initial from "../components/Cover/Initial";
@@ -62,6 +62,9 @@ export default function Cover() {
 
   const [coverPools, setCoverPools] = useState([]);
   const [allCoverPools, setAllCoverPools] = useState([]);
+  const [coverPositions, setCoverPositions] = useState([]);
+  const [allCoverPositions, setAllCoverPositions] = useState([]);
+  const [userPositionExists, setUserPositionExists] = useState(false);
 
   const coins = useTokenList()[0];
   const [coinsForListing, setCoinsForListing] = useState(coins.listed_tokens);
@@ -103,6 +106,53 @@ export default function Cover() {
   useEffect(() => {
     mapCoverPools();
   }, [coverPools]);
+
+  async function getUserPositionData() {
+    const data = await fetchPositions(address)
+    const positions = data.data.positions
+
+    setCoverPositions(positions)
+  }
+
+function mapUserCoverPositions() {
+    const mappedCoverPositions = []
+    coverPositions.map(coverPosition => {
+
+    const coverPositionData = {
+      tokenOneName: coverPosition.pool.token1.name,
+      tokenZeroName: coverPosition.pool.token0.name,
+      tokenOneAddress: coverPosition.pool.token1.id,
+      tokenZeroAddress: coverPosition.pool.token0.id,
+      poolAddress: coverPosition.pool.id,
+      userOwnerAddress: coverPosition.owner.replace(/"|'/g, '')
+    }
+
+    mappedCoverPositions.push(coverPositionData)
+    })
+
+    setAllCoverPositions(mappedCoverPositions)
+  }
+
+function checkUserPositionExists() {
+  allCoverPositions.map(allCoverPosition => {
+    if(allCoverPosition.userOwnerAddress === address?.toLowerCase()){
+      setUserPositionExists(true)
+    }
+  })}
+
+
+  //async so needs to be wrapped
+  useEffect(() => {
+    getUserPositionData();
+  },[])
+
+  useEffect(() => {
+    mapUserCoverPositions();
+  },[coverPositions])
+
+  useEffect(() => {
+    checkUserPositionExists();
+  },[])
 
   useEffect(() => {
     console.log("chainId: ", chainId);
@@ -152,7 +202,7 @@ export default function Cover() {
           <div className="flex space-x-8">
             <div className="bg-black w-2/3 border border-grey2 w-full rounded-t-xl p-6 gap-y-4">
               {/*<Initial/>*/}
-              <CreateCover />
+              {userPositionExists ? <CreateCover /> : <Initial />}
               {/*<CoverExistingPool/>*/}
             </div>
             {isDisconnected ? (
