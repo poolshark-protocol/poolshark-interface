@@ -92,7 +92,7 @@ function mapUserCoverPositions() {
                 <h1 className="mb-3">Poolshark Pools</h1>
                 <div className="space-y-2">
                   {allCoverPositions.map(allCoverPosition => {
-                      if(allCoverPool.userOwnerAddress === address?.toLowerCase()){
+                      if(allCoverPosition.userOwnerAddress === address?.toLowerCase()){
                         return(
                         <UserCoverPool
                       key={allCoverPosition.tokenOneName}
