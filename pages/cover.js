@@ -220,24 +220,24 @@ function checkUserPositionExists() {
                 />
               </div>
               <div>
-                <h1 className="mb-3">Cover Pools</h1>
+                <h1 className="mb-3">User Cover Positions</h1>
                 <div className="space-y-2">
-                  {allCoverPools.map((allCoverPool) => {
+                  {allCoverPositions.map((allCoverPosition) => {
                     return (
                       <UserCoverPool
-                        key={allCoverPool.tokenOneName}
-                        tokenOneName={allCoverPool.tokenOneName}
-                        tokenZeroName={allCoverPool.tokenZeroName}
-                        tokenOneAddress={allCoverPool.tokenOneAddress}
-                        tokenZeroAddress={allCoverPool.tokenZeroAddress}
-                        poolAddress={allCoverPool.poolAddress}
+                        key={allCoverPosition.tokenOneName}
+                        tokenOneName={allCoverPosition.tokenOneName}
+                        tokenZeroName={allCoverPosition.tokenZeroName}
+                        tokenOneAddress={allCoverPosition.tokenOneAddress}
+                        tokenZeroAddress={allCoverPosition.tokenZeroAddress}
+                        poolAddress={allCoverPosition.poolAddress}
                       />
                     );
                   })}
                 </div>
               </div>
               <div>
-                <h1 className="mb-3 mt-4">UNI-V3 Pools</h1>
+                <h1 className="mb-3 mt-4">UNI-V3 positions</h1>
                 <div className="space-y-2">
                   <StaticUniPool />
                 </div>
