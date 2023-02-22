@@ -57,7 +57,7 @@ export default function View() {
           <div className="flex justify-between items-center mb-2">
             <div className="text-left flex items-center gap-x-5 py-2.5">
               <div className="flex items-center">
-                <img height="50" width="50" src="/static/images/token.png" />
+                <img height="50" width="50"  src="/static/images/dai_icon.png" />
                 <img
                   height="50"
                   width="50"
@@ -119,7 +119,7 @@ export default function View() {
                       <img
                         height="30"
                         width="30"
-                        src="/static/images/token.png"
+                        src="/static/images/dai_icon.png"
                       />
                       DAI
                     </div>
@@ -165,7 +165,7 @@ export default function View() {
                       <img
                         height="30"
                         width="30"
-                        src="/static/images/token.png"
+                        src="/static/images/dai_icon.png"
                       />
                       DAI
                     </div>

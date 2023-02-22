@@ -26,7 +26,7 @@ export default function Swap() {
   const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
 
   const [token0, setToken0] = useState({
-    symbol: "DAI",
+    symbol: "TOKEN20A",
     logoURI:
     "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
   });
@@ -241,10 +241,10 @@ export default function Swap() {
           <div className="flex-col justify-center w-1/2 p-2 ">
             <input
               className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
-              placeholder="300"
+              placeholder="0"
             />
             <div className="flex">
-              <div className="flex text-xs text-[#4C4C4C] ">~300.55</div>
+              <div className="flex text-xs text-[#4C4C4C] ">~$1.00</div>
             </div>
           </div>
           <div className="flex w-1/2">
@@ -341,7 +341,7 @@ export default function Swap() {
             onClick={() => setExpanded(!expanded)}
           >
             <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-              1 USDC = 1 DAI
+            1 {token0.symbol} = 1 {token1.symbol === "SELECT TOKEN" ? "?": token1.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
               <button>
