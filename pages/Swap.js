@@ -31,7 +31,7 @@ export default function Swap() {
     "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
   });
   const [token1, setToken1] = useState({
-    symbol: "SELECT TOKEN",
+    symbol: "Select Token",
   });
  
   const balanceZero = TokenBalance(queryToken0);
@@ -341,7 +341,7 @@ export default function Swap() {
             onClick={() => setExpanded(!expanded)}
           >
             <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-            1 {token0.symbol} = 1 {token1.symbol === "SELECT TOKEN" ? "?": token1.symbol}
+            1 {token0.symbol} = 1 {token1.symbol === "Select Token" ? "?": token1.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
               <button>

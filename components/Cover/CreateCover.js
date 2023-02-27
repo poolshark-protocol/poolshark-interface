@@ -48,7 +48,7 @@ export default function CreateCover() {
     "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
   });
   const [token1, setToken1] = useState({
-    symbol: "SELECT TOKEN",
+    symbol: "Select Token",
   });
   const collateralBalance = TokenBalance(tokenOneAddress);
   const balanceZero = TokenBalance(queryToken0);
