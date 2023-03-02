@@ -15,7 +15,6 @@ export default function CoverApproveButton({address, amount}) {
   const [ successDisplay,  setSuccessDisplay ] = useState(false);
   const [ configuration,   setConfig         ] = useState();
 
-  console.log("approve amount:" , Number(amount))
 
   const { config } = usePrepareContractWrite({
     address: tokenOneAddress,

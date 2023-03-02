@@ -14,13 +14,15 @@ export default function PoolsModal({ isOpen, setIsOpen }) {
 
   const [coverPositions, setCoverPositions] = useState([]);
   const [allCoverPositions, setAllCoverPositions] = useState([]);
+  const [coverParams, setCoverParams] = useState({});
 
   async function getUserPositionData() {
     const data = await fetchPositions(address)
     const positions = data.data.positions
-
     setCoverPositions(positions)
   }
+
+
 
 function mapUserCoverPositions() {
     const mappedCoverPositions = []
@@ -92,7 +94,7 @@ function mapUserCoverPositions() {
                 <h1 className="mb-3">Poolshark Pools</h1>
                 <div className="space-y-2">
                   {allCoverPositions.map(allCoverPosition => {
-                      if(allCoverPool.userOwnerAddress === address?.toLowerCase()){
+                      if(allCoverPosition.userOwnerAddress === address?.toLowerCase()){
                         return(
                         <UserCoverPool
                       key={allCoverPosition.tokenOneName}
@@ -101,6 +103,7 @@ function mapUserCoverPositions() {
                         tokenOneAddress={allCoverPosition.tokenOneAddress}
                         tokenZeroAddress={allCoverPosition.tokenZeroAddress}
                         poolAddress={allCoverPosition.poolAddress}
+                        coverParams={setCoverParams}
                       />)
                       }
                     })}

@@ -20,7 +20,7 @@ import { chainIdsToNamesForGitTokenList } from '../utils/chains'
 export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount();
   const [bnInput, inputBox, maxBalance] = useInputBox();
-  const allowance = useAllowance(address);
+  // const allowance = useAllowance(address);
   const [hasSelected, setHasSelected] = useState(false);
   const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
   const [queryToken1, setQueryToken1] = useState(tokenOneAddress);

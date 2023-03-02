@@ -10,7 +10,9 @@ export default function UserCoverPool({
   tokenZeroName, 
   tokenOneAddress, 
   tokenZeroAddress, 
-  poolAddress}) {
+  poolAddress,
+  coverParams
+}) {
 const [show, setShow] = useState(false);
 const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
                                                 tokenZeroAddress?.substring(0, 6) 
@@ -37,8 +39,15 @@ const [poolDisplay, setPoolDisplay] = useState(
 useEffect
   return (
     <>
-    <Link href="/pool/view">
+    
       <div
+      onClick={() => coverParams({
+        tokenOneName: tokenOneName, 
+        tokenZeroName: tokenZeroName, 
+        tokenOneAddress: tokenOneAddress, 
+        tokenZeroAddress: tokenZeroAddress, 
+        poolAddress: poolAddress,
+      })}
         onMouseEnter={(e) => {
           setShow(true);
         }}
@@ -106,7 +115,7 @@ useEffect
                       
         
       </div>
-      </Link>
+ 
     </>
   );
 }

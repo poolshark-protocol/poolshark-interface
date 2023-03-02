@@ -9,7 +9,7 @@ import StaticUniPool from "../components/Pools/StaticUniPool";
 import { useState, useEffect } from "react";
 import { useAccount, useProvider } from "wagmi";
 import Link from "next/link";
-import { fetchPools } from "../utils/queries";
+import { fetchPools, tickMath } from "../utils/queries";
 import React from "react";
 import useTokenList from "../hooks/useTokenList";
 import Initial from "../components/Cover/Initial";
@@ -19,6 +19,7 @@ import CoverExistingPool from "../components/Cover/CoverExistingPool";
 export default function Cover() {
   const [maxPrice, setMaxPrice] = useState(0);
   const [disabled, setDisabled] = useState(true);
+
 
   const increaseMaxPrice = () => {
     setMaxPrice((count) => count + 1);
@@ -76,6 +77,8 @@ export default function Cover() {
 
     setCoverPools(pools);
   }
+
+
 
   function mapCoverPools() {
     const mappedCoverPools = [];
@@ -151,8 +154,7 @@ export default function Cover() {
           </div>
           <div className="flex space-x-8">
             <div className="bg-black w-2/3 border border-grey2 w-full rounded-t-xl p-6 gap-y-4">
-              {/*<Initial/>*/}
-              <CreateCover />
+              <Initial/>
               {/*<CoverExistingPool/>*/}
             </div>
             {isDisconnected ? (
