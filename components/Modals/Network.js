@@ -5,7 +5,12 @@ import { useAccount, useDisconnect, useNetwork, useSwitchNetwork } from "wagmi";
 
 
 export default function Network({ isOpen, setIsOpen, chainUnsupported, chainId }) {
-    const { chains, error: networkError, switchNetwork } = useSwitchNetwork();
+    const { chains, error: networkError, switchNetwork } = useSwitchNetwork({
+      onSuccess(data) {
+        setIsOpen(false)
+      }
+      })
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
