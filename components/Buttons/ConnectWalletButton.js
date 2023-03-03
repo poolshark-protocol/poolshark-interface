@@ -2,15 +2,21 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import {
   ChevronDownIcon,
 } from "@heroicons/react/20/solid";
+import Network from "../Modals/Network";
+import { useState } from "react";
+
 
 export const ConnectWalletButton = () => {
+
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
+    <>
     <ConnectButton.Custom>
       {({
         account,
         chain,
         openAccountModal,
-        openChainModal,
         openConnectModal,
         authenticationStatus,
         mounted,
@@ -48,17 +54,21 @@ export const ConnectWalletButton = () => {
               }
               if (chain.unsupported) {
                 return (
-                  <button onClick={openChainModal} type="button" className="w-full flex gap-x-2 items-center py-2.5 text-sm mx-auto text-white px-5 font-DMSans text-center transition rounded-lg cursor-pointer bg-black border border-red-500 hover:opacity-80"
+                  <>
+                  <button onClick={() => setIsOpen(true)} type="button" className="w-full flex gap-x-2 items-center py-2.5 text-sm mx-auto text-white px-5 font-DMSans text-center transition rounded-lg cursor-pointer bg-black border border-red-500 hover:opacity-80"
 >
                     Wrong network
                     <ChevronDownIcon className="w-5" />
                   </button>
+</>
+
                 );
               }
               return (
+                <>
                 <div className="flex text-white gap-x-4">
                   <button
-                    onClick={openChainModal}
+                    onClick={() => setIsOpen(true)}
                     style={{ display: "flex", alignItems: "center" }}
                     type="button"
                     className="bg-black border-grey1 border rounded-lg py-2 px-4 gap-x-2 hover:opacity-80"
@@ -70,7 +80,7 @@ export const ConnectWalletButton = () => {
                           <img
                             alt={chain.name ?? "Chain icon"}
                             src={chain.iconUrl}
-                            style={{ width: 14, height: 14 }}
+                            style={{ width: 16, height: 16 }}
                           />
                         )}
                       </div>
@@ -93,11 +103,23 @@ export const ConnectWalletButton = () => {
                     </div>
                   </button>
                 </div>
+</>
               );
+
             })()}
+            <Network
+  isOpen={isOpen}
+  chainUnsupported={chain?.unsupported}
+  setIsOpen={setIsOpen}
+  chainId={chain?.id}
+/>
+
+
           </div>
+
         );
       }}
     </ConnectButton.Custom>
+    </>
   );
 };
