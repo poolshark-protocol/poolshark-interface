@@ -1,12 +1,12 @@
-import { ethers } from "ethers";
+import { ethers, BigNumber } from "ethers";
 import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
-  useContractRead
 } from "wagmi";
 import { coverPoolABI } from "../../abis/evm/coverPool";
 import { tickMathABI } from "../../abis/evm/tickMath";
+import { getPreviousTicksLower, getPreviousTicksUpper } from "../../utils/queries";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
@@ -17,42 +17,61 @@ export default function CoverMintButton(props) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
-  const [ minInput, setMinInput ] = useState(0);
-  const [ maxInput, setMaxInput ] = useState(0);
+  const [ minInput, setMinInput ] = useState(undefined);
+  const [ maxInput, setMaxInput ] = useState(undefined);
   const [ disabled, setDisabled ] = useState(false);
   const [ amount, setAmount ] = useState(0);
+  const [ prevTicks, setPrevTicks ] = useState({});
+  const [ ticks, setTicks ] = useState({});
+  const [ token0Address, setToken0Address ] = useState("");
+  const [ token1Address, setToken1Address ] = useState("");
 
-
-
-const tick = useContractRead({
-  address: tickMathAddress,
-  abi: tickMathABI,
-  functionName: "getTickAtSqrtRatio",
-  args: [
-    minInput * (2 ** 96)
-  ]
-})
-
-console.log(tick.data)
-
-// const getTicks = () => {
-// const bothTicks = [];
-// lowHigh.map(input => {
-
-// allTicks.push(tick)
-// })
-// setAllTicks(bothTicks);
+// const getTicks = async () => {
+//    if ((minInput !== undefined && minInput !== "" ) && (maxInput !== undefined && maxInput !== "")){ 
+//   let provider = new ethers.providers.JsonRpcProvider(`https://rpc.ankr.com/eth_goerli`)
+//   const contract = new ethers.Contract(tickMathAddress,tickMathABI,provider)
+//   const min = await contract.getTickAtSqrtRatio(ethers.utils.parseUnits(minInput.toString()).mul(BigNumber.from('2').pow(96)).div(ethers.utils.parseUnits('1')).toString())
+//   const max = await contract.getTickAtSqrtRatio(ethers.utils.parseUnits(maxInput.toString()).mul(BigNumber.from('2').pow(96)).div(ethers.utils.parseUnits('1')).toString())
+//   console.log(min,max)
+//   setTicks([min, max])
+//    }
 // }
 
-useEffect(() => {
-setMinInput(props.MinInput)
-console.log(props.MinInput)
-},[props.MinInput])
+
+async function previousTicks() {
+  if (props.token0 !== undefined && props.token1 !== undefined) {
+    if ((minInput !== undefined && minInput !== "" ) && (maxInput !== undefined && maxInput !== "")){ 
+      let provider = new ethers.providers.JsonRpcProvider(`https://rpc.ankr.com/eth_goerli`)
+      const contract = new ethers.Contract(tickMathAddress,tickMathABI,provider)
+     
+      const min = await contract.getTickAtSqrtRatio(ethers.utils.parseUnits(minInput.toString()).mul(BigNumber.from('2').pow(96)).div(ethers.utils.parseUnits('1')).toString())
+      const max = await contract.getTickAtSqrtRatio(ethers.utils.parseUnits(maxInput.toString()).mul(BigNumber.from('2').pow(96)).div(ethers.utils.parseUnits('1')).toString())
+     
+      const data = await getPreviousTicksLower(props.token0["address"],props.token1["address"], Number(min))
+      const data1 = await getPreviousTicksUpper(props.token0["address"],props.token1["address"],   Number(max))
+       setPrevTicks({lower: data.data.ticks[0]["index"], upper: data1.data.ticks[0]["index"]})
+       setTicks({min:min, max:max})
+
+      console.log(String(prevTicks["lower"]))
+      console.log(String(ticks["min"]))
+      console.log(String(prevTicks["upper"]))
+      console.log(String(ticks["max"]))
+      console.log(String(ticks["min"]))
+      console.log(amount)
+   
+  }
+  
+  }
+}
+
+
 
 useEffect(() => {
-  setMaxInput(props.MaxInput)
-  console.log(props.MaxInput)
-  },[props.MaxInput])
+  setMinInput(props.MinInput)
+   setMaxInput(props.MaxInput)
+  previousTicks()
+.catch((error) => console.log(error))
+},[props.MinInput, props.MaxInput])
 
   
   useEffect(() => {
@@ -64,7 +83,7 @@ useEffect(() => {
     useEffect(() => {
       setDisabled(props.disabled)
       },[props.disabled])
-      
+
 
     
   const { config } = usePrepareContractWrite({
@@ -72,15 +91,12 @@ useEffect(() => {
     abi: coverPoolABI,
     functionName: "mint",
     args: [
-      // props?.MinInput * 2 ** 96,
-
-
       ethers.utils.parseUnits("0"),
       ethers.utils.parseUnits("20", 0),
       ethers.utils.parseUnits("887272", 0),
       ethers.utils.parseUnits("30", 0),
       ethers.utils.parseUnits("20", 0),
-      props?.amount,
+      amount,
       false,
     ],
     chainId: 5,
@@ -104,9 +120,9 @@ useEffect(() => {
   return (
     <>
       <button
-        disabled={props?.disabled}
-        className={props?.disabled ? "w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50": "w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80" }
-        onClick={() => props?.address ?  write?.() : null}
+        disabled={disabled}
+        className={disabled ? "w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50": "w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80" }
+        onClick={() => coverPoolAddress ?  write?.() : null}
       >
         Create Cover
       </button>

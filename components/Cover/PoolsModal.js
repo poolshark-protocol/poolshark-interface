@@ -8,13 +8,12 @@ import StaticUniPool from "../Pools/StaticUniPool";
 import { fetchPositions } from "../../utils/queries";
 import { useAccount } from "wagmi";
 
-export default function PoolsModal({ isOpen, setIsOpen }) {
+export default function PoolsModal({ isOpen, setIsOpen, pool, prefill }) {
 
   const { address } = useAccount();
 
   const [coverPositions, setCoverPositions] = useState([]);
   const [allCoverPositions, setAllCoverPositions] = useState([]);
-  const [coverParams, setCoverParams] = useState({});
 
   async function getUserPositionData() {
     const data = await fetchPositions(address)
@@ -47,6 +46,10 @@ function mapUserCoverPositions() {
   useEffect(() => {
     getUserPositionData();
   },[])
+
+  // useEffect(() => {
+  //  pool(coverParams);
+  // },[coverParams])
 
   useEffect(() => {
     mapUserCoverPositions();
@@ -103,7 +106,9 @@ function mapUserCoverPositions() {
                         tokenOneAddress={allCoverPosition.tokenOneAddress}
                         tokenZeroAddress={allCoverPosition.tokenZeroAddress}
                         poolAddress={allCoverPosition.poolAddress}
-                        coverParams={setCoverParams}
+                        pool={pool}
+                        prefill={prefill}
+                        close={setIsOpen}
                       />)
                       }
                     })}

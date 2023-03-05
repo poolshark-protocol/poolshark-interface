@@ -3,7 +3,6 @@ import {
   ArrowLongRightIcon
 } from "@heroicons/react/20/solid";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 
 export default function UserCoverPool({ 
   tokenOneName, 
@@ -11,7 +10,9 @@ export default function UserCoverPool({
   tokenOneAddress, 
   tokenZeroAddress, 
   poolAddress,
-  coverParams
+  pool,
+  prefill,
+  close
 }) {
 const [show, setShow] = useState(false);
 const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
@@ -36,18 +37,31 @@ const [poolDisplay, setPoolDisplay] = useState(
                                                 poolAddress?.length
                                               ));
 
-useEffect
+                                            
+const selected = () => {
+ pool({
+    tokenOneName: tokenOneName, 
+    tokenZeroName: tokenZeroName, 
+    tokenOneAddress: tokenOneAddress, 
+    tokenZeroAddress: tokenZeroAddress, 
+    poolAddress: poolAddress,
+  });
+  prefill("existingPool");
+  close(false)
+}
+// useEffect(() => {
+//   console.log(
+//   tokenOneName, 
+//  tokenZeroName, 
+//   tokenOneAddress, 
+//   tokenZeroAddress, 
+//   poolAddress,)
+// },[])
   return (
     <>
     
       <div
-      onClick={() => coverParams({
-        tokenOneName: tokenOneName, 
-        tokenZeroName: tokenZeroName, 
-        tokenOneAddress: tokenOneAddress, 
-        tokenZeroAddress: tokenZeroAddress, 
-        poolAddress: poolAddress,
-      })}
+      onClick={() => selected()}
         onMouseEnter={(e) => {
           setShow(true);
         }}

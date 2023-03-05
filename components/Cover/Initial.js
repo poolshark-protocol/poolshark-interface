@@ -10,6 +10,7 @@ import PoolsModal from "./PoolsModal";
 export default function Initial() {
 
     const [isOpen, setIsOpen] = useState(false);
+    const [pool, setPool] = useState({});
     const [shifted, setIsShifted] = useState("initial");
 
     return(
@@ -68,11 +69,11 @@ export default function Initial() {
         </div>
         </div>
               </div>
-              <PoolsModal isOpen={isOpen} setIsOpen={setIsOpen}/>
+              <PoolsModal isOpen={isOpen} setIsOpen={setIsOpen} pool={setPool} prefill={setIsShifted}/>
               </> 
              :shifted === "createCover" ? <CreateCover goBack={setIsShifted}/> :
 
-             <CoverExistingPool />
+             <CoverExistingPool pool={pool} goBack={setIsShifted}  />
              
              )}
 
