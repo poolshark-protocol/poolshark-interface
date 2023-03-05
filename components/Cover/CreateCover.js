@@ -13,7 +13,6 @@ import CoverBurnButton from "../Buttons/CoverBurnButton";
 import CoverCollectButton from "../Buttons/CoverCollectButton";
 import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
-import {tickMath } from "../../utils/queries";
 import { useState, useEffect } from "react";
 import useAllowance from "../../hooks/useAllowance";
 import useInputBox from "../../hooks/useInputBox";
@@ -66,7 +65,6 @@ export default function CreateCover(props) {
   const [prices, setPrices] = useState({});
 
   const allowance = useAllowance(address);
-  console.log(allowance, amountToPay)
   // useEffect(() => {  
   // },[allowance])
 
