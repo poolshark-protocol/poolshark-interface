@@ -29,7 +29,7 @@ export const chainProperties = {
         },
         chainId: '0x1',
     },
-    rinkeby: {
+    goerli: {
         chainName: 'Goerli Test Network',
         logo:"https://assets.trustwalletapp.com/blockchains/polygon/assets/0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619/logo.png",
         rpcUrls: ['https://goerli.infura.io/v3/'],

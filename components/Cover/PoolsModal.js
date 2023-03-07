@@ -5,50 +5,49 @@ import {
 } from "@heroicons/react/20/solid";
 import UserCoverPool from "../Pools/UserCoverPool";
 import StaticUniPool from "../Pools/StaticUniPool";
-import { fetchPositions } from "../../utils/queries";
+import { fetchPools } from "../../utils/queries";
 import { useAccount } from "wagmi";
 
 export default function PoolsModal({ isOpen, setIsOpen }) {
 
   const { address } = useAccount();
 
-  const [coverPositions, setCoverPositions] = useState([]);
-  const [allCoverPositions, setAllCoverPositions] = useState([]);
+  const [coverPools, setCoverPools] = useState([]);
+  const [allCoverPools, setAllCoverPools] = useState([]);
 
-  async function getUserPositionData() {
-    const data = await fetchPositions(address)
-    const positions = data.data.positions
+  async function getPoolData() {
+    const data = await fetchPools();
+    const pools = data.data.coverPools;
 
-    setCoverPositions(positions)
+    setCoverPools(pools);
   }
 
-function mapUserCoverPositions() {
-    const mappedCoverPositions = []
-    coverPositions.map(coverPosition => {
+  function mapCoverPools() {
+    const mappedCoverPools = [];
 
-    const coverPositionData = {
-      tokenOneName: coverPosition.pool.token1.name,
-      tokenZeroName: coverPosition.pool.token0.name,
-      tokenOneAddress: coverPosition.pool.token1.id,
-      tokenZeroAddress: coverPosition.pool.token0.id,
-      poolAddress: coverPosition.pool.id,
-      userOwnerAddress: coverPosition.owner.replace(/"|'/g, '')
-    }
+    coverPools.map((coverPool) => {
+      const coverPoolData = {
+        tokenOneName: coverPool.token1.name,
+        tokenZeroName: coverPool.token0.name,
+        tokenOneAddress: coverPool.token1.id,
+        tokenZeroAddress: coverPool.token0.id,
+        poolAddress: coverPool.id,
+      };
 
-    mappedCoverPositions.push(coverPositionData)
-    })
+      mappedCoverPools.push(coverPoolData);
+    });
 
-    setAllCoverPositions(mappedCoverPositions)
-  }      
+    setAllCoverPools(mappedCoverPools);
+  }
 
   //async so needs to be wrapped
   useEffect(() => {
-    getUserPositionData();
-  },[])
+    getPoolData();
+  }, []);
 
   useEffect(() => {
-    mapUserCoverPositions();
-  },[coverPositions])
+    mapCoverPools();
+  }, [coverPools]);
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -91,19 +90,18 @@ function mapUserCoverPositions() {
               <div>
                 <h1 className="mb-3">Poolshark Pools</h1>
                 <div className="space-y-2">
-                  {allCoverPositions.map(allCoverPosition => {
-                      if(allCoverPool.userOwnerAddress === address?.toLowerCase()){
-                        return(
-                        <UserCoverPool
-                      key={allCoverPosition.tokenOneName}
-                        tokenOneName={allCoverPosition.tokenOneName}
-                        tokenZeroName={allCoverPosition.tokenZeroName}
-                        tokenOneAddress={allCoverPosition.tokenOneAddress}
-                        tokenZeroAddress={allCoverPosition.tokenZeroAddress}
-                        poolAddress={allCoverPosition.poolAddress}
-                      />)
-                      }
-                    })}
+                {allCoverPools.map((allCoverPool) => {
+                    return (
+                      <UserCoverPool
+                        key={allCoverPool.tokenOneName}
+                        tokenOneName={allCoverPool.tokenOneName}
+                        tokenZeroName={allCoverPool.tokenZeroName}
+                        tokenOneAddress={allCoverPool.tokenOneAddress}
+                        tokenZeroAddress={allCoverPool.tokenZeroAddress}
+                        poolAddress={allCoverPool.poolAddress}
+                      />
+                    );
+                  })}
                 </div>
               </div>
               <div>

@@ -9,7 +9,7 @@ import StaticUniPool from "../components/Pools/StaticUniPool";
 import { useState, useEffect } from "react";
 import { useAccount, useProvider } from "wagmi";
 import Link from "next/link";
-import { fetchPools } from "../utils/queries";
+import { fetchPositions } from "../utils/queries";
 import React from "react";
 import useTokenList from "../hooks/useTokenList";
 import Initial from "../components/Cover/Initial";
@@ -60,8 +60,9 @@ export default function Cover() {
 
   const [expanded, setExpanded] = useState();
 
-  const [coverPools, setCoverPools] = useState([]);
-  const [allCoverPools, setAllCoverPools] = useState([]);
+  const [coverPositions, setCoverPositions] = useState([]);
+  const [allCoverPositions, setAllCoverPositions] = useState([]);
+  const [userPositionExists, setUserPositionExists] = useState(false);
 
   const coins = useTokenList()[0];
   const [coinsForListing, setCoinsForListing] = useState(coins.listed_tokens);
@@ -70,39 +71,52 @@ export default function Cover() {
     console.log(coinsForListing);
   }, [coinsForListing]);
 
-  async function getPoolData() {
-    const data = await fetchPools();
-    const pools = data.data.coverPools;
+  async function getUserPositionData() {
+    const data = await fetchPositions(address)
+    const positions = data.data.positions
 
-    setCoverPools(pools);
+    setCoverPositions(positions)
   }
 
-  function mapCoverPools() {
-    const mappedCoverPools = [];
+function mapUserCoverPositions() {
+    const mappedCoverPositions = []
+    coverPositions.map(coverPosition => {
 
-    coverPools.map((coverPool) => {
-      const coverPoolData = {
-        tokenOneName: coverPool.token1.name,
-        tokenZeroName: coverPool.token0.name,
-        tokenOneAddress: coverPool.token1.id,
-        tokenZeroAddress: coverPool.token0.id,
-        poolAddress: coverPool.id,
-      };
+    const coverPositionData = {
+      tokenOneName: coverPosition.pool.token1.name,
+      tokenZeroName: coverPosition.pool.token0.name,
+      tokenOneAddress: coverPosition.pool.token1.id,
+      tokenZeroAddress: coverPosition.pool.token0.id,
+      poolAddress: coverPosition.pool.id,
+      userOwnerAddress: coverPosition.owner.replace(/"|'/g, '')
+    }
 
-      mappedCoverPools.push(coverPoolData);
-    });
+    mappedCoverPositions.push(coverPositionData)
+    })
 
-    setAllCoverPools(mappedCoverPools);
+    setAllCoverPositions(mappedCoverPositions)
   }
+
+function checkUserPositionExists() {
+  allCoverPositions.map(allCoverPosition => {
+    if(allCoverPosition.userOwnerAddress === address?.toLowerCase()){
+      setUserPositionExists(true)
+    }
+  })}
+
 
   //async so needs to be wrapped
   useEffect(() => {
-    getPoolData();
-  }, []);
+    getUserPositionData();
+  },[])
 
   useEffect(() => {
-    mapCoverPools();
-  }, [coverPools]);
+    mapUserCoverPositions();
+  },[coverPositions])
+
+  useEffect(() => {
+    checkUserPositionExists();
+  },[])
 
   useEffect(() => {
     console.log("chainId: ", chainId);
@@ -152,7 +166,7 @@ export default function Cover() {
           <div className="flex space-x-8">
             <div className="bg-black w-2/3 border border-grey2 w-full rounded-t-xl p-6 gap-y-4">
               {/*<Initial/>*/}
-              <CreateCover />
+              {userPositionExists ? <CreateCover /> : <Initial />}
               {/*<CoverExistingPool/>*/}
             </div>
             {isDisconnected ? (
@@ -170,24 +184,25 @@ export default function Cover() {
                 />
               </div>
               <div>
-                <h1 className="mb-3">Cover Pools</h1>
+                <h1 className="mb-3">User Cover Positions</h1>
                 <div className="space-y-2">
-                  {allCoverPools.map((allCoverPool) => {
-                    return (
-                      <UserCoverPool
-                        key={allCoverPool.tokenOneName}
-                        tokenOneName={"DAI"}
-                        tokenZeroName={"USDC"}
-                        tokenOneAddress={allCoverPool.tokenOneAddress}
-                        tokenZeroAddress={allCoverPool.tokenZeroAddress}
-                        poolAddress={allCoverPool.poolAddress}
-                      />
-                    );
-                  })}
+                  {allCoverPositions.map(allCoverPosition => {
+                      if(allCoverPosition.userOwnerAddress === address?.toLowerCase()){
+                        return(
+                        <UserCoverPool
+                      key={allCoverPosition.tokenOneName}
+                        tokenOneName={allCoverPosition.tokenOneName}
+                        tokenZeroName={allCoverPosition.tokenZeroName}
+                        tokenOneAddress={allCoverPosition.tokenOneAddress}
+                        tokenZeroAddress={allCoverPosition.tokenZeroAddress}
+                        poolAddress={allCoverPosition.poolAddress}
+                      />)
+                      }
+                    })}
                 </div>
               </div>
               <div>
-                <h1 className="mb-3 mt-4">UNI-V3 Pools</h1>
+                <h1 className="mb-3 mt-4">User UNI-V3 Positions</h1>
                 <div className="space-y-2">
                   <StaticUniPool />
                 </div>

@@ -11,12 +11,6 @@ export default function useTokenBalance(tokenAddress) {
 
     const userAddress = address
 
-    const {
-        network: { chainId }, chainId: chainIdFromProvider
-      } = useProvider();
-    
-    const chainName = chainIdsToNamesForGitTokenList[chainId]
-
     const tokenBalanceSetting = () => {
       setQueryToken(tokenAddress)
     }
