@@ -8,7 +8,7 @@ import StaticUniPool from "../Pools/StaticUniPool";
 import { fetchPools } from "../../utils/queries";
 import { useAccount } from "wagmi";
 
-export default function PoolsModal({ isOpen, setIsOpen }) {
+export default function PoolsModal({ isOpen, setIsOpen, pool, prefill }) {
 
   const { address } = useAccount();
 
@@ -24,7 +24,7 @@ export default function PoolsModal({ isOpen, setIsOpen }) {
 
   function mapCoverPools() {
     const mappedCoverPools = [];
-
+    
     coverPools.map((coverPool) => {
       const coverPoolData = {
         tokenOneName: coverPool.token1.name,
@@ -44,6 +44,10 @@ export default function PoolsModal({ isOpen, setIsOpen }) {
   useEffect(() => {
     getPoolData();
   }, []);
+
+  // useEffect(() => {
+  //  pool(coverParams);
+  // },[coverParams])
 
   useEffect(() => {
     mapCoverPools();

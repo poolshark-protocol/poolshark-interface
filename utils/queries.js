@@ -16,6 +16,72 @@ export const countDecimals = (value, tokenDecimals) => {
     return false;
 };
 
+export const getPreviousTicksLower = (token0, token1, index) => {
+    return new Promise(function(resolve) {
+        const getTicks =`
+        { 
+          ticks(
+             where: {index_lt:"${index}", pool_: {token0:"${token1.toLowerCase()}" , token1: "${token0.toLowerCase()}"}}
+             first: 1
+           ) {
+             index
+           }
+         }
+         `
+          const client = new ApolloClient({
+              uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
+              cache: new InMemoryCache(),
+              cors: {
+                  origin: "http://localhost:3000/",
+                  credentials: true
+                },
+          })
+          client
+              .query({ query: gql(getTicks) })
+              .then((data) => {
+                  resolve(data)
+                  console.log(data)
+              })
+              .catch((err) => {
+                  resolve(err)
+              })
+            })
+}
+
+export const getPreviousTicksUpper = (token0, token1, index) => {
+    return new Promise(function(resolve) {
+        const getTicks =`
+       { 
+         ticks(
+            where: {index_gt:"${index}", pool_: {token0: "${token1.toLowerCase()}", token1:"${token0.toLowerCase()}"}}
+            first: 1
+          ) {
+            index
+          }
+        }
+        `
+          const client = new ApolloClient({
+              uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
+              cache: new InMemoryCache(),
+              cors: {
+                  origin: "http://localhost:3000/",
+                  credentials: true
+                },
+          })
+          client
+              .query({ query: gql(getTicks) })
+              .then((data) => {
+                  resolve(data)
+                  console.log(data)
+              })
+              .catch((err) => {
+                  resolve(err)
+              })
+            })
+}
+
+
+
 export const fetchPositions =  (address) => {
   return new Promise(function(resolve) {
     const positionsQuery =`

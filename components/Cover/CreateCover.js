@@ -3,6 +3,7 @@ import {
   PlusIcon,
   ChevronDownIcon,
   ArrowLongRightIcon,
+  ArrowLongLeftIcon,
 } from "@heroicons/react/20/solid";
 import SelectToken from "../SelectToken";
 import { useAccount, useProvider } from "wagmi";
@@ -18,10 +19,12 @@ import useInputBox from "../../hooks/useInputBox";
 import { tokenOneAddress } from "../../constants/contractAddresses";
 import TokenBalance from "../TokenBalance";
 
-export default function CreateCover() {
+export default function CreateCover(props) {
   const [expanded, setExpanded] = useState();
   const [bnInput, inputBox] = useInputBox();
   const [stateChainName, setStateChainName] = useState();
+  const [minPrice, setMinPrice] = useState();
+  const [maxPrice, setMaxPrice] = useState();
   
   const {
     network: { chainId }, chainId: chainIdFromProvider
@@ -43,9 +46,10 @@ export default function CreateCover() {
   const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
 
   const [token0, setToken0] = useState({
-    symbol: "DAI",
+    symbol: "TOKEN20A",
     logoURI:
     "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
+    address:"0xdcf62d25fd6ad48277989e93827fd9ccf650975f"
   });
   const [token1, setToken1] = useState({
     symbol: "Select Token",
@@ -58,11 +62,24 @@ export default function CreateCover() {
   const [balance0, setBalance0] = useState();
   const [balance1, setBalance1] = useState();
   const [amountToPay, setAmountToPay] = useState(0);
+  const [prices, setPrices] = useState({});
 
   const allowance = useAllowance(address);
-  useEffect(() => {
-    
-  },[allowance])
+  // useEffect(() => {  
+  // },[allowance])
+
+//   async function getTokenPrices() {
+//     //default 1/2
+//     const data = await tickMath()
+//     const price0 = (Number(data.data.ticks[0].price0)).toFixed(3)
+//     const price1 = (Number(data.data.ticks[0].price1)).toFixed(3)
+//     console.log({token0: price0, token1: price1})
+//     setPrices({token0: price0, token1: price1})
+//   }
+//   useEffect(() => {
+//   getTokenPrices();
+// },
+//   [])
 
   useEffect(() => {
     if (Number(balanceZero().props.children[1]) >= 1000000) {
@@ -128,7 +145,7 @@ export default function CreateCover() {
         document.getElementById("minInput").value = 0
         return;
       }
-      document.getElementById("minInput").value = (current - 1).toFixed(2);
+      document.getElementById("minInput").value = (current - 1).toFixed(3);
     }
 
     if (direction === "plus" && minMax === "max") {
@@ -145,9 +162,13 @@ export default function CreateCover() {
         document.getElementById("maxInput").value = 0
         return;
       }
-      document.getElementById("maxInput").value = (current - 1).toFixed(2);
+      document.getElementById("maxInput").value = (current - 1).toFixed(3);
     }
   };
+
+
+  useEffect(() => {
+    },[bnInput, document.getElementById('minInput')?.value, document.getElementById('maxInput')?.value])
 
   // const [dataState, setDataState] = useAllowance(address);
 
@@ -186,7 +207,11 @@ export default function CreateCover() {
   ) : (
     <>
       <div className="mb-6">
+        <div className="flex flex-row justify-between">
         <h1 className="mb-3">Select Pair</h1>
+        <span className="flex gap-x-1 cursor-pointer" onClick={() => props.goBack("initial")}><ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " /> <h1 className="mb-3 opacity-50">Back</h1> </span>
+        </div>
+        
         <div className="flex gap-x-4 items-center">
           <SelectToken
             index="0"
@@ -267,6 +292,7 @@ export default function CreateCover() {
               placeholder="0"
               id="minInput"
               type="number"
+              onChange={() => setMinPrice(document.getElementById('minInput')?.value)}
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice("plus", "min")}>
@@ -289,6 +315,7 @@ export default function CreateCover() {
               placeholder="0"
               id="maxInput"
               type="number"
+              onChange={() => setMaxPrice(document.getElementById('maxInput')?.value)}
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice("plus", "max")}>
@@ -305,7 +332,7 @@ export default function CreateCover() {
           onClick={() => setExpanded(!expanded)}
         >
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-          1 {token0.symbol} = 1 {token1.symbol === "SELECT TOKEN" ? "?": token1.symbol}
+          {prices.token0} {token0.symbol} =  {token1.symbol === "Select Token" ? "?": prices.token1 + " " + token1.symbol}
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
             <button>
@@ -317,12 +344,12 @@ export default function CreateCover() {
           <Option />
         </div>
       </div>
-      <div className="space-y-3" key={allowance}>
-      { isConnected && allowance <= amountToPay && stateChainName === "goerli" ? (
-          <CoverApproveButton address={tokenOneAddress} amount={bnInput} />
-        ) : stateChainName === "goerli" ? (
-          <CoverMintButton disabled={isDisabled} address={tokenOneAddress} amount={bnInput} />
-        ) : null}
+      <div className="mb-3" key={allowance}>
+      { isConnected &&  (Number(allowance) <= amountToPay)  && stateChainName === "goerli" ? (
+         <CoverApproveButton address={tokenOneAddress} amount={bnInput} />
+        ) : stateChainName === "goerli" ? ( 
+          <CoverMintButton disabled={isDisabled} token0={token0} token1={token1} amount={bnInput} MinInput={minPrice} MaxInput={maxPrice} />
+       ) : null}
       </div>
       <div className="space-y-3">
         {isDisconnected ? null : stateChainName === "goerli" ? <CoverBurnButton address={address} /> : null}

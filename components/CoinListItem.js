@@ -27,9 +27,9 @@ function CoinListItem({ chooseToken, coin }){
                                       </span>
                                     </div>
                                   </div>
-                                  <span>{Number(tokenBalanceBox().props.children[1]) >= 1000000
+                                  <span>{tokenBalanceBox().props.children[1] !== NaN ? Number(tokenBalanceBox().props.children[1]) >= 1000000
                       ? (Number(tokenBalanceBox().props.children[1])).toExponential(5)
-                      : Number(tokenBalanceBox().props.children[1])}
+                      : Number(tokenBalanceBox().props.children[1]): 0}
                       </span>
                                 </button>
                                 </div>

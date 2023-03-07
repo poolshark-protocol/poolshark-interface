@@ -3,14 +3,31 @@ import {
   PlusIcon
 } from "@heroicons/react/20/solid";
 import { useState } from "react";
+import CoverExistingPool from "./CoverExistingPool";
+import CreateCover from "./CreateCover";
 import PoolsModal from "./PoolsModal";
+import { useAccount } from "wagmi";
+import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
+
 
 export default function Initial() {
+  const { 
+    address,
+    isConnected, 
+    isDisconnected 
+  } = useAccount();
 
     const [isOpen, setIsOpen] = useState(false);
-
-    return(
-        <>
+    const [pool, setPool] = useState({});
+    const [shifted, setIsShifted] = useState("initial");
+    return isDisconnected ? (
+      <>
+      <h1 className="mb-5">Connect a Wallet</h1>
+      <ConnectWalletButton />
+      </>
+    ) : (
+        shifted === "initial" ?
+          <>
         <h1 className="mb-3">How much do you want to Cover?</h1>
         <div className="space-y-2">
                             <div
@@ -21,6 +38,7 @@ export default function Initial() {
         </div>
                         <div
           className="w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer border border-[#3174E0] from-[#344DBF] to-[#3098FF] hover:opacity-80"
+          onClick={() => setIsShifted("createCover")}
         >
           Create my own Cover
         </div>
@@ -63,7 +81,12 @@ export default function Initial() {
         </div>
         </div>
               </div>
-              <PoolsModal isOpen={isOpen} setIsOpen={setIsOpen}/>
-              </>
-    )
-}
+              <PoolsModal isOpen={isOpen} setIsOpen={setIsOpen} pool={setPool} prefill={setIsShifted}/>
+              </> 
+             :shifted === "createCover" ? <CreateCover goBack={setIsShifted}/> :
+
+             <CoverExistingPool pool={pool} goBack={setIsShifted}  />
+             
+             )}
+
+

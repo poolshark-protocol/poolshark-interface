@@ -1,6 +1,7 @@
 import {
   ChevronDownIcon,
   ArrowLongRightIcon,
+  ArrowLongLeftIcon,
 } from "@heroicons/react/20/solid";
 import { useAccount } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
@@ -8,16 +9,15 @@ import CoverApproveButton from "../Buttons/CoverApproveButton";
 import { useState } from "react";
 import useAllowance from "../../hooks/useAllowance";
 
-export default function CoverExistingPool() {
+export default function CoverExistingPool({pool, goBack}) {
   const [expanded, setExpanded] = useState();
-
   const { 
     address,
     isConnected, 
     isDisconnected 
   } = useAccount();
 
-  const [dataState, setDataState] = useAllowance(address);
+  //  const [dataState, setDataState] = useAllowance(address);
 
   for (let e of document.querySelectorAll('input[type="range"].slider-progress')) {
   e.style.setProperty('--value', e.value);
@@ -56,20 +56,23 @@ export default function CoverExistingPool() {
 
   return (
     <>
-        <div className="mb-6">
+         <div className="mb-6">
+        <div className="flex flex-row justify-between">
         <h1 className="mb-3">Selected Pool</h1>
+        <span className="flex gap-x-1 cursor-pointer" onClick={() => goBack("initial")}><ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " /> <h1 className="mb-3 opacity-50">Back</h1> </span>
+      </div>
         <div className="flex gap-x-4 items-center">
                                  <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
                     <div className="flex items-center gap-x-2 w-full">
-                      <img className="w-7" src="/static/images/token.png" />
-                      USDC
+                      <img className="w-7" src="/static/images/dai_icon.png" />
+                      {pool.tokenOneName}
                     </div>
                   </button>
          <ArrowLongRightIcon className="w-6" />
                                  <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
                     <div className="flex items-center gap-x-2 w-full">
                       <img className="w-7" src="/static/images/token.png" />
-                      USDC
+                      {pool.tokenZeroName}
                     </div>
                   </button>
         </div>
@@ -129,7 +132,8 @@ export default function CoverExistingPool() {
               </div>
               <div className="space-y-3" >
                 {isDisconnected ? <ConnectWalletButton /> : null}
-                {isDisconnected ? null : isConnected && dataState === "0x00" ? <CoverApproveButton address={address} amount={"0"}/> : <CoverMintButton address={address} amount={"0"}/>}
+                {/*  && dataState === "0x00" */}
+                {isDisconnected ? null : isConnected  ? <CoverApproveButton address={address} amount={"0"}/> : <CoverMintButton address={address} amount={"0"}/>}
               </div>
               </>
     )
