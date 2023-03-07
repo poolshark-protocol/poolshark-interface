@@ -102,15 +102,21 @@ const selected = () => {
         <div>
         <h1 className="text-xs" >{tokenOneName} <span>{tokenOneDisplay}</span></h1>
         <button
-        onClick={() => {navigator.clipboard.writeText(tokenOneAddress)}}> Copy </button>
+        onClick={(e) => {
+          navigator.clipboard.writeText(tokenOneAddress)
+          e.stopPropagation()}}> Copy </button>
         <h1 className="text-xs mt-2">{tokenZeroName} <span>{tokenZeroDisplay}</span></h1>
         <button
-        onClick={() => {navigator.clipboard.writeText(tokenZeroAddress)}}> Copy </button>
+        onClick={(e) => {
+          navigator.clipboard.writeText(tokenZeroAddress)
+          e.stopPropagation()}}> Copy </button>
         </div>
        
           <h1 className="text-xs">Pool: <span>{poolDisplay}</span></h1>
           <button
-          onClick={() => {navigator.clipboard.writeText(poolAddress)}}> Copy </button>
+          onClick={(e) => {
+            navigator.clipboard.writeText(poolAddress)
+            e.stopPropagation()}}> Copy </button>
         </div>
         
         <div className="bg-dark text-sm py-1 text-center rounded-br-xl border-t-grey1 border-t mt-3 rounded-b-xl">

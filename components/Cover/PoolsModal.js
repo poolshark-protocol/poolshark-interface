@@ -5,55 +5,53 @@ import {
 } from "@heroicons/react/20/solid";
 import UserCoverPool from "../Pools/UserCoverPool";
 import StaticUniPool from "../Pools/StaticUniPool";
-import { fetchPositions } from "../../utils/queries";
+import { fetchPools } from "../../utils/queries";
 import { useAccount } from "wagmi";
 
 export default function PoolsModal({ isOpen, setIsOpen, pool, prefill }) {
 
   const { address } = useAccount();
 
-  const [coverPositions, setCoverPositions] = useState([]);
-  const [allCoverPositions, setAllCoverPositions] = useState([]);
+  const [coverPools, setCoverPools] = useState([]);
+  const [allCoverPools, setAllCoverPools] = useState([]);
 
-  async function getUserPositionData() {
-    const data = await fetchPositions(address)
-    const positions = data.data.positions
-    setCoverPositions(positions)
+  async function getPoolData() {
+    const data = await fetchPools();
+    const pools = data.data.coverPools;
+
+    setCoverPools(pools);
   }
 
+  function mapCoverPools() {
+    const mappedCoverPools = [];
+    
+    coverPools.map((coverPool) => {
+      const coverPoolData = {
+        tokenOneName: coverPool.token1.name,
+        tokenZeroName: coverPool.token0.name,
+        tokenOneAddress: coverPool.token1.id,
+        tokenZeroAddress: coverPool.token0.id,
+        poolAddress: coverPool.id,
+      };
 
+      mappedCoverPools.push(coverPoolData);
+    });
 
-function mapUserCoverPositions() {
-    const mappedCoverPositions = []
-    coverPositions.map(coverPosition => {
-
-    const coverPositionData = {
-      tokenOneName: coverPosition.pool.token1.name,
-      tokenZeroName: coverPosition.pool.token0.name,
-      tokenOneAddress: coverPosition.pool.token1.id,
-      tokenZeroAddress: coverPosition.pool.token0.id,
-      poolAddress: coverPosition.pool.id,
-      userOwnerAddress: coverPosition.owner.replace(/"|'/g, '')
-    }
-
-    mappedCoverPositions.push(coverPositionData)
-    })
-
-    setAllCoverPositions(mappedCoverPositions)
-  }      
+    setAllCoverPools(mappedCoverPools);
+  }
 
   //async so needs to be wrapped
   useEffect(() => {
-    getUserPositionData();
-  },[])
+    getPoolData();
+  }, []);
 
   // useEffect(() => {
   //  pool(coverParams);
   // },[coverParams])
 
   useEffect(() => {
-    mapUserCoverPositions();
-  },[coverPositions])
+    mapCoverPools();
+  }, [coverPools]);
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -96,22 +94,18 @@ function mapUserCoverPositions() {
               <div>
                 <h1 className="mb-3">Poolshark Pools</h1>
                 <div className="space-y-2">
-                  {allCoverPositions.map(allCoverPosition => {
-                      if(allCoverPosition.userOwnerAddress === address?.toLowerCase()){
-                        return(
-                        <UserCoverPool
-                      key={allCoverPosition.tokenOneName}
-                        tokenOneName={allCoverPosition.tokenOneName}
-                        tokenZeroName={allCoverPosition.tokenZeroName}
-                        tokenOneAddress={allCoverPosition.tokenOneAddress}
-                        tokenZeroAddress={allCoverPosition.tokenZeroAddress}
-                        poolAddress={allCoverPosition.poolAddress}
-                        pool={pool}
-                        prefill={prefill}
-                        close={setIsOpen}
-                      />)
-                      }
-                    })}
+                {allCoverPools.map((allCoverPool) => {
+                    return (
+                      <UserCoverPool
+                        key={allCoverPool.tokenOneName}
+                        tokenOneName={allCoverPool.tokenOneName}
+                        tokenZeroName={allCoverPool.tokenZeroName}
+                        tokenOneAddress={allCoverPool.tokenOneAddress}
+                        tokenZeroAddress={allCoverPool.tokenZeroAddress}
+                        poolAddress={allCoverPool.poolAddress}
+                      />
+                    );
+                  })}
                 </div>
               </div>
               <div>
