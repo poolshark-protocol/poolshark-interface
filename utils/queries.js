@@ -248,24 +248,24 @@ export const fetchUniV3Pools =  () => {
                 }
             }
         `
-          const client = new ApolloClient({
-              uri: "https://api.thegraph.com/subgraphs/name/liqwiz/uniswap-v3-goerli",
-              cache: new InMemoryCache(),
-              cors: {
-                  origin: "http://localhost:3000/",
-                  credentials: true
-                },
+        const client = new ApolloClient({
+            uri: "https://api.thegraph.com/subgraphs/name/liqwiz/uniswap-v3-goerli",
+            cache: new InMemoryCache(),
+            cors: {
+                origin: "http://localhost:3000/",
+                credentials: true
+              },
+        })
+        client
+          .query({ query: gql(univ3PoolsQuery) })
+          .then((data) => {
+              resolve(data)
+              console.log(data)
           })
-          client
-              .query({ query: gql(univ3PoolsQuery) })
-              .then((data) => {
-                  resolve(data)
-                  console.log(data)
-              })
-              .catch((err) => {
-                  resolve(err)
-              })
-            })
+          .catch((err) => {
+              resolve(err)
+          })
+        })
 }
 
 export const fetchUniV3Positions =  (address) => {
@@ -314,28 +314,29 @@ export const fetchUniV3Positions =  (address) => {
                 }
             }
         `
-          const client = new ApolloClient({
-              uri: "https://api.thegraph.com/subgraphs/name/liqwiz/uniswap-v3-goerli",
-              cache: new InMemoryCache(),
-              cors: {
-                  origin: "http://localhost:3000/",
-                  credentials: true
-                },
-          })
-          client
-              .query({ 
-                query: gql(univ3PositionsQuery),
-                variables: {
-                    owner: address
-                }, })
-              .then((data) => {
-                  resolve(data)
-                  console.log(data)
-              })
-              .catch((err) => {
-                  resolve(err)
-              })
+        const client = new ApolloClient({
+            uri: "https://api.thegraph.com/subgraphs/name/liqwiz/uniswap-v3-goerli",
+            cache: new InMemoryCache(),
+            cors: {
+                origin: "http://localhost:3000/",
+                credentials: true
+              },
+        })
+        client
+          .query({ 
+            query: gql(univ3PositionsQuery),
+            variables: {
+                owner: address
+            }, 
             })
+          .then((data) => {
+              resolve(data)
+              console.log(data)
+          })
+          .catch((err) => {
+              resolve(err)
+          })
+        })
 }
 
 

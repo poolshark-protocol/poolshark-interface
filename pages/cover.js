@@ -9,7 +9,7 @@ import StaticUniPool from "../components/Pools/StaticUniPool";
 import { useState, useEffect } from "react";
 import { useAccount, useProvider } from "wagmi";
 import Link from "next/link";
-import { fetchPositions, tickMath } from "../utils/queries";
+import { fetchPositions, tickMath, fetchUniV3Positions } from "../utils/queries";
 import React from "react";
 import useTokenList from "../hooks/useTokenList";
 import Initial from "../components/Cover/Initial";
@@ -64,6 +64,10 @@ export default function Cover() {
   const [coverPositions, setCoverPositions] = useState([]);
   const [allCoverPositions, setAllCoverPositions] = useState([]);
   const [userPositionExists, setUserPositionExists] = useState(false);
+
+  const [uniV3Positions, setUniV3Positions] = useState([]);
+  const [allUniV3Positions, setAllUniV3Positions] = useState([]);
+  const [userUniV3PositionExists, setUserUniV3PositionExists] = useState(false);
 
   const coins = useTokenList()[0];
   const [coinsForListing, setCoinsForListing] = useState(coins.listed_tokens);
@@ -122,6 +126,53 @@ function checkUserPositionExists() {
   useEffect(() => {
     console.log("chainId: ", chainId);
   }, [chainId]);
+
+  async function getUserUniV3PositionData() {
+    const data = await fetchUniV3Positions(address)
+    const positions = data.data.positions
+
+    setUniV3Positions(positions)
+  }
+
+function mapUserUniV3Positions() {
+    const mappedUniV3Positions = []
+    uniV3Positions.map(uniV3Position => {
+
+    const uniV3PositionData = {
+      tokenOneName: uniV3Position.pool.token1.name,
+      tokenZeroName: uniV3Position.pool.token0.name,
+      tokenOneAddress: uniV3Position.pool.token1.id,
+      tokenZeroAddress: uniV3Position.pool.token0.id,
+      poolAddress: uniV3Position.pool.id,
+      userOwnerAddress: uniV3Position.owner.replace(/"|'/g, '')
+    }
+    
+    mappedUniV3Positions.push(uniV3PositionData)
+    })
+
+    setAllUniV3Positions(mappedUniV3Positions)
+  }
+
+function checkUserUniV3PositionExists() {
+  allUniV3Positions.map(allUniV3Position => {
+    if(allUniV3Position.userOwnerAddress === address?.toLowerCase()){
+      setUserUniV3PositionExists(true)
+    }
+  })}
+
+
+  //async so needs to be wrapped
+  useEffect(() => {
+    getUserUniV3PositionData();
+  },[])
+
+  useEffect(() => {
+    mapUserUniV3Positions();
+  },[uniV3Positions])
+
+  useEffect(() => {
+    checkUserUniV3PositionExists();
+  },[])
 
   const Option = () => {
     if (expanded) {
@@ -203,7 +254,19 @@ function checkUserPositionExists() {
               <div>
                 <h1 className="mb-3 mt-4">User UNI-V3 Positions</h1>
                 <div className="space-y-2">
-                  <StaticUniPool />
+                  {allUniV3Positions.map(allUniV3Position => {
+                      if(allUniV3Position.userOwnerAddress === address?.toLowerCase()){
+                        return(
+                        <UserCoverPool
+                      key={allUniV3Position.tokenOneName}
+                        tokenOneName={allUniV3Position.tokenOneName}
+                        tokenZeroName={allUniV3Position.tokenZeroName}
+                        tokenOneAddress={allUniV3Position.tokenOneAddress}
+                        tokenZeroAddress={allUniV3Position.tokenZeroAddress}
+                        poolAddress={allUniV3Position.poolAddress}
+                      />)
+                      }
+                    })}
                 </div>
               </div>
             </div>)}
