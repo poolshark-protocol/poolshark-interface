@@ -48,7 +48,7 @@ export default function CreateCover() {
     "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
   });
   const [token1, setToken1] = useState({
-    symbol: "SELECT TOKEN",
+    symbol: "Select Token",
   });
   const collateralBalance = TokenBalance(tokenOneAddress);
   const balanceZero = TokenBalance(queryToken0);
@@ -124,10 +124,11 @@ export default function CreateCover() {
     }
     if (direction === "minus" && minMax === "min") {
       const current = Number(document.getElementById("minInput").value);
-      if (current === 0) {
+      if (current === 0 || current - 1 < 0) {
+        document.getElementById("minInput").value = 0
         return;
       }
-      document.getElementById("minInput").value = current - 1;
+      document.getElementById("minInput").value = (current - 1).toFixed(2);
     }
 
     if (direction === "plus" && minMax === "max") {
@@ -140,10 +141,11 @@ export default function CreateCover() {
     }
     if (direction === "minus" && minMax === "max") {
       const current = Number(document.getElementById("maxInput").value);
-      if (current === 0) {
+      if (current === 0 || current - 1 < 0) {
+        document.getElementById("maxInput").value = 0
         return;
       }
-      document.getElementById("maxInput").value = current - 1;
+      document.getElementById("maxInput").value = (current - 1).toFixed(2);
     }
   };
 
