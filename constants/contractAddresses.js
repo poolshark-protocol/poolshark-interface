@@ -1,5 +1,7 @@
 //TODO: pull from JSON file and have mapping entry for each network
 //"created": "2023-01-15T22:43:49.430Z"
+export const coverPoolFactoryAddress = "0x2cE238af6682a9966142aBFA36EA35173ABfa037"
+
 export const coverPoolAddress = "0xEc62553Af1973A8D87198f11f51e76e180502DDB"
 
 export const tickMathAddress = "0x02f821c66bF2466B3Ef3Fc2c962B392d0EE457F4"
