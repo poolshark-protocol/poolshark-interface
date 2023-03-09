@@ -3,12 +3,7 @@ export const coverPoolFactoryABI = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "_concentratedFactory",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_libraries",
+        "name": "_rangePoolFactory",
         "type": "address"
       }
     ],
@@ -23,6 +18,16 @@ export const coverPoolFactoryABI = [
   {
     "inputs": [],
     "name": "IdenticalTokenAddresses",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidTickSpread",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidTokenDecimals",
     "type": "error"
   },
   {
@@ -54,8 +59,20 @@ export const coverPoolFactoryABI = [
       {
         "indexed": false,
         "internalType": "int24",
-        "name": "tickSpacing",
+        "name": "tickSpread",
         "type": "int24"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "twapLength",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "auctionLength",
+        "type": "uint16"
       },
       {
         "indexed": false,
@@ -66,19 +83,6 @@ export const coverPoolFactoryABI = [
     ],
     "name": "PoolCreated",
     "type": "event"
-  },
-  {
-    "inputs": [],
-    "name": "concentratedFactory",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
   },
   {
     "inputs": [
@@ -93,12 +97,27 @@ export const coverPoolFactoryABI = [
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "swapFee",
-        "type": "uint256"
+        "internalType": "uint16",
+        "name": "feeTier",
+        "type": "uint16"
+      },
+      {
+        "internalType": "int16",
+        "name": "tickSpread",
+        "type": "int16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "twapLength",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "auctionLength",
+        "type": "uint16"
       }
     ],
-    "name": "createHedgePool",
+    "name": "createCoverPool",
     "outputs": [
       {
         "internalType": "address",
@@ -141,12 +160,27 @@ export const coverPoolFactoryABI = [
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "fee",
-        "type": "uint256"
+        "internalType": "uint16",
+        "name": "feeTier",
+        "type": "uint16"
+      },
+      {
+        "internalType": "int16",
+        "name": "tickSpread",
+        "type": "int16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "twapLength",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "auctionLength",
+        "type": "uint16"
       }
     ],
-    "name": "getHedgePool",
+    "name": "getCoverPool",
     "outputs": [
       {
         "internalType": "address",
@@ -211,6 +245,19 @@ export const coverPoolFactoryABI = [
       }
     ],
     "name": "poolMapping",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "rangePoolFactory",
     "outputs": [
       {
         "internalType": "address",
