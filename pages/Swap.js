@@ -13,7 +13,6 @@ import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import { useAccount } from "wagmi";
 import { coverPoolAddress, tokenOneAddress } from "../constants/contractAddresses";
-import { TokenOneAbi } from "../abis/evm/tokenOne";
 import TokenBalance from "../components/TokenBalance";
 import { useProvider } from "wagmi";
 import { ethers } from "ethers";
