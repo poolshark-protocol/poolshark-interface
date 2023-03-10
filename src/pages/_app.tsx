@@ -10,6 +10,7 @@ import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 
 
+
 const { chains, provider } = configureChains(
   [mainnet, goerli],
   [

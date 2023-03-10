@@ -31,10 +31,7 @@ export const getPreviousTicksLower = (token0, token1, index) => {
           const client = new ApolloClient({
               uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
               cache: new InMemoryCache(),
-              cors: {
-                  origin: "http://localhost:3000/",
-                  credentials: true
-                },
+      
           })
           client
               .query({ query: gql(getTicks) })
@@ -63,10 +60,7 @@ export const getPreviousTicksUpper = (token0, token1, index) => {
           const client = new ApolloClient({
               uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
               cache: new InMemoryCache(),
-              cors: {
-                  origin: "http://localhost:3000/",
-                  credentials: true
-                },
+      
           })
           client
               .query({ query: gql(getTicks) })
@@ -130,10 +124,7 @@ export const fetchPositions =  (address) => {
       const client = new ApolloClient({
           uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
           cache: new InMemoryCache(),
-          cors: {
-              origin: "http://localhost:3000/",
-              credentials: true
-            },
+      
       })
       client
           .query({ 
@@ -177,10 +168,6 @@ export const fetchPools =  () => {
           const client = new ApolloClient({
               uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
               cache: new InMemoryCache(),
-              cors: {
-                  origin: "http://localhost:3000/",
-                  credentials: true
-                },
           })
           client
               .query({ query: gql(poolsQuery) })

@@ -52,5 +52,5 @@ export default function useInputBox() {
         )
     }
     
-    return [bnInput, inputBox, maxBalance]
+    return {bnInput, inputBox, maxBalance}
 }

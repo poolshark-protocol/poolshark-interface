@@ -15,12 +15,15 @@ import { useAccount } from "wagmi";
 import { coverPoolAddress, tokenOneAddress } from "../constants/contractAddresses";
 import TokenBalance from "../components/TokenBalance";
 import { useProvider } from "wagmi";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { chainIdsToNamesForGitTokenList } from '../utils/chains'
+
+
+
 
 export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount();
-  const [bnInput, inputBox, maxBalance] = useInputBox();
+  const {bnInput, inputBox, maxBalance} = useInputBox();
   const allowance = useAllowance(address);
   const [hasSelected, setHasSelected] = useState(false);
   // const [allowance, setAllowance] = useState(0);
@@ -110,7 +113,7 @@ export default function Swap() {
     setIsOpen(true);
   }
 
-  const [expanded, setExpanded] = useState();
+  const [expanded, setExpanded] = useState(false);
 
   // const getAllowance = async () => {
   //  let provider = new ethers.providers.JsonRpcProvider(`https://rpc.ankr.com/eth_goerli`)
