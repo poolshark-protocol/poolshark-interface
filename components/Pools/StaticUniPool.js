@@ -36,12 +36,6 @@ useEffect
     <>
     <Link href="/pool/view">
       <div
-        onMouseEnter={(e) => {
-          setShow(true);
-        }}
-        onMouseLeave={(e) => {
-          setShow(false);
-        }}
         className="w-full cursor-pointer flex justify-between items-center bg-dark border border-grey2 rounded-xl py-3.5 pl-5 h-24 relative"
       >
         <div className="space-y-2">
