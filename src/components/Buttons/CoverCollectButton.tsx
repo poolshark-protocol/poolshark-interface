@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import {
     usePrepareContractWrite,
     useContractWrite,
@@ -10,6 +9,7 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
+import { BigNumber, ethers } from "ethers";
 
 export default function CoverCollectButton({address}) {
 
@@ -28,7 +28,7 @@ export default function CoverCollectButton({address}) {
       ],
       chainId: 5,
       overrides:{
-          gasLimit: 350000
+          gasLimit: BigNumber.from("350000")
       },
   })
 
