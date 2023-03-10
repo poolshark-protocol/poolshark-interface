@@ -49,7 +49,7 @@ async function previousTicks() {
      
       const data = await getPreviousTicksLower(props.token0["address"],props.token1["address"], Number(min))
       const data1 = await getPreviousTicksUpper(props.token0["address"],props.token1["address"],   Number(max))
-       setPrevTicks({lower: data.data.ticks[0]["index"], upper: data1.data.ticks[0]["index"]})
+       setPrevTicks({lower: data["data"].ticks[0]["index"], upper: data1["data"].ticks[0]["index"]})
        setTicks({min:min, max:max})
 
       console.log(String(prevTicks["lower"]))
