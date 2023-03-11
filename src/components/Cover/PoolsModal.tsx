@@ -164,6 +164,9 @@ export default function PoolsModal({ isOpen, setIsOpen, pool, prefill }) {
                         tokenOneAddress={allUniv3Pool.tokenOneAddress}
                         tokenZeroAddress={allUniv3Pool.tokenZeroAddress}
                         poolAddress={allUniv3Pool.poolAddress}
+                        pool={pool}
+                        prefill={prefill}
+                        close={setIsOpen}
                       />
                     );
                   })}
