@@ -79,7 +79,7 @@ export default function PoolsModal({ isOpen, setIsOpen, pool, prefill }) {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-3xl h-[45rem] transform overflow-hidden rounded-xl bg-black text-white border border-grey2 text-left align-middle shadow-xl px-6 py-5 transition-all">
+              <Dialog.Panel className="w-full max-w-3xl h-[45rem] transform overflow-y-auto rounded-xl bg-black text-white border border-grey2 text-left align-middle shadow-xl px-6 py-5 transition-all">
                   <div className="flex justify-between items-center mb-5">
                       <h1 className="text-xl">Select a Pool to Cover</h1>
                       <XMarkIcon onClick={() => setIsOpen(false)} className="w-7 cursor-pointer"/>
