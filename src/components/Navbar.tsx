@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import Image from "next/image";
 import Link from "next/link";
-import { ConnectWalletButton } from "./Buttons/ConnectWalletButton.tsx";
+import { ConnectWalletButton } from "./Buttons/ConnectWalletButton";
 
 export default function Navbar() {
 
