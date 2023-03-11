@@ -59,7 +59,7 @@ export default function PoolsModal({ isOpen, setIsOpen, pool, prefill }) {
 
   async function getUniv3PoolData() {
     const data = await fetchUniV3Pools();
-    const pools = data.data.pools;
+    const pools = data["data"].pools;
 
     setUniv3Pools(pools);
   }

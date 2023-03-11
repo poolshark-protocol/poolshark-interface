@@ -281,18 +281,6 @@ export const fetchUniV3Positions =  (address) => {
                         totalValueLockedToken0
                         totalValueLockedToken1
                         totalValueLockedUSD
-                        token1{
-                            id
-                            name
-                            symbol
-                            decimals
-                        }
-                        token0{
-                            id
-                            name
-                            symbol
-                            decimals
-                        }
                     }
                 }
             }
