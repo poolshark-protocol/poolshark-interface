@@ -208,5 +208,115 @@ export const fetchTokens =  (id) => {
   })
 };
 
+export const fetchUniV3Pools =  () => {
+    return new Promise(function(resolve) {
+        const univ3PoolsQuery =`
+            query($id: String) {
+                pools(id: $id) {
+                    id
+                    liquidity
+                    sqrtPrice
+                    totalValueLockedETH
+                    totalValueLockedToken0
+                    totalValueLockedToken1
+                    totalValueLockedUSD
+                    token1{
+                        id
+                        name
+                        symbol
+                        decimals
+                    }
+                    token0{
+                        id
+                        name
+                        symbol
+                        decimals
+                    }
+                }
+            }
+        `
+        const client = new ApolloClient({
+            uri: "https://api.thegraph.com/subgraphs/name/liqwiz/uniswap-v3-goerli",
+            cache: new InMemoryCache(),
+        })
+        client
+          .query({ query: gql(univ3PoolsQuery) })
+          .then((data) => {
+              resolve(data)
+              console.log(data)
+          })
+          .catch((err) => {
+              resolve(err)
+          })
+        })
+};
+
+export const fetchUniV3Positions =  (address) => {
+    return new Promise(function(resolve) {
+        const univ3PositionsQuery =`
+            query($owner: String) {
+                positions(owner: $owner) {
+                    id
+                    liquidity
+                    owner
+                    token1{
+                        id
+                        name
+                        symbol
+                        decimals
+                    }
+                    token0{
+                        id
+                        name
+                        symbol
+                        decimals
+                    }
+                    depositedToken0
+                    depositedToken1
+                    pool{
+                        id
+                        liquidity
+                        sqrtPrice
+                        totalValueLockedETH
+                        totalValueLockedToken0
+                        totalValueLockedToken1
+                        totalValueLockedUSD
+                        token1{
+                            id
+                            name
+                            symbol
+                            decimals
+                        }
+                        token0{
+                            id
+                            name
+                            symbol
+                            decimals
+                        }
+                    }
+                }
+            }
+        `
+        const client = new ApolloClient({
+            uri: "https://api.thegraph.com/subgraphs/name/liqwiz/uniswap-v3-goerli",
+            cache: new InMemoryCache(),
+        })
+        client
+          .query({ 
+            query: gql(univ3PositionsQuery),
+            variables: {
+                owner: address
+            }, 
+            })
+          .then((data) => {
+              resolve(data)
+              console.log(data)
+          })
+          .catch((err) => {
+              resolve(err)
+          })
+        })
+}
+
 
 
