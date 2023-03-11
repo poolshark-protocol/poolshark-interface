@@ -19,12 +19,12 @@ import useInputBox from "../../hooks/useInputBox";
 import { tokenOneAddress } from "../../constants/contractAddresses";
 import TokenBalance from "../TokenBalance";
 
-export default function CreateCover(props) {
-  const [expanded, setExpanded] = useState();
-  const [bnInput, inputBox] = useInputBox();
+export default function CreateCover(props:any) {
+  const [expanded, setExpanded] = useState(false);
+  const {bnInput, inputBox} = useInputBox();
   const [stateChainName, setStateChainName] = useState();
-  const [minPrice, setMinPrice] = useState();
-  const [maxPrice, setMaxPrice] = useState();
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
   
   const {
     network: { chainId }
@@ -58,11 +58,11 @@ export default function CreateCover(props) {
   const balanceZero = TokenBalance(queryToken0);
   const balanceOne = TokenBalance(queryToken1);
 
-  const [usdcBalance, setUsdcBalance] = useState();
-  const [balance0, setBalance0] = useState();
-  const [balance1, setBalance1] = useState();
+  const [usdcBalance, setUsdcBalance] = useState("");
+  const [balance0, setBalance0] = useState("");
+  const [balance1, setBalance1] = useState("");
   const [amountToPay, setAmountToPay] = useState(0);
-  const [prices, setPrices] = useState({});
+  const [prices, setPrices] = useState({token0: 0, token1: 0});
 
   const allowance = useAllowance(address);
   // useEffect(() => {  
@@ -123,52 +123,52 @@ export default function CreateCover(props) {
   };
 
   const handleValueChange = () => {
-    if (document.getElementById("input").value === undefined) {
+    if ((document.getElementById("input") as HTMLInputElement).value === undefined) {
       return;
     }
-    const current = document.getElementById("input");
+    const current = document.getElementById("input") as HTMLInputElement;
     setAmountToPay(Number(current.value));
   };
 
-  const changePrice = (direction, minMax) => {
+  const changePrice = (direction:string, minMax:string) => {
     if (direction === "plus" && minMax === "min") {
-      if (document.getElementById("minInput").value === undefined) {
-        const current = document.getElementById("minInput");
-        current.value = 1;
+      if ((document.getElementById("minInput")  as HTMLInputElement).value === undefined) {
+        const current = (document.getElementById("minInput")  as HTMLInputElement);
+        current.value = "1";
       }
-      const current = Number(document.getElementById("minInput").value);
-      document.getElementById("minInput").value = current + 1;
+      const current = Number((document.getElementById("minInput") as HTMLInputElement).value);
+      (document.getElementById("minInput") as HTMLInputElement).value = String(current + 1);
     }
     if (direction === "minus" && minMax === "min") {
-      const current = Number(document.getElementById("minInput").value);
+      const current = Number((document.getElementById("minInput") as HTMLInputElement).value);
       if (current === 0 || current - 1 < 0) {
-        document.getElementById("minInput").value = 0
+       (document.getElementById("minInput") as HTMLInputElement).value = "0"
         return;
       }
-      document.getElementById("minInput").value = (current - 1).toFixed(3);
+      (document.getElementById("minInput") as HTMLInputElement).value = (current - 1).toFixed(3);
     }
 
     if (direction === "plus" && minMax === "max") {
-      if (document.getElementById("maxInput").value === undefined) {
-        const current = document.getElementById("maxInput");
-        current.value = 1;
+      if ((document.getElementById("maxInput") as HTMLInputElement).value === undefined) {
+        const current = document.getElementById("maxInput") as HTMLInputElement;
+        current.value = "1";
       }
-      const current = Number(document.getElementById("maxInput").value);
-      document.getElementById("maxInput").value = current + 1;
+      const current = Number((document.getElementById("maxInput") as HTMLInputElement).value);
+      (document.getElementById("maxInput") as HTMLInputElement).value = String(current + 1);
     }
     if (direction === "minus" && minMax === "max") {
-      const current = Number(document.getElementById("maxInput").value);
+      const current = Number((document.getElementById("maxInput") as HTMLInputElement).value);
       if (current === 0 || current - 1 < 0) {
-        document.getElementById("maxInput").value = 0
+        (document.getElementById("maxInput") as HTMLInputElement).value = "0"
         return;
       }
-      document.getElementById("maxInput").value = (current - 1).toFixed(3);
+      (document.getElementById("maxInput") as HTMLInputElement).value = (current - 1).toFixed(3);
     }
   };
 
 
   useEffect(() => {
-    },[bnInput, document.getElementById('minInput')?.value, document.getElementById('maxInput')?.value])
+    },[bnInput, (document.getElementById('minInput') as HTMLInputElement)?.value, (document.getElementById('maxInput') as HTMLInputElement)?.value])
 
   // const [dataState, setDataState] = useAllowance(address);
 
@@ -292,7 +292,7 @@ export default function CreateCover(props) {
               placeholder="0"
               id="minInput"
               type="number"
-              onChange={() => setMinPrice(document.getElementById('minInput')?.value)}
+              onChange={() => setMinPrice((document.getElementById('minInput') as HTMLInputElement)?.value)}
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice("plus", "min")}>
@@ -315,7 +315,7 @@ export default function CreateCover(props) {
               placeholder="0"
               id="maxInput"
               type="number"
-              onChange={() => setMaxPrice(document.getElementById('maxInput')?.value)}
+              onChange={() => setMaxPrice((document.getElementById('maxInput') as HTMLInputElement)?.value)}
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice("plus", "max")}>

@@ -1,7 +1,9 @@
 import { Fragment, useState } from "react";
 import {
   ChevronDownIcon,
-  ArrowLongRightIcon
+  ArrowLongRightIcon,
+  MinusIcon,
+  PlusIcon
 } from "@heroicons/react/20/solid";
 import { Listbox, Transition } from "@headlessui/react";
 import SelectToken from "../SelectToken";
@@ -122,8 +124,8 @@ export default function DirectionalPool() {
                 </div>
               </div>
               <div className="">
-                <div class=" ml-auto">
-                  <div class="">
+                <div className=" ml-auto">
+                  <div >
                     <div className="flex justify-end">
                       <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
                         <div className="flex items-center gap-x-2 w-full">
