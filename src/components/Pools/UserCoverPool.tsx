@@ -3,6 +3,11 @@ import {
   ArrowLongRightIcon
 } from "@heroicons/react/20/solid";
 import { useEffect, useState } from "react";
+import { useStore } from "../../hooks/useStore";
+
+
+
+
 
 export default function UserCoverPool({ 
   tokenOneName, 
@@ -10,7 +15,6 @@ export default function UserCoverPool({
   tokenOneAddress, 
   tokenZeroAddress, 
   poolAddress,
-  pool,
   prefill,
   close
 }) {
@@ -37,18 +41,26 @@ const [poolDisplay, setPoolDisplay] = useState(
                                                 poolAddress?.length
                                               ));
 
-                                            
-const selected = () => {
- pool({
-    tokenOneName: tokenOneName, 
+        
+
+                                              
+const [currentPool, updatePool] = useStore((state) => [state.pool, state.updatePool])
+
+const setPool = () => {
+  updatePool({
+    tokenOneName:tokenOneName, 
     tokenZeroName: tokenZeroName, 
-    tokenOneAddress: tokenOneAddress, 
+    tokenOneAddress:tokenOneAddress, 
     tokenZeroAddress: tokenZeroAddress, 
-    poolAddress: poolAddress,
-  });
+    poolAddress: poolAddress
+  })
   prefill("existingPool");
   close(false)
+  // console.log(currentPool)
+
 }
+
+
 // useEffect(() => {
 //   console.log(
 //   tokenOneName, 
@@ -61,7 +73,7 @@ const selected = () => {
     <>
     
       <div
-      onClick={() => selected()}
+      onClick={() =>  setPool()}
         onMouseEnter={(e) => {
           setShow(true);
         }}
