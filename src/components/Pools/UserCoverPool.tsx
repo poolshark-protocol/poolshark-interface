@@ -44,9 +44,10 @@ const [poolDisplay, setPoolDisplay] = useState(
         
 
                                               
-const [currentPool, updatePool] = useStore((state) => [state.pool, state.updatePool])
+const [currentPool,resetPool, updatePool] = useStore((state) => [state.pool,state.resetPool, state.updatePool])
 
 const setPool = () => {
+  resetPool;
   updatePool({
     tokenOneName:tokenOneName, 
     tokenZeroName: tokenZeroName, 

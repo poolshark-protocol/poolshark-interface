@@ -4,23 +4,26 @@ import {
     useContractWrite
 } from 'wagmi';
 import { erc20ABI } from 'wagmi';
-import { coverPoolAddress, tokenOneAddress } from "../../constants/contractAddresses";
+import { coverPoolAddress, tokenOneAddress, tokenZeroAddress } from "../../constants/contractAddresses";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
+import { useStore } from '../../hooks/useStore';
 
-export default function CoverApproveButton({address, amount}) {
+export default function CoverApproveButton({address}) {
   const [ errorDisplay,    setErrorDisplay   ] = useState(false);
   const [ successDisplay,  setSuccessDisplay ] = useState(false);
   const [ configuration,   setConfig         ] = useState();
 
+  const [contractParams] = useStore((state:any) => [state.contractParams])
+
 
   const { config } = usePrepareContractWrite({
-    address: tokenOneAddress,
+    address: tokenZeroAddress,
     abi: erc20ABI,
     functionName: "approve",
-    args:[coverPoolAddress, amount],
+    args:[coverPoolAddress, contractParams.amount],
     chainId: 5,
   })
 
