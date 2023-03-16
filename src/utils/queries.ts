@@ -1,6 +1,6 @@
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 
-export const cleanInputValue = (arg) => {
+export const cleanInputValue = (arg: string) => {
     const re = /^[+-]?\d*(?:[.,]\d*)?$/
     let inputVal = arg
     if (re.test(inputVal)) {
@@ -8,7 +8,7 @@ export const cleanInputValue = (arg) => {
     }
 }
 
-export const countDecimals = (value, tokenDecimals) => {
+export const countDecimals = (value: number, tokenDecimals: number) => {
     if ((value % 1) != 0) {
         let valueDecimals = value.toString().split(".")[1].length
         return valueDecimals > tokenDecimals || valueDecimals == tokenDecimals;
@@ -16,7 +16,7 @@ export const countDecimals = (value, tokenDecimals) => {
     return false;
 };
 
-export const getPreviousTicksLower = (token0, token1, index) => {
+export const getPreviousTicksLower = (token0: string, token1: string, index: string) => {
     return new Promise(function(resolve) {
         const getTicks =`
         { 
@@ -45,7 +45,7 @@ export const getPreviousTicksLower = (token0, token1, index) => {
             })
 }
 
-export const getPreviousTicksUpper = (token0, token1, index) => {
+export const getPreviousTicksUpper = (token0: string, token1: string, index: string) => {
     return new Promise(function(resolve) {
         const getTicks =`
        { 
@@ -76,7 +76,7 @@ export const getPreviousTicksUpper = (token0, token1, index) => {
 
 
 
-export const fetchPositions =  (address) => {
+export const fetchPositions =  (address: string) => {
   return new Promise(function(resolve) {
     const positionsQuery =`
       query($owner: String) {
@@ -181,7 +181,7 @@ export const fetchPools =  () => {
             })
 };  
 
-export const fetchTokens =  (id) => {
+export const fetchTokens =  (id: string) => {
     return new Promise(function(resolve) {
       const tokensQuery =`
         {
@@ -251,7 +251,7 @@ export const fetchUniV3Pools =  () => {
         })
 };
 
-export const fetchUniV3Positions =  (address) => {
+export const fetchUniV3Positions =  (address: string) => {
     return new Promise(function(resolve) {
         const univ3PositionsQuery =`
             query($owner: String) {
