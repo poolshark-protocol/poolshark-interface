@@ -112,8 +112,8 @@ export const fetchPositions =  (address: string) => {
                         symbol
                         decimals
                     }
-                txnHash
                 }
+                txnHash
             }
         }
     `
@@ -146,6 +146,7 @@ export const fetchPools =  () => {
                     factory
                     id
                     inputPool
+                    tickSpread
                     token0{
                         id
                         name
@@ -157,12 +158,6 @@ export const fetchPools =  () => {
                         name
                         symbol
                         decimals
-                    }
-                    ticks{
-                        price0
-                        price1
-                        previousTick
-                        nextTick
                     }
                 }
             }
