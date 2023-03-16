@@ -14,8 +14,8 @@ import { Fragment, useState } from "react";
 export default function Pool() {
 
     const poolTypes = [
-      { id: 1, type: "Concentrated Liquidity", unavailable: false },
-      { id: 2, type: "Directional Liquidity", unavailable: false },
+      { id: 1, type: "Range Pools", unavailable: false },
+      { id: 2, type: "Cover Pools", unavailable: false },
     ];
 
 function SelectPool() {

@@ -8,8 +8,8 @@ import ConcentratedPool from "../../components/Pools/ConcentratedPool";
 export default function CreatePool() {
 
   const poolTypes = [
-    { id: 1, type: "Concentrated Liquidity", unavailable: false },
-    { id: 2, type: "Directional Liquidity", unavailable: false },
+    { id: 1, type: "Range Pools", unavailable: false },
+    { id: 2, type: "Cover Pools", unavailable: false },
   ];
 
   function SelectPool() {
