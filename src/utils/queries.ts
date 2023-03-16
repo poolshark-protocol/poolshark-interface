@@ -401,15 +401,6 @@ export const fetchUniV3Positions =  (address: string) => {
                     depositedToken1
                     withdrawnToken0
                     withdrawnToken1
-                    pool{
-                        id
-                        liquidity
-                        sqrtPrice
-                        totalValueLockedETH
-                        totalValueLockedToken0
-                        totalValueLockedToken1
-                        totalValueLockedUSD
-                    }
                 }
             }
         `
@@ -423,7 +414,7 @@ export const fetchUniV3Positions =  (address: string) => {
             variables: {
                 owner: address
             }, 
-            })
+        })
           .then((data) => {
               resolve(data)
               console.log(data)
