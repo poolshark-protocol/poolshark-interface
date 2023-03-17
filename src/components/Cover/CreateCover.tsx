@@ -23,7 +23,6 @@ import { coverPoolAddress } from "../../constants/contractAddresses";
 import { TickMath } from "../../utils/tickMath";
 import { ethers } from "ethers";
 import { useStore } from "../../hooks/useStore";
-import { useSigner } from "wagmi";
 import {
   getPreviousTicksLower,
   getPreviousTicksUpper,
@@ -170,13 +169,15 @@ export default function CreateCover(props: any) {
     token: `0x${token0.address.split("0x")[1]}`,
     chainId: 5,
     address: address,
+    onSuccess: () => {
+      setUsdcBalance(Number(data?.formatted))
+    },
     onError: (error) => {
       console.log(error);
     },
   });
 
   const balanceAndAllowance = async () => {
-    setUsdcBalance(Number(data?.formatted));
     updateAllowance(await token0Allowance());
   };
 
