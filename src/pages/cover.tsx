@@ -194,7 +194,6 @@ function checkUserPositionExists() {
                         tokenOneAddress={allCoverPosition.tokenOneAddress}
                         tokenZeroAddress={allCoverPosition.tokenZeroAddress}
                         poolAddress={allCoverPosition.poolAddress}
-                        pool={undefined}
                         prefill={undefined}
                         close={undefined}
                       />)
