@@ -13,12 +13,11 @@ import React, { useState, useEffect } from "react";
 import { coverPoolAddress } from "../../constants/contractAddresses";
 import { useStore } from "../../hooks/useStore";
 
-export default function CoverMintButton(props) {
+export default function CoverMintButton({disabled}) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
-  const [ disabled, setDisabled ] = useState(false);
-  const [ amount, setAmount ] = useState(0);
+  const [ isDisabled, setDisabled ] = useState(disabled);
 
 
 // const getTicks = async () => {
@@ -61,16 +60,10 @@ export default function CoverMintButton(props) {
 
 
 
-  
-  useEffect(() => {
-    setAmount(props.amount)
-    console.log(amount)
-    },[props.amount])
 
     
     useEffect(() => {
-      setDisabled(props.disabled)
-      },[props.disabled])
+      },[disabled])
 
   const [contractParams] = useStore((state) => [state.contractParams])
 
@@ -83,9 +76,9 @@ export default function CoverMintButton(props) {
     args: [
       contractParams.prevLower,
       contractParams.min,
-      contractParams.prevUpper,
-      contractParams.max,
       contractParams.claim,
+      contractParams.max,
+      contractParams.prevUpper,
       contractParams.amount,
       false,
     ],
@@ -111,7 +104,7 @@ export default function CoverMintButton(props) {
     <>
       <button
         disabled={disabled}
-        className={disabled ? "w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50": "w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80" }
+        className={disabled ? "w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50": "w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80" }
         onClick={() => coverPoolAddress ?  write?.() : null}
       >
         Create Cover

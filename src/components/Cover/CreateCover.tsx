@@ -15,31 +15,36 @@ import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import { useState, useEffect } from "react";
 import useInputBox from "../../hooks/useInputBox";
-import { tokenOneAddress, tokenZeroAddress } from "../../constants/contractAddresses";
+import {
+  tokenOneAddress,
+  tokenZeroAddress,
+} from "../../constants/contractAddresses";
 import { coverPoolAddress } from "../../constants/contractAddresses";
 import { TickMath } from "../../utils/tickMath";
 import { ethers } from "ethers";
 import { useStore } from "../../hooks/useStore";
-import {useSigner } from 'wagmi'
+import { useSigner } from "wagmi";
 import {
   getPreviousTicksLower,
   getPreviousTicksUpper,
 } from "../../utils/queries";
 import JSBI from "jsbi";
 import { erc20 } from "../../abis/evm/erc20";
-import useAllowance from "../../hooks/useAllowance";
 
 export default function CreateCover(props: any) {
-
   const [expanded, setExpanded] = useState(false);
   const { bnInput, inputBox } = useInputBox();
   const [stateChainName, setStateChainName] = useState();
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
 
-  const [updateContractParams] = useStore((state: any) => [
-    state.updateContractParams
-  ]);
+  const [updateContractParams, updateAllowance, allowance, contractParams] =
+    useStore((state: any) => [
+      state.updateContractParams,
+      state.updateAllowance,
+      state.allowance,
+      state.contractParams,
+    ]);
 
   async function setParams() {
     try {
@@ -47,52 +52,70 @@ export default function CreateCover(props: any) {
         minPrice !== undefined &&
         minPrice !== "" &&
         maxPrice !== undefined &&
-        maxPrice !== ""
+        maxPrice !== "" &&
+       Number(ethers.utils.formatUnits(bnInput)) !== 0 &&
+        hasSelected == true
       ) {
         const min = TickMath.getTickAtSqrtRatio(
           JSBI.divide(
             JSBI.multiply(
               JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
-              JSBI.BigInt(String(Math.sqrt(Number(parseFloat(minPrice).toFixed(30))).toFixed(30)).split(".").join(""))
+              JSBI.BigInt(
+                String(
+                  Math.sqrt(Number(parseFloat(minPrice).toFixed(30))).toFixed(
+                    30
+                  )
+                )
+                  .split(".")
+                  .join("")
+              )
             ),
-            JSBI.exponentiate(
-              JSBI.BigInt(10),
-              JSBI.BigInt(30)
-            )
+            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30))
           )
         );
         const max = TickMath.getTickAtSqrtRatio(
           JSBI.divide(
             JSBI.multiply(
               JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
-              JSBI.BigInt(String(Math.sqrt(Number(parseFloat(maxPrice).toFixed(30))).toFixed(30)).split(".").join(""))
+              JSBI.BigInt(
+                String(
+                  Math.sqrt(Number(parseFloat(maxPrice).toFixed(30))).toFixed(
+                    30
+                  )
+                )
+                  .split(".")
+                  .join("")
+              )
             ),
-            JSBI.exponentiate(
-              JSBI.BigInt(10),
-              JSBI.BigInt(30)
-            )
+            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30))
           )
         );
         const data = await getPreviousTicksLower(
           token0["address"],
           token1["address"],
-          String(min)
+          min
         );
         const data1 = await getPreviousTicksUpper(
           token0["address"],
           token1["address"],
-          String(max)
+          max
         );
         updateContractParams({
-          prevLower: ethers.utils.parseUnits(data["data"]["ticks"][0]["index"],0),
+          prevLower: ethers.utils.parseUnits(
+            data["data"]["ticks"][0]["index"],
+            0
+          ),
           min: ethers.utils.parseUnits(String(min), 0),
-          prevUpper: ethers.utils.parseUnits(data1["data"]["ticks"][0]["index"],0),
+          prevUpper: ethers.utils.parseUnits(
+            data1["data"]["ticks"][0]["index"],
+            0
+          ),
           max: ethers.utils.parseUnits(String(max), 0),
           claim: ethers.utils.parseUnits(String(min), 0),
-          amount:bnInput,
-          inverse:false,
-        })
-        console.log(data, data1);
+          amount: bnInput,
+          inverse: false,
+        });
+        setDisabled(false)
       }
     } catch (error) {
       console.log(error);
@@ -122,7 +145,7 @@ export default function CreateCover(props: any) {
     symbol: "TOKEN20A",
     logoURI:
       "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
-    address: "8fa1fdd860e3c56dafd09a048ffda4965376945e",
+    address: "0x8fa1fdd860e3c56dafd09a048ffda4965376945e",
   });
   const [token1, setToken1] = useState({
     symbol: "Select Token",
@@ -130,94 +153,64 @@ export default function CreateCover(props: any) {
     address: "0xc3a0736186516792c88e2c6d9b209471651aa46e",
   });
 
-  const [usdcBalance, setUsdcBalance] = useState("");
-  const [usdcAllowance, setUsdcAllowance] = useState("");
-  const [balance1, setBalance1] = useState("");
+  const [usdcBalance, setUsdcBalance] = useState(0);
   const [amountToPay, setAmountToPay] = useState(0);
   const [prices, setPrices] = useState({ token0: 0, token1: 0 });
 
   const token0Allowance = async () => {
-    let provider = new ethers.providers.JsonRpcProvider(
-      `https://rpc.ankr.com/eth_goerli`
+    const provider = new ethers.providers.JsonRpcProvider(
+      "https://eth-goerli.gateway.pokt.network/v1/lb/b118c3bcdc54f084b19eac34"
     );
     const contract = new ethers.Contract(token0.address, erc20, provider);
+    const allowance = await contract.allowance(address, coverPoolAddress);
+    return ethers.utils.formatUnits(allowance);
   };
 
-
   const { data, isError, isLoading } = useBalance({
-    address: `0x${token0.address}`,
-  })
+    token: `0x${token0.address.split("0x")[1]}`,
+    chainId: 5,
+    address: address,
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
   const balanceAndAllowance = async () => {
-
-   
-    // const allowance = await contract.allowance(
-    //   address.toLowerCase(),
-    //   coverPoolAddress
-    // );
-    console.log(data)
-    setUsdcBalance();
-    // setUsdcAllowance(allowance.toNumber());
+    setUsdcBalance(Number(data?.formatted));
+    updateAllowance(await token0Allowance());
   };
 
   useEffect(() => {
-    balanceAndAllowance();
-    token0Allowance();
-  }, [token0]);
-
-  //   async function getTokenPrices() {
-  //     //default 1/2
-  //     const data = await tickMath()
-  //     const price0 = (Number(data.data.ticks[0].price0)).toFixed(3)
-  //     const price1 = (Number(data.data.ticks[0].price1)).toFixed(3)
-  //     console.log({token0: price0, token1: price1})
-  //     setPrices({token0: price0, token1: price1})
-  //   }
-  //   useEffect(() => {
-  //   getTokenPrices();
-  // },
-  //   [])
-
-  // useEffect(() => {
-  //   if (Number(balanceZero().props.children[1]) >= 1000000) {
-  //     setBalance0(Number(balanceZero().props.children[1]).toExponential(5));
-  //   }
-  //   setBalance0(Number(balanceZero().props.children[1]).toFixed(2));
-  // }, [queryToken0, balanceZero]);
-
-  // useEffect(() => {
-  //   if (Number(balanceOne().props.children[1]) >= 1000000) {
-  //     setBalance1(Number(balanceOne().props.children[1]).toExponential(5));
-  //   }
-  //   setBalance1(Number(balanceOne().props.children[1]).toFixed(2));
-  // }, [queryToken1, balanceOne]);
-
-  // useEffect(() => {
-  //   if (Number(collateralBalance().props.children[1]) >= 1000000) {
-  //     setUsdcBalance(
-  //       Number(collateralBalance().props.children[1]).toExponential(5)
-  //     );
-  //   }
-  //   setUsdcBalance(Number(collateralBalance().props.children[1]).toFixed(2));
-  // }, [collateralBalance]);
+    try {
+      balanceAndAllowance();
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
 
   function changeDefault0(token: {
     symbol: string;
     logoURI: any;
     address: string;
   }) {
-    if (token.symbol === token1.symbol) {
+    if (token.symbol === token1.symbol || token.address === token1.address) {
       return;
     }
+    console.log(token)
     setToken0(token);
   }
 
   const [tokenOrder, setTokenOrder] = useState(true);
 
-  const changeDefault1 = (token) => {
-    if (token.symbol === token0.symbol) {
+  const changeDefault1 = (token:{
+    symbol: string;
+    logoURI: any;
+    address: string;
+  }) => {
+    if (token.symbol === token0.symbol || token.address === token0.address) {
       return;
     }
+    console.log(token)
     setToken1(token);
     setHasSelected(true);
     setDisabled(false);
@@ -246,7 +239,7 @@ export default function CreateCover(props: any) {
         (document.getElementById("minInput") as HTMLInputElement).value
       );
       (document.getElementById("minInput") as HTMLInputElement).value = String(
-        (current + .01).toFixed(3)
+        (current + 0.01).toFixed(3)
       );
     }
     if (direction === "minus" && minMax === "min") {
@@ -258,7 +251,7 @@ export default function CreateCover(props: any) {
         return;
       }
       (document.getElementById("minInput") as HTMLInputElement).value = (
-       current  - .01
+        current - 0.01
       ).toFixed(3);
     }
 
@@ -273,8 +266,9 @@ export default function CreateCover(props: any) {
       const current = Number(
         (document.getElementById("maxInput") as HTMLInputElement).value
       );
-      (document.getElementById("maxInput") as HTMLInputElement).value = 
-       (current + .01).toFixed(3)
+      (document.getElementById("maxInput") as HTMLInputElement).value = (
+        current + 0.01
+      ).toFixed(3);
     }
     if (direction === "minus" && minMax === "max") {
       const current = Number(
@@ -284,16 +278,16 @@ export default function CreateCover(props: any) {
         (document.getElementById("maxInput") as HTMLInputElement).value = "0";
         return;
       }
-      (document.getElementById("maxInput") as HTMLInputElement).value = 
-      (current - .01).toFixed(3)
+      (document.getElementById("maxInput") as HTMLInputElement).value = (
+        current - 0.01
+      ).toFixed(3);
     }
   };
 
   // useEffect(() => {
+  // if ()
 
   //   },[bnInput, (document.getElementById('minInput') as HTMLInputElement)?.value, (document.getElementById('maxInput') as HTMLInputElement)?.value])
-
-  // const [dataState, setDataState] = useAllowance(address);
 
   const Option = () => {
     if (expanded) {
@@ -496,20 +490,13 @@ export default function CreateCover(props: any) {
           <Option />
         </div>
       </div>
-      <div className="mb-3" key={usdcAllowance}>
+      <div className="mb-3" key={allowance}>
         {isConnected &&
-        Number(usdcAllowance) <= amountToPay &&
+       Number(allowance) < amountToPay &&
         stateChainName === "goerli" ? (
           <CoverApproveButton address={tokenZeroAddress} />
         ) : stateChainName === "goerli" ? (
-          <CoverMintButton
-            disabled={isDisabled}
-            token0={token0}
-            token1={token1}
-            amount={bnInput}
-            MinInput={minPrice}
-            MaxInput={maxPrice}
-          />
+          <CoverMintButton disabled={isDisabled} />
         ) : null}
       </div>
       <div className="space-y-3">

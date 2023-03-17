@@ -21,11 +21,16 @@ interface ContractParams {
     inverse: boolean
 }
 
+interface Allowance {
+    tokenAllowance: number
+}
+
 
 
 type State = {
     pool: Pool
     contractParams: ContractParams
+    allowance: Allowance
   }
   
   type Action = {
@@ -33,6 +38,7 @@ type State = {
     resetPool:() => void
     resetContractParams:() => void
     updateContractParams:(contractParams:ContractParams) => void
+    updateAllowance:(allowance: Allowance) => void
   }
 
   const initialState: State = {
@@ -51,12 +57,16 @@ type State = {
         claim: ethers.utils.parseUnits("20", 0),
         amount: ethers.utils.parseUnits("0", 0),
         inverse:false,
+    },
+    allowance: {
+        tokenAllowance: 0
     }
   }
   
 
 export const useStore = create<State & Action>((set) => ({
         pool: initialState.pool ,
+        allowance: initialState.allowance,
         contractParams: initialState.contractParams,
             resetPool:() => {
                 set({pool:initialState.pool})
@@ -69,7 +79,9 @@ export const useStore = create<State & Action>((set) => ({
         })),
         updateContractParams: (contractParams: ContractParams) => set(() => ({
             contractParams:contractParams
-
+        })),
+        updateAllowance:(allowance: Allowance) => set(() => ({
+            allowance:allowance
         }))
     
     }));

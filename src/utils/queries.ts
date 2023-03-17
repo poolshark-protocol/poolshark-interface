@@ -16,7 +16,7 @@ export const countDecimals = (value:number, tokenDecimals:number) => {
     return false;
 };
 
-export const getPreviousTicksLower = (token0:string, token1:string, index:string) => {
+export const getPreviousTicksLower = (token0:string, token1:string, index:number) => {
     return new Promise(function(resolve) {
         //if ticks are 0/undefined then use min/max
         const getTicks =`
@@ -39,15 +39,15 @@ export const getPreviousTicksLower = (token0:string, token1:string, index:string
               .query({ query: gql(getTicks) })
               .then((data) => {
                   resolve(data)
-                  console.log(data)
               })
               .catch((err) => {
                   resolve(err)
+                  console.log(err)
               })
             })
 }
 
-export const getPreviousTicksUpper = (token0:string, token1:string, index:string) => {
+export const getPreviousTicksUpper = (token0:string, token1:string, index:number) => {
     return new Promise(function(resolve) {
         const getTicks =`
        { 
@@ -71,10 +71,11 @@ export const getPreviousTicksUpper = (token0:string, token1:string, index:string
               .query({ query: gql(getTicks) })
               .then((data) => {
                   resolve(data)
-                  console.log(data)
+                  
               })
               .catch((err) => {
                   resolve(err)
+                  console.log(err)
               })
             })
 }
