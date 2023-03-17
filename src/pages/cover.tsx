@@ -9,7 +9,7 @@ import StaticUniPool from "../components/Pools/StaticUniPool";
 import { useState, useEffect } from "react";
 import { useAccount, useProvider } from "wagmi";
 import Link from "next/link";
-import { fetchPositions} from "../utils/queries";
+import { fetchPositions, fetchUniV3Positions } from "../utils/queries";
 import React from "react";
 import useTokenList from "../hooks/useTokenList";
 import Initial from "../components/Cover/Initial";
@@ -103,8 +103,6 @@ function checkUserPositionExists() {
       setUserPositionExists(true)
     }
   })}
-
-
   //async so needs to be wrapped
   useEffect(() => {
     getUserPositionData();
@@ -121,6 +119,57 @@ function checkUserPositionExists() {
   useEffect(() => {
     console.log("chainId: ", chainId);
   }, [chainId]);
+
+  /*const [uniV3Positions, setUniV3Positions] = useState([]);
+  const [allUniV3Positions, setAllUniV3Positions] = useState([]);
+  const [userUniV3PositionExists, setUserUniV3PositionExists] = useState(false);
+
+  async function getUserUniV3PositionData() {
+    const data = await fetchUniV3Positions(address)
+    const positions = data["data"].positions
+
+    setUniV3Positions(positions)
+  }
+
+function mapUserUniV3Positions() {
+    const mappedUniV3Positions = []
+    uniV3Positions.map(uniV3Position => {
+
+    const uniV3PositionData = {
+      tokenOneName: uniV3Position.pool.token1.name,
+      tokenZeroName: uniV3Position.pool.token0.name,
+      tokenOneAddress: uniV3Position.pool.token1.id,
+      tokenZeroAddress: uniV3Position.pool.token0.id,
+      poolAddress: uniV3Position.pool.id,
+      userOwnerAddress: uniV3Position.owner.replace(/"|'/g, '')
+    }
+
+    mappedUniV3Positions.push(uniV3PositionData)
+    })
+
+    setAllUniV3Positions(mappedUniV3Positions)
+  }
+
+function checkUserUniV3PositionExists() {
+  allUniV3Positions.map(allUniV3Position => {
+    if(allUniV3Position.userOwnerAddress === address?.toLowerCase()){
+      setUserUniV3PositionExists(true)
+    }
+  })}
+
+
+  //async so needs to be wrapped
+  useEffect(() => {
+    getUserUniV3PositionData();
+  },[])
+
+  useEffect(() => {
+    mapUserUniV3Positions();
+  },[uniV3Positions])
+
+  useEffect(() => {
+    checkUserUniV3PositionExists();
+  },[])*/
 
   const Option = () => {
     if (expanded) {
@@ -184,7 +233,19 @@ function checkUserPositionExists() {
               <div>
                 <h1 className="mb-3">User Cover Positions</h1>
                 <div className="space-y-2">
-                  {allCoverPositions.map(allCoverPosition => {
+                  {allCoverPositions.length === 0 ?
+                  <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-14 py-4 mx-auto text-grey">
+  <path fill-rule="evenodd" d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z" clip-rule="evenodd" />
+</svg>
+
+                    Your cover pools will appear here
+                  </div>
+                  : 
+                  <div>
+                    {allCoverPositions.map(allCoverPosition => {
                       if(allCoverPosition.userOwnerAddress === address?.toLowerCase()){
                         return(
                         <UserCoverPool
@@ -199,13 +260,27 @@ function checkUserPositionExists() {
                       />)
                       }
                     })}
+                  </div>
+
+                  }
+                  
                 </div>
               </div>
               <div>
                 <h1 className="mb-3 mt-4">User UNI-V3 Positions</h1>
-                {/* <div className="space-y-2">
-                  <StaticUniPool />
-                </div> */}
+                {/*{allUniV3Positions.map(allUniV3Position => {
+                      if(allUniV3Position.userOwnerAddress === address?.toLowerCase()){
+                        return(
+                        <UserCoverPool
+                      key={allUniV3Position.tokenOneName}
+                        tokenOneName={allUniV3Position.tokenOneName}
+                        tokenZeroName={allUniV3Position.tokenZeroName}
+                        tokenOneAddress={allUniV3Position.tokenOneAddress}
+                        tokenZeroAddress={allUniV3Position.tokenZeroAddress}
+                        poolAddress={allUniV3Position.poolAddress}
+                      />)
+                      }
+                    })}*/}
               </div>
             </div>)}
           </div>
