@@ -82,11 +82,11 @@ export default function View() {
             </a>
           </div>
           <div className="mb-6">
-            <div className="flex text-[#646464] justify-between">
-              <div className="flex gap-x-10 pl-2">
+            <div className="flex justify-between text-[#646464]">
+              <div className="grid grid-cols-2 gap-x-10 pl-2 ">
                 <h1
                 onClick={() => copyAddress0()}
-                 className="text-xs cursor-pointer">
+                 className="text-xs cursor-pointer w-32">
                   USDC:
                   {is0Copied ? <span className="ml-1">Copied</span> :  <span className="ml-1">0xB8c...Ee62d</span> }
                 </h1>
@@ -100,9 +100,10 @@ export default function View() {
               </div>
                <h1
                 onClick={() => copyPoolAddress()}
-                 className="text-xs cursor-pointer">
+                 className="text-xs cursor-pointer flex items-center">
                   Pool:
                   {isPoolCopied ? <span className="ml-1">Copied</span> :  <span className="ml-1">0xB8c...Ee62d</span> }
+
                   
                 </h1>
             </div>
