@@ -3,6 +3,11 @@ import {
   ArrowLongRightIcon
 } from "@heroicons/react/20/solid";
 import { useEffect, useState } from "react";
+import { useStore } from "../../hooks/useStore";
+
+
+
+
 
 export default function UserCoverPool({ 
   tokenOneName, 
@@ -10,7 +15,6 @@ export default function UserCoverPool({
   tokenOneAddress, 
   tokenZeroAddress, 
   poolAddress,
-  pool,
   prefill,
   close
 }) {
@@ -37,18 +41,27 @@ const [poolDisplay, setPoolDisplay] = useState(
                                                 poolAddress?.length
                                               ));
 
-                                            
-const selected = () => {
- pool({
-    tokenOneName: tokenOneName, 
+        
+
+                                              
+const [currentPool,resetPool, updatePool] = useStore((state) => [state.pool,state.resetPool, state.updatePool])
+
+const setPool = () => {
+  resetPool;
+  updatePool({
+    tokenOneName:tokenOneName, 
     tokenZeroName: tokenZeroName, 
-    tokenOneAddress: tokenOneAddress, 
+    tokenOneAddress:tokenOneAddress, 
     tokenZeroAddress: tokenZeroAddress, 
-    poolAddress: poolAddress,
-  });
+    poolAddress: poolAddress
+  })
   prefill("existingPool");
   close(false)
+  // console.log(currentPool)
+
 }
+
+
 // useEffect(() => {
 //   console.log(
 //   tokenOneName, 
@@ -61,7 +74,14 @@ const selected = () => {
     <>
     
       <div
-      onClick={() => selected()}
+      onClick={() =>  setPool()}
+        onMouseEnter={(e) => {
+          setShow(true);
+        }}
+        onMouseLeave={(e) => {
+          setShow(false);
+        }}
+
         className="w-full cursor-pointer flex justify-between items-center bg-dark border border-grey2 rounded-xl py-3.5 pl-5 h-24 relative"
       >
         <div className="space-y-2">

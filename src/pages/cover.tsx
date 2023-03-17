@@ -255,7 +255,6 @@ function checkUserUniV3PositionExists() {
                         tokenOneAddress={allCoverPosition.tokenOneAddress}
                         tokenZeroAddress={allCoverPosition.tokenZeroAddress}
                         poolAddress={allCoverPosition.poolAddress}
-                        pool={undefined}
                         prefill={undefined}
                         close={undefined}
                       />)

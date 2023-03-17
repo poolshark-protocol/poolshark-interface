@@ -376,7 +376,7 @@ export default function Swap() {
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
         {isDisconnected ? null : allowance === 0.0 && stateChainName === "goerli" ? (
-          <CoverApproveButton address={address} amount={bnInput} />
+          <CoverApproveButton address={address}  />
         ) : stateChainName === "goerli" ? (
           <SwapButton amount={bnInput} />
         ) : null}

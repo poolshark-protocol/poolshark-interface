@@ -1,6 +1,6 @@
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 
-export const cleanInputValue = (arg) => {
+export const cleanInputValue = (arg:string) => {
     const re = /^[+-]?\d*(?:[.,]\d*)?$/
     let inputVal = arg
     if (re.test(inputVal)) {
@@ -8,7 +8,7 @@ export const cleanInputValue = (arg) => {
     }
 }
 
-export const countDecimals = (value, tokenDecimals) => {
+export const countDecimals = (value:number, tokenDecimals:number) => {
     if ((value % 1) != 0) {
         let valueDecimals = value.toString().split(".")[1].length
         return valueDecimals > tokenDecimals || valueDecimals == tokenDecimals;
@@ -16,13 +16,15 @@ export const countDecimals = (value, tokenDecimals) => {
     return false;
 };
 
-export const getPreviousTicksLower = (token0, token1, index) => {
+export const getPreviousTicksLower = (token0:string, token1:string, index:number) => {
     return new Promise(function(resolve) {
+        //if ticks are 0/undefined then use min/max
         const getTicks =`
         { 
           ticks(
-             where: {index_lt:"${index}", pool_: {token0:"${token1.toLowerCase()}" , token1: "${token0.toLowerCase()}"}}
-             first: 1
+            first: 1
+             where: {index_lt:"${index}",pool_:{token0:"${token0.toLowerCase()}",token1:"0xc3a0736186516792c88e2c6d9b209471651aa46e"}}
+            
            ) {
              index
            }
@@ -37,26 +39,29 @@ export const getPreviousTicksLower = (token0, token1, index) => {
               .query({ query: gql(getTicks) })
               .then((data) => {
                   resolve(data)
-                  console.log(data)
               })
               .catch((err) => {
                   resolve(err)
+                  console.log(err)
               })
             })
 }
 
-export const getPreviousTicksUpper = (token0, token1, index) => {
+export const getPreviousTicksUpper = (token0:string, token1:string, index:number) => {
     return new Promise(function(resolve) {
         const getTicks =`
        { 
          ticks(
-            where: {index_gt:"${index}", pool_: {token0: "${token1.toLowerCase()}", token1:"${token0.toLowerCase()}"}}
             first: 1
+            where: {index_gt:"${index}", pool_:{token0:"${token0.toLowerCase()}",token1:"0xc3a0736186516792c88e2c6d9b209471651aa46e"}}
+            
           ) {
             index
           }
         }
         `
+
+     
           const client = new ApolloClient({
               uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
               cache: new InMemoryCache(),
@@ -66,17 +71,18 @@ export const getPreviousTicksUpper = (token0, token1, index) => {
               .query({ query: gql(getTicks) })
               .then((data) => {
                   resolve(data)
-                  console.log(data)
+                  
               })
               .catch((err) => {
                   resolve(err)
+                  console.log(err)
               })
             })
 }
 
 
 
-export const fetchPositions =  (address) => {
+export const fetchPositions =  (address:string) => {
   return new Promise(function(resolve) {
     const positionsQuery =`
       query($owner: String) {
@@ -181,7 +187,7 @@ export const fetchPools =  () => {
             })
 };  
 
-export const fetchTokens =  (id) => {
+export const fetchTokens =  (id:string) => {
     return new Promise(function(resolve) {
       const tokensQuery =`
         {
