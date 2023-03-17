@@ -141,7 +141,7 @@ export default function CoverExistingPool({goBack}) {
               <div className="space-y-3" >
                 {isDisconnected ? <ConnectWalletButton /> : null}
                 {/*  && dataState === "0x00" */}
-                {isDisconnected ? null : isConnected  ? <CoverApproveButton address={address} amount={"0"}/> : <CoverMintButton address={address} amount={"0"}/>}
+                {isDisconnected ? null : isConnected  ? <CoverApproveButton address={address} /> : <CoverMintButton disabled={false} />}
               </div>
               </>
     )
