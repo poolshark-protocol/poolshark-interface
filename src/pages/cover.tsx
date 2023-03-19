@@ -120,7 +120,7 @@ function checkUserPositionExists() {
     console.log("chainId: ", chainId);
   }, [chainId]);
 
-  /*const [uniV3Positions, setUniV3Positions] = useState([]);
+  const [uniV3Positions, setUniV3Positions] = useState([]);
   const [allUniV3Positions, setAllUniV3Positions] = useState([]);
   const [userUniV3PositionExists, setUserUniV3PositionExists] = useState(false);
 
@@ -136,11 +136,11 @@ function mapUserUniV3Positions() {
     uniV3Positions.map(uniV3Position => {
 
     const uniV3PositionData = {
-      tokenOneName: uniV3Position.pool.token1.name,
-      tokenZeroName: uniV3Position.pool.token0.name,
-      tokenOneAddress: uniV3Position.pool.token1.id,
-      tokenZeroAddress: uniV3Position.pool.token0.id,
-      poolAddress: uniV3Position.pool.id,
+      tokenOneName: uniV3Position.token1.name,
+      tokenZeroName: uniV3Position.token0.name,
+      tokenOneAddress: uniV3Position.token1.id,
+      tokenZeroAddress: uniV3Position.token0.id,
+      poolAddress: uniV3Position.id,
       userOwnerAddress: uniV3Position.owner.replace(/"|'/g, '')
     }
 
@@ -169,7 +169,7 @@ function checkUserUniV3PositionExists() {
 
   useEffect(() => {
     checkUserUniV3PositionExists();
-  },[])*/
+  },[])
 
   const Option = () => {
     if (expanded) {
