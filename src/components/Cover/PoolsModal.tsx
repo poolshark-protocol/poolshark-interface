@@ -8,7 +8,7 @@ import StaticUniPool from "../Pools/StaticUniPool";
 import { fetchPools, fetchUniV3Pools } from "../../utils/queries";
 import { useAccount } from "wagmi";
 
-export default function PoolsModal({ isOpen, setIsOpen, pool, prefill }) {
+export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
 
   const { address } = useAccount();
 
@@ -145,7 +145,6 @@ export default function PoolsModal({ isOpen, setIsOpen, pool, prefill }) {
                         tokenOneAddress={allCoverPool.tokenOneAddress}
                         tokenZeroAddress={allCoverPool.tokenZeroAddress}
                         poolAddress={allCoverPool.poolAddress}
-                        pool={pool}
                         prefill={prefill}
                         close={setIsOpen}
                       />
@@ -164,7 +163,6 @@ export default function PoolsModal({ isOpen, setIsOpen, pool, prefill }) {
                         tokenOneAddress={allUniv3Pool.tokenOneAddress}
                         tokenZeroAddress={allUniv3Pool.tokenZeroAddress}
                         poolAddress={allUniv3Pool.poolAddress}
-                        pool={pool}
                         prefill={prefill}
                         close={setIsOpen}
                       />

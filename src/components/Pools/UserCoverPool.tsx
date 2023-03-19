@@ -3,6 +3,11 @@ import {
   ArrowLongRightIcon
 } from "@heroicons/react/20/solid";
 import { useEffect, useState } from "react";
+import { useStore } from "../../hooks/useStore";
+
+
+
+
 
 export default function UserCoverPool({ 
   tokenOneName, 
@@ -10,7 +15,6 @@ export default function UserCoverPool({
   tokenOneAddress, 
   tokenZeroAddress, 
   poolAddress,
-  pool,
   prefill,
   close
 }) {
@@ -37,18 +41,27 @@ const [poolDisplay, setPoolDisplay] = useState(
                                                 poolAddress?.length
                                               ));
 
-                                            
-const selected = () => {
- pool({
-    tokenOneName: tokenOneName, 
+        
+
+                                              
+const [currentPool,resetPool, updatePool] = useStore((state) => [state.pool,state.resetPool, state.updatePool])
+
+const setPool = () => {
+  resetPool;
+  updatePool({
+    tokenOneName:tokenOneName, 
     tokenZeroName: tokenZeroName, 
-    tokenOneAddress: tokenOneAddress, 
+    tokenOneAddress:tokenOneAddress, 
     tokenZeroAddress: tokenZeroAddress, 
-    poolAddress: poolAddress,
-  });
+    poolAddress: poolAddress
+  })
   prefill("existingPool");
   close(false)
+  // console.log(currentPool)
+
 }
+
+
 // useEffect(() => {
 //   console.log(
 //   tokenOneName, 
@@ -61,7 +74,14 @@ const selected = () => {
     <>
     
       <div
-      onClick={() => selected()}
+      onClick={() =>  setPool()}
+        onMouseEnter={(e) => {
+          setShow(true);
+        }}
+        onMouseLeave={(e) => {
+          setShow(false);
+        }}
+
         className="w-full cursor-pointer flex justify-between items-center bg-dark border border-grey2 rounded-xl py-3.5 pl-5 h-24 relative"
       >
         <div className="space-y-2">
@@ -88,35 +108,7 @@ const selected = () => {
               <span className="text-grey">Max:</span> 1.0323 DAI per USDC
             </span>
           </div>
-        </div>
-        {show ? <div
-      className="bg-black pt-1 absolute w-full h-full left-0 rounded-xl"
-      >
-        <div className="flex gap-x-10 px-4 text-[#646464] my-2">
-        <div>
-        <h1 className="text-xs" >{tokenOneName} <span>{tokenOneDisplay}</span></h1>
-        <button
-        onClick={(e) => {
-          navigator.clipboard.writeText(tokenOneAddress)
-          e.stopPropagation()}}> Copy </button>
-        <h1 className="text-xs mt-2">{tokenZeroName} <span>{tokenZeroDisplay}</span></h1>
-        <button
-        onClick={(e) => {
-          navigator.clipboard.writeText(tokenZeroAddress)
-          e.stopPropagation()}}> Copy </button>
-        </div>
-       
-          <h1 className="text-xs">Pool: <span>{poolDisplay}</span></h1>
-          <button
-          onClick={(e) => {
-            navigator.clipboard.writeText(poolAddress)
-            e.stopPropagation()}}> Copy </button>
-        </div>
-        
-        <div className="bg-dark text-sm py-1 text-center rounded-br-xl border-t-grey1 border-t mt-3 rounded-b-xl">
-          <h1>Cover Size: $34.56</h1>
-        </div>
-      </div> : <div className="pr-5"><div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
+        </div> <div className="pr-5"><div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
           <div className="w-2 h-2 bg-green-500 rounded-full" />
           In Range
         </div>
@@ -125,7 +117,7 @@ const selected = () => {
       <div cl</div>assName="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
         <Excl</div>amationTriangleIcon className="w-4 text-yellow-600"/>
         Out of Range
-        </div> */}</div>}
+        </div> */}</div>
                       
         
       </div>

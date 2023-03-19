@@ -81,11 +81,11 @@ export default function Initial() {
         </div>
         </div>
               </div>
-              <PoolsModal isOpen={isOpen} setIsOpen={setIsOpen} pool={setPool} prefill={setIsShifted}/>
+              <PoolsModal isOpen={isOpen} setIsOpen={setIsOpen}  prefill={setIsShifted}/>
               </> 
              :shifted === "createCover" ? <CreateCover goBack={setIsShifted}/> :
 
-             <CoverExistingPool pool={pool} goBack={setIsShifted}  />
+             <CoverExistingPool goBack={setIsShifted}  />
              
              )}
 

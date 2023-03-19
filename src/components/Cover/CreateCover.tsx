@@ -6,7 +6,7 @@ import {
   ArrowLongLeftIcon,
 } from "@heroicons/react/20/solid";
 import SelectToken from "../SelectToken";
-import { useAccount, useProvider } from "wagmi";
+import { erc20ABI, useAccount, useBalance, useProvider } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import CoverApproveButton from "../Buttons/CoverApproveButton";
 import CoverBurnButton from "../Buttons/CoverBurnButton";
@@ -14,32 +14,127 @@ import CoverCollectButton from "../Buttons/CoverCollectButton";
 import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import { useState, useEffect } from "react";
-import useAllowance from "../../hooks/useAllowance";
 import useInputBox from "../../hooks/useInputBox";
-import { tokenOneAddress } from "../../constants/contractAddresses";
-import TokenBalance from "../TokenBalance";
+import {
+  tokenOneAddress,
+  tokenZeroAddress,
+} from "../../constants/contractAddresses";
+import { coverPoolAddress } from "../../constants/contractAddresses";
+import { TickMath } from "../../utils/tickMath";
+import { ethers } from "ethers";
+import { useStore } from "../../hooks/useStore";
+import {
+  getPreviousTicksLower,
+  getPreviousTicksUpper,
+} from "../../utils/queries";
+import JSBI from "jsbi";
+import { erc20 } from "../../abis/evm/erc20";
 
-export default function CreateCover(props:any) {
+export default function CreateCover(props: any) {
   const [expanded, setExpanded] = useState(false);
-  const {bnInput, inputBox} = useInputBox();
+  const { bnInput, inputBox } = useInputBox();
   const [stateChainName, setStateChainName] = useState();
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
-  
+
+  const [updateContractParams, updateAllowance, allowance, contractParams] =
+    useStore((state: any) => [
+      state.updateContractParams,
+      state.updateAllowance,
+      state.allowance,
+      state.contractParams,
+    ]);
+
+  async function setParams() {
+    try {
+      if (
+        minPrice !== undefined &&
+        minPrice !== "" &&
+        maxPrice !== undefined &&
+        maxPrice !== "" &&
+       Number(ethers.utils.formatUnits(bnInput)) !== 0 &&
+        hasSelected == true
+      ) {
+        const min = TickMath.getTickAtSqrtRatio(
+          JSBI.divide(
+            JSBI.multiply(
+              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
+              JSBI.BigInt(
+                String(
+                  Math.sqrt(Number(parseFloat(minPrice).toFixed(30))).toFixed(
+                    30
+                  )
+                )
+                  .split(".")
+                  .join("")
+              )
+            ),
+            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30))
+          )
+        );
+        const max = TickMath.getTickAtSqrtRatio(
+          JSBI.divide(
+            JSBI.multiply(
+              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
+              JSBI.BigInt(
+                String(
+                  Math.sqrt(Number(parseFloat(maxPrice).toFixed(30))).toFixed(
+                    30
+                  )
+                )
+                  .split(".")
+                  .join("")
+              )
+            ),
+            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30))
+          )
+        );
+        const data = await getPreviousTicksLower(
+          token0["address"],
+          token1["address"],
+          min
+        );
+        const data1 = await getPreviousTicksUpper(
+          token0["address"],
+          token1["address"],
+          max
+        );
+        updateContractParams({
+          prevLower: ethers.utils.parseUnits(
+            data["data"]["ticks"][0]["index"],
+            0
+          ),
+          min: ethers.utils.parseUnits(String(min), 0),
+          prevUpper: ethers.utils.parseUnits(
+            data1["data"]["ticks"][0]["index"],
+            0
+          ),
+          max: ethers.utils.parseUnits(String(max), 0),
+          claim: ethers.utils.parseUnits(String(min), 0),
+          amount: bnInput,
+          inverse: false,
+        });
+        setDisabled(false)
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    setParams();
+  }, [minPrice, maxPrice, bnInput]);
+
   const {
-    network: { chainId }
+    network: { chainId },
   } = useProvider();
 
   useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
-  }, [chainId])
-  
-  const { 
-    address,
-    isConnected, 
-    isDisconnected 
-  } = useAccount();
-  
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
+  }, [chainId]);
+
+  const { address, isConnected, isDisconnected } = useAccount();
+
   const [isDisabled, setDisabled] = useState(true);
   const [hasSelected, setHasSelected] = useState(false);
   const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
@@ -48,129 +143,152 @@ export default function CreateCover(props:any) {
   const [token0, setToken0] = useState({
     symbol: "TOKEN20A",
     logoURI:
-    "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
-    address:"0xdcf62d25fd6ad48277989e93827fd9ccf650975f"
+      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
+    address: "0x8fa1fdd860e3c56dafd09a048ffda4965376945e",
   });
   const [token1, setToken1] = useState({
     symbol: "Select Token",
+    logoURI: undefined,
+    address: "0xc3a0736186516792c88e2c6d9b209471651aa46e",
   });
-  const collateralBalance = TokenBalance(tokenOneAddress);
-  const balanceZero = TokenBalance(queryToken0);
-  const balanceOne = TokenBalance(queryToken1);
 
-  const [usdcBalance, setUsdcBalance] = useState("");
-  const [balance0, setBalance0] = useState("");
-  const [balance1, setBalance1] = useState("");
+  const [usdcBalance, setUsdcBalance] = useState(0);
   const [amountToPay, setAmountToPay] = useState(0);
-  const [prices, setPrices] = useState({token0: 0, token1: 0});
+  const [prices, setPrices] = useState({ token0: 0, token1: 0 });
 
-  const allowance = useAllowance(address);
-  // useEffect(() => {  
-  // },[allowance])
+  const token0Allowance = async () => {
+    const provider = new ethers.providers.JsonRpcProvider(
+      "https://eth-goerli.gateway.pokt.network/v1/lb/b118c3bcdc54f084b19eac34"
+    );
+    const contract = new ethers.Contract(token0.address, erc20, provider);
+    const allowance = await contract.allowance(address, coverPoolAddress);
+    return ethers.utils.formatUnits(allowance);
+  };
 
-//   async function getTokenPrices() {
-//     //default 1/2
-//     const data = await tickMath()
-//     const price0 = (Number(data.data.ticks[0].price0)).toFixed(3)
-//     const price1 = (Number(data.data.ticks[0].price1)).toFixed(3)
-//     console.log({token0: price0, token1: price1})
-//     setPrices({token0: price0, token1: price1})
-//   }
-//   useEffect(() => {
-//   getTokenPrices();
-// },
-//   [])
+  const { data, isError, isLoading } = useBalance({
+    token: `0x${token0.address.split("0x")[1]}`,
+    chainId: 5,
+    address: address,
+    onSuccess: () => {
+      setUsdcBalance(Number(data?.formatted))
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
-  useEffect(() => {
-    if (Number(balanceZero().props.children[1]) >= 1000000) {
-      setBalance0(Number(balanceZero().props.children[1]).toExponential(5));
-    }
-    setBalance0(Number(balanceZero().props.children[1]).toFixed(2));
-  }, [queryToken0, balanceZero]);
-
-  useEffect(() => {
-    if (Number(balanceOne().props.children[1]) >= 1000000) {
-      setBalance1(Number(balanceOne().props.children[1]).toExponential(5));
-    }
-    setBalance1(Number(balanceOne().props.children[1]).toFixed(2));
-  }, [queryToken1, balanceOne]);
+  const balanceAndAllowance = async () => {
+    updateAllowance(await token0Allowance());
+  };
 
   useEffect(() => {
-    if (Number(collateralBalance().props.children[1]) >= 1000000) {
-      setUsdcBalance(
-        Number(collateralBalance().props.children[1]).toExponential(5)
-      );
+    try {
+      balanceAndAllowance();
+    } catch (error) {
+      console.log(error);
     }
-    setUsdcBalance(Number(collateralBalance().props.children[1]).toFixed(2));
-  }, [collateralBalance]);
+  }, []);
 
-  function changeDefault0(token) {
-    if (token.symbol === token1.symbol) {
+  function changeDefault0(token: {
+    symbol: string;
+    logoURI: any;
+    address: string;
+  }) {
+    if (token.symbol === token1.symbol || token.address === token1.address) {
       return;
     }
+    console.log(token)
     setToken0(token);
   }
 
   const [tokenOrder, setTokenOrder] = useState(true);
 
-  const changeDefault1 = (token) => {
-    if (token.symbol === token0.symbol) {
+  const changeDefault1 = (token:{
+    symbol: string;
+    logoURI: any;
+    address: string;
+  }) => {
+    if (token.symbol === token0.symbol || token.address === token0.address) {
       return;
     }
+    console.log(token)
     setToken1(token);
     setHasSelected(true);
     setDisabled(false);
   };
 
   const handleValueChange = () => {
-    if ((document.getElementById("input") as HTMLInputElement).value === undefined) {
+    if (
+      (document.getElementById("input") as HTMLInputElement).value === undefined
+    ) {
       return;
     }
     const current = document.getElementById("input") as HTMLInputElement;
     setAmountToPay(Number(current.value));
   };
 
-  const changePrice = (direction:string, minMax:string) => {
+  const changePrice = (direction: string, minMax: string) => {
     if (direction === "plus" && minMax === "min") {
-      if ((document.getElementById("minInput")  as HTMLInputElement).value === undefined) {
-        const current = (document.getElementById("minInput")  as HTMLInputElement);
+      if (
+        (document.getElementById("minInput") as HTMLInputElement).value ===
+        undefined
+      ) {
+        const current = document.getElementById("minInput") as HTMLInputElement;
         current.value = "1";
       }
-      const current = Number((document.getElementById("minInput") as HTMLInputElement).value);
-      (document.getElementById("minInput") as HTMLInputElement).value = String(current + 1);
+      const current = Number(
+        (document.getElementById("minInput") as HTMLInputElement).value
+      );
+      (document.getElementById("minInput") as HTMLInputElement).value = String(
+        (current + 0.01).toFixed(3)
+      );
     }
     if (direction === "minus" && minMax === "min") {
-      const current = Number((document.getElementById("minInput") as HTMLInputElement).value);
+      const current = Number(
+        (document.getElementById("minInput") as HTMLInputElement).value
+      );
       if (current === 0 || current - 1 < 0) {
-       (document.getElementById("minInput") as HTMLInputElement).value = "0"
+        (document.getElementById("minInput") as HTMLInputElement).value = "0";
         return;
       }
-      (document.getElementById("minInput") as HTMLInputElement).value = (current - 1).toFixed(3);
+      (document.getElementById("minInput") as HTMLInputElement).value = (
+        current - 0.01
+      ).toFixed(3);
     }
 
     if (direction === "plus" && minMax === "max") {
-      if ((document.getElementById("maxInput") as HTMLInputElement).value === undefined) {
+      if (
+        (document.getElementById("maxInput") as HTMLInputElement).value ===
+        undefined
+      ) {
         const current = document.getElementById("maxInput") as HTMLInputElement;
         current.value = "1";
       }
-      const current = Number((document.getElementById("maxInput") as HTMLInputElement).value);
-      (document.getElementById("maxInput") as HTMLInputElement).value = String(current + 1);
+      const current = Number(
+        (document.getElementById("maxInput") as HTMLInputElement).value
+      );
+      (document.getElementById("maxInput") as HTMLInputElement).value = (
+        current + 0.01
+      ).toFixed(3);
     }
     if (direction === "minus" && minMax === "max") {
-      const current = Number((document.getElementById("maxInput") as HTMLInputElement).value);
+      const current = Number(
+        (document.getElementById("maxInput") as HTMLInputElement).value
+      );
       if (current === 0 || current - 1 < 0) {
-        (document.getElementById("maxInput") as HTMLInputElement).value = "0"
+        (document.getElementById("maxInput") as HTMLInputElement).value = "0";
         return;
       }
-      (document.getElementById("maxInput") as HTMLInputElement).value = (current - 1).toFixed(3);
+      (document.getElementById("maxInput") as HTMLInputElement).value = (
+        current - 0.01
+      ).toFixed(3);
     }
   };
 
+  // useEffect(() => {
+  // if ()
 
-  useEffect(() => {
-    },[bnInput, (document.getElementById('minInput') as HTMLInputElement)?.value, (document.getElementById('maxInput') as HTMLInputElement)?.value])
-
-  // const [dataState, setDataState] = useAllowance(address);
+  //   },[bnInput, (document.getElementById('minInput') as HTMLInputElement)?.value, (document.getElementById('maxInput') as HTMLInputElement)?.value])
 
   const Option = () => {
     if (expanded) {
@@ -201,17 +319,23 @@ export default function CreateCover(props:any) {
 
   return isDisconnected ? (
     <>
-    <h1 className="mb-5">Connect a Wallet</h1>
-    <ConnectWalletButton />
+      <h1 className="mb-5">Connect a Wallet</h1>
+      <ConnectWalletButton />
     </>
   ) : (
     <>
       <div className="mb-6">
         <div className="flex flex-row justify-between">
-        <h1 className="mb-3">Select Pair</h1>
-        <span className="flex gap-x-1 cursor-pointer" onClick={() => props.goBack("initial")}><ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " /> <h1 className="mb-3 opacity-50">Back</h1> </span>
+          <h1 className="mb-3">Select Pair</h1>
+          <span
+            className="flex gap-x-1 cursor-pointer"
+            onClick={() => props.goBack("initial")}
+          >
+            <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{" "}
+            <h1 className="mb-3 opacity-50">Back</h1>{" "}
+          </span>
         </div>
-        
+
         <div className="flex gap-x-4 items-center">
           <SelectToken
             index="0"
@@ -253,7 +377,7 @@ export default function CreateCover(props:any) {
               <div className="flex justify-end">
                 <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
                   <div className="flex items-center gap-x-2 w-full">
-                    <img className="w-7" src={token0.logoURI}/>
+                    <img className="w-7" src={token0.logoURI} />
                     {token0.symbol}
                   </div>
                 </button>
@@ -270,11 +394,15 @@ export default function CreateCover(props:any) {
       <div className="mt-3 space-y-2">
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Balance</div>
-          <div>{usdcBalance} {token0.symbol}</div>
+          <div>
+            {usdcBalance} {token0.symbol}
+          </div>
         </div>
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Amount to pay</div>
-          <div>{amountToPay} {token0.symbol}</div>
+          <div>
+            {amountToPay} {token0.symbol}
+          </div>
         </div>
       </div>
       <h1 className="mb-3 mt-4">Set Price Range</h1>
@@ -292,7 +420,12 @@ export default function CreateCover(props:any) {
               placeholder="0"
               id="minInput"
               type="number"
-              onChange={() => setMinPrice((document.getElementById('minInput') as HTMLInputElement)?.value)}
+              onChange={() =>
+                setMinPrice(
+                  (document.getElementById("minInput") as HTMLInputElement)
+                    ?.value
+                )
+              }
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice("plus", "min")}>
@@ -300,7 +433,10 @@ export default function CreateCover(props:any) {
               </button>
             </div>
           </div>
-          <span className="text-xs text-grey">{token0.symbol} per {token1.symbol === "SELECT TOKEN" ? "?": token1.symbol}</span>
+          <span className="text-xs text-grey">
+            {token0.symbol} per{" "}
+            {token1.symbol === "SELECT TOKEN" ? "?" : token1.symbol}
+          </span>
         </div>
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
           <span className="text-xs text-grey">Max. Price</span>
@@ -315,7 +451,12 @@ export default function CreateCover(props:any) {
               placeholder="0"
               id="maxInput"
               type="number"
-              onChange={() => setMaxPrice((document.getElementById('maxInput') as HTMLInputElement)?.value)}
+              onChange={() =>
+                setMaxPrice(
+                  (document.getElementById("maxInput") as HTMLInputElement)
+                    ?.value
+                )
+              }
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice("plus", "max")}>
@@ -323,7 +464,10 @@ export default function CreateCover(props:any) {
               </button>
             </div>
           </div>
-          <span className="text-xs text-grey">{token0.symbol} per {token1.symbol === "SELECT TOKEN" ? "?": token1.symbol}</span>
+          <span className="text-xs text-grey">
+            {token0.symbol} per{" "}
+            {token1.symbol === "SELECT TOKEN" ? "?" : token1.symbol}
+          </span>
         </div>
       </div>
       <div className="py-4">
@@ -332,7 +476,10 @@ export default function CreateCover(props:any) {
           onClick={() => setExpanded(!expanded)}
         >
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-          {prices.token0} {token0.symbol} =  {token1.symbol === "Select Token" ? "?": prices.token1 + " " + token1.symbol}
+            {prices.token0} {token0.symbol} ={" "}
+            {token1.symbol === "Select Token"
+              ? "?"
+              : prices.token1 + " " + token1.symbol}
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
             <button>
@@ -345,15 +492,21 @@ export default function CreateCover(props:any) {
         </div>
       </div>
       <div className="mb-3" key={allowance}>
-      { isConnected &&  (Number(allowance) <= amountToPay)  && stateChainName === "goerli" ? (
-         <CoverApproveButton address={tokenOneAddress} amount={bnInput} />
-        ) : stateChainName === "goerli" ? ( 
-          <CoverMintButton disabled={isDisabled} token0={token0} token1={token1} amount={bnInput} MinInput={minPrice} MaxInput={maxPrice} />
-       ) : null}
+        {isConnected &&
+       Number(allowance) < amountToPay &&
+        stateChainName === "goerli" ? (
+          <CoverApproveButton address={tokenZeroAddress} />
+        ) : stateChainName === "goerli" ? (
+          <CoverMintButton disabled={isDisabled} />
+        ) : null}
       </div>
       <div className="space-y-3">
-        {isDisconnected ? null : stateChainName === "goerli" ? <CoverBurnButton address={address} /> : null}
-        {isDisconnected ? null : stateChainName === "goerli" ? <CoverCollectButton address={address} /> : null}
+        {isDisconnected ? null : stateChainName === "goerli" ? (
+          <CoverBurnButton address={address} />
+        ) : null}
+        {isDisconnected ? null : stateChainName === "goerli" ? (
+          <CoverCollectButton address={address} />
+        ) : null}
         {/*TO-DO: add positionOwner ternary again*/}
       </div>
     </>

@@ -7,16 +7,19 @@ import { useAccount } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import {ConnectWalletButton} from "../Buttons/ConnectWalletButton";
 import CoverApproveButton from "../Buttons/CoverApproveButton";
-import { useState } from "react";
-import useAllowance from "../../hooks/useAllowance";
+import { useEffect, useState } from "react";
+import {useStore} from "../../hooks/useStore"
 
-export default function CoverExistingPool({pool, goBack}) {
+export default function CoverExistingPool({goBack}) {
+  const [pool, updatePool] = useStore((state:any) => [state.pool, state.updatePool] )
   const [expanded, setExpanded] = useState(false);
   const { 
     address,
     isConnected, 
     isDisconnected 
   } = useAccount();
+
+
 
   //  const [dataState, setDataState] = useAllowance(address);
 
@@ -70,14 +73,14 @@ export default function CoverExistingPool({pool, goBack}) {
                                  <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
                     <div className="flex items-center gap-x-2 w-full">
                       <img className="w-7" src="/static/images/dai_icon.png" />
-                      {pool.tokenOneName}
+                      {pool.tokenZeroName}
                     </div>
                   </button>
          <ArrowLongRightIcon className="w-6" />
                                  <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
                     <div className="flex items-center gap-x-2 w-full">
                       <img className="w-7" src="/static/images/token.png" />
-                      {pool.tokenZeroName}
+                      {pool.tokenOneName}
                     </div>
                   </button>
         </div>
@@ -138,7 +141,7 @@ export default function CoverExistingPool({pool, goBack}) {
               <div className="space-y-3" >
                 {isDisconnected ? <ConnectWalletButton /> : null}
                 {/*  && dataState === "0x00" */}
-                {isDisconnected ? null : isConnected  ? <CoverApproveButton address={address} amount={"0"}/> : <CoverMintButton address={address} amount={"0"}/>}
+                {isDisconnected ? null : isConnected  ? <CoverApproveButton address={address} /> : <CoverMintButton disabled={false} />}
               </div>
               </>
     )
