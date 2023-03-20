@@ -5,7 +5,7 @@ import {
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 import UserPool from "../../components/Pools/UserPool";
-import PoolList from "../../components/Pools/AllPools";
+import PoolList from "../../components/Pools/PoolList";
 import Link from "next/link";
 import { Listbox, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
@@ -103,7 +103,19 @@ function SelectPool() {
             <div className="">
               <h1 className="mb-3">All Pools</h1>
               <div className="space-y-2">
-                <PoolList />
+                <table className="w-full table-auto">
+                  <thead className="mb-3">
+                    <tr className="text-xs text-grey">
+                      <th className="text-left font-light">Name</th>
+                      <th className="text-right font-light">TVL</th>
+                      <th className="text-right font-light">Volume(24h)</th>
+                      <th className="text-right font-light">Volume(7d)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <PoolList/>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
