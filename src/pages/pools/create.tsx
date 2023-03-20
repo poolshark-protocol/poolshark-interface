@@ -69,7 +69,7 @@ export default function CreatePool() {
               <h1 className="text-3xl">Create Pool</h1>
               <SelectPool />
             </div>
-            <Link href="/pool">
+            <Link href="/pools">
               <span className="bg-black border border-grey2 rounded-lg text-white px-7 py-[9px] cursor-pointer hover:opacity-80">
                 Cancel
               </span>

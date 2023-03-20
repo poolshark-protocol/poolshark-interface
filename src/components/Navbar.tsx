@@ -50,15 +50,15 @@ export default function Navbar() {
                   Swap
                 </div>
               </Link>
-              <Link href="/pool">
+              <Link href="/pools">
                 <div
                   className={
-                    router.pathname == "/pool"
+                    router.pathname == "/pools"
                       ? "bg-background text-main transition-all py-2 px-6 rounded-lg text-sm font-medium cursor-pointer"
                       : "text-grey hover:text-white py-2 px-6 rounded-lg text-sm font-medium cursor-pointer"
                   }
                 >
-                  Pool
+                  Pools
                 </div>
               </Link>
               <Link href="/cover">
