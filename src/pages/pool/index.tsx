@@ -5,10 +5,11 @@ import {
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 import UserPool from "../../components/Pools/UserPool";
+import UserCoverPool from "../../components/Pools/UserCoverPool";
 import PoolList from "../../components/Pools/PoolList";
 import Link from "next/link";
 import { Listbox, Transition } from "@headlessui/react";
-import { fetchRangePools, fetchRangePositions } from "../../utils/queries";
+import { fetchRangePools, fetchRangePositions, fetchPools, fetchPositions } from "../../utils/queries";
 import { Fragment, useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 
@@ -25,7 +26,7 @@ export default function Pool() {
     const [rangePools, setRangePools] = useState([]);
     const [allRangePools, setAllRangePools] = useState([]);
   
-    async function getPoolData() {
+    async function getRangePoolData() {
       const data = await fetchRangePools();
       const pools = data["data"].rangePools;
   
@@ -52,18 +53,54 @@ export default function Pool() {
   
     //async so needs to be wrapped
     useEffect(() => {
-      getPoolData();
+      getRangePoolData();
     }, []);
   
     useEffect(() => {
       mapRangePools();
     }, [rangePools]);
 
+    const [coverPools, setCoverPools] = useState([]);
+  const [allCoverPools, setAllCoverPools] = useState([]);
+
+  async function getCoverPoolData() {
+    const data = await fetchPools();
+    const pools = data["data"].coverPools;
+
+    setCoverPools(pools);
+  }
+
+  function mapCoverPools() {
+    const mappedCoverPools = [];
+    
+    coverPools.map((coverPool) => {
+      const coverPoolData = {
+        tokenOneName: coverPool.token1.name,
+        tokenZeroName: coverPool.token0.name,
+        tokenOneAddress: coverPool.token1.id,
+        tokenZeroAddress: coverPool.token0.id,
+        poolAddress: coverPool.id,
+      };
+
+      mappedCoverPools.push(coverPoolData);
+    });
+
+    setAllCoverPools(mappedCoverPools);
+  }
+
+  //async so needs to be wrapped
+  useEffect(() => {
+    getCoverPoolData();
+  }, []);
+
+  useEffect(() => {
+    mapCoverPools();
+  }, [coverPools]);
+
     const [rangePositions, setRangePositions] = useState([]);
     const [allRangePositions, setAllRangePositions] = useState([]);
-    const [userPositionExists, setUserPositionExists] = useState(false);
 
-    async function getUserPositionData() {
+    async function getUserRangePositionData() {
       const data = await fetchRangePositions(address)
       const positions = data["data"].positions
   
@@ -88,26 +125,54 @@ export default function Pool() {
   
       setAllRangePositions(mappedRangePositions)
     }
-  
-  function checkUserPositionExists() {
-    allRangePositions.map(allRangePosition => {
-      if(allRangePosition.userOwnerAddress === address?.toLowerCase()){
-        setUserPositionExists(true)
-      }
-    })}
+
     //async so needs to be wrapped
     useEffect(() => {
-      getUserPositionData();
+      getUserRangePositionData();
     },[])
   
     useEffect(() => {
       mapUserRangePositions();
     },[rangePositions])
   
-    useEffect(() => {
-      checkUserPositionExists();
-    },[])
-  
+  const [coverPositions, setCoverPositions] = useState([]);
+  const [allCoverPositions, setAllCoverPositions] = useState([]);
+
+  async function getUserCoverPositionData() {
+    const data = await fetchPositions(address)
+    const positions = data["data"].positions
+
+    setCoverPositions(positions)
+  }
+
+function mapUserCoverPositions() {
+    const mappedCoverPositions = []
+    coverPositions.map(coverPosition => {
+
+    const coverPositionData = {
+      tokenOneName: coverPosition.pool.token1.name,
+      tokenZeroName: coverPosition.pool.token0.name,
+      tokenOneAddress: coverPosition.pool.token1.id,
+      tokenZeroAddress: coverPosition.pool.token0.id,
+      poolAddress: coverPosition.pool.id,
+      userOwnerAddress: coverPosition.owner.replace(/"|'/g, '')
+    }
+    
+    mappedCoverPositions.push(coverPositionData)
+    })
+
+    setAllCoverPositions(mappedCoverPositions)
+  }
+
+  //async so needs to be wrapped
+  useEffect(() => {
+    getUserCoverPositionData();
+  },[])
+
+  useEffect(() => {
+    mapUserCoverPositions();
+  },[coverPositions])
+
 
 function SelectPool() {
   
@@ -187,7 +252,8 @@ function SelectPool() {
             <div className="">
               <h1 className="mb-3">My Positions</h1>
               <div className="space-y-2">
-              {allRangePositions.map(allRangePosition => {
+              {isConnected ? (
+              allRangePositions.map(allRangePosition => {
                       if(allRangePosition.userOwnerAddress === address?.toLowerCase()){
                         return(
                         <UserPool
@@ -199,7 +265,23 @@ function SelectPool() {
                         poolAddress={allRangePosition.poolAddress}
                       />)
                       }
-                    })}
+                    })) : (
+                  allCoverPositions.map(allCoverPosition => {
+                    if(allCoverPosition.userOwnerAddress === address?.toLowerCase()){
+                      return(
+                      <UserCoverPool
+                    key={allCoverPosition.tokenOneName}
+                      tokenOneName={allCoverPosition.tokenOneName}
+                      tokenZeroName={allCoverPosition.tokenZeroName}
+                      tokenOneAddress={allCoverPosition.tokenOneAddress}
+                      tokenZeroAddress={allCoverPosition.tokenZeroAddress}
+                      poolAddress={allCoverPosition.poolAddress}
+                      prefill={undefined}
+                      close={undefined}
+                    />)
+                    }
+                  }))
+                  }
               </div>
             </div>
             <div className="">
@@ -215,18 +297,30 @@ function SelectPool() {
                     </tr>
                   </thead>
                   <tbody>
-                  {allRangePools.map(allRangePool => {
-                        return(
-                        <PoolList
-                      key={allRangePool.tokenOneName}
-                        tokenOneName={allRangePool.tokenOneName}
-                        tokenZeroName={allRangePool.tokenZeroName}
-                        tvlUsd={allRangePool.tvlUsd}
-                        volumeUsd={allRangePool.volumeUsd}
-                        volumeEth={allRangePool.volumeEth}
-                      />)
+                  {isConnected ? (
+                    allRangePools.map(allRangePool => {
+                          return(
+                          <PoolList
+                        key={allRangePool.tokenOneName}
+                          tokenOneName={allRangePool.tokenOneName}
+                          tokenZeroName={allRangePool.tokenZeroName}
+                          tvlUsd={allRangePool.tvlUsd}
+                          volumeUsd={allRangePool.volumeUsd}
+                          volumeEth={allRangePool.volumeEth}
+                        />)
+                        })) : (
+                          allRangePools.map(allRangePool => {
+                            return(
+                            <PoolList
+                          key={allRangePool.tokenOneName}
+                            tokenOneName={allRangePool.tokenOneName}
+                            tokenZeroName={allRangePool.tokenZeroName}
+                            tvlUsd={allRangePool.tvlUsd}
+                            volumeUsd={allRangePool.volumeUsd}
+                            volumeEth={allRangePool.volumeEth}
+                          />)
+                          }))
                       }
-                    )}
                   </tbody>
                 </table>
               </div>

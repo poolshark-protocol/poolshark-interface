@@ -146,9 +146,7 @@ export const fetchPools =  () => {
         const poolsQuery =`
             query($id: String) {
                 coverPools(id: $id) {
-                    factory
                     id
-                    inputPool
                     tickSpread
                     token0{
                         id
