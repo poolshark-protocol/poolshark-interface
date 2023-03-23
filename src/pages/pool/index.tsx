@@ -17,7 +17,7 @@ export default function Pool() {
 
     const poolTypes = [
       { id: 1, type: "Range Pools", unavailable: false },
-      { id: 2, type: "Range Pools", unavailable: false },
+      { id: 2, type: "Cover Pools", unavailable: false },
     ];
 
     const { address, isConnected, isDisconnected } = useAccount();
