@@ -1,4 +1,9 @@
-export default function PoolList() {
+export default function PoolList({
+  tokenOneName,
+  tokenZeroName,
+  tvlUsd,
+  volumeUsd,
+  volumeEth}) {
   
   return (
     <tr className="text-right">
@@ -12,11 +17,11 @@ export default function PoolList() {
             src="/static/images/token.png"
           />
         </div>
-        DAI-USDC
+        {tokenOneName}-{tokenZeroName}
       </td>
-      <td>$400.32m</td>
-      <td>$19.69m</td>
-      <td>$64.98m</td>
+      <td>${tvlUsd}m</td>
+      <td>${volumeUsd}m</td>
+      <td>${volumeEth}m</td>
     </tr>
   );
 }

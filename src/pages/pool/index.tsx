@@ -39,9 +39,9 @@ export default function Pool() {
         const rangePoolData = {
           tokenOneName: rangePool.token1.name,
           tokenZeroName: rangePool.token0.name,
-          tokenOneAddress: rangePool.token1.id,
-          tokenZeroAddress: rangePool.token0.id,
-          poolAddress: rangePool.id,
+          tvlUsd: rangePool.totalValueLockedUsd,
+          volumeUsd: rangePool.volumeUsd,
+          volumeEth: rangePool.volumeEth,
         };
   
         mappedRangePools.push(rangePoolData);
@@ -210,12 +210,23 @@ function SelectPool() {
                     <tr className="text-xs text-grey">
                       <th className="text-left font-light">Name</th>
                       <th className="text-right font-light">TVL</th>
-                      <th className="text-right font-light">Volume(24h)</th>
-                      <th className="text-right font-light">Volume(7d)</th>
+                      <th className="text-right font-light">Volume(USD)</th>
+                      <th className="text-right font-light">Volume(ETH)</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <PoolList/>
+                  {allRangePools.map(allRangePool => {
+                        return(
+                        <PoolList
+                      key={allRangePool.tokenOneName}
+                        tokenOneName={allRangePool.tokenOneName}
+                        tokenZeroName={allRangePool.tokenZeroName}
+                        tvlUsd={allRangePool.tvlUsd}
+                        volumeUsd={allRangePool.volumeUsd}
+                        volumeEth={allRangePool.volumeEth}
+                      />)
+                      }
+                    )}
                   </tbody>
                 </table>
               </div>
