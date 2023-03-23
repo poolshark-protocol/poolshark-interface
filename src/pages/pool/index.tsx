@@ -173,10 +173,9 @@ function mapUserCoverPositions() {
     mapUserCoverPositions();
   },[coverPositions])
 
+const [selected, setSelected] = useState(poolTypes[0]);
 
 function SelectPool() {
-  
-  const [selected, setSelected] = useState(poolTypes[0]);
 
   return (
     <Listbox value={selected} onChange={setSelected}>
@@ -252,7 +251,7 @@ function SelectPool() {
             <div className="">
               <h1 className="mb-3">My Positions</h1>
               <div className="space-y-2">
-              {isConnected ? (
+              {selected.id === 1 ? (
               allRangePositions.map(allRangePosition => {
                       if(allRangePosition.userOwnerAddress === address?.toLowerCase()){
                         return(
@@ -297,7 +296,7 @@ function SelectPool() {
                     </tr>
                   </thead>
                   <tbody>
-                  {isConnected ? (
+                  {selected.id === 1 ? (
                     allRangePools.map(allRangePool => {
                           return(
                           <PoolList
