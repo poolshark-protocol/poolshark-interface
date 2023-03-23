@@ -8,15 +8,106 @@ import UserPool from "../../components/Pools/UserPool";
 import PoolList from "../../components/Pools/PoolList";
 import Link from "next/link";
 import { Listbox, Transition } from "@headlessui/react";
-import { Fragment, useState } from "react";
+import { fetchRangePools, fetchRangePositions } from "../../utils/queries";
+import { Fragment, useState, useEffect } from "react";
+import { useAccount } from "wagmi";
 
 
 export default function Pool() {
 
     const poolTypes = [
       { id: 1, type: "Range Pools", unavailable: false },
-      { id: 2, type: "Cover Pools", unavailable: false },
+      { id: 2, type: "Range Pools", unavailable: false },
     ];
+
+    const { address, isConnected, isDisconnected } = useAccount();
+  
+    const [rangePools, setRangePools] = useState([]);
+    const [allRangePools, setAllRangePools] = useState([]);
+  
+    async function getPoolData() {
+      const data = await fetchRangePools();
+      const pools = data["data"].rangePools;
+  
+      setRangePools(pools);
+    }
+  
+    function mapRangePools() {
+      const mappedRangePools = [];
+      
+      rangePools.map((rangePool) => {
+        const rangePoolData = {
+          tokenOneName: rangePool.token1.name,
+          tokenZeroName: rangePool.token0.name,
+          tokenOneAddress: rangePool.token1.id,
+          tokenZeroAddress: rangePool.token0.id,
+          poolAddress: rangePool.id,
+        };
+  
+        mappedRangePools.push(rangePoolData);
+      });
+  
+      setAllRangePools(mappedRangePools);
+    }
+  
+    //async so needs to be wrapped
+    useEffect(() => {
+      getPoolData();
+    }, []);
+  
+    useEffect(() => {
+      mapRangePools();
+    }, [rangePools]);
+
+    const [rangePositions, setRangePositions] = useState([]);
+    const [allRangePositions, setAllRangePositions] = useState([]);
+    const [userPositionExists, setUserPositionExists] = useState(false);
+
+    async function getUserPositionData() {
+      const data = await fetchRangePositions(address)
+      const positions = data["data"].positions
+  
+      setRangePositions(positions)
+    }
+  
+  function mapUserRangePositions() {
+      const mappedRangePositions = []
+      rangePositions.map(rangePosition => {
+  
+      const rangePositionData = {
+        tokenOneName: rangePosition.pool.token1.name,
+        tokenZeroName: rangePosition.pool.token0.name,
+        tokenOneAddress: rangePosition.pool.token1.id,
+        tokenZeroAddress: rangePosition.pool.token0.id,
+        poolAddress: rangePosition.pool.id,
+        userOwnerAddress: rangePosition.owner.replace(/"|'/g, '')
+      }
+      
+      mappedRangePositions.push(rangePositionData)
+      })
+  
+      setAllRangePositions(mappedRangePositions)
+    }
+  
+  function checkUserPositionExists() {
+    allRangePositions.map(allRangePosition => {
+      if(allRangePosition.userOwnerAddress === address?.toLowerCase()){
+        setUserPositionExists(true)
+      }
+    })}
+    //async so needs to be wrapped
+    useEffect(() => {
+      getUserPositionData();
+    },[])
+  
+    useEffect(() => {
+      mapUserRangePositions();
+    },[rangePositions])
+  
+    useEffect(() => {
+      checkUserPositionExists();
+    },[])
+  
 
 function SelectPool() {
   
@@ -67,7 +158,7 @@ function SelectPool() {
 
 
   return (
-    <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-DMSans">
+    <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-range min-h-screen font-DMSans">
       <Navbar />
       <div className="flex justify-center w-full text-white">
         <div className="mt-[16vh] w-[55rem]">
@@ -94,10 +185,21 @@ function SelectPool() {
               />
             </div>
             <div className="">
-              <h1 className="mb-3">My Pools</h1>
+              <h1 className="mb-3">My Positions</h1>
               <div className="space-y-2">
-                <UserPool tokenOneName={undefined} tokenZeroName={undefined} tokenOneAddress={undefined} tokenZeroAddress={undefined} poolAddress={undefined} />
-                <UserPool tokenOneName={undefined} tokenZeroName={undefined} tokenOneAddress={undefined} tokenZeroAddress={undefined} poolAddress={undefined} />
+              {allRangePositions.map(allRangePosition => {
+                      if(allRangePosition.userOwnerAddress === address?.toLowerCase()){
+                        return(
+                        <UserPool
+                      key={allRangePosition.tokenOneName}
+                        tokenOneName={allRangePosition.tokenOneName}
+                        tokenZeroName={allRangePosition.tokenZeroName}
+                        tokenOneAddress={allRangePosition.tokenOneAddress}
+                        tokenZeroAddress={allRangePosition.tokenZeroAddress}
+                        poolAddress={allRangePosition.poolAddress}
+                      />)
+                      }
+                    })}
               </div>
             </div>
             <div className="">

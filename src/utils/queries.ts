@@ -205,16 +205,17 @@ export const fetchCoverPoolMetrics =  () => {
                 resolve(err)
             })
         })
-    };  
+    };
+     
 export const fetchRangePools =  () => {
     return new Promise(function(resolve) {
         const poolsQuery =`
             query($id: String) {
                 rangePools(id: $id) {
+                    id
                     factory{
                         id
                     }
-                    id
                     token0{
                         id
                         name
@@ -232,7 +233,6 @@ export const fetchRangePools =  () => {
                     feeTier{
                         tickSpacing
                     }
-                    nearestTick
                     ticks{
                         price0
                         price1
@@ -251,8 +251,8 @@ export const fetchRangePools =  () => {
                     volumeToken1
                     volumeUsd
                     totalValueLockedEth
-                    totalValueLockedToken0
-                    totalValueLockedToken1
+                    totalValueLocked0
+                    totalValueLocked1
                     totalValueLockedUsd
                     txnCount
                 }
@@ -311,13 +311,13 @@ export const fetchRangePositions =  (address: string) => {
                     feesUsd
                     totalValueLockedEth
                     totalValueLockedUsd
+                    totalValueLocked0
+                    totalValueLocked1
                     volumeEth
                     volumeToken0
                     volumeToken1
                     volumeUsd
                 }
-                inputPool
-                txnHash
             }  
         }
     `
