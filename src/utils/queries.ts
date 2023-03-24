@@ -33,7 +33,6 @@ export const getPreviousTicksLower = (token0:string, token1:string, index:number
           const client = new ApolloClient({
               uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
               cache: new InMemoryCache(),
-      
           })
           client
               .query({ query: gql(getTicks) })
@@ -46,6 +45,7 @@ export const getPreviousTicksLower = (token0:string, token1:string, index:number
               })
             })
 }
+
 
 export const getPreviousTicksUpper = (token0:string, token1:string, index:number) => {
     return new Promise(function(resolve) {
@@ -60,99 +60,47 @@ export const getPreviousTicksUpper = (token0:string, token1:string, index:number
           }
         }
         `
-
-     
-          const client = new ApolloClient({
-              uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
-              cache: new InMemoryCache(),
-      
-          })
-          client
-              .query({ query: gql(getTicks) })
-              .then((data) => {
-                  resolve(data)
-                  
-              })
-              .catch((err) => {
-                  resolve(err)
-                  console.log(err)
-              })
+        const client = new ApolloClient({
+            uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
+            cache: new InMemoryCache(),
+        })
+        client
+            .query({ query: gql(getTicks) })
+            .then((data) => {
+                resolve(data)
+                console.log(data)
             })
-}
-
-
+            .catch((err) => {
+                resolve(err)
+            })
+          })
+    }
 
 export const fetchPositions =  (address:string) => {
   return new Promise(function(resolve) {
     const positionsQuery =`
       query($owner: String) {
           positions(owner: $owner) {
-              id
-              inAmount
-              inToken{
-                  id
-                  name
-                  symbol
-                  decimals
-              }
-              liquidity
-              lower
-              outAmount
-              outToken{
-                  id
-                  name
-                  symbol
-                  decimals
-              }
-              owner
-              pool{
-                factory
                 id
-                inputPool
-                token0{
+                inAmount
+                inToken{
                     id
                     name
                     symbol
                     decimals
                 }
-                token1{
+                liquidity
+                upper
+                lower
+                outAmount
+                outToken{
                     id
                     name
                     symbol
                     decimals
                 }
-            }
-              txnHash
-              upper
-          }
-        }
-      `
-      const client = new ApolloClient({
-          uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
-          cache: new InMemoryCache(),
-      
-      })
-      client
-          .query({ 
-            query: gql(positionsQuery),
-            variables: {
-                owner: address
-            },
-         })
-          .then((data) => {
-              resolve(data)
-          })
-          .catch((err) => {
-              resolve(err)
-          })
-})
-};
-
-export const fetchPools =  () => {
-    return new Promise(function(resolve) {
-        const poolsQuery =`
-            query($id: String) {
-                coverPools(id: $id) {
+                owner
+                pool{
                     factory
                     id
                     inputPool
@@ -169,10 +117,125 @@ export const fetchPools =  () => {
                         decimals
                     }
                 }
+                txnHash
+            }
+        }
+    `
+    const client = new ApolloClient({
+        uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
+        cache: new InMemoryCache(),
+    
+    })
+    client
+        .query({ 
+          query: gql(positionsQuery),
+          variables: {
+              owner: address
+          },
+       })
+        .then((data) => {
+            resolve(data)
+        })
+        .catch((err) => {
+            resolve(err)
+        })
+    })
+};
+
+export const fetchPools =  () => {
+    return new Promise(function(resolve) {
+        const poolsQuery =`
+            query($id: String) {
+                coverPools(id: $id) {
+                    factory
+                    id
+                    inputPool
+                    tickSpread
+                    token0{
+                        id
+                        name
+                        symbol
+                        decimals
+                    }
+                    token1{
+                        id
+                        name
+                        symbol
+                        decimals
+                    }
+                }
+            }
+        `
+        const client = new ApolloClient({
+            uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
+            cache: new InMemoryCache(),
+        })
+        client
+            .query({ query: gql(poolsQuery) })
+            .then((data) => {
+                resolve(data)
+                console.log(data)
+            })
+            .catch((err) => {
+                resolve(err)
+            })
+        })
+    };  
+
+export const fetchRangePools =  () => {
+    return new Promise(function(resolve) {
+        const poolsQuery =`
+            query($id: String) {
+                rangePools(id: $id) {
+                    factory{
+                        id
+                    }
+                    id
+                    token0{
+                        id
+                        name
+                        symbol
+                        decimals
+                    }
+                    token1{
+                        id
+                        name
+                        symbol
+                        decimals
+                    }
+                    feesEth
+                    feesUsd
+                    feeTier{
+                        tickSpacing
+                    }
+                    nearestTick
+                    ticks{
+                        price0
+                        price1
+                        previousTick
+                        nextTick
+                    }
+                    price
+                    price0
+                    price1
+                    feesEth
+                    feesUsd
+                    feeGrowthGlobal0
+                    feeGrowthGlobal1
+                    volumeEth
+                    volumeToken0
+                    volumeToken1
+                    volumeUsd
+                    totalValueLockedETH
+                    totalValueLockedToken0
+                    totalValueLockedToken1
+                    totalValueLockedUSD
+                    txnCount
+                }
             }
         `
           const client = new ApolloClient({
-              uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
+              uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-range",
               cache: new InMemoryCache(),
           })
           client
@@ -185,33 +248,94 @@ export const fetchPools =  () => {
                   resolve(err)
               })
             })
-};  
+};
 
-export const fetchTokens =  (id:string) => {
+export const fetchRangePositions =  (address: string) => {
     return new Promise(function(resolve) {
-      const tokensQuery =`
-        {
-            tokens(where: {id:"${id.toLowerCase()}"}, orderBy: name, orderDirection: asc) {
-                decimals
+      const positionsQuery =`
+        query($owner: String) {
+            positions(owner: $owner) {
                 id
-                name
-                symbol
-            }
-          }
-        `
+                owner
+                liquidity
+                upper
+                lower
+                pool{
+                factory{
+                    id
+                }
+                id
+                inputPool
+                token0{
+                    id
+                    name
+                    symbol
+                    decimals
+                }
+                token1{
+                    id
+                    name
+                    symbol
+                    decimals
+                }
+                txnHash
+            }  
+        }
+    `
         const client = new ApolloClient({
-            uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
+            uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-range",
             cache: new InMemoryCache(),
+        
         })
         client
-            .query({ query: gql(tokensQuery), })
+            .query({ 
+              query: gql(positionsQuery),
+              variables: {
+                  owner: address
+              },
+           })
             .then((data) => {
                 resolve(data)
             })
             .catch((err) => {
                 resolve(err)
             })
-  })
+        })
+    };
+
+export const fetchRangeMetrics =  () => {
+    return new Promise(function(resolve) {
+      const positionsQuery =`
+        query($id: String) {
+            rangePoolFactories(id: $id) {
+                id
+                txnCount
+                feesEthTotal
+                feesUsdTotal
+                poolCount
+                totalValueLockedEth
+                totalValueLockedUsd
+                volumeEthTotal
+                volumeUsdTotal
+            }  
+        }
+    `
+    const client = new ApolloClient({
+        uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-range",
+        cache: new InMemoryCache(),
+    
+    })
+    client
+        .query({ 
+          query: gql(positionsQuery)
+       })
+        .then((data) => {
+            resolve(data)
+        })
+        .catch((err) => {
+            resolve(err)
+        })
+    })
 };
 
 export const fetchUniV3Pools =  () => {
@@ -257,7 +381,7 @@ export const fetchUniV3Pools =  () => {
         })
 };
 
-export const fetchUniV3Positions =  (address) => {
+export const fetchUniV3Positions =  (address: string) => {
     return new Promise(function(resolve) {
         const univ3PositionsQuery =`
             query($owner: String) {
@@ -279,15 +403,8 @@ export const fetchUniV3Positions =  (address) => {
                     }
                     depositedToken0
                     depositedToken1
-                    pool{
-                        id
-                        liquidity
-                        sqrtPrice
-                        totalValueLockedETH
-                        totalValueLockedToken0
-                        totalValueLockedToken1
-                        totalValueLockedUSD
-                    }
+                    withdrawnToken0
+                    withdrawnToken1
                 }
             }
         `
@@ -301,7 +418,7 @@ export const fetchUniV3Positions =  (address) => {
             variables: {
                 owner: address
             }, 
-            })
+        })
           .then((data) => {
               resolve(data)
               console.log(data)
@@ -310,7 +427,7 @@ export const fetchUniV3Positions =  (address) => {
               resolve(err)
           })
         })
-}
+    }
 
 
 
