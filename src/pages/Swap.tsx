@@ -21,21 +21,20 @@ import { useProvider } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { chainIdsToNamesForGitTokenList } from "../utils/chains";
 import { coverPoolABI } from "../abis/evm/coverPool";
-import { BN } from "fuels";
+import { fetchPrice } from "../utils/queries";
 
 export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount();
   const { bnInput, inputBox, maxBalance } = useInputBox();
   const allowance = useAllowance(address);
   const [hasSelected, setHasSelected] = useState(false);
-  const [mktRate, setMktRate] = useState(0);
+  const [mktRate, setMktRate] = useState({});
   const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
   const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
 
   const [token0, setToken0] = useState({
-    symbol: "TOKEN20A",
-    logoURI:
-      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
+    symbol: "ETH",
+    logoURI: "/static/images/eth_icon.png",
   });
   const [token1, setToken1] = useState({
     symbol: "Select Token",
@@ -107,6 +106,7 @@ export default function Swap() {
     const tempBal = queryToken0;
     setQueryToken0(queryToken1);
     setQueryToken1(tempBal);
+    setMktRate({eth: mktRate["usdc"], usdc: mktRate["eth"]})
   }
 
   function openModal() {
@@ -126,37 +126,44 @@ export default function Swap() {
 
   const gasEstimate = async () => {
     const provider = ethers.getDefaultProvider();
-    const contract = new ethers.Contract(coverPoolAddress, coverPoolABI, provider);
+    const contract = new ethers.Contract(
+      coverPoolAddress,
+      coverPoolABI,
+      provider
+    );
     const recipient = address;
-    const estimation = await contract.estimateGas.swap(recipient, false, bnInput, BigNumber.from("100"));
-    console.log(ethers.utils.formatEther(estimation))
+    const estimation = await contract.estimateGas.swap(
+      recipient,
+      false,
+      bnInput,
+      BigNumber.from("100")
+    );
+    console.log(ethers.utils.formatEther(estimation));
   };
-
 
   useEffect(() => {
     fetchTokenPrice();
-  }, [token0, token1]);
+  }, []);
 
   useEffect(() => {
     gasEstimate();
   }, []);
-  const fetchTokenPrice = () => {
-    // let token = "bitcoin,ethereum";
-    // let options = {
-    //   method: "GET",
-    //   headers: {
-    //     "Content-Type": "application/json;charset=utf-8",
-    //   },
-    // };
-    // let fetchRes = fetch(
-    //   `https://api.coingecko.com/api/v3/simple/price?ids=${token}&vs_currencies=usd`,
-    //   options
-    // );
-    // fetchRes
-    //   .then((res) => res.json())
-    //   .then((d) => {
-    //     setMktRate(d);
-    //   });
+
+  const fetchTokenPrice = async () => {
+    try {
+      const price = await fetchPrice("0x000");
+      setMktRate({
+        eth: "~" + Number(
+          price["data"]["bundles"]["0"]["ethPriceUSD"]
+        ).toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+        }),
+        usdc: "~1.00"
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const Option = () => {
@@ -248,13 +255,7 @@ export default function Swap() {
           <div className="flex-col justify-center w-1/2 p-2 ">
             {inputBox("0")}
             <div className="flex">
-              <div className="flex text-xs text-[#4C4C4C]">
-                ~
-                {mktRate["bitcoin"]?.usd.toLocaleString("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                })}
-              </div>
+              <div className="flex text-xs text-[#4C4C4C]">{mktRate["eth"]}</div>
             </div>
           </div>
           <div className="flex w-1/2">
@@ -290,7 +291,12 @@ export default function Swap() {
         <div className="items-center -mb-2 -mt-2 p-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
           <ArrowSmallDownIcon
             className="w-4 h-4"
-            onClick={() => switchDirection()}
+            onClick={() => {
+              if (hasSelected) {
+                switchDirection()
+              }
+             
+            }}
           />
         </div>
 
@@ -301,13 +307,7 @@ export default function Swap() {
               placeholder="0"
             />
             <div className="flex">
-              <div className="flex text-xs text-[#4C4C4C] ">
-                {" "}
-                {mktRate["ethereum"]?.usd.toLocaleString("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                })}
-              </div>
+              <div className="flex text-xs text-[#4C4C4C] ">{mktRate["usdc"]}</div>
             </div>
           </div>
           <div className="flex w-1/2">
@@ -406,8 +406,8 @@ export default function Swap() {
             onClick={() => setExpanded(!expanded)}
           >
             <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-              1 {token0.symbol} = 1{" "}
-              {token1.symbol === "Select Token" ? "?" : token1.symbol}
+              1 {token0.symbol} =
+              {token1.symbol === "Select Token" ? " ?" : " " + mktRate["eth"] + " " + token1.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
               <button>
