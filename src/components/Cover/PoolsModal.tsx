@@ -16,10 +16,16 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
   const [allCoverPools, setAllCoverPools] = useState([]);
 
   async function getPoolData() {
-    const data = await fetchPools();
-    const pools = data["data"].coverPools;
-
-    setCoverPools(pools);
+    try {
+      const data = await fetchPools();
+      const pools = data["data"].coverPools;
+  
+      setCoverPools(pools);
+      
+    } catch (error) {
+      console.log(error)
+    }
+  
   }
 
   function mapCoverPools() {

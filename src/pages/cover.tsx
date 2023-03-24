@@ -72,10 +72,14 @@ export default function Cover() {
   }, [coinsForListing]);
 
   async function getUserPositionData() {
-    const data = await fetchPositions(address)
-    const positions = data["data"].positions
-
-    setCoverPositions(positions)
+    try {
+      const data = await fetchPositions(address)
+      const positions = data["data"].positions
+      setCoverPositions(positions)
+    } catch (error) {
+      console.log(error)
+    }
+ 
   }
 
 function mapUserCoverPositions() {
