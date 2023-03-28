@@ -167,7 +167,7 @@ export default function CreateCover(props: any) {
 
   const { data, isError, isLoading } = useBalance({
     token: `0x${token0.address.split("0x")[1]}`,
-    chainId: 5,
+    chainId: 421613,
     address: address,
     onSuccess: () => {
       setUsdcBalance(Number(data?.formatted))
