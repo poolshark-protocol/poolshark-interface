@@ -102,7 +102,6 @@ export const fetchPositions =  (address:string) => {
                 owner
                 pool{
                     id
-                    tickSpread
                     token0{
                         id
                         name
@@ -147,7 +146,7 @@ export const fetchPools =  () => {
             query($id: String) {
                 coverPools(id: $id) {
                     id
-                    tickSpread
+                    inputPool
                     token0{
                         id
                         name
@@ -160,6 +159,28 @@ export const fetchPools =  () => {
                         symbol
                         decimals
                     }
+                    feesEth
+                    feesUsd
+                    volatilityTier{
+                        tickSpread
+                        auctionLength
+                        feeAmount
+                        tickSpread
+                        twapLength
+                    }
+                    price0
+                    price1
+                    feesEth
+                    feesUsd
+                    volumeEth
+                    volumeToken0
+                    volumeToken1
+                    volumeUsd
+                    totalValueLockedEth
+                    totalValueLocked0
+                    totalValueLocked1
+                    totalValueLockedUsd
+                    txnCount
                 }
             }
         `
@@ -190,7 +211,7 @@ export const fetchCoverPoolMetrics =  () => {
             }
         `
         const client = new ApolloClient({
-            uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
+            uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover",
             cache: new InMemoryCache(),
         })
         client
