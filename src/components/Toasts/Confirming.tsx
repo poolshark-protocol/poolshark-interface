@@ -25,7 +25,7 @@ export const ConfirmingToast = ({hash}) => {
           <h1>Your Transaction is being confirmed...</h1>
         </div>
         <a
-          href={`https://goerli.etherscan.io/tx/${hash}`}
+          href={`https://goerli.arbiscan.io/tx/${hash}`}
           rel="noreferrer"
           target="_blank"
           className="text-xs text-blue-500 underline"

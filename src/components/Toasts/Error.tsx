@@ -9,7 +9,7 @@ export const ErrorToast = ({errorDisplay, setErrorDisplay, hash}) => {
           <h1>Your Transaction was not completed</h1>
         </div>
         <a
-          href={`https://goerli.etherscan.io/tx/${hash}`}
+          href={`https://goerli.arbiscan.io/tx/${hash}`}
           target="_blank"
           className="text-xs text-blue-500 underline"
         >

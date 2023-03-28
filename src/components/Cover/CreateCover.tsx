@@ -158,7 +158,7 @@ export default function CreateCover(props: any) {
 
   const token0Allowance = async () => {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://eth-goerli.gateway.pokt.network/v1/lb/b118c3bcdc54f084b19eac34"
+      "https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2/"
     );
     const contract = new ethers.Contract(token0.address, erc20, provider);
     const allowance = await contract.allowance(address, coverPoolAddress);
@@ -494,17 +494,17 @@ export default function CreateCover(props: any) {
       <div className="mb-3" key={allowance}>
         {isConnected &&
        Number(allowance) < amountToPay &&
-        stateChainName === "goerli" ? (
+        stateChainName === "arbitrumGoerli" ? (
           <CoverApproveButton address={tokenZeroAddress} />
-        ) : stateChainName === "goerli" ? (
+        ) : stateChainName === "arbitrumGoerli" ? (
           <CoverMintButton disabled={isDisabled} />
         ) : null}
       </div>
       <div className="space-y-3">
-        {isDisconnected ? null : stateChainName === "goerli" ? (
+        {isDisconnected ? null : stateChainName === "arbitrumGoerli" ? (
           <CoverBurnButton address={address} />
         ) : null}
-        {isDisconnected ? null : stateChainName === "goerli" ? (
+        {isDisconnected ? null : stateChainName === "arbitrumGoerli" ? (
           <CoverCollectButton address={address} />
         ) : null}
         {/*TO-DO: add positionOwner ternary again*/}
