@@ -5,7 +5,6 @@ import {
   ArrowLongLeftIcon
 } from "@heroicons/react/20/solid";
 import UserCoverPool from "../components/Pools/UserCoverPool";
-import StaticUniPool from "../components/Pools/StaticUniPool";
 import { useState, useEffect } from "react";
 import { useAccount, useProvider } from "wagmi";
 import Link from "next/link";
@@ -14,7 +13,6 @@ import React from "react";
 import useTokenList from "../hooks/useTokenList";
 import Initial from "../components/Cover/Initial";
 import CreateCover from "../components/Cover/CreateCover";
-import CoverExistingPool from "../components/Cover/CoverExistingPool";
 
 export default function Cover() {
   const [maxPrice, setMaxPrice] = useState(0);
@@ -89,8 +87,8 @@ function mapUserCoverPositions() {
     const coverPositionData = {
       tokenOneName: coverPosition.pool.token1.name,
       tokenZeroName: coverPosition.pool.token0.name,
-      coverTokenOne: coverPosition.pool.token1.id,
-      coverTokenZero: coverPosition.pool.token0.id,
+      tokenOneAddress: coverPosition.pool.token1.id,
+      tokenZeroAddress: coverPosition.pool.token0.id,
       poolAddress: coverPosition.pool.id,
       userOwnerAddress: coverPosition.owner.replace(/"|'/g, '')
     }
@@ -142,8 +140,8 @@ function mapUserUniV3Positions() {
     const uniV3PositionData = {
       tokenOneName: uniV3Position.token1.name,
       tokenZeroName: uniV3Position.token0.name,
-      coverTokenOne: uniV3Position.token1.id,
-      coverTokenZero: uniV3Position.token0.id,
+      tokenOneAddress: uniV3Position.token1.id,
+      tokenZeroAddress: uniV3Position.token0.id,
       poolAddress: uniV3Position.id,
       userOwnerAddress: uniV3Position.owner.replace(/"|'/g, '')
     }
@@ -256,8 +254,8 @@ function checkUserUniV3PositionExists() {
                       key={allCoverPosition.tokenOneName}
                         tokenOneName={allCoverPosition.tokenOneName}
                         tokenZeroName={allCoverPosition.tokenZeroName}
-                        coverTokenOne={allCoverPosition.coverTokenOne}
-                        coverTokenZero={allCoverPosition.coverTokenZero}
+                        tokenOneAddress={allCoverPosition.tokenOneAddress}
+                        tokenZeroAddress={allCoverPosition.tokenZeroAddress}
                         poolAddress={allCoverPosition.poolAddress}
                         prefill={undefined}
                         close={undefined}
@@ -272,19 +270,21 @@ function checkUserUniV3PositionExists() {
               </div>
               <div>
                 <h1 className="mb-3 mt-4">User UNI-V3 Positions</h1>
-                {/*{allUniV3Positions.map(allUniV3Position => {
+                {allUniV3Positions.map(allUniV3Position => {
                       if(allUniV3Position.userOwnerAddress === address?.toLowerCase()){
                         return(
                         <UserCoverPool
                       key={allUniV3Position.tokenOneName}
                         tokenOneName={allUniV3Position.tokenOneName}
                         tokenZeroName={allUniV3Position.tokenZeroName}
-                        coverTokenOne={allUniV3Position.coverTokenOne}
-                        coverTokenZero={allUniV3Position.coverTokenZero}
+                        tokenOneAddress={allUniV3Position.tokenOneAddress}
+                        tokenZeroAddress={allUniV3Position.tokenZeroAddress}
                         poolAddress={allUniV3Position.poolAddress}
+                        prefill={undefined}
+                        close={undefined}
                       />)
                       }
-                    })}*/}
+                    })}
               </div>
             </div>)}
           </div>

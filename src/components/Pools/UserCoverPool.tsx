@@ -12,26 +12,26 @@ import { useStore } from "../../hooks/useStore";
 export default function UserCoverPool({ 
   tokenOneName, 
   tokenZeroName, 
-  coverTokenOne, 
-  coverTokenZero, 
+  tokenOneAddress, 
+  tokenZeroAddress, 
   poolAddress,
   prefill,
   close
 }) {
 const [show, setShow] = useState(false);
 const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-                                                coverTokenZero?.substring(0, 6) 
+                                                tokenZeroAddress?.substring(0, 6) 
                                               + "..."  
-                                              + coverTokenZero?.substring(
-                                                  coverTokenZero?.length-4, 
-                                                  coverTokenZero?.length
+                                              + tokenZeroAddress?.substring(
+                                                  tokenZeroAddress?.length-4, 
+                                                  tokenZeroAddress?.length
                                               ));
 const [tokenOneDisplay, setTokenOneDisplay]  = useState(
-                                                coverTokenOne?.substring(0, 6) 
+                                                tokenOneAddress?.substring(0, 6) 
                                               + "..."  
-                                              + coverTokenOne?.substring(
-                                                  coverTokenOne?.length-4, 
-                                                  coverTokenOne?.length
+                                              + tokenOneAddress?.substring(
+                                                  tokenOneAddress?.length-4, 
+                                                  tokenOneAddress?.length
                                               ));
 const [poolDisplay, setPoolDisplay] = useState(
                                                 poolAddress?.substring(0, 6) 
@@ -51,8 +51,8 @@ const setPool = () => {
   updatePool({
     tokenOneName:tokenOneName, 
     tokenZeroName: tokenZeroName, 
-    coverTokenOne:coverTokenOne, 
-    coverTokenZero: coverTokenZero, 
+    tokenOneAddress: tokenOneAddress, 
+    tokenZeroAddress: tokenZeroAddress, 
     poolAddress: poolAddress
   })
   prefill("existingPool");
@@ -66,8 +66,8 @@ const setPool = () => {
 //   console.log(
 //   tokenOneName, 
 //  tokenZeroName, 
-//   coverTokenOne, 
-//   coverTokenZero, 
+//   tokenOneAddress, 
+//   tokenZeroAddress, 
 //   poolAddress,)
 // },[])
   return (

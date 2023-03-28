@@ -2,8 +2,8 @@
 // CHAINID: 421613
 
 // cover pools
-export const coverTokenZero   = "0x829e4a03A5Bd1EC5b6f5CC1d3A77c8e54A294847"
-export const coverTokenOne    = "0xf853592f1e4ceA2B5e722A17C6f917a4c70d40Ca"
+export const tokenZeroAddress   = "0x829e4a03A5Bd1EC5b6f5CC1d3A77c8e54A294847"
+export const tokenOneAddress    = "0xf853592f1e4ceA2B5e722A17C6f917a4c70d40Ca"
 export const coverPoolAddress = "0x770eE71b7961D155F7F6B6356c08820764f01070"
 export const coverPoolFactoryAddress = "0xC7F9348F005508f5354B4f5753C2F3C948B889F8"
 

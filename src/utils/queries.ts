@@ -101,9 +101,7 @@ export const fetchPositions =  (address:string) => {
                 }
                 owner
                 pool{
-                    factory
                     id
-                    inputPool
                     token0{
                         id
                         name
@@ -147,10 +145,8 @@ export const fetchPools =  () => {
         const poolsQuery =`
             query($id: String) {
                 coverPools(id: $id) {
-                    factory
                     id
                     inputPool
-                    tickSpread
                     token0{
                         id
                         name
@@ -163,6 +159,18 @@ export const fetchPools =  () => {
                         symbol
                         decimals
                     }
+                    price0
+                    price1
+                    feesEth
+                    feesUsd
+                    volumeEth
+                    volumeToken0
+                    volumeToken1
+                    volumeUsd
+                    totalValueLockedEth
+                    totalValueLocked0
+                    totalValueLocked1
+                    totalValueLockedUsd
                 }
             }
         `
@@ -180,17 +188,43 @@ export const fetchPools =  () => {
                 resolve(err)
             })
         })
-    };  
+    }; 
 
+export const fetchCoverPoolMetrics =  () => {
+    return new Promise(function(resolve) {
+        const poolsMetricsQuery =`
+            query($id: String) {
+                coverPoolFactories(id: $id) {
+                    id
+                    poolCount
+                }
+            }
+        `
+        const client = new ApolloClient({
+            uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover",
+            cache: new InMemoryCache(),
+        })
+        client
+            .query({ query: gql(poolsMetricsQuery) })
+            .then((data) => {
+                resolve(data)
+                console.log(data)
+            })
+            .catch((err) => {
+                resolve(err)
+            })
+        })
+    };
+     
 export const fetchRangePools =  () => {
     return new Promise(function(resolve) {
         const poolsQuery =`
             query($id: String) {
                 rangePools(id: $id) {
+                    id
                     factory{
                         id
                     }
-                    id
                     token0{
                         id
                         name
@@ -208,12 +242,11 @@ export const fetchRangePools =  () => {
                     feeTier{
                         tickSpacing
                     }
-                    nearestTick
                     ticks{
                         price0
                         price1
-                        previousTick
-                        nextTick
+                        liquidityDelta
+                        liquidityDeltaMinus
                     }
                     price
                     price0
@@ -226,10 +259,10 @@ export const fetchRangePools =  () => {
                     volumeToken0
                     volumeToken1
                     volumeUsd
-                    totalValueLockedETH
-                    totalValueLockedToken0
-                    totalValueLockedToken1
-                    totalValueLockedUSD
+                    totalValueLockedEth
+                    totalValueLocked0
+                    totalValueLocked1
+                    totalValueLockedUsd
                     txnCount
                 }
             }
@@ -261,24 +294,39 @@ export const fetchRangePositions =  (address: string) => {
                 upper
                 lower
                 pool{
-                factory{
-                    id
+                    token0{
+                        id
+                        name
+                        symbol
+                        decimals
+                    }
+                    token1{
+                        id
+                        name
+                        symbol
+                        decimals
+                    }
+                    ticks{
+                        price0
+                        price1
+                        liquidityDelta
+                        liquidityDeltaMinus
+                    }
+                    factory{
+                        id
+                    }
+                    liquidity
+                    feesEth
+                    feesUsd
+                    totalValueLockedEth
+                    totalValueLockedUsd
+                    totalValueLocked0
+                    totalValueLocked1
+                    volumeEth
+                    volumeToken0
+                    volumeToken1
+                    volumeUsd
                 }
-                id
-                inputPool
-                token0{
-                    id
-                    name
-                    symbol
-                    decimals
-                }
-                token1{
-                    id
-                    name
-                    symbol
-                    decimals
-                }
-                txnHash
             }  
         }
     `

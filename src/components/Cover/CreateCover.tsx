@@ -16,8 +16,8 @@ import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import { useState, useEffect } from "react";
 import useInputBox from "../../hooks/useInputBox";
 import {
-  coverTokenOne,
-  coverTokenZero,
+  tokenOneAddress,
+  tokenZeroAddress,
 } from "../../constants/contractAddresses";
 import { coverPoolAddress } from "../../constants/contractAddresses";
 import { TickMath } from "../../utils/tickMath";
@@ -137,8 +137,8 @@ export default function CreateCover(props: any) {
 
   const [isDisabled, setDisabled] = useState(true);
   const [hasSelected, setHasSelected] = useState(false);
-  const [queryToken0, setQueryToken0] = useState(coverTokenOne);
-  const [queryToken1, setQueryToken1] = useState(coverTokenOne);
+  const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
+  const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
 
   const [token0, setToken0] = useState({
     symbol: "TOKEN20A",
@@ -495,7 +495,7 @@ export default function CreateCover(props: any) {
         {isConnected &&
        Number(allowance) < amountToPay &&
         stateChainName === "goerli" ? (
-          <CoverApproveButton address={coverTokenZero} />
+          <CoverApproveButton address={tokenZeroAddress} />
         ) : stateChainName === "goerli" ? (
           <CoverMintButton disabled={isDisabled} />
         ) : null}

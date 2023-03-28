@@ -35,8 +35,8 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
       const coverPoolData = {
         tokenOneName: coverPool.token1.name,
         tokenZeroName: coverPool.token0.name,
-        coverTokenOne: coverPool.token1.id,
-        coverTokenZero: coverPool.token0.id,
+        tokenOneAddress: coverPool.token1.id,
+        tokenZeroAddress: coverPool.token0.id,
         poolAddress: coverPool.id,
       };
 
@@ -77,8 +77,8 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
       const coverPoolData = {
         tokenOneName: univ3Pool.token1.name,
         tokenZeroName: univ3Pool.token0.name,
-        coverTokenOne: univ3Pool.token1.id,
-        coverTokenZero: univ3Pool.token0.id,
+        tokenOneAddress: univ3Pool.token1.id,
+        tokenZeroAddress: univ3Pool.token0.id,
         poolAddress: univ3Pool.id,
       };
 
@@ -148,8 +148,8 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
                         key={allCoverPool.tokenOneName}
                         tokenOneName={allCoverPool.tokenOneName}
                         tokenZeroName={allCoverPool.tokenZeroName}
-                        coverTokenOne={allCoverPool.coverTokenOne}
-                        coverTokenZero={allCoverPool.coverTokenZero}
+                        tokenOneAddress={allCoverPool.tokenOneAddress}
+                        tokenZeroAddress={allCoverPool.tokenZeroAddress}
                         poolAddress={allCoverPool.poolAddress}
                         prefill={prefill}
                         close={setIsOpen}
@@ -166,8 +166,8 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
                         key={allUniv3Pool.tokenOneName}
                         tokenOneName={allUniv3Pool.tokenOneName}
                         tokenZeroName={allUniv3Pool.tokenZeroName}
-                        coverTokenOne={allUniv3Pool.coverTokenOne}
-                        coverTokenZero={allUniv3Pool.coverTokenZero}
+                        tokenOneAddress={allUniv3Pool.tokenOneAddress}
+                        tokenZeroAddress={allUniv3Pool.tokenZeroAddress}
                         poolAddress={allUniv3Pool.poolAddress}
                         prefill={prefill}
                         close={setIsOpen}
