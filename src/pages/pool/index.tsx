@@ -77,9 +77,9 @@ export default function Pool() {
       const coverPoolData = {
         tokenOneName: coverPool.token1.name,
         tokenZeroName: coverPool.token0.name,
-        tokenOneAddress: coverPool.token1.id,
-        tokenZeroAddress: coverPool.token0.id,
-        poolAddress: coverPool.id,
+        tvlUsd: coverPool.totalValueLockedUsd,
+        volumeUsd: coverPool.volumeUsd,
+        volumeEth: coverPool.volumeEth,
       };
 
       mappedCoverPools.push(coverPoolData);
@@ -251,7 +251,7 @@ function SelectPool() {
             <div className="">
               <h1 className="mb-3">My Positions</h1>
               <div className="space-y-2">
-              {selected.id === 1 ? (
+              {selected.id === 2 ? (
               allRangePositions.map(allRangePosition => {
                       if(allRangePosition.userOwnerAddress === address?.toLowerCase()){
                         return(
@@ -308,15 +308,15 @@ function SelectPool() {
                           volumeEth={allRangePool.volumeEth}
                         />)
                         })) : (
-                          allRangePools.map(allRangePool => {
+                          allCoverPools.map(allCoverPool => {
                             return(
                             <PoolList
-                          key={allRangePool.tokenOneName}
-                            tokenOneName={allRangePool.tokenOneName}
-                            tokenZeroName={allRangePool.tokenZeroName}
-                            tvlUsd={allRangePool.tvlUsd}
-                            volumeUsd={allRangePool.volumeUsd}
-                            volumeEth={allRangePool.volumeEth}
+                          key={allCoverPool.tokenOneName}
+                            tokenOneName={allCoverPool.tokenOneName}
+                            tokenZeroName={allCoverPool.tokenZeroName}
+                            tvlUsd={allCoverPool.tvlUsd}
+                            volumeUsd={allCoverPool.volumeUsd}
+                            volumeEth={allCoverPool.volumeEth}
                           />)
                           }))
                       }
