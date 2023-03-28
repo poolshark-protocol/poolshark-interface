@@ -1,7 +1,7 @@
 import Navbar from "../../components/Navbar";
 import {
   ArrowTopRightOnSquareIcon,
-  ArrowsRightLeftIcon
+  ArrowsRightLeftIcon,
 } from "@heroicons/react/20/solid";
 import { useState, useEffect } from "react";
 
@@ -12,52 +12,52 @@ export default function View() {
 
   function copyAddress0() {
     navigator.clipboard.writeText("0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d");
-    setIs0Copied(true)
+    setIs0Copied(true);
   }
-    useEffect(() => {
+  useEffect(() => {
     if (copyAddress0) {
       const timer = setTimeout(() => {
         setIs0Copied(false);
       }, 1500);
       return () => clearTimeout(timer);
-    }},);
+    }
+  });
 
-
-      function copyAddress1() {
+  function copyAddress1() {
     navigator.clipboard.writeText("0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d");
-    setIs1Copied(true)
+    setIs1Copied(true);
   }
-    useEffect(() => {
+  useEffect(() => {
     if (copyAddress1) {
       const timer = setTimeout(() => {
         setIs1Copied(false);
       }, 1500);
       return () => clearTimeout(timer);
-    }},);
+    }
+  });
 
-
-
-      function copyPoolAddress() {
+  function copyPoolAddress() {
     navigator.clipboard.writeText("0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d");
-    setIsPoolCopied(true)
+    setIsPoolCopied(true);
   }
-    useEffect(() => {
+  useEffect(() => {
     if (copyPoolAddress) {
       const timer = setTimeout(() => {
         setIsPoolCopied(false);
       }, 1500);
       return () => clearTimeout(timer);
-    }},);
-  
+    }
+  });
+
   return (
-    <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-DMSans ">
+    <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen  ">
       <Navbar />
       <div className="flex justify-center w-full text-white">
         <div className="mt-[16vh] w-[55rem]">
           <div className="flex justify-between items-center mb-2">
             <div className="text-left flex items-center gap-x-5 py-2.5">
               <div className="flex items-center">
-                <img height="50" width="50"  src="/static/images/dai_icon.png" />
+                <img height="50" width="50" src="/static/images/dai_icon.png" />
                 <img
                   height="50"
                   width="50"
@@ -85,27 +85,39 @@ export default function View() {
             <div className="flex justify-between text-[#646464]">
               <div className="grid grid-cols-2 gap-x-10 pl-2 ">
                 <h1
-                onClick={() => copyAddress0()}
-                 className="text-xs cursor-pointer w-32">
+                  onClick={() => copyAddress0()}
+                  className="text-xs cursor-pointer w-32"
+                >
                   USDC:
-                  {is0Copied ? <span className="ml-1">Copied</span> :  <span className="ml-1">0xB8c...Ee62d</span> }
+                  {is0Copied ? (
+                    <span className="ml-1">Copied</span>
+                  ) : (
+                    <span className="ml-1">0xB8c...Ee62d</span>
+                  )}
                 </h1>
-                 <h1
-                onClick={() => copyAddress1()}
-                 className="text-xs cursor-pointer">
+                <h1
+                  onClick={() => copyAddress1()}
+                  className="text-xs cursor-pointer"
+                >
                   DAI:
-                  {is1Copied ? <span className="ml-1">Copied</span> :  <span className="ml-1">0xB8c...Ee62d</span> }
-                  
+                  {is1Copied ? (
+                    <span className="ml-1">Copied</span>
+                  ) : (
+                    <span className="ml-1">0xB8c...Ee62d</span>
+                  )}
                 </h1>
               </div>
-               <h1
+              <h1
                 onClick={() => copyPoolAddress()}
-                 className="text-xs cursor-pointer flex items-center">
-                  Pool:
-                  {isPoolCopied ? <span className="ml-1">Copied</span> :  <span className="ml-1">0xB8c...Ee62d</span> }
-
-                  
-                </h1>
+                className="text-xs cursor-pointer flex items-center"
+              >
+                Pool:
+                {isPoolCopied ? (
+                  <span className="ml-1">Copied</span>
+                ) : (
+                  <span className="ml-1">0xB8c...Ee62d</span>
+                )}
+              </h1>
             </div>
           </div>
           <div className="bg-black  border border-grey2 border-b-none w-full rounded-t-xl py-6 px-7 h-[70vh]">
@@ -113,7 +125,7 @@ export default function View() {
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Liquidity</h1>
                 <span className="text-4xl">$603.43</span>
-                
+
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">

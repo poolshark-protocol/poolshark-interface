@@ -6,14 +6,12 @@ import { Listbox, Transition } from "@headlessui/react";
 import ConcentratedPool from "../../components/Pools/ConcentratedPool";
 
 export default function CreatePool() {
-
   const poolTypes = [
     { id: 1, type: "Range Pools", unavailable: false },
     { id: 2, type: "Cover Pools", unavailable: false },
   ];
 
   function SelectPool() {
-    
     const [selected, setSelected] = useState(poolTypes[0]);
 
     return (
@@ -60,7 +58,7 @@ export default function CreatePool() {
   }
 
   return (
-    <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-DMSans ">
+    <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen  ">
       <Navbar />
       <div className="flex justify-center w-full text-white">
         <div className="mt-[16vh] w-[55rem]">
