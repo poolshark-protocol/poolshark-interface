@@ -9,7 +9,7 @@ import UserCoverPool from "../../components/Pools/UserCoverPool";
 import PoolList from "../../components/Pools/PoolList";
 import Link from "next/link";
 import { Listbox, Transition } from "@headlessui/react";
-import { fetchRangePools, fetchRangePositions, fetchPools, fetchPositions } from "../../utils/queries";
+import { fetchRangePools, fetchRangePositions, fetchCoverPools, fetchCoverPositions } from "../../utils/queries";
 import { Fragment, useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 
@@ -64,7 +64,7 @@ export default function Pool() {
     const [allCoverPools, setAllCoverPools] = useState([]);
 
   async function getCoverPoolData() {
-    const data = await fetchPools();
+    const data = await fetchCoverPools();
     const pools = data["data"].coverPools;
 
     setCoverPools(pools);
@@ -139,7 +139,7 @@ export default function Pool() {
   const [allCoverPositions, setAllCoverPositions] = useState([]);
 
   async function getUserCoverPositionData() {
-    const data = await fetchPositions(address)
+    const data = await fetchCoverPositions(address)
     const positions = data["data"].positions
 
     setCoverPositions(positions)
