@@ -124,7 +124,7 @@ export default function Swap() {
   // console.log("here", allowance.toNumber())
   // }
 
-  const gasEstimate = async () => {
+  /*const gasEstimate = async () => {
     const provider = ethers.getDefaultProvider();
     const contract = new ethers.Contract(
       coverPoolAddress,
@@ -139,15 +139,15 @@ export default function Swap() {
       BigNumber.from("100")
     );
     console.log(ethers.utils.formatEther(estimation));
-  };
+  };*/
 
   useEffect(() => {
     fetchTokenPrice();
   }, []);
 
-  useEffect(() => {
+  /*useEffect(() => {
     gasEstimate();
-  }, []);
+  }, []);*/
 
   const fetchTokenPrice = async () => {
     try {
