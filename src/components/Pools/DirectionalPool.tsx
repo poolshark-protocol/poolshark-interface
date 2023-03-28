@@ -10,6 +10,9 @@ import SelectToken from "../SelectToken";
 import DirectionalPoolPreview from "./DirectionalPoolPreview";
 
 export default function DirectionalPool() {
+
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
   
   const feeTiers = [
     {
@@ -27,6 +30,64 @@ export default function DirectionalPool() {
     { id: 3, tier: "0.3%", text: "Best for most pairs", unavailable: false },
     { id: 4, tier: "1%", text: "Best for exotic pairs", unavailable: false },
   ];
+
+  const changePrice = (direction: string, minMax: string) => {
+    if (direction === "plus" && minMax === "min") {
+      if (
+        (document.getElementById("minInput") as HTMLInputElement).value ===
+        undefined
+      ) {
+        const current = document.getElementById("minInput") as HTMLInputElement;
+        current.value = "1";
+      }
+      const current = Number(
+        (document.getElementById("minInput") as HTMLInputElement).value
+      );
+      (document.getElementById("minInput") as HTMLInputElement).value = String(
+        (current + 0.01).toFixed(3)
+      );
+    }
+    if (direction === "minus" && minMax === "min") {
+      const current = Number(
+        (document.getElementById("minInput") as HTMLInputElement).value
+      );
+      if (current === 0 || current - 1 < 0) {
+        (document.getElementById("minInput") as HTMLInputElement).value = "0";
+        return;
+      }
+      (document.getElementById("minInput") as HTMLInputElement).value = (
+        current - 0.01
+      ).toFixed(3);
+    }
+
+    if (direction === "plus" && minMax === "max") {
+      if (
+        (document.getElementById("maxInput") as HTMLInputElement).value ===
+        undefined
+      ) {
+        const current = document.getElementById("maxInput") as HTMLInputElement;
+        current.value = "1";
+      }
+      const current = Number(
+        (document.getElementById("maxInput") as HTMLInputElement).value
+      );
+      (document.getElementById("maxInput") as HTMLInputElement).value = (
+        current + 0.01
+      ).toFixed(3);
+    }
+    if (direction === "minus" && minMax === "max") {
+      const current = Number(
+        (document.getElementById("maxInput") as HTMLInputElement).value
+      );
+      if (current === 0 || current - 1 < 0) {
+        (document.getElementById("maxInput") as HTMLInputElement).value = "0";
+        return;
+      }
+      (document.getElementById("maxInput") as HTMLInputElement).value = (
+        current - 0.01
+      ).toFixed(3);
+    }
+  };
 
   function SelectFee() {
     const [selected, setSelected] = useState(feeTiers[0]);
@@ -157,32 +218,60 @@ export default function DirectionalPool() {
               Full Range
             </button>
           </div>
-          <div className="mt-3 space-y-3">
+                    <div className="flex flex-col mt-6 gap-y-5 w-full">
             <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-              <span className="text-xs text-grey">Max. Price</span>
+              <span className="text-xs text-grey">Min. Price</span>
               <div className="flex justify-center items-center">
-                <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white">
-                  <MinusIcon className="w-5 h-5 ml-[2.5px]" />
+                <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
+                  <button onClick={() => changePrice("minus", "min")}>
+                    <MinusIcon className="w-5 h-5 ml-[2.5px]" />
+                  </button>
                 </div>
-                <input className="bg-[#0C0C0C] py-2 outline-none text-center" />
-                <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white">
-                  <PlusIcon className="w-5 h-5" />
+                <input
+                  className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
+                  placeholder="0"
+                  id="minInput"
+                  type="number"
+                  onChange={() =>
+                    setMinPrice(
+                      (document.getElementById("minInput") as HTMLInputElement)
+                        ?.value
+                    )
+                  }
+                />
+                <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
+                  <button onClick={() => changePrice("plus", "min")}>
+                    <PlusIcon className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
-              <span className="text-xs text-grey">USDC per DAI</span>
             </div>
             <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
               <span className="text-xs text-grey">Max. Price</span>
               <div className="flex justify-center items-center">
-                <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white">
-                  <MinusIcon className="w-5 h-5 ml-[2.5px]" />
+                <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
+                  <button onClick={() => changePrice("minus", "max")}>
+                    <MinusIcon className="w-5 h-5 ml-[2.5px]" />
+                  </button>
                 </div>
-                <input className="bg-[#0C0C0C] py-2 outline-none text-center" />
-                <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white">
-                  <PlusIcon className="w-5 h-5" />
+                <input
+                  className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
+                  placeholder="0"
+                  id="maxInput"
+                  type="number"
+                  onChange={() =>
+                    setMaxPrice(
+                      (document.getElementById("maxInput") as HTMLInputElement)
+                        ?.value
+                    )
+                  }
+                />
+                <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
+                  <button onClick={() => changePrice("plus", "max")}>
+                    <PlusIcon className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
-              <span className="text-xs text-grey">USDC per DAI</span>
             </div>
           </div>
         </div>

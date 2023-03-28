@@ -12,35 +12,35 @@ import useAllowance from "../hooks/useAllowance";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import { useAccount } from "wagmi";
-import { coverPoolAddress, tokenOneAddress } from "../constants/contractAddresses";
+import {
+  coverPoolAddress,
+  coverTokenOne,
+} from "../constants/contractAddresses";
 import TokenBalance from "../components/TokenBalance";
 import { useProvider } from "wagmi";
 import { BigNumber, ethers } from "ethers";
-import { chainIdsToNamesForGitTokenList } from '../utils/chains'
-
-
-
+import { chainIdsToNamesForGitTokenList } from "../utils/chains";
+import { coverPoolABI } from "../abis/evm/coverPool";
+import { fetchPrice } from "../utils/queries";
 
 export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount();
-  const {bnInput, inputBox, maxBalance} = useInputBox();
+  const { bnInput, inputBox, maxBalance } = useInputBox();
   const allowance = useAllowance(address);
   const [hasSelected, setHasSelected] = useState(false);
-  // const [allowance, setAllowance] = useState(0);
-  const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
-  const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
+  const [mktRate, setMktRate] = useState({});
+  const [queryToken0, setQueryToken0] = useState(coverTokenOne);
+  const [queryToken1, setQueryToken1] = useState(coverTokenOne);
 
   const [token0, setToken0] = useState({
-    symbol: "TOKEN20A",
-    logoURI:
-    "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
+    symbol: "ETH",
+    logoURI: "/static/images/eth_icon.png",
   });
   const [token1, setToken1] = useState({
     symbol: "Select Token",
-    logoURI:
-    ""
+    logoURI: "",
   });
- 
+
   const balanceZero = TokenBalance(queryToken0);
   const balanceOne = TokenBalance(queryToken1);
 
@@ -53,12 +53,12 @@ export default function Swap() {
   } = useProvider();
 
   useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
-  }, [chainId])
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
+  }, [chainId]);
 
   useEffect(() => {
     if (isConnected && stateChainName === "goerli") {
-      if ((Number(balanceZero().props.children[1])) >= 1000000) {
+      if (Number(balanceZero().props.children[1]) >= 1000000) {
         setBalance0(Number(balanceZero().props.children[1]).toExponential(5));
       }
       setBalance0(Number(balanceZero().props.children[1]).toFixed(2));
@@ -74,12 +74,11 @@ export default function Swap() {
     }
   }, [queryToken1, balanceOne]);
 
-
   function changeDefault0(token) {
     if (token.symbol === token1.symbol) {
       return;
     }
-    setToken0(token)
+    setToken0(token);
   }
 
   const [tokenOrder, setTokenOrder] = useState(true);
@@ -88,8 +87,8 @@ export default function Swap() {
     if (token.symbol === token0.symbol) {
       return;
     }
-    setToken1(token)
-    setHasSelected(true)
+    setToken1(token);
+    setHasSelected(true);
   };
 
   let [isOpen, setIsOpen] = useState(false);
@@ -107,6 +106,7 @@ export default function Swap() {
     const tempBal = queryToken0;
     setQueryToken0(queryToken1);
     setQueryToken1(tempBal);
+    setMktRate({eth: mktRate["usdc"], usdc: mktRate["eth"]})
   }
 
   function openModal() {
@@ -118,16 +118,53 @@ export default function Swap() {
   // const getAllowance = async () => {
   //  let provider = new ethers.providers.JsonRpcProvider(`https://rpc.ankr.com/eth_goerli`)
   //  const signer = new ethers.VoidSigner(address, provider)
-  //   const contract = new ethers.Contract(tokenOneAddress,TokenOneAbi,signer)
-  //   const allowance = await contract.allowance(tokenOneAddress,coverPoolAddress)
+  //   const contract = new ethers.Contract(coverTokenOne,TokenOneAbi,signer)
+  //   const allowance = await contract.allowance(coverTokenOne,coverPoolAddress)
   // //  setAllowance(signer)
   // console.log("here", allowance.toNumber())
   // }
 
-  // useEffect(()=> {
-  //   getAllowance().catch((error) => console.log(error))
-  //   console.log(allowance)
-  // },[])
+  const gasEstimate = async () => {
+    const provider = ethers.getDefaultProvider();
+    const contract = new ethers.Contract(
+      coverPoolAddress,
+      coverPoolABI,
+      provider
+    );
+    const recipient = address;
+    const estimation = await contract.estimateGas.swap(
+      recipient,
+      false,
+      bnInput,
+      BigNumber.from("100")
+    );
+    console.log(ethers.utils.formatEther(estimation));
+  };
+
+  useEffect(() => {
+    fetchTokenPrice();
+  }, []);
+
+  useEffect(() => {
+    gasEstimate();
+  }, []);
+
+  const fetchTokenPrice = async () => {
+    try {
+      const price = await fetchPrice("0x000");
+      setMktRate({
+        eth: "~" + Number(
+          price["data"]["bundles"]["0"]["ethPriceUSD"]
+        ).toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+        }),
+        usdc: "~1.00"
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const Option = () => {
     if (expanded) {
@@ -218,7 +255,7 @@ export default function Swap() {
           <div className="flex-col justify-center w-1/2 p-2 ">
             {inputBox("0")}
             <div className="flex">
-              <div className="flex text-xs text-[#4C4C4C]">~300.54</div>
+              <div className="flex text-xs text-[#4C4C4C]">{mktRate["eth"]}</div>
             </div>
           </div>
           <div className="flex w-1/2">
@@ -235,17 +272,17 @@ export default function Swap() {
                   />
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                  <div
-                    className="flex text-xs text-[#4C4C4C]"
-                  >
+                  <div className="flex text-xs text-[#4C4C4C]">
                     Balance: {balance0 === "NaN" ? 0 : balance0}
                   </div>
-                  {isConnected && stateChainName === "goerli" ? <button
-            className="flex text-xs uppercase text-[#C9C9C9]"
-            onClick={() => maxBalance(balance0, "0")}
-        >
-            Max
-        </button> : null}
+                  {isConnected && stateChainName === "goerli" ? (
+                    <button
+                      className="flex text-xs uppercase text-[#C9C9C9]"
+                      onClick={() => maxBalance(balance0, "0")}
+                    >
+                      Max
+                    </button>
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -254,7 +291,12 @@ export default function Swap() {
         <div className="items-center -mb-2 -mt-2 p-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
           <ArrowSmallDownIcon
             className="w-4 h-4"
-            onClick={() => switchDirection()}
+            onClick={() => {
+              if (hasSelected) {
+                switchDirection()
+              }
+             
+            }}
           />
         </div>
 
@@ -265,7 +307,7 @@ export default function Swap() {
               placeholder="0"
             />
             <div className="flex">
-              <div className="flex text-xs text-[#4C4C4C] ">~$1.00</div>
+              <div className="flex text-xs text-[#4C4C4C] ">{mktRate["usdc"]}</div>
             </div>
           </div>
           <div className="flex w-1/2">
@@ -296,12 +338,14 @@ export default function Swap() {
                     <div className="flex text-xs text-[#4C4C4C]">
                       Balance: {balance1}
                     </div>
-                    {isConnected && stateChainName === "goerli" ? <button
-            className="flex text-xs uppercase text-[#C9C9C9]"
-            onClick={() => maxBalance(balance1, "0")}
-        >
-            Max
-        </button> : null}
+                    {isConnected && stateChainName === "goerli" ? (
+                      <button
+                        className="flex text-xs uppercase text-[#C9C9C9]"
+                        onClick={() => maxBalance(balance1, "0")}
+                      >
+                        Max
+                      </button>
+                    ) : null}
                   </div>
                 ) : (
                   <></>
@@ -362,7 +406,8 @@ export default function Swap() {
             onClick={() => setExpanded(!expanded)}
           >
             <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-            1 {token0.symbol} = 1 {token1.symbol === "Select Token" ? "?": token1.symbol}
+              1 {token0.symbol} =
+              {token1.symbol === "Select Token" ? " ?" : " " + mktRate["eth"] + " " + token1.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
               <button>
@@ -375,8 +420,9 @@ export default function Swap() {
           </div>
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {isDisconnected ? null : allowance === 0.0 && stateChainName === "goerli" ? (
-          <CoverApproveButton address={address}  />
+        {isDisconnected ? null : allowance === 0.0 &&
+          stateChainName === "goerli" ? (
+          <CoverApproveButton address={address} />
         ) : stateChainName === "goerli" ? (
           <SwapButton amount={bnInput} />
         ) : null}

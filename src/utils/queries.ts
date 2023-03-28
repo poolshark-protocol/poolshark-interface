@@ -30,24 +30,24 @@ export const getPreviousTicksLower = (token0:string, token1:string, index:number
            }
          }
          `
-          const client = new ApolloClient({
-              uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
-              cache: new InMemoryCache(),
-          })
-          client
-              .query({ query: gql(getTicks) })
-              .then((data) => {
-                  resolve(data)
-              })
-              .catch((err) => {
-                  resolve(err)
-                  console.log(err)
-              })
+        const client = new ApolloClient({
+            uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover",
+            cache: new InMemoryCache(),
+        })
+        client
+            .query({ query: gql(getTicks) })
+            .then((data) => {
+                resolve(data)
             })
+            .catch((err) => {
+                resolve(err)
+                console.log(err)
+            })
+     })
 }
 
 
-export const getPreviousTicksUpper = (token0:string, token1:string, index:number) => {
+    export const getPreviousTicksUpper = (token0:string, token1:string, index:number) => {
     return new Promise(function(resolve) {
         const getTicks =`
        { 
@@ -61,7 +61,7 @@ export const getPreviousTicksUpper = (token0:string, token1:string, index:number
         }
         `
         const client = new ApolloClient({
-            uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
+            uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover",
             cache: new InMemoryCache(),
         })
         client
@@ -121,7 +121,7 @@ export const fetchPositions =  (address:string) => {
         }
     `
     const client = new ApolloClient({
-        uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
+        uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover",
         cache: new InMemoryCache(),
     
     })
@@ -164,7 +164,7 @@ export const fetchPools =  () => {
             }
         `
         const client = new ApolloClient({
-            uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
+            uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover",
             cache: new InMemoryCache(),
         })
         client
@@ -464,7 +464,39 @@ export const fetchUniV3Positions =  (address: string) => {
               resolve(err)
           })
         })
+
+        
     }
 
+
+    export const fetchPrice =  (address: string) => {
+        return new Promise(function(resolve) {
+            const univ3Price =`
+            {
+                bundles(first: 5) {
+                  id
+                  ethPriceUSD
+                }
+            }
+            `
+            const client = new ApolloClient({
+                uri: "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3",
+                cache: new InMemoryCache(),
+            })
+            client
+              .query({ 
+                query: gql(univ3Price),
+            })
+              .then((data) => {
+                  resolve(data)
+                  console.log(data)
+              })
+              .catch((err) => {
+                  resolve(err)
+              })
+            })
+    
+            
+        }
 
 

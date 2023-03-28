@@ -9,37 +9,57 @@ import useTokenList from "../hooks/useTokenList";
 import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
 
+
+
 export default function SelectToken(props) {
   const [isOpen, setIsOpen] = useState(false);
   const [inputVal, setInputVal] = useState("");
   const coins = useTokenList()[0];
-  const [coinsForListing, setCoinsForListing] = useState(coins["listed_tokens"]);
 
+  //@dev this is temporary for testnet
+  // const [coinsForListing, setCoinsForListing] = useState(coins["listed_tokens"]);
+  const [coinsForListing, setCoinsForListing] = useState([{
+    name: "Ethereum",
+    address: "0x0",
+    symbol: "ETH",
+    logoURI: "/static/images/eth_icon.png",
+    decimals: 18
+},
+{
+  name: "USDC",
+  address: "0x0",
+  symbol: "USDC",
+  logoURI:  "/static/images/token.png",
+  decimals: 18
+}
 
-  const findCoin = () => {
-    if (inputVal.length === 0) {
-      setCoinsForListing(coins["listed_tokens"]);
-    } else {
-      if (inputVal.length === 42 && inputVal.substring(0, 2) === "0x") {
-        let searchedCoin = coins["search_tokens"].find(
-          (token) => token.id === inputVal
-        );
-        if (searchedCoin != undefined) {
-          setCoinsForListing(searchedCoin);
-        }
-      } else {
-        let searchedCoins = coins["search_tokens"].filter(
-          (coin) =>
-            coin.name.toUpperCase().includes(inputVal.toUpperCase()) ||
-            coin.symbol.toUpperCase().includes(inputVal.toUpperCase())
-        );
-        if (searchedCoins.length > 20) {
-          searchedCoins = searchedCoins.slice(0, 20);
-        }
-        setCoinsForListing(searchedCoins);
-      }
-    }
-  };
+])
+
+//@dev this is temporary for testnet
+  // const findCoin = () => {
+  //   if (inputVal.length === 0) {
+  //     setCoinsForListing(coins["listed_tokens"]);
+  //   } else {
+  //     if (inputVal.length === 42 && inputVal.substring(0, 2) === "0x") {
+  //       let searchedCoin = coins["search_tokens"].find(
+  //         (token) => token.id === inputVal
+  //       );
+  //       if (searchedCoin != undefined) {
+  //         setCoinsForListing(searchedCoin);
+  //       }
+  //     } else {
+  //       let searchedCoins = coins["search_tokens"].filter(
+  //         (coin) =>
+  //           coin.name.toUpperCase().includes(inputVal.toUpperCase()) ||
+  //           coin.symbol.toUpperCase().includes(inputVal.toUpperCase())
+  //       );
+  //       if (searchedCoins.length > 20) {
+  //         searchedCoins = searchedCoins.slice(0, 20);
+  //       }
+  //       setCoinsForListing(searchedCoins);
+  //     }
+  //   }
+  // };
   const chooseToken = (coin) => {
     props.tokenChosen({
       name: coin?.name,
@@ -53,7 +73,8 @@ export default function SelectToken(props) {
   };
 
   useEffect(() => {
-    findCoin();
+    //@dev this is temporary for testnet
+    // findCoin();
   }, [inputVal, isOpen]);
 
   //   useEffect(() => {

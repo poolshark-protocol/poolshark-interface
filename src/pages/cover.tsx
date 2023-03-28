@@ -72,10 +72,14 @@ export default function Cover() {
   }, [coinsForListing]);
 
   async function getUserPositionData() {
-    const data = await fetchPositions(address)
-    const positions = data["data"].positions
-
-    setCoverPositions(positions)
+    try {
+      const data = await fetchPositions(address)
+      const positions = data["data"].positions
+      setCoverPositions(positions)
+    } catch (error) {
+      console.log(error)
+    }
+ 
   }
 
 function mapUserCoverPositions() {
@@ -85,8 +89,8 @@ function mapUserCoverPositions() {
     const coverPositionData = {
       tokenOneName: coverPosition.pool.token1.name,
       tokenZeroName: coverPosition.pool.token0.name,
-      tokenOneAddress: coverPosition.pool.token1.id,
-      tokenZeroAddress: coverPosition.pool.token0.id,
+      coverTokenOne: coverPosition.pool.token1.id,
+      coverTokenZero: coverPosition.pool.token0.id,
       poolAddress: coverPosition.pool.id,
       userOwnerAddress: coverPosition.owner.replace(/"|'/g, '')
     }
@@ -138,8 +142,8 @@ function mapUserUniV3Positions() {
     const uniV3PositionData = {
       tokenOneName: uniV3Position.token1.name,
       tokenZeroName: uniV3Position.token0.name,
-      tokenOneAddress: uniV3Position.token1.id,
-      tokenZeroAddress: uniV3Position.token0.id,
+      coverTokenOne: uniV3Position.token1.id,
+      coverTokenZero: uniV3Position.token0.id,
       poolAddress: uniV3Position.id,
       userOwnerAddress: uniV3Position.owner.replace(/"|'/g, '')
     }
@@ -252,8 +256,8 @@ function checkUserUniV3PositionExists() {
                       key={allCoverPosition.tokenOneName}
                         tokenOneName={allCoverPosition.tokenOneName}
                         tokenZeroName={allCoverPosition.tokenZeroName}
-                        tokenOneAddress={allCoverPosition.tokenOneAddress}
-                        tokenZeroAddress={allCoverPosition.tokenZeroAddress}
+                        coverTokenOne={allCoverPosition.coverTokenOne}
+                        coverTokenZero={allCoverPosition.coverTokenZero}
                         poolAddress={allCoverPosition.poolAddress}
                         prefill={undefined}
                         close={undefined}
@@ -275,8 +279,8 @@ function checkUserUniV3PositionExists() {
                       key={allUniV3Position.tokenOneName}
                         tokenOneName={allUniV3Position.tokenOneName}
                         tokenZeroName={allUniV3Position.tokenZeroName}
-                        tokenOneAddress={allUniV3Position.tokenOneAddress}
-                        tokenZeroAddress={allUniV3Position.tokenZeroAddress}
+                        coverTokenOne={allUniV3Position.coverTokenOne}
+                        coverTokenZero={allUniV3Position.coverTokenZero}
                         poolAddress={allUniV3Position.poolAddress}
                       />)
                       }
