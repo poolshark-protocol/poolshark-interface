@@ -159,15 +159,6 @@ export const fetchPools =  () => {
                         symbol
                         decimals
                     }
-                    feesEth
-                    feesUsd
-                    volatilityTier{
-                        tickSpread
-                        auctionLength
-                        feeAmount
-                        tickSpread
-                        twapLength
-                    }
                     price0
                     price1
                     feesEth
@@ -180,7 +171,6 @@ export const fetchPools =  () => {
                     totalValueLocked0
                     totalValueLocked1
                     totalValueLockedUsd
-                    txnCount
                 }
             }
         `

@@ -61,7 +61,7 @@ export default function Pool() {
     }, [rangePools]);
 
     const [coverPools, setCoverPools] = useState([]);
-  const [allCoverPools, setAllCoverPools] = useState([]);
+    const [allCoverPools, setAllCoverPools] = useState([]);
 
   async function getCoverPoolData() {
     const data = await fetchPools();
