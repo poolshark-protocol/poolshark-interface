@@ -96,8 +96,8 @@ function SelectPool() {
             <div className="">
               <h1 className="mb-3">My Pools</h1>
               <div className="space-y-2">
-                <UserPool tokenOneName={undefined} tokenZeroName={undefined} tokenOneAddress={undefined} tokenZeroAddress={undefined} poolAddress={undefined} />
-                <UserPool tokenOneName={undefined} tokenZeroName={undefined} tokenOneAddress={undefined} tokenZeroAddress={undefined} poolAddress={undefined} />
+                <UserPool tokenOneName={undefined} tokenZeroName={undefined} coverTokenOne={undefined} coverTokenZero={undefined} poolAddress={undefined} />
+                <UserPool tokenOneName={undefined} tokenZeroName={undefined} coverTokenOne={undefined} coverTokenZero={undefined} poolAddress={undefined} />
               </div>
             </div>
             <div className="">

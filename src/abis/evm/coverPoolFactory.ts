@@ -3,6 +3,11 @@ export const coverPoolFactoryABI = [
     "inputs": [
       {
         "internalType": "address",
+        "name": "_owner",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "_rangePoolFactory",
         "type": "address"
       }
@@ -17,17 +22,12 @@ export const coverPoolFactoryABI = [
   },
   {
     "inputs": [],
-    "name": "IdenticalTokenAddresses",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "InvalidTickSpread",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "InvalidTokenDecimals",
+    "name": "OwnerOnly",
     "type": "error"
   },
   {
@@ -36,8 +36,35 @@ export const coverPoolFactoryABI = [
     "type": "error"
   },
   {
+    "inputs": [],
+    "name": "TickSpreadNotAtLeastDoubleTickSpread",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TickSpreadNotMultipleOfTickSpacing",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "VolatilityTierNotSupported",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "inputPool",
+        "type": "address"
+      },
       {
         "indexed": true,
         "internalType": "address",
@@ -52,15 +79,15 @@ export const coverPoolFactoryABI = [
       },
       {
         "indexed": true,
-        "internalType": "uint24",
+        "internalType": "uint16",
         "name": "fee",
-        "type": "uint24"
+        "type": "uint16"
       },
       {
         "indexed": false,
-        "internalType": "int24",
+        "internalType": "int16",
         "name": "tickSpread",
-        "type": "int24"
+        "type": "int16"
       },
       {
         "indexed": false,
@@ -73,16 +100,67 @@ export const coverPoolFactoryABI = [
         "internalType": "uint16",
         "name": "auctionLength",
         "type": "uint16"
-      },
+      }
+    ],
+    "name": "PoolCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
       {
         "indexed": false,
         "internalType": "address",
         "name": "pool",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint128",
+        "name": "token0Fees",
+        "type": "uint128"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint128",
+        "name": "token1Fees",
+        "type": "uint128"
       }
     ],
-    "name": "PoolCreated",
+    "name": "ProtocolFeeCollected",
     "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "collectPool",
+        "type": "address"
+      }
+    ],
+    "name": "collectProtocolFees",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "coverPools",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [
@@ -109,11 +187,6 @@ export const coverPoolFactoryABI = [
       {
         "internalType": "uint16",
         "name": "twapLength",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint16",
-        "name": "auctionLength",
         "type": "uint16"
       }
     ],
@@ -131,25 +204,6 @@ export const coverPoolFactoryABI = [
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "feeTierTickSpacing",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "fromToken",
         "type": "address"
@@ -173,11 +227,6 @@ export const coverPoolFactoryABI = [
         "internalType": "uint16",
         "name": "twapLength",
         "type": "uint16"
-      },
-      {
-        "internalType": "uint16",
-        "name": "auctionLength",
-        "type": "uint16"
       }
     ],
     "name": "getCoverPool",
@@ -193,58 +242,7 @@ export const coverPoolFactoryABI = [
   },
   {
     "inputs": [],
-    "name": "libraries",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "owner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "poolList",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "poolMapping",
     "outputs": [
       {
         "internalType": "address",

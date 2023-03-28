@@ -27,7 +27,7 @@ export const coverPoolABI =  [
   },
   {
     "inputs": [],
-    "name": "InvalidClaimTick",
+    "name": "FactoryOnly",
     "type": "error"
   },
   {
@@ -82,16 +82,6 @@ export const coverPoolABI =  [
   },
   {
     "inputs": [],
-    "name": "NotEnoughPositionLiquidity",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "NotImplementedYet",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "Overflow",
     "type": "error"
   },
@@ -129,31 +119,6 @@ export const coverPoolABI =  [
   {
     "inputs": [],
     "name": "WaitUntilEnoughObservations",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "WrongTickClaimedAt",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "WrongTickLowerOrder",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "WrongTickLowerRange",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "WrongTickUpperOrder",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "WrongTickUpperRange",
     "type": "error"
   },
   {
@@ -307,29 +272,46 @@ export const coverPoolABI =  [
   {
     "inputs": [
       {
-        "internalType": "int24",
-        "name": "lower",
-        "type": "int24"
-      },
-      {
-        "internalType": "int24",
-        "name": "claim",
-        "type": "int24"
-      },
-      {
-        "internalType": "int24",
-        "name": "upper",
-        "type": "int24"
-      },
-      {
-        "internalType": "bool",
-        "name": "zeroForOne",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint128",
-        "name": "amount",
-        "type": "uint128"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "int24",
+            "name": "lower",
+            "type": "int24"
+          },
+          {
+            "internalType": "int24",
+            "name": "claim",
+            "type": "int24"
+          },
+          {
+            "internalType": "int24",
+            "name": "upper",
+            "type": "int24"
+          },
+          {
+            "internalType": "bool",
+            "name": "zeroForOne",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint128",
+            "name": "amount",
+            "type": "uint128"
+          },
+          {
+            "internalType": "bool",
+            "name": "collect",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct ICoverPoolStructs.BurnParams",
+        "name": "params",
+        "type": "tuple"
       }
     ],
     "name": "burn",
@@ -338,31 +320,34 @@ export const coverPoolABI =  [
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "collectFees",
+    "outputs": [
       {
-        "internalType": "int24",
-        "name": "lower",
-        "type": "int24"
+        "internalType": "uint128",
+        "name": "token0Fees",
+        "type": "uint128"
       },
       {
-        "internalType": "int24",
-        "name": "claim",
-        "type": "int24"
-      },
-      {
-        "internalType": "int24",
-        "name": "upper",
-        "type": "int24"
-      },
-      {
-        "internalType": "bool",
-        "name": "zeroForOne",
-        "type": "bool"
+        "internalType": "uint128",
+        "name": "token1Fees",
+        "type": "uint128"
       }
     ],
-    "name": "collect",
-    "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "factory",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -441,6 +426,23 @@ export const coverPoolABI =  [
         "internalType": "contract IRangePool",
         "name": "inputPool",
         "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint128",
+            "name": "token0",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint128",
+            "name": "token1",
+            "type": "uint128"
+          }
+        ],
+        "internalType": "struct ICoverPoolStructs.ProtocolFees",
+        "name": "protocolFees",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -449,39 +451,41 @@ export const coverPoolABI =  [
   {
     "inputs": [
       {
-        "internalType": "int24",
-        "name": "lowerOld",
-        "type": "int24"
-      },
-      {
-        "internalType": "int24",
-        "name": "lower",
-        "type": "int24"
-      },
-      {
-        "internalType": "int24",
-        "name": "claim",
-        "type": "int24"
-      },
-      {
-        "internalType": "int24",
-        "name": "upper",
-        "type": "int24"
-      },
-      {
-        "internalType": "int24",
-        "name": "upperOld",
-        "type": "int24"
-      },
-      {
-        "internalType": "uint128",
-        "name": "amountDesired",
-        "type": "uint128"
-      },
-      {
-        "internalType": "bool",
-        "name": "zeroForOne",
-        "type": "bool"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "int24",
+            "name": "lower",
+            "type": "int24"
+          },
+          {
+            "internalType": "int24",
+            "name": "claim",
+            "type": "int24"
+          },
+          {
+            "internalType": "int24",
+            "name": "upper",
+            "type": "int24"
+          },
+          {
+            "internalType": "uint128",
+            "name": "amount",
+            "type": "uint128"
+          },
+          {
+            "internalType": "bool",
+            "name": "zeroForOne",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct ICoverPoolStructs.MintParams",
+        "name": "params",
+        "type": "tuple"
       }
     ],
     "name": "mint",
@@ -742,29 +746,13 @@ export const coverPoolABI =  [
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "int24",
-        "name": "",
-        "type": "int24"
-      }
-    ],
-    "name": "tickNodes",
+    "inputs": [],
+    "name": "tickMap",
     "outputs": [
       {
-        "internalType": "int24",
-        "name": "previousTick",
-        "type": "int24"
-      },
-      {
-        "internalType": "int24",
-        "name": "nextTick",
-        "type": "int24"
-      },
-      {
-        "internalType": "uint32",
-        "name": "accumEpochLast",
-        "type": "uint32"
+        "internalType": "uint256",
+        "name": "blocks",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -809,12 +797,12 @@ export const coverPoolABI =  [
           },
           {
             "internalType": "uint128",
-            "name": "amountInDeltaMax",
+            "name": "amountOutDelta",
             "type": "uint128"
           },
           {
             "internalType": "uint128",
-            "name": "amountOutDelta",
+            "name": "amountInDeltaMax",
             "type": "uint128"
           },
           {
@@ -870,12 +858,12 @@ export const coverPoolABI =  [
           },
           {
             "internalType": "uint128",
-            "name": "amountInDeltaMax",
+            "name": "amountOutDelta",
             "type": "uint128"
           },
           {
             "internalType": "uint128",
-            "name": "amountOutDelta",
+            "name": "amountInDeltaMax",
             "type": "uint128"
           },
           {
