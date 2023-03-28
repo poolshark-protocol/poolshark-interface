@@ -35,7 +35,7 @@ const wagmiClient = createClient({
 
 const apolloClient = new ApolloClient({
   cache: new InMemoryCache(),
-  uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
+  uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover",
 })
 
 function MyApp({ Component, pageProps }) {

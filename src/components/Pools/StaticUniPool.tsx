@@ -5,23 +5,23 @@ import Link from "next/link";
 export default function UserPool({ 
   tokenOneName, 
   tokenZeroName, 
-  tokenOneAddress, 
-  tokenZeroAddress, 
+  coverTokenOne, 
+  coverTokenZero, 
   poolAddress}) {
 const [show, setShow] = useState(false);
 const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-                                                tokenZeroAddress?.substring(0, 6) 
+                                                coverTokenZero?.substring(0, 6) 
                                               + "..."  
-                                              + tokenZeroAddress?.substring(
-                                                  tokenZeroAddress?.length-4, 
-                                                  tokenZeroAddress?.length
+                                              + coverTokenZero?.substring(
+                                                  coverTokenZero?.length-4, 
+                                                  coverTokenZero?.length
                                               ));
 const [tokenOneDisplay, setTokenOneDisplay]  = useState(
-                                                tokenOneAddress?.substring(0, 6) 
+                                                coverTokenOne?.substring(0, 6) 
                                               + "..."  
-                                              + tokenOneAddress?.substring(
-                                                  tokenOneAddress?.length-4, 
-                                                  tokenOneAddress?.length
+                                              + coverTokenOne?.substring(
+                                                  coverTokenOne?.length-4, 
+                                                  coverTokenOne?.length
                                               ));
 const [poolDisplay, setPoolDisplay] = useState(
                                                 poolAddress?.substring(0, 6) 

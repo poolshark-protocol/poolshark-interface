@@ -6,8 +6,8 @@ import { BigNumber, ethers } from "ethers";
 interface Pool {
         tokenOneName: string, 
         tokenZeroName: string, 
-        tokenOneAddress: string, 
-        tokenZeroAddress: string, 
+        coverTokenOne: string, 
+        coverTokenZero: string, 
         poolAddress: string,
 }
 
@@ -45,8 +45,8 @@ type State = {
     pool:  {
         tokenOneName: '', 
         tokenZeroName:'', 
-        tokenOneAddress: '', 
-        tokenZeroAddress: '', 
+        coverTokenOne: '', 
+        coverTokenZero: '', 
         poolAddress: '',
     },
     contractParams : {
