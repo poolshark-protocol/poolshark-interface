@@ -57,7 +57,7 @@ export default function Swap() {
   }, [chainId]);
 
   useEffect(() => {
-    if (isConnected && stateChainName === "goerli") {
+    if (isConnected && stateChainName === "arbitrumGoerli") {
       if (Number(balanceZero().props.children[1]) >= 1000000) {
         setBalance0(Number(balanceZero().props.children[1]).toExponential(5));
       }
@@ -66,7 +66,7 @@ export default function Swap() {
   }, [queryToken0, balanceZero]);
 
   useEffect(() => {
-    if (isConnected && stateChainName === "goerli") {
+    if (isConnected && stateChainName === "arbitrumGoerli") {
       if (Number(balanceOne().props.children[1]) >= 1000000) {
         setBalance1(Number(balanceOne().props.children[1]).toExponential(5));
       }
@@ -116,7 +116,7 @@ export default function Swap() {
   const [expanded, setExpanded] = useState(false);
 
   // const getAllowance = async () => {
-  //  let provider = new ethers.providers.JsonRpcProvider(`https://rpc.ankr.com/eth_goerli`)
+  //  let provider = new ethers.providers.JsonRpcProvider(`https://rpc.ankr.com/eth_arbitrumGoerli`)
   //  const signer = new ethers.VoidSigner(address, provider)
   //   const contract = new ethers.Contract(tokenOneAddress,TokenOneAbi,signer)
   //   const allowance = await contract.allowance(tokenOneAddress,coverPoolAddress)
@@ -124,7 +124,7 @@ export default function Swap() {
   // console.log("here", allowance.toNumber())
   // }
 
-  const gasEstimate = async () => {
+  /*const gasEstimate = async () => {
     const provider = ethers.getDefaultProvider();
     const contract = new ethers.Contract(
       coverPoolAddress,
@@ -139,15 +139,15 @@ export default function Swap() {
       BigNumber.from("100")
     );
     console.log(ethers.utils.formatEther(estimation));
-  };
+  };*/
 
   useEffect(() => {
     fetchTokenPrice();
   }, []);
 
-  useEffect(() => {
+  /*useEffect(() => {
     gasEstimate();
-  }, []);
+  }, []);*/
 
   const fetchTokenPrice = async () => {
     try {
@@ -275,7 +275,7 @@ export default function Swap() {
                   <div className="flex text-xs text-[#4C4C4C]">
                     Balance: {balance0 === "NaN" ? 0 : balance0}
                   </div>
-                  {isConnected && stateChainName === "goerli" ? (
+                  {isConnected && stateChainName === "arbitrumGoerli" ? (
                     <button
                       className="flex text-xs uppercase text-[#C9C9C9]"
                       onClick={() => maxBalance(balance0, "0")}
@@ -338,7 +338,7 @@ export default function Swap() {
                     <div className="flex text-xs text-[#4C4C4C]">
                       Balance: {balance1}
                     </div>
-                    {isConnected && stateChainName === "goerli" ? (
+                    {isConnected && stateChainName === "arbitrumGoerli" ? (
                       <button
                         className="flex text-xs uppercase text-[#C9C9C9]"
                         onClick={() => maxBalance(balance1, "0")}
@@ -421,9 +421,9 @@ export default function Swap() {
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
         {isDisconnected ? null : allowance === 0.0 &&
-          stateChainName === "goerli" ? (
+          stateChainName === "arbitrumGoerli" ? (
           <CoverApproveButton address={address} />
-        ) : stateChainName === "goerli" ? (
+        ) : stateChainName === "arbitrumGoerli" ? (
           <SwapButton amount={bnInput} />
         ) : null}
       </div>

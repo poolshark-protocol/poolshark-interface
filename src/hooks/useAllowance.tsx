@@ -13,7 +13,7 @@ export default function useAllowance(address) {
     abi: erc20ABI,
     functionName: "allowance",
     args: [address, coverPoolAddress],
-    chainId: 5,
+    chainId: 421613,
     watch: true,
     onSuccess(data) {
       console.log("Success", data);

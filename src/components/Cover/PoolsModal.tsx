@@ -5,7 +5,7 @@ import {
 } from "@heroicons/react/20/solid";
 import UserCoverPool from "../Pools/UserCoverPool";
 import StaticUniPool from "../Pools/StaticUniPool";
-import { fetchPools, fetchUniV3Pools } from "../../utils/queries";
+import { fetchCoverPools, fetchUniV3Pools } from "../../utils/queries";
 import { useAccount } from "wagmi";
 
 export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
@@ -17,7 +17,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
 
   async function getPoolData() {
     try {
-      const data = await fetchPools();
+      const data = await fetchCoverPools();
       const pools = data["data"].coverPools;
   
       setCoverPools(pools);

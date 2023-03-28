@@ -25,7 +25,7 @@ export default function CoverApproveButton({address}) {
     abi: erc20ABI,
     functionName: "approve",
     args:[coverPoolAddress, contractParams.amount],
-    chainId: 5,
+    chainId: 421613,
   })
 
   const { data, isSuccess, write } = useContractWrite(config)

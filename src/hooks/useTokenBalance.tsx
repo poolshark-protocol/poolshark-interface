@@ -22,7 +22,7 @@ export default function useTokenBalance(tokenAddress) {
     const { data } = useBalance({
         address: userAddress,
         token: queryToken,
-        chainId: 5,
+        chainId: 421613,
         watch: true,
         
         onSuccess(data){

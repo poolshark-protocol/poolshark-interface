@@ -5,18 +5,18 @@ import {
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
 import { configureChains, createClient, WagmiConfig } from 'wagmi';
-import { mainnet, goerli } from 'wagmi/chains';
+import { mainnet, goerli, arbitrumGoerli } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 
 
 
 const { chains, provider } = configureChains(
-  [mainnet, goerli],
+  [arbitrumGoerli],
   [
     jsonRpcProvider({
       rpc: (chain) => ({
-        http: `https://eth-${chain.name}.gateway.pokt.network/v1/lb/06ded497f9f7c86ffb2e880f`,
+        http: `https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2`,
       }),
     }),
   ],

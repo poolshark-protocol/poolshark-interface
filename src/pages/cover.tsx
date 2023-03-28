@@ -8,7 +8,7 @@ import UserCoverPool from "../components/Pools/UserCoverPool";
 import { useState, useEffect } from "react";
 import { useAccount, useProvider } from "wagmi";
 import Link from "next/link";
-import { fetchPositions, fetchUniV3Positions } from "../utils/queries";
+import { fetchCoverPositions, fetchUniV3Positions } from "../utils/queries";
 import React from "react";
 import useTokenList from "../hooks/useTokenList";
 import Initial from "../components/Cover/Initial";
@@ -71,7 +71,7 @@ export default function Cover() {
 
   async function getUserPositionData() {
     try {
-      const data = await fetchPositions(address)
+      const data = await fetchCoverPositions(address)
       const positions = data["data"].positions
       setCoverPositions(positions)
     } catch (error) {

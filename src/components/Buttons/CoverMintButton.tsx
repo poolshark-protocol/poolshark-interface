@@ -82,7 +82,7 @@ export default function CoverMintButton({disabled}) {
       contractParams.amount,
       false,
     ],
-    chainId: 5,
+    chainId: 421613,
     overrides: {
       gasLimit: BigNumber.from("350000"),
     },

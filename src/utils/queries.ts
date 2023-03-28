@@ -76,7 +76,7 @@ export const getPreviousTicksLower = (token0:string, token1:string, index:number
           })
     }
 
-export const fetchPositions =  (address:string) => {
+export const fetchCoverPositions =  (address:string) => {
   return new Promise(function(resolve) {
     const positionsQuery =`
       query($owner: String) {
@@ -140,7 +140,7 @@ export const fetchPositions =  (address:string) => {
     })
 };
 
-export const fetchPools =  () => {
+export const fetchCoverPools =  () => {
     return new Promise(function(resolve) {
         const poolsQuery =`
             query($id: String) {
