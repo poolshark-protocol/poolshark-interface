@@ -14,7 +14,7 @@ import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import { useAccount } from "wagmi";
 import {
   coverPoolAddress,
-  coverTokenOne,
+  tokenOneAddress,
 } from "../constants/contractAddresses";
 import TokenBalance from "../components/TokenBalance";
 import { useProvider } from "wagmi";
@@ -29,8 +29,8 @@ export default function Swap() {
   const allowance = useAllowance(address);
   const [hasSelected, setHasSelected] = useState(false);
   const [mktRate, setMktRate] = useState({});
-  const [queryToken0, setQueryToken0] = useState(coverTokenOne);
-  const [queryToken1, setQueryToken1] = useState(coverTokenOne);
+  const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
+  const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
 
   const [token0, setToken0] = useState({
     symbol: "ETH",
@@ -118,8 +118,8 @@ export default function Swap() {
   // const getAllowance = async () => {
   //  let provider = new ethers.providers.JsonRpcProvider(`https://rpc.ankr.com/eth_goerli`)
   //  const signer = new ethers.VoidSigner(address, provider)
-  //   const contract = new ethers.Contract(coverTokenOne,TokenOneAbi,signer)
-  //   const allowance = await contract.allowance(coverTokenOne,coverPoolAddress)
+  //   const contract = new ethers.Contract(tokenOneAddress,TokenOneAbi,signer)
+  //   const allowance = await contract.allowance(tokenOneAddress,coverPoolAddress)
   // //  setAllowance(signer)
   // console.log("here", allowance.toNumber())
   // }
