@@ -8,6 +8,7 @@ import {
 import { useAccount } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import {ConnectWalletButton} from "../Buttons/ConnectWalletButton";
+import useAllowance from "../../hooks/useAllowance";
 import CoverApproveButton from "../Buttons/CoverApproveButton";
 import { useEffect, useState } from "react";
 import {useStore} from "../../hooks/useStore"
@@ -84,21 +85,18 @@ export default function CoverExistingPool({goBack}) {
 
 
 
-  //  const [dataState, setDataState] = useAllowance(address);
+const allowance = useAllowance(address);
 
-  for (let e of document.querySelectorAll('input[type="range"].slider-progress')) {
+const [sliderValue, setSliderValue] = useState(50);
 
-    //Not sure what you were trying to do here but fix this please
-
-
-  // e.style.setProperty('--value', e.value);
-  // e.style.setProperty('--min', e.min == '' ? '0' : e.min);
-  // e.style.setProperty('--max', e.max == '' ? '100' : e.max);
-  // e.addEventListener('input', () => e.style.setProperty('--value', e.value));
-}
+const handleChange = (event: any) => {
+  setSliderValue(event.target.value);
+};
 
 
     const Option = () => {
+
+
     if (expanded) {
       return (
         <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
@@ -154,12 +152,12 @@ export default function CoverExistingPool({goBack}) {
                 <div>Full</div>
               </div>
               <div className="w-full flex items-center -mt-2">
-                <input type="range" className="w-full styled-slider slider-progress bg-transparent"/>
+                <input type="range" min="0" max="100" value={sliderValue} onChange={handleChange} className="w-full styled-slider slider-progress bg-transparent"/>
               </div>
               <div className="mt-3 space-y-2">
                 <div className="flex justify-between text-sm">
                   <div className="text-[#646464]">Amount Covered</div>
-                  <input className="bg-transparent text-right outline-none" placeholder="50%"/>
+                  <input className="bg-transparent text-right outline-none" placeholder="50%" value={sliderValue + '%'}/>
                 </div>
                 <div className="flex justify-between text-sm">
                   <div className="text-[#646464]">Cover Size</div>
@@ -248,7 +246,7 @@ export default function CoverExistingPool({goBack}) {
               <div className="space-y-3" >
                 {isDisconnected ? <ConnectWalletButton /> : null}
                 {/*  && dataState === "0x00" */}
-                {isDisconnected ? null : isConnected  ? <CoverApproveButton address={address} /> : <CoverMintButton disabled={false} />}
+                {isDisconnected ? null : allowance === "0.0" ? <CoverApproveButton address={address} /> : <CoverMintButton disabled={false} />}
               </div>
               </>
     )

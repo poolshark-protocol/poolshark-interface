@@ -29,6 +29,7 @@ import {
 } from "../../utils/queries";
 import JSBI from "jsbi";
 import { erc20 } from "../../abis/evm/erc20";
+import useAllowance from "../../hooks/useAllowance";
 
 export default function CreateCover(props: any) {
   const [expanded, setExpanded] = useState(false);
@@ -177,8 +178,8 @@ export default function CreateCover(props: any) {
     },
   });
 
-  const balanceAndAllowance = async () => {
-    updateAllowance(await tokenInAllowance());
+  /*const balanceAndAllowance = async () => {
+    updateAllowance(await token0Allowance());
   };
 
   useEffect(() => {
@@ -187,7 +188,7 @@ export default function CreateCover(props: any) {
     } catch (error) {
       console.log(error);
     }
-  }, []);
+  }, []);*/
 
   function changeDefault0(token: {
     symbol: string;
@@ -202,6 +203,8 @@ export default function CreateCover(props: any) {
   }
 
   const [tokenOrder, setTokenOrder] = useState(true);
+
+  const newAllowance = useAllowance(address);
 
   const changeDefault1 = (token:{
     symbol: string;
@@ -493,7 +496,7 @@ export default function CreateCover(props: any) {
       </div>
       <div className="mb-3" key={allowance}>
         {isConnected &&
-       Number(allowance) < amountToPay &&
+       Number(newAllowance) < amountToPay &&
         stateChainName === "arbitrumGoerli" ? (
           <CoverApproveButton address={tokenZeroAddress} />
         ) : stateChainName === "arbitrumGoerli" ? (
