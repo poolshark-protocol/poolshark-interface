@@ -90,13 +90,13 @@ export default function CreateCover(props: any) {
           )
         );
         const data = await getPreviousTicksLower(
-          token0["address"],
-          token1["address"],
+          tokenIn["address"],
+          tokenOut["address"],
           min
         );
         const data1 = await getPreviousTicksUpper(
-          token0["address"],
-          token1["address"],
+          tokenIn["address"],
+          tokenOut["address"],
           max
         );
         updateContractParams({
@@ -140,13 +140,13 @@ export default function CreateCover(props: any) {
   const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
   const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
 
-  const [token0, setToken0] = useState({
+  const [tokenIn, setToken0] = useState({
     symbol: "TOKEN20A",
     logoURI:
       "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
     address: "0x8fa1fdd860e3c56dafd09a048ffda4965376945e",
   });
-  const [token1, setToken1] = useState({
+  const [tokenOut, setToken1] = useState({
     symbol: "Select Token",
     logoURI: undefined,
     address: "0xc3a0736186516792c88e2c6d9b209471651aa46e",
@@ -154,19 +154,19 @@ export default function CreateCover(props: any) {
 
   const [usdcBalance, setUsdcBalance] = useState(0);
   const [amountToPay, setAmountToPay] = useState(0);
-  const [prices, setPrices] = useState({ token0: 0, token1: 0 });
+  const [prices, setPrices] = useState({ tokenIn: 0, tokenOut: 0 });
 
-  const token0Allowance = async () => {
+  const tokenInAllowance = async () => {
     const provider = new ethers.providers.JsonRpcProvider(
       "https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2/"
     );
-    const contract = new ethers.Contract(token0.address, erc20, provider);
+    const contract = new ethers.Contract(tokenIn.address, erc20, provider);
     const allowance = await contract.allowance(address, coverPoolAddress);
     return ethers.utils.formatUnits(allowance);
   };
 
   const { data, isError, isLoading } = useBalance({
-    token: `0x${token0.address.split("0x")[1]}`,
+    token: `0x${tokenIn.address.split("0x")[1]}`,
     chainId: 421613,
     address: address,
     onSuccess: () => {
@@ -178,7 +178,7 @@ export default function CreateCover(props: any) {
   });
 
   const balanceAndAllowance = async () => {
-    updateAllowance(await token0Allowance());
+    updateAllowance(await tokenInAllowance());
   };
 
   useEffect(() => {
@@ -194,7 +194,7 @@ export default function CreateCover(props: any) {
     logoURI: any;
     address: string;
   }) {
-    if (token.symbol === token1.symbol || token.address === token1.address) {
+    if (token.symbol === tokenOut.symbol || token.address === tokenOut.address) {
       return;
     }
     console.log(token)
@@ -208,7 +208,7 @@ export default function CreateCover(props: any) {
     logoURI: any;
     address: string;
   }) => {
-    if (token.symbol === token0.symbol || token.address === token0.address) {
+    if (token.symbol === tokenIn.symbol || token.address === tokenIn.address) {
       return;
     }
     console.log(token)
@@ -340,7 +340,7 @@ export default function CreateCover(props: any) {
           <SelectToken
             index="0"
             tokenChosen={changeDefault0}
-            displayToken={token0}
+            displayToken={tokenIn}
             balance={setQueryToken0}
             key={queryToken0}
           />
@@ -350,7 +350,7 @@ export default function CreateCover(props: any) {
               index="1"
               selected={hasSelected}
               tokenChosen={changeDefault1}
-              displayToken={token1}
+              displayToken={tokenOut}
               balance={setQueryToken1}
               key={queryToken1}
             />
@@ -359,7 +359,7 @@ export default function CreateCover(props: any) {
               index="1"
               selected={hasSelected}
               tokenChosen={changeDefault1}
-              displayToken={token1}
+              displayToken={tokenOut}
               balance={setQueryToken1}
             />
           )}
@@ -377,8 +377,8 @@ export default function CreateCover(props: any) {
               <div className="flex justify-end">
                 <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
                   <div className="flex items-center gap-x-2 w-full">
-                    <img className="w-7" src={token0.logoURI} />
-                    {token0.symbol}
+                    <img className="w-7" src={tokenIn.logoURI} />
+                    {tokenIn.symbol}
                   </div>
                 </button>
               </div>
@@ -395,13 +395,13 @@ export default function CreateCover(props: any) {
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Balance</div>
           <div>
-            {usdcBalance} {token0.symbol}
+            {usdcBalance} {tokenIn.symbol}
           </div>
         </div>
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Amount to pay</div>
           <div>
-            {amountToPay} {token0.symbol}
+            {amountToPay} {tokenIn.symbol}
           </div>
         </div>
       </div>
@@ -434,8 +434,8 @@ export default function CreateCover(props: any) {
             </div>
           </div>
           <span className="text-xs text-grey">
-            {token0.symbol} per{" "}
-            {token1.symbol === "SELECT TOKEN" ? "?" : token1.symbol}
+            {tokenIn.symbol} per{" "}
+            {tokenOut.symbol === "SELECT TOKEN" ? "?" : tokenOut.symbol}
           </span>
         </div>
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
@@ -465,8 +465,8 @@ export default function CreateCover(props: any) {
             </div>
           </div>
           <span className="text-xs text-grey">
-            {token0.symbol} per{" "}
-            {token1.symbol === "SELECT TOKEN" ? "?" : token1.symbol}
+            {tokenIn.symbol} per{" "}
+            {tokenOut.symbol === "SELECT TOKEN" ? "?" : tokenOut.symbol}
           </span>
         </div>
       </div>
@@ -476,10 +476,10 @@ export default function CreateCover(props: any) {
           onClick={() => setExpanded(!expanded)}
         >
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-            {prices.token0} {token0.symbol} ={" "}
-            {token1.symbol === "Select Token"
+            {prices.tokenIn} {tokenIn.symbol} ={" "}
+            {tokenOut.symbol === "Select Token"
               ? "?"
-              : prices.token1 + " " + token1.symbol}
+              : prices.tokenOut + " " + tokenOut.symbol}
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
             <button>
