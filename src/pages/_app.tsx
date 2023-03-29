@@ -8,6 +8,7 @@ import { configureChains, createClient, WagmiConfig } from 'wagmi';
 import { mainnet, goerli, arbitrumGoerli } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+import Head from 'next/head'
 
 
 
@@ -41,15 +42,18 @@ const apolloClient = new ApolloClient({
 function MyApp({ Component, pageProps }) {
 
   return (
-  
-    <WagmiConfig client={wagmiClient}>
-       <RainbowKitProvider chains={chains}>
-        <ApolloProvider client={apolloClient}>
-          <Component {...pageProps} />
-        </ApolloProvider>
+    <>
+    <Head>
+       <title>Poolshark</title>
+    </Head>
+      <WagmiConfig client={wagmiClient}>
+        <RainbowKitProvider chains={chains}>
+          <ApolloProvider client={apolloClient}>
+            <Component {...pageProps} />
+          </ApolloProvider>
         </RainbowKitProvider>
-    </WagmiConfig>
-    
+      </WagmiConfig>
+    </>
   );
 }
 
