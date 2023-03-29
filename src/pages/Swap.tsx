@@ -420,7 +420,7 @@ export default function Swap() {
           </div>
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {isDisconnected ? null : allowance === 0.0 &&
+        {isDisconnected ? null : allowance === "0.0" &&
           stateChainName === "arbitrumGoerli" ? (
           <CoverApproveButton address={address} />
         ) : stateChainName === "arbitrumGoerli" ? (
