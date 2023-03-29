@@ -86,6 +86,7 @@ export const ConnectWalletButton = () => {
                         )}
                       </div>
                     )}
+                     {chain.id === 421613 ? <img  style={{ width: 16, height: 16 }} src="/static/images/arb_icon.svg" /> : ""}
                     {chain.name}
                   </button>
                   <button onClick={openAccountModal} type="button" className="flex bg-dark rounded-lg border-grey1 border hover:opacity-80">
