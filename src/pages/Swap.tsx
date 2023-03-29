@@ -32,20 +32,22 @@ export default function Swap() {
   const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
   const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
 
-  const [token0, setToken0] = useState({
+  const [tokenIn, setToken0] = useState({
     symbol: "ETH",
     logoURI: "/static/images/eth_icon.png",
+    address: "0x7024879Eda80577Cbc0Cb039ad3c7081f38ABb41"
   });
-  const [token1, setToken1] = useState({
+  const [tokenOut, setToken1] = useState({
     symbol: "Select Token",
     logoURI: "",
+    address: ""
   });
 
-  const balanceZero = TokenBalance(queryToken0);
-  const balanceOne = TokenBalance(queryToken1);
+  const balanceZero = TokenBalance(tokenIn.address);
+  const balanceOne = TokenBalance(tokenOut.address);
 
   const [balance0, setBalance0] = useState("");
-  const [balance1, setBalance1] = useState("");
+  const [balance1, setBalance1] = useState("0.00");
   const [stateChainName, setStateChainName] = useState();
 
   const {
@@ -75,7 +77,7 @@ export default function Swap() {
   }, [queryToken1, balanceOne]);
 
   function changeDefault0(token) {
-    if (token.symbol === token1.symbol) {
+    if (token.symbol === tokenOut.symbol) {
       return;
     }
     setToken0(token);
@@ -84,7 +86,7 @@ export default function Swap() {
   const [tokenOrder, setTokenOrder] = useState(true);
 
   const changeDefault1 = (token) => {
-    if (token.symbol === token0.symbol) {
+    if (token.symbol === tokenIn.symbol) {
       return;
     }
     setToken1(token);
@@ -100,8 +102,8 @@ export default function Swap() {
 
   function switchDirection() {
     setTokenOrder(!tokenOrder);
-    const temp = token0;
-    setToken0(token1);
+    const temp = tokenIn;
+    setToken0(tokenOut);
     setToken1(temp);
     const tempBal = queryToken0;
     setQueryToken0(queryToken1);
@@ -124,30 +126,32 @@ export default function Swap() {
   // console.log("here", allowance.toNumber())
   // }
 
-  /*const gasEstimate = async () => {
-    const provider = ethers.getDefaultProvider();
+  const gasEstimate = async () => {
+    const provider = new ethers.providers.JsonRpcProvider("https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594");
     const contract = new ethers.Contract(
       coverPoolAddress,
       coverPoolABI,
       provider
     );
     const recipient = address;
+    const zeroForOne = (tokenOut.address != "") && (tokenIn.address < tokenOut.address);
+    // const priceLimit = 
     const estimation = await contract.estimateGas.swap(
       recipient,
-      false,
+      zeroForOne,
       bnInput,
-      BigNumber.from("100")
+      BigNumber.from("79228162514264337593543950336") // price of 1.00
     );
-    console.log(ethers.utils.formatEther(estimation));
-  };*/
+    console.log('test estimate gas:', ethers.utils.formatEther(estimation));
+  };
 
   useEffect(() => {
     fetchTokenPrice();
   }, []);
 
-  /*useEffect(() => {
+  useEffect(() => {
     gasEstimate();
-  }, []);*/
+  }, []);
 
   const fetchTokenPrice = async () => {
     try {
@@ -266,7 +270,7 @@ export default function Swap() {
                     index="0"
                     selected={hasSelected}
                     tokenChosen={changeDefault0}
-                    displayToken={token0}
+                    displayToken={tokenIn}
                     balance={setQueryToken0}
                     key={queryToken0}
                   />
@@ -319,7 +323,7 @@ export default function Swap() {
                       index="1"
                       selected={hasSelected}
                       tokenChosen={changeDefault1}
-                      displayToken={token1}
+                      displayToken={tokenOut}
                       balance={setQueryToken1}
                       key={queryToken1}
                     />
@@ -328,7 +332,7 @@ export default function Swap() {
                       index="1"
                       selected={hasSelected}
                       tokenChosen={changeDefault1}
-                      displayToken={token1}
+                      displayToken={tokenOut}
                       balance={setQueryToken1}
                     />
                   )}
@@ -336,16 +340,8 @@ export default function Swap() {
                 {hasSelected ? (
                   <div className="flex items-center justify-end gap-2 px-1 mt-2">
                     <div className="flex text-xs text-[#4C4C4C]">
-                      Balance: {balance1}
+                      Balance: {balanceOne}
                     </div>
-                    {isConnected && stateChainName === "arbitrumGoerli" ? (
-                      <button
-                        className="flex text-xs uppercase text-[#C9C9C9]"
-                        onClick={() => maxBalance(balance1, "0")}
-                      >
-                        Max
-                      </button>
-                    ) : null}
                   </div>
                 ) : (
                   <></>
@@ -374,7 +370,7 @@ export default function Swap() {
                           className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
                           onClick={() => setTokenOrder(false)}
                         >
-                          {token0.symbol} per {token1.symbol}
+                          {tokenIn.symbol} per {tokenOut.symbol}
                           <ArrowPathIcon className="w-5" />
                         </button>
                       ) : (
@@ -382,7 +378,7 @@ export default function Swap() {
                           className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
                           onClick={() => setTokenOrder(true)}
                         >
-                          {token1.symbol} per {token0.symbol}
+                          {tokenOut.symbol} per {tokenIn.symbol}
                           <ArrowPathIcon className="w-5" />
                         </button>
                       )}
@@ -406,8 +402,8 @@ export default function Swap() {
             onClick={() => setExpanded(!expanded)}
           >
             <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-              1 {token0.symbol} =
-              {token1.symbol === "Select Token" ? " ?" : " " + mktRate["eth"] + " " + token1.symbol}
+              1 {tokenIn.symbol} =
+              {tokenOut.symbol === "Select Token" ? " ?" : " " + mktRate["eth"] + " " + tokenOut.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
               <button>
