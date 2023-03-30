@@ -5,6 +5,7 @@ import {
   MagnifyingGlassIcon,
 } from "@heroicons/react/20/solid";
 import { Transition, Dialog } from "@headlessui/react";
+import { tokenZeroAddress, tokenOneAddress } from "../constants/contractAddresses";
 import useTokenList from "../hooks/useTokenList";
 import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
@@ -19,15 +20,15 @@ export default function SelectToken(props) {
   //@dev this is temporary for testnet
   // const [coinsForListing, setCoinsForListing] = useState(coins["listed_tokens"]);
   const [coinsForListing, setCoinsForListing] = useState([{
-    name: "Ethereum",
-    address: "0x0",
-    symbol: "ETH",
+    name: "Wrapped Ether",
+    address: tokenZeroAddress,
+    symbol: "WETH",
     logoURI: "/static/images/eth_icon.png",
     decimals: 18
 },
 {
   name: "USDC",
-  address: "0x0",
+  address: tokenOneAddress,
   symbol: "USDC",
   logoURI:  "/static/images/token.png",
   decimals: 18
@@ -63,7 +64,7 @@ export default function SelectToken(props) {
   const chooseToken = (coin) => {
     props.tokenChosen({
       name: coin?.name,
-      address: coin?.id,
+      address: coin?.address,    //@dev use id for address in production like so address: coin?.id because thats what coin [] will have instead of address
       symbol: coin?.symbol,
       logoURI: coin?.logoURI,
       decimals: coin?.decimals,

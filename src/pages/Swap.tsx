@@ -2,7 +2,7 @@ import {
   AdjustmentsHorizontalIcon,
   ArrowSmallDownIcon,
 } from "@heroicons/react/24/outline";
-import { useState, useEffect, Fragment } from "react";
+import { useState, useEffect, Fragment, SetStateAction } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import { ChevronDownIcon, ArrowPathIcon } from "@heroicons/react/20/solid";
 import SelectToken from "../components/SelectToken";
@@ -11,40 +11,96 @@ import useInputBox from "../hooks/useInputBox";
 import useAllowance from "../hooks/useAllowance";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
-import { useAccount } from "wagmi";
+import { erc20ABI, useAccount } from "wagmi";
 import {
   coverPoolAddress,
   tokenOneAddress,
+  tokenZeroAddress,
 } from "../constants/contractAddresses";
 import TokenBalance from "../components/TokenBalance";
 import { useProvider } from "wagmi";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber, Contract, ethers } from "ethers";
 import { chainIdsToNamesForGitTokenList } from "../utils/chains";
 import { coverPoolABI } from "../abis/evm/coverPool";
 import { fetchPrice } from "../utils/queries";
 
+type token = {
+  symbol: string;
+  logoURI: string;
+  address: string;
+};
+
 export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount();
   const { bnInput, inputBox, maxBalance } = useInputBox();
-  const allowance = useAllowance(address);
+  const [allowance, setAllowance] = useState("");
   const [hasSelected, setHasSelected] = useState(false);
   const [mktRate, setMktRate] = useState({});
   const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
   const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
 
   const [tokenIn, setToken0] = useState({
-    symbol: "ETH",
+    symbol: "WETH",
     logoURI: "/static/images/eth_icon.png",
-    address: "0x7024879Eda80577Cbc0Cb039ad3c7081f38ABb41"
+    address: tokenZeroAddress,
   });
   const [tokenOut, setToken1] = useState({
     symbol: "Select Token",
     logoURI: "",
-    address: ""
+    address: "",
   });
 
-  const balanceZero = TokenBalance(tokenIn.address);
-  const balanceOne = TokenBalance(tokenOut.address);
+  //@dev put balanc
+
+  const getBalances = async () => {
+    const provider = new ethers.providers.JsonRpcProvider(
+      "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594",
+      421613
+    );
+    const signer = new ethers.VoidSigner(address, provider);
+    console.log(tokenIn);
+    const token1Bal = new ethers.Contract(tokenIn.address, erc20ABI, signer);
+    let token2Bal: Contract;
+    if (hasSelected === true) {
+      token2Bal = new ethers.Contract(tokenOut.address, erc20ABI, signer);
+      const balance2 = await token2Bal.balanceOf(address);
+      const balance1 = await token1Bal.balanceOf(address);
+      let bal1:string;
+      let bal2:string;
+      if (Number(ethers.utils.formatEther(balance1)) >= 1000000) {
+        bal1 = Number(ethers.utils.formatEther(balance1)).toExponential(5);
+      }
+      if (
+        0 < Number(ethers.utils.formatEther(balance1)) &&
+        Number(ethers.utils.formatEther(balance1)) < 1000000
+      ) {
+        bal1 = Number(ethers.utils.formatEther(balance1)).toFixed(2);
+      }
+      if (Number(ethers.utils.formatEther(balance2)) >= 1000000) {
+        bal2 = Number(ethers.utils.formatEther(balance2)).toExponential(5);
+      }
+      if (
+        0 < Number(ethers.utils.formatEther(balance2)) &&
+        Number(ethers.utils.formatEther(balance2)) < 1000000
+      ) {
+        bal2 = Number(ethers.utils.formatEther(balance2)).toFixed(2);
+      }
+      setBalance0(bal1);
+      setBalance1(bal2);
+    }
+    let bal1 = await token1Bal.balanceOf(address);
+    let displayBal1: string;
+    if (Number(ethers.utils.formatEther(bal1)) >= 1000000) {
+      displayBal1 = Number(ethers.utils.formatEther(bal1)).toExponential(5);
+    }
+    if (
+      0 < Number(ethers.utils.formatEther(bal1)) &&
+      Number(ethers.utils.formatEther(bal1)) < 1000000
+    ) {
+      displayBal1 = Number(ethers.utils.formatEther(bal1)).toFixed(2);
+    }
+    setBalance0(displayBal1);
+  };
 
   const [balance0, setBalance0] = useState("");
   const [balance1, setBalance1] = useState("0.00");
@@ -59,24 +115,28 @@ export default function Swap() {
   }, [chainId]);
 
   useEffect(() => {
-    if (isConnected && stateChainName === "arbitrumGoerli") {
-      if (Number(balanceZero().props.children[1]) >= 1000000) {
-        setBalance0(Number(balanceZero().props.children[1]).toExponential(5));
-      }
-      setBalance0(Number(balanceZero().props.children[1]).toFixed(2));
-    }
-  }, [queryToken0, balanceZero]);
+    getBalances();
+  }, [tokenOut, tokenIn]);
 
-  useEffect(() => {
-    if (isConnected && stateChainName === "arbitrumGoerli") {
-      if (Number(balanceOne().props.children[1]) >= 1000000) {
-        setBalance1(Number(balanceOne().props.children[1]).toExponential(5));
-      }
-      setBalance1(Number(balanceOne().props.children[1]).toFixed(2));
-    }
-  }, [queryToken1, balanceOne]);
+  // useEffect(() => {
+  //   if (isConnected && stateChainName === "arbitrumGoerli") {
+  //     if (Number(balanceZero().props.children[1]) >= 1000000)
+  //       setBalance0(Number(balanceZero().props.children[1]).toExponential(5));
+  //     }
+  //     setBalance0(Number(balanceZero().props.children[1]).toFixed(2));
+  //   }
+  // }, [queryToken0]);
 
-  function changeDefault0(token) {
+  // useEffect(() => {
+  //   if (isConnected && stateChainName === "arbitrumGoerli") {
+  //     if (Number(balanceOne().props.children[1]) >= 1000000) {
+  //       setBalance1(Number(balanceOne().props.children[1]).toExponential(5));
+  //     }
+  //     setBalance1(Number(balanceOne().props.children[1]).toFixed(2));
+  //   }
+  // }, [queryToken1, balanceOne]);
+
+  function changeDefault0(token: token) {
     if (token.symbol === tokenOut.symbol) {
       return;
     }
@@ -85,7 +145,7 @@ export default function Swap() {
 
   const [tokenOrder, setTokenOrder] = useState(true);
 
-  const changeDefault1 = (token) => {
+  const changeDefault1 = (token: token) => {
     if (token.symbol === tokenIn.symbol) {
       return;
     }
@@ -105,10 +165,12 @@ export default function Swap() {
     const temp = tokenIn;
     setToken0(tokenOut);
     setToken1(temp);
-    const tempBal = queryToken0;
-    setQueryToken0(queryToken1);
-    setQueryToken1(tempBal);
-    setMktRate({eth: mktRate["usdc"], usdc: mktRate["eth"]})
+    console.log(tokenIn);
+    console.log(tokenOut);
+    // const tempBal = queryToken0;
+    // setQueryToken0(queryToken1);
+    // setQueryToken1(tempBal);
+    setMktRate({ eth: mktRate["usdc"], usdc: mktRate["eth"] });
   }
 
   function openModal() {
@@ -117,32 +179,40 @@ export default function Swap() {
 
   const [expanded, setExpanded] = useState(false);
 
-  // const getAllowance = async () => {
-  //  let provider = new ethers.providers.JsonRpcProvider(`https://rpc.ankr.com/eth_arbitrumGoerli`)
-  //  const signer = new ethers.VoidSigner(address, provider)
-  //   const contract = new ethers.Contract(tokenOneAddress,TokenOneAbi,signer)
-  //   const allowance = await contract.allowance(tokenOneAddress,coverPoolAddress)
-  // //  setAllowance(signer)
-  // console.log("here", allowance.toNumber())
-  // }
+  const getAllowance = async () => {
+    const provider = new ethers.providers.JsonRpcProvider(
+      "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
+    );
+    const signer = new ethers.VoidSigner(address, provider);
+    const contract = new ethers.Contract(tokenIn.address, erc20ABI, signer);
+    const allowance = await contract.allowance(
+      tokenIn.address,
+      coverPoolAddress
+    );
+    setAllowance(allowance);
+    console.log("here", allowance.toNumber());
+  };
 
   const gasEstimate = async () => {
-    const provider = new ethers.providers.JsonRpcProvider("https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594");
+    const provider = new ethers.providers.JsonRpcProvider(
+      "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
+    );
     const contract = new ethers.Contract(
       coverPoolAddress,
       coverPoolABI,
       provider
     );
     const recipient = address;
-    const zeroForOne = (tokenOut.address != "") && (tokenIn.address < tokenOut.address);
-    // const priceLimit = 
+    const zeroForOne =
+      tokenOut.address != "" && tokenIn.address < tokenOut.address;
+    // const priceLimit =
     const estimation = await contract.estimateGas.swap(
       recipient,
       zeroForOne,
       bnInput,
       BigNumber.from("79228162514264337593543950336") // price of 1.00
     );
-    console.log('test estimate gas:', ethers.utils.formatEther(estimation));
+    console.log("test estimate gas:", ethers.utils.formatEther(estimation));
   };
 
   useEffect(() => {
@@ -150,20 +220,29 @@ export default function Swap() {
   }, []);
 
   useEffect(() => {
-    gasEstimate();
+    setTimeout(() => {
+      gasEstimate();
+    }, 10000);
   }, []);
+
+  useEffect(() => {
+    getAllowance();
+  }, [tokenIn.address]);
 
   const fetchTokenPrice = async () => {
     try {
       const price = await fetchPrice("0x000");
       setMktRate({
-        eth: "~" + Number(
-          price["data"]["bundles"]["0"]["ethPriceUSD"]
-        ).toLocaleString("en-US", {
-          style: "currency",
-          currency: "USD",
-        }),
-        usdc: "~1.00"
+        eth:
+          "~" +
+          Number(price["data"]["bundles"]["0"]["ethPriceUSD"]).toLocaleString(
+            "en-US",
+            {
+              style: "currency",
+              currency: "USD",
+            }
+          ),
+        usdc: "~1.00",
       });
     } catch (error) {
       console.log(error);
@@ -259,7 +338,9 @@ export default function Swap() {
           <div className="flex-col justify-center w-1/2 p-2 ">
             {inputBox("0")}
             <div className="flex">
-              <div className="flex text-xs text-[#4C4C4C]">{mktRate["eth"]}</div>
+              <div className="flex text-xs text-[#4C4C4C]">
+                {mktRate["eth"]}
+              </div>
             </div>
           </div>
           <div className="flex w-1/2">
@@ -276,7 +357,7 @@ export default function Swap() {
                   />
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                  <div className="flex text-xs text-[#4C4C4C]">
+                  <div className="flex text-xs text-[#4C4C4C]" key={balance0}>
                     Balance: {balance0 === "NaN" ? 0 : balance0}
                   </div>
                   {isConnected && stateChainName === "arbitrumGoerli" ? (
@@ -297,9 +378,8 @@ export default function Swap() {
             className="w-4 h-4"
             onClick={() => {
               if (hasSelected) {
-                switchDirection()
+                switchDirection();
               }
-             
             }}
           />
         </div>
@@ -311,7 +391,9 @@ export default function Swap() {
               placeholder="0"
             />
             <div className="flex">
-              <div className="flex text-xs text-[#4C4C4C] ">{mktRate["usdc"]}</div>
+              <div className="flex text-xs text-[#4C4C4C] ">
+                {mktRate["usdc"]}
+              </div>
             </div>
           </div>
           <div className="flex w-1/2">
@@ -328,6 +410,7 @@ export default function Swap() {
                       key={queryToken1}
                     />
                   ) : (
+                    //@dev add skeletons on load when switching sides/ initial selection
                     <SelectToken
                       index="1"
                       selected={hasSelected}
@@ -340,7 +423,7 @@ export default function Swap() {
                 {hasSelected ? (
                   <div className="flex items-center justify-end gap-2 px-1 mt-2">
                     <div className="flex text-xs text-[#4C4C4C]">
-                      Balance: {balanceOne}
+                      Balance: {balance1 === "NaN" ? 0 : balance1}
                     </div>
                   </div>
                 ) : (
@@ -403,7 +486,9 @@ export default function Swap() {
           >
             <div className="flex-none text-xs uppercase text-[#C9C9C9]">
               1 {tokenIn.symbol} =
-              {tokenOut.symbol === "Select Token" ? " ?" : " " + mktRate["eth"] + " " + tokenOut.symbol}
+              {tokenOut.symbol === "Select Token"
+                ? " ?"
+                : " " + mktRate["eth"] + " " + tokenOut.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
               <button>
