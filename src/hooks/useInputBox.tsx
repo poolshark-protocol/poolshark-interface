@@ -7,8 +7,8 @@ export default function useInputBox() {
     const [displayLimit, setDisplayLimit] = useState("");
     const [input, setInput] = useState(BigNumber.from("0"));
     const [bnInput, setBnInput] = useState(BigNumber.from("0"));
-    const [updateLimitAmount] = useSwapStore((state: any) => [
-        state.updateLimitAmount
+    const [updateLimitAmount, updateSwapAmount] = useSwapStore((state: any) => [
+        state.updateLimitAmount, state.updateSwapAmount
       ]);
 
     const [inputLimit, setInputLimit] = useState(BigNumber.from("0"));
@@ -24,6 +24,7 @@ export default function useInputBox() {
           if (result !== "") {
               const valueToBn = ethers.utils.parseUnits(result, 18);
               setBnInput(valueToBn);
+              updateSwapAmount(valueToBn);
             }
         }
         
@@ -31,6 +32,7 @@ export default function useInputBox() {
         if (result !== "") {
             const valueToBn = ethers.utils.parseUnits(result, 18);
             setBnInput(valueToBn);
+            updateSwapAmount(valueToBn);
           }
     };
 

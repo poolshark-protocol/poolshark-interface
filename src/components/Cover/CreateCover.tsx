@@ -494,7 +494,7 @@ export default function CreateCover(props: any) {
           <Option />
         </div>
       </div>
-      <div className="mb-3" key={allowance}>
+      <div className="mb-3" key={newAllowance}>
         {isConnected &&
        Number(newAllowance) < amountToPay &&
         stateChainName === "arbitrumGoerli" ? (

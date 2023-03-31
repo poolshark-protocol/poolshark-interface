@@ -13,6 +13,7 @@ import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import { erc20ABI, useAccount } from "wagmi";
 import {
   coverPoolAddress,
+  rangePoolAddress,
   rangeTokenZero,
   tokenOneAddress,
   tokenZeroAddress,
@@ -24,6 +25,7 @@ import { coverPoolABI } from "../abis/evm/coverPool";
 import { fetchPrice, getPoolFromFactory, getQuote } from "../utils/queries";
 import { useSwapStore } from '../hooks/useStore';
 import SwapApproveButton from "../components/Buttons/SwapApproveButton";
+import { bn } from "fuels";
 
 type token = {
   symbol: string;
@@ -32,8 +34,8 @@ type token = {
 };
 
 export default function Swap() {
-  const [updateSwapAmount, Allowance] = useSwapStore((state: any) => [
-    state.updateSwapAmount, state.Allowance, 
+  const [updateSwapAmount] = useSwapStore((state: any) => [
+    state.updateSwapAmount 
   ]);
   const { address, isDisconnected, isConnected } = useAccount();
   const { bnInput, inputBox, maxBalance, bnInputLimit, LimitInputBox } =
@@ -239,10 +241,10 @@ export default function Swap() {
         "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
       );
       const signer = new ethers.VoidSigner(address, provider);
-      const contract = new ethers.Contract(token0.address, erc20ABI, signer);
+      const contract = new ethers.Contract(tokenIn.address, erc20ABI, signer);
       const allowance = await contract.allowance(
-        token0.address,
-        coverPoolAddress
+        address,
+        rangePoolAddress
       );
       setAllowance(allowance);
       console.log("here", allowance.toString());
@@ -607,9 +609,9 @@ export default function Swap() {
           </div>
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {isDisconnected ? null : Allowance.toString() === "0" &&
+        {isDisconnected ? null : Number(allowance) < Number(bnInput) &&
           stateChainName === "arbitrumGoerli" ? (
-          <SwapApproveButton approveToken={token0} />
+          <SwapApproveButton approveToken={token0.address} />
         ) : stateChainName === "arbitrumGoerli" ? (
           <SwapButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={baseLimit} />
         ) : null}
