@@ -4,27 +4,27 @@ import {
     useContractWrite
 } from 'wagmi';
 import { erc20ABI } from 'wagmi';
-import { coverPoolAddress } from "../../constants/contractAddresses";
+import { coverPoolAddress, rangePoolAddress } from "../../constants/contractAddresses";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import { useStore } from '../../hooks/useStore';
+import { useSwapStore} from '../../hooks/useStore';
 
-export default function CoverApproveButton({address}) {
+export default function SwapApproveButton({address}) {
   const [ errorDisplay,    setErrorDisplay   ] = useState(false);
   const [ successDisplay,  setSuccessDisplay ] = useState(false);
   const [ configuration,   setConfig         ] = useState();
 
-  const [contractParams, updateAllowance] = useStore((state: any) => [
-    state.contractParams, state.updateCoverAllowance
+  const [Amount, SwapParams, updateSwapAllowance] = useSwapStore((state: any) => [
+   state.Amount, state.SwapParams, state.updateSwapAllowance
   ]);
 
   const { config } = usePrepareContractWrite({
     address: address,
     abi: erc20ABI,
     functionName: "approve",
-    args:[coverPoolAddress, contractParams.amount],
+    args:[rangePoolAddress, Amount],
     chainId: 421613,
   })
 
@@ -33,7 +33,7 @@ export default function CoverApproveButton({address}) {
   const {isLoading} = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      updateAllowance(contractParams.amount)
+      updateSwapAllowance(Amount)
       setSuccessDisplay(true);
      
     },

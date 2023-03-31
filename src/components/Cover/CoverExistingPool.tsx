@@ -8,7 +8,6 @@ import {
 import { useAccount } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import {ConnectWalletButton} from "../Buttons/ConnectWalletButton";
-import useAllowance from "../../hooks/useAllowance";
 import CoverApproveButton from "../Buttons/CoverApproveButton";
 import { useEffect, useState } from "react";
 import {useStore} from "../../hooks/useStore"
@@ -84,8 +83,8 @@ export default function CoverExistingPool({goBack}) {
   };
 
 
-
-const allowance = useAllowance(address);
+//Fix
+// const allowance = useAllowance(address);
 
 const [sliderValue, setSliderValue] = useState(50);
 

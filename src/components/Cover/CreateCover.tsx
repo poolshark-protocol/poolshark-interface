@@ -38,11 +38,11 @@ export default function CreateCover(props: any) {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
 
-  const [updateContractParams, updateAllowance, allowance, contractParams] =
+  const [updateContractParams, updateCoverAllowance, CoverAllowance, contractParams] =
     useStore((state: any) => [
       state.updateContractParams,
-      state.updateAllowance,
-      state.allowance,
+      state.updateCoverAllowance,
+      state.CoverAllowance,
       state.contractParams,
     ]);
 

@@ -3,8 +3,12 @@ import { BigNumber, ethers } from "ethers";
 
 export default function useInputBox() {
     const [display, setDisplay] = useState("");
+    const [displayLimit, setDisplayLimit] = useState("");
     const [input, setInput] = useState(BigNumber.from("0"));
     const [bnInput, setBnInput] = useState(BigNumber.from("0"));
+
+    const [inputLimit, setInputLimit] = useState(BigNumber.from("0"));
+    const [bnInputLimit, setBnInputLimit] = useState(BigNumber.from("0"));
     
     const handleChange = (event, updateValue) => {
         const result = event.target.value.replace(/[^0-9\.|\,]/g, '')
@@ -23,6 +27,27 @@ export default function useInputBox() {
         if (result !== "") {
             const valueToBn = ethers.utils.parseUnits(result, 18);
             setBnInput(valueToBn);
+          }
+    };
+
+
+    const handleChangeLimit = (event, updateValue) => {
+        const result = event.target.value.replace(/[^0-9\.|\,]/g, '')
+        //TODO: do not allow for exceeding max decimals
+        setDisplayLimit(result == "" ? "" : result)
+        if (updateValue !== undefined) {
+          updateValue(result == "" ? 0 : result)
+          setInputLimit(result == "" ? BigNumber.from("0") : ethers.utils.parseUnits(result, 18))
+          if (result !== "") {
+              const valueToBn = ethers.utils.parseUnits(result, 18);
+              setBnInputLimit(valueToBn);
+            }
+        }
+        
+        setInputLimit(result == "" ?  BigNumber.from("0") : ethers.utils.parseUnits(result, 18))
+        if (result !== "") {
+            const valueToBn = ethers.utils.parseUnits(result, 18);
+            setBnInputLimit(valueToBn);
           }
     };
 
@@ -51,6 +76,21 @@ export default function useInputBox() {
             </div>
         )
     }
+
+    const LimitInputBox = (placeholder:string, updateValue?:any) => {
+        return (
+            <div className="flex gap-x-2">
+            <input
+                type="number"
+                id="LimitInput"
+                onChange={(e) => handleChangeLimit(e, updateValue)}
+                value={displayLimit}
+                placeholder={placeholder}
+                className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
+            />
+            </div>
+        )
+    }
     
-    return {bnInput, inputBox, maxBalance}
+    return {bnInput, bnInputLimit, LimitInputBox, inputBox, maxBalance}
 }

@@ -5,7 +5,7 @@ import {
   MagnifyingGlassIcon,
 } from "@heroicons/react/20/solid";
 import { Transition, Dialog } from "@headlessui/react";
-import { tokenZeroAddress, tokenOneAddress } from "../constants/contractAddresses";
+import { tokenZeroAddress, tokenOneAddress, rangeTokenZero, rangeTokenOne } from "../constants/contractAddresses";
 import useTokenList from "../hooks/useTokenList";
 import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
@@ -21,14 +21,14 @@ export default function SelectToken(props) {
   // const [coinsForListing, setCoinsForListing] = useState(coins["listed_tokens"]);
   const [coinsForListing, setCoinsForListing] = useState([{
     name: "Wrapped Ether",
-    address: tokenZeroAddress,
+    address: rangeTokenZero,
     symbol: "WETH",
     logoURI: "/static/images/eth_icon.png",
     decimals: 18
 },
 {
   name: "USDC",
-  address: tokenOneAddress,
+  address: rangeTokenOne,
   symbol: "USDC",
   logoURI:  "/static/images/token.png",
   decimals: 18
