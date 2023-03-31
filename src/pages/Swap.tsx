@@ -609,7 +609,7 @@ export default function Swap() {
         {isDisconnected ? <ConnectWalletButton /> : null}
         {isDisconnected ? null : Allowance.toString() === "0" &&
           stateChainName === "arbitrumGoerli" ? (
-          <SwapApproveButton address={address} />
+          <SwapApproveButton approveToken={token0} />
         ) : stateChainName === "arbitrumGoerli" ? (
           <SwapButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={baseLimit} />
         ) : null}

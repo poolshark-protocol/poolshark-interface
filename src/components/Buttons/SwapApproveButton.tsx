@@ -11,7 +11,7 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { useSwapStore} from '../../hooks/useStore';
 
-export default function SwapApproveButton({address}) {
+export default function SwapApproveButton({approveToken}) {
   const [ errorDisplay,    setErrorDisplay   ] = useState(false);
   const [ successDisplay,  setSuccessDisplay ] = useState(false);
   const [ configuration,   setConfig         ] = useState();
@@ -21,10 +21,10 @@ export default function SwapApproveButton({address}) {
   ]);
 
   const { config } = usePrepareContractWrite({
-    address: address,
+    address: approveToken,
     abi: erc20ABI,
     functionName: "approve",
-    args:[rangePoolAddress, Amount],
+    args:[rangePoolAddress , Amount],
     chainId: 421613,
   })
 
@@ -35,7 +35,6 @@ export default function SwapApproveButton({address}) {
     onSuccess() {
       updateSwapAllowance(Amount)
       setSuccessDisplay(true);
-     
     },
     onError() {
       setErrorDisplay(true);
