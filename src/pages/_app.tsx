@@ -5,18 +5,19 @@ import {
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
 import { configureChains, createClient, WagmiConfig } from 'wagmi';
-import { mainnet, goerli } from 'wagmi/chains';
+import { mainnet, goerli, arbitrumGoerli } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+import Head from 'next/head'
 
 
 
 const { chains, provider } = configureChains(
-  [mainnet, goerli],
+  [arbitrumGoerli],
   [
     jsonRpcProvider({
       rpc: (chain) => ({
-        http: `https://eth-${chain.name}.gateway.pokt.network/v1/lb/06ded497f9f7c86ffb2e880f`,
+        http: `https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2`,
       }),
     }),
   ],
@@ -35,21 +36,24 @@ const wagmiClient = createClient({
 
 const apolloClient = new ApolloClient({
   cache: new InMemoryCache(),
-  uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-hedge-pool",
+  uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover",
 })
 
 function MyApp({ Component, pageProps }) {
 
   return (
-  
-    <WagmiConfig client={wagmiClient}>
-       <RainbowKitProvider chains={chains}>
-        <ApolloProvider client={apolloClient}>
-          <Component {...pageProps} />
-        </ApolloProvider>
+    <>
+    <Head>
+       <title>Poolshark</title>
+    </Head>
+      <WagmiConfig client={wagmiClient}>
+        <RainbowKitProvider chains={chains}>
+          <ApolloProvider client={apolloClient}>
+            <Component {...pageProps} />
+          </ApolloProvider>
         </RainbowKitProvider>
-    </WagmiConfig>
-    
+      </WagmiConfig>
+    </>
   );
 }
 

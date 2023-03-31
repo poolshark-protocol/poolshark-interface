@@ -83,29 +83,24 @@ export const ConnectWalletButton = () => {
                             )}
                           </div>
                         )}
-                        {chain.name}
-                      </button>
-                      <button
-                        onClick={openAccountModal}
-                        type="button"
-                        className="flex bg-dark rounded-lg border-grey1 border hover:opacity-80"
-                      >
-                        {account.displayBalance ? (
-                          <div className="bg-dark py-2 px-4 rounded-l-lg">
-                            {account.displayBalance}
-                          </div>
-                        ) : (
-                          ""
-                        )}
-                        <div className="bg-black flex gap-x-2 rounded-lg border-grey1 border mt-[-1px] mr-[-1px] mb-[-1px] ">
-                          <div className="py-2 pl-5 pr-3">
-                            {account.displayName}
-                          </div>
-                          <div className="border-l border-grey1 py-2.5 px-3">
-                            <ChevronDownIcon className="w-5" />
-                          </div>
-                        </div>
-                      </button>
+                      </div>
+                    )}
+                     {chain.id === 421613 ? <img  style={{ width: 16, height: 16 }} src="/static/images/arb_icon.svg" /> : ""}
+                    {chain.name}
+                  </button>
+                  <button onClick={openAccountModal} type="button" className="flex bg-dark rounded-lg border-grey1 border hover:opacity-80">
+                    {account.displayBalance
+                      ?
+                    <div className="bg-dark py-2 px-4 rounded-l-lg">
+                        {account.displayBalance}
+                    </div> : ""}
+                    <div className="bg-black flex gap-x-2 rounded-lg border-grey1 border mt-[-1px] mr-[-1px] mb-[-1px] ">
+                    <div className="py-2 pl-5 pr-3">
+                      {account.displayName}
+                    </div>
+                    <div className="border-l border-grey1 py-2.5 px-3">
+                    <ChevronDownIcon className="w-5"/>
+                    </div>
                     </div>
                   </>
                 );

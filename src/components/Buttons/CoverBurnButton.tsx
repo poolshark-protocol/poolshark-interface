@@ -28,7 +28,7 @@ export default function CoverBurnButton({address}) {
             false,
             BigNumber.from("199760153929825488153727")
         ],
-        chainId: 5,
+        chainId: 421613,
         overrides:{
             gasLimit: BigNumber.from("350000")
         },

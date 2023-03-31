@@ -26,7 +26,7 @@ export default function CoverCollectButton({address}) {
           ethers.utils.parseUnits("20", 0),
           false
       ],
-      chainId: 5,
+      chainId: 421613,
       overrides:{
           gasLimit: BigNumber.from("350000")
       },

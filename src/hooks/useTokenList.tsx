@@ -15,7 +15,7 @@ export default function useTokenList() {
   useEffect(() => {
     const fetch = async () => {
       const chainName = chainIdsToNamesForGitTokenList[chainId]
-      axios.get(`https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/${chainName === undefined ? "ethereum":chainName}/tokenlist.json`)
+      axios.get(`https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/${chainName === undefined ? "ethereum":"arbitrum-goerli"}/tokenlist.json`)
         .then(function (response) {
           setCoins(null)
           setCoins({listed_tokens: response.data.listed_tokens, search_tokens:response.data.search_tokens })

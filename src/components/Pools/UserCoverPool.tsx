@@ -51,7 +51,7 @@ const setPool = () => {
   updatePool({
     tokenOneName:tokenOneName, 
     tokenZeroName: tokenZeroName, 
-    tokenOneAddress:tokenOneAddress, 
+    tokenOneAddress: tokenOneAddress, 
     tokenZeroAddress: tokenZeroAddress, 
     poolAddress: poolAddress
   })

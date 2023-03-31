@@ -5,16 +5,14 @@ import {
   ArrowLongLeftIcon,
 } from "@heroicons/react/20/solid";
 import UserCoverPool from "../components/Pools/UserCoverPool";
-import StaticUniPool from "../components/Pools/StaticUniPool";
 import { useState, useEffect } from "react";
 import { useAccount, useProvider } from "wagmi";
 import Link from "next/link";
-import { fetchPositions, fetchUniV3Positions } from "../utils/queries";
+import { fetchCoverPositions, fetchUniV3Positions } from "../utils/queries";
 import React from "react";
 import useTokenList from "../hooks/useTokenList";
 import Initial from "../components/Cover/Initial";
 import CreateCover from "../components/Cover/CreateCover";
-import CoverExistingPool from "../components/Cover/CoverExistingPool";
 
 export default function Cover() {
   const [maxPrice, setMaxPrice] = useState(0);
@@ -74,9 +72,9 @@ export default function Cover() {
 
   async function getUserPositionData() {
     try {
-      const data = await fetchPositions(address);
-      const positions = data["data"].positions;
-      setCoverPositions(positions);
+      const data = await fetchCoverPositions(address)
+      const positions = data["data"].positions
+      setCoverPositions(positions)
     } catch (error) {
       console.log(error);
     }
@@ -280,9 +278,10 @@ export default function Cover() {
                     )}
                   </div>
                 </div>
-                <div>
-                  <h1 className="mb-3 mt-4">User UNI-V3 Positions</h1>
-                  {/*{allUniV3Positions.map(allUniV3Position => {
+              </div>
+              <div>
+                <h1 className="mb-3 mt-4">User UNI-V3 Positions</h1>
+                {allUniV3Positions.map(allUniV3Position => {
                       if(allUniV3Position.userOwnerAddress === address?.toLowerCase()){
                         return(
                         <UserCoverPool
@@ -292,10 +291,11 @@ export default function Cover() {
                         tokenOneAddress={allUniV3Position.tokenOneAddress}
                         tokenZeroAddress={allUniV3Position.tokenZeroAddress}
                         poolAddress={allUniV3Position.poolAddress}
+                        prefill={undefined}
+                        close={undefined}
                       />)
                       }
-                    })}*/}
-                </div>
+                    })}
               </div>
             )}
           </div>
