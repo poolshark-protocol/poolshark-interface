@@ -69,7 +69,7 @@ export default function Pool() {
         <div className="mt-[16vh] w-[55rem]">
           <div className="flex justify-between mb-6 items-end">
             <div className="flex items-center gap-x-4">
-              <h1 className="text-3xl">Pools</h1>
+              <h1 className="text-3xl font-medium">Pools</h1>
               <div className="cursor-pointer">
                 <SelectPool />
               </div>
@@ -90,7 +90,7 @@ export default function Pool() {
               />
             </div>
             <div className="">
-              <h1 className="mb-3">My Pools</h1>
+              <h1 className="mb-3 font-medium">My Pools</h1>
               <div className="space-y-2">
                 <UserPool
                   tokenOneName={undefined}
@@ -109,7 +109,7 @@ export default function Pool() {
               </div>
             </div>
             <div className="">
-              <h1 className="mb-3">All Pools</h1>
+              <h1 className="mb-3 font-medium">All Pools</h1>
               <div className="space-y-2">
                 <table className="w-full table-auto">
                   <thead className="mb-3">

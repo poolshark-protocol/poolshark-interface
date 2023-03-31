@@ -207,7 +207,7 @@ export default function Cover() {
       <div className="flex justify-center w-full text-white">
         <div className="mt-[16vh] w-[70rem]">
           <div className="flex justify-between mb-6 items-end">
-            <h1 className="text-3xl">Cover</h1>
+            <h1 className="text-3xl font-medium">Cover</h1>
             <span className="bg-black flex items-center gap-x-2 border border-grey2 rounded-lg text-white px-6 py-[9px] cursor-pointer hover:opacity-80">
               <InformationCircleIcon className="w-4 text-grey1" />
               <Link href="https://docs.poolsharks.io/introduction/cover-pools/">
