@@ -26,6 +26,7 @@ import { fetchPrice, getPoolFromFactory, getQuote } from "../utils/queries";
 import { useSwapStore } from '../hooks/useStore';
 import SwapApproveButton from "../components/Buttons/SwapApproveButton";
 import { bn } from "fuels";
+import SelectTokenButton from "../components/Buttons/SelectTokenButtonSwap";
 
 type token = {
   symbol: string;
@@ -610,9 +611,11 @@ export default function Swap() {
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
         {isDisconnected ? null : Number(allowance) < Number(bnInput) &&
-          stateChainName === "arbitrumGoerli" ? (
-          <SwapApproveButton approveToken={token0.address} />
+          stateChainName === "arbitrumGoerli" && hasSelected ? (
+          <SwapApproveButton approveToken={tokenIn.address} />
         ) : stateChainName === "arbitrumGoerli" ? (
+          <SelectTokenButton  />
+        ) : null ? (
           <SwapButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={baseLimit} />
         ) : null}
       </div>
