@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import { BigNumber, ethers } from "ethers";
+import { useSwapStore } from './useStore';
 
 export default function useInputBox() {
     const [display, setDisplay] = useState("");
     const [displayLimit, setDisplayLimit] = useState("");
     const [input, setInput] = useState(BigNumber.from("0"));
     const [bnInput, setBnInput] = useState(BigNumber.from("0"));
+    const [updateLimitAmount] = useSwapStore((state: any) => [
+        state.updateLimitAmount
+      ]);
 
     const [inputLimit, setInputLimit] = useState(BigNumber.from("0"));
     const [bnInputLimit, setBnInputLimit] = useState(BigNumber.from("0"));
@@ -41,6 +45,7 @@ export default function useInputBox() {
           if (result !== "") {
               const valueToBn = ethers.utils.parseUnits(result, 18);
               setBnInputLimit(valueToBn);
+              updateLimitAmount(valueToBn);
             }
         }
         
@@ -48,6 +53,7 @@ export default function useInputBox() {
         if (result !== "") {
             const valueToBn = ethers.utils.parseUnits(result, 18);
             setBnInputLimit(valueToBn);
+            updateLimitAmount(valueToBn);
           }
     };
 

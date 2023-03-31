@@ -30,12 +30,14 @@ type SwapState = {
   SwapParams: SwapParams;
   Allowance: BigNumber;
   Amount: BigNumber;
+  Limit: BigNumber;
 };
 
 type SwapAction = {
   updateSwapParams: (SwapParams: SwapParams) => void;
   updateSwapAmount: (amount: BigNumber) => void;
   updateSwapAllowance: (allowance: BigNumber) => void;
+  updateLimitAmount:  (limit: BigNumber) => void;
   resetSwapParams: () => void;
 };
 
@@ -48,6 +50,7 @@ const initialSwapState: SwapState = {
   },
   Allowance: BigNumber.from(0),
   Amount: BigNumber.from(0),
+  Limit: BigNumber.from(0)
 };
 
 type State = {
@@ -112,6 +115,7 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   SwapParams: initialSwapState.SwapParams,
   Allowance: initialSwapState.Allowance,
   Amount: initialSwapState.Amount,
+  Limit: initialSwapState.Limit,
   resetSwapParams: () => {
     set({ SwapParams: initialSwapState.SwapParams });
   },
@@ -127,5 +131,9 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   updateSwapAmount: (amount: BigNumber) =>
     set(() => ({
       Amount: amount,
+    })),
+    updateLimitAmount: (limit: BigNumber) =>
+    set(() => ({
+      Limit:limit,
     })),
 }));

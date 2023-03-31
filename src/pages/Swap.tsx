@@ -32,14 +32,15 @@ type token = {
 };
 
 export default function Swap() {
-  const [updateSwapAmount, Allowance, Amount] = useSwapStore((state: any) => [
-    state.updateSwapAmount, state.Allowance, state.Amount
+  const [updateSwapAmount, Allowance] = useSwapStore((state: any) => [
+    state.updateSwapAmount, state.Allowance, 
   ]);
   const { address, isDisconnected, isConnected } = useAccount();
   const { bnInput, inputBox, maxBalance, bnInputLimit, LimitInputBox } =
     useInputBox();
   const [allowance, setAllowance] = useState("");
   const [gasFee, setGasFee] = useState("");
+  const [baseLimit, setBaseLimit] = useState("");
   const [price, setPrice] = useState(undefined);
   const [hasSelected, setHasSelected] = useState(false);
   const [mktRate, setMktRate] = useState({});
@@ -299,6 +300,7 @@ export default function Swap() {
   useEffect(() => {
     getAllowance();
   }, [tokenIn.address]);
+  // or allowance from Zustand
 
   const getPool = async () => {
     try {
@@ -314,6 +316,7 @@ export default function Swap() {
           token1.address
         );
         setPrice(price)
+        setBaseLimit(price)
       }
     } catch (error) {
       console.log(error);
@@ -431,7 +434,7 @@ export default function Swap() {
         </div>
         <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
-            {inputBox("0")}
+            {LimitInputBox("0")}
             <div className="flex">
               <div className="flex text-xs text-[#4C4C4C]">
                 {mktRate["eth"]}
@@ -608,7 +611,7 @@ export default function Swap() {
           stateChainName === "arbitrumGoerli" ? (
           <SwapApproveButton address={address} />
         ) : stateChainName === "arbitrumGoerli" ? (
-          <SwapButton amount={bnInput} />
+          <SwapButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={baseLimit} />
         ) : null}
       </div>
     </div>
