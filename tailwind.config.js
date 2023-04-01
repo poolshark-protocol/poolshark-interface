@@ -15,7 +15,7 @@ module.exports = {
         dark: "#0C0C0C",
       },
       fontFamily: {
-        DMSans: ["DM Sans", "sans-serif"],
+        'Satoshi': ['Satoshi']
       },
     },
   },
