@@ -29,7 +29,6 @@ import {
 } from "../../utils/queries";
 import JSBI from "jsbi";
 import { erc20 } from "../../abis/evm/erc20";
-import useAllowance from "../../hooks/useAllowance";
 
 export default function CreateCover(props: any) {
   const [expanded, setExpanded] = useState(false);

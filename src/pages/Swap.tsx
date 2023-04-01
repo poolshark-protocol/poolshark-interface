@@ -8,7 +8,6 @@ import { ChevronDownIcon, ArrowPathIcon } from "@heroicons/react/20/solid";
 import SelectToken from "../components/SelectToken";
 import SwapButton from "../components/Buttons/SwapButton";
 import useInputBox from "../hooks/useInputBox";
-import useAllowance from "../hooks/useAllowance";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
 import { erc20ABI, useAccount } from "wagmi";
