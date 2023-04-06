@@ -27,6 +27,7 @@ import { useSwapStore } from '../hooks/useStore';
 import SwapApproveButton from "../components/Buttons/SwapApproveButton";
 import { bn } from "fuels";
 import SelectTokenButton from "../components/Buttons/SelectTokenButtonSwap";
+import useAllowance from "../hooks/useAllowance";
 
 type token = {
   symbol: string;
@@ -41,7 +42,7 @@ export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount();
   const { bnInput, inputBox, maxBalance, bnInputLimit, LimitInputBox } =
     useInputBox();
-  const [allowance, setAllowance] = useState("");
+  const allowance: string = useAllowance(address);
   const [gasFee, setGasFee] = useState("");
   const [baseLimit, setBaseLimit] = useState("");
   const [price, setPrice] = useState(undefined);
@@ -236,7 +237,7 @@ export default function Swap() {
 
   const [expanded, setExpanded] = useState(false);
 
-  const getAllowance = async () => {
+  /*const getAllowance = async () => {
     try {
       const provider = new ethers.providers.JsonRpcProvider(
         "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
@@ -252,7 +253,7 @@ export default function Swap() {
     } catch (error) {
       console.log(error);
     }
-  };
+  };*/
 
   const gasEstimate = async () => {
     try {
@@ -300,9 +301,9 @@ export default function Swap() {
     }, 10000);
   }, []);
 
-  useEffect(() => {
+  /*useEffect(() => {
     getAllowance();
-  }, [tokenIn.address]);
+  }, [tokenIn.address]);*/
   // or allowance from Zustand
 
   const getPool = async () => {
@@ -610,7 +611,7 @@ export default function Swap() {
           </div>
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {isDisconnected ? null : hasSelected === false ?  <SelectTokenButton/> : Number(allowance) < Number(bnInput) &&
+        {isDisconnected ? null : hasSelected === false ?  <SelectTokenButton/> : allowance === 0.0 &&
           stateChainName === "arbitrumGoerli" ? (
           <SwapApproveButton approveToken={tokenIn.address} />
         ) : stateChainName === "arbitrumGoerli" ? <SwapButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={baseLimit} /> : null
