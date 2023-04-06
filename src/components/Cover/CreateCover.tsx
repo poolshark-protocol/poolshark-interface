@@ -136,7 +136,7 @@ export default function CreateCover(props: any) {
 
   const { address, isConnected, isDisconnected } = useAccount();
 
-  const [isDisabled, setDisabled] = useState(true);
+  const [isDisabled, setDisabled] = useState(false);
   const [hasSelected, setHasSelected] = useState(false);
   const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
   const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
