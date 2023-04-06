@@ -204,7 +204,7 @@ export default function CreateCover(props: any) {
 
   const [tokenOrder, setTokenOrder] = useState(true);
 
-  const newAllowance = useAllowance(address);
+  //const newAllowance = useAllowance(address);
 
   const changeDefault1 = (token:{
     symbol: string;
