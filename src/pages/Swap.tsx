@@ -42,7 +42,7 @@ export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount();
   const { bnInput, inputBox, maxBalance, bnInputLimit, LimitInputBox } =
     useInputBox();
-  const allowance = useAllowance(address);
+  const allowance = useAllowance(tokenIn.address);
   const [gasFee, setGasFee] = useState("");
   const [baseLimit, setBaseLimit] = useState("");
   const [price, setPrice] = useState(undefined);
