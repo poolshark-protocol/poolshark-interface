@@ -42,7 +42,7 @@ export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount();
   const { bnInput, inputBox, maxBalance, bnInputLimit, LimitInputBox } =
     useInputBox();
-  const allowance = useAllowance(tokenIn.address);
+  const allowance = useAllowance(address);
   const [gasFee, setGasFee] = useState("");
   const [baseLimit, setBaseLimit] = useState("");
   const [price, setPrice] = useState(undefined);
@@ -611,7 +611,7 @@ export default function Swap() {
           </div>
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {isDisconnected ? null : hasSelected === false ?  <SelectTokenButton/> : allowance === 0.0 &&
+        {isDisconnected ? null : hasSelected === false ?  <SelectTokenButton/> : allowance === "0.0" &&
           stateChainName === "arbitrumGoerli" ? (
           <SwapApproveButton approveToken={tokenIn.address} />
         ) : stateChainName === "arbitrumGoerli" ? <SwapButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={baseLimit} /> : null

@@ -246,7 +246,7 @@ const handleChange = (event: any) => {
               <div className="space-y-3" >
                 {isDisconnected ? <ConnectWalletButton /> : null}
                 {/*  && dataState === "0x00" */}
-                {isDisconnected ? null : allowance === 0.0 ? <CoverApproveButton address={address} /> : <CoverMintButton disabled={false} />}
+                {isDisconnected ? null : allowance === "0.0" ? <CoverApproveButton address={address} /> : <CoverMintButton disabled={false} />}
               </div>
               </>
     )
