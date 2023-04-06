@@ -15,7 +15,7 @@ export default function useInputBox() {
     const [bnInputLimit, setBnInputLimit] = useState(BigNumber.from("0"));
     
     const handleChange = (event, updateValue) => {
-        const result = event.target.value.replace(/[^0-9\.|\,]/g, '')
+        const result = event.target.value.replace(/[^\d.]/g, '');
         //TODO: do not allow for exceeding max decimals
         setDisplay(result == "" ? "" : result)
         if (updateValue !== undefined) {
@@ -38,7 +38,7 @@ export default function useInputBox() {
 
 
     const handleChangeLimit = (event, updateValue) => {
-        const result = event.target.value.replace(/[^0-9\.|\,]/g, '')
+        const result = event.target.value.replace(/[^\d.]/g, '');
         //TODO: do not allow for exceeding max decimals
         setDisplayLimit(result == "" ? "" : result)
         if (updateValue !== undefined) {
