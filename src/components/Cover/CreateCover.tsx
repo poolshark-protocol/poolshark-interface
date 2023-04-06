@@ -496,7 +496,7 @@ export default function CreateCover(props: any) {
       </div>
       <div className="mb-3" key={newAllowance}>
         {isConnected &&
-       Number(newAllowance) < amountToPay &&
+       newAllowance === 0.0 &&
         stateChainName === "arbitrumGoerli" ? (
           <CoverApproveButton address={tokenZeroAddress} />
         ) : stateChainName === "arbitrumGoerli" ? (
