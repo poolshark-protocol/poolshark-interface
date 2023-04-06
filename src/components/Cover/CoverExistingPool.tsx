@@ -11,6 +11,7 @@ import {ConnectWalletButton} from "../Buttons/ConnectWalletButton";
 import CoverApproveButton from "../Buttons/CoverApproveButton";
 import { useEffect, useState } from "react";
 import {useStore} from "../../hooks/useStore"
+import useAllowance from "../../hooks/useAllowance";
 
 export default function CoverExistingPool({goBack}) {
   const [pool, updatePool] = useStore((state:any) => [state.pool, state.updatePool] )
@@ -84,7 +85,7 @@ export default function CoverExistingPool({goBack}) {
 
 
 //Fix
-// const allowance = useAllowance(address);
+const allowance = useAllowance(address);
 
 const [sliderValue, setSliderValue] = useState(50);
 
@@ -245,7 +246,7 @@ const handleChange = (event: any) => {
               <div className="space-y-3" >
                 {isDisconnected ? <ConnectWalletButton /> : null}
                 {/*  && dataState === "0x00" */}
-                {isDisconnected ? null : allowance === "0.0" ? <CoverApproveButton address={address} /> : <CoverMintButton disabled={false} />}
+                {isDisconnected ? null : allowance === 0.0 ? <CoverApproveButton address={address} /> : <CoverMintButton disabled={false} />}
               </div>
               </>
     )
