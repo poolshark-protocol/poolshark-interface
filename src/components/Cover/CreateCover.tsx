@@ -29,7 +29,7 @@ import {
 } from "../../utils/queries";
 import JSBI from "jsbi";
 import { erc20 } from "../../abis/evm/erc20";
-import useAllowance from "../../hooks/useAllowance";
+import useCoverAllowance from "../../hooks/useRangeAllowance";
 
 export default function CreateCover(props: any) {
   const [expanded, setExpanded] = useState(false);
@@ -204,7 +204,7 @@ export default function CreateCover(props: any) {
 
   const [tokenOrder, setTokenOrder] = useState(true);
 
-  const newAllowance = useAllowance(address);
+  const newAllowance = useCoverAllowance(address);
 
   const changeDefault1 = (token:{
     symbol: string;

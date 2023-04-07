@@ -11,7 +11,7 @@ import {ConnectWalletButton} from "../Buttons/ConnectWalletButton";
 import CoverApproveButton from "../Buttons/CoverApproveButton";
 import { useEffect, useState } from "react";
 import {useStore} from "../../hooks/useStore"
-import useAllowance from "../../hooks/useAllowance";
+import useCoverAllowance from "../../hooks/useRangeAllowance";
 
 export default function CoverExistingPool({goBack}) {
   const [pool, updatePool] = useStore((state:any) => [state.pool, state.updatePool] )
@@ -85,7 +85,7 @@ export default function CoverExistingPool({goBack}) {
 
 
 //Fix
-const allowance = useAllowance(address);
+const allowance = useCoverAllowance(address);
 
 const [sliderValue, setSliderValue] = useState(50);
 
