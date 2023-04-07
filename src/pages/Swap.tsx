@@ -72,7 +72,7 @@ export default function Swap() {
   const getBalances = async () => {
     try {
       const provider = new ethers.providers.JsonRpcProvider(
-        "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594",
+        "https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2",
         421613
       );
       const signer = new ethers.VoidSigner(address, provider);
@@ -611,11 +611,11 @@ export default function Swap() {
           </div>
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {isDisconnected ? null : hasSelected === false ?  <SelectTokenButton/> : allowance === "0.0" &&
+        {/*isDisconnected ? null : hasSelected === false ?  <SelectTokenButton/> : allowance === "0.0" &&
           stateChainName === "arbitrumGoerli" ? (
           <SwapApproveButton approveToken={tokenIn.address} />
-        ) : stateChainName === "arbitrumGoerli" ? <SwapButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={baseLimit} /> : null
-         }
+          ) : stateChainName === "arbitrumGoerli" ? <SwapButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={baseLimit} /> : null*/}
+        <SwapButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={baseLimit} />
       </div>
     </div>
   );

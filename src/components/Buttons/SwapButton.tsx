@@ -38,7 +38,8 @@ export default function SwapButton({amount, zeroForOne, baseLimit}) {
       ],
       chainId: 421613,
       overrides:{
-        gasLimit: BigNumber.from(1400000)
+        gasLimit: BigNumber.from("5000000"),
+        //gasPrice: ethers.utils.parseUnits('20', 'gwei')
       }
   })
 
