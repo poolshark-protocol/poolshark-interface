@@ -27,7 +27,7 @@ import { useSwapStore } from '../hooks/useStore';
 import SwapApproveButton from "../components/Buttons/SwapApproveButton";
 import { bn } from "fuels";
 import SelectTokenButton from "../components/Buttons/SelectTokenButtonSwap";
-import useAllowance from "../hooks/useAllowance";
+import useRangeAllowance from "../hooks/useRangeAllowance";
 
 type token = {
   symbol: string;
@@ -42,7 +42,7 @@ export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount();
   const { bnInput, inputBox, maxBalance, bnInputLimit, LimitInputBox } =
     useInputBox();
-  const allowance = useAllowance(address);
+  const allowance = useRangeAllowance(address);
   const [gasFee, setGasFee] = useState("");
   const [baseLimit, setBaseLimit] = useState("");
   const [price, setPrice] = useState(undefined);
