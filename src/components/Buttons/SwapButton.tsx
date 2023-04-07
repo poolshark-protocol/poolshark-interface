@@ -33,13 +33,13 @@ export default function SwapButton({amount, zeroForOne, baseLimit}) {
       args:[
           userAddress,
           zeroForOne,
-          amount,
           Limit === 0 ? baseLimit : Limit,
+          amount,
       ],
       chainId: 421613,
       overrides:{
-        gasLimit: BigNumber.from("140000")
-      },
+        gasLimit: BigNumber.from(1400000)
+      }
   })
 
   const { data, write } = useContractWrite(config)
