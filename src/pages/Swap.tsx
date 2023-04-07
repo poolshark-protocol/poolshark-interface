@@ -611,11 +611,10 @@ export default function Swap() {
           </div>
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {/*isDisconnected ? null : hasSelected === false ?  <SelectTokenButton/> : allowance === "0.0" &&
+        {isDisconnected ? null : hasSelected === false ?  <SelectTokenButton/> : allowance === "0.0" &&
           stateChainName === "arbitrumGoerli" ? (
           <SwapApproveButton approveToken={tokenIn.address} />
-          ) : stateChainName === "arbitrumGoerli" ? <SwapButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={baseLimit} /> : null*/}
-        <SwapButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={baseLimit} />
+          ) : stateChainName === "arbitrumGoerli" ? <SwapButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={baseLimit} /> : null}
       </div>
     </div>
   );
