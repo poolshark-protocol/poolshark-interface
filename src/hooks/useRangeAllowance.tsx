@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import { useState } from "react";
 import { rangePoolAddress, rangeTokenZero } from "../constants/contractAddresses";
 
-export default function useAllowance(address) { 
+export default function useRangeAllowance(address) { 
    const [allowance, setAllowance] = useState(null);
   
     useContractRead({

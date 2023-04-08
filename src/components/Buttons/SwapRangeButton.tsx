@@ -14,7 +14,7 @@ import React, { useState, useEffect } from "react";
 import { rangePoolABI } from "../../abis/evm/rangePool";
 import {useSwapStore} from "../../hooks/useStore"
 
-export default function SwapButton({amount, zeroForOne, baseLimit}) {
+export default function SwapRangeButton({amount, zeroForOne, baseLimit}) {
 
   const [Limit] = useSwapStore((state: any) => [
     state.Limit

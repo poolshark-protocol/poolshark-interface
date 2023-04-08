@@ -6,7 +6,6 @@ import { useState, useEffect, Fragment, SetStateAction } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import { ChevronDownIcon, ArrowPathIcon } from "@heroicons/react/20/solid";
 import SelectToken from "../components/SelectToken";
-import SwapButton from "../components/Buttons/SwapButton";
 import useInputBox from "../hooks/useInputBox";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import CoverApproveButton from "../components/Buttons/CoverApproveButton";
@@ -22,12 +21,14 @@ import { useProvider } from "wagmi";
 import { BigNumber, Contract, ethers } from "ethers";
 import { chainIdsToNamesForGitTokenList } from "../utils/chains";
 import { coverPoolABI } from "../abis/evm/coverPool";
-import { fetchPrice, getPoolFromFactory, getQuote } from "../utils/queries";
+import { fetchPrice, getCoverPoolFromFactory, getCoverQuote, getRangePoolFromFactory, getRangeQuote } from "../utils/queries";
 import { useSwapStore } from '../hooks/useStore';
 import SwapApproveButton from "../components/Buttons/SwapApproveButton";
 import { bn } from "fuels";
 import SelectTokenButton from "../components/Buttons/SelectTokenButtonSwap";
 import useRangeAllowance from "../hooks/useRangeAllowance";
+import SwapRangeButton from "../components/Buttons/SwapRangeButton";
+
 
 type token = {
   symbol: string;
@@ -44,8 +45,10 @@ export default function Swap() {
     useInputBox();
   const allowance = useRangeAllowance(address);
   const [gasFee, setGasFee] = useState("");
-  const [baseLimit, setBaseLimit] = useState("");
-  const [price, setPrice] = useState(undefined);
+  const [rangeBaseLimit, setRangeBaseLimit] = useState("");
+  const [coverBaseLimit, setCoverBaseLimit] = useState("");
+  const [coverPrice, setCoverPrice] = useState(undefined);
+  const [rangePrice, setRangePrice] = useState(undefined);
   const [hasSelected, setHasSelected] = useState(false);
   const [mktRate, setMktRate] = useState({});
   const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
@@ -306,21 +309,42 @@ export default function Swap() {
   }, [tokenIn.address]);*/
   // or allowance from Zustand
 
-  const getPool = async () => {
+  const getRangePool = async () => {
     try {
       if (hasSelected === true) {
         console.log(token0, token1);
-        const pool = await getPoolFromFactory(token0.address, token1.address);
+        const pool = await getRangePoolFromFactory(token0.address, token1.address);
         const id = pool["data"]["rangePools"]["0"]["id"];
-        const price = await getQuote(
+        const price = await getRangeQuote(
           id,
           bnInput,
           bnInputLimit,
           token0.address,
           token1.address
         );
-        setPrice(price)
-        setBaseLimit(price)
+        setRangePrice(price)
+        setRangeBaseLimit(price)
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getCoverPool = async () => {
+    try {
+      if (hasSelected === true) {
+        console.log(token0, token1);
+        const pool = await getCoverPoolFromFactory(token0.address, token1.address);
+        const id = pool["data"]["coverPools"]["0"]["id"];
+        const price = await getCoverQuote(
+          id,
+          bnInput,
+          bnInputLimit,
+          token0.address,
+          token1.address
+        );
+        setCoverPrice(price)
+        setCoverBaseLimit(price)
       }
     } catch (error) {
       console.log(error);
@@ -328,7 +352,11 @@ export default function Swap() {
   };
 
   useEffect(() => {
-    getPool();
+    getRangePool();
+  }, [hasSelected, token0.address, token1.address, bnInput, bnInputLimit]);
+
+  useEffect(() => {
+    getCoverPool();
   }, [hasSelected, token0.address, token1.address, bnInput, bnInputLimit]);
 
   const fetchTokenPrice = async () => {
@@ -357,7 +385,7 @@ export default function Swap() {
         <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Expected Output</div>
-            <div className="ml-auto text-xs">{price === undefined ? "Select Token" : price}</div>
+            <div className="ml-auto text-xs">{rangePrice === undefined ? "Select Token" : rangePrice}</div>
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Price Impact</div>
@@ -614,7 +642,7 @@ export default function Swap() {
         {isDisconnected ? null : hasSelected === false ?  <SelectTokenButton/> : allowance === "0.0" &&
           stateChainName === "arbitrumGoerli" ? (
           <SwapApproveButton approveToken={tokenIn.address} />
-          ) : stateChainName === "arbitrumGoerli" ? <SwapButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={baseLimit} /> : null}
+          ) : stateChainName === "arbitrumGoerli" ? <SwapRangeButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={rangeBaseLimit} /> : null}
       </div>
     </div>
   );
