@@ -48,11 +48,37 @@ export const countDecimals = (value:number, tokenDecimals:number) => {
 };
 
 
-export const getPoolFromFactory = (token0:string, token1:string) => {
+export const getRangePoolFromFactory = (token0:string, token1:string) => {
     return new Promise(function(resolve) {
         const getPool =`
         {
             rangePools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
+              id
+            }
+          }
+         `
+        const client = new ApolloClient({
+            uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-range",
+            cache: new InMemoryCache(),
+        });
+        client
+            .query({ query: gql(getPool) })
+            .then((data) => {
+                resolve(data)
+                console.log(data)
+            })
+            .catch((err) => {
+                resolve(err)
+                console.log(err)
+            })
+     })
+}
+
+export const getCoverPoolFromFactory = (token0:string, token1:string) => {
+    return new Promise(function(resolve) {
+        const getPool =`
+        {
+            coverPools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
               id
             }
           }

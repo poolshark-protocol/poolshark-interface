@@ -1,38 +1,35 @@
 import {
   AdjustmentsHorizontalIcon,
   ArrowSmallDownIcon,
-} from '@heroicons/react/24/outline'
-import { useState, useEffect, Fragment, SetStateAction } from 'react'
-import { Popover, Transition } from '@headlessui/react'
-import { ChevronDownIcon, ArrowPathIcon } from '@heroicons/react/20/solid'
-import SelectToken from '../components/SelectToken'
-import SwapButton from '../components/Buttons/SwapButton'
-import useInputBox from '../hooks/useInputBox'
-import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton'
-import CoverApproveButton from '../components/Buttons/CoverApproveButton'
-import { erc20ABI, useAccount } from 'wagmi'
+} from "@heroicons/react/24/outline";
+import { useState, useEffect, Fragment, SetStateAction } from "react";
+import { Popover, Transition } from "@headlessui/react";
+import { ChevronDownIcon, ArrowPathIcon } from "@heroicons/react/20/solid";
+import SelectToken from "../components/SelectToken";
+import useInputBox from "../hooks/useInputBox";
+import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
+import { erc20ABI, useAccount } from "wagmi";
 import {
   coverPoolAddress,
   rangePoolAddress,
   rangeTokenZero,
   tokenOneAddress,
   tokenZeroAddress,
-} from '../constants/contractAddresses'
-import { useProvider } from 'wagmi'
-import { BigNumber, Contract, ethers } from 'ethers'
-import { chainIdsToNamesForGitTokenList } from '../utils/chains'
-import { coverPoolABI } from '../abis/evm/coverPool'
-import {
-  fetchPrice,
-  getPoolFromFactory,
-  getRangeQuote,
-  getCoverQuote,
-} from '../utils/queries'
-import { useSwapStore } from '../hooks/useStore'
-import SwapApproveButton from '../components/Buttons/SwapApproveButton'
-import { bn } from 'fuels'
-import SelectTokenButton from '../components/Buttons/SelectTokenButtonSwap'
-import useRangeAllowance from '../hooks/useRangeAllowance'
+} from "../constants/contractAddresses";
+import { useProvider } from "wagmi";
+import { BigNumber, Contract, ethers } from "ethers";
+import { chainIdsToNamesForGitTokenList } from "../utils/chains";
+import { coverPoolABI } from "../abis/evm/coverPool";
+import { fetchPrice, getCoverPoolFromFactory, getCoverQuote, getRangePoolFromFactory, getRangeQuote } from "../utils/queries";
+import { useSwapStore } from '../hooks/useStore';
+import SwapRangeApproveButton from "../components/Buttons/SwapRangeApproveButton";
+import { bn } from "fuels";
+import SelectTokenButton from "../components/Buttons/SelectTokenButtonSwap";
+import useRangeAllowance from "../hooks/useRangeAllowance";
+import SwapRangeButton from "../components/Buttons/SwapRangeButton";
+import SwapCoverApproveButton from "../components/Buttons/SwapCoverApproveButton";
+import SwapCoverButton from "../components/Buttons/SwapCoverButton";
+
 
 type token = {
   symbol: string
@@ -42,24 +39,21 @@ type token = {
 
 export default function Swap() {
   const [updateSwapAmount] = useSwapStore((state: any) => [
-    state.updateSwapAmount,
-  ])
-  const { address, isDisconnected, isConnected } = useAccount()
-  const {
-    bnInput,
-    inputBox,
-    maxBalance,
-    bnInputLimit,
-    LimitInputBox,
-  } = useInputBox()
-  const allowance = useRangeAllowance(address)
-  const [gasFee, setGasFee] = useState('')
-  const [baseLimit, setBaseLimit] = useState('')
-  const [price, setPrice] = useState(undefined)
-  const [hasSelected, setHasSelected] = useState(false)
-  const [mktRate, setMktRate] = useState({})
-  const [queryToken0, setQueryToken0] = useState(tokenOneAddress)
-  const [queryToken1, setQueryToken1] = useState(tokenOneAddress)
+    state.updateSwapAmount 
+  ]);
+  const { address, isDisconnected, isConnected } = useAccount();
+  const { bnInput, inputBox, maxBalance, bnInputLimit, LimitInputBox } =
+    useInputBox();
+  const allowance = useRangeAllowance(address);
+  const [gasFee, setGasFee] = useState("");
+  const [rangeBaseLimit, setRangeBaseLimit] = useState("");
+  const [coverBaseLimit, setCoverBaseLimit] = useState("");
+  const [coverPrice, setCoverPrice] = useState(undefined);
+  const [rangePrice, setRangePrice] = useState(undefined);
+  const [hasSelected, setHasSelected] = useState(false);
+  const [mktRate, setMktRate] = useState({});
+  const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
+  const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
   const [token0, setToken0] = useState({
     symbol: 'WETH',
     logoURI: '/static/images/eth_icon.png',
@@ -76,8 +70,6 @@ export default function Swap() {
     logoURI: '',
     address: '',
   })
-  const [coverQuote, setCoverQuote] = useState()
-  const [rangeQuote, setRangeQuote] = useState()
   const [slipage, setSlipage] = useState('0.5')
 
   //@dev put balanc
@@ -311,41 +303,55 @@ export default function Swap() {
   }, [tokenIn.address]);*/
   // or allowance from Zustand
 
-  const getPool = async () => {
+  const getRangePool = async () => {
     try {
       if (hasSelected === true) {
-        console.log('Token0 '+ token0.address, 'Token1 '+token1.address)
-        const pool = await getPoolFromFactory(token0.address, token1.address)
-        const id = pool['data']['rangePools']['0']['id']
-        /* TODO add cover pool */
-        const rangePrice = await getRangeQuote(
+        console.log(token0, token1);
+        const pool = await getRangePoolFromFactory(token0.address, token1.address);
+        const id = pool["data"]["rangePools"]["0"]["id"];
+        const price = await getRangeQuote(
           id,
           bnInput,
           bnInputLimit,
           token0.address,
-          token1.address,
-        )
-        setRangeQuote(rangePrice)
-        const coverPrice = await getCoverQuote(
-          id,
-          bnInput,
-          bnInputLimit,
-          token0.address,
-          token1.address,
-        )
-        setCoverQuote(coverPrice)
-        console.log('Range '+rangePrice, 'Cover '+ coverPrice)
-        setPrice(rangePrice)
-        setBaseLimit(rangePrice)
+          token1.address
+        );
+        setRangePrice(price)
+        setRangeBaseLimit(price)
       }
     } catch (error) {
       console.log(error)
     }
   }
 
+  const getCoverPool = async () => {
+    try {
+      if (hasSelected === true) {
+        console.log(token0, token1);
+        const pool = await getCoverPoolFromFactory(token0.address, token1.address);
+        const id = pool["data"]["coverPools"]["0"]["id"];
+        const price = await getCoverQuote(
+          id,
+          bnInput,
+          bnInputLimit,
+          token0.address,
+          token1.address
+        );
+        setCoverPrice(price)
+        setCoverBaseLimit(price)
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
-    getPool()
-  }, [hasSelected, token0.address, token1.address, bnInput, bnInputLimit])
+    getRangePool();
+  }, [hasSelected, token0.address, token1.address, bnInput, bnInputLimit]);
+
+  useEffect(() => {
+    getCoverPool();
+  }, [hasSelected, token0.address, token1.address, bnInput, bnInputLimit]);
 
   const fetchTokenPrice = async () => {
     try {
@@ -373,9 +379,7 @@ export default function Swap() {
         <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Expected Output</div>
-            <div className="ml-auto text-xs">
-              {price === undefined ? 'Select Token' : price}
-            </div>
+            <div className="ml-auto text-xs">{rangePrice === undefined ? "Select Token" : rangePrice}</div>
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Price Impact</div>
@@ -561,9 +565,9 @@ export default function Swap() {
               <div className="flex-col justify-center w-1/2 p-2 ">
                 {hasSelected ? (
                   tokenOrder ? (
-                    <div>in/out</div>
+                    <div>in/out {rangePrice}</div>
                   ) : (
-                    <div>out/in</div>
+                    <div>out/in {coverPrice}</div>
                   )
                 ) : (
                   <div>None</div>
@@ -639,19 +643,13 @@ export default function Swap() {
           </div>
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {isDisconnected ? null : hasSelected === false ? (
-          <SelectTokenButton />
-        ) : allowance === '0.0' && stateChainName === 'arbitrumGoerli' ? (
-          <SwapApproveButton approveToken={tokenIn.address} />
-        ) : stateChainName === 'arbitrumGoerli' ? (
-          <SwapButton
-            zeroForOne={
-              tokenOut.address != '' && tokenIn.address < tokenOut.address
-            }
-            amount={bnInput}
-            baseLimit={baseLimit}
-          />
-        ) : null}
+        {isDisconnected ? null : hasSelected === false ? <SelectTokenButton/> : allowance === "0.0" &&
+          stateChainName !== "arbitrumGoerli" ? null : Number(rangePrice) < Number(coverPrice) ? 
+          ( <SwapRangeApproveButton approveToken={tokenIn.address} /> ) : 
+          ( <SwapCoverApproveButton approveToken={tokenIn.address} /> ) &&
+          stateChainName !== "arbitrumGoerli" ? null : (Number(rangePrice) < Number(coverPrice)) ? 
+          ( <SwapRangeButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={rangeBaseLimit} /> )
+          : ( <SwapCoverButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={coverBaseLimit} /> )}
       </div>
     </div>
   )

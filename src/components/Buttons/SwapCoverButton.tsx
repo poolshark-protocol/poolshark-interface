@@ -9,12 +9,11 @@ import { coverPoolABI } from "../../abis/evm/coverPool";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
-import { rangePoolAddress } from "../../constants/contractAddresses";
+import { coverPoolAddress, rangePoolAddress } from "../../constants/contractAddresses";
 import React, { useState, useEffect } from "react";
-import { rangePoolABI } from "../../abis/evm/rangePool";
 import {useSwapStore} from "../../hooks/useStore"
 
-export default function SwapButton({amount, zeroForOne, baseLimit}) {
+export default function SwapRangeButton({amount, zeroForOne, baseLimit}) {
 
   const [Limit] = useSwapStore((state: any) => [
     state.Limit
@@ -27,8 +26,8 @@ export default function SwapButton({amount, zeroForOne, baseLimit}) {
   const userAddress = address;
 
   const { config } = usePrepareContractWrite({
-      address: rangePoolAddress,
-      abi: rangePoolABI,
+      address: coverPoolAddress,
+      abi: coverPoolABI,
       functionName: "swap",
       args:[
           userAddress,
