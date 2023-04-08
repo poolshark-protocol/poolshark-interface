@@ -8,6 +8,7 @@ export default function PoolList({
   href,
 }) {
   return (
+    /* TODO@retraca instead of routing open and close component like view */
     <Link
       href={{
         pathname: href,
