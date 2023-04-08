@@ -9,7 +9,7 @@ type Pool = {
   poolAddress: string;
 };
 
-type ContractParams = {
+type CoverContractParams = {
   prevLower: BigNumber;
   min: BigNumber;
   prevUpper: BigNumber;
@@ -18,6 +18,15 @@ type ContractParams = {
   amount: BigNumber;
   inverse: boolean;
 };
+
+type RangeContractParams = {
+  to: string,
+  lower: BigNumber,
+  upper: BigNumber,
+  amount0: BigNumber,
+  amount1: BigNumber,
+  fungible: true,
+}
 
 type SwapParams = {
   tokenOneName: string;
@@ -53,21 +62,35 @@ const initialSwapState: SwapState = {
   Limit: BigNumber.from(0)
 };
 
-type State = {
+type CoverState = {
   pool: Pool;
-  contractParams: ContractParams;
+  coverContractParams: CoverContractParams;
   CoverAllowance: BigNumber;
 };
 
-type Action = {
+type RangeState = {
+  pool: Pool;
+  rangeContractParams: RangeContractParams;
+  RangeAllowance: BigNumber;
+}
+
+type CoverAction = {
   updatePool: (pool: Pool) => void;
   resetPool: () => void;
-  resetContractParams: () => void;
-  updateContractParams: (contractParams: ContractParams) => void;
+  resetCoverContractParams: () => void;
+  updateCoverContractParams: (coverContractParams: CoverContractParams) => void;
   updateCoverAllowance: (allowance: BigNumber) => void;
 };
 
-const initialCoverState: State = {
+type RangeAction = {
+  updatePool: (pool: Pool) => void;
+  resetPool: () => void;
+  resetRangeContractParams: () => void;
+  updateRangeContractParams: (rangeContractParams: RangeContractParams) => void;
+  updateRangeAllowance: (allowance: BigNumber) => void;
+}
+
+const initialCoverState: CoverState = {
   pool: {
     tokenOneName: "",
     tokenZeroName: "",
@@ -75,7 +98,7 @@ const initialCoverState: State = {
     tokenZeroAddress: "",
     poolAddress: "",
   },
-  contractParams: {
+  coverContractParams: {
     prevLower: ethers.utils.parseUnits("0"),
     min: ethers.utils.parseUnits("20", 0),
     prevUpper: ethers.utils.parseUnits("887272", 0),
@@ -87,27 +110,70 @@ const initialCoverState: State = {
   CoverAllowance: BigNumber.from(0),
 };
 
-export const useStore = create<State & Action>((set) => ({
+const initialRangeState: RangeState = {
+  pool: {
+    tokenOneName: "",
+    tokenZeroName: "",
+    tokenOneAddress: "",
+    tokenZeroAddress: "",
+    poolAddress: "",
+  },
+  rangeContractParams: {
+    to: "",
+    lower: ethers.utils.parseUnits("20", 0),
+    upper: ethers.utils.parseUnits("30", 0),
+    amount0: ethers.utils.parseUnits("0", 0),
+    amount1: ethers.utils.parseUnits("0", 0),
+    fungible: true,
+  },
+  RangeAllowance: BigNumber.from(0),
+};
+
+export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   pool: initialCoverState.pool,
   CoverAllowance: initialCoverState.CoverAllowance,
-  contractParams: initialCoverState.contractParams,
+  coverContractParams: initialCoverState.coverContractParams,
   resetPool: () => {
     set({ pool: initialCoverState.pool });
   },
-  resetContractParams: () => {
-    set({ contractParams: initialCoverState.contractParams });
+  resetCoverContractParams: () => {
+    set({ coverContractParams: initialCoverState.coverContractParams });
   },
   updatePool: (pool: Pool) =>
     set(() => ({
       pool: pool,
     })),
-  updateContractParams: (contractParams: ContractParams) =>
+  updateCoverContractParams: (coverContractParams: CoverContractParams) =>
     set(() => ({
-      contractParams: contractParams,
+      coverContractParams: coverContractParams,
     })),
   updateCoverAllowance: (allowance: BigNumber) =>
     set(() => ({
       CoverAllowance: allowance,
+    })),
+}));
+
+export const useRangeStore = create<RangeState & RangeAction>((set) => ({
+  pool: initialRangeState.pool,
+  RangeAllowance: initialRangeState.RangeAllowance,
+  rangeContractParams: initialRangeState.rangeContractParams,
+  resetPool: () => {
+    set({ pool: initialRangeState.pool });
+  },
+  resetRangeContractParams: () => {
+    set({ rangeContractParams: initialRangeState.rangeContractParams });
+  },
+  updatePool: (pool: Pool) =>
+    set(() => ({
+      pool: pool,
+    })),
+  updateRangeContractParams: (rangeContractParams: RangeContractParams) =>
+    set(() => ({
+      rangeContractParams: rangeContractParams,
+    })),
+  updateRangeAllowance: (allowance: BigNumber) =>
+    set(() => ({
+      RangeAllowance: allowance,
     })),
 }));
 

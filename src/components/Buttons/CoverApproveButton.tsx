@@ -9,22 +9,22 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import { useStore } from '../../hooks/useStore';
+import { useCoverStore } from '../../hooks/useStore';
 
 export default function CoverApproveButton({address}) {
   const [ errorDisplay,    setErrorDisplay   ] = useState(false);
   const [ successDisplay,  setSuccessDisplay ] = useState(false);
   const [ configuration,   setConfig         ] = useState();
 
-  const [contractParams, updateAllowance] = useStore((state: any) => [
-    state.contractParams, state.updateCoverAllowance
+  const [coverContractParams, updateAllowance] = useCoverStore((state: any) => [
+    state.coverContractParams, state.updateCoverAllowance
   ]);
 
   const { config } = usePrepareContractWrite({
     address: address,
     abi: erc20ABI,
     functionName: "approve",
-    args:[coverPoolAddress, contractParams.amount],
+    args:[coverPoolAddress, coverContractParams.amount],
     chainId: 421613,
   })
 
@@ -33,7 +33,7 @@ export default function CoverApproveButton({address}) {
   const {isLoading} = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      updateAllowance(contractParams.amount)
+      updateAllowance(coverContractParams.amount)
       setSuccessDisplay(true);
      
     },
