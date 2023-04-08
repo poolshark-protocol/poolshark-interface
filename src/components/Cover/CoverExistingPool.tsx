@@ -10,11 +10,11 @@ import CoverMintButton from "../Buttons/CoverMintButton";
 import {ConnectWalletButton} from "../Buttons/ConnectWalletButton";
 import CoverApproveButton from "../Buttons/CoverApproveButton";
 import { useEffect, useState } from "react";
-import {useStore} from "../../hooks/useStore"
+import { useCoverStore } from "../../hooks/useStore"
 import useCoverAllowance from "../../hooks/useCoverAllowance";
 
 export default function CoverExistingPool({goBack}) {
-  const [pool, updatePool] = useStore((state:any) => [state.pool, state.updatePool] )
+  const [pool, updatePool] = useCoverStore((state:any) => [state.pool, state.updatePool] )
   const [expanded, setExpanded] = useState(false);
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");

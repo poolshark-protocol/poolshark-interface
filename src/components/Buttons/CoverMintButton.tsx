@@ -11,7 +11,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { coverPoolAddress } from "../../constants/contractAddresses";
-import { useStore } from "../../hooks/useStore";
+import { useCoverStore } from "../../hooks/useStore";
 
 export default function CoverMintButton({disabled}) {
 
@@ -65,7 +65,7 @@ export default function CoverMintButton({disabled}) {
     useEffect(() => {
       },[disabled])
 
-  const [contractParams] = useStore((state) => [state.contractParams])
+  const [coverContractParams] = useCoverStore((state) => [state.coverContractParams])
 
 
     
@@ -74,12 +74,12 @@ export default function CoverMintButton({disabled}) {
     abi: coverPoolABI,
     functionName: "mint",
     args: [
-      contractParams.prevLower,
-      contractParams.min,
-      contractParams.claim,
-      contractParams.max,
-      contractParams.prevUpper,
-      contractParams.amount,
+      coverContractParams.prevLower,
+      coverContractParams.min,
+      coverContractParams.claim,
+      coverContractParams.max,
+      coverContractParams.prevUpper,
+      coverContractParams.amount,
       false,
     ],
     chainId: 421613,

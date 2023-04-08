@@ -3,7 +3,7 @@ import {
   ArrowLongRightIcon
 } from "@heroicons/react/20/solid";
 import { useEffect, useState } from "react";
-import { useStore } from "../../hooks/useStore";
+import { useCoverStore } from "../../hooks/useStore";
 
 
 
@@ -44,7 +44,7 @@ const [poolDisplay, setPoolDisplay] = useState(
         
 
                                               
-const [currentPool,resetPool, updatePool] = useStore((state) => [state.pool,state.resetPool, state.updatePool])
+const [currentPool,resetPool, updatePool] = useCoverStore((state) => [state.pool,state.resetPool, state.updatePool])
 
 const setPool = () => {
   resetPool;

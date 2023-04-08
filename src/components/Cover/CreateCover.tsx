@@ -22,7 +22,7 @@ import {
 import { coverPoolAddress } from "../../constants/contractAddresses";
 import { TickMath } from "../../utils/tickMath";
 import { ethers } from "ethers";
-import { useStore } from "../../hooks/useStore";
+import { useCoverStore } from "../../hooks/useStore";
 import {
   getPreviousTicksLower,
   getPreviousTicksUpper,
@@ -38,15 +38,15 @@ export default function CreateCover(props: any) {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
 
-  const [updateContractParams, updateCoverAllowance, CoverAllowance, contractParams] =
-    useStore((state: any) => [
-      state.updateContractParams,
+  const [updateCoverContractParams, updateCoverAllowance, CoverAllowance, coverContractParams] =
+    useCoverStore((state: any) => [
+      state.updateCoverContractParams,
       state.updateCoverAllowance,
       state.CoverAllowance,
-      state.contractParams,
+      state.coverContractParams,
     ]);
 
-  async function setParams() {
+  async function setCoverParams() {
     try {
       if (
         minPrice !== undefined &&
@@ -100,7 +100,7 @@ export default function CreateCover(props: any) {
           tokenOut["address"],
           max
         );
-        updateContractParams({
+        updateCoverContractParams({
           prevLower: ethers.utils.parseUnits(
             data["data"]["ticks"][0]["index"],
             0
@@ -123,7 +123,7 @@ export default function CreateCover(props: any) {
   }
 
   useEffect(() => {
-    setParams();
+    setCoverParams();
   }, [minPrice, maxPrice, bnInput]);
 
   const {

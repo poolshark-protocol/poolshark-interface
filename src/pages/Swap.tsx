@@ -26,6 +26,7 @@ import SwapRangeApproveButton from "../components/Buttons/SwapRangeApproveButton
 import { bn } from "fuels";
 import SelectTokenButton from "../components/Buttons/SelectTokenButtonSwap";
 import useRangeAllowance from "../hooks/useRangeAllowance";
+import useCoverAllowance from "../hooks/useCoverAllowance";
 import SwapRangeButton from "../components/Buttons/SwapRangeButton";
 import SwapCoverApproveButton from "../components/Buttons/SwapCoverApproveButton";
 import SwapCoverButton from "../components/Buttons/SwapCoverButton";
@@ -44,7 +45,8 @@ export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount();
   const { bnInput, inputBox, maxBalance, bnInputLimit, LimitInputBox } =
     useInputBox();
-  const allowance = useRangeAllowance(address);
+  const rangeAllowance = useRangeAllowance(address);
+  const coverAllowance = useCoverAllowance(address);
   const [gasFee, setGasFee] = useState("");
   const [rangeBaseLimit, setRangeBaseLimit] = useState("");
   const [coverBaseLimit, setCoverBaseLimit] = useState("");
@@ -462,7 +464,7 @@ export default function Swap() {
         </div>
         <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
-            {LimitInputBox('0')}
+            {inputBox("0")}
             <div className="flex">
               <div className="flex text-xs text-[#4C4C4C]">
                 {mktRate['eth']}
@@ -643,13 +645,16 @@ export default function Swap() {
           </div>
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {isDisconnected ? null : hasSelected === false ? <SelectTokenButton/> : allowance === "0.0" &&
-          stateChainName !== "arbitrumGoerli" ? null : Number(rangePrice) < Number(coverPrice) ? 
+        {isDisconnected ? null : hasSelected === false ? <SelectTokenButton/> : 
+          stateChainName !== "arbitrumGoerli" ? null : 
+          Number(rangePrice) < Number(coverPrice) && rangeAllowance === "0.0" ? 
           ( <SwapRangeApproveButton approveToken={tokenIn.address} /> ) : 
-          ( <SwapCoverApproveButton approveToken={tokenIn.address} /> ) &&
-          stateChainName !== "arbitrumGoerli" ? null : (Number(rangePrice) < Number(coverPrice)) ? 
-          ( <SwapRangeButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={rangeBaseLimit} /> )
-          : ( <SwapCoverButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={coverBaseLimit} /> )}
+          Number(coverPrice) < (rangePrice) && coverAllowance === "0.0" ? 
+          ( <SwapCoverApproveButton approveToken={tokenIn.address} /> ) :
+          stateChainName !== "arbitrumGoerli" ? null : 
+          (Number(rangePrice) < Number(coverPrice)) ? 
+          ( <SwapRangeButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={rangeBaseLimit} /> ) :
+          ( <SwapCoverButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={coverBaseLimit} /> )}
       </div>
     </div>
   )
