@@ -84,7 +84,7 @@ export const getCoverPoolFromFactory = (token0:string, token1:string) => {
           }
          `
         const client = new ApolloClient({
-            uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-range",
+            uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover",
             cache: new InMemoryCache(),
         });
         client
