@@ -2,6 +2,7 @@ import { ApolloClient, InMemoryCache, gql, HttpLink } from '@apollo/client'
 import { BigNumber, ethers } from 'ethers'
 import { rangePoolABI } from '../abis/evm/rangePool'
 import { rangePoolAddress } from '../constants/contractAddresses'
+import { coverPoolABI } from '../abis/evm/coverPool'
 
 
 interface PoolState {
@@ -47,11 +48,37 @@ export const countDecimals = (value:number, tokenDecimals:number) => {
 };
 
 
-export const getPoolFromFactory = (token0:string, token1:string) => {
+export const getRangePoolFromFactory = (token0:string, token1:string) => {
     return new Promise(function(resolve) {
         const getPool =`
         {
             rangePools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
+              id
+            }
+          }
+         `
+        const client = new ApolloClient({
+            uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-range",
+            cache: new InMemoryCache(),
+        });
+        client
+            .query({ query: gql(getPool) })
+            .then((data) => {
+                resolve(data)
+                console.log(data)
+            })
+            .catch((err) => {
+                resolve(err)
+                console.log(err)
+            })
+     })
+}
+
+export const getCoverPoolFromFactory = (token0:string, token1:string) => {
+    return new Promise(function(resolve) {
+        const getPool =`
+        {
+            coverPools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
               id
             }
           }
@@ -86,7 +113,7 @@ export const getPrice = async (id:string) => {
     return price.toString()
 }
 
-export const getQuote = async (id:string, amountIn:BigNumber, limit:BigNumber, tokenInAddress:string, tokenOutAddress:string) => {
+export const getRangeQuote = async (id:string, amountIn:BigNumber, limit:BigNumber, tokenInAddress:string, tokenOutAddress:string) => {
     const provider = new ethers.providers.JsonRpcProvider(
         "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
       );
@@ -103,6 +130,27 @@ export const getQuote = async (id:string, amountIn:BigNumber, limit:BigNumber, t
      console.log(quote["1"]["output"])
      const amountInUsed = amountIn.sub(quote["1"]["input"])
      const price = amountInUsed.gt(0) ? (quote["1"]["output"].div(amountInUsed))
+                                      : 0
+     return price
+}
+
+export const getCoverQuote = async (id:string, amountIn:BigNumber, limit:BigNumber, tokenInAddress:string, tokenOutAddress:string) => {
+    const provider = new ethers.providers.JsonRpcProvider(
+        "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
+      );
+      const contract = new ethers.Contract(
+        id,
+        coverPoolABI,
+        provider
+      );
+      const quote = await contract.quote(
+        false, //zeroForOne
+        amountIn, //amountIn
+        limit
+     )
+     console.log(quote["outAmount"])
+     const amountInUsed = amountIn.sub(quote["inAmount"])
+     const price = amountInUsed.gt(0) ? (quote["outAmount"].div(amountInUsed))
                                       : 0
      return price
 }
