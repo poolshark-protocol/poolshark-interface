@@ -1,43 +1,43 @@
-import Navbar from "../../components/Navbar";
+import Navbar from '../../components/Navbar'
 import {
   PlusSmallIcon,
   MagnifyingGlassIcon,
   ChevronDownIcon,
-} from "@heroicons/react/24/outline";
-import UserPool from "../../components/Pools/UserPool";
-import UserCoverPool from "../../components/Pools/UserCoverPool";
-import PoolList from "../../components/Pools/PoolList";
-import Link from "next/link";
-import { Listbox, Transition } from "@headlessui/react";
+} from '@heroicons/react/24/outline'
+import UserPool from '../../components/Pools/UserPool'
+import UserCoverPool from '../../components/Pools/UserCoverPool'
+import PoolList from '../../components/Pools/PoolList'
+import Link from 'next/link'
+import { Listbox, Transition } from '@headlessui/react'
 import {
   fetchRangePools,
   fetchRangePositions,
   fetchCoverPools,
   fetchCoverPositions,
-} from "../../utils/queries";
-import { Fragment, useState, useEffect } from "react";
-import { useAccount } from "wagmi";
+} from '../../utils/queries'
+import { Fragment, useState, useEffect } from 'react'
+import { useAccount } from 'wagmi'
 
 export default function Pool() {
   const poolTypes = [
-    { id: 1, type: "Range Pools", unavailable: false },
-    { id: 2, type: "Cover Pools", unavailable: false },
-  ];
+    { id: 1, type: 'Range Pools', unavailable: false },
+    { id: 2, type: 'Cover Pools', unavailable: false },
+  ]
 
-  const { address, isConnected, isDisconnected } = useAccount();
+  const { address, isConnected, isDisconnected } = useAccount()
 
-  const [rangePools, setRangePools] = useState([]);
-  const [allRangePools, setAllRangePools] = useState([]);
+  const [rangePools, setRangePools] = useState([])
+  const [allRangePools, setAllRangePools] = useState([])
 
   async function getRangePoolData() {
-    const data = await fetchRangePools();
-    const pools = data["data"].rangePools;
+    const data = await fetchRangePools()
+    const pools = data['data'].rangePools
 
-    setRangePools(pools);
+    setRangePools(pools)
   }
 
   function mapRangePools() {
-    const mappedRangePools = [];
+    const mappedRangePools = []
 
     rangePools.map((rangePool) => {
       const rangePoolData = {
@@ -46,35 +46,35 @@ export default function Pool() {
         tvlUsd: rangePool.totalValueLockedUsd,
         volumeUsd: rangePool.volumeUsd,
         volumeEth: rangePool.volumeEth,
-      };
+      }
 
-      mappedRangePools.push(rangePoolData);
-    });
+      mappedRangePools.push(rangePoolData)
+    })
 
-    setAllRangePools(mappedRangePools);
+    setAllRangePools(mappedRangePools)
   }
 
   //async so needs to be wrapped
   useEffect(() => {
-    getRangePoolData();
-  }, []);
+    getRangePoolData()
+  }, [])
 
   useEffect(() => {
-    mapRangePools();
-  }, [rangePools]);
+    mapRangePools()
+  }, [rangePools])
 
-  const [coverPools, setCoverPools] = useState([]);
-  const [allCoverPools, setAllCoverPools] = useState([]);
+  const [coverPools, setCoverPools] = useState([])
+  const [allCoverPools, setAllCoverPools] = useState([])
 
   async function getCoverPoolData() {
-    const data = await fetchCoverPools();
-    const pools = data["data"].coverPools;
+    const data = await fetchCoverPools()
+    const pools = data['data'].coverPools
 
-    setCoverPools(pools);
+    setCoverPools(pools)
   }
 
   function mapCoverPools() {
-    const mappedCoverPools = [];
+    const mappedCoverPools = []
 
     coverPools.map((coverPool) => {
       const coverPoolData = {
@@ -83,35 +83,35 @@ export default function Pool() {
         tvlUsd: coverPool.totalValueLockedUsd,
         volumeUsd: coverPool.volumeUsd,
         volumeEth: coverPool.volumeEth,
-      };
+      }
 
-      mappedCoverPools.push(coverPoolData);
-    });
+      mappedCoverPools.push(coverPoolData)
+    })
 
-    setAllCoverPools(mappedCoverPools);
+    setAllCoverPools(mappedCoverPools)
   }
 
   //async so needs to be wrapped
   useEffect(() => {
-    getCoverPoolData();
-  }, []);
+    getCoverPoolData()
+  }, [])
 
   useEffect(() => {
-    mapCoverPools();
-  }, [coverPools]);
+    mapCoverPools()
+  }, [coverPools])
 
-  const [rangePositions, setRangePositions] = useState([]);
-  const [allRangePositions, setAllRangePositions] = useState([]);
+  const [rangePositions, setRangePositions] = useState([])
+  const [allRangePositions, setAllRangePositions] = useState([])
 
   async function getUserRangePositionData() {
-    const data = await fetchRangePositions(address);
-    const positions = data["data"].positions;
+    const data = await fetchRangePositions(address)
+    const positions = data['data'].positions
 
-    setRangePositions(positions);
+    setRangePositions(positions)
   }
 
   function mapUserRangePositions() {
-    const mappedRangePositions = [];
+    const mappedRangePositions = []
     rangePositions.map((rangePosition) => {
       const rangePositionData = {
         tokenOneName: rangePosition.pool.token1.name,
@@ -119,36 +119,36 @@ export default function Pool() {
         tokenOneAddress: rangePosition.pool.token1.id,
         tokenZeroAddress: rangePosition.pool.token0.id,
         poolAddress: rangePosition.pool.id,
-        userOwnerAddress: rangePosition.owner.replace(/"|'/g, ""),
-      };
+        userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
+      }
 
-      mappedRangePositions.push(rangePositionData);
-    });
+      mappedRangePositions.push(rangePositionData)
+    })
 
-    setAllRangePositions(mappedRangePositions);
+    setAllRangePositions(mappedRangePositions)
   }
 
   //async so needs to be wrapped
   useEffect(() => {
-    getUserRangePositionData();
-  }, []);
+    getUserRangePositionData()
+  }, [])
 
   useEffect(() => {
-    mapUserRangePositions();
-  }, [rangePositions]);
+    mapUserRangePositions()
+  }, [rangePositions])
 
-  const [coverPositions, setCoverPositions] = useState([]);
-  const [allCoverPositions, setAllCoverPositions] = useState([]);
+  const [coverPositions, setCoverPositions] = useState([])
+  const [allCoverPositions, setAllCoverPositions] = useState([])
 
   async function getUserCoverPositionData() {
-    const data = await fetchCoverPositions(address);
-    const positions = data["data"].positions;
+    const data = await fetchCoverPositions(address)
+    const positions = data['data'].positions
 
-    setCoverPositions(positions);
+    setCoverPositions(positions)
   }
 
   function mapUserCoverPositions() {
-    const mappedCoverPositions = [];
+    const mappedCoverPositions = []
     coverPositions.map((coverPosition) => {
       const coverPositionData = {
         tokenOneName: coverPosition.pool.token1.name,
@@ -156,25 +156,25 @@ export default function Pool() {
         tokenOneAddress: coverPosition.pool.token1.id,
         tokenZeroAddress: coverPosition.pool.token0.id,
         poolAddress: coverPosition.pool.id,
-        userOwnerAddress: coverPosition.owner.replace(/"|'/g, ""),
-      };
+        userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
+      }
 
-      mappedCoverPositions.push(coverPositionData);
-    });
+      mappedCoverPositions.push(coverPositionData)
+    })
 
-    setAllCoverPositions(mappedCoverPositions);
+    setAllCoverPositions(mappedCoverPositions)
   }
 
   //async so needs to be wrapped
   useEffect(() => {
-    getUserCoverPositionData();
-  }, []);
+    getUserCoverPositionData()
+  }, [])
 
   useEffect(() => {
-    mapUserCoverPositions();
-  }, [coverPositions]);
+    mapUserCoverPositions()
+  }, [coverPositions])
 
-  const [selected, setSelected] = useState(poolTypes[0]);
+  const [selected, setSelected] = useState(poolTypes[0])
 
   function SelectPool() {
     return (
@@ -201,7 +201,7 @@ export default function Pool() {
                   key={poolTypeIdx}
                   className={({ active }) =>
                     `relative cursor-pointer select-none py-2 px-4 ${
-                      active ? "text-white" : "text-grey"
+                      active ? 'text-white' : 'text-grey'
                     }`
                   }
                   value={poolType}
@@ -217,7 +217,7 @@ export default function Pool() {
           </Transition>
         </div>
       </Listbox>
-    );
+    )
   }
 
   return (
@@ -232,7 +232,12 @@ export default function Pool() {
                 <SelectPool />
               </div>
             </div>
-            <Link href={{ pathname: "/pool/create", query: { prop1: "value1", prop2: "value2" } }}>
+            <Link
+              href={{
+                pathname: '/pool/create',
+                query: { prop1: 'value1', prop2: 'value2' },
+              }}
+            >
               <button className="flex items-center gap-x-1.5 px-7 py-[9px] text-white text-sm transition whitespace-nowrap rounded-lg cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
                 <PlusSmallIcon className="w-6" />
                 Create Pool
@@ -265,7 +270,7 @@ export default function Pool() {
                             tokenZeroAddress={allRangePosition.tokenZeroAddress}
                             poolAddress={allRangePosition.poolAddress}
                           />
-                        );
+                        )
                       }
                     })
                   : allCoverPositions.map((allCoverPosition) => {
@@ -284,7 +289,7 @@ export default function Pool() {
                             prefill={undefined}
                             close={undefined}
                           />
-                        );
+                        )
                       }
                     })}
               </div>
@@ -312,8 +317,9 @@ export default function Pool() {
                               tvlUsd={allRangePool.tvlUsd}
                               volumeUsd={allRangePool.volumeUsd}
                               volumeEth={allRangePool.volumeEth}
+                              href="/pool/directional"
                             />
-                          );
+                          )
                         })
                       : allCoverPools.map((allCoverPool) => {
                           return (
@@ -324,8 +330,9 @@ export default function Pool() {
                               tvlUsd={allCoverPool.tvlUsd}
                               volumeUsd={allCoverPool.volumeUsd}
                               volumeEth={allCoverPool.volumeEth}
+                              href="/pool/concentrated"
                             />
-                          );
+                          )
                         })}
                   </tbody>
                 </table>
@@ -335,5 +342,5 @@ export default function Pool() {
         </div>
       </div>
     </div>
-  );
+  )
 }

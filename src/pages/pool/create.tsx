@@ -1,16 +1,11 @@
 import Navbar from "../../components/Navbar";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { Fragment, useState } from "react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { Listbox, Transition } from "@headlessui/react";
-import ConcentratedPool from "../../components/Pools/ConcentratedPool";
+import ConcentratedPool from "./concentrated";
 
 export default function CreatePool() {
-  const router = useRouter();
-  const prop1 = router.query.prop1;
-  const prop2 = router.query.prop2;
-  console.log(prop1, prop2)
   const poolTypes = [
     { id: 1, type: "Range Pools", unavailable: false },
     { id: 2, type: "Cover Pools", unavailable: false },

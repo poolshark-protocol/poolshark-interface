@@ -1,40 +1,18 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import {
   ChevronDownIcon,
-  PlusIcon,
-  MinusIcon
+  ArrowLongRightIcon,
+  MinusIcon,
+  PlusIcon
 } from "@heroicons/react/20/solid";
 import { Listbox, Transition } from "@headlessui/react";
-import SelectToken from "../SelectToken";
-import ConcentratedPoolPreview from "./ConcentratedPoolPreview";
-import { ethers } from "ethers";
-import { useRangeStore } from "../../hooks/useStore";
-import { TickMath } from "../../utils/tickMath";
-import JSBI from "jsbi";
-import { getPreviousTicksLower } from "../../utils/queries";
-import useInputBox from "../../hooks/useInputBox";
-import useCoverAllowance from "../../hooks/useCoverAllowance";
-import { useAccount } from "wagmi";
+import SelectToken from "../../components/SelectToken";
+import DirectionalPoolPreview from "../../components/Pools/DirectionalPoolPreview";
 
-export default function ConcentratedPool(props: any) {
-  const { address, isConnected, isDisconnected } = useAccount();
+export default function DirectionalPool() {
 
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
-  const [hasSelected, setHasSelected] = useState(false);
-  const [isDisabled, setDisabled] = useState(false);
-
-  const { bnInput, bnInputLimit, LimitInputBox, inputBox } = useInputBox();
-
-  const newAllowance = useCoverAllowance(address);
-
-  const [updateRangeContractParams, updateRangeAllowance, RangeAllowance, rangeContractParams] =
-    useRangeStore((state: any) => [
-      state.updateRangeContractParams,
-      state.updateRangeAllowance,
-      state.RangeAllowance,
-      state.rangeContractParams,
-    ]);
   
   const feeTiers = [
     {
@@ -51,75 +29,9 @@ export default function ConcentratedPool(props: any) {
     },
     { id: 3, tier: "0.3%", text: "Best for most pairs", unavailable: false },
     { id: 4, tier: "1%", text: "Best for exotic pairs", unavailable: false },
-    
   ];
 
-  async function setRangeParams() {
-    try {
-      if (
-        minPrice !== undefined &&
-        minPrice !== "" &&
-        maxPrice !== undefined &&
-        maxPrice !== "" &&
-       Number(ethers.utils.formatUnits(bnInput)) !== 0 &&
-        hasSelected == true
-      ) {
-        const min = TickMath.getTickAtSqrtRatio(
-          JSBI.divide(
-            JSBI.multiply(
-              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
-              JSBI.BigInt(
-                String(
-                  Math.sqrt(Number(parseFloat(minPrice).toFixed(30))).toFixed(
-                    30
-                  )
-                )
-                  .split(".")
-                  .join("")
-              )
-            ),
-            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30))
-          )
-        );
-        const max = TickMath.getTickAtSqrtRatio(
-          JSBI.divide(
-            JSBI.multiply(
-              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
-              JSBI.BigInt(
-                String(
-                  Math.sqrt(Number(parseFloat(maxPrice).toFixed(30))).toFixed(
-                    30
-                  )
-                )
-                  .split(".")
-                  .join("")
-              )
-            ),
-            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30))
-          )
-        );
-        updateRangeContractParams({
-          to: address,
-          min: ethers.utils.parseUnits(String(min), 0),
-          max: ethers.utils.parseUnits(String(max), 0),
-          amount0: bnInput,
-          amount1: bnInputLimit,
-          fungible: true,
-        });
-        setDisabled(false)
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  useEffect(() => {
-    setRangeParams();
-  }, [address, minPrice, maxPrice, bnInput, bnInputLimit]);
-
-
-
-      const changePrice = (direction: string, minMax: string) => {
+  const changePrice = (direction: string, minMax: string) => {
     if (direction === "plus" && minMax === "min") {
       if (
         (document.getElementById("minInput") as HTMLInputElement).value ===
@@ -176,7 +88,6 @@ export default function ConcentratedPool(props: any) {
       ).toFixed(3);
     }
   };
-
 
   function SelectFee() {
     const [selected, setSelected] = useState(feeTiers[0]);
@@ -246,6 +157,7 @@ export default function ConcentratedPool(props: any) {
           </div>
           <div className="flex items-center gap-x-5 mt-3">
             <SelectToken />
+            <ArrowLongRightIcon className="w-6" />
             <SelectToken />
           </div>
         </div>
@@ -264,37 +176,10 @@ export default function ConcentratedPool(props: any) {
           <div className="mt-3 space-y-3">
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 ">
-                {inputBox("0")}
-                <div className="flex">
-                  <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
-                </div>
-              </div>
-              <div className="">
-                <div className=" ml-auto">
-                  <div >
-                    <div className="flex justify-end">
-                      <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
-                        <div className="flex items-center gap-x-2 w-full">
-                          <img className="w-7" src="/static/images/token.png" />
-                          USDC
-                        </div>
-                      </button>
-                    </div>
-                    <div className="flex items-center justify-end gap-x-2 px-1 mt-2">
-                      <div className="text-xs text-[#4C4C4C]">
-                        Balance: 420.69
-                      </div>
-                      <div className="text-xs uppercase text-[#C9C9C9]">
-                        Max
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-              <div className=" p-2 ">
-                {LimitInputBox("0")}
+                <input
+                  className="w-44 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
+                  placeholder="300"
+                />
                 <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
                 </div>
@@ -333,7 +218,7 @@ export default function ConcentratedPool(props: any) {
               Full Range
             </button>
           </div>
-          <div className="flex flex-col mt-6 gap-y-5 w-full">
+                    <div className="flex flex-col mt-6 gap-y-5 w-full">
             <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
               <span className="text-xs text-grey">Min. Price</span>
               <div className="flex justify-center items-center">
@@ -390,7 +275,7 @@ export default function ConcentratedPool(props: any) {
             </div>
           </div>
         </div>
-        <ConcentratedPoolPreview/>
+        <DirectionalPoolPreview />
       </div>
     </div>
   );
