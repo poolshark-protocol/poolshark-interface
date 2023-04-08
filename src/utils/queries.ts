@@ -1,6 +1,7 @@
 import { ApolloClient, InMemoryCache, gql, HttpLink } from '@apollo/client'
 import { BigNumber, ethers } from 'ethers'
 import { rangePoolABI } from '../abis/evm/rangePool'
+import { coverPoolABI } from '../abis/evm/coverPool'
 import { rangePoolAddress } from '../constants/contractAddresses'
 
 
@@ -86,7 +87,7 @@ export const getPrice = async (id:string) => {
     return price.toString()
 }
 
-export const getQuote = async (id:string, amountIn:BigNumber, limit:BigNumber, tokenInAddress:string, tokenOutAddress:string) => {
+export const getRangeQuote = async (id:string, amountIn:BigNumber, limit:BigNumber, tokenInAddress:string, tokenOutAddress:string) => {
     const provider = new ethers.providers.JsonRpcProvider(
         "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
       );
@@ -103,6 +104,27 @@ export const getQuote = async (id:string, amountIn:BigNumber, limit:BigNumber, t
      console.log(quote["1"]["output"])
      const amountInUsed = amountIn.sub(quote["1"]["input"])
      const price = amountInUsed.gt(0) ? (quote["1"]["output"].div(amountInUsed))
+                                      : 0
+     return price
+}
+
+export const getCoverQuote = async (id:string, amountIn:BigNumber, limit:BigNumber, tokenInAddress:string, tokenOutAddress:string) => {
+    const provider = new ethers.providers.JsonRpcProvider(
+        "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
+      );
+      const contract = new ethers.Contract(
+        id,
+        coverPoolABI,
+        provider
+      );
+      const quote = await contract.quote(
+        false, //zeroForOne
+        amountIn, //amountIn
+        limit
+     )
+     console.log(quote["outAmount"])
+     const amountInUsed = amountIn.sub(quote["inAmount"])
+     const price = amountInUsed.gt(0) ? (quote["outAmount"].div(amountInUsed))
                                       : 0
      return price
 }

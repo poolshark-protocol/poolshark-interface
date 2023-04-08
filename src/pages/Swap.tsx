@@ -1,147 +1,160 @@
 import {
   AdjustmentsHorizontalIcon,
   ArrowSmallDownIcon,
-} from "@heroicons/react/24/outline";
-import { useState, useEffect, Fragment, SetStateAction } from "react";
-import { Popover, Transition } from "@headlessui/react";
-import { ChevronDownIcon, ArrowPathIcon } from "@heroicons/react/20/solid";
-import SelectToken from "../components/SelectToken";
-import SwapButton from "../components/Buttons/SwapButton";
-import useInputBox from "../hooks/useInputBox";
-import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
-import CoverApproveButton from "../components/Buttons/CoverApproveButton";
-import { erc20ABI, useAccount } from "wagmi";
+} from '@heroicons/react/24/outline'
+import { useState, useEffect, Fragment, SetStateAction } from 'react'
+import { Popover, Transition } from '@headlessui/react'
+import { ChevronDownIcon, ArrowPathIcon } from '@heroicons/react/20/solid'
+import SelectToken from '../components/SelectToken'
+import SwapButton from '../components/Buttons/SwapButton'
+import useInputBox from '../hooks/useInputBox'
+import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton'
+import CoverApproveButton from '../components/Buttons/CoverApproveButton'
+import { erc20ABI, useAccount } from 'wagmi'
 import {
   coverPoolAddress,
   rangePoolAddress,
   rangeTokenZero,
   tokenOneAddress,
   tokenZeroAddress,
-} from "../constants/contractAddresses";
-import { useProvider } from "wagmi";
-import { BigNumber, Contract, ethers } from "ethers";
-import { chainIdsToNamesForGitTokenList } from "../utils/chains";
-import { coverPoolABI } from "../abis/evm/coverPool";
-import { fetchPrice, getPoolFromFactory, getQuote } from "../utils/queries";
-import { useSwapStore } from '../hooks/useStore';
-import SwapApproveButton from "../components/Buttons/SwapApproveButton";
-import { bn } from "fuels";
-import SelectTokenButton from "../components/Buttons/SelectTokenButtonSwap";
-import useRangeAllowance from "../hooks/useRangeAllowance";
+} from '../constants/contractAddresses'
+import { useProvider } from 'wagmi'
+import { BigNumber, Contract, ethers } from 'ethers'
+import { chainIdsToNamesForGitTokenList } from '../utils/chains'
+import { coverPoolABI } from '../abis/evm/coverPool'
+import {
+  fetchPrice,
+  getPoolFromFactory,
+  getRangeQuote,
+  getCoverQuote,
+} from '../utils/queries'
+import { useSwapStore } from '../hooks/useStore'
+import SwapApproveButton from '../components/Buttons/SwapApproveButton'
+import { bn } from 'fuels'
+import SelectTokenButton from '../components/Buttons/SelectTokenButtonSwap'
+import useRangeAllowance from '../hooks/useRangeAllowance'
 
 type token = {
-  symbol: string;
-  logoURI: string;
-  address: string;
-};
+  symbol: string
+  logoURI: string
+  address: string
+}
 
 export default function Swap() {
   const [updateSwapAmount] = useSwapStore((state: any) => [
-    state.updateSwapAmount 
-  ]);
-  const { address, isDisconnected, isConnected } = useAccount();
-  const { bnInput, inputBox, maxBalance, bnInputLimit, LimitInputBox } =
-    useInputBox();
-  const allowance = useRangeAllowance(address);
-  const [gasFee, setGasFee] = useState("");
-  const [baseLimit, setBaseLimit] = useState("");
-  const [price, setPrice] = useState(undefined);
-  const [hasSelected, setHasSelected] = useState(false);
-  const [mktRate, setMktRate] = useState({});
-  const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
-  const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
+    state.updateSwapAmount,
+  ])
+  const { address, isDisconnected, isConnected } = useAccount()
+  const {
+    bnInput,
+    inputBox,
+    maxBalance,
+    bnInputLimit,
+    LimitInputBox,
+  } = useInputBox()
+  const allowance = useRangeAllowance(address)
+  const [gasFee, setGasFee] = useState('')
+  const [baseLimit, setBaseLimit] = useState('')
+  const [price, setPrice] = useState(undefined)
+  const [hasSelected, setHasSelected] = useState(false)
+  const [mktRate, setMktRate] = useState({})
+  const [queryToken0, setQueryToken0] = useState(tokenOneAddress)
+  const [queryToken1, setQueryToken1] = useState(tokenOneAddress)
   const [token0, setToken0] = useState({
-    symbol: "WETH",
-    logoURI: "/static/images/eth_icon.png",
+    symbol: 'WETH',
+    logoURI: '/static/images/eth_icon.png',
     address: rangeTokenZero,
-  } as token);
-  const [token1, setToken1] = useState({} as token);
+  } as token)
+  const [token1, setToken1] = useState({} as token)
   const [tokenIn, setTokenIn] = useState({
-    symbol: "WETH",
-    logoURI: "/static/images/eth_icon.png",
+    symbol: 'WETH',
+    logoURI: '/static/images/eth_icon.png',
     address: rangeTokenZero,
-  });
+  })
   const [tokenOut, setTokenOut] = useState({
-    symbol: "Select Token",
-    logoURI: "",
-    address: "",
-  });
+    symbol: 'Select Token',
+    logoURI: '',
+    address: '',
+  })
+  const [coverQuote, setCoverQuote] = useState()
+  const [rangeQuote, setRangeQuote] = useState()
+  const [slipage, setSlipage] = useState('0.5')
 
   //@dev put balanc
 
   const getBalances = async () => {
     try {
       const provider = new ethers.providers.JsonRpcProvider(
-        "https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2",
-        421613
-      );
-      const signer = new ethers.VoidSigner(address, provider);
-      console.log(tokenIn);
-      const token1Bal = new ethers.Contract(tokenIn.address, erc20ABI, signer);
-      let token2Bal: Contract;
+        'https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2',
+        421613,
+      )
+      const signer = new ethers.VoidSigner(address, provider)
+      console.log(tokenIn)
+      const token1Bal = new ethers.Contract(tokenIn.address, erc20ABI, signer)
+      let token2Bal: Contract
       if (hasSelected === true) {
-        token2Bal = new ethers.Contract(tokenOut.address, erc20ABI, signer);
-        const balance2 = await token2Bal.balanceOf(address);
-        const balance1 = await token1Bal.balanceOf(address);
-        let bal1: string;
-        let bal2: string;
+        token2Bal = new ethers.Contract(tokenOut.address, erc20ABI, signer)
+        const balance2 = await token2Bal.balanceOf(address)
+        const balance1 = await token1Bal.balanceOf(address)
+        let bal1: string
+        let bal2: string
         if (Number(ethers.utils.formatEther(balance1)) >= 1000000) {
-          bal1 = Number(ethers.utils.formatEther(balance1)).toExponential(5);
+          bal1 = Number(ethers.utils.formatEther(balance1)).toExponential(5)
         }
         if (
           0 < Number(ethers.utils.formatEther(balance1)) &&
           Number(ethers.utils.formatEther(balance1)) < 1000000
         ) {
-          bal1 = Number(ethers.utils.formatEther(balance1)).toFixed(2);
+          bal1 = Number(ethers.utils.formatEther(balance1)).toFixed(2)
         }
         if (Number(ethers.utils.formatEther(balance2)) >= 1000000) {
-          bal2 = Number(ethers.utils.formatEther(balance2)).toExponential(5);
+          bal2 = Number(ethers.utils.formatEther(balance2)).toExponential(5)
         }
         if (
           0 < Number(ethers.utils.formatEther(balance2)) &&
           Number(ethers.utils.formatEther(balance2)) < 1000000
         ) {
-          bal2 = Number(ethers.utils.formatEther(balance2)).toFixed(2);
+          bal2 = Number(ethers.utils.formatEther(balance2)).toFixed(2)
         }
-        setBalance0(bal1);
-        setBalance1(bal2);
+        setBalance0(bal1)
+        setBalance1(bal2)
       }
-      let bal1 = await token1Bal.balanceOf(address);
-      let displayBal1: string;
+      let bal1 = await token1Bal.balanceOf(address)
+      let displayBal1: string
       if (Number(ethers.utils.formatEther(bal1)) >= 1000000) {
-        displayBal1 = Number(ethers.utils.formatEther(bal1)).toExponential(5);
+        displayBal1 = Number(ethers.utils.formatEther(bal1)).toExponential(5)
       }
       if (
         0 < Number(ethers.utils.formatEther(bal1)) &&
         Number(ethers.utils.formatEther(bal1)) < 1000000
       ) {
-        displayBal1 = Number(ethers.utils.formatEther(bal1)).toFixed(2);
+        displayBal1 = Number(ethers.utils.formatEther(bal1)).toFixed(2)
       }
-      setBalance0(displayBal1);
+      setBalance0(displayBal1)
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
-  const [balance0, setBalance0] = useState("");
-  const [balance1, setBalance1] = useState("0.00");
-  const [stateChainName, setStateChainName] = useState();
+  const [balance0, setBalance0] = useState('')
+  const [balance1, setBalance1] = useState('0.00')
+  const [stateChainName, setStateChainName] = useState()
 
   const {
     network: { chainId },
-  } = useProvider();
+  } = useProvider()
 
   useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
-  }, [chainId]);
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
+  }, [chainId])
 
   useEffect(() => {
-    getBalances();
-  }, [tokenOut, tokenIn]);
+    getBalances()
+  }, [tokenOut, tokenIn])
 
   useEffect(() => {
     updateSwapAmount(bnInput)
-  },[bnInput])
+  }, [bnInput])
 
   // useEffect(() => {
   //   if (isConnected && stateChainName === "arbitrumGoerli") {
@@ -163,79 +176,71 @@ export default function Swap() {
 
   function changeDefaultIn(token: token) {
     if (token.symbol === tokenOut.symbol) {
-      return;
+      return
     }
-    setTokenIn(token);
-    if (
-      token.address.localeCompare(tokenOut.address) < 0
-    ) {
-      setToken0(token);
+    setTokenIn(token)
+    if (token.address.localeCompare(tokenOut.address) < 0) {
+      setToken0(token)
       if (hasSelected === true) {
-        setToken1(tokenOut);
+        setToken1(tokenOut)
       }
-      return;
+      return
     }
-    if (
-      token.address.localeCompare(tokenOut.address) >= 0
-    ) {
+    if (token.address.localeCompare(tokenOut.address) >= 0) {
       if (hasSelected === true) {
-        setToken0(tokenOut);
+        setToken0(tokenOut)
       }
-      setToken1(token);
-      return;
+      setToken1(token)
+      return
     }
   }
 
-  const [tokenOrder, setTokenOrder] = useState(true);
+  const [tokenOrder, setTokenOrder] = useState(true)
 
   const changeDefaultOut = (token: token) => {
     if (token.symbol === tokenIn.symbol) {
-      return;
+      return
     }
-    setTokenOut(token);
-    setHasSelected(true);
-    if (
-      token.address.localeCompare(tokenIn.address) < 0
-    ) {
-      setToken0(token);
-      setToken1(tokenIn);
-      return;
+    setTokenOut(token)
+    setHasSelected(true)
+    if (token.address.localeCompare(tokenIn.address) < 0) {
+      setToken0(token)
+      setToken1(tokenIn)
+      return
     }
 
-    if (
-      token.address.localeCompare(tokenIn.address) >= 0
-    ) {
-      setToken0(tokenIn);
-      setToken1(token);
-      return;
+    if (token.address.localeCompare(tokenIn.address) >= 0) {
+      setToken0(tokenIn)
+      setToken1(token)
+      return
     }
-  };
+  }
 
-  let [isOpen, setIsOpen] = useState(false);
-  const [LimitActive, setLimitActive] = useState(false);
+  let [isOpen, setIsOpen] = useState(false)
+  const [LimitActive, setLimitActive] = useState(false)
 
   function closeModal() {
-    setIsOpen(false);
+    setIsOpen(false)
   }
 
   function switchDirection() {
-    setTokenOrder(!tokenOrder);
-    const temp = tokenIn;
-    setTokenIn(tokenOut);
-    setTokenOut(temp);
-    console.log(tokenIn);
-    console.log(tokenOut);
+    setTokenOrder(!tokenOrder)
+    const temp = tokenIn
+    setTokenIn(tokenOut)
+    setTokenOut(temp)
+    console.log(tokenIn)
+    console.log(tokenOut)
     // const tempBal = queryToken0;
     // setQueryToken0(queryToken1);
     // setQueryToken1(tempBal);
-    setMktRate({ eth: mktRate["usdc"], usdc: mktRate["eth"] });
+    setMktRate({ eth: mktRate['usdc'], usdc: mktRate['eth'] })
   }
 
   function openModal() {
-    setIsOpen(true);
+    setIsOpen(true)
   }
 
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(false)
 
   /*const getAllowance = async () => {
     try {
@@ -258,48 +263,48 @@ export default function Swap() {
   const gasEstimate = async () => {
     try {
       const provider = new ethers.providers.JsonRpcProvider(
-        "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
-      );
+        'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
+      )
       const contract = new ethers.Contract(
         coverPoolAddress,
         coverPoolABI,
-        provider
-      );
-      const recipient = address;
+        provider,
+      )
+      const recipient = address
       const zeroForOne =
-        tokenOut.address != "" && tokenIn.address < tokenOut.address;
+        tokenOut.address != '' && tokenIn.address < tokenOut.address
       // const priceLimit =
       const estimation = await contract.estimateGas.swap(
         recipient,
         zeroForOne,
         bnInput,
-        BigNumber.from("79228162514264337593543950336") // price of 1.00
-      );
-      const price = await fetchPrice("0x000");
+        BigNumber.from('79228162514264337593543950336'), // price of 1.00
+      )
+      const price = await fetchPrice('0x000')
       const ethPrice: number =
-        Number(price["data"]["bundles"]["0"]["ethPriceUSD"]) *
-        Number(ethers.utils.formatEther(estimation));
+        Number(price['data']['bundles']['0']['ethPriceUSD']) *
+        Number(ethers.utils.formatEther(estimation))
       const formattedPrice: string =
-        "~" +
-        ethPrice.toLocaleString("en-US", {
-          style: "currency",
-          currency: "USD",
-        });
-      setGasFee(formattedPrice);
+        '~' +
+        ethPrice.toLocaleString('en-US', {
+          style: 'currency',
+          currency: 'USD',
+        })
+      setGasFee(formattedPrice)
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchTokenPrice();
-  }, []);
+    fetchTokenPrice()
+  }, [])
 
   useEffect(() => {
     setTimeout(() => {
-      gasEstimate();
-    }, 10000);
-  }, []);
+      gasEstimate()
+    }, 10000)
+  }, [])
 
   /*useEffect(() => {
     getAllowance();
@@ -309,47 +314,58 @@ export default function Swap() {
   const getPool = async () => {
     try {
       if (hasSelected === true) {
-        console.log(token0, token1);
-        const pool = await getPoolFromFactory(token0.address, token1.address);
-        const id = pool["data"]["rangePools"]["0"]["id"];
-        const price = await getQuote(
+        console.log('Token0 '+ token0.address, 'Token1 '+token1.address)
+        const pool = await getPoolFromFactory(token0.address, token1.address)
+        const id = pool['data']['rangePools']['0']['id']
+        /* TODO add cover pool */
+        const rangePrice = await getRangeQuote(
           id,
           bnInput,
           bnInputLimit,
           token0.address,
-          token1.address
-        );
-        setPrice(price)
-        setBaseLimit(price)
+          token1.address,
+        )
+        setRangeQuote(rangePrice)
+        const coverPrice = await getCoverQuote(
+          id,
+          bnInput,
+          bnInputLimit,
+          token0.address,
+          token1.address,
+        )
+        setCoverQuote(coverPrice)
+        console.log('Range '+rangePrice, 'Cover '+ coverPrice)
+        setPrice(rangePrice)
+        setBaseLimit(rangePrice)
       }
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
   useEffect(() => {
-    getPool();
-  }, [hasSelected, token0.address, token1.address, bnInput, bnInputLimit]);
+    getPool()
+  }, [hasSelected, token0.address, token1.address, bnInput, bnInputLimit])
 
   const fetchTokenPrice = async () => {
     try {
-      const price = await fetchPrice("0x000");
+      const price = await fetchPrice('0x000')
       setMktRate({
         eth:
-          "~" +
-          Number(price["data"]["bundles"]["0"]["ethPriceUSD"]).toLocaleString(
-            "en-US",
+          '~' +
+          Number(price['data']['bundles']['0']['ethPriceUSD']).toLocaleString(
+            'en-US',
             {
-              style: "currency",
-              currency: "USD",
-            }
+              style: 'currency',
+              currency: 'USD',
+            },
           ),
-        usdc: "~1.00",
-      });
+        usdc: '~1.00',
+      })
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
   const Option = () => {
     if (expanded) {
@@ -357,7 +373,9 @@ export default function Swap() {
         <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Expected Output</div>
-            <div className="ml-auto text-xs">{price === undefined ? "Select Token" : price}</div>
+            <div className="ml-auto text-xs">
+              {price === undefined ? 'Select Token' : price}
+            </div>
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Price Impact</div>
@@ -374,9 +392,9 @@ export default function Swap() {
             <div className="ml-auto text-xs">{gasFee}</div>
           </div>
         </div>
-      );
+      )
     }
-  };
+  }
 
   return (
     <div className="pt-[10vh]">
@@ -387,8 +405,8 @@ export default function Swap() {
               onClick={() => setLimitActive(false)}
               className={`${
                 LimitActive
-                  ? "text-grey cursor-pointer"
-                  : "text-white cursor-pointer"
+                  ? 'text-grey cursor-pointer'
+                  : 'text-white cursor-pointer'
               }`}
             >
               Swap
@@ -397,8 +415,8 @@ export default function Swap() {
               onClick={() => setLimitActive(true)}
               className={`${
                 LimitActive
-                  ? "text-white cursor-pointer"
-                  : "text-grey cursor-pointer"
+                  ? 'text-white cursor-pointer'
+                  : 'text-grey cursor-pointer'
               }`}
             >
               Limit
@@ -425,6 +443,8 @@ export default function Swap() {
                       <input
                         placeholder="0%"
                         className="bg-dark rounded-xl outline-none border border-grey1 pl-3 placeholder:text-grey1"
+                        value={slipage}
+                        onChange={(e) => setSlipage(e.target.value)}
                       />
                       <button className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
                         Auto
@@ -438,10 +458,10 @@ export default function Swap() {
         </div>
         <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
-            {LimitInputBox("0")}
+            {LimitInputBox('0')}
             <div className="flex">
               <div className="flex text-xs text-[#4C4C4C]">
-                {mktRate["eth"]}
+                {mktRate['eth']}
               </div>
             </div>
           </div>
@@ -460,12 +480,12 @@ export default function Swap() {
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
                   <div className="flex text-xs text-[#4C4C4C]" key={balance0}>
-                    Balance: {balance0 === "NaN" ? 0 : balance0}
+                    Balance: {balance0 === 'NaN' ? 0 : balance0}
                   </div>
-                  {isConnected && stateChainName === "arbitrumGoerli" ? (
+                  {isConnected && stateChainName === 'arbitrumGoerli' ? (
                     <button
                       className="flex text-xs uppercase text-[#C9C9C9]"
-                      onClick={() => maxBalance(balance0, "0")}
+                      onClick={() => maxBalance(balance0, '0')}
                     >
                       Max
                     </button>
@@ -480,7 +500,7 @@ export default function Swap() {
             className="w-4 h-4"
             onClick={() => {
               if (hasSelected) {
-                switchDirection();
+                switchDirection()
               }
             }}
           />
@@ -494,7 +514,7 @@ export default function Swap() {
             />
             <div className="flex">
               <div className="flex text-xs text-[#4C4C4C] ">
-                {mktRate["usdc"]}
+                {mktRate['usdc']}
               </div>
             </div>
           </div>
@@ -525,7 +545,7 @@ export default function Swap() {
                 {hasSelected ? (
                   <div className="flex items-center justify-end gap-2 px-1 mt-2">
                     <div className="flex text-xs text-[#4C4C4C]">
-                      Balance: {balance1 === "NaN" ? 0 : balance1}
+                      Balance: {balance1 === 'NaN' ? 0 : balance1}
                     </div>
                   </div>
                 ) : (
@@ -539,7 +559,15 @@ export default function Swap() {
           <div>
             <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-4">
               <div className="flex-col justify-center w-1/2 p-2 ">
-                {LimitInputBox("0")}
+                {hasSelected ? (
+                  tokenOrder ? (
+                    <div>in/out</div>
+                  ) : (
+                    <div>out/in</div>
+                  )
+                ) : (
+                  <div>None</div>
+                )}
                 <div className="flex">
                   {/* <div className="flex text-xs text-[#4C4C4C]"> // Implement later 
                     98% above Market Price
@@ -596,9 +624,9 @@ export default function Swap() {
           >
             <div className="flex-none text-xs uppercase text-[#C9C9C9]">
               1 {tokenIn.symbol} =
-              {tokenOut.symbol === "Select Token"
-                ? " ?"
-                : " " + mktRate["eth"] + " " + tokenOut.symbol}
+              {tokenOut.symbol === 'Select Token'
+                ? ' ?'
+                : ' ' + mktRate['eth'] + ' ' + tokenOut.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
               <button>
@@ -611,11 +639,20 @@ export default function Swap() {
           </div>
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {isDisconnected ? null : hasSelected === false ?  <SelectTokenButton/> : allowance === "0.0" &&
-          stateChainName === "arbitrumGoerli" ? (
+        {isDisconnected ? null : hasSelected === false ? (
+          <SelectTokenButton />
+        ) : allowance === '0.0' && stateChainName === 'arbitrumGoerli' ? (
           <SwapApproveButton approveToken={tokenIn.address} />
-          ) : stateChainName === "arbitrumGoerli" ? <SwapButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={baseLimit} /> : null}
+        ) : stateChainName === 'arbitrumGoerli' ? (
+          <SwapButton
+            zeroForOne={
+              tokenOut.address != '' && tokenIn.address < tokenOut.address
+            }
+            amount={bnInput}
+            baseLimit={baseLimit}
+          />
+        ) : null}
       </div>
     </div>
-  );
+  )
 }
