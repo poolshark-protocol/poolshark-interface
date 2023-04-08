@@ -469,7 +469,7 @@ export default function Swap() {
         </div>
         <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
-            {LimitInputBox("0")}
+            {inputBox("0")}
             <div className="flex">
               <div className="flex text-xs text-[#4C4C4C]">
                 {mktRate["eth"]}
