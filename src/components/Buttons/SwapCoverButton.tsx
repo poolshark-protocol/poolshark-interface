@@ -13,7 +13,7 @@ import { coverPoolAddress, rangePoolAddress } from "../../constants/contractAddr
 import React, { useState, useEffect } from "react";
 import {useSwapStore} from "../../hooks/useStore"
 
-export default function SwapRangeButton({amount, zeroForOne, baseLimit}) {
+export default function SwapCoverButton({amount, zeroForOne, baseLimit}) {
 
   const [Limit] = useSwapStore((state: any) => [
     state.Limit
@@ -32,8 +32,8 @@ export default function SwapRangeButton({amount, zeroForOne, baseLimit}) {
       args:[
           userAddress,
           zeroForOne,
-          Limit === 0 ? baseLimit : Limit,
           amount,
+          Limit === 0 ? baseLimit : Limit
       ],
       chainId: 421613,
       overrides:{

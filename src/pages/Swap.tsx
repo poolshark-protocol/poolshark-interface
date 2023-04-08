@@ -26,6 +26,7 @@ import SwapRangeApproveButton from "../components/Buttons/SwapRangeApproveButton
 import { bn } from "fuels";
 import SelectTokenButton from "../components/Buttons/SelectTokenButtonSwap";
 import useRangeAllowance from "../hooks/useRangeAllowance";
+import useCoverAllowance from "../hooks/useCoverAllowance";
 import SwapRangeButton from "../components/Buttons/SwapRangeButton";
 import SwapCoverApproveButton from "../components/Buttons/SwapCoverApproveButton";
 import SwapCoverButton from "../components/Buttons/SwapCoverButton";
@@ -44,7 +45,8 @@ export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount();
   const { bnInput, inputBox, maxBalance, bnInputLimit, LimitInputBox } =
     useInputBox();
-  const allowance = useRangeAllowance(address);
+  const rangeAllowance = useRangeAllowance(address);
+  const coverAllowance = useCoverAllowance(address);
   const [gasFee, setGasFee] = useState("");
   const [rangeBaseLimit, setRangeBaseLimit] = useState("");
   const [coverBaseLimit, setCoverBaseLimit] = useState("");
@@ -640,13 +642,16 @@ export default function Swap() {
           </div>
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {isDisconnected ? null : hasSelected === false ? <SelectTokenButton/> : allowance === "0.0" &&
-          stateChainName !== "arbitrumGoerli" ? null : Number(rangePrice) < Number(coverPrice) ? 
+        {isDisconnected ? null : hasSelected === false ? <SelectTokenButton/> : 
+          stateChainName !== "arbitrumGoerli" ? null : 
+          Number(rangePrice) < Number(coverPrice) && rangeAllowance === "0.0" ? 
           ( <SwapRangeApproveButton approveToken={tokenIn.address} /> ) : 
-          ( <SwapCoverApproveButton approveToken={tokenIn.address} /> ) &&
-          stateChainName !== "arbitrumGoerli" ? null : (Number(rangePrice) < Number(coverPrice)) ? 
-          ( <SwapRangeButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={rangeBaseLimit} /> )
-          : ( <SwapCoverButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={coverBaseLimit} /> )}
+          Number(coverPrice) < (rangePrice) && coverAllowance === "0.0" ? 
+          ( <SwapCoverApproveButton approveToken={tokenIn.address} /> ) :
+          stateChainName !== "arbitrumGoerli" ? null : 
+          (Number(rangePrice) < Number(coverPrice)) ? 
+          ( <SwapRangeButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={rangeBaseLimit} /> ) :
+          ( <SwapCoverButton zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address} amount={bnInput} baseLimit={coverBaseLimit} /> )}
       </div>
     </div>
   );
