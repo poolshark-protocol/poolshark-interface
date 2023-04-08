@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import {
   ChevronDownIcon,
   PlusIcon,
@@ -7,11 +7,34 @@ import {
 import { Listbox, Transition } from "@headlessui/react";
 import SelectToken from "../SelectToken";
 import ConcentratedPoolPreview from "./ConcentratedPoolPreview";
+import { ethers } from "ethers";
+import { useRangeStore } from "../../hooks/useStore";
+import { TickMath } from "../../utils/tickMath";
+import JSBI from "jsbi";
+import { getPreviousTicksLower } from "../../utils/queries";
+import useInputBox from "../../hooks/useInputBox";
+import useCoverAllowance from "../../hooks/useCoverAllowance";
+import { useAccount } from "wagmi";
 
-export default function ConcentratedPool() {
+export default function ConcentratedPool(props: any) {
+  const { address, isConnected, isDisconnected } = useAccount();
 
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [hasSelected, setHasSelected] = useState(false);
+  const [isDisabled, setDisabled] = useState(false);
+
+  const { bnInput, bnInputLimit, LimitInputBox, inputBox } = useInputBox();
+
+  const newAllowance = useCoverAllowance(address);
+
+  const [updateRangeContractParams, updateRangeAllowance, RangeAllowance, rangeContractParams] =
+    useRangeStore((state: any) => [
+      state.updateRangeContractParams,
+      state.updateRangeAllowance,
+      state.RangeAllowance,
+      state.rangeContractParams,
+    ]);
   
   const feeTiers = [
     {
@@ -30,6 +53,70 @@ export default function ConcentratedPool() {
     { id: 4, tier: "1%", text: "Best for exotic pairs", unavailable: false },
     
   ];
+
+  async function setRangeParams() {
+    try {
+      if (
+        minPrice !== undefined &&
+        minPrice !== "" &&
+        maxPrice !== undefined &&
+        maxPrice !== "" &&
+       Number(ethers.utils.formatUnits(bnInput)) !== 0 &&
+        hasSelected == true
+      ) {
+        const min = TickMath.getTickAtSqrtRatio(
+          JSBI.divide(
+            JSBI.multiply(
+              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
+              JSBI.BigInt(
+                String(
+                  Math.sqrt(Number(parseFloat(minPrice).toFixed(30))).toFixed(
+                    30
+                  )
+                )
+                  .split(".")
+                  .join("")
+              )
+            ),
+            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30))
+          )
+        );
+        const max = TickMath.getTickAtSqrtRatio(
+          JSBI.divide(
+            JSBI.multiply(
+              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
+              JSBI.BigInt(
+                String(
+                  Math.sqrt(Number(parseFloat(maxPrice).toFixed(30))).toFixed(
+                    30
+                  )
+                )
+                  .split(".")
+                  .join("")
+              )
+            ),
+            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30))
+          )
+        );
+        updateRangeContractParams({
+          to: address,
+          min: ethers.utils.parseUnits(String(min), 0),
+          max: ethers.utils.parseUnits(String(max), 0),
+          amount0: bnInput,
+          amount1: bnInputLimit,
+          fungible: true,
+        });
+        setDisabled(false)
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    setRangeParams();
+  }, [address, minPrice, maxPrice, bnInput, bnInputLimit]);
+
 
 
       const changePrice = (direction: string, minMax: string) => {
@@ -177,10 +264,7 @@ export default function ConcentratedPool() {
           <div className="mt-3 space-y-3">
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 ">
-                <input
-                  className="w-44 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
-                  placeholder="300"
-                />
+                {inputBox("0")}
                 <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
                 </div>
@@ -210,10 +294,7 @@ export default function ConcentratedPool() {
             </div>
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 ">
-                <input
-                  className="w-44 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
-                  placeholder="300"
-                />
+                {LimitInputBox("0")}
                 <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
                 </div>
