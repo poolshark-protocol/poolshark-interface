@@ -232,7 +232,7 @@ export default function Pool() {
                 <SelectPool />
               </div>
             </div>
-            <Link href="/pool/create">
+            <Link href={{ pathname: "/pool/create", query: { prop1: "value1", prop2: "value2" } }}>
               <button className="flex items-center gap-x-1.5 px-7 py-[9px] text-white text-sm transition whitespace-nowrap rounded-lg cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
                 <PlusSmallIcon className="w-6" />
                 Create Pool
