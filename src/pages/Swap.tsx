@@ -585,14 +585,26 @@ export default function Swap() {
             <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-4">
               <div className="flex-col justify-center w-1/2 p-2 ">
                 {/*TODO@retraca here mkt rate from fetch price */}
-                {hasSelected ? (
-                  tokenOrder ? (
-                    <div>in/out {rangePrice}</div>
-                  ) : (
-                    <div>out/in {coverPrice}</div>
-                  )
-                ) : (
+                {tokenOrder && hasSelected === false ? (
                   <div>None</div>
+                ) : tokenOrder && hasSelected === true ? (
+                  <div>
+                    {parseFloat(
+                      mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                    ) /
+                      parseFloat(
+                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+                      )}
+                  </div>
+                ) : (
+                  <div>
+                    {parseFloat(
+                      mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+                    ) /
+                      parseFloat(
+                        mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                      )}
+                  </div>
                 )}
                 <div className="flex">
                   {/* <div className="flex text-xs text-[#4C4C4C]"> // Implement later 
@@ -652,7 +664,12 @@ export default function Swap() {
               1 {tokenIn.symbol} =
               {tokenOut.symbol === 'Select Token'
                 ? ' ?'
-                : ' ' + mktRate['eth'] + ' ' + tokenOut.symbol}
+                : ' ' +
+                  parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
+                    parseFloat(
+                      mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                    )}{' '}
+              {tokenOut.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
               <button>
