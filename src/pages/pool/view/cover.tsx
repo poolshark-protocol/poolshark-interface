@@ -1,11 +1,12 @@
-import Navbar from "../../components/Navbar";
+import Navbar from "../../../components/Navbar";
 import {
   ArrowTopRightOnSquareIcon,
   ArrowsRightLeftIcon,
+  ArrowLongRightIcon
 } from "@heroicons/react/20/solid";
 import { useState, useEffect } from "react";
 
-export default function View() {
+export default function Cover() {
   const [is0Copied, setIs0Copied] = useState(false);
   const [is1Copied, setIs1Copied] = useState(false);
   const [isPoolCopied, setIsPoolCopied] = useState(false);
@@ -65,7 +66,9 @@ export default function View() {
                   src="/static/images/token.png"
                 />
               </div>
-              <span className="text-3xl">DAI-USDC</span>
+              <span className="text-3xl flex items-center gap-x-3">
+                DAI <ArrowLongRightIcon className="w-5 " /> USDC
+              </span>
               <span className="bg-white text-black rounded-md px-3 py-0.5">
                 1%
               </span>
@@ -76,7 +79,7 @@ export default function View() {
             </div>
             <a href="#">
               <span className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80">
-                View Pool Stats
+                View on Etherscan
                 <ArrowTopRightOnSquareIcon className="w-5 " />
               </span>
             </a>
@@ -120,10 +123,10 @@ export default function View() {
               </h1>
             </div>
           </div>
-          <div className="bg-black  border border-grey2 border-b-none w-full rounded-t-xl py-6 px-7 h-[70vh]">
+          <div className="bg-black  border border-grey2 border-b-none w-full rounded-t-xl py-6 px-7 min-h-[70vh]">
             <div className="flex gap-x-20 justify-between">
               <div className="w-1/2">
-                <h1 className="text-lg mb-3">Liquidity</h1>
+                <h1 className="text-lg mb-3">Cover Size</h1>
                 <span className="text-4xl">$603.43</span>
 
                 <div className="text-grey mt-3 space-y-2">
@@ -136,12 +139,7 @@ export default function View() {
                       />
                       DAI
                     </div>
-                    <div className="flex items-center gap-x-4">
-                      300
-                      <span className="bg-grey1 text-grey rounded-md px-3 py-0.5">
-                        47%
-                      </span>
-                    </div>
+                    300
                   </div>
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
@@ -152,27 +150,21 @@ export default function View() {
                       />
                       USDC
                     </div>
-                    <div className="flex items-center gap-x-4">
-                      303
-                      <span className="bg-grey1 text-grey rounded-md px-3 py-0.5">
-                        53%
-                      </span>
-                    </div>
+                    303
                   </div>
                 </div>
                 <div className="mt-5 space-y-2">
                   <button className="bg-[#032851] w-full py-3 px-4 rounded-xl">
-                    Increase Liquidity
-                  </button>
-                  <button className="border border-[#032851] w-full py-3 px-4 rounded-xl">
-                    Remove Liquidity
+                    Add Liquidity
                   </button>
                 </div>
               </div>
               <div className="w-1/2">
-                <h1 className="text-lg mb-3">Unclaimed Fees</h1>
-                <span className="text-4xl">$4.50</span>
-                <div className="text-grey mt-3 space-y-2">
+                <h1 className="text-lg mb-3">Filled Position</h1>
+                <span className="text-4xl">
+                  $300<span className="text-grey">/$603.43</span>
+                </span>
+                <div className="text-grey mt-3">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
                       <img
@@ -182,23 +174,17 @@ export default function View() {
                       />
                       DAI
                     </div>
-                    <span>2.25</span>
-                  </div>
-                  <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
-                    <div className="flex items-center gap-x-4">
-                      <img
-                        height="30"
-                        width="30"
-                        src="/static/images/token.png"
-                      />
-                      USDC
-                    </div>
-                    <span>2.25</span>
+                    <span className="text-white">
+                      298<span className="text-grey">/600</span>
+                    </span>
                   </div>
                 </div>
-                <div className="mt-5 space-y-2">
+                <div className="mt-6 space-y-2">
                   <button className="bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80 w-full py-3 px-4 rounded-xl">
-                    Collect Fees
+                    Collect Position
+                  </button>
+                  <button className="border border-[#3174E0] from-[#344DBF] to-[#3098FF] hover:opacity-80 w-full py-3 px-4 rounded-xl">
+                    Burn Position
                   </button>
                 </div>
               </div>
@@ -235,6 +221,42 @@ export default function View() {
               <div className="text-grey text-xs w-full">Current Price</div>
               <div className="text-white text-2xl my-2 w-full">1.064</div>
               <div className="text-grey text-xs w-full">DAI per USDC</div>
+            </div>
+            <div>
+              <div className="flex justify-between items-center mt-10 mb-5">
+                <h1 className="text-lg">Original pool being covered </h1>
+                <h1 className="text-grey">Type: <span className="text-white">UNI-V3</span></h1>
+              </div>
+                    <div
+        className="w-full cursor-pointer flex justify-between items-center bg-dark border border-grey2 rounded-xl py-3.5 pl-5 h-24 relative"
+      >
+        <div className="space-y-2">
+          <div className="flex items-center gap-x-5">
+            <div className="flex items-center ">
+              <img height="30" width="30" src="/static/images/eth_icon.png" />
+              <img
+                height="30"
+                width="30"
+                className="ml-[-8px]"
+                src="/static/images/dai_icon.png"
+              />
+            </div>
+            <div className="flex gap-x-2">
+              WETH - DAI
+            </div>
+            <div className="bg-black px-2 py-1 rounded-lg text-grey">0.5%</div>
+          </div>
+          <div className="text-sm flex items-center gap-x-3">
+            <span>
+              <span className="text-grey">Min:</span> 1203 DAI per ETH
+            </span>
+            <ArrowsRightLeftIcon className="w-4 text-grey" />
+            <span>
+              <span className="text-grey">Max:</span> 1643 DAI per ETH
+            </span>
+          </div>
+        </div>
+      </div>
             </div>
           </div>
         </div>
