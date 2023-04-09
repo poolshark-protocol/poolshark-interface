@@ -1,34 +1,59 @@
-import { ethers, BigNumber } from "ethers";
+import { ethers, BigNumber } from 'ethers'
 import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
-} from "wagmi";
-import { rangePoolABI } from "../../abis/evm/rangePool";
-import { SuccessToast } from "../Toasts/Success";
-import { ErrorToast } from "../Toasts/Error";
-import { ConfirmingToast } from "../Toasts/Confirming";
-import React, { useState, useEffect } from "react";
-import { coverPoolAddress, rangePoolAddress } from "../../constants/contractAddresses";
-import { useRangeStore } from "../../hooks/useStore";
+} from 'wagmi'
+import { rangePoolABI } from '../../abis/evm/rangePool'
+import { SuccessToast } from '../Toasts/Success'
+import { ErrorToast } from '../Toasts/Error'
+import { ConfirmingToast } from '../Toasts/Confirming'
+import React, { useState, useEffect } from 'react'
+import {
+  coverPoolAddress,
+  rangePoolAddress,
+} from '../../constants/contractAddresses'
 
-export default function RangeMintButton({disabled}) {
+export default function RangeMintButton({
+  disabled,
+  to,
+  lower,
+  upper,
+  amount0,
+  amount1,
+  fungible,
+}) {
+  const [errorDisplay, setErrorDisplay] = useState(false)
+  const [successDisplay, setSuccessDisplay] = useState(false)
+  const [isDisabled, setDisabled] = useState(disabled)
 
-  const [ errorDisplay, setErrorDisplay ] = useState(false);
-  const [ successDisplay, setSuccessDisplay ] = useState(false);
-  const [ isDisabled, setDisabled ] = useState(disabled);
+  useEffect(() => {}, [disabled])
 
-    useEffect(() => {
-      },[disabled])
+  const [rangeContractParams, setRangeContractParams] = useState({
+    to: to,
+    lower: lower,
+    upper: upper,
+    amount0: amount0,
+    amount1: amount1,
+    fungible: fungible,
+  })
+  console.log('range contract', rangeContractParams)
 
-  const [rangeContractParams] = useRangeStore((state) => [state.rangeContractParams])
+  useEffect(() => {
+    setRangeContractParams({
+      to: to,
+      lower: lower,
+      upper: upper,
+      amount0: amount0,
+      amount1: amount1,
+      fungible: fungible,
+    })
+  }, [to, lower, upper, amount0, amount1, fungible])
 
-
-    
   const { config } = usePrepareContractWrite({
     address: rangePoolAddress,
     abi: rangePoolABI,
-    functionName: "mint",
+    functionName: 'mint',
     args: [
       rangeContractParams.to,
       rangeContractParams.lower,
@@ -39,48 +64,52 @@ export default function RangeMintButton({disabled}) {
     ],
     chainId: 421613,
     overrides: {
-      gasLimit: BigNumber.from("350000"),
+      gasLimit: BigNumber.from('350000'),
     },
-  });
+  })
 
-  const { data, write } = useContractWrite(config);
+  const { data, write } = useContractWrite(config)
 
-  const {isLoading} = useWaitForTransaction({
+  const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      setSuccessDisplay(true);
+      setSuccessDisplay(true)
     },
     onError() {
-      setErrorDisplay(true);
+      setErrorDisplay(true)
     },
-  });
+  })
 
   return (
     <>
       <button
         disabled={disabled}
-        className={disabled ? "w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50": "w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80" }
-        onClick={() => coverPoolAddress ?  write?.() : null}
+        className={
+          disabled
+            ? 'w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50'
+            : 'w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80'
+        }
+        onClick={() => (coverPoolAddress ? write?.() : null)}
       >
         Mint Range Position
       </button>
       <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
-      {errorDisplay && (
-        <ErrorToast
-          hash={data?.hash}
-          errorDisplay={errorDisplay}
-          setErrorDisplay={setErrorDisplay}
-        />
-      )}
-      {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-      {successDisplay && (
-        <SuccessToast
-          hash={data?.hash}
-          successDisplay={successDisplay}
-          setSuccessDisplay={setSuccessDisplay}
-        />
-      )}
+        {errorDisplay && (
+          <ErrorToast
+            hash={data?.hash}
+            errorDisplay={errorDisplay}
+            setErrorDisplay={setErrorDisplay}
+          />
+        )}
+        {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
+        {successDisplay && (
+          <SuccessToast
+            hash={data?.hash}
+            successDisplay={successDisplay}
+            setSuccessDisplay={setSuccessDisplay}
+          />
+        )}
       </div>
     </>
-  );
+  )
 }

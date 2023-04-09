@@ -1,6 +1,7 @@
 import { Fragment, useState } from 'react'
 import { ArrowLongRightIcon } from '@heroicons/react/20/solid'
 import { Transition, Dialog } from '@headlessui/react'
+import RangeMintButton from '../Buttons/RangeMintButton'
 
 export default function DirectionalPoolPreview({
   poolId,
@@ -189,9 +190,18 @@ export default function DirectionalPoolPreview({
                           </div>
                         </div>
                       </div>
-                      <div className="mt-8 w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
+                      <RangeMintButton
+                        disabled={true}
+                        to={poolId}
+                        lower={minPrice}
+                        upper={maxPrice}
+                        amount0={'100'}
+                        amount1={'200'}
+                        fungible={'1'}
+                      />
+                      {/* <div className="mt-8 w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
                         Create Pool
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 </Dialog.Panel>

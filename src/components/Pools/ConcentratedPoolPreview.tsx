@@ -1,5 +1,7 @@
 import { Fragment, useState } from 'react'
 import { Transition, Dialog } from '@headlessui/react'
+import CoverMintButton from '../Buttons/CoverMintButton'
+import { TRACE_OUTPUT_VERSION } from 'next/dist/shared/lib/constants'
 
 export default function ConcentratedPoolPreview({
   poolId,
@@ -220,9 +222,18 @@ export default function ConcentratedPoolPreview({
                           </div>
                         </div>
                       </div>
-                      <div className="mt-8 w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
+                      <CoverMintButton
+                        disabled={true}
+                        prevLower={'2'}
+                        min={'100'}
+                        claim={'200'}
+                        max={'300'}
+                        prevUpper={'400'}
+                        amount={'500'}
+                      />
+                      {/* <div className="mt-8 w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
                         Create Pool
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 </Dialog.Panel>
