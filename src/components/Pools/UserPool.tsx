@@ -40,7 +40,7 @@ useEffect
   return (
     <>
     <Link href={{
-      pathname: '/pool/view',
+      pathname: '/pool/view/range',
       query: {
         poolId: poolAddress,
         tokenOneName: tokenOneName,

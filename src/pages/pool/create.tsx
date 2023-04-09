@@ -1,18 +1,18 @@
-import Navbar from "../../components/Navbar";
-import Link from "next/link";
-import { Fragment, useState } from "react";
-import { ChevronDownIcon } from "@heroicons/react/20/solid";
-import { Listbox, Transition } from "@headlessui/react";
-import ConcentratedPool from "../../components/Pools/ConcentratedPool";
+import Navbar from '../../components/Navbar'
+import Link from 'next/link'
+import { Fragment, useState } from 'react'
+import { ChevronDownIcon } from '@heroicons/react/20/solid'
+import { Listbox, Transition } from '@headlessui/react'
+import ConcentratedPool from '../../components/Pools/ConcentratedPool'
 
 export default function CreatePool() {
   const poolTypes = [
-    { id: 1, type: "Range Pools", unavailable: false },
-    { id: 2, type: "Cover Pools", unavailable: false },
-  ];
+    { id: 1, type: 'Range Pools', unavailable: false },
+    { id: 2, type: 'Cover Pools', unavailable: false },
+  ]
 
   function SelectPool() {
-    const [selected, setSelected] = useState(poolTypes[0]);
+    const [selected, setSelected] = useState(poolTypes[0])
 
     return (
       <Listbox value={selected} onChange={setSelected}>
@@ -38,7 +38,7 @@ export default function CreatePool() {
                   key={poolTypeIdx}
                   className={({ active }) =>
                     `relative cursor-pointer select-none py-2 px-4 ${
-                      active ? "text-white" : "text-grey"
+                      active ? 'text-white' : 'text-grey'
                     }`
                   }
                   value={poolType}
@@ -54,7 +54,7 @@ export default function CreatePool() {
           </Transition>
         </div>
       </Listbox>
-    );
+    )
   }
 
   return (
@@ -73,9 +73,18 @@ export default function CreatePool() {
               </span>
             </Link>
           </div>
-          <ConcentratedPool />
+          <ConcentratedPool
+            poolId={'0x0000'}
+            tokenOneName={'tokenOneName'}
+            tokenOneAddress={'tokenOneAddress'}
+            tokenZeroName={'tokenZeroName'}
+            tokenZeroAddress={'tokenZeroAddress'}
+            tvlUsd={'tvlUsd'}
+            volumeUsd={'volumeUsd'}
+            volumeEth={'volumeEth'}
+          />
         </div>
       </div>
     </div>
-  );
+  )
 }
