@@ -3,13 +3,11 @@ import Navbar from '../../components/Navbar'
 
 export default function Concentrated({
   poolId,
+  account,
   tokenOneName,
   tokenZeroName,
   tokenOneAddress,
   tokenZeroAddress,
-  tvlUsd,
-  volumeUsd,
-  volumeEth,
 }) {
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi">
@@ -17,13 +15,11 @@ export default function Concentrated({
       <div className="flex justify-center w-full text-white">
         <ConcentratedPool
           poolId={poolId}
+          account={account}
           tokenOneName={tokenOneName}
           tokenOneAddress={tokenOneAddress}
           tokenZeroName={tokenZeroName}
           tokenZeroAddress={tokenZeroAddress}
-          tvlUsd={tvlUsd}
-          volumeUsd={volumeUsd}
-          volumeEth={volumeEth}
         />
       </div>
     </div>

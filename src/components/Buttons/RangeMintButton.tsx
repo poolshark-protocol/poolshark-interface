@@ -14,6 +14,8 @@ import {
   rangePoolAddress,
 } from '../../constants/contractAddresses'
 
+
+
 export default function RangeMintButton({
   disabled,
   to,

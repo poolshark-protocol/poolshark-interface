@@ -1,6 +1,7 @@
 import Link from 'next/link'
 export default function PoolList({
   poolId,
+  account,
   tokenOneName,
   tokenZeroName,
   tokenOneAddress,
@@ -15,14 +16,12 @@ export default function PoolList({
       href={{
         pathname: href,
         query: {
+          account: account,
           poolId: poolId,
           tokenOneName: tokenOneName,
           tokenOneAddress: tokenOneAddress,
           tokenZeroName: tokenZeroName,
           tokenZeroAddress: tokenZeroAddress,
-          tvlUsd: tvlUsd,
-          volumeUsd: volumeUsd,
-          volumeEth: volumeEth,
         },
       }}
     >

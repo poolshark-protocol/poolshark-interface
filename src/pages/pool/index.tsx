@@ -324,6 +324,7 @@ export default function Pool() {
                           return (
                             <PoolList
                               key={allRangePool.tokenOneName}
+                              account={address}
                               poolId={allRangePool.poolId}
                               tokenOneName={allRangePool.tokenOneName}
                               tokenOneAddress={allRangePool.tokenOneAddress}
@@ -340,6 +341,7 @@ export default function Pool() {
                           return (
                             <PoolList
                               key={allCoverPool.tokenOneName}
+                              account={address}
                               poolId={allCoverPool.poolId}
                               tokenOneName={allCoverPool.tokenOneName}
                               tokenOneAddress={allCoverPool.tokenOneAddress}
