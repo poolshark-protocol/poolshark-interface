@@ -12,21 +12,45 @@ import useInputBox from '../../hooks/useInputBox'
 import useCoverAllowance from '../../hooks/useCoverAllowance'
 import { useAccount } from 'wagmi'
 import { useRouter } from 'next/router'
+import { rangeTokenZero } from '../../constants/contractAddresses'
 
 export default function ConcentratedPool({
+  account,
   poolId,
   tokenOneName,
   tokenZeroName,
   tokenOneAddress,
   tokenZeroAddress,
-  tvlUsd,
-  volumeUsd,
-  volumeEth,
 }) {
+  type token = {
+    symbol: string
+    logoURI: string
+    address: string
+  }
+
   const { address, isConnected, isDisconnected } = useAccount()
 
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
+  const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
+  const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
+
+  const [token0, setToken0] = useState({
+    symbol: 'WETH',
+    logoURI: '/static/images/eth_icon.png',
+    address: rangeTokenZero,
+  } as token)
+  const [token1, setToken1] = useState({} as token)
+  const [tokenIn, setTokenIn] = useState({
+    symbol: 'WETH',
+    logoURI: '/static/images/eth_icon.png',
+    address: rangeTokenZero,
+  })
+  const [tokenOut, setTokenOut] = useState({
+    symbol: 'Select Token',
+    logoURI: '',
+    address: '',
+  })
 
   const [hasSelected, setHasSelected] = useState(false)
   const [isDisabled, setDisabled] = useState(false)
@@ -187,6 +211,48 @@ export default function ConcentratedPool({
     }
   }
 
+  function changeDefaultIn(token: token) {
+    if (token.symbol === tokenOut.symbol) {
+      return
+    }
+    setTokenIn(token)
+    if (token.address.localeCompare(tokenOut.address) < 0) {
+      setToken0(token)
+      if (hasSelected === true) {
+        setToken1(tokenOut)
+      }
+      return
+    }
+    if (token.address.localeCompare(tokenOut.address) >= 0) {
+      if (hasSelected === true) {
+        setToken0(tokenOut)
+      }
+      setToken1(token)
+      return
+    }
+  }
+
+  const [tokenOrder, setTokenOrder] = useState(true)
+
+  const changeDefaultOut = (token: token) => {
+    if (token.symbol === tokenIn.symbol) {
+      return
+    }
+    setTokenOut(token)
+    setHasSelected(true)
+    if (token.address.localeCompare(tokenIn.address) < 0) {
+      setToken0(token)
+      setToken1(tokenIn)
+      return
+    }
+
+    if (token.address.localeCompare(tokenIn.address) >= 0) {
+      setToken0(tokenIn)
+      setToken1(token)
+      return
+    }
+  }
+
   function SelectFee() {
     const [selected, setSelected] = useState(feeTiers[0])
 
@@ -254,8 +320,33 @@ export default function ConcentratedPool({
             <h1>Select Pair</h1>
           </div>
           <div className="flex items-center gap-x-5 mt-3">
-            <SelectToken />
-            <SelectToken />
+            <SelectToken
+              index="0"
+              selected={hasSelected}
+              tokenChosen={changeDefaultIn}
+              displayToken={tokenIn}
+              balance={setQueryToken0}
+              key={queryToken0}
+            />
+            {hasSelected ? (
+              <SelectToken
+                index="1"
+                selected={hasSelected}
+                tokenChosen={changeDefaultOut}
+                displayToken={tokenOut}
+                balance={setQueryToken1}
+                key={queryToken1}
+              />
+              ) : (
+                //@dev add skeletons on load when switching sides/ initial selection
+                <SelectToken
+                  index="1"
+                  selected={hasSelected}
+                  tokenChosen={changeDefaultOut}
+                  displayToken={tokenOut}
+                  balance={setQueryToken1}
+                />
+              )}
           </div>
         </div>
         <div>
@@ -400,14 +491,14 @@ export default function ConcentratedPool({
           </div>
         </div>
         <ConcentratedPoolPreview
+          account={account}
           poolId={poolId}
           tokenOneName={tokenOneName}
           tokenOneAddress={tokenOneAddress}
           tokenZeroName={tokenZeroName}
           tokenZeroAddress={tokenZeroAddress}
-          tvlUsd={tvlUsd}
-          volumeUsd={volumeUsd}
-          volumeEth={volumeEth}
+          amount0={bnInput}
+          amount1={bnInputLimit}
           minPrice={minPrice}
           maxPrice={maxPrice}
           fee={'0.01'}

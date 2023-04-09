@@ -54,14 +54,14 @@ export default function RangeMintButton({
     address: rangePoolAddress,
     abi: rangePoolABI,
     functionName: 'mint',
-    args: [
+    args: [[
       rangeContractParams.to,
       rangeContractParams.lower,
       rangeContractParams.upper,
       rangeContractParams.amount0,
       rangeContractParams.amount1,
       rangeContractParams.fungible,
-    ],
+    ]],
     chainId: 421613,
     overrides: {
       gasLimit: BigNumber.from('350000'),
@@ -89,7 +89,7 @@ export default function RangeMintButton({
             ? 'w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50'
             : 'w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80'
         }
-        onClick={() => (coverPoolAddress ? write?.() : null)}
+        onClick={() => (write?.())}
       >
         Mint Range Position
       </button>

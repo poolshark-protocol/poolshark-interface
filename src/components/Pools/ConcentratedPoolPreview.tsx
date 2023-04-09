@@ -2,16 +2,17 @@ import { Fragment, useState } from 'react'
 import { Transition, Dialog } from '@headlessui/react'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import { TRACE_OUTPUT_VERSION } from 'next/dist/shared/lib/constants'
+import RangeMintButton from '../Buttons/RangeMintButton'
 
 export default function ConcentratedPoolPreview({
+  account,
   poolId,
   tokenOneName,
   tokenZeroName,
   tokenOneAddress,
   tokenZeroAddress,
-  tvlUsd,
-  volumeUsd,
-  volumeEth,
+  amount0,
+  amount1,
   minPrice,
   maxPrice,
   fee,
@@ -27,12 +28,6 @@ export default function ConcentratedPoolPreview({
       tokenOneAddress +
       '_' +
       tokenZeroAddress +
-      '_' +
-      tvlUsd +
-      '_' +
-      volumeUsd +
-      '_' +
-      volumeEth +
       '_' +
       minPrice +
       '_' +
@@ -222,14 +217,14 @@ export default function ConcentratedPoolPreview({
                           </div>
                         </div>
                       </div>
-                      <CoverMintButton
-                        disabled={true}
-                        to={poolId}
+                      <RangeMintButton
+                        disabled={false}
+                        to={account}
                         lower={minPrice}
-                        claim={'200'}
                         upper={maxPrice}
-                        amount={'400'}
-                        zeroForOne={true}
+                        amount0={amount0}
+                        amount1={amount1}
+                        fungible={true}
                       />
                     </div>
                   </div>
