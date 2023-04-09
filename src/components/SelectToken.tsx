@@ -141,7 +141,7 @@ export default function SelectToken(props) {
                   <div>
                     {coinsForListing?.map((coin) => {
                       return (
-                        <CoinListItem key={index} coin={coin} chooseToken={chooseToken} />
+                        <CoinListItem key={props.index} coin={coin} chooseToken={chooseToken} />
                       );
                     })}
                     {/* {(coinsForListing === null || coinsForListing.length === 0) &&
