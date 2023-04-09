@@ -197,11 +197,8 @@ export default function DirectionalPoolPreview({
                         upper={maxPrice}
                         amount0={'100'}
                         amount1={'200'}
-                        fungible={'1'}
+                        fungible={true}
                       />
-                      {/* <div className="mt-8 w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
-                        Create Pool
-                      </div> */}
                     </div>
                   </div>
                 </Dialog.Panel>

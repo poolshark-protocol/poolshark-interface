@@ -224,16 +224,13 @@ export default function ConcentratedPoolPreview({
                       </div>
                       <CoverMintButton
                         disabled={true}
-                        prevLower={'2'}
-                        min={'100'}
+                        to={poolId}
+                        lower={minPrice}
                         claim={'200'}
-                        max={'300'}
-                        prevUpper={'400'}
-                        amount={'500'}
+                        upper={maxPrice}
+                        amount={'400'}
+                        zeroForOne={true}
                       />
-                      {/* <div className="mt-8 w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
-                        Create Pool
-                      </div> */}
                     </div>
                   </div>
                 </Dialog.Panel>

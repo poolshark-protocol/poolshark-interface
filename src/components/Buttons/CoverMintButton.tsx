@@ -18,12 +18,12 @@ import { useCoverStore } from '../../hooks/useStore'
 
 export default function CoverMintButton({
   disabled,
-  prevLower,
-  min,
+  to,
+  lower,
   claim,
-  max,
-  prevUpper,
+  upper,
   amount,
+  zeroForOne,
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
@@ -69,39 +69,38 @@ export default function CoverMintButton({
   useEffect(() => {}, [disabled])
 
   const [coverContractParams, setCoverContractParams] = useState({
-    disabled: disabled,
-    prevLower: prevLower,
-    min: min,
+    to: to,
+    lower: lower,
     claim: claim,
-    max: max,
-    prevUpper: prevUpper,
+    upper: upper,
     amount: amount,
+    zeroForOne: zeroForOne,
   })
-  console.log(coverContractParams)
+  console.log('cover contract', coverContractParams)
 
+ 
   useEffect(() => {
     setCoverContractParams({
-      disabled: disabled,
-      prevLower: prevLower,
-      min: min,
-      claim: claim,
-      max: max,
-      prevUpper: prevUpper,
-      amount: amount,
+    to: to,
+    lower: lower,
+    claim: claim,
+    upper: upper,
+    amount: amount,
+    zeroForOne: zeroForOne,
     })
-  }, [disabled, prevLower, min, claim, max, prevUpper, amount])
+  }, [disabled, to, lower, claim, upper, amount, zeroForOne])
 
   const { config } = usePrepareContractWrite({
     address: coverPoolAddress,
     abi: coverPoolABI,
     functionName: 'mint',
     args: [
-      coverContractParams.prevLower,
-      coverContractParams.min,
+      coverContractParams.to,
+      coverContractParams.lower,
       coverContractParams.claim,
-      coverContractParams.max,
-      coverContractParams.prevUpper,
+      coverContractParams.upper,
       coverContractParams.amount,
+      coverContractParams.zeroForOne,
       false,
     ],
     chainId: 421613,
