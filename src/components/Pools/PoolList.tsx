@@ -25,7 +25,8 @@ export default function PoolList({
         },
       }}
     >
-      <tr className="text-right">
+      
+      <tr className="text-right cursor-pointer hover:bg-gray-400">
         <td className="text-left flex items-center gap-x-5 py-2.5">
           <div className="flex items-center ">
             <img height="30" width="30" src="/static/images/token.png" />
