@@ -217,10 +217,10 @@ export default function Pool() {
   }
 
   return (
-    <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi">
+    <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
-      <div className="flex justify-center w-full text-white">
-        <div className="mt-[16vh] w-[55rem]">
+      <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full">
+        <div className="w-[55rem] absolute bottom-0">
           <div className="flex justify-between mb-6 items-end">
             <div className="flex items-center gap-x-4">
               <h1 className="text-3xl">Pools</h1>
@@ -240,7 +240,7 @@ export default function Pool() {
               </button>
             </Link>
           </div>
-          <div className="bg-black border border-grey2 w-full rounded-t-xl p-6 space-y-4 h-[44rem] overflow-auto">
+          <div className="bg-black  border border-grey2 w-full rounded-t-xl p-6 space-y-4 h-[70vh] overflow-auto">
             <div className="relative">
               <MagnifyingGlassIcon className="w-5 text-grey absolute ml-[14px] mt-[13px]" />
               <input
@@ -293,7 +293,7 @@ export default function Pool() {
               </div>
             </div>
             <div className="">
-              <h1 className="mb-3">All Pools</h1>
+              <h1 className="mb-3 ">All Pools</h1>
               <div className="space-y-2">
                 <table className="w-full table-auto">
                   <thead className="mb-3">
