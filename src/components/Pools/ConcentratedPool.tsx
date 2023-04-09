@@ -15,14 +15,12 @@ import { useRouter } from 'next/router'
 import { rangeTokenZero } from '../../constants/contractAddresses'
 
 export default function ConcentratedPool({
+  account,
   poolId,
   tokenOneName,
   tokenZeroName,
   tokenOneAddress,
   tokenZeroAddress,
-  tvlUsd,
-  volumeUsd,
-  volumeEth,
 }) {
   type token = {
     symbol: string
@@ -493,14 +491,14 @@ export default function ConcentratedPool({
           </div>
         </div>
         <ConcentratedPoolPreview
+          account={account}
           poolId={poolId}
           tokenOneName={tokenOneName}
           tokenOneAddress={tokenOneAddress}
           tokenZeroName={tokenZeroName}
           tokenZeroAddress={tokenZeroAddress}
-          tvlUsd={tvlUsd}
-          volumeUsd={volumeUsd}
-          volumeEth={volumeEth}
+          amount0={bnInput}
+          amount1={bnInputLimit}
           minPrice={minPrice}
           maxPrice={maxPrice}
           fee={'0.01'}
