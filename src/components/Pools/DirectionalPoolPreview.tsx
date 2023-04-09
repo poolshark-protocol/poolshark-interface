@@ -1,45 +1,20 @@
 import { Fragment, useState } from 'react'
-import { ArrowLongRightIcon } from '@heroicons/react/20/solid'
 import { Transition, Dialog } from '@headlessui/react'
-import RangeMintButton from '../Buttons/RangeMintButton'
+import CoverMintButton from '../Buttons/CoverMintButton'
+import { TRACE_OUTPUT_VERSION } from 'next/dist/shared/lib/constants'
+import {  ethers } from "ethers";
 
 export default function DirectionalPoolPreview({
+  account,
   poolId,
-  tokenOneName,
-  tokenZeroName,
-  tokenOneAddress,
-  tokenZeroAddress,
-  tvlUsd,
-  volumeUsd,
-  volumeEth,
+  tokenIn,
+  tokenOut,
+  amount0,
+  amount1,
   minPrice,
   maxPrice,
   fee,
 }) {
-  console.log(
-    'directional pool preview',
-    poolId +
-      '_' +
-      tokenOneName +
-      '_' +
-      tokenZeroName +
-      '_' +
-      tokenOneAddress +
-      '_' +
-      tokenZeroAddress +
-      '_' +
-      tvlUsd +
-      '_' +
-      volumeUsd +
-      '_' +
-      volumeEth +
-      '_' +
-      minPrice +
-      '_' +
-      maxPrice +
-      '_' +
-      fee,
-  )
   let [isOpen, setIsOpen] = useState(false)
 
   function closeModal() {
@@ -86,19 +61,12 @@ export default function DirectionalPoolPreview({
                         </div>
                         <div className="flex items-center gap-x-5 mt-3">
                           <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
-                            <img
-                              className="w-7"
-                              src="/static/images/token.png"
-                            />
-                            USDC
+                            <img className="w-7" src={tokenIn.logoURI} />
+                            {tokenIn.symbol}
                           </button>
-                          <ArrowLongRightIcon className="w-6" />
                           <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
-                            <img
-                              className="w-7"
-                              src="/static/images/token.png"
-                            />
-                            USDC
+                            <img className="w-7" src={tokenOut.logoURI} />
+                            {tokenOut.symbol}
                           </button>
                         </div>
                       </div>
@@ -123,12 +91,11 @@ export default function DirectionalPoolPreview({
                           <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
                             <div className=" p-2 ">
                               <div className="w-44 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
-                                {' '}
-                                300
+                                {ethers.utils.formatUnits(amount0, 18)}
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                  ~300.51
+                                  ~300.53
                                 </div>
                               </div>
                             </div>
@@ -140,13 +107,45 @@ export default function DirectionalPoolPreview({
                                       <div className="flex items-center gap-x-2 w-full">
                                         <img
                                           className="w-7"
-                                          src="/static/images/token.png"
+                                          src={tokenIn.logoURI}
                                         />
-                                        USDC
+                                        {tokenIn.symbol}
                                       </div>
                                     </button>
                                   </div>
                                   <div className="flex items-center justify-end gap-x-2 px-1 mt-2 ">
+                                    <div className="text-xs text-dark">-</div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
+                            <div className=" p-2 ">
+                              <div className="w-44 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
+                              {ethers.utils.formatUnits(amount1, 18)}
+                              </div>
+                              <div className="flex">
+                                <div className="flex text-xs text-[#4C4C4C]">
+                                  ~300.52
+                                </div>
+                              </div>
+                            </div>
+                            <div className="">
+                              <div className=" ml-auto">
+                                <div>
+                                  <div className="flex justify-end">
+                                    <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
+                                      <div className="flex items-center gap-x-2 w-full">
+                                        <img
+                                          className="w-7"
+                                          src={tokenOut.logoURI}
+                                        />
+                                        {tokenOut.symbol}
+                                      </div>
+                                    </button>
+                                  </div>
+                                  <div className="flex items-center justify-end gap-x-2 px-1 mt-2">
                                     <div className="text-xs text-dark">-</div>
                                   </div>
                                 </div>
@@ -159,7 +158,7 @@ export default function DirectionalPoolPreview({
                     <div className="w-1/2">
                       <div>
                         <div className="flex justify-between items-center">
-                          <h1>Price range</h1>
+                          <h1>Price Cover</h1>
                         </div>
                         <div className="mt-3 space-y-3">
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
@@ -168,11 +167,11 @@ export default function DirectionalPoolPreview({
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                500
+                                {parseFloat(minPrice).toFixed(2)}
                               </span>
                             </div>
                             <span className="text-xs text-grey">
-                              USDC per DAI
+                              {tokenIn.symbol} per {tokenOut.symbol}
                             </span>
                           </div>
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
@@ -181,23 +180,23 @@ export default function DirectionalPoolPreview({
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                1000
+                                {parseFloat(maxPrice).toFixed(2)}
                               </span>
                             </div>
                             <span className="text-xs text-grey">
-                              USDC per DAI
+                              {tokenIn.symbol} per {tokenOut.symbol}
                             </span>
                           </div>
                         </div>
                       </div>
-                      <RangeMintButton
-                        disabled={true}
-                        to={poolId}
+                      <CoverMintButton
+                        disabled={false}
+                        to={account}
                         lower={minPrice}
+                        claim={'0'}
                         upper={maxPrice}
-                        amount0={'100'}
-                        amount1={'200'}
-                        fungible={true}
+                        amount={amount0}
+                        zeroForOne={true}
                       />
                     </div>
                   </div>

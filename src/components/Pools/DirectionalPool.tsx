@@ -1,28 +1,76 @@
-import { Fragment, useState } from 'react'
-import {
-  ChevronDownIcon,
-  ArrowLongRightIcon,
-  MinusIcon,
-  PlusIcon,
-} from '@heroicons/react/20/solid'
+import { Fragment, useEffect, useState } from 'react'
+import { ChevronDownIcon, PlusIcon, MinusIcon } from '@heroicons/react/20/solid'
 import { Listbox, Transition } from '@headlessui/react'
 import SelectToken from '../SelectToken'
 import DirectionalPoolPreview from './DirectionalPoolPreview'
+import { ethers } from 'ethers'
+import { useRangeStore } from '../../hooks/useStore'
+import { TickMath } from '../../utils/tickMath'
+import JSBI from 'jsbi'
+import { getPreviousTicksLower } from '../../utils/queries'
+import useInputBox from '../../hooks/useInputBox'
+import useCoverAllowance from '../../hooks/useCoverAllowance'
+import { useAccount } from 'wagmi'
 import { useRouter } from 'next/router'
+import { rangeTokenZero } from '../../constants/contractAddresses'
 
 export default function DirectionalPool({
+  account,
   poolId,
   tokenOneName,
   tokenZeroName,
   tokenOneAddress,
   tokenZeroAddress,
-  tvlUsd,
-  volumeUsd,
-  volumeEth,
 }) {
-  const [minPrice, setMinPrice] = useState('')
-  const [maxPrice, setMaxPrice] = useState('')
-  const router = useRouter()
+  type token = {
+    symbol: string
+    logoURI: string
+    address: string
+  }
+
+  const { address, isConnected, isDisconnected } = useAccount()
+
+  const [minPrice, setMinPrice] = useState('0')
+  const [maxPrice, setMaxPrice] = useState('0')
+  const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
+  const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
+
+  const [token0, setToken0] = useState({
+    symbol: 'WETH',
+    logoURI: '/static/images/eth_icon.png',
+    address: rangeTokenZero,
+  } as token)
+  const [token1, setToken1] = useState({} as token)
+  const [tokenIn, setTokenIn] = useState({
+    symbol: 'WETH',
+    logoURI: '/static/images/eth_icon.png',
+    address: rangeTokenZero,
+  })
+  const [tokenOut, setTokenOut] = useState({
+    symbol: 'Select Token',
+    logoURI: '',
+    address: '',
+  })
+
+  const [hasSelected, setHasSelected] = useState(false)
+  const [isDisabled, setDisabled] = useState(false)
+
+  const { bnInput, bnInputLimit, LimitInputBox, inputBox } = useInputBox()
+
+  const newAllowance = useCoverAllowance(address)
+
+
+  const [
+    updateRangeContractParams,
+    updateRangeAllowance,
+    RangeAllowance,
+    rangeContractParams,
+  ] = useRangeStore((state: any) => [
+    state.updateRangeContractParams,
+    state.updateRangeAllowance,
+    state.RangeAllowance,
+    state.rangeContractParams,
+  ])
 
   const feeTiers = [
     {
@@ -40,6 +88,69 @@ export default function DirectionalPool({
     { id: 3, tier: '0.3%', text: 'Best for most pairs', unavailable: false },
     { id: 4, tier: '1%', text: 'Best for exotic pairs', unavailable: false },
   ]
+
+  async function setRangeParams() {
+    try {
+      if (
+        minPrice !== undefined &&
+        minPrice !== '' &&
+        maxPrice !== undefined &&
+        maxPrice !== '' &&
+        Number(ethers.utils.formatUnits(bnInput)) !== 0 &&
+        hasSelected == true
+      ) {
+        const min = TickMath.getTickAtSqrtRatio(
+          JSBI.divide(
+            JSBI.multiply(
+              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
+              JSBI.BigInt(
+                String(
+                  Math.sqrt(Number(parseFloat(minPrice).toFixed(30))).toFixed(
+                    30,
+                  ),
+                )
+                  .split('.')
+                  .join(''),
+              ),
+            ),
+            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
+          ),
+        )
+        const max = TickMath.getTickAtSqrtRatio(
+          JSBI.divide(
+            JSBI.multiply(
+              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
+              JSBI.BigInt(
+                String(
+                  Math.sqrt(Number(parseFloat(maxPrice).toFixed(30))).toFixed(
+                    30,
+                  ),
+                )
+                  .split('.')
+                  .join(''),
+              ),
+            ),
+            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
+          ),
+        )
+        updateRangeContractParams({
+          to: address,
+          min: ethers.utils.parseUnits(String(min), 0),
+          max: ethers.utils.parseUnits(String(max), 0),
+          amount0: bnInput,
+          amount1: bnInputLimit,
+          fungible: true,
+        })
+        setDisabled(false)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    setRangeParams()
+  }, [address, minPrice, maxPrice, bnInput, bnInputLimit])
 
   const changePrice = (direction: string, minMax: string) => {
     if (direction === 'plus' && minMax === 'min') {
@@ -96,6 +207,48 @@ export default function DirectionalPool({
       ;(document.getElementById('maxInput') as HTMLInputElement).value = (
         current - 0.01
       ).toFixed(3)
+    }
+  }
+
+  function changeDefaultIn(token: token) {
+    if (token.symbol === tokenOut.symbol) {
+      return
+    }
+    setTokenIn(token)
+    if (token.address.localeCompare(tokenOut.address) < 0) {
+      setToken0(token)
+      if (hasSelected === true) {
+        setToken1(tokenOut)
+      }
+      return
+    }
+    if (token.address.localeCompare(tokenOut.address) >= 0) {
+      if (hasSelected === true) {
+        setToken0(tokenOut)
+      }
+      setToken1(token)
+      return
+    }
+  }
+
+  const [tokenOrder, setTokenOrder] = useState(true)
+
+  const changeDefaultOut = (token: token) => {
+    if (token.symbol === tokenIn.symbol) {
+      return
+    }
+    setTokenOut(token)
+    setHasSelected(true)
+    if (token.address.localeCompare(tokenIn.address) < 0) {
+      setToken0(token)
+      setToken1(tokenIn)
+      return
+    }
+
+    if (token.address.localeCompare(tokenIn.address) >= 0) {
+      setToken0(tokenIn)
+      setToken1(token)
+      return
     }
   }
 
@@ -166,9 +319,33 @@ export default function DirectionalPool({
             <h1>Select Pair</h1>
           </div>
           <div className="flex items-center gap-x-5 mt-3">
-            <SelectToken />
-            <ArrowLongRightIcon className="w-6" />
-            <SelectToken />
+            <SelectToken
+              index="0"
+              selected={hasSelected}
+              tokenChosen={changeDefaultIn}
+              displayToken={tokenIn}
+              balance={setQueryToken0}
+              key={queryToken0}
+            />
+            {hasSelected ? (
+              <SelectToken
+                index="1"
+                selected={hasSelected}
+                tokenChosen={changeDefaultOut}
+                displayToken={tokenOut}
+                balance={setQueryToken1}
+                key={queryToken1}
+              />
+              ) : (
+                //@dev add skeletons on load when switching sides/ initial selection
+                <SelectToken
+                  index="1"
+                  selected={hasSelected}
+                  tokenChosen={changeDefaultOut}
+                  displayToken={tokenOut}
+                  balance={setQueryToken1}
+                />
+              )}
           </div>
         </div>
         <div>
@@ -186,10 +363,7 @@ export default function DirectionalPool({
           <div className="mt-3 space-y-3">
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 ">
-                <input
-                  className="w-44 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
-                  placeholder="300"
-                />
+                {inputBox('0')}
                 <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
                 </div>
@@ -200,8 +374,38 @@ export default function DirectionalPool({
                     <div className="flex justify-end">
                       <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
                         <div className="flex items-center gap-x-2 w-full">
-                          <img className="w-7" src="/static/images/token.png" />
-                          USDC
+                          <img className="w-7" src={tokenIn.logoURI} />
+                          {tokenIn.symbol}
+                        </div>
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-end gap-x-2 px-1 mt-2">
+                      <div className="text-xs text-[#4C4C4C]">
+                        Balance: 420.69
+                      </div>
+                      <div className="text-xs uppercase text-[#C9C9C9]">
+                        Max
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
+              <div className=" p-2 ">
+                {LimitInputBox('0')}
+                <div className="flex">
+                  <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
+                </div>
+              </div>
+              <div className="">
+                <div className=" ml-auto">
+                  <div>
+                    <div className="flex justify-end">
+                      <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
+                        <div className="flex items-center gap-x-2 w-full">
+                          <img className="w-7" src={tokenOut.logoURI} />
+                          {tokenOut.symbol}
                         </div>
                       </button>
                     </div>
@@ -286,14 +490,12 @@ export default function DirectionalPool({
           </div>
         </div>
         <DirectionalPoolPreview
+          account={account}
           poolId={poolId}
-          tokenOneName={tokenOneName}
-          tokenOneAddress={tokenOneAddress}
-          tokenZeroName={tokenZeroName}
-          tokenZeroAddress={tokenZeroAddress}
-          tvlUsd={tvlUsd}
-          volumeUsd={volumeUsd}
-          volumeEth={volumeEth}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+          amount0={bnInput}
+          amount1={bnInputLimit}
           minPrice={minPrice}
           maxPrice={maxPrice}
           fee={'0.01'}
