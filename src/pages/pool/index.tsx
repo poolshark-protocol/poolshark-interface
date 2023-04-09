@@ -251,7 +251,7 @@ export default function Pool() {
             <div className="">
               <h1 className="mb-3">My Positions</h1>
               <div className="space-y-2">
-                {selected.id === 2
+                {selected.id === 1
                   ? allRangePositions.map((allRangePosition) => {
                       if (
                         allRangePosition.userOwnerAddress ===
