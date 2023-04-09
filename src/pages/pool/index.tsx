@@ -318,7 +318,7 @@ export default function Pool() {
                               tvlUsd={allRangePool.tvlUsd}
                               volumeUsd={allRangePool.volumeUsd}
                               volumeEth={allRangePool.volumeEth}
-                              href="/pool/directional"
+                              href="/pool/concentrated"
                             />
                           )
                         })
@@ -334,7 +334,7 @@ export default function Pool() {
                               tvlUsd={allCoverPool.tvlUsd}
                               volumeUsd={allCoverPool.volumeUsd}
                               volumeEth={allCoverPool.volumeEth}
-                              href="/pool/concentrated"
+                              href="/pool/directional"
                             />
                           )
                         })}

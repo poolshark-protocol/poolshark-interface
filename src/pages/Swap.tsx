@@ -565,6 +565,7 @@ export default function Swap() {
           <div>
             <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-4">
               <div className="flex-col justify-center w-1/2 p-2 ">
+                {/* here mkt rate from fetch price */}
                 {hasSelected ? (
                   tokenOrder ? (
                     <div>in/out {rangePrice}</div>
