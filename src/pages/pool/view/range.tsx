@@ -52,8 +52,8 @@ export default function Range() {
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
-      <div className="flex justify-center w-full text-white">
-        <div className="mt-[16vh] w-[55rem]">
+      <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full">
+         <div className="w-[55rem] absolute bottom-0">
           <div className="flex justify-between items-center mb-2">
             <div className="text-left flex items-center gap-x-5 py-2.5">
               <div className="flex items-center">
@@ -120,7 +120,7 @@ export default function Range() {
               </h1>
             </div>
           </div>
-          <div className="bg-black  border border-grey2 border-b-none w-full rounded-t-xl py-6 px-7 h-[70vh]">
+          <div className="bg-black  border border-grey2 border-b-none w-full rounded-t-xl py-6 px-7 h-[70vh] overflow-y-auto">
             <div className="flex gap-x-20 justify-between">
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Liquidity</h1>

@@ -160,6 +160,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
               </div>
               <div>
                 <h1 className="mb-3 mt-4">UNI-V3 Pools</h1>
+                 <div className="space-y-2">
                 {allUniv3Pools.map((allUniv3Pool) => {
                     return (
                       <UserCoverPool
@@ -174,6 +175,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
                       />
                     );
                   })}
+                  </div>
               </div>
               </Dialog.Panel>
             </Transition.Child>
