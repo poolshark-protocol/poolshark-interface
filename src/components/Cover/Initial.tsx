@@ -22,7 +22,7 @@ export default function Initial() {
     const [shifted, setIsShifted] = useState("initial");
     return isDisconnected ? (
       <>
-      <h1 className="mb-5">Connect a Wallet</h1>
+      <h1 className="mb-5">Create a Cover Pool</h1>
       <ConnectWalletButton />
       </>
     ) : (

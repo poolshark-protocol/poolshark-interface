@@ -9,7 +9,7 @@ export default function Navbar() {
   const homeHref = 'http://localhost:3000/'; 
   
   return (
-    <div className="md:px-10 px-4 pt-3 mx-auto w-full ">
+    <div className="md:px-10 px-4 pt-3 mx-auto w-full">
       <div className="relative flex items-center justify-between h-16 w-full">
         <div className="grid md:grid-cols-3 grid-cols-2 items-center w-full mx-auto">
           <div className="flex items-center justify-start flex-shrink-0">

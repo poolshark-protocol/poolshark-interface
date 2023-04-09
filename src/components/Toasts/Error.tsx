@@ -11,6 +11,7 @@ export const ErrorToast = ({errorDisplay, setErrorDisplay, hash}) => {
         <a
           href={`https://goerli.arbiscan.io/tx/${hash}`}
           target="_blank"
+          rel="noreferrer"
           className="text-xs text-blue-500 underline"
         >
           View on Block Explorer
