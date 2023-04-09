@@ -1,87 +1,85 @@
-import Navbar from "../components/Navbar";
+import Navbar from '../components/Navbar'
 import {
   InformationCircleIcon,
   MagnifyingGlassIcon,
   ArrowLongLeftIcon,
-} from "@heroicons/react/20/solid";
-import UserCoverPool from "../components/Pools/UserCoverPool";
-import { useState, useEffect } from "react";
-import { useAccount, useProvider } from "wagmi";
-import Link from "next/link";
-import { fetchCoverPositions, fetchUniV3Positions } from "../utils/queries";
-import React from "react";
-import useTokenList from "../hooks/useTokenList";
-import Initial from "../components/Cover/Initial";
-import CreateCover from "../components/Cover/CreateCover";
+} from '@heroicons/react/20/solid'
+import UserCoverPool from '../components/Pools/UserCoverPool'
+import { useState, useEffect } from 'react'
+import { useAccount, useProvider } from 'wagmi'
+import Link from 'next/link'
+import { fetchCoverPositions, fetchUniV3Positions } from '../utils/queries'
+import React from 'react'
+import useTokenList from '../hooks/useTokenList'
+import Initial from '../components/Cover/Initial'
+import CreateCover from '../components/Cover/CreateCover'
 
 export default function Cover() {
-  const [maxPrice, setMaxPrice] = useState(0);
-  const [disabled, setDisabled] = useState(true);
+  const [maxPrice, setMaxPrice] = useState(0)
+  const [disabled, setDisabled] = useState(true)
 
   const increaseMaxPrice = () => {
-    setMaxPrice((count) => count + 1);
-  };
+    setMaxPrice((count) => count + 1)
+  }
 
-  const [minPrice, setMinPrice] = useState(0);
+  const [minPrice, setMinPrice] = useState(0)
 
   const increaseMinPrice = () => {
-    setMinPrice((count) => count + 1);
-  };
+    setMinPrice((count) => count + 1)
+  }
 
   const decreaseMinPrice = () => {
     if (minPrice > 0) {
-      setMinPrice((count) => count - 1);
+      setMinPrice((count) => count - 1)
     }
-  };
+  }
   const decreaseMaxPrice = () => {
     if (maxPrice > 0) {
-      setMaxPrice((count) => count - 1);
+      setMaxPrice((count) => count - 1)
     }
-  };
+  }
 
   const handleChange = (event) => {
     //const valueToBn = ethers.utils.parseUnits(event.target.value, 0);
     //const result = event.target.value.replace(/\D/g, '');
-    const result = event.target.value.replace(/[^0-9\.|\,]/g, "");
+    const result = event.target.value.replace(/[^0-9\.|\,]/g, '')
     //TODO: make
-    setMaxPrice(result);
-    setMinPrice(result);
+    setMaxPrice(result)
+    setMinPrice(result)
     // console.log('value is:', result);
-  };
+  }
 
   const {
     network: { chainId },
-  } = useProvider();
+  } = useProvider()
 
-  const { address, isConnected, isDisconnected } = useAccount();
+  const { address, isConnected, isDisconnected } = useAccount()
 
-  const [expanded, setExpanded] = useState();
+  const [expanded, setExpanded] = useState()
 
-  const [coverPositions, setCoverPositions] = useState([]);
-  const [allCoverPositions, setAllCoverPositions] = useState([]);
-  const [userPositionExists, setUserPositionExists] = useState(false);
+  const [coverPositions, setCoverPositions] = useState([])
+  const [allCoverPositions, setAllCoverPositions] = useState([])
+  const [userPositionExists, setUserPositionExists] = useState(false)
 
-  const coins = useTokenList()[0];
-  const [coinsForListing, setCoinsForListing] = useState(
-    coins["listed_tokens"]
-  );
+  const coins = useTokenList()[0]
+  const [coinsForListing, setCoinsForListing] = useState(coins['listed_tokens'])
 
   useEffect(() => {
-    console.log(coinsForListing);
-  }, [coinsForListing]);
+    console.log(coinsForListing)
+  }, [coinsForListing])
 
   async function getUserPositionData() {
     try {
-      const data = await fetchCoverPositions(address);
-      const positions = data["data"].positions;
-      setCoverPositions(positions);
+      const data = await fetchCoverPositions(address)
+      const positions = data['data'].positions
+      setCoverPositions(positions)
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
   }
 
   function mapUserCoverPositions() {
-    const mappedCoverPositions = [];
+    const mappedCoverPositions = []
     coverPositions.map((coverPosition) => {
       const coverPositionData = {
         tokenOneName: coverPosition.pool.token1.name,
@@ -89,52 +87,52 @@ export default function Cover() {
         tokenOneAddress: coverPosition.pool.token1.id,
         tokenZeroAddress: coverPosition.pool.token0.id,
         poolAddress: coverPosition.pool.id,
-        userOwnerAddress: coverPosition.owner.replace(/"|'/g, ""),
-      };
+        userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
+      }
 
-      mappedCoverPositions.push(coverPositionData);
-    });
+      mappedCoverPositions.push(coverPositionData)
+    })
 
-    setAllCoverPositions(mappedCoverPositions);
+    setAllCoverPositions(mappedCoverPositions)
   }
 
   function checkUserPositionExists() {
     allCoverPositions.map((allCoverPosition) => {
       if (allCoverPosition.userOwnerAddress === address?.toLowerCase()) {
-        setUserPositionExists(true);
+        setUserPositionExists(true)
       }
-    });
+    })
   }
   //async so needs to be wrapped
   useEffect(() => {
-    getUserPositionData();
-  }, []);
+    getUserPositionData()
+  }, [])
 
   useEffect(() => {
-    mapUserCoverPositions();
-  }, [coverPositions]);
+    mapUserCoverPositions()
+  }, [coverPositions])
 
   useEffect(() => {
-    checkUserPositionExists();
-  }, []);
+    checkUserPositionExists()
+  }, [])
 
   useEffect(() => {
-    console.log("chainId: ", chainId);
-  }, [chainId]);
+    console.log('chainId: ', chainId)
+  }, [chainId])
 
-  const [uniV3Positions, setUniV3Positions] = useState([]);
-  const [allUniV3Positions, setAllUniV3Positions] = useState([]);
-  const [userUniV3PositionExists, setUserUniV3PositionExists] = useState(false);
+  const [uniV3Positions, setUniV3Positions] = useState([])
+  const [allUniV3Positions, setAllUniV3Positions] = useState([])
+  const [userUniV3PositionExists, setUserUniV3PositionExists] = useState(false)
 
   async function getUserUniV3PositionData() {
-    const data = await fetchUniV3Positions(address);
-    const positions = data["data"].positions;
+    const data = await fetchUniV3Positions(address)
+    const positions = data['data'].positions
 
-    setUniV3Positions(positions);
+    setUniV3Positions(positions)
   }
 
   function mapUserUniV3Positions() {
-    const mappedUniV3Positions = [];
+    const mappedUniV3Positions = []
     uniV3Positions.map((uniV3Position) => {
       const uniV3PositionData = {
         tokenOneName: uniV3Position.token1.name,
@@ -142,35 +140,35 @@ export default function Cover() {
         tokenOneAddress: uniV3Position.token1.id,
         tokenZeroAddress: uniV3Position.token0.id,
         poolAddress: uniV3Position.id,
-        userOwnerAddress: uniV3Position.owner.replace(/"|'/g, ""),
-      };
+        userOwnerAddress: uniV3Position.owner.replace(/"|'/g, ''),
+      }
 
-      mappedUniV3Positions.push(uniV3PositionData);
-    });
+      mappedUniV3Positions.push(uniV3PositionData)
+    })
 
-    setAllUniV3Positions(mappedUniV3Positions);
+    setAllUniV3Positions(mappedUniV3Positions)
   }
 
   function checkUserUniV3PositionExists() {
     allUniV3Positions.map((allUniV3Position) => {
       if (allUniV3Position.userOwnerAddress === address?.toLowerCase()) {
-        setUserUniV3PositionExists(true);
+        setUserUniV3PositionExists(true)
       }
-    });
+    })
   }
 
   //async so needs to be wrapped
   useEffect(() => {
-    getUserUniV3PositionData();
-  }, []);
+    getUserUniV3PositionData()
+  }, [])
 
   useEffect(() => {
-    mapUserUniV3Positions();
-  }, [uniV3Positions]);
+    mapUserUniV3Positions()
+  }, [uniV3Positions])
 
   useEffect(() => {
-    checkUserUniV3PositionExists();
-  }, []);
+    checkUserUniV3PositionExists()
+  }, [])
 
   const Option = () => {
     if (expanded) {
@@ -195,9 +193,9 @@ export default function Cover() {
             <div className="ml-auto text-xs">-0.09$</div>
           </div>
         </div>
-      );
+      )
     }
-  };
+  }
 
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi">
@@ -270,8 +268,12 @@ export default function Cover() {
                                 poolAddress={allCoverPosition.poolAddress}
                                 prefill={undefined}
                                 close={undefined}
+                                tvlUsd={allCoverPosition.tvlUsd}
+                                volumeUsd={allCoverPosition.volumeUsd}
+                                volumeEth={allCoverPosition.volumeEth}
+                                href={'/pool/view'}
                               />
-                            );
+                            )
                           }
                         })}
                       </div>
@@ -294,8 +296,12 @@ export default function Cover() {
                           poolAddress={allUniV3Position.poolAddress}
                           prefill={undefined}
                           close={undefined}
+                          tvlUsd={allUniV3Position.tvlUsd}
+                          volumeUsd={allUniV3Position.volumeUsd}
+                          volumeEth={allUniV3Position.volumeEth}
+                          href={'/pool/directional'}
                         />
-                      );
+                      )
                     }
                   })}
                 </div>
@@ -305,5 +311,5 @@ export default function Cover() {
         </div>
       </div>
     </div>
-  );
+  )
 }

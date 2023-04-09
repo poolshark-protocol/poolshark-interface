@@ -10,7 +10,10 @@ export default function UserPool({
   tokenZeroName, 
   tokenOneAddress, 
   tokenZeroAddress, 
-  poolAddress}) {
+  poolAddress,
+  tvlUsd,
+  volumeUsd,
+  volumeEth,}) {
 const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
                                                 tokenZeroAddress?.substring(0, 6) 
                                               + "..."  
@@ -36,7 +39,19 @@ const [poolDisplay, setPoolDisplay] = useState(
 useEffect
   return (
     <>
-    <Link href="/pool/view">
+    <Link href={{
+      pathname: '/pool/view',
+      query: {
+        poolId: poolAddress,
+        tokenOneName: tokenOneName,
+        tokenOneAddress: tokenOneAddress,
+        tokenZeroName: tokenZeroName,
+        tokenZeroAddress: tokenZeroAddress,
+        tvlUsd: tvlUsd,
+        volumeUsd: volumeUsd,
+        volumeEth: volumeEth,
+      },
+    }}>
       <div
         className="w-full cursor-pointer flex justify-between items-center bg-dark border border-grey2 rounded-xl py-3.5 pl-5 h-24 relative"
       >

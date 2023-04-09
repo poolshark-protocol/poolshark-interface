@@ -38,6 +38,7 @@ export default function Pool() {
 
   function mapRangePools() {
     const mappedRangePools = []
+
     rangePools.map((rangePool) => {
       const rangePoolData = {
         poolId: rangePool.id,
@@ -112,6 +113,7 @@ export default function Pool() {
   function mapUserRangePositions() {
     const mappedRangePositions = []
     rangePositions.map((rangePosition) => {
+      console.log('rangePosition', rangePosition)
       const rangePositionData = {
         poolId: rangePosition.pool.id,
         tokenOneName: rangePosition.pool.token1.name,
@@ -119,6 +121,9 @@ export default function Pool() {
         tokenOneAddress: rangePosition.pool.token1.id,
         tokenZeroAddress: rangePosition.pool.token0.id,
         poolAddress: rangePosition.pool.id,
+        tvlUsd: rangePosition.pool.totalValueLockedUsd,
+        volumeUsd: rangePosition.pool.volumeUsd,
+        volumeEth: rangePosition.pool.volumeEth,
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
       }
       mappedRangePositions.push(rangePositionData)
@@ -147,6 +152,7 @@ export default function Pool() {
   function mapUserCoverPositions() {
     const mappedCoverPositions = []
     coverPositions.map((coverPosition) => {
+      console.log('coverPosition', coverPosition)
       const coverPositionData = {
         poolId: coverPosition.pool.id,
         tokenOneName: coverPosition.pool.token1.name,
@@ -154,6 +160,9 @@ export default function Pool() {
         tokenOneAddress: coverPosition.pool.token1.id,
         tokenZeroAddress: coverPosition.pool.token0.id,
         poolAddress: coverPosition.pool.id,
+        tvlUsd: coverPosition.pool.totalValueLockedUsd,
+        volumeUsd: coverPosition.pool.volumeUsd,
+        volumeEth: coverPosition.pool.volumeEth,
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
       mappedCoverPositions.push(coverPositionData)
@@ -264,6 +273,9 @@ export default function Pool() {
                             tokenZeroName={allRangePosition.tokenZeroName}
                             tokenOneAddress={allRangePosition.tokenOneAddress}
                             tokenZeroAddress={allRangePosition.tokenZeroAddress}
+                            tvlUsd={allRangePosition.tvlUsd}
+                            volumeUsd={allRangePosition.volumeUsd}
+                            volumeEth={allRangePosition.volumeEth}
                             poolAddress={allRangePosition.poolAddress}
                           />
                         )
@@ -282,8 +294,12 @@ export default function Pool() {
                             tokenOneAddress={allCoverPosition.tokenOneAddress}
                             tokenZeroAddress={allCoverPosition.tokenZeroAddress}
                             poolAddress={allCoverPosition.poolAddress}
+                            tvlUsd={allCoverPosition.tvlUsd}
+                            volumeUsd={allCoverPosition.volumeUsd}
+                            volumeEth={allCoverPosition.volumeEth}
                             prefill={undefined}
                             close={undefined}
+                            href={'/pool/directional'}
                           />
                         )
                       }
