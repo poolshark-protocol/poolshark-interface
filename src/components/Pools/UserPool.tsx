@@ -5,8 +5,7 @@ import {
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-export default function UserPool({ 
-  poolId,
+export default function UserPool({
   tokenOneName, 
   tokenZeroName, 
   tokenOneAddress, 

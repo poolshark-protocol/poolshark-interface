@@ -258,7 +258,7 @@ export default function Cover() {
                           ) {
                             return (
                               <UserCoverPool
-                                key={allCoverPosition.tokenOneName}
+                                key={allCoverPosition.poolId}
                                 tokenOneName={allCoverPosition.tokenOneName}
                                 tokenZeroName={allCoverPosition.tokenZeroName}
                                 tokenOneAddress={
@@ -287,7 +287,6 @@ export default function Cover() {
                     ) {
                       return (
                         <UserCoverPool
-                          key={allUniV3Position.tokenOneName}
                           tokenOneName={allUniV3Position.tokenOneName}
                           tokenZeroName={allUniV3Position.tokenZeroName}
                           tokenOneAddress={allUniV3Position.tokenOneAddress}

@@ -260,7 +260,6 @@ export default function Pool() {
                         return (
                           <UserPool
                             key={allRangePosition.tokenOneName}
-                            poolId={allRangePosition.poolId}
                             tokenOneName={allRangePosition.tokenOneName}
                             tokenZeroName={allRangePosition.tokenZeroName}
                             tokenOneAddress={allRangePosition.tokenOneAddress}
@@ -278,7 +277,6 @@ export default function Pool() {
                         return (
                           <UserCoverPool
                             key={allCoverPosition.tokenOneName}
-                            poolId={allCoverPosition.poolId}
                             tokenOneName={allCoverPosition.tokenOneName}
                             tokenZeroName={allCoverPosition.tokenZeroName}
                             tokenOneAddress={allCoverPosition.tokenOneAddress}

@@ -10,7 +10,6 @@ import { useCoverStore } from "../../hooks/useStore";
 
 
 export default function UserCoverPool({ 
-  poolId,
   tokenOneName, 
   tokenZeroName, 
   tokenOneAddress, 
