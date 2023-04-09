@@ -1,17 +1,52 @@
-import { Fragment, useState } from "react";
-import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
-import { Transition, Dialog } from "@headlessui/react";
+import { Fragment, useState } from 'react'
+import { ArrowLongRightIcon } from '@heroicons/react/20/solid'
+import { Transition, Dialog } from '@headlessui/react'
 
-export default function DirectionalPoolPreview() {
-  
-  let [isOpen, setIsOpen] = useState(false);
+export default function DirectionalPoolPreview({
+  poolId,
+  tokenOneName,
+  tokenZeroName,
+  tokenOneAddress,
+  tokenZeroAddress,
+  tvlUsd,
+  volumeUsd,
+  volumeEth,
+  minPrice,
+  maxPrice,
+  fee,
+}) {
+  console.log(
+    'directional pool preview',
+    poolId +
+      '_' +
+      tokenOneName +
+      '_' +
+      tokenZeroName +
+      '_' +
+      tokenOneAddress +
+      '_' +
+      tokenZeroAddress +
+      '_' +
+      tvlUsd +
+      '_' +
+      volumeUsd +
+      '_' +
+      volumeEth +
+      '_' +
+      minPrice +
+      '_' +
+      maxPrice +
+      '_' +
+      fee,
+  )
+  let [isOpen, setIsOpen] = useState(false)
 
   function closeModal() {
-    setIsOpen(false);
+    setIsOpen(false)
   }
 
   function openModal() {
-    setIsOpen(true);
+    setIsOpen(true)
   }
 
   return (
@@ -87,7 +122,7 @@ export default function DirectionalPoolPreview() {
                           <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
                             <div className=" p-2 ">
                               <div className="w-44 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
-                                {" "}
+                                {' '}
                                 300
                               </div>
                               <div className="flex">
@@ -98,7 +133,7 @@ export default function DirectionalPoolPreview() {
                             </div>
                             <div className="">
                               <div className=" ml-auto">
-                                <div >
+                                <div>
                                   <div className="flex justify-end">
                                     <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
                                       <div className="flex items-center gap-x-2 w-full">
@@ -172,5 +207,5 @@ export default function DirectionalPoolPreview() {
         Preview
       </div>
     </div>
-  );
+  )
 }

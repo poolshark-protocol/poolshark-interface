@@ -1,20 +1,25 @@
 import Link from 'next/link'
 export default function PoolList({
+  poolId,
   tokenOneName,
   tokenZeroName,
+  tokenOneAddress,
+  tokenZeroAddress,
   tvlUsd,
   volumeUsd,
   volumeEth,
   href,
 }) {
   return (
-    /* TODO@retraca instead of routing open and close component like view */
     <Link
       href={{
         pathname: href,
         query: {
+          poolId: poolId,
           tokenOneName: tokenOneName,
+          tokenOneAddress: tokenOneAddress,
           tokenZeroName: tokenZeroName,
+          tokenZeroAddress: tokenZeroAddress,
           tvlUsd: tvlUsd,
           volumeUsd: volumeUsd,
           volumeEth: volumeEth,

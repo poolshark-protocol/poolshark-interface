@@ -11,7 +11,6 @@ import { getPreviousTicksLower } from '../../utils/queries'
 import useInputBox from '../../hooks/useInputBox'
 import useCoverAllowance from '../../hooks/useCoverAllowance'
 import { useAccount } from 'wagmi'
-/* TODO@retraca remove this */
 import { useRouter } from 'next/router'
 
 export default function ConcentratedPool(props: any) {
@@ -27,7 +26,6 @@ export default function ConcentratedPool(props: any) {
 
   const newAllowance = useCoverAllowance(address)
 
-  /* TODO@retraca remove this */
   const router = useRouter()
 
   const [
@@ -393,13 +391,16 @@ export default function ConcentratedPool(props: any) {
           </div>
         </div>
         <ConcentratedPoolPreview
-          minPrice={minPrice}
-          maxPrice={maxPrice}
+          poolId={router.query.poolId}
           tokenOneName={router.query.tokenOneName}
+          tokenOneAddress={router.query.tokenOneAddress}
           tokenZeroName={router.query.tokenZeroName}
+          tokenZeroAddress={router.query.tokenZeroAddress}
           tvlUsd={router.query.tvlUsd}
           volumeUsd={router.query.volumeUsd}
           volumeEth={router.query.volumeEth}
+          minPrice={minPrice}
+          maxPrice={maxPrice}
           fee={'0.01'}
         />
       </div>

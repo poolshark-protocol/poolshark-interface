@@ -2,8 +2,11 @@ import { Fragment, useState } from 'react'
 import { Transition, Dialog } from '@headlessui/react'
 
 export default function ConcentratedPoolPreview({
+  poolId,
   tokenOneName,
   tokenZeroName,
+  tokenOneAddress,
+  tokenZeroAddress,
   tvlUsd,
   volumeUsd,
   volumeEth,
@@ -11,6 +14,30 @@ export default function ConcentratedPoolPreview({
   maxPrice,
   fee,
 }) {
+  console.log(
+    'concentrated pool preview',
+    poolId +
+      '_' +
+      tokenOneName +
+      '_' +
+      tokenZeroName +
+      '_' +
+      tokenOneAddress +
+      '_' +
+      tokenZeroAddress +
+      '_' +
+      tvlUsd +
+      '_' +
+      volumeUsd +
+      '_' +
+      volumeEth +
+      '_' +
+      minPrice +
+      '_' +
+      maxPrice +
+      '_' +
+      fee,
+  )
   let [isOpen, setIsOpen] = useState(false)
 
   function closeModal() {

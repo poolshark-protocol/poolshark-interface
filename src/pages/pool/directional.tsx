@@ -1,96 +1,99 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState } from 'react'
 import {
   ChevronDownIcon,
   ArrowLongRightIcon,
   MinusIcon,
-  PlusIcon
-} from "@heroicons/react/20/solid";
-import { Listbox, Transition } from "@headlessui/react";
-import SelectToken from "../../components/SelectToken";
-import DirectionalPoolPreview from "../../components/Pools/DirectionalPoolPreview";
+  PlusIcon,
+} from '@heroicons/react/20/solid'
+import { Listbox, Transition } from '@headlessui/react'
+import SelectToken from '../../components/SelectToken'
+import DirectionalPoolPreview from '../../components/Pools/DirectionalPoolPreview'
+import { useRouter } from 'next/router'
+
 
 export default function DirectionalPool() {
+  const [minPrice, setMinPrice] = useState('')
+  const [maxPrice, setMaxPrice] = useState('')
+  const router = useRouter()
 
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
-  
+
   const feeTiers = [
     {
       id: 1,
-      tier: "0.01%",
-      text: "Best for very stable pairs",
+      tier: '0.01%',
+      text: 'Best for very stable pairs',
       unavailable: false,
     },
     {
       id: 2,
-      tier: "0.05%",
-      text: "Best for stable pairs",
+      tier: '0.05%',
+      text: 'Best for stable pairs',
       unavailable: false,
     },
-    { id: 3, tier: "0.3%", text: "Best for most pairs", unavailable: false },
-    { id: 4, tier: "1%", text: "Best for exotic pairs", unavailable: false },
-  ];
+    { id: 3, tier: '0.3%', text: 'Best for most pairs', unavailable: false },
+    { id: 4, tier: '1%', text: 'Best for exotic pairs', unavailable: false },
+  ]
 
   const changePrice = (direction: string, minMax: string) => {
-    if (direction === "plus" && minMax === "min") {
+    if (direction === 'plus' && minMax === 'min') {
       if (
-        (document.getElementById("minInput") as HTMLInputElement).value ===
+        (document.getElementById('minInput') as HTMLInputElement).value ===
         undefined
       ) {
-        const current = document.getElementById("minInput") as HTMLInputElement;
-        current.value = "1";
+        const current = document.getElementById('minInput') as HTMLInputElement
+        current.value = '1'
       }
       const current = Number(
-        (document.getElementById("minInput") as HTMLInputElement).value
-      );
-      (document.getElementById("minInput") as HTMLInputElement).value = String(
-        (current + 0.01).toFixed(3)
-      );
+        (document.getElementById('minInput') as HTMLInputElement).value,
+      )
+      ;(document.getElementById('minInput') as HTMLInputElement).value = String(
+        (current + 0.01).toFixed(3),
+      )
     }
-    if (direction === "minus" && minMax === "min") {
+    if (direction === 'minus' && minMax === 'min') {
       const current = Number(
-        (document.getElementById("minInput") as HTMLInputElement).value
-      );
+        (document.getElementById('minInput') as HTMLInputElement).value,
+      )
       if (current === 0 || current - 1 < 0) {
-        (document.getElementById("minInput") as HTMLInputElement).value = "0";
-        return;
+        ;(document.getElementById('minInput') as HTMLInputElement).value = '0'
+        return
       }
-      (document.getElementById("minInput") as HTMLInputElement).value = (
+      ;(document.getElementById('minInput') as HTMLInputElement).value = (
         current - 0.01
-      ).toFixed(3);
+      ).toFixed(3)
     }
 
-    if (direction === "plus" && minMax === "max") {
+    if (direction === 'plus' && minMax === 'max') {
       if (
-        (document.getElementById("maxInput") as HTMLInputElement).value ===
+        (document.getElementById('maxInput') as HTMLInputElement).value ===
         undefined
       ) {
-        const current = document.getElementById("maxInput") as HTMLInputElement;
-        current.value = "1";
+        const current = document.getElementById('maxInput') as HTMLInputElement
+        current.value = '1'
       }
       const current = Number(
-        (document.getElementById("maxInput") as HTMLInputElement).value
-      );
-      (document.getElementById("maxInput") as HTMLInputElement).value = (
+        (document.getElementById('maxInput') as HTMLInputElement).value,
+      )
+      ;(document.getElementById('maxInput') as HTMLInputElement).value = (
         current + 0.01
-      ).toFixed(3);
+      ).toFixed(3)
     }
-    if (direction === "minus" && minMax === "max") {
+    if (direction === 'minus' && minMax === 'max') {
       const current = Number(
-        (document.getElementById("maxInput") as HTMLInputElement).value
-      );
+        (document.getElementById('maxInput') as HTMLInputElement).value,
+      )
       if (current === 0 || current - 1 < 0) {
-        (document.getElementById("maxInput") as HTMLInputElement).value = "0";
-        return;
+        ;(document.getElementById('maxInput') as HTMLInputElement).value = '0'
+        return
       }
-      (document.getElementById("maxInput") as HTMLInputElement).value = (
+      ;(document.getElementById('maxInput') as HTMLInputElement).value = (
         current - 0.01
-      ).toFixed(3);
+      ).toFixed(3)
     }
-  };
+  }
 
   function SelectFee() {
-    const [selected, setSelected] = useState(feeTiers[0]);
+    const [selected, setSelected] = useState(feeTiers[0])
 
     return (
       <Listbox value={selected} onChange={setSelected}>
@@ -116,7 +119,7 @@ export default function DirectionalPool() {
                   key={feeTierIdx}
                   className={({ active }) =>
                     `relative cursor-default select-none py-2 px-4 cursor-pointer ${
-                      active ? "opacity-80 bg-dark" : "opacity-100"
+                      active ? 'opacity-80 bg-dark' : 'opacity-100'
                     }`
                   }
                   value={feeTier}
@@ -125,14 +128,14 @@ export default function DirectionalPool() {
                     <>
                       <span
                         className={`block truncate text-white ${
-                          selected ? "font-medium" : "font-normal"
+                          selected ? 'font-medium' : 'font-normal'
                         }`}
                       >
                         {feeTier.tier}
                       </span>
                       <span
                         className={`block truncate text-grey text-xs mt-1 ${
-                          selected ? "font-medium" : "font-normal"
+                          selected ? 'font-medium' : 'font-normal'
                         }`}
                       >
                         {feeTier.text}
@@ -145,7 +148,7 @@ export default function DirectionalPool() {
           </Transition>
         </div>
       </Listbox>
-    );
+    )
   }
 
   return (
@@ -186,7 +189,7 @@ export default function DirectionalPool() {
               </div>
               <div className="">
                 <div className=" ml-auto">
-                  <div >
+                  <div>
                     <div className="flex justify-end">
                       <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
                         <div className="flex items-center gap-x-2 w-full">
@@ -218,12 +221,12 @@ export default function DirectionalPool() {
               Full Range
             </button>
           </div>
-                    <div className="flex flex-col mt-6 gap-y-5 w-full">
+          <div className="flex flex-col mt-6 gap-y-5 w-full">
             <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
               <span className="text-xs text-grey">Min. Price</span>
               <div className="flex justify-center items-center">
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  <button onClick={() => changePrice("minus", "min")}>
+                  <button onClick={() => changePrice('minus', 'min')}>
                     <MinusIcon className="w-5 h-5 ml-[2.5px]" />
                   </button>
                 </div>
@@ -234,13 +237,13 @@ export default function DirectionalPool() {
                   type="number"
                   onChange={() =>
                     setMinPrice(
-                      (document.getElementById("minInput") as HTMLInputElement)
-                        ?.value
+                      (document.getElementById('minInput') as HTMLInputElement)
+                        ?.value,
                     )
                   }
                 />
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  <button onClick={() => changePrice("plus", "min")}>
+                  <button onClick={() => changePrice('plus', 'min')}>
                     <PlusIcon className="w-5 h-5" />
                   </button>
                 </div>
@@ -250,7 +253,7 @@ export default function DirectionalPool() {
               <span className="text-xs text-grey">Max. Price</span>
               <div className="flex justify-center items-center">
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  <button onClick={() => changePrice("minus", "max")}>
+                  <button onClick={() => changePrice('minus', 'max')}>
                     <MinusIcon className="w-5 h-5 ml-[2.5px]" />
                   </button>
                 </div>
@@ -261,13 +264,13 @@ export default function DirectionalPool() {
                   type="number"
                   onChange={() =>
                     setMaxPrice(
-                      (document.getElementById("maxInput") as HTMLInputElement)
-                        ?.value
+                      (document.getElementById('maxInput') as HTMLInputElement)
+                        ?.value,
                     )
                   }
                 />
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  <button onClick={() => changePrice("plus", "max")}>
+                  <button onClick={() => changePrice('plus', 'max')}>
                     <PlusIcon className="w-5 h-5" />
                   </button>
                 </div>
@@ -275,8 +278,20 @@ export default function DirectionalPool() {
             </div>
           </div>
         </div>
-        <DirectionalPoolPreview />
+        <DirectionalPoolPreview
+          poolId={router.query.poolId}
+          tokenOneName={router.query.tokenOneName}
+          tokenZeroName={router.query.tokenZeroName}
+          tokenOneAddress={router.query.tokenOneAddress}
+          tokenZeroAddress={router.query.tokenZeroAddress}
+          tvlUsd={router.query.tvlUsd}
+          volumeUsd={router.query.volumeUsd}
+          volumeEth={router.query.volumeEth}
+          minPrice={minPrice}
+          maxPrice={maxPrice}
+          fee={'0.01'}
+        />
       </div>
     </div>
-  );
+  )
 }
