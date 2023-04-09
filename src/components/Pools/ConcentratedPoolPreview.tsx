@@ -3,38 +3,19 @@ import { Transition, Dialog } from '@headlessui/react'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import { TRACE_OUTPUT_VERSION } from 'next/dist/shared/lib/constants'
 import RangeMintButton from '../Buttons/RangeMintButton'
+import {  ethers } from "ethers";
 
 export default function ConcentratedPoolPreview({
   account,
   poolId,
-  tokenOneName,
-  tokenZeroName,
-  tokenOneAddress,
-  tokenZeroAddress,
+  tokenIn,
+  tokenOut,
   amount0,
   amount1,
   minPrice,
   maxPrice,
   fee,
 }) {
-  console.log(
-    'concentrated pool preview',
-    poolId +
-      '_' +
-      tokenOneName +
-      '_' +
-      tokenZeroName +
-      '_' +
-      tokenOneAddress +
-      '_' +
-      tokenZeroAddress +
-      '_' +
-      minPrice +
-      '_' +
-      maxPrice +
-      '_' +
-      fee,
-  )
   let [isOpen, setIsOpen] = useState(false)
 
   function closeModal() {
@@ -81,18 +62,12 @@ export default function ConcentratedPoolPreview({
                         </div>
                         <div className="flex items-center gap-x-5 mt-3">
                           <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
-                            <img
-                              className="w-7"
-                              src="/static/images/token.png"
-                            />
-                            USDC
+                            <img className="w-7" src={tokenIn.logoURI} />
+                            {tokenIn.symbol}
                           </button>
                           <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
-                            <img
-                              className="w-7"
-                              src="/static/images/token.png"
-                            />
-                            USDC
+                            <img className="w-7" src={tokenOut.logoURI} />
+                            {tokenOut.symbol}
                           </button>
                         </div>
                       </div>
@@ -117,8 +92,7 @@ export default function ConcentratedPoolPreview({
                           <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
                             <div className=" p-2 ">
                               <div className="w-44 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
-                                {' '}
-                                300
+                                {ethers.utils.formatUnits(amount0, 18)}
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
@@ -134,9 +108,9 @@ export default function ConcentratedPoolPreview({
                                       <div className="flex items-center gap-x-2 w-full">
                                         <img
                                           className="w-7"
-                                          src="/static/images/token.png"
+                                          src={tokenIn.logoURI}
                                         />
-                                        USDC
+                                        {tokenIn.symbol}
                                       </div>
                                     </button>
                                   </div>
@@ -150,8 +124,7 @@ export default function ConcentratedPoolPreview({
                           <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
                             <div className=" p-2 ">
                               <div className="w-44 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
-                                {' '}
-                                300
+                              {ethers.utils.formatUnits(amount1, 18)}
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
@@ -167,9 +140,9 @@ export default function ConcentratedPoolPreview({
                                       <div className="flex items-center gap-x-2 w-full">
                                         <img
                                           className="w-7"
-                                          src="/static/images/token.png"
+                                          src={tokenOut.logoURI}
                                         />
-                                        USDC
+                                        {tokenOut.symbol}
                                       </div>
                                     </button>
                                   </div>
@@ -195,11 +168,11 @@ export default function ConcentratedPoolPreview({
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                500
+                                {parseFloat(minPrice).toFixed(2)}
                               </span>
                             </div>
                             <span className="text-xs text-grey">
-                              USDC per DAI
+                              {tokenIn.symbol} per {tokenOut.symbol}
                             </span>
                           </div>
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
@@ -208,11 +181,11 @@ export default function ConcentratedPoolPreview({
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                1000
+                                {parseFloat(maxPrice).toFixed(2)}
                               </span>
                             </div>
                             <span className="text-xs text-grey">
-                              USDC per DAI
+                              {tokenIn.symbol} per {tokenOut.symbol}
                             </span>
                           </div>
                         </div>

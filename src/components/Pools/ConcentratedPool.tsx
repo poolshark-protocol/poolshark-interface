@@ -30,8 +30,8 @@ export default function ConcentratedPool({
 
   const { address, isConnected, isDisconnected } = useAccount()
 
-  const [minPrice, setMinPrice] = useState('')
-  const [maxPrice, setMaxPrice] = useState('')
+  const [minPrice, setMinPrice] = useState('0')
+  const [maxPrice, setMaxPrice] = useState('0')
   const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
   const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
 
@@ -59,7 +59,6 @@ export default function ConcentratedPool({
 
   const newAllowance = useCoverAllowance(address)
 
-  const router = useRouter()
 
   const [
     updateRangeContractParams,
@@ -375,8 +374,8 @@ export default function ConcentratedPool({
                     <div className="flex justify-end">
                       <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
                         <div className="flex items-center gap-x-2 w-full">
-                          <img className="w-7" src="/static/images/token.png" />
-                          USDC
+                          <img className="w-7" src={tokenIn.logoURI} />
+                          {tokenIn.symbol}
                         </div>
                       </button>
                     </div>
@@ -405,8 +404,8 @@ export default function ConcentratedPool({
                     <div className="flex justify-end">
                       <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
                         <div className="flex items-center gap-x-2 w-full">
-                          <img className="w-7" src="/static/images/token.png" />
-                          USDC
+                          <img className="w-7" src={tokenOut.logoURI} />
+                          {tokenOut.symbol}
                         </div>
                       </button>
                     </div>
@@ -493,10 +492,8 @@ export default function ConcentratedPool({
         <ConcentratedPoolPreview
           account={account}
           poolId={poolId}
-          tokenOneName={tokenOneName}
-          tokenOneAddress={tokenOneAddress}
-          tokenZeroName={tokenZeroName}
-          tokenZeroAddress={tokenZeroAddress}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
           amount0={bnInput}
           amount1={bnInputLimit}
           minPrice={minPrice}
