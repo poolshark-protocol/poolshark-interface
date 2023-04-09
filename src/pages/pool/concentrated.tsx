@@ -10,9 +10,8 @@ export default function Concentrated({
   tokenOneAddress,
   tokenZeroAddress,
 }) {
- 
-    return (
-      <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
+  return (
+    <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
       <div className="flex justify-center w-full text-white">
         <div className="mt-[16vh] w-[55rem]">
@@ -27,16 +26,15 @@ export default function Concentrated({
             </Link>
           </div>
           <ConcentratedPool
+            account={'0x0000'}
             poolId={poolId}
             tokenOneName={tokenOneName}
             tokenOneAddress={tokenOneAddress}
             tokenZeroName={tokenZeroName}
             tokenZeroAddress={tokenZeroAddress}
-            tvlUsd={tvlUsd}
-            volumeUsd={volumeUsd}
-            volumeEth={volumeEth}
           />
         </div>
       </div>
-    </div>)
+    </div>
+  )
 }

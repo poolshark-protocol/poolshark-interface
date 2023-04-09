@@ -74,14 +74,12 @@ export default function CreatePool() {
             </Link>
           </div>
           <ConcentratedPool
+            account={'0x0000'}
             poolId={'0x0000'}
             tokenOneName={'tokenOneName'}
             tokenOneAddress={'tokenOneAddress'}
             tokenZeroName={'tokenZeroName'}
             tokenZeroAddress={'tokenZeroAddress'}
-            tvlUsd={'tvlUsd'}
-            volumeUsd={'volumeUsd'}
-            volumeEth={'volumeEth'}
           />
         </div>
       </div>
