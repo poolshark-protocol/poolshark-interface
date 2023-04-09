@@ -2,7 +2,7 @@ import { Fragment, useState } from 'react'
 import { Transition, Dialog } from '@headlessui/react'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import { TRACE_OUTPUT_VERSION } from 'next/dist/shared/lib/constants'
-import {  ethers } from "ethers";
+import { ethers } from 'ethers'
 
 export default function DirectionalPoolPreview({
   account,
@@ -76,7 +76,7 @@ export default function DirectionalPoolPreview({
                         </div>
                         <div className="mt-3">
                           <button className="relative cursor-default rounded-lg bg-black text-white cursor-pointer border border-grey1 py-2 pl-3 w-full text-left shadow-md focus:outline-none">
-                            <span className="block truncate">0.3%</span>
+                            <span className="block truncate">{fee}</span>
                             <span className="block truncate text-xs text-grey mt-1">
                               Best for most pairs
                             </span>
@@ -123,7 +123,7 @@ export default function DirectionalPoolPreview({
                           <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
                             <div className=" p-2 ">
                               <div className="w-44 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
-                              {ethers.utils.formatUnits(amount1, 18)}
+                                {ethers.utils.formatUnits(amount1, 18)}
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">

@@ -77,7 +77,7 @@ export default function ConcentratedPoolPreview({
                         </div>
                         <div className="mt-3">
                           <button className="relative cursor-default rounded-lg bg-black text-white cursor-pointer border border-grey1 py-2 pl-3 w-full text-left shadow-md focus:outline-none">
-                            <span className="block truncate">0.3%</span>
+                            <span className="block truncate">{fee}</span>
                             <span className="block truncate text-xs text-grey mt-1">
                               Best for most pairs
                             </span>

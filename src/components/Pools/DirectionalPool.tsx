@@ -27,13 +27,30 @@ export default function DirectionalPool({
     logoURI: string
     address: string
   }
+  const feeTiers = [
+    {
+      id: 1,
+      tier: '0.01%',
+      text: 'Best for very stable pairs',
+      unavailable: false,
+    },
+    {
+      id: 2,
+      tier: '0.05%',
+      text: 'Best for stable pairs',
+      unavailable: false,
+    },
+    { id: 3, tier: '0.3%', text: 'Best for most pairs', unavailable: false },
+    { id: 4, tier: '1%', text: 'Best for exotic pairs', unavailable: false },
+  ]
 
   const { address, isConnected, isDisconnected } = useAccount()
 
   const [minPrice, setMinPrice] = useState('0')
   const [maxPrice, setMaxPrice] = useState('0')
-  const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
-  const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
+  const [selected, setSelected] = useState(feeTiers[0])
+  const [queryToken0, setQueryToken0] = useState(tokenOneAddress)
+  const [queryToken1, setQueryToken1] = useState(tokenOneAddress)
 
   const [token0, setToken0] = useState({
     symbol: 'WETH',
@@ -59,7 +76,6 @@ export default function DirectionalPool({
 
   const newAllowance = useCoverAllowance(address)
 
-
   const [
     updateRangeContractParams,
     updateRangeAllowance,
@@ -71,23 +87,6 @@ export default function DirectionalPool({
     state.RangeAllowance,
     state.rangeContractParams,
   ])
-
-  const feeTiers = [
-    {
-      id: 1,
-      tier: '0.01%',
-      text: 'Best for very stable pairs',
-      unavailable: false,
-    },
-    {
-      id: 2,
-      tier: '0.05%',
-      text: 'Best for stable pairs',
-      unavailable: false,
-    },
-    { id: 3, tier: '0.3%', text: 'Best for most pairs', unavailable: false },
-    { id: 4, tier: '1%', text: 'Best for exotic pairs', unavailable: false },
-  ]
 
   async function setRangeParams() {
     try {
@@ -253,8 +252,6 @@ export default function DirectionalPool({
   }
 
   function SelectFee() {
-    const [selected, setSelected] = useState(feeTiers[0])
-
     return (
       <Listbox value={selected} onChange={setSelected}>
         <div className="relative mt-1 w-full">
@@ -336,16 +333,16 @@ export default function DirectionalPool({
                 balance={setQueryToken1}
                 key={queryToken1}
               />
-              ) : (
-                //@dev add skeletons on load when switching sides/ initial selection
-                <SelectToken
-                  index="1"
-                  selected={hasSelected}
-                  tokenChosen={changeDefaultOut}
-                  displayToken={tokenOut}
-                  balance={setQueryToken1}
-                />
-              )}
+            ) : (
+              //@dev add skeletons on load when switching sides/ initial selection
+              <SelectToken
+                index="1"
+                selected={hasSelected}
+                tokenChosen={changeDefaultOut}
+                displayToken={tokenOut}
+                balance={setQueryToken1}
+              />
+            )}
           </div>
         </div>
         <div>
@@ -498,7 +495,7 @@ export default function DirectionalPool({
           amount1={bnInputLimit}
           minPrice={minPrice}
           maxPrice={maxPrice}
-          fee={'0.01'}
+          fee={selected.tier}
         />
       </div>
     </div>
