@@ -586,7 +586,7 @@ export default function Swap() {
               <div className="flex-col justify-center w-1/2 p-2 ">
                 {/*TODO@retraca here mkt rate from fetch price */}
                 {tokenOrder && hasSelected === false ? (
-                  <div>None</div>
+                  <div>Select Token</div>
                 ) : tokenOrder && hasSelected === true ? (
                   <div>
                     {parseFloat(
