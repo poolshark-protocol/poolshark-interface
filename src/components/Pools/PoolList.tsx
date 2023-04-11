@@ -9,12 +9,11 @@ export default function PoolList({
   volumeEth,
   href,
 }) {
-
   const logoMap = {
     TOKEN20A: '/static/images/eth_icon.png',
     TOKEN20B: '/static/images/token.png',
     USDC: '/static/images/token.png',
-    eth_icon: '/static/images/weth.png',
+    WETH: '/static/images/weth.png',
     DAI: '/static/images/dai_icon.png',
   }
 
@@ -24,9 +23,15 @@ export default function PoolList({
         pathname: href,
         query: {
           account: account,
-          poolId: poolId,
-          tokenOne: tokenOne,
-          tokenZero: tokenZero,
+          poolId: poolId.toString(),
+          tokenOneName: tokenOne.name,
+          tokenOneSymbol: tokenOne.symbol,
+          tokenOneLogoURI: logoMap[tokenOne.symbol],
+          tokenOneAddress: tokenOne.id,
+          tokenZeroName: tokenZero.name,
+          tokenZeroSymbol: tokenZero.symbol,
+          tokenZeroLogoURI: logoMap[tokenZero.symbol],
+          tokenZeroAddress: tokenZero.id,
         },
       }}
     >

@@ -1,17 +1,11 @@
 import DirectionalPool from '../../components/Pools/DirectionalPool'
 import Navbar from '../../components/Navbar'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 
 export default function Directional({
-  poolId,
-  tokenOneName,
-  tokenZeroName,
-  tokenOneAddress,
-  tokenZeroAddress,
-  tvlUsd,
-  volumeUsd,
-  volumeEth,
 }) {
+  const router = useRouter();
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
@@ -29,12 +23,16 @@ export default function Directional({
           </div>
           <DirectionalPool
             account={'account'}
-            key={poolId}
-            poolId={poolId}
-            tokenOneName={tokenOneName}
-            tokenOneAddress={tokenOneAddress}
-            tokenZeroName={tokenZeroName}
-            tokenZeroAddress={tokenZeroAddress}
+            key={router.query.poolId}
+            poolId={router.query.poolId}
+            tokenOneName={router.query.tokenOneName}
+            tokenOneSymbol={router.query.tokenOneSymbol}
+            tokenOneLogoURI={router.query.tokenOneLogoURI}
+            tokenOneAddress={router.query.tokenOneAddress}
+            tokenZeroName={router.query.tokenZeroName}
+            tokenZeroSymbol={router.query.tokenZeroSymbol}
+            tokenZeroLogoURI={router.query.tokenZeroLogoURI}
+            tokenZeroAddress={router.query.tokenZeroAddress}
           />
         </div>
       </div>

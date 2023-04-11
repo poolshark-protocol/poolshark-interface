@@ -85,6 +85,7 @@ export default function Pool() {
         volumeEth: coverPool.volumeEth,
       }
       mappedCoverPools.push(coverPoolData)
+      console.log('mappedCoverPools', mappedCoverPools)
     })
 
     setAllCoverPools(mappedCoverPools)
@@ -111,7 +112,6 @@ export default function Pool() {
   function mapUserRangePositions() {
     const mappedRangePositions = []
     rangePositions.map((rangePosition) => {
-      console.log('rangePosition', rangePosition)
       const rangePositionData = {
         poolId: rangePosition.pool.id,
         tokenOne: rangePosition.pool.token1,
@@ -122,6 +122,7 @@ export default function Pool() {
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
       }
       mappedRangePositions.push(rangePositionData)
+      console.log('mappedRangePositions', mappedRangePositions)
     })
     setAllRangePositions(mappedRangePositions)
   }
@@ -147,7 +148,6 @@ export default function Pool() {
   function mapUserCoverPositions() {
     const mappedCoverPositions = []
     coverPositions.map((coverPosition) => {
-      console.log('coverPosition', coverPosition)
       const coverPositionData = {
         poolId: coverPosition.pool.id,
         tokenOne: coverPosition.pool.token1,
@@ -158,6 +158,7 @@ export default function Pool() {
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
       mappedCoverPositions.push(coverPositionData)
+      console.log('mappedCoverPositions', mappedCoverPositions)
     })
     setAllCoverPositions(mappedCoverPositions)
   }

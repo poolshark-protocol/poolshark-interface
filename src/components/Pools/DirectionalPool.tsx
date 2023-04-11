@@ -7,19 +7,26 @@ import { ethers } from 'ethers'
 import { useRangeStore } from '../../hooks/useStore'
 import { TickMath } from '../../utils/tickMath'
 import JSBI from 'jsbi'
-import { getPreviousTicksLower } from '../../utils/queries'
+import { fetchPrice } from '../../utils/queries'
 import useInputBox from '../../hooks/useInputBox'
 import useCoverAllowance from '../../hooks/useCoverAllowance'
 import { useAccount } from 'wagmi'
-import { useRouter } from 'next/router'
-import { rangeTokenZero } from '../../constants/contractAddresses'
+import {
+  rangeTokenOne,
+  rangeTokenZero,
+} from '../../constants/contractAddresses'
 
 export default function DirectionalPool({
   account,
+  key,
   poolId,
   tokenOneName,
-  tokenZeroName,
+  tokenOneSymbol,
+  tokenOneLogoURI,
   tokenOneAddress,
+  tokenZeroName,
+  tokenZeroSymbol,
+  tokenZeroLogoURI,
   tokenZeroAddress,
 }) {
   type token = {
@@ -27,6 +34,8 @@ export default function DirectionalPool({
     logoURI: string
     address: string
   }
+
+  console.log('tokenOne', tokenOneAddress)
   const feeTiers = [
     {
       id: 1,
@@ -51,23 +60,28 @@ export default function DirectionalPool({
   const [selected, setSelected] = useState(feeTiers[0])
   const [queryToken0, setQueryToken0] = useState(tokenOneAddress)
   const [queryToken1, setQueryToken1] = useState(tokenOneAddress)
-
   const [token0, setToken0] = useState({
-    symbol: 'WETH',
-    logoURI: '/static/images/eth_icon.png',
+    symbol: tokenZeroSymbol,
+    logoURI: tokenZeroLogoURI,
     address: rangeTokenZero,
   } as token)
-  const [token1, setToken1] = useState({} as token)
+  const [token1, setToken1] = useState({
+    symbol: tokenOneSymbol,
+    logoURI: tokenOneLogoURI,
+    address: rangeTokenOne,
+  } as token)
   const [tokenIn, setTokenIn] = useState({
-    symbol: 'WETH',
-    logoURI: '/static/images/eth_icon.png',
+    symbol: tokenZeroSymbol,
+    logoURI: tokenZeroLogoURI,
     address: rangeTokenZero,
   })
   const [tokenOut, setTokenOut] = useState({
-    symbol: 'Select Token',
-    logoURI: '',
-    address: '',
+    symbol: tokenOneSymbol,
+    logoURI: tokenOneLogoURI,
+    address: rangeTokenOne,
   })
+
+  const [mktRate, setMktRate] = useState({})
 
   const [hasSelected, setHasSelected] = useState(false)
   const [isDisabled, setDisabled] = useState(false)
@@ -87,6 +101,32 @@ export default function DirectionalPool({
     state.RangeAllowance,
     state.rangeContractParams,
   ])
+
+  const fetchTokenPrice = async () => {
+    try {
+      const price = await fetchPrice('0x000')
+      setMktRate({
+        WETH:
+          '~' +
+          Number(price['data']['bundles']['0']['ethPriceUSD']).toLocaleString(
+            'en-US',
+            {
+              style: 'currency',
+              currency: 'USD',
+            },
+          ),
+        USDC: '~1.00',
+        TOKEN20A: '~1.00',
+        TOKEN20B: '~1.00',
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchTokenPrice()
+  }, [])
 
   async function setRangeParams() {
     try {
@@ -390,7 +430,19 @@ export default function DirectionalPool({
             </div>
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 ">
-                {LimitInputBox('0')}
+                {bnInput != 0 ? (
+                  <div>
+                    {parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                      (parseFloat(
+                        mktRate[tokenZeroSymbol].replace(/[^\d.-]/g, ''),
+                      ) /
+                        parseFloat(
+                          mktRate[tokenOneSymbol].replace(/[^\d.-]/g, ''),
+                        ))}
+                  </div>
+                ) : (
+                  <div>0</div>
+                )}
                 <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
                 </div>
@@ -492,7 +544,13 @@ export default function DirectionalPool({
           tokenIn={tokenIn}
           tokenOut={tokenOut}
           amount0={bnInput}
-          amount1={bnInputLimit}
+          amount1={
+            bnInput != 0
+              ? parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                (parseFloat(mktRate[tokenZeroSymbol].replace(/[^\d.-]/g, '')) /
+                  parseFloat(mktRate[tokenOneSymbol].replace(/[^\d.-]/g, '')))
+              : 0
+          }
           minPrice={minPrice}
           maxPrice={maxPrice}
           fee={selected.tier}
