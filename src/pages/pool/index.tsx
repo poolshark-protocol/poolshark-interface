@@ -24,6 +24,7 @@ export default function Pool() {
     { id: 2, type: 'Cover Pools', unavailable: false },
   ]
 
+  
   const { address, isConnected, isDisconnected } = useAccount()
 
   const [rangePools, setRangePools] = useState([])
@@ -42,15 +43,14 @@ export default function Pool() {
     rangePools.map((rangePool) => {
       const rangePoolData = {
         poolId: rangePool.id,
-        tokenOneName: rangePool.token1.name,
-        tokenOneAddress: rangePool.token1.id,
-        tokenZeroName: rangePool.token0.name,
-        tokenZeroAddress: rangePool.token0.id,
+        tokenOne: rangePool.token1,
+        tokenZero: rangePool.token0,
         tvlUsd: rangePool.totalValueLockedUsd,
         volumeUsd: rangePool.volumeUsd,
         volumeEth: rangePool.volumeEth,
       }
       mappedRangePools.push(rangePoolData)
+      console.log('mappedRangePools', mappedRangePools)
     })
     setAllRangePools(mappedRangePools)
   }
@@ -78,9 +78,8 @@ export default function Pool() {
     coverPools.map((coverPool) => {
       const coverPoolData = {
         poolId: coverPool.id,
-        tokenOneName: coverPool.token1.name,
-        tokenOneAddress: coverPool.token1.id,
-        tokenZeroName: coverPool.token0.name,
+        tokenOne: coverPool.token1,
+        tokenZero: coverPool.token0,
         tokenZeroAddress: coverPool.token0.id,
         tvlUsd: coverPool.totalValueLockedUsd,
         volumeUsd: coverPool.volumeUsd,
@@ -116,10 +115,8 @@ export default function Pool() {
       console.log('rangePosition', rangePosition)
       const rangePositionData = {
         poolId: rangePosition.pool.id,
-        tokenOneName: rangePosition.pool.token1.name,
-        tokenZeroName: rangePosition.pool.token0.name,
-        tokenOneAddress: rangePosition.pool.token1.id,
-        tokenZeroAddress: rangePosition.pool.token0.id,
+        tokenOne: rangePosition.pool.token1,
+        tokenZero: rangePosition.pool.token0,
         poolAddress: rangePosition.pool.id,
         tvlUsd: rangePosition.pool.totalValueLockedUsd,
         volumeUsd: rangePosition.pool.volumeUsd,
@@ -155,10 +152,8 @@ export default function Pool() {
       console.log('coverPosition', coverPosition)
       const coverPositionData = {
         poolId: coverPosition.pool.id,
-        tokenOneName: coverPosition.pool.token1.name,
-        tokenZeroName: coverPosition.pool.token0.name,
-        tokenOneAddress: coverPosition.pool.token1.id,
-        tokenZeroAddress: coverPosition.pool.token0.id,
+        tokenOne: coverPosition.pool.token1,
+        tokenZero: coverPosition.pool.token0,
         poolAddress: coverPosition.pool.id,
         tvlUsd: coverPosition.pool.totalValueLockedUsd,
         volumeUsd: coverPosition.pool.volumeUsd,
@@ -264,7 +259,7 @@ export default function Pool() {
                   ? allRangePositions.map((allRangePosition) => {
                       if (
                         /* allRangePosition.userOwnerAddress ===
-                        address?.toLowerCase() */true
+                        address?.toLowerCase() */ true
                       ) {
                         return (
                           <UserPool
@@ -284,7 +279,7 @@ export default function Pool() {
                   : allCoverPositions.map((allCoverPosition) => {
                       if (
                         /* allCoverPosition.userOwnerAddress ===
-                        address?.toLowerCase() */true
+                        address?.toLowerCase() */ true
                       ) {
                         return (
                           <UserCoverPool
@@ -323,13 +318,11 @@ export default function Pool() {
                       ? allRangePools.map((allRangePool) => {
                           return (
                             <PoolList
+                              account={'account'}
                               key={allRangePool.tokenOneName}
-                              account={address}
                               poolId={allRangePool.poolId}
-                              tokenOneName={allRangePool.tokenOneName}
-                              tokenOneAddress={allRangePool.tokenOneAddress}
-                              tokenZeroName={allRangePool.tokenZeroName}
-                              tokenZeroAddress={allRangePool.tokenZeroAddress}
+                              tokenZero={allRangePool.tokenZero}                           
+                              tokenOne={allRangePool.tokenOne}
                               tvlUsd={allRangePool.tvlUsd}
                               volumeUsd={allRangePool.volumeUsd}
                               volumeEth={allRangePool.volumeEth}
@@ -340,13 +333,11 @@ export default function Pool() {
                       : allCoverPools.map((allCoverPool) => {
                           return (
                             <PoolList
+                              account={'account'}
                               key={allCoverPool.tokenOneName}
-                              account={address}
                               poolId={allCoverPool.poolId}
-                              tokenOneName={allCoverPool.tokenOneName}
-                              tokenOneAddress={allCoverPool.tokenOneAddress}
-                              tokenZeroName={allCoverPool.tokenZeroName}
-                              tokenZeroAddress={allCoverPool.tokenZeroAddress}
+                              tokenZero={allCoverPool.tokenZero}                           
+                              tokenOne={allCoverPool.tokenOne}
                               tvlUsd={allCoverPool.tvlUsd}
                               volumeUsd={allCoverPool.volumeUsd}
                               volumeEth={allCoverPool.volumeEth}

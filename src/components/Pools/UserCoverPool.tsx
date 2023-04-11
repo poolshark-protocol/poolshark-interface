@@ -48,6 +48,14 @@ export default function UserCoverPool({
     state.updatePool,
   ])
 
+  const logoMap = {
+    TOKEN20A: '/static/images/eth_icon.png',
+    TOKEN20B: '/static/images/token.png',
+    USDC: '/static/images/token.png',
+    eth_icon: '/static/images/weth.png',
+    DAI: '/static/images/dai_icon.png',
+  }
+
   const setPool = () => {
     resetPool
     updatePool({
