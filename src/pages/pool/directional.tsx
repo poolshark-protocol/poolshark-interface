@@ -28,15 +28,13 @@ export default function Directional({
             </Link>
           </div>
           <DirectionalPool
+            account={'account'}
             key={poolId}
             poolId={poolId}
             tokenOneName={tokenOneName}
             tokenOneAddress={tokenOneAddress}
             tokenZeroName={tokenZeroName}
             tokenZeroAddress={tokenZeroAddress}
-            tvlUsd={tvlUsd}
-            volumeUsd={volumeUsd}
-            volumeEth={volumeEth}
           />
         </div>
       </div>

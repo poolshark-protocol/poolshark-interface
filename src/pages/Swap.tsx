@@ -532,10 +532,21 @@ export default function Swap() {
 
         <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
-            <input
-              className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
-              placeholder="0"
-            />
+            <div className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
+              {hasSelected ? (
+                <div>
+                  {parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                    (parseFloat(
+                      mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+                    ) /
+                      parseFloat(
+                        mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                      ))}
+                </div>
+              ) : (
+                <div>0</div>
+              )}
+            </div>
             <div className="flex">
               <div className="flex text-xs text-[#4C4C4C] ">
                 {mktRate[tokenOut.symbol]}
@@ -584,7 +595,6 @@ export default function Swap() {
           <div>
             <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-4">
               <div className="flex-col justify-center w-1/2 p-2 ">
-                {/*TODO@retraca here mkt rate from fetch price */}
                 {tokenOrder && hasSelected === false ? (
                   <div>Select Token</div>
                 ) : tokenOrder && hasSelected === true ? (
