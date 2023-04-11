@@ -6,39 +6,34 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
 export default function UserPool({
-  tokenOneName,
-  tokenZeroName,
-  tokenOneAddress,
-  tokenZeroAddress,
-  poolAddress,
+  poolId,
+  account,
+  tokenOne,
+  tokenZero,
   tvlUsd,
   volumeUsd,
   volumeEth,
 }) {
   const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-    tokenZeroAddress?.substring(0, 6) +
+    tokenZero.name?.substring(0, 6) +
       '...' +
-      tokenZeroAddress?.substring(
-        tokenZeroAddress?.length - 4,
-        tokenZeroAddress?.length,
+      tokenZero.name?.substring(
+        tokenZero.name?.length - 4,
+        tokenZero.name?.length,
       ),
   )
   const [tokenOneDisplay, setTokenOneDisplay] = useState(
-    tokenOneAddress?.substring(0, 6) +
+    tokenOne.id?.substring(0, 6) +
       '...' +
-      tokenOneAddress?.substring(
-        tokenOneAddress?.length - 4,
-        tokenOneAddress?.length,
-      ),
+      tokenOne.id?.substring(tokenOne.id?.length - 4, tokenOne.id?.length),
   )
   const [poolDisplay, setPoolDisplay] = useState(
-    poolAddress?.substring(0, 6) +
+    poolId?.substring(0, 6) +
       '...' +
-      poolAddress?.substring(poolAddress?.length - 4, poolAddress?.length),
+      poolId?.substring(poolId?.length - 4, poolId?.length),
   )
 
   useEffect
-
 
   const logoMap = {
     TOKEN20A: '/static/images/eth_icon.png',
@@ -47,18 +42,16 @@ export default function UserPool({
     eth_icon: '/static/images/weth.png',
     DAI: '/static/images/dai_icon.png',
   }
-  
+
   return (
     <>
       <Link
         href={{
           pathname: '/pool/view/range',
           query: {
-            poolId: poolAddress,
-            tokenOneName: tokenOneName,
-            tokenOneAddress: tokenOneAddress,
-            tokenZeroName: tokenZeroName,
-            tokenZeroAddress: tokenZeroAddress,
+            poolId: poolId,
+            tokenZero: tokenZero,
+            tokenOne: tokenOne,
             tvlUsd: tvlUsd,
             volumeUsd: volumeUsd,
             volumeEth: volumeEth,
@@ -78,9 +71,9 @@ export default function UserPool({
                 />
               </div>
               <div className="flex gap-x-2">
-                {tokenOneName}
+                {tokenOne.name}
                 <ArrowLongRightIcon className="w-5" />
-                {tokenZeroName}
+                {tokenZero.name}
               </div>
               <div className="bg-black px-2 py-1 rounded-lg text-grey">1%</div>
             </div>

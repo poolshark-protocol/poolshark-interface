@@ -7,39 +7,38 @@ import { useCoverStore } from '../../hooks/useStore'
 import Link from 'next/link'
 
 export default function UserCoverPool({
-  tokenOneName,
-  tokenZeroName,
-  tokenOneAddress,
-  tokenZeroAddress,
-  poolAddress,
-  prefill,
-  close,
+  poolId,
+  account,
+  tokenOne,
+  tokenZero,
   tvlUsd,
   volumeUsd,
   volumeEth,
   href,
+  prefill,
+  close
 }) {
   const [show, setShow] = useState(false)
   const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-    tokenZeroAddress?.substring(0, 6) +
+    tokenZero.id?.substring(0, 6) +
       '...' +
-      tokenZeroAddress?.substring(
-        tokenZeroAddress?.length - 4,
-        tokenZeroAddress?.length,
+      tokenZero.id?.substring(
+        tokenZero.id?.length - 4,
+        tokenZero.id?.length,
       ),
   )
   const [tokenOneDisplay, setTokenOneDisplay] = useState(
-    tokenOneAddress?.substring(0, 6) +
+    tokenOne.id?.substring(0, 6) +
       '...' +
-      tokenOneAddress?.substring(
-        tokenOneAddress?.length - 4,
-        tokenOneAddress?.length,
+      tokenOne.id?.substring(
+        tokenOne.id?.length - 4,
+        tokenOne.id?.length,
       ),
   )
   const [poolDisplay, setPoolDisplay] = useState(
-    poolAddress?.substring(0, 6) +
+    poolId?.substring(0, 6) +
       '...' +
-      poolAddress?.substring(poolAddress?.length - 4, poolAddress?.length),
+      poolId?.substring(poolId?.length - 4, poolId?.length),
   )
 
   const [currentPool, resetPool, updatePool] = useCoverStore((state) => [
@@ -58,13 +57,11 @@ export default function UserCoverPool({
 
   const setPool = () => {
     resetPool
-    updatePool({
-      tokenOneName: tokenOneName,
-      tokenZeroName: tokenZeroName,
-      tokenOneAddress: tokenOneAddress,
-      tokenZeroAddress: tokenZeroAddress,
-      poolAddress: poolAddress,
-    })
+    /* updatePool({
+      pool: poolId,
+      tokenOne: tokenOne,
+      tokenZero: tokenZero,
+    }) */
     prefill('existingPool')
     close(false)
     // console.log(currentPool)
@@ -72,21 +69,19 @@ export default function UserCoverPool({
 
   // useEffect(() => {
   //   console.log(
-  //   tokenOneName,
-  //  tokenZeroName,
-  //   tokenOneAddress,
-  //   tokenZeroAddress,
-  //   poolAddress,)
+  //   tokenOne.name,
+  //  tokenZero,
+  //   tokenOne.id,
+  //   tokenZero.id,
+  //   poolId,)
   // },[])
   return (
     <Link href={{
       pathname: href,
       query: {
-        poolId: poolAddress,
-        tokenOneName: tokenOneName,
-        tokenOneAddress: tokenOneAddress,
-        tokenZeroName: tokenZeroName,
-        tokenZeroAddress: tokenZeroAddress,
+        poolId: poolId,
+        tokenZero: tokenZero,
+        tokenOne: tokenOne,
         tvlUsd: tvlUsd,
         volumeUsd: volumeUsd,
         volumeEth: volumeEth,
@@ -114,9 +109,9 @@ export default function UserCoverPool({
               />
             </div>
             <div className="flex gap-x-2">
-              {tokenOneName}
+              {tokenOne.name}
               <ArrowLongRightIcon className="w-5" />
-              {tokenZeroName}
+              {tokenZero.name}
             </div>
           </div>
           <div className="text-sm flex items-center gap-x-3">

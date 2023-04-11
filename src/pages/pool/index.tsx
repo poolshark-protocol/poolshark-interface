@@ -24,7 +24,6 @@ export default function Pool() {
     { id: 2, type: 'Cover Pools', unavailable: false },
   ]
 
-  
   const { address, isConnected, isDisconnected } = useAccount()
 
   const [rangePools, setRangePools] = useState([])
@@ -117,7 +116,6 @@ export default function Pool() {
         poolId: rangePosition.pool.id,
         tokenOne: rangePosition.pool.token1,
         tokenZero: rangePosition.pool.token0,
-        poolAddress: rangePosition.pool.id,
         tvlUsd: rangePosition.pool.totalValueLockedUsd,
         volumeUsd: rangePosition.pool.volumeUsd,
         volumeEth: rangePosition.pool.volumeEth,
@@ -154,7 +152,6 @@ export default function Pool() {
         poolId: coverPosition.pool.id,
         tokenOne: coverPosition.pool.token1,
         tokenZero: coverPosition.pool.token0,
-        poolAddress: coverPosition.pool.id,
         tvlUsd: coverPosition.pool.totalValueLockedUsd,
         volumeUsd: coverPosition.pool.volumeUsd,
         volumeEth: coverPosition.pool.volumeEth,
@@ -258,37 +255,35 @@ export default function Pool() {
                 {selected.id === 1
                   ? allRangePositions.map((allRangePosition) => {
                       if (
-                        /* allRangePosition.userOwnerAddress ===
-                        address?.toLowerCase() */ true
+                        allRangePosition.userOwnerAddress ===
+                        address?.toLowerCase()
                       ) {
                         return (
                           <UserPool
+                            poolId={allRangePosition.poolId}
+                            account={'account'}
                             key={allRangePosition.tokenOneName}
-                            tokenOneName={allRangePosition.tokenOneName}
-                            tokenZeroName={allRangePosition.tokenZeroName}
-                            tokenOneAddress={allRangePosition.tokenOneAddress}
-                            tokenZeroAddress={allRangePosition.tokenZeroAddress}
+                            tokenZero={allRangePosition.tokenZero}
+                            tokenOne={allRangePosition.tokenOne}
                             tvlUsd={allRangePosition.tvlUsd}
                             volumeUsd={allRangePosition.volumeUsd}
                             volumeEth={allRangePosition.volumeEth}
-                            poolAddress={allRangePosition.poolAddress}
                           />
                         )
                       }
                     })
                   : allCoverPositions.map((allCoverPosition) => {
                       if (
-                        /* allCoverPosition.userOwnerAddress ===
-                        address?.toLowerCase() */ true
+                        allCoverPosition.userOwnerAddress ===
+                        address?.toLowerCase()
                       ) {
                         return (
                           <UserCoverPool
+                            account={'account'}
+                            poolId={allCoverPosition.poolAddress}
                             key={allCoverPosition.tokenOneName}
-                            tokenOneName={allCoverPosition.tokenOneName}
-                            tokenZeroName={allCoverPosition.tokenZeroName}
-                            tokenOneAddress={allCoverPosition.tokenOneAddress}
-                            tokenZeroAddress={allCoverPosition.tokenZeroAddress}
-                            poolAddress={allCoverPosition.poolAddress}
+                            tokenZero={allCoverPosition.tokenZero}
+                            tokenOne={allCoverPosition.tokenOne}
                             tvlUsd={allCoverPosition.tvlUsd}
                             volumeUsd={allCoverPosition.volumeUsd}
                             volumeEth={allCoverPosition.volumeEth}
@@ -321,7 +316,7 @@ export default function Pool() {
                               account={'account'}
                               key={allRangePool.tokenOneName}
                               poolId={allRangePool.poolId}
-                              tokenZero={allRangePool.tokenZero}                           
+                              tokenZero={allRangePool.tokenZero}
                               tokenOne={allRangePool.tokenOne}
                               tvlUsd={allRangePool.tvlUsd}
                               volumeUsd={allRangePool.volumeUsd}
@@ -336,7 +331,7 @@ export default function Pool() {
                               account={'account'}
                               key={allCoverPool.tokenOneName}
                               poolId={allCoverPool.poolId}
-                              tokenZero={allCoverPool.tokenZero}                           
+                              tokenZero={allCoverPool.tokenZero}
                               tokenOne={allCoverPool.tokenOne}
                               tvlUsd={allCoverPool.tvlUsd}
                               volumeUsd={allCoverPool.volumeUsd}
