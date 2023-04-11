@@ -4,7 +4,7 @@ import { Listbox, Transition } from '@headlessui/react'
 import SelectToken from '../SelectToken'
 import DirectionalPoolPreview from './DirectionalPoolPreview'
 import { ethers } from 'ethers'
-import { useRangeStore } from '../../hooks/useStore'
+import { useCoverStore } from '../../hooks/useStore'
 import { TickMath } from '../../utils/tickMath'
 import JSBI from 'jsbi'
 import { fetchPrice } from '../../utils/queries'
@@ -12,8 +12,8 @@ import useInputBox from '../../hooks/useInputBox'
 import useCoverAllowance from '../../hooks/useCoverAllowance'
 import { useAccount } from 'wagmi'
 import {
-  rangeTokenOne,
-  rangeTokenZero,
+  coverTokenOne,
+  coverTokenZero,
 } from '../../constants/contractAddresses'
 
 export default function DirectionalPool({
@@ -63,22 +63,22 @@ export default function DirectionalPool({
   const [token0, setToken0] = useState({
     symbol: tokenZeroSymbol,
     logoURI: tokenZeroLogoURI,
-    address: rangeTokenZero,
+    address: coverTokenZero,
   } as token)
   const [token1, setToken1] = useState({
     symbol: tokenOneSymbol,
     logoURI: tokenOneLogoURI,
-    address: rangeTokenOne,
+    address: coverTokenOne,
   } as token)
   const [tokenIn, setTokenIn] = useState({
     symbol: tokenZeroSymbol,
     logoURI: tokenZeroLogoURI,
-    address: rangeTokenZero,
+    address: coverTokenZero,
   })
   const [tokenOut, setTokenOut] = useState({
     symbol: tokenOneSymbol,
     logoURI: tokenOneLogoURI,
-    address: rangeTokenOne,
+    address: coverTokenOne,
   })
 
   const [mktRate, setMktRate] = useState({})
@@ -91,15 +91,15 @@ export default function DirectionalPool({
   const newAllowance = useCoverAllowance(address)
 
   const [
-    updateRangeContractParams,
-    updateRangeAllowance,
-    RangeAllowance,
-    rangeContractParams,
-  ] = useRangeStore((state: any) => [
-    state.updateRangeContractParams,
-    state.updateRangeAllowance,
-    state.RangeAllowance,
-    state.rangeContractParams,
+    updatecoverContractParams,
+    updatecoverAllowance,
+    coverAllowance,
+    coverContractParams,
+  ] = useCoverStore((state: any) => [
+    state.updatecoverContractParams,
+    state.updatecoverAllowance,
+    state.coverAllowance,
+    state.coverContractParams,
   ])
 
   const fetchTokenPrice = async () => {
@@ -128,7 +128,7 @@ export default function DirectionalPool({
     fetchTokenPrice()
   }, [])
 
-  async function setRangeParams() {
+  async function setcoverParams() {
     try {
       if (
         minPrice !== undefined &&
@@ -172,7 +172,7 @@ export default function DirectionalPool({
             JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
           ),
         )
-        updateRangeContractParams({
+        updatecoverContractParams({
           to: address,
           min: ethers.utils.parseUnits(String(min), 0),
           max: ethers.utils.parseUnits(String(max), 0),
@@ -188,7 +188,7 @@ export default function DirectionalPool({
   }
 
   useEffect(() => {
-    setRangeParams()
+    setcoverParams()
   }, [address, minPrice, maxPrice, bnInput, bnInputLimit])
 
   const changePrice = (direction: string, minMax: string) => {
@@ -476,9 +476,9 @@ export default function DirectionalPool({
       <div className="w-1/2">
         <div>
           <div className="flex justify-between items-center">
-            <h1>Set price range</h1>
+            <h1>Set price cover</h1>
             <button className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md">
-              Full Range
+              Full cover
             </button>
           </div>
           <div className="flex flex-col mt-6 gap-y-5 w-full">

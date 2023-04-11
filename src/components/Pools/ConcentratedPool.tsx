@@ -12,14 +12,22 @@ import useInputBox from '../../hooks/useInputBox'
 import useCoverAllowance from '../../hooks/useCoverAllowance'
 import { useAccount } from 'wagmi'
 import { useRouter } from 'next/router'
-import { rangeTokenZero } from '../../constants/contractAddresses'
+import {
+  rangeTokenOne,
+  rangeTokenZero,
+} from '../../constants/contractAddresses'
 
 export default function ConcentratedPool({
   account,
+  key,
   poolId,
   tokenOneName,
-  tokenZeroName,
+  tokenOneSymbol,
+  tokenOneLogoURI,
   tokenOneAddress,
+  tokenZeroName,
+  tokenZeroSymbol,
+  tokenZeroLogoURI,
   tokenZeroAddress,
 }) {
   type token = {
@@ -52,20 +60,24 @@ export default function ConcentratedPool({
   const [queryToken1, setQueryToken1] = useState(tokenOneAddress)
 
   const [token0, setToken0] = useState({
-    symbol: 'WETH',
-    logoURI: '/static/images/eth_icon.png',
+    symbol: tokenZeroSymbol,
+    logoURI: tokenZeroLogoURI,
     address: rangeTokenZero,
   } as token)
-  const [token1, setToken1] = useState({} as token)
+  const [token1, setToken1] = useState({
+    symbol: tokenOneSymbol,
+    logoURI: tokenOneLogoURI,
+    address: rangeTokenOne,
+  } as token)
   const [tokenIn, setTokenIn] = useState({
-    symbol: 'WETH',
-    logoURI: '/static/images/eth_icon.png',
+    symbol: tokenZeroSymbol,
+    logoURI: tokenZeroLogoURI,
     address: rangeTokenZero,
   })
   const [tokenOut, setTokenOut] = useState({
-    symbol: 'Select Token',
-    logoURI: '',
-    address: '',
+    symbol: tokenOneSymbol,
+    logoURI: tokenOneLogoURI,
+    address: rangeTokenOne,
   })
 
   const [hasSelected, setHasSelected] = useState(false)

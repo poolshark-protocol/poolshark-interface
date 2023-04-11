@@ -1,15 +1,11 @@
 import ConcentratedPool from '../../components/Pools/ConcentratedPool'
 import Navbar from '../../components/Navbar'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 
 export default function Concentrated({
-  poolId,
-  account,
-  tokenOneName,
-  tokenZeroName,
-  tokenOneAddress,
-  tokenZeroAddress,
 }) {
+  const router = useRouter();
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
@@ -26,12 +22,17 @@ export default function Concentrated({
             </Link>
           </div>
           <ConcentratedPool
-            account={'0x0000'}
-            poolId={poolId}
-            tokenOneName={tokenOneName}
-            tokenOneAddress={tokenOneAddress}
-            tokenZeroName={tokenZeroName}
-            tokenZeroAddress={tokenZeroAddress}
+             account={'account'}
+             key={router.query.poolId}
+             poolId={router.query.poolId}
+             tokenOneName={router.query.tokenOneName}
+             tokenOneSymbol={router.query.tokenOneSymbol}
+             tokenOneLogoURI={router.query.tokenOneLogoURI}
+             tokenOneAddress={router.query.tokenOneAddress}
+             tokenZeroName={router.query.tokenZeroName}
+             tokenZeroSymbol={router.query.tokenZeroSymbol}
+             tokenZeroLogoURI={router.query.tokenZeroLogoURI}
+             tokenZeroAddress={router.query.tokenZeroAddress}
           />
         </div>
       </div>
