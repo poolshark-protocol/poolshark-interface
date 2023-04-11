@@ -13,8 +13,8 @@ import {
   coverPoolAddress,
   rangePoolAddress,
   rangeTokenZero,
-  tokenOneAddress,
-  tokenZeroAddress,
+  coverTokenOne,
+  coverTokenZero,
 } from '../constants/contractAddresses'
 import { useProvider } from 'wagmi'
 import { BigNumber, Contract, ethers } from 'ethers'
@@ -64,8 +64,8 @@ export default function Swap() {
   const [rangePrice, setRangePrice] = useState(undefined)
   const [hasSelected, setHasSelected] = useState(false)
   const [mktRate, setMktRate] = useState({})
-  const [queryToken0, setQueryToken0] = useState(tokenOneAddress)
-  const [queryToken1, setQueryToken1] = useState(tokenOneAddress)
+  const [queryToken0, setQueryToken0] = useState(coverTokenOne)
+  const [queryToken1, setQueryToken1] = useState(coverTokenOne)
   const [token0, setToken0] = useState({
     symbol: 'WETH',
     logoURI: '/static/images/eth_icon.png',
