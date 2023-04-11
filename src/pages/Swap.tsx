@@ -93,37 +93,44 @@ export default function Swap() {
         421613,
       )
       const signer = new ethers.VoidSigner(address, provider)
-      console.log(tokenIn)
+      /* console.log(tokenIn) */
       const token1Bal = new ethers.Contract(tokenIn.address, erc20ABI, signer)
+      const balance1 = await token1Bal.balanceOf(address)
       let token2Bal: Contract
+      let bal1: string
+      bal1 = Number(ethers.utils.formatEther(balance1)).toFixed(2)
       if (hasSelected === true) {
         token2Bal = new ethers.Contract(tokenOut.address, erc20ABI, signer)
         const balance2 = await token2Bal.balanceOf(address)
-        const balance1 = await token1Bal.balanceOf(address)
-        let bal1: string
+        console.log('balance1',balance1)
+        console.log('balance2',balance2)
         let bal2: string
-        if (Number(ethers.utils.formatEther(balance1)) >= 1000000) {
+        bal2 = Number(ethers.utils.formatEther(balance2)).toFixed(2)
+        /* if (Number(ethers.utils.formatEther(balance1)) >= 1000000) {
           bal1 = Number(ethers.utils.formatEther(balance1)).toExponential(5)
         }
         if (
           0 < Number(ethers.utils.formatEther(balance1)) &&
           Number(ethers.utils.formatEther(balance1)) < 1000000
         ) {
+          console.log('here')
           bal1 = Number(ethers.utils.formatEther(balance1)).toFixed(2)
         }
         if (Number(ethers.utils.formatEther(balance2)) >= 1000000) {
+          console.log('here2')
           bal2 = Number(ethers.utils.formatEther(balance2)).toExponential(5)
         }
         if (
           0 < Number(ethers.utils.formatEther(balance2)) &&
           Number(ethers.utils.formatEther(balance2)) < 1000000
         ) {
+          console.log('here3')
           bal2 = Number(ethers.utils.formatEther(balance2)).toFixed(2)
-        }
-        setBalance0(bal1)
-        setBalance1(bal2)
+        } */
+       
+      setBalance1(bal2)
       }
-      let bal1 = await token1Bal.balanceOf(address)
+      /* let bal1 = await token1Bal.balanceOf(address)
       let displayBal1: string
       if (Number(ethers.utils.formatEther(bal1)) >= 1000000) {
         displayBal1 = Number(ethers.utils.formatEther(bal1)).toExponential(5)
@@ -134,7 +141,8 @@ export default function Swap() {
       ) {
         displayBal1 = Number(ethers.utils.formatEther(bal1)).toFixed(2)
       }
-      setBalance0(displayBal1)
+       */
+      setBalance0(bal1)
     } catch (error) {
       console.log(error)
     }
@@ -232,8 +240,8 @@ export default function Swap() {
     const temp = tokenIn
     setTokenIn(tokenOut)
     setTokenOut(temp)
-    console.log(tokenIn)
-    console.log(tokenOut)
+    /* console.log(tokenIn)
+    console.log(tokenOut) */
     // const tempBal = queryToken0;
     // setQueryToken0(queryToken1);
     // setQueryToken1(tempBal);
@@ -318,7 +326,7 @@ export default function Swap() {
   const getRangePool = async () => {
     try {
       if (hasSelected === true) {
-        console.log(token0, token1)
+        /* console.log(token0, token1) */
         const pool = await getRangePoolFromFactory(
           token0.address,
           token1.address,
@@ -342,7 +350,7 @@ export default function Swap() {
   const getCoverPool = async () => {
     try {
       if (hasSelected === true) {
-        console.log(token0, token1)
+        /* console.log(token0, token1) */
         const pool = await getCoverPoolFromFactory(
           token0.address,
           token1.address,
@@ -419,6 +427,9 @@ export default function Swap() {
       )
     }
   }
+
+  /* console.log('balance0', balance0)
+  console.log('balance1', balance1) */
 
   return (
     <div className="pt-[10vh]">
@@ -504,7 +515,7 @@ export default function Swap() {
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
                   <div className="flex text-xs text-[#4C4C4C]" key={balance0}>
-                    Balance: {balance0 === 'NaN' ? 0 : balance0}
+                    Balance: {balance1 === 'NaN' ? 0 : balance1}
                   </div>
                   {isConnected && stateChainName === 'arbitrumGoerli' ? (
                     <button

@@ -4,56 +4,58 @@ import {
   ChevronDownIcon,
   ArrowLongRightIcon,
   ArrowLongLeftIcon,
-} from "@heroicons/react/20/solid";
-import SelectToken from "../SelectToken";
-import { erc20ABI, useAccount, useBalance, useProvider } from "wagmi";
-import CoverMintButton from "../Buttons/CoverMintButton";
-import CoverApproveButton from "../Buttons/CoverApproveButton";
-import CoverBurnButton from "../Buttons/CoverBurnButton";
-import CoverCollectButton from "../Buttons/CoverCollectButton";
-import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
-import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
-import { useState, useEffect } from "react";
-import useInputBox from "../../hooks/useInputBox";
+} from '@heroicons/react/20/solid'
+import SelectToken from '../SelectToken'
+import { erc20ABI, useAccount, useBalance, useProvider } from 'wagmi'
+import CoverMintButton from '../Buttons/CoverMintButton'
+import CoverApproveButton from '../Buttons/CoverApproveButton'
+import { chainIdsToNamesForGitTokenList } from '../../utils/chains'
+import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
+import { useState, useEffect } from 'react'
+import useInputBox from '../../hooks/useInputBox'
 import {
-  tokenOneAddress,
-  tokenZeroAddress,
-} from "../../constants/contractAddresses";
-import { coverPoolAddress } from "../../constants/contractAddresses";
-import { TickMath } from "../../utils/tickMath";
-import { ethers } from "ethers";
-import { useCoverStore } from "../../hooks/useStore";
+  coverTokenOne,
+  coverTokenZero,
+} from '../../constants/contractAddresses'
+import { coverPoolAddress } from '../../constants/contractAddresses'
+import { TickMath } from '../../utils/tickMath'
+import { ethers } from 'ethers'
+import { useCoverStore } from '../../hooks/useStore'
 import {
   getPreviousTicksLower,
   getPreviousTicksUpper,
-} from "../../utils/queries";
-import JSBI from "jsbi";
-import { erc20 } from "../../abis/evm/erc20";
-import useCoverAllowance from "../../hooks/useCoverAllowance";
+} from '../../utils/queries'
+import JSBI from 'jsbi'
+import { erc20 } from '../../abis/evm/erc20'
+import useCoverAllowance from '../../hooks/useCoverAllowance'
 
 export default function CreateCover(props: any) {
-  const [expanded, setExpanded] = useState(false);
-  const { bnInput, inputBox } = useInputBox();
-  const [stateChainName, setStateChainName] = useState();
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
+  const [expanded, setExpanded] = useState(false)
+  const { bnInput, inputBox } = useInputBox()
+  const [stateChainName, setStateChainName] = useState()
+  const [minPrice, setMinPrice] = useState('')
+  const [maxPrice, setMaxPrice] = useState('')
 
-  const [updateCoverContractParams, updateCoverAllowance, CoverAllowance, coverContractParams] =
-    useCoverStore((state: any) => [
-      state.updateCoverContractParams,
-      state.updateCoverAllowance,
-      state.CoverAllowance,
-      state.coverContractParams,
-    ]);
+  const [
+    updateCoverContractParams,
+    updateCoverAllowance,
+    CoverAllowance,
+    coverContractParams,
+  ] = useCoverStore((state: any) => [
+    state.updateCoverContractParams,
+    state.updateCoverAllowance,
+    state.CoverAllowance,
+    state.coverContractParams,
+  ])
 
   async function setCoverParams() {
     try {
       if (
         minPrice !== undefined &&
-        minPrice !== "" &&
+        minPrice !== '' &&
         maxPrice !== undefined &&
-        maxPrice !== "" &&
-       Number(ethers.utils.formatUnits(bnInput)) !== 0 &&
+        maxPrice !== '' &&
+        Number(ethers.utils.formatUnits(bnInput)) !== 0 &&
         hasSelected == true
       ) {
         const min = TickMath.getTickAtSqrtRatio(
@@ -63,16 +65,16 @@ export default function CreateCover(props: any) {
               JSBI.BigInt(
                 String(
                   Math.sqrt(Number(parseFloat(minPrice).toFixed(30))).toFixed(
-                    30
-                  )
+                    30,
+                  ),
                 )
-                  .split(".")
-                  .join("")
-              )
+                  .split('.')
+                  .join(''),
+              ),
             ),
-            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30))
-          )
-        );
+            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
+          ),
+        )
         const max = TickMath.getTickAtSqrtRatio(
           JSBI.divide(
             JSBI.multiply(
@@ -80,103 +82,103 @@ export default function CreateCover(props: any) {
               JSBI.BigInt(
                 String(
                   Math.sqrt(Number(parseFloat(maxPrice).toFixed(30))).toFixed(
-                    30
-                  )
+                    30,
+                  ),
                 )
-                  .split(".")
-                  .join("")
-              )
+                  .split('.')
+                  .join(''),
+              ),
             ),
-            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30))
-          )
-        );
+            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
+          ),
+        )
         const data = await getPreviousTicksLower(
-          tokenIn["address"],
-          tokenOut["address"],
-          min
-        );
+          tokenIn['address'],
+          tokenOut['address'],
+          min,
+        )
         const data1 = await getPreviousTicksUpper(
-          tokenIn["address"],
-          tokenOut["address"],
-          max
-        );
+          tokenIn['address'],
+          tokenOut['address'],
+          max,
+        )
         updateCoverContractParams({
           prevLower: ethers.utils.parseUnits(
-            data["data"]["ticks"][0]["index"],
-            0
+            data['data']['ticks'][0]['index'],
+            0,
           ),
           min: ethers.utils.parseUnits(String(min), 0),
           prevUpper: ethers.utils.parseUnits(
-            data1["data"]["ticks"][0]["index"],
-            0
+            data1['data']['ticks'][0]['index'],
+            0,
           ),
           max: ethers.utils.parseUnits(String(max), 0),
           claim: ethers.utils.parseUnits(String(min), 0),
           amount: bnInput,
           inverse: false,
-        });
+        })
         setDisabled(false)
       }
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
   }
 
   useEffect(() => {
-    setCoverParams();
-  }, [minPrice, maxPrice, bnInput]);
+    setCoverParams()
+  }, [minPrice, maxPrice, bnInput])
 
   const {
     network: { chainId },
-  } = useProvider();
+  } = useProvider()
 
   useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
-  }, [chainId]);
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
+  }, [chainId])
 
-  const { address, isConnected, isDisconnected } = useAccount();
+  const { address, isConnected, isDisconnected } = useAccount()
 
-  const [isDisabled, setDisabled] = useState(false);
-  const [hasSelected, setHasSelected] = useState(false);
-  const [queryToken0, setQueryToken0] = useState(tokenOneAddress);
-  const [queryToken1, setQueryToken1] = useState(tokenOneAddress);
+  const [isDisabled, setDisabled] = useState(false)
+  const [hasSelected, setHasSelected] = useState(false)
+  const [queryToken0, setQueryToken0] = useState(coverTokenOne)
+  const [queryToken1, setQueryToken1] = useState(coverTokenOne)
 
   const [tokenIn, setToken0] = useState({
-    symbol: "TOKEN20A",
+    symbol: 'TOKEN20A',
     logoURI:
-      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
-    address: "0x8fa1fdd860e3c56dafd09a048ffda4965376945e",
-  });
+      'https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png',
+    address: '0x8fa1fdd860e3c56dafd09a048ffda4965376945e',
+  })
   const [tokenOut, setToken1] = useState({
-    symbol: "Select Token",
+    symbol: 'Select Token',
     logoURI: undefined,
-    address: "0xc3a0736186516792c88e2c6d9b209471651aa46e",
-  });
+    address: '0xc3a0736186516792c88e2c6d9b209471651aa46e',
+  })
 
-  const [usdcBalance, setUsdcBalance] = useState(0);
-  const [amountToPay, setAmountToPay] = useState(0);
-  const [prices, setPrices] = useState({ tokenIn: 0, tokenOut: 0 });
+  const [usdcBalance, setUsdcBalance] = useState(0)
+  const [amountToPay, setAmountToPay] = useState(0)
+  const [prices, setPrices] = useState({ tokenIn: 0, tokenOut: 0 })
 
   const tokenInAllowance = async () => {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2/"
-    );
-    const contract = new ethers.Contract(tokenIn.address, erc20, provider);
-    const allowance = await contract.allowance(address, coverPoolAddress);
-    return ethers.utils.formatUnits(allowance);
-  };
+      'https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2/',
+    )
+    const contract = new ethers.Contract(tokenIn.address, erc20, provider)
+    const allowance = await contract.allowance(address, coverPoolAddress)
+    return ethers.utils.formatUnits(allowance)
+  }
 
   const { data, isError, isLoading } = useBalance({
-    token: `0x${tokenIn.address.split("0x")[1]}`,
+    token: `0x${tokenIn.address.split('0x')[1]}`,
     chainId: 421613,
     address: address,
     onSuccess: () => {
       setUsdcBalance(Number(data?.formatted))
     },
     onError: (error) => {
-      console.log(error);
+      console.log(error)
     },
-  });
+  })
 
   /*const balanceAndAllowance = async () => {
     updateAllowance(await token0Allowance());
@@ -191,102 +193,105 @@ export default function CreateCover(props: any) {
   }, []);*/
 
   function changeDefault0(token: {
-    symbol: string;
-    logoURI: any;
-    address: string;
+    symbol: string
+    logoURI: any
+    address: string
   }) {
-    if (token.symbol === tokenOut.symbol || token.address === tokenOut.address) {
-      return;
+    if (
+      token.symbol === tokenOut.symbol ||
+      token.address === tokenOut.address
+    ) {
+      return
     }
     console.log(token)
-    setToken0(token);
+    setToken0(token)
   }
 
-  const [tokenOrder, setTokenOrder] = useState(true);
+  const [tokenOrder, setTokenOrder] = useState(true)
 
-  const newAllowance = useCoverAllowance(address);
+  const newAllowance = useCoverAllowance(address)
 
-  const changeDefault1 = (token:{
-    symbol: string;
-    logoURI: any;
-    address: string;
+  const changeDefault1 = (token: {
+    symbol: string
+    logoURI: any
+    address: string
   }) => {
     if (token.symbol === tokenIn.symbol || token.address === tokenIn.address) {
-      return;
+      return
     }
     console.log(token)
-    setToken1(token);
-    setHasSelected(true);
-    setDisabled(false);
-  };
+    setToken1(token)
+    setHasSelected(true)
+    setDisabled(false)
+  }
 
   const handleValueChange = () => {
     if (
-      (document.getElementById("input") as HTMLInputElement).value === undefined
+      (document.getElementById('input') as HTMLInputElement).value === undefined
     ) {
-      return;
+      return
     }
-    const current = document.getElementById("input") as HTMLInputElement;
-    setAmountToPay(Number(current.value));
-  };
+    const current = document.getElementById('input') as HTMLInputElement
+    setAmountToPay(Number(current.value))
+  }
 
   const changePrice = (direction: string, minMax: string) => {
-    if (direction === "plus" && minMax === "min") {
+    if (direction === 'plus' && minMax === 'min') {
       if (
-        (document.getElementById("minInput") as HTMLInputElement).value ===
+        (document.getElementById('minInput') as HTMLInputElement).value ===
         undefined
       ) {
-        const current = document.getElementById("minInput") as HTMLInputElement;
-        current.value = "1";
+        const current = document.getElementById('minInput') as HTMLInputElement
+        current.value = '1'
       }
       const current = Number(
-        (document.getElementById("minInput") as HTMLInputElement).value
-      );
-      (document.getElementById("minInput") as HTMLInputElement).value = String(
-        (current + 0.01).toFixed(3)
-      );
+        (document.getElementById('minInput') as HTMLInputElement).value,
+      )
+      ;(document.getElementById('minInput') as HTMLInputElement).value = String(
+        (current + 0.01).toFixed(3),
+      )
     }
-    if (direction === "minus" && minMax === "min") {
+    if (direction === 'minus' && minMax === 'min') {
       const current = Number(
-        (document.getElementById("minInput") as HTMLInputElement).value
-      );
+        (document.getElementById('minInput') as HTMLInputElement).value,
+      )
       if (current === 0 || current - 1 < 0) {
-        (document.getElementById("minInput") as HTMLInputElement).value = "0";
-        return;
+        ;(document.getElementById('minInput') as HTMLInputElement).value = '0'
+        return
       }
-      (document.getElementById("minInput") as HTMLInputElement).value = (
+      ;(document.getElementById('minInput') as HTMLInputElement).value = (
         current - 0.01
-      ).toFixed(3);
+      ).toFixed(3)
     }
 
-    if (direction === "plus" && minMax === "max") {
+    if (direction === 'plus' && minMax === 'max') {
       if (
-        (document.getElementById("maxInput") as HTMLInputElement).value ===
+        (document.getElementById('maxInput') as HTMLInputElement).value ===
         undefined
       ) {
-        const current = document.getElementById("maxInput") as HTMLInputElement;
-        current.value = "1";
+        const current = document.getElementById('maxInput') as HTMLInputElement
+        current.value = '1'
       }
       const current = Number(
-        (document.getElementById("maxInput") as HTMLInputElement).value
-      );
-      (document.getElementById("maxInput") as HTMLInputElement).value = (
+        (document.getElementById('maxInput') as HTMLInputElement).value,
+      )
+      ;(document.getElementById('maxInput') as HTMLInputElement).value = (
         current + 0.01
-      ).toFixed(3);
+      ).toFixed(3)
     }
-    if (direction === "minus" && minMax === "max") {
+    if (direction === 'minus' && minMax === 'max') {
       const current = Number(
-        (document.getElementById("maxInput") as HTMLInputElement).value
-      );
+        (document.getElementById('maxInput') as HTMLInputElement).value,
+      )
       if (current === 0 || current - 1 < 0) {
-        (document.getElementById("maxInput") as HTMLInputElement).value = "0";
-        return;
+        ;(document.getElementById('maxInput') as HTMLInputElement).value = '0'
+        return
       }
-      (document.getElementById("maxInput") as HTMLInputElement).value = (
+      ;(document.getElementById('maxInput') as HTMLInputElement).value = (
         current - 0.01
-      ).toFixed(3);
+      ).toFixed(3)
     }
-  };
+  }
 
   // useEffect(() => {
   // if ()
@@ -316,9 +321,9 @@ export default function CreateCover(props: any) {
             <div className="ml-auto text-xs">-0.09$</div>
           </div>
         </div>
-      );
+      )
     }
-  };
+  }
 
   return isDisconnected ? (
     <>
@@ -332,10 +337,10 @@ export default function CreateCover(props: any) {
           <h1 className="mb-3">Select Pair</h1>
           <span
             className="flex gap-x-1 cursor-pointer"
-            onClick={() => props.goBack("initial")}
+            onClick={() => props.goBack('initial')}
           >
-            <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{" "}
-            <h1 className="mb-3 opacity-50">Back</h1>{" "}
+            <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{' '}
+            <h1 className="mb-3 opacity-50">Back</h1>{' '}
           </span>
         </div>
 
@@ -371,7 +376,7 @@ export default function CreateCover(props: any) {
       <h1 className="mb-3">How much do you want to Cover?</h1>
       <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
         <div className="flex-col justify-center w-1/2 p-2 ">
-          {inputBox("0", setAmountToPay)}
+          {inputBox('0', setAmountToPay)}
           <div className="flex text-xs text-[#4C4C4C]">~$1.00</div>
         </div>
         <div className="flex w-1/2">
@@ -414,7 +419,7 @@ export default function CreateCover(props: any) {
           <span className="text-xs text-grey">Min. Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice("minus", "min")}>
+              <button onClick={() => changePrice('minus', 'min')}>
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </button>
             </div>
@@ -425,27 +430,27 @@ export default function CreateCover(props: any) {
               type="number"
               onChange={() =>
                 setMinPrice(
-                  (document.getElementById("minInput") as HTMLInputElement)
-                    ?.value
+                  (document.getElementById('minInput') as HTMLInputElement)
+                    ?.value,
                 )
               }
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice("plus", "min")}>
+              <button onClick={() => changePrice('plus', 'min')}>
                 <PlusIcon className="w-5 h-5" />
               </button>
             </div>
           </div>
           <span className="text-xs text-grey">
-            {tokenIn.symbol} per{" "}
-            {tokenOut.symbol === "SELECT TOKEN" ? "?" : tokenOut.symbol}
+            {tokenIn.symbol} per{' '}
+            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOut.symbol}
           </span>
         </div>
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
           <span className="text-xs text-grey">Max. Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice("minus", "max")}>
+              <button onClick={() => changePrice('minus', 'max')}>
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </button>
             </div>
@@ -456,20 +461,20 @@ export default function CreateCover(props: any) {
               type="number"
               onChange={() =>
                 setMaxPrice(
-                  (document.getElementById("maxInput") as HTMLInputElement)
-                    ?.value
+                  (document.getElementById('maxInput') as HTMLInputElement)
+                    ?.value,
                 )
               }
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice("plus", "max")}>
+              <button onClick={() => changePrice('plus', 'max')}>
                 <PlusIcon className="w-5 h-5" />
               </button>
             </div>
           </div>
           <span className="text-xs text-grey">
-            {tokenIn.symbol} per{" "}
-            {tokenOut.symbol === "SELECT TOKEN" ? "?" : tokenOut.symbol}
+            {tokenIn.symbol} per{' '}
+            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOut.symbol}
           </span>
         </div>
       </div>
@@ -479,10 +484,10 @@ export default function CreateCover(props: any) {
           onClick={() => setExpanded(!expanded)}
         >
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-            {prices.tokenIn} {tokenIn.symbol} ={" "}
-            {tokenOut.symbol === "Select Token"
-              ? "?"
-              : prices.tokenOut + " " + tokenOut.symbol}
+            {prices.tokenIn} {tokenIn.symbol} ={' '}
+            {tokenOut.symbol === 'Select Token'
+              ? '?'
+              : prices.tokenOut + ' ' + tokenOut.symbol}
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
             <button>
@@ -496,24 +501,23 @@ export default function CreateCover(props: any) {
       </div>
       <div className="mb-3" key={newAllowance}>
         {isConnected &&
-       newAllowance === "0.0" &&
-        stateChainName === "arbitrumGoerli" ? (
-          <CoverApproveButton address={tokenZeroAddress} />
-        ) : stateChainName === "arbitrumGoerli" ? (
-          <CoverMintButton disabled={isDisabled} />
+        newAllowance === '0.0' &&
+        stateChainName === 'arbitrumGoerli' ? (
+          <CoverApproveButton address={tokenIn.address} />
+        ) : stateChainName === 'arbitrumGoerli' ? (
+          <CoverMintButton
+            disabled={isDisabled}
+            to={'to'}
+            lower={'lower'}
+            claim={'claim'}
+            upper={'upper'}
+            amount={'amount'}
+            zeroForOne={'zeroForOne'}
+          />
         ) : null}
-      </div>
-      <div className="space-y-3">
-        {isDisconnected ? null : stateChainName === "arbitrumGoerli" ? (
-          <CoverBurnButton address={address} />
-        ) : null}
-        {isDisconnected ? null : stateChainName === "arbitrumGoerli" ? (
-          <CoverCollectButton address={address} />
-        ) : null}
-        {/*TO-DO: add positionOwner ternary again*/}
       </div>
     </>
-  );
+  )
 }
 
 //Line 265 after is connected

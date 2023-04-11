@@ -1,60 +1,62 @@
-import Navbar from "../../../components/Navbar";
+import Navbar from '../../../components/Navbar'
 import {
   ArrowTopRightOnSquareIcon,
   ArrowsRightLeftIcon,
-  ArrowLongRightIcon
-} from "@heroicons/react/20/solid";
-import { useState, useEffect } from "react";
+  ArrowLongRightIcon,
+} from '@heroicons/react/20/solid'
+import { useState, useEffect } from 'react'
+import CoverBurnButton from '../../../components/Buttons/CoverBurnButton'
+import CoverCollectButton from '../../../components/Buttons/CoverCollectButton'
 
 export default function Cover() {
-  const [is0Copied, setIs0Copied] = useState(false);
-  const [is1Copied, setIs1Copied] = useState(false);
-  const [isPoolCopied, setIsPoolCopied] = useState(false);
+  const [is0Copied, setIs0Copied] = useState(false)
+  const [is1Copied, setIs1Copied] = useState(false)
+  const [isPoolCopied, setIsPoolCopied] = useState(false)
 
   function copyAddress0() {
-    navigator.clipboard.writeText("0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d");
-    setIs0Copied(true);
+    navigator.clipboard.writeText('0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d')
+    setIs0Copied(true)
   }
   useEffect(() => {
     if (copyAddress0) {
       const timer = setTimeout(() => {
-        setIs0Copied(false);
-      }, 1500);
-      return () => clearTimeout(timer);
+        setIs0Copied(false)
+      }, 1500)
+      return () => clearTimeout(timer)
     }
-  });
+  })
 
   function copyAddress1() {
-    navigator.clipboard.writeText("0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d");
-    setIs1Copied(true);
+    navigator.clipboard.writeText('0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d')
+    setIs1Copied(true)
   }
   useEffect(() => {
     if (copyAddress1) {
       const timer = setTimeout(() => {
-        setIs1Copied(false);
-      }, 1500);
-      return () => clearTimeout(timer);
+        setIs1Copied(false)
+      }, 1500)
+      return () => clearTimeout(timer)
     }
-  });
+  })
 
   function copyPoolAddress() {
-    navigator.clipboard.writeText("0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d");
-    setIsPoolCopied(true);
+    navigator.clipboard.writeText('0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d')
+    setIsPoolCopied(true)
   }
   useEffect(() => {
     if (copyPoolAddress) {
       const timer = setTimeout(() => {
-        setIsPoolCopied(false);
-      }, 1500);
-      return () => clearTimeout(timer);
+        setIsPoolCopied(false)
+      }, 1500)
+      return () => clearTimeout(timer)
     }
-  });
+  })
 
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
       <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full">
-         <div className="w-[55rem] absolute bottom-0">
+        <div className="w-[55rem] absolute bottom-0">
           <div className="flex justify-between items-center mb-2">
             <div className="text-left flex items-center gap-x-5 py-2.5">
               <div className="flex items-center">
@@ -180,12 +182,13 @@ export default function Cover() {
                   </div>
                 </div>
                 <div className="mt-6 space-y-2">
-                  <button className="bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80 w-full py-3 px-4 rounded-xl">
-                    Collect Position
-                  </button>
-                  <button className="border border-[#3174E0] from-[#344DBF] to-[#3098FF] hover:opacity-80 w-full py-3 px-4 rounded-xl">
-                    Burn Position
-                  </button>
+                  <div className="space-y-3">
+                    <CoverBurnButton address={'address'} />
+
+                    <CoverCollectButton address={'address'} />
+
+                    {/*TO-DO: add positionOwner ternary again*/}
+                  </div>
                 </div>
               </div>
             </div>
@@ -225,42 +228,46 @@ export default function Cover() {
             <div>
               <div className="flex justify-between items-center mt-10 mb-5">
                 <h1 className="text-lg">Original pool being covered </h1>
-                <h1 className="text-grey">Type: <span className="text-white">UNI-V3</span></h1>
+                <h1 className="text-grey">
+                  Type: <span className="text-white">UNI-V3</span>
+                </h1>
               </div>
-                    <div
-        className="w-full cursor-pointer flex justify-between items-center bg-dark border border-grey2 rounded-xl py-3.5 pl-5 h-24 relative"
-      >
-        <div className="space-y-2">
-          <div className="flex items-center gap-x-5">
-            <div className="flex items-center ">
-              <img height="30" width="30" src="/static/images/eth_icon.png" />
-              <img
-                height="30"
-                width="30"
-                className="ml-[-8px]"
-                src="/static/images/dai_icon.png"
-              />
-            </div>
-            <div className="flex gap-x-2">
-              WETH - DAI
-            </div>
-            <div className="bg-black px-2 py-1 rounded-lg text-grey">0.5%</div>
-          </div>
-          <div className="text-sm flex items-center gap-x-3">
-            <span>
-              <span className="text-grey">Min:</span> 1203 DAI per ETH
-            </span>
-            <ArrowsRightLeftIcon className="w-4 text-grey" />
-            <span>
-              <span className="text-grey">Max:</span> 1643 DAI per ETH
-            </span>
-          </div>
-        </div>
-      </div>
+              <div className="w-full cursor-pointer flex justify-between items-center bg-dark border border-grey2 rounded-xl py-3.5 pl-5 h-24 relative">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-x-5">
+                    <div className="flex items-center ">
+                      <img
+                        height="30"
+                        width="30"
+                        src="/static/images/eth_icon.png"
+                      />
+                      <img
+                        height="30"
+                        width="30"
+                        className="ml-[-8px]"
+                        src="/static/images/dai_icon.png"
+                      />
+                    </div>
+                    <div className="flex gap-x-2">WETH - DAI</div>
+                    <div className="bg-black px-2 py-1 rounded-lg text-grey">
+                      0.5%
+                    </div>
+                  </div>
+                  <div className="text-sm flex items-center gap-x-3">
+                    <span>
+                      <span className="text-grey">Min:</span> 1203 DAI per ETH
+                    </span>
+                    <ArrowsRightLeftIcon className="w-4 text-grey" />
+                    <span>
+                      <span className="text-grey">Max:</span> 1643 DAI per ETH
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }

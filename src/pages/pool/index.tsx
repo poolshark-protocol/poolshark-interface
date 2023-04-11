@@ -79,7 +79,6 @@ export default function Pool() {
         poolId: coverPool.id,
         tokenOne: coverPool.token1,
         tokenZero: coverPool.token0,
-        tokenZeroAddress: coverPool.token0.id,
         tvlUsd: coverPool.totalValueLockedUsd,
         volumeUsd: coverPool.volumeUsd,
         volumeEth: coverPool.volumeEth,
@@ -285,9 +284,6 @@ export default function Pool() {
                             key={allCoverPosition.tokenOneName}
                             tokenZero={allCoverPosition.tokenZero}
                             tokenOne={allCoverPosition.tokenOne}
-                            tvlUsd={allCoverPosition.tvlUsd}
-                            volumeUsd={allCoverPosition.volumeUsd}
-                            volumeEth={allCoverPosition.volumeEth}
                             prefill={undefined}
                             close={undefined}
                             href={'/pool/directional'}

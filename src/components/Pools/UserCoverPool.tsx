@@ -7,19 +7,18 @@ import { useCoverStore } from '../../hooks/useStore'
 import Link from 'next/link'
 
 export default function UserCoverPool({
-  poolId,
+  key,
   account,
   tokenOne,
   tokenZero,
-  tvlUsd,
-  volumeUsd,
-  volumeEth,
-  href,
+  poolId,
   prefill,
+  href,
   close
 }) {
+  console.log(tokenOne, tokenZero, poolId)
   const [show, setShow] = useState(false)
-  const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
+  /* const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
     tokenZero.id?.substring(0, 6) +
       '...' +
       tokenZero.id?.substring(
@@ -39,7 +38,7 @@ export default function UserCoverPool({
     poolId?.substring(0, 6) +
       '...' +
       poolId?.substring(poolId?.length - 4, poolId?.length),
-  )
+  ) */
 
   const [currentPool, resetPool, updatePool] = useCoverStore((state) => [
     state.pool,
@@ -78,14 +77,11 @@ export default function UserCoverPool({
   return (
     <Link href={{
       pathname: href,
-      query: {
+     /*  query: {
         poolId: poolId,
         tokenZero: tokenZero,
         tokenOne: tokenOne,
-        tvlUsd: tvlUsd,
-        volumeUsd: volumeUsd,
-        volumeEth: volumeEth,
-      },
+      }, */
     }}>
       <div
         onClick={() => setPool()}
@@ -109,9 +105,9 @@ export default function UserCoverPool({
               />
             </div>
             <div className="flex gap-x-2">
-              {tokenOne.name}
+              {/* {tokenOne.name} */}
               <ArrowLongRightIcon className="w-5" />
-              {tokenZero.name}
+              {/* {tokenZero.name} */}
             </div>
           </div>
           <div className="text-sm flex items-center gap-x-3">

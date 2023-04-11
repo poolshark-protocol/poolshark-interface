@@ -218,23 +218,23 @@ export default function Cover() {
             {isDisconnected ? (
               <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">
                 <h1 className="mb-3">Cover Positions</h1>
-                  <div className="space-y-2">
-                      <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                          className="w-14 py-4 mx-auto text-grey"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        Your cover pools will appear here
-                      </div>
-                      </div>
+                <div className="space-y-2">
+                  <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="w-14 py-4 mx-auto text-grey"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Your cover pools will appear here
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">
@@ -273,21 +273,13 @@ export default function Cover() {
                           ) {
                             return (
                               <UserCoverPool
+                                account={'account'}
                                 key={allCoverPosition.poolId}
-                                tokenOneName={allCoverPosition.tokenOneName}
-                                tokenZeroName={allCoverPosition.tokenZeroName}
-                                tokenOneAddress={
-                                  allCoverPosition.tokenOneAddress
-                                }
-                                tokenZeroAddress={
-                                  allCoverPosition.tokenZeroAddress
-                                }
-                                poolAddress={allCoverPosition.poolAddress}
+                                tokenOne={allCoverPosition.tokenOne}
+                                tokenZero={allCoverPosition.tokenZero}
+                                poolId={allCoverPosition.poolAddress}
                                 prefill={undefined}
                                 close={undefined}
-                                tvlUsd={allCoverPosition.tvlUsd}
-                                volumeUsd={allCoverPosition.volumeUsd}
-                                volumeEth={allCoverPosition.volumeEth}
                                 href={'/pool/view'}
                               />
                             )
@@ -306,16 +298,13 @@ export default function Cover() {
                     ) {
                       return (
                         <UserCoverPool
-                          tokenOneName={allUniV3Position.tokenOneName}
-                          tokenZeroName={allUniV3Position.tokenZeroName}
-                          tokenOneAddress={allUniV3Position.tokenOneAddress}
-                          tokenZeroAddress={allUniV3Position.tokenZeroAddress}
-                          poolAddress={allUniV3Position.poolAddress}
+                          account={'account'}
+                          key={allUniV3Position.poolId}
+                          tokenOne={allUniV3Position.tokenOne}
+                          tokenZero={allUniV3Position.tokenZero}
+                          poolId={allUniV3Position.poolAddress}
                           prefill={undefined}
                           close={undefined}
-                          tvlUsd={allUniV3Position.tvlUsd}
-                          volumeUsd={allUniV3Position.volumeUsd}
-                          volumeEth={allUniV3Position.volumeEth}
                           href={'/pool/directional'}
                         />
                       )
