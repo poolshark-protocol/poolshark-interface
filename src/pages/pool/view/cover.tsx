@@ -7,11 +7,14 @@ import {
 import { useState, useEffect } from 'react'
 import CoverBurnButton from '../../../components/Buttons/CoverBurnButton'
 import CoverCollectButton from '../../../components/Buttons/CoverCollectButton'
+import { useRouter } from 'next/router'
 
 export default function Cover() {
   const [is0Copied, setIs0Copied] = useState(false)
   const [is1Copied, setIs1Copied] = useState(false)
   const [isPoolCopied, setIsPoolCopied] = useState(false)
+
+  const router = useRouter();
 
   function copyAddress0() {
     navigator.clipboard.writeText('0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d')
@@ -60,16 +63,16 @@ export default function Cover() {
           <div className="flex justify-between items-center mb-2">
             <div className="text-left flex items-center gap-x-5 py-2.5">
               <div className="flex items-center">
-                <img height="50" width="50" src="/static/images/dai_icon.png" />
+                <img height="50" width="50" src={router.query.tokenZeroLogoURI} />
                 <img
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src="/static/images/token.png"
+                  src={router.query.tokenOneLogoURI}
                 />
               </div>
               <span className="text-3xl flex items-center gap-x-3">
-                DAI <ArrowLongRightIcon className="w-5 " /> USDC
+               {router.query.tokenZeroName} <ArrowLongRightIcon className="w-5 " /> {router.query.tokenOneName}
               </span>
               <span className="bg-white text-black rounded-md px-3 py-0.5">
                 1%
@@ -93,7 +96,7 @@ export default function Cover() {
                   onClick={() => copyAddress0()}
                   className="text-xs cursor-pointer w-32"
                 >
-                  USDC:
+                  {router.query.tokenOneName}:
                   {is0Copied ? (
                     <span className="ml-1">Copied</span>
                   ) : (
@@ -104,7 +107,7 @@ export default function Cover() {
                   onClick={() => copyAddress1()}
                   className="text-xs cursor-pointer"
                 >
-                  DAI:
+                 {router.query.tokenZeroName}:
                   {is1Copied ? (
                     <span className="ml-1">Copied</span>
                   ) : (
@@ -137,9 +140,9 @@ export default function Cover() {
                       <img
                         height="30"
                         width="30"
-                        src="/static/images/dai_icon.png"
+                        src={router.query.tokenZeroLogoURI}
                       />
-                      DAI
+                     {router.query.tokenZeroName}
                     </div>
                     300
                   </div>
@@ -148,9 +151,9 @@ export default function Cover() {
                       <img
                         height="30"
                         width="30"
-                        src="/static/images/token.png"
+                        src={router.query.tokenOneLogoURI}
                       />
-                      USDC
+                      {router.query.tokenOneName}
                     </div>
                     303
                   </div>
@@ -172,9 +175,9 @@ export default function Cover() {
                       <img
                         height="30"
                         width="30"
-                        src="/static/images/dai_icon.png"
+                        src={router.query.tokenZeroLogoURI}
                       />
-                      DAI
+                     {router.query.tokenZeroName}
                     </div>
                     <span className="text-white">
                       298<span className="text-grey">/600</span>
@@ -205,25 +208,25 @@ export default function Cover() {
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Min Price.</div>
                 <div className="text-white text-2xl my-2 w-full">1.0323</div>
-                <div className="text-grey text-xs w-full">DAI per USDC</div>
+                <div className="text-grey text-xs w-full">DAI per {router.query.tokenOneName}</div>
                 <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100% DAI at this price.
+                  Your position will be 100%{router.query.tokenZeroName} at this price.
                 </div>
               </div>
               <ArrowsRightLeftIcon className="w-12 text-grey" />
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Max Price.</div>
                 <div className="text-white text-2xl my-2 w-full">1.064</div>
-                <div className="text-grey text-xs w-full">DAI per USDC</div>
+                <div className="text-grey text-xs w-full">DAI per {router.query.tokenOneName}</div>
                 <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100% DAI at this price.
+                  Your position will be 100%{router.query.tokenZeroName} at this price.
                 </div>
               </div>
             </div>
             <div className="border border-grey1 rounded-xl py-2 text-center w-full mt-4 bg-dark">
               <div className="text-grey text-xs w-full">Current Price</div>
               <div className="text-white text-2xl my-2 w-full">1.064</div>
-              <div className="text-grey text-xs w-full">DAI per USDC</div>
+              <div className="text-grey text-xs w-full">DAI per {router.query.tokenOneName}</div>
             </div>
             <div>
               <div className="flex justify-between items-center mt-10 mb-5">
@@ -245,21 +248,21 @@ export default function Cover() {
                         height="30"
                         width="30"
                         className="ml-[-8px]"
-                        src="/static/images/dai_icon.png"
+                        src={router.query.tokenZeroLogoURI}
                       />
                     </div>
-                    <div className="flex gap-x-2">WETH - DAI</div>
+                    <div className="flex gap-x-2">WETH -{router.query.tokenZeroName}</div>
                     <div className="bg-black px-2 py-1 rounded-lg text-grey">
                       0.5%
                     </div>
                   </div>
                   <div className="text-sm flex items-center gap-x-3">
                     <span>
-                      <span className="text-grey">Min:</span> 1203 DAI per ETH
+                      <span className="text-grey">Min:</span> 1203{router.query.tokenZeroName} per ETH
                     </span>
                     <ArrowsRightLeftIcon className="w-4 text-grey" />
                     <span>
-                      <span className="text-grey">Max:</span> 1643 DAI per ETH
+                      <span className="text-grey">Max:</span> 1643{router.query.tokenZeroName} per ETH
                     </span>
                   </div>
                 </div>

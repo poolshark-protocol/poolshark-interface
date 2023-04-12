@@ -4,11 +4,14 @@ import {
   ArrowsRightLeftIcon,
 } from "@heroicons/react/20/solid";
 import { useState, useEffect } from "react";
+import { useRouter } from 'next/router'
 
 export default function Range() {
   const [is0Copied, setIs0Copied] = useState(false);
   const [is1Copied, setIs1Copied] = useState(false);
   const [isPoolCopied, setIsPoolCopied] = useState(false);
+
+  const router = useRouter();
 
   function copyAddress0() {
     navigator.clipboard.writeText("0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d");
@@ -57,15 +60,15 @@ export default function Range() {
           <div className="flex justify-between items-center mb-2">
             <div className="text-left flex items-center gap-x-5 py-2.5">
               <div className="flex items-center">
-                <img height="50" width="50" src="/static/images/dai_icon.png" />
+                <img height="50" width="50" src={router.query.tokenZeroLogoURI} />
                 <img
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src="/static/images/token.png"
+                  src={router.query.tokenOneLogoURI}
                 />
               </div>
-              <span className="text-3xl">DAI-USDC</span>
+              <span className="text-3xl">{router.query.tokenZeroName}-{router.query.tokenOneName}</span>
               <span className="bg-white text-black rounded-md px-3 py-0.5">
                 1%
               </span>
@@ -88,7 +91,7 @@ export default function Range() {
                   onClick={() => copyAddress0()}
                   className="text-xs cursor-pointer w-32"
                 >
-                  USDC:
+                  {router.query.tokenZeroName}:
                   {is0Copied ? (
                     <span className="ml-1">Copied</span>
                   ) : (
@@ -99,7 +102,7 @@ export default function Range() {
                   onClick={() => copyAddress1()}
                   className="text-xs cursor-pointer"
                 >
-                  DAI:
+                  {router.query.tokenOneName}:
                   {is1Copied ? (
                     <span className="ml-1">Copied</span>
                   ) : (
@@ -132,9 +135,9 @@ export default function Range() {
                       <img
                         height="30"
                         width="30"
-                        src="/static/images/dai_icon.png"
+                        src={router.query.tokenZeroLogoURI}
                       />
-                      DAI
+                      {router.query.tokenZeroName}
                     </div>
                     <div className="flex items-center gap-x-4">
                       300
@@ -148,9 +151,9 @@ export default function Range() {
                       <img
                         height="30"
                         width="30"
-                        src="/static/images/token.png"
+                        src={router.query.tokenOneLogoURI}
                       />
-                      USDC
+                      {router.query.tokenOneName}
                     </div>
                     <div className="flex items-center gap-x-4">
                       303
@@ -178,9 +181,9 @@ export default function Range() {
                       <img
                         height="30"
                         width="30"
-                        src="/static/images/dai_icon.png"
+                        src={router.query.tokenZeroLogoURI}
                       />
-                      DAI
+                      {router.query.tokenZeroName}
                     </div>
                     <span>2.25</span>
                   </div>
@@ -189,9 +192,9 @@ export default function Range() {
                       <img
                         height="30"
                         width="30"
-                        src="/static/images/token.png"
+                        src={router.query.tokenOneLogoURI}
                       />
-                      USDC
+                      {router.query.tokenZeroName}
                     </div>
                     <span>2.25</span>
                   </div>
@@ -216,25 +219,25 @@ export default function Range() {
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Min Price.</div>
                 <div className="text-white text-2xl my-2 w-full">1.0323</div>
-                <div className="text-grey text-xs w-full">DAI per USDC</div>
+                <div className="text-grey text-xs w-full">{router.query.tokenZeroName} per {router.query.tokenZeroName}</div>
                 <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100% DAI at this price.
+                  Your position will be 100% {router.query.tokenZeroName} at this price.
                 </div>
               </div>
               <ArrowsRightLeftIcon className="w-12 text-grey" />
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Max Price.</div>
                 <div className="text-white text-2xl my-2 w-full">1.064</div>
-                <div className="text-grey text-xs w-full">DAI per USDC</div>
+                <div className="text-grey text-xs w-full">{router.query.tokenZeroName} per {router.query.tokenZeroName}</div>
                 <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100% DAI at this price.
+                  Your position will be 100% {router.query.tokenZeroName} at this price.
                 </div>
               </div>
             </div>
             <div className="border border-grey1 rounded-xl py-2 text-center w-full mt-4 bg-dark">
               <div className="text-grey text-xs w-full">Current Price</div>
               <div className="text-white text-2xl my-2 w-full">1.064</div>
-              <div className="text-grey text-xs w-full">DAI per USDC</div>
+              <div className="text-grey text-xs w-full">{router.query.tokenZeroName} per {router.query.tokenZeroName}</div>
             </div>
           </div>
         </div>

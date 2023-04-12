@@ -81,11 +81,18 @@ export default function UserCoverPool({
     <Link
       href={{
         pathname: href,
-        /*  query: {
-        poolId: poolId,
-        tokenZero: tokenZero,
-        tokenOne: tokenOne,
-      }, */
+        query: {
+          account: account,
+          poolId: poolId,
+          tokenOneName: tokenOne.name,
+          tokenOneSymbol: tokenOne.symbol,
+          tokenOneLogoURI: logoMap[tokenOne.symbol],
+          tokenOneAddress: tokenOne.id,
+          tokenZeroName: tokenZero.name,
+          tokenZeroSymbol: tokenZero.symbol,
+          tokenZeroLogoURI: logoMap[tokenZero.symbol],
+          tokenZeroAddress: tokenZero.id,
+        },
       }}
     >
       <div
@@ -118,11 +125,13 @@ export default function UserCoverPool({
           <div className="text-sm flex items-center gap-x-3">
             <span>
               {/* TODO@retraca Xmin and Xmax set dynamic */}
-              <span className="text-grey">Min:</span> Xmin {tokenZero.symbol} per {tokenOne.symbol}
+              <span className="text-grey">Min:</span> Xmin {tokenZero.symbol}{' '}
+              per {tokenOne.symbol}
             </span>
             <ArrowsRightLeftIcon className="w-4 text-grey" />
             <span>
-              <span className="text-grey">Max:</span> Xmax {tokenOne.symbol} per {tokenZero.symbol}
+              <span className="text-grey">Max:</span> Xmax {tokenOne.symbol} per{' '}
+              {tokenZero.symbol}
             </span>
           </div>
         </div>

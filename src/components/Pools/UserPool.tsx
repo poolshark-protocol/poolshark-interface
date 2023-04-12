@@ -50,12 +50,16 @@ export default function UserPool({
         href={{
           pathname: '/pool/view/range',
           query: {
+            ccount: account,
             poolId: poolId,
-            tokenZero: tokenZero,
-            tokenOne: tokenOne,
-            tvlUsd: tvlUsd,
-            volumeUsd: volumeUsd,
-            volumeEth: volumeEth,
+            tokenOneName: tokenOne.name,
+            tokenOneSymbol: tokenOne.symbol,
+            tokenOneLogoURI: logoMap[tokenOne.symbol],
+            tokenOneAddress: tokenOne.id,
+            tokenZeroName: tokenZero.name,
+            tokenZeroSymbol: tokenZero.symbol,
+            tokenZeroLogoURI: logoMap[tokenZero.symbol],
+            tokenZeroAddress: tokenZero.id,
           },
         }}
       >
@@ -81,11 +85,13 @@ export default function UserPool({
             <div className="text-sm flex items-center gap-x-3">
               <span>
                 {/* TODO@retraca Xmin and Xmax set dynamic */}
-                <span className="text-grey">Min:</span> Xmin {tokenZero.symbol} per {tokenOne.symbol}
+                <span className="text-grey">Min:</span> Xmin {tokenZero.symbol}{' '}
+                per {tokenOne.symbol}
               </span>
               <ArrowsRightLeftIcon className="w-4 text-grey" />
               <span>
-                <span className="text-grey">Max:</span> Xmax {tokenOne.symbol} per {tokenZero.symbol}
+                <span className="text-grey">Max:</span> Xmax {tokenOne.symbol}{' '}
+                per {tokenZero.symbol}
               </span>
             </div>
           </div>{' '}

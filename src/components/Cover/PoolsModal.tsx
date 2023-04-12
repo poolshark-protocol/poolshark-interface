@@ -149,7 +149,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
                           poolId={allCoverPool.poolId}
                           prefill={undefined}
                           close={undefined}
-                          href={'/pool/view'}
+                          href={'/pool/view/cover'}
                         />
                       )
                     })}
