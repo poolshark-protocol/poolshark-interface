@@ -82,15 +82,14 @@ export default function Cover() {
     const mappedCoverPositions = []
     coverPositions.map((coverPosition) => {
       const coverPositionData = {
-        tokenOneName: coverPosition.pool.token1.name,
-        tokenZeroName: coverPosition.pool.token0.name,
-        tokenOneAddress: coverPosition.pool.token1.id,
-        tokenZeroAddress: coverPosition.pool.token0.id,
+        tokenOne: coverPosition.pool.token1,
+        tokenZero: coverPosition.pool.token0,
         poolAddress: coverPosition.pool.id,
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
 
       mappedCoverPositions.push(coverPositionData)
+      console.log('mappedCoverPositions_COVERPAGE: ', mappedCoverPositions)
     })
 
     setAllCoverPositions(mappedCoverPositions)
@@ -135,15 +134,14 @@ export default function Cover() {
     const mappedUniV3Positions = []
     uniV3Positions.map((uniV3Position) => {
       const uniV3PositionData = {
-        tokenOneName: uniV3Position.token1.name,
-        tokenZeroName: uniV3Position.token0.name,
-        tokenOneAddress: uniV3Position.token1.id,
-        tokenZeroAddress: uniV3Position.token0.id,
+        tokenOne: uniV3Position.token1,
+        tokenZero: uniV3Position.token0,
         poolAddress: uniV3Position.id,
         userOwnerAddress: uniV3Position.owner.replace(/"|'/g, ''),
       }
 
       mappedUniV3Positions.push(uniV3PositionData)
+      console.log('mappedUniV3Positions_COVERPAGE: ', mappedUniV3Positions)
     })
 
     setAllUniV3Positions(mappedUniV3Positions)
@@ -268,8 +266,9 @@ export default function Cover() {
                       <div>
                         {allCoverPositions.map((allCoverPosition) => {
                           if (
-                            allCoverPosition.userOwnerAddress ===
-                            address?.toLowerCase()
+                            //TODO@retraca remove this
+                            /* allCoverPosition.userOwnerAddress ===
+                            address?.toLowerCase() */ true
                           ) {
                             return (
                               <UserCoverPool
@@ -278,9 +277,9 @@ export default function Cover() {
                                 tokenOne={allCoverPosition.tokenOne}
                                 tokenZero={allCoverPosition.tokenZero}
                                 poolId={allCoverPosition.poolAddress}
-                                prefill={undefined}
-                                close={undefined}
-                                href={'/pool/view'}
+                                prefill={'undefined'}
+                                close={'undefined'}
+                                href={'/pool/view/cover'}
                               />
                             )
                           }
@@ -293,8 +292,9 @@ export default function Cover() {
                   <h1 className="mb-3 mt-4">User UNI-V3 Positions</h1>
                   {allUniV3Positions.map((allUniV3Position) => {
                     if (
-                      allUniV3Position.userOwnerAddress ===
-                      address?.toLowerCase()
+                      //TODO@retraca remove this
+                      /* allUniV3Position.userOwnerAddress ===
+                      address?.toLowerCase() */ true
                     ) {
                       return (
                         <UserCoverPool
@@ -305,7 +305,7 @@ export default function Cover() {
                           poolId={allUniV3Position.poolAddress}
                           prefill={undefined}
                           close={undefined}
-                          href={'/pool/directional'}
+                          href={'/pool/view/cover'}
                         />
                       )
                     }

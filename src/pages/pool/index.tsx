@@ -255,8 +255,9 @@ export default function Pool() {
                 {selected.id === 1
                   ? allRangePositions.map((allRangePosition) => {
                       if (
-                        allRangePosition.userOwnerAddress ===
-                        address?.toLowerCase()
+                        //TODO@retraca remove this
+                        /* allRangePosition.userOwnerAddress ===
+                        address?.toLowerCase() */ true
                       ) {
                         return (
                           <UserPool
@@ -274,8 +275,9 @@ export default function Pool() {
                     })
                   : allCoverPositions.map((allCoverPosition) => {
                       if (
-                        allCoverPosition.userOwnerAddress ===
-                        address?.toLowerCase()
+                        //TODO@retraca remove this
+                        /*  allCoverPosition.userOwnerAddress ===
+                        address?.toLowerCase() */ true
                       ) {
                         return (
                           <UserCoverPool
@@ -286,7 +288,7 @@ export default function Pool() {
                             tokenOne={allCoverPosition.tokenOne}
                             prefill={undefined}
                             close={undefined}
-                            href={'/pool/directional'}
+                            href={'/pool/view/cover'}
                           />
                         )
                       }

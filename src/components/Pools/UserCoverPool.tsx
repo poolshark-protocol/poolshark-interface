@@ -14,7 +14,7 @@ export default function UserCoverPool({
   poolId,
   prefill,
   href,
-  close
+  close,
 }) {
   console.log(tokenOne, tokenZero, poolId)
   const [show, setShow] = useState(false)
@@ -50,8 +50,11 @@ export default function UserCoverPool({
     TOKEN20A: '/static/images/eth_icon.png',
     TOKEN20B: '/static/images/token.png',
     USDC: '/static/images/token.png',
-    eth_icon: '/static/images/weth.png',
+    WETH: '/static/images/eth_icon.png',
     DAI: '/static/images/dai_icon.png',
+    stkEth: '/static/images/eth_icon.png',
+    pStake: '/static/images/eth_icon.png',
+    UNI: '/static/images/dai_icon.png',
   }
 
   const setPool = () => {
@@ -61,8 +64,8 @@ export default function UserCoverPool({
       tokenOne: tokenOne,
       tokenZero: tokenZero,
     }) */
-    prefill('existingPool')
-    close(false)
+    //prefill('existingPool')
+    //close(false)
     // console.log(currentPool)
   }
 
@@ -75,14 +78,16 @@ export default function UserCoverPool({
   //   poolId,)
   // },[])
   return (
-    <Link href={{
-      pathname: href,
-     /*  query: {
+    <Link
+      href={{
+        pathname: href,
+        /*  query: {
         poolId: poolId,
         tokenZero: tokenZero,
         tokenOne: tokenOne,
       }, */
-    }}>
+      }}
+    >
       <div
         onClick={() => setPool()}
         onMouseEnter={(e) => {
@@ -96,30 +101,31 @@ export default function UserCoverPool({
         <div className="space-y-2">
           <div className="flex items-center gap-x-5">
             <div className="flex items-center ">
-              <img height="30" width="30" src="/static/images/dai_icon.png" />
+              <img height="30" width="30" src={logoMap[tokenZero.symbol]} />
               <img
                 height="30"
                 width="30"
                 className="ml-[-8px]"
-                src="/static/images/token.png"
+                src={logoMap[tokenOne.symbol]}
               />
             </div>
             <div className="flex gap-x-2">
-              {/* {tokenOne.name} */}
+              {tokenZero.name}
               <ArrowLongRightIcon className="w-5" />
-              {/* {tokenZero.name} */}
+              {tokenOne.name}
             </div>
           </div>
           <div className="text-sm flex items-center gap-x-3">
             <span>
-              <span className="text-grey">Min:</span> 1.0323 DAI per USDC
+              {/* TODO@retraca Xmin and Xmax set dynamic */}
+              <span className="text-grey">Min:</span> Xmin {tokenZero.symbol} per {tokenOne.symbol}
             </span>
             <ArrowsRightLeftIcon className="w-4 text-grey" />
             <span>
-              <span className="text-grey">Max:</span> 1.0323 DAI per USDC
+              <span className="text-grey">Max:</span> Xmax {tokenOne.symbol} per {tokenZero.symbol}
             </span>
           </div>
-        </div>{' '}
+        </div>
         <div className="pr-5">
           <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
             <div className="w-2 h-2 bg-green-500 rounded-full" />

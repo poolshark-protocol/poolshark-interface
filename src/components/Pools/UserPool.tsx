@@ -35,11 +35,12 @@ export default function UserPool({
 
   useEffect
 
+  /* TODO@retraca create constant file for this */
   const logoMap = {
     TOKEN20A: '/static/images/eth_icon.png',
     TOKEN20B: '/static/images/token.png',
     USDC: '/static/images/token.png',
-    eth_icon: '/static/images/weth.png',
+    WETH: '/static/images/eth_icon.png',
     DAI: '/static/images/dai_icon.png',
   }
 
@@ -62,28 +63,29 @@ export default function UserPool({
           <div className="space-y-2">
             <div className="flex items-center gap-x-5">
               <div className="flex items-center ">
-                <img height="30" width="30" src="/static/images/one.png" />
+                <img height="30" width="30" src={logoMap[tokenZero.symbol]} />
                 <img
                   height="30"
                   width="30"
                   className="ml-[-8px]"
-                  src="/static/images/zero.png"
+                  src={logoMap[tokenOne.symbol]}
                 />
               </div>
               <div className="flex gap-x-2">
-                {tokenOne.name}
-                <ArrowLongRightIcon className="w-5" />
                 {tokenZero.name}
+                <ArrowLongRightIcon className="w-5" />
+                {tokenOne.name}
               </div>
               <div className="bg-black px-2 py-1 rounded-lg text-grey">1%</div>
             </div>
             <div className="text-sm flex items-center gap-x-3">
               <span>
-                <span className="text-grey">Min:</span> 1.0323 DAI per USDC
+                {/* TODO@retraca Xmin and Xmax set dynamic */}
+                <span className="text-grey">Min:</span> Xmin {tokenZero.symbol} per {tokenOne.symbol}
               </span>
               <ArrowsRightLeftIcon className="w-4 text-grey" />
               <span>
-                <span className="text-grey">Max:</span> 1.0323 DAI per USDC
+                <span className="text-grey">Max:</span> Xmax {tokenOne.symbol} per {tokenZero.symbol}
               </span>
             </div>
           </div>{' '}

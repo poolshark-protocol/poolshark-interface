@@ -38,15 +38,15 @@ export default function PoolList({
       <tr className="text-right cursor-pointer">
         <td className="text-left flex items-center gap-x-5 py-2.5">
           <div className="flex items-center ">
-            <img height="30" width="30" src={logoMap[tokenOne.symbol]} />
+            <img height="30" width="30" src={logoMap[tokenZero.symbol]} />
             <img
               height="30"
               width="30"
               className="ml-[-8px]"
-              src={logoMap[tokenZero.symbol]}
+              src={logoMap[tokenOne.symbol]}
             />
           </div>
-          {tokenOne.name}-{tokenZero.name}
+          {tokenZero.name}-{tokenOne.name}
         </td>
         <td>${tvlUsd}m</td>
         <td>${volumeUsd}m</td>
