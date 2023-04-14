@@ -3,19 +3,19 @@ import { ChevronDownIcon, PlusIcon, MinusIcon } from '@heroicons/react/20/solid'
 import { Listbox, Transition } from '@headlessui/react'
 import SelectToken from '../SelectToken'
 import ConcentratedPoolPreview from './ConcentratedPoolPreview'
-import { ethers } from 'ethers'
 import { useRangeStore } from '../../hooks/useStore'
 import { TickMath } from '../../utils/tickMath'
 import JSBI from 'jsbi'
 import { getPreviousTicksLower } from '../../utils/queries'
 import useInputBox from '../../hooks/useInputBox'
 import useCoverAllowance from '../../hooks/useCoverAllowance'
-import { useAccount } from 'wagmi'
 import { useRouter } from 'next/router'
 import {
   rangeTokenOne,
   rangeTokenZero,
 } from '../../constants/contractAddresses'
+import { erc20ABI, useAccount } from 'wagmi'
+import { BigNumber, Contract, ethers } from 'ethers'
 
 export default function ConcentratedPool({
   account,
@@ -58,6 +58,8 @@ export default function ConcentratedPool({
   const [selected, setSelected] = useState(feeTiers[0])
   const [queryToken0, setQueryToken0] = useState(tokenOneAddress)
   const [queryToken1, setQueryToken1] = useState(tokenOneAddress)
+  const [balance0, setBalance0] = useState('')
+  const [balance1, setBalance1] = useState('0.00')
 
   const [token0, setToken0] = useState({
     symbol: tokenZeroSymbol,
@@ -83,7 +85,13 @@ export default function ConcentratedPool({
   const [hasSelected, setHasSelected] = useState(false)
   const [isDisabled, setDisabled] = useState(false)
 
-  const { bnInput, bnInputLimit, LimitInputBox, inputBox } = useInputBox()
+  const {
+    bnInput,
+    inputBox,
+    maxBalance,
+    bnInputLimit,
+    LimitInputBox,
+  } = useInputBox()
 
   const newAllowance = useCoverAllowance(address)
 
@@ -98,6 +106,10 @@ export default function ConcentratedPool({
     state.RangeAllowance,
     state.rangeContractParams,
   ])
+
+  useEffect(() => {
+    getBalances()
+  }, [bnInput, bnInputLimit])
 
   async function setRangeParams() {
     try {
@@ -262,6 +274,65 @@ export default function ConcentratedPool({
     }
   }
 
+  const getBalances = async () => {
+    try {
+      const provider = new ethers.providers.JsonRpcProvider(
+        'https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2',
+        421613,
+      )
+      const signer = new ethers.VoidSigner(address, provider)
+      const token1Bal = new ethers.Contract(tokenIn.address, erc20ABI, signer)
+      const balance1 = await token1Bal.balanceOf(address)
+      let token2Bal: Contract
+      let bal1: string
+      bal1 = Number(ethers.utils.formatEther(balance1)).toFixed(2)
+      if (hasSelected === true) {
+        token2Bal = new ethers.Contract(tokenOut.address, erc20ABI, signer)
+        const balance2 = await token2Bal.balanceOf(address)
+        let bal2: string
+        bal2 = Number(ethers.utils.formatEther(balance2)).toFixed(2)
+        /* if (Number(ethers.utils.formatEther(balance1)) >= 1000000) {
+          bal1 = Number(ethers.utils.formatEther(balance1)).toExponential(5)
+        }
+        if (
+          0 < Number(ethers.utils.formatEther(balance1)) &&
+          Number(ethers.utils.formatEther(balance1)) < 1000000
+        ) {
+          console.log('here')
+          bal1 = Number(ethers.utils.formatEther(balance1)).toFixed(2)
+        }
+        if (Number(ethers.utils.formatEther(balance2)) >= 1000000) {
+          console.log('here2')
+          bal2 = Number(ethers.utils.formatEther(balance2)).toExponential(5)
+        }
+        if (
+          0 < Number(ethers.utils.formatEther(balance2)) &&
+          Number(ethers.utils.formatEther(balance2)) < 1000000
+        ) {
+          console.log('here3')
+          bal2 = Number(ethers.utils.formatEther(balance2)).toFixed(2)
+        } */
+
+        setBalance1(bal2)
+      }
+      /* let bal1 = await token1Bal.balanceOf(address)
+      let displayBal1: string
+      if (Number(ethers.utils.formatEther(bal1)) >= 1000000) {
+        displayBal1 = Number(ethers.utils.formatEther(bal1)).toExponential(5)
+      }
+      if (
+        0 < Number(ethers.utils.formatEther(bal1)) &&
+        Number(ethers.utils.formatEther(bal1)) < 1000000
+      ) {
+        displayBal1 = Number(ethers.utils.formatEther(bal1)).toFixed(2)
+      }
+       */
+      setBalance0(bal1)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   function SelectFee() {
     return (
       <Listbox value={selected} onChange={setSelected}>
@@ -387,13 +458,18 @@ export default function ConcentratedPool({
                         </div>
                       </button>
                     </div>
-                    <div className="flex items-center justify-end gap-x-2 px-1 mt-2">
-                      <div className="text-xs text-[#4C4C4C]">
-                        Balance: 420.69
+                    <div className="flex items-center justify-end gap-2 px-1 mt-2">
+                      <div className="flex text-xs text-[#4C4C4C]">
+                        Balance: {balance0 === 'NaN' ? 0 : balance0}
                       </div>
-                      <div className="text-xs uppercase text-[#C9C9C9]">
-                        Max
-                      </div>
+                      {isConnected ? (
+                        <button
+                          className="flex text-xs uppercase text-[#C9C9C9]"
+                          onClick={() => maxBalance(balance0, '0')}
+                        >
+                          Max
+                        </button>
+                      ) : null}
                     </div>
                   </div>
                 </div>
@@ -401,6 +477,7 @@ export default function ConcentratedPool({
             </div>
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 ">
+                {/* TODO@retraca define an extra variable to mirror limitInputBox and update considering max button*/}
                 {LimitInputBox('0')}
                 <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
@@ -418,12 +495,17 @@ export default function ConcentratedPool({
                       </button>
                     </div>
                     <div className="flex items-center justify-end gap-x-2 px-1 mt-2">
-                      <div className="text-xs text-[#4C4C4C]">
-                        Balance: 420.69
+                      <div className="flex text-xs text-[#4C4C4C]">
+                        Balance: {balance1   === 'NaN' ? 0 : balance1 }
                       </div>
-                      <div className="text-xs uppercase text-[#C9C9C9]">
-                        Max
-                      </div>
+                      {isConnected ? (
+                        <button
+                          className="flex text-xs uppercase text-[#C9C9C9]"
+                          onClick={() => {/* maxBalance(balance1, '0') */}}
+                        >
+                          Max
+                        </button>
+                      ) : null}
                     </div>
                   </div>
                 </div>
