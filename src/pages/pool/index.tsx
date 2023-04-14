@@ -173,6 +173,12 @@ export default function Pool() {
 
   const [selected, setSelected] = useState(poolTypes[0])
 
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const handleChange = (event) => {
+    setSearchTerm(event.target.value)
+  }
+
   function SelectPool() {
     return (
       <Listbox value={selected} onChange={setSelected}>
@@ -247,6 +253,8 @@ export default function Pool() {
               <input
                 className="border border-grey2 bg-dark rounded-xl py-2.5 w-full placeholder:text-grey outline-none pl-12"
                 placeholder="Search name, symbol or address"
+                value={searchTerm}
+                onChange={handleChange}
               />
             </div>
             <div className="">
@@ -257,7 +265,14 @@ export default function Pool() {
                       if (
                         //TODO@retraca remove this
                         /* allRangePosition.userOwnerAddress ===
-                        address?.toLowerCase() */ true
+                        address?.toLowerCase() */ allRangePosition
+                          .tokenZero.name === searchTerm ||
+                        allRangePosition.tokenOne.name === searchTerm ||
+                        allRangePosition.tokenZero.symbol === searchTerm ||
+                        allRangePosition.tokenOne.symbol === searchTerm ||
+                        allRangePosition.tokenZero.id === searchTerm ||
+                        allRangePosition.tokenOne.id === searchTerm ||
+                        searchTerm === ''
                       ) {
                         return (
                           <UserPool
@@ -277,7 +292,14 @@ export default function Pool() {
                       if (
                         //TODO@retraca remove this
                         /*  allCoverPosition.userOwnerAddress ===
-                        address?.toLowerCase() */ true
+                        address?.toLowerCase() */ allCoverPosition
+                          .tokenZero.name === searchTerm ||
+                        allCoverPosition.tokenOne.name === searchTerm ||
+                        allCoverPosition.tokenZero.symbol === searchTerm ||
+                        allCoverPosition.tokenOne.symbol === searchTerm ||
+                        allCoverPosition.tokenZero.id === searchTerm ||
+                        allCoverPosition.tokenOne.id === searchTerm ||
+                        searchTerm === ''
                       ) {
                         return (
                           <UserCoverPool
@@ -310,34 +332,52 @@ export default function Pool() {
                   <tbody>
                     {selected.id === 1
                       ? allRangePools.map((allRangePool) => {
-                          return (
-                            <PoolList
-                              account={'account'}
-                              key={allRangePool.tokenOneName}
-                              poolId={allRangePool.poolId}
-                              tokenZero={allRangePool.tokenZero}
-                              tokenOne={allRangePool.tokenOne}
-                              tvlUsd={allRangePool.tvlUsd}
-                              volumeUsd={allRangePool.volumeUsd}
-                              volumeEth={allRangePool.volumeEth}
-                              href="/pool/concentrated"
-                            />
+                          if (
+                            allRangePool.tokenZero.name === searchTerm ||
+                            allRangePool.tokenOne.name === searchTerm ||
+                            allRangePool.tokenZero.symbol === searchTerm ||
+                            allRangePool.tokenOne.symbol === searchTerm ||
+                            allRangePool.tokenZero.id === searchTerm ||
+                            allRangePool.tokenOne.id === searchTerm ||
+                            searchTerm === ''
                           )
+                            return (
+                              <PoolList
+                                account={'account'}
+                                key={allRangePool.tokenOneName}
+                                poolId={allRangePool.poolId}
+                                tokenZero={allRangePool.tokenZero}
+                                tokenOne={allRangePool.tokenOne}
+                                tvlUsd={allRangePool.tvlUsd}
+                                volumeUsd={allRangePool.volumeUsd}
+                                volumeEth={allRangePool.volumeEth}
+                                href="/pool/concentrated"
+                              />
+                            )
                         })
                       : allCoverPools.map((allCoverPool) => {
-                          return (
-                            <PoolList
-                              account={'account'}
-                              key={allCoverPool.tokenOneName}
-                              poolId={allCoverPool.poolId}
-                              tokenZero={allCoverPool.tokenZero}
-                              tokenOne={allCoverPool.tokenOne}
-                              tvlUsd={allCoverPool.tvlUsd}
-                              volumeUsd={allCoverPool.volumeUsd}
-                              volumeEth={allCoverPool.volumeEth}
-                              href="/pool/directional"
-                            />
+                          if (
+                            allCoverPool.tokenZero.name === searchTerm ||
+                            allCoverPool.tokenOne.name === searchTerm ||
+                            allCoverPool.tokenZero.symbol === searchTerm ||
+                            allCoverPool.tokenOne.symbol === searchTerm ||
+                            allCoverPool.tokenZero.id === searchTerm ||
+                            allCoverPool.tokenOne.id === searchTerm ||
+                            searchTerm === ''
                           )
+                            return (
+                              <PoolList
+                                account={'account'}
+                                key={allCoverPool.tokenOneName}
+                                poolId={allCoverPool.poolId}
+                                tokenZero={allCoverPool.tokenZero}
+                                tokenOne={allCoverPool.tokenOne}
+                                tvlUsd={allCoverPool.tvlUsd}
+                                volumeUsd={allCoverPool.volumeUsd}
+                                volumeEth={allCoverPool.volumeEth}
+                                href="/pool/directional"
+                              />
+                            )
                         })}
                   </tbody>
                 </table>
