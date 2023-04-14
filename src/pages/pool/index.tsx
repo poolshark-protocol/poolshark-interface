@@ -28,6 +28,8 @@ export default function Pool() {
 
   const [rangePools, setRangePools] = useState([])
   const [allRangePools, setAllRangePools] = useState([])
+  const [selected, setSelected] = useState(poolTypes[0])
+  const [searchTerm, setSearchTerm] = useState('')
 
   async function getRangePoolData() {
     const data = await fetchRangePools()
@@ -171,11 +173,7 @@ export default function Pool() {
     mapUserCoverPositions()
   }, [coverPositions])
 
-  const [selected, setSelected] = useState(poolTypes[0])
-
-  const [searchTerm, setSearchTerm] = useState('')
-
-  const handleChange = (event) => {
+  const handleSearchTermChange = (event) => {
     setSearchTerm(event.target.value)
   }
 
@@ -254,7 +252,7 @@ export default function Pool() {
                 className="border border-grey2 bg-dark rounded-xl py-2.5 w-full placeholder:text-grey outline-none pl-12"
                 placeholder="Search name, symbol or address"
                 value={searchTerm}
-                onChange={handleChange}
+                onChange={handleSearchTermChange}
               />
             </div>
             <div className="">
