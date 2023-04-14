@@ -55,8 +55,9 @@ export default function Swap() {
     bnInputLimit,
     LimitInputBox,
   } = useInputBox()
-  const rangeAllowance = useRangeAllowance(address)
-  const coverAllowance = useCoverAllowance(address)
+  /* const rangeAllowance = useRangeAllowance(address)
+  const coverAllowance = useCoverAllowance(address) */
+  const [allowance, setAllowance] = useState('0')
   const [gasFee, setGasFee] = useState('')
   const [rangeBaseLimit, setRangeBaseLimit] = useState('')
   const [coverBaseLimit, setCoverBaseLimit] = useState('')
@@ -252,23 +253,20 @@ export default function Swap() {
 
   const [expanded, setExpanded] = useState(false)
 
-  /*const getAllowance = async () => {
+  const getAllowance = async () => {
     try {
       const provider = new ethers.providers.JsonRpcProvider(
-        "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
-      );
-      const signer = new ethers.VoidSigner(address, provider);
-      const contract = new ethers.Contract(tokenIn.address, erc20ABI, signer);
-      const allowance = await contract.allowance(
-        address,
-        rangePoolAddress
-      );
-      setAllowance(allowance);
-      console.log("here", allowance.toString());
+        'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
+      )
+      const signer = new ethers.VoidSigner(address, provider)
+      const contract = new ethers.Contract(tokenIn.address, erc20ABI, signer)
+      const allowance = await contract.allowance(address, rangePoolAddress)
+      console.log('contract allowance', allowance)
+      setAllowance(allowance)
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };*/
+  }
 
   const gasEstimate = async () => {
     try {
@@ -316,10 +314,15 @@ export default function Swap() {
     }, 10000)
   }, [])
 
-  /*useEffect(() => {
-    getAllowance();
-  }, [tokenIn.address]);*/
-  // or allowance from Zustand
+  useEffect(() => {
+    getAllowance()
+    /* console.log('bnInput', Number(bnInput.toString()))
+    console.log('allowance', Number(allowance.toString()))
+    console.log(
+      'comparison',
+      Number(bnInput.toString()) > Number(allowance.toString()),
+    ) */
+  }, [bnInput, tokenIn])
 
   const getRangePool = async () => {
     try {
@@ -425,9 +428,6 @@ export default function Swap() {
       )
     }
   }
-
-  /* console.log('balance0', balance0)
-  console.log('balance1', balance1) */
 
   return (
     <div className="pt-[10vh]">
@@ -701,15 +701,17 @@ export default function Swap() {
           </div>
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {isDisconnected ? null : hasSelected === false ? (
+        {/* TODO@retraca Set buttons to swap e cover */}
+        {isDisconnected ||
+        stateChainName !== 'arbitrumGoerli' ? null : hasSelected === false ? (
           <SelectTokenButton />
-        ) : stateChainName !== 'arbitrumGoerli' ? null : Number(rangePrice) <
-            Number(coverPrice) && rangeAllowance === '0.0' ? (
-          <SwapRangeApproveButton approveToken={tokenIn.address} />
-        ) : Number(coverPrice) < rangePrice && coverAllowance === '0.0' ? (
-          <SwapCoverApproveButton approveToken={tokenIn.address} />
-        ) : stateChainName !== 'arbitrumGoerli' ? null : Number(rangePrice) <
-          Number(coverPrice) ? (
+        ) : Number(allowance) < Number(bnInput) ? (
+          Number(rangePrice) < Number(coverPrice) ? (
+            <SwapRangeApproveButton approveToken={tokenIn.address} />
+          ) : (
+            <SwapCoverApproveButton approveToken={tokenIn.address} />
+          )
+        ) : Number(rangePrice) < Number(coverPrice) ? (
           <SwapRangeButton
             zeroForOne={
               tokenOut.address != '' && tokenIn.address < tokenOut.address
@@ -730,3 +732,14 @@ export default function Swap() {
     </div>
   )
 }
+
+/* ? (  &&
+          
+        ) */
+
+/*  stateChainName !== 'arbitrumGoerli' ? Number(rangePrice) <
+          Number(coverPrice) ? (
+          
+        ) : Number(coverPrice) < rangePrice ? (
+          
+        ) : <div>Ola</div> : */
