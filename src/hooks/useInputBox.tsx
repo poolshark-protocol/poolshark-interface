@@ -60,8 +60,9 @@ export default function useInputBox() {
     };
 
     const maxBalance = (balance, placeholder) => {
+        /* console.log('bal',balance) */
         setDisplay(balance)
-        setInput(ethers.utils.parseUnits(balance, 18).toString())
+        setInput(ethers.utils.parseUnits(balance, 18))
         if (balance != "") {
             const valueToBn = ethers.utils.parseUnits(balance, 18);
             setBnInput(valueToBn);

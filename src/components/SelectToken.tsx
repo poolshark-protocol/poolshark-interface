@@ -5,7 +5,7 @@ import {
   MagnifyingGlassIcon,
 } from "@heroicons/react/20/solid";
 import { Transition, Dialog } from "@headlessui/react";
-import { tokenZeroAddress, tokenOneAddress, rangeTokenZero, rangeTokenOne } from "../constants/contractAddresses";
+import { coverTokenZero, coverTokenOne, rangeTokenZero, rangeTokenOne } from "../constants/contractAddresses";
 import useTokenList from "../hooks/useTokenList";
 import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
@@ -140,6 +140,8 @@ export default function SelectToken(props) {
                   </div>
                   <div>
                     {coinsForListing?.map((coin) => {
+                      /* console.log('props',props)
+                      console.log('coin',coin) */
                       return (
                         <CoinListItem key={props.index} coin={coin} chooseToken={chooseToken} />
                       );

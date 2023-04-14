@@ -64,7 +64,7 @@ export default function Swap() {
   const [rangePrice, setRangePrice] = useState(undefined)
   const [hasSelected, setHasSelected] = useState(false)
   const [mktRate, setMktRate] = useState({})
-  const [queryToken0, setQueryToken0] = useState(coverTokenOne)
+  const [queryToken0, setQueryToken0] = useState(coverTokenZero)
   const [queryToken1, setQueryToken1] = useState(coverTokenOne)
   const [token0, setToken0] = useState({
     symbol: 'WETH',
@@ -76,6 +76,7 @@ export default function Swap() {
     symbol: 'WETH',
     logoURI: '/static/images/eth_icon.png',
     address: rangeTokenZero,
+    //address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
   })
   const [tokenOut, setTokenOut] = useState({
     symbol: 'Select Token',
@@ -93,7 +94,6 @@ export default function Swap() {
         421613,
       )
       const signer = new ethers.VoidSigner(address, provider)
-      /* console.log(tokenIn) */
       const token1Bal = new ethers.Contract(tokenIn.address, erc20ABI, signer)
       const balance1 = await token1Bal.balanceOf(address)
       let token2Bal: Contract
@@ -102,8 +102,6 @@ export default function Swap() {
       if (hasSelected === true) {
         token2Bal = new ethers.Contract(tokenOut.address, erc20ABI, signer)
         const balance2 = await token2Bal.balanceOf(address)
-        console.log('balance1',balance1)
-        console.log('balance2',balance2)
         let bal2: string
         bal2 = Number(ethers.utils.formatEther(balance2)).toFixed(2)
         /* if (Number(ethers.utils.formatEther(balance1)) >= 1000000) {
@@ -127,8 +125,8 @@ export default function Swap() {
           console.log('here3')
           bal2 = Number(ethers.utils.formatEther(balance2)).toFixed(2)
         } */
-       
-      setBalance1(bal2)
+
+        setBalance1(bal2)
       }
       /* let bal1 = await token1Bal.balanceOf(address)
       let displayBal1: string
@@ -515,7 +513,7 @@ export default function Swap() {
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
                   <div className="flex text-xs text-[#4C4C4C]" key={balance0}>
-                    Balance: {balance1 === 'NaN' ? 0 : balance1}
+                    Balance: {balance0 === 'NaN' ? 0 : balance0}
                   </div>
                   {isConnected && stateChainName === 'arbitrumGoerli' ? (
                     <button
