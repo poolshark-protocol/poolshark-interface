@@ -502,10 +502,10 @@ export default function ConcentratedPool({
           poolId={poolId}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
-          amount0={bnInput}
-          amount1={bnInputLimit}
-          minPrice={minPrice}
-          maxPrice={maxPrice}
+          amount0={rangeContractParams.amount0}
+          amount1={rangeContractParams.amount1}
+          minPrice={rangeContractParams.lower}
+          maxPrice={rangeContractParams.upper}
           fee={selected.tier}
         />
       </div>
