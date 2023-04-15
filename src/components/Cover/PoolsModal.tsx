@@ -55,6 +55,12 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
   const [univ3Pools, setUniv3Pools] = useState([])
   const [allUniv3Pools, setAllUniv3Pools] = useState([])
 
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const handleSearchTermChange = (event) => {
+    setSearchTerm(event.target.value)
+  }
+
   async function getUniv3PoolData() {
     const data = await fetchUniV3Pools()
     const pools = data['data'].pools
@@ -134,24 +140,35 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
                   <input
                     className="border border-grey2 bg-dark rounded-xl py-2.5 w-full placeholder:text-grey outline-none pl-12"
                     placeholder="Search name, symbol or address"
+                    value={searchTerm}
+                    onChange={handleSearchTermChange}
                   />
                 </div>
                 <div>
                   <h1 className="mb-3">Poolshark Pools</h1>
                   <div className="space-y-2">
                     {allCoverPools.map((allCoverPool) => {
-                      return (
-                        <UserCoverPool
-                          account={'account'}
-                          key={allCoverPool.poolId}
-                          tokenOne={allCoverPool.tokenOne}
-                          tokenZero={allCoverPool.tokenZero}
-                          poolId={allCoverPool.poolId}
-                          prefill={undefined}
-                          close={undefined}
-                          href={'/pool/view/cover'}
-                        />
+                      if (
+                        allCoverPool.tokenZero.name === searchTerm ||
+                        allCoverPool.tokenOne.name === searchTerm ||
+                        allCoverPool.tokenZero.symbol === searchTerm ||
+                        allCoverPool.tokenOne.symbol === searchTerm ||
+                        allCoverPool.tokenZero.id === searchTerm ||
+                        allCoverPool.tokenOne.id === searchTerm ||
+                        searchTerm === ''
                       )
+                        return (
+                          <UserCoverPool
+                            account={'account'}
+                            key={allCoverPool.poolId}
+                            tokenOne={allCoverPool.tokenOne}
+                            tokenZero={allCoverPool.tokenZero}
+                            poolId={allCoverPool.poolId}
+                            prefill={undefined}
+                            close={undefined}
+                            href={'/pool/view/cover'}
+                          />
+                        )
                     })}
                   </div>
                 </div>
@@ -159,18 +176,27 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
                   <h1 className="mb-3 mt-4">UNI-V3 Pools</h1>
                   <div className="space-y-2">
                     {allUniv3Pools.map((allUniv3Pool) => {
-                      return (
-                        <UserCoverPool
-                          account={'account'}
-                          key={allUniv3Pool.poolId}
-                          tokenOne={allUniv3Pool.tokenOne}
-                          tokenZero={allUniv3Pool.tokenZero}
-                          poolId={allUniv3Pool.poolId}
-                          prefill={undefined}
-                          close={undefined}
-                          href={'/pool/view'}
-                        />
+                      if (
+                        allUniv3Pool.tokenZero.name === searchTerm ||
+                        allUniv3Pool.tokenOne.name === searchTerm ||
+                        allUniv3Pool.tokenZero.symbol === searchTerm ||
+                        allUniv3Pool.tokenOne.symbol === searchTerm ||
+                        allUniv3Pool.tokenZero.id === searchTerm ||
+                        allUniv3Pool.tokenOne.id === searchTerm ||
+                        searchTerm === ''
                       )
+                        return (
+                          <UserCoverPool
+                            account={'account'}
+                            key={allUniv3Pool.poolId}
+                            tokenOne={allUniv3Pool.tokenOne}
+                            tokenZero={allUniv3Pool.tokenZero}
+                            poolId={allUniv3Pool.poolId}
+                            prefill={undefined}
+                            close={undefined}
+                            href={'/pool/view'}
+                          />
+                        )
                     })}
                   </div>
                 </div>
