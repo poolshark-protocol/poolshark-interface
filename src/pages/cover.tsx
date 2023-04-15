@@ -18,6 +18,12 @@ export default function Cover() {
   const [maxPrice, setMaxPrice] = useState(0)
   const [disabled, setDisabled] = useState(true)
 
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const handleSearchTermChange = (event) => {
+    setSearchTerm(event.target.value)
+  }
+
   const increaseMaxPrice = () => {
     setMaxPrice((count) => count + 1)
   }
@@ -241,6 +247,8 @@ export default function Cover() {
                   <input
                     className="border border-grey2 bg-dark rounded-xl py-2.5 w-full placeholder:text-grey outline-none pl-12"
                     placeholder="Search name, symbol or address"
+                    value={searchTerm}
+                    onChange={handleSearchTermChange}
                   />
                 </div>
                 <div>
@@ -268,7 +276,14 @@ export default function Cover() {
                           if (
                             //TODO@retraca remove this
                             /* allCoverPosition.userOwnerAddress ===
-                            address?.toLowerCase() */ true
+                            address?.toLowerCase() */ allCoverPosition
+                              .tokenZero.name === searchTerm ||
+                            allCoverPosition.tokenOne.name === searchTerm ||
+                            allCoverPosition.tokenZero.symbol === searchTerm ||
+                            allCoverPosition.tokenOne.symbol === searchTerm ||
+                            allCoverPosition.tokenZero.id === searchTerm ||
+                            allCoverPosition.tokenOne.id === searchTerm ||
+                            searchTerm === ''
                           ) {
                             return (
                               <UserCoverPool
@@ -294,7 +309,14 @@ export default function Cover() {
                     if (
                       //TODO@retraca remove this
                       /* allUniV3Position.userOwnerAddress ===
-                      address?.toLowerCase() */ true
+                      address?.toLowerCase() */ allUniV3Position
+                        .tokenZero.name === searchTerm ||
+                      allUniV3Position.tokenOne.name === searchTerm ||
+                      allUniV3Position.tokenZero.symbol === searchTerm ||
+                      allUniV3Position.tokenOne.symbol === searchTerm ||
+                      allUniV3Position.tokenZero.id === searchTerm ||
+                      allUniV3Position.tokenOne.id === searchTerm ||
+                      searchTerm === ''
                     ) {
                       return (
                         <UserCoverPool
