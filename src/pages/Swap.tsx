@@ -701,7 +701,6 @@ export default function Swap() {
           </div>
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {/* TODO@retraca Set buttons to swap e cover */}
         {isDisconnected ||
         stateChainName !== 'arbitrumGoerli' ? null : hasSelected === false ? (
           <SelectTokenButton />

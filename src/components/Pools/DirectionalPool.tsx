@@ -472,9 +472,9 @@ export default function DirectionalPool({
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 ">
                 {inputBox('0')}
-                <div className="flex">
+                {/* <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
-                </div>
+                </div> */}
               </div>
               <div className="">
                 <div className=" ml-auto">
@@ -519,9 +519,9 @@ export default function DirectionalPool({
                 ) : (
                   <div>0</div>
                 )}
-                <div className="flex">
+                {/* <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
-                </div>
+                </div> */}
               </div>
               <div className="">
                 <div className=" ml-auto">
