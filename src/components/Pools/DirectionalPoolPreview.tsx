@@ -119,38 +119,6 @@ export default function DirectionalPoolPreview({
                               </div>
                             </div>
                           </div>
-                          <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-                            <div className=" p-2 ">
-                              <div className="w-44 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
-                                {ethers.utils.formatUnits(amount1, 18)}
-                              </div>
-                              <div className="flex">
-                                <div className="flex text-xs text-[#4C4C4C]">
-                                  ~300.52
-                                </div>
-                              </div>
-                            </div>
-                            <div className="">
-                              <div className=" ml-auto">
-                                <div>
-                                  <div className="flex justify-end">
-                                    <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
-                                      <div className="flex items-center gap-x-2 w-full">
-                                        <img
-                                          className="w-7"
-                                          src={tokenOut.logoURI}
-                                        />
-                                        {tokenOut.symbol}
-                                      </div>
-                                    </button>
-                                  </div>
-                                  <div className="flex items-center justify-end gap-x-2 px-1 mt-2">
-                                    <div className="text-xs text-dark">-</div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
                         </div>
                       </div>
                     </div>

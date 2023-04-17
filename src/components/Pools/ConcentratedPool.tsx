@@ -107,7 +107,7 @@ export default function ConcentratedPool({
 
   const newAllowance = useAllowance(address)
 
-  /*const [
+  const [
     updateRangeContractParams,
     updateRangeAllowance,
     RangeAllowance,
@@ -117,7 +117,7 @@ export default function ConcentratedPool({
     state.updateRangeAllowance,
     state.RangeAllowance,
     state.rangeContractParams,
-  ])*/
+  ])
 
   useEffect(() => {
     getBalances()
@@ -200,14 +200,14 @@ export default function ConcentratedPool({
         setAmount1(bnInputLimit)
         setFungible(true)
 
-        /*updateRangeContractParams({
+        updateRangeContractParams({
           to: address,
           min: ethers.utils.parseUnits(String(min), 0),
           max: ethers.utils.parseUnits(String(max), 0),
           amount0: bnInput,
           amount1: bnInputLimit,
           fungible: true,
-        })*/
+        })
         setDisabled(false)
       }
     } catch (error) {
@@ -636,8 +636,8 @@ export default function ConcentratedPool({
           amount0={bnInput._hex}
           /* TODO@retraca amount1 need to change to another var because bnLimit is not used, var need to be calculated considering prices and bnInput */
           amount1={bnInput._hex}
-          minPrice={min}
-          maxPrice={max}
+          minPrice={minPrice}
+          maxPrice={maxPrice}
           fee={selected.tier}
         />
       </div>
