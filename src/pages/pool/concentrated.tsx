@@ -23,7 +23,7 @@ export default function Concentrated({
           </div>
           <ConcentratedPool
              account={'account'}
-             key={router.query.poolId}
+             key={router.query.poolId.toString()}
              poolId={router.query.poolId}
              tokenOneName={router.query.tokenOneName}
              tokenOneSymbol={router.query.tokenOneSymbol}

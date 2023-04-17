@@ -598,7 +598,7 @@ export default function ConcentratedPool({
         </div>
         <ConcentratedPoolPreview
           account={to}
-          poolId={poolId}
+          key={poolId}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
           amount0={amount0}

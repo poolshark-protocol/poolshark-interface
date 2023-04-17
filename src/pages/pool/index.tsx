@@ -235,8 +235,22 @@ export default function Pool() {
             </div>
             <Link
               href={{
-                pathname: '/pool/create',
-                query: { prop1: 'value1', prop2: 'value2' },
+                pathname:
+                  selected.id === 1
+                    ? '/pool/concentrated'
+                    : '/pool/directional',
+                query: {
+                  account: 'account',
+                  poolId: 'poolId.toString()',
+                  tokenOneName: '',
+                  tokenOneSymbol: '',
+                  tokenOneLogoURI: '',
+                  tokenOneAddress: '',
+                  tokenZeroName: '',
+                  tokenZeroSymbol: '',
+                  tokenZeroLogoURI: '',
+                  tokenZeroAddress: '',
+                },
               }}
             >
               <button className="flex items-center gap-x-1.5 px-7 py-[9px] text-white text-sm transition whitespace-nowrap rounded-lg cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
