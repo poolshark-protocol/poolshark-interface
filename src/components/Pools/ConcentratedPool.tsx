@@ -554,16 +554,6 @@ export default function ConcentratedPool({
                       <div className="flex text-xs text-[#4C4C4C]">
                         Balance: {balance1 === 'NaN' ? 0 : balance1}
                       </div>
-                      {isConnected ? (
-                        <button
-                          className="flex text-xs uppercase text-[#C9C9C9]"
-                          onClick={() => {
-                            /* maxBalance(balance1, '0') */
-                          }}
-                        >
-                          Max
-                        </button>
-                      ) : null}
                     </div>
                   </div>
                 </div>

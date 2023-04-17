@@ -504,42 +504,6 @@ export default function DirectionalPool({
                 </div>
               </div>
             </div>
-            <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-              <div className=" p-2 ">
-                {/* TODO@retraca define an extra variable to mirror limitInputBox and update considering max button*/}
-                {LimitInputBox('0')}
-                {/* <div className="flex">
-                  <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
-                </div> */}
-              </div>
-              <div className="">
-                <div className=" ml-auto">
-                  <div>
-                    <div className="flex justify-end">
-                      <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
-                        <div className="flex items-center gap-x-2 w-full">
-                          <img className="w-7" src={tokenOut.logoURI} />
-                          {tokenOut.symbol}
-                        </div>
-                      </button>
-                    </div>
-                    <div className="flex items-center justify-end gap-x-2 px-1 mt-2">
-                      <div className="text-xs text-[#4C4C4C]">
-                        Balance: {balance1 === 'NaN' ? 0 : balance1}
-                      </div>
-                      {isConnected ? (
-                        <button
-                          className="flex text-xs uppercase text-[#C9C9C9]"
-                          onClick={() => maxBalance(balance1, '0')}
-                        >
-                          Max
-                        </button>
-                      ) : null}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

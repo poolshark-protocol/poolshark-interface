@@ -23,8 +23,8 @@ export default function Directional({
           </div>
           <DirectionalPool
             account={'account'}
-            key={router.query.poolId}
-            poolId={router.query.poolId}
+            key={router.query.poolId.toString()}
+            poolId={router.query.poolId.toString()}
             tokenOneName={router.query.tokenOneName}
             tokenOneSymbol={router.query.tokenOneSymbol}
             tokenOneLogoURI={router.query.tokenOneLogoURI}
