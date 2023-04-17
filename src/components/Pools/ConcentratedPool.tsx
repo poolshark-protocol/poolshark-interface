@@ -174,6 +174,9 @@ export default function ConcentratedPool({
     setRangeParams()
   }, [address, minPrice, maxPrice, bnInput, bnInputLimit])
 
+  console.log("min", rangeContractParams.min)
+  console.log("max", rangeContractParams.max)
+
   const changePrice = (direction: string, minMax: string) => {
     if (direction === 'plus' && minMax === 'min') {
       if (

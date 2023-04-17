@@ -21,8 +21,8 @@ type CoverContractParams = {
 
 type RangeContractParams = {
   to: string,
-  lower: BigNumber,
-  upper: BigNumber,
+  min: BigNumber,
+  max: BigNumber,
   amount0: BigNumber,
   amount1: BigNumber,
   fungible: true,
@@ -120,8 +120,8 @@ const initialRangeState: RangeState = {
   },
   rangeContractParams: {
     to: "",
-    lower: ethers.utils.parseUnits("20", 0),
-    upper: ethers.utils.parseUnits("30", 0),
+    min: ethers.utils.parseUnits("20", 0),
+    max: ethers.utils.parseUnits("30", 0),
     amount0: ethers.utils.parseUnits("0", 0),
     amount1: ethers.utils.parseUnits("0", 0),
     fungible: true,

@@ -32,8 +32,8 @@ export default function RangeMintButton({
 
   const [rangeContractParams, setRangeContractParams] = useState({
     to: to,
-    lower: lower,
-    upper: upper,
+    min: lower,
+    max: upper,
     amount0: amount0,
     amount1: amount1,
     fungible: fungible,
@@ -43,8 +43,8 @@ export default function RangeMintButton({
   useEffect(() => {
     setRangeContractParams({
       to: to,
-      lower: lower,
-      upper: upper,
+      min: lower,
+      max: upper,
       amount0: amount0,
       amount1: amount1,
       fungible: fungible,
@@ -57,8 +57,8 @@ export default function RangeMintButton({
     functionName: 'mint',
     args: [[
       rangeContractParams.to,
-      rangeContractParams.lower,
-      rangeContractParams.upper,
+      rangeContractParams.min,
+      rangeContractParams.max,
       rangeContractParams.amount0,
       rangeContractParams.amount1,
       rangeContractParams.fungible,
