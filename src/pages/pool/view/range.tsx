@@ -16,7 +16,7 @@ export default function Range() {
   const router = useRouter()
 
   function copyAddress0() {
-    navigator.clipboard.writeText('0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d')
+    navigator.clipboard.writeText(router.query.tokenZeroAddress.toString())
     setIs0Copied(true)
   }
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function Range() {
   })
 
   function copyAddress1() {
-    navigator.clipboard.writeText('0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d')
+    navigator.clipboard.writeText(router.query.tokenOneAddress.toString())
     setIs1Copied(true)
   }
   useEffect(() => {
@@ -42,7 +42,7 @@ export default function Range() {
   })
 
   function copyPoolAddress() {
-    navigator.clipboard.writeText('0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d')
+    navigator.clipboard.writeText(router.query.poolAddress.toString())
     setIsPoolCopied(true)
   }
   useEffect(() => {
@@ -65,13 +65,13 @@ export default function Range() {
                 <img
                   height="50"
                   width="50"
-                  src={router.query.tokenZeroLogoURI}
+                  src={router.query.tokenZeroLogoURI.toString()}
                 />
                 <img
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={router.query.tokenOneLogoURI}
+                  src={router.query.tokenOneLogoURI.toString()}
                 />
               </div>
               <span className="text-3xl">
@@ -143,7 +143,7 @@ export default function Range() {
                       <img
                         height="30"
                         width="30"
-                        src={router.query.tokenZeroLogoURI}
+                        src={router.query.tokenZeroLogoURI.toString()}
                       />
                       {router.query.tokenZeroName}
                     </div>
@@ -159,7 +159,7 @@ export default function Range() {
                       <img
                         height="30"
                         width="30"
-                        src={router.query.tokenOneLogoURI}
+                        src={router.query.tokenOneLogoURI.toString()}
                       />
                       {router.query.tokenOneName}
                     </div>
@@ -189,7 +189,7 @@ export default function Range() {
                       <img
                         height="30"
                         width="30"
-                        src={router.query.tokenZeroLogoURI}
+                        src={router.query.tokenZeroLogoURI.toString()}
                       />
                       {router.query.tokenZeroName}
                     </div>
@@ -200,7 +200,7 @@ export default function Range() {
                       <img
                         height="30"
                         width="30"
-                        src={router.query.tokenOneLogoURI}
+                        src={router.query.tokenOneLogoURI.toString()}
                       />
                       {router.query.tokenZeroName}
                     </div>
