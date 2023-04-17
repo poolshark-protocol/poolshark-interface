@@ -506,19 +506,8 @@ export default function DirectionalPool({
             </div>
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 ">
-                {Number(bnInput) != 0 ? (
-                  <div>
-                    {parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                      (parseFloat(
-                        mktRate[tokenZeroSymbol].replace(/[^\d.-]/g, ''),
-                      ) /
-                        parseFloat(
-                          mktRate[tokenOneSymbol].replace(/[^\d.-]/g, ''),
-                        ))}
-                  </div>
-                ) : (
-                  <div>0</div>
-                )}
+                {/* TODO@retraca define an extra variable to mirror limitInputBox and update considering max button*/}
+                {LimitInputBox('0')}
                 {/* <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
                 </div> */}
@@ -538,6 +527,14 @@ export default function DirectionalPool({
                       <div className="text-xs text-[#4C4C4C]">
                         Balance: {balance1 === 'NaN' ? 0 : balance1}
                       </div>
+                      {isConnected ? (
+                        <button
+                          className="flex text-xs uppercase text-[#C9C9C9]"
+                          onClick={() => maxBalance(balance1, '0')}
+                        >
+                          Max
+                        </button>
+                      ) : null}
                     </div>
                   </div>
                 </div>
@@ -616,14 +613,8 @@ export default function DirectionalPool({
           poolId={poolId}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
-          amount0={bnInput}
-          amount1={
-            Number(bnInput) != 0
-              ? parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                (parseFloat(mktRate[tokenZeroSymbol].replace(/[^\d.-]/g, '')) /
-                  parseFloat(mktRate[tokenOneSymbol].replace(/[^\d.-]/g, '')))
-              : 0
-          }
+          amount0={bnInput._hex}
+          amount1={bnInputLimit._hex}
           minPrice={minPrice}
           maxPrice={maxPrice}
           fee={selected.tier}

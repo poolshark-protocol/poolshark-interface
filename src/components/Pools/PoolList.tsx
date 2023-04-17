@@ -23,7 +23,7 @@ export default function PoolList({
         pathname: href,
         query: {
           account: account,
-          poolId: poolId.toString(),
+          poolId: poolId,
           tokenOneName: tokenOne.name,
           tokenOneSymbol: tokenOne.symbol,
           tokenOneLogoURI: logoMap[tokenOne.symbol],

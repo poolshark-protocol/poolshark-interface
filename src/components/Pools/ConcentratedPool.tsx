@@ -9,6 +9,7 @@ import JSBI from 'jsbi'
 import { getPreviousTicksLower } from '../../utils/queries'
 import useInputBox from '../../hooks/useInputBox'
 import useAllowance from '../../hooks/useAllowance'
+import { fetchPrice } from '../../utils/queries'
 import { useRouter } from 'next/router'
 import {
   tokenOneAddress,
@@ -94,6 +95,8 @@ export default function ConcentratedPool({
   const [hasSelected, setHasSelected] = useState(false)
   const [isDisabled, setDisabled] = useState(false)
 
+  const [mktRate, setMktRate] = useState({})
+
   const {
     bnInput,
     inputBox,
@@ -119,6 +122,32 @@ export default function ConcentratedPool({
   useEffect(() => {
     getBalances()
   }, [bnInput, bnInputLimit])
+
+  useEffect(() => {
+    fetchTokenPrice()
+  }, [])
+
+  const fetchTokenPrice = async () => {
+    try {
+      const price = await fetchPrice('0x000')
+      setMktRate({
+        WETH:
+          '~' +
+          Number(price['data']['bundles']['0']['ethPriceUSD']).toLocaleString(
+            'en-US',
+            {
+              style: 'currency',
+              currency: 'USD',
+            },
+          ),
+        USDC: '~1.00',
+        TOKEN20A: '~1.00',
+        TOKEN20B: '~1.00',
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   async function setRangeParams() {
     try {
@@ -459,7 +488,6 @@ export default function ConcentratedPool({
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 ">
                 {inputBox('0')}
-                {/* TODO@retraca make the math for this and also in directional */}
                 {/* <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
                 </div> */}
@@ -494,8 +522,19 @@ export default function ConcentratedPool({
             </div>
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 ">
-                {/* TODO@retraca define an extra variable to mirror limitInputBox and update considering max button*/}
-                {LimitInputBox('0')}
+                {Number(bnInput) != 0 ? (
+                  <div>
+                    {parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                      (parseFloat(
+                        mktRate[tokenZeroSymbol].replace(/[^\d.-]/g, ''),
+                      ) /
+                        parseFloat(
+                          mktRate[tokenOneSymbol].replace(/[^\d.-]/g, ''),
+                        ))}
+                  </div>
+                ) : (
+                  <div>0</div>
+                )}
                 {/* <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
                 </div> */}
@@ -513,12 +552,14 @@ export default function ConcentratedPool({
                     </div>
                     <div className="flex items-center justify-end gap-x-2 px-1 mt-2">
                       <div className="flex text-xs text-[#4C4C4C]">
-                        Balance: {balance1   === 'NaN' ? 0 : balance1 }
+                        Balance: {balance1 === 'NaN' ? 0 : balance1}
                       </div>
                       {isConnected ? (
                         <button
                           className="flex text-xs uppercase text-[#C9C9C9]"
-                          onClick={() => {/* maxBalance(balance1, '0') */}}
+                          onClick={() => {
+                            /* maxBalance(balance1, '0') */
+                          }}
                         >
                           Max
                         </button>
@@ -596,13 +637,15 @@ export default function ConcentratedPool({
             </div>
           </div>
         </div>
+
         <ConcentratedPoolPreview
           account={to}
           key={poolId}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
-          amount0={amount0}
-          amount1={amount1}
+          amount0={bnInput._hex}
+          /* TODO@retraca amount1 need to change to another var because bnLimit is not used, var need to be calculated considering prices and bnInput */
+          amount1={bnInput._hex}
           minPrice={min}
           maxPrice={max}
           fee={selected.tier}

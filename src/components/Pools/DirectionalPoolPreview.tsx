@@ -122,8 +122,7 @@ export default function DirectionalPoolPreview({
                           <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
                             <div className=" p-2 ">
                               <div className="w-44 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
-                                {/* {ethers.utils.formatUnits(amount1, 18)} */}
-                                {amount1}
+                                {ethers.utils.formatUnits(amount1, 18)}
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">

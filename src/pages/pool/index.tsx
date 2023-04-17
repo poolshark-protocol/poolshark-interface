@@ -241,7 +241,7 @@ export default function Pool() {
                     : '/pool/directional',
                 query: {
                   account: 'account',
-                  poolId: 'poolId.toString()',
+                  poolId: 'poolId',
                   tokenOneName: '',
                   tokenOneSymbol: '',
                   tokenOneLogoURI: '',
