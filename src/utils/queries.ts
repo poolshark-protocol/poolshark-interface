@@ -119,11 +119,11 @@ export const getRangeQuote = async (
   )
   const contract = new ethers.Contract(id, rangePoolABI, provider)
   const quote = await contract.quote(
-    false, //zeroForOne
+    true, //zeroForOne
     amountIn, //amountIn
     limit,
   )
-  console.log(quote['1']['output'])
+  console.log("quote", quote['1']['output'])
   const amountInUsed = amountIn.sub(quote['1']['input'])
   const price = amountInUsed.gt(0) ? quote['1']['output'].div(amountInUsed) : 0
   return price
@@ -141,7 +141,7 @@ export const getCoverQuote = async (
   )
   const contract = new ethers.Contract(id, coverPoolABI, provider)
   const quote = await contract.quote(
-    false, //zeroForOne
+    true, //zeroForOne
     amountIn, //amountIn
     limit,
   )
