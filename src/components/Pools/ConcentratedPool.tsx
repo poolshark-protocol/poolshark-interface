@@ -8,7 +8,7 @@ import { TickMath } from '../../utils/tickMath'
 import JSBI from 'jsbi'
 import { getPreviousTicksLower } from '../../utils/queries'
 import useInputBox from '../../hooks/useInputBox'
-import useCoverAllowance from '../../hooks/useCoverAllowance'
+import useAllowance from '../../hooks/useAllowance'
 import { useRouter } from 'next/router'
 import {
   tokenOneAddress,
@@ -93,7 +93,7 @@ export default function ConcentratedPool({
     LimitInputBox,
   } = useInputBox()
 
-  const newAllowance = useCoverAllowance(address)
+  const newAllowance = useAllowance(address)
 
   const [
     updateRangeContractParams,

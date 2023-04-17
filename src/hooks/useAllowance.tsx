@@ -1,17 +1,17 @@
-import { useContractRead, useProvider, useAccount } from "wagmi";
+import { useContractRead } from "wagmi";
 import { erc20ABI } from "wagmi";
 import { ethers } from "ethers";
 import { useState } from "react";
-import { rangePoolAddress, tokenZeroAddress } from "../constants/contractAddresses";
+import { coverPoolAddress, tokenZeroAddress } from "../constants/contractAddresses";
 
-export default function useRangeAllowance(address) { 
+export default function useAllowance(address) { 
    const [allowance, setAllowance] = useState(null);
   
     useContractRead({
      address: tokenZeroAddress,
      abi: erc20ABI,
      functionName: "allowance",
-     args: [address, rangePoolAddress],
+     args: [address, coverPoolAddress],
      chainId: 421613,
      watch: true,
      onSuccess(data) {

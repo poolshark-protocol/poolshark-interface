@@ -49,8 +49,8 @@ export default function Swap() {
     bnInputLimit,
     LimitInputBox,
   } = useInputBox()
-  /* const rangeAllowance = useRangeAllowance(address)
-  const coverAllowance = useCoverAllowance(address) */
+  /* const rangeAllowance = useAllowance(address)
+  const coverAllowance = useAllowance(address) */
   const [allowance, setAllowance] = useState('0')
   const [gasFee, setGasFee] = useState('')
   const [rangeBaseLimit, setRangeBaseLimit] = useState('')

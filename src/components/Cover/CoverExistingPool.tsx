@@ -11,7 +11,7 @@ import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 import CoverApproveButton from '../Buttons/CoverApproveButton'
 import { useEffect, useState } from 'react'
 import { useCoverStore } from '../../hooks/useStore'
-import useCoverAllowance from '../../hooks/useCoverAllowance'
+import useAllowance from '../../hooks/useAllowance'
 
 export default function CoverExistingPool({ goBack }) {
   const [pool, updatePool] = useCoverStore((state: any) => [
@@ -83,7 +83,7 @@ export default function CoverExistingPool({ goBack }) {
   }
 
   //Fix
-  const allowance = useCoverAllowance(address)
+  const allowance = useAllowance(address)
 
   const [sliderValue, setSliderValue] = useState(50)
 
