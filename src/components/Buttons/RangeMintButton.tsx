@@ -30,7 +30,7 @@ export default function RangeMintButton({
 
   useEffect(() => {}, [disabled])
 
-  const [rangeContractParams, setRangeContractParams] = useState({
+  /*const [rangeContractParams, setRangeContractParams] = useState({
     to: to,
     min: lower,
     max: upper,
@@ -49,19 +49,19 @@ export default function RangeMintButton({
       amount1: amount1,
       fungible: fungible,
     })
-  }, [to, lower, upper, amount0, amount1, fungible])
+  }, [to, lower, upper, amount0, amount1, fungible])*/
 
   const { config } = usePrepareContractWrite({
     address: rangePoolAddress,
     abi: rangePoolABI,
     functionName: 'mint',
     args: [[
-      rangeContractParams.to,
-      rangeContractParams.min,
-      rangeContractParams.max,
-      rangeContractParams.amount0,
-      rangeContractParams.amount1,
-      rangeContractParams.fungible,
+      to,
+      lower,
+      upper,
+      amount0,
+      amount1,
+      fungible,
     ]],
     chainId: 421613,
     overrides: {

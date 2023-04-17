@@ -504,12 +504,12 @@ export default function CreateCover(props: any) {
         ) : stateChainName === 'arbitrumGoerli' ? (
           <CoverMintButton
             disabled={isDisabled}
-            to={'to'}
-            lower={'lower'}
-            claim={'claim'}
-            upper={'upper'}
-            amount={'amount'}
-            zeroForOne={'zeroForOne'}
+            to={coverContractParams.to}
+            lower={coverContractParams.lower}
+            claim={coverContractParams.claim}
+            upper={coverContractParams.upper}
+            amount={coverContractParams.amount}
+            zeroForOne={coverContractParams.zeroForOne}
           />
         ) : null}
       </div>

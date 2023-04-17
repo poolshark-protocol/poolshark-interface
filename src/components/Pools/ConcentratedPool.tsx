@@ -61,6 +61,15 @@ export default function ConcentratedPool({
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
 
+  const initialBig = BigNumber.from(0)
+
+  const [to, setTo] = useState('')
+  const [min, setMin] = useState(initialBig)
+  const [max, setMax] = useState(initialBig)
+  const [amount0, setAmount0] = useState(initialBig)
+  const [amount1, setAmount1] = useState(initialBig)
+  const [fungible, setFungible] = useState(true)
+
   const [token0, setToken0] = useState({
     symbol: tokenZeroSymbol,
     logoURI: tokenZeroLogoURI,
@@ -155,6 +164,13 @@ export default function ConcentratedPool({
             JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
           ),
         )
+        setTo(address)
+        setMin(ethers.utils.parseUnits(String(min), 0))
+        setMax(ethers.utils.parseUnits(String(max), 0))
+        setAmount0(bnInput)
+        setAmount1(bnInputLimit)
+        setFungible(true)
+
         updateRangeContractParams({
           to: address,
           min: ethers.utils.parseUnits(String(min), 0),
@@ -584,14 +600,14 @@ export default function ConcentratedPool({
           </div>
         </div>
         <ConcentratedPoolPreview
-          account={account}
+          account={to}
           poolId={poolId}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
-          amount0={rangeContractParams.amount0}
-          amount1={rangeContractParams.amount1}
-          minPrice={rangeContractParams.lower}
-          maxPrice={rangeContractParams.upper}
+          amount0={amount0}
+          amount1={amount1}
+          minPrice={min}
+          maxPrice={max}
           fee={selected.tier}
         />
       </div>

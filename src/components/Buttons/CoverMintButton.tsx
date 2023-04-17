@@ -94,7 +94,7 @@ export default function CoverMintButton({
     address: coverPoolAddress,
     abi: coverPoolABI,
     functionName: 'mint',
-    args: [
+    args: [[
       coverContractParams.to,
       coverContractParams.lower,
       coverContractParams.claim,
@@ -102,7 +102,7 @@ export default function CoverMintButton({
       coverContractParams.amount,
       coverContractParams.zeroForOne,
       false,
-    ],
+    ]],
     chainId: 421613,
     overrides: {
       gasLimit: BigNumber.from('350000'),
