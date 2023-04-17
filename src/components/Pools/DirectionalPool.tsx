@@ -504,6 +504,7 @@ export default function DirectionalPool({
                 </div>
               </div>
             </div>
+            
           </div>
         </div>
       </div>
