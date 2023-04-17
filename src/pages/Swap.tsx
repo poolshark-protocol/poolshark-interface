@@ -10,11 +10,8 @@ import useInputBox from '../hooks/useInputBox'
 import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton'
 import { erc20ABI, useAccount } from 'wagmi'
 import {
-  coverPoolAddress,
-  rangePoolAddress,
-  rangeTokenZero,
-  coverTokenOne,
-  coverTokenZero,
+  tokenZeroAddress,
+  tokenOneAddress
 } from '../constants/contractAddresses'
 import { useProvider } from 'wagmi'
 import { BigNumber, Contract, ethers } from 'ethers'
@@ -29,10 +26,7 @@ import {
 } from '../utils/queries'
 import { useSwapStore } from '../hooks/useStore'
 import SwapRangeApproveButton from '../components/Buttons/SwapRangeApproveButton'
-import { bn } from 'fuels'
 import SelectTokenButton from '../components/Buttons/SelectTokenButtonSwap'
-import useRangeAllowance from '../hooks/useRangeAllowance'
-import useCoverAllowance from '../hooks/useCoverAllowance'
 import SwapRangeButton from '../components/Buttons/SwapRangeButton'
 import SwapCoverApproveButton from '../components/Buttons/SwapCoverApproveButton'
 import SwapCoverButton from '../components/Buttons/SwapCoverButton'
@@ -65,18 +59,18 @@ export default function Swap() {
   const [rangePrice, setRangePrice] = useState(undefined)
   const [hasSelected, setHasSelected] = useState(false)
   const [mktRate, setMktRate] = useState({})
-  const [queryToken0, setQueryToken0] = useState(coverTokenZero)
-  const [queryToken1, setQueryToken1] = useState(coverTokenOne)
+  const [queryToken0, setQueryToken0] = useState(tokenZeroAddress)
+  const [queryToken1, setQueryToken1] = useState(tokenOneAddress)
   const [token0, setToken0] = useState({
     symbol: 'WETH',
     logoURI: '/static/images/eth_icon.png',
-    address: rangeTokenZero,
+    address: tokenZeroAddress,
   } as token)
   const [token1, setToken1] = useState({} as token)
   const [tokenIn, setTokenIn] = useState({
     symbol: 'WETH',
     logoURI: '/static/images/eth_icon.png',
-    address: rangeTokenZero,
+    address: tokenZeroAddress,
     //address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
   })
   const [tokenOut, setTokenOut] = useState({

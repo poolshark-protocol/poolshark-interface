@@ -10,8 +10,8 @@ import { fetchPrice } from '../../utils/queries'
 import useInputBox from '../../hooks/useInputBox'
 import useCoverAllowance from '../../hooks/useCoverAllowance'
 import {
-  coverTokenOne,
-  coverTokenZero,
+  tokenOneAddress,
+  tokenZeroAddress,
 } from '../../constants/contractAddresses'
 import { erc20ABI, useAccount } from 'wagmi'
 import { BigNumber, Contract, ethers } from 'ethers'
@@ -65,22 +65,22 @@ export default function DirectionalPool({
   const [token0, setToken0] = useState({
     symbol: tokenZeroSymbol,
     logoURI: tokenZeroLogoURI,
-    address: coverTokenZero,
+    address: tokenZeroAddress,
   } as token)
   const [token1, setToken1] = useState({
     symbol: tokenOneSymbol,
     logoURI: tokenOneLogoURI,
-    address: coverTokenOne,
+    address: tokenOneAddress,
   } as token)
   const [tokenIn, setTokenIn] = useState({
     symbol: tokenZeroSymbol,
     logoURI: tokenZeroLogoURI,
-    address: coverTokenZero,
+    address: tokenZeroAddress,
   })
   const [tokenOut, setTokenOut] = useState({
     symbol: tokenOneSymbol,
     logoURI: tokenOneLogoURI,
-    address: coverTokenOne,
+    address: tokenOneAddress,
   })
 
   const [mktRate, setMktRate] = useState({})

@@ -1,4 +1,4 @@
-export const rangeTokenZero = [
+export const tokenZero = [
     {
         "inputs": [
             {

@@ -3,7 +3,6 @@ import { erc20ABI } from "wagmi";
 import { ethers } from "ethers";
 import { useState } from "react";
 import { coverPoolAddress, tokenZeroAddress } from "../constants/contractAddresses";
-import { rangeTokenZero as tokenZero } from "../abis/evm/rangeTokenZero";
 
 export default function useCoverAllowance(address) { 
    const [allowance, setAllowance] = useState(null);

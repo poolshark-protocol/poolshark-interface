@@ -11,8 +11,8 @@ import useInputBox from '../../hooks/useInputBox'
 import useCoverAllowance from '../../hooks/useCoverAllowance'
 import { useRouter } from 'next/router'
 import {
-  rangeTokenOne,
-  rangeTokenZero,
+  tokenOneAddress,
+  tokenZeroAddress,
 } from '../../constants/contractAddresses'
 import { erc20ABI, useAccount } from 'wagmi'
 import { BigNumber, Contract, ethers } from 'ethers'
@@ -64,22 +64,22 @@ export default function ConcentratedPool({
   const [token0, setToken0] = useState({
     symbol: tokenZeroSymbol,
     logoURI: tokenZeroLogoURI,
-    address: rangeTokenZero,
+    address: tokenZeroAddress,
   } as token)
   const [token1, setToken1] = useState({
     symbol: tokenOneSymbol,
     logoURI: tokenOneLogoURI,
-    address: rangeTokenOne,
+    address: tokenOneAddress,
   } as token)
   const [tokenIn, setTokenIn] = useState({
     symbol: tokenZeroSymbol,
     logoURI: tokenZeroLogoURI,
-    address: rangeTokenZero,
+    address: tokenZeroAddress,
   })
   const [tokenOut, setTokenOut] = useState({
     symbol: tokenOneSymbol,
     logoURI: tokenOneLogoURI,
-    address: rangeTokenOne,
+    address: tokenOneAddress,
   })
 
   const [hasSelected, setHasSelected] = useState(false)
