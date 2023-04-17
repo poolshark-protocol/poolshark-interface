@@ -63,12 +63,12 @@ export default function Cover() {
           <div className="flex justify-between items-center mb-2">
             <div className="text-left flex items-center gap-x-5 py-2.5">
               <div className="flex items-center">
-                <img height="50" width="50" src={router.query.tokenZeroLogoURI} />
+                <img height="50" width="50" src={router.query.tokenZeroLogoURI.toString()} />
                 <img
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={router.query.tokenOneLogoURI}
+                  src={router.query.tokenOneLogoURI.toString()}
                 />
               </div>
               <span className="text-3xl flex items-center gap-x-3">
@@ -140,7 +140,7 @@ export default function Cover() {
                       <img
                         height="30"
                         width="30"
-                        src={router.query.tokenZeroLogoURI}
+                        src={router.query.tokenZeroLogoURI.toString()}
                       />
                      {router.query.tokenZeroName}
                     </div>
@@ -151,7 +151,7 @@ export default function Cover() {
                       <img
                         height="30"
                         width="30"
-                        src={router.query.tokenOneLogoURI}
+                        src={router.query.tokenOneLogoURI.toString()}
                       />
                       {router.query.tokenOneName}
                     </div>
@@ -175,7 +175,7 @@ export default function Cover() {
                       <img
                         height="30"
                         width="30"
-                        src={router.query.tokenZeroLogoURI}
+                        src={router.query.tokenZeroLogoURI.toString()}
                       />
                      {router.query.tokenZeroName}
                     </div>
@@ -248,7 +248,7 @@ export default function Cover() {
                         height="30"
                         width="30"
                         className="ml-[-8px]"
-                        src={router.query.tokenZeroLogoURI}
+                        src={router.query.tokenZeroLogoURI.toString()}
                       />
                     </div>
                     <div className="flex gap-x-2">WETH -{router.query.tokenZeroName}</div>
