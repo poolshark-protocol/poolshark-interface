@@ -414,7 +414,7 @@ export default function Swap() {
 
   useEffect(() => {
     fetchTokenPrice()
-  }, [rangePrice, coverPrice])
+  }, [rangePrice, coverPrice, token0, token1])
 
   const Option = () => {
     if (expanded) {
