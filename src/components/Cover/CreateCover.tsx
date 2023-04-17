@@ -200,7 +200,7 @@ export default function CreateCover(props: any) {
     ) {
       return
     }
-    console.log(token)
+    //console.log(token)
     setToken0(token)
   }
 
@@ -216,7 +216,7 @@ export default function CreateCover(props: any) {
     if (token.symbol === tokenIn.symbol || token.address === tokenIn.address) {
       return
     }
-    console.log(token)
+    //console.log(token)
     setToken1(token)
     setHasSelected(true)
     setDisabled(false)

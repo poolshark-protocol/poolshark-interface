@@ -13,7 +13,7 @@ import {
   tokenZeroAddress,
   tokenOneAddress,
   rangePoolAddress,
-  coverPoolAddress
+  coverPoolAddress,
 } from '../constants/contractAddresses'
 import { useProvider } from 'wagmi'
 import { BigNumber, Contract, ethers } from 'ethers'
@@ -372,8 +372,8 @@ export default function Swap() {
     getCoverPool()
   }, [hasSelected, token0.address, token1.address, bnInput, bnInputLimit])
 
-  console.log('rangePrice', rangePrice)
-  console.log('coverPrice', coverPrice)
+  /* console.log('rangePrice', rangePrice)
+  console.log('coverPrice', coverPrice) */
 
   const fetchTokenPrice = async () => {
     try {
@@ -383,13 +383,10 @@ export default function Swap() {
         setMktRate({
           WETH:
             '~' +
-            Number(price).toLocaleString(
-              'en-US',
-              {
-                style: 'currency',
-                currency: 'USD',
-              },
-            ),
+            Number(price).toLocaleString('en-US', {
+              style: 'currency',
+              currency: 'USD',
+            }),
           USDC: '~1.00',
         })
       } else {
@@ -397,13 +394,10 @@ export default function Swap() {
         setMktRate({
           WETH:
             '~' +
-            Number(price).toLocaleString(
-              'en-US',
-              {
-                style: 'currency',
-                currency: 'USD',
-              },
-            ),
+            Number(price).toLocaleString('en-US', {
+              style: 'currency',
+              currency: 'USD',
+            }),
           USDC: '~1.00',
         })
       }
@@ -460,16 +454,21 @@ export default function Swap() {
             >
               Swap
             </div>
-            <div
-              onClick={() => setLimitActive(true)}
-              className={`${
-                LimitActive
-                  ? 'text-white cursor-pointer'
-                  : 'text-grey cursor-pointer'
-              }`}
-            >
-              Limit
-            </div>
+
+            {bnInput._hex == '0x00' || bnInput._isBigNumber == false ? (
+              <div className={'text-black'}>Limit</div>
+            ) : (
+              <div
+                onClick={() => setLimitActive(true)}
+                className={`${
+                  LimitActive
+                    ? 'text-white cursor-pointer'
+                    : 'text-grey cursor-pointer'
+                }`}
+              >
+                Limit
+              </div>
+            )}
           </div>
           <div className="ml-auto">
             <Popover className="relative">
