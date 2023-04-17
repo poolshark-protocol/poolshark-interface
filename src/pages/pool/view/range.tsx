@@ -42,7 +42,7 @@ export default function Range() {
   })
 
   function copyPoolAddress() {
-    navigator.clipboard.writeText(router.query.poolAddress.toString())
+    navigator.clipboard.writeText(router.query.poolId.toString())
     setIsPoolCopied(true)
   }
   useEffect(() => {
@@ -53,6 +53,32 @@ export default function Range() {
       return () => clearTimeout(timer)
     }
   })
+
+  const zeroAddress = router.query.tokenZeroAddress.toString()
+  const oneAddress = router.query.tokenOneAddress.toString()
+  const poolAddress = router.query.poolId.toString()
+
+  const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
+    zeroAddress.substring(0, 6) 
+  + "..."  
+  + zeroAddress.substring(
+    zeroAddress.length-4, 
+    zeroAddress.length
+  ));
+const [tokenOneDisplay, setTokenOneDisplay]  = useState(
+  oneAddress.substring(0, 6) 
+  + "..."  
+  + oneAddress.substring(
+      oneAddress.length-4, 
+      oneAddress.length
+  ));
+const [poolDisplay, setPoolDisplay] = useState(
+    poolAddress.substring(0, 6) 
+  + "..."  
+  + poolAddress.substring(
+    poolAddress.length-4, 
+    poolAddress.length
+  ));
 
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
@@ -103,7 +129,7 @@ export default function Range() {
                   {is0Copied ? (
                     <span className="ml-1">Copied</span>
                   ) : (
-                    <span className="ml-1">0xB8c...Ee62d</span>
+                    <span className="ml-1">{tokenZeroDisplay}</span>
                   )}
                 </h1>
                 <h1
@@ -114,7 +140,7 @@ export default function Range() {
                   {is1Copied ? (
                     <span className="ml-1">Copied</span>
                   ) : (
-                    <span className="ml-1">0xB8c...Ee62d</span>
+                    <span className="ml-1">{tokenOneDisplay}</span>
                   )}
                 </h1>
               </div>
@@ -126,7 +152,7 @@ export default function Range() {
                 {isPoolCopied ? (
                   <span className="ml-1">Copied</span>
                 ) : (
-                  <span className="ml-1">0xB8c...Ee62d</span>
+                  <span className="ml-1">{poolDisplay}</span>
                 )}
               </h1>
             </div>
