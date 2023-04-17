@@ -378,19 +378,36 @@ export default function Swap() {
 
   const fetchTokenPrice = async () => {
     try {
-      const price = await fetchPrice('0x000')
-      setMktRate({
-        WETH:
-          '~' +
-          Number(price['data']['bundles']['0']['ethPriceUSD']).toLocaleString(
-            'en-US',
-            {
-              style: 'currency',
-              currency: 'USD',
-            },
-          ),
-        USDC: '~1.00',
-      })
+      //const price = await fetchPrice('0x000')
+      if (Number(rangePrice) < Number(coverPrice)) {
+        const price = rangePrice
+        setMktRate({
+          WETH:
+            '~' +
+            Number(price).toLocaleString(
+              'en-US',
+              {
+                style: 'currency',
+                currency: 'USD',
+              },
+            ),
+          USDC: '~1.00',
+        })
+      } else {
+        const price = coverPrice
+        setMktRate({
+          WETH:
+            '~' +
+            Number(price).toLocaleString(
+              'en-US',
+              {
+                style: 'currency',
+                currency: 'USD',
+              },
+            ),
+          USDC: '~1.00',
+        })
+      }
     } catch (error) {
       console.log(error)
     }
