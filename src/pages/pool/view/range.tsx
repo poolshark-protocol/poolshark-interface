@@ -1,66 +1,72 @@
-import Navbar from "../../../components/Navbar";
+import Navbar from '../../../components/Navbar'
 import {
   ArrowTopRightOnSquareIcon,
   ArrowsRightLeftIcon,
-} from "@heroicons/react/20/solid";
-import { useState, useEffect } from "react";
+} from '@heroicons/react/20/solid'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
+import RangeCompoundButton from '../../../components/Buttons/RangeCompoundButton'
+import RangeCollectButton from '../../../components/Buttons/RangeCollectButton'
 
 export default function Range() {
-  const [is0Copied, setIs0Copied] = useState(false);
-  const [is1Copied, setIs1Copied] = useState(false);
-  const [isPoolCopied, setIsPoolCopied] = useState(false);
+  const [is0Copied, setIs0Copied] = useState(false)
+  const [is1Copied, setIs1Copied] = useState(false)
+  const [isPoolCopied, setIsPoolCopied] = useState(false)
 
-  const router = useRouter();
+  const router = useRouter()
 
   function copyAddress0() {
-    navigator.clipboard.writeText("0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d");
-    setIs0Copied(true);
+    navigator.clipboard.writeText('0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d')
+    setIs0Copied(true)
   }
   useEffect(() => {
     if (copyAddress0) {
       const timer = setTimeout(() => {
-        setIs0Copied(false);
-      }, 1500);
-      return () => clearTimeout(timer);
+        setIs0Copied(false)
+      }, 1500)
+      return () => clearTimeout(timer)
     }
-  });
+  })
 
   function copyAddress1() {
-    navigator.clipboard.writeText("0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d");
-    setIs1Copied(true);
+    navigator.clipboard.writeText('0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d')
+    setIs1Copied(true)
   }
   useEffect(() => {
     if (copyAddress1) {
       const timer = setTimeout(() => {
-        setIs1Copied(false);
-      }, 1500);
-      return () => clearTimeout(timer);
+        setIs1Copied(false)
+      }, 1500)
+      return () => clearTimeout(timer)
     }
-  });
+  })
 
   function copyPoolAddress() {
-    navigator.clipboard.writeText("0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d");
-    setIsPoolCopied(true);
+    navigator.clipboard.writeText('0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d')
+    setIsPoolCopied(true)
   }
   useEffect(() => {
     if (copyPoolAddress) {
       const timer = setTimeout(() => {
-        setIsPoolCopied(false);
-      }, 1500);
-      return () => clearTimeout(timer);
+        setIsPoolCopied(false)
+      }, 1500)
+      return () => clearTimeout(timer)
     }
-  });
+  })
 
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
       <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full">
-         <div className="w-[55rem] absolute bottom-0">
+        <div className="w-[55rem] absolute bottom-0">
           <div className="flex justify-between items-center mb-2">
             <div className="text-left flex items-center gap-x-5 py-2.5">
               <div className="flex items-center">
-                <img height="50" width="50" src={router.query.tokenZeroLogoURI} />
+                <img
+                  height="50"
+                  width="50"
+                  src={router.query.tokenZeroLogoURI}
+                />
                 <img
                   height="50"
                   width="50"
@@ -68,7 +74,9 @@ export default function Range() {
                   src={router.query.tokenOneLogoURI}
                 />
               </div>
-              <span className="text-3xl">{router.query.tokenZeroName}-{router.query.tokenOneName}</span>
+              <span className="text-3xl">
+                {router.query.tokenZeroName}-{router.query.tokenOneName}
+              </span>
               <span className="bg-white text-black rounded-md px-3 py-0.5">
                 1%
               </span>
@@ -200,9 +208,10 @@ export default function Range() {
                   </div>
                 </div>
                 <div className="mt-5 space-y-2">
-                  <button className="bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80 w-full py-3 px-4 rounded-xl">
-                    Collect Fees
-                  </button>
+                  <div className="space-y-3">
+                    <RangeCollectButton address={'address'} />
+                    <RangeCompoundButton address={'address'} />
+                  </div>
                 </div>
               </div>
             </div>
@@ -219,29 +228,37 @@ export default function Range() {
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Min Price.</div>
                 <div className="text-white text-2xl my-2 w-full">1.0323</div>
-                <div className="text-grey text-xs w-full">{router.query.tokenZeroName} per {router.query.tokenZeroName}</div>
+                <div className="text-grey text-xs w-full">
+                  {router.query.tokenZeroName} per {router.query.tokenZeroName}
+                </div>
                 <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100% {router.query.tokenZeroName} at this price.
+                  Your position will be 100% {router.query.tokenZeroName} at
+                  this price.
                 </div>
               </div>
               <ArrowsRightLeftIcon className="w-12 text-grey" />
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Max Price.</div>
                 <div className="text-white text-2xl my-2 w-full">1.064</div>
-                <div className="text-grey text-xs w-full">{router.query.tokenZeroName} per {router.query.tokenZeroName}</div>
+                <div className="text-grey text-xs w-full">
+                  {router.query.tokenZeroName} per {router.query.tokenZeroName}
+                </div>
                 <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100% {router.query.tokenZeroName} at this price.
+                  Your position will be 100% {router.query.tokenZeroName} at
+                  this price.
                 </div>
               </div>
             </div>
             <div className="border border-grey1 rounded-xl py-2 text-center w-full mt-4 bg-dark">
               <div className="text-grey text-xs w-full">Current Price</div>
               <div className="text-white text-2xl my-2 w-full">1.064</div>
-              <div className="text-grey text-xs w-full">{router.query.tokenZeroName} per {router.query.tokenZeroName}</div>
+              <div className="text-grey text-xs w-full">
+                {router.query.tokenZeroName} per {router.query.tokenZeroName}
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }
