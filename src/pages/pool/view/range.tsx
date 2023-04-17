@@ -6,7 +6,7 @@ import {
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import RangeCompoundButton from '../../../components/Buttons/RangeCompoundButton'
-import RangeCollectButton from '../../../components/Buttons/RangeCollectButton'
+import RangeBurnButton from '../../../components/Buttons/RangeBurnButton'
 
 export default function Range() {
   const [is0Copied, setIs0Copied] = useState(false)
@@ -235,7 +235,7 @@ const [poolDisplay, setPoolDisplay] = useState(
                 </div>
                 <div className="mt-5 space-y-2">
                   <div className="space-y-3">
-                    <RangeCollectButton address={'address'} />
+                    <RangeBurnButton address={'address'} />
                     <RangeCompoundButton address={'address'} />
                   </div>
                 </div>
