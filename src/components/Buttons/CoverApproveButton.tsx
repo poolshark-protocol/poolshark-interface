@@ -14,7 +14,6 @@ import { useCoverStore } from '../../hooks/useStore';
 export default function CoverApproveButton({address}) {
   const [ errorDisplay,    setErrorDisplay   ] = useState(false);
   const [ successDisplay,  setSuccessDisplay ] = useState(false);
-  const [ configuration,   setConfig         ] = useState();
 
   const [coverContractParams, updateAllowance] = useCoverStore((state: any) => [
     state.coverContractParams, state.updateCoverAllowance
@@ -28,7 +27,7 @@ export default function CoverApproveButton({address}) {
     chainId: 421613,
   })
 
-  const { data, isSuccess, write } = useContractWrite(config)
+  const { data, isSuccess , write } = useContractWrite(config)
 
   const {isLoading} = useWaitForTransaction({
     hash: data?.hash,

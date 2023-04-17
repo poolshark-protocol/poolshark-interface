@@ -2,7 +2,6 @@ import { Transition, Dialog } from '@headlessui/react'
 import { Fragment, useState, useEffect } from 'react'
 import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import UserCoverPool from '../Pools/UserCoverPool'
-import StaticUniPool from '../Pools/StaticUniPool'
 import { fetchCoverPools, fetchUniV3Pools } from '../../utils/queries'
 import { useAccount } from 'wagmi'
 

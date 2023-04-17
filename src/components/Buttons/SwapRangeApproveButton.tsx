@@ -9,12 +9,11 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import { useSwapStore} from '../../hooks/useStore';
+import { useSwapStore } from '../../hooks/useStore';
 
 export default function SwapRangeApproveButton({approveToken}) {
   const [ errorDisplay,    setErrorDisplay   ] = useState(false);
   const [ successDisplay,  setSuccessDisplay ] = useState(false);
-  const [ configuration,   setConfig         ] = useState();
 
   const [Amount, SwapParams, updateSwapAllowance] = useSwapStore((state: any) => [
    state.Amount, state.SwapParams, state.updateSwapAllowance

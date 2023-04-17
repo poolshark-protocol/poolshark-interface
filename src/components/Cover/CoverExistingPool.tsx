@@ -9,7 +9,7 @@ import { useAccount } from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 import CoverApproveButton from '../Buttons/CoverApproveButton'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useCoverStore } from '../../hooks/useStore'
 import useAllowance from '../../hooks/useAllowance'
 

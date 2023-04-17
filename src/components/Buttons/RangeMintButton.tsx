@@ -1,4 +1,4 @@
-import { ethers, BigNumber } from 'ethers'
+import { BigNumber } from 'ethers'
 import {
   usePrepareContractWrite,
   useContractWrite,
@@ -10,8 +10,7 @@ import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useState, useEffect } from 'react'
 import {
-  coverPoolAddress,
-  rangePoolAddress,
+  rangePoolAddress
 } from '../../constants/contractAddresses'
 
 

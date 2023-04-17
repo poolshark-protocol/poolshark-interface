@@ -1,7 +1,6 @@
 import { Fragment, useState } from 'react'
 import { Transition, Dialog } from '@headlessui/react'
 import CoverMintButton from '../Buttons/CoverMintButton'
-import { TRACE_OUTPUT_VERSION } from 'next/dist/shared/lib/constants'
 import { ethers } from 'ethers'
 
 export default function DirectionalPoolPreview({

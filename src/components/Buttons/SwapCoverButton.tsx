@@ -9,7 +9,7 @@ import { coverPoolABI } from "../../abis/evm/coverPool";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
-import { coverPoolAddress, rangePoolAddress } from "../../constants/contractAddresses";
+import { coverPoolAddress } from "../../constants/contractAddresses";
 import React, { useState, useEffect } from "react";
 import {useSwapStore} from "../../hooks/useStore"
 

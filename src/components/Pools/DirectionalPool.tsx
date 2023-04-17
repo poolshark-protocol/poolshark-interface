@@ -506,7 +506,7 @@ export default function DirectionalPool({
             </div>
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 ">
-                {bnInput != 0 ? (
+                {Number(bnInput) != 0 ? (
                   <div>
                     {parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                       (parseFloat(
@@ -618,7 +618,7 @@ export default function DirectionalPool({
           tokenOut={tokenOut}
           amount0={bnInput}
           amount1={
-            bnInput != 0
+            Number(bnInput) != 0
               ? parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                 (parseFloat(mktRate[tokenZeroSymbol].replace(/[^\d.-]/g, '')) /
                   parseFloat(mktRate[tokenOneSymbol].replace(/[^\d.-]/g, '')))

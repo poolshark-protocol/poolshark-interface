@@ -1,13 +1,10 @@
 import { Fragment, useState } from 'react'
 import { Transition, Dialog } from '@headlessui/react'
-import CoverMintButton from '../Buttons/CoverMintButton'
-import { TRACE_OUTPUT_VERSION } from 'next/dist/shared/lib/constants'
 import RangeMintButton from '../Buttons/RangeMintButton'
-import {  ethers } from "ethers";
+import { ethers } from "ethers";
 
 export default function ConcentratedPoolPreview({
   account,
-  poolId,
   tokenIn,
   tokenOut,
   amount0,

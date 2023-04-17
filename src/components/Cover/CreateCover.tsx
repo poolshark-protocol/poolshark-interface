@@ -6,17 +6,14 @@ import {
   ArrowLongLeftIcon,
 } from '@heroicons/react/20/solid'
 import SelectToken from '../SelectToken'
-import { erc20ABI, useAccount, useBalance, useProvider } from 'wagmi'
+import { useAccount, useBalance, useProvider } from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import CoverApproveButton from '../Buttons/CoverApproveButton'
 import { chainIdsToNamesForGitTokenList } from '../../utils/chains'
 import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 import { useState, useEffect } from 'react'
 import useInputBox from '../../hooks/useInputBox'
-import {
-  tokenOneAddress,
-  tokenZeroAddress,
-} from '../../constants/contractAddresses'
+import { tokenOneAddress } from '../../constants/contractAddresses'
 import { coverPoolAddress } from '../../constants/contractAddresses'
 import { TickMath } from '../../utils/tickMath'
 import { ethers } from 'ethers'

@@ -1,4 +1,4 @@
-import { ethers, BigNumber } from "ethers";
+import { BigNumber } from "ethers";
 import {
     usePrepareContractWrite,
     useContractWrite,
@@ -9,7 +9,7 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import { rangePoolAddress } from "../../constants/contractAddresses";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { rangePoolABI } from "../../abis/evm/rangePool";
 import {useSwapStore} from "../../hooks/useStore"
 
