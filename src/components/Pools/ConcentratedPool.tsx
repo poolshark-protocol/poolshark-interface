@@ -104,7 +104,7 @@ export default function ConcentratedPool({
 
   const newAllowance = useAllowance(address)
 
-  const [
+  /*const [
     updateRangeContractParams,
     updateRangeAllowance,
     RangeAllowance,
@@ -114,7 +114,7 @@ export default function ConcentratedPool({
     state.updateRangeAllowance,
     state.RangeAllowance,
     state.rangeContractParams,
-  ])
+  ])*/
 
   useEffect(() => {
     getBalances()
@@ -171,14 +171,14 @@ export default function ConcentratedPool({
         setAmount1(bnInputLimit)
         setFungible(true)
 
-        updateRangeContractParams({
+        /*updateRangeContractParams({
           to: address,
           min: ethers.utils.parseUnits(String(min), 0),
           max: ethers.utils.parseUnits(String(max), 0),
           amount0: bnInput,
           amount1: bnInputLimit,
           fungible: true,
-        })
+        })*/
         setDisabled(false)
       }
     } catch (error) {
@@ -189,9 +189,6 @@ export default function ConcentratedPool({
   useEffect(() => {
     setRangeParams()
   }, [address, minPrice, maxPrice, bnInput, bnInputLimit])
-
-  console.log("min", rangeContractParams.min)
-  console.log("max", rangeContractParams.max)
 
   const changePrice = (direction: string, minMax: string) => {
     if (direction === 'plus' && minMax === 'min') {
