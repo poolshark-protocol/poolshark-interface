@@ -17,7 +17,7 @@ export default function Cover() {
   const router = useRouter();
 
   function copyAddress0() {
-    navigator.clipboard.writeText('0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d')
+    navigator.clipboard.writeText(router.query.tokenZeroAddress.toString())
     setIs0Copied(true)
   }
   useEffect(() => {
@@ -30,7 +30,7 @@ export default function Cover() {
   })
 
   function copyAddress1() {
-    navigator.clipboard.writeText('0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d')
+    navigator.clipboard.writeText(router.query.tokenOneAddress.toString())
     setIs1Copied(true)
   }
   useEffect(() => {
@@ -43,7 +43,7 @@ export default function Cover() {
   })
 
   function copyPoolAddress() {
-    navigator.clipboard.writeText('0xB8c9d4ED8D5ab3af32F9760fD09CB023BBdEe62d')
+    navigator.clipboard.writeText(router.query.poolAddress.toString())
     setIsPoolCopied(true)
   }
   useEffect(() => {
