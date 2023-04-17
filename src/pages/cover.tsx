@@ -275,15 +275,16 @@ export default function Cover() {
                         {allCoverPositions.map((allCoverPosition) => {
                           if (
                             //TODO@retraca remove this
-                            /* allCoverPosition.userOwnerAddress ===
-                            address?.toLowerCase() */ allCoverPosition
-                              .tokenZero.name === searchTerm ||
-                            allCoverPosition.tokenOne.name === searchTerm ||
-                            allCoverPosition.tokenZero.symbol === searchTerm ||
-                            allCoverPosition.tokenOne.symbol === searchTerm ||
-                            allCoverPosition.tokenZero.id === searchTerm ||
-                            allCoverPosition.tokenOne.id === searchTerm ||
-                            searchTerm === ''
+                            allCoverPosition.userOwnerAddress ===
+                              address?.toLowerCase() &&
+                            (allCoverPosition.tokenZero.name === searchTerm ||
+                              allCoverPosition.tokenOne.name === searchTerm ||
+                              allCoverPosition.tokenZero.symbol ===
+                                searchTerm ||
+                              allCoverPosition.tokenOne.symbol === searchTerm ||
+                              allCoverPosition.tokenZero.id === searchTerm ||
+                              allCoverPosition.tokenOne.id === searchTerm ||
+                              searchTerm === '')
                           ) {
                             return (
                               <UserCoverPool
@@ -307,16 +308,15 @@ export default function Cover() {
                   <h1 className="mb-3 mt-4">User UNI-V3 Positions</h1>
                   {allUniV3Positions.map((allUniV3Position) => {
                     if (
-                      //TODO@retraca remove this
-                      /* allUniV3Position.userOwnerAddress ===
-                      address?.toLowerCase() */ allUniV3Position
-                        .tokenZero.name === searchTerm ||
-                      allUniV3Position.tokenOne.name === searchTerm ||
-                      allUniV3Position.tokenZero.symbol === searchTerm ||
-                      allUniV3Position.tokenOne.symbol === searchTerm ||
-                      allUniV3Position.tokenZero.id === searchTerm ||
-                      allUniV3Position.tokenOne.id === searchTerm ||
-                      searchTerm === ''
+                      allUniV3Position.userOwnerAddress ===
+                        address?.toLowerCase() &&
+                      (allUniV3Position.tokenZero.name === searchTerm ||
+                        allUniV3Position.tokenOne.name === searchTerm ||
+                        allUniV3Position.tokenZero.symbol === searchTerm ||
+                        allUniV3Position.tokenOne.symbol === searchTerm ||
+                        allUniV3Position.tokenZero.id === searchTerm ||
+                        allUniV3Position.tokenOne.id === searchTerm ||
+                        searchTerm === '')
                     ) {
                       return (
                         <UserCoverPool

@@ -261,16 +261,15 @@ export default function Pool() {
                 {selected.id === 1
                   ? allRangePositions.map((allRangePosition) => {
                       if (
-                        //TODO@retraca remove this
-                        /* allRangePosition.userOwnerAddress ===
-                        address?.toLowerCase() */ allRangePosition
-                          .tokenZero.name === searchTerm ||
-                        allRangePosition.tokenOne.name === searchTerm ||
-                        allRangePosition.tokenZero.symbol === searchTerm ||
-                        allRangePosition.tokenOne.symbol === searchTerm ||
-                        allRangePosition.tokenZero.id === searchTerm ||
-                        allRangePosition.tokenOne.id === searchTerm ||
-                        searchTerm === ''
+                        allRangePosition.userOwnerAddress ===
+                          address?.toLowerCase() &&
+                        (allRangePosition.tokenZero.name === searchTerm ||
+                          allRangePosition.tokenOne.name === searchTerm ||
+                          allRangePosition.tokenZero.symbol === searchTerm ||
+                          allRangePosition.tokenOne.symbol === searchTerm ||
+                          allRangePosition.tokenZero.id === searchTerm ||
+                          allRangePosition.tokenOne.id === searchTerm ||
+                          searchTerm === '')
                       ) {
                         return (
                           <UserPool
@@ -288,16 +287,15 @@ export default function Pool() {
                     })
                   : allCoverPositions.map((allCoverPosition) => {
                       if (
-                        //TODO@retraca remove this
-                        /*  allCoverPosition.userOwnerAddress ===
-                        address?.toLowerCase() */ allCoverPosition
-                          .tokenZero.name === searchTerm ||
-                        allCoverPosition.tokenOne.name === searchTerm ||
-                        allCoverPosition.tokenZero.symbol === searchTerm ||
-                        allCoverPosition.tokenOne.symbol === searchTerm ||
-                        allCoverPosition.tokenZero.id === searchTerm ||
-                        allCoverPosition.tokenOne.id === searchTerm ||
-                        searchTerm === ''
+                        allCoverPosition.userOwnerAddress ===
+                          address?.toLowerCase() &&
+                        (allCoverPosition.tokenZero.name === searchTerm ||
+                          allCoverPosition.tokenOne.name === searchTerm ||
+                          allCoverPosition.tokenZero.symbol === searchTerm ||
+                          allCoverPosition.tokenOne.symbol === searchTerm ||
+                          allCoverPosition.tokenZero.id === searchTerm ||
+                          allCoverPosition.tokenOne.id === searchTerm ||
+                          searchTerm === '')
                       ) {
                         return (
                           <UserCoverPool
