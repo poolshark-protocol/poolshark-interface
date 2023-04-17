@@ -301,10 +301,6 @@ export default function Swap() {
   }
 
   useEffect(() => {
-    fetchTokenPrice()
-  }, [])
-
-  useEffect(() => {
     setTimeout(() => {
       gasEstimate()
     }, 10000)
@@ -376,6 +372,9 @@ export default function Swap() {
     getCoverPool()
   }, [hasSelected, token0.address, token1.address, bnInput, bnInputLimit])
 
+  console.log('rangePrice', rangePrice)
+  console.log('coverPrice', coverPrice)
+
   const fetchTokenPrice = async () => {
     try {
       //const price = await fetchPrice('0x000')
@@ -412,6 +411,10 @@ export default function Swap() {
       console.log(error)
     }
   }
+
+  useEffect(() => {
+    fetchTokenPrice()
+  }, [rangePrice, coverPrice])
 
   const Option = () => {
     if (expanded) {
