@@ -14,7 +14,7 @@ export default function Cover() {
   const [is1Copied, setIs1Copied] = useState(false)
   const [isPoolCopied, setIsPoolCopied] = useState(false)
 
-  const router = useRouter();
+  const router = useRouter()
 
   function copyAddress0() {
     navigator.clipboard.writeText(router.query.tokenZeroAddress.toString())
@@ -60,26 +60,20 @@ export default function Cover() {
   const poolAddress = router.query.poolId.toString()
 
   const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-    zeroAddress.substring(0, 6) 
-  + "..."  
-  + zeroAddress.substring(
-    zeroAddress.length-4, 
-    zeroAddress.length
-  ));
-const [tokenOneDisplay, setTokenOneDisplay]  = useState(
-  oneAddress.substring(0, 6) 
-  + "..."  
-  + oneAddress.substring(
-      oneAddress.length-4, 
-      oneAddress.length
-  ));
-const [poolDisplay, setPoolDisplay] = useState(
-    poolAddress.substring(0, 6) 
-  + "..."  
-  + poolAddress.substring(
-    poolAddress.length-4, 
-    poolAddress.length
-  ));
+    zeroAddress.substring(0, 6) +
+      '...' +
+      zeroAddress.substring(zeroAddress.length - 4, zeroAddress.length),
+  )
+  const [tokenOneDisplay, setTokenOneDisplay] = useState(
+    oneAddress.substring(0, 6) +
+      '...' +
+      oneAddress.substring(oneAddress.length - 4, oneAddress.length),
+  )
+  const [poolDisplay, setPoolDisplay] = useState(
+    poolAddress.substring(0, 6) +
+      '...' +
+      poolAddress.substring(poolAddress.length - 4, poolAddress.length),
+  )
 
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
@@ -89,7 +83,11 @@ const [poolDisplay, setPoolDisplay] = useState(
           <div className="flex justify-between items-center mb-2">
             <div className="text-left flex items-center gap-x-5 py-2.5">
               <div className="flex items-center">
-                <img height="50" width="50" src={router.query.tokenZeroLogoURI.toString()} />
+                <img
+                  height="50"
+                  width="50"
+                  src={router.query.tokenZeroLogoURI.toString()}
+                />
                 <img
                   height="50"
                   width="50"
@@ -98,7 +96,9 @@ const [poolDisplay, setPoolDisplay] = useState(
                 />
               </div>
               <span className="text-3xl flex items-center gap-x-3">
-               {router.query.tokenZeroName} <ArrowLongRightIcon className="w-5 " /> {router.query.tokenOneName}
+                {router.query.tokenZeroName}{' '}
+                <ArrowLongRightIcon className="w-5 " />{' '}
+                {router.query.tokenOneName}
               </span>
               <span className="bg-white text-black rounded-md px-3 py-0.5">
                 1%
@@ -133,7 +133,7 @@ const [poolDisplay, setPoolDisplay] = useState(
                   onClick={() => copyAddress1()}
                   className="text-xs cursor-pointer"
                 >
-                 {router.query.tokenZeroName}:
+                  {router.query.tokenZeroName}:
                   {is1Copied ? (
                     <span className="ml-1">Copied</span>
                   ) : (
@@ -168,20 +168,9 @@ const [poolDisplay, setPoolDisplay] = useState(
                         width="30"
                         src={router.query.tokenZeroLogoURI.toString()}
                       />
-                     {router.query.tokenZeroName}
+                      {router.query.tokenZeroName}
                     </div>
                     300
-                  </div>
-                  <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
-                    <div className="flex items-center gap-x-4">
-                      <img
-                        height="30"
-                        width="30"
-                        src={router.query.tokenOneLogoURI.toString()}
-                      />
-                      {router.query.tokenOneName}
-                    </div>
-                    303
                   </div>
                 </div>
                 <div className="mt-5 space-y-2">
@@ -203,7 +192,7 @@ const [poolDisplay, setPoolDisplay] = useState(
                         width="30"
                         src={router.query.tokenZeroLogoURI.toString()}
                       />
-                     {router.query.tokenZeroName}
+                      {router.query.tokenZeroName}
                     </div>
                     <span className="text-white">
                       298<span className="text-grey">/600</span>
@@ -234,25 +223,33 @@ const [poolDisplay, setPoolDisplay] = useState(
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Min Price.</div>
                 <div className="text-white text-2xl my-2 w-full">1.0323</div>
-                <div className="text-grey text-xs w-full">DAI per {router.query.tokenOneName}</div>
+                <div className="text-grey text-xs w-full">
+                  DAI per {router.query.tokenOneName}
+                </div>
                 <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100%{router.query.tokenZeroName} at this price.
+                  Your position will be 100%{router.query.tokenZeroName} at this
+                  price.
                 </div>
               </div>
               <ArrowsRightLeftIcon className="w-12 text-grey" />
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Max Price.</div>
                 <div className="text-white text-2xl my-2 w-full">1.064</div>
-                <div className="text-grey text-xs w-full">DAI per {router.query.tokenOneName}</div>
+                <div className="text-grey text-xs w-full">
+                  DAI per {router.query.tokenOneName}
+                </div>
                 <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100%{router.query.tokenZeroName} at this price.
+                  Your position will be 100%{router.query.tokenZeroName} at this
+                  price.
                 </div>
               </div>
             </div>
             <div className="border border-grey1 rounded-xl py-2 text-center w-full mt-4 bg-dark">
               <div className="text-grey text-xs w-full">Current Price</div>
               <div className="text-white text-2xl my-2 w-full">1.064</div>
-              <div className="text-grey text-xs w-full">DAI per {router.query.tokenOneName}</div>
+              <div className="text-grey text-xs w-full">
+                DAI per {router.query.tokenOneName}
+              </div>
             </div>
             <div>
               <div className="flex justify-between items-center mt-10 mb-5">
@@ -277,18 +274,22 @@ const [poolDisplay, setPoolDisplay] = useState(
                         src={router.query.tokenZeroLogoURI.toString()}
                       />
                     </div>
-                    <div className="flex gap-x-2">WETH -{router.query.tokenZeroName}</div>
+                    <div className="flex gap-x-2">
+                      WETH -{router.query.tokenZeroName}
+                    </div>
                     <div className="bg-black px-2 py-1 rounded-lg text-grey">
                       0.5%
                     </div>
                   </div>
                   <div className="text-sm flex items-center gap-x-3">
                     <span>
-                      <span className="text-grey">Min:</span> 1203{router.query.tokenZeroName} per ETH
+                      <span className="text-grey">Min:</span> 1203
+                      {router.query.tokenZeroName} per ETH
                     </span>
                     <ArrowsRightLeftIcon className="w-4 text-grey" />
                     <span>
-                      <span className="text-grey">Max:</span> 1643{router.query.tokenZeroName} per ETH
+                      <span className="text-grey">Max:</span> 1643
+                      {router.query.tokenZeroName} per ETH
                     </span>
                   </div>
                 </div>
