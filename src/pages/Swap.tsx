@@ -2,7 +2,7 @@ import {
   AdjustmentsHorizontalIcon,
   ArrowSmallDownIcon,
 } from '@heroicons/react/24/outline'
-import { useState, useEffect, Fragment, SetStateAction } from 'react'
+import { useState, useEffect, Fragment } from 'react'
 import { Popover, Transition } from '@headlessui/react'
 import { ChevronDownIcon, ArrowPathIcon } from '@heroicons/react/20/solid'
 import SelectToken from '../components/SelectToken'
@@ -11,7 +11,9 @@ import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton'
 import { erc20ABI, useAccount } from 'wagmi'
 import {
   tokenZeroAddress,
-  tokenOneAddress
+  tokenOneAddress,
+  rangePoolAddress,
+  coverPoolAddress
 } from '../constants/contractAddresses'
 import { useProvider } from 'wagmi'
 import { BigNumber, Contract, ethers } from 'ethers'
