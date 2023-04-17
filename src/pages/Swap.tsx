@@ -717,7 +717,8 @@ export default function Swap() {
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
         {isDisconnected ||
-        stateChainName !== 'arbitrumGoerli' ? null : hasSelected === false ? (
+        stateChainName !== 'arbitrumGoerli' ||
+        bnInput._hex == '0x00' ? null : hasSelected === false ? (
           <SelectTokenButton />
         ) : Number(allowance) < Number(bnInput) ? (
           Number(rangePrice) < Number(coverPrice) ? (
