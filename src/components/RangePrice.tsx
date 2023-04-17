@@ -4,7 +4,7 @@ import { rangePoolABI } from "../abis/evm/rangePool";
 import { rangePoolAddress } from "../constants/contractAddresses";
 
 
-export default function rangePrice(zeroForOne: boolean) {
+export default function RangePrice(zeroForOne: boolean) {
     const [price, setPrice] = useState(null);
   
     useContractRead({
