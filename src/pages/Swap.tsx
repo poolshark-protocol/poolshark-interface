@@ -8,14 +8,14 @@ import { ChevronDownIcon, ArrowPathIcon } from '@heroicons/react/20/solid'
 import SelectToken from '../components/SelectToken'
 import useInputBox from '../hooks/useInputBox'
 import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton'
-import { erc20ABI, useAccount } from 'wagmi'
+import { erc20ABI, useAccount, useSigner } from 'wagmi'
 import {
   tokenZeroAddress,
   tokenOneAddress,
   rangePoolAddress,
   coverPoolAddress,
 } from '../constants/contractAddresses'
-import { useProvider } from 'wagmi'
+import { useProvider, useContractRead } from 'wagmi'
 import { BigNumber, Contract, ethers } from 'ethers'
 import { chainIdsToNamesForGitTokenList } from '../utils/chains'
 import { coverPoolABI } from '../abis/evm/coverPool'
@@ -32,6 +32,7 @@ import SelectTokenButton from '../components/Buttons/SelectTokenButtonSwap'
 import SwapRangeButton from '../components/Buttons/SwapRangeButton'
 import SwapCoverApproveButton from '../components/Buttons/SwapCoverApproveButton'
 import SwapCoverButton from '../components/Buttons/SwapCoverButton'
+import { getCoverQuoteWagmi, getCoverPriceWagmi } from '../utils/getCoverPrices'
 
 type token = {
   symbol: string
@@ -40,6 +41,7 @@ type token = {
 }
 
 export default function Swap() {
+  
   const [updateSwapAmount] = useSwapStore((state: any) => [
     state.updateSwapAmount,
   ])
@@ -59,6 +61,7 @@ export default function Swap() {
   const [coverBaseLimit, setCoverBaseLimit] = useState('')
   const [coverPrice, setCoverPrice] = useState(undefined)
   const [rangePrice, setRangePrice] = useState(undefined)
+  const [zeroForOne, setZeroForOne] = useState(true)
   const [hasSelected, setHasSelected] = useState(false)
   const [mktRate, setMktRate] = useState({})
   const [queryToken0, setQueryToken0] = useState(tokenZeroAddress)
@@ -81,6 +84,9 @@ export default function Swap() {
     address: '',
   })
   const [slipage, setSlipage] = useState('0.5')
+
+  const { data: signer } = useSigner()
+  const provider = useProvider()
 
   //@dev put balanc
 
@@ -235,6 +241,9 @@ export default function Swap() {
     const temp = tokenIn
     setTokenIn(tokenOut)
     setTokenOut(temp)
+    if (token0 === tokenIn) {
+      setZeroForOne(true)
+    } else { setZeroForOne(false) }
     /* console.log(tokenIn)
     console.log(tokenOut) */
     // const tempBal = queryToken0;
@@ -328,7 +337,7 @@ export default function Swap() {
         const price = await getRangeQuote(
           id,
           bnInput,
-          bnInputLimit,
+          BigNumber.from("4295128739"),
           token0.address,
           token1.address,
         )
@@ -344,18 +353,30 @@ export default function Swap() {
     try {
       if (hasSelected === true) {
         /* console.log(token0, token1) */
+
         const pool = await getCoverPoolFromFactory(
           token0.address,
           token1.address,
         )
+
         const id = pool['data']['coverPools']['0']['id']
-        const price = await getCoverQuote(
+        console.log("pool ID", id)
+
+        /*const price = await getCoverQuote(
           id,
-          bnInput,
-          bnInputLimit,
+          ethers.utils.parseUnits('1', 18),
+          BigNumber.from("4295128739"),
           token0.address,
           token1.address,
-        )
+        )*/
+
+        const price = getCoverQuoteWagmi(zeroForOne, bnInput, BigNumber.from("4295128739"))
+
+        //const contract = new ethers.Contract(id, coverPoolABI, provider)
+        //const hardPrice = await contract.quote(true, ethers.utils.parseUnits('1', 18), BigNumber.from('4295128739'))
+
+        console.log("cover price", price)
+
         setCoverPrice(price)
         setCoverBaseLimit(price)
       }
