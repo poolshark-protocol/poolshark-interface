@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import RangeCompoundButton from '../../../components/Buttons/RangeCompoundButton'
 import RangeBurnButton from '../../../components/Buttons/RangeBurnButton'
+import Link from 'next/link'
 
 export default function Range() {
   const [is0Copied, setIs0Copied] = useState(false)
@@ -59,26 +60,20 @@ export default function Range() {
   const poolAddress = router.query.poolId.toString()
 
   const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-    zeroAddress.substring(0, 6) 
-  + "..."  
-  + zeroAddress.substring(
-    zeroAddress.length-4, 
-    zeroAddress.length
-  ));
-const [tokenOneDisplay, setTokenOneDisplay]  = useState(
-  oneAddress.substring(0, 6) 
-  + "..."  
-  + oneAddress.substring(
-      oneAddress.length-4, 
-      oneAddress.length
-  ));
-const [poolDisplay, setPoolDisplay] = useState(
-    poolAddress.substring(0, 6) 
-  + "..."  
-  + poolAddress.substring(
-    poolAddress.length-4, 
-    poolAddress.length
-  ));
+    zeroAddress.substring(0, 6) +
+      '...' +
+      zeroAddress.substring(zeroAddress.length - 4, zeroAddress.length),
+  )
+  const [tokenOneDisplay, setTokenOneDisplay] = useState(
+    oneAddress.substring(0, 6) +
+      '...' +
+      oneAddress.substring(oneAddress.length - 4, oneAddress.length),
+  )
+  const [poolDisplay, setPoolDisplay] = useState(
+    poolAddress.substring(0, 6) +
+      '...' +
+      poolAddress.substring(poolAddress.length - 4, poolAddress.length),
+  )
 
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
@@ -197,14 +192,29 @@ const [poolDisplay, setPoolDisplay] = useState(
                     </div>
                   </div>
                 </div>
-                <div className="mt-5 space-y-2">
-                  <button className="bg-[#032851] w-full py-3 px-4 rounded-xl">
-                    Increase Liquidity
-                  </button>
-                  <button className="border border-[#032851] w-full py-3 px-4 rounded-xl">
-                    Remove Liquidity
-                  </button>
-                </div>
+                <Link
+                  href={{
+                    pathname: '/pool/concentrated',
+                    query: {
+                      account: router.query.account,
+                      poolId: router.query.poolId,
+                      tokenOneName: router.query.tokenOneName,
+                      tokenOneSymbol: router.query.tokenOneSymbol,
+                      tokenOneLogoURI: router.query.tokenOneLogoURI,
+                      tokenOneAddress: router.query.tokenOneAddress,
+                      tokenZeroName: router.query.tokenZeroName,
+                      tokenZeroSymbol: router.query.tokenZeroSymbol,
+                      tokenZeroLogoURI: router.query.tokenZeroLogoURI,
+                      tokenZeroAddress: router.query.tokenZeroAddress,
+                    },
+                  }}
+                >
+                  <div className="mt-5 space-y-2 cursor-pointer">
+                    <div className="bg-[#032851] w-full py-3 px-4 rounded-xl">
+                      Increase Liquidity
+                    </div>
+                  </div>
+                </Link>
               </div>
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Unclaimed Fees</h1>

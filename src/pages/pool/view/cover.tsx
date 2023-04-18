@@ -9,6 +9,7 @@ import CoverBurnButton from '../../../components/Buttons/CoverBurnButton'
 import CoverCollectButton from '../../../components/Buttons/CoverCollectButton'
 import { useRouter } from 'next/router'
 import { useAccount } from 'wagmi'
+import Link from 'next/link'
 
 export default function Cover() {
   const [is0Copied, setIs0Copied] = useState(false)
@@ -176,11 +177,29 @@ export default function Cover() {
                     300
                   </div>
                 </div>
-                <div className="mt-5 space-y-2">
-                  <button className="bg-[#032851] w-full py-3 px-4 rounded-xl">
-                    Add Liquidity
-                  </button>
-                </div>
+                <Link
+                  href={{
+                    pathname: '/pool/directional',
+                    query: {
+                      account: router.query.account,
+                      poolId: router.query.poolId,
+                      tokenOneName: router.query.tokenOneName,
+                      tokenOneSymbol: router.query.tokenOneSymbol,
+                      tokenOneLogoURI: router.query.tokenOneLogoURI,
+                      tokenOneAddress: router.query.tokenOneAddress,
+                      tokenZeroName: router.query.tokenZeroName,
+                      tokenZeroSymbol: router.query.tokenZeroSymbol,
+                      tokenZeroLogoURI: router.query.tokenZeroLogoURI,
+                      tokenZeroAddress: router.query.tokenZeroAddress,
+                    },
+                  }}
+                >
+                  <div className="mt-5 space-y-2 cursor-pointer">
+                    <div className="bg-[#032851] w-full py-3 px-4 rounded-xl">
+                      Add Liquidity
+                    </div>
+                  </div>
+                </Link>
               </div>
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Filled Position</h1>
@@ -203,11 +222,19 @@ export default function Cover() {
                   </div>
                 </div>
                 <div className="mt-6 space-y-2">
-                  <div className="space-y-3"> {/**TO-DO: PASS PROPS */}
-                    <CoverBurnButton address={address} lower={undefined} claim={undefined} upper={undefined} zeroForOne={undefined} amount={undefined} collect={undefined} />
-
+                  <div className="space-y-3">
+                    {' '}
+                    {/**TO-DO: PASS PROPS */}
+                    <CoverBurnButton
+                      address={address}
+                      lower={undefined}
+                      claim={undefined}
+                      upper={undefined}
+                      zeroForOne={undefined}
+                      amount={undefined}
+                      collect={undefined}
+                    />
                     <CoverCollectButton address={'address'} />
-
                     {/*TO-DO: add positionOwner ternary again*/}
                   </div>
                 </div>
