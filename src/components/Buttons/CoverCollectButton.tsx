@@ -19,16 +19,11 @@ export default function CoverCollectButton({address}) {
   const { config } = usePrepareContractWrite({
       address: coverPoolAddress,
       abi: coverPoolABI,
-      functionName: "collect",
-      args:[
-          ethers.utils.parseUnits("20", 0),
-          ethers.utils.parseUnits("30", 0),
-          ethers.utils.parseUnits("20", 0),
-          false
-      ],
+      functionName: "collectFees",
+      args:[],
       chainId: 421613,
       overrides:{
-          gasLimit: BigNumber.from("350000")
+          gasLimit: BigNumber.from("3500000")
       },
   })
 

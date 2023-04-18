@@ -9,9 +9,13 @@ import { useAccount } from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 import CoverApproveButton from '../Buttons/CoverApproveButton'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useCoverStore } from '../../hooks/useStore'
 import useAllowance from '../../hooks/useAllowance'
+import { BigNumber, ethers } from 'ethers'
+import JSBI from 'jsbi'
+import { getPreviousTicksLower, getPreviousTicksUpper } from '../../utils/queries'
+import { TickMath } from '../../utils/tickMath'
 
 export default function CoverExistingPool({ goBack }) {
   const [pool, updatePool] = useCoverStore((state: any) => [
@@ -22,7 +26,82 @@ export default function CoverExistingPool({ goBack }) {
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
 
+  const [sliderValue, setSliderValue] = useState(50)
+
+  const handleChange = (event: any) => {
+    setSliderValue(event.target.value * 0.01)
+  }
+
   const { address, isConnected, isDisconnected } = useAccount()
+
+  async function setCoverParams() {
+    try {
+      if (
+        minPrice !== undefined &&
+        minPrice !== '' &&
+        maxPrice !== undefined &&
+        maxPrice !== '' &&
+        Number(ethers.utils.formatUnits(sliderValue * 0.01)) !== 0
+      ) {
+        const min = TickMath.getTickAtSqrtRatio(
+          JSBI.divide(
+            JSBI.multiply(
+              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
+              JSBI.BigInt(
+                String(
+                  Math.sqrt(Number(parseFloat(minPrice).toFixed(30))).toFixed(
+                    30,
+                  ),
+                )
+                  .split('.')
+                  .join(''),
+              ),
+            ),
+            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
+          ),
+        )
+        const max = TickMath.getTickAtSqrtRatio(
+          JSBI.divide(
+            JSBI.multiply(
+              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
+              JSBI.BigInt(
+                String(
+                  Math.sqrt(Number(parseFloat(maxPrice).toFixed(30))).toFixed(
+                    30,
+                  ),
+                )
+                  .split('.')
+                  .join(''),
+              ),
+            ),
+            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
+          ),
+        )
+        /*updateCoverContractParams({
+          prevLower: ethers.utils.parseUnits(
+            data['data']['ticks'][0]['index'],
+            0,
+          ),
+          min: ethers.utils.parseUnits(String(min), 0),
+          prevUpper: ethers.utils.parseUnits(
+            data1['data']['ticks'][0]['index'],
+            0,
+          ),
+          max: ethers.utils.parseUnits(String(max), 0),
+          claim: ethers.utils.parseUnits(String(min), 0),
+          amount: bnInput,
+          inverse: false,
+        })*/
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    setCoverParams()
+  }, [minPrice, maxPrice, sliderValue])
+
 
   const changePrice = (direction: string, minMax: string) => {
     if (direction === 'plus' && minMax === 'min') {
@@ -84,12 +163,6 @@ export default function CoverExistingPool({ goBack }) {
 
   //Fix
   const allowance = useAllowance(address)
-
-  const [sliderValue, setSliderValue] = useState(50)
-
-  const handleChange = (event: any) => {
-    setSliderValue(event.target.value)
-  }
 
   const Option = () => {
     if (expanded) {
@@ -157,7 +230,7 @@ export default function CoverExistingPool({ goBack }) {
           type="range"
           min="0"
           max="100"
-          value={sliderValue}
+          value={sliderValue * 100}
           onChange={handleChange}
           className="w-full styled-slider slider-progress bg-transparent"
         />
@@ -263,12 +336,12 @@ export default function CoverExistingPool({ goBack }) {
         ) : (
           <CoverMintButton
             disabled={true}
-            to={'to'}
-            lower={'lower'}
-            claim={'claim'}
-            upper={'upper'}
-            amount={'amount'}
-            zeroForOne={'zeroForOne'}
+            to={address}
+            lower={minPrice}
+            claim={minPrice}
+            upper={maxPrice}
+            amount={BigNumber.from(sliderValue).mul(1)}
+            zeroForOne={true}
           />
         )}
       </div>

@@ -68,7 +68,7 @@ export default function CoverMintButton({
 
   useEffect(() => {}, [disabled])
 
-  const [coverContractParams, setCoverContractParams] = useState({
+  /*const [coverContractParams, setCoverContractParams] = useState({
     to: to,
     lower: lower,
     claim: claim,
@@ -88,24 +88,23 @@ export default function CoverMintButton({
     amount: amount,
     zeroForOne: zeroForOne,
     })
-  }, [disabled, to, lower, claim, upper, amount, zeroForOne])
+  }, [disabled, to, lower, claim, upper, amount, zeroForOne])*/
 
   const { config } = usePrepareContractWrite({
     address: coverPoolAddress,
     abi: coverPoolABI,
     functionName: 'mint',
     args: [[
-      coverContractParams.to,
-      coverContractParams.lower,
-      coverContractParams.claim,
-      coverContractParams.upper,
-      coverContractParams.amount,
-      coverContractParams.zeroForOne,
-      false,
+      to,
+      amount,
+      lower,
+      claim,
+      upper,
+      zeroForOne
     ]],
     chainId: 421613,
     overrides: {
-      gasLimit: BigNumber.from('350000'),
+      gasLimit: BigNumber.from('3500000'),
     },
   })
 

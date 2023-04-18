@@ -21,8 +21,7 @@ export default function RangeMintButton({
   lower,
   upper,
   amount0,
-  amount1,
-  fungible,
+  amount1
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
@@ -61,7 +60,7 @@ export default function RangeMintButton({
       upper,
       amount0,
       amount1,
-      fungible,
+      true //@dev always fungible
     ]],
     chainId: 421613,
     overrides: {

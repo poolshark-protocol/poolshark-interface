@@ -160,7 +160,7 @@ export default function DirectionalPoolPreview({
                         disabled={false}
                         to={account}
                         lower={minPrice}
-                        claim={'0'}
+                        claim={minPrice}
                         upper={maxPrice}
                         amount={amount0}
                         zeroForOne={true}
