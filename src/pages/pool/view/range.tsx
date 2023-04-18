@@ -17,7 +17,11 @@ export default function Range() {
   const router = useRouter()
 
   function copyAddress0() {
-    navigator.clipboard.writeText(router.query.tokenZeroAddress.toString())
+    navigator.clipboard.writeText(
+      router.query.tokenZeroAddress === undefined
+        ? ''
+        : router.query.tokenZeroAddress.toString(),
+    )
     setIs0Copied(true)
   }
   useEffect(() => {
@@ -30,7 +34,11 @@ export default function Range() {
   })
 
   function copyAddress1() {
-    navigator.clipboard.writeText(router.query.tokenOneAddress.toString())
+    navigator.clipboard.writeText(
+      router.query.tokenOneAddress === undefined
+        ? ''
+        : router.query.tokenZeroAddress.toString(),
+    )
     setIs1Copied(true)
   }
   useEffect(() => {
@@ -43,7 +51,9 @@ export default function Range() {
   })
 
   function copyPoolAddress() {
-    navigator.clipboard.writeText(router.query.poolId.toString())
+    navigator.clipboard.writeText(
+      router.query.poolId ? '' : router.query.tokenZeroAddress.toString(),
+    )
     setIsPoolCopied(true)
   }
   useEffect(() => {
@@ -55,9 +65,18 @@ export default function Range() {
     }
   })
 
-  const zeroAddress = router.query.tokenZeroAddress.toString()
-  const oneAddress = router.query.tokenOneAddress.toString()
-  const poolAddress = router.query.poolId.toString()
+  const zeroAddress =
+    router.query.tokenZeroAddress === undefined
+      ? ''
+      : router.query.tokenZeroAddress.toString()
+  const oneAddress =
+    router.query.tokenOneAddress === undefined
+      ? ''
+      : router.query.tokenZeroAddress.toString()
+  const poolAddress =
+    router.query.poolId === undefined
+      ? ''
+      : router.query.tokenZeroAddress.toString()
 
   const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
     zeroAddress.substring(0, 6) +
@@ -86,13 +105,21 @@ export default function Range() {
                 <img
                   height="50"
                   width="50"
-                  src={router.query.tokenZeroLogoURI.toString()}
+                  src={
+                    router.query.tokenZeroLogoURI === undefined
+                      ? ''
+                      : router.query.tokenZeroLogoURI.toString()
+                  }
                 />
                 <img
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={router.query.tokenOneLogoURI.toString()}
+                  src={
+                    router.query.tokenOneLogoURI === undefined
+                      ? ''
+                      : router.query.tokenOneLogoURI.toString()
+                  }
                 />
               </div>
               <span className="text-3xl">
@@ -164,7 +191,11 @@ export default function Range() {
                       <img
                         height="30"
                         width="30"
-                        src={router.query.tokenZeroLogoURI.toString()}
+                        src={
+                          router.query.tokenZeroLogoURI === undefined
+                            ? ''
+                            : router.query.tokenZeroLogoURI.toString()
+                        }
                       />
                       {router.query.tokenZeroName}
                     </div>
@@ -180,7 +211,11 @@ export default function Range() {
                       <img
                         height="30"
                         width="30"
-                        src={router.query.tokenOneLogoURI.toString()}
+                        src={
+                          router.query.tokenOneLogoURI === undefined
+                            ? ''
+                            : router.query.tokenOneLogoURI.toString()
+                        }
                       />
                       {router.query.tokenOneName}
                     </div>
@@ -196,16 +231,46 @@ export default function Range() {
                   href={{
                     pathname: '/pool/concentrated',
                     query: {
-                      account: router.query.account,
-                      poolId: router.query.poolId,
-                      tokenOneName: router.query.tokenOneName,
-                      tokenOneSymbol: router.query.tokenOneSymbol,
-                      tokenOneLogoURI: router.query.tokenOneLogoURI,
-                      tokenOneAddress: router.query.tokenOneAddress,
-                      tokenZeroName: router.query.tokenZeroName,
-                      tokenZeroSymbol: router.query.tokenZeroSymbol,
-                      tokenZeroLogoURI: router.query.tokenZeroLogoURI,
-                      tokenZeroAddress: router.query.tokenZeroAddress,
+                      account:
+                        router.query.account === undefined
+                          ? ''
+                          : router.query.account.toString(),
+                      poolId:
+                        router.query.poolId === undefined
+                          ? ''
+                          : router.query.poolId.toString(),
+                      tokenOneName:
+                        router.query.tokenOneName === undefined
+                          ? ''
+                          : router.query.tokenOneName.toString(),
+                      tokenOneSymbol:
+                        router.query.tokenOneSymbol === undefined
+                          ? ''
+                          : router.query.tokenOneSymbol.toString(),
+                      tokenOneLogoURI:
+                        router.query.tokenOneLogoURI === undefined
+                          ? ''
+                          : router.query.tokenOneLogoURI.toString(),
+                      tokenOneAddress:
+                        router.query.tokenOneAddress === undefined
+                          ? ''
+                          : router.query.tokenOneAddress.toString(),
+                      tokenZeroName:
+                        router.query.tokenZeroName === undefined
+                          ? ''
+                          : router.query.tokenZeroName.toString(),
+                      tokenZeroSymbol:
+                        router.query.tokenZeroSymbol === undefined
+                          ? ''
+                          : router.query.tokenZeroSymbol.toString(),
+                      tokenZeroLogoURI:
+                        router.query.tokenZeroLogoURI === undefined
+                          ? ''
+                          : router.query.tokenZeroLogoURI.toString(),
+                      tokenZeroAddress:
+                        router.query.tokenZeroAddress === undefined
+                          ? ''
+                          : router.query.tokenZeroAddress.toString(),
                     },
                   }}
                 >
@@ -225,7 +290,11 @@ export default function Range() {
                       <img
                         height="30"
                         width="30"
-                        src={router.query.tokenZeroLogoURI.toString()}
+                        src={
+                          router.query.tokenZeroLogoURI === undefined
+                            ? ''
+                            : router.query.tokenZeroLogoURI.toString()
+                        }
                       />
                       {router.query.tokenZeroName}
                     </div>
@@ -236,7 +305,11 @@ export default function Range() {
                       <img
                         height="30"
                         width="30"
-                        src={router.query.tokenOneLogoURI.toString()}
+                        src={
+                          router.query.tokenOneLogoURI === undefined
+                            ? ''
+                            : router.query.tokenOneLogoURI.toString()
+                        }
                       />
                       {router.query.tokenZeroName}
                     </div>

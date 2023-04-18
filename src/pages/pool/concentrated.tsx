@@ -3,9 +3,8 @@ import Navbar from '../../components/Navbar'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 
-export default function Concentrated({
-}) {
-  const router = useRouter();
+export default function Concentrated() {
+  const router = useRouter()
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
@@ -22,17 +21,57 @@ export default function Concentrated({
             </Link>
           </div>
           <ConcentratedPool
-             account={'account'}
-             key={router.query.poolId.toString()}
-             poolId={router.query.poolId}
-             tokenOneName={router.query.tokenOneName}
-             tokenOneSymbol={router.query.tokenOneSymbol}
-             tokenOneLogoURI={router.query.tokenOneLogoURI}
-             tokenOneAddress={router.query.tokenOneAddress}
-             tokenZeroName={router.query.tokenZeroName}
-             tokenZeroSymbol={router.query.tokenZeroSymbol}
-             tokenZeroLogoURI={router.query.tokenZeroLogoURI}
-             tokenZeroAddress={router.query.tokenZeroAddress}
+            account={'account'}
+            key={
+              router.query.poolId === undefined
+                ? ''
+                : router.query.poolId.toString()
+            }
+            poolId={
+              router.query.poolId === undefined
+                ? ''
+                : router.query.poolId.toString()
+            }
+            tokenOneName={
+              router.query.tokenOneName === undefined
+                ? ''
+                : router.query.tokenOneName.toString()
+            }
+            tokenOneSymbol={
+              router.query.tokenOneSymbol === undefined
+                ? ''
+                : router.query.tokenOneSymbol.toString()
+            }
+            tokenOneLogoURI={
+              router.query.tokenOneLogoURI === undefined
+                ? ''
+                : router.query.tokenOneLogoURI.toString()
+            }
+            tokenOneAddress={
+              router.query.tokenOneAddress === undefined
+                ? ''
+                : router.query.tokenOneAddress.toString()
+            }
+            tokenZeroName={
+              router.query.tokenZeroName === undefined
+                ? ''
+                : router.query.tokenZeroName.toString()
+            }
+            tokenZeroSymbol={
+              router.query.tokenZeroSymbol === undefined
+                ? ''
+                : router.query.tokenZeroSymbol.toString()
+            }
+            tokenZeroLogoURI={
+              router.query.tokenZeroLogoURI === undefined
+                ? ''
+                : router.query.tokenZeroLogoURI.toString()
+            }
+            tokenZeroAddress={
+              router.query.tokenZeroAddress === undefined
+                ? ''
+                : router.query.tokenZeroAddress.toString()
+            }
           />
         </div>
       </div>

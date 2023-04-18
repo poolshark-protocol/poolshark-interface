@@ -21,7 +21,11 @@ export default function Cover() {
   const router = useRouter()
 
   function copyAddress0() {
-    navigator.clipboard.writeText(router.query.tokenZeroAddress.toString())
+    navigator.clipboard.writeText(
+      router.query.tokenZeroAddress === undefined
+        ? ''
+        : router.query.tokenZeroAddress.toString(),
+    )
     setIs0Copied(true)
   }
   useEffect(() => {
@@ -34,7 +38,11 @@ export default function Cover() {
   })
 
   function copyAddress1() {
-    navigator.clipboard.writeText(router.query.tokenOneAddress.toString())
+    navigator.clipboard.writeText(
+      router.query.tokenOneAddress === undefined
+        ? ''
+        : router.query.tokenOneAddress.toString(),
+    )
     setIs1Copied(true)
   }
   useEffect(() => {
@@ -47,7 +55,9 @@ export default function Cover() {
   })
 
   function copyPoolAddress() {
-    navigator.clipboard.writeText(router.query.poolId.toString())
+    navigator.clipboard.writeText(
+      router.query.poolId === undefined ? '' : router.query.poolId.toString(),
+    )
     setIsPoolCopied(true)
   }
   useEffect(() => {
@@ -59,9 +69,16 @@ export default function Cover() {
     }
   })
 
-  const zeroAddress = router.query.tokenZeroAddress.toString()
-  const oneAddress = router.query.tokenOneAddress.toString()
-  const poolAddress = router.query.poolId.toString()
+  const zeroAddress =
+    router.query.tokenZeroAddress === undefined
+      ? ''
+      : router.query.tokenZeroAddress.toString()
+  const oneAddress =
+    router.query.tokenOneAddress === undefined
+      ? ''
+      : router.query.tokenOneAddress.toString()
+  const poolAddress =
+    router.query.poolId === undefined ? '' : router.query.poolId.toString()
 
   const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
     zeroAddress.substring(0, 6) +
@@ -90,13 +107,21 @@ export default function Cover() {
                 <img
                   height="50"
                   width="50"
-                  src={router.query.tokenZeroLogoURI.toString()}
+                  src={
+                    router.query.tokenZeroLogoURI === undefined
+                      ? ''
+                      : router.query.tokenZeroLogoURI.toString()
+                  }
                 />
                 <img
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={router.query.tokenOneLogoURI.toString()}
+                  src={
+                    router.query.tokenOneLogoURI === undefined
+                      ? ''
+                      : router.query.tokenOneLogoURI.toString()
+                  }
                 />
               </div>
               <span className="text-3xl flex items-center gap-x-3">
@@ -170,7 +195,11 @@ export default function Cover() {
                       <img
                         height="30"
                         width="30"
-                        src={router.query.tokenZeroLogoURI.toString()}
+                        src={
+                          router.query.tokenZeroLogoURI === undefined
+                            ? ''
+                            : router.query.tokenZeroLogoURI.toString()
+                        }
                       />
                       {router.query.tokenZeroName}
                     </div>
@@ -212,7 +241,11 @@ export default function Cover() {
                       <img
                         height="30"
                         width="30"
-                        src={router.query.tokenZeroLogoURI.toString()}
+                        src={
+                          router.query.tokenZeroLogoURI === undefined
+                            ? ''
+                            : router.query.tokenZeroLogoURI.toString()
+                        }
                       />
                       {router.query.tokenZeroName}
                     </div>
@@ -301,7 +334,11 @@ export default function Cover() {
                         height="30"
                         width="30"
                         className="ml-[-8px]"
-                        src={router.query.tokenZeroLogoURI.toString()}
+                        src={
+                          router.query.tokenZeroLogoURI === undefined
+                            ? ''
+                            : router.query.tokenZeroLogoURI.toString()
+                        }
                       />
                     </div>
                     <div className="flex gap-x-2">
