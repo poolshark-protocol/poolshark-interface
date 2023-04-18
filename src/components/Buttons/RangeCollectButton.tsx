@@ -16,6 +16,7 @@ export default function RangeCollectButton({address}) {
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
 
+  //TO-DO: assess if collectFees() or collect true in burn
   const { config } = usePrepareContractWrite({
       address: rangePoolAddress,
       abi: rangePoolABI,

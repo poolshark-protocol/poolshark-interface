@@ -8,11 +8,14 @@ import { useState, useEffect } from 'react'
 import CoverBurnButton from '../../../components/Buttons/CoverBurnButton'
 import CoverCollectButton from '../../../components/Buttons/CoverCollectButton'
 import { useRouter } from 'next/router'
+import { useAccount } from 'wagmi'
 
 export default function Cover() {
   const [is0Copied, setIs0Copied] = useState(false)
   const [is1Copied, setIs1Copied] = useState(false)
   const [isPoolCopied, setIsPoolCopied] = useState(false)
+
+  const { address } = useAccount()
 
   const router = useRouter()
 
@@ -200,8 +203,8 @@ export default function Cover() {
                   </div>
                 </div>
                 <div className="mt-6 space-y-2">
-                  <div className="space-y-3">
-                    <CoverBurnButton address={'address'} />
+                  <div className="space-y-3"> {/**TO-DO: PASS PROPS */}
+                    <CoverBurnButton address={address} lower={undefined} claim={undefined} upper={undefined} zeroForOne={undefined} amount={undefined} collect={undefined} />
 
                     <CoverCollectButton address={'address'} />
 

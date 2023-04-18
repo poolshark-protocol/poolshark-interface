@@ -16,6 +16,8 @@ export default function RangeCompoundButton({address}) {
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
 
+
+  //TO-DO: assess if call positions.compound or burn to compound
   const { config } = usePrepareContractWrite({
       address: rangePoolAddress,
       abi: rangePoolABI,
@@ -24,7 +26,7 @@ export default function RangeCompoundButton({address}) {
       ],
       chainId: 421613,
       overrides:{
-          gasLimit: BigNumber.from("350000")
+          gasLimit: BigNumber.from("3500000")
       },
   })
 
