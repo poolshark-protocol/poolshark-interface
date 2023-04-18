@@ -165,7 +165,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
                             poolId={allCoverPool.poolId}
                             prefill={undefined}
                             close={undefined}
-                            href={'/pool/view/cover'}
+                            href={'/cover/existingPool'}
                           />
                         )
                     })}
@@ -193,7 +193,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
                             poolId={allUniv3Pool.poolId}
                             prefill={undefined}
                             close={undefined}
-                            href={'/pool/view'}
+                            href={'/cover/existingPool'}
                           />
                         )
                     })}
