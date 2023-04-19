@@ -32,7 +32,10 @@ import SelectTokenButton from '../components/Buttons/SelectTokenButtonSwap'
 import SwapRangeButton from '../components/Buttons/SwapRangeButton'
 import SwapCoverApproveButton from '../components/Buttons/SwapCoverApproveButton'
 import SwapCoverButton from '../components/Buttons/SwapCoverButton'
-import { getCoverQuoteWagmi, getCoverPriceWagmi } from '../utils/getPriceAndQuotes'
+import {
+  getCoverQuoteWagmi,
+  getCoverPriceWagmi,
+} from '../utils/getPriceAndQuotes'
 import CoverQuote from '../components/CoverQuote'
 
 type token = {
@@ -42,7 +45,6 @@ type token = {
 }
 
 export default function Swap() {
-  
   const [updateSwapAmount] = useSwapStore((state: any) => [
     state.updateSwapAmount,
   ])
@@ -65,14 +67,6 @@ export default function Swap() {
   const [zeroForOne, setZeroForOne] = useState(true)
   const [hasSelected, setHasSelected] = useState(false)
   const [mktRate, setMktRate] = useState({})
-  const [queryToken0, setQueryToken0] = useState(tokenZeroAddress)
-  const [queryToken1, setQueryToken1] = useState(tokenOneAddress)
-  const [token0, setToken0] = useState({
-    symbol: 'WETH',
-    logoURI: '/static/images/eth_icon.png',
-    address: tokenZeroAddress,
-  } as token)
-  const [token1, setToken1] = useState({} as token)
   const [tokenIn, setTokenIn] = useState({
     symbol: 'WETH',
     logoURI: '/static/images/eth_icon.png',
@@ -84,13 +78,81 @@ export default function Swap() {
     logoURI: '',
     address: '',
   })
+  const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)
+  const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [slipage, setSlipage] = useState('0.5')
+  const [balance0, setBalance0] = useState('')
+  const [balance1, setBalance1] = useState('0.00')
+  const [stateChainName, setStateChainName] = useState()
+  let [isOpen, setIsOpen] = useState(false)
+  const [LimitActive, setLimitActive] = useState(false)
+  const [tokenOrder, setTokenOrder] = useState(true)
+  const [expanded, setExpanded] = useState(false)
 
   const { data: signer } = useSigner()
   const provider = useProvider()
 
-  //@dev put balanc
+  const {
+    network: { chainId },
+  } = useProvider()
 
+  useEffect(() => {
+    setTimeout(() => {
+      gasEstimate()
+    }, 10000)
+  }, [])
+
+  useEffect(() => {
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
+  }, [chainId])
+
+  useEffect(() => {
+    getBalances()
+  }, [tokenOut, tokenIn])
+
+  useEffect(() => {
+    updateSwapAmount(bnInput)
+  }, [bnInput])
+
+  useEffect(() => {
+    getAllowance()
+  }, [tokenIn])
+
+  useEffect(() => {
+    getRangePool()
+  }, [hasSelected, tokenIn.address, tokenOut.address, bnInput, bnInputLimit])
+
+  useEffect(() => {
+    getCoverPool()
+  }, [hasSelected, tokenIn.address, tokenOut.address, bnInput, bnInputLimit])
+
+  useEffect(() => {
+    fetchTokenPrice()
+  }, [rangePrice, coverPrice, tokenIn, tokenOut])
+
+  // useEffect(() => {
+  //   if (isConnected && stateChainName === "arbitrumGoerli") {
+  //     if (Number(balanceZero().props.children[1]) >= 1000000)
+  //       setBalance0(Number(balanceZero().props.children[1]).toExponential(5));
+  //     }
+  //     setBalance0(Number(balanceZero().props.children[1]).toFixed(2));
+  //   }
+  // }, [queryTokenIn]);
+
+  // useEffect(() => {
+  //   if (isConnected && stateChainName === "arbitrumGoerli") {
+  //     if (Number(balanceOne().props.children[1]) >= 1000000) {
+  //       setBalance1(Number(balanceOne().props.children[1]).toExponential(5));
+  //     }
+  //     setBalance1(Number(balanceOne().props.children[1]).toFixed(2));
+  //   }
+  // }, [queryTokenOut, balanceOne]);
+
+  function closeModal() {
+    setIsOpen(false)
+  }
+
+  //@dev put balanc
   const getBalances = async () => {
     try {
       const provider = new ethers.providers.JsonRpcProvider(
@@ -98,8 +160,8 @@ export default function Swap() {
         421613,
       )
       const signer = new ethers.VoidSigner(address, provider)
-      const token1Bal = new ethers.Contract(tokenIn.address, erc20ABI, signer)
-      const balance1 = await token1Bal.balanceOf(address)
+      const tokenOutBal = new ethers.Contract(tokenIn.address, erc20ABI, signer)
+      const balance1 = await tokenOutBal.balanceOf(address)
       let token2Bal: Contract
       let bal1: string
       bal1 = Number(ethers.utils.formatEther(balance1)).toFixed(2)
@@ -132,7 +194,7 @@ export default function Swap() {
 
         setBalance1(bal2)
       }
-      /* let bal1 = await token1Bal.balanceOf(address)
+      /* let bal1 = await tokenOutBal.balanceOf(address)
       let displayBal1: string
       if (Number(ethers.utils.formatEther(bal1)) >= 1000000) {
         displayBal1 = Number(ethers.utils.formatEther(bal1)).toExponential(5)
@@ -150,66 +212,26 @@ export default function Swap() {
     }
   }
 
-  const [balance0, setBalance0] = useState('')
-  const [balance1, setBalance1] = useState('0.00')
-  const [stateChainName, setStateChainName] = useState()
-
-  const {
-    network: { chainId },
-  } = useProvider()
-
-  useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
-  }, [chainId])
-
-  useEffect(() => {
-    getBalances()
-  }, [tokenOut, tokenIn])
-
-  useEffect(() => {
-    updateSwapAmount(bnInput)
-  }, [bnInput])
-
-  // useEffect(() => {
-  //   if (isConnected && stateChainName === "arbitrumGoerli") {
-  //     if (Number(balanceZero().props.children[1]) >= 1000000)
-  //       setBalance0(Number(balanceZero().props.children[1]).toExponential(5));
-  //     }
-  //     setBalance0(Number(balanceZero().props.children[1]).toFixed(2));
-  //   }
-  // }, [queryToken0]);
-
-  // useEffect(() => {
-  //   if (isConnected && stateChainName === "arbitrumGoerli") {
-  //     if (Number(balanceOne().props.children[1]) >= 1000000) {
-  //       setBalance1(Number(balanceOne().props.children[1]).toExponential(5));
-  //     }
-  //     setBalance1(Number(balanceOne().props.children[1]).toFixed(2));
-  //   }
-  // }, [queryToken1, balanceOne]);
-
   function changeDefaultIn(token: token) {
     if (token.symbol === tokenOut.symbol) {
       return
     }
     setTokenIn(token)
     if (token.address.localeCompare(tokenOut.address) < 0) {
-      setToken0(token)
+      setTokenIn(token)
       if (hasSelected === true) {
-        setToken1(tokenOut)
+        setTokenOut(tokenOut)
       }
       return
     }
     if (token.address.localeCompare(tokenOut.address) >= 0) {
       if (hasSelected === true) {
-        setToken0(tokenOut)
+        setTokenIn(tokenOut)
       }
-      setToken1(token)
+      setTokenOut(token)
       return
     }
   }
-
-  const [tokenOrder, setTokenOrder] = useState(true)
 
   const changeDefaultOut = (token: token) => {
     if (token.symbol === tokenIn.symbol) {
@@ -218,23 +240,16 @@ export default function Swap() {
     setTokenOut(token)
     setHasSelected(true)
     if (token.address.localeCompare(tokenIn.address) < 0) {
-      setToken0(token)
-      setToken1(tokenIn)
+      setTokenIn(token)
+      setTokenOut(tokenIn)
       return
     }
 
     if (token.address.localeCompare(tokenIn.address) >= 0) {
-      setToken0(tokenIn)
-      setToken1(token)
+      setTokenIn(tokenIn)
+      setTokenOut(token)
       return
     }
-  }
-
-  let [isOpen, setIsOpen] = useState(false)
-  const [LimitActive, setLimitActive] = useState(false)
-
-  function closeModal() {
-    setIsOpen(false)
   }
 
   function switchDirection() {
@@ -242,22 +257,14 @@ export default function Swap() {
     const temp = tokenIn
     setTokenIn(tokenOut)
     setTokenOut(temp)
-    if (token0 === tokenIn) {
-      setZeroForOne(true)
-    } else { setZeroForOne(false) }
-    /* console.log(tokenIn)
-    console.log(tokenOut) */
-    // const tempBal = queryToken0;
-    // setQueryToken0(queryToken1);
-    // setQueryToken1(tempBal);
-    //setMktRate({ eth: mktRate['usdc'], usdc: mktRate['eth'] })
+    const tempBal = queryTokenIn
+    setQueryTokenIn(queryTokenOut)
+    setQueryTokenOut(tempBal)
   }
 
   function openModal() {
     setIsOpen(true)
   }
-
-  const [expanded, setExpanded] = useState(false)
 
   const getAllowance = async () => {
     try {
@@ -267,7 +274,8 @@ export default function Swap() {
       const signer = new ethers.VoidSigner(address, provider)
       const contract = new ethers.Contract(tokenIn.address, erc20ABI, signer)
       const allowance = await contract.allowance(address, rangePoolAddress)
-      console.log('contract allowance', allowance)
+      console.log('allowance tokenIn', tokenIn)
+      //console.log('allowance', allowance)
       setAllowance(allowance)
     } catch (error) {
       console.log(error)
@@ -310,37 +318,21 @@ export default function Swap() {
     }
   }
 
-  useEffect(() => {
-    setTimeout(() => {
-      gasEstimate()
-    }, 10000)
-  }, [])
-
-  useEffect(() => {
-    getAllowance()
-    /* console.log('bnInput', Number(bnInput.toString()))
-    console.log('allowance', Number(allowance.toString()))
-    console.log(
-      'comparison',
-      Number(bnInput.toString()) > Number(allowance.toString()),
-    ) */
-  }, [bnInput, tokenIn])
-
   const getRangePool = async () => {
     try {
       if (hasSelected === true) {
-        /* console.log(token0, token1) */
+        /* console.log(tokenIn, tokenOut) */
         const pool = await getRangePoolFromFactory(
-          token0.address,
-          token1.address,
+          tokenIn.address,
+          tokenOut.address,
         )
         const id = pool['data']['rangePools']['0']['id']
         const price = await getRangeQuote(
           id,
           bnInput,
-          BigNumber.from("4295128739"),
-          token0.address,
-          token1.address,
+          BigNumber.from('4295128739'),
+          tokenIn.address,
+          tokenOut.address,
         )
         setRangePrice(price)
         setRangeBaseLimit(price)
@@ -353,30 +345,34 @@ export default function Swap() {
   const getCoverPool = async () => {
     try {
       if (hasSelected === true) {
-        /* console.log(token0, token1) */
+        /* console.log(tokenIn, tokenOut) */
 
         const pool = await getCoverPoolFromFactory(
-          token0.address,
-          token1.address,
+          tokenIn.address,
+          tokenOut.address,
         )
 
         const id = pool['data']['coverPools']['0']['id']
-        console.log("pool ID", id)
+        console.log('pool ID', id)
 
         /*const price = await getCoverQuote(
           id,
           ethers.utils.parseUnits('1', 18),
           BigNumber.from("4295128739"),
-          token0.address,
-          token1.address,
+          tokenIn.address,
+          tokenOut.address,
         )*/
 
-        const price = getCoverQuoteWagmi(zeroForOne, bnInput, BigNumber.from("4295128739"))
+        const price = getCoverQuoteWagmi(
+          zeroForOne,
+          bnInput,
+          BigNumber.from('4295128739'),
+        )
 
         //const contract = new ethers.Contract(id, coverPoolABI, provider)
         //const hardPrice = await contract.quote(true, ethers.utils.parseUnits('1', 18), BigNumber.from('4295128739'))
 
-        console.log("cover price", price)
+        console.log('cover price', price)
 
         setCoverPrice(price)
         setCoverBaseLimit(price)
@@ -385,17 +381,6 @@ export default function Swap() {
       console.log(error)
     }
   }
-
-  useEffect(() => {
-    getRangePool()
-  }, [hasSelected, token0.address, token1.address, bnInput, bnInputLimit])
-
-  useEffect(() => {
-    getCoverPool()
-  }, [hasSelected, token0.address, token1.address, bnInput, bnInputLimit])
-
-  /* console.log('rangePrice', rangePrice)
-  console.log('coverPrice', coverPrice) */
 
   const fetchTokenPrice = async () => {
     try {
@@ -427,10 +412,6 @@ export default function Swap() {
       console.log(error)
     }
   }
-
-  useEffect(() => {
-    fetchTokenPrice()
-  }, [rangePrice, coverPrice, token0, token1])
 
   const Option = () => {
     if (expanded) {
@@ -544,8 +525,8 @@ export default function Swap() {
                     selected={hasSelected}
                     tokenChosen={changeDefaultIn}
                     displayToken={tokenIn}
-                    balance={setQueryToken0}
-                    key={queryToken0}
+                    balance={setQueryTokenIn}
+                    key={queryTokenIn}
                   />
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
@@ -609,8 +590,8 @@ export default function Swap() {
                       selected={hasSelected}
                       tokenChosen={changeDefaultOut}
                       displayToken={tokenOut}
-                      balance={setQueryToken1}
-                      key={queryToken1}
+                      balance={setQueryTokenOut}
+                      key={queryTokenOut}
                     />
                   ) : (
                     //@dev add skeletons on load when switching sides/ initial selection
@@ -619,8 +600,8 @@ export default function Swap() {
                       selected={hasSelected}
                       tokenChosen={changeDefaultOut}
                       displayToken={tokenOut}
-                      balance={setQueryToken1}
-                      key={queryToken1}
+                      balance={setQueryTokenOut}
+                      key={queryTokenOut}
                     />
                   )}
                 </div>
