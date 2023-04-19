@@ -113,8 +113,9 @@ export default function Pool() {
   function mapUserRangePositions() {
     const mappedRangePositions = []
     rangePositions.map((rangePosition) => {
+      //console.log('rangePosition', rangePosition)
       const rangePositionData = {
-        poolId: rangePosition.pool.id,
+        poolId: rangePosition.id,
         tokenOne: rangePosition.pool.token1,
         tokenZero: rangePosition.pool.token0,
         tvlUsd: rangePosition.pool.totalValueLockedUsd,
@@ -123,7 +124,7 @@ export default function Pool() {
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
       }
       mappedRangePositions.push(rangePositionData)
-      console.log('mappedRangePositions', mappedRangePositions)
+      //console.log('mappedRangePositions', mappedRangePositions)
     })
     setAllRangePositions(mappedRangePositions)
   }
@@ -150,7 +151,7 @@ export default function Pool() {
     const mappedCoverPositions = []
     coverPositions.map((coverPosition) => {
       const coverPositionData = {
-        poolId: coverPosition.pool.id,
+        poolId: coverPosition.id,
         tokenOne: coverPosition.pool.token1,
         tokenZero: coverPosition.pool.token0,
         tvlUsd: coverPosition.pool.totalValueLockedUsd,

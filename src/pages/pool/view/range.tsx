@@ -8,63 +8,11 @@ import { useRouter } from 'next/router'
 import RangeCompoundButton from '../../../components/Buttons/RangeCompoundButton'
 import RangeBurnButton from '../../../components/Buttons/RangeBurnButton'
 import Link from 'next/link'
+import { useAccount } from 'wagmi'
 
 export default function Range() {
-  const [is0Copied, setIs0Copied] = useState(false)
-  const [is1Copied, setIs1Copied] = useState(false)
-  const [isPoolCopied, setIsPoolCopied] = useState(false)
-
+  const { address } = useAccount()
   const router = useRouter()
-
-  function copyAddress0() {
-    navigator.clipboard.writeText(
-      router.query.tokenZeroAddress === undefined
-        ? ''
-        : router.query.tokenZeroAddress.toString(),
-    )
-    setIs0Copied(true)
-  }
-  useEffect(() => {
-    if (copyAddress0) {
-      const timer = setTimeout(() => {
-        setIs0Copied(false)
-      }, 1500)
-      return () => clearTimeout(timer)
-    }
-  })
-
-  function copyAddress1() {
-    navigator.clipboard.writeText(
-      router.query.tokenOneAddress === undefined
-        ? ''
-        : router.query.tokenZeroAddress.toString(),
-    )
-    setIs1Copied(true)
-  }
-  useEffect(() => {
-    if (copyAddress1) {
-      const timer = setTimeout(() => {
-        setIs1Copied(false)
-      }, 1500)
-      return () => clearTimeout(timer)
-    }
-  })
-
-  function copyPoolAddress() {
-    navigator.clipboard.writeText(
-      router.query.poolId ? '' : router.query.tokenZeroAddress.toString(),
-    )
-    setIsPoolCopied(true)
-  }
-  useEffect(() => {
-    if (copyPoolAddress) {
-      const timer = setTimeout(() => {
-        setIsPoolCopied(false)
-      }, 1500)
-      return () => clearTimeout(timer)
-    }
-  })
-
   const zeroAddress =
     router.query.tokenZeroAddress === undefined
       ? ''
@@ -72,12 +20,13 @@ export default function Range() {
   const oneAddress =
     router.query.tokenOneAddress === undefined
       ? ''
-      : router.query.tokenZeroAddress.toString()
+      : router.query.tokenOneAddress.toString()
   const poolAddress =
-    router.query.poolId === undefined
-      ? ''
-      : router.query.tokenZeroAddress.toString()
+    router.query.poolId === undefined ? '' : router.query.poolId.toString()
 
+  const [is0Copied, setIs0Copied] = useState(false)
+  const [is1Copied, setIs1Copied] = useState(false)
+  const [isPoolCopied, setIsPoolCopied] = useState(false)
   const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
     zeroAddress.substring(0, 6) +
       '...' +
@@ -93,6 +42,60 @@ export default function Range() {
       '...' +
       poolAddress.substring(poolAddress.length - 4, poolAddress.length),
   )
+
+  useEffect(() => {
+    if (copyAddress0) {
+      const timer = setTimeout(() => {
+        setIs0Copied(false)
+      }, 1500)
+      return () => clearTimeout(timer)
+    }
+  })
+
+  useEffect(() => {
+    if (copyAddress1) {
+      const timer = setTimeout(() => {
+        setIs1Copied(false)
+      }, 1500)
+      return () => clearTimeout(timer)
+    }
+  })
+
+  useEffect(() => {
+    if (copyPoolAddress) {
+      const timer = setTimeout(() => {
+        setIsPoolCopied(false)
+      }, 1500)
+      return () => clearTimeout(timer)
+    }
+  })
+
+  function copyAddress0() {
+    navigator.clipboard.writeText(
+      router.query.tokenZeroAddress === undefined
+        ? ''
+        : router.query.tokenZeroAddress.toString(),
+    )
+    setIs0Copied(true)
+  }
+
+  function copyAddress1() {
+    navigator.clipboard.writeText(
+      router.query.tokenOneAddress === undefined
+        ? ''
+        : router.query.tokenOneAddress.toString(),
+    )
+    setIs1Copied(true)
+  }
+
+  function copyPoolAddress() {
+    navigator.clipboard.writeText(
+      router.query.poolId === undefined
+        ? ''
+        : router.query.poolId.toString(),
+    )
+    setIsPoolCopied(true)
+  }
 
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">

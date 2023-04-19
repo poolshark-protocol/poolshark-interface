@@ -33,7 +33,7 @@ export default function UserPool({
       poolId?.substring(poolId?.length - 4, poolId?.length),
   )
 
-  useEffect
+  //useEffect
 
   /* TODO@retraca create constant file for this */
   const logoMap = {
