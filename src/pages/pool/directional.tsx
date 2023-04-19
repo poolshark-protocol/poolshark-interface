@@ -3,7 +3,7 @@ import Navbar from '../../components/Navbar'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 
-export default async function Directional() {
+export default function Directional() {
   const router = useRouter()
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
