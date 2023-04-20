@@ -631,9 +631,9 @@ export default function ConcentratedPool({
           key={poolId}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
-          amount0={bnInput._hex}
+          amount0={bnInput}
           /* TODO@retraca amount1 need to change to another var because bnLimit is not used, var need to be calculated considering prices and bnInput */
-          amount1={bnInput._hex}
+          amount1={bnInput}
           minPrice={minPrice}
           maxPrice={maxPrice}
           minTick={min}
