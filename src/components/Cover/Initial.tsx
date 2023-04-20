@@ -5,6 +5,7 @@ import CreateCover from './CreateCover'
 import PoolsModal from './PoolsModal'
 import { useAccount } from 'wagmi'
 import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
+import router from 'next/router'
 
 export default function Initial() {
   const { address, isConnected, isDisconnected } = useAccount()
@@ -87,6 +88,55 @@ export default function Initial() {
   ) : shifted === 'createCover' ? (
     <CreateCover goBack={setIsShifted} />
   ) : (
-    <CoverExistingPool goBack={setIsShifted} />
+    <CoverExistingPool
+      account={'account'}
+      key={
+        router.query.poolId === undefined ? '' : router.query.poolId.toString()
+      }
+      poolId={
+        router.query.poolId === undefined ? '' : router.query.poolId.toString()
+      }
+      tokenOneName={
+        router.query.tokenOneName === undefined
+          ? ''
+          : router.query.tokenOneName.toString()
+      }
+      tokenOneSymbol={
+        router.query.tokenOneSymbol === undefined
+          ? ''
+          : router.query.tokenOneSymbol.toString()
+      }
+      tokenOneLogoURI={
+        router.query.tokenOneLogoURI === undefined
+          ? ''
+          : router.query.tokenOneLogoURI.toString()
+      }
+      tokenOneAddress={
+        router.query.tokenOneAddress === undefined
+          ? ''
+          : router.query.tokenOneAddress.toString()
+      }
+      tokenZeroName={
+        router.query.tokenZeroName === undefined
+          ? ''
+          : router.query.tokenZeroName.toString()
+      }
+      tokenZeroSymbol={
+        router.query.tokenZeroSymbol === undefined
+          ? ''
+          : router.query.tokenZeroSymbol.toString()
+      }
+      tokenZeroLogoURI={
+        router.query.tokenZeroLogoURI === undefined
+          ? ''
+          : router.query.tokenZeroLogoURI.toString()
+      }
+      tokenZeroAddress={
+        router.query.tokenZeroAddress === undefined
+          ? ''
+          : router.query.tokenZeroAddress.toString()
+      }
+      goBack={setIsShifted}
+    />
   )
 }
