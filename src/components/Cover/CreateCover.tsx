@@ -34,7 +34,7 @@ export default function CreateCover(props: any) {
   const [maxPrice, setMaxPrice] = useState('0')
 
   const initialBig = BigNumber.from(0)
-  
+
   const [min, setMin] = useState(initialBig)
   const [max, setMax] = useState(initialBig)
 
@@ -144,16 +144,16 @@ export default function CreateCover(props: any) {
 
   const [isDisabled, setDisabled] = useState(false)
   const [hasSelected, setHasSelected] = useState(false)
-  const [queryToken0, setQueryToken0] = useState(tokenOneAddress)
-  const [queryToken1, setQueryToken1] = useState(tokenOneAddress)
+  const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
+  const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
 
-  const [tokenIn, setToken0] = useState({
+  const [tokenIn, setTokenIn] = useState({
     symbol: 'TOKEN20A',
     logoURI:
       'https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png',
     address: '0x8fa1fdd860e3c56dafd09a048ffda4965376945e',
   })
-  const [tokenOut, setToken1] = useState({
+  const [tokenOut, setTokenOut] = useState({
     symbol: 'Select Token',
     logoURI: undefined,
     address: '0xc3a0736186516792c88e2c6d9b209471651aa46e',
@@ -208,7 +208,7 @@ export default function CreateCover(props: any) {
       return
     }
     //console.log(token)
-    setToken0(token)
+    setTokenIn(token)
   }
 
   const [tokenOrder, setTokenOrder] = useState(true)
@@ -224,9 +224,19 @@ export default function CreateCover(props: any) {
       return
     }
     //console.log(token)
-    setToken1(token)
+    setTokenOut(token)
     setHasSelected(true)
     setDisabled(false)
+  }
+
+  function switchDirection() {
+    setTokenOrder(!tokenOrder)
+    const temp = tokenIn
+    setTokenIn(tokenOut)
+    setTokenOut(temp)
+    const tempBal = queryTokenIn
+    setQueryTokenIn(queryTokenOut)
+    setQueryTokenOut(tempBal)
   }
 
   const handleValueChange = () => {
@@ -353,18 +363,25 @@ export default function CreateCover(props: any) {
             index="0"
             tokenChosen={changeDefault0}
             displayToken={tokenIn}
-            balance={setQueryToken0}
-            key={queryToken0}
+            balance={setQueryTokenIn}
+            key={queryTokenIn}
           />
-          <ArrowLongRightIcon className="w-6" />
+          <ArrowLongRightIcon
+            className="w-6 cursor-pointer"
+            onClick={() => {
+              if (hasSelected) {
+                switchDirection()
+              }
+            }}
+          />
           {hasSelected ? (
             <SelectToken
               index="1"
               selected={hasSelected}
               tokenChosen={changeDefault1}
               displayToken={tokenOut}
-              balance={setQueryToken1}
-              key={queryToken1}
+              balance={setQueryTokenOut}
+              key={queryTokenOut}
             />
           ) : (
             <SelectToken
@@ -372,7 +389,7 @@ export default function CreateCover(props: any) {
               selected={hasSelected}
               tokenChosen={changeDefault1}
               displayToken={tokenOut}
-              balance={setQueryToken1}
+              balance={setQueryTokenOut}
             />
           )}
         </div>

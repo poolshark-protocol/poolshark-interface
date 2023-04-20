@@ -70,26 +70,16 @@ export default function ConcentratedPool({
   const [amount0, setAmount0] = useState(initialBig)
   const [amount1, setAmount1] = useState(initialBig)
 
-  const [token0, setToken0] = useState({
-    symbol: tokenZeroSymbol,
-    logoURI: tokenZeroLogoURI,
-    address: tokenZeroAddress,
-  } as token)
-  const [token1, setToken1] = useState({
-    symbol: tokenOneSymbol,
-    logoURI: tokenOneLogoURI,
-    address: tokenOneAddress,
-  } as token)
   const [tokenIn, setTokenIn] = useState({
     symbol: tokenZeroSymbol,
     logoURI: tokenZeroLogoURI,
     address: tokenZeroAddress,
-  })
+  } as token)
   const [tokenOut, setTokenOut] = useState({
     symbol: tokenOneSymbol,
     logoURI: tokenOneLogoURI,
     address: tokenOneAddress,
-  })
+  } as token)
 
   const [hasSelected, setHasSelected] = useState(false)
   const [isDisabled, setDisabled] = useState(false)
@@ -281,17 +271,17 @@ export default function ConcentratedPool({
     }
     setTokenIn(token)
     if (token.address.localeCompare(tokenOut.address) < 0) {
-      setToken0(token)
+      setTokenIn(token)
       if (hasSelected === true) {
-        setToken1(tokenOut)
+        setTokenOut(tokenOut)
       }
       return
     }
     if (token.address.localeCompare(tokenOut.address) >= 0) {
       if (hasSelected === true) {
-        setToken0(tokenOut)
+        setTokenIn(tokenOut)
       }
-      setToken1(token)
+      setTokenOut(token)
       return
     }
   }
@@ -305,14 +295,14 @@ export default function ConcentratedPool({
     setTokenOut(token)
     setHasSelected(true)
     if (token.address.localeCompare(tokenIn.address) < 0) {
-      setToken0(token)
-      setToken1(tokenIn)
+      setTokenIn(token)
+      setTokenOut(tokenIn)
       return
     }
 
     if (token.address.localeCompare(tokenIn.address) >= 0) {
-      setToken0(tokenIn)
-      setToken1(token)
+      setTokenIn(tokenIn)
+      setTokenOut(token)
       return
     }
   }

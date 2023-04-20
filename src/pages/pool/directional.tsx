@@ -142,8 +142,7 @@ export default function Directional() {
               </h1>
             </div>
           </div>
-          <CoverExistingPool goBack={() => router.back()} />
-          {/* <DirectionalPool
+          <CoverExistingPool
             account={'account'}
             key={
               router.query.poolId === undefined
@@ -195,6 +194,10 @@ export default function Directional() {
                 ? ''
                 : router.query.tokenZeroAddress.toString()
             }
+            goBack={() => router.back()}
+          />
+          {/* <DirectionalPool
+            
           /> */}
         </div>
       </div>

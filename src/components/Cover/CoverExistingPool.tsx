@@ -19,25 +19,66 @@ import {
   getPreviousTicksUpper,
 } from '../../utils/queries'
 import { TickMath } from '../../utils/tickMath'
+import { tokenOneAddress } from '../../constants/contractAddresses'
 
-export default function CoverExistingPool({ goBack }) {
-  const [pool, updatePool] = useCoverStore((state: any) => [
+export default function CoverExistingPool({
+  account,
+  key,
+  poolId,
+  tokenOneName,
+  tokenOneSymbol,
+  tokenOneLogoURI,
+  tokenOneAddress,
+  tokenZeroName,
+  tokenZeroSymbol,
+  tokenZeroLogoURI,
+  tokenZeroAddress,
+  goBack,
+}) {
+  type token = {
+    name: string
+    symbol: string
+    logoURI: string
+    address: string
+  }
+  const initialBig = BigNumber.from(0)
+  /* const [pool, updatePool] = useCoverStore((state: any) => [
     state.pool,
     state.updatePool,
-  ])
+  ]) */
   const [expanded, setExpanded] = useState(false)
-  const [minPrice, setMinPrice] = useState('')
-  const [maxPrice, setMaxPrice] = useState('')
-
-  const initialBig = BigNumber.from(0)
-
   const [min, setMin] = useState(initialBig)
   const [max, setMax] = useState(initialBig)
+  const [minPrice, setMinPrice] = useState('')
+  const [maxPrice, setMaxPrice] = useState('')
+  const [tokenOrder, setTokenOrder] = useState(true)
+  const [hasSelected, setHasSelected] = useState(true)
+  const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
+  const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
+  const [tokenIn, setTokenIn] = useState({
+    name: tokenZeroName,
+    symbol: tokenZeroSymbol,
+    logoURI: tokenZeroLogoURI,
+    address: tokenZeroAddress,
+  } as token)
+  const [tokenOut, setTokenOut] = useState({
+    name: tokenOneName,
+    symbol: tokenOneSymbol,
+    logoURI: tokenOneLogoURI,
+    address: tokenOneAddress,
+  } as token)
 
   const [sliderValue, setSliderValue] = useState(50)
 
   const handleChange = (event: any) => {
     setSliderValue(event.target.value * 0.01)
+  }
+
+  function switchDirection() {
+    setTokenOrder(!tokenOrder)
+    const temp = tokenIn
+    setTokenIn(tokenOut)
+    setTokenOut(temp)
   }
 
   const { address, isConnected, isDisconnected } = useAccount()
@@ -216,15 +257,22 @@ export default function CoverExistingPool({ goBack }) {
         <div className="flex gap-x-4 items-center">
           <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
             <div className="flex items-center gap-x-2 w-full">
-              <img className="w-7" src="/static/images/dai_icon.png" />
-              {pool.tokenZeroName}
+              <img className="w-7" src={tokenIn.logoURI} />
+              {tokenIn.name}
             </div>
           </button>
-          <ArrowLongRightIcon className="w-6" />
+          <ArrowLongRightIcon
+            className="w-6 cursor-pointer"
+            onClick={() => {
+              if (hasSelected) {
+                switchDirection()
+              }
+            }}
+          />
           <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
             <div className="flex items-center gap-x-2 w-full">
-              <img className="w-7" src="/static/images/token.png" />
-              {pool.tokenOneName}
+              <img className="w-7" src={tokenOut.logoURI} />
+              {tokenOut.name}
             </div>
           </button>
         </div>
