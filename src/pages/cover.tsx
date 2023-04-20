@@ -125,55 +125,6 @@ export default function Cover() {
     console.log('chainId: ', chainId)
   }, [chainId])
 
-  const [uniV3Positions, setUniV3Positions] = useState([])
-  const [allUniV3Positions, setAllUniV3Positions] = useState([])
-  const [userUniV3PositionExists, setUserUniV3PositionExists] = useState(false)
-
-  async function getUserUniV3PositionData() {
-    const data = await fetchUniV3Positions(address)
-    const positions = data['data'].positions
-
-    setUniV3Positions(positions)
-  }
-
-  function mapUserUniV3Positions() {
-    const mappedUniV3Positions = []
-    uniV3Positions.map((uniV3Position) => {
-      const uniV3PositionData = {
-        tokenOne: uniV3Position.token1,
-        tokenZero: uniV3Position.token0,
-        poolAddress: uniV3Position.id,
-        userOwnerAddress: uniV3Position.owner.replace(/"|'/g, ''),
-      }
-
-      mappedUniV3Positions.push(uniV3PositionData)
-      console.log('mappedUniV3Positions_COVERPAGE: ', mappedUniV3Positions)
-    })
-
-    setAllUniV3Positions(mappedUniV3Positions)
-  }
-
-  function checkUserUniV3PositionExists() {
-    allUniV3Positions.map((allUniV3Position) => {
-      if (allUniV3Position.userOwnerAddress === address?.toLowerCase()) {
-        setUserUniV3PositionExists(true)
-      }
-    })
-  }
-
-  //async so needs to be wrapped
-  useEffect(() => {
-    getUserUniV3PositionData()
-  }, [])
-
-  useEffect(() => {
-    mapUserUniV3Positions()
-  }, [uniV3Positions])
-
-  useEffect(() => {
-    checkUserUniV3PositionExists()
-  }, [])
-
   const Option = () => {
     if (expanded) {
       return (
@@ -305,33 +256,6 @@ export default function Cover() {
                   </div>
                 </div>
                 <div>
-                  <h1 className="mb-3 mt-4">User UNI-V3 Positions</h1>
-                  {allUniV3Positions.map((allUniV3Position) => {
-                    if (
-                      allUniV3Position.userOwnerAddress ===
-                        address?.toLowerCase() &&
-                      (allUniV3Position.tokenZero.name === searchTerm ||
-                        allUniV3Position.tokenOne.name === searchTerm ||
-                        allUniV3Position.tokenZero.symbol === searchTerm ||
-                        allUniV3Position.tokenOne.symbol === searchTerm ||
-                        allUniV3Position.tokenZero.id === searchTerm ||
-                        allUniV3Position.tokenOne.id === searchTerm ||
-                        searchTerm === '')
-                    ) {
-                      return (
-                        <UserCoverPool
-                          account={'account'}
-                          key={allUniV3Position.poolId}
-                          tokenOne={allUniV3Position.tokenOne}
-                          tokenZero={allUniV3Position.tokenZero}
-                          poolId={allUniV3Position.poolAddress}
-                          prefill={undefined}
-                          close={undefined}
-                          href={'/pool/view/cover'}
-                        />
-                      )
-                    }
-                  })}
                 </div>
               </div>
             )}

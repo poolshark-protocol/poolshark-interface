@@ -2,57 +2,12 @@ import { Transition, Dialog } from '@headlessui/react'
 import { Fragment, useState, useEffect } from 'react'
 import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import UserCoverPool from '../Pools/UserCoverPool'
-import { fetchCoverPools, fetchUniV3Pools } from '../../utils/queries'
+import { fetchRangePositions, fetchUniV3Positions } from '../../utils/queries'
 import { useAccount } from 'wagmi'
+import UserPool from '../Pools/UserPool'
 
 export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
   const { address } = useAccount()
-
-  const [coverPools, setCoverPools] = useState([])
-  const [allCoverPools, setAllCoverPools] = useState([])
-
-  async function getPoolData() {
-    try {
-      const data = await fetchCoverPools()
-      const pools = data['data'].coverPools
-
-      setCoverPools(pools)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  function mapCoverPools() {
-    const mappedCoverPools = []
-
-    coverPools.map((coverPool) => {
-      const coverPoolData = {
-        tokenOne: coverPool.token1,
-        tokenZero: coverPool.token0,
-        poolAddress: coverPool.id,
-      }
-
-      mappedCoverPools.push(coverPoolData)
-    })
-
-    setAllCoverPools(mappedCoverPools)
-  }
-
-  //async so needs to be wrapped
-  useEffect(() => {
-    getPoolData()
-  }, [])
-
-  // useEffect(() => {
-  //  pool(coverParams);
-  // },[coverParams])
-
-  useEffect(() => {
-    mapCoverPools()
-  }, [coverPools])
-
-  const [univ3Pools, setUniv3Pools] = useState([])
-  const [allUniv3Pools, setAllUniv3Pools] = useState([])
 
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -60,41 +15,91 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
     setSearchTerm(event.target.value)
   }
 
-  async function getUniv3PoolData() {
-    const data = await fetchUniV3Pools()
-    const pools = data['data'].pools
+  const [rangePositions, setRangePositions] = useState([])
+  const [allRangePositions, setAllRangePositions] = useState([])
 
-    setUniv3Pools(pools)
+  async function getUserRangePositionData() {
+    const data = await fetchRangePositions(address)
+    const positions = data['data'].positions
+    setRangePositions(positions)
   }
 
-  function mapUniv3Pools() {
-    const mappedUniV3Pools = []
-
-    univ3Pools.map((univ3Pool) => {
-      const coverPoolData = {
-        tokenOne: univ3Pool.token1,
-        tokenZero: univ3Pool.token0,
-        poolAddress: univ3Pool.id,
+  function mapUserRangePositions() {
+    const mappedRangePositions = []
+    rangePositions.map((rangePosition) => {
+      //console.log('rangePosition', rangePosition)
+      const rangePositionData = {
+        poolId: rangePosition.id,
+        tokenOne: rangePosition.pool.token1,
+        tokenZero: rangePosition.pool.token0,
+        tvlUsd: rangePosition.pool.totalValueLockedUsd,
+        volumeUsd: rangePosition.pool.volumeUsd,
+        volumeEth: rangePosition.pool.volumeEth,
+        userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
       }
-
-      mappedUniV3Pools.push(coverPoolData)
+      mappedRangePositions.push(rangePositionData)
+      //console.log('mappedRangePositions', mappedRangePositions)
     })
-
-    setAllUniv3Pools(mappedUniV3Pools)
+    setAllRangePositions(mappedRangePositions)
   }
 
   //async so needs to be wrapped
   useEffect(() => {
-    getUniv3PoolData()
+    getUserRangePositionData()
   }, [])
 
-  // useEffect(() => {
-  //  pool(coverParams);
-  // },[coverParams])
+  useEffect(() => {
+    mapUserRangePositions()
+  }, [rangePositions])
+
+  const [uniV3Positions, setUniV3Positions] = useState([])
+  const [allUniV3Positions, setAllUniV3Positions] = useState([])
+  const [userUniV3PositionExists, setUserUniV3PositionExists] = useState(false)
+
+  async function getUserUniV3PositionData() {
+    const data = await fetchUniV3Positions(address)
+    const positions = data['data'].positions
+
+    setUniV3Positions(positions)
+  }
+
+  function mapUserUniV3Positions() {
+    const mappedUniV3Positions = []
+    uniV3Positions.map((uniV3Position) => {
+      const uniV3PositionData = {
+        tokenOne: uniV3Position.token1,
+        tokenZero: uniV3Position.token0,
+        poolAddress: uniV3Position.id,
+        userOwnerAddress: uniV3Position.owner.replace(/"|'/g, ''),
+      }
+
+      mappedUniV3Positions.push(uniV3PositionData)
+      console.log('mappedUniV3Positions_COVERPAGE: ', mappedUniV3Positions)
+    })
+
+    setAllUniV3Positions(mappedUniV3Positions)
+  }
+
+  function checkUserUniV3PositionExists() {
+    allUniV3Positions.map((allUniV3Position) => {
+      if (allUniV3Position.userOwnerAddress === address?.toLowerCase()) {
+        setUserUniV3PositionExists(true)
+      }
+    })
+  }
+
+  //async so needs to be wrapped
+  useEffect(() => {
+    getUserUniV3PositionData()
+  }, [])
 
   useEffect(() => {
-    mapUniv3Pools()
-  }, [univ3Pools])
+    mapUserUniV3Positions()
+  }, [uniV3Positions])
+
+  useEffect(() => {
+    checkUserUniV3PositionExists()
+  }, [])
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -144,58 +149,64 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
                   />
                 </div>
                 <div>
-                  <h1 className="mb-3">Poolshark Pools</h1>
+                  <h1 className="mb-3">Poolshark Positions</h1>
                   <div className="space-y-2">
-                    {allCoverPools.map((allCoverPool) => {
-                      if (
-                        allCoverPool.tokenZero.name === searchTerm ||
-                        allCoverPool.tokenOne.name === searchTerm ||
-                        allCoverPool.tokenZero.symbol === searchTerm ||
-                        allCoverPool.tokenOne.symbol === searchTerm ||
-                        allCoverPool.tokenZero.id === searchTerm ||
-                        allCoverPool.tokenOne.id === searchTerm ||
-                        searchTerm === ''
-                      )
-                        return (
-                          <UserCoverPool
-                            account={'account'}
-                            key={allCoverPool.poolId}
-                            tokenOne={allCoverPool.tokenOne}
-                            tokenZero={allCoverPool.tokenZero}
-                            poolId={allCoverPool.poolId}
-                            prefill={undefined}
-                            close={undefined}
-                            href={'/cover/existingPool'}
-                          />
-                        )
-                    })}
+                    {allRangePositions.map((allRangePosition) => {
+                        if (
+                          allRangePosition.userOwnerAddress ===
+                            address?.toLowerCase() &&
+                          (allRangePosition.tokenZero.name === searchTerm ||
+                            allRangePosition.tokenOne.name === searchTerm ||
+                            allRangePosition.tokenZero.symbol === searchTerm ||
+                            allRangePosition.tokenOne.symbol === searchTerm ||
+                            allRangePosition.tokenZero.id === searchTerm ||
+                            allRangePosition.tokenOne.id === searchTerm ||
+                            searchTerm === '')
+                        ) {
+                          return (
+                            <UserPool
+                              poolId={allRangePosition.poolId}
+                              account={address}
+                              key={allRangePosition.tokenOneName}
+                              tokenZero={allRangePosition.tokenZero}
+                              tokenOne={allRangePosition.tokenOne}
+                              tvlUsd={allRangePosition.tvlUsd}
+                              volumeUsd={allRangePosition.volumeUsd}
+                              volumeEth={allRangePosition.volumeEth}
+                            />
+                          )
+                        }
+                      })}
                   </div>
                 </div>
                 <div>
-                  <h1 className="mb-3 mt-4">UNI-V3 Pools</h1>
+                  <h1 className="mb-3 mt-4">UNI-V3 Positions</h1>
                   <div className="space-y-2">
-                    {allUniv3Pools.map((allUniv3Pool) => {
+                    {allUniV3Positions.map((allUniV3Position) => {
                       if (
-                        allUniv3Pool.tokenZero.name === searchTerm ||
-                        allUniv3Pool.tokenOne.name === searchTerm ||
-                        allUniv3Pool.tokenZero.symbol === searchTerm ||
-                        allUniv3Pool.tokenOne.symbol === searchTerm ||
-                        allUniv3Pool.tokenZero.id === searchTerm ||
-                        allUniv3Pool.tokenOne.id === searchTerm ||
-                        searchTerm === ''
-                      )
+                        allUniV3Position.userOwnerAddress ===
+                          address?.toLowerCase() &&
+                        (allUniV3Position.tokenZero.name === searchTerm ||
+                          allUniV3Position.tokenOne.name === searchTerm ||
+                          allUniV3Position.tokenZero.symbol === searchTerm ||
+                          allUniV3Position.tokenOne.symbol === searchTerm ||
+                          allUniV3Position.tokenZero.id === searchTerm ||
+                          allUniV3Position.tokenOne.id === searchTerm ||
+                          searchTerm === '')
+                      ) {
                         return (
                           <UserCoverPool
                             account={'account'}
-                            key={allUniv3Pool.poolId}
-                            tokenOne={allUniv3Pool.tokenOne}
-                            tokenZero={allUniv3Pool.tokenZero}
-                            poolId={allUniv3Pool.poolId}
+                            key={allUniV3Position.poolId}
+                            tokenOne={allUniV3Position.tokenOne}
+                            tokenZero={allUniV3Position.tokenZero}
+                            poolId={allUniV3Position.poolAddress}
                             prefill={undefined}
                             close={undefined}
-                            href={'/cover/existingPool'}
+                            href={'/pool/view/cover'}
                           />
                         )
+                      }
                     })}
                   </div>
                 </div>
