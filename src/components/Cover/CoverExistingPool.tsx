@@ -26,6 +26,11 @@ export default function CoverExistingPool({ goBack }) {
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
 
+  const initialBig = BigNumber.from(0)
+  
+  const [min, setMin] = useState(initialBig)
+  const [max, setMax] = useState(initialBig)
+
   const [sliderValue, setSliderValue] = useState(50)
 
   const handleChange = (event: any) => {
@@ -93,6 +98,8 @@ export default function CoverExistingPool({ goBack }) {
           inverse: false,
         })*/
       }
+      setMin(ethers.utils.parseUnits(String(min), 0))
+      setMax(ethers.utils.parseUnits(String(max), 0))
     } catch (error) {
       console.log(error)
     }
@@ -337,10 +344,10 @@ export default function CoverExistingPool({ goBack }) {
           <CoverMintButton
             disabled={true}
             to={address}
-            lower={minPrice}
-            claim={minPrice}
-            upper={maxPrice}
-            amount={BigNumber.from(sliderValue).mul(1)}
+            lower={min}
+            claim={min}
+            upper={max}
+            amount={ethers.utils.parseUnits(String(sliderValue), 18).mul(1)}
             zeroForOne={true}
           />
         )}
