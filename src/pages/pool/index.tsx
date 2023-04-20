@@ -239,7 +239,7 @@ export default function Pool() {
                 pathname:
                   selected.id === 1
                     ? '/pool/concentrated'
-                    : '/pool/directional',
+                    : '/pool/create',
                 query: {
                   account: '',
                   poolId: '',

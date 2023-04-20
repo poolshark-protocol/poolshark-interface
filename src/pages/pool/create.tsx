@@ -1,15 +1,43 @@
 import Navbar from '../../components/Navbar'
 import Link from 'next/link'
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import { Listbox, Transition } from '@headlessui/react'
 import ConcentratedPool from '../../components/Pools/ConcentratedPool'
+import CreateCover from '../../components/Cover/CreateCover'
+import router, { useRouter } from 'next/router'
 
 export default function CreatePool() {
   const poolTypes = [
     { id: 1, type: 'Range Pools', unavailable: false },
     { id: 2, type: 'Cover Pools', unavailable: false },
   ]
+  const router = useRouter()
+  const poolAddress =
+    router.query.poolId === undefined ? '' : router.query.poolId.toString()
+
+  const [poolDisplay, setPoolDisplay] = useState(
+    poolAddress.substring(0, 6) +
+      '...' +
+      poolAddress.substring(poolAddress.length - 4, poolAddress.length),
+  )
+  const [isPoolCopied, setIsPoolCopied] = useState(false)
+
+  useEffect(() => {
+    if (copyPoolAddress) {
+      const timer = setTimeout(() => {
+        setIsPoolCopied(false)
+      }, 1500)
+      return () => clearTimeout(timer)
+    }
+  })
+
+  function copyPoolAddress() {
+    navigator.clipboard.writeText(
+      router.query.poolId === undefined ? '' : router.query.poolId.toString(),
+    )
+    setIsPoolCopied(true)
+  }
 
   function SelectPool() {
     const [selected, setSelected] = useState(poolTypes[0])
@@ -73,19 +101,22 @@ export default function CreatePool() {
               </span>
             </Link>
           </div>
-          <ConcentratedPool
-            account={'0x0000'}
-            poolId={'0x0000'}
-            tokenOneName={'tokenOneName'}
-            tokenOneAddress={'tokenOneAddress'}
-            tokenZeroName={'tokenZeroName'}
-            tokenZeroAddress={'tokenZeroAddress'}
-            key={undefined}
-            tokenOneSymbol={undefined}
-            tokenOneLogoURI={undefined}
-            tokenZeroSymbol={undefined}
-            tokenZeroLogoURI={undefined}
-          />
+          <div className="mb-6">
+            <div className="flex justify-end text-[#646464]">
+              <h1
+                onClick={() => copyPoolAddress()}
+                className="text-xs cursor-pointer flex items-center"
+              >
+                Pool:
+                {isPoolCopied ? (
+                  <span className="ml-1">Copied</span>
+                ) : (
+                  <span className="ml-1">{poolDisplay}</span>
+                )}
+              </h1>
+            </div>
+          </div>
+          <CreateCover goBack={() => router.back()} />
         </div>
       </div>
     </div>
