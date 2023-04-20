@@ -274,7 +274,7 @@ export default function Swap() {
       const signer = new ethers.VoidSigner(address, provider)
       const contract = new ethers.Contract(tokenIn.address, erc20ABI, signer)
       const allowance = await contract.allowance(address, rangePoolAddress)
-      console.log('allowance tokenIn', tokenIn)
+      
       //console.log('allowance', allowance)
       setAllowance(allowance)
     } catch (error) {

@@ -6,14 +6,17 @@ import {
   ArrowLongLeftIcon,
 } from '@heroicons/react/20/solid'
 import SelectToken from '../SelectToken'
-import { useAccount, useBalance, useProvider } from 'wagmi'
+import { erc20ABI, useAccount, useBalance, useProvider } from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import CoverApproveButton from '../Buttons/CoverApproveButton'
 import { chainIdsToNamesForGitTokenList } from '../../utils/chains'
 import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 import { useState, useEffect } from 'react'
 import useInputBox from '../../hooks/useInputBox'
-import { tokenOneAddress } from '../../constants/contractAddresses'
+import {
+  rangePoolAddress,
+  tokenOneAddress,
+} from '../../constants/contractAddresses'
 import { coverPoolAddress } from '../../constants/contractAddresses'
 import { TickMath } from '../../utils/tickMath'
 import { BigNumber, ethers } from 'ethers'
@@ -27,17 +30,8 @@ import { erc20 } from '../../abis/evm/erc20'
 import useAllowance from '../../hooks/useAllowance'
 
 export default function CreateCover(props: any) {
-  const [expanded, setExpanded] = useState(false)
-  const { bnInput, inputBox } = useInputBox()
-  const [stateChainName, setStateChainName] = useState()
-  const [minPrice, setMinPrice] = useState('0')
-  const [maxPrice, setMaxPrice] = useState('0')
-
   const initialBig = BigNumber.from(0)
-
-  const [min, setMin] = useState(initialBig)
-  const [max, setMax] = useState(initialBig)
-
+  const { bnInput, inputBox } = useInputBox()
   const [
     updateCoverContractParams,
     updateCoverAllowance,
@@ -49,6 +43,36 @@ export default function CreateCover(props: any) {
     state.CoverAllowance,
     state.coverContractParams,
   ])
+  const [expanded, setExpanded] = useState(false)
+  const [stateChainName, setStateChainName] = useState()
+  const [minPrice, setMinPrice] = useState('0')
+  const [maxPrice, setMaxPrice] = useState('0')
+  const [min, setMin] = useState(initialBig)
+  const [max, setMax] = useState(initialBig)
+  const [allowance, setAllowance] = useState('0')
+  const { address, isConnected, isDisconnected } = useAccount()
+  const [isDisabled, setDisabled] = useState(false)
+  const [hasSelected, setHasSelected] = useState(false)
+  const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
+  const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
+  const [tokenIn, setTokenIn] = useState({
+    symbol: 'TOKEN20A',
+    logoURI:
+      'https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png',
+    address: '0x8fa1fdd860e3c56dafd09a048ffda4965376945e',
+  })
+  const [tokenOut, setTokenOut] = useState({
+    symbol: 'Select Token',
+    logoURI: undefined,
+    address: '0xc3a0736186516792c88e2c6d9b209471651aa46e',
+  })
+  const [usdcBalance, setUsdcBalance] = useState(0)
+  const [amountToPay, setAmountToPay] = useState(0)
+  const [prices, setPrices] = useState({ tokenIn: 0, tokenOut: 0 })
+
+  useEffect(() => {
+    getAllowance()
+  }, [tokenIn])
 
   async function setCoverParams() {
     try {
@@ -139,29 +163,6 @@ export default function CreateCover(props: any) {
   useEffect(() => {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId])
   }, [chainId])
-
-  const { address, isConnected, isDisconnected } = useAccount()
-
-  const [isDisabled, setDisabled] = useState(false)
-  const [hasSelected, setHasSelected] = useState(false)
-  const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
-  const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
-
-  const [tokenIn, setTokenIn] = useState({
-    symbol: 'TOKEN20A',
-    logoURI:
-      'https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png',
-    address: '0x8fa1fdd860e3c56dafd09a048ffda4965376945e',
-  })
-  const [tokenOut, setTokenOut] = useState({
-    symbol: 'Select Token',
-    logoURI: undefined,
-    address: '0xc3a0736186516792c88e2c6d9b209471651aa46e',
-  })
-
-  const [usdcBalance, setUsdcBalance] = useState(0)
-  const [amountToPay, setAmountToPay] = useState(0)
-  const [prices, setPrices] = useState({ tokenIn: 0, tokenOut: 0 })
 
   const tokenInAllowance = async () => {
     const provider = new ethers.providers.JsonRpcProvider(
@@ -311,6 +312,22 @@ export default function CreateCover(props: any) {
   // if ()
 
   //   },[bnInput, (document.getElementById('minInput') as HTMLInputElement)?.value, (document.getElementById('maxInput') as HTMLInputElement)?.value])
+
+  const getAllowance = async () => {
+    try {
+      const provider = new ethers.providers.JsonRpcProvider(
+        'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
+      )
+      const signer = new ethers.VoidSigner(address, provider)
+      const contract = new ethers.Contract(tokenIn.address, erc20ABI, signer)
+      const allowance = await contract.allowance(address, rangePoolAddress)
+
+      //console.log('allowance', allowance)
+      setAllowance(allowance)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const Option = () => {
     if (expanded) {

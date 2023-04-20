@@ -5,7 +5,7 @@ import {
   MinusIcon,
   PlusIcon,
 } from '@heroicons/react/20/solid'
-import { useAccount } from 'wagmi'
+import { erc20ABI, useAccount } from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 import CoverApproveButton from '../Buttons/CoverApproveButton'
@@ -19,7 +19,7 @@ import {
   getPreviousTicksUpper,
 } from '../../utils/queries'
 import { TickMath } from '../../utils/tickMath'
-import { tokenOneAddress } from '../../constants/contractAddresses'
+import { rangePoolAddress, tokenOneAddress } from '../../constants/contractAddresses'
 
 export default function CoverExistingPool({
   account,
@@ -67,8 +67,13 @@ export default function CoverExistingPool({
     logoURI: tokenOneLogoURI,
     address: tokenOneAddress,
   } as token)
-
   const [sliderValue, setSliderValue] = useState(50)
+  const [allowance, setAllowance] = useState('0')
+
+
+  useEffect(() => {
+    getAllowance()
+  }, [tokenIn])
 
   const handleChange = (event: any) => {
     setSliderValue(event.target.value * 0.01)
@@ -211,8 +216,21 @@ export default function CoverExistingPool({
     }
   }
 
-  //Fix
-  const allowance = useAllowance(address)
+  const getAllowance = async () => {
+    try {
+      const provider = new ethers.providers.JsonRpcProvider(
+        'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
+      )
+      const signer = new ethers.VoidSigner(address, provider)
+      const contract = new ethers.Contract(tokenIn.address, erc20ABI, signer)
+      const allowance = await contract.allowance(address, rangePoolAddress)
+      
+      //console.log('allowance', allowance)
+      setAllowance(allowance)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const Option = () => {
     if (expanded) {
