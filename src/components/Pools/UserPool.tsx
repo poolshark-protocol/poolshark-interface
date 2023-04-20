@@ -6,10 +6,11 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
 export default function UserPool({
-  poolId,
   account,
-  tokenOne,
+  poolId,
   tokenZero,
+  tokenOne,
+  href,
   tvlUsd,
   volumeUsd,
   volumeEth,
@@ -48,9 +49,9 @@ export default function UserPool({
     <>
       <Link
         href={{
-          pathname: '/pool/view/range',
+          pathname: href,
           query: {
-            ccount: account,
+            account: account,
             poolId: poolId,
             tokenOneName: tokenOne.name,
             tokenOneSymbol: tokenOne.symbol,

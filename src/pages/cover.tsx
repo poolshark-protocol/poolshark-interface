@@ -13,8 +13,11 @@ import React from 'react'
 import useTokenList from '../hooks/useTokenList'
 import Initial from '../components/Cover/Initial'
 import CreateCover from '../components/Cover/CreateCover'
+import { useRouter } from 'next/router'
 
 export default function Cover() {
+  const router = useRouter()
+
   const [maxPrice, setMaxPrice] = useState(0)
   const [disabled, setDisabled] = useState(true)
 

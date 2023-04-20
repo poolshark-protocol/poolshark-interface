@@ -14,7 +14,10 @@ import { useCoverStore } from '../../hooks/useStore'
 import useAllowance from '../../hooks/useAllowance'
 import { BigNumber, ethers } from 'ethers'
 import JSBI from 'jsbi'
-import { getPreviousTicksLower, getPreviousTicksUpper } from '../../utils/queries'
+import {
+  getPreviousTicksLower,
+  getPreviousTicksUpper,
+} from '../../utils/queries'
 import { TickMath } from '../../utils/tickMath'
 
 export default function CoverExistingPool({ goBack }) {
@@ -27,7 +30,7 @@ export default function CoverExistingPool({ goBack }) {
   const [maxPrice, setMaxPrice] = useState('')
 
   const initialBig = BigNumber.from(0)
-  
+
   const [min, setMin] = useState(initialBig)
   const [max, setMax] = useState(initialBig)
 
@@ -108,7 +111,6 @@ export default function CoverExistingPool({ goBack }) {
   useEffect(() => {
     setCoverParams()
   }, [minPrice, maxPrice, sliderValue])
-
 
   const changePrice = (direction: string, minMax: string) => {
     if (direction === 'plus' && minMax === 'min') {
@@ -207,8 +209,8 @@ export default function CoverExistingPool({ goBack }) {
             className="flex gap-x-1 cursor-pointer"
             onClick={() => goBack('initial')}
           >
-            <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{' '}
-            <h1 className="mb-3 opacity-50">Back</h1>{' '}
+            <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />
+            <h1 className="mb-3 opacity-50">Back</h1>
           </span>
         </div>
         <div className="flex gap-x-4 items-center">

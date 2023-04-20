@@ -152,18 +152,24 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
                   <h1 className="mb-3">Poolshark Positions</h1>
                   <div className="space-y-2">
                     {allRangePositions.map((allRangePosition) => {
-                        if (
-                          allRangePosition.userOwnerAddress ===
-                            address?.toLowerCase() &&
-                          (allRangePosition.tokenZero.name === searchTerm ||
-                            allRangePosition.tokenOne.name === searchTerm ||
-                            allRangePosition.tokenZero.symbol === searchTerm ||
-                            allRangePosition.tokenOne.symbol === searchTerm ||
-                            allRangePosition.tokenZero.id === searchTerm ||
-                            allRangePosition.tokenOne.id === searchTerm ||
-                            searchTerm === '')
-                        ) {
-                          return (
+                      if (
+                          /* allRangePosition.userOwnerAddress ===
+                            address?.toLowerCase() */true &&
+                        (allRangePosition.tokenZero.name === searchTerm ||
+                          allRangePosition.tokenOne.name === searchTerm ||
+                          allRangePosition.tokenZero.symbol === searchTerm ||
+                          allRangePosition.tokenOne.symbol === searchTerm ||
+                          allRangePosition.tokenZero.id === searchTerm ||
+                          allRangePosition.tokenOne.id === searchTerm ||
+                          searchTerm === '')
+                      ) {
+                        return (
+                          <div
+                            onClick={() => {
+                              setIsOpen(false)
+                              prefill('exisingPool')
+                            }}
+                          >
                             <UserPool
                               poolId={allRangePosition.poolId}
                               account={address}
@@ -173,10 +179,12 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
                               tvlUsd={allRangePosition.tvlUsd}
                               volumeUsd={allRangePosition.volumeUsd}
                               volumeEth={allRangePosition.volumeEth}
+                              href={'/cover'}
                             />
-                          )
-                        }
-                      })}
+                          </div>
+                        )
+                      }
+                    })}
                   </div>
                 </div>
                 <div>

@@ -7,13 +7,12 @@ import { useCoverStore } from '../../hooks/useStore'
 import Link from 'next/link'
 
 export default function UserCoverPool({
-  key,
   account,
-  tokenOne,
-  tokenZero,
   poolId,
-  prefill,
+  tokenZero,
+  tokenOne,
   href,
+  prefill,
   close,
 }) {
   console.log(tokenOne, tokenZero, poolId)

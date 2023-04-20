@@ -8,10 +8,10 @@ import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 
 export default function Initial() {
   const { address, isConnected, isDisconnected } = useAccount()
-
   const [isOpen, setIsOpen] = useState(false)
   const [pool, setPool] = useState({})
   const [shifted, setIsShifted] = useState('initial')
+
   return isDisconnected ? (
     <>
       <h1 className="mb-5">Create a Cover Pool</h1>
