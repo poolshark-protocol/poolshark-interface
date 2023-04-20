@@ -51,7 +51,7 @@ export default function Pool() {
         volumeEth: rangePool.volumeEth,
       }
       mappedRangePools.push(rangePoolData)
-      console.log('mappedRangePools', mappedRangePools)
+      //console.log('mappedRangePools', mappedRangePools)
     })
     setAllRangePools(mappedRangePools)
   }
@@ -86,7 +86,7 @@ export default function Pool() {
         volumeEth: coverPool.volumeEth,
       }
       mappedCoverPools.push(coverPoolData)
-      console.log('mappedCoverPools', mappedCoverPools)
+      //onsole.log('mappedCoverPools', mappedCoverPools)
     })
 
     setAllCoverPools(mappedCoverPools)
@@ -241,8 +241,8 @@ export default function Pool() {
                     ? '/pool/concentrated'
                     : '/pool/directional',
                 query: {
-                  account: 'account',
-                  poolId: 'poolId',
+                  account: '',
+                  poolId: '',
                   tokenOneName: '',
                   tokenOneSymbol: '',
                   tokenOneLogoURI: '',
@@ -288,14 +288,15 @@ export default function Pool() {
                       ) {
                         return (
                           <UserPool
-                            poolId={allRangePosition.poolId}
-                            account={'account'}
                             key={allRangePosition.tokenOneName}
+                            account={'account'}
+                            poolId={allRangePosition.poolId}
                             tokenZero={allRangePosition.tokenZero}
                             tokenOne={allRangePosition.tokenOne}
                             tvlUsd={allRangePosition.tvlUsd}
                             volumeUsd={allRangePosition.volumeUsd}
                             volumeEth={allRangePosition.volumeEth}
+                            href={'/pool/view/range'}
                           />
                         )
                       }
@@ -314,9 +315,9 @@ export default function Pool() {
                       ) {
                         return (
                           <UserCoverPool
-                            account={'account'}
-                            poolId={allCoverPosition.poolAddress}
                             key={allCoverPosition.tokenOneName}
+                            account={'account'}
+                            poolId={allCoverPosition.poolId}
                             tokenZero={allCoverPosition.tokenZero}
                             tokenOne={allCoverPosition.tokenOne}
                             prefill={undefined}

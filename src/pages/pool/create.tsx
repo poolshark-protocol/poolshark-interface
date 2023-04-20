@@ -80,6 +80,11 @@ export default function CreatePool() {
             tokenOneAddress={'tokenOneAddress'}
             tokenZeroName={'tokenZeroName'}
             tokenZeroAddress={'tokenZeroAddress'}
+            key={undefined}
+            tokenOneSymbol={undefined}
+            tokenOneLogoURI={undefined}
+            tokenZeroSymbol={undefined}
+            tokenZeroLogoURI={undefined}
           />
         </div>
       </div>
