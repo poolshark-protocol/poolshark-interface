@@ -5,7 +5,7 @@ import {
 } from '@heroicons/react/20/solid'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import RangeCompoundButton from '../../../components/Buttons/RangeCompoundButton'
+import RangeCollectButton from '../../../components/Buttons/RangeCollectButton'
 import RangeBurnButton from '../../../components/Buttons/RangeBurnButton'
 import Link from 'next/link'
 import { useAccount } from 'wagmi'
@@ -321,8 +321,8 @@ export default function Range() {
                 </div>
                 <div className="mt-5 space-y-2">
                   <div className="space-y-3">
-                    <RangeBurnButton address={'address'} />
-                    <RangeCompoundButton address={'address'} />
+                    <RangeBurnButton address={address} lower={"lower"} upper={"upper"} amount={"amount"}/>
+                    <RangeCollectButton address={address} lower={"lower"} upper={"upper"} />
                   </div>
                 </div>
               </div>

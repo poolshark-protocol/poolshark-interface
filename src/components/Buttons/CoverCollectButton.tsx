@@ -11,7 +11,7 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BigNumber, ethers } from "ethers";
 
-export default function CoverCollectButton({address}) {
+export default function CoverCollectButton({ address, lower, claim, upper, zeroForOne }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -19,8 +19,16 @@ export default function CoverCollectButton({address}) {
   const { config } = usePrepareContractWrite({
       address: coverPoolAddress,
       abi: coverPoolABI,
-      functionName: "collectFees",
-      args:[],
+      functionName: "burn",
+      args:[[
+          address,
+          lower,
+          claim,
+          upper,
+          zeroForOne,
+          ethers.utils.parseUnits('0'),
+          true
+      ]],
       chainId: 421613,
       overrides:{
           gasLimit: BigNumber.from("3500000")

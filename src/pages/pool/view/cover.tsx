@@ -262,14 +262,19 @@ export default function Cover() {
                     {/**TO-DO: PASS PROPS */}
                     <CoverBurnButton
                       address={address}
-                      lower={undefined}
-                      claim={undefined}
-                      upper={undefined}
-                      zeroForOne={undefined}
-                      amount={undefined}
-                      collect={undefined}
+                      lower={"lower"}
+                      claim={"clain"}
+                      upper={"upper"}
+                      zeroForOne={"true or false"}
+                      amount={"total position amount"}
                     />
-                    <CoverCollectButton address={'address'} />
+                    <CoverCollectButton 
+                    address={'address'} 
+                    lower={"lower"} 
+                    claim={"claim"} 
+                    upper={"upper"} 
+                    zeroForOne={"trueOrFalse"}
+                     />
                     {/*TO-DO: add positionOwner ternary again*/}
                   </div>
                 </div>

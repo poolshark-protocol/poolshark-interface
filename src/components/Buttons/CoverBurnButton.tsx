@@ -12,7 +12,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 
-export default function CoverBurnButton({address, lower, claim, upper, zeroForOne, amount, collect}) {
+export default function CoverBurnButton({address, lower, claim, upper, zeroForOne, amount}) {
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -21,19 +21,15 @@ export default function CoverBurnButton({address, lower, claim, upper, zeroForOn
         address: coverPoolAddress,
         abi: coverPoolABI,
         functionName: "burn",
-        args:[
+        args:[[
             address,
             lower,
             claim,
             upper,
-            /*ethers.utils.parseUnits("20", 0),
-            ethers.utils.parseUnits("30", 0),
-            ethers.utils.parseUnits("20", 0),*/
             zeroForOne,
             amount,
-            collect,
-            //amount. BigNumber.from("199760153929825488153727")
-        ],
+            true
+        ]],
         chainId: 421613,
         overrides:{
             gasLimit: BigNumber.from("3500000")

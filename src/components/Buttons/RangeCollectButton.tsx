@@ -11,7 +11,7 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BigNumber, ethers } from "ethers";
 
-export default function RangeCollectButton({address}) {
+export default function RangeCollectButton({ address, lower, upper }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -20,13 +20,15 @@ export default function RangeCollectButton({address}) {
   const { config } = usePrepareContractWrite({
       address: rangePoolAddress,
       abi: rangePoolABI,
-      functionName: "collect",
-      args:[
-          ethers.utils.parseUnits("20", 0),
-          ethers.utils.parseUnits("30", 0),
-          ethers.utils.parseUnits("20", 0),
-          false
-      ],
+      functionName: "burn",
+      args:[[
+          address,
+          lower,
+          upper,
+          ethers.utils.parseUnits('0'),
+          true,
+          true
+        ]],
       chainId: 421613,
       overrides:{
           gasLimit: BigNumber.from("350000")
