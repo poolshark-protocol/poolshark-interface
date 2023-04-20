@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import RangeCollectButton from '../../../components/Buttons/RangeCollectButton'
 import RangeBurnButton from '../../../components/Buttons/RangeBurnButton'
+import RangeCompoundButton from '../../../components/Buttons/RangeCompoundButton'
 import Link from 'next/link'
 import { useAccount } from 'wagmi'
 
@@ -323,6 +324,7 @@ export default function Range() {
                   <div className="space-y-3">
                     <RangeBurnButton address={address} lower={"lower"} upper={"upper"} amount={"amount"}/>
                     <RangeCollectButton address={address} lower={"lower"} upper={"upper"} />
+                    <RangeCompoundButton address={address} lower={"lower"} upper={"upper"} />§
                   </div>
                 </div>
               </div>

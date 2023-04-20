@@ -31,7 +31,7 @@ export default function RangeCollectButton({ address, lower, upper }) {
         ]],
       chainId: 421613,
       overrides:{
-          gasLimit: BigNumber.from("350000")
+          gasLimit: BigNumber.from("3500000")
       },
   })
 

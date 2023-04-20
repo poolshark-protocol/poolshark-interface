@@ -11,11 +11,12 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BigNumber, ethers } from "ethers";
 
-export default function RangeBurnButton({address, lower, upper, amount}) {
+export default function RangeCompoundButton({ address, lower, upper }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
 
+  //TO-DO: assess if collectFees() or collect true in burn
   const { config } = usePrepareContractWrite({
       address: rangePoolAddress,
       abi: rangePoolABI,
@@ -24,10 +25,10 @@ export default function RangeBurnButton({address, lower, upper, amount}) {
           address,
           lower,
           upper,
-          amount,
-          false,
-          true
-      ]],
+          ethers.utils.parseUnits('0'),
+          true,
+          false
+        ]],
       chainId: 421613,
       overrides:{
           gasLimit: BigNumber.from("3500000")
@@ -53,7 +54,7 @@ export default function RangeBurnButton({address, lower, upper, amount}) {
             address ?  write?.() : null
           }}
               >
-              Burn Position
+              Compound position
       </div>
       <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
     {errorDisplay && (
