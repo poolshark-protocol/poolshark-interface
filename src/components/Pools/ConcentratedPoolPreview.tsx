@@ -11,6 +11,8 @@ export default function ConcentratedPoolPreview({
   amount1,
   minPrice,
   maxPrice,
+  minTick,
+  maxTick,
   fee,
 }) {
   let [isOpen, setIsOpen] = useState(false)
@@ -190,11 +192,10 @@ export default function ConcentratedPoolPreview({
                       <RangeMintButton
                         disabled={false}
                         to={account}
-                        lower={minPrice}
-                        upper={maxPrice}
+                        lower={minTick}
+                        upper={maxTick}
                         amount0={amount0}
                         amount1={amount1}
-                        fungible={true}
                       />
                     </div>
                   </div>

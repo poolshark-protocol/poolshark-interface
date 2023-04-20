@@ -69,7 +69,6 @@ export default function ConcentratedPool({
   const [max, setMax] = useState(initialBig)
   const [amount0, setAmount0] = useState(initialBig)
   const [amount1, setAmount1] = useState(initialBig)
-  const [fungible, setFungible] = useState(true)
 
   const [token0, setToken0] = useState({
     symbol: tokenZeroSymbol,
@@ -198,7 +197,6 @@ export default function ConcentratedPool({
         setMax(ethers.utils.parseUnits(String(max), 0))
         setAmount0(bnInput)
         setAmount1(bnInputLimit)
-        setFungible(true)
 
         updateRangeContractParams({
           to: address,
@@ -638,6 +636,8 @@ export default function ConcentratedPool({
           amount1={bnInput._hex}
           minPrice={minPrice}
           maxPrice={maxPrice}
+          minTick={min}
+          maxTick={max}
           fee={selected.tier}
         />
       </div>

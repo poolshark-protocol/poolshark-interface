@@ -16,7 +16,7 @@ import useInputBox from '../../hooks/useInputBox'
 import { tokenOneAddress } from '../../constants/contractAddresses'
 import { coverPoolAddress } from '../../constants/contractAddresses'
 import { TickMath } from '../../utils/tickMath'
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import { useCoverStore } from '../../hooks/useStore'
 import {
   getPreviousTicksLower,
@@ -30,8 +30,13 @@ export default function CreateCover(props: any) {
   const [expanded, setExpanded] = useState(false)
   const { bnInput, inputBox } = useInputBox()
   const [stateChainName, setStateChainName] = useState()
-  const [minPrice, setMinPrice] = useState('')
-  const [maxPrice, setMaxPrice] = useState('')
+  const [minPrice, setMinPrice] = useState('0')
+  const [maxPrice, setMaxPrice] = useState('0')
+
+  const initialBig = BigNumber.from(0)
+  
+  const [min, setMin] = useState(initialBig)
+  const [max, setMax] = useState(initialBig)
 
   const [
     updateCoverContractParams,
@@ -115,6 +120,8 @@ export default function CreateCover(props: any) {
           inverse: false,
         })
         setDisabled(false)
+        setMin(ethers.utils.parseUnits(String(min), 0))
+        setMax(ethers.utils.parseUnits(String(min), 0))
       }
     } catch (error) {
       console.log(error)
@@ -505,9 +512,9 @@ export default function CreateCover(props: any) {
           <CoverMintButton
             disabled={isDisabled}
             to={address}
-            lower={minPrice}
-            claim={minPrice}
-            upper={maxPrice}
+            lower={min}
+            claim={min}
+            upper={max}
             amount={bnInput}
             zeroForOne={true}
           />
