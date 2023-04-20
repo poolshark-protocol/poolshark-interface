@@ -2,6 +2,7 @@ import DirectionalPool from '../../components/Pools/DirectionalPool'
 import Navbar from '../../components/Navbar'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import CoverExistingPool from '../../components/Cover/CoverExistingPool'
 
 export default function Directional() {
   const router = useRouter()
@@ -12,7 +13,7 @@ export default function Directional() {
         <div className="mt-[16vh] w-[55rem]">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-x-6">
-              <h1 className="text-3xl">Create Pool</h1>
+              <h1 className="text-3xl">Cover Existing Pool</h1>
             </div>
             <Link href="/pool">
               <span className="bg-black border border-grey2 rounded-lg text-white px-7 py-[9px] cursor-pointer hover:opacity-80">
@@ -20,7 +21,8 @@ export default function Directional() {
               </span>
             </Link>
           </div>
-          <DirectionalPool
+          <CoverExistingPool goBack={() => router.back()} />
+          {/* <DirectionalPool
             account={'account'}
             key={
               router.query.poolId === undefined
@@ -72,7 +74,7 @@ export default function Directional() {
                 ? ''
                 : router.query.tokenZeroAddress.toString()
             }
-          />
+          /> */}
         </div>
       </div>
     </div>

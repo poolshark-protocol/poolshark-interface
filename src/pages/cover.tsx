@@ -225,7 +225,6 @@ export default function Cover() {
                       <div>
                         {allCoverPositions.map((allCoverPosition) => {
                           if (
-                            //TODO@retraca remove this
                             allCoverPosition.userOwnerAddress ===
                               address?.toLowerCase() &&
                             (allCoverPosition.tokenZero.name === searchTerm ||
@@ -255,8 +254,7 @@ export default function Cover() {
                     )}
                   </div>
                 </div>
-                <div>
-                </div>
+                <div></div>
               </div>
             )}
           </div>
