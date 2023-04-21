@@ -195,14 +195,16 @@ export default function Range() {
                         width="30"
                         src={
                           router.query.tokenZeroLogoURI === undefined
-                            ? ''
+                            ? '?'
                             : router.query.tokenZeroLogoURI.toString()
                         }
                       />
                       {router.query.tokenZeroName}
                     </div>
                     <div className="flex items-center gap-x-4">
-                      300
+                      {router.query.tokenZeroValue === undefined
+                        ? '?'
+                        : router.query.tokenZeroValue.toString()}
                       <span className="bg-grey1 text-grey rounded-md px-3 py-0.5">
                         47%
                       </span>
@@ -215,14 +217,16 @@ export default function Range() {
                         width="30"
                         src={
                           router.query.tokenOneLogoURI === undefined
-                            ? ''
+                            ? '0'
                             : router.query.tokenOneLogoURI.toString()
                         }
                       />
                       {router.query.tokenOneName}
                     </div>
                     <div className="flex items-center gap-x-4">
-                      303
+                    {router.query.tokenOneValue === undefined
+                        ? '0'
+                        : router.query.tokenOneValue.toString()}
                       <span className="bg-grey1 text-grey rounded-md px-3 py-0.5">
                         53%
                       </span>
@@ -357,7 +361,9 @@ export default function Range() {
             <div className="flex justify-between items-center mt-4 gap-x-6">
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Min Price.</div>
-                <div className="text-white text-2xl my-2 w-full">1.0323</div>
+                <div className="text-white text-2xl my-2 w-full">{router.query.min === undefined
+                        ? '?'
+                        : router.query.min.toString()}</div>
                 <div className="text-grey text-xs w-full">
                   {router.query.tokenZeroName} per {router.query.tokenZeroName}
                 </div>
@@ -369,7 +375,9 @@ export default function Range() {
               <ArrowsRightLeftIcon className="w-12 text-grey" />
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Max Price.</div>
-                <div className="text-white text-2xl my-2 w-full">1.064</div>
+                <div className="text-white text-2xl my-2 w-full">{router.query.max === undefined
+                        ? '?'
+                        : router.query.max.toString()}</div>
                 <div className="text-grey text-xs w-full">
                   {router.query.tokenZeroName} per {router.query.tokenZeroName}
                 </div>

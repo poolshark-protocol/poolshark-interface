@@ -91,12 +91,15 @@ export default function Cover() {
     const mappedCoverPositions = []
     coverPositions.map((coverPosition) => {
       const coverPositionData = {
-        tokenOne: coverPosition.pool.token1,
-        tokenZero: coverPosition.pool.token0,
-        poolAddress: coverPosition.pool.id,
+        poolId: coverPosition.id,
+        tokenZero: coverPosition.inToken,
+        valueTokenZero: coverPosition.inAmount,
+        tokenOne: coverPosition.outToken,
+        valueTokenOne: coverPosition.outAmount,
+        min: coverPosition.lower,
+        max: coverPosition.upper,
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
-
       mappedCoverPositions.push(coverPositionData)
       console.log('mappedCoverPositions_COVERPAGE: ', mappedCoverPositions)
     })
@@ -241,13 +244,17 @@ export default function Cover() {
                           ) {
                             return (
                               <UserCoverPool
+                                key={allCoverPosition.tokenOneName}
                                 account={'account'}
-                                key={allCoverPosition.poolId}
-                                tokenOne={allCoverPosition.tokenOne}
+                                poolId={allCoverPosition.poolId}
                                 tokenZero={allCoverPosition.tokenZero}
-                                poolId={allCoverPosition.poolAddress}
-                                prefill={'undefined'}
-                                close={'undefined'}
+                                valueTokenZero={allCoverPosition.valueTokenZero}
+                                tokenOne={allCoverPosition.tokenOne}
+                                valueTokenOne={allCoverPosition.valueTokenOne}
+                                min={allCoverPosition.min}
+                                max={allCoverPosition.max}
+                                prefill={undefined}
+                                close={undefined}
                                 href={'/pool/view/cover'}
                               />
                             )

@@ -9,8 +9,12 @@ export default function UserPool({
   account,
   poolId,
   tokenZero,
+  valueTokenZero,
   tokenOne,
+  valueTokenOne,
   feeTier,
+  min,
+  max,
   href,
   tvlUsd,
   volumeUsd,
@@ -54,14 +58,18 @@ export default function UserPool({
           query: {
             account: account,
             poolId: poolId,
-            tokenOneName: tokenOne.name,
-            tokenOneSymbol: tokenOne.symbol,
-            tokenOneLogoURI: logoMap[tokenOne.symbol],
-            tokenOneAddress: tokenOne.id,
             tokenZeroName: tokenZero.name,
             tokenZeroSymbol: tokenZero.symbol,
             tokenZeroLogoURI: logoMap[tokenZero.symbol],
             tokenZeroAddress: tokenZero.id,
+            tokenZeroValue: valueTokenZero,
+            tokenOneName: tokenOne.name,
+            tokenOneSymbol: tokenOne.symbol,
+            tokenOneLogoURI: logoMap[tokenOne.symbol],
+            tokenOneAddress: tokenOne.id,
+            tokenOneValue: valueTokenOne,
+            min: min,
+            max: max,
           },
         }}
       >
@@ -86,13 +94,12 @@ export default function UserPool({
             </div>
             <div className="text-sm flex items-center gap-x-3">
               <span>
-                {/* TODO@retraca Xmin and Xmax set dynamic */}
-                <span className="text-grey">Min:</span> Xmin {tokenZero.symbol}{' '}
+                <span className="text-grey">Min:</span> {min} {tokenZero.symbol}{' '}
                 per {tokenOne.symbol}
               </span>
               <ArrowsRightLeftIcon className="w-4 text-grey" />
               <span>
-                <span className="text-grey">Max:</span> Xmax {tokenOne.symbol}{' '}
+                <span className="text-grey">Max:</span> {max} {tokenOne.symbol}{' '}
                 per {tokenZero.symbol}
               </span>
             </div>

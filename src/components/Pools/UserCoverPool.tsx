@@ -11,40 +11,14 @@ export default function UserCoverPool({
   poolId,
   tokenZero,
   tokenOne,
+  valueTokenZero,
+  valueTokenOne,
+  min,
+  max,
   href,
   prefill,
   close,
 }) {
-  console.log(tokenOne, tokenZero, poolId)
-  const [show, setShow] = useState(false)
-  /* const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-    tokenZero.id?.substring(0, 6) +
-      '...' +
-      tokenZero.id?.substring(
-        tokenZero.id?.length - 4,
-        tokenZero.id?.length,
-      ),
-  )
-  const [tokenOneDisplay, setTokenOneDisplay] = useState(
-    tokenOne.id?.substring(0, 6) +
-      '...' +
-      tokenOne.id?.substring(
-        tokenOne.id?.length - 4,
-        tokenOne.id?.length,
-      ),
-  )
-  const [poolDisplay, setPoolDisplay] = useState(
-    poolId?.substring(0, 6) +
-      '...' +
-      poolId?.substring(poolId?.length - 4, poolId?.length),
-  ) */
-
-  const [currentPool, resetPool, updatePool] = useCoverStore((state) => [
-    state.pool,
-    state.resetPool,
-    state.updatePool,
-  ])
-
   const logoMap = {
     TOKEN20A: '/static/images/eth_icon.png',
     TOKEN20B: '/static/images/token.png',
@@ -55,6 +29,12 @@ export default function UserCoverPool({
     pStake: '/static/images/eth_icon.png',
     UNI: '/static/images/dai_icon.png',
   }
+  const [show, setShow] = useState(false)
+  const [currentPool, resetPool, updatePool] = useCoverStore((state) => [
+    state.pool,
+    state.resetPool,
+    state.updatePool,
+  ])
 
   const setPool = () => {
     resetPool
@@ -83,14 +63,18 @@ export default function UserCoverPool({
         query: {
           account: account,
           poolId: poolId,
-          tokenOneName: tokenOne.name,
-          tokenOneSymbol: tokenOne.symbol,
-          tokenOneLogoURI: logoMap[tokenOne.symbol],
-          tokenOneAddress: tokenOne.id,
           tokenZeroName: tokenZero.name,
           tokenZeroSymbol: tokenZero.symbol,
           tokenZeroLogoURI: logoMap[tokenZero.symbol],
           tokenZeroAddress: tokenZero.id,
+          tokenZeroValue: valueTokenZero,
+          tokenOneName: tokenOne.name,
+          tokenOneSymbol: tokenOne.symbol,
+          tokenOneLogoURI: logoMap[tokenOne.symbol],
+          tokenOneAddress: tokenOne.id,
+          tokenOneValue: valueTokenOne,
+          min: min,
+          max: max,
         },
       }}
     >
@@ -123,14 +107,13 @@ export default function UserCoverPool({
           </div>
           <div className="text-sm flex items-center gap-x-3">
             <span>
-              {/* TODO@retraca Xmin and Xmax set dynamic */}
-              <span className="text-grey">Min:</span> Xmin {tokenZero.symbol}{' '}
+              <span className="text-grey">Min:</span> {min} {tokenZero.symbol}{' '}
               per {tokenOne.symbol}
             </span>
             <ArrowsRightLeftIcon className="w-4 text-grey" />
             <span>
-              <span className="text-grey">Max:</span> Xmax {tokenOne.symbol} per{' '}
-              {tokenZero.symbol}
+              <span className="text-grey">Max:</span> {max} {tokenOne.symbol}{' '}
+              per {tokenZero.symbol}
             </span>
           </div>
         </div>

@@ -23,13 +23,54 @@ export default function Pool() {
     { id: 1, type: 'Range Pools', unavailable: false },
     { id: 2, type: 'Cover Pools', unavailable: false },
   ]
-
   const { address, isConnected, isDisconnected } = useAccount()
+  const [selected, setSelected] = useState(poolTypes[0])
+  const [searchTerm, setSearchTerm] = useState('')
 
   const [rangePools, setRangePools] = useState([])
   const [allRangePools, setAllRangePools] = useState([])
-  const [selected, setSelected] = useState(poolTypes[0])
-  const [searchTerm, setSearchTerm] = useState('')
+  const [rangePositions, setRangePositions] = useState([])
+  const [allRangePositions, setAllRangePositions] = useState([])
+  const [coverPools, setCoverPools] = useState([])
+  const [allCoverPools, setAllCoverPools] = useState([])
+  const [coverPositions, setCoverPositions] = useState([])
+  const [allCoverPositions, setAllCoverPositions] = useState([])
+
+  //async so needs to be wrapped
+  useEffect(() => {
+    getRangePoolData()
+  }, [])
+
+  useEffect(() => {
+    mapRangePools()
+  }, [rangePools])
+
+  //async so needs to be wrapped
+  useEffect(() => {
+    getUserRangePositionData()
+  }, [])
+
+  useEffect(() => {
+    mapUserRangePositions()
+  }, [rangePositions])
+
+  //async so needs to be wrapped
+  useEffect(() => {
+    getCoverPoolData()
+  }, [])
+
+  useEffect(() => {
+    mapCoverPools()
+  }, [coverPools])
+
+  //async so needs to be wrapped
+  useEffect(() => {
+    getUserCoverPositionData()
+  }, [])
+
+  useEffect(() => {
+    mapUserCoverPositions()
+  }, [coverPositions])
 
   async function getRangePoolData() {
     const data = await fetchRangePools()
@@ -38,9 +79,52 @@ export default function Pool() {
     setRangePools(pools)
   }
 
+  async function getUserRangePositionData() {
+    const data = await fetchRangePositions(address)
+    const positions = data['data'].positions
+    setRangePositions(positions)
+  }
+
+  async function getCoverPoolData() {
+    const data = await fetchCoverPools()
+    const pools = data['data'].coverPools
+    setCoverPools(pools)
+  }
+
+  async function getUserCoverPositionData() {
+    const data = await fetchCoverPositions(address)
+    const positions = data['data'].positions
+    setCoverPositions(positions)
+  }
+
+  function mapUserRangePositions() {
+    const mappedRangePositions = []
+    rangePositions.map((rangePosition) => {
+      //console.log('rangePosition', rangePosition)
+      const rangePositionData = {
+        poolId: rangePosition.id,
+        tokenZero: rangePosition.pool.token0,
+        valueTokenZero: rangePosition.pool.totalValueLocked0,
+        tokenOne: rangePosition.pool.token1,
+        valueTokenOne: rangePosition.pool.totalValueLocked0,
+        min: rangePosition.lower,
+        max: rangePosition.upper,
+        tvlUsd: rangePosition.pool.totalValueLockedUsd,
+        /* TODO@retraca get feeTier from subgraph 
+        feeTier: rangePosition.pool.feeTier,
+        */
+        volumeUsd: rangePosition.pool.volumeUsd,
+        volumeEth: rangePosition.pool.volumeEth,
+        userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
+      }
+      mappedRangePositions.push(rangePositionData)
+      console.log('mappedRangePositions', mappedRangePositions)
+    })
+    setAllRangePositions(mappedRangePositions)
+  }
+
   function mapRangePools() {
     const mappedRangePools = []
-
     rangePools.map((rangePool) => {
       const rangePoolData = {
         poolId: rangePool.id,
@@ -56,22 +140,24 @@ export default function Pool() {
     setAllRangePools(mappedRangePools)
   }
 
-  //async so needs to be wrapped
-  useEffect(() => {
-    getRangePoolData()
-  }, [])
-
-  useEffect(() => {
-    mapRangePools()
-  }, [rangePools])
-
-  const [coverPools, setCoverPools] = useState([])
-  const [allCoverPools, setAllCoverPools] = useState([])
-
-  async function getCoverPoolData() {
-    const data = await fetchCoverPools()
-    const pools = data['data'].coverPools
-    setCoverPools(pools)
+  function mapUserCoverPositions() {
+    const mappedCoverPositions = []
+    coverPositions.map((coverPosition) => {
+      //console.log('coverPosition', coverPosition)
+      const coverPositionData = {
+        poolId: coverPosition.id,
+        tokenZero: coverPosition.inToken,
+        valueTokenZero: coverPosition.inAmount,
+        tokenOne: coverPosition.outToken,
+        valueTokenOne: coverPosition.outAmount,
+        min: coverPosition.lower,
+        max: coverPosition.upper,
+        userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
+      }
+      mappedCoverPositions.push(coverPositionData)
+      //console.log('mappedCoverPositions', mappedCoverPositions)
+    })
+    setAllCoverPositions(mappedCoverPositions)
   }
 
   function mapCoverPools() {
@@ -91,91 +177,6 @@ export default function Pool() {
 
     setAllCoverPools(mappedCoverPools)
   }
-
-  //async so needs to be wrapped
-  useEffect(() => {
-    getCoverPoolData()
-  }, [])
-
-  useEffect(() => {
-    mapCoverPools()
-  }, [coverPools])
-
-  const [rangePositions, setRangePositions] = useState([])
-  const [allRangePositions, setAllRangePositions] = useState([])
-
-  async function getUserRangePositionData() {
-    const data = await fetchRangePositions(address)
-    const positions = data['data'].positions
-    setRangePositions(positions)
-  }
-
-  function mapUserRangePositions() {
-    const mappedRangePositions = []
-    rangePositions.map((rangePosition) => {
-      console.log('rangePosition', rangePosition)
-      const rangePositionData = {
-        poolId: rangePosition.id,
-        tokenOne: rangePosition.pool.token1,
-        tokenZero: rangePosition.pool.token0,
-        tvlUsd: rangePosition.pool.totalValueLockedUsd,
-        /* TODO@retraca get feeTier from subgraph 
-        feeTier: rangePosition.pool.feeTier,
-        */
-        volumeUsd: rangePosition.pool.volumeUsd,
-        volumeEth: rangePosition.pool.volumeEth,
-        userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
-      }
-      mappedRangePositions.push(rangePositionData)
-      //console.log('mappedRangePositions', mappedRangePositions)
-    })
-    setAllRangePositions(mappedRangePositions)
-  }
-
-  //async so needs to be wrapped
-  useEffect(() => {
-    getUserRangePositionData()
-  }, [])
-
-  useEffect(() => {
-    mapUserRangePositions()
-  }, [rangePositions])
-
-  const [coverPositions, setCoverPositions] = useState([])
-  const [allCoverPositions, setAllCoverPositions] = useState([])
-
-  async function getUserCoverPositionData() {
-    const data = await fetchCoverPositions(address)
-    const positions = data['data'].positions
-    setCoverPositions(positions)
-  }
-
-  function mapUserCoverPositions() {
-    const mappedCoverPositions = []
-    coverPositions.map((coverPosition) => {
-      const coverPositionData = {
-        poolId: coverPosition.id,
-        tokenOne: coverPosition.pool.token1,
-        tokenZero: coverPosition.pool.token0,
-        tvlUsd: coverPosition.pool.totalValueLockedUsd,
-        volumeUsd: coverPosition.pool.volumeUsd,
-        volumeEth: coverPosition.pool.volumeEth,
-        userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
-      }
-      mappedCoverPositions.push(coverPositionData)
-      console.log('mappedCoverPositions', mappedCoverPositions)
-    })
-    setAllCoverPositions(mappedCoverPositions)
-  }
-
-  //async so needs to be wrapped
-  useEffect(() => {
-    getUserCoverPositionData()
-  }, [])
-
-  useEffect(() => {
-    mapUserCoverPositions()
-  }, [coverPositions])
 
   const handleSearchTermChange = (event) => {
     setSearchTerm(event.target.value)
@@ -293,6 +294,10 @@ export default function Pool() {
                             poolId={allRangePosition.poolId}
                             tokenZero={allRangePosition.tokenZero}
                             tokenOne={allRangePosition.tokenOne}
+                            valueTokenZero={allRangePosition.valueTokenZero}
+                            valueTokenOne={allRangePosition.valueTokenOne}
+                            min={allRangePosition.min}
+                            max={allRangePosition.max}
                             /* TODO@retraca get feeTier from subgraph */
                             feeTier={'allRangePosition.feeTier'}
                             tvlUsd={allRangePosition.tvlUsd}
@@ -321,7 +326,11 @@ export default function Pool() {
                             account={'account'}
                             poolId={allCoverPosition.poolId}
                             tokenZero={allCoverPosition.tokenZero}
+                            valueTokenZero={allCoverPosition.valueTokenZero}
                             tokenOne={allCoverPosition.tokenOne}
+                            valueTokenOne={allCoverPosition.valueTokenOne}
+                            min={allCoverPosition.min}
+                            max={allCoverPosition.max}
                             prefill={undefined}
                             close={undefined}
                             href={'/pool/view/cover'}

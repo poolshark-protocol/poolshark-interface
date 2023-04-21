@@ -30,9 +30,16 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
       //console.log('rangePosition', rangePosition)
       const rangePositionData = {
         poolId: rangePosition.id,
-        tokenOne: rangePosition.pool.token1,
         tokenZero: rangePosition.pool.token0,
+        valueTokenZero: rangePosition.pool.totalValueLocked0,
+        tokenOne: rangePosition.pool.token1,
+        valueTokenOne: rangePosition.pool.totalValueLocked0,
+        min: rangePosition.lower,
+        max: rangePosition.upper,
         tvlUsd: rangePosition.pool.totalValueLockedUsd,
+        /* TODO@retraca get feeTier from subgraph 
+        feeTier: rangePosition.pool.feeTier,
+        */
         volumeUsd: rangePosition.pool.volumeUsd,
         volumeEth: rangePosition.pool.volumeEth,
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
@@ -66,15 +73,22 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
   function mapUserUniV3Positions() {
     const mappedUniV3Positions = []
     uniV3Positions.map((uniV3Position) => {
+      console.log(uniV3Position)
       const uniV3PositionData = {
-        tokenOne: uniV3Position.token1,
         tokenZero: uniV3Position.token0,
+        valueTokenZero: uniV3Position.depositedToken0,
+        tokenOne: uniV3Position.token1,
+        valueTokenOne: uniV3Position.depositedToken1,
         poolAddress: uniV3Position.id,
+        liquidity: uniV3Position.liquidity,
+        //check if this values correspond to tag
+        min: uniV3Position.withdrawnToken0,
+        max: uniV3Position.withdrawnToken1,
         userOwnerAddress: uniV3Position.owner.replace(/"|'/g, ''),
       }
 
       mappedUniV3Positions.push(uniV3PositionData)
-      console.log('mappedUniV3Positions_COVERPAGE: ', mappedUniV3Positions)
+      //console.log('mappedUniV3Positions_COVERPAGE: ', mappedUniV3Positions)
     })
 
     setAllUniV3Positions(mappedUniV3Positions)
@@ -154,7 +168,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
                     {allRangePositions.map((allRangePosition) => {
                       if (
                         /* allRangePosition.userOwnerAddress ===
-                          address?.toLowerCase() */true &&
+                          address?.toLowerCase() */ true &&
                         (allRangePosition.tokenZero.name === searchTerm ||
                           allRangePosition.tokenOne.name === searchTerm ||
                           allRangePosition.tokenZero.symbol === searchTerm ||
@@ -171,15 +185,21 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
                             }}
                           >
                             <UserPool
-                              poolId={allRangePosition.poolId}
-                              account={address}
                               key={allRangePosition.tokenOneName}
+                              account={'account'}
+                              poolId={allRangePosition.poolId}
                               tokenZero={allRangePosition.tokenZero}
                               tokenOne={allRangePosition.tokenOne}
+                              valueTokenZero={allRangePosition.valueTokenZero}
+                              valueTokenOne={allRangePosition.valueTokenOne}
+                              min={allRangePosition.min}
+                              max={allRangePosition.max}
+                              /* TODO@retraca get feeTier from subgraph */
+                              feeTier={'allRangePosition.feeTier'}
                               tvlUsd={allRangePosition.tvlUsd}
                               volumeUsd={allRangePosition.volumeUsd}
                               volumeEth={allRangePosition.volumeEth}
-                              href={'/cover'}
+                              href={'/pool/view/range'}
                             />
                           </div>
                         )
@@ -192,8 +212,8 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
                   <div className="space-y-2">
                     {allUniV3Positions.map((allUniV3Position) => {
                       if (
-                        allUniV3Position.userOwnerAddress ===
-                          address?.toLowerCase() &&
+                        /* allUniV3Position.userOwnerAddress ===
+                          address?.toLowerCase() */ true &&
                         (allUniV3Position.tokenZero.name === searchTerm ||
                           allUniV3Position.tokenOne.name === searchTerm ||
                           allUniV3Position.tokenZero.symbol === searchTerm ||
@@ -204,14 +224,18 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
                       ) {
                         return (
                           <UserCoverPool
+                            key={allUniV3Position.tokenOneName}
                             account={'account'}
-                            key={allUniV3Position.poolId}
-                            tokenOne={allUniV3Position.tokenOne}
+                            poolId={allUniV3Position.poolId}
                             tokenZero={allUniV3Position.tokenZero}
-                            poolId={allUniV3Position.poolAddress}
+                            valueTokenZero={allUniV3Position.valueTokenZero}
+                            tokenOne={allUniV3Position.tokenOne}
+                            valueTokenOne={allUniV3Position.valueTokenOne}
+                            min={allUniV3Position.min}
+                            max={allUniV3Position.max}
                             prefill={undefined}
                             close={undefined}
-                            href={'/pool/view/cover'}
+                            href={'/pool/directional'}
                           />
                         )
                       }

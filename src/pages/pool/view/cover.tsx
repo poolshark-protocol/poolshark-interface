@@ -91,9 +91,7 @@ export default function Cover() {
 
   function copyPoolAddress() {
     navigator.clipboard.writeText(
-      router.query.poolId === undefined
-        ? ''
-        : router.query.poolId.toString(),
+      router.query.poolId === undefined ? '' : router.query.poolId.toString(),
     )
     setIsPoolCopied(true)
   }
@@ -205,7 +203,9 @@ export default function Cover() {
                       />
                       {router.query.tokenZeroName}
                     </div>
-                    300
+                    {router.query.tokenZeroValue === undefined
+                      ? '?'
+                      : router.query.tokenZeroValue.toString()}
                   </div>
                 </div>
                 <Link
@@ -262,19 +262,19 @@ export default function Cover() {
                     {/**TO-DO: PASS PROPS */}
                     <CoverBurnButton
                       address={address}
-                      lower={"lower"}
-                      claim={"clain"}
-                      upper={"upper"}
-                      zeroForOne={"true or false"}
-                      amount={"total position amount"}
+                      lower={'lower'}
+                      claim={'clain'}
+                      upper={'upper'}
+                      zeroForOne={'true or false'}
+                      amount={'total position amount'}
                     />
-                    <CoverCollectButton 
-                    address={'address'} 
-                    lower={"lower"} 
-                    claim={"claim"} 
-                    upper={"upper"} 
-                    zeroForOne={"trueOrFalse"}
-                     />
+                    <CoverCollectButton
+                      address={'address'}
+                      lower={'lower'}
+                      claim={'claim'}
+                      upper={'upper'}
+                      zeroForOne={'trueOrFalse'}
+                    />
                     {/*TO-DO: add positionOwner ternary again*/}
                   </div>
                 </div>
@@ -292,9 +292,13 @@ export default function Cover() {
             <div className="flex justify-between items-center mt-4 gap-x-6">
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Min Price.</div>
-                <div className="text-white text-2xl my-2 w-full">1.0323</div>
+                <div className="text-white text-2xl my-2 w-full">
+                  {router.query.min === undefined
+                    ? ''
+                    : router.query.min.toString()}
+                </div>
                 <div className="text-grey text-xs w-full">
-                  DAI per {router.query.tokenOneName}
+                  {router.query.tokenZeroName} per {router.query.tokenOneName}
                 </div>
                 <div className="text-grey text-xs w-full italic mt-1">
                   Your position will be 100%{router.query.tokenZeroName} at this
@@ -304,9 +308,13 @@ export default function Cover() {
               <ArrowsRightLeftIcon className="w-12 text-grey" />
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Max Price.</div>
-                <div className="text-white text-2xl my-2 w-full">1.064</div>
+                <div className="text-white text-2xl my-2 w-full">
+                  {router.query.max === undefined
+                    ? ''
+                    : router.query.max.toString()}
+                </div>
                 <div className="text-grey text-xs w-full">
-                  DAI per {router.query.tokenOneName}
+                  {router.query.tokenZeroName} per {router.query.tokenOneName}
                 </div>
                 <div className="text-grey text-xs w-full italic mt-1">
                   Your position will be 100%{router.query.tokenZeroName} at this
@@ -318,7 +326,7 @@ export default function Cover() {
               <div className="text-grey text-xs w-full">Current Price</div>
               <div className="text-white text-2xl my-2 w-full">1.064</div>
               <div className="text-grey text-xs w-full">
-                DAI per {router.query.tokenOneName}
+                {router.query.tokenZeroName} per {router.query.tokenOneName}
               </div>
             </div>
             <div>
@@ -335,21 +343,25 @@ export default function Cover() {
                       <img
                         height="30"
                         width="30"
-                        src="/static/images/eth_icon.png"
-                      />
-                      <img
-                        height="30"
-                        width="30"
-                        className="ml-[-8px]"
                         src={
                           router.query.tokenZeroLogoURI === undefined
                             ? ''
                             : router.query.tokenZeroLogoURI.toString()
                         }
                       />
+                      <img
+                        height="30"
+                        width="30"
+                        className="ml-[-8px]"
+                        src={
+                          router.query.tokenOneLogoURI === undefined
+                            ? ''
+                            : router.query.tokenOneLogoURI.toString()
+                        }
+                      />
                     </div>
                     <div className="flex gap-x-2">
-                      WETH -{router.query.tokenZeroName}
+                      {router.query.tokenZeroName} -{router.query.tokenOneName}
                     </div>
                     <div className="bg-black px-2 py-1 rounded-lg text-grey">
                       0.5%
@@ -357,13 +369,15 @@ export default function Cover() {
                   </div>
                   <div className="text-sm flex items-center gap-x-3">
                     <span>
-                      <span className="text-grey">Min:</span> 1203
-                      {router.query.tokenZeroName} per ETH
+                      <span className="text-grey">Min:</span> 1203 
+                      {router.query.tokenZeroName} per{' '}
+                      {router.query.tokenOneName}
                     </span>
                     <ArrowsRightLeftIcon className="w-4 text-grey" />
                     <span>
-                      <span className="text-grey">Max:</span> 1643
-                      {router.query.tokenZeroName} per ETH
+                      <span className="text-grey">Max:</span> 1643 
+                      {router.query.tokenZeroName} per{' '}
+                      {router.query.tokenOneName}
                     </span>
                   </div>
                 </div>
