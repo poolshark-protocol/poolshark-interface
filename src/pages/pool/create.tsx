@@ -4,8 +4,8 @@ import { Fragment, useEffect, useState } from 'react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import { Listbox, Transition } from '@headlessui/react'
 import ConcentratedPool from '../../components/Pools/ConcentratedPool'
-import CreateCover from '../../components/Cover/CreateCover'
-import router, { useRouter } from 'next/router'
+import { useRouter } from 'next/router'
+import DirectionalPool from '../../components/Pools/DirectionalPool'
 
 export default function CreatePool() {
   const poolTypes = [
@@ -22,6 +22,7 @@ export default function CreatePool() {
       poolAddress.substring(poolAddress.length - 4, poolAddress.length),
   )
   const [isPoolCopied, setIsPoolCopied] = useState(false)
+  const [selected, setSelected] = useState(poolTypes[0])
 
   useEffect(() => {
     if (copyPoolAddress) {
@@ -40,8 +41,6 @@ export default function CreatePool() {
   }
 
   function SelectPool() {
-    const [selected, setSelected] = useState(poolTypes[0])
-
     return (
       <Listbox value={selected} onChange={setSelected}>
         <div className="relative mt-1">
@@ -92,7 +91,9 @@ export default function CreatePool() {
         <div className="mt-[16vh] w-[55rem]">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-x-6">
-              <h1 className="text-3xl">Create Pool</h1>
+              <h1 className="text-3xl">
+                Create {selected.id == 2 ? <>Cover</> : <>Range</>} Pool
+              </h1>
               <SelectPool />
             </div>
             <Link href="/pool">
@@ -116,7 +117,35 @@ export default function CreatePool() {
               </h1>
             </div>
           </div>
-          <CreateCover goBack={() => router.back()} />
+          {selected.id == 2 ? (
+            <DirectionalPool
+              key={undefined}
+              account={undefined}
+              poolId={undefined}
+              tokenOneName={undefined}
+              tokenOneSymbol={undefined}
+              tokenOneLogoURI={undefined}
+              tokenOneAddress={undefined}
+              tokenZeroName={undefined}
+              tokenZeroSymbol={undefined}
+              tokenZeroLogoURI={undefined}
+              tokenZeroAddress={undefined}
+            />
+          ) : (
+            <ConcentratedPool
+              key={undefined}
+              account={undefined}
+              poolId={undefined}
+              tokenOneName={undefined}
+              tokenOneSymbol={undefined}
+              tokenOneLogoURI={undefined}
+              tokenOneAddress={undefined}
+              tokenZeroName={undefined}
+              tokenZeroSymbol={undefined}
+              tokenZeroLogoURI={undefined}
+              tokenZeroAddress={undefined}
+            />
+          )}
         </div>
       </div>
     </div>

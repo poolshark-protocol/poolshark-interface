@@ -153,8 +153,8 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
                   <div className="space-y-2">
                     {allRangePositions.map((allRangePosition) => {
                       if (
-                        allRangePosition.userOwnerAddress ===
-                          address?.toLowerCase() &&
+                        /* allRangePosition.userOwnerAddress ===
+                          address?.toLowerCase() */true &&
                         (allRangePosition.tokenZero.name === searchTerm ||
                           allRangePosition.tokenOne.name === searchTerm ||
                           allRangePosition.tokenZero.symbol === searchTerm ||

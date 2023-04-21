@@ -91,9 +91,7 @@ export default function Range() {
 
   function copyPoolAddress() {
     navigator.clipboard.writeText(
-      router.query.poolId === undefined
-        ? ''
-        : router.query.poolId.toString(),
+      router.query.poolId === undefined ? '' : router.query.poolId.toString(),
     )
     setIsPoolCopied(true)
   }
@@ -233,7 +231,7 @@ export default function Range() {
                 </div>
                 <Link
                   href={{
-                    pathname: '/pool/concentrated',
+                    pathname: '/pool/liquidity',
                     query: {
                       account:
                         router.query.account === undefined
@@ -275,6 +273,10 @@ export default function Range() {
                         router.query.tokenZeroAddress === undefined
                           ? ''
                           : router.query.tokenZeroAddress.toString(),
+                      feeTier:
+                        router.query.feeTier === undefined
+                          ? ''
+                          : router.query.feeTier.toString(),
                     },
                   }}
                 >
@@ -322,9 +324,23 @@ export default function Range() {
                 </div>
                 <div className="mt-5 space-y-2">
                   <div className="space-y-3">
-                    <RangeBurnButton address={address} lower={"lower"} upper={"upper"} amount={"amount"}/>
-                    <RangeCollectButton address={address} lower={"lower"} upper={"upper"} />
-                    <RangeCompoundButton address={address} lower={"lower"} upper={"upper"} />§
+                    <RangeBurnButton
+                      address={address}
+                      lower={'lower'}
+                      upper={'upper'}
+                      amount={'amount'}
+                    />
+                    <RangeCollectButton
+                      address={address}
+                      lower={'lower'}
+                      upper={'upper'}
+                    />
+                    <RangeCompoundButton
+                      address={address}
+                      lower={'lower'}
+                      upper={'upper'}
+                    />
+                    §
                   </div>
                 </div>
               </div>

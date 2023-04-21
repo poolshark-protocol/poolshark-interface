@@ -228,8 +228,8 @@ export default function Cover() {
                       <div>
                         {allCoverPositions.map((allCoverPosition) => {
                           if (
-                            allCoverPosition.userOwnerAddress ===
-                              address?.toLowerCase() &&
+                            /* allCoverPosition.userOwnerAddress ===
+                              address?.toLowerCase() */ true &&
                             (allCoverPosition.tokenZero.name === searchTerm ||
                               allCoverPosition.tokenOne.name === searchTerm ||
                               allCoverPosition.tokenZero.symbol ===

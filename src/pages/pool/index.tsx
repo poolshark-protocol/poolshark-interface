@@ -113,12 +113,15 @@ export default function Pool() {
   function mapUserRangePositions() {
     const mappedRangePositions = []
     rangePositions.map((rangePosition) => {
-      //console.log('rangePosition', rangePosition)
+      console.log('rangePosition', rangePosition)
       const rangePositionData = {
         poolId: rangePosition.id,
         tokenOne: rangePosition.pool.token1,
         tokenZero: rangePosition.pool.token0,
         tvlUsd: rangePosition.pool.totalValueLockedUsd,
+        /* TODO@retraca get feeTier from subgraph 
+        feeTier: rangePosition.pool.feeTier,
+        */
         volumeUsd: rangePosition.pool.volumeUsd,
         volumeEth: rangePosition.pool.volumeEth,
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
@@ -236,13 +239,10 @@ export default function Pool() {
             </div>
             <Link
               href={{
-                pathname:
-                  selected.id === 1
-                    ? '/pool/concentrated'
-                    : '/pool/create',
+                pathname: '/pool/create',
                 query: {
                   account: '',
-                  poolId: '',
+                  poolId: selected.id.toString(),
                   tokenOneName: '',
                   tokenOneSymbol: '',
                   tokenOneLogoURI: '',
@@ -293,6 +293,8 @@ export default function Pool() {
                             poolId={allRangePosition.poolId}
                             tokenZero={allRangePosition.tokenZero}
                             tokenOne={allRangePosition.tokenOne}
+                            /* TODO@retraca get feeTier from subgraph */
+                            feeTier={'allRangePosition.feeTier'}
                             tvlUsd={allRangePosition.tvlUsd}
                             volumeUsd={allRangePosition.volumeUsd}
                             volumeEth={allRangePosition.volumeEth}

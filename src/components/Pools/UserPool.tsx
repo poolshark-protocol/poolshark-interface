@@ -10,6 +10,7 @@ export default function UserPool({
   poolId,
   tokenZero,
   tokenOne,
+  feeTier,
   href,
   tvlUsd,
   volumeUsd,
