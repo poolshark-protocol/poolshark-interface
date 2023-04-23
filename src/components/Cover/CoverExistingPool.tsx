@@ -11,7 +11,7 @@ import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 import CoverApproveButton from '../Buttons/CoverApproveButton'
 import { useEffect, useState } from 'react'
 import { useCoverStore } from '../../hooks/useStore'
-import useAllowance from '../../hooks/useAllowance'
+import useCoverAllowance from '../../hooks/useCoverAllowance'
 import { BigNumber, ethers } from 'ethers'
 import JSBI from 'jsbi'
 import {

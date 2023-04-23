@@ -199,7 +199,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
                               tvlUsd={allRangePosition.tvlUsd}
                               volumeUsd={allRangePosition.volumeUsd}
                               volumeEth={allRangePosition.volumeEth}
-                              href={'/pool/view/range'}
+                              href={'/cover'}
                             />
                           </div>
                         )

@@ -8,7 +8,7 @@ import { TickMath } from '../../utils/tickMath'
 import JSBI from 'jsbi'
 import { fetchPrice } from '../../utils/queries'
 import useInputBox from '../../hooks/useInputBox'
-import useAllowance from '../../hooks/useAllowance'
+import useRangeAllowance from '../../hooks/useRangeAllowance'
 import {
   tokenOneAddress,
   tokenZeroAddress,
@@ -96,7 +96,7 @@ export default function DirectionalPool({
     LimitInputBox,
   } = useInputBox()
 
-  const newAllowance = useAllowance(address)
+  const allowance = useRangeAllowance(address)
 
   useEffect(() => {
     getBalances()

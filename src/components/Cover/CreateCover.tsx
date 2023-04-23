@@ -27,7 +27,7 @@ import {
 } from '../../utils/queries'
 import JSBI from 'jsbi'
 import { erc20 } from '../../abis/evm/erc20'
-import useAllowance from '../../hooks/useAllowance'
+import useCoverAllowance from '../../hooks/useCoverAllowance'
 
 export default function CreateCover(props: any) {
   const initialBig = BigNumber.from(0)
@@ -49,7 +49,7 @@ export default function CreateCover(props: any) {
   const [maxPrice, setMaxPrice] = useState('0')
   const [min, setMin] = useState(initialBig)
   const [max, setMax] = useState(initialBig)
-  const [allowance, setAllowance] = useState('0')
+  /* const [allowance, setAllowance] = useState('0') */
   const { address, isConnected, isDisconnected } = useAccount()
   const [isDisabled, setDisabled] = useState(false)
   const [hasSelected, setHasSelected] = useState(false)
@@ -70,9 +70,9 @@ export default function CreateCover(props: any) {
   const [amountToPay, setAmountToPay] = useState(0)
   const [prices, setPrices] = useState({ tokenIn: 0, tokenOut: 0 })
 
-  useEffect(() => {
+  /* useEffect(() => {
     getAllowance()
-  }, [tokenIn])
+  }, [tokenIn]) */
 
   async function setCoverParams() {
     try {
@@ -164,7 +164,7 @@ export default function CreateCover(props: any) {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId])
   }, [chainId])
 
-  const tokenInAllowance = async () => {
+  /* const tokenInAllowance = async () => {
     const provider = new ethers.providers.JsonRpcProvider(
       'https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2/',
     )
@@ -183,7 +183,7 @@ export default function CreateCover(props: any) {
     onError: (error) => {
       console.log(error)
     },
-  })
+  }) */
 
   /*const balanceAndAllowance = async () => {
     updateAllowance(await token0Allowance());
@@ -214,7 +214,7 @@ export default function CreateCover(props: any) {
 
   const [tokenOrder, setTokenOrder] = useState(true)
 
-  const newAllowance = useAllowance(address)
+  const allowance = useCoverAllowance(address)
 
   const changeDefault1 = (token: {
     symbol: string
@@ -313,7 +313,7 @@ export default function CreateCover(props: any) {
 
   //   },[bnInput, (document.getElementById('minInput') as HTMLInputElement)?.value, (document.getElementById('maxInput') as HTMLInputElement)?.value])
 
-  const getAllowance = async () => {
+  /* const getAllowance = async () => {
     try {
       const provider = new ethers.providers.JsonRpcProvider(
         'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
@@ -327,7 +327,7 @@ export default function CreateCover(props: any) {
     } catch (error) {
       console.log(error)
     }
-  }
+  } */
 
   const Option = () => {
     if (expanded) {
@@ -537,9 +537,9 @@ export default function CreateCover(props: any) {
           <Option />
         </div>
       </div>
-      <div className="mb-3" key={newAllowance}>
+      <div className="mb-3" key={allowance}>
         {isConnected &&
-        newAllowance === '0.0' &&
+        allowance === '0.0' &&
         stateChainName === 'arbitrumGoerli' ? (
           <CoverApproveButton address={tokenIn.address} />
         ) : stateChainName === 'arbitrumGoerli' ? (

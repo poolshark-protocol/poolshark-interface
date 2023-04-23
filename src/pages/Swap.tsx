@@ -37,6 +37,7 @@ import {
   getCoverPriceWagmi,
 } from '../utils/getPriceAndQuotes'
 import CoverQuote from '../components/CoverQuote'
+import useSwapAllowance from '../hooks/useSwapAllowance'
 
 type token = {
   symbol: string
@@ -49,6 +50,7 @@ export default function Swap() {
     state.updateSwapAmount,
   ])
   const { address, isDisconnected, isConnected } = useAccount()
+  const allowance = useSwapAllowance(address)
   const {
     bnInput,
     inputBox,
@@ -58,7 +60,7 @@ export default function Swap() {
   } = useInputBox()
   /* const rangeAllowance = useAllowance(address)
   const coverAllowance = useAllowance(address) */
-  const [allowance, setAllowance] = useState('0')
+  /* const [allowance, setAllowance] = useState('0') */
   const [gasFee, setGasFee] = useState('')
   const [rangeBaseLimit, setRangeBaseLimit] = useState('')
   const [coverBaseLimit, setCoverBaseLimit] = useState('')
@@ -114,9 +116,9 @@ export default function Swap() {
     updateSwapAmount(bnInput)
   }, [bnInput])
 
-  useEffect(() => {
+  /* useEffect(() => {
     getAllowance()
-  }, [tokenIn])
+  }, [tokenIn]) */
 
   useEffect(() => {
     getRangePool()
@@ -233,6 +235,12 @@ export default function Swap() {
     }
   }
 
+  /* const getAllowance = async () => {
+    const allowance = await useSwapAllowance(address)
+    console.log('allowance', allowance)
+    setAllowance(allowance)
+  } */
+
   const changeDefaultOut = (token: token) => {
     if (token.symbol === tokenIn.symbol) {
       return
@@ -264,22 +272,6 @@ export default function Swap() {
 
   function openModal() {
     setIsOpen(true)
-  }
-
-  const getAllowance = async () => {
-    try {
-      const provider = new ethers.providers.JsonRpcProvider(
-        'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
-      )
-      const signer = new ethers.VoidSigner(address, provider)
-      const contract = new ethers.Contract(tokenIn.address, erc20ABI, signer)
-      const allowance = await contract.allowance(address, rangePoolAddress)
-      
-      //console.log('allowance', allowance)
-      setAllowance(allowance)
-    } catch (error) {
-      console.log(error)
-    }
   }
 
   const gasEstimate = async () => {
