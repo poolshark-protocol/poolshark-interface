@@ -24,6 +24,7 @@ export default function Range() {
       : router.query.tokenOneAddress.toString()
   const poolAddress =
     router.query.poolId === undefined ? '' : router.query.poolId.toString()
+  
 
   const [is0Copied, setIs0Copied] = useState(false)
   const [is1Copied, setIs1Copied] = useState(false)
@@ -136,10 +137,14 @@ export default function Range() {
               </div>
             </div>
             <a href="#">
-              <span className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80">
+              <a
+                href={'https://goerli.arbiscan.io/address/' + poolAddress}
+                target="_blank"
+                className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80"
+              >
                 View on Etherscan
                 <ArrowTopRightOnSquareIcon className="w-5 " />
-              </span>
+              </a>
             </a>
           </div>
           <div className="mb-6">
@@ -224,7 +229,7 @@ export default function Range() {
                       {router.query.tokenOneName}
                     </div>
                     <div className="flex items-center gap-x-4">
-                    {router.query.tokenOneValue === undefined
+                      {router.query.tokenOneValue === undefined
                         ? '0'
                         : router.query.tokenOneValue.toString()}
                       <span className="bg-grey1 text-grey rounded-md px-3 py-0.5">
@@ -361,11 +366,13 @@ export default function Range() {
             <div className="flex justify-between items-center mt-4 gap-x-6">
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Min Price.</div>
-                <div className="text-white text-2xl my-2 w-full">{router.query.min === undefined
-                        ? '?'
-                        : router.query.min.toString()}</div>
+                <div className="text-white text-2xl my-2 w-full">
+                  {router.query.min === undefined
+                    ? '?'
+                    : router.query.min.toString()}
+                </div>
                 <div className="text-grey text-xs w-full">
-                  {router.query.tokenZeroName} per {router.query.tokenZeroName}
+                  {router.query.tokenZeroName} per {router.query.tokenOneName}
                 </div>
                 <div className="text-grey text-xs w-full italic mt-1">
                   Your position will be 100% {router.query.tokenZeroName} at
@@ -375,15 +382,17 @@ export default function Range() {
               <ArrowsRightLeftIcon className="w-12 text-grey" />
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Max Price.</div>
-                <div className="text-white text-2xl my-2 w-full">{router.query.max === undefined
-                        ? '?'
-                        : router.query.max.toString()}</div>
+                <div className="text-white text-2xl my-2 w-full">
+                  {router.query.max === undefined
+                    ? '?'
+                    : router.query.max.toString()}
+                </div>
                 <div className="text-grey text-xs w-full">
-                  {router.query.tokenZeroName} per {router.query.tokenZeroName}
+                  {router.query.tokenZeroName} per {router.query.tokenOneName}
                 </div>
                 <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100% {router.query.tokenZeroName} at
-                  this price.
+                  Your position will be 100% {router.query.tokenOneName} at this
+                  price.
                 </div>
               </div>
             </div>
@@ -391,7 +400,7 @@ export default function Range() {
               <div className="text-grey text-xs w-full">Current Price</div>
               <div className="text-white text-2xl my-2 w-full">1.064</div>
               <div className="text-grey text-xs w-full">
-                {router.query.tokenZeroName} per {router.query.tokenZeroName}
+                {router.query.tokenZeroName} per {router.query.tokenOneName}
               </div>
             </div>
           </div>

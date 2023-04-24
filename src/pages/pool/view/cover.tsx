@@ -138,10 +138,14 @@ export default function Cover() {
               </div>
             </div>
             <a href="#">
-              <span className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80">
+              <a
+                href={'https://goerli.arbiscan.io/address/' + poolAddress}
+                target="_blank"
+                className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80"
+              >
                 View on Etherscan
                 <ArrowTopRightOnSquareIcon className="w-5 " />
-              </span>
+              </a>
             </a>
           </div>
           <div className="mb-6">
@@ -369,13 +373,13 @@ export default function Cover() {
                   </div>
                   <div className="text-sm flex items-center gap-x-3">
                     <span>
-                      <span className="text-grey">Min:</span> 1203 
+                      <span className="text-grey">Min:</span> 1203
                       {router.query.tokenZeroName} per{' '}
                       {router.query.tokenOneName}
                     </span>
                     <ArrowsRightLeftIcon className="w-4 text-grey" />
                     <span>
-                      <span className="text-grey">Max:</span> 1643 
+                      <span className="text-grey">Max:</span> 1643
                       {router.query.tokenZeroName} per{' '}
                       {router.query.tokenOneName}
                     </span>
