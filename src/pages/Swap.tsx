@@ -22,8 +22,10 @@ import { coverPoolABI } from '../abis/evm/coverPool'
 import {
   fetchPrice,
   getCoverPoolFromFactory,
+  getCoverPrice,
   getCoverQuote,
   getRangePoolFromFactory,
+  getRangePrice,
   getRangeQuote,
 } from '../utils/queries'
 import { useSwapStore } from '../hooks/useStore'
@@ -66,6 +68,8 @@ export default function Swap() {
   const [coverBaseLimit, setCoverBaseLimit] = useState(undefined)
   const [coverPrice, setCoverPrice] = useState(undefined)
   const [rangePrice, setRangePrice] = useState(undefined)
+  const [coverCurrentPrice, setCoverCurrentPrice] = useState(undefined)
+  const [rangeCurrentPrice, setRangeCurrentPrice] = useState(undefined)
   const [zeroForOne, setZeroForOne] = useState(true)
   const [hasSelected, setHasSelected] = useState(false)
   const [mktRate, setMktRate] = useState({})
@@ -327,8 +331,14 @@ export default function Swap() {
           tokenOut.address,
         )
 
+        /*const currentPrice = await getRangePrice(
+          rangePoolAddress,
+          true
+        )*/
+
         setRangePrice(price)
         setRangeBaseLimit(price)
+        //setRangeCurrentPrice(currentPrice)
       }
     } catch (error) {
       console.log(error)
@@ -356,8 +366,14 @@ export default function Swap() {
           tokenOut.address,
         )
 
+        /*const currentPrice = await getCoverPrice(
+          coverPoolAddress,
+          true
+        )*/
+
         setCoverPrice(price)
         setCoverBaseLimit(price)
+        //setCoverCurrentPrice(currentPrice)
       }
     } catch (error) {
       console.log(error)
@@ -440,7 +456,7 @@ export default function Swap() {
             ) /
               parseFloat(
                 mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-              )) * parseFloat(slippage)) : 
+              )) * (parseFloat(slippage) * 0.01)) : 
               parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
               (parseFloat(
                 mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
@@ -453,7 +469,7 @@ export default function Swap() {
                 ) /
                   parseFloat(
                     mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                  )) * parseFloat(slippage))}</div>
+                  )) * (parseFloat(slippage) * 0.01))}</div>
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>

@@ -15,9 +15,9 @@ import { useSwapStore } from "../../hooks/useStore"
 
 export default function SwapRangeButton({amount, zeroForOne, baseLimit}) {
 
-  const [Limit] = useSwapStore((state: any) => [
+  /*const [Limit] = useSwapStore((state: any) => [
     state.Limit
-  ]);
+  ]);*/
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -32,7 +32,7 @@ export default function SwapRangeButton({amount, zeroForOne, baseLimit}) {
       args:[
           userAddress,
           zeroForOne,
-          Limit === 0 ? baseLimit : Limit,
+          baseLimit,
           amount,
       ],
       chainId: 421613,

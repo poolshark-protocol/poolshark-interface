@@ -15,9 +15,9 @@ import {useSwapStore} from "../../hooks/useStore"
 
 export default function SwapCoverButton({amount, zeroForOne, baseLimit}) {
 
-  const [Limit] = useSwapStore((state: any) => [
+  /*const [Limit] = useSwapStore((state: any) => [
     state.Limit
-  ]);
+  ]);*/
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -33,7 +33,7 @@ export default function SwapCoverButton({amount, zeroForOne, baseLimit}) {
           userAddress,
           zeroForOne,
           amount,
-          Limit === 0 ? baseLimit : Limit
+          baseLimit
       ],
       chainId: 421613,
       overrides:{
