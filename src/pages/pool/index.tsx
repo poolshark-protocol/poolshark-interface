@@ -240,7 +240,8 @@ export default function Pool() {
             </div>
             <Link
               href={{
-                pathname: '/pool/create',
+                pathname:
+                  selected.id == 1 ? '/pool/concentrated' : '/pool/directional',
                 query: {
                   account: '',
                   poolId: selected.id.toString(),
