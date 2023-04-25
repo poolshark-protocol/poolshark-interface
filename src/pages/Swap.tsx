@@ -450,20 +450,16 @@ export default function Swap() {
               Swap
             </div>
 
-            {bnInput._hex == '0x00' || bnInput._isBigNumber == false ? (
-              <div className={'text-black'}>Limit</div>
-            ) : (
-              <div
-                onClick={() => setLimitActive(true)}
-                className={`${
-                  LimitActive
-                    ? 'text-white cursor-pointer'
-                    : 'text-grey cursor-pointer'
-                }`}
-              >
-                Limit
-              </div>
-            )}
+            <div
+              onClick={() => setLimitActive(true)}
+              className={`${
+                LimitActive
+                  ? 'text-white cursor-pointer'
+                  : 'text-grey cursor-pointer'
+              }`}
+            >
+              Limit
+            </div>
           </div>
           <div className="ml-auto">
             <Popover className="relative">
