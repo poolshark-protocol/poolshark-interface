@@ -83,6 +83,7 @@ export default function Swap() {
   const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [slippage, setSlippage] = useState('0.5')
+  const [auxSlippage, setAuxSlippage] = useState('0.5')
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
   const [stateChainName, setStateChainName] = useState()
@@ -511,13 +512,15 @@ export default function Swap() {
                       <input
                         placeholder="0%"
                         className="bg-dark rounded-xl outline-none border border-grey1 pl-3 placeholder:text-grey1"
-                        value={slippage}
-                        onChange={(e) => setSlippage(parseFloat(e.target.value.replace(/[^\d.-]/g, '')) < 1 ?
+                        value={auxSlippage}
+                        onChange={(e) => setAuxSlippage(parseFloat(e.target.value.replace(/[^\d.-]/g, '')) < 1 ?
                          e.target.value.replace(/[^\d.-]/g, '') :
                          '0')}
                       />
-                      <button className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
-                        Auto
+                      <button 
+                        className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+                        onClick={(e) => setSlippage(auxSlippage)}>
+                        Set
                       </button>
                     </div>
                   </div>
