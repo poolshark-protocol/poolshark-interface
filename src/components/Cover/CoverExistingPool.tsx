@@ -76,7 +76,7 @@ export default function CoverExistingPool({
   }, [tokenIn])
 
   const handleChange = (event: any) => {
-    setSliderValue(event.target.value * 0.01)
+    setSliderValue(event.target.value)
   }
 
   function switchDirection() {
@@ -95,7 +95,7 @@ export default function CoverExistingPool({
         minPrice !== '' &&
         maxPrice !== undefined &&
         maxPrice !== '' &&
-        Number(ethers.utils.formatUnits(sliderValue * 0.01)) !== 0
+        Number(ethers.utils.formatUnits(sliderValue)) !== 0
       ) {
         const min = TickMath.getTickAtSqrtRatio(
           JSBI.divide(
@@ -305,7 +305,7 @@ export default function CoverExistingPool({
           type="range"
           min="0"
           max="100"
-          value={sliderValue * 100}
+          value={sliderValue}
           onChange={handleChange}
           className="w-full styled-slider slider-progress bg-transparent"
         />
@@ -415,7 +415,7 @@ export default function CoverExistingPool({
             lower={min}
             claim={min}
             upper={max}
-            amount={ethers.utils.parseUnits(String(sliderValue), 18).mul(1)}
+            amount={ethers.utils.parseUnits(String(sliderValue * 0.01), 18).mul(1)}
             zeroForOne={true}
           />
         )}
