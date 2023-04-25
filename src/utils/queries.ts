@@ -304,6 +304,10 @@ export const fetchCoverPools = () => {
                         symbol
                         decimals
                     }
+                    liquidity
+                    volatilityTier{
+                        feeAmount
+                    }
                     price0
                     price1
                     feesEth
@@ -396,6 +400,10 @@ export const fetchRangePools = () => {
                     price
                     price0
                     price1
+                    liquidity
+                    feeTier{
+                        feeAmount
+                    }
                     feesEth
                     feesUsd
                     feeGrowthGlobal0

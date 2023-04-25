@@ -28,6 +28,8 @@ export default function DirectionalPool({
   tokenZeroSymbol,
   tokenZeroLogoURI,
   tokenZeroAddress,
+  liquidity,
+  feeTier,
 }) {
   type token = {
     symbol: string
@@ -57,6 +59,7 @@ export default function DirectionalPool({
 
   const [minPrice, setMinPrice] = useState('0')
   const [maxPrice, setMaxPrice] = useState('0')
+  const [feeControler, setFeeControler] = useState(false)
   const [selected, setSelected] = useState(feeTiers[0])
   const [queryToken0, setQueryToken0] = useState(tokenOneAddress)
   const [queryToken1, setQueryToken1] = useState(tokenOneAddress)
@@ -87,6 +90,19 @@ export default function DirectionalPool({
 
   const [hasSelected, setHasSelected] = useState(false)
   const [isDisabled, setDisabled] = useState(false)
+
+  if (feeTier != undefined && feeControler == false) {
+    if (feeTier == 0.01) {
+      setSelected(feeTiers[0])
+    } else if (feeTier == 0.05) {
+      setSelected(feeTiers[1])
+    } else if (feeTier == 0.3) {
+      setSelected(feeTiers[2])
+    } else if (feeTier == 1) {
+      setSelected(feeTiers[3])
+    }
+    setFeeControler(true)
+  }
 
   const {
     bnInput,

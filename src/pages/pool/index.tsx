@@ -117,7 +117,7 @@ export default function Pool() {
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
       }
       mappedRangePositions.push(rangePositionData)
-      console.log('mappedRangePositions', mappedRangePositions)
+      //console.log('mappedRangePositions', mappedRangePositions)
     })
     setAllRangePositions(mappedRangePositions)
   }
@@ -125,7 +125,7 @@ export default function Pool() {
   function mapUserCoverPositions() {
     const mappedCoverPositions = []
     coverPositions.map((coverPosition) => {
-      console.log('coverPosition', coverPosition)
+      //console.log('coverPosition', coverPosition)
       const coverPositionData = {
         poolId: coverPosition.pool.id,
         tokenZero: coverPosition.inToken,
@@ -139,7 +139,7 @@ export default function Pool() {
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
       mappedCoverPositions.push(coverPositionData)
-      console.log('mappedCoverPositions', mappedCoverPositions)
+      //console.log('mappedCoverPositions', mappedCoverPositions)
     })
     setAllCoverPositions(mappedCoverPositions)
   }
@@ -147,10 +147,13 @@ export default function Pool() {
   function mapRangePools() {
     const mappedRangePools = []
     rangePools.map((rangePool) => {
+      //console.log('rangePool', rangePool)
       const rangePoolData = {
         poolId: rangePool.id,
         tokenOne: rangePool.token1,
         tokenZero: rangePool.token0,
+        liquidity: rangePool.liquidity,
+        feeTier: rangePool.feeTier.feeAmount,
         tvlUsd: rangePool.totalValueLockedUsd,
         volumeUsd: rangePool.volumeUsd,
         volumeEth: rangePool.volumeEth,
@@ -168,12 +171,14 @@ export default function Pool() {
         poolId: coverPool.id,
         tokenOne: coverPool.token1,
         tokenZero: coverPool.token0,
+        liquidity: coverPool.liquidity,
+        feeTier: coverPool.volatilityTier.feeAmount,
         tvlUsd: coverPool.totalValueLockedUsd,
         volumeUsd: coverPool.volumeUsd,
         volumeEth: coverPool.volumeEth,
       }
       mappedCoverPools.push(coverPoolData)
-      //onsole.log('mappedCoverPools', mappedCoverPools)
+      //ctambeonsole.log('mappedCoverPools', mappedCoverPools)
     })
 
     setAllCoverPools(mappedCoverPools)
@@ -375,6 +380,8 @@ export default function Pool() {
                                 poolId={allRangePool.poolId}
                                 tokenZero={allRangePool.tokenZero}
                                 tokenOne={allRangePool.tokenOne}
+                                liquidity={allRangePool.liquidity}
+                                feeTier={allRangePool.feeTier}
                                 tvlUsd={allRangePool.tvlUsd}
                                 volumeUsd={allRangePool.volumeUsd}
                                 volumeEth={allRangePool.volumeEth}
@@ -399,6 +406,8 @@ export default function Pool() {
                                 poolId={allCoverPool.poolId}
                                 tokenZero={allCoverPool.tokenZero}
                                 tokenOne={allCoverPool.tokenOne}
+                                liquidity={allCoverPool.liquidity}
+                                feeTier={allCoverPool.feeTier}
                                 tvlUsd={allCoverPool.tvlUsd}
                                 volumeUsd={allCoverPool.volumeUsd}
                                 volumeEth={allCoverPool.volumeEth}

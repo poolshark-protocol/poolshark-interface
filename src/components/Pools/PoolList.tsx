@@ -4,6 +4,8 @@ export default function PoolList({
   account,
   tokenOne,
   tokenZero,
+  liquidity,
+  feeTier,
   tvlUsd,
   volumeUsd,
   volumeEth,
@@ -16,6 +18,8 @@ export default function PoolList({
     WETH: '/static/images/weth.png',
     DAI: '/static/images/dai_icon.png',
   }
+
+  const feeTierPercentage = feeTier / 10000
 
   return (
     <Link
@@ -32,6 +36,8 @@ export default function PoolList({
           tokenZeroSymbol: tokenZero.symbol,
           tokenZeroLogoURI: logoMap[tokenZero.symbol],
           tokenZeroAddress: tokenZero.id,
+          feeTier: feeTierPercentage,
+          liquidity: liquidity,
         },
       }}
     >

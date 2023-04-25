@@ -194,6 +194,12 @@ export default function Directional() {
                 ? ''
                 : router.query.tokenZeroAddress.toString()
             }
+            liquidity={
+              router.query.liquidity === undefined ? 0 : router.query.liquidity
+            }
+            feeTier={
+              router.query.feeTier === undefined ? 0 : router.query.feeTier
+            }
           />
         </div>
       </div>

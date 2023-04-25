@@ -33,6 +33,8 @@ export default function ConcentratedPool({
   liquidity,
   feeTier,
 }) {
+
+  console.log('feeTier: ', feeTier)
   type token = {
     symbol: string
     logoURI: string
