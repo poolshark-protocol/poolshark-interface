@@ -528,10 +528,10 @@ export default function Swap() {
                       <input
                         placeholder="0%"
                         className="bg-dark rounded-xl outline-none border border-grey1 pl-3 placeholder:text-grey1"
-                        value={auxSlippage}
-                        onChange={(e) => setAuxSlippage(parseFloat(e.target.value.replace(/[^\d.-]/g, '')) < 1 ?
+                        value={auxSlippage+"%"}
+                        onChange={(e) => setAuxSlippage(parseFloat(e.target.value.replace(/[^\d.-]/g, '')) < 100 ?
                          e.target.value.replace(/[^\d.-]/g, '') :
-                         '0')}
+                         '')}
                       />
                       <button 
                         className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
