@@ -82,7 +82,7 @@ export default function Swap() {
   })
   const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
-  const [slipage, setSlipage] = useState('0.5')
+  const [slippage, setSlippage] = useState('0.5')
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
   const [stateChainName, setStateChainName] = useState()
@@ -313,7 +313,6 @@ export default function Swap() {
   const getRangePool = async () => {
     try {
       if (hasSelected === true) {
-        /* console.log(tokenIn, tokenOut) */
         const pool = await getRangePoolFromFactory(
           tokenIn.address,
           tokenOut.address,
@@ -402,7 +401,21 @@ export default function Swap() {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Expected Output</div>
             <div className="ml-auto text-xs">
-              {rangePrice === undefined ? 'Select Token' : rangePrice}
+              { (Number(rangePrice) < Number(coverPrice)) ? 
+              (rangePrice === undefined ? 'Select Token' : parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+              (parseFloat(
+                mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+              ) /
+                parseFloat(
+                  mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                ))) : 
+              (coverPrice === undefined ? 'Select Token' : parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+              (parseFloat(
+                mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+              ) /
+                parseFloat(
+                  mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                ))) }
             </div>
           </div>
           <div className="flex p-1">
@@ -411,9 +424,35 @@ export default function Swap() {
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">
-              Mininum recieved after slippage (0.50%)
+              Minimum received after slippage ({slippage}%)
             </div>
-            <div className="ml-auto text-xs">299.92 DAI</div>
+            <div className="ml-auto text-xs">{Number(rangePrice) < Number(coverPrice) ? 
+            parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+            (parseFloat(
+              mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+            ) /
+              parseFloat(
+                mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+              )) - (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+            (parseFloat(
+              mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+            ) /
+              parseFloat(
+                mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+              )) * parseFloat(slippage)) : 
+              parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+              (parseFloat(
+                mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+              ) / 
+                parseFloat(
+                  mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                )) - (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                (parseFloat(
+                  mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+                ) /
+                  parseFloat(
+                    mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                  )) * parseFloat(slippage))}</div>
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
@@ -472,8 +511,10 @@ export default function Swap() {
                       <input
                         placeholder="0%"
                         className="bg-dark rounded-xl outline-none border border-grey1 pl-3 placeholder:text-grey1"
-                        value={slipage}
-                        onChange={(e) => setSlipage(e.target.value)}
+                        value={slippage}
+                        onChange={(e) => setSlippage(parseFloat(e.target.value.replace(/[^\d.-]/g, '')) < 1 ?
+                         e.target.value.replace(/[^\d.-]/g, '') :
+                         '0')}
                       />
                       <button className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
                         Auto

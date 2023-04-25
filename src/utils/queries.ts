@@ -124,13 +124,10 @@ export const getRangeQuote = async (
     limit,
   )
 
-  //console.log(quote['inAmount'], "quote['inAmount']")
+  console.log(quote, 'rangeQuote')
 
-  const amountInUsed = amountIn.sub(quote['1']['input'])
-  //console.log(amountInUsed, 'amountInUsed')
-
-  const price = amountInUsed.gt(0) ? quote['1']['output'].div(amountInUsed) : 0
-  //console.log(price, 'amountInPrice')
+  const price = parseFloat(ethers.utils.formatUnits(quote[1]['output'], 0)) / parseFloat(ethers.utils.formatUnits(quote[1]['input'], 0))
+  console.log(price, 'amountInPriceRange')
 
   return price
 }
@@ -152,9 +149,8 @@ export const getCoverQuote = async (
     limit,
   )
 
-  //const amountInUsed = amountIn.sub(quote['inAmount'])
   const price = parseFloat(ethers.utils.formatUnits(quote['outAmount'], 0)) / parseFloat(ethers.utils.formatUnits(quote['inAmount'], 0))
-  console.log(price, 'amountInPrice')
+  console.log(price, 'amountInPriceCover')
 
   return price
 }
