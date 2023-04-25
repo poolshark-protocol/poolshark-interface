@@ -30,6 +30,8 @@ export default function ConcentratedPool({
   tokenZeroSymbol,
   tokenZeroLogoURI,
   tokenZeroAddress,
+  liquidity,
+  feeTier,
 }) {
   type token = {
     symbol: string
@@ -56,6 +58,7 @@ export default function ConcentratedPool({
 
   const [minPrice, setMinPrice] = useState('0')
   const [maxPrice, setMaxPrice] = useState('0')
+  const [feeControler, setFeeControler] = useState(false)
   const [selected, setSelected] = useState(feeTiers[0])
   const [queryToken0, setQueryToken0] = useState(tokenOneAddress)
   const [queryToken1, setQueryToken1] = useState(tokenOneAddress)
@@ -63,12 +66,24 @@ export default function ConcentratedPool({
   const [balance1, setBalance1] = useState('0.00')
 
   const initialBig = BigNumber.from(0)
-
   const [to, setTo] = useState('')
   const [min, setMin] = useState(initialBig)
   const [max, setMax] = useState(initialBig)
   const [amount0, setAmount0] = useState(initialBig)
   const [amount1, setAmount1] = useState(initialBig)
+
+  if (feeTier != undefined && feeControler == false) {
+    if (feeTier == 0.01) {
+      setSelected(feeTiers[0])
+    } else if (feeTier == 0.05) {
+      setSelected(feeTiers[1])
+    } else if (feeTier == 0.3) {
+      setSelected(feeTiers[2])
+    } else if (feeTier == 1) {
+      setSelected(feeTiers[3])
+    }
+    setFeeControler(true)
+  }
 
   const [tokenIn, setTokenIn] = useState({
     symbol: tokenZeroSymbol,
@@ -83,7 +98,6 @@ export default function ConcentratedPool({
 
   const [hasSelected, setHasSelected] = useState(false)
   const [isDisabled, setDisabled] = useState(false)
-
   const [mktRate, setMktRate] = useState({})
 
   const {

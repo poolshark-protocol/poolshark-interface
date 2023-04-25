@@ -129,7 +129,7 @@ export default function Range() {
                 {router.query.tokenZeroName}-{router.query.tokenOneName}
               </span>
               <span className="bg-white text-black rounded-md px-3 py-0.5">
-                1%
+                {router.query.feeTier}%
               </span>
               <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
                 <div className="w-2 h-2 bg-green-500 rounded-full" />
@@ -190,7 +190,7 @@ export default function Range() {
             <div className="flex gap-x-20 justify-between">
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Liquidity</h1>
-                <span className="text-4xl">$603.43</span>
+                <span className="text-4xl">${router.query.liquidity}</span>
 
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
@@ -240,7 +240,7 @@ export default function Range() {
                 </div>
                 <Link
                   href={{
-                    pathname: '/pool/liquidity',
+                    pathname: '/pool/concentrated',
                     query: {
                       account:
                         router.query.account === undefined

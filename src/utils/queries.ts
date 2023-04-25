@@ -256,6 +256,10 @@ export const fetchCoverPositions = (address: string) => {
                         symbol
                         decimals
                     }
+                    liquidity
+                    volatilityTier{
+                        feeAmount
+                    }
                 }
                 txnHash
             }
@@ -457,6 +461,9 @@ export const fetchRangePositions = (address: string) => {
                         id
                     }
                     liquidity
+                    feeTier{
+                        feeAmount
+                    }
                     feesEth
                     feesUsd
                     totalValueLockedEth

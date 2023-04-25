@@ -15,6 +15,8 @@ export default function UserCoverPool({
   valueTokenOne,
   min,
   max,
+  liquidity,
+  feeTier,
   href,
   prefill,
   close,
@@ -35,6 +37,8 @@ export default function UserCoverPool({
     state.resetPool,
     state.updatePool,
   ])
+
+  const feeTierPercentage = feeTier / 10000
 
   const setPool = () => {
     resetPool
@@ -75,6 +79,8 @@ export default function UserCoverPool({
           tokenOneValue: valueTokenOne,
           min: min,
           max: max,
+          liquidity: liquidity,
+          feeTier: feeTierPercentage,
         },
       }}
     >

@@ -12,9 +12,10 @@ export default function UserPool({
   valueTokenZero,
   tokenOne,
   valueTokenOne,
-  feeTier,
   min,
   max,
+  liquidity,
+  feeTier,
   href,
   tvlUsd,
   volumeUsd,
@@ -38,6 +39,8 @@ export default function UserPool({
       '...' +
       poolId?.substring(poolId?.length - 4, poolId?.length),
   )
+
+  const feeTierPercentage = feeTier / 10000
 
   //useEffect
 
@@ -70,6 +73,8 @@ export default function UserPool({
             tokenOneValue: valueTokenOne,
             min: min,
             max: max,
+            liquidity: liquidity,
+            feeTier: feeTierPercentage,
           },
         }}
       >
@@ -90,7 +95,7 @@ export default function UserPool({
                 <ArrowLongRightIcon className="w-5" />
                 {tokenOne.name}
               </div>
-              <div className="bg-black px-2 py-1 rounded-lg text-grey">1%</div>
+              <div className="bg-black px-2 py-1 rounded-lg text-grey">{feeTierPercentage}%</div>
             </div>
             <div className="text-sm flex items-center gap-x-3">
               <span>

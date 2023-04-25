@@ -95,7 +95,7 @@ export default function Concentrated() {
         <div className="mt-[16vh] w-[55rem]">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-x-6">
-              <h1 className="text-3xl">Create Range Pool</h1>
+              <h1 className="text-3xl">Add Liquidity</h1>
             </div>
             <Link href="/pool">
               <span className="bg-black border border-grey2 rounded-lg text-white px-7 py-[9px] cursor-pointer hover:opacity-80">
@@ -196,6 +196,12 @@ export default function Concentrated() {
               router.query.tokenZeroAddress === undefined
                 ? ''
                 : router.query.tokenZeroAddress.toString()
+            }
+            liquidity={
+              router.query.liquidity === undefined ? 0 : router.query.liquidity
+            }
+            feeTier={
+              router.query.feeTier === undefined ? 0 : router.query.feeTier
             }
           />
         </div>

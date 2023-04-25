@@ -102,7 +102,7 @@ export default function Pool() {
     rangePositions.map((rangePosition) => {
       //console.log('rangePosition', rangePosition)
       const rangePositionData = {
-        poolId: rangePosition.id,
+        poolId: rangePosition.pool.factory.id,
         tokenZero: rangePosition.pool.token0,
         valueTokenZero: rangePosition.pool.totalValueLocked0,
         tokenOne: rangePosition.pool.token1,
@@ -110,9 +110,8 @@ export default function Pool() {
         min: rangePosition.lower,
         max: rangePosition.upper,
         tvlUsd: rangePosition.pool.totalValueLockedUsd,
-        /* TODO@retraca get feeTier from subgraph 
-        feeTier: rangePosition.pool.feeTier,
-        */
+        feeTier: rangePosition.pool.feeTier.feeAmount,
+        liquidity: rangePosition.pool.liquidity,
         volumeUsd: rangePosition.pool.volumeUsd,
         volumeEth: rangePosition.pool.volumeEth,
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
@@ -121,6 +120,28 @@ export default function Pool() {
       console.log('mappedRangePositions', mappedRangePositions)
     })
     setAllRangePositions(mappedRangePositions)
+  }
+
+  function mapUserCoverPositions() {
+    const mappedCoverPositions = []
+    coverPositions.map((coverPosition) => {
+      console.log('coverPosition', coverPosition)
+      const coverPositionData = {
+        poolId: coverPosition.pool.id,
+        tokenZero: coverPosition.inToken,
+        valueTokenZero: coverPosition.inAmount,
+        tokenOne: coverPosition.outToken,
+        valueTokenOne: coverPosition.outAmount,
+        min: coverPosition.lower,
+        max: coverPosition.upper,
+        liquidity: coverPosition.pool.liquidity,
+        feeTier: coverPosition.pool.volatilityTier.feeAmount,
+        userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
+      }
+      mappedCoverPositions.push(coverPositionData)
+      console.log('mappedCoverPositions', mappedCoverPositions)
+    })
+    setAllCoverPositions(mappedCoverPositions)
   }
 
   function mapRangePools() {
@@ -138,26 +159,6 @@ export default function Pool() {
       //console.log('mappedRangePools', mappedRangePools)
     })
     setAllRangePools(mappedRangePools)
-  }
-
-  function mapUserCoverPositions() {
-    const mappedCoverPositions = []
-    coverPositions.map((coverPosition) => {
-      //console.log('coverPosition', coverPosition)
-      const coverPositionData = {
-        poolId: coverPosition.id,
-        tokenZero: coverPosition.inToken,
-        valueTokenZero: coverPosition.inAmount,
-        tokenOne: coverPosition.outToken,
-        valueTokenOne: coverPosition.outAmount,
-        min: coverPosition.lower,
-        max: coverPosition.upper,
-        userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
-      }
-      mappedCoverPositions.push(coverPositionData)
-      //console.log('mappedCoverPositions', mappedCoverPositions)
-    })
-    setAllCoverPositions(mappedCoverPositions)
   }
 
   function mapCoverPools() {
@@ -299,8 +300,8 @@ export default function Pool() {
                             valueTokenOne={allRangePosition.valueTokenOne}
                             min={allRangePosition.min}
                             max={allRangePosition.max}
-                            /* TODO@retraca get feeTier from subgraph */
-                            feeTier={'allRangePosition.feeTier'}
+                            liquidity={allRangePosition.liquidity}
+                            feeTier={allRangePosition.feeTier}
                             tvlUsd={allRangePosition.tvlUsd}
                             volumeUsd={allRangePosition.volumeUsd}
                             volumeEth={allRangePosition.volumeEth}
@@ -332,6 +333,8 @@ export default function Pool() {
                             valueTokenOne={allCoverPosition.valueTokenOne}
                             min={allCoverPosition.min}
                             max={allCoverPosition.max}
+                            liquidity={allCoverPosition.liquidity}
+                            feeTier={allCoverPosition.feeTier}
                             prefill={undefined}
                             close={undefined}
                             href={'/pool/view/cover'}
