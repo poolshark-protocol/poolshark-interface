@@ -123,9 +123,15 @@ export const getRangeQuote = async (
     amountIn, //amountIn
     limit,
   )
-  console.log("quote", quote['1']['output'])
+
+  //console.log(quote['inAmount'], "quote['inAmount']")
+
   const amountInUsed = amountIn.sub(quote['1']['input'])
+  //console.log(amountInUsed, 'amountInUsed')
+
   const price = amountInUsed.gt(0) ? quote['1']['output'].div(amountInUsed) : 0
+  //console.log(price, 'amountInPrice')
+
   return price
 }
 
@@ -145,9 +151,11 @@ export const getCoverQuote = async (
     amountIn, //amountIn
     limit,
   )
-  console.log(quote['outAmount'])
-  const amountInUsed = amountIn.sub(quote['inAmount'])
-  const price = amountInUsed.gt(0) ? quote['outAmount'].div(amountInUsed) : 0
+
+  //const amountInUsed = amountIn.sub(quote['inAmount'])
+  const price = parseFloat(ethers.utils.formatUnits(quote['outAmount'], 0)) / parseFloat(ethers.utils.formatUnits(quote['inAmount'], 0))
+  console.log(price, 'amountInPrice')
+
   return price
 }
 

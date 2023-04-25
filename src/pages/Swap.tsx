@@ -62,8 +62,8 @@ export default function Swap() {
   const coverAllowance = useAllowance(address) */
   /* const [allowance, setAllowance] = useState('0') */
   const [gasFee, setGasFee] = useState('')
-  const [rangeBaseLimit, setRangeBaseLimit] = useState('')
-  const [coverBaseLimit, setCoverBaseLimit] = useState('')
+  const [rangeBaseLimit, setRangeBaseLimit] = useState(undefined)
+  const [coverBaseLimit, setCoverBaseLimit] = useState(undefined)
   const [coverPrice, setCoverPrice] = useState(undefined)
   const [rangePrice, setRangePrice] = useState(undefined)
   const [zeroForOne, setZeroForOne] = useState(true)
@@ -320,12 +320,13 @@ export default function Swap() {
         )
         const id = pool['data']['rangePools']['0']['id']
         const price = await getRangeQuote(
-          id,
+          rangePoolAddress,
           bnInput,
           BigNumber.from('4295128739'),
           tokenIn.address,
           tokenOut.address,
         )
+
         setRangePrice(price)
         setRangeBaseLimit(price)
       }
@@ -347,24 +348,13 @@ export default function Swap() {
         const id = pool['data']['coverPools']['0']['id']
         console.log('pool ID', id)
 
-        /*const price = await getCoverQuote(
-          id,
-          ethers.utils.parseUnits('1', 18),
+        const price = await getCoverQuote(
+          coverPoolAddress,
+          bnInput,
           BigNumber.from("4295128739"),
           tokenIn.address,
           tokenOut.address,
-        )*/
-
-        const price = getCoverQuoteWagmi(
-          zeroForOne,
-          bnInput,
-          BigNumber.from('4295128739'),
         )
-
-        //const contract = new ethers.Contract(id, coverPoolABI, provider)
-        //const hardPrice = await contract.quote(true, ethers.utils.parseUnits('1', 18), BigNumber.from('4295128739'))
-
-        console.log('cover price', price)
 
         setCoverPrice(price)
         setCoverBaseLimit(price)
@@ -377,7 +367,7 @@ export default function Swap() {
   const fetchTokenPrice = async () => {
     try {
       //const price = await fetchPrice('0x000')
-      if (Number(rangePrice) < Number(coverPrice)) {
+      if (Number(rangePrice) > Number(coverPrice)) {
         const price = rangePrice
         setMktRate({
           WETH:
