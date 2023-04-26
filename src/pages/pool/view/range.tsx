@@ -193,10 +193,11 @@ export default function Range() {
                 <span className="text-4xl">
                   $
                   {Number(
-                    ethers.utils.formatEther(
+                    ethers.utils.formatUnits(
                       router.query.liquidity === undefined
                         ? '0'
                         : router.query.liquidity.toString(),
+                      18,
                     ),
                   ).toFixed(2)}
                 </span>
@@ -249,7 +250,7 @@ export default function Range() {
                 </div>
                 <Link
                   href={{
-                    pathname: '/pool/concentrated',
+                    pathname: '/pool/liquidity',
                     query: {
                       account:
                         router.query.account === undefined
@@ -295,6 +296,14 @@ export default function Range() {
                         router.query.feeTier === undefined
                           ? ''
                           : router.query.feeTier.toString(),
+                      min:
+                        router.query.min === undefined
+                          ? ''
+                          : router.query.min.toString(),
+                      max:
+                        router.query.max === undefined
+                          ? ''
+                          : router.query.max.toString(),
                     },
                   }}
                 >

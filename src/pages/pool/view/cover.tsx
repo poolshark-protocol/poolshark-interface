@@ -195,10 +195,11 @@ export default function Cover() {
                 <span className="text-4xl">
                   $
                   {Number(
-                    ethers.utils.formatEther(
+                    ethers.utils.formatUnits(
                       router.query.liquidity === undefined
                         ? '0'
                         : router.query.liquidity.toString(),
+                      18,
                     ),
                   ).toFixed(2)}
                 </span>
@@ -253,10 +254,11 @@ export default function Cover() {
                   <span className="text-grey">
                     /$
                     {Number(
-                      ethers.utils.formatEther(
+                      ethers.utils.formatUnits(
                         router.query.liquidity === undefined
                           ? '0'
                           : router.query.liquidity.toString(),
+                        18,
                       ),
                     ).toFixed(2)}
                   </span>

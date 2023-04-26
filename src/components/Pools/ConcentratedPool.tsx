@@ -30,11 +30,11 @@ export default function ConcentratedPool({
   tokenZeroSymbol,
   tokenZeroLogoURI,
   tokenZeroAddress,
+  minLimit,
+  maxLimit,
   liquidity,
   feeTier,
 }) {
-
-  console.log('feeTier: ', feeTier)
   type token = {
     symbol: string
     logoURI: string
@@ -57,7 +57,7 @@ export default function ConcentratedPool({
     { id: 4, tier: '1%', text: 'Best for exotic pairs', unavailable: false },
   ]
   const { address, isConnected, isDisconnected } = useAccount()
-
+  
   const [minPrice, setMinPrice] = useState('0')
   const [maxPrice, setMaxPrice] = useState('0')
   const [feeControler, setFeeControler] = useState(false)
@@ -66,14 +66,14 @@ export default function ConcentratedPool({
   const [queryToken1, setQueryToken1] = useState(tokenOneAddress)
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
-
+  
   const initialBig = BigNumber.from(0)
   const [to, setTo] = useState('')
   const [min, setMin] = useState(initialBig)
   const [max, setMax] = useState(initialBig)
   const [amount0, setAmount0] = useState(initialBig)
   const [amount1, setAmount1] = useState(initialBig)
-
+  
   if (feeTier != undefined && feeControler == false) {
     if (feeTier == 0.01) {
       setSelected(feeTiers[0])
@@ -83,6 +83,12 @@ export default function ConcentratedPool({
       setSelected(feeTiers[2])
     } else if (feeTier == 1) {
       setSelected(feeTiers[3])
+    }
+    if (minLimit != undefined) {
+      setMinPrice(minLimit)
+    }
+    if (maxLimit != undefined) {
+      setMaxPrice(maxLimit)
     }
     setFeeControler(true)
   }
@@ -585,7 +591,7 @@ export default function ConcentratedPool({
                 </div>
                 <input
                   className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
-                  placeholder="0"
+                  placeholder={minPrice}
                   id="minInput"
                   type="number"
                   onChange={() =>
@@ -612,7 +618,7 @@ export default function ConcentratedPool({
                 </div>
                 <input
                   className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
-                  placeholder="0"
+                  placeholder={maxPrice}
                   id="maxInput"
                   type="number"
                   onChange={() =>
