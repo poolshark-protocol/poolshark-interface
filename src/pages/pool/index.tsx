@@ -111,13 +111,14 @@ export default function Pool() {
         max: rangePosition.upper,
         tvlUsd: rangePosition.pool.totalValueLockedUsd,
         feeTier: rangePosition.pool.feeTier.feeAmount,
+        unclaimedFees: rangePosition.pool.feesUsd,
         liquidity: rangePosition.pool.liquidity,
         volumeUsd: rangePosition.pool.volumeUsd,
         volumeEth: rangePosition.pool.volumeEth,
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
       }
       mappedRangePositions.push(rangePositionData)
-      //console.log('mappedRangePositions', mappedRangePositions)
+      console.log('mappedRangePositions', mappedRangePositions)
     })
     setAllRangePositions(mappedRangePositions)
   }
@@ -307,6 +308,7 @@ export default function Pool() {
                             max={allRangePosition.max}
                             liquidity={allRangePosition.liquidity}
                             feeTier={allRangePosition.feeTier}
+                            unclaimedFees={allRangePosition.unclaimedFees}
                             tvlUsd={allRangePosition.tvlUsd}
                             volumeUsd={allRangePosition.volumeUsd}
                             volumeEth={allRangePosition.volumeEth}

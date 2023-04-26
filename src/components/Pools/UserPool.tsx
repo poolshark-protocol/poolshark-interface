@@ -16,6 +16,7 @@ export default function UserPool({
   max,
   liquidity,
   feeTier,
+  unclaimedFees,
   href,
   tvlUsd,
   volumeUsd,
@@ -75,6 +76,7 @@ export default function UserPool({
             max: max,
             liquidity: liquidity,
             feeTier: feeTierPercentage,
+            unclaimedFees: unclaimedFees,
           },
         }}
       >

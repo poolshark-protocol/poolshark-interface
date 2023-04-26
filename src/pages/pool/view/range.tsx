@@ -24,7 +24,6 @@ export default function Range() {
       : router.query.tokenOneAddress.toString()
   const poolAddress =
     router.query.poolId === undefined ? '' : router.query.poolId.toString()
-  
 
   const [is0Copied, setIs0Copied] = useState(false)
   const [is1Copied, setIs1Copied] = useState(false)
@@ -298,7 +297,11 @@ export default function Range() {
               </div>
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Unclaimed Fees</h1>
-                <span className="text-4xl">$4.50</span>
+                <span className="text-4xl">
+                  {router.query.unclaimedFees === undefined
+                    ? '?'
+                    : router.query.unclaimedFees.toString()}
+                </span>
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
@@ -349,7 +352,6 @@ export default function Range() {
                       lower={'lower'}
                       upper={'upper'}
                     />
-                    §
                   </div>
                 </div>
               </div>
