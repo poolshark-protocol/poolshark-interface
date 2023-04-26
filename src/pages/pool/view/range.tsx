@@ -10,6 +10,7 @@ import RangeBurnButton from '../../../components/Buttons/RangeBurnButton'
 import RangeCompoundButton from '../../../components/Buttons/RangeCompoundButton'
 import Link from 'next/link'
 import { useAccount } from 'wagmi'
+import { BigNumber, ethers } from 'ethers'
 
 export default function Range() {
   const { address } = useAccount()
@@ -141,7 +142,7 @@ export default function Range() {
                 target="_blank"
                 className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80"
               >
-                View on Etherscan
+                View on Arbiscan
                 <ArrowTopRightOnSquareIcon className="w-5 " />
               </a>
             </a>
@@ -189,7 +190,16 @@ export default function Range() {
             <div className="flex gap-x-20 justify-between">
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Liquidity</h1>
-                <span className="text-4xl">${router.query.liquidity}</span>
+                <span className="text-4xl">
+                  $
+                  {Number(
+                    ethers.utils.formatEther(
+                      router.query.liquidity === undefined
+                        ? '0'
+                        : router.query.liquidity.toString(),
+                    ),
+                  ).toFixed(2)}
+                </span>
 
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">

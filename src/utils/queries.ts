@@ -422,6 +422,7 @@ export const fetchRangePools = () => {
                     feesUsd
                     feeTier{
                         tickSpacing
+                        feeAmount
                     }
                     ticks{
                         price0
@@ -433,9 +434,6 @@ export const fetchRangePools = () => {
                     price0
                     price1
                     liquidity
-                    feeTier{
-                        feeAmount
-                    }
                     feesEth
                     feesUsd
                     feeGrowthGlobal0

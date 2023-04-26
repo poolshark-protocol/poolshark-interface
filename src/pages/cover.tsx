@@ -91,13 +91,15 @@ export default function Cover() {
     const mappedCoverPositions = []
     coverPositions.map((coverPosition) => {
       const coverPositionData = {
-        poolId: coverPosition.id,
+        poolId: coverPosition.pool.id,
         tokenZero: coverPosition.inToken,
         valueTokenZero: coverPosition.inAmount,
         tokenOne: coverPosition.outToken,
         valueTokenOne: coverPosition.outAmount,
         min: coverPosition.lower,
         max: coverPosition.upper,
+        liquidity: coverPosition.pool.liquidity,
+        feeTier: coverPosition.pool.volatilityTier.feeAmount,
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
       mappedCoverPositions.push(coverPositionData)
@@ -253,6 +255,8 @@ export default function Cover() {
                                 valueTokenOne={allCoverPosition.valueTokenOne}
                                 min={allCoverPosition.min}
                                 max={allCoverPosition.max}
+                                feeTier={allCoverPosition.feeTier}
+                                liquidity={allCoverPosition.liquidity}
                                 prefill={undefined}
                                 close={undefined}
                                 href={'/pool/view/cover'}

@@ -112,13 +112,13 @@ export default function Pool() {
         tvlUsd: rangePosition.pool.totalValueLockedUsd,
         feeTier: rangePosition.pool.feeTier.feeAmount,
         unclaimedFees: rangePosition.pool.feesUsd,
-        liquidity: rangePosition.pool.liquidity,
+        liquidity: rangePosition.liquidity,
         volumeUsd: rangePosition.pool.volumeUsd,
         volumeEth: rangePosition.pool.volumeEth,
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
       }
       mappedRangePositions.push(rangePositionData)
-      console.log('mappedRangePositions', mappedRangePositions)
+      //console.log('mappedRangePositions', mappedRangePositions)
     })
     setAllRangePositions(mappedRangePositions)
   }
@@ -135,7 +135,7 @@ export default function Pool() {
         valueTokenOne: coverPosition.outAmount,
         min: coverPosition.lower,
         max: coverPosition.upper,
-        liquidity: coverPosition.pool.liquidity,
+        liquidity: coverPosition.liquidity,
         feeTier: coverPosition.pool.volatilityTier.feeAmount,
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }

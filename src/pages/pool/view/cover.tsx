@@ -10,6 +10,7 @@ import CoverCollectButton from '../../../components/Buttons/CoverCollectButton'
 import { useRouter } from 'next/router'
 import { useAccount } from 'wagmi'
 import Link from 'next/link'
+import { BigNumber, ethers } from 'ethers'
 
 export default function Cover() {
   const { address } = useAccount()
@@ -143,7 +144,7 @@ export default function Cover() {
                 target="_blank"
                 className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80"
               >
-                View on Etherscan
+                View on Arbiscan
                 <ArrowTopRightOnSquareIcon className="w-5 " />
               </a>
             </a>
@@ -191,7 +192,16 @@ export default function Cover() {
             <div className="flex gap-x-20 justify-between">
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Cover Size</h1>
-                <span className="text-4xl">${router.query.liquidity}</span>
+                <span className="text-4xl">
+                  $
+                  {Number(
+                    ethers.utils.formatEther(
+                      router.query.liquidity === undefined
+                        ? '0'
+                        : router.query.liquidity.toString(),
+                    ),
+                  ).toFixed(2)}
+                </span>
 
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
@@ -239,7 +249,17 @@ export default function Cover() {
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Filled Position</h1>
                 <span className="text-4xl">
-                  $300<span className="text-grey">/${router.query.liquidity}</span>
+                  $300
+                  <span className="text-grey">
+                    /$
+                    {Number(
+                      ethers.utils.formatEther(
+                        router.query.liquidity === undefined
+                          ? '0'
+                          : router.query.liquidity.toString(),
+                      ),
+                    ).toFixed(2)}
+                  </span>
                 </span>
                 <div className="text-grey mt-3">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
