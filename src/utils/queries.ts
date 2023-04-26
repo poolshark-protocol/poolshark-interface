@@ -124,13 +124,24 @@ export const getRangeQuote = async (
     limit,
   )
 
-  //console.log(quote['inAmount'], "quote['inAmount']")
+  console.log(quote, 'rangeQuote')
 
-  const amountInUsed = amountIn.sub(quote['1']['input'])
-  //console.log(amountInUsed, 'amountInUsed')
+  const price = parseFloat(ethers.utils.formatUnits(quote[1]['output'], 0)) / parseFloat(ethers.utils.formatUnits(quote[1]['input'], 0))
 
-  const price = amountInUsed.gt(0) ? quote['1']['output'].div(amountInUsed) : 0
-  //console.log(price, 'amountInPrice')
+  return price
+}
+
+export const getRangePrice = async (
+  id: string,
+  zeroForOne: boolean
+) => {
+  const provider = new ethers.providers.JsonRpcProvider(
+    'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
+  )
+  const contract = new ethers.Contract(id, rangePoolABI, provider)
+  const quote = zeroForOne ? await contract.pool1(0) : await contract.pool0(0)
+
+  const price = parseFloat(ethers.utils.formatUnits(quote, 0)) / parseFloat(ethers.utils.formatUnits(quote, 0))
 
   return price
 }
@@ -152,9 +163,22 @@ export const getCoverQuote = async (
     limit,
   )
 
-  //const amountInUsed = amountIn.sub(quote['inAmount'])
   const price = parseFloat(ethers.utils.formatUnits(quote['outAmount'], 0)) / parseFloat(ethers.utils.formatUnits(quote['inAmount'], 0))
-  console.log(price, 'amountInPrice')
+
+  return price
+}
+
+export const getCoverPrice = async (
+  id: string,
+  zeroForOne: boolean
+) => {
+  const provider = new ethers.providers.JsonRpcProvider(
+    'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
+  )
+  const contract = new ethers.Contract(id, coverPoolABI, provider)
+  const quote = zeroForOne ? await contract.pool1(0) : await contract.pool0(0)
+
+  const price = parseFloat(ethers.utils.formatUnits(quote, 0)) / parseFloat(ethers.utils.formatUnits(quote, 0))
 
   return price
 }
