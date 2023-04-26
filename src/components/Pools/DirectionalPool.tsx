@@ -1,5 +1,10 @@
 import { Fragment, useEffect, useState } from 'react'
-import { ChevronDownIcon, PlusIcon, MinusIcon } from '@heroicons/react/20/solid'
+import {
+  ChevronDownIcon,
+  PlusIcon,
+  MinusIcon,
+  ArrowLongRightIcon,
+} from '@heroicons/react/20/solid'
 import { Listbox, Transition } from '@headlessui/react'
 import SelectToken from '../SelectToken'
 import DirectionalPoolPreview from './DirectionalPoolPreview'
@@ -56,39 +61,48 @@ export default function DirectionalPool({
   ]
 
   const { address, isConnected, isDisconnected } = useAccount()
+  const allowance = useRangeAllowance(address)
+  const {
+    bnInput,
+    inputBox,
+    maxBalance,
+    bnInputLimit,
+    LimitInputBox,
+  } = useInputBox()
+  const [
+    updatecoverContractParams,
+    updatecoverAllowance,
+    coverAllowance,
+    coverContractParams,
+  ] = useCoverStore((state: any) => [
+    state.updatecoverContractParams,
+    state.updatecoverAllowance,
+    state.coverAllowance,
+    state.coverContractParams,
+  ])
 
   const [minPrice, setMinPrice] = useState('0')
   const [maxPrice, setMaxPrice] = useState('0')
   const [feeControler, setFeeControler] = useState(false)
   const [selected, setSelected] = useState(feeTiers[0])
-  const [queryToken0, setQueryToken0] = useState(tokenOneAddress)
-  const [queryToken1, setQueryToken1] = useState(tokenOneAddress)
+  const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
+  const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
-  const [token0, setToken0] = useState({
-    symbol: tokenZeroSymbol,
-    logoURI: tokenZeroLogoURI,
-    address: tokenZeroAddress,
-  } as token)
-  const [token1, setToken1] = useState({
-    symbol: tokenOneSymbol,
-    logoURI: tokenOneLogoURI,
-    address: tokenOneAddress,
-  } as token)
   const [tokenIn, setTokenIn] = useState({
     symbol: tokenZeroSymbol,
     logoURI: tokenZeroLogoURI,
     address: tokenZeroAddress,
-  })
+  } as token)
   const [tokenOut, setTokenOut] = useState({
     symbol: tokenOneSymbol,
     logoURI: tokenOneLogoURI,
     address: tokenOneAddress,
-  })
+  } as token)
 
   const [mktRate, setMktRate] = useState({})
 
-  const [hasSelected, setHasSelected] = useState(false)
+  const [hasSelected, setHasSelected] = useState(true)
   const [isDisabled, setDisabled] = useState(false)
 
   if (feeTier != undefined && feeControler == false) {
@@ -104,31 +118,23 @@ export default function DirectionalPool({
     setFeeControler(true)
   }
 
-  const {
-    bnInput,
-    inputBox,
-    maxBalance,
-    bnInputLimit,
-    LimitInputBox,
-  } = useInputBox()
-
-  const allowance = useRangeAllowance(address)
+  function switchDirection() {
+    setTokenOrder(!tokenOrder)
+    const temp = tokenIn
+    setTokenIn(tokenOut)
+    setTokenOut(temp)
+    const tempBal = queryTokenIn
+    setQueryTokenIn(queryTokenOut)
+    setQueryTokenOut(tempBal)
+  }
 
   useEffect(() => {
     getBalances()
   }, [bnInput, bnInputLimit])
 
-  const [
-    updatecoverContractParams,
-    updatecoverAllowance,
-    coverAllowance,
-    coverContractParams,
-  ] = useCoverStore((state: any) => [
-    state.updatecoverContractParams,
-    state.updatecoverAllowance,
-    state.coverAllowance,
-    state.coverContractParams,
-  ])
+  useEffect(() => {
+    fetchTokenPrice()
+  }, [])
 
   const fetchTokenPrice = async () => {
     try {
@@ -151,10 +157,6 @@ export default function DirectionalPool({
       console.log(error)
     }
   }
-
-  useEffect(() => {
-    fetchTokenPrice()
-  }, [])
 
   async function setcoverParams() {
     try {
@@ -283,17 +285,17 @@ export default function DirectionalPool({
     }
     setTokenIn(token)
     if (token.address.localeCompare(tokenOut.address) < 0) {
-      setToken0(token)
+      setTokenIn(token)
       if (hasSelected === true) {
-        setToken1(tokenOut)
+        setTokenOut(tokenOut)
       }
       return
     }
     if (token.address.localeCompare(tokenOut.address) >= 0) {
       if (hasSelected === true) {
-        setToken0(tokenOut)
+        setTokenIn(tokenOut)
       }
-      setToken1(token)
+      setTokenOut(token)
       return
     }
   }
@@ -307,14 +309,14 @@ export default function DirectionalPool({
     setTokenOut(token)
     setHasSelected(true)
     if (token.address.localeCompare(tokenIn.address) < 0) {
-      setToken0(token)
-      setToken1(tokenIn)
+      setTokenIn(token)
+      setTokenOut(tokenIn)
       return
     }
 
     if (token.address.localeCompare(tokenIn.address) >= 0) {
-      setToken0(tokenIn)
-      setToken1(token)
+      setTokenIn(tokenIn)
+      setTokenOut(token)
       return
     }
   }
@@ -448,8 +450,16 @@ export default function DirectionalPool({
               selected={hasSelected}
               tokenChosen={changeDefaultIn}
               displayToken={tokenIn}
-              balance={setQueryToken0}
-              key={queryToken0}
+              balance={setQueryTokenIn}
+              key={queryTokenIn}
+            />
+            <ArrowLongRightIcon
+              className="w-6 cursor-pointer"
+              onClick={() => {
+                if (hasSelected) {
+                  switchDirection()
+                }
+              }}
             />
             {hasSelected ? (
               <SelectToken
@@ -457,8 +467,8 @@ export default function DirectionalPool({
                 selected={hasSelected}
                 tokenChosen={changeDefaultOut}
                 displayToken={tokenOut}
-                balance={setQueryToken1}
-                key={queryToken1}
+                balance={setQueryTokenOut}
+                key={queryTokenOut}
               />
             ) : (
               //@dev add skeletons on load when switching sides/ initial selection
@@ -467,7 +477,7 @@ export default function DirectionalPool({
                 selected={hasSelected}
                 tokenChosen={changeDefaultOut}
                 displayToken={tokenOut}
-                balance={setQueryToken1}
+                balance={setQueryTokenOut}
               />
             )}
           </div>
@@ -520,7 +530,6 @@ export default function DirectionalPool({
                 </div>
               </div>
             </div>
-            
           </div>
         </div>
       </div>

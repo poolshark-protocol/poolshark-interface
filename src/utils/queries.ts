@@ -63,7 +63,7 @@ export const getRangePoolFromFactory = (token0: string, token1: string) => {
       .query({ query: gql(getPool) })
       .then((data) => {
         resolve(data)
-        console.log(data)
+        /* console.log(data) */
       })
       .catch((err) => {
         resolve(err)
@@ -89,7 +89,7 @@ export const getCoverPoolFromFactory = (token0: string, token1: string) => {
       .query({ query: gql(getPool) })
       .then((data) => {
         resolve(data)
-        //console.log(data)
+        /* console.log(data) */
       })
       .catch((err) => {
         resolve(err)
@@ -242,7 +242,7 @@ export const getPreviousTicksUpper = (
       .query({ query: gql(getTicks) })
       .then((data) => {
         resolve(data)
-        console.log(data)
+        /* console.log(data) */
       })
       .catch((err) => {
         resolve(err)
@@ -363,7 +363,7 @@ export const fetchCoverPools = () => {
       .query({ query: gql(poolsQuery) })
       .then((data) => {
         resolve(data)
-        console.log(data)
+        /* console.log(data) */
       })
       .catch((err) => {
         resolve(err)
@@ -389,7 +389,7 @@ export const fetchCoverPoolMetrics = () => {
       .query({ query: gql(poolsMetricsQuery) })
       .then((data) => {
         resolve(data)
-        console.log(data)
+        /* console.log(data) */
       })
       .catch((err) => {
         resolve(err)
@@ -458,7 +458,7 @@ export const fetchRangePools = () => {
       .query({ query: gql(poolsQuery) })
       .then((data) => {
         resolve(data)
-        console.log(data)
+        /* console.log(data) */
       })
       .catch((err) => {
         resolve(err)
@@ -605,7 +605,7 @@ export const fetchUniV3Pools = () => {
       .query({ query: gql(univ3PoolsQuery) })
       .then((data) => {
         resolve(data)
-        console.log(data)
+        /* console.log(data) */
       })
       .catch((err) => {
         resolve(err)
@@ -653,7 +653,7 @@ export const fetchUniV3Positions = (address: string) => {
       })
       .then((data) => {
         resolve(data)
-        console.log(data)
+        /* console.log(data) */
       })
       .catch((err) => {
         resolve(err)
@@ -681,7 +681,7 @@ export const fetchPrice = (address: string) => {
       })
       .then((data) => {
         resolve(data)
-        console.log(data)
+        /* console.log(data) */
       })
       .catch((err) => {
         resolve(err)

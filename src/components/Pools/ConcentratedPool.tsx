@@ -1,5 +1,10 @@
 import { Fragment, useEffect, useState } from 'react'
-import { ChevronDownIcon, PlusIcon, MinusIcon } from '@heroicons/react/20/solid'
+import {
+  ChevronDownIcon,
+  PlusIcon,
+  MinusIcon,
+  ArrowLongRightIcon,
+} from '@heroicons/react/20/solid'
 import { Listbox, Transition } from '@headlessui/react'
 import SelectToken from '../SelectToken'
 import ConcentratedPoolPreview from './ConcentratedPoolPreview'
@@ -57,23 +62,67 @@ export default function ConcentratedPool({
     { id: 4, tier: '1%', text: 'Best for exotic pairs', unavailable: false },
   ]
   const { address, isConnected, isDisconnected } = useAccount()
-  
+  const allowance = useRangeAllowance(address)
+  const [tokenIn, setTokenIn] = useState({
+    symbol: tokenZeroSymbol,
+    logoURI: tokenZeroLogoURI,
+    address: tokenZeroAddress,
+  } as token)
+  const [tokenOut, setTokenOut] = useState({
+    symbol: tokenOneSymbol,
+    logoURI: tokenOneLogoURI,
+    address: tokenOneAddress,
+  } as token)
+  const {
+    bnInput,
+    inputBox,
+    maxBalance,
+    bnInputLimit,
+    LimitInputBox,
+  } = useInputBox()
+  const [
+    updateRangeContractParams,
+    updateRangeAllowance,
+    RangeAllowance,
+    rangeContractParams,
+  ] = useRangeStore((state: any) => [
+    state.updateRangeContractParams,
+    state.updateRangeAllowance,
+    state.RangeAllowance,
+    state.rangeContractParams,
+  ])
+
   const [minPrice, setMinPrice] = useState('0')
   const [maxPrice, setMaxPrice] = useState('0')
   const [feeControler, setFeeControler] = useState(false)
   const [selected, setSelected] = useState(feeTiers[0])
-  const [queryToken0, setQueryToken0] = useState(tokenOneAddress)
-  const [queryToken1, setQueryToken1] = useState(tokenOneAddress)
+  const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
+  const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
-  
+
   const initialBig = BigNumber.from(0)
   const [to, setTo] = useState('')
   const [min, setMin] = useState(initialBig)
   const [max, setMax] = useState(initialBig)
   const [amount0, setAmount0] = useState(initialBig)
   const [amount1, setAmount1] = useState(initialBig)
-  
+  const [hasSelected, setHasSelected] = useState(true)
+  const [isDisabled, setDisabled] = useState(false)
+  const [mktRate, setMktRate] = useState({})
+
+  useEffect(() => {
+    getBalances()
+  }, [bnInput, bnInputLimit])
+
+  useEffect(() => {
+    fetchTokenPrice()
+  }, [])
+
+  useEffect(() => {
+    setRangeParams()
+  }, [address, minPrice, maxPrice, bnInput, bnInputLimit])
+
   if (feeTier != undefined && feeControler == false) {
     if (feeTier == 0.01) {
       setSelected(feeTiers[0])
@@ -93,50 +142,15 @@ export default function ConcentratedPool({
     setFeeControler(true)
   }
 
-  const [tokenIn, setTokenIn] = useState({
-    symbol: tokenZeroSymbol,
-    logoURI: tokenZeroLogoURI,
-    address: tokenZeroAddress,
-  } as token)
-  const [tokenOut, setTokenOut] = useState({
-    symbol: tokenOneSymbol,
-    logoURI: tokenOneLogoURI,
-    address: tokenOneAddress,
-  } as token)
-
-  const [hasSelected, setHasSelected] = useState(false)
-  const [isDisabled, setDisabled] = useState(false)
-  const [mktRate, setMktRate] = useState({})
-
-  const {
-    bnInput,
-    inputBox,
-    maxBalance,
-    bnInputLimit,
-    LimitInputBox,
-  } = useInputBox()
-
-  const allowance = useRangeAllowance(address)
-
-  const [
-    updateRangeContractParams,
-    updateRangeAllowance,
-    RangeAllowance,
-    rangeContractParams,
-  ] = useRangeStore((state: any) => [
-    state.updateRangeContractParams,
-    state.updateRangeAllowance,
-    state.RangeAllowance,
-    state.rangeContractParams,
-  ])
-
-  useEffect(() => {
-    getBalances()
-  }, [bnInput, bnInputLimit])
-
-  useEffect(() => {
-    fetchTokenPrice()
-  }, [])
+  function switchDirection() {
+    setTokenOrder(!tokenOrder)
+    const temp = tokenIn
+    setTokenIn(tokenOut)
+    setTokenOut(temp)
+    const tempBal = queryTokenIn
+    setQueryTokenIn(queryTokenOut)
+    setQueryTokenOut(tempBal)
+  }
 
   const fetchTokenPrice = async () => {
     try {
@@ -224,10 +238,6 @@ export default function ConcentratedPool({
       console.log(error)
     }
   }
-
-  useEffect(() => {
-    setRangeParams()
-  }, [address, minPrice, maxPrice, bnInput, bnInputLimit])
 
   const changePrice = (direction: string, minMax: string) => {
     if (direction === 'plus' && minMax === 'min') {
@@ -458,8 +468,16 @@ export default function ConcentratedPool({
               selected={hasSelected}
               tokenChosen={changeDefaultIn}
               displayToken={tokenIn}
-              balance={setQueryToken0}
-              key={queryToken0}
+              balance={setQueryTokenIn}
+              key={queryTokenIn}
+            />
+            <ArrowLongRightIcon
+              className="w-6 cursor-pointer"
+              onClick={() => {
+                if (hasSelected) {
+                  switchDirection()
+                }
+              }}
             />
             {hasSelected ? (
               <SelectToken
@@ -467,8 +485,8 @@ export default function ConcentratedPool({
                 selected={hasSelected}
                 tokenChosen={changeDefaultOut}
                 displayToken={tokenOut}
-                balance={setQueryToken1}
-                key={queryToken1}
+                balance={setQueryTokenOut}
+                key={queryTokenOut}
               />
             ) : (
               //@dev add skeletons on load when switching sides/ initial selection
@@ -477,7 +495,7 @@ export default function ConcentratedPool({
                 selected={hasSelected}
                 tokenChosen={changeDefaultOut}
                 displayToken={tokenOut}
-                balance={setQueryToken1}
+                balance={setQueryTokenOut}
               />
             )}
           </div>

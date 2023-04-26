@@ -198,10 +198,14 @@ export default function Concentrated() {
                 : router.query.tokenZeroAddress.toString()
             }
             liquidity={
-              router.query.liquidity === undefined ? 0 : router.query.liquidity
+              router.query.liquidity === undefined
+                ? 0
+                : router.query.liquidity.toString()
             }
             feeTier={
-              router.query.feeTier === undefined ? 0 : router.query.feeTier
+              router.query.feeTier === undefined
+                ? 0
+                : router.query.feeTier.toString()
             }
             minLimit={
               router.query.min === undefined ? 0 : router.query.min.toString()

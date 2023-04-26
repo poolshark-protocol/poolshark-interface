@@ -168,6 +168,7 @@ export default function Pool() {
   function mapCoverPools() {
     const mappedCoverPools = []
     coverPools.map((coverPool) => {
+      //console.log('coverPool', coverPool)
       const coverPoolData = {
         poolId: coverPool.id,
         tokenOne: coverPool.token1,
@@ -179,7 +180,7 @@ export default function Pool() {
         volumeEth: coverPool.volumeEth,
       }
       mappedCoverPools.push(coverPoolData)
-      //ctambeonsole.log('mappedCoverPools', mappedCoverPools)
+      //console.log('mappedCoverPools', mappedCoverPools)
     })
 
     setAllCoverPools(mappedCoverPools)

@@ -84,6 +84,9 @@ export default function CoverExistingPool({
     const temp = tokenIn
     setTokenIn(tokenOut)
     setTokenOut(temp)
+    const tempBal = queryTokenIn
+    setQueryTokenIn(queryTokenOut)
+    setQueryTokenOut(tempBal)
   }
 
   const { address, isConnected, isDisconnected } = useAccount()
@@ -321,11 +324,11 @@ export default function CoverExistingPool({
         </div>
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Cover Size</div>
-          <div>500 USDC</div>
+          <div>500 {tokenIn.name}</div>
         </div>
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Amount to pay</div>
-          <div>301 USDC</div>
+          <div>301 {tokenIn.name}</div>
         </div>
       </div>
       <h1 className="mb-3 mt-4">Set Price Range</h1>
@@ -391,7 +394,7 @@ export default function CoverExistingPool({
           onClick={() => setExpanded(!expanded)}
         >
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-            1 USDC = 1 DAI
+            1 {tokenIn.name} = 1 {tokenOut.name}
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
             <button>
