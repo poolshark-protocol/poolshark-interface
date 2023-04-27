@@ -98,6 +98,7 @@ export default function CoverExistingPool({
 
 
 
+
   const handleChange = (event: any) => {
     setSliderValue(event.target.value)
   }

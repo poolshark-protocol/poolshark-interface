@@ -109,7 +109,7 @@ export default function Swap() {
     watch: true,
     onError(error) {
       console.log('Error', error)
-    }
+    },
   })
   const { data: dataCover } = useContractRead({
     address: tokenIn.address,
@@ -120,7 +120,7 @@ export default function Swap() {
     watch: true,
     onError(error) {
       console.log('Error', error)
-    }
+    },
   })
   const {
     network: { chainId },
@@ -804,8 +804,17 @@ export default function Swap() {
         bnInput._hex == '0x00' ? null : hasSelected === false ? (
           <SelectTokenButton />
         ) : Number(rangePrice) < Number(coverPrice) ? (
-          Number(allowanceRange) < Number(ethers.utils.formatUnits(bnInput, 18)) ? (
-            <SwapRangeApproveButton approveToken={tokenIn.address} />
+          Number(allowanceRange) <
+          Number(ethers.utils.formatUnits(bnInput, 18)) ? (
+            <div>
+              <div className="flex-none text-xs uppercase text-[#C9C9C9]">
+                Your {tokenIn.symbol} rangePool allowance is missing {' '}
+                {Number(ethers.utils.formatUnits(bnInput, 18)) -
+                  Number(allowanceRange)}{' '}
+                {tokenIn.symbol}
+              </div>
+              <SwapRangeApproveButton approveToken={tokenIn.address} />
+            </div>
           ) : (
             <SwapRangeButton
               zeroForOne={
@@ -815,8 +824,17 @@ export default function Swap() {
               baseLimit={rangeBaseLimit}
             />
           )
-        ) : Number(allowanceCover) < Number(ethers.utils.formatUnits(bnInput, 18)) ? (
-          <SwapCoverApproveButton approveToken={tokenIn.address} />
+        ) : Number(allowanceCover) <
+          Number(ethers.utils.formatUnits(bnInput, 18)) ? (
+          <div>
+            <div className="flex-none ">
+              Your {tokenIn.symbol} coverPool allowance is missing {' '}
+              {Number(ethers.utils.formatUnits(bnInput, 18)) -
+                Number(allowanceCover)}{' '}
+              {tokenIn.symbol}
+            </div>
+            <SwapCoverApproveButton approveToken={tokenIn.address} />
+          </div>
         ) : (
           <SwapCoverButton
             zeroForOne={
