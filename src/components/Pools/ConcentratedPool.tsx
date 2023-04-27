@@ -100,9 +100,7 @@ export default function ConcentratedPool({
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
   const [allowanceIn, setAllowanceIn] = useState('0.00')
-  console.log('allowance', allowanceIn)
   const [allowanceOut, setAllowanceOut] = useState('0.00')
-  console.log('allowance', allowanceOut)
 
   const initialBig = BigNumber.from(0)
   const [to, setTo] = useState('')

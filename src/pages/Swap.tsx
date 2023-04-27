@@ -76,13 +76,13 @@ export default function Swap() {
   const [tokenIn, setTokenIn] = useState({
     symbol: 'WETH',
     logoURI: '/static/images/eth_icon.png',
+    //address: tokenZeroAddress,
     address: tokenZeroAddress,
-    //address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
   })
   const [tokenOut, setTokenOut] = useState({
     symbol: 'Select Token',
     logoURI: '',
-    address: '',
+    address: tokenOneAddress,
   })
   const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
@@ -95,13 +95,41 @@ export default function Swap() {
   const [LimitActive, setLimitActive] = useState(false)
   const [tokenOrder, setTokenOrder] = useState(true)
   const [expanded, setExpanded] = useState(false)
+  const [allowanceRange, setAllowanceRange] = useState('0.00')
+  const [allowanceCover, setAllowanceCover] = useState('0.00')
 
   const { data: signer } = useSigner()
   const provider = useProvider()
-
+  const { data: dataRange } = useContractRead({
+    address: tokenIn.address,
+    abi: erc20ABI,
+    functionName: 'allowance',
+    args: [address, rangePoolAddress],
+    chainId: 421613,
+    watch: true,
+    onError(error) {
+      console.log('Error', error)
+    }
+  })
+  const { data: dataCover } = useContractRead({
+    address: tokenIn.address,
+    abi: erc20ABI,
+    functionName: 'allowance',
+    args: [address, coverPoolAddress],
+    chainId: 421613,
+    watch: true,
+    onError(error) {
+      console.log('Error', error)
+    }
+  })
   const {
     network: { chainId },
   } = useProvider()
+
+  useEffect(() => {
+    setAllowanceRange(ethers.utils.formatUnits(dataRange, 18))
+    setAllowanceCover(ethers.utils.formatUnits(dataCover, 18))
+  }, [dataRange, dataCover, tokenIn.address, tokenOut.address, bnInput])
 
   useEffect(() => {
     setTimeout(() => {
@@ -361,7 +389,7 @@ export default function Swap() {
         const price = await getCoverQuote(
           coverPoolAddress,
           bnInput,
-          BigNumber.from("4295128739"),
+          BigNumber.from('4295128739'),
           tokenIn.address,
           tokenOut.address,
         )
@@ -418,21 +446,23 @@ export default function Swap() {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Expected Output</div>
             <div className="ml-auto text-xs">
-              { (Number(rangePrice) < Number(coverPrice)) ? 
-              (rangePrice === undefined ? 'Select Token' : parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-              (parseFloat(
-                mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-              ) /
-                parseFloat(
-                  mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                ))) : 
-              (coverPrice === undefined ? 'Select Token' : parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-              (parseFloat(
-                mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-              ) /
-                parseFloat(
-                  mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                ))) }
+              {Number(rangePrice) < Number(coverPrice)
+                ? rangePrice === undefined
+                  ? 'Select Token'
+                  : parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                    (parseFloat(
+                      mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+                    ) /
+                      parseFloat(
+                        mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                      ))
+                : coverPrice === undefined
+                ? 'Select Token'
+                : parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                  (parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
+                    parseFloat(
+                      mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                    ))}
             </div>
           </div>
           <div className="flex p-1">
@@ -443,33 +473,39 @@ export default function Swap() {
             <div className="text-xs text-[#4C4C4C]">
               Minimum received after slippage ({slippage}%)
             </div>
-            <div className="ml-auto text-xs">{Number(rangePrice) < Number(coverPrice) ? 
-            parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-            (parseFloat(
-              mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-            ) /
-              parseFloat(
-                mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-              )) - (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-            (parseFloat(
-              mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-            ) /
-              parseFloat(
-                mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-              )) * (parseFloat(slippage) * 0.01)) : 
-              parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-              (parseFloat(
-                mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-              ) / 
-                parseFloat(
-                  mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                )) - (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                (parseFloat(
-                  mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-                ) /
-                  parseFloat(
-                    mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                  )) * (parseFloat(slippage) * 0.01))}</div>
+            <div className="ml-auto text-xs">
+              {Number(rangePrice) < Number(coverPrice)
+                ? parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                    (parseFloat(
+                      mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+                    ) /
+                      parseFloat(
+                        mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                      )) -
+                  parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                    (parseFloat(
+                      mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+                    ) /
+                      parseFloat(
+                        mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                      )) *
+                    (parseFloat(slippage) * 0.01)
+                : parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                    (parseFloat(
+                      mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+                    ) /
+                      parseFloat(
+                        mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                      )) -
+                  parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                    (parseFloat(
+                      mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+                    ) /
+                      parseFloat(
+                        mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                      )) *
+                    (parseFloat(slippage) * 0.01)}
+            </div>
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
@@ -528,14 +564,20 @@ export default function Swap() {
                       <input
                         placeholder="0%"
                         className="bg-dark rounded-xl outline-none border border-grey1 pl-3 placeholder:text-grey1"
-                        value={auxSlippage+"%"}
-                        onChange={(e) => setAuxSlippage(parseFloat(e.target.value.replace(/[^\d.-]/g, '')) < 100 ?
-                         e.target.value.replace(/[^\d.-]/g, '') :
-                         '')}
+                        value={auxSlippage + '%'}
+                        onChange={(e) =>
+                          setAuxSlippage(
+                            parseFloat(e.target.value.replace(/[^\d.-]/g, '')) <
+                              100
+                              ? e.target.value.replace(/[^\d.-]/g, '')
+                              : '',
+                          )
+                        }
                       />
-                      <button 
+                      <button
                         className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
-                        onClick={(e) => setSlippage(auxSlippage)}>
+                        onClick={(e) => setSlippage(auxSlippage)}
+                      >
                         Set
                       </button>
                     </div>
@@ -761,20 +803,20 @@ export default function Swap() {
         stateChainName !== 'arbitrumGoerli' ||
         bnInput._hex == '0x00' ? null : hasSelected === false ? (
           <SelectTokenButton />
-        ) : Number(allowance) < Number(bnInput) ? (
-          Number(rangePrice) < Number(coverPrice) ? (
+        ) : Number(rangePrice) < Number(coverPrice) ? (
+          Number(allowanceRange) < Number(ethers.utils.formatUnits(bnInput, 18)) ? (
             <SwapRangeApproveButton approveToken={tokenIn.address} />
           ) : (
-            <SwapCoverApproveButton approveToken={tokenIn.address} />
+            <SwapRangeButton
+              zeroForOne={
+                tokenOut.address != '' && tokenIn.address < tokenOut.address
+              }
+              amount={bnInput}
+              baseLimit={rangeBaseLimit}
+            />
           )
-        ) : Number(rangePrice) < Number(coverPrice) ? (
-          <SwapRangeButton
-            zeroForOne={
-              tokenOut.address != '' && tokenIn.address < tokenOut.address
-            }
-            amount={bnInput}
-            baseLimit={rangeBaseLimit}
-          />
+        ) : Number(allowanceCover) < Number(ethers.utils.formatUnits(bnInput, 18)) ? (
+          <SwapCoverApproveButton approveToken={tokenIn.address} />
         ) : (
           <SwapCoverButton
             zeroForOne={
@@ -799,3 +841,28 @@ export default function Swap() {
         ) : Number(coverPrice) < rangePrice ? (
           
         ) : <div>Ola</div> : */
+
+/* 
+        Number(allowance) < Number(bnInput) ? (
+          Number(rangePrice) < Number(coverPrice) ? (
+            <SwapRangeApproveButton approveToken={tokenIn.address} />
+          ) : (
+            <SwapCoverApproveButton approveToken={tokenIn.address} />
+          )
+        ) : Number(rangePrice) < Number(coverPrice) ? (
+          <SwapRangeButton
+            zeroForOne={
+              tokenOut.address != '' && tokenIn.address < tokenOut.address
+            }
+            amount={bnInput}
+            baseLimit={rangeBaseLimit}
+          />
+        ) : (
+          <SwapCoverButton
+            zeroForOne={
+              tokenOut.address != '' && tokenIn.address < tokenOut.address
+            }
+            amount={bnInput}
+            baseLimit={coverBaseLimit}
+          />
+        ) */
