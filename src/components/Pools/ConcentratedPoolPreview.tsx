@@ -1,7 +1,10 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Transition, Dialog } from '@headlessui/react'
 import RangeMintButton from '../Buttons/RangeMintButton'
-import { ethers } from "ethers";
+import { ethers } from 'ethers'
+import { erc20ABI, useAccount, useContractRead } from 'wagmi'
+import { rangePoolAddress } from '../../constants/contractAddresses'
+import SwapRangeApproveButton from '../Buttons/SwapRangeApproveButton'
 
 export default function ConcentratedPoolPreview({
   account,
@@ -14,8 +17,52 @@ export default function ConcentratedPoolPreview({
   minTick,
   maxTick,
   fee,
+  allowanceIn,
+  setAllowanceIn,
+  allowanceOut,
+  setAllowanceOut,
 }) {
+  const { address } = useAccount()
+  const { data: dataIn } = useContractRead({
+    address: tokenIn.address,
+    abi: erc20ABI,
+    functionName: 'allowance',
+    args: [address, rangePoolAddress],
+    chainId: 421613,
+    watch: true,
+    onSuccess() {
+      console.log('Success')
+    },
+    onError(error) {
+      console.log('Error', error)
+    },
+    onSettled(data, error) {
+      console.log('Settled', { data, error })
+    },
+  })
+  const { data: dataOut } = useContractRead({
+    address: tokenOut.address,
+    abi: erc20ABI,
+    functionName: 'allowance',
+    args: [address, rangePoolAddress],
+    chainId: 421613,
+    watch: true,
+    onSuccess() {
+      console.log('Success')
+    },
+    onError(error) {
+      console.log('Error', error)
+    },
+    onSettled(data, error) {
+      console.log('Settled', { data, error })
+    },
+  })
   let [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    setAllowanceIn(ethers.utils.formatUnits(dataIn, 18))
+    setAllowanceOut(ethers.utils.formatUnits(dataOut, 18))
+  }, [dataIn, dataOut, tokenIn, tokenOut])
 
   function closeModal() {
     setIsOpen(false)
@@ -123,7 +170,7 @@ export default function ConcentratedPoolPreview({
                           <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
                             <div className=" p-2 ">
                               <div className="w-44 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
-                              {ethers.utils.formatUnits(amount1, 18)}
+                                {ethers.utils.formatUnits(amount1, 18)}
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
@@ -189,14 +236,30 @@ export default function ConcentratedPoolPreview({
                           </div>
                         </div>
                       </div>
-                      <RangeMintButton
-                        disabled={false}
-                        to={account}
-                        lower={minTick}
-                        upper={maxTick}
-                        amount0={amount0}
-                        amount1={amount1}
-                      />
+                      {Number(allowanceIn) <
+                        Number(ethers.utils.formatUnits(amount0, 18)) ||
+                      Number(allowanceOut) <
+                        Number(ethers.utils.formatUnits(amount1, 18)) ? (
+                        Number(allowanceIn) <
+                        Number(ethers.utils.formatUnits(amount0, 18)) ? (
+                          <SwapRangeApproveButton
+                            approveToken={tokenIn.address}
+                          />
+                        ) : (
+                          <SwapRangeApproveButton
+                            approveToken={tokenOut.address}
+                          />
+                        )
+                      ) : (
+                        <RangeMintButton
+                          disabled={false}
+                          to={account}
+                          lower={minTick}
+                          upper={maxTick}
+                          amount0={amount0}
+                          amount1={amount1}
+                        />
+                      )}
                     </div>
                   </div>
                 </Dialog.Panel>

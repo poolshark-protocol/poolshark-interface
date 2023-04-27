@@ -6,7 +6,7 @@ import {
   ArrowLongLeftIcon,
 } from '@heroicons/react/20/solid'
 import SelectToken from '../SelectToken'
-import { erc20ABI, useAccount, useBalance, useProvider } from 'wagmi'
+import { erc20ABI, useAccount, useBalance, useProvider, useContractRead } from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import CoverApproveButton from '../Buttons/CoverApproveButton'
 import { chainIdsToNamesForGitTokenList } from '../../utils/chains'
@@ -26,8 +26,7 @@ import {
   getPreviousTicksUpper,
 } from '../../utils/queries'
 import JSBI from 'jsbi'
-import { erc20 } from '../../abis/evm/erc20'
-import useCoverAllowance from '../../hooks/useCoverAllowance'
+import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 
 export default function CreateCover(props: any) {
   const initialBig = BigNumber.from(0)
@@ -49,7 +48,7 @@ export default function CreateCover(props: any) {
   const [maxPrice, setMaxPrice] = useState('0')
   const [min, setMin] = useState(initialBig)
   const [max, setMax] = useState(initialBig)
-  /* const [allowance, setAllowance] = useState('0') */
+  const [allowance, setAllowance] = useState('0')
   const { address, isConnected, isDisconnected } = useAccount()
   const [isDisabled, setDisabled] = useState(false)
   const [hasSelected, setHasSelected] = useState(false)
@@ -59,20 +58,39 @@ export default function CreateCover(props: any) {
     symbol: 'TOKEN20A',
     logoURI:
       'https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png',
-    address: '0x8fa1fdd860e3c56dafd09a048ffda4965376945e',
+    address: '0x829e4a03A5Bd1EC5b6f5CC1d3A77c8e54A294847',
   })
   const [tokenOut, setTokenOut] = useState({
     symbol: 'Select Token',
     logoURI: undefined,
-    address: '0xc3a0736186516792c88e2c6d9b209471651aa46e',
+    address: '0xf853592f1e4ceA2B5e722A17C6f917a4c70d40Ca',
   })
   const [usdcBalance, setUsdcBalance] = useState(0)
   const [amountToPay, setAmountToPay] = useState(0)
   const [prices, setPrices] = useState({ tokenIn: 0, tokenOut: 0 })
 
-  /* useEffect(() => {
-    getAllowance()
-  }, [tokenIn]) */
+  const { data } = useContractRead({
+    address: tokenIn.address,
+    abi: erc20ABI,
+    functionName: 'allowance',
+    args: [address, coverPoolAddress],
+    chainId: 421613,
+    watch: true,
+    onSuccess(data) {
+      console.log('Success')
+    },
+    onError(error) {
+      console.log('Error', error)
+    },
+    onSettled(data, error) {
+      console.log('Settled', { data, error })
+    },
+  })
+  useEffect(() => {
+    setAllowance(ethers.utils.formatUnits(data, 18))
+  }, [data, tokenIn.address, bnInput])
+
+
 
   async function setCoverParams() {
     try {
@@ -213,8 +231,6 @@ export default function CreateCover(props: any) {
   }
 
   const [tokenOrder, setTokenOrder] = useState(true)
-
-  const allowance = useCoverAllowance(address)
 
   const changeDefault1 = (token: {
     symbol: string
@@ -539,9 +555,9 @@ export default function CreateCover(props: any) {
       </div>
       <div className="mb-3" key={allowance}>
         {isConnected &&
-        allowance === '0.0' &&
+        Number(allowance) < Number(ethers.utils.formatUnits(bnInput, 18)) &&
         stateChainName === 'arbitrumGoerli' ? (
-          <CoverApproveButton address={tokenIn.address} />
+          <SwapCoverApproveButton approveToken={tokenIn.address} />
         ) : stateChainName === 'arbitrumGoerli' ? (
           <CoverMintButton
             disabled={isDisabled}

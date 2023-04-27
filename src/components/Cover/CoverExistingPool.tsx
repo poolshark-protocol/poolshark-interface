@@ -5,7 +5,7 @@ import {
   MinusIcon,
   PlusIcon,
 } from '@heroicons/react/20/solid'
-import { erc20ABI, useAccount } from 'wagmi'
+import { erc20ABI, useAccount, useContractRead } from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 import CoverApproveButton from '../Buttons/CoverApproveButton'
@@ -19,7 +19,9 @@ import {
   getPreviousTicksUpper,
 } from '../../utils/queries'
 import { TickMath } from '../../utils/tickMath'
-import { rangePoolAddress, tokenOneAddress } from '../../constants/contractAddresses'
+import { coverPoolAddress, rangePoolAddress, tokenOneAddress } from '../../constants/contractAddresses'
+import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
+import useInputBox from '../../hooks/useInputBox'
 
 export default function CoverExistingPool({
   account,
@@ -41,6 +43,8 @@ export default function CoverExistingPool({
     logoURI: string
     address: string
   }
+  
+  const { address, isConnected, isDisconnected } = useAccount()
   const initialBig = BigNumber.from(0)
   /* const [pool, updatePool] = useCoverStore((state: any) => [
     state.pool,
@@ -69,11 +73,30 @@ export default function CoverExistingPool({
   } as token)
   const [sliderValue, setSliderValue] = useState(50)
   const [allowance, setAllowance] = useState('0')
+  const { data } = useContractRead({
+    address: tokenIn.address,
+    abi: erc20ABI,
+    functionName: 'allowance',
+    args: [address, coverPoolAddress],
+    chainId: 421613,
+    watch: true,
+    onSuccess(data) {
+      console.log('Success')
+    },
+    onError(error) {
+      console.log('Error', error)
+    },
+    onSettled(data, error) {
+      console.log('Settled', { data, error })
+    },
+  })
 
 
   useEffect(() => {
-    getAllowance()
-  }, [tokenIn])
+    setAllowance(ethers.utils.formatUnits(data, 18))
+  }, [data, tokenIn.address])
+
+
 
   const handleChange = (event: any) => {
     setSliderValue(event.target.value)
@@ -89,7 +112,6 @@ export default function CoverExistingPool({
     setQueryTokenOut(tempBal)
   }
 
-  const { address, isConnected, isDisconnected } = useAccount()
 
   async function setCoverParams() {
     try {
@@ -324,7 +346,7 @@ export default function CoverExistingPool({
         </div>
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Cover Size</div>
-          <div>500 {tokenIn.name}</div>
+          <div> {sliderValue} {tokenIn.name}</div>
         </div>
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Amount to pay</div>
@@ -408,12 +430,11 @@ export default function CoverExistingPool({
       </div>
       <div className="space-y-3">
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {/*  && dataState === "0x00" */}
-        {isDisconnected ? null : allowance === '0.0' ? (
-          <CoverApproveButton address={address} />
+        {isDisconnected || Number(allowance) < sliderValue /* Number(ethers.utils.formatUnits(bnInput, 18)) */ ? (
+          <SwapCoverApproveButton approveToken={address} />
         ) : (
           <CoverMintButton
-            disabled={true}
+            disabled={false}
             to={address}
             lower={min}
             claim={min}

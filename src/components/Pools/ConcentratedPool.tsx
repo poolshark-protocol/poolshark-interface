@@ -62,7 +62,6 @@ export default function ConcentratedPool({
     { id: 4, tier: '1%', text: 'Best for exotic pairs', unavailable: false },
   ]
   const { address, isConnected, isDisconnected } = useAccount()
-  const allowance = useRangeAllowance(address)
   const [tokenIn, setTokenIn] = useState({
     symbol: tokenZeroSymbol,
     logoURI: tokenZeroLogoURI,
@@ -100,6 +99,10 @@ export default function ConcentratedPool({
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
+  const [allowanceIn, setAllowanceIn] = useState('0.00')
+  console.log('allowance', allowanceIn)
+  const [allowanceOut, setAllowanceOut] = useState('0.00')
+  console.log('allowance', allowanceOut)
 
   const initialBig = BigNumber.from(0)
   const [to, setTo] = useState('')
@@ -669,6 +672,10 @@ export default function ConcentratedPool({
           minTick={min}
           maxTick={max}
           fee={selected.tier}
+          allowanceIn={allowanceIn}
+          setAllowanceIn={setAllowanceIn}
+          allowanceOut={allowanceOut}
+          setAllowanceOut={setAllowanceOut}
         />
       </div>
     </div>

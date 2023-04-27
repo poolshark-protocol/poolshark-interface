@@ -1,7 +1,10 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Transition, Dialog } from '@headlessui/react'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import { ethers } from 'ethers'
+import { erc20ABI, useAccount, useContractRead } from 'wagmi'
+import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
+import { coverPoolAddress } from '../../constants/contractAddresses'
 
 export default function DirectionalPoolPreview({
   account,
@@ -13,8 +16,34 @@ export default function DirectionalPoolPreview({
   minPrice,
   maxPrice,
   fee,
+  allowance,
+  setAllowance,
 }) {
+  const { address } = useAccount()
+  const { data } = useContractRead({
+    address: tokenIn.address,
+    abi: erc20ABI,
+    functionName: 'allowance',
+    args: [address, coverPoolAddress],
+    chainId: 421613,
+    watch: true,
+    onSuccess(data) {
+      console.log('Success')
+    },
+    onError(error) {
+      console.log('Error', error)
+    },
+    onSettled(data, error) {
+      console.log('Settled', { data, error })
+    },
+  })
   let [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    setAllowance(ethers.utils.formatUnits(data, 18))
+  }, [data, tokenIn])
+
+
 
   function closeModal() {
     setIsOpen(false)
@@ -156,15 +185,23 @@ export default function DirectionalPoolPreview({
                           </div>
                         </div>
                       </div>
-                      <CoverMintButton
-                        disabled={false}
-                        to={account}
-                        lower={minPrice}
-                        claim={minPrice}
-                        upper={maxPrice}
-                        amount={amount0}
-                        zeroForOne={true}
-                      />
+
+                      {Number(allowance) <
+                      Number(ethers.utils.formatUnits(amount0, 18)) ? (
+                        <SwapCoverApproveButton
+                          approveToken={tokenIn.address}
+                        />
+                      ) : (
+                        <CoverMintButton
+                          disabled={false}
+                          to={account}
+                          lower={minPrice}
+                          claim={minPrice}
+                          upper={maxPrice}
+                          amount={amount0}
+                          zeroForOne={true}
+                        />
+                      )}
                     </div>
                   </div>
                 </Dialog.Panel>

@@ -41,8 +41,6 @@ export default function DirectionalPool({
     logoURI: string
     address: string
   }
-
-  console.log('tokenOne', tokenOneAddress)
   const feeTiers = [
     {
       id: 1,
@@ -61,7 +59,7 @@ export default function DirectionalPool({
   ]
 
   const { address, isConnected, isDisconnected } = useAccount()
-  const allowance = useRangeAllowance(address)
+  //const allowance = useRangeAllowance(address)
   const {
     bnInput,
     inputBox,
@@ -99,6 +97,8 @@ export default function DirectionalPool({
     logoURI: tokenOneLogoURI,
     address: tokenOneAddress,
   } as token)
+  const [allowance, setAllowance] = useState('0.00')
+  console.log('allowance', allowance)
 
   const [mktRate, setMktRate] = useState({})
 
@@ -608,6 +608,8 @@ export default function DirectionalPool({
           minPrice={minPrice}
           maxPrice={maxPrice}
           fee={selected.tier}
+          allowance={allowance}
+          setAllowance={setAllowance}
         />
       </div>
     </div>
