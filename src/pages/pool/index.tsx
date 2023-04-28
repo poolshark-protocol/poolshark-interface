@@ -3,6 +3,7 @@ import {
   PlusSmallIcon,
   MagnifyingGlassIcon,
   ChevronDownIcon,
+  InformationCircleIcon,
 } from '@heroicons/react/24/outline'
 import UserPool from '../../components/Pools/UserPool'
 import UserCoverPool from '../../components/Pools/UserCoverPool'
@@ -246,6 +247,18 @@ export default function Pool() {
                 <SelectPool />
               </div>
             </div>
+            <span className="bg-black flex items-center gap-x-2 border border-grey2 rounded-lg text-white px-6 py-[9px] cursor-pointer hover:opacity-80">
+              <InformationCircleIcon className="w-4 text-grey1" />
+              <Link
+                href={
+                  selected.id == 1
+                    ? 'https://docs.poolsharks.io/introduction/range-pools/'
+                    : 'https://docs.poolsharks.io/introduction/cover-pools/'
+                }
+              >
+                <a target="_blank">How it works?</a>
+              </Link>
+            </span>
             <Link
               href={{
                 pathname:
