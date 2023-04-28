@@ -594,7 +594,10 @@ export default function ConcentratedPool({
         <div>
           <div className="flex justify-between items-center">
             <h1>Set price range</h1>
-            <button className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md">
+            <button 
+            className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
+            onClick={() => {setMin(BigNumber.from(-887272)); setMax(BigNumber.from(887272))}}
+            >
               Full Range
             </button>
           </div>
