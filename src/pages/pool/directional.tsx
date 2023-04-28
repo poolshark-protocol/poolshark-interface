@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import CoverExistingPool from '../../components/Cover/CoverExistingPool'
 import { useEffect, useState } from 'react'
+import { ArrowLongLeftIcon } from '@heroicons/react/20/solid'
 
 export default function Directional() {
   const router = useRouter()
@@ -98,8 +99,9 @@ export default function Directional() {
               <h1 className="text-3xl">Create Cover Position</h1>
             </div>
             <Link href="/pool">
-              <span className="bg-black border border-grey2 rounded-lg text-white px-7 py-[9px] cursor-pointer hover:opacity-80">
-                Cancel
+              <span className="bg-black border border-grey2 rounded-lg text-white px-7 py-[9px] cursor-pointer hover:opacity-80 flex gap-x-3">
+                <ArrowLongLeftIcon className="w-4 opacity-50 " />
+                <h1 className="opacity-50">Back</h1>
               </span>
             </Link>
           </div>
@@ -143,55 +145,55 @@ export default function Directional() {
             </div>
           </div>
           <DirectionalPool
-            account={'account'}
+            account={"account"}
             key={
               router.query.poolId === undefined
-                ? ''
+                ? ""
                 : router.query.poolId.toString()
             }
             poolId={
               router.query.poolId === undefined
-                ? ''
+                ? ""
                 : router.query.poolId.toString()
             }
             tokenOneName={
               router.query.tokenOneName === undefined
-                ? ''
+                ? ""
                 : router.query.tokenOneName.toString()
             }
             tokenOneSymbol={
               router.query.tokenOneSymbol === undefined
-                ? ''
+                ? ""
                 : router.query.tokenOneSymbol.toString()
             }
             tokenOneLogoURI={
               router.query.tokenOneLogoURI === undefined
-                ? ''
+                ? ""
                 : router.query.tokenOneLogoURI.toString()
             }
             tokenOneAddress={
               router.query.tokenOneAddress === undefined
-                ? ''
+                ? ""
                 : router.query.tokenOneAddress.toString()
             }
             tokenZeroName={
               router.query.tokenZeroName === undefined
-                ? ''
+                ? ""
                 : router.query.tokenZeroName.toString()
             }
             tokenZeroSymbol={
               router.query.tokenZeroSymbol === undefined
-                ? ''
+                ? ""
                 : router.query.tokenZeroSymbol.toString()
             }
             tokenZeroLogoURI={
               router.query.tokenZeroLogoURI === undefined
-                ? ''
+                ? ""
                 : router.query.tokenZeroLogoURI.toString()
             }
             tokenZeroAddress={
               router.query.tokenZeroAddress === undefined
-                ? ''
+                ? ""
                 : router.query.tokenZeroAddress.toString()
             }
             liquidity={
@@ -208,5 +210,5 @@ export default function Directional() {
         </div>
       </div>
     </div>
-  )
+  );
 }

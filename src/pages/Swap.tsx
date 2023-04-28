@@ -529,7 +529,7 @@ export default function Swap() {
                   : 'text-white cursor-pointer'
               }`}
             >
-              Swap
+              Market
             </div>
 
             <div
@@ -544,7 +544,9 @@ export default function Swap() {
             </div>
           </div>
           <div className="ml-auto">
-            <Popover className="relative">
+            {LimitActive ? null
+            : 
+             <Popover className="relative">
               <Popover.Button className="outline-none">
                 <AdjustmentsHorizontalIcon className="w-5 h-5 outline-none" />
               </Popover.Button>
@@ -559,7 +561,7 @@ export default function Swap() {
               >
                 <Popover.Panel className="absolute z-10 ml-14 -mt-[48px] bg-black border border-grey2 rounded-xl p-5">
                   <div className="w-full">
-                    <h1>Slippage Tolerance</h1>
+                    <h1>Range Tolerance</h1>
                     <div className="flex mt-3 gap-x-3">
                       <input
                         placeholder="0%"
@@ -584,7 +586,7 @@ export default function Swap() {
                   </div>
                 </Popover.Panel>
               </Transition>
-            </Popover>
+            </Popover>}
           </div>
         </div>
         <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
@@ -620,7 +622,8 @@ export default function Swap() {
                     >
                       Max
                     </button>
-                  ) : null}
+                  ) 
+                  : null}
                 </div>
               </div>
             </div>
