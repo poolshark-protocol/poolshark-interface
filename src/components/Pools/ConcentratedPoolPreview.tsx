@@ -60,8 +60,10 @@ export default function ConcentratedPoolPreview({
   let [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
-    setAllowanceIn(ethers.utils.formatUnits(dataIn, 18))
-    setAllowanceOut(ethers.utils.formatUnits(dataOut, 18))
+    if (dataIn && dataOut) {
+      setAllowanceIn(ethers.utils.formatUnits(dataIn, 18))
+      setAllowanceOut(ethers.utils.formatUnits(dataOut, 18))
+    }
   }, [dataIn, dataOut, tokenIn, tokenOut])
 
   function closeModal() {

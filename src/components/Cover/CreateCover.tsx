@@ -6,7 +6,13 @@ import {
   ArrowLongLeftIcon,
 } from '@heroicons/react/20/solid'
 import SelectToken from '../SelectToken'
-import { erc20ABI, useAccount, useBalance, useProvider, useContractRead } from 'wagmi'
+import {
+  erc20ABI,
+  useAccount,
+  useBalance,
+  useProvider,
+  useContractRead,
+} from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import CoverApproveButton from '../Buttons/CoverApproveButton'
 import { chainIdsToNamesForGitTokenList } from '../../utils/chains'
@@ -27,8 +33,11 @@ import {
 } from '../../utils/queries'
 import JSBI from 'jsbi'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
+import Link from 'next/link'
 
 export default function CreateCover(props: any) {
+  //console.log('props', props)
+  const [pool, setPool] = useState(props.query ?? undefined)
   const initialBig = BigNumber.from(0)
   const { bnInput, inputBox } = useInputBox()
   const [
@@ -51,19 +60,29 @@ export default function CreateCover(props: any) {
   const [allowance, setAllowance] = useState('0')
   const { address, isConnected, isDisconnected } = useAccount()
   const [isDisabled, setDisabled] = useState(false)
-  const [hasSelected, setHasSelected] = useState(false)
+  const [hasSelected, setHasSelected] = useState(
+    pool != undefined ? true : false,
+  )
   const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [tokenIn, setTokenIn] = useState({
-    symbol: 'TOKEN20A',
+    symbol: pool != undefined ? props.query.tokenZeroSymbol : 'TOKEN20A',
     logoURI:
-      'https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png',
-    address: '0x829e4a03A5Bd1EC5b6f5CC1d3A77c8e54A294847',
+      pool != undefined
+        ? props.query.tokenZeroLogoURI
+        : 'https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png',
+    address:
+      pool != undefined
+        ? props.query.tokenZeroAddress
+        : '0x829e4a03A5Bd1EC5b6f5CC1d3A77c8e54A294847',
   })
   const [tokenOut, setTokenOut] = useState({
-    symbol: 'Select Token',
-    logoURI: undefined,
-    address: '0xf853592f1e4ceA2B5e722A17C6f917a4c70d40Ca',
+    symbol: pool != undefined ? props.query.tokenOneSymbol : 'Select Token',
+    logoURI: pool != undefined ? props.query.tokenOneLogoURI : undefined,
+    address:
+      pool != undefined
+        ? props.query.tokenOneAddress
+        : '0xf853592f1e4ceA2B5e722A17C6f917a4c70d40Ca',
   })
   const [usdcBalance, setUsdcBalance] = useState(0)
   const [amountToPay, setAmountToPay] = useState(0)
@@ -87,10 +106,10 @@ export default function CreateCover(props: any) {
     },
   })
   useEffect(() => {
-    setAllowance(ethers.utils.formatUnits(data, 18))
+    if (data) {
+      setAllowance(ethers.utils.formatUnits(data, 18))
+    }
   }, [data, tokenIn.address, bnInput])
-
-
 
   async function setCoverParams() {
     try {
@@ -382,13 +401,22 @@ export default function CreateCover(props: any) {
       <div className="mb-6">
         <div className="flex flex-row justify-between">
           <h1 className="mb-3">Select Pair</h1>
-          <span
-            className="flex gap-x-1 cursor-pointer"
-            onClick={() => props.goBack('initial')}
-          >
-            <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{' '}
-            <h1 className="mb-3 opacity-50">Back</h1>{' '}
-          </span>
+          {pool != undefined ? (
+            <Link href="/cover">
+              <span className="flex gap-x-1 cursor-pointer">
+                <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{' '}
+                <h1 className="mb-3 opacity-50">Back</h1>{' '}
+              </span>
+            </Link>
+          ) : (
+            <span
+              className="flex gap-x-1 cursor-pointer"
+              onClick={() => props.goBack('initial')}
+            >
+              <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{' '}
+              <h1 className="mb-3 opacity-50">Back</h1>{' '}
+            </span>
+          )}
         </div>
 
         <div className="flex gap-x-4 items-center">

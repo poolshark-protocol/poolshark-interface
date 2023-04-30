@@ -17,6 +17,7 @@ import { useRouter } from 'next/router'
 
 export default function Cover() {
   const router = useRouter()
+  console.log('router',router.query)
 
   const [maxPrice, setMaxPrice] = useState(0)
   const [disabled, setDisabled] = useState(true)
@@ -160,6 +161,8 @@ export default function Cover() {
     }
   }
 
+  console.log('router selected pool', router.query)
+
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi">
       <Navbar />
@@ -176,7 +179,13 @@ export default function Cover() {
           </div>
           <div className="flex space-x-8">
             <div className="bg-black w-2/3 border border-grey2 w-full rounded-t-xl p-6 gap-y-4">
-              {userPositionExists ? <CreateCover /> : <Initial />}
+              {router.query.poolId != undefined ? (
+                <CreateCover query={router.query} />
+              ) : userPositionExists ? (
+                <CreateCover />
+              ) : (
+                <Initial query={router.query}/>
+              )}
             </div>
             {isDisconnected ? (
               <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">

@@ -22,7 +22,7 @@ export default function UserPool({
   volumeUsd,
   volumeEth,
 }) {
-  const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
+  /* const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
     tokenZero.name?.substring(0, 6) +
       '...' +
       tokenZero.name?.substring(
@@ -39,7 +39,7 @@ export default function UserPool({
     poolId?.substring(0, 6) +
       '...' +
       poolId?.substring(poolId?.length - 4, poolId?.length),
-  )
+  ) */
 
   const feeTierPercentage = feeTier / 10000
 
@@ -53,6 +53,9 @@ export default function UserPool({
     WETH: '/static/images/eth_icon.png',
     DAI: '/static/images/dai_icon.png',
   }
+
+  console.log('tokenZero', tokenZero)
+  console.log('tokenOne', tokenOne)
 
   return (
     <>
