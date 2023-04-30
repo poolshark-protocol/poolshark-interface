@@ -515,7 +515,7 @@ export default function ConcentratedPool({
           </div>
           <div className="mt-3 space-y-3">
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-              <div className=" p-2 ">
+              <div className=" p-2 w-20">
                 {inputBox('0')}
                 {/* <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
@@ -525,11 +525,10 @@ export default function ConcentratedPool({
                 <div className=" ml-auto">
                   <div>
                     <div className="flex justify-end">
-                      <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
-                        <div className="flex items-center gap-x-2 w-full">
+                      <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl">
                           <img className="w-7" src={tokenIn.logoURI} />
                           {tokenIn.symbol}
-                        </div>
+
                       </button>
                     </div>
                     <div className="flex items-center justify-end gap-2 px-1 mt-2">
@@ -595,7 +594,10 @@ export default function ConcentratedPool({
         <div>
           <div className="flex justify-between items-center">
             <h1>Set price range</h1>
-            <button className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md">
+            <button 
+            className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
+            onClick={() => {setMin(BigNumber.from(-887272)); setMax(BigNumber.from(887272))}}
+            >
               Full Range
             </button>
           </div>

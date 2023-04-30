@@ -15,6 +15,8 @@ export default function DirectionalPoolPreview({
   amount1,
   minPrice,
   maxPrice,
+  minTick,
+  maxTick,
   fee,
   allowance,
   setAllowance,
@@ -195,9 +197,9 @@ export default function DirectionalPoolPreview({
                         <CoverMintButton
                           disabled={false}
                           to={account}
-                          lower={minPrice}
-                          claim={minPrice}
-                          upper={maxPrice}
+                          lower={minTick}
+                          claim={minTick}
+                          upper={maxTick}
                           amount={amount0}
                           zeroForOne={true}
                         />

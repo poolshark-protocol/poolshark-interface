@@ -79,6 +79,12 @@ export default function DirectionalPool({
     state.coverContractParams,
   ])
 
+  const initialBig = BigNumber.from(0)
+  const [to, setTo] = useState('')
+  const [min, setMin] = useState(initialBig)
+  const [max, setMax] = useState(initialBig)
+  const [amount0, setAmount0] = useState(initialBig)
+  const [amount1, setAmount1] = useState(initialBig)
   const [minPrice, setMinPrice] = useState('0')
   const [maxPrice, setMaxPrice] = useState('0')
   const [feeControler, setFeeControler] = useState(false)
@@ -158,7 +164,7 @@ export default function DirectionalPool({
     }
   }
 
-  async function setcoverParams() {
+  async function setCoverParams() {
     try {
       if (
         minPrice !== undefined &&
@@ -202,6 +208,12 @@ export default function DirectionalPool({
             JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
           ),
         )
+        setTo(address)
+        setMin(ethers.utils.parseUnits(String(min), 0))
+        setMax(ethers.utils.parseUnits(String(max), 0))
+        setAmount0(bnInput)
+        setAmount1(bnInputLimit)
+
         updatecoverContractParams({
           to: address,
           min: ethers.utils.parseUnits(String(min), 0),
@@ -218,7 +230,7 @@ export default function DirectionalPool({
   }
 
   useEffect(() => {
-    setcoverParams()
+    setCoverParams()
   }, [address, minPrice, maxPrice, bnInput, bnInputLimit])
 
   const changePrice = (direction: string, minMax: string) => {
@@ -537,7 +549,9 @@ export default function DirectionalPool({
         <div>
           <div className="flex justify-between items-center">
             <h1>Set price cover</h1>
-            <button className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md">
+            <button 
+            className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
+            onClick={() => {setMin(BigNumber.from(-887272)); setMax(BigNumber.from(887272))}}>
               Full cover
             </button>
           </div>
@@ -599,14 +613,16 @@ export default function DirectionalPool({
           </div>
         </div>
         <DirectionalPoolPreview
-          account={account}
+          account={to}
           poolId={poolId}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
-          amount0={bnInput._hex}
-          amount1={bnInputLimit._hex}
+          amount0={amount0}
+          amount1={amount1}
           minPrice={minPrice}
           maxPrice={maxPrice}
+          minTick={min}
+          maxTick={max}
           fee={selected.tier}
           allowance={allowance}
           setAllowance={setAllowance}
