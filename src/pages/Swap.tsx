@@ -103,6 +103,7 @@ export default function Swap() {
 
   const { data: signer } = useSigner()
   const provider = useProvider()
+
   const { data: dataRange } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -134,14 +135,14 @@ export default function Swap() {
     chainId: 421613,
     watch: true,
     onSuccess(data) {
-      console.log("Success", data);
-      setCoverPrice(parseFloat(ethers.utils.formatUnits(data[0], 18)))
+      console.log("Success price Cover", data);
+      setCoverPrice(parseFloat(ethers.utils.formatUnits(data[4], 18)))
     },
     onError(error) {
-      console.log("Error", error);
+      console.log("Error price Cover", error);
     },
     onSettled(data, error) {
-      console.log("Settled", { data, error });
+      console.log("Settled price Cover", { data, error });
     },
   });
 
@@ -153,14 +154,14 @@ export default function Swap() {
     chainId: 421613,
     watch: true,
     onSuccess(data) {
-      console.log("Success", data);
-      setRangePrice(parseFloat(ethers.utils.formatUnits(data[0], 18)))
+      console.log("Success price Range", data);
+      setRangePrice(parseFloat(ethers.utils.formatUnits(data[4], 18)))
     },
     onError(error) {
-      console.log("Error", error);
+      console.log("Error price Range", error);
     },
     onSettled(data, error) {
-      console.log("Settled", { data, error });
+      console.log("Settled price Range", { data, error });
     },
   });
 
