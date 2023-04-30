@@ -139,7 +139,7 @@ export const getRangePrice = async (
     'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
   )
   const contract = new ethers.Contract(id, rangePoolABI, provider)
-  const quote = zeroForOne ? await contract.pool1(0) : await contract.pool0(0)
+  const quote = zeroForOne ? await contract.pool1()[4] : await contract.pool0(0)[4]
 
   const price = parseFloat(ethers.utils.formatUnits(quote, 0)) / parseFloat(ethers.utils.formatUnits(quote, 0))
 
@@ -176,7 +176,7 @@ export const getCoverPrice = async (
     'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
   )
   const contract = new ethers.Contract(id, coverPoolABI, provider)
-  const quote = zeroForOne ? await contract.pool1(0) : await contract.pool0(0)
+  const quote = zeroForOne ? await contract.pool1()[4] : await contract.pool0()[4]
 
   const price = parseFloat(ethers.utils.formatUnits(quote, 0)) / parseFloat(ethers.utils.formatUnits(quote, 0))
 

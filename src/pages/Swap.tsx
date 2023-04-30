@@ -40,6 +40,7 @@ import {
 } from '../utils/getPriceAndQuotes'
 import CoverQuote from '../components/CoverQuote'
 import useSwapAllowance from '../hooks/useSwapAllowance'
+import { rangePoolABI } from '../abis/evm/rangePool'
 
 type token = {
   symbol: string
@@ -66,6 +67,8 @@ export default function Swap() {
   const [gasFee, setGasFee] = useState('')
   const [rangeBaseLimit, setRangeBaseLimit] = useState(undefined)
   const [coverBaseLimit, setCoverBaseLimit] = useState(undefined)
+  const [coverQuote, setCoverQuote] = useState(undefined)
+  const [rangeQuote, setRangeQuote] = useState(undefined)
   const [coverPrice, setCoverPrice] = useState(undefined)
   const [rangePrice, setRangePrice] = useState(undefined)
   const [coverCurrentPrice, setCoverCurrentPrice] = useState(undefined)
@@ -122,6 +125,45 @@ export default function Swap() {
       console.log('Error', error)
     },
   })
+
+  const { data: priceCover } = useContractRead({
+    address: coverPoolAddress,
+    abi: coverPoolABI,
+    functionName: zeroForOne ? "pool1" : "pool0",
+    args: [],
+    chainId: 421613,
+    watch: true,
+    onSuccess(data) {
+      console.log("Success", data);
+      setCoverPrice(data)
+    },
+    onError(error) {
+      console.log("Error", error);
+    },
+    onSettled(data, error) {
+      console.log("Settled", { data, error });
+    },
+  });
+
+  const { data: priceRange } = useContractRead({
+    address: rangePoolAddress,
+    abi: rangePoolABI,
+    functionName: zeroForOne ? "pool1" : "pool0",
+    args: [],
+    chainId: 421613,
+    watch: true,
+    onSuccess(data) {
+      console.log("Success", data);
+      setRangePrice(data)
+    },
+    onError(error) {
+      console.log("Error", error);
+    },
+    onSettled(data, error) {
+      console.log("Settled", { data, error });
+    },
+  });
+
   const {
     network: { chainId },
   } = useProvider()
@@ -163,7 +205,7 @@ export default function Swap() {
 
   useEffect(() => {
     fetchTokenPrice()
-  }, [rangePrice, coverPrice, tokenIn, tokenOut])
+  }, [rangeQuote, coverQuote, tokenIn, tokenOut])
 
   // useEffect(() => {
   //   if (isConnected && stateChainName === "arbitrumGoerli") {
@@ -364,7 +406,7 @@ export default function Swap() {
           true
         )*/
 
-        setRangePrice(price)
+        setRangeQuote(price)
         setRangeBaseLimit(price)
         //setRangeCurrentPrice(currentPrice)
       }
@@ -399,7 +441,7 @@ export default function Swap() {
           true
         )*/
 
-        setCoverPrice(price)
+        setCoverQuote(price)
         setCoverBaseLimit(price)
         //setCoverCurrentPrice(currentPrice)
       }
@@ -411,8 +453,8 @@ export default function Swap() {
   const fetchTokenPrice = async () => {
     try {
       //const price = await fetchPrice('0x000')
-      if (Number(rangePrice) > Number(coverPrice)) {
-        const price = rangePrice
+      if (Number(rangeQuote) > Number(coverQuote)) {
+        const price = rangeQuote
         setMktRate({
           WETH:
             '~' +
@@ -423,7 +465,7 @@ export default function Swap() {
           USDC: '~1.00',
         })
       } else {
-        const price = coverPrice
+        const price = coverQuote
         setMktRate({
           WETH:
             '~' +
@@ -446,23 +488,23 @@ export default function Swap() {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Expected Output</div>
             <div className="ml-auto text-xs">
-              {Number(rangePrice) < Number(coverPrice)
-                ? rangePrice === undefined
+              {Number(rangeQuote) < Number(coverQuote)
+                ? rangeQuote === undefined
                   ? 'Select Token'
-                  : parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                  : (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                     (parseFloat(
                       mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
                     ) /
                       parseFloat(
                         mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                      ))
-                : coverPrice === undefined
+                      ))).toFixed(2)
+                : coverQuote === undefined
                 ? 'Select Token'
-                : parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                : (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                   (parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
                     parseFloat(
                       mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                    ))}
+                    ))).toFixed(2)}
             </div>
           </div>
           <div className="flex p-1">
@@ -474,8 +516,8 @@ export default function Swap() {
               Minimum received after slippage ({slippage}%)
             </div>
             <div className="ml-auto text-xs">
-              {Number(rangePrice) < Number(coverPrice)
-                ? parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+              {Number(rangeQuote) < Number(coverQuote)
+                ? (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                     (parseFloat(
                       mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
                     ) /
@@ -489,8 +531,8 @@ export default function Swap() {
                       parseFloat(
                         mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
                       )) *
-                    (parseFloat(slippage) * 0.01)
-                : parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                    (parseFloat(slippage) * 0.01)).toFixed(2)
+                : (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                     (parseFloat(
                       mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
                     ) /
@@ -504,7 +546,7 @@ export default function Swap() {
                       parseFloat(
                         mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
                       )) *
-                    (parseFloat(slippage) * 0.01)}
+                    (parseFloat(slippage) * 0.01)).toFixed(2)}
             </div>
           </div>
           <div className="flex p-1">
@@ -645,13 +687,13 @@ export default function Swap() {
             <div className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
               {hasSelected ? (
                 <div>
-                  {parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                  {(parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                     (parseFloat(
                       mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
                     ) /
                       parseFloat(
                         mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                      ))}
+                      ))).toFixed(2)}
                 </div>
               ) : (
                 <div>0</div>
@@ -806,7 +848,7 @@ export default function Swap() {
         stateChainName !== 'arbitrumGoerli' ||
         bnInput._hex == '0x00' ? null : hasSelected === false ? (
           <SelectTokenButton />
-        ) : Number(rangePrice) < Number(coverPrice) ? (
+        ) : Number(rangeQuote) < Number(coverQuote) ? (
           Number(allowanceRange) <
           Number(ethers.utils.formatUnits(bnInput, 18)) ? (
             <div>
