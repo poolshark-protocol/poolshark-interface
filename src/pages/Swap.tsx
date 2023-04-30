@@ -149,13 +149,13 @@ export default function Swap() {
   const { data: priceRange } = useContractRead({
     address: rangePoolAddress,
     abi: rangePoolABI,
-    functionName: zeroForOne ? "pool1" : "pool0",
+    functionName: "poolState",
     args: [],
     chainId: 421613,
     watch: true,
     onSuccess(data) {
       console.log("Success price Range", data);
-      setRangePrice(parseFloat(ethers.utils.formatUnits(data[4], 18)))
+      setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
     },
     onError(error) {
       console.log("Error price Range", error);
