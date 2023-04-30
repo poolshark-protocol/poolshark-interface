@@ -135,7 +135,7 @@ export default function Swap() {
     watch: true,
     onSuccess(data) {
       console.log("Success", data);
-      setCoverPrice(data)
+      setCoverPrice(parseFloat(ethers.utils.formatUnits(data[0], 18)))
     },
     onError(error) {
       console.log("Error", error);
@@ -154,7 +154,7 @@ export default function Swap() {
     watch: true,
     onSuccess(data) {
       console.log("Success", data);
-      setRangePrice(data)
+      setRangePrice(parseFloat(ethers.utils.formatUnits(data[0], 18)))
     },
     onError(error) {
       console.log("Error", error);
@@ -509,7 +509,10 @@ export default function Swap() {
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Price Impact</div>
-            <div className="ml-auto text-xs">-0.12%</div>
+            <div className="ml-auto text-xs">-{
+            Number(rangePrice) < Number(coverPrice) ?
+          (((parseFloat(rangePrice) - parseFloat(rangeQuote)) * 100) / rangePrice).toFixed(2) :
+          (((parseFloat(coverPrice) - parseFloat(coverQuote)) * 100) / coverPrice).toFixed(2)}</div>
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">
