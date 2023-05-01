@@ -38,6 +38,7 @@ export default function PoolList({
           tokenZeroAddress: tokenZero.id,
           feeTier: feeTierPercentage,
           liquidity: liquidity,
+          state: href == '/cover' ? 'existing' : undefined,
         },
       }}
     >
@@ -53,14 +54,12 @@ export default function PoolList({
             />
           </div>
           {tokenZero.name}-{tokenOne.name}
-          <div className=" px-2 py-1 rounded-lg text-grey text-sm">
-            1%
-          </div>
+          <div className=" px-2 py-1 rounded-lg text-grey text-sm">1%</div>
         </td>
         <td>${tvlUsd}m</td>
         <td>${volumeUsd}m</td>
         <td>${volumeEth}m</td>
       </tr>
     </Link>
-  );
+  )
 }

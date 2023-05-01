@@ -10,7 +10,6 @@ export default function Initial(props: any) {
   const { address, isConnected, isDisconnected } = useAccount()
   const [isOpen, setIsOpen] = useState(false)
   const [pool, setPool] = useState(props.query ?? undefined)
-  console.log('pool', pool)
   const [shifted, setIsShifted] = useState('initial')
 
   const logoMap = {
@@ -21,8 +20,11 @@ export default function Initial(props: any) {
     DAI: '/static/images/dai_icon.png',
   }
 
+  console.log('shifted', shifted)
+
   function setParams(query: any) {
-    console.log('query', query)
+    //console.log('query', query)
+    setIsShifted('coverExistingPool')
     setPool({
       poolId: query.poolId,
       tokenOneName: query.tokenOne.name,

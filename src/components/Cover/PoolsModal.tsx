@@ -73,7 +73,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
   function mapUserUniV3Positions() {
     const mappedUniV3Positions = []
     uniV3Positions.map((uniV3Position) => {
-      console.log(uniV3Position)
+      //console.log(uniV3Position)
       const uniV3PositionData = {
         tokenZero: uniV3Position.token0,
         valueTokenZero: uniV3Position.depositedToken0,
@@ -181,7 +181,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                           <div
                             onClick={() => {
                               setIsOpen(false)
-                              prefill('exisingPool')
+                              //prefill('exisingPool')
                               setParams(allRangePosition)
                             }}
                           >

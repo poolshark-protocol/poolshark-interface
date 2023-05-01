@@ -41,6 +41,7 @@ export default function CoverExistingPool({
   tokenZeroAddress,
   goBack,
 }) {
+  console.log('CoverExistingPool')
   type token = {
     name: string
     symbol: string
@@ -94,9 +95,9 @@ export default function CoverExistingPool({
       console.log('Settled', { data, error })
     },
   })
-  console.log('data ex', data)
+  /* console.log('data ex', data)
   console.log('tokenIn ex', tokenIn)
-  console.log('tokenOut ex', tokenOut)
+  console.log('tokenOut ex', tokenOut) */
 
   useEffect(() => {
     if (data) {

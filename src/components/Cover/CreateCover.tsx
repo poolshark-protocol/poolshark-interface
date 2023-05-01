@@ -401,14 +401,14 @@ export default function CreateCover(props: any) {
       <div className="mb-6">
         <div className="flex flex-row justify-between">
           <h1 className="mb-3">Select Pair</h1>
-          {pool != undefined ? (
+         {/*  {pool != undefined ? (
             <Link href="/cover">
               <span className="flex gap-x-1 cursor-pointer">
                 <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{' '}
                 <h1 className="mb-3 opacity-50">Back</h1>{' '}
               </span>
             </Link>
-          ) : (
+          ) : ( */}
             <span
               className="flex gap-x-1 cursor-pointer"
               onClick={() => props.goBack('initial')}
@@ -416,7 +416,7 @@ export default function CreateCover(props: any) {
               <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{' '}
               <h1 className="mb-3 opacity-50">Back</h1>{' '}
             </span>
-          )}
+          {/* )} */}
         </div>
 
         <div className="flex gap-x-4 items-center">
