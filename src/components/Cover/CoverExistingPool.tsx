@@ -41,7 +41,6 @@ export default function CoverExistingPool({
   tokenZeroAddress,
   goBack,
 }) {
-  console.log('CoverExistingPool')
   type token = {
     name: string
     symbol: string

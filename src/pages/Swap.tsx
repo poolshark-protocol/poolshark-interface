@@ -130,48 +130,50 @@ export default function Swap() {
   const { data: priceCover } = useContractRead({
     address: coverPoolAddress,
     abi: coverPoolABI,
-    functionName: zeroForOne ? "pool1" : "pool0",
+    functionName: zeroForOne ? 'pool1' : 'pool0',
     args: [],
     chainId: 421613,
     watch: true,
     onSuccess(data) {
-      console.log("Success price Cover", data);
+      console.log('Success price Cover', data)
       setCoverPrice(parseFloat(ethers.utils.formatUnits(data[4], 18)))
     },
     onError(error) {
-      console.log("Error price Cover", error);
+      console.log('Error price Cover', error)
     },
     onSettled(data, error) {
-      console.log("Settled price Cover", { data, error });
+      console.log('Settled price Cover', { data, error })
     },
-  });
+  })
 
   const { data: priceRange } = useContractRead({
     address: rangePoolAddress,
     abi: rangePoolABI,
-    functionName: "poolState",
+    functionName: 'poolState',
     args: [],
     chainId: 421613,
     watch: true,
     onSuccess(data) {
-      console.log("Success price Range", data);
+      console.log('Success price Range', data)
       setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
     },
     onError(error) {
-      console.log("Error price Range", error);
+      console.log('Error price Range', error)
     },
     onSettled(data, error) {
-      console.log("Settled price Range", { data, error });
+      console.log('Settled price Range', { data, error })
     },
-  });
+  })
 
   const {
     network: { chainId },
   } = useProvider()
 
   useEffect(() => {
-    setAllowanceRange(ethers.utils.formatUnits(dataRange, 18))
-    setAllowanceCover(ethers.utils.formatUnits(dataCover, 18))
+    if (dataRange && dataCover) {
+      setAllowanceRange(ethers.utils.formatUnits(dataRange, 18))
+      setAllowanceCover(ethers.utils.formatUnits(dataCover, 18))
+    }
   }, [dataRange, dataCover, tokenIn.address, tokenOut.address, bnInput])
 
   useEffect(() => {
@@ -492,28 +494,42 @@ export default function Swap() {
               {Number(rangeQuote) < Number(coverQuote)
                 ? rangeQuote === undefined
                   ? 'Select Token'
-                  : (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                  : (
+                      parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                      (parseFloat(
+                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+                      ) /
+                        parseFloat(
+                          mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                        ))
+                    ).toFixed(2)
+                : coverQuote === undefined
+                ? 'Select Token'
+                : (
+                    parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                     (parseFloat(
                       mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
                     ) /
                       parseFloat(
                         mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                      ))).toFixed(2)
-                : coverQuote === undefined
-                ? 'Select Token'
-                : (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                  (parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
-                    parseFloat(
-                      mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                    ))).toFixed(2)}
+                      ))
+                  ).toFixed(2)}
             </div>
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Price Impact</div>
-            <div className="ml-auto text-xs">-{
-            Number(rangePrice) < Number(coverPrice) ?
-          (((parseFloat(rangePrice) - parseFloat(rangeQuote)) * 100) / rangePrice).toFixed(2) :
-          (((parseFloat(coverPrice) - parseFloat(coverQuote)) * 100) / coverPrice).toFixed(2)}</div>
+            <div className="ml-auto text-xs">
+              -
+              {Number(rangePrice) < Number(coverPrice)
+                ? (
+                    ((parseFloat(rangePrice) - parseFloat(rangeQuote)) * 100) /
+                    rangePrice
+                  ).toFixed(2)
+                : (
+                    ((parseFloat(coverPrice) - parseFloat(coverQuote)) * 100) /
+                    coverPrice
+                  ).toFixed(2)}
+            </div>
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">
@@ -521,36 +537,40 @@ export default function Swap() {
             </div>
             <div className="ml-auto text-xs">
               {Number(rangeQuote) < Number(coverQuote)
-                ? (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                    (parseFloat(
-                      mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-                    ) /
-                      parseFloat(
-                        mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                      )) -
-                  parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                    (parseFloat(
-                      mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-                    ) /
-                      parseFloat(
-                        mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                      )) *
-                    (parseFloat(slippage) * 0.01)).toFixed(2)
-                : (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                    (parseFloat(
-                      mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-                    ) /
-                      parseFloat(
-                        mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                      )) -
-                  parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                    (parseFloat(
-                      mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-                    ) /
-                      parseFloat(
-                        mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                      )) *
-                    (parseFloat(slippage) * 0.01)).toFixed(2)}
+                ? (
+                    parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                      (parseFloat(
+                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+                      ) /
+                        parseFloat(
+                          mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                        )) -
+                    parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                      (parseFloat(
+                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+                      ) /
+                        parseFloat(
+                          mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                        )) *
+                      (parseFloat(slippage) * 0.01)
+                  ).toFixed(2)
+                : (
+                    parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                      (parseFloat(
+                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+                      ) /
+                        parseFloat(
+                          mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                        )) -
+                    parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                      (parseFloat(
+                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+                      ) /
+                        parseFloat(
+                          mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                        )) *
+                      (parseFloat(slippage) * 0.01)
+                  ).toFixed(2)}
             </div>
           </div>
           <div className="flex p-1">
@@ -590,49 +610,50 @@ export default function Swap() {
             </div>
           </div>
           <div className="ml-auto">
-            {LimitActive ? null
-            : 
-             <Popover className="relative">
-              <Popover.Button className="outline-none">
-                <AdjustmentsHorizontalIcon className="w-5 h-5 outline-none" />
-              </Popover.Button>
-              <Transition
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <Popover.Panel className="absolute z-10 ml-14 -mt-[48px] bg-black border border-grey2 rounded-xl p-5">
-                  <div className="w-full">
-                    <h1>Range Tolerance</h1>
-                    <div className="flex mt-3 gap-x-3">
-                      <input
-                        placeholder="0%"
-                        className="bg-dark rounded-xl outline-none border border-grey1 pl-3 placeholder:text-grey1"
-                        value={auxSlippage + '%'}
-                        onChange={(e) =>
-                          setAuxSlippage(
-                            parseFloat(e.target.value.replace(/[^\d.-]/g, '')) <
-                              100
-                              ? e.target.value.replace(/[^\d.-]/g, '')
-                              : '',
-                          )
-                        }
-                      />
-                      <button
-                        className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
-                        onClick={(e) => setSlippage(auxSlippage)}
-                      >
-                        Set
-                      </button>
+            {LimitActive ? null : (
+              <Popover className="relative">
+                <Popover.Button className="outline-none">
+                  <AdjustmentsHorizontalIcon className="w-5 h-5 outline-none" />
+                </Popover.Button>
+                <Transition
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0"
+                  enterTo="opacity-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100"
+                  leaveTo="opacity-0"
+                >
+                  <Popover.Panel className="absolute z-10 ml-14 -mt-[48px] bg-black border border-grey2 rounded-xl p-5">
+                    <div className="w-full">
+                      <h1>Range Tolerance</h1>
+                      <div className="flex mt-3 gap-x-3">
+                        <input
+                          placeholder="0%"
+                          className="bg-dark rounded-xl outline-none border border-grey1 pl-3 placeholder:text-grey1"
+                          value={auxSlippage + '%'}
+                          onChange={(e) =>
+                            setAuxSlippage(
+                              parseFloat(
+                                e.target.value.replace(/[^\d.-]/g, ''),
+                              ) < 100
+                                ? e.target.value.replace(/[^\d.-]/g, '')
+                                : '',
+                            )
+                          }
+                        />
+                        <button
+                          className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+                          onClick={(e) => setSlippage(auxSlippage)}
+                        >
+                          Set
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </Popover.Panel>
-              </Transition>
-            </Popover>}
+                  </Popover.Panel>
+                </Transition>
+              </Popover>
+            )}
           </div>
         </div>
         <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
@@ -668,8 +689,7 @@ export default function Swap() {
                     >
                       Max
                     </button>
-                  ) 
-                  : null}
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -691,13 +711,15 @@ export default function Swap() {
             <div className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
               {hasSelected ? (
                 <div>
-                  {(parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                  {(
+                    parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                     (parseFloat(
                       mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
                     ) /
                       parseFloat(
                         mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                      ))).toFixed(2)}
+                      ))
+                  ).toFixed(2)}
                 </div>
               ) : (
                 <div>0</div>
@@ -857,7 +879,7 @@ export default function Swap() {
           Number(ethers.utils.formatUnits(bnInput, 18)) ? (
             <div>
               <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                Your {tokenIn.symbol} rangePool allowance is missing {' '}
+                Your {tokenIn.symbol} rangePool allowance is missing{' '}
                 {Number(ethers.utils.formatUnits(bnInput, 18)) -
                   Number(allowanceRange)}{' '}
                 {tokenIn.symbol}
@@ -877,7 +899,7 @@ export default function Swap() {
           Number(ethers.utils.formatUnits(bnInput, 18)) ? (
           <div>
             <div className="flex-none ">
-              Your {tokenIn.symbol} coverPool allowance is missing {' '}
+              Your {tokenIn.symbol} coverPool allowance is missing{' '}
               {Number(ethers.utils.formatUnits(bnInput, 18)) -
                 Number(allowanceCover)}{' '}
               {tokenIn.symbol}

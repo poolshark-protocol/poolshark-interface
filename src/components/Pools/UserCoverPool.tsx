@@ -1,6 +1,7 @@
 import {
   ArrowsRightLeftIcon,
   ArrowLongRightIcon,
+  ExclamationTriangleIcon,
 } from '@heroicons/react/20/solid'
 import { useEffect, useState } from 'react'
 import { useCoverStore } from '../../hooks/useStore'
@@ -123,18 +124,21 @@ export default function UserCoverPool({
             </span>
           </div>
         </div>
-        <div className="pr-5">
-          <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-            <div className="w-2 h-2 bg-green-500 rounded-full" />
-            In Range
+        {valueTokenZero == 0 || valueTokenOne == 0 ? (
+          <div className="pr-5">
+            <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
+              <ExclamationTriangleIcon className="w-4 text-yellow-600" />
+              Out of Range
+            </div>
           </div>
-          {/* WHEN POSITION IS OUT OF RANGE
-      
-      <div cl</div>assName="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-        <Excl</div>amationTriangleIcon className="w-4 text-yellow-600"/>
-        Out of Range
-        </div> */}
-        </div>
+        ) : (
+          <div className="pr-5">
+            <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
+              <div className="w-2 h-2 bg-green-500 rounded-full" />
+              In Range
+            </div>
+          </div>
+        )}
       </div>
     </Link>
   )
