@@ -48,6 +48,7 @@ export default function CoverExistingPool({
     logoURI: string
     address: string
   }
+  const { bnInput, inputBox } = useInputBox()
 
   const { address, isConnected, isDisconnected } = useAccount()
   const initialBig = BigNumber.from(0)
@@ -344,11 +345,15 @@ export default function CoverExistingPool({
       <div className="mt-3 space-y-2">
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Amount Covered</div>
+
           <input
-            className="bg-transparent text-right outline-none"
-            placeholder="50%"
-            value={sliderValue + '%'}
+            type="string"
+            id="input"
+            onChange={(e) => setSliderValue(Number(e.target.value))}
+            value={sliderValue}
+            className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
           />
+          {'%'}
         </div>
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Cover Size</div>
