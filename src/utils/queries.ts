@@ -163,6 +163,8 @@ export const getCoverQuote = async (
     limit,
   )
 
+  console.log(quote, 'coverQuote')
+
   const price = parseFloat(ethers.utils.formatUnits(quote['outAmount'], 0)) / parseFloat(ethers.utils.formatUnits(quote['inAmount'], 0))
 
   return price

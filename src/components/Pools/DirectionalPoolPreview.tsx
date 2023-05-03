@@ -42,10 +42,10 @@ export default function DirectionalPoolPreview({
   let [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
-    setAllowance(ethers.utils.formatUnits(data, 18))
+    if (data) {
+      setAllowance(ethers.utils.formatUnits(data, 18))
+    }
   }, [data, tokenIn])
-
-
 
   function closeModal() {
     setIsOpen(false)

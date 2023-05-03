@@ -469,7 +469,7 @@ export default function DirectionalPool({
               className="w-6 cursor-pointer"
               onClick={() => {
                 if (hasSelected) {
-                  switchDirection()
+                  switchDirection();
                 }
               }}
             />
@@ -496,7 +496,7 @@ export default function DirectionalPool({
         </div>
         <div>
           <div className="gap-x-4 mt-8">
-            <h1>Fee tier</h1>
+            <h1>Volatility tier</h1>
           </div>
           <div className="mt-3">
             <SelectFee />
@@ -509,7 +509,7 @@ export default function DirectionalPool({
           <div className="mt-3 space-y-3">
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 ">
-                {inputBox('0')}
+                {inputBox("0")}
                 {/* <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
                 </div> */}
@@ -527,12 +527,12 @@ export default function DirectionalPool({
                     </div>
                     <div className="flex items-center justify-end gap-x-2 px-1 mt-2">
                       <div className="flex text-xs text-[#4C4C4C]">
-                        Balance: {balance0 === 'NaN' ? 0 : balance0}
+                        Balance: {balance0 === "NaN" ? 0 : balance0}
                       </div>
                       {isConnected ? (
                         <button
                           className="flex text-xs uppercase text-[#C9C9C9]"
-                          onClick={() => maxBalance(balance0, '0')}
+                          onClick={() => maxBalance(balance0, "0")}
                         >
                           Max
                         </button>
@@ -549,9 +549,13 @@ export default function DirectionalPool({
         <div>
           <div className="flex justify-between items-center">
             <h1>Set price cover</h1>
-            <button 
-            className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
-            onClick={() => {setMin(BigNumber.from(-887272)); setMax(BigNumber.from(887272))}}>
+            <button
+              className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
+              onClick={() => {
+                setMin(BigNumber.from(-887272));
+                setMax(BigNumber.from(887272));
+              }}
+            >
               Full cover
             </button>
           </div>
@@ -560,7 +564,7 @@ export default function DirectionalPool({
               <span className="text-xs text-grey">Min. Price</span>
               <div className="flex justify-center items-center">
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  <button onClick={() => changePrice('minus', 'min')}>
+                  <button onClick={() => changePrice("minus", "min")}>
                     <MinusIcon className="w-5 h-5 ml-[2.5px]" />
                   </button>
                 </div>
@@ -571,13 +575,13 @@ export default function DirectionalPool({
                   type="number"
                   onChange={() =>
                     setMinPrice(
-                      (document.getElementById('minInput') as HTMLInputElement)
-                        ?.value,
+                      (document.getElementById("minInput") as HTMLInputElement)
+                        ?.value
                     )
                   }
                 />
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  <button onClick={() => changePrice('plus', 'min')}>
+                  <button onClick={() => changePrice("plus", "min")}>
                     <PlusIcon className="w-5 h-5" />
                   </button>
                 </div>
@@ -587,7 +591,7 @@ export default function DirectionalPool({
               <span className="text-xs text-grey">Max. Price</span>
               <div className="flex justify-center items-center">
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  <button onClick={() => changePrice('minus', 'max')}>
+                  <button onClick={() => changePrice("minus", "max")}>
                     <MinusIcon className="w-5 h-5 ml-[2.5px]" />
                   </button>
                 </div>
@@ -598,13 +602,13 @@ export default function DirectionalPool({
                   type="number"
                   onChange={() =>
                     setMaxPrice(
-                      (document.getElementById('maxInput') as HTMLInputElement)
-                        ?.value,
+                      (document.getElementById("maxInput") as HTMLInputElement)
+                        ?.value
                     )
                   }
                 />
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  <button onClick={() => changePrice('plus', 'max')}>
+                  <button onClick={() => changePrice("plus", "max")}>
                     <PlusIcon className="w-5 h-5" />
                   </button>
                 </div>
@@ -629,5 +633,5 @@ export default function DirectionalPool({
         />
       </div>
     </div>
-  )
+  );
 }

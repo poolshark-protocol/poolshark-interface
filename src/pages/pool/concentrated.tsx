@@ -105,47 +105,6 @@ export default function Concentrated() {
               </span>
             </Link>
           </div>
-          {router.query.poolId != "" ? (
-            <div className="mb-6">
-              <div className="flex justify-between text-[#646464]">
-                <div className="grid grid-cols-2 gap-x-10 pl-2 ">
-                  <h1
-                    onClick={() => copyAddress0()}
-                    className="text-xs cursor-pointer w-32"
-                  >
-                    {router.query.tokenZeroName}:
-                    {is0Copied ? (
-                      <span className="ml-1">Copied</span>
-                    ) : (
-                      <span className="ml-1">{tokenZeroDisplay}</span>
-                    )}
-                  </h1>
-                  <h1
-                    onClick={() => copyAddress1()}
-                    className="text-xs cursor-pointer"
-                  >
-                    {router.query.tokenOneName}:
-                    {is1Copied ? (
-                      <span className="ml-1">Copied</span>
-                    ) : (
-                      <span className="ml-1">{tokenOneDisplay}</span>
-                    )}
-                  </h1>
-                </div>
-                <h1
-                  onClick={() => copyPoolAddress()}
-                  className="text-xs cursor-pointer flex items-center"
-                >
-                  Pool:
-                  {isPoolCopied ? (
-                    <span className="ml-1">Copied</span>
-                  ) : (
-                    <span className="ml-1">{poolDisplay}</span>
-                  )}
-                </h1>
-              </div>
-            </div>
-          ) : null}
 
           <ConcentratedPool
             account={"account"}

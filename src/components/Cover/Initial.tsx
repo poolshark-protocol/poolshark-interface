@@ -5,13 +5,38 @@ import CreateCover from './CreateCover'
 import PoolsModal from './PoolsModal'
 import { useAccount } from 'wagmi'
 import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
-import router from 'next/router'
 
-export default function Initial() {
+export default function Initial(props: any) {
   const { address, isConnected, isDisconnected } = useAccount()
   const [isOpen, setIsOpen] = useState(false)
-  const [pool, setPool] = useState({})
+  const [pool, setPool] = useState(props.query ?? undefined)
   const [shifted, setIsShifted] = useState('initial')
+
+  const logoMap = {
+    TOKEN20A: '/static/images/eth_icon.png',
+    TOKEN20B: '/static/images/token.png',
+    USDC: '/static/images/token.png',
+    WETH: '/static/images/eth_icon.png',
+    DAI: '/static/images/dai_icon.png',
+  }
+
+  console.log('shifted', shifted)
+
+  function setParams(query: any) {
+    //console.log('query', query)
+    setIsShifted('coverExistingPool')
+    setPool({
+      poolId: query.poolId,
+      tokenOneName: query.tokenOne.name,
+      tokenOneSymbol: query.tokenOne.symbol,
+      tokenOneLogoURI: logoMap[query.tokenOne.symbol],
+      tokenOneAddress: query.tokenOne.id,
+      tokenZeroName: query.tokenZero.symbol,
+      tokenZeroSymbol: query.tokenZero.symbol,
+      tokenZeroLogoURI: logoMap[query.tokenZero.symbol],
+      tokenZeroAddress: query.tokenZero.id,
+    })
+  }
 
   return isDisconnected ? (
     <>
@@ -83,6 +108,7 @@ export default function Initial() {
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         prefill={setIsShifted}
+        setParams={setParams}
       />
     </>
   ) : shifted === 'createCover' ? (
@@ -90,51 +116,25 @@ export default function Initial() {
   ) : (
     <CoverExistingPool
       account={'account'}
-      key={
-        router.query.poolId === undefined ? '' : router.query.poolId.toString()
-      }
-      poolId={
-        router.query.poolId === undefined ? '' : router.query.poolId.toString()
-      }
-      tokenOneName={
-        router.query.tokenOneName === undefined
-          ? ''
-          : router.query.tokenOneName.toString()
-      }
-      tokenOneSymbol={
-        router.query.tokenOneSymbol === undefined
-          ? ''
-          : router.query.tokenOneSymbol.toString()
-      }
+      key={pool === undefined ? '' : pool.poolId.toString()}
+      poolId={pool === undefined ? '' : pool.poolId.toString()}
+      tokenOneName={pool === undefined ? '' : pool.tokenOneName.toString()}
+      tokenOneSymbol={pool === undefined ? '' : pool.tokenOneSymbol.toString()}
       tokenOneLogoURI={
-        router.query.tokenOneLogoURI === undefined
-          ? ''
-          : router.query.tokenOneLogoURI.toString()
+        pool === undefined ? '' : pool.tokenOneLogoURI.toString()
       }
       tokenOneAddress={
-        router.query.tokenOneAddress === undefined
-          ? ''
-          : router.query.tokenOneAddress.toString()
+        pool === undefined ? '' : pool.tokenOneAddress.toString()
       }
-      tokenZeroName={
-        router.query.tokenZeroName === undefined
-          ? ''
-          : router.query.tokenZeroName.toString()
-      }
+      tokenZeroName={pool === undefined ? '' : pool.tokenZeroName.toString()}
       tokenZeroSymbol={
-        router.query.tokenZeroSymbol === undefined
-          ? ''
-          : router.query.tokenZeroSymbol.toString()
+        pool === undefined ? '' : pool.tokenZeroSymbol.toString()
       }
       tokenZeroLogoURI={
-        router.query.tokenZeroLogoURI === undefined
-          ? ''
-          : router.query.tokenZeroLogoURI.toString()
+        pool === undefined ? '' : pool.tokenZeroLogoURI.toString()
       }
       tokenZeroAddress={
-        router.query.tokenZeroAddress === undefined
-          ? ''
-          : router.query.tokenZeroAddress.toString()
+        pool === undefined ? '' : pool.tokenZeroAddress.toString()
       }
       goBack={setIsShifted}
     />

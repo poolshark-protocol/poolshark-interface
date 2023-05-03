@@ -6,7 +6,7 @@ import { fetchRangePositions, fetchUniV3Positions } from '../../utils/queries'
 import { useAccount } from 'wagmi'
 import UserPool from '../Pools/UserPool'
 
-export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
+export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
   const { address } = useAccount()
 
   const [searchTerm, setSearchTerm] = useState('')
@@ -29,7 +29,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
     rangePositions.map((rangePosition) => {
       //console.log('rangePosition', rangePosition)
       const rangePositionData = {
-        poolId: rangePosition.id,
+        poolId: rangePosition.pool.factory.id,
         tokenZero: rangePosition.pool.token0,
         valueTokenZero: rangePosition.pool.totalValueLocked0,
         tokenOne: rangePosition.pool.token1,
@@ -37,9 +37,9 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
         min: rangePosition.lower,
         max: rangePosition.upper,
         tvlUsd: rangePosition.pool.totalValueLockedUsd,
-        /* TODO@retraca get feeTier from subgraph 
-        feeTier: rangePosition.pool.feeTier,
-        */
+        feeTier: rangePosition.pool.feeTier.feeAmount,
+        unclaimedFees: rangePosition.pool.feesUsd,
+        liquidity: rangePosition.liquidity,
         volumeUsd: rangePosition.pool.volumeUsd,
         volumeEth: rangePosition.pool.volumeEth,
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
@@ -73,7 +73,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
   function mapUserUniV3Positions() {
     const mappedUniV3Positions = []
     uniV3Positions.map((uniV3Position) => {
-      console.log(uniV3Position)
+      //console.log(uniV3Position)
       const uniV3PositionData = {
         tokenZero: uniV3Position.token0,
         valueTokenZero: uniV3Position.depositedToken0,
@@ -181,7 +181,8 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
                           <div
                             onClick={() => {
                               setIsOpen(false)
-                              prefill('exisingPool')
+                              //prefill('exisingPool')
+                              setParams(allRangePosition)
                             }}
                           >
                             <UserPool
@@ -194,8 +195,9 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
                               valueTokenOne={allRangePosition.valueTokenOne}
                               min={allRangePosition.min}
                               max={allRangePosition.max}
-                              /* TODO@retraca get feeTier from subgraph */
-                              feeTier={'allRangePosition.feeTier'}
+                              liquidity={allRangePosition.liquidity}
+                              feeTier={allRangePosition.feeTier}
+                              unclaimedFees={allRangePosition.unclaimedFees}
                               tvlUsd={allRangePosition.tvlUsd}
                               volumeUsd={allRangePosition.volumeUsd}
                               volumeEth={allRangePosition.volumeEth}
@@ -233,6 +235,8 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
                             valueTokenOne={allUniV3Position.valueTokenOne}
                             min={allUniV3Position.min}
                             max={allUniV3Position.max}
+                            liquidity={allUniV3Position.liquidity}
+                            feeTier={allUniV3Position.feeTier}
                             prefill={undefined}
                             close={undefined}
                             href={'/pool/directional'}

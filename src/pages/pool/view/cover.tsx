@@ -3,6 +3,7 @@ import {
   ArrowTopRightOnSquareIcon,
   ArrowsRightLeftIcon,
   ArrowLongRightIcon,
+  ExclamationTriangleIcon,
 } from '@heroicons/react/20/solid'
 import { useState, useEffect } from 'react'
 import CoverBurnButton from '../../../components/Buttons/CoverBurnButton'
@@ -11,8 +12,17 @@ import { useRouter } from 'next/router'
 import { useAccount } from 'wagmi'
 import Link from 'next/link'
 import { BigNumber, ethers } from 'ethers'
+import { getCoverPoolFromFactory, getCoverQuote } from '../../../utils/queries'
+import { coverPoolAddress } from '../../../constants/contractAddresses'
 
 export default function Cover() {
+  type token = {
+    name: string
+    symbol: string
+    logoURI: string
+    address: string
+    value: string
+  }
   const { address } = useAccount()
   const router = useRouter()
   const zeroAddress =
@@ -44,6 +54,37 @@ export default function Cover() {
       '...' +
       poolAddress.substring(poolAddress.length - 4, poolAddress.length),
   )
+  const [poolContractAdd, setPoolContractAdd] = useState(
+    router.query.poolId ?? undefined,
+  )
+  const [tokenIn, setTokenIn] = useState({
+    name: router.query.tokenZeroName,
+    symbol: router.query.tokenZeroSymbol,
+    logoURI: router.query.tokenZeroLogoURI,
+    address: router.query.tokenZeroAddress,
+    value: router.query.tokenZeroValue,
+  } as token)
+  const [tokenOut, setTokenOut] = useState({
+    name: router.query.tokenOneName,
+    symbol: router.query.tokenOneSymbol,
+    logoURI: router.query.tokenOneLogoURI,
+    address: router.query.tokenOneAddress,
+    value: router.query.tokenOneValue,
+  } as token)
+  const [coverPrice, setCoverPrice] = useState(undefined)
+  const [mktRate, setMktRate] = useState({})
+
+  /* console.log('tokenIn', tokenIn)
+  console.log('tokenOut', tokenOut)
+  console.log(
+    'math',
+    parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')),
+  )
+  console.log(
+    'math',
+    parseFloat(mktRate[tokenOut.symbol].replace(/[^\d.-]/g, '')),
+  )
+  console.log('mktRate',mktRate) */
 
   useEffect(() => {
     if (copyAddress0) {
@@ -72,6 +113,14 @@ export default function Cover() {
     }
   })
 
+  useEffect(() => {
+    getCoverPool()
+  }, [])
+
+  useEffect(() => {
+    fetchTokenPrice()
+  }, [coverPrice])
+
   function copyAddress0() {
     navigator.clipboard.writeText(
       router.query.tokenZeroAddress === undefined
@@ -95,6 +144,54 @@ export default function Cover() {
       router.query.poolId === undefined ? '' : router.query.poolId.toString(),
     )
     setIsPoolCopied(true)
+  }
+
+  const getCoverPool = async () => {
+    try {
+      /* console.log(tokenIn, tokenOut) */
+
+      const pool = await getCoverPoolFromFactory(
+        tokenIn.address,
+        tokenOut.address,
+      )
+
+      //const id = pool['data']['coverPools']['0']['id']
+      /*  console.log(
+        'coverParams',
+        coverPoolAddress,
+        BigNumber.from(tokenIn.value),
+        BigNumber.from('4295128739'),
+        tokenIn.address,
+        tokenOut.address,
+      ) */
+      const price = await getCoverQuote(
+        coverPoolAddress,
+        BigNumber.from('100'),
+        BigNumber.from('4295128739'),
+        tokenIn.address,
+        tokenOut.address,
+      )
+      console.log('price', price)
+      setCoverPrice(price)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const fetchTokenPrice = async () => {
+    try {
+      setMktRate({
+        TOKEN20A:
+          '~' +
+          Number(coverPrice).toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+          }),
+        TOKEN20B: '~1.00',
+      })
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return (
@@ -133,10 +230,28 @@ export default function Cover() {
               <span className="bg-white text-black rounded-md px-3 py-0.5">
                 {router.query.feeTier}%
               </span>
-              <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-                <div className="w-2 h-2 bg-green-500 rounded-full" />
-                In Range
-              </div>
+              {mktRate[tokenIn.symbol] && coverPrice ? (
+                parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
+                  parseFloat(mktRate[tokenOut.symbol].replace(/[^\d.-]/g, '')) <
+                  Number(router.query.min) ||
+                parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
+                  parseFloat(mktRate[tokenOut.symbol].replace(/[^\d.-]/g, '')) >
+                  Number(router.query.max) ? (
+                  <div className="pr-5">
+                    <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
+                      <ExclamationTriangleIcon className="w-4 text-yellow-600" />
+                      Out of Range
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
+                    <div className="w-2 h-2 bg-green-500 rounded-full" />
+                    In Range
+                  </div>
+                )
+              ) : (
+                <></>
+              )}
             </div>
             <a href="#">
               <a
@@ -221,6 +336,11 @@ export default function Cover() {
                     {router.query.tokenZeroValue === undefined
                       ? '?'
                       : router.query.tokenZeroValue.toString()}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
+                  <div className="bg-grey1 text-grey rounded-md px-3 py-0.5">
+                    {mktRate[tokenIn.symbol]}
                   </div>
                 </div>
                 <Link
@@ -309,10 +429,32 @@ export default function Cover() {
             <div>
               <div className="flex mt-7 gap-x-6 items-center">
                 <h1 className="text-lg">Price Range </h1>
-                <div className="flex items-center rounded-lg gap-x-2 text-sm">
-                  <div className="w-2 h-2 bg-green-500 rounded-full" />
-                  In Range
-                </div>
+                {mktRate[tokenIn.symbol] && coverPrice ? (
+                  parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
+                    parseFloat(
+                      mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                    ) <
+                    Number(router.query.min) ||
+                  parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
+                    parseFloat(
+                      mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                    ) >
+                    Number(router.query.max) ? (
+                    <div className="pr-5">
+                      <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
+                        <ExclamationTriangleIcon className="w-4 text-yellow-600" />
+                        Out of Range
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
+                      <div className="w-2 h-2 bg-green-500 rounded-full" />
+                      In Range
+                    </div>
+                  )
+                ) : (
+                  <></>
+                )}
               </div>
             </div>
             <div className="flex justify-between items-center mt-4 gap-x-6">

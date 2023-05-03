@@ -19,7 +19,11 @@ import {
   getPreviousTicksUpper,
 } from '../../utils/queries'
 import { TickMath } from '../../utils/tickMath'
-import { coverPoolAddress, rangePoolAddress, tokenOneAddress } from '../../constants/contractAddresses'
+import {
+  coverPoolAddress,
+  rangePoolAddress,
+  tokenOneAddress,
+} from '../../constants/contractAddresses'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import useInputBox from '../../hooks/useInputBox'
 
@@ -43,7 +47,8 @@ export default function CoverExistingPool({
     logoURI: string
     address: string
   }
-  
+  const { bnInput, inputBox } = useInputBox()
+
   const { address, isConnected, isDisconnected } = useAccount()
   const initialBig = BigNumber.from(0)
   /* const [pool, updatePool] = useCoverStore((state: any) => [
@@ -90,14 +95,15 @@ export default function CoverExistingPool({
       console.log('Settled', { data, error })
     },
   })
-
+  /* console.log('data ex', data)
+  console.log('tokenIn ex', tokenIn)
+  console.log('tokenOut ex', tokenOut) */
 
   useEffect(() => {
-    setAllowance(ethers.utils.formatUnits(data, 18))
-  }, [data, tokenIn.address])
-
-
-
+    if (data) {
+      setAllowance(ethers.utils.formatUnits(data, 18))
+    }
+  }, [data, tokenIn.address, sliderValue])
 
   const handleChange = (event: any) => {
     setSliderValue(event.target.value)
@@ -112,7 +118,6 @@ export default function CoverExistingPool({
     setQueryTokenIn(queryTokenOut)
     setQueryTokenOut(tempBal)
   }
-
 
   async function setCoverParams() {
     try {
@@ -250,7 +255,7 @@ export default function CoverExistingPool({
       const signer = new ethers.VoidSigner(address, provider)
       const contract = new ethers.Contract(tokenIn.address, erc20ABI, signer)
       const allowance = await contract.allowance(address, rangePoolAddress)
-      
+
       //console.log('allowance', allowance)
       setAllowance(allowance)
     } catch (error) {
@@ -339,15 +344,22 @@ export default function CoverExistingPool({
       <div className="mt-3 space-y-2">
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Amount Covered</div>
+
           <input
-            className="bg-transparent text-right outline-none"
-            placeholder="50%"
-            value={sliderValue + '%'}
+            type="string"
+            id="input"
+            onChange={(e) => setSliderValue(Number(e.target.value))}
+            value={sliderValue}
+            className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
           />
+          {'%'}
         </div>
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Cover Size</div>
-          <div> {sliderValue} {tokenIn.name}</div>
+          <div>
+            {' '}
+            {sliderValue} {tokenIn.name}
+          </div>
         </div>
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Amount to pay</div>
@@ -431,7 +443,9 @@ export default function CoverExistingPool({
       </div>
       <div className="space-y-3">
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {isDisconnected || Number(allowance) < sliderValue /* Number(ethers.utils.formatUnits(bnInput, 18)) */ ? (
+        {isDisconnected ||
+        Number(allowance) <
+          sliderValue /* Number(ethers.utils.formatUnits(bnInput, 18)) */ ? (
           <SwapCoverApproveButton approveToken={address} />
         ) : (
           <CoverMintButton
@@ -440,7 +454,9 @@ export default function CoverExistingPool({
             lower={min}
             claim={min}
             upper={max}
-            amount={ethers.utils.parseUnits(String(sliderValue * 0.01), 18).mul(1)}
+            amount={ethers.utils
+              .parseUnits(String(sliderValue * 0.01), 18)
+              .mul(1)}
             zeroForOne={true}
           />
         )}

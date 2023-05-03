@@ -1,6 +1,7 @@
 import {
   ArrowsRightLeftIcon,
   ArrowLongRightIcon,
+  ExclamationTriangleIcon,
 } from '@heroicons/react/20/solid'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
@@ -22,7 +23,7 @@ export default function UserPool({
   volumeUsd,
   volumeEth,
 }) {
-  const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
+  /* const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
     tokenZero.name?.substring(0, 6) +
       '...' +
       tokenZero.name?.substring(
@@ -39,7 +40,7 @@ export default function UserPool({
     poolId?.substring(0, 6) +
       '...' +
       poolId?.substring(poolId?.length - 4, poolId?.length),
-  )
+  ) */
 
   const feeTierPercentage = feeTier / 10000
 
@@ -53,6 +54,9 @@ export default function UserPool({
     WETH: '/static/images/eth_icon.png',
     DAI: '/static/images/dai_icon.png',
   }
+
+  /* console.log('tokenZero', tokenZero)
+  console.log('tokenOne', tokenOne) */
 
   return (
     <>
@@ -111,18 +115,21 @@ export default function UserPool({
               </span>
             </div>
           </div>{' '}
+          {valueTokenZero == 0 || valueTokenOne == 0 ? (
+          <div className="pr-5">
+            <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
+              <ExclamationTriangleIcon className="w-4 text-yellow-600" />
+              Out of Range
+            </div>
+          </div>
+        ) : (
           <div className="pr-5">
             <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
               <div className="w-2 h-2 bg-green-500 rounded-full" />
               In Range
             </div>
-            {/* WHEN POSITION IS OUT OF RANGE
-      
-      <div cl</div>assName="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-        <Excl</div>amationTriangleIcon className="w-4 text-yellow-600"/>
-        Out of Range
-        </div> */}
           </div>
+        )}
         </div>
       </Link>
     </>

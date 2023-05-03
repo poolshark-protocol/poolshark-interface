@@ -65,6 +65,7 @@ export default function Cover() {
   const { address, isConnected, isDisconnected } = useAccount()
 
   const [expanded, setExpanded] = useState()
+  const [selectedPool, setSelectedPool] = useState(router.query ?? undefined)
 
   const [coverPositions, setCoverPositions] = useState([])
   const [allCoverPositions, setAllCoverPositions] = useState([])
@@ -159,6 +160,12 @@ export default function Cover() {
       )
     }
   }
+  const [state, setState] = useState(router.query.state ?? 'initial')
+
+  const handleDiselectPool = (state) => {
+    setState(state)
+    setSelectedPool(undefined)
+  }
 
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
@@ -176,7 +183,11 @@ export default function Cover() {
           </div>
           <div className="flex space-x-8">
             <div className="bg-black w-2/3 border border-grey2 w-full rounded-t-xl p-6 gap-y-4">
-              {userPositionExists ? <CreateCover /> : <Initial />}
+              {selectedPool != undefined && state != 'initial' ? (
+                <CreateCover query={router.query} goBack={handleDiselectPool} />
+              ) : (
+                <Initial query={router.query} />
+              )}
             </div>
             {isDisconnected ? (
               <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">

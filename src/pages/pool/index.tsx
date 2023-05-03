@@ -427,7 +427,7 @@ export default function Pool() {
                                 tvlUsd={allCoverPool.tvlUsd}
                                 volumeUsd={allCoverPool.volumeUsd}
                                 volumeEth={allCoverPool.volumeEth}
-                                href="/pool/directional"
+                                href="/cover"
                               />
                             )
                         })}
