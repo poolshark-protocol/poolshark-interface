@@ -7,11 +7,11 @@ export const tokenOneAddress    = "0xC26906E10E8BDaDeb2cf297eb56DF59775eE52c4" /
 
 // cover pools
 export const coverPoolAddress   = "0xB84Ab81B3d405128ce09FB72A88fea4929E364Ce"
-export const coverPoolFactoryAddress = "0xf7b7FD8b14221beD8c6AA3290dA9cfa55098a7fD"
+export const coverPoolFactoryAddress = "0xC7F9348F005508f5354B4f5753C2F3C948B889F8"
 
 // range pools
-export const rangePoolAddress = "0x51abd14047564d7e91d3604b34a9b7c1721f0ac6"
-export const rangePoolFactoryAddress = "0x1598DCe2D358F652E6625039C3c12e63b0444Bef"
+export const rangePoolAddress = "0x3b2ec00a3b33661dd118ce9666be9cacccfad887"
+export const rangePoolFactoryAddress = "0x1598dce2d358f652e6625039c3c12e63b0444bef"
 
 // libraries
 export const tickMathAddress = "0x02f821c66bF2466B3Ef3Fc2c962B392d0EE457F4"
