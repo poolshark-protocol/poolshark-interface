@@ -138,7 +138,7 @@ export default function Swap() {
     address: coverPoolRoute,
     abi: coverPoolABI,
     functionName: "quote",
-    args: [true, bnInput, BigNumber.from('4295128739')],
+    args: [tokenOut.address != '' && tokenIn.address < tokenOut.address, bnInput, BigNumber.from('4295128739')],
     chainId: 421613,
     watch: true,
     onSuccess(data) {
@@ -157,7 +157,7 @@ export default function Swap() {
     address: rangePoolRoute,
     abi: rangePoolABI,
     functionName: "quote",
-    args: [true, bnInput, BigNumber.from('4295128739')],
+    args: [tokenOut.address != '' && tokenIn.address < tokenOut.address, bnInput, BigNumber.from('4295128739')],
     chainId: 421613,
     watch: true,
     onSuccess(data) {
@@ -175,7 +175,7 @@ export default function Swap() {
   const { refetch: refetchCoverPrice, data: priceCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
-    functionName: zeroForOne ? 'pool1' : 'pool0',
+    functionName: tokenOut.address != '' && tokenIn.address < tokenOut.address ? 'pool1' : 'pool0',
     args: [],
     chainId: 421613,
     watch: true,
