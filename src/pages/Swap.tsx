@@ -102,6 +102,8 @@ export default function Swap() {
   const [allowanceCover, setAllowanceCover] = useState('0.00')
   const [coverPoolRoute, setCoverPoolRoute] = useState('')
   const [rangePoolRoute, setRangePoolRoute] = useState('')
+  const [coverPriceAfter, setCoverPriceAfter] = useState(undefined)
+  const [rangePriceAfter, setRangePriceAfter] = useState(undefined)
 
   const { data: signer } = useSigner()
   const provider = useProvider()
@@ -139,6 +141,7 @@ export default function Swap() {
     onSuccess(data) {
       console.log("Success cover wagmi", data);
       setCoverQuote(parseFloat(ethers.utils.formatUnits(data[1], 18)))
+      setCoverPriceAfter(parseFloat(ethers.utils.formatUnits(data[2], 18)))
     },
     onError(error) {
       console.log("Error cover wagmi", error);
@@ -147,7 +150,6 @@ export default function Swap() {
       console.log("Settled", { data, error });
     },
   });
-
   const { data: quoteRange } = useContractRead({
     address: rangePoolRoute,
     abi: rangePoolABI,
@@ -569,14 +571,13 @@ export default function Swap() {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Price Impact</div>
             <div className="ml-auto text-xs">
-              -
               {Number(rangePrice) < Number(coverPrice)
                 ? (
-                    ((parseFloat(rangePrice) - parseFloat(rangeQuote)) * 100) /
+                    (parseFloat(rangePrice) - parseFloat(rangePriceAfter)) /
                     rangePrice
                   ).toFixed(2)
                 : (
-                    ((parseFloat(coverPrice) - parseFloat(coverQuote)) * 100) /
+                    (parseFloat(coverPrice) - parseFloat(coverPriceAfter)) /
                     coverPrice
                   ).toFixed(2)}
             </div>
