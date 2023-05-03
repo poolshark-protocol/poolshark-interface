@@ -73,8 +73,9 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
   function mapUserUniV3Positions() {
     const mappedUniV3Positions = []
     uniV3Positions.map((uniV3Position) => {
-      //console.log(uniV3Position)
+      console.log(uniV3Position)
       const uniV3PositionData = {
+        poolId: uniV3Position.id,
         tokenZero: uniV3Position.token0,
         valueTokenZero: uniV3Position.depositedToken0,
         tokenOne: uniV3Position.token1,
@@ -225,22 +226,30 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                           searchTerm === '')
                       ) {
                         return (
-                          <UserCoverPool
-                            key={allUniV3Position.tokenOneName}
-                            account={'account'}
-                            poolId={allUniV3Position.poolId}
-                            tokenZero={allUniV3Position.tokenZero}
-                            valueTokenZero={allUniV3Position.valueTokenZero}
-                            tokenOne={allUniV3Position.tokenOne}
-                            valueTokenOne={allUniV3Position.valueTokenOne}
-                            min={allUniV3Position.min}
-                            max={allUniV3Position.max}
-                            liquidity={allUniV3Position.liquidity}
-                            feeTier={allUniV3Position.feeTier}
-                            prefill={undefined}
-                            close={undefined}
-                            href={'/pool/directional'}
-                          />
+                          <div
+                            onClick={() => {
+                              setIsOpen(false)
+                              //prefill('exisingPool')
+                              setParams(allUniV3Position)
+                            }}
+                          >
+                            <UserCoverPool
+                              key={allUniV3Position.tokenOneName}
+                              account={'account'}
+                              poolId={allUniV3Position.poolId}
+                              tokenZero={allUniV3Position.tokenZero}
+                              valueTokenZero={allUniV3Position.valueTokenZero}
+                              tokenOne={allUniV3Position.tokenOne}
+                              valueTokenOne={allUniV3Position.valueTokenOne}
+                              min={allUniV3Position.min}
+                              max={allUniV3Position.max}
+                              liquidity={allUniV3Position.liquidity}
+                              feeTier={allUniV3Position.feeTier}
+                              prefill={undefined}
+                              close={undefined}
+                              href={'/cover'}
+                            />
+                          </div>
                         )
                       }
                     })}

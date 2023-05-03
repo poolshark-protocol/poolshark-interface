@@ -18,6 +18,9 @@ export default function Initial(props: any) {
     USDC: '/static/images/token.png',
     WETH: '/static/images/eth_icon.png',
     DAI: '/static/images/dai_icon.png',
+    UNI: '/static/images/dai_icon.png',
+    stkEth: '/static/images/eth_icon.png',
+    pStake: '/static/images/eth_icon.png',
   }
 
   console.log('shifted', shifted)
