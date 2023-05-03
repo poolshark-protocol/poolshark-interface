@@ -100,6 +100,8 @@ export default function Swap() {
   const [expanded, setExpanded] = useState(false)
   const [allowanceRange, setAllowanceRange] = useState('0.00')
   const [allowanceCover, setAllowanceCover] = useState('0.00')
+  const [coverPoolRoute, setCoverPoolRoute] = useState('')
+  const [rangePoolRoute, setRangePoolRoute] = useState('')
 
   const { data: signer } = useSigner()
   const provider = useProvider()
@@ -126,6 +128,44 @@ export default function Swap() {
       console.log('Error', error)
     },
   })
+
+  const { data: quoteCover } = useContractRead({
+    address: coverPoolAddress,
+    abi: coverPoolABI,
+    functionName: "quote",
+    args: [true, bnInput, BigNumber.from('4295128739')],
+    chainId: 421613,
+    watch: true,
+    onSuccess(data) {
+      console.log("Success cover wagmi", data);
+      //setCoverQuote(parseFloat(ethers.utils.formatUnits(data[2], 18)))
+    },
+    onError(error) {
+      console.log("Error", error);
+    },
+    onSettled(data, error) {
+      console.log("Settled", { data, error });
+    },
+  });
+
+  const { data: quoteRange } = useContractRead({
+    address: rangePoolAddress,
+    abi: rangePoolABI,
+    functionName: "quote",
+    args: [true, bnInput, BigNumber.from('4295128739')],
+    chainId: 421613,
+    watch: true,
+    onSuccess(data) {
+      console.log("Success range wagmi", data);
+      //setRangeQuote(parseFloat(ethers.utils.formatUnits(data[2], 18)))
+    },
+    onError(error) {
+      console.log("Error", error);
+    },
+    onSettled(data, error) {
+      console.log("Settled", { data, error });
+    },
+  });
 
   const { data: priceCover } = useContractRead({
     address: coverPoolAddress,
@@ -200,11 +240,11 @@ export default function Swap() {
 
   useEffect(() => {
     getRangePool()
-  }, [hasSelected, tokenIn.address, tokenOut.address, bnInput, bnInputLimit])
+  }, [hasSelected, tokenIn.address, tokenOut.address])
 
   useEffect(() => {
     getCoverPool()
-  }, [hasSelected, tokenIn.address, tokenOut.address, bnInput, bnInputLimit])
+  }, [hasSelected, tokenIn.address, tokenOut.address])
 
   useEffect(() => {
     fetchTokenPrice()
@@ -396,6 +436,7 @@ export default function Swap() {
           tokenOut.address,
         )
         const id = pool['data']['rangePools']['0']['id']
+
         const price = await getRangeQuote(
           rangePoolAddress,
           bnInput,
@@ -408,7 +449,8 @@ export default function Swap() {
           rangePoolAddress,
           true
         )*/
-
+        
+        setRangePoolRoute(id)
         setRangeQuote(price)
         setRangeBaseLimit(price)
         //setRangeCurrentPrice(currentPrice)
@@ -432,7 +474,7 @@ export default function Swap() {
         console.log('pool ID', id)
 
         const price = await getCoverQuote(
-          coverPoolAddress,
+          String(id),
           bnInput,
           BigNumber.from('4295128739'),
           tokenIn.address,
@@ -443,7 +485,8 @@ export default function Swap() {
           coverPoolAddress,
           true
         )*/
-
+        
+        setCoverPoolRoute(id)
         setCoverQuote(price)
         setCoverBaseLimit(price)
         //setCoverCurrentPrice(currentPrice)
@@ -452,6 +495,13 @@ export default function Swap() {
       console.log(error)
     }
   }
+
+
+  //@dev TO-DO: fetch token Addresses, use for pool quote (smallest fee tier)
+  //@dev TO-DO: re-route pool and handle allowances
+  /*const fetchCoverAddress = async() = {
+    
+  }*/
 
   const fetchTokenPrice = async () => {
     try {
