@@ -20,7 +20,9 @@ import { BigNumber, Contract, ethers } from 'ethers'
 import { chainIdsToNamesForGitTokenList } from '../utils/chains'
 import { coverPoolABI } from '../abis/evm/coverPool'
 import {
+  fetchCoverPools,
   fetchPrice,
+  fetchRangePools,
   getCoverPoolFromFactory,
   getCoverPrice,
   getCoverQuote,
@@ -104,6 +106,7 @@ export default function Swap() {
   const [rangePoolRoute, setRangePoolRoute] = useState('')
   const [coverPriceAfter, setCoverPriceAfter] = useState(undefined)
   const [rangePriceAfter, setRangePriceAfter] = useState(undefined)
+  const [feeTier, setFeeTier] = useState('')
 
   const { data: signer } = useSigner()
   const provider = useProvider()
@@ -131,7 +134,7 @@ export default function Swap() {
     },
   })
 
-  const { data: quoteCover } = useContractRead({
+  const { refetch: refetchCoverQuote, data: quoteCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
     functionName: "quote",
@@ -150,7 +153,7 @@ export default function Swap() {
       console.log("Settled", { data, error });
     },
   });
-  const { data: quoteRange } = useContractRead({
+  const { refetch: refetchRangeQuote, data: quoteRange } = useContractRead({
     address: rangePoolRoute,
     abi: rangePoolABI,
     functionName: "quote",
@@ -169,8 +172,8 @@ export default function Swap() {
     },
   });
 
-  const { data: priceCover } = useContractRead({
-    address: coverPoolAddress,
+  const { refetch: refetchCoverPrice, data: priceCover } = useContractRead({
+    address: coverPoolRoute,
     abi: coverPoolABI,
     functionName: zeroForOne ? 'pool1' : 'pool0',
     args: [],
@@ -188,8 +191,8 @@ export default function Swap() {
     },
   })
 
-  const { data: priceRange } = useContractRead({
-    address: rangePoolAddress,
+  const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
+    address: rangePoolRoute,
     abi: rangePoolABI,
     functionName: 'poolState',
     args: [],
@@ -251,6 +254,10 @@ export default function Swap() {
   useEffect(() => {
     fetchTokenPrice()
   }, [rangeQuote, coverQuote, tokenIn, tokenOut])
+
+  useEffect(() => {
+    getFeeTier()
+  }, [rangeQuote, coverQuote])
 
   // useEffect(() => {
   //   if (isConnected && stateChainName === "arbitrumGoerli") {
@@ -400,7 +407,7 @@ export default function Swap() {
         'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
       )
       const contract = new ethers.Contract(
-        coverPoolAddress,
+        coverPoolRoute,
         coverPoolABI,
         provider,
       )
@@ -414,6 +421,8 @@ export default function Swap() {
         bnInput,
         BigNumber.from('79228162514264337593543950336'), // price of 1.00
       )
+
+      console.log('gas estimation', estimation)
       const price = await fetchPrice('0x000')
       const ethPrice: number =
         Number(price['data']['bundles']['0']['ethPriceUSD']) *
@@ -430,6 +439,38 @@ export default function Swap() {
     }
   }
 
+  const getFeeTier = async() => {
+    if (Number(rangeQuote) > Number(coverQuote)) {
+      const data = await fetchCoverPools()
+      const poolAddress = data['data']['coverPools']['0']['id']
+
+      console.log('cover pool subgraph address', poolAddress)
+      console.log('cover pool state address', rangePoolRoute)
+
+      if (poolAddress === coverPoolRoute) {
+        const feeTier = data['data']['coverPools']['0']['volatilityTier']['feeAmount']
+        console.log(feeTier, 'fee cover')
+        setSlippage(feeTier)
+        setAuxSlippage(feeTier)
+      }
+    }
+
+    else {
+      const data = await fetchRangePools()
+      const poolAddress = data['data']['rangePools']['1']['id']
+
+      console.log('range pool subgraph address', poolAddress)
+      console.log('range pool state address', rangePoolRoute)
+
+      if (poolAddress === rangePoolRoute) {
+        const feeTier = data['data']['rangePools']['1']['feeTier']['feeAmount']
+        console.log(feeTier, 'fee range')
+        setSlippage((parseFloat(feeTier) / 1000).toString())
+        setAuxSlippage((parseFloat(feeTier) / 1000).toString())
+      }
+    }
+  }
+
   const getRangePool = async () => {
     try {
       if (hasSelected === true) {
@@ -439,13 +480,13 @@ export default function Swap() {
         )
         const id = pool['data']['rangePools']['0']['id']
 
-        const price = await getRangeQuote(
+        /*const price = await getRangeQuote(
           rangePoolAddress,
           bnInput,
           BigNumber.from('4295128739'),
           tokenIn.address,
           tokenOut.address,
-        )
+        )*/
 
         /*const currentPrice = await getRangePrice(
           rangePoolAddress,
@@ -453,8 +494,8 @@ export default function Swap() {
         )*/
         
         setRangePoolRoute(id)
-        setRangeQuote(price)
-        setRangeBaseLimit(price)
+        /*setRangeQuote(price)
+        setRangeBaseLimit(price)*/
         //setRangeCurrentPrice(currentPrice)
       }
     } catch (error) {
@@ -475,13 +516,13 @@ export default function Swap() {
         const id = pool['data']['coverPools']['0']['id']
         console.log('pool ID', id)
 
-        const price = await getCoverQuote(
+        /*const price = await getCoverQuote(
           String(id),
           bnInput,
           BigNumber.from('4295128739'),
           tokenIn.address,
           tokenOut.address,
-        )
+        )*/
 
         /*const currentPrice = await getCoverPrice(
           coverPoolAddress,
@@ -489,8 +530,8 @@ export default function Swap() {
         )*/
         
         setCoverPoolRoute(id)
-        setCoverQuote(price)
-        setCoverBaseLimit(price)
+        /*setCoverQuote(price)
+        setCoverBaseLimit(price)*/
         //setCoverCurrentPrice(currentPrice)
       }
     } catch (error) {
