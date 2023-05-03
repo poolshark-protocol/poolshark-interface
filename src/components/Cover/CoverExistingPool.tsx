@@ -35,10 +35,12 @@ export default function CoverExistingPool({
   tokenOneSymbol,
   tokenOneLogoURI,
   tokenOneAddress,
+  tokenOneValue,
   tokenZeroName,
   tokenZeroSymbol,
   tokenZeroLogoURI,
   tokenZeroAddress,
+  tokenZeroValue,
   goBack,
 }) {
   type token = {
@@ -46,6 +48,7 @@ export default function CoverExistingPool({
     symbol: string
     logoURI: string
     address: string
+    value: string
   }
   const { bnInput, inputBox } = useInputBox()
 
@@ -69,12 +72,14 @@ export default function CoverExistingPool({
     symbol: tokenZeroSymbol,
     logoURI: tokenZeroLogoURI,
     address: tokenZeroAddress,
+    value: tokenZeroValue,
   } as token)
   const [tokenOut, setTokenOut] = useState({
     name: tokenOneName,
     symbol: tokenOneSymbol,
     logoURI: tokenOneLogoURI,
     address: tokenOneAddress,
+    value: tokenOneValue,
   } as token)
   const [sliderValue, setSliderValue] = useState(50)
   const [allowance, setAllowance] = useState('0')
@@ -344,7 +349,6 @@ export default function CoverExistingPool({
       <div className="mt-3 space-y-2">
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Amount Covered</div>
-
           <input
             type="string"
             id="input"
@@ -354,16 +358,18 @@ export default function CoverExistingPool({
           />
           {'%'}
         </div>
-        <div className="flex justify-between text-sm">
+        {/* <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Cover Size</div>
           <div>
             {' '}
             {sliderValue} {tokenIn.name}
           </div>
-        </div>
+        </div> */}
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Amount to pay</div>
-          <div>301 {tokenIn.name}</div>
+          <div>
+            {Number(sliderValue)*Number(tokenIn.value)} {tokenIn.name}
+          </div>
         </div>
       </div>
       <h1 className="mb-3 mt-4">Set Price Range</h1>

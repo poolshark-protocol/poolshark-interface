@@ -45,7 +45,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
       }
       mappedRangePositions.push(rangePositionData)
-      //console.log('mappedRangePositions', mappedRangePositions)
+      console.log('mappedRangePositions', mappedRangePositions)
     })
     setAllRangePositions(mappedRangePositions)
   }
@@ -73,7 +73,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
   function mapUserUniV3Positions() {
     const mappedUniV3Positions = []
     uniV3Positions.map((uniV3Position) => {
-      console.log(uniV3Position)
+      //console.log(uniV3Position)
       const uniV3PositionData = {
         poolId: uniV3Position.id,
         tokenZero: uniV3Position.token0,

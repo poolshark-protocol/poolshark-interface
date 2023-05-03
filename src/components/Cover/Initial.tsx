@@ -34,11 +34,14 @@ export default function Initial(props: any) {
       tokenOneSymbol: query.tokenOne.symbol,
       tokenOneLogoURI: logoMap[query.tokenOne.symbol],
       tokenOneAddress: query.tokenOne.id,
+      tokenOneValue: query.valueTokenOne,
       tokenZeroName: query.tokenZero.symbol,
       tokenZeroSymbol: query.tokenZero.symbol,
       tokenZeroLogoURI: logoMap[query.tokenZero.symbol],
       tokenZeroAddress: query.tokenZero.id,
+      tokenZeroValue: query.valueTokenZero,
     })
+    console.log('pool', pool)
   }
 
   return isDisconnected ? (
@@ -138,6 +141,10 @@ export default function Initial(props: any) {
       }
       tokenZeroAddress={
         pool === undefined ? '' : pool.tokenZeroAddress.toString()
+      }
+      tokenOneValue={pool === undefined ? '' : pool.tokenOneValue.toString()}
+      tokenZeroValue={
+        pool === undefined ? '' : pool.tokenZeroValue.toString()
       }
       goBack={setIsShifted}
     />

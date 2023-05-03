@@ -107,7 +107,7 @@ export default function Pool() {
         tokenZero: rangePosition.pool.token0,
         valueTokenZero: rangePosition.pool.totalValueLocked0,
         tokenOne: rangePosition.pool.token1,
-        valueTokenOne: rangePosition.pool.totalValueLocked0,
+        valueTokenOne: rangePosition.pool.totalValueLocked1,
         min: rangePosition.lower,
         max: rangePosition.upper,
         tvlUsd: rangePosition.pool.totalValueLockedUsd,
