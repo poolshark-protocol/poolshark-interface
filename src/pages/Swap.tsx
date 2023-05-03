@@ -610,7 +610,6 @@ export default function Swap() {
             </div>
           </div>
           <div className="ml-auto">
-            {LimitActive ? null : (
               <Popover className="relative">
                 <Popover.Button className="outline-none">
                   <AdjustmentsHorizontalIcon className="w-5 h-5 outline-none" />
@@ -653,7 +652,6 @@ export default function Swap() {
                   </Popover.Panel>
                 </Transition>
               </Popover>
-            )}
           </div>
         </div>
         <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
