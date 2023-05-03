@@ -257,7 +257,7 @@ export default function Swap() {
 
   useEffect(() => {
     getFeeTier()
-  }, [coverPoolRoute])
+  }, [rangeQuote, coverQuote])
 
   // useEffect(() => {
   //   if (isConnected && stateChainName === "arbitrumGoerli") {
@@ -457,16 +457,16 @@ export default function Swap() {
 
     else {
       const data = await fetchRangePools()
-      const poolAddress = data['data'].rangePools.id
+      const poolAddress = data['data']['rangePools']['1']['id']
 
       console.log('range pool subgraph address', poolAddress)
       console.log('range pool state address', rangePoolRoute)
 
       if (poolAddress === rangePoolRoute) {
-        const feeTier = (data['data'].rangePools.feeTier.feeAmount).toString()
+        const feeTier = data['data']['rangePools']['1']['feeTier']['feeAmount']
         console.log(feeTier, 'fee range')
-        setSlippage(feeTier)
-        setAuxSlippage(feeTier)
+        setSlippage((parseFloat(feeTier) / 1000).toString())
+        setAuxSlippage((parseFloat(feeTier) / 1000).toString())
       }
     }
   }
