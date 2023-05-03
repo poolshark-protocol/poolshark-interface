@@ -206,9 +206,6 @@ export default function CreateCover(props: any) {
     getBalances()
   }, [tokenOut, tokenIn])
 
-
-
-
   function changeDefault0(token: {
     symbol: string
     logoURI: any
@@ -330,7 +327,7 @@ export default function CreateCover(props: any) {
       let token2Bal: Contract
       let bal1: string
       bal1 = Number(ethers.utils.formatEther(balance1)).toFixed(2)
-      console.log('bal1',bal1)
+      console.log('bal1', bal1)
       setBalance0(bal1)
     } catch (error) {
       console.log(error)
@@ -395,7 +392,7 @@ export default function CreateCover(props: any) {
       <div className="mb-6">
         <div className="flex flex-row justify-between">
           <h1 className="mb-3">Select Pair</h1>
-         {/*  {pool != undefined ? (
+          {/*  {pool != undefined ? (
             <Link href="/cover">
               <span className="flex gap-x-1 cursor-pointer">
                 <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{' '}
@@ -403,13 +400,13 @@ export default function CreateCover(props: any) {
               </span>
             </Link>
           ) : ( */}
-            <span
-              className="flex gap-x-1 cursor-pointer"
-              onClick={() => props.goBack('initial')}
-            >
-              <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{' '}
-              <h1 className="mb-3 opacity-50">Back</h1>{' '}
-            </span>
+          <span
+            className="flex gap-x-1 cursor-pointer"
+            onClick={() => props.goBack('initial')}
+          >
+            <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{' '}
+            <h1 className="mb-3 opacity-50">Back</h1>{' '}
+          </span>
           {/* )} */}
         </div>
 
@@ -422,14 +419,14 @@ export default function CreateCover(props: any) {
             key={queryTokenIn}
           />
           <div className="items-center px-2 py-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
-          <ArrowLongRightIcon
-            className="w-6 cursor-pointer"
-            onClick={() => {
-              if (hasSelected) {
-                switchDirection()
-              }
-            }}
-          />
+            <ArrowLongRightIcon
+              className="w-6 cursor-pointer"
+              onClick={() => {
+                if (hasSelected) {
+                  switchDirection()
+                }
+              }}
+            />
           </div>
           {hasSelected ? (
             <SelectToken
@@ -468,14 +465,19 @@ export default function CreateCover(props: any) {
                   </div>
                 </button>
               </div>
-              {isConnected && stateChainName === 'arbitrumGoerli' ? (
-                    <button
-                      className="flex text-xs uppercase text-[#C9C9C9]"
-                      onClick={() => maxBalance(balance0, '0')}
-                    >
-                      Max
-                    </button>
-                  ) : null}
+              <div className="flex items-center justify-end gap-2 px-1 mt-2">
+                <div className="flex text-xs text-[#4C4C4C]">
+                  Balance: {balance0 === 'NaN' ? 0 : balance0}
+                </div>
+                {isConnected ? (
+                  <button
+                    className="flex text-xs uppercase text-[#C9C9C9]"
+                    onClick={() => maxBalance(balance0, '0')}
+                  >
+                    Max
+                  </button>
+                ) : null}
+              </div>
             </div>
           </div>
         </div>

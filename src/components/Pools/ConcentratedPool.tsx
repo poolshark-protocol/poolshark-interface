@@ -11,17 +11,23 @@ import ConcentratedPoolPreview from './ConcentratedPoolPreview'
 import { useRangeStore } from '../../hooks/useStore'
 import { TickMath } from '../../utils/tickMath'
 import JSBI from 'jsbi'
-import { getPreviousTicksLower } from '../../utils/queries'
+import {
+  getPreviousTicksLower,
+  getRangePoolFromFactory,
+  getRangeQuote,
+} from '../../utils/queries'
 import useInputBox from '../../hooks/useInputBox'
 import useRangeAllowance from '../../hooks/useRangeAllowance'
 import { fetchPrice } from '../../utils/queries'
 import { useRouter } from 'next/router'
 import {
+  rangePoolAddress,
   tokenOneAddress,
   tokenZeroAddress,
 } from '../../constants/contractAddresses'
 import { erc20ABI, useAccount } from 'wagmi'
 import { BigNumber, Contract, ethers } from 'ethers'
+import { useProvider, useContractRead } from 'wagmi'
 
 export default function ConcentratedPool({
   account,
@@ -101,6 +107,7 @@ export default function ConcentratedPool({
   const [balance1, setBalance1] = useState('0.00')
   const [allowanceIn, setAllowanceIn] = useState('0.00')
   const [allowanceOut, setAllowanceOut] = useState('0.00')
+  const [rangeQuote, setRangeQuote] = useState(undefined)
 
   const initialBig = BigNumber.from(0)
   const [to, setTo] = useState('')
@@ -117,8 +124,13 @@ export default function ConcentratedPool({
   }, [bnInput, bnInputLimit])
 
   useEffect(() => {
+    getRangePool()
+  }, [hasSelected, tokenIn.address, tokenOut.address, bnInput, bnInputLimit])
+
+
+  useEffect(() => {
     fetchTokenPrice()
-  }, [])
+  }, [rangeQuote, tokenIn, tokenOut])
 
   useEffect(() => {
     setRangeParams()
@@ -143,6 +155,18 @@ export default function ConcentratedPool({
     setFeeControler(true)
   }
 
+  const { data: dataRange } = useContractRead({
+    address: tokenIn.address,
+    abi: erc20ABI,
+    functionName: 'allowance',
+    args: [address, rangePoolAddress],
+    chainId: 421613,
+    watch: true,
+    onError(error) {
+      console.log('Error', error)
+    },
+  })
+
   function switchDirection() {
     setTokenOrder(!tokenOrder)
     const temp = tokenIn
@@ -153,11 +177,34 @@ export default function ConcentratedPool({
     setQueryTokenOut(tempBal)
   }
 
+  const getRangePool = async () => {
+    try {
+      if (hasSelected === true) {
+        const pool = await getRangePoolFromFactory(
+          tokenIn.address,
+          tokenOut.address,
+        )
+        const id = pool['data']['rangePools']['0']['id']
+        const price = await getRangeQuote(
+          rangePoolAddress,
+          bnInput,
+          BigNumber.from('4295128739'),
+          tokenIn.address,
+          tokenOut.address,
+        )
+
+        setRangeQuote(price)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   const fetchTokenPrice = async () => {
     try {
-      const price = await fetchPrice('0x000')
+      const price = await rangeQuote
       setMktRate({
-        WETH:
+        TOKEN20A:
           '~' +
           Number(price['data']['bundles']['0']['ethPriceUSD']).toLocaleString(
             'en-US',
@@ -166,8 +213,6 @@ export default function ConcentratedPool({
               currency: 'USD',
             },
           ),
-        USDC: '~1.00',
-        TOKEN20A: '~1.00',
         TOKEN20B: '~1.00',
       })
     } catch (error) {
@@ -517,18 +562,23 @@ export default function ConcentratedPool({
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 w-20">
                 {inputBox('0')}
-                {/* <div className="flex">
-                  <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
-                </div> */}
+                {mktRate[tokenIn.symbol] != '~$NaN' ? (
+                  <div className="flex">
+                    <div className="flex text-xs text-[#4C4C4C]">
+                      {mktRate[tokenIn.symbol]}
+                    </div>
+                  </div>
+                ) : (
+                  <></>
+                )}
               </div>
               <div className="">
                 <div className=" ml-auto">
                   <div>
                     <div className="flex justify-end">
                       <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl">
-                          <img className="w-7" src={tokenIn.logoURI} />
-                          {tokenIn.symbol}
-
+                        <img className="w-7" src={tokenIn.logoURI} />
+                        {tokenIn.symbol}
                       </button>
                     </div>
                     <div className="flex items-center justify-end gap-2 px-1 mt-2">
@@ -552,13 +602,15 @@ export default function ConcentratedPool({
               <div className=" p-2 ">
                 {Number(bnInput) != 0 ? (
                   <div>
-                    {parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                    {(
+                      parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                       (parseFloat(
-                        mktRate[tokenZeroSymbol].replace(/[^\d.-]/g, ''),
+                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
                       ) /
                         parseFloat(
-                          mktRate[tokenOneSymbol].replace(/[^\d.-]/g, ''),
-                        ))}
+                          mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                        ))
+                    ).toFixed(2)}
                   </div>
                 ) : (
                   <div>0</div>
@@ -594,9 +646,12 @@ export default function ConcentratedPool({
         <div>
           <div className="flex justify-between items-center">
             <h1>Set price range</h1>
-            <button 
-            className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
-            onClick={() => {setMin(BigNumber.from(-887272)); setMax(BigNumber.from(887272))}}
+            <button
+              className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
+              onClick={() => {
+                setMin(BigNumber.from(-887272))
+                setMax(BigNumber.from(887272))
+              }}
             >
               Full Range
             </button>

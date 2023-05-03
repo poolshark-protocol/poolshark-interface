@@ -719,8 +719,6 @@ export default function Swap() {
               {hasSelected &&
               mktRate[tokenIn.symbol] != '~$NaN' &&
               mktRate[tokenOut.symbol] != '~$NaN' &&
-              rangePrice &&
-              coverPrice &&
               bnInput._hex != '0x00' ? (
                 <div>
                   {(
@@ -775,7 +773,7 @@ export default function Swap() {
                 {hasSelected ? (
                   <div className="flex items-center justify-end gap-2 px-1 mt-2">
                     <div className="flex text-xs text-[#4C4C4C]">
-                      Balance: {balance1 ? 0 : balance1}
+                      Balance: {balance1 === "NaN" ? 0 : balance1}
                     </div>
                   </div>
                 ) : (
