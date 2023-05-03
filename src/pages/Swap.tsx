@@ -138,7 +138,7 @@ export default function Swap() {
     address: coverPoolRoute,
     abi: coverPoolABI,
     functionName: "quote",
-    args: [true, bnInput, BigNumber.from('4295128739')],
+    args: [tokenOut.address != '' && tokenIn.address < tokenOut.address, bnInput, BigNumber.from('4295128739')],
     chainId: 421613,
     watch: true,
     onSuccess(data) {
@@ -157,12 +157,12 @@ export default function Swap() {
     address: rangePoolRoute,
     abi: rangePoolABI,
     functionName: "quote",
-    args: [true, bnInput, BigNumber.from('4295128739')],
+    args: [tokenOut.address != '' && tokenIn.address < tokenOut.address, bnInput, BigNumber.from('4295128739')],
     chainId: 421613,
     watch: true,
     onSuccess(data) {
       console.log("Success range wagmi", data);
-      //setRangeQuote(parseFloat(ethers.utils.formatUnits(data[2], 18)))
+      setRangeQuote(parseFloat(ethers.utils.formatUnits(data[1]['output'], 18)))
     },
     onError(error) {
       console.log("Error range wagmi", error);
@@ -175,7 +175,7 @@ export default function Swap() {
   const { refetch: refetchCoverPrice, data: priceCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
-    functionName: zeroForOne ? 'pool1' : 'pool0',
+    functionName: tokenOut.address != '' && tokenIn.address < tokenOut.address ? 'pool1' : 'pool0',
     args: [],
     chainId: 421613,
     watch: true,
@@ -549,7 +549,7 @@ export default function Swap() {
   const fetchTokenPrice = async () => {
     try {
       //const price = await fetchPrice('0x000')
-      if (Number(rangeQuote) > Number(coverQuote)) {
+      if (Number(rangeQuote) < Number(coverQuote)) {
         const price = rangeQuote
         setMktRate({
           WETH:
