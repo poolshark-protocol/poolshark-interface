@@ -591,8 +591,8 @@ export default function Swap() {
               onClick={() => setLimitActive(false)}
               className={`${
                 LimitActive
-                  ? 'text-grey cursor-pointer'
-                  : 'text-white cursor-pointer'
+                  ? "text-grey cursor-pointer"
+                  : "text-white cursor-pointer"
               }`}
             >
               Market
@@ -602,61 +602,66 @@ export default function Swap() {
               onClick={() => setLimitActive(true)}
               className={`${
                 LimitActive
-                  ? 'text-white cursor-pointer'
-                  : 'text-grey cursor-pointer'
+                  ? "text-white cursor-pointer"
+                  : "text-grey cursor-pointer"
               }`}
             >
               Limit
             </div>
           </div>
           <div className="ml-auto">
-              <Popover className="relative">
-                <Popover.Button className="outline-none">
-                  <AdjustmentsHorizontalIcon className="w-5 h-5 outline-none" />
-                </Popover.Button>
-                <Transition
-                  as={Fragment}
-                  enter="ease-out duration-300"
-                  enterFrom="opacity-0"
-                  enterTo="opacity-100"
-                  leave="ease-in duration-200"
-                  leaveFrom="opacity-100"
-                  leaveTo="opacity-0"
-                >
-                  <Popover.Panel className="absolute z-10 ml-14 -mt-[48px] bg-black border border-grey2 rounded-xl p-5">
-                    <div className="w-full">
-                      <h1>Range Tolerance</h1>
-                      <div className="flex mt-3 gap-x-3">
-                        <input
-                          placeholder="0%"
-                          className="bg-dark rounded-xl outline-none border border-grey1 pl-3 placeholder:text-grey1"
-                          value={auxSlippage + '%'}
-                          onChange={(e) =>
-                            setAuxSlippage(
-                              parseFloat(
-                                e.target.value.replace(/[^\d.-]/g, ''),
-                              ) < 100
-                                ? e.target.value.replace(/[^\d.-]/g, '')
-                                : '',
-                            )
-                          }
-                        />
-                        <button
-                          className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
-                          onClick={(e) => setSlippage(auxSlippage)}
-                        >
-                          Set
-                        </button>
-                      </div>
+            <Popover className="relative">
+              <Popover.Button className="outline-none">
+                <AdjustmentsHorizontalIcon className="w-5 h-5 outline-none" />
+              </Popover.Button>
+              <Transition
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <Popover.Panel className="absolute z-10 ml-14 -mt-[48px] bg-black border border-grey2 rounded-xl p-5">
+                  <div className="w-full">
+                    <h1>
+                      {LimitActive ? (
+                        <>Range Tolerance</>
+                      ) : (
+                        <>Slippage Tolerance</>
+                      )}
+                    </h1>
+                    <div className="flex mt-3 gap-x-3">
+                      <input
+                        placeholder="0%"
+                        className="bg-dark rounded-xl outline-none border border-grey1 pl-3 placeholder:text-grey1"
+                        value={auxSlippage + "%"}
+                        onChange={(e) =>
+                          setAuxSlippage(
+                            parseFloat(e.target.value.replace(/[^\d.-]/g, "")) <
+                              100
+                              ? e.target.value.replace(/[^\d.-]/g, "")
+                              : ""
+                          )
+                        }
+                      />
+                      <button
+                        className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+                        onClick={(e) => setSlippage(auxSlippage)}
+                      >
+                        Set
+                      </button>
                     </div>
-                  </Popover.Panel>
-                </Transition>
-              </Popover>
+                  </div>
+                </Popover.Panel>
+              </Transition>
+            </Popover>
           </div>
         </div>
         <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
-            {inputBox('0')}
+            {inputBox("0")}
             <div className="flex">
               <div className="flex text-xs text-[#4C4C4C]">
                 {mktRate[tokenIn.symbol]}
@@ -678,12 +683,12 @@ export default function Swap() {
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
                   <div className="flex text-xs text-[#4C4C4C]" key={balance0}>
-                    Balance: {balance0 === 'NaN' ? 0 : balance0}
+                    Balance: {balance0 === "NaN" ? 0 : balance0}
                   </div>
-                  {isConnected && stateChainName === 'arbitrumGoerli' ? (
+                  {isConnected && stateChainName === "arbitrumGoerli" ? (
                     <button
                       className="flex text-xs uppercase text-[#C9C9C9]"
-                      onClick={() => maxBalance(balance0, '0')}
+                      onClick={() => maxBalance(balance0, "0")}
                     >
                       Max
                     </button>
@@ -698,7 +703,7 @@ export default function Swap() {
             className="w-4 h-4"
             onClick={() => {
               if (hasSelected) {
-                switchDirection()
+                switchDirection();
               }
             }}
           />
@@ -712,10 +717,10 @@ export default function Swap() {
                   {(
                     parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                     (parseFloat(
-                      mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+                      mktRate[tokenIn.symbol].replace(/[^\d.-]/g, "")
                     ) /
                       parseFloat(
-                        mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                        mktRate[tokenOut.symbol].replace(/[^\d.-]/g, "")
                       ))
                   ).toFixed(2)}
                 </div>
@@ -757,7 +762,7 @@ export default function Swap() {
                 {hasSelected ? (
                   <div className="flex items-center justify-end gap-2 px-1 mt-2">
                     <div className="flex text-xs text-[#4C4C4C]">
-                      Balance: {balance1 === 'NaN' ? 0 : balance1}
+                      Balance: {balance1 === "NaN" ? 0 : balance1}
                     </div>
                   </div>
                 ) : (
@@ -776,19 +781,19 @@ export default function Swap() {
                 ) : tokenOrder && hasSelected === true ? (
                   <div>
                     {parseFloat(
-                      mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                      mktRate[tokenOut.symbol].replace(/[^\d.-]/g, "")
                     ) /
                       parseFloat(
-                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, "")
                       )}
                   </div>
                 ) : (
                   <div>
                     {parseFloat(
-                      mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+                      mktRate[tokenIn.symbol].replace(/[^\d.-]/g, "")
                     ) /
                       parseFloat(
-                        mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                        mktRate[tokenOut.symbol].replace(/[^\d.-]/g, "")
                       )}
                   </div>
                 )}
@@ -848,13 +853,13 @@ export default function Swap() {
           >
             <div className="flex-none text-xs uppercase text-[#C9C9C9]">
               1 {tokenIn.symbol} =
-              {tokenOut.symbol === 'Select Token'
-                ? ' ?'
-                : ' ' +
-                  parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
+              {tokenOut.symbol === "Select Token"
+                ? " ?"
+                : " " +
+                  parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, "")) /
                     parseFloat(
-                      mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                    )}{' '}
+                      mktRate[tokenOut.symbol].replace(/[^\d.-]/g, "")
+                    )}{" "}
               {tokenOut.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
@@ -869,17 +874,17 @@ export default function Swap() {
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
         {isDisconnected ||
-        stateChainName !== 'arbitrumGoerli' ||
-        bnInput._hex == '0x00' ? null : hasSelected === false ? (
+        stateChainName !== "arbitrumGoerli" ||
+        bnInput._hex == "0x00" ? null : hasSelected === false ? (
           <SelectTokenButton />
         ) : Number(rangeQuote) < Number(coverQuote) ? (
           Number(allowanceRange) <
           Number(ethers.utils.formatUnits(bnInput, 18)) ? (
             <div>
               <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                Your {tokenIn.symbol} rangePool allowance is missing{' '}
+                Your {tokenIn.symbol} rangePool allowance is missing{" "}
                 {Number(ethers.utils.formatUnits(bnInput, 18)) -
-                  Number(allowanceRange)}{' '}
+                  Number(allowanceRange)}{" "}
                 {tokenIn.symbol}
               </div>
               <SwapRangeApproveButton approveToken={tokenIn.address} />
@@ -887,7 +892,7 @@ export default function Swap() {
           ) : (
             <SwapRangeButton
               zeroForOne={
-                tokenOut.address != '' && tokenIn.address < tokenOut.address
+                tokenOut.address != "" && tokenIn.address < tokenOut.address
               }
               amount={bnInput}
               baseLimit={rangeBaseLimit}
@@ -897,9 +902,9 @@ export default function Swap() {
           Number(ethers.utils.formatUnits(bnInput, 18)) ? (
           <div>
             <div className="flex-none ">
-              Your {tokenIn.symbol} coverPool allowance is missing{' '}
+              Your {tokenIn.symbol} coverPool allowance is missing{" "}
               {Number(ethers.utils.formatUnits(bnInput, 18)) -
-                Number(allowanceCover)}{' '}
+                Number(allowanceCover)}{" "}
               {tokenIn.symbol}
             </div>
             <SwapCoverApproveButton approveToken={tokenIn.address} />
@@ -907,7 +912,7 @@ export default function Swap() {
         ) : (
           <SwapCoverButton
             zeroForOne={
-              tokenOut.address != '' && tokenIn.address < tokenOut.address
+              tokenOut.address != "" && tokenIn.address < tokenOut.address
             }
             amount={bnInput}
             baseLimit={coverBaseLimit}
@@ -915,7 +920,7 @@ export default function Swap() {
         )}
       </div>
     </div>
-  )
+  );
 }
 
 /* ? (  &&
