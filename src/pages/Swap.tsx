@@ -450,8 +450,8 @@ export default function Swap() {
       if (poolAddress === coverPoolRoute) {
         const feeTier = data['data']['coverPools']['0']['volatilityTier']['feeAmount']
         console.log(feeTier, 'fee cover')
-        setSlippage(feeTier)
-        setAuxSlippage(feeTier)
+        setSlippage((parseFloat(feeTier) / 10000).toString())
+        setAuxSlippage((parseFloat(feeTier) / 10000).toString())
       }
     }
 
@@ -465,8 +465,8 @@ export default function Swap() {
       if (poolAddress === rangePoolRoute) {
         const feeTier = data['data']['rangePools']['1']['feeTier']['feeAmount']
         console.log(feeTier, 'fee range')
-        setSlippage((parseFloat(feeTier) / 1000).toString())
-        setAuxSlippage((parseFloat(feeTier) / 1000).toString())
+        setSlippage((parseFloat(feeTier) / 10000).toString())
+        setAuxSlippage((parseFloat(feeTier) / 10000).toString())
       }
     }
   }
