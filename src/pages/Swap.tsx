@@ -130,7 +130,7 @@ export default function Swap() {
   })
 
   const { data: quoteCover } = useContractRead({
-    address: coverPoolAddress,
+    address: coverPoolRoute,
     abi: coverPoolABI,
     functionName: "quote",
     args: [true, bnInput, BigNumber.from('4295128739')],
@@ -138,10 +138,10 @@ export default function Swap() {
     watch: true,
     onSuccess(data) {
       console.log("Success cover wagmi", data);
-      //setCoverQuote(parseFloat(ethers.utils.formatUnits(data[2], 18)))
+      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[1], 18)))
     },
     onError(error) {
-      console.log("Error", error);
+      console.log("Error cover wagmi", error);
     },
     onSettled(data, error) {
       console.log("Settled", { data, error });
@@ -149,7 +149,7 @@ export default function Swap() {
   });
 
   const { data: quoteRange } = useContractRead({
-    address: rangePoolAddress,
+    address: rangePoolRoute,
     abi: rangePoolABI,
     functionName: "quote",
     args: [true, bnInput, BigNumber.from('4295128739')],
@@ -160,10 +160,10 @@ export default function Swap() {
       //setRangeQuote(parseFloat(ethers.utils.formatUnits(data[2], 18)))
     },
     onError(error) {
-      console.log("Error", error);
+      console.log("Error range wagmi", error);
     },
     onSettled(data, error) {
-      console.log("Settled", { data, error });
+      console.log("Settled range wagmi", { data, error });
     },
   });
 
