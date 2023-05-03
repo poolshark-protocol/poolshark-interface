@@ -336,7 +336,7 @@ export default function CoverExistingPool({
         <div>0</div>
         <div>Full</div>
       </div>
-      <div className="w-full flex items-center -mt-2">
+      <div className="w-full flex items-center mt-2">
         <input
           type="range"
           min="0"
