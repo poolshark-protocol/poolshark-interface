@@ -349,14 +349,16 @@ export default function CoverExistingPool({
       <div className="mt-3 space-y-2">
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Amount Covered</div>
+          <div className="flex gap-x-2 items-center">
           <input
             type="string"
             id="input"
             onChange={(e) => setSliderValue(Number(e.target.value))}
             value={sliderValue}
-            className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
+            className="text-right placeholder:text-grey1 text-white text-2xl w-20 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
           />
-          {'%'}
+          %
+          </div>
         </div>
         {/* <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Cover Size</div>
