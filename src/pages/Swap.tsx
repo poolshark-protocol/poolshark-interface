@@ -162,7 +162,7 @@ export default function Swap() {
     watch: true,
     onSuccess(data) {
       console.log("Success range wagmi", data);
-      //setRangeQuote(parseFloat(ethers.utils.formatUnits(data[2], 18)))
+      setRangeQuote(parseFloat(ethers.utils.formatUnits(data[1]['output'], 18)))
     },
     onError(error) {
       console.log("Error range wagmi", error);
@@ -549,7 +549,7 @@ export default function Swap() {
   const fetchTokenPrice = async () => {
     try {
       //const price = await fetchPrice('0x000')
-      if (Number(rangeQuote) > Number(coverQuote)) {
+      if (Number(rangeQuote) < Number(coverQuote)) {
         const price = rangeQuote
         setMktRate({
           WETH:
