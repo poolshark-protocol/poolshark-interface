@@ -25,7 +25,7 @@ import {
 } from '../../constants/contractAddresses'
 import { coverPoolAddress } from '../../constants/contractAddresses'
 import { TickMath } from '../../utils/tickMath'
-import { BigNumber, ethers } from 'ethers'
+import { BigNumber, Contract, ethers } from 'ethers'
 import { useCoverStore } from '../../hooks/useStore'
 import {
   getPreviousTicksLower,
@@ -39,7 +39,7 @@ export default function CreateCover(props: any) {
   //console.log('props', props)
   const [pool, setPool] = useState(props.query ?? undefined)
   const initialBig = BigNumber.from(0)
-  const { bnInput, inputBox } = useInputBox()
+  const { bnInput, inputBox, maxBalance } = useInputBox()
   const [
     updateCoverContractParams,
     updateCoverAllowance,
@@ -57,6 +57,7 @@ export default function CreateCover(props: any) {
   const [maxPrice, setMaxPrice] = useState('0')
   const [min, setMin] = useState(initialBig)
   const [max, setMax] = useState(initialBig)
+  const [balance0, setBalance0] = useState('')
   const [allowance, setAllowance] = useState('0')
   const { address, isConnected, isDisconnected } = useAccount()
   const [isDisabled, setDisabled] = useState(false)
@@ -201,38 +202,12 @@ export default function CreateCover(props: any) {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId])
   }, [chainId])
 
-  /* const tokenInAllowance = async () => {
-    const provider = new ethers.providers.JsonRpcProvider(
-      'https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2/',
-    )
-    const contract = new ethers.Contract(tokenIn.address, erc20, provider)
-    const allowance = await contract.allowance(address, coverPoolAddress)
-    return ethers.utils.formatUnits(allowance)
-  }
-
-  const { data, isError, isLoading } = useBalance({
-    token: `0x${tokenIn.address.split('0x')[1]}`,
-    chainId: 421613,
-    address: address,
-    onSuccess: () => {
-      setUsdcBalance(Number(data?.formatted))
-    },
-    onError: (error) => {
-      console.log(error)
-    },
-  }) */
-
-  /*const balanceAndAllowance = async () => {
-    updateAllowance(await token0Allowance());
-  };
-
   useEffect(() => {
-    try {
-      balanceAndAllowance();
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);*/
+    getBalances()
+  }, [tokenOut, tokenIn])
+
+
+
 
   function changeDefault0(token: {
     symbol: string
@@ -340,6 +315,25 @@ export default function CreateCover(props: any) {
       ;(document.getElementById('maxInput') as HTMLInputElement).value = (
         current - 0.01
       ).toFixed(3)
+    }
+  }
+
+  const getBalances = async () => {
+    try {
+      const provider = new ethers.providers.JsonRpcProvider(
+        'https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2',
+        421613,
+      )
+      const signer = new ethers.VoidSigner(address, provider)
+      const tokenOutBal = new ethers.Contract(tokenIn.address, erc20ABI, signer)
+      const balance1 = await tokenOutBal.balanceOf(address)
+      let token2Bal: Contract
+      let bal1: string
+      bal1 = Number(ethers.utils.formatEther(balance1)).toFixed(2)
+      console.log('bal1',bal1)
+      setBalance0(bal1)
+    } catch (error) {
+      console.log(error)
     }
   }
 
@@ -474,11 +468,14 @@ export default function CreateCover(props: any) {
                   </div>
                 </button>
               </div>
-              <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                <button className="text-xs uppercase cursor-default text-[#0C0C0C]">
-                  Max
-                </button>
-              </div>
+              {isConnected && stateChainName === 'arbitrumGoerli' ? (
+                    <button
+                      className="flex text-xs uppercase text-[#C9C9C9]"
+                      onClick={() => maxBalance(balance0, '0')}
+                    >
+                      Max
+                    </button>
+                  ) : null}
             </div>
           </div>
         </div>

@@ -659,11 +659,15 @@ export default function Swap() {
         <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
             {inputBox('0')}
-            <div className="flex">
-              <div className="flex text-xs text-[#4C4C4C]">
-                {mktRate[tokenIn.symbol]}
+            {mktRate[tokenIn.symbol] != '~$NaN' ? (
+              <div className="flex">
+                <div className="flex text-xs text-[#4C4C4C]">
+                  {mktRate[tokenIn.symbol]}
+                </div>
               </div>
-            </div>
+            ) : (
+              <></>
+            )}
           </div>
           <div className="flex w-1/2">
             <div className="flex justify-center ml-auto">
@@ -709,7 +713,12 @@ export default function Swap() {
         <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
             <div className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
-              {hasSelected ? (
+              {hasSelected &&
+              mktRate[tokenIn.symbol] != '~$NaN' &&
+              mktRate[tokenOut.symbol] != '~$NaN' &&
+              rangePrice &&
+              coverPrice &&
+              bnInput._hex != '0x00' ? (
                 <div>
                   {(
                     parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
@@ -725,11 +734,15 @@ export default function Swap() {
                 <div>0</div>
               )}
             </div>
-            <div className="flex">
-              <div className="flex text-xs text-[#4C4C4C] ">
-                {mktRate[tokenOut.symbol]}
+            {mktRate[tokenOut.symbol] != '~$NaN' ? (
+              <div className="flex">
+                <div className="flex text-xs text-[#4C4C4C]">
+                  {mktRate[tokenOut.symbol]}
+                </div>
               </div>
-            </div>
+            ) : (
+              <></>
+            )}
           </div>
           <div className="flex w-1/2">
             <div className="flex justify-center ml-auto">
@@ -759,7 +772,7 @@ export default function Swap() {
                 {hasSelected ? (
                   <div className="flex items-center justify-end gap-2 px-1 mt-2">
                     <div className="flex text-xs text-[#4C4C4C]">
-                      Balance: {balance1 === 'NaN' ? 0 : balance1}
+                      Balance: {balance1 ? 0 : balance1}
                     </div>
                   </div>
                 ) : (
@@ -773,8 +786,12 @@ export default function Swap() {
           <div>
             <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-4">
               <div className="flex-col justify-center w-1/2 p-2 ">
-                {tokenOrder && hasSelected === false ? (
-                  <div>Select Token</div>
+                {hasSelected === false ||
+                String(
+                  parseFloat(mktRate[tokenOut.symbol].replace(/[^\d.-]/g, '')) /
+                    parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')),
+                ) == 'NaN' ? (
+                  <div>?</div>
                 ) : tokenOrder && hasSelected === true ? (
                   <div>
                     {parseFloat(
@@ -872,6 +889,12 @@ export default function Swap() {
         {isDisconnected ? <ConnectWalletButton /> : null}
         {isDisconnected ||
         stateChainName !== 'arbitrumGoerli' ||
+        mktRate[tokenIn.symbol] === '~$NaN' ||
+        mktRate[tokenOut.symbol] === '~$NaN' ||
+        String(
+          parseFloat(mktRate[tokenOut.symbol].replace(/[^\d.-]/g, '')) /
+            parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')),
+        ) == 'NaN' ||
         bnInput._hex == '0x00' ? null : hasSelected === false ? (
           <SelectTokenButton />
         ) : Number(rangeQuote) < Number(coverQuote) ? (
