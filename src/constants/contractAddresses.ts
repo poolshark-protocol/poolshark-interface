@@ -2,16 +2,16 @@
 // CHAINID: 421613
 
 // tokens
-export const tokenZeroAddress   = "0x829e4a03A5Bd1EC5b6f5CC1d3A77c8e54A294847" // WETH
-export const tokenOneAddress    = "0xf853592f1e4ceA2B5e722A17C6f917a4c70d40Ca" // DAI
+export const tokenZeroAddress   = "0x6774be1a283Faed7ED8e40463c40Fb33A8da3461" // WETH
+export const tokenOneAddress    = "0xC26906E10E8BDaDeb2cf297eb56DF59775eE52c4" // DAI
 
 // cover pools
-export const coverPoolAddress   = "0x770eE71b7961D155F7F6B6356c08820764f01070"
-export const coverPoolFactoryAddress = "0xC7F9348F005508f5354B4f5753C2F3C948B889F8"
+export const coverPoolAddress   = "0xB84Ab81B3d405128ce09FB72A88fea4929E364Ce"
+export const coverPoolFactoryAddress = "0xf7b7FD8b14221beD8c6AA3290dA9cfa55098a7fD"
 
 // range pools
-export const rangePoolAddress = "0xe35bb5D6304c132112D5bB6625F723209A45c099"
-export const rangePoolFactoryAddress = "0x7Ffc8AdF56f941cf0b85152ec76dB93c7fD07324"
+export const rangePoolAddress = "0x51abd14047564d7e91d3604b34a9b7c1721f0ac6"
+export const rangePoolFactoryAddress = "0x1598DCe2D358F652E6625039C3c12e63b0444Bef"
 
 // libraries
 export const tickMathAddress = "0x02f821c66bF2466B3Ef3Fc2c962B392d0EE457F4"

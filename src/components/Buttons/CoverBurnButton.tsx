@@ -27,7 +27,9 @@ export default function CoverBurnButton({address, lower, claim, upper, zeroForOn
             claim,
             upper,
             zeroForOne,
-            amount,
+            amount, //TODO: this needs to be passed as a percent (1e38 = 100%)
+            //percent = amount.mul(ethers.utils.parseUnits("1",38)).div(position.liquidity)
+            // ^use this formula for burnPercent; position.liquidity will come from the Cover Subgraph
             true
         ]],
         chainId: 421613,
