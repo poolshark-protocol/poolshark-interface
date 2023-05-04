@@ -483,12 +483,12 @@ export default function CreateCover(props: any) {
         </div>
       </div>
       <div className="mt-3 space-y-2">
-        <div className="flex justify-between text-sm">
+        {/* <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Balance</div>
           <div>
             {usdcBalance} {tokenIn.symbol}
           </div>
-        </div>
+        </div> */}
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Amount to pay</div>
           <div>

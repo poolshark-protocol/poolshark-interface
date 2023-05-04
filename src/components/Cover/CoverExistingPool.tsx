@@ -31,6 +31,7 @@ export default function CoverExistingPool({
   account,
   key,
   poolId,
+  liquidity,
   tokenOneName,
   tokenOneSymbol,
   tokenOneLogoURI,
@@ -82,6 +83,9 @@ export default function CoverExistingPool({
     value: tokenOneValue,
   } as token)
   const [sliderValue, setSliderValue] = useState(50)
+  const [coverValue, setCoverValue] = useState(
+    Number(Number(Number(tokenOut.value) / 2).toFixed(5)),
+  )
   const [allowance, setAllowance] = useState('0')
   const { data } = useContractRead({
     address: tokenIn.address,
@@ -110,6 +114,15 @@ export default function CoverExistingPool({
     }
   }, [data, tokenIn.address, sliderValue])
 
+  useEffect(() => {
+    setCoverValue(
+      Number(Number(Number(tokenOut.value)).toFixed(5)) * sliderValue,
+    )
+    //var value = Number((coverValue * 100) / Number(tokenIn.value))
+    //if (value > 100) value = 100
+    //setSliderValue(value)
+  }, [sliderValue, tokenIn.value, tokenOut.value])
+
   const handleChange = (event: any) => {
     setSliderValue(event.target.value)
   }
@@ -122,6 +135,7 @@ export default function CoverExistingPool({
     const tempBal = queryTokenIn
     setQueryTokenIn(queryTokenOut)
     setQueryTokenOut(tempBal)
+    setSliderValue(50)
   }
 
   async function setCoverParams() {
@@ -348,7 +362,7 @@ export default function CoverExistingPool({
       </div>
       <div className="mt-3 space-y-2">
         <div className="flex justify-between text-sm">
-          <div className="text-[#646464]">Amount Covered</div>
+          <div className="text-[#646464]">Percentage Covered</div>
           <input
             type="string"
             id="input"
@@ -358,17 +372,32 @@ export default function CoverExistingPool({
           />
           {'%'}
         </div>
-        {/* <div className="flex justify-between text-sm">
-          <div className="text-[#646464]">Cover Size</div>
+        <div className="flex justify-between text-sm">
+          <div className="text-[#646464]">Amount Covered</div>
           <div>
-            {' '}
-            {sliderValue} {tokenIn.name}
+            <input
+              type="string"
+              id="input"
+              onChange={(e) => {
+                if (Number(e.target.value) / Number(tokenOut.value) < 100) {
+                  setSliderValue(
+                    Number(e.target.value) / Number(tokenOut.value),
+                  )
+                } else {
+                  setSliderValue(100)
+                }
+                setCoverValue(Number(e.target.value))
+              }}
+              value={coverValue}
+              className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
+            />
           </div>
-        </div> */}
+          <div>{tokenOut.name}</div>
+        </div>
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Amount to pay</div>
           <div>
-            {Number(sliderValue)*Number(tokenIn.value)} {tokenIn.name}
+            {Number(sliderValue) * Number(tokenIn.value)} {tokenIn.name}
           </div>
         </div>
       </div>
@@ -450,9 +479,8 @@ export default function CoverExistingPool({
       <div className="space-y-3">
         {isDisconnected ? <ConnectWalletButton /> : null}
         {isDisconnected ||
-        Number(allowance) <
-          sliderValue /* Number(ethers.utils.formatUnits(bnInput, 18)) */ ? (
-          <SwapCoverApproveButton approveToken={address} />
+        Number(allowance) < Number(sliderValue) * Number(tokenIn.value) ? (
+          <SwapCoverApproveButton approveToken={tokenIn.address} />
         ) : (
           <CoverMintButton
             disabled={false}

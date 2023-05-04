@@ -5,6 +5,7 @@ import CreateCover from './CreateCover'
 import PoolsModal from './PoolsModal'
 import { useAccount } from 'wagmi'
 import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
+import { ethers } from 'ethers'
 
 export default function Initial(props: any) {
   const { address, isConnected, isDisconnected } = useAccount()
@@ -30,6 +31,7 @@ export default function Initial(props: any) {
     setIsShifted('coverExistingPool')
     setPool({
       poolId: query.poolId,
+      liquidity: query.liquidity,
       tokenOneName: query.tokenOne.name,
       tokenOneSymbol: query.tokenOne.symbol,
       tokenOneLogoURI: logoMap[query.tokenOne.symbol],
@@ -143,8 +145,11 @@ export default function Initial(props: any) {
         pool === undefined ? '' : pool.tokenZeroAddress.toString()
       }
       tokenOneValue={pool === undefined ? '' : pool.tokenOneValue.toString()}
-      tokenZeroValue={
-        pool === undefined ? '' : pool.tokenZeroValue.toString()
+      tokenZeroValue={pool === undefined ? '' : pool.tokenZeroValue.toString()}
+      liquidity={
+        pool === undefined
+          ? ''
+          : String(ethers.utils.parseUnits(pool.liquidity))
       }
       goBack={setIsShifted}
     />
