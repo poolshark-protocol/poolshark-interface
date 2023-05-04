@@ -15,6 +15,7 @@ import useCoverAllowance from '../../hooks/useCoverAllowance'
 import { BigNumber, ethers } from 'ethers'
 import JSBI from 'jsbi'
 import {
+  getCoverPoolFromFactory,
   getPreviousTicksLower,
   getPreviousTicksUpper,
 } from '../../utils/queries'
@@ -26,6 +27,7 @@ import {
 } from '../../constants/contractAddresses'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import useInputBox from '../../hooks/useInputBox'
+import { coverPoolABI } from '../../abis/evm/coverPool'
 
 export default function CoverExistingPool({
   account,
@@ -59,6 +61,8 @@ export default function CoverExistingPool({
     state.pool,
     state.updatePool,
   ]) */
+  const [coverPoolRoute, setCoverPoolRoute] = useState('')
+  const [coverQuote, setCoverQuote] = useState(undefined)
   const [expanded, setExpanded] = useState(false)
   const [min, setMin] = useState(initialBig)
   const [max, setMax] = useState(initialBig)
@@ -87,6 +91,7 @@ export default function CoverExistingPool({
     Number(Number(Number(tokenOut.value) / 2).toFixed(5)),
   )
   const [allowance, setAllowance] = useState('0')
+  const [mktRate, setMktRate] = useState({})
   const { data } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -104,9 +109,30 @@ export default function CoverExistingPool({
       console.log('Settled', { data, error })
     },
   })
-  /* console.log('data ex', data)
-  console.log('tokenIn ex', tokenIn)
-  console.log('tokenOut ex', tokenOut) */
+
+  const { refetch: refetchCoverQuote, data: quoteCover } = useContractRead({
+    address: coverPoolRoute,
+    abi: coverPoolABI,
+    functionName: 'quote',
+    args: [
+      tokenOut.address != '' && tokenIn.address < tokenOut.address,
+      bnInput,
+      BigNumber.from('4295128739'),
+    ],
+    chainId: 421613,
+    watch: true,
+    onSuccess(data) {
+      console.log('Success cover wagmi', data)
+      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[1], 18)))
+      //setCoverPriceAfter(parseFloat(ethers.utils.formatUnits(data[2], 18)))
+    },
+    onError(error) {
+      console.log('Error cover wagmi', error)
+    },
+    onSettled(data, error) {
+      console.log('Settled', { data, error })
+    },
+  })
 
   useEffect(() => {
     if (data) {
@@ -118,10 +144,40 @@ export default function CoverExistingPool({
     setCoverValue(
       Number(Number(Number(tokenOut.value)).toFixed(5)) * sliderValue,
     )
-    //var value = Number((coverValue * 100) / Number(tokenIn.value))
-    //if (value > 100) value = 100
-    //setSliderValue(value)
   }, [sliderValue, tokenIn.value, tokenOut.value])
+
+  useEffect(() => {
+    getCoverPool()
+  }, [hasSelected, tokenIn.address, tokenOut.address])
+
+  useEffect(() => {
+    fetchTokenPrice()
+  }, [coverQuote])
+
+  useEffect(() => {
+    setCoverParams()
+  }, [minPrice, maxPrice, sliderValue])
+
+  //console.log('cover quote', quoteCover)
+
+  const getCoverPool = async () => {
+    try {
+      if (hasSelected === true) {
+        /* console.log(tokenIn, tokenOut) */
+
+        const pool = await getCoverPoolFromFactory(
+          tokenZeroAddress,
+          tokenOneAddress,
+        )
+
+        const id = pool['data']['coverPools']['0']['id']
+        console.log('pool ID', id)
+        setCoverPoolRoute(id)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const handleChange = (event: any) => {
     setSliderValue(event.target.value)
@@ -204,10 +260,6 @@ export default function CoverExistingPool({
     }
   }
 
-  useEffect(() => {
-    setCoverParams()
-  }, [minPrice, maxPrice, sliderValue])
-
   const changePrice = (direction: string, minMax: string) => {
     if (direction === 'plus' && minMax === 'min') {
       if (
@@ -266,17 +318,17 @@ export default function CoverExistingPool({
     }
   }
 
-  const getAllowance = async () => {
+  const fetchTokenPrice = async () => {
     try {
-      const provider = new ethers.providers.JsonRpcProvider(
-        'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
-      )
-      const signer = new ethers.VoidSigner(address, provider)
-      const contract = new ethers.Contract(tokenIn.address, erc20ABI, signer)
-      const allowance = await contract.allowance(address, rangePoolAddress)
-
-      //console.log('allowance', allowance)
-      setAllowance(allowance)
+      setMktRate({
+        TOKEN20A:
+          '~' +
+          Number(coverQuote).toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+          }),
+        TOKEN20B: '~1.00',
+      })
     } catch (error) {
       console.log(error)
     }
@@ -364,14 +416,14 @@ export default function CoverExistingPool({
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Percentage Covered</div>
           <div className="flex gap-x-2 items-center">
-          <input
-            type="string"
-            id="input"
-            onChange={(e) => setSliderValue(Number(e.target.value))}
-            value={sliderValue}
-            className="text-right placeholder:text-grey1 text-white text-2xl w-20 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
-          />
-          %
+            <input
+              type="string"
+              id="input"
+              onChange={(e) => setSliderValue(Number(e.target.value))}
+              value={sliderValue}
+              className="text-right placeholder:text-grey1 text-white text-2xl w-20 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
+            />
+            %
           </div>
         </div>
         <div className="flex justify-between text-sm">
@@ -396,12 +448,21 @@ export default function CoverExistingPool({
           </div>
           <div>{tokenOut.name}</div>
         </div>
-        <div className="flex justify-between text-sm">
-          <div className="text-[#646464]">Amount to pay</div>
-          <div>
-            {Number(sliderValue) * Number(tokenIn.value)} {tokenIn.name}
+        {mktRate[tokenIn.symbol] ? (
+          <div className="flex justify-between text-sm">
+            <div className="text-[#646464]">Amount to pay</div>
+            <div>
+              {Number(sliderValue) *
+                Number(tokenIn.value) *
+                parseFloat(
+                  mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
+                )}{' '}
+              $
+            </div>
           </div>
-        </div>
+        ) : (
+          <></>
+        )}
       </div>
       <h1 className="mb-3 mt-4">Set Price Range</h1>
       <div className="flex justify-between w-full gap-x-6">

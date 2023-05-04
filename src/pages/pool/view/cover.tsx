@@ -197,6 +197,7 @@ export default function Cover() {
             currency: 'USD',
           }),
         TOKEN20B: '~1.00',
+        
       })
     } catch (error) {
       console.log(error)

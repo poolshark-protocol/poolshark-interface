@@ -22,18 +22,21 @@ import useInputBox from '../../hooks/useInputBox'
 import {
   rangePoolAddress,
   tokenOneAddress,
+  tokenZeroAddress,
 } from '../../constants/contractAddresses'
 import { coverPoolAddress } from '../../constants/contractAddresses'
 import { TickMath } from '../../utils/tickMath'
 import { BigNumber, Contract, ethers } from 'ethers'
 import { useCoverStore } from '../../hooks/useStore'
 import {
+  getCoverPoolFromFactory,
   getPreviousTicksLower,
   getPreviousTicksUpper,
 } from '../../utils/queries'
 import JSBI from 'jsbi'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import Link from 'next/link'
+import { coverPoolABI } from '../../abis/evm/coverPool'
 
 export default function CreateCover(props: any) {
   //console.log('props', props)
@@ -51,6 +54,9 @@ export default function CreateCover(props: any) {
     state.CoverAllowance,
     state.coverContractParams,
   ])
+
+  const [coverQuote, setCoverQuote] = useState(undefined)
+  const [coverPoolRoute, setCoverPoolRoute] = useState('')
   const [expanded, setExpanded] = useState(false)
   const [stateChainName, setStateChainName] = useState()
   const [minPrice, setMinPrice] = useState('0')
@@ -61,6 +67,7 @@ export default function CreateCover(props: any) {
   const [allowance, setAllowance] = useState('0')
   const { address, isConnected, isDisconnected } = useAccount()
   const [isDisabled, setDisabled] = useState(false)
+  const [mktRate, setMktRate] = useState({})
   const [hasSelected, setHasSelected] = useState(
     pool != undefined ? true : false,
   )
@@ -88,6 +95,7 @@ export default function CreateCover(props: any) {
   const [usdcBalance, setUsdcBalance] = useState(0)
   const [amountToPay, setAmountToPay] = useState(0)
   const [prices, setPrices] = useState({ tokenIn: 0, tokenOut: 0 })
+  const [tokenOrder, setTokenOrder] = useState(true)
 
   const { data } = useContractRead({
     address: tokenIn.address,
@@ -106,11 +114,81 @@ export default function CreateCover(props: any) {
       console.log('Settled', { data, error })
     },
   })
+
+  const { refetch: refetchCoverQuote, data: quoteCover } = useContractRead({
+    address: coverPoolRoute,
+    abi: coverPoolABI,
+    functionName: 'quote',
+    args: [
+      tokenOut.address != '' && tokenIn.address < tokenOut.address,
+      bnInput,
+      BigNumber.from('4295128739'),
+    ],
+    chainId: 421613,
+    watch: true,
+    onSuccess(data) {
+      console.log('Success cover wagmi', data)
+      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[1], 18)))
+      //setCoverPriceAfter(parseFloat(ethers.utils.formatUnits(data[2], 18)))
+    },
+    onError(error) {
+      console.log('Error cover wagmi', error)
+    },
+    onSettled(data, error) {
+      console.log('Settled', { data, error })
+    },
+  })
+
   useEffect(() => {
     if (data) {
       setAllowance(ethers.utils.formatUnits(data, 18))
     }
   }, [data, tokenIn.address, bnInput])
+
+  useEffect(() => {
+    setCoverParams()
+  }, [minPrice, maxPrice, bnInput])
+
+  const {
+    network: { chainId },
+  } = useProvider()
+
+  useEffect(() => {
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
+  }, [chainId])
+
+  useEffect(() => {
+    getBalances()
+  }, [tokenOut, tokenIn])
+
+  useEffect(() => {
+    fetchTokenPrice()
+  }, [coverQuote])
+
+  useEffect(() => {
+    getCoverPool()
+  }, [hasSelected, tokenIn.address, tokenOut.address])
+
+  console.log('cover quote', quoteCover)
+
+  const getCoverPool = async () => {
+    try {
+      if (hasSelected === true) {
+        /* console.log(tokenIn, tokenOut) */
+
+        const pool = await getCoverPoolFromFactory(
+          tokenZeroAddress,
+          tokenOneAddress,
+        )
+
+        const id = pool['data']['coverPools']['0']['id']
+        console.log('pool ID', id)
+        setCoverPoolRoute(id)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   async function setCoverParams() {
     try {
@@ -190,22 +268,6 @@ export default function CreateCover(props: any) {
     }
   }
 
-  useEffect(() => {
-    setCoverParams()
-  }, [minPrice, maxPrice, bnInput])
-
-  const {
-    network: { chainId },
-  } = useProvider()
-
-  useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
-  }, [chainId])
-
-  useEffect(() => {
-    getBalances()
-  }, [tokenOut, tokenIn])
-
   function changeDefault0(token: {
     symbol: string
     logoURI: any
@@ -220,8 +282,6 @@ export default function CreateCover(props: any) {
     //console.log(token)
     setTokenIn(token)
   }
-
-  const [tokenOrder, setTokenOrder] = useState(true)
 
   const changeDefault1 = (token: {
     symbol: string
@@ -334,26 +394,22 @@ export default function CreateCover(props: any) {
     }
   }
 
-  // useEffect(() => {
-  // if ()
-
-  //   },[bnInput, (document.getElementById('minInput') as HTMLInputElement)?.value, (document.getElementById('maxInput') as HTMLInputElement)?.value])
-
-  /* const getAllowance = async () => {
+  const fetchTokenPrice = async () => {
     try {
-      const provider = new ethers.providers.JsonRpcProvider(
-        'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
-      )
-      const signer = new ethers.VoidSigner(address, provider)
-      const contract = new ethers.Contract(tokenIn.address, erc20ABI, signer)
-      const allowance = await contract.allowance(address, rangePoolAddress)
-
-      //console.log('allowance', allowance)
-      setAllowance(allowance)
+      setMktRate({
+        TOKEN20A:
+          '~' +
+          Number(coverQuote).toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+          }),
+        TOKEN20B: '~1.00',
+        USDC: '~1.00',
+      })
     } catch (error) {
       console.log(error)
     }
-  } */
+  }
 
   const Option = () => {
     if (expanded) {
@@ -492,7 +548,16 @@ export default function CreateCover(props: any) {
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Amount to pay</div>
           <div>
-            {amountToPay} {tokenIn.symbol}
+            {/* {amountToPay} {tokenIn.symbol} */}
+            {hasSelected ? (
+              (
+                parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''))
+              ).toFixed(2)
+            ) : (
+              <>?</>
+            )}{' '}
+            $
           </div>
         </div>
       </div>
