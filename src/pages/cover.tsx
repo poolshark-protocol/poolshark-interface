@@ -241,7 +241,7 @@ export default function Cover() {
                         Your cover pools will appear here
                       </div>
                     ) : (
-                      <div>
+                      <div className="space-y-3">
                         {allCoverPositions.map((allCoverPosition) => {
                           if (
                             /* allCoverPosition.userOwnerAddress ===

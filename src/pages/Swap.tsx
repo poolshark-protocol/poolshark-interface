@@ -753,8 +753,8 @@ export default function Swap() {
         </div>
         <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
-            {inputBox('0')}
-            {mktRate[tokenIn.symbol] != '~$NaN' ? (
+            {inputBox("0")}
+            {mktRate[tokenIn.symbol] != "~$NaN" ? (
               <div className="flex">
                 <div className="flex text-xs text-[#4C4C4C]">
                   {mktRate[tokenIn.symbol]}
@@ -809,9 +809,9 @@ export default function Swap() {
           <div className="flex-col justify-center w-1/2 p-2 ">
             <div className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
               {hasSelected &&
-              mktRate[tokenIn.symbol] != '~$NaN' &&
-              mktRate[tokenOut.symbol] != '~$NaN' &&
-              bnInput._hex != '0x00' ? (
+              mktRate[tokenIn.symbol] != "~$NaN" &&
+              mktRate[tokenOut.symbol] != "~$NaN" &&
+              bnInput._hex != "0x00" ? (
                 <div>
                   {(
                     parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
@@ -827,7 +827,7 @@ export default function Swap() {
                 <div>0</div>
               )}
             </div>
-            {mktRate[tokenOut.symbol] != '~$NaN' ? (
+            {mktRate[tokenOut.symbol] != "~$NaN" ? (
               <div className="flex">
                 <div className="flex text-xs text-[#4C4C4C]">
                   {mktRate[tokenOut.symbol]}
@@ -879,11 +879,18 @@ export default function Swap() {
           <div>
             <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-4">
               <div className="flex-col justify-center w-1/2 p-2 ">
+                <input
+                  className="bg-[#0C0C0C] outline-none"
+                  placeholder="0"
+                  type="number"
+                />
+                <>
+                {/* 
                 {hasSelected === false ||
                 String(
-                  parseFloat(mktRate[tokenOut.symbol].replace(/[^\d.-]/g, '')) /
-                    parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')),
-                ) == 'NaN' ? (
+                  parseFloat(mktRate[tokenOut.symbol].replace(/[^\d.-]/g, "")) /
+                    parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ""))
+                ) == "NaN" ? (
                   <div>?</div>
                 ) : tokenOrder && hasSelected === true ? (
                   <div>
@@ -904,6 +911,9 @@ export default function Swap() {
                       )}
                   </div>
                 )}
+                 */ }
+                
+                </>
                 <div className="flex">
                   {/* <div className="flex text-xs text-[#4C4C4C]"> // Implement later 
                     98% above Market Price
@@ -981,14 +991,14 @@ export default function Swap() {
         </div>
         {isDisconnected ? <ConnectWalletButton /> : null}
         {isDisconnected ||
-        stateChainName !== 'arbitrumGoerli' ||
-        mktRate[tokenIn.symbol] === '~$NaN' ||
-        mktRate[tokenOut.symbol] === '~$NaN' ||
+        stateChainName !== "arbitrumGoerli" ||
+        mktRate[tokenIn.symbol] === "~$NaN" ||
+        mktRate[tokenOut.symbol] === "~$NaN" ||
         String(
-          parseFloat(mktRate[tokenOut.symbol].replace(/[^\d.-]/g, '')) /
-            parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')),
-        ) == 'NaN' ||
-        bnInput._hex == '0x00' ? null : hasSelected === false ? (
+          parseFloat(mktRate[tokenOut.symbol].replace(/[^\d.-]/g, "")) /
+            parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ""))
+        ) == "NaN" ||
+        bnInput._hex == "0x00" ? null : hasSelected === false ? (
           <SelectTokenButton />
         ) : Number(rangeQuote) < Number(coverQuote) ? (
           Number(allowanceRange) <
