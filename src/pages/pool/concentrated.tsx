@@ -8,7 +8,7 @@ import { tokenOneAddress, tokenZeroAddress } from '../../constants/contractAddre
 
 export default function Concentrated() {
   const router = useRouter()
-  console.log('router.query: ', router.query)
+  //console.log('router.query: ', router.query)
   const zeroAddress =
     router.query.tokenZeroAddress === undefined
       ? ''

@@ -149,7 +149,7 @@ export default function Pool() {
   function mapRangePools() {
     const mappedRangePools = []
     rangePools.map((rangePool) => {
-      console.log('rangePool', rangePool)
+      //console.log('rangePool', rangePool)
       const rangePoolData = {
         poolId: rangePool.id,
         tokenOne: rangePool.token1,
@@ -169,7 +169,7 @@ export default function Pool() {
   function mapCoverPools() {
     const mappedCoverPools = []
     coverPools.map((coverPool) => {
-      console.log('coverPool', coverPool)
+      //console.log('coverPool', coverPool)
       const coverPoolData = {
         poolId: coverPool.id,
         tokenOne: coverPool.token1,
