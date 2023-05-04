@@ -5,6 +5,17 @@ import {
 } from '@heroicons/react/20/solid'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRangeStore } from '../../hooks/useStore'
+import { getRangePoolFromFactory } from '../../utils/queries'
+import { TickMath } from '../../utils/tickMath'
+import JSBI from 'jsbi'
+import { ethers } from 'ethers'
+import { useContractRead } from 'wagmi'
+import { rangePoolABI } from '../../abis/evm/rangePool'
+import {
+  tokenOneAddress,
+  tokenZeroAddress,
+} from '../../constants/contractAddresses'
 
 export default function UserPool({
   account,
@@ -23,40 +34,96 @@ export default function UserPool({
   volumeUsd,
   volumeEth,
 }) {
-  /* const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-    tokenZero.name?.substring(0, 6) +
-      '...' +
-      tokenZero.name?.substring(
-        tokenZero.name?.length - 4,
-        tokenZero.name?.length,
-      ),
-  )
-  const [tokenOneDisplay, setTokenOneDisplay] = useState(
-    tokenOne.id?.substring(0, 6) +
-      '...' +
-      tokenOne.id?.substring(tokenOne.id?.length - 4, tokenOne.id?.length),
-  )
-  const [poolDisplay, setPoolDisplay] = useState(
-    poolId?.substring(0, 6) +
-      '...' +
-      poolId?.substring(poolId?.length - 4, poolId?.length),
-  ) */
-
-  const feeTierPercentage = feeTier / 10000
-
-  //useEffect
-
-  /* TODO@retraca create constant file for this */
   const logoMap = {
     TOKEN20A: '/static/images/eth_icon.png',
     TOKEN20B: '/static/images/token.png',
     USDC: '/static/images/token.png',
     WETH: '/static/images/eth_icon.png',
     DAI: '/static/images/dai_icon.png',
+    stkEth: '/static/images/eth_icon.png',
+    pStake: '/static/images/eth_icon.png',
+    UNI: '/static/images/dai_icon.png',
+  }
+  const feeTierPercentage = feeTier / 10000
+  const [currentPool, resetPool, updatePool] = useRangeStore((state) => [
+    state.pool,
+    state.resetPool,
+    state.updatePool,
+  ])
+  const [show, setShow] = useState(false)
+  const [rangePrice, setRangePrice] = useState(undefined)
+  const [rangeTickPrice, setRangeTickPrice] = useState(undefined)
+  const [rangePoolRoute, setRangePoolRoute] = useState('')
+
+  console.log('rangePoolRoute', rangePoolRoute)
+
+  useEffect(() => {
+    getRangePool()
+  })
+
+  useEffect(() => {
+    setRangeParams()
+  }, [rangePrice])
+
+  const getRangePool = async () => {
+    try {
+      const pool = await getRangePoolFromFactory(
+        tokenZeroAddress,
+        tokenOneAddress,
+      )
+      const id = pool['data']['rangePools']['0']['id']
+      setRangePoolRoute(id)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
-  /* console.log('tokenZero', tokenZero)
-  console.log('tokenOne', tokenOne) */
+  const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
+    address: rangePoolRoute,
+    abi: rangePoolABI,
+    functionName:
+      tokenOne.id != '' && tokenZero.id < tokenOne.id ? 'pool1' : 'pool0',
+    args: [],
+    chainId: 421613,
+    watch: true,
+    onSuccess(data) {
+      console.log('Success price Range', data)
+      setRangePrice(parseFloat(ethers.utils.formatUnits(data[0], 18)))
+    },
+    onError(error) {
+      console.log('Error price Range', error)
+    },
+    onSettled(data, error) {
+      console.log('Settled price Range', { data, error })
+    },
+  })
+
+  async function setRangeParams() {
+    try {
+      if (rangePrice) {
+        const price = TickMath.getTickAtSqrtRatio(
+          JSBI.divide(
+            JSBI.multiply(
+              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
+              JSBI.BigInt(
+                String(
+                  Math.sqrt(Number(parseFloat(rangePrice).toFixed(30))).toFixed(
+                    30,
+                  ),
+                )
+                  .split('.')
+                  .join(''),
+              ),
+            ),
+            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
+          ),
+        )
+        setRangeTickPrice(ethers.utils.parseUnits(String(price), 0))
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <>
@@ -76,6 +143,9 @@ export default function UserPool({
             tokenOneLogoURI: logoMap[tokenOne.symbol],
             tokenOneAddress: tokenOne.id,
             tokenOneValue: valueTokenOne,
+            price: rangeTickPrice
+              ? ethers.utils.formatUnits(rangeTickPrice, 18)
+              : 0,
             min: min,
             max: max,
             liquidity: liquidity,
@@ -101,7 +171,9 @@ export default function UserPool({
                 <ArrowLongRightIcon className="w-5" />
                 {tokenOne.name}
               </div>
-              <div className="bg-black px-2 py-1 rounded-lg text-grey">{feeTierPercentage}%</div>
+              <div className="bg-black px-2 py-1 rounded-lg text-grey">
+                {feeTierPercentage}%
+              </div>
             </div>
             <div className="text-sm flex items-center gap-x-3">
               <span>
@@ -115,21 +187,28 @@ export default function UserPool({
               </span>
             </div>
           </div>{' '}
-          {valueTokenZero == 0 || valueTokenOne == 0 ? (
-          <div className="pr-5">
-            <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-              <ExclamationTriangleIcon className="w-4 text-yellow-600" />
-              Out of Range
-            </div>
-          </div>
-        ) : (
-          <div className="pr-5">
-            <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-              <div className="w-2 h-2 bg-green-500 rounded-full" />
-              In Range
-            </div>
-          </div>
-        )}
+          {rangeTickPrice ? (
+            Number(ethers.utils.formatUnits(rangeTickPrice, 18)) <
+              Number(min) ||
+            Number(ethers.utils.formatUnits(rangeTickPrice, 18)) >
+              Number(max) ? (
+              <div className="pr-5">
+                <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
+                  <ExclamationTriangleIcon className="w-4 text-yellow-600" />
+                  Out of Range
+                </div>
+              </div>
+            ) : (
+              <div className="pr-5">
+                <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
+                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                  In Range
+                </div>
+              </div>
+            )
+          ) : (
+            <></>
+          )}
         </div>
       </Link>
     </>
