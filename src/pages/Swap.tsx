@@ -36,11 +36,6 @@ import SelectTokenButton from '../components/Buttons/SelectTokenButtonSwap'
 import SwapRangeButton from '../components/Buttons/SwapRangeButton'
 import SwapCoverApproveButton from '../components/Buttons/SwapCoverApproveButton'
 import SwapCoverButton from '../components/Buttons/SwapCoverButton'
-import {
-  getCoverQuoteWagmi,
-  getCoverPriceWagmi,
-} from '../utils/getPriceAndQuotes'
-import CoverQuote from '../components/CoverQuote'
 import useSwapAllowance from '../hooks/useSwapAllowance'
 import { rangePoolABI } from '../abis/evm/rangePool'
 
