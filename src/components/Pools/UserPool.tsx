@@ -55,7 +55,7 @@ export default function UserPool({
   const [rangeTickPrice, setRangeTickPrice] = useState(undefined)
   const [rangePoolRoute, setRangePoolRoute] = useState('')
 
-  console.log('rangePoolRoute', rangePoolRoute)
+  //console.log('rangePoolRoute', rangePoolRoute)
 
   useEffect(() => {
     getRangePool()

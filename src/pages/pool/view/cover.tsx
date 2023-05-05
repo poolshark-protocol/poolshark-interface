@@ -12,9 +12,6 @@ import { useRouter } from 'next/router'
 import { useAccount, useContractRead } from 'wagmi'
 import Link from 'next/link'
 import { BigNumber, ethers } from 'ethers'
-import { getCoverPoolFromFactory, getCoverQuote } from '../../../utils/queries'
-import { coverPoolAddress, tokenOneAddress, tokenZeroAddress } from '../../../constants/contractAddresses'
-import { coverPoolABI } from '../../../abis/evm/coverPool'
 
 export default function Cover() {
   type token = {
@@ -72,8 +69,12 @@ export default function Cover() {
     address: router.query.tokenOneAddress,
     value: router.query.tokenOneValue,
   } as token)
-  const [coverPrice, setCoverPrice] = useState(undefined)
-  const [coverPoolRoute, setCoverPoolRoute] = useState('')
+  const [coverPrice, setCoverPrice] = useState(
+    router.query.coverPrice ?? undefined,
+  )
+  const [coverTickPrice, setCoverTickPrice] = useState(
+    router.query.coverTickPrice ?? undefined,
+  )
   const [mktRate, setMktRate] = useState({})
 
   useEffect(() => {
@@ -103,14 +104,6 @@ export default function Cover() {
     }
   })
 
-  useEffect(() => {
-    getCoverPool()
-  }, [])
-
-  useEffect(() => {
-    fetchTokenPrice()
-  }, [coverPrice])
-
   function copyAddress0() {
     navigator.clipboard.writeText(
       router.query.tokenZeroAddress === undefined
@@ -136,57 +129,6 @@ export default function Cover() {
     setIsPoolCopied(true)
   }
 
-  const { refetch: refetchCoverPrice, data: priceCover } = useContractRead({
-    address: coverPoolRoute,
-    abi: coverPoolABI,
-    functionName:
-      tokenOut.address != '' && tokenIn.address < tokenOut.address
-        ? 'pool1'
-        : 'pool0',
-    args: [],
-    chainId: 421613,
-    watch: true,
-    onSuccess(data) {
-      console.log('Success price Cover', data)
-      setCoverPrice(parseFloat(ethers.utils.formatUnits(data[4], 18)))
-    },
-    onError(error) {
-      console.log('Error price Cover', error)
-    },
-    onSettled(data, error) {
-      console.log('Settled price Cover', { data, error })
-    },
-  })
-
-  const getCoverPool = async () => {
-    try {
-      const pool = await getCoverPoolFromFactory(
-        tokenZeroAddress,
-        tokenOneAddress
-      )
-      const id = pool['data']['coverPools']['0']['id']
-      /*  console.log(
-        'coverParams',
-        coverPoolAddress,
-        BigNumber.from(tokenIn.value),
-        BigNumber.from('4295128739'),
-        tokenIn.address,
-        tokenOut.address,
-      ) */
-      /*  const price = await getCoverQuote(
-        coverPoolAddress,
-        BigNumber.from('100'),
-        BigNumber.from('4295128739'),
-        tokenIn.address,
-        tokenOut.address,
-      ) */
-      //setCoverPrice(price)
-      setCoverPoolRoute(id)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
   const fetchTokenPrice = async () => {
     try {
       setMktRate({
@@ -197,7 +139,6 @@ export default function Cover() {
             currency: 'USD',
           }),
         TOKEN20B: '~1.00',
-        
       })
     } catch (error) {
       console.log(error)
@@ -240,8 +181,8 @@ export default function Cover() {
               <span className="bg-white text-black rounded-md px-3 py-0.5">
                 {router.query.feeTier}%
               </span>
-              {Number(router.query.price) < Number(router.query.min) ||
-              Number(router.query.price) > Number(router.query.max) ? (
+              {Number(coverTickPrice) < Number(router.query.min) ||
+              Number(coverTickPrice) > Number(router.query.max) ? (
                 <div className="pr-5">
                   <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
                     <ExclamationTriangleIcon className="w-4 text-yellow-600" />
@@ -431,8 +372,8 @@ export default function Cover() {
             <div>
               <div className="flex mt-7 gap-x-6 items-center">
                 <h1 className="text-lg">Price Range </h1>
-                {Number(router.query.price) < Number(router.query.min) ||
-                Number(router.query.price) > Number(router.query.max) ? (
+                {Number(coverTickPrice) < Number(router.query.min) ||
+                Number(coverTickPrice) > Number(router.query.max) ? (
                   <div className="pr-5">
                     <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
                       <ExclamationTriangleIcon className="w-4 text-yellow-600" />

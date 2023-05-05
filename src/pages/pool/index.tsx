@@ -130,9 +130,9 @@ export default function Pool() {
       //console.log('coverPosition', coverPosition)
       const coverPositionData = {
         poolId: coverPosition.pool.id,
-        tokenZero: coverPosition.inToken,
+        tokenZero: coverPosition.pool.token0,
         valueTokenZero: coverPosition.inAmount,
-        tokenOne: coverPosition.outToken,
+        tokenOne: coverPosition.pool.token1,
         valueTokenOne: coverPosition.outAmount,
         min: coverPosition.lower,
         max: coverPosition.upper,

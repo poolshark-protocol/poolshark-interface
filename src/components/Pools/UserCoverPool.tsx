@@ -54,31 +54,11 @@ export default function UserCoverPool({
   const [coverPoolRoute, setCoverPoolRoute] = useState('')
 
   //console.log('coverPrice', coverPrice)
-  //console.log('coverTick', ethers.utils.formatUnits(coverTickPrice, 18))
+  //console.log('coverTickPrice', coverTickPrice)
 
   useEffect(() => {
     getCoverPool()
-  })
-
-  useEffect(() => {
-    setCoverParams()
-  }, [coverPrice])
-
-  const getCoverPool = async () => {
-    try {
-      //console.log('Token Zero', tokenZero.id)
-      //console.log('Token One', tokenOne.id)
-      //mock because of inconsistent data in subgraph
-      const pool = await getCoverPoolFromFactory(
-        tokenZeroAddress,
-        tokenOneAddress,
-      )
-      const id = pool['data']['coverPools']['0']['id']
-      setCoverPoolRoute(id)
-    } catch (error) {
-      console.log(error)
-    }
-  }
+  }, [tokenOne, tokenZero])
 
   const { refetch: refetchCoverPrice, data: priceCover } = useContractRead({
     address: coverPoolRoute,
@@ -89,20 +69,39 @@ export default function UserCoverPool({
     chainId: 421613,
     watch: true,
     onSuccess(data) {
-      console.log('Success price Cover', data)
+      //console.log('Success price Cover', data)
       setCoverPrice(parseFloat(ethers.utils.formatUnits(data[0], 18)))
     },
     onError(error) {
       console.log('Error price Cover', error)
     },
     onSettled(data, error) {
-      console.log('Settled price Cover', { data, error })
+      //console.log('Settled price Cover', { data, error })
     },
   })
 
+  useEffect(() => {
+    setCoverParams()
+  }, [coverPrice])
+
+  const getCoverPool = async () => {
+    try {
+      var pool = undefined
+      if (tokenZero.id < tokenOne.id) {
+        pool = await getCoverPoolFromFactory(tokenZero.id, tokenOne.id)
+      } else {
+        pool = await getCoverPoolFromFactory(tokenOne.id, tokenZero.id)
+      }
+      const id = pool['data']['coverPools']['0']['id']
+      setCoverPoolRoute(id)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   async function setCoverParams() {
     try {
-      if (coverPrice) {
+      if (coverPrice != undefined) {
         const price = TickMath.getTickAtSqrtRatio(
           JSBI.divide(
             JSBI.multiply(
@@ -120,10 +119,11 @@ export default function UserCoverPool({
             JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
           ),
         )
+        //console.log('price', price)
         setCoverTickPrice(ethers.utils.parseUnits(String(price), 0))
-        //setCoverTickPrice(price)
       }
     } catch (error) {
+      setCoverTickPrice(ethers.utils.parseUnits(String(coverPrice), 0))
       console.log(error)
     }
   }
@@ -135,9 +135,6 @@ export default function UserCoverPool({
       tokenOne: tokenOne,
       tokenZero: tokenZero,
     }) */
-    //prefill('existingPool')
-    //close(false)
-    // console.log(currentPool)
   }
 
   return (
@@ -157,7 +154,8 @@ export default function UserCoverPool({
           tokenOneLogoURI: logoMap[tokenOne.symbol],
           tokenOneAddress: tokenOne.id,
           tokenOneValue: valueTokenOne,
-          price: coverTickPrice ? ethers.utils.formatUnits(coverTickPrice, 18) : 0,
+          coverPrice: coverPrice ? coverPrice : 0,
+          coverTickPrice: coverTickPrice ? coverTickPrice : 0,
           min: min,
           max: max,
           liquidity: liquidity,
