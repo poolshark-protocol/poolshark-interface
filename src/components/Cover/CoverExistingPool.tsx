@@ -61,8 +61,6 @@ export default function CoverExistingPool({
     state.pool,
     state.updatePool,
   ]) */
-  const [coverPoolRoute, setCoverPoolRoute] = useState('')
-  const [coverQuote, setCoverQuote] = useState(undefined)
   const [expanded, setExpanded] = useState(false)
   const [min, setMin] = useState(initialBig)
   const [max, setMax] = useState(initialBig)
@@ -90,6 +88,9 @@ export default function CoverExistingPool({
   const [coverValue, setCoverValue] = useState(
     Number(Number(Number(tokenOut.value) / 2).toFixed(5)),
   )
+  const [coverPrice, setCoverPrice] = useState(undefined)
+  const [coverTickPrice, setCoverTickPrice] = useState(undefined)
+  const [coverPoolRoute, setCoverPoolRoute] = useState('')
   const [allowance, setAllowance] = useState('0')
   const [mktRate, setMktRate] = useState({})
   const { data } = useContractRead({
@@ -110,27 +111,25 @@ export default function CoverExistingPool({
     },
   })
 
-  const { refetch: refetchCoverQuote, data: quoteCover } = useContractRead({
+  const { refetch: refetchCoverPrice, data: priceCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
-    functionName: 'quote',
-    args: [
-      tokenOut.address != '' && tokenIn.address < tokenOut.address,
-      bnInput,
-      BigNumber.from('4295128739'),
-    ],
+    functionName:
+      tokenOut.address != '' && tokenIn.address < tokenOut.address
+        ? 'pool1'
+        : 'pool0',
+    args: [],
     chainId: 421613,
     watch: true,
     onSuccess(data) {
-      console.log('Success cover wagmi', data)
-      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[1], 18)))
-      //setCoverPriceAfter(parseFloat(ethers.utils.formatUnits(data[2], 18)))
+      //console.log('Success price Cover', data)
+      setCoverPrice(parseFloat(ethers.utils.formatUnits(data[1], 18)))
     },
     onError(error) {
-      console.log('Error cover wagmi', error)
+      console.log('Error price Cover', error)
     },
     onSettled(data, error) {
-      console.log('Settled', { data, error })
+      //console.log('Settled price Cover', { data, error })
     },
   })
 
@@ -152,28 +151,26 @@ export default function CoverExistingPool({
 
   useEffect(() => {
     fetchTokenPrice()
-  }, [coverQuote])
+  }, [coverPrice])
 
   useEffect(() => {
     setCoverParams()
-  }, [minPrice, maxPrice, sliderValue])
+  }, [minPrice, maxPrice, sliderValue, coverPrice])
 
-  //console.log('cover quote', quoteCover)
+  console.log('tokenIn',tokenIn)
+  console.log('coverTickPrice', Number(coverTickPrice))
+  console.log('mktRatePrice', mktRate[tokenIn.symbol])
 
   const getCoverPool = async () => {
     try {
-      if (hasSelected === true) {
-        /* console.log(tokenIn, tokenOut) */
-
-        const pool = await getCoverPoolFromFactory(
-          tokenZeroAddress,
-          tokenOneAddress,
-        )
-
-        const id = pool['data']['coverPools']['0']['id']
-        console.log('pool ID', id)
-        setCoverPoolRoute(id)
+      var pool = undefined
+      if (tokenIn.address < tokenOut.address) {
+        pool = await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
+      } else {
+        pool = await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
       }
+      const id = pool['data']['coverPools']['0']['id']
+      setCoverPoolRoute(id)
     } catch (error) {
       console.log(error)
     }
@@ -237,25 +234,37 @@ export default function CoverExistingPool({
             JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
           ),
         )
-        /*updateCoverContractParams({
-          prevLower: ethers.utils.parseUnits(
-            data['data']['ticks'][0]['index'],
-            0,
-          ),
-          min: ethers.utils.parseUnits(String(min), 0),
-          prevUpper: ethers.utils.parseUnits(
-            data1['data']['ticks'][0]['index'],
-            0,
-          ),
-          max: ethers.utils.parseUnits(String(max), 0),
-          claim: ethers.utils.parseUnits(String(min), 0),
-          amount: bnInput,
-          inverse: false,
-        })*/
       }
       setMin(ethers.utils.parseUnits(String(min), 0))
       setMax(ethers.utils.parseUnits(String(max), 0))
     } catch (error) {
+      console.log(error)
+    }
+
+    try {
+      if (coverPrice) {
+        const price = TickMath.getTickAtSqrtRatio(
+          JSBI.divide(
+            JSBI.multiply(
+              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
+              JSBI.BigInt(
+                String(
+                  Math.sqrt(Number(parseFloat(coverPrice).toFixed(30))).toFixed(
+                    30,
+                  ),
+                )
+                  .split('.')
+                  .join(''),
+              ),
+            ),
+            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
+          ),
+        )
+        console.log('price', price)
+        setCoverTickPrice(ethers.utils.parseUnits(String(price), 0))
+      }
+    } catch (error) {
+      setCoverTickPrice(ethers.utils.parseUnits(String(coverPrice), 0))
       console.log(error)
     }
   }
@@ -323,7 +332,7 @@ export default function CoverExistingPool({
       setMktRate({
         TOKEN20A:
           '~' +
-          Number(coverQuote).toLocaleString('en-US', {
+          Number(coverTickPrice).toLocaleString('en-US', {
             style: 'currency',
             currency: 'USD',
           }),

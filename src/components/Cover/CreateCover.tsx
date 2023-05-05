@@ -54,9 +54,6 @@ export default function CreateCover(props: any) {
     state.CoverAllowance,
     state.coverContractParams,
   ])
-
-  const [coverQuote, setCoverQuote] = useState(undefined)
-  const [coverPoolRoute, setCoverPoolRoute] = useState('')
   const [expanded, setExpanded] = useState(false)
   const [stateChainName, setStateChainName] = useState()
   const [minPrice, setMinPrice] = useState('0')
@@ -95,6 +92,9 @@ export default function CreateCover(props: any) {
   const [usdcBalance, setUsdcBalance] = useState(0)
   const [amountToPay, setAmountToPay] = useState(0)
   const [prices, setPrices] = useState({ tokenIn: 0, tokenOut: 0 })
+  const [coverPrice, setCoverPrice] = useState(undefined)
+  const [coverTickPrice, setCoverTickPrice] = useState(undefined)
+  const [coverPoolRoute, setCoverPoolRoute] = useState('')
   const [tokenOrder, setTokenOrder] = useState(true)
 
   const { data } = useContractRead({
@@ -115,27 +115,25 @@ export default function CreateCover(props: any) {
     },
   })
 
-  const { refetch: refetchCoverQuote, data: quoteCover } = useContractRead({
+  const { refetch: refetchCoverPrice, data: priceCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
-    functionName: 'quote',
-    args: [
-      tokenOut.address != '' && tokenIn.address < tokenOut.address,
-      bnInput,
-      BigNumber.from('4295128739'),
-    ],
+    functionName:
+      tokenOut.address != '' && tokenIn.address < tokenOut.address
+        ? 'pool1'
+        : 'pool0',
+    args: [],
     chainId: 421613,
     watch: true,
     onSuccess(data) {
-      console.log('Success cover wagmi', data)
-      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[1], 18)))
-      //setCoverPriceAfter(parseFloat(ethers.utils.formatUnits(data[2], 18)))
+      //console.log('Success price Cover', data)
+      setCoverPrice(parseFloat(ethers.utils.formatUnits(data[1], 18)))
     },
     onError(error) {
-      console.log('Error cover wagmi', error)
+      console.log('Error price Cover', error)
     },
     onSettled(data, error) {
-      console.log('Settled', { data, error })
+      //console.log('Settled price Cover', { data, error })
     },
   })
 
@@ -147,7 +145,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     setCoverParams()
-  }, [minPrice, maxPrice, bnInput])
+  }, [minPrice, maxPrice, bnInput, coverPrice])
 
   const {
     network: { chainId },
@@ -163,28 +161,26 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     fetchTokenPrice()
-  }, [coverQuote])
+  }, [coverPrice])
 
   useEffect(() => {
     getCoverPool()
   }, [hasSelected, tokenIn.address, tokenOut.address])
 
-  console.log('cover quote', quoteCover)
+  console.log('tokenIn', tokenIn)
+  console.log('coverTickPrice', Number(coverTickPrice))
+  console.log('mktRatePrice', mktRate[tokenIn.symbol])
 
   const getCoverPool = async () => {
     try {
-      if (hasSelected === true) {
-        /* console.log(tokenIn, tokenOut) */
-
-        const pool = await getCoverPoolFromFactory(
-          tokenZeroAddress,
-          tokenOneAddress,
-        )
-
-        const id = pool['data']['coverPools']['0']['id']
-        console.log('pool ID', id)
-        setCoverPoolRoute(id)
+      var pool = undefined
+      if (tokenIn.address < tokenOut.address) {
+        pool = await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
+      } else {
+        pool = await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
       }
+      const id = pool['data']['coverPools']['0']['id']
+      setCoverPoolRoute(id)
     } catch (error) {
       console.log(error)
     }
@@ -234,7 +230,7 @@ export default function CreateCover(props: any) {
             JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
           ),
         )
-        const data = await getPreviousTicksLower(
+        /* const data = await getPreviousTicksLower(
           tokenIn['address'],
           tokenOut['address'],
           min,
@@ -258,12 +254,39 @@ export default function CreateCover(props: any) {
           claim: ethers.utils.parseUnits(String(min), 0),
           amount: bnInput,
           inverse: false,
-        })
+        }) */
         setDisabled(false)
         setMin(ethers.utils.parseUnits(String(min), 0))
         setMax(ethers.utils.parseUnits(String(min), 0))
       }
     } catch (error) {
+      console.log(error)
+    }
+
+    try {
+      if (coverPrice) {
+        const price = TickMath.getTickAtSqrtRatio(
+          JSBI.divide(
+            JSBI.multiply(
+              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
+              JSBI.BigInt(
+                String(
+                  Math.sqrt(Number(parseFloat(coverPrice).toFixed(30))).toFixed(
+                    30,
+                  ),
+                )
+                  .split('.')
+                  .join(''),
+              ),
+            ),
+            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
+          ),
+        )
+        //console.log('price', price)
+        setCoverTickPrice(ethers.utils.parseUnits(String(price), 0))
+      }
+    } catch (error) {
+      setCoverTickPrice(ethers.utils.parseUnits(String(coverPrice), 0))
       console.log(error)
     }
   }
@@ -387,7 +410,7 @@ export default function CreateCover(props: any) {
       let token2Bal: Contract
       let bal1: string
       bal1 = Number(ethers.utils.formatEther(balance1)).toFixed(2)
-      console.log('bal1', bal1)
+      //console.log('bal1', bal1)
       setBalance0(bal1)
     } catch (error) {
       console.log(error)
@@ -399,7 +422,13 @@ export default function CreateCover(props: any) {
       setMktRate({
         TOKEN20A:
           '~' +
-          Number(coverQuote).toLocaleString('en-US', {
+          Number(coverTickPrice).toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+          }),
+        WETH:
+          '~' +
+          Number(coverTickPrice).toLocaleString('en-US', {
             style: 'currency',
             currency: 'USD',
           }),
@@ -549,7 +578,7 @@ export default function CreateCover(props: any) {
           <div className="text-[#646464]">Amount to pay</div>
           <div>
             {/* {amountToPay} {tokenIn.symbol} */}
-            {hasSelected ? (
+            {hasSelected && mktRate[tokenIn.symbol] ? (
               (
                 parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                 parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''))

@@ -104,7 +104,7 @@ export default function Cover() {
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
       mappedCoverPositions.push(coverPositionData)
-      console.log('mappedCoverPositions_COVERPAGE: ', mappedCoverPositions)
+      //console.log('mappedCoverPositions_COVERPAGE: ', mappedCoverPositions)
     })
 
     setAllCoverPositions(mappedCoverPositions)
@@ -130,9 +130,9 @@ export default function Cover() {
     checkUserPositionExists()
   }, [])
 
-  useEffect(() => {
+  /* useEffect(() => {
     console.log('chainId: ', chainId)
-  }, [chainId])
+  }, [chainId]) */
 
   const Option = () => {
     if (expanded) {
