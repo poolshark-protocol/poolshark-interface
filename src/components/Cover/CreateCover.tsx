@@ -22,24 +22,27 @@ import useInputBox from '../../hooks/useInputBox'
 import {
   rangePoolAddress,
   tokenOneAddress,
+  tokenZeroAddress,
 } from '../../constants/contractAddresses'
 import { coverPoolAddress } from '../../constants/contractAddresses'
 import { TickMath } from '../../utils/math/tickMath'
-import { BigNumber, ethers } from 'ethers'
+import { BigNumber, Contract, ethers } from 'ethers'
 import { useCoverStore } from '../../hooks/useStore'
 import {
+  getCoverPoolFromFactory,
   getPreviousTicksLower,
   getPreviousTicksUpper,
 } from '../../utils/queries'
 import JSBI from 'jsbi'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import Link from 'next/link'
+import { coverPoolABI } from '../../abis/evm/coverPool'
 
 export default function CreateCover(props: any) {
   //console.log('props', props)
   const [pool, setPool] = useState(props.query ?? undefined)
   const initialBig = BigNumber.from(0)
-  const { bnInput, inputBox } = useInputBox()
+  const { bnInput, inputBox, maxBalance } = useInputBox()
   const [
     updateCoverContractParams,
     updateCoverAllowance,
@@ -57,9 +60,11 @@ export default function CreateCover(props: any) {
   const [maxPrice, setMaxPrice] = useState('0')
   const [min, setMin] = useState(initialBig)
   const [max, setMax] = useState(initialBig)
+  const [balance0, setBalance0] = useState('')
   const [allowance, setAllowance] = useState('0')
   const { address, isConnected, isDisconnected } = useAccount()
   const [isDisabled, setDisabled] = useState(false)
+  const [mktRate, setMktRate] = useState({})
   const [hasSelected, setHasSelected] = useState(
     pool != undefined ? true : false,
   )
@@ -87,6 +92,10 @@ export default function CreateCover(props: any) {
   const [usdcBalance, setUsdcBalance] = useState(0)
   const [amountToPay, setAmountToPay] = useState(0)
   const [prices, setPrices] = useState({ tokenIn: 0, tokenOut: 0 })
+  const [coverPrice, setCoverPrice] = useState(undefined)
+  const [coverTickPrice, setCoverTickPrice] = useState(undefined)
+  const [coverPoolRoute, setCoverPoolRoute] = useState('')
+  const [tokenOrder, setTokenOrder] = useState(true)
 
   const { data } = useContractRead({
     address: tokenIn.address,
@@ -105,11 +114,77 @@ export default function CreateCover(props: any) {
       console.log('Settled', { data, error })
     },
   })
+
+  const { refetch: refetchCoverPrice, data: priceCover } = useContractRead({
+    address: coverPoolRoute,
+    abi: coverPoolABI,
+    functionName:
+      tokenOut.address != '' && tokenIn.address < tokenOut.address
+        ? 'pool1'
+        : 'pool0',
+    args: [],
+    chainId: 421613,
+    watch: true,
+    onSuccess(data) {
+      //console.log('Success price Cover', data)
+      setCoverPrice(parseFloat(ethers.utils.formatUnits(data[1], 18)))
+    },
+    onError(error) {
+      console.log('Error price Cover', error)
+    },
+    onSettled(data, error) {
+      //console.log('Settled price Cover', { data, error })
+    },
+  })
+
   useEffect(() => {
     if (data) {
       setAllowance(ethers.utils.formatUnits(data, 18))
     }
   }, [data, tokenIn.address, bnInput])
+
+  useEffect(() => {
+    setCoverParams()
+  }, [minPrice, maxPrice, bnInput, coverPrice])
+
+  const {
+    network: { chainId },
+  } = useProvider()
+
+  useEffect(() => {
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
+  }, [chainId])
+
+  useEffect(() => {
+    getBalances()
+  }, [tokenOut, tokenIn])
+
+  useEffect(() => {
+    fetchTokenPrice()
+  }, [coverPrice])
+
+  useEffect(() => {
+    getCoverPool()
+  }, [hasSelected, tokenIn.address, tokenOut.address])
+
+  console.log('tokenIn', tokenIn)
+  console.log('coverTickPrice', Number(coverTickPrice))
+  console.log('mktRatePrice', mktRate[tokenIn.symbol])
+
+  const getCoverPool = async () => {
+    try {
+      var pool = undefined
+      if (tokenIn.address < tokenOut.address) {
+        pool = await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
+      } else {
+        pool = await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
+      }
+      const id = pool['data']['coverPools']['0']['id']
+      setCoverPoolRoute(id)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   async function setCoverParams() {
     try {
@@ -155,7 +230,7 @@ export default function CreateCover(props: any) {
             JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
           ),
         )
-        const data = await getPreviousTicksLower(
+        /* const data = await getPreviousTicksLower(
           tokenIn['address'],
           tokenOut['address'],
           min,
@@ -179,7 +254,7 @@ export default function CreateCover(props: any) {
           claim: ethers.utils.parseUnits(String(min), 0),
           amount: bnInput,
           inverse: false,
-        })
+        }) */
         setDisabled(false)
         setMin(ethers.utils.parseUnits(String(min), 0))
         setMax(ethers.utils.parseUnits(String(min), 0))
@@ -187,52 +262,34 @@ export default function CreateCover(props: any) {
     } catch (error) {
       console.log(error)
     }
-  }
 
-  useEffect(() => {
-    setCoverParams()
-  }, [minPrice, maxPrice, bnInput])
-
-  const {
-    network: { chainId },
-  } = useProvider()
-
-  useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
-  }, [chainId])
-
-  /* const tokenInAllowance = async () => {
-    const provider = new ethers.providers.JsonRpcProvider(
-      'https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2/',
-    )
-    const contract = new ethers.Contract(tokenIn.address, erc20, provider)
-    const allowance = await contract.allowance(address, coverPoolAddress)
-    return ethers.utils.formatUnits(allowance)
-  }
-
-  const { data, isError, isLoading } = useBalance({
-    token: `0x${tokenIn.address.split('0x')[1]}`,
-    chainId: 421613,
-    address: address,
-    onSuccess: () => {
-      setUsdcBalance(Number(data?.formatted))
-    },
-    onError: (error) => {
-      console.log(error)
-    },
-  }) */
-
-  /*const balanceAndAllowance = async () => {
-    updateAllowance(await token0Allowance());
-  };
-
-  useEffect(() => {
     try {
-      balanceAndAllowance();
+      if (coverPrice) {
+        const price = TickMath.getTickAtSqrtRatio(
+          JSBI.divide(
+            JSBI.multiply(
+              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
+              JSBI.BigInt(
+                String(
+                  Math.sqrt(Number(parseFloat(coverPrice).toFixed(30))).toFixed(
+                    30,
+                  ),
+                )
+                  .split('.')
+                  .join(''),
+              ),
+            ),
+            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
+          ),
+        )
+        //console.log('price', price)
+        setCoverTickPrice(ethers.utils.parseUnits(String(price), 0))
+      }
     } catch (error) {
-      console.log(error);
+      setCoverTickPrice(ethers.utils.parseUnits(String(coverPrice), 0))
+      console.log(error)
     }
-  }, []);*/
+  }
 
   function changeDefault0(token: {
     symbol: string
@@ -248,8 +305,6 @@ export default function CreateCover(props: any) {
     //console.log(token)
     setTokenIn(token)
   }
-
-  const [tokenOrder, setTokenOrder] = useState(true)
 
   const changeDefault1 = (token: {
     symbol: string
@@ -343,26 +398,47 @@ export default function CreateCover(props: any) {
     }
   }
 
-  // useEffect(() => {
-  // if ()
-
-  //   },[bnInput, (document.getElementById('minInput') as HTMLInputElement)?.value, (document.getElementById('maxInput') as HTMLInputElement)?.value])
-
-  /* const getAllowance = async () => {
+  const getBalances = async () => {
     try {
       const provider = new ethers.providers.JsonRpcProvider(
-        'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
+        'https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2',
+        421613,
       )
       const signer = new ethers.VoidSigner(address, provider)
-      const contract = new ethers.Contract(tokenIn.address, erc20ABI, signer)
-      const allowance = await contract.allowance(address, rangePoolAddress)
-
-      //console.log('allowance', allowance)
-      setAllowance(allowance)
+      const tokenOutBal = new ethers.Contract(tokenIn.address, erc20ABI, signer)
+      const balance1 = await tokenOutBal.balanceOf(address)
+      let token2Bal: Contract
+      let bal1: string
+      bal1 = Number(ethers.utils.formatEther(balance1)).toFixed(2)
+      //console.log('bal1', bal1)
+      setBalance0(bal1)
     } catch (error) {
       console.log(error)
     }
-  } */
+  }
+
+  const fetchTokenPrice = async () => {
+    try {
+      setMktRate({
+        TOKEN20A:
+          '~' +
+          Number(coverTickPrice).toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+          }),
+        WETH:
+          '~' +
+          Number(coverTickPrice).toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+          }),
+        TOKEN20B: '~1.00',
+        USDC: '~1.00',
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const Option = () => {
     if (expanded) {
@@ -401,7 +477,7 @@ export default function CreateCover(props: any) {
       <div className="mb-6">
         <div className="flex flex-row justify-between">
           <h1 className="mb-3">Select Pair</h1>
-         {/*  {pool != undefined ? (
+          {/*  {pool != undefined ? (
             <Link href="/cover">
               <span className="flex gap-x-1 cursor-pointer">
                 <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{' '}
@@ -409,13 +485,13 @@ export default function CreateCover(props: any) {
               </span>
             </Link>
           ) : ( */}
-            <span
-              className="flex gap-x-1 cursor-pointer"
-              onClick={() => props.goBack('initial')}
-            >
-              <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{' '}
-              <h1 className="mb-3 opacity-50">Back</h1>{' '}
-            </span>
+          <span
+            className="flex gap-x-1 cursor-pointer"
+            onClick={() => props.goBack('initial')}
+          >
+            <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{' '}
+            <h1 className="mb-3 opacity-50">Back</h1>{' '}
+          </span>
           {/* )} */}
         </div>
 
@@ -428,14 +504,14 @@ export default function CreateCover(props: any) {
             key={queryTokenIn}
           />
           <div className="items-center px-2 py-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
-          <ArrowLongRightIcon
-            className="w-6 cursor-pointer"
-            onClick={() => {
-              if (hasSelected) {
-                switchDirection()
-              }
-            }}
-          />
+            <ArrowLongRightIcon
+              className="w-6 cursor-pointer"
+              onClick={() => {
+                if (hasSelected) {
+                  switchDirection()
+                }
+              }}
+            />
           </div>
           {hasSelected ? (
             <SelectToken
@@ -475,25 +551,42 @@ export default function CreateCover(props: any) {
                 </button>
               </div>
               <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                <button className="text-xs uppercase cursor-default text-[#0C0C0C]">
-                  Max
-                </button>
+                <div className="flex text-xs text-[#4C4C4C]">
+                  Balance: {balance0 === 'NaN' ? 0 : balance0}
+                </div>
+                {isConnected ? (
+                  <button
+                    className="flex text-xs uppercase text-[#C9C9C9]"
+                    onClick={() => maxBalance(balance0, '0')}
+                  >
+                    Max
+                  </button>
+                ) : null}
               </div>
             </div>
           </div>
         </div>
       </div>
       <div className="mt-3 space-y-2">
-        <div className="flex justify-between text-sm">
+        {/* <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Balance</div>
           <div>
             {usdcBalance} {tokenIn.symbol}
           </div>
-        </div>
+        </div> */}
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Amount to pay</div>
           <div>
-            {amountToPay} {tokenIn.symbol}
+            {/* {amountToPay} {tokenIn.symbol} */}
+            {hasSelected && mktRate[tokenIn.symbol] ? (
+              (
+                parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''))
+              ).toFixed(2)
+            ) : (
+              <>?</>
+            )}{' '}
+            $
           </div>
         </div>
       </div>

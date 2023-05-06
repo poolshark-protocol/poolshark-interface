@@ -107,7 +107,7 @@ export default function Pool() {
         tokenZero: rangePosition.pool.token0,
         valueTokenZero: rangePosition.pool.totalValueLocked0,
         tokenOne: rangePosition.pool.token1,
-        valueTokenOne: rangePosition.pool.totalValueLocked0,
+        valueTokenOne: rangePosition.pool.totalValueLocked1,
         min: rangePosition.lower,
         max: rangePosition.upper,
         tvlUsd: rangePosition.pool.totalValueLockedUsd,
@@ -130,9 +130,9 @@ export default function Pool() {
       //console.log('coverPosition', coverPosition)
       const coverPositionData = {
         poolId: coverPosition.pool.id,
-        tokenZero: coverPosition.inToken,
+        tokenZero: coverPosition.pool.token0,
         valueTokenZero: coverPosition.inAmount,
-        tokenOne: coverPosition.outToken,
+        tokenOne: coverPosition.pool.token1,
         valueTokenOne: coverPosition.outAmount,
         min: coverPosition.lower,
         max: coverPosition.upper,

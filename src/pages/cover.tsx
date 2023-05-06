@@ -104,7 +104,7 @@ export default function Cover() {
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
       mappedCoverPositions.push(coverPositionData)
-      console.log('mappedCoverPositions_COVERPAGE: ', mappedCoverPositions)
+      //console.log('mappedCoverPositions_COVERPAGE: ', mappedCoverPositions)
     })
 
     setAllCoverPositions(mappedCoverPositions)
@@ -130,9 +130,9 @@ export default function Cover() {
     checkUserPositionExists()
   }, [])
 
-  useEffect(() => {
+  /* useEffect(() => {
     console.log('chainId: ', chainId)
-  }, [chainId])
+  }, [chainId]) */
 
   const Option = () => {
     if (expanded) {
@@ -241,7 +241,7 @@ export default function Cover() {
                         Your cover pools will appear here
                       </div>
                     ) : (
-                      <div>
+                      <div className="space-y-3">
                         {allCoverPositions.map((allCoverPosition) => {
                           if (
                             /* allCoverPosition.userOwnerAddress ===

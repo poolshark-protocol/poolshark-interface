@@ -9,7 +9,7 @@ import { Listbox, Transition } from '@headlessui/react'
 import SelectToken from '../SelectToken'
 import ConcentratedPoolPreview from './ConcentratedPoolPreview'
 import { useRangeStore } from '../../hooks/useStore'
-import { TickMath } from '../../utils/math/tickMath'
+import { TickMath } from '../../utils/tickMath'
 import JSBI from 'jsbi'
 import {
   getPreviousTicksLower,
@@ -29,7 +29,7 @@ import { erc20ABI, useAccount } from 'wagmi'
 import { BigNumber, Contract, ethers } from 'ethers'
 import { useProvider, useContractRead } from 'wagmi'
 
-export default function ConcentratedPool({
+export default function RangePool({
   account,
   key,
   poolId,
@@ -127,6 +127,7 @@ export default function ConcentratedPool({
     getRangePool()
   }, [hasSelected, tokenIn.address, tokenOut.address, bnInput, bnInputLimit])
 
+
   useEffect(() => {
     fetchTokenPrice()
   }, [rangeQuote, tokenIn, tokenOut])
@@ -201,7 +202,7 @@ export default function ConcentratedPool({
 
   const fetchTokenPrice = async () => {
     try {
-      const price = rangeQuote
+      const price = await rangeQuote
       setMktRate({
         TOKEN20A:
           '~' +
@@ -599,7 +600,7 @@ export default function ConcentratedPool({
             </div>
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 ">
-                {rangeQuote ? (
+                {Number(bnInput) != 0 ? (
                   <div>
                     {(
                       parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
@@ -612,7 +613,7 @@ export default function ConcentratedPool({
                     ).toFixed(2)}
                   </div>
                 ) : (
-                  <div>?</div>
+                  <div>0</div>
                 )}
                 {/* <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
@@ -644,20 +645,11 @@ export default function ConcentratedPool({
       <div className="w-1/2">
         <div>
           <div className="flex justify-between items-center">
-            <h1>Set price range</h1>
-            <button
-              className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
-              onClick={() => {
-                setMin(BigNumber.from(-887272))
-                setMax(BigNumber.from(887272))
-              }}
-            >
-              Full Range
-            </button>
+            <h1>Set starting range</h1>
           </div>
           <div className="flex flex-col mt-6 gap-y-5 w-full">
             <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-              <span className="text-xs text-grey">Min. Price</span>
+              <span className="text-xs text-grey">Start. Price</span>
               <div className="flex justify-center items-center">
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
                   <button onClick={() => changePrice('minus', 'min')}>
@@ -678,33 +670,6 @@ export default function ConcentratedPool({
                 />
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
                   <button onClick={() => changePrice('plus', 'min')}>
-                    <PlusIcon className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-              <span className="text-xs text-grey">Max. Price</span>
-              <div className="flex justify-center items-center">
-                <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  <button onClick={() => changePrice('minus', 'max')}>
-                    <MinusIcon className="w-5 h-5 ml-[2.5px]" />
-                  </button>
-                </div>
-                <input
-                  className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
-                  placeholder={maxPrice}
-                  id="maxInput"
-                  type="number"
-                  onChange={() =>
-                    setMaxPrice(
-                      (document.getElementById('maxInput') as HTMLInputElement)
-                        ?.value,
-                    )
-                  }
-                />
-                <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  <button onClick={() => changePrice('plus', 'max')}>
                     <PlusIcon className="w-5 h-5" />
                   </button>
                 </div>

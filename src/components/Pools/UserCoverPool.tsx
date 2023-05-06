@@ -6,6 +6,16 @@ import {
 import { useEffect, useState } from 'react'
 import { useCoverStore } from '../../hooks/useStore'
 import Link from 'next/link'
+import { getCoverPoolFromFactory } from '../../utils/queries'
+import { useContractRead } from 'wagmi'
+import { coverPoolABI } from '../../abis/evm/coverPool'
+import { ethers } from 'ethers'
+import { TickMath } from '../../utils/tickMath'
+import JSBI from 'jsbi'
+import {
+  tokenOneAddress,
+  tokenZeroAddress,
+} from '../../constants/contractAddresses'
 
 export default function UserCoverPool({
   account,
@@ -32,14 +42,91 @@ export default function UserCoverPool({
     pStake: '/static/images/eth_icon.png',
     UNI: '/static/images/dai_icon.png',
   }
-  const [show, setShow] = useState(false)
+  const feeTierPercentage = feeTier / 10000
   const [currentPool, resetPool, updatePool] = useCoverStore((state) => [
     state.pool,
     state.resetPool,
     state.updatePool,
   ])
+  const [show, setShow] = useState(false)
+  const [coverPrice, setCoverPrice] = useState(undefined)
+  const [coverTickPrice, setCoverTickPrice] = useState(undefined)
+  const [coverPoolRoute, setCoverPoolRoute] = useState('')
 
-  const feeTierPercentage = feeTier / 10000
+  //console.log('coverPrice', coverPrice)
+  //console.log('coverTickPrice', coverTickPrice)
+
+  useEffect(() => {
+    getCoverPool()
+  }, [tokenOne, tokenZero])
+
+  const { refetch: refetchCoverPrice, data: priceCover } = useContractRead({
+    address: coverPoolRoute,
+    abi: coverPoolABI,
+    functionName:
+      tokenOne.id != '' && tokenZero.id < tokenOne.id ? 'pool1' : 'pool0',
+    args: [],
+    chainId: 421613,
+    watch: true,
+    onSuccess(data) {
+      //console.log('Success price Cover', data)
+      setCoverPrice(parseFloat(ethers.utils.formatUnits(data[0], 18)))
+    },
+    onError(error) {
+      console.log('Error price Cover', error)
+    },
+    onSettled(data, error) {
+      //console.log('Settled price Cover', { data, error })
+    },
+  })
+
+  useEffect(() => {
+    setCoverParams()
+  }, [coverPrice])
+
+  const getCoverPool = async () => {
+    try {
+      var pool = undefined
+      if (tokenZero.id < tokenOne.id) {
+        pool = await getCoverPoolFromFactory(tokenZero.id, tokenOne.id)
+      } else {
+        pool = await getCoverPoolFromFactory(tokenOne.id, tokenZero.id)
+      }
+      const id = pool['data']['coverPools']['0']['id']
+      setCoverPoolRoute(id)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async function setCoverParams() {
+    try {
+      if (coverPrice != undefined) {
+        const price = TickMath.getTickAtSqrtRatio(
+          JSBI.divide(
+            JSBI.multiply(
+              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
+              JSBI.BigInt(
+                String(
+                  Math.sqrt(Number(parseFloat(coverPrice).toFixed(30))).toFixed(
+                    30,
+                  ),
+                )
+                  .split('.')
+                  .join(''),
+              ),
+            ),
+            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
+          ),
+        )
+        //console.log('price', price)
+        setCoverTickPrice(ethers.utils.parseUnits(String(price), 0))
+      }
+    } catch (error) {
+      setCoverTickPrice(ethers.utils.parseUnits(String(coverPrice), 0))
+      console.log(error)
+    }
+  }
 
   const setPool = () => {
     resetPool
@@ -48,19 +135,8 @@ export default function UserCoverPool({
       tokenOne: tokenOne,
       tokenZero: tokenZero,
     }) */
-    //prefill('existingPool')
-    //close(false)
-    // console.log(currentPool)
   }
 
-  // useEffect(() => {
-  //   console.log(
-  //   tokenOne.name,
-  //  tokenZero,
-  //   tokenOne.id,
-  //   tokenZero.id,
-  //   poolId,)
-  // },[])
   return (
     <Link
       href={{
@@ -78,6 +154,8 @@ export default function UserCoverPool({
           tokenOneLogoURI: logoMap[tokenOne.symbol],
           tokenOneAddress: tokenOne.id,
           tokenOneValue: valueTokenOne,
+          coverPrice: coverPrice ? coverPrice : 0,
+          coverTickPrice: coverTickPrice ? coverTickPrice : 0,
           min: min,
           max: max,
           liquidity: liquidity,
@@ -124,20 +202,25 @@ export default function UserCoverPool({
             </span>
           </div>
         </div>
-        {valueTokenZero == 0 || valueTokenOne == 0 ? (
-          <div className="pr-5">
-            <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-              <ExclamationTriangleIcon className="w-4 text-yellow-600" />
-              Out of Range
+        {coverTickPrice ? (
+          Number(ethers.utils.formatUnits(coverTickPrice, 18)) < Number(min) ||
+          Number(ethers.utils.formatUnits(coverTickPrice, 18)) > Number(max) ? (
+            <div className="pr-5">
+              <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
+                <ExclamationTriangleIcon className="w-4 text-yellow-600" />
+                Out of Range
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="pr-5">
+              <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
+                <div className="w-2 h-2 bg-green-500 rounded-full" />
+                In Range
+              </div>
+            </div>
+          )
         ) : (
-          <div className="pr-5">
-            <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-              <div className="w-2 h-2 bg-green-500 rounded-full" />
-              In Range
-            </div>
-          </div>
+          <></>
         )}
       </div>
     </Link>
