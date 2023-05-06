@@ -18,7 +18,7 @@ import {
   getPreviousTicksLower,
   getPreviousTicksUpper,
 } from '../../utils/queries'
-import { TickMath } from '../../utils/tickMath'
+import { TickMath } from '../../utils/math/tickMath'
 import {
   coverPoolAddress,
   rangePoolAddress,

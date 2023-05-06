@@ -1,13 +1,11 @@
 import JSBI from 'jsbi'
 import invariant from 'tiny-invariant'
-import { ONE, ZERO, MAX_UINT256  } from './internalConstants'
+import { Q32, ONE, ZERO, MAX_UINT256  } from './constants'
 import { mostSignificantBit } from "./mostSignificantBit"
 
 function mulShift(val: JSBI, mulBy: string): JSBI {
   return JSBI.signedRightShift(JSBI.multiply(val, JSBI.BigInt(mulBy)), JSBI.BigInt(128))
 }
-
-const Q32 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(32))
 
 export abstract class TickMath {
   /**
