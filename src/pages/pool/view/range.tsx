@@ -472,7 +472,7 @@ export default function Range() {
                       address={address}
                       lower={BigNumber.from(router.query.min.toString())}
                       upper={BigNumber.from(router.query.max.toString())}
-                      amount={'amount'}
+                      amount={BigNumber.from(router.query.liquidity.toString())}
                     />
                     <RangeCollectButton
                       poolAddress={router.query.poolId.toString()}
