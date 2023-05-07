@@ -129,6 +129,7 @@ export default function Swap() {
     },
   })
 
+  //@dev: TO-DO - create state w/o decimals for priceLimit math
   const { refetch: refetchCoverQuote, data: quoteCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
@@ -177,6 +178,7 @@ export default function Swap() {
     onSuccess(data) {
       console.log('Success price Cover', data)
       setCoverPrice(parseFloat(ethers.utils.formatUnits(data[4], 18)))
+      setCoverBaseLimit(coverPrice * parseFloat(slippage))
     },
     onError(error) {
       console.log('Error price Cover', error)
@@ -196,6 +198,7 @@ export default function Swap() {
     onSuccess(data) {
       console.log('Success price Range', data)
       setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
+      setRangeBaseLimit(rangePrice * parseFloat(slippage))
     },
     onError(error) {
       console.log('Error price Range', error)
@@ -1019,7 +1022,9 @@ export default function Swap() {
                 tokenOut.address != "" && tokenIn.address < tokenOut.address
               }
               amount={bnInput}
-              baseLimit={rangeBaseLimit}
+              baseLimit={(tokenOut.address != "" && tokenIn.address < tokenOut.address) ?
+              BigNumber.from(rangeBaseLimit).sub(BigNumber.from(rangePrice)) :
+              BigNumber.from(rangeBaseLimit).add(BigNumber.from(rangePrice))}
             />
           )
         ) : Number(allowanceCover) <
@@ -1043,7 +1048,9 @@ export default function Swap() {
               tokenOut.address != "" && tokenIn.address < tokenOut.address
             }
             amount={bnInput}
-            baseLimit={coverBaseLimit}
+            baseLimit={(tokenOut.address != "" && tokenIn.address < tokenOut.address) ?
+            BigNumber.from(coverBaseLimit).sub(BigNumber.from(coverPrice)) :
+            BigNumber.from(coverBaseLimit).add(BigNumber.from(coverPrice))}
           />
         )}
       </div>
