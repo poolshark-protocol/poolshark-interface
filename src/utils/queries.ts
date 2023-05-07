@@ -268,6 +268,7 @@ export const fetchCoverPositions = (address: string) => {
                 liquidity
                 upper
                 lower
+                epochLast
                 outAmount
                 outToken{
                     id
@@ -478,6 +479,7 @@ export const fetchRangePositions = (address: string) => {
                 liquidity
                 upper
                 lower
+                epochLast
                 pool{
                     token0{
                         id
