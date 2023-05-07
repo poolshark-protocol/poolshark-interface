@@ -64,7 +64,7 @@ export default function RangeMintButton({
     ]],
     chainId: 421613,
     overrides: {
-      gasLimit: BigNumber.from('3500000'),
+      gasLimit: BigNumber.from('35000000'),
     },
   })
 
