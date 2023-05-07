@@ -28,6 +28,7 @@ import {
 import { erc20ABI, useAccount } from 'wagmi'
 import { BigNumber, Contract, ethers } from 'ethers'
 import { useProvider, useContractRead } from 'wagmi'
+import { rangePoolABI } from '../../abis/evm/rangePool'
 
 export default function RangePool({
   account,
@@ -107,7 +108,8 @@ export default function RangePool({
   const [balance1, setBalance1] = useState('0.00')
   const [allowanceIn, setAllowanceIn] = useState('0.00')
   const [allowanceOut, setAllowanceOut] = useState('0.00')
-  const [rangeQuote, setRangeQuote] = useState(undefined)
+  const [rangePoolRoute, setRangePoolRoute] = useState(undefined)
+  const [rangePrice, setRangePrice] = useState(undefined)
 
   const initialBig = BigNumber.from(0)
   const [to, setTo] = useState('')
@@ -125,12 +127,7 @@ export default function RangePool({
 
   useEffect(() => {
     getRangePool()
-  }, [hasSelected, tokenIn.address, tokenOut.address, bnInput, bnInputLimit])
-
-
-  useEffect(() => {
-    fetchTokenPrice()
-  }, [rangeQuote, tokenIn, tokenOut])
+  }, [hasSelected, tokenIn.address, tokenOut.address])
 
   useEffect(() => {
     setRangeParams()
@@ -185,40 +182,56 @@ export default function RangePool({
           tokenOut.address,
         )
         const id = pool['data']['rangePools']['0']['id']
-        const price = await getRangeQuote(
-          rangePoolAddress,
-          bnInput,
-          BigNumber.from('4295128739'),
-          tokenIn.address,
-          tokenOut.address,
-        )
 
-        setRangeQuote(price)
+        setRangePoolRoute(id)
       }
     } catch (error) {
       console.log(error)
     }
   }
 
+  const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
+    address: rangePoolRoute,
+    abi: rangePoolABI,
+    functionName: 'poolState',
+    args: [],
+    chainId: 421613,
+    watch: true,
+    onSuccess(data) {
+      console.log('Success price Range', data)
+      setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
+    },
+    onError(error) {
+      console.log('Error price Range', error)
+    },
+    onSettled(data, error) {
+      console.log('Settled price Range', { data, error })
+    },
+  })
+
   const fetchTokenPrice = async () => {
     try {
-      const price = await rangeQuote
+      const price = await rangePrice
       setMktRate({
-        TOKEN20A:
+        WETH:
           '~' +
-          Number(price['data']['bundles']['0']['ethPriceUSD']).toLocaleString(
+          Number(price).toLocaleString(
             'en-US',
             {
               style: 'currency',
               currency: 'USD',
             },
           ),
-        TOKEN20B: '~1.00',
+        USDC: '~1.00',
       })
     } catch (error) {
       console.log(error)
     }
   }
+
+  useEffect(() => {
+    fetchTokenPrice()
+  }, [rangePrice, tokenIn, tokenOut])
 
   async function setRangeParams() {
     try {

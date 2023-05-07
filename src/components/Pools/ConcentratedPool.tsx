@@ -12,9 +12,7 @@ import { useRangeStore } from '../../hooks/useStore'
 import { TickMath } from '../../utils/math/tickMath'
 import JSBI from 'jsbi'
 import {
-  getPreviousTicksLower,
   getRangePoolFromFactory,
-  getRangeQuote,
 } from '../../utils/queries'
 import useInputBox from '../../hooks/useInputBox'
 import useRangeAllowance from '../../hooks/useRangeAllowance'
@@ -28,6 +26,7 @@ import {
 import { erc20ABI, useAccount } from 'wagmi'
 import { BigNumber, Contract, ethers } from 'ethers'
 import { useProvider, useContractRead } from 'wagmi'
+import { rangePoolABI } from '../../abis/evm/rangePool'
 
 export default function ConcentratedPool({
   account,
@@ -107,7 +106,8 @@ export default function ConcentratedPool({
   const [balance1, setBalance1] = useState('0.00')
   const [allowanceIn, setAllowanceIn] = useState('0.00')
   const [allowanceOut, setAllowanceOut] = useState('0.00')
-  const [rangeQuote, setRangeQuote] = useState(undefined)
+  const [rangePrice, setRangePrice] = useState(undefined)
+  const [rangePoolRoute, setRangePoolRoute] = useState(undefined)
 
   const initialBig = BigNumber.from(0)
   const [to, setTo] = useState('')
@@ -129,7 +129,7 @@ export default function ConcentratedPool({
 
   useEffect(() => {
     fetchTokenPrice()
-  }, [rangeQuote, tokenIn, tokenOut])
+  }, [rangePrice, tokenIn, tokenOut])
 
   useEffect(() => {
     setRangeParams()
@@ -166,6 +166,25 @@ export default function ConcentratedPool({
     },
   })
 
+  const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
+    address: rangePoolRoute,
+    abi: rangePoolABI,
+    functionName: 'poolState',
+    args: [],
+    chainId: 421613,
+    watch: true,
+    onSuccess(data) {
+      console.log('Success price Range', data)
+      setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
+    },
+    onError(error) {
+      console.log('Error price Range', error)
+    },
+    onSettled(data, error) {
+      console.log('Settled price Range', { data, error })
+    },
+  })
+
   function switchDirection() {
     setTokenOrder(!tokenOrder)
     const temp = tokenIn
@@ -184,15 +203,8 @@ export default function ConcentratedPool({
           tokenOut.address,
         )
         const id = pool['data']['rangePools']['0']['id']
-        const price = await getRangeQuote(
-          rangePoolAddress,
-          bnInput,
-          BigNumber.from('4295128739'),
-          tokenIn.address,
-          tokenOut.address,
-        )
 
-        setRangeQuote(price)
+        setRangePoolRoute(id)
       }
     } catch (error) {
       console.log(error)
@@ -201,11 +213,11 @@ export default function ConcentratedPool({
 
   const fetchTokenPrice = async () => {
     try {
-      const price = rangeQuote
+      const price = rangePrice
       setMktRate({
         TOKEN20A:
           '~' +
-          Number(price['data']['bundles']['0']['ethPriceUSD']).toLocaleString(
+          Number(price).toLocaleString(
             'en-US',
             {
               style: 'currency',
@@ -599,7 +611,7 @@ export default function ConcentratedPool({
             </div>
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 ">
-                {rangeQuote ? (
+                {rangePrice ? (
                   <div>
                     {(
                       parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
