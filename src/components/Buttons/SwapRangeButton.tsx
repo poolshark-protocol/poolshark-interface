@@ -13,7 +13,7 @@ import React, { useState } from "react";
 import { rangePoolABI } from "../../abis/evm/rangePool";
 import { useSwapStore } from "../../hooks/useStore"
 
-export default function SwapRangeButton({amount, zeroForOne, baseLimit}) {
+export default function SwapRangeButton({poolAddress, amount, zeroForOne, baseLimit}) {
 
   /*const [Limit] = useSwapStore((state: any) => [
     state.Limit
@@ -26,7 +26,7 @@ export default function SwapRangeButton({amount, zeroForOne, baseLimit}) {
   const userAddress = address;
 
   const { config } = usePrepareContractWrite({
-      address: rangePoolAddress,
+      address: poolAddress,
       abi: rangePoolABI,
       functionName: "swap",
       args:[

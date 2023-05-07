@@ -97,8 +97,8 @@ export default function Swap() {
   const [expanded, setExpanded] = useState(false)
   const [allowanceRange, setAllowanceRange] = useState('0.00')
   const [allowanceCover, setAllowanceCover] = useState('0.00')
-  const [coverPoolRoute, setCoverPoolRoute] = useState('')
-  const [rangePoolRoute, setRangePoolRoute] = useState('')
+  const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
+  const [rangePoolRoute, setRangePoolRoute] = useState(undefined)
   const [coverPriceAfter, setCoverPriceAfter] = useState(undefined)
   const [rangePriceAfter, setRangePriceAfter] = useState(undefined)
   const [feeTier, setFeeTier] = useState('')
@@ -110,7 +110,7 @@ export default function Swap() {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [address, rangePoolAddress],
+    args: [address, rangePoolRoute],
     chainId: 421613,
     watch: true,
     onError(error) {
@@ -121,7 +121,7 @@ export default function Swap() {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [address, coverPoolAddress],
+    args: [address, coverPoolRoute],
     chainId: 421613,
     watch: true,
     onError(error) {
@@ -489,6 +489,7 @@ export default function Swap() {
         )*/
         
         setRangePoolRoute(id)
+        console.log('range pool route', rangePoolRoute)
         /*setRangeQuote(price)
         setRangeBaseLimit(price)*/
         //setRangeCurrentPrice(currentPrice)
@@ -509,7 +510,7 @@ export default function Swap() {
         )
 
         const id = pool['data']['coverPools']['0']['id']
-        console.log('pool ID', id)
+        
 
         /*const price = await getCoverQuote(
           String(id),
@@ -525,6 +526,7 @@ export default function Swap() {
         )*/
         
         setCoverPoolRoute(id)
+        console.log('cover pool route', coverPoolRoute)
         /*setCoverQuote(price)
         setCoverBaseLimit(price)*/
         //setCoverCurrentPrice(currentPrice)
@@ -1005,10 +1007,14 @@ export default function Swap() {
                   Number(allowanceRange)}{" "}
                 {tokenIn.symbol}
               </div>
-              <SwapRangeApproveButton approveToken={tokenIn.address} />
+              <SwapRangeApproveButton 
+              poolAddress={rangePoolRoute}
+              approveToken={tokenIn.address}
+              />
             </div>
           ) : (
             <SwapRangeButton
+              poolAddress={rangePoolRoute}
               zeroForOne={
                 tokenOut.address != "" && tokenIn.address < tokenOut.address
               }
@@ -1025,10 +1031,14 @@ export default function Swap() {
                 Number(allowanceCover)}{" "}
               {tokenIn.symbol}
             </div>
-            <SwapCoverApproveButton approveToken={tokenIn.address} />
+            <SwapCoverApproveButton 
+            poolAddress={coverPoolRoute}
+            approveToken={tokenIn.address} 
+            />
           </div>
         ) : (
           <SwapCoverButton
+            poolAddress={coverPoolRoute}
             zeroForOne={
               tokenOut.address != "" && tokenIn.address < tokenOut.address
             }

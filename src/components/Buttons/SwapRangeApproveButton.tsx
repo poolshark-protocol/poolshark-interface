@@ -11,7 +11,7 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { useSwapStore } from '../../hooks/useStore';
 
-export default function SwapRangeApproveButton({approveToken}) {
+export default function SwapRangeApproveButton({poolAddress, approveToken}) {
   const [ errorDisplay,    setErrorDisplay   ] = useState(false);
   const [ successDisplay,  setSuccessDisplay ] = useState(false);
 
@@ -23,7 +23,7 @@ export default function SwapRangeApproveButton({approveToken}) {
     address: approveToken,
     abi: erc20ABI,
     functionName: "approve",
-    args:[rangePoolAddress , Amount],
+    args:[poolAddress , Amount],
     chainId: 421613,
   })
 

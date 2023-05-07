@@ -13,7 +13,7 @@ import { coverPoolAddress } from "../../constants/contractAddresses";
 import React, { useState, useEffect } from "react";
 import {useSwapStore} from "../../hooks/useStore"
 
-export default function SwapCoverButton({amount, zeroForOne, baseLimit}) {
+export default function SwapCoverButton({poolAddress, amount, zeroForOne, baseLimit}) {
 
   /*const [Limit] = useSwapStore((state: any) => [
     state.Limit
@@ -26,7 +26,7 @@ export default function SwapCoverButton({amount, zeroForOne, baseLimit}) {
   const userAddress = address;
 
   const { config } = usePrepareContractWrite({
-      address: coverPoolAddress,
+      address: poolAddress,
       abi: coverPoolABI,
       functionName: "swap",
       args:[

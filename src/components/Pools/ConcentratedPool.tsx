@@ -736,8 +736,8 @@ export default function ConcentratedPool({
           amount1={bnInput}
           minPrice={minPrice}
           maxPrice={maxPrice}
-          minTick={ethers.utils.parseUnits('10', 0)}
-          maxTick={ethers.utils.parseUnits('40', 0)}
+          minTick={BigNumber.from('10')}
+          maxTick={BigNumber.from('40')}
           fee={selected.tier}
           allowanceIn={allowanceIn}
           setAllowanceIn={setAllowanceIn}
