@@ -10,7 +10,7 @@ import { getCoverPoolFromFactory } from '../../utils/queries'
 import { useContractRead } from 'wagmi'
 import { coverPoolABI } from '../../abis/evm/coverPool'
 import { ethers } from 'ethers'
-import { TickMath } from '../../utils/tickMath'
+import { TickMath } from '../../utils/math/tickMath'
 import JSBI from 'jsbi'
 import {
   tokenOneAddress,
