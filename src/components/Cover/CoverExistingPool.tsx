@@ -88,7 +88,7 @@ export default function CoverExistingPool({
   const [coverValue, setCoverValue] = useState(
     Number(Number(Number(tokenOut.value) / 2).toFixed(5)),
   )
-  const [coverPrice, setCoverPrice] = useState(undefined)
+  const [coverQuote, setCoverQuote] = useState(undefined)
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
   const [coverPoolRoute, setCoverPoolRoute] = useState('')
   const [allowance, setAllowance] = useState('0')
@@ -111,7 +111,7 @@ export default function CoverExistingPool({
     },
   })
 
-  const { refetch: refetchCoverPrice, data: priceCover } = useContractRead({
+  const { refetch: refetchcoverQuote, data: priceCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
     functionName:
@@ -123,7 +123,7 @@ export default function CoverExistingPool({
     watch: true,
     onSuccess(data) {
       //console.log('Success price Cover', data)
-      setCoverPrice(parseFloat(ethers.utils.formatUnits(data[1], 18)))
+      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[1], 18)))
     },
     onError(error) {
       console.log('Error price Cover', error)
@@ -151,11 +151,11 @@ export default function CoverExistingPool({
 
   useEffect(() => {
     fetchTokenPrice()
-  }, [coverPrice])
+  }, [coverQuote])
 
   useEffect(() => {
     setCoverParams()
-  }, [minPrice, maxPrice, sliderValue, coverPrice])
+  }, [minPrice, maxPrice, sliderValue, coverQuote])
 
   console.log('tokenIn',tokenIn)
   console.log('coverTickPrice', Number(coverTickPrice))
@@ -242,14 +242,14 @@ export default function CoverExistingPool({
     }
 
     try {
-      if (coverPrice) {
+      if (coverQuote) {
         const price = TickMath.getTickAtSqrtRatio(
           JSBI.divide(
             JSBI.multiply(
               JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
               JSBI.BigInt(
                 String(
-                  Math.sqrt(Number(parseFloat(coverPrice).toFixed(30))).toFixed(
+                  Math.sqrt(Number(parseFloat(coverQuote).toFixed(30))).toFixed(
                     30,
                   ),
                 )
@@ -264,7 +264,7 @@ export default function CoverExistingPool({
         setCoverTickPrice(ethers.utils.parseUnits(String(price), 0))
       }
     } catch (error) {
-      setCoverTickPrice(ethers.utils.parseUnits(String(coverPrice), 0))
+      setCoverTickPrice(ethers.utils.parseUnits(String(coverQuote), 0))
       console.log(error)
     }
   }

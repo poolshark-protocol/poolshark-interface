@@ -92,7 +92,7 @@ export default function CreateCover(props: any) {
   const [usdcBalance, setUsdcBalance] = useState(0)
   const [amountToPay, setAmountToPay] = useState(0)
   const [prices, setPrices] = useState({ tokenIn: 0, tokenOut: 0 })
-  const [coverPrice, setCoverPrice] = useState(undefined)
+  const [coverQuote, setCoverQuote] = useState(undefined)
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
   const [coverPoolRoute, setCoverPoolRoute] = useState('')
   const [tokenOrder, setTokenOrder] = useState(true)
@@ -115,7 +115,7 @@ export default function CreateCover(props: any) {
     },
   })
 
-  const { refetch: refetchCoverPrice, data: priceCover } = useContractRead({
+  const { refetch: refetchcoverQuote, data: priceCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
     functionName:
@@ -127,7 +127,7 @@ export default function CreateCover(props: any) {
     watch: true,
     onSuccess(data) {
       //console.log('Success price Cover', data)
-      setCoverPrice(parseFloat(ethers.utils.formatUnits(data[1], 18)))
+      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[1], 18)))
     },
     onError(error) {
       console.log('Error price Cover', error)
@@ -145,7 +145,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     setCoverParams()
-  }, [minPrice, maxPrice, bnInput, coverPrice])
+  }, [minPrice, maxPrice, bnInput, coverQuote])
 
   const {
     network: { chainId },
@@ -161,7 +161,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     fetchTokenPrice()
-  }, [coverPrice])
+  }, [coverQuote])
 
   useEffect(() => {
     getCoverPool()
@@ -264,14 +264,14 @@ export default function CreateCover(props: any) {
     }
 
     try {
-      if (coverPrice) {
+      if (coverQuote) {
         const price = TickMath.getTickAtSqrtRatio(
           JSBI.divide(
             JSBI.multiply(
               JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
               JSBI.BigInt(
                 String(
-                  Math.sqrt(Number(parseFloat(coverPrice).toFixed(30))).toFixed(
+                  Math.sqrt(Number(parseFloat(coverQuote).toFixed(30))).toFixed(
                     30,
                   ),
                 )
@@ -286,7 +286,7 @@ export default function CreateCover(props: any) {
         setCoverTickPrice(ethers.utils.parseUnits(String(price), 0))
       }
     } catch (error) {
-      setCoverTickPrice(ethers.utils.parseUnits(String(coverPrice), 0))
+      setCoverTickPrice(ethers.utils.parseUnits(String(coverQuote), 0))
       console.log(error)
     }
   }

@@ -49,18 +49,18 @@ export default function UserCoverPool({
     state.updatePool,
   ])
   const [show, setShow] = useState(false)
-  const [coverPrice, setCoverPrice] = useState(undefined)
+  const [coverQuote, setCoverQuote] = useState(undefined)
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
   const [coverPoolRoute, setCoverPoolRoute] = useState('')
 
-  //console.log('coverPrice', coverPrice)
+  //console.log('coverQuote', coverQuote)
   //console.log('coverTickPrice', coverTickPrice)
 
   useEffect(() => {
     getCoverPool()
   }, [tokenOne, tokenZero])
 
-  const { refetch: refetchCoverPrice, data: priceCover } = useContractRead({
+  const { refetch: refetchcoverQuote, data: priceCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
     functionName:
@@ -70,7 +70,7 @@ export default function UserCoverPool({
     watch: true,
     onSuccess(data) {
       //console.log('Success price Cover', data)
-      setCoverPrice(parseFloat(ethers.utils.formatUnits(data[0], 18)))
+      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[0], 18)))
     },
     onError(error) {
       console.log('Error price Cover', error)
@@ -82,7 +82,7 @@ export default function UserCoverPool({
 
   useEffect(() => {
     setCoverParams()
-  }, [coverPrice])
+  }, [coverQuote])
 
   const getCoverPool = async () => {
     try {
@@ -101,14 +101,14 @@ export default function UserCoverPool({
 
   async function setCoverParams() {
     try {
-      if (coverPrice != undefined) {
+      if (coverQuote != undefined) {
         const price = TickMath.getTickAtSqrtRatio(
           JSBI.divide(
             JSBI.multiply(
               JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
               JSBI.BigInt(
                 String(
-                  Math.sqrt(Number(parseFloat(coverPrice).toFixed(30))).toFixed(
+                  Math.sqrt(Number(parseFloat(coverQuote).toFixed(30))).toFixed(
                     30,
                   ),
                 )
@@ -123,7 +123,7 @@ export default function UserCoverPool({
         setCoverTickPrice(ethers.utils.parseUnits(String(price), 0))
       }
     } catch (error) {
-      setCoverTickPrice(ethers.utils.parseUnits(String(coverPrice), 0))
+      setCoverTickPrice(ethers.utils.parseUnits(String(coverQuote), 0))
       console.log(error)
     }
   }
@@ -154,7 +154,7 @@ export default function UserCoverPool({
           tokenOneLogoURI: logoMap[tokenOne.symbol],
           tokenOneAddress: tokenOne.id,
           tokenOneValue: valueTokenOne,
-          coverPrice: coverPrice ? coverPrice : 0,
+          coverQuote: coverQuote ? coverQuote : 0,
           coverTickPrice: coverTickPrice ? coverTickPrice : 0,
           min: min,
           max: max,

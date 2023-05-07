@@ -21,6 +21,7 @@ export default function DirectionalPoolPreview({
   allowance,
   setAllowance,
 }) {
+  
   const { address } = useAccount()
   const { data } = useContractRead({
     address: tokenIn.address,
