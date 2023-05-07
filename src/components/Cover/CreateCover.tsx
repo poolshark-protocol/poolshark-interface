@@ -25,7 +25,7 @@ import {
   tokenZeroAddress,
 } from '../../constants/contractAddresses'
 import { coverPoolAddress } from '../../constants/contractAddresses'
-import { TickMath } from '../../utils/tickMath'
+import { TickMath } from '../../utils/math/tickMath'
 import { BigNumber, Contract, ethers } from 'ethers'
 import { useCoverStore } from '../../hooks/useStore'
 import {
