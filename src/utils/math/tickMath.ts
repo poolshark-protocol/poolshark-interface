@@ -31,6 +31,20 @@ export abstract class TickMath {
    */
   public static MAX_SQRT_RATIO: JSBI = JSBI.BigInt('1461446703485210103287273052203988822378723970342')
 
+  public static roundTick(tick: number, tickSpacing: number): number {
+    return tick / tickSpacing * tickSpacing;
+  }
+
+  public static roundPrice(sqrtRatioX96: JSBI, tickSpacing: number): JSBI {
+    let spacing = JSBI.BigInt(tickSpacing.toString())
+    let tick = JSBI.BigInt((this.getTickAtSqrtRatio(sqrtRatioX96)).toString())
+    let roundedTick = JSBI.multiply(JSBI.divide(tick, spacing), spacing)
+    if (JSBI.notEqual(roundedTick, tick)) {
+      return this.getSqrtRatioAtTick(Number(roundedTick))
+    }
+    return sqrtRatioX96
+  }
+
   /**
    * Returns the sqrt ratio as a Q64.96 for the given tick. The sqrt ratio is computed as sqrt(1.0001)^tick
    * @param tick the tick for which to compute the sqrt ratio
