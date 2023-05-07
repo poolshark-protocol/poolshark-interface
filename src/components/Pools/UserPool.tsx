@@ -81,14 +81,13 @@ export default function UserPool({
   const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
     address: rangePoolRoute,
     abi: rangePoolABI,
-    functionName:
-      tokenOne.id != '' && tokenZero.id < tokenOne.id ? 'pool1' : 'pool0',
+    functionName: 'poolState',
     args: [],
     chainId: 421613,
     watch: true,
     onSuccess(data) {
       console.log('Success price Range', data)
-      setRangePrice(parseFloat(ethers.utils.formatUnits(data[0], 18)))
+      setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
     },
     onError(error) {
       console.log('Error price Range', error)
