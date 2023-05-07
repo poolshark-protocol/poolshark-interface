@@ -470,21 +470,21 @@ export default function Range() {
                     <RangeBurnButton
                       poolAddress={router.query.poolId.toString()}
                       address={address}
-                      lower={'lower'}
-                      upper={'upper'}
+                      lower={BigNumber.from(router.query.min.toString())}
+                      upper={BigNumber.from(router.query.max.toString())}
                       amount={'amount'}
                     />
                     <RangeCollectButton
                       poolAddress={router.query.poolId.toString()}
                       address={address}
-                      lower={'lower'}
-                      upper={'upper'}
+                      lower={BigNumber.from(router.query.min.toString())}
+                      upper={BigNumber.from(router.query.max.toString())}
                     />
                     <RangeCompoundButton
                       poolAddress={router.query.poolId.toString()}
                       address={address}
-                      lower={'lower'}
-                      upper={'upper'}
+                      lower={BigNumber.from(router.query.min.toString())}
+                      upper={BigNumber.from(router.query.max.toString())}
                     />
                   </div>
                 </div>

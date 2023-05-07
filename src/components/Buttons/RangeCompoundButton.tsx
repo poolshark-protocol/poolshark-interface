@@ -25,13 +25,13 @@ export default function RangeCompoundButton({ poolAddress, address, lower, upper
           address,
           lower,
           upper,
-          ethers.utils.parseUnits('0'),
+          BigNumber.from('0'),
           true,
           false
         ]],
       chainId: 421613,
       overrides:{
-          gasLimit: BigNumber.from("3500000")
+          gasLimit: BigNumber.from("350000000")
       },
   })
 

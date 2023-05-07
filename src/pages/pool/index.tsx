@@ -312,7 +312,7 @@ export default function Pool() {
                         return (
                           <UserPool
                             key={allRangePosition.tokenOneName}
-                            account={'account'}
+                            account={address}
                             poolId={allRangePosition.poolId}
                             tokenZero={allRangePosition.tokenZero}
                             tokenOne={allRangePosition.tokenOne}
@@ -346,7 +346,7 @@ export default function Pool() {
                         return (
                           <UserCoverPool
                             key={allCoverPosition.tokenOneName}
-                            account={'account'}
+                            account={address}
                             poolId={allCoverPosition.poolId}
                             tokenZero={allCoverPosition.tokenZero}
                             valueTokenZero={allCoverPosition.valueTokenZero}
@@ -391,7 +391,7 @@ export default function Pool() {
                           )
                             return (
                               <PoolList
-                                account={'account'}
+                                account={address}
                                 key={allRangePool.tokenOneName}
                                 poolId={allRangePool.poolId}
                                 tokenZero={allRangePool.tokenZero}
@@ -417,7 +417,7 @@ export default function Pool() {
                           )
                             return (
                               <PoolList
-                                account={'account'}
+                                account={address}
                                 key={allCoverPool.tokenOneName}
                                 poolId={allCoverPool.poolId}
                                 tokenZero={allCoverPool.tokenZero}
