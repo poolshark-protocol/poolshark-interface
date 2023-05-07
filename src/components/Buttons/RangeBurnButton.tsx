@@ -11,13 +11,13 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BigNumber, ethers } from "ethers";
 
-export default function RangeBurnButton({address, lower, upper, amount}) {
+export default function RangeBurnButton({poolAddress, address, lower, upper, amount}) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
 
   const { config } = usePrepareContractWrite({
-      address: rangePoolAddress,
+      address: poolAddress,
       abi: rangePoolABI,
       functionName: "burn",
       args:[[

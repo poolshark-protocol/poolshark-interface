@@ -11,14 +11,14 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BigNumber, ethers } from "ethers";
 
-export default function RangeCollectButton({ address, lower, upper }) {
+export default function RangeCollectButton({ poolAddress, address, lower, upper }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
 
   //TO-DO: assess if collectFees() or collect true in burn
   const { config } = usePrepareContractWrite({
-      address: rangePoolAddress,
+      address: poolAddress,
       abi: rangePoolABI,
       functionName: "burn",
       args:[[

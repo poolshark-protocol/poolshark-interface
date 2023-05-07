@@ -479,7 +479,6 @@ export const fetchRangePositions = (address: string) => {
                 liquidity
                 upper
                 lower
-                epochLast
                 pool{
                     token0{
                         id

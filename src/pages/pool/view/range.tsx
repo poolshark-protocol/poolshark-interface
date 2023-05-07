@@ -468,17 +468,20 @@ export default function Range() {
                 <div className="mt-5 space-y-2">
                   <div className="space-y-3">
                     <RangeBurnButton
+                      poolAddress={router.query.poolId.toString()}
                       address={address}
                       lower={'lower'}
                       upper={'upper'}
                       amount={'amount'}
                     />
                     <RangeCollectButton
+                      poolAddress={router.query.poolId.toString()}
                       address={address}
                       lower={'lower'}
                       upper={'upper'}
                     />
                     <RangeCompoundButton
+                      poolAddress={router.query.poolId.toString()}
                       address={address}
                       lower={'lower'}
                       upper={'upper'}
