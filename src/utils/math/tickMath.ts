@@ -32,15 +32,25 @@ export abstract class TickMath {
   public static MAX_SQRT_RATIO: JSBI = JSBI.BigInt('1461446703485210103287273052203988822378723970342')
 
   public static roundTick(tick: number, tickSpacing: number): number {
-    return tick / tickSpacing * tickSpacing;
+    if (tick % tickSpacing != 0) {
+      let roundedDown = tick / tickSpacing * tickSpacing;
+      let roundedUp = tick / tickSpacing * tickSpacing + tickSpacing;
+      // check which is closer
+      if (tick - roundedDown <= roundedUp - tick) {
+        return roundedDown
+      } else {
+        return roundedUp
+      }
+    }
+    return tick;
   }
 
   public static roundPrice(sqrtRatioX96: JSBI, tickSpacing: number): JSBI {
     let spacing = JSBI.BigInt(tickSpacing.toString())
-    let tick = JSBI.BigInt((this.getTickAtSqrtRatio(sqrtRatioX96)).toString())
-    let roundedTick = JSBI.multiply(JSBI.divide(tick, spacing), spacing)
-    if (JSBI.notEqual(roundedTick, tick)) {
-      return this.getSqrtRatioAtTick(Number(roundedTick))
+    let tick = this.getTickAtSqrtRatio(sqrtRatioX96)
+    let roundedTick = this.roundTick(Number(tick), tickSpacing)
+    if (tick != roundedTick) {
+      return this.getSqrtRatioAtTick(roundedTick)
     }
     return sqrtRatioX96
   }
