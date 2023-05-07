@@ -136,10 +136,9 @@ export default function Concentrated() {
                 : router.query.tokenOneLogoURI.toString()
             }
             tokenOneAddress={
-             /*  router.query.tokenOneAddress === undefined
+              router.query.tokenOneAddress === undefined
                 ? ""
-                : router.query.tokenOneAddress.toString() */
-                tokenOneAddress
+                : router.query.tokenOneAddress.toString()
             }
             tokenZeroName={
               router.query.tokenZeroName === undefined
@@ -156,12 +155,10 @@ export default function Concentrated() {
                 ? ""
                 : router.query.tokenZeroLogoURI.toString()
             }
-            //mocked
             tokenZeroAddress={
-              /*  router.query.tokenZeroAddress === undefined
+               router.query.tokenZeroAddress === undefined
                 ? ""
-                : router.query.tokenZeroAddress.toString() */
-             tokenZeroAddress
+                : router.query.tokenZeroAddress.toString()
             }
             liquidity={
               router.query.liquidity === undefined
