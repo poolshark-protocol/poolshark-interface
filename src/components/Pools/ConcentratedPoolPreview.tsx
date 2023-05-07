@@ -8,6 +8,7 @@ import SwapRangeApproveButton from '../Buttons/SwapRangeApproveButton'
 
 export default function ConcentratedPoolPreview({
   account,
+  poolAddress,
   tokenIn,
   tokenOut,
   amount0,
@@ -27,7 +28,7 @@ export default function ConcentratedPoolPreview({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [address, rangePoolAddress],
+    args: [address, poolAddress],
     chainId: 421613,
     watch: true,
     onSuccess() {
@@ -44,7 +45,7 @@ export default function ConcentratedPoolPreview({
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [address, rangePoolAddress],
+    args: [address, poolAddress],
     chainId: 421613,
     watch: true,
     onSuccess() {
@@ -255,6 +256,7 @@ export default function ConcentratedPoolPreview({
                       ) : (
                         <RangeMintButton
                           disabled={false}
+                          poolId={poolAddress}
                           to={account}
                           lower={minTick}
                           upper={maxTick}

@@ -694,6 +694,7 @@ export default function RangePool({
         <ConcentratedPoolPreview
           account={to}
           key={poolId}
+          poolAddress={poolId}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
           amount0={bnInput}

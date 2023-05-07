@@ -158,7 +158,7 @@ export default function ConcentratedPool({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [address, rangePoolAddress],
+    args: [address, poolId],
     chainId: 421613,
     watch: true,
     onError(error) {
@@ -167,7 +167,7 @@ export default function ConcentratedPool({
   })
 
   const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
-    address: rangePoolRoute,
+    address: poolId,
     abi: rangePoolABI,
     functionName: 'poolState',
     args: [],
@@ -728,6 +728,7 @@ export default function ConcentratedPool({
         <ConcentratedPoolPreview
           account={to}
           key={poolId}
+          poolAddress={poolId}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
           amount0={bnInput}
@@ -735,8 +736,8 @@ export default function ConcentratedPool({
           amount1={bnInput}
           minPrice={minPrice}
           maxPrice={maxPrice}
-          minTick={min}
-          maxTick={max}
+          minTick={ethers.utils.parseUnits('10', 0)}
+          maxTick={ethers.utils.parseUnits('40', 0)}
           fee={selected.tier}
           allowanceIn={allowanceIn}
           setAllowanceIn={setAllowanceIn}

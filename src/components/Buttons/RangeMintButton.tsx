@@ -17,6 +17,7 @@ import {
 
 export default function RangeMintButton({
   disabled,
+  poolId,
   to,
   lower,
   upper,
@@ -51,7 +52,7 @@ export default function RangeMintButton({
   }, [to, lower, upper, amount0, amount1, fungible])*/
 
   const { config } = usePrepareContractWrite({
-    address: rangePoolAddress,
+    address: poolId,
     abi: rangePoolABI,
     functionName: 'mint',
     args: [[
@@ -64,7 +65,7 @@ export default function RangeMintButton({
     ]],
     chainId: 421613,
     overrides: {
-      gasLimit: BigNumber.from('35000000'),
+      gasLimit: BigNumber.from('210000000'),
     },
   })
 
