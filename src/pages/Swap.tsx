@@ -12,8 +12,6 @@ import { erc20ABI, useAccount, useSigner } from 'wagmi'
 import {
   tokenZeroAddress,
   tokenOneAddress,
-  rangePoolAddress,
-  coverPoolAddress,
 } from '../constants/contractAddresses'
 import { useProvider, useContractRead } from 'wagmi'
 import { BigNumber, Contract, ethers } from 'ethers'
@@ -24,11 +22,7 @@ import {
   fetchPrice,
   fetchRangePools,
   getCoverPoolFromFactory,
-  getCoverPrice,
-  getCoverQuote,
   getRangePoolFromFactory,
-  getRangePrice,
-  getRangeQuote,
 } from '../utils/queries'
 import { useSwapStore } from '../hooks/useStore'
 import SwapRangeApproveButton from '../components/Buttons/SwapRangeApproveButton'
@@ -58,9 +52,6 @@ export default function Swap() {
     bnInputLimit,
     LimitInputBox,
   } = useInputBox()
-  /* const rangeAllowance = useAllowance(address)
-  const coverAllowance = useAllowance(address) */
-  /* const [allowance, setAllowance] = useState('0') */
   const [gasFee, setGasFee] = useState('')
   const [rangeBaseLimit, setRangeBaseLimit] = useState(undefined)
   const [coverBaseLimit, setCoverBaseLimit] = useState(undefined)
@@ -76,7 +67,6 @@ export default function Swap() {
   const [tokenIn, setTokenIn] = useState({
     symbol: 'WETH',
     logoURI: '/static/images/eth_icon.png',
-    //address: tokenZeroAddress,
     address: tokenZeroAddress,
   })
   const [tokenOut, setTokenOut] = useState({
@@ -237,10 +227,6 @@ export default function Swap() {
     updateSwapAmount(bnInput)
   }, [bnInput])
 
-  /* useEffect(() => {
-    getAllowance()
-  }, [tokenIn]) */
-
   useEffect(() => {
     getRangePool()
   }, [hasSelected, tokenIn.address, tokenOut.address])
@@ -256,24 +242,6 @@ export default function Swap() {
   useEffect(() => {
     getFeeTier()
   }, [rangeQuote, coverQuote])
-
-  // useEffect(() => {
-  //   if (isConnected && stateChainName === "arbitrumGoerli") {
-  //     if (Number(balanceZero().props.children[1]) >= 1000000)
-  //       setBalance0(Number(balanceZero().props.children[1]).toExponential(5));
-  //     }
-  //     setBalance0(Number(balanceZero().props.children[1]).toFixed(2));
-  //   }
-  // }, [queryTokenIn]);
-
-  // useEffect(() => {
-  //   if (isConnected && stateChainName === "arbitrumGoerli") {
-  //     if (Number(balanceOne().props.children[1]) >= 1000000) {
-  //       setBalance1(Number(balanceOne().props.children[1]).toExponential(5));
-  //     }
-  //     setBalance1(Number(balanceOne().props.children[1]).toFixed(2));
-  //   }
-  // }, [queryTokenOut, balanceOne]);
 
   function closeModal() {
     setIsOpen(false)
@@ -297,42 +265,10 @@ export default function Swap() {
         const balance2 = await token2Bal.balanceOf(address)
         let bal2: string
         bal2 = Number(ethers.utils.formatEther(balance2)).toFixed(2)
-        /* if (Number(ethers.utils.formatEther(balance1)) >= 1000000) {
-          bal1 = Number(ethers.utils.formatEther(balance1)).toExponential(5)
-        }
-        if (
-          0 < Number(ethers.utils.formatEther(balance1)) &&
-          Number(ethers.utils.formatEther(balance1)) < 1000000
-        ) {
-          console.log('here')
-          bal1 = Number(ethers.utils.formatEther(balance1)).toFixed(2)
-        }
-        if (Number(ethers.utils.formatEther(balance2)) >= 1000000) {
-          console.log('here2')
-          bal2 = Number(ethers.utils.formatEther(balance2)).toExponential(5)
-        }
-        if (
-          0 < Number(ethers.utils.formatEther(balance2)) &&
-          Number(ethers.utils.formatEther(balance2)) < 1000000
-        ) {
-          console.log('here3')
-          bal2 = Number(ethers.utils.formatEther(balance2)).toFixed(2)
-        } */
 
         setBalance1(bal2)
       }
-      /* let bal1 = await tokenOutBal.balanceOf(address)
-      let displayBal1: string
-      if (Number(ethers.utils.formatEther(bal1)) >= 1000000) {
-        displayBal1 = Number(ethers.utils.formatEther(bal1)).toExponential(5)
-      }
-      if (
-        0 < Number(ethers.utils.formatEther(bal1)) &&
-        Number(ethers.utils.formatEther(bal1)) < 1000000
-      ) {
-        displayBal1 = Number(ethers.utils.formatEther(bal1)).toFixed(2)
-      }
-       */
+
       setBalance0(bal1)
     } catch (error) {
       console.log(error)
@@ -359,12 +295,6 @@ export default function Swap() {
       return
     }
   }
-
-  /* const getAllowance = async () => {
-    const allowance = await useSwapAllowance(address)
-    console.log('allowance', allowance)
-    setAllowance(allowance)
-  } */
 
   const changeDefaultOut = (token: token) => {
     if (token.symbol === tokenIn.symbol) {
@@ -514,25 +444,8 @@ export default function Swap() {
 
         const id = pool['data']['coverPools']['0']['id']
         
-
-        /*const price = await getCoverQuote(
-          String(id),
-          bnInput,
-          BigNumber.from('4295128739'),
-          tokenIn.address,
-          tokenOut.address,
-        )*/
-
-        /*const currentPrice = await getCoverPrice(
-          coverPoolAddress,
-          true
-        )*/
-        
         setCoverPoolRoute(id)
         console.log('cover pool route', coverPoolRoute)
-        /*setCoverQuote(price)
-        setCoverBaseLimit(price)*/
-        //setCoverCurrentPrice(currentPrice)
       }
     } catch (error) {
       console.log(error)
@@ -542,13 +455,9 @@ export default function Swap() {
 
   //@dev TO-DO: fetch token Addresses, use for pool quote (smallest fee tier)
   //@dev TO-DO: re-route pool and handle allowances
-  /*const fetchCoverAddress = async() = {
-    
-  }*/
 
   const fetchTokenPrice = async () => {
     try {
-      //const price = await fetchPrice('0x000')
       if (Number(rangeQuote) < Number(coverQuote)) {
         const price = rangeQuote
         setMktRate({
@@ -1058,38 +967,3 @@ export default function Swap() {
   );
 }
 
-/* ? (  &&
-          
-        ) */
-
-/*  stateChainName !== 'arbitrumGoerli' ? Number(rangePrice) <
-          Number(coverPrice) ? (
-          
-        ) : Number(coverPrice) < rangePrice ? (
-          
-        ) : <div>Ola</div> : */
-
-/* 
-        Number(allowance) < Number(bnInput) ? (
-          Number(rangePrice) < Number(coverPrice) ? (
-            <SwapRangeApproveButton approveToken={tokenIn.address} />
-          ) : (
-            <SwapCoverApproveButton approveToken={tokenIn.address} />
-          )
-        ) : Number(rangePrice) < Number(coverPrice) ? (
-          <SwapRangeButton
-            zeroForOne={
-              tokenOut.address != '' && tokenIn.address < tokenOut.address
-            }
-            amount={bnInput}
-            baseLimit={rangeBaseLimit}
-          />
-        ) : (
-          <SwapCoverButton
-            zeroForOne={
-              tokenOut.address != '' && tokenIn.address < tokenOut.address
-            }
-            amount={bnInput}
-            baseLimit={coverBaseLimit}
-          />
-        ) */

@@ -9,9 +9,9 @@ import { useState, useEffect } from 'react'
 import CoverBurnButton from '../../../components/Buttons/CoverBurnButton'
 import CoverCollectButton from '../../../components/Buttons/CoverCollectButton'
 import { useRouter } from 'next/router'
-import { useAccount, useContractRead } from 'wagmi'
+import { useAccount } from 'wagmi'
 import Link from 'next/link'
-import { BigNumber, ethers } from 'ethers'
+import { ethers } from 'ethers'
 
 export default function Cover() {
   type token = {

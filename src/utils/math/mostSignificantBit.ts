@@ -1,6 +1,6 @@
 import JSBI from 'jsbi'
 import invariant from 'tiny-invariant'
-import { ZERO, MAX_UINT256  } from '../internalConstants'
+import { ZERO, MAX_UINT256 } from '../math/constants'
 
 const TWO = JSBI.BigInt(2)
 const POWERS_OF_2 = [128, 64, 32, 16, 8, 4, 2, 1].map((pow: number): [number, JSBI] => [

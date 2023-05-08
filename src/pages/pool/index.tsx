@@ -46,7 +46,6 @@ export default function Pool() {
     mapRangePools()
   }, [rangePools])
 
-  //async so needs to be wrapped
   useEffect(() => {
     getUserRangePositionData()
   }, [])
@@ -55,7 +54,6 @@ export default function Pool() {
     mapUserRangePositions()
   }, [rangePositions])
 
-  //async so needs to be wrapped
   useEffect(() => {
     getCoverPoolData()
   }, [])
@@ -64,7 +62,6 @@ export default function Pool() {
     mapCoverPools()
   }, [coverPools])
 
-  //async so needs to be wrapped
   useEffect(() => {
     getUserCoverPositionData()
   }, [])
@@ -75,7 +72,6 @@ export default function Pool() {
 
   async function getRangePoolData() {
     const data = await fetchRangePools()
-    //console.log('rangepool from graphql data', data)
     const pools = data['data'].rangePools
     setRangePools(pools)
   }
@@ -118,8 +114,8 @@ export default function Pool() {
         volumeEth: rangePosition.pool.volumeEth,
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
       }
+
       mappedRangePositions.push(rangePositionData)
-      //console.log('mappedRangePositions', mappedRangePositions)
     })
     setAllRangePositions(mappedRangePositions)
   }
@@ -127,7 +123,6 @@ export default function Pool() {
   function mapUserCoverPositions() {
     const mappedCoverPositions = []
     coverPositions.map((coverPosition) => {
-      //console.log('coverPosition', coverPosition)
       const coverPositionData = {
         poolId: coverPosition.pool.id,
         tokenZero: coverPosition.pool.token0,
@@ -169,7 +164,6 @@ export default function Pool() {
   function mapCoverPools() {
     const mappedCoverPools = []
     coverPools.map((coverPool) => {
-      //console.log('coverPool', coverPool)
       const coverPoolData = {
         poolId: coverPool.id,
         tokenOne: coverPool.token1,
@@ -180,8 +174,8 @@ export default function Pool() {
         volumeUsd: coverPool.volumeUsd,
         volumeEth: coverPool.volumeEth,
       }
+
       mappedCoverPools.push(coverPoolData)
-      //console.log('mappedCoverPools', mappedCoverPools)
     })
 
     setAllCoverPools(mappedCoverPools)

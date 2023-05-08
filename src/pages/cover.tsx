@@ -2,7 +2,6 @@ import Navbar from '../components/Navbar'
 import {
   InformationCircleIcon,
   MagnifyingGlassIcon,
-  ArrowLongLeftIcon,
 } from '@heroicons/react/20/solid'
 import UserCoverPool from '../components/Pools/UserCoverPool'
 import { useState, useEffect } from 'react'
@@ -33,36 +32,11 @@ export default function Cover() {
 
   const [minPrice, setMinPrice] = useState(0)
 
-  const increaseMinPrice = () => {
-    setMinPrice((count) => count + 1)
-  }
-
-  const decreaseMinPrice = () => {
-    if (minPrice > 0) {
-      setMinPrice((count) => count - 1)
-    }
-  }
-  const decreaseMaxPrice = () => {
-    if (maxPrice > 0) {
-      setMaxPrice((count) => count - 1)
-    }
-  }
-
-  const handleChange = (event) => {
-    //const valueToBn = ethers.utils.parseUnits(event.target.value, 0);
-    //const result = event.target.value.replace(/\D/g, '');
-    const result = event.target.value.replace(/[^0-9\.|\,]/g, '')
-    //TODO: make
-    setMaxPrice(result)
-    setMinPrice(result)
-    // console.log('value is:', result);
-  }
-
   const {
     network: { chainId },
   } = useProvider()
 
-  const { address, isConnected, isDisconnected } = useAccount()
+  const { address, isDisconnected } = useAccount()
 
   const [expanded, setExpanded] = useState()
   const [selectedPool, setSelectedPool] = useState(router.query ?? undefined)
@@ -103,8 +77,8 @@ export default function Cover() {
         feeTier: coverPosition.pool.volatilityTier.feeAmount,
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
+
       mappedCoverPositions.push(coverPositionData)
-      //console.log('mappedCoverPositions_COVERPAGE: ', mappedCoverPositions)
     })
 
     setAllCoverPositions(mappedCoverPositions)
@@ -117,7 +91,7 @@ export default function Cover() {
       }
     })
   }
-  //async so needs to be wrapped
+
   useEffect(() => {
     getUserPositionData()
   }, [])
@@ -129,10 +103,6 @@ export default function Cover() {
   useEffect(() => {
     checkUserPositionExists()
   }, [])
-
-  /* useEffect(() => {
-    console.log('chainId: ', chainId)
-  }, [chainId]) */
 
   const Option = () => {
     if (expanded) {
@@ -258,7 +228,7 @@ export default function Cover() {
                             return (
                               <UserCoverPool
                                 key={allCoverPosition.tokenOneName}
-                                account={'account'}
+                                account={address}
                                 poolId={allCoverPosition.poolId}
                                 tokenZero={allCoverPosition.tokenZero}
                                 valueTokenZero={allCoverPosition.valueTokenZero}

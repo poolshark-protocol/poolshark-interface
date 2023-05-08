@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { ArrowLongLeftIcon } from '@heroicons/react/20/solid'
-import { tokenOneAddress, tokenZeroAddress } from '../../constants/contractAddresses'
 
 export default function Range() {
   const router = useRouter()
@@ -136,10 +135,9 @@ export default function Range() {
                 : router.query.tokenOneLogoURI.toString()
             }
             tokenOneAddress={
-             /*  router.query.tokenOneAddress === undefined
+             router.query.tokenOneAddress === undefined
                 ? ""
-                : router.query.tokenOneAddress.toString() */
-                tokenOneAddress
+                : router.query.tokenOneAddress.toString()
             }
             tokenZeroName={
               router.query.tokenZeroName === undefined
@@ -156,12 +154,10 @@ export default function Range() {
                 ? ""
                 : router.query.tokenZeroLogoURI.toString()
             }
-            //mocked
             tokenZeroAddress={
-              /*  router.query.tokenZeroAddress === undefined
+             router.query.tokenZeroAddress === undefined
                 ? ""
-                : router.query.tokenZeroAddress.toString() */
-             tokenZeroAddress
+                : router.query.tokenZeroAddress.toString()
             }
             liquidity={
               router.query.liquidity === undefined

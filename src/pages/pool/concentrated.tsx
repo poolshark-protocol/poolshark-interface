@@ -4,11 +4,9 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { ArrowLongLeftIcon } from '@heroicons/react/20/solid'
-import { tokenOneAddress, tokenZeroAddress } from '../../constants/contractAddresses'
 
 export default function Concentrated() {
   const router = useRouter()
-  //console.log('router.query: ', router.query)
   const zeroAddress =
     router.query.tokenZeroAddress === undefined
       ? ''

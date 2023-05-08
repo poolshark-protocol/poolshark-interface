@@ -10,10 +10,10 @@ import RangeCollectButton from '../../../components/Buttons/RangeCollectButton'
 import RangeBurnButton from '../../../components/Buttons/RangeBurnButton'
 import RangeCompoundButton from '../../../components/Buttons/RangeCompoundButton'
 import Link from 'next/link'
-import { useAccount } from 'wagmi'
+import { useAccount, useContractRead } from 'wagmi'
 import { BigNumber, ethers } from 'ethers'
-import { getRangePoolFromFactory, getRangeQuote } from '../../../utils/queries'
-import { rangePoolAddress } from '../../../constants/contractAddresses'
+import { getRangePoolFromFactory } from '../../../utils/queries'
+import { rangePoolABI } from '../../../abis/evm/rangePool'
 
 export default function Range() {
   type token = {
@@ -77,9 +77,28 @@ export default function Range() {
     address: router.query.tokenOneAddress,
     value: router.query.tokenOneValue,
   } as token)
-  const [rangeQuote, setRangeQuote] = useState(undefined)
+  const [rangePoolRoute, setRangePoolRoute] = useState(undefined)
   const [rangePrice, setRangePrice] = useState(undefined)
   const [mktRate, setMktRate] = useState({})
+
+  const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
+    address: rangePoolRoute,
+    abi: rangePoolABI,
+    functionName: 'poolState',
+    args: [],
+    chainId: 421613,
+    watch: true,
+    onSuccess(data) {
+      console.log('Success price Range', data)
+      setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
+    },
+    onError(error) {
+      console.log('Error price Range', error)
+    },
+    onSettled(data, error) {
+      console.log('Settled price Range', { data, error })
+    },
+  })
 
   useEffect(() => {
     if (copyAddress0) {
@@ -148,28 +167,12 @@ export default function Range() {
         tokenOut.address,
       )
       const id = pool['data']['rangePools']['0']['id']
-      /* console.log(
-        'rangeParams',
-        rangePoolAddress,
-        BigNumber.from(tokenIn.value),
-        BigNumber.from('4295128739'),
-        tokenIn.address,
-        tokenOut.address,
-      ) */
-      const price = await getRangeQuote(
-        rangePoolAddress,
-        BigNumber.from('100'),
-        BigNumber.from('4295128739'),
-        tokenIn.address,
-        tokenOut.address,
-      )
-      setRangePrice(price)
+
+      setRangePoolRoute(id)
     } catch (error) {
       console.log(error)
     }
   }
-  /* console.log('mktRate', mktRate)
-  console.log('rangePrice', rangePrice) */
 
   const fetchTokenPrice = async () => {
     try {
