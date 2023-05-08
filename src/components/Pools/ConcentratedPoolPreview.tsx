@@ -3,7 +3,6 @@ import { Transition, Dialog } from '@headlessui/react'
 import RangeMintButton from '../Buttons/RangeMintButton'
 import { ethers } from 'ethers'
 import { erc20ABI, useAccount, useContractRead } from 'wagmi'
-import { rangePoolAddress } from '../../constants/contractAddresses'
 import SwapRangeApproveButton from '../Buttons/SwapRangeApproveButton'
 
 export default function ConcentratedPoolPreview({

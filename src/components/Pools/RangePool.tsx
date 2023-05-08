@@ -12,22 +12,15 @@ import { useRangeStore } from '../../hooks/useStore'
 import { TickMath } from '../../utils/math/tickMath'
 import JSBI from 'jsbi'
 import {
-  getPreviousTicksLower,
   getRangePoolFromFactory,
-  getRangeQuote,
 } from '../../utils/queries'
 import useInputBox from '../../hooks/useInputBox'
-import useRangeAllowance from '../../hooks/useRangeAllowance'
-import { fetchPrice } from '../../utils/queries'
-import { useRouter } from 'next/router'
 import {
   rangePoolAddress,
-  tokenOneAddress,
-  tokenZeroAddress,
 } from '../../constants/contractAddresses'
 import { erc20ABI, useAccount } from 'wagmi'
 import { BigNumber, Contract, ethers } from 'ethers'
-import { useProvider, useContractRead } from 'wagmi'
+import { useContractRead } from 'wagmi'
 import { rangePoolABI } from '../../abis/evm/rangePool'
 
 export default function RangePool({
@@ -415,42 +408,10 @@ export default function RangePool({
         const balance2 = await token2Bal.balanceOf(address)
         let bal2: string
         bal2 = Number(ethers.utils.formatEther(balance2)).toFixed(2)
-        /* if (Number(ethers.utils.formatEther(balance1)) >= 1000000) {
-          bal1 = Number(ethers.utils.formatEther(balance1)).toExponential(5)
-        }
-        if (
-          0 < Number(ethers.utils.formatEther(balance1)) &&
-          Number(ethers.utils.formatEther(balance1)) < 1000000
-        ) {
-          console.log('here')
-          bal1 = Number(ethers.utils.formatEther(balance1)).toFixed(2)
-        }
-        if (Number(ethers.utils.formatEther(balance2)) >= 1000000) {
-          console.log('here2')
-          bal2 = Number(ethers.utils.formatEther(balance2)).toExponential(5)
-        }
-        if (
-          0 < Number(ethers.utils.formatEther(balance2)) &&
-          Number(ethers.utils.formatEther(balance2)) < 1000000
-        ) {
-          console.log('here3')
-          bal2 = Number(ethers.utils.formatEther(balance2)).toFixed(2)
-        } */
 
         setBalance1(bal2)
       }
-      /* let bal1 = await token1Bal.balanceOf(address)
-      let displayBal1: string
-      if (Number(ethers.utils.formatEther(bal1)) >= 1000000) {
-        displayBal1 = Number(ethers.utils.formatEther(bal1)).toExponential(5)
-      }
-      if (
-        0 < Number(ethers.utils.formatEther(bal1)) &&
-        Number(ethers.utils.formatEther(bal1)) < 1000000
-      ) {
-        displayBal1 = Number(ethers.utils.formatEther(bal1)).toFixed(2)
-      }
-       */
+
       setBalance0(bal1)
     } catch (error) {
       console.log(error)
@@ -628,9 +589,6 @@ export default function RangePool({
                 ) : (
                   <div>0</div>
                 )}
-                {/* <div className="flex">
-                  <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
-                </div> */}
               </div>
               <div className="">
                 <div className=" ml-auto">
