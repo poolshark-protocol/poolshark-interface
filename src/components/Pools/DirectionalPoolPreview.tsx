@@ -21,7 +21,6 @@ export default function DirectionalPoolPreview({
   allowance,
   setAllowance,
 }) {
-  
   const { address } = useAccount()
   const { data } = useContractRead({
     address: tokenIn.address,
@@ -192,6 +191,7 @@ export default function DirectionalPoolPreview({
                       {Number(allowance) <
                       Number(ethers.utils.formatUnits(amount0, 18)) ? (
                         <SwapCoverApproveButton
+                          poolAddress={poolId}
                           approveToken={tokenIn.address}
                         />
                       ) : (

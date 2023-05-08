@@ -246,10 +246,12 @@ export default function ConcentratedPoolPreview({
                         Number(allowanceIn) <
                         Number(ethers.utils.formatUnits(amount0, 18)) ? (
                           <SwapRangeApproveButton
+                            poolAddress={poolAddress}
                             approveToken={tokenIn.address}
                           />
                         ) : (
                           <SwapRangeApproveButton
+                            poolAddress={poolAddress}
                             approveToken={tokenOut.address}
                           />
                         )
