@@ -88,7 +88,7 @@ export default function CreateCover(props: any) {
   const [prices, setPrices] = useState({ tokenIn: 0, tokenOut: 0 })
   const [coverQuote, setCoverQuote] = useState(undefined)
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
-  const [coverPoolRoute, setCoverPoolRoute] = useState('')
+  const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
   const [tokenOrder, setTokenOrder] = useState(true)
   const poolId =
     router.query.poolId === undefined ? '' : router.query.poolId.toString()
@@ -103,7 +103,7 @@ export default function CreateCover(props: any) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [address, coverPoolAddress],
+    args: [address, coverPoolRoute],
     chainId: 421613,
     watch: true,
     onSuccess(data) {

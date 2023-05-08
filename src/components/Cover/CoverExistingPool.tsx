@@ -15,9 +15,6 @@ import {
   getCoverPoolFromFactory,
 } from '../../utils/queries'
 import { TickMath } from '../../utils/math/tickMath'
-import {
-  coverPoolAddress,
-} from '../../constants/contractAddresses'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import useInputBox from '../../hooks/useInputBox'
 import { coverPoolABI } from '../../abis/evm/coverPool'
@@ -83,14 +80,14 @@ export default function CoverExistingPool({
   )
   const [coverQuote, setCoverQuote] = useState(undefined)
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
-  const [coverPoolRoute, setCoverPoolRoute] = useState('')
+  const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
   const [allowance, setAllowance] = useState('0')
   const [mktRate, setMktRate] = useState({})
   const { data } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [address, coverPoolAddress],
+    args: [address, coverPoolRoute],
     chainId: 421613,
     watch: true,
     onSuccess(data) {
