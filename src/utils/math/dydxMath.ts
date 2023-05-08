@@ -11,11 +11,11 @@ export abstract class DyDxMath {
     roundUp: boolean
   ): JSBI {
     let dy: JSBI;
-    const difference = JSBI.subtract(priceUpper, priceLower);
+    const priceDiff = JSBI.subtract(priceUpper, priceLower);
     if (roundUp) {
-      dy = PrecisionMath.mulDivRoundingUp(liquidity, difference, Q96);
+      dy = PrecisionMath.mulDivRoundingUp(liquidity, priceDiff, Q96);
     } else {
-      dy = PrecisionMath.mulDiv(liquidity, difference, Q96);
+      dy = PrecisionMath.mulDiv(liquidity, priceDiff, Q96);
     }
     return dy;
   }
@@ -27,15 +27,15 @@ export abstract class DyDxMath {
     roundUp: boolean
   ): JSBI {
     let dx: JSBI;
-    const difference = JSBI.subtract(priceUpper, priceLower);
+    const priceDiff = JSBI.subtract(priceUpper, priceLower);
     if (roundUp) {
       dx = PrecisionMath.divRoundingUp(
-        PrecisionMath.mulDivRoundingUp(JSBI.leftShift(liquidity, JSBI.BigInt(96)), difference, priceUpper),
+        PrecisionMath.mulDivRoundingUp(JSBI.leftShift(liquidity, JSBI.BigInt(96)), priceDiff, priceUpper),
         priceLower
       );
     } else {
-      dx = JSBI.divide(
-        PrecisionMath.mulDiv(JSBI.leftShift(liquidity, JSBI.BigInt(96)), difference, priceUpper),
+      dx = PrecisionMath.div(
+        PrecisionMath.mulDiv(JSBI.leftShift(liquidity, JSBI.BigInt(96)), priceDiff, priceUpper),
         priceLower
       );
     }
