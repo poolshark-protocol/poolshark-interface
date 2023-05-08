@@ -8,7 +8,6 @@ import {
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
-import { rangePoolAddress } from "../../constants/contractAddresses";
 import React, { useState } from "react";
 import { rangePoolABI } from "../../abis/evm/rangePool";
 import { useSwapStore } from "../../hooks/useStore"

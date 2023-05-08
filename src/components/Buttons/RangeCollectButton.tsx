@@ -4,12 +4,11 @@ import {
     useWaitForTransaction,
 } from 'wagmi';
 import { rangePoolABI } from "../../abis/evm/rangePool";
-import { rangePoolAddress } from "../../constants/contractAddresses";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber } from "ethers";
 
 export default function RangeCollectButton({ poolAddress, address, lower, upper }) {
 
