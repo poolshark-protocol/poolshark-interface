@@ -131,6 +131,7 @@ export default function Pool() {
         valueTokenOne: coverPosition.outAmount,
         min: coverPosition.lower,
         max: coverPosition.upper,
+        epochLast: coverPosition.epochLast,
         liquidity: coverPosition.liquidity,
         feeTier: coverPosition.pool.volatilityTier.feeAmount,
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
@@ -348,6 +349,7 @@ export default function Pool() {
                             valueTokenOne={allCoverPosition.valueTokenOne}
                             min={allCoverPosition.min}
                             max={allCoverPosition.max}
+                            epochLast={allCoverPosition.epochLast}
                             liquidity={allCoverPosition.liquidity}
                             feeTier={allCoverPosition.feeTier}
                             prefill={undefined}

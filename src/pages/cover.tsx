@@ -229,6 +229,7 @@ export default function Cover() {
                                 max={allCoverPosition.max}
                                 feeTier={allCoverPosition.feeTier}
                                 liquidity={allCoverPosition.liquidity}
+                                epochLast={undefined}
                                 prefill={undefined}
                                 close={undefined}
                                 href={'/pool/view/cover'}

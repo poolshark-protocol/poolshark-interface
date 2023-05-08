@@ -243,6 +243,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                               max={allUniV3Position.max}
                               liquidity={allUniV3Position.liquidity}
                               feeTier={allUniV3Position.feeTier}
+                              epochLast={undefined}
                               prefill={undefined}
                               close={undefined}
                               href={'/cover'}
