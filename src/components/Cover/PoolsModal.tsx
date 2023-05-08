@@ -1,109 +1,124 @@
-import { Transition, Dialog } from "@headlessui/react";
-import { Fragment, useState, useEffect } from "react";
-import {
-  MagnifyingGlassIcon, XMarkIcon,
-} from "@heroicons/react/20/solid";
-import UserCoverPool from "../Pools/UserCoverPool";
-import StaticUniPool from "../Pools/StaticUniPool";
-import { fetchCoverPools, fetchUniV3Pools } from "../../utils/queries";
-import { useAccount } from "wagmi";
+import { Transition, Dialog } from '@headlessui/react'
+import { Fragment, useState, useEffect } from 'react'
+import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/20/solid'
+import UserCoverPool from '../Pools/UserCoverPool'
+import { fetchRangePositions, fetchUniV3Positions } from '../../utils/queries'
+import { useAccount } from 'wagmi'
+import UserPool from '../Pools/UserPool'
 
-export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
+export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
+  const { address } = useAccount()
 
-  const { address } = useAccount();
+  const [searchTerm, setSearchTerm] = useState('')
 
-  const [coverPools, setCoverPools] = useState([]);
-  const [allCoverPools, setAllCoverPools] = useState([]);
-
-  async function getPoolData() {
-    try {
-      const data = await fetchCoverPools();
-      const pools = data["data"].coverPools;
-  
-      setCoverPools(pools);
-      
-    } catch (error) {
-      console.log(error)
-    }
-  
+  const handleSearchTermChange = (event) => {
+    setSearchTerm(event.target.value)
   }
 
-  function mapCoverPools() {
-    const mappedCoverPools = [];
-    
-    coverPools.map((coverPool) => {
-      const coverPoolData = {
-        tokenOneName: coverPool.token1.name,
-        tokenZeroName: coverPool.token0.name,
-        tokenOneAddress: coverPool.token1.id,
-        tokenZeroAddress: coverPool.token0.id,
-        poolAddress: coverPool.id,
-      };
+  const [rangePositions, setRangePositions] = useState([])
+  const [allRangePositions, setAllRangePositions] = useState([])
 
-      mappedCoverPools.push(coverPoolData);
-    });
-
-    setAllCoverPools(mappedCoverPools);
+  async function getUserRangePositionData() {
+    const data = await fetchRangePositions(address)
+    const positions = data['data'].positions
+    setRangePositions(positions)
   }
 
-  //async so needs to be wrapped
-  useEffect(() => {
-    getPoolData();
-  }, []);
-
-  // useEffect(() => {
-  //  pool(coverParams);
-  // },[coverParams])
-
-  useEffect(() => {
-    mapCoverPools();
-  }, [coverPools]);
-
-
-  const [univ3Pools, setUniv3Pools] = useState([]);
-  const [allUniv3Pools, setAllUniv3Pools] = useState([]);
-
-  async function getUniv3PoolData() {
-    const data = await fetchUniV3Pools();
-    const pools = data["data"].pools;
-
-    setUniv3Pools(pools);
-  }
-
-  function mapUniv3Pools() {
-    const mappedUniV3Pools = [];
-
-    univ3Pools.map((univ3Pool) => {
-      const coverPoolData = {
-        tokenOneName: univ3Pool.token1.name,
-        tokenZeroName: univ3Pool.token0.name,
-        tokenOneAddress: univ3Pool.token1.id,
-        tokenZeroAddress: univ3Pool.token0.id,
-        poolAddress: univ3Pool.id,
-      };
-
-      mappedUniV3Pools.push(coverPoolData);
-    });
-
-    setAllUniv3Pools(mappedUniV3Pools);
+  function mapUserRangePositions() {
+    const mappedRangePositions = []
+    rangePositions.map((rangePosition) => {
+      //console.log('rangePosition', rangePosition)
+      const rangePositionData = {
+        poolId: rangePosition.pool.factory.id,
+        tokenZero: rangePosition.pool.token0,
+        valueTokenZero: rangePosition.pool.totalValueLocked0,
+        tokenOne: rangePosition.pool.token1,
+        valueTokenOne: rangePosition.pool.totalValueLocked0,
+        min: rangePosition.lower,
+        max: rangePosition.upper,
+        tvlUsd: rangePosition.pool.totalValueLockedUsd,
+        feeTier: rangePosition.pool.feeTier.feeAmount,
+        unclaimedFees: rangePosition.pool.feesUsd,
+        liquidity: rangePosition.liquidity,
+        volumeUsd: rangePosition.pool.volumeUsd,
+        volumeEth: rangePosition.pool.volumeEth,
+        userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
+      }
+      mappedRangePositions.push(rangePositionData)
+      console.log('mappedRangePositions', mappedRangePositions)
+    })
+    setAllRangePositions(mappedRangePositions)
   }
 
   //async so needs to be wrapped
   useEffect(() => {
-    getUniv3PoolData();
-  }, []);
-
-  // useEffect(() => {
-  //  pool(coverParams);
-  // },[coverParams])
+    getUserRangePositionData()
+  }, [])
 
   useEffect(() => {
-    mapUniv3Pools();
-  }, [univ3Pools]);
+    mapUserRangePositions()
+  }, [rangePositions])
+
+  const [uniV3Positions, setUniV3Positions] = useState([])
+  const [allUniV3Positions, setAllUniV3Positions] = useState([])
+  const [userUniV3PositionExists, setUserUniV3PositionExists] = useState(false)
+
+  async function getUserUniV3PositionData() {
+    const data = await fetchUniV3Positions(address)
+    const positions = data['data'].positions
+
+    setUniV3Positions(positions)
+  }
+
+  function mapUserUniV3Positions() {
+    const mappedUniV3Positions = []
+    uniV3Positions.map((uniV3Position) => {
+      const uniV3PositionData = {
+        poolId: uniV3Position.id,
+        tokenZero: uniV3Position.token0,
+        valueTokenZero: uniV3Position.depositedToken0,
+        tokenOne: uniV3Position.token1,
+        valueTokenOne: uniV3Position.depositedToken1,
+        poolAddress: uniV3Position.id,
+        liquidity: uniV3Position.liquidity,
+        min: uniV3Position.withdrawnToken0,
+        max: uniV3Position.withdrawnToken1,
+        userOwnerAddress: uniV3Position.owner.replace(/"|'/g, ''),
+      }
+
+      mappedUniV3Positions.push(uniV3PositionData)
+    })
+
+    setAllUniV3Positions(mappedUniV3Positions)
+  }
+
+  function checkUserUniV3PositionExists() {
+    allUniV3Positions.map((allUniV3Position) => {
+      if (allUniV3Position.userOwnerAddress === address?.toLowerCase()) {
+        setUserUniV3PositionExists(true)
+      }
+    })
+  }
+
+  useEffect(() => {
+    getUserUniV3PositionData()
+  }, [])
+
+  useEffect(() => {
+    mapUserUniV3Positions()
+  }, [uniV3Positions])
+
+  useEffect(() => {
+    checkUserUniV3PositionExists()
+  }, [])
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={() => setIsOpen(false)}>
+      <Dialog
+        as="div"
+        className="relative z-50"
+        onClose={() => setIsOpen(false)}
+      >
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -128,58 +143,121 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill }) {
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel className="w-full max-w-3xl h-[45rem] transform overflow-y-auto rounded-xl bg-black text-white border border-grey2 text-left align-middle shadow-xl px-6 py-5 transition-all">
-                  <div className="flex justify-between items-center mb-5">
-                      <h1 className="text-xl">Select a Pool to Cover</h1>
-                      <XMarkIcon onClick={() => setIsOpen(false)} className="w-7 cursor-pointer"/>
-                  </div>
-                                <div className="relative mb-4">
-                <MagnifyingGlassIcon className="w-5 text-grey absolute ml-[14px] mt-[13px]" />
-                <input
-                  className="border border-grey2 bg-dark rounded-xl py-2.5 w-full placeholder:text-grey outline-none pl-12"
-                  placeholder="Search name, symbol or address"
-                />
-              </div>
-              <div>
-                <h1 className="mb-3">Poolshark Pools</h1>
-                <div className="space-y-2">
-                {allCoverPools.map((allCoverPool) => {
-                    return (
-                      <UserCoverPool
-                        key={allCoverPool.tokenOneName}
-                        tokenOneName={allCoverPool.tokenOneName}
-                        tokenZeroName={allCoverPool.tokenZeroName}
-                        tokenOneAddress={allCoverPool.tokenOneAddress}
-                        tokenZeroAddress={allCoverPool.tokenZeroAddress}
-                        poolAddress={allCoverPool.poolAddress}
-                        prefill={prefill}
-                        close={setIsOpen}
-                      />
-                    );
-                  })}
+                <div className="flex justify-between items-center mb-5">
+                  <h1 className="text-xl">Select a Pool to Cover</h1>
+                  <XMarkIcon
+                    onClick={() => setIsOpen(false)}
+                    className="w-7 cursor-pointer"
+                  />
                 </div>
-              </div>
-              <div>
-                <h1 className="mb-3 mt-4">UNI-V3 Pools</h1>
-                {allUniv3Pools.map((allUniv3Pool) => {
-                    return (
-                      <UserCoverPool
-                        key={allUniv3Pool.tokenOneName}
-                        tokenOneName={allUniv3Pool.tokenOneName}
-                        tokenZeroName={allUniv3Pool.tokenZeroName}
-                        tokenOneAddress={allUniv3Pool.tokenOneAddress}
-                        tokenZeroAddress={allUniv3Pool.tokenZeroAddress}
-                        poolAddress={allUniv3Pool.poolAddress}
-                        prefill={prefill}
-                        close={setIsOpen}
-                      />
-                    );
-                  })}
-              </div>
+                <div className="relative mb-4">
+                  <MagnifyingGlassIcon className="w-5 text-grey absolute ml-[14px] mt-[13px]" />
+                  <input
+                    className="border border-grey2 bg-dark rounded-xl py-2.5 w-full placeholder:text-grey outline-none pl-12"
+                    placeholder="Search name, symbol or address"
+                    value={searchTerm}
+                    onChange={handleSearchTermChange}
+                  />
+                </div>
+                <div>
+                  <h1 className="mb-3">Poolshark Positions</h1>
+                  <div className="space-y-2">
+                    {allRangePositions.map((allRangePosition) => {
+                      if (
+                        /* allRangePosition.userOwnerAddress ===
+                          address?.toLowerCase() */ true &&
+                        (allRangePosition.tokenZero.name === searchTerm ||
+                          allRangePosition.tokenOne.name === searchTerm ||
+                          allRangePosition.tokenZero.symbol === searchTerm ||
+                          allRangePosition.tokenOne.symbol === searchTerm ||
+                          allRangePosition.tokenZero.id === searchTerm ||
+                          allRangePosition.tokenOne.id === searchTerm ||
+                          searchTerm === '')
+                      ) {
+                        return (
+                          <div
+                            onClick={() => {
+                              setIsOpen(false)
+                              //prefill('exisingPool')
+                              setParams(allRangePosition)
+                            }}
+                            key={allRangePosition.min}
+                          >
+                            <UserPool
+                              key={allRangePosition.poolId}
+                              account={address}
+                              poolId={allRangePosition.poolId}
+                              tokenZero={allRangePosition.tokenZero}
+                              tokenOne={allRangePosition.tokenOne}
+                              valueTokenZero={allRangePosition.valueTokenZero}
+                              valueTokenOne={allRangePosition.valueTokenOne}
+                              min={allRangePosition.min}
+                              max={allRangePosition.max}
+                              liquidity={allRangePosition.liquidity}
+                              feeTier={allRangePosition.feeTier}
+                              unclaimedFees={allRangePosition.unclaimedFees}
+                              tvlUsd={allRangePosition.tvlUsd}
+                              volumeUsd={allRangePosition.volumeUsd}
+                              volumeEth={allRangePosition.volumeEth}
+                              href={'/cover'}
+                            />
+                          </div>
+                        )
+                      }
+                    })}
+                  </div>
+                </div>
+                <div>
+                  <h1 className="mb-3 mt-4">UNI-V3 Positions</h1>
+                  <div className="space-y-2">
+                    {allUniV3Positions.map((allUniV3Position) => {
+                      if (
+                        /* allUniV3Position.userOwnerAddress ===
+                          address?.toLowerCase() */ true &&
+                        (allUniV3Position.tokenZero.name === searchTerm ||
+                          allUniV3Position.tokenOne.name === searchTerm ||
+                          allUniV3Position.tokenZero.symbol === searchTerm ||
+                          allUniV3Position.tokenOne.symbol === searchTerm ||
+                          allUniV3Position.tokenZero.id === searchTerm ||
+                          allUniV3Position.tokenOne.id === searchTerm ||
+                          searchTerm === '')
+                      ) {
+                        return (
+                          <div
+                            onClick={() => {
+                              setIsOpen(false)
+                              //prefill('exisingPool')
+                              setParams(allUniV3Position)
+                            }}
+                            key={allUniV3Position.min}
+                          >
+                            <UserCoverPool
+                              key={allUniV3Position.poolId}
+                              account={address}
+                              poolId={allUniV3Position.poolId}
+                              tokenZero={allUniV3Position.tokenZero}
+                              valueTokenZero={allUniV3Position.valueTokenZero}
+                              tokenOne={allUniV3Position.tokenOne}
+                              valueTokenOne={allUniV3Position.valueTokenOne}
+                              min={allUniV3Position.min}
+                              max={allUniV3Position.max}
+                              liquidity={allUniV3Position.liquidity}
+                              feeTier={allUniV3Position.feeTier}
+                              prefill={undefined}
+                              close={undefined}
+                              href={'/cover'}
+                            />
+                          </div>
+                        )
+                      }
+                    })}
+                  </div>
+                </div>
               </Dialog.Panel>
             </Transition.Child>
           </div>
         </div>
       </Dialog>
     </Transition>
-  );
+  )
 }

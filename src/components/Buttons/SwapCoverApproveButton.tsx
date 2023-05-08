@@ -4,17 +4,15 @@ import {
     useContractWrite
 } from 'wagmi';
 import { erc20ABI } from 'wagmi';
-import { coverPoolAddress, rangePoolAddress } from "../../constants/contractAddresses";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import { useSwapStore} from '../../hooks/useStore';
+import { useSwapStore } from '../../hooks/useStore';
 
-export default function SwapApproveButton({approveToken}) {
+export default function SwapCoverApproveButton({poolAddress,approveToken}) {
   const [ errorDisplay,    setErrorDisplay   ] = useState(false);
   const [ successDisplay,  setSuccessDisplay ] = useState(false);
-  const [ configuration,   setConfig         ] = useState();
 
   const [Amount, SwapParams, updateSwapAllowance] = useSwapStore((state: any) => [
    state.Amount, state.SwapParams, state.updateSwapAllowance
@@ -24,7 +22,7 @@ export default function SwapApproveButton({approveToken}) {
     address: approveToken,
     abi: erc20ABI,
     functionName: "approve",
-    args:[rangePoolAddress , Amount],
+    args:[poolAddress ,Amount],
     chainId: 421613,
   })
 

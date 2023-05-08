@@ -1,41 +1,47 @@
+import { BigNumber } from "ethers";
 import {
     usePrepareContractWrite,
     useContractWrite,
     useWaitForTransaction,
+    useAccount
 } from 'wagmi';
-import { coverPoolABI } from "../../abis/evm/coverPool";
-import { coverPoolAddress } from "../../constants/contractAddresses";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import { BigNumber, ethers } from "ethers";
+import { rangePoolABI } from "../../abis/evm/rangePool";
+import { useSwapStore } from "../../hooks/useStore"
 
-export default function CoverCollectButton({ address, lower, claim, upper, zeroForOne }) {
+export default function SwapRangeButton({poolAddress, amount, zeroForOne, baseLimit}) {
+
+  /*const [Limit] = useSwapStore((state: any) => [
+    state.Limit
+  ]);*/
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
 
+  const { address } = useAccount()
+  const userAddress = address;
+
   const { config } = usePrepareContractWrite({
-      address: coverPoolAddress,
-      abi: coverPoolABI,
-      functionName: "burn",
-      args:[[
-          address,
-          lower,
-          claim,
-          upper,
+      address: poolAddress,
+      abi: rangePoolABI,
+      functionName: "swap",
+      args:[
+          userAddress,
           zeroForOne,
-          ethers.utils.parseUnits('0'),
-          true
-      ]],
+          baseLimit,
+          amount,
+      ],
       chainId: 421613,
       overrides:{
-          gasLimit: BigNumber.from("3500000")
-      },
+        gasLimit: BigNumber.from("5000000"),
+        //gasPrice: ethers.utils.parseUnits('20', 'gwei')
+      }
   })
 
-  const { data, isSuccess, write } = useContractWrite(config)
+  const { data, write } = useContractWrite(config)
 
   const {isLoading} = useWaitForTransaction({
     hash: data?.hash,
@@ -46,16 +52,14 @@ export default function CoverCollectButton({ address, lower, claim, upper, zeroF
       setErrorDisplay(true);
     },
   });
-    
+  
   return (
-      <>
-      <div className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
-          onClick={() => {
-            address ?  write?.() : null
-          }}
-              >
-              Collect position
-      </div>
+    <>
+      <button className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+          onClick={() => address ?  write?.() : null}
+            >
+              Swap
+      </button>
       <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
     {errorDisplay && (
       <ErrorToast
@@ -73,6 +77,6 @@ export default function CoverCollectButton({ address, lower, claim, upper, zeroF
       />
     )}
     </div>
-      </>
+    </>
   );
 }

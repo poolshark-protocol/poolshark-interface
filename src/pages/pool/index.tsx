@@ -1,180 +1,189 @@
-import Navbar from "../../components/Navbar";
+import Navbar from '../../components/Navbar'
 import {
   PlusSmallIcon,
   MagnifyingGlassIcon,
   ChevronDownIcon,
-} from "@heroicons/react/24/outline";
-import UserPool from "../../components/Pools/UserPool";
-import UserCoverPool from "../../components/Pools/UserCoverPool";
-import PoolList from "../../components/Pools/PoolList";
-import Link from "next/link";
-import { Listbox, Transition } from "@headlessui/react";
+  InformationCircleIcon,
+} from '@heroicons/react/24/outline'
+import UserPool from '../../components/Pools/UserPool'
+import UserCoverPool from '../../components/Pools/UserCoverPool'
+import PoolList from '../../components/Pools/PoolList'
+import Link from 'next/link'
+import { Listbox, Transition } from '@headlessui/react'
 import {
   fetchRangePools,
   fetchRangePositions,
   fetchCoverPools,
   fetchCoverPositions,
-} from "../../utils/queries";
-import { Fragment, useState, useEffect } from "react";
-import { useAccount } from "wagmi";
+} from '../../utils/queries'
+import { Fragment, useState, useEffect } from 'react'
+import { useAccount } from 'wagmi'
 
 export default function Pool() {
   const poolTypes = [
-    { id: 1, type: "Range Pools", unavailable: false },
-    { id: 2, type: "Cover Pools", unavailable: false },
-  ];
+    { id: 1, type: 'Range Pools', unavailable: false },
+    { id: 2, type: 'Cover Pools', unavailable: false },
+  ]
+  const { address, isConnected, isDisconnected } = useAccount()
+  const [selected, setSelected] = useState(poolTypes[0])
+  const [searchTerm, setSearchTerm] = useState('')
 
-  const { address, isConnected, isDisconnected } = useAccount();
+  const [rangePools, setRangePools] = useState([])
+  const [allRangePools, setAllRangePools] = useState([])
+  const [rangePositions, setRangePositions] = useState([])
+  const [allRangePositions, setAllRangePositions] = useState([])
+  const [coverPools, setCoverPools] = useState([])
+  const [allCoverPools, setAllCoverPools] = useState([])
+  const [coverPositions, setCoverPositions] = useState([])
+  const [allCoverPositions, setAllCoverPositions] = useState([])
 
-  const [rangePools, setRangePools] = useState([]);
-  const [allRangePools, setAllRangePools] = useState([]);
+  //async so needs to be wrapped
+  useEffect(() => {
+    getRangePoolData()
+  }, [])
+
+  useEffect(() => {
+    mapRangePools()
+  }, [rangePools])
+
+  useEffect(() => {
+    getUserRangePositionData()
+  }, [])
+
+  useEffect(() => {
+    mapUserRangePositions()
+  }, [rangePositions])
+
+  useEffect(() => {
+    getCoverPoolData()
+  }, [])
+
+  useEffect(() => {
+    mapCoverPools()
+  }, [coverPools])
+
+  useEffect(() => {
+    getUserCoverPositionData()
+  }, [])
+
+  useEffect(() => {
+    mapUserCoverPositions()
+  }, [coverPositions])
 
   async function getRangePoolData() {
-    const data = await fetchRangePools();
-    const pools = data["data"].rangePools;
-
-    setRangePools(pools);
+    const data = await fetchRangePools()
+    const pools = data['data'].rangePools
+    setRangePools(pools)
   }
-
-  function mapRangePools() {
-    const mappedRangePools = [];
-
-    rangePools.map((rangePool) => {
-      const rangePoolData = {
-        tokenOneName: rangePool.token1.name,
-        tokenZeroName: rangePool.token0.name,
-        tvlUsd: rangePool.totalValueLockedUsd,
-        volumeUsd: rangePool.volumeUsd,
-        volumeEth: rangePool.volumeEth,
-      };
-
-      mappedRangePools.push(rangePoolData);
-    });
-
-    setAllRangePools(mappedRangePools);
-  }
-
-  //async so needs to be wrapped
-  useEffect(() => {
-    getRangePoolData();
-  }, []);
-
-  useEffect(() => {
-    mapRangePools();
-  }, [rangePools]);
-
-  const [coverPools, setCoverPools] = useState([]);
-  const [allCoverPools, setAllCoverPools] = useState([]);
-
-  async function getCoverPoolData() {
-    const data = await fetchCoverPools();
-    const pools = data["data"].coverPools;
-
-    setCoverPools(pools);
-  }
-
-  function mapCoverPools() {
-    const mappedCoverPools = [];
-
-    coverPools.map((coverPool) => {
-      const coverPoolData = {
-        tokenOneName: coverPool.token1.name,
-        tokenZeroName: coverPool.token0.name,
-        tvlUsd: coverPool.totalValueLockedUsd,
-        volumeUsd: coverPool.volumeUsd,
-        volumeEth: coverPool.volumeEth,
-      };
-
-      mappedCoverPools.push(coverPoolData);
-    });
-
-    setAllCoverPools(mappedCoverPools);
-  }
-
-  //async so needs to be wrapped
-  useEffect(() => {
-    getCoverPoolData();
-  }, []);
-
-  useEffect(() => {
-    mapCoverPools();
-  }, [coverPools]);
-
-  const [rangePositions, setRangePositions] = useState([]);
-  const [allRangePositions, setAllRangePositions] = useState([]);
 
   async function getUserRangePositionData() {
-    const data = await fetchRangePositions(address);
-    const positions = data["data"].positions;
+    const data = await fetchRangePositions(address)
+    const positions = data['data'].positions
+    setRangePositions(positions)
+  }
 
-    setRangePositions(positions);
+  async function getCoverPoolData() {
+    const data = await fetchCoverPools()
+    const pools = data['data'].coverPools
+    setCoverPools(pools)
+  }
+
+  async function getUserCoverPositionData() {
+    const data = await fetchCoverPositions(address)
+    const positions = data['data'].positions
+    setCoverPositions(positions)
   }
 
   function mapUserRangePositions() {
-    const mappedRangePositions = [];
+    const mappedRangePositions = []
     rangePositions.map((rangePosition) => {
+      //console.log('rangePosition', rangePosition)
       const rangePositionData = {
-        tokenOneName: rangePosition.pool.token1.name,
-        tokenZeroName: rangePosition.pool.token0.name,
-        tokenOneAddress: rangePosition.pool.token1.id,
-        tokenZeroAddress: rangePosition.pool.token0.id,
-        poolAddress: rangePosition.pool.id,
-        userOwnerAddress: rangePosition.owner.replace(/"|'/g, ""),
-      };
+        poolId: rangePosition.pool.factory.id,
+        tokenZero: rangePosition.pool.token0,
+        valueTokenZero: rangePosition.pool.totalValueLocked0,
+        tokenOne: rangePosition.pool.token1,
+        valueTokenOne: rangePosition.pool.totalValueLocked1,
+        min: rangePosition.lower,
+        max: rangePosition.upper,
+        tvlUsd: rangePosition.pool.totalValueLockedUsd,
+        feeTier: rangePosition.pool.feeTier.feeAmount,
+        unclaimedFees: rangePosition.pool.feesUsd,
+        liquidity: rangePosition.liquidity,
+        volumeUsd: rangePosition.pool.volumeUsd,
+        volumeEth: rangePosition.pool.volumeEth,
+        userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
+      }
 
-      mappedRangePositions.push(rangePositionData);
-    });
-
-    setAllRangePositions(mappedRangePositions);
-  }
-
-  //async so needs to be wrapped
-  useEffect(() => {
-    getUserRangePositionData();
-  }, []);
-
-  useEffect(() => {
-    mapUserRangePositions();
-  }, [rangePositions]);
-
-  const [coverPositions, setCoverPositions] = useState([]);
-  const [allCoverPositions, setAllCoverPositions] = useState([]);
-
-  async function getUserCoverPositionData() {
-    const data = await fetchCoverPositions(address);
-    const positions = data["data"].positions;
-
-    setCoverPositions(positions);
+      mappedRangePositions.push(rangePositionData)
+    })
+    setAllRangePositions(mappedRangePositions)
   }
 
   function mapUserCoverPositions() {
-    const mappedCoverPositions = [];
+    const mappedCoverPositions = []
     coverPositions.map((coverPosition) => {
       const coverPositionData = {
-        tokenOneName: coverPosition.pool.token1.name,
-        tokenZeroName: coverPosition.pool.token0.name,
-        tokenOneAddress: coverPosition.pool.token1.id,
-        tokenZeroAddress: coverPosition.pool.token0.id,
-        poolAddress: coverPosition.pool.id,
-        userOwnerAddress: coverPosition.owner.replace(/"|'/g, ""),
-      };
-
-      mappedCoverPositions.push(coverPositionData);
-    });
-
-    setAllCoverPositions(mappedCoverPositions);
+        poolId: coverPosition.pool.id,
+        tokenZero: coverPosition.pool.token0,
+        valueTokenZero: coverPosition.inAmount,
+        tokenOne: coverPosition.pool.token1,
+        valueTokenOne: coverPosition.outAmount,
+        min: coverPosition.lower,
+        max: coverPosition.upper,
+        liquidity: coverPosition.liquidity,
+        feeTier: coverPosition.pool.volatilityTier.feeAmount,
+        userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
+      }
+      mappedCoverPositions.push(coverPositionData)
+      //console.log('mappedCoverPositions', mappedCoverPositions)
+    })
+    setAllCoverPositions(mappedCoverPositions)
   }
 
-  //async so needs to be wrapped
-  useEffect(() => {
-    getUserCoverPositionData();
-  }, []);
+  function mapRangePools() {
+    const mappedRangePools = []
+    rangePools.map((rangePool) => {
+      //console.log('rangePool', rangePool)
+      const rangePoolData = {
+        poolId: rangePool.id,
+        tokenOne: rangePool.token1,
+        tokenZero: rangePool.token0,
+        liquidity: rangePool.liquidity,
+        feeTier: rangePool.feeTier.feeAmount,
+        tvlUsd: rangePool.totalValueLockedUsd,
+        volumeUsd: rangePool.volumeUsd,
+        volumeEth: rangePool.volumeEth,
+      }
+      mappedRangePools.push(rangePoolData)
+      //console.log('mappedRangePools', mappedRangePools)
+    })
+    setAllRangePools(mappedRangePools)
+  }
 
-  useEffect(() => {
-    mapUserCoverPositions();
-  }, [coverPositions]);
+  function mapCoverPools() {
+    const mappedCoverPools = []
+    coverPools.map((coverPool) => {
+      const coverPoolData = {
+        poolId: coverPool.id,
+        tokenOne: coverPool.token1,
+        tokenZero: coverPool.token0,
+        liquidity: coverPool.liquidity,
+        feeTier: coverPool.volatilityTier.feeAmount,
+        tvlUsd: coverPool.totalValueLockedUsd,
+        volumeUsd: coverPool.volumeUsd,
+        volumeEth: coverPool.volumeEth,
+      }
 
-  const [selected, setSelected] = useState(poolTypes[0]);
+      mappedCoverPools.push(coverPoolData)
+    })
+
+    setAllCoverPools(mappedCoverPools)
+  }
+
+  const handleSearchTermChange = (event) => {
+    setSearchTerm(event.target.value)
+  }
 
   function SelectPool() {
     return (
@@ -201,7 +210,7 @@ export default function Pool() {
                   key={poolTypeIdx}
                   className={({ active }) =>
                     `relative cursor-pointer select-none py-2 px-4 ${
-                      active ? "text-white" : "text-grey"
+                      active ? 'text-white' : 'text-grey'
                     }`
                   }
                   value={poolType}
@@ -217,14 +226,14 @@ export default function Pool() {
           </Transition>
         </div>
       </Listbox>
-    );
+    )
   }
 
   return (
-    <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi">
+    <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
-      <div className="flex justify-center w-full text-white">
-        <div className="mt-[16vh] w-[55rem]">
+      <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full">
+        <div className="w-[55rem] absolute bottom-0">
           <div className="flex justify-between mb-6 items-end">
             <div className="flex items-center gap-x-4">
               <h1 className="text-3xl">Pools</h1>
@@ -232,65 +241,126 @@ export default function Pool() {
                 <SelectPool />
               </div>
             </div>
-            <Link href="/pool/create">
+            <span className="bg-black flex items-center gap-x-2 border border-grey2 rounded-lg text-white px-6 py-[9px] cursor-pointer hover:opacity-80">
+              <InformationCircleIcon className="w-4 text-grey1" />
+              <Link
+                href={
+                  selected.id == 1
+                    ? 'https://docs.poolsharks.io/introduction/range-pools/'
+                    : 'https://docs.poolsharks.io/introduction/cover-pools/'
+                }
+              >
+                <a target="_blank">How it works?</a>
+              </Link>
+            </span>
+            <Link
+              href={{
+                pathname:
+                  selected.id == 1 ? '/pool/concentrated' : '/pool/directional',
+                query: {
+                  account: '',
+                  poolId: selected.id.toString(),
+                  tokenOneName: '',
+                  tokenOneSymbol: '',
+                  tokenOneLogoURI: '',
+                  tokenOneAddress: '',
+                  tokenZeroName: '',
+                  tokenZeroSymbol: '',
+                  tokenZeroLogoURI: '',
+                  tokenZeroAddress: '',
+                },
+              }}
+            >
               <button className="flex items-center gap-x-1.5 px-7 py-[9px] text-white text-sm transition whitespace-nowrap rounded-lg cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
                 <PlusSmallIcon className="w-6" />
                 Create Pool
               </button>
             </Link>
           </div>
-          <div className="bg-black border border-grey2 w-full rounded-t-xl p-6 space-y-4 h-[44rem] overflow-auto">
+          <div className="bg-black  border border-grey2 w-full rounded-t-xl p-6 space-y-4 h-[70vh] overflow-auto">
             <div className="relative">
               <MagnifyingGlassIcon className="w-5 text-grey absolute ml-[14px] mt-[13px]" />
               <input
                 className="border border-grey2 bg-dark rounded-xl py-2.5 w-full placeholder:text-grey outline-none pl-12"
                 placeholder="Search name, symbol or address"
+                value={searchTerm}
+                onChange={handleSearchTermChange}
               />
             </div>
             <div className="">
               <h1 className="mb-3">My Positions</h1>
               <div className="space-y-2">
-                {selected.id === 2
+                {selected.id === 1
                   ? allRangePositions.map((allRangePosition) => {
                       if (
-                        allRangePosition.userOwnerAddress ===
-                        address?.toLowerCase()
+                        /*allRangePosition.userOwnerAddress ===
+                          address?.toLowerCase()*/ true &&
+                        (allRangePosition.tokenZero.name === searchTerm ||
+                          allRangePosition.tokenOne.name === searchTerm ||
+                          allRangePosition.tokenZero.symbol === searchTerm ||
+                          allRangePosition.tokenOne.symbol === searchTerm ||
+                          allRangePosition.tokenZero.id === searchTerm ||
+                          allRangePosition.tokenOne.id === searchTerm ||
+                          searchTerm === '')
                       ) {
                         return (
                           <UserPool
                             key={allRangePosition.tokenOneName}
-                            tokenOneName={allRangePosition.tokenOneName}
-                            tokenZeroName={allRangePosition.tokenZeroName}
-                            tokenOneAddress={allRangePosition.tokenOneAddress}
-                            tokenZeroAddress={allRangePosition.tokenZeroAddress}
-                            poolAddress={allRangePosition.poolAddress}
+                            account={address}
+                            poolId={allRangePosition.poolId}
+                            tokenZero={allRangePosition.tokenZero}
+                            tokenOne={allRangePosition.tokenOne}
+                            valueTokenZero={allRangePosition.valueTokenZero}
+                            valueTokenOne={allRangePosition.valueTokenOne}
+                            min={allRangePosition.min}
+                            max={allRangePosition.max}
+                            liquidity={allRangePosition.liquidity}
+                            feeTier={allRangePosition.feeTier}
+                            unclaimedFees={allRangePosition.unclaimedFees}
+                            tvlUsd={allRangePosition.tvlUsd}
+                            volumeUsd={allRangePosition.volumeUsd}
+                            volumeEth={allRangePosition.volumeEth}
+                            href={'/pool/view/range'}
                           />
-                        );
+                        )
                       }
                     })
                   : allCoverPositions.map((allCoverPosition) => {
                       if (
-                        allCoverPosition.userOwnerAddress ===
-                        address?.toLowerCase()
+                        /*allCoverPosition.userOwnerAddress ===
+                          address?.toLowerCase()*/ true &&
+                        (allCoverPosition.tokenZero.name === searchTerm ||
+                          allCoverPosition.tokenOne.name === searchTerm ||
+                          allCoverPosition.tokenZero.symbol === searchTerm ||
+                          allCoverPosition.tokenOne.symbol === searchTerm ||
+                          allCoverPosition.tokenZero.id === searchTerm ||
+                          allCoverPosition.tokenOne.id === searchTerm ||
+                          searchTerm === '')
                       ) {
                         return (
                           <UserCoverPool
                             key={allCoverPosition.tokenOneName}
-                            tokenOneName={allCoverPosition.tokenOneName}
-                            tokenZeroName={allCoverPosition.tokenZeroName}
-                            tokenOneAddress={allCoverPosition.tokenOneAddress}
-                            tokenZeroAddress={allCoverPosition.tokenZeroAddress}
-                            poolAddress={allCoverPosition.poolAddress}
+                            account={address}
+                            poolId={allCoverPosition.poolId}
+                            tokenZero={allCoverPosition.tokenZero}
+                            valueTokenZero={allCoverPosition.valueTokenZero}
+                            tokenOne={allCoverPosition.tokenOne}
+                            valueTokenOne={allCoverPosition.valueTokenOne}
+                            min={allCoverPosition.min}
+                            max={allCoverPosition.max}
+                            liquidity={allCoverPosition.liquidity}
+                            feeTier={allCoverPosition.feeTier}
                             prefill={undefined}
                             close={undefined}
+                            href={'/pool/view/cover'}
                           />
-                        );
+                        )
                       }
                     })}
               </div>
             </div>
             <div className="">
-              <h1 className="mb-3">All Pools</h1>
+              <h1 className="mb-3 ">All Pools</h1>
               <div className="space-y-2">
                 <table className="w-full table-auto">
                   <thead className="mb-3">
@@ -304,28 +374,56 @@ export default function Pool() {
                   <tbody>
                     {selected.id === 1
                       ? allRangePools.map((allRangePool) => {
-                          return (
-                            <PoolList
-                              key={allRangePool.tokenOneName}
-                              tokenOneName={allRangePool.tokenOneName}
-                              tokenZeroName={allRangePool.tokenZeroName}
-                              tvlUsd={allRangePool.tvlUsd}
-                              volumeUsd={allRangePool.volumeUsd}
-                              volumeEth={allRangePool.volumeEth}
-                            />
-                          );
+                          if (
+                            allRangePool.tokenZero.name === searchTerm ||
+                            allRangePool.tokenOne.name === searchTerm ||
+                            allRangePool.tokenZero.symbol === searchTerm ||
+                            allRangePool.tokenOne.symbol === searchTerm ||
+                            allRangePool.tokenZero.id === searchTerm ||
+                            allRangePool.tokenOne.id === searchTerm ||
+                            searchTerm === ''
+                          )
+                            return (
+                              <PoolList
+                                account={address}
+                                key={allRangePool.tokenOneName}
+                                poolId={allRangePool.poolId}
+                                tokenZero={allRangePool.tokenZero}
+                                tokenOne={allRangePool.tokenOne}
+                                liquidity={allRangePool.liquidity}
+                                feeTier={allRangePool.feeTier}
+                                tvlUsd={allRangePool.tvlUsd}
+                                volumeUsd={allRangePool.volumeUsd}
+                                volumeEth={allRangePool.volumeEth}
+                                href="/pool/concentrated"
+                              />
+                            )
                         })
                       : allCoverPools.map((allCoverPool) => {
-                          return (
-                            <PoolList
-                              key={allCoverPool.tokenOneName}
-                              tokenOneName={allCoverPool.tokenOneName}
-                              tokenZeroName={allCoverPool.tokenZeroName}
-                              tvlUsd={allCoverPool.tvlUsd}
-                              volumeUsd={allCoverPool.volumeUsd}
-                              volumeEth={allCoverPool.volumeEth}
-                            />
-                          );
+                          if (
+                            allCoverPool.tokenZero.name === searchTerm ||
+                            allCoverPool.tokenOne.name === searchTerm ||
+                            allCoverPool.tokenZero.symbol === searchTerm ||
+                            allCoverPool.tokenOne.symbol === searchTerm ||
+                            allCoverPool.tokenZero.id === searchTerm ||
+                            allCoverPool.tokenOne.id === searchTerm ||
+                            searchTerm === ''
+                          )
+                            return (
+                              <PoolList
+                                account={address}
+                                key={allCoverPool.tokenOneName}
+                                poolId={allCoverPool.poolId}
+                                tokenZero={allCoverPool.tokenZero}
+                                tokenOne={allCoverPool.tokenOne}
+                                liquidity={allCoverPool.liquidity}
+                                feeTier={allCoverPool.feeTier}
+                                tvlUsd={allCoverPool.tvlUsd}
+                                volumeUsd={allCoverPool.volumeUsd}
+                                volumeEth={allCoverPool.volumeEth}
+                                href="/cover"
+                              />
+                            )
                         })}
                   </tbody>
                 </table>
@@ -335,5 +433,5 @@ export default function Pool() {
         </div>
       </div>
     </div>
-  );
+  )
 }

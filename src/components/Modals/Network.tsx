@@ -1,7 +1,7 @@
 import { Transition, Dialog } from "@headlessui/react";
-import { Fragment, useState, useEffect } from "react";
+import { Fragment } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useAccount, useDisconnect, useNetwork, useSwitchNetwork } from "wagmi";
+import { useSwitchNetwork } from "wagmi";
 
 
 export default function Network({ isOpen, setIsOpen, chainUnsupported, chainId }) {

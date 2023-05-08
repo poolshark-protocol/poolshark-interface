@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import { BigNumber } from 'ethers';
 import {
     usePrepareContractWrite,
@@ -12,7 +11,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 
-export default function CoverBurnButton({address}) {
+export default function CoverBurnButton({address, lower, claim, upper, zeroForOne, amount}) {
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -21,16 +20,20 @@ export default function CoverBurnButton({address}) {
         address: coverPoolAddress,
         abi: coverPoolABI,
         functionName: "burn",
-        args:[
-            ethers.utils.parseUnits("20", 0),
-            ethers.utils.parseUnits("30", 0),
-            ethers.utils.parseUnits("20", 0),
-            false,
-            BigNumber.from("199760153929825488153727")
-        ],
+        args:[[
+            address,
+            lower,
+            claim,
+            upper,
+            zeroForOne,
+            amount, //TODO: this needs to be passed as a percent (1e38 = 100%)
+            //percent = amount.mul(ethers.utils.parseUnits("1",38)).div(position.liquidity)
+            // ^use this formula for burnPercent; position.liquidity will come from the Cover Subgraph
+            true
+        ]],
         chainId: 421613,
         overrides:{
-            gasLimit: BigNumber.from("350000")
+            gasLimit: BigNumber.from("3500000")
         },
     })
 

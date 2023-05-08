@@ -5,7 +5,7 @@ import {
   MagnifyingGlassIcon,
 } from "@heroicons/react/20/solid";
 import { Transition, Dialog } from "@headlessui/react";
-import { tokenZeroAddress, tokenOneAddress, rangeTokenZero, rangeTokenOne } from "../constants/contractAddresses";
+import { tokenZeroAddress, tokenOneAddress } from "../constants/contractAddresses";
 import useTokenList from "../hooks/useTokenList";
 import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
@@ -21,14 +21,14 @@ export default function SelectToken(props) {
   // const [coinsForListing, setCoinsForListing] = useState(coins["listed_tokens"]);
   const [coinsForListing, setCoinsForListing] = useState([{
     name: "Wrapped Ether",
-    address: rangeTokenZero,
+    address: tokenZeroAddress,
     symbol: "WETH",
     logoURI: "/static/images/eth_icon.png",
     decimals: 18
 },
 {
   name: "USDC",
-  address: rangeTokenOne,
+  address: tokenOneAddress,
   symbol: "USDC",
   logoURI:  "/static/images/token.png",
   decimals: 18
@@ -134,14 +134,16 @@ export default function SelectToken(props) {
                     ></input>
                     <div className="flex justify-between flex-wrap mt-4 gap-y-2">
                       {coinsForListing?.map((coin, index) => {
-                        return <CoinListButton coin={coin} chooseToken={chooseToken} />;
+                        return <CoinListButton key={index} coin={coin} chooseToken={chooseToken} />;
                       })}
                     </div>
                   </div>
                   <div>
                     {coinsForListing?.map((coin) => {
+                      /* console.log('props',props)
+                      console.log('coin',coin) */
                       return (
-                        <CoinListItem coin={coin} chooseToken={chooseToken} />
+                        <CoinListItem key={props.index} coin={coin} chooseToken={chooseToken} />
                       );
                     })}
                     {/* {(coinsForListing === null || coinsForListing.length === 0) &&

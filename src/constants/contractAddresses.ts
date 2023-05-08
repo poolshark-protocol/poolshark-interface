@@ -1,20 +1,21 @@
 // ARBITRUM GOERLI DEPLOYMENT
 // CHAINID: 421613
 
+// tokens
+export const tokenZeroAddress   = "0x6774be1a283Faed7ED8e40463c40Fb33A8da3461" // WETH
+export const tokenOneAddress    = "0xC26906E10E8BDaDeb2cf297eb56DF59775eE52c4" // DAI
+
 // cover pools
-export const tokenZeroAddress   = "0x829e4a03A5Bd1EC5b6f5CC1d3A77c8e54A294847" // WETH
-export const tokenOneAddress    = "0xf853592f1e4ceA2B5e722A17C6f917a4c70d40Ca" // DAI
-export const coverPoolAddress = "0x770eE71b7961D155F7F6B6356c08820764f01070"
+export const coverPoolAddress   = "0xB84Ab81B3d405128ce09FB72A88fea4929E364Ce"
 export const coverPoolFactoryAddress = "0xC7F9348F005508f5354B4f5753C2F3C948B889F8"
 
 // range pools
-export const rangeTokenZero   = "0x7024879Eda80577Cbc0Cb039ad3c7081f38ABb41"
-export const rangeTokenOne    = "0xA826F06C47597549faa74D8916EF4Da8f417F16c"
-export const rangePoolAddress = "0x39C459ed1EFe9f2959CF0a249fB964fE81Adf5D3"
-export const rangePoolFactoryAddress = "0x58d8235108E12E6B725A53B57CD0b00C5eDeE0da"
+export const rangePoolAddress = "0x3b2ec00a3b33661dd118ce9666be9cacccfad887"
+export const rangePoolFactoryAddress = "0x1598dce2d358f652e6625039c3c12e63b0444bef"
 
 // libraries
 export const tickMathAddress = "0x02f821c66bF2466B3Ef3Fc2c962B392d0EE457F4"
+export const rangePoolSamplesAddress = "0x06A1c422bC002935AF75Da3ACa9C23205353a88b"
 
 //TODO: pull addresses remotely so new networks can be added easily
 

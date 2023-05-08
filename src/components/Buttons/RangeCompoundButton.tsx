@@ -3,35 +3,34 @@ import {
     useContractWrite,
     useWaitForTransaction,
 } from 'wagmi';
-import { coverPoolABI } from "../../abis/evm/coverPool";
-import { coverPoolAddress } from "../../constants/contractAddresses";
+import { rangePoolABI } from "../../abis/evm/rangePool";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber } from "ethers";
 
-export default function CoverCollectButton({ address, lower, claim, upper, zeroForOne }) {
+export default function RangeCompoundButton({ poolAddress, address, lower, upper }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
 
+  //TO-DO: assess if collectFees() or collect true in burn
   const { config } = usePrepareContractWrite({
-      address: coverPoolAddress,
-      abi: coverPoolABI,
+      address: poolAddress,
+      abi: rangePoolABI,
       functionName: "burn",
       args:[[
           address,
           lower,
-          claim,
           upper,
-          zeroForOne,
-          ethers.utils.parseUnits('0'),
-          true
-      ]],
+          BigNumber.from('0'),
+          true,
+          false
+        ]],
       chainId: 421613,
       overrides:{
-          gasLimit: BigNumber.from("3500000")
+          gasLimit: BigNumber.from("350000000")
       },
   })
 
@@ -54,7 +53,7 @@ export default function CoverCollectButton({ address, lower, claim, upper, zeroF
             address ?  write?.() : null
           }}
               >
-              Collect position
+              Compound position
       </div>
       <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
     {errorDisplay && (

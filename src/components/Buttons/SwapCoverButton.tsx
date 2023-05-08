@@ -1,4 +1,4 @@
-import { ethers, BigNumber } from "ethers";
+import { BigNumber } from "ethers";
 import {
     usePrepareContractWrite,
     useContractWrite,
@@ -9,16 +9,13 @@ import { coverPoolABI } from "../../abis/evm/coverPool";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
-import { rangePoolAddress } from "../../constants/contractAddresses";
-import React, { useState, useEffect } from "react";
-import { rangePoolABI } from "../../abis/evm/rangePool";
-import {useSwapStore} from "../../hooks/useStore"
+import React, { useState } from "react";
 
-export default function SwapButton({amount, zeroForOne, baseLimit}) {
+export default function SwapCoverButton({poolAddress, amount, zeroForOne, baseLimit}) {
 
-  const [Limit] = useSwapStore((state: any) => [
+  /*const [Limit] = useSwapStore((state: any) => [
     state.Limit
-  ]);
+  ]);*/
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -27,19 +24,20 @@ export default function SwapButton({amount, zeroForOne, baseLimit}) {
   const userAddress = address;
 
   const { config } = usePrepareContractWrite({
-      address: rangePoolAddress,
-      abi: rangePoolABI,
+      address: poolAddress,
+      abi: coverPoolABI,
       functionName: "swap",
       args:[
           userAddress,
           zeroForOne,
           amount,
-          Limit === 0 ? baseLimit : Limit,
+          baseLimit
       ],
       chainId: 421613,
       overrides:{
-        gasLimit: BigNumber.from("140000")
-      },
+        gasLimit: BigNumber.from("5000000"),
+        //gasPrice: ethers.utils.parseUnits('20', 'gwei')
+      }
   })
 
   const { data, write } = useContractWrite(config)

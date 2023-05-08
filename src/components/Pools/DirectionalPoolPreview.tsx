@@ -1,17 +1,58 @@
-import { Fragment, useState } from "react";
-import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
-import { Transition, Dialog } from "@headlessui/react";
+import { Fragment, useEffect, useState } from 'react'
+import { Transition, Dialog } from '@headlessui/react'
+import CoverMintButton from '../Buttons/CoverMintButton'
+import { ethers } from 'ethers'
+import { erc20ABI, useAccount, useContractRead } from 'wagmi'
+import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
+import { coverPoolAddress } from '../../constants/contractAddresses'
 
-export default function DirectionalPoolPreview() {
-  
-  let [isOpen, setIsOpen] = useState(false);
+export default function DirectionalPoolPreview({
+  account,
+  poolId,
+  tokenIn,
+  tokenOut,
+  amount0,
+  amount1,
+  minPrice,
+  maxPrice,
+  minTick,
+  maxTick,
+  fee,
+  allowance,
+  setAllowance,
+}) {
+  const { address } = useAccount()
+  const { data } = useContractRead({
+    address: tokenIn.address,
+    abi: erc20ABI,
+    functionName: 'allowance',
+    args: [address, coverPoolAddress],
+    chainId: 421613,
+    watch: true,
+    onSuccess(data) {
+      console.log('Success')
+    },
+    onError(error) {
+      console.log('Error', error)
+    },
+    onSettled(data, error) {
+      console.log('Settled', { data, error })
+    },
+  })
+  let [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    if (data) {
+      setAllowance(ethers.utils.formatUnits(data, 18))
+    }
+  }, [data, tokenIn])
 
   function closeModal() {
-    setIsOpen(false);
+    setIsOpen(false)
   }
 
   function openModal() {
-    setIsOpen(true);
+    setIsOpen(true)
   }
 
   return (
@@ -50,19 +91,12 @@ export default function DirectionalPoolPreview() {
                         </div>
                         <div className="flex items-center gap-x-5 mt-3">
                           <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
-                            <img
-                              className="w-7"
-                              src="/static/images/token.png"
-                            />
-                            USDC
+                            <img className="w-7" src={tokenIn.logoURI} />
+                            {tokenIn.symbol}
                           </button>
-                          <ArrowLongRightIcon className="w-6" />
                           <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
-                            <img
-                              className="w-7"
-                              src="/static/images/token.png"
-                            />
-                            USDC
+                            <img className="w-7" src={tokenOut.logoURI} />
+                            {tokenOut.symbol}
                           </button>
                         </div>
                       </div>
@@ -72,7 +106,7 @@ export default function DirectionalPoolPreview() {
                         </div>
                         <div className="mt-3">
                           <button className="relative cursor-default rounded-lg bg-black text-white cursor-pointer border border-grey1 py-2 pl-3 w-full text-left shadow-md focus:outline-none">
-                            <span className="block truncate">0.3%</span>
+                            <span className="block truncate">{fee}</span>
                             <span className="block truncate text-xs text-grey mt-1">
                               Best for most pairs
                             </span>
@@ -87,26 +121,25 @@ export default function DirectionalPoolPreview() {
                           <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
                             <div className=" p-2 ">
                               <div className="w-44 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
-                                {" "}
-                                300
+                                {ethers.utils.formatUnits(amount0, 18)}
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                  ~300.51
+                                  ~300.53
                                 </div>
                               </div>
                             </div>
                             <div className="">
                               <div className=" ml-auto">
-                                <div >
+                                <div>
                                   <div className="flex justify-end">
                                     <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
                                       <div className="flex items-center gap-x-2 w-full">
                                         <img
                                           className="w-7"
-                                          src="/static/images/token.png"
+                                          src={tokenIn.logoURI}
                                         />
-                                        USDC
+                                        {tokenIn.symbol}
                                       </div>
                                     </button>
                                   </div>
@@ -123,7 +156,7 @@ export default function DirectionalPoolPreview() {
                     <div className="w-1/2">
                       <div>
                         <div className="flex justify-between items-center">
-                          <h1>Price range</h1>
+                          <h1>Price Cover</h1>
                         </div>
                         <div className="mt-3 space-y-3">
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
@@ -132,11 +165,11 @@ export default function DirectionalPoolPreview() {
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                500
+                                {parseFloat(minPrice).toFixed(2)}
                               </span>
                             </div>
                             <span className="text-xs text-grey">
-                              USDC per DAI
+                              {tokenIn.symbol} per {tokenOut.symbol}
                             </span>
                           </div>
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
@@ -145,18 +178,33 @@ export default function DirectionalPoolPreview() {
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                1000
+                                {parseFloat(maxPrice).toFixed(2)}
                               </span>
                             </div>
                             <span className="text-xs text-grey">
-                              USDC per DAI
+                              {tokenIn.symbol} per {tokenOut.symbol}
                             </span>
                           </div>
                         </div>
                       </div>
-                      <div className="mt-8 w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
-                        Create Pool
-                      </div>
+
+                      {Number(allowance) <
+                      Number(ethers.utils.formatUnits(amount0, 18)) ? (
+                        <SwapCoverApproveButton
+                          poolAddress={poolId}
+                          approveToken={tokenIn.address}
+                        />
+                      ) : (
+                        <CoverMintButton
+                          disabled={false}
+                          to={account}
+                          lower={minTick}
+                          claim={minTick}
+                          upper={maxTick}
+                          amount={amount0}
+                          zeroForOne={true}
+                        />
+                      )}
                     </div>
                   </div>
                 </Dialog.Panel>
@@ -172,5 +220,5 @@ export default function DirectionalPoolPreview() {
         Preview
       </div>
     </div>
-  );
+  )
 }

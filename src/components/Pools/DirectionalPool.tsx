@@ -1,97 +1,360 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from 'react'
 import {
   ChevronDownIcon,
-  ArrowLongRightIcon,
+  PlusIcon,
   MinusIcon,
-  PlusIcon
-} from "@heroicons/react/20/solid";
-import { Listbox, Transition } from "@headlessui/react";
-import SelectToken from "../SelectToken";
-import DirectionalPoolPreview from "./DirectionalPoolPreview";
+  ArrowLongRightIcon,
+} from '@heroicons/react/20/solid'
+import { Listbox, Transition } from '@headlessui/react'
+import SelectToken from '../SelectToken'
+import DirectionalPoolPreview from './DirectionalPoolPreview'
+import { useCoverStore } from '../../hooks/useStore'
+import { TickMath } from '../../utils/math/tickMath'
+import JSBI from 'jsbi'
+import { fetchPrice } from '../../utils/queries'
+import useInputBox from '../../hooks/useInputBox'
+import { erc20ABI, useAccount } from 'wagmi'
+import { BigNumber, Contract, ethers } from 'ethers'
 
-export default function DirectionalPool() {
-
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
-  
+export default function DirectionalPool({
+  account,
+  key,
+  poolId,
+  tokenOneName,
+  tokenOneSymbol,
+  tokenOneLogoURI,
+  tokenOneAddress,
+  tokenZeroName,
+  tokenZeroSymbol,
+  tokenZeroLogoURI,
+  tokenZeroAddress,
+  liquidity,
+  feeTier,
+}) {
+  type token = {
+    symbol: string
+    logoURI: string
+    address: string
+  }
   const feeTiers = [
     {
       id: 1,
-      tier: "0.01%",
-      text: "Best for very stable pairs",
+      tier: '0.01%',
+      text: 'Best for very stable pairs',
       unavailable: false,
     },
     {
       id: 2,
-      tier: "0.05%",
-      text: "Best for stable pairs",
+      tier: '0.05%',
+      text: 'Best for stable pairs',
       unavailable: false,
     },
-    { id: 3, tier: "0.3%", text: "Best for most pairs", unavailable: false },
-    { id: 4, tier: "1%", text: "Best for exotic pairs", unavailable: false },
-  ];
+    { id: 3, tier: '0.3%', text: 'Best for most pairs', unavailable: false },
+    { id: 4, tier: '1%', text: 'Best for exotic pairs', unavailable: false },
+  ]
+
+  const { address, isConnected, isDisconnected } = useAccount()
+  const {
+    bnInput,
+    inputBox,
+    maxBalance,
+    bnInputLimit,
+    LimitInputBox,
+  } = useInputBox()
+  const [
+    updatecoverContractParams,
+    updatecoverAllowance,
+    coverAllowance,
+    coverContractParams,
+  ] = useCoverStore((state: any) => [
+    state.updatecoverContractParams,
+    state.updatecoverAllowance,
+    state.coverAllowance,
+    state.coverContractParams,
+  ])
+
+  const initialBig = BigNumber.from(0)
+  const [to, setTo] = useState('')
+  const [min, setMin] = useState(initialBig)
+  const [max, setMax] = useState(initialBig)
+  const [amount0, setAmount0] = useState(initialBig)
+  const [amount1, setAmount1] = useState(initialBig)
+  const [minPrice, setMinPrice] = useState('0')
+  const [maxPrice, setMaxPrice] = useState('0')
+  const [feeControler, setFeeControler] = useState(false)
+  const [selected, setSelected] = useState(feeTiers[0])
+  const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
+  const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
+  const [balance0, setBalance0] = useState('')
+  const [balance1, setBalance1] = useState('0.00')
+  const [tokenIn, setTokenIn] = useState({
+    symbol: tokenZeroSymbol,
+    logoURI: tokenZeroLogoURI,
+    address: tokenZeroAddress,
+  } as token)
+  const [tokenOut, setTokenOut] = useState({
+    symbol: tokenOneSymbol,
+    logoURI: tokenOneLogoURI,
+    address: tokenOneAddress,
+  } as token)
+  const [allowance, setAllowance] = useState('0.00')
+  console.log('allowance', allowance)
+
+  const [mktRate, setMktRate] = useState({})
+
+  const [hasSelected, setHasSelected] = useState(true)
+  const [isDisabled, setDisabled] = useState(false)
+
+  if (feeTier != undefined && feeControler == false) {
+    if (feeTier == 0.01) {
+      setSelected(feeTiers[0])
+    } else if (feeTier == 0.05) {
+      setSelected(feeTiers[1])
+    } else if (feeTier == 0.3) {
+      setSelected(feeTiers[2])
+    } else if (feeTier == 1) {
+      setSelected(feeTiers[3])
+    }
+    setFeeControler(true)
+  }
+
+  function switchDirection() {
+    setTokenOrder(!tokenOrder)
+    const temp = tokenIn
+    setTokenIn(tokenOut)
+    setTokenOut(temp)
+    const tempBal = queryTokenIn
+    setQueryTokenIn(queryTokenOut)
+    setQueryTokenOut(tempBal)
+  }
+
+  useEffect(() => {
+    getBalances()
+  }, [bnInput, bnInputLimit])
+
+  useEffect(() => {
+    fetchTokenPrice()
+  }, [])
+
+  const fetchTokenPrice = async () => {
+    try {
+      const price = await fetchPrice('0x000')
+      setMktRate({
+        WETH:
+          '~' +
+          Number(price['data']['bundles']['0']['ethPriceUSD']).toLocaleString(
+            'en-US',
+            {
+              style: 'currency',
+              currency: 'USD',
+            },
+          ),
+        USDC: '~1.00',
+        TOKEN20A: '~1.00',
+        TOKEN20B: '~1.00',
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async function setCoverParams() {
+    try {
+      if (
+        minPrice !== undefined &&
+        minPrice !== '' &&
+        maxPrice !== undefined &&
+        maxPrice !== '' &&
+        Number(ethers.utils.formatUnits(bnInput)) !== 0 &&
+        hasSelected == true
+      ) {
+        const min = TickMath.getTickAtSqrtRatio(
+          JSBI.divide(
+            JSBI.multiply(
+              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
+              JSBI.BigInt(
+                String(
+                  Math.sqrt(Number(parseFloat(minPrice).toFixed(30))).toFixed(
+                    30,
+                  ),
+                )
+                  .split('.')
+                  .join(''),
+              ),
+            ),
+            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
+          ),
+        )
+        const max = TickMath.getTickAtSqrtRatio(
+          JSBI.divide(
+            JSBI.multiply(
+              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
+              JSBI.BigInt(
+                String(
+                  Math.sqrt(Number(parseFloat(maxPrice).toFixed(30))).toFixed(
+                    30,
+                  ),
+                )
+                  .split('.')
+                  .join(''),
+              ),
+            ),
+            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
+          ),
+        )
+        setTo(address)
+        setMin(ethers.utils.parseUnits(String(min), 0))
+        setMax(ethers.utils.parseUnits(String(max), 0))
+        setAmount0(bnInput)
+        setAmount1(bnInputLimit)
+
+        updatecoverContractParams({
+          to: address,
+          min: ethers.utils.parseUnits(String(min), 0),
+          max: ethers.utils.parseUnits(String(max), 0),
+          amount0: bnInput,
+          amount1: bnInputLimit,
+          fungible: true,
+        })
+        setDisabled(false)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    setCoverParams()
+  }, [address, minPrice, maxPrice, bnInput, bnInputLimit])
 
   const changePrice = (direction: string, minMax: string) => {
-    if (direction === "plus" && minMax === "min") {
+    if (direction === 'plus' && minMax === 'min') {
       if (
-        (document.getElementById("minInput") as HTMLInputElement).value ===
+        (document.getElementById('minInput') as HTMLInputElement).value ===
         undefined
       ) {
-        const current = document.getElementById("minInput") as HTMLInputElement;
-        current.value = "1";
+        const current = document.getElementById('minInput') as HTMLInputElement
+        current.value = '1'
       }
       const current = Number(
-        (document.getElementById("minInput") as HTMLInputElement).value
-      );
-      (document.getElementById("minInput") as HTMLInputElement).value = String(
-        (current + 0.01).toFixed(3)
-      );
+        (document.getElementById('minInput') as HTMLInputElement).value,
+      )
+      ;(document.getElementById('minInput') as HTMLInputElement).value = String(
+        (current + 0.01).toFixed(3),
+      )
     }
-    if (direction === "minus" && minMax === "min") {
+    if (direction === 'minus' && minMax === 'min') {
       const current = Number(
-        (document.getElementById("minInput") as HTMLInputElement).value
-      );
+        (document.getElementById('minInput') as HTMLInputElement).value,
+      )
       if (current === 0 || current - 1 < 0) {
-        (document.getElementById("minInput") as HTMLInputElement).value = "0";
-        return;
+        ;(document.getElementById('minInput') as HTMLInputElement).value = '0'
+        return
       }
-      (document.getElementById("minInput") as HTMLInputElement).value = (
+      ;(document.getElementById('minInput') as HTMLInputElement).value = (
         current - 0.01
-      ).toFixed(3);
+      ).toFixed(3)
     }
 
-    if (direction === "plus" && minMax === "max") {
+    if (direction === 'plus' && minMax === 'max') {
       if (
-        (document.getElementById("maxInput") as HTMLInputElement).value ===
+        (document.getElementById('maxInput') as HTMLInputElement).value ===
         undefined
       ) {
-        const current = document.getElementById("maxInput") as HTMLInputElement;
-        current.value = "1";
+        const current = document.getElementById('maxInput') as HTMLInputElement
+        current.value = '1'
       }
       const current = Number(
-        (document.getElementById("maxInput") as HTMLInputElement).value
-      );
-      (document.getElementById("maxInput") as HTMLInputElement).value = (
+        (document.getElementById('maxInput') as HTMLInputElement).value,
+      )
+      ;(document.getElementById('maxInput') as HTMLInputElement).value = (
         current + 0.01
-      ).toFixed(3);
+      ).toFixed(3)
     }
-    if (direction === "minus" && minMax === "max") {
+    if (direction === 'minus' && minMax === 'max') {
       const current = Number(
-        (document.getElementById("maxInput") as HTMLInputElement).value
-      );
+        (document.getElementById('maxInput') as HTMLInputElement).value,
+      )
       if (current === 0 || current - 1 < 0) {
-        (document.getElementById("maxInput") as HTMLInputElement).value = "0";
-        return;
+        ;(document.getElementById('maxInput') as HTMLInputElement).value = '0'
+        return
       }
-      (document.getElementById("maxInput") as HTMLInputElement).value = (
+      ;(document.getElementById('maxInput') as HTMLInputElement).value = (
         current - 0.01
-      ).toFixed(3);
+      ).toFixed(3)
     }
-  };
+  }
+
+  function changeDefaultIn(token: token) {
+    if (token.symbol === tokenOut.symbol) {
+      return
+    }
+    setTokenIn(token)
+    if (token.address.localeCompare(tokenOut.address) < 0) {
+      setTokenIn(token)
+      if (hasSelected === true) {
+        setTokenOut(tokenOut)
+      }
+      return
+    }
+    if (token.address.localeCompare(tokenOut.address) >= 0) {
+      if (hasSelected === true) {
+        setTokenIn(tokenOut)
+      }
+      setTokenOut(token)
+      return
+    }
+  }
+
+  const [tokenOrder, setTokenOrder] = useState(true)
+
+  const changeDefaultOut = (token: token) => {
+    if (token.symbol === tokenIn.symbol) {
+      return
+    }
+    setTokenOut(token)
+    setHasSelected(true)
+    if (token.address.localeCompare(tokenIn.address) < 0) {
+      setTokenIn(token)
+      setTokenOut(tokenIn)
+      return
+    }
+
+    if (token.address.localeCompare(tokenIn.address) >= 0) {
+      setTokenIn(tokenIn)
+      setTokenOut(token)
+      return
+    }
+  }
+
+  const getBalances = async () => {
+    try {
+      const provider = new ethers.providers.JsonRpcProvider(
+        'https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2',
+        421613,
+      )
+      const signer = new ethers.VoidSigner(address, provider)
+      const token1Bal = new ethers.Contract(tokenIn.address, erc20ABI, signer)
+      const balance1 = await token1Bal.balanceOf(address)
+      let token2Bal: Contract
+      let bal1: string
+      bal1 = Number(ethers.utils.formatEther(balance1)).toFixed(2)
+      if (hasSelected === true) {
+        token2Bal = new ethers.Contract(tokenOut.address, erc20ABI, signer)
+        const balance2 = await token2Bal.balanceOf(address)
+        let bal2: string
+        bal2 = Number(ethers.utils.formatEther(balance2)).toFixed(2)
+
+        setBalance1(bal2)
+      }
+
+      setBalance0(bal1)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   function SelectFee() {
-    const [selected, setSelected] = useState(feeTiers[0]);
-
     return (
       <Listbox value={selected} onChange={setSelected}>
         <div className="relative mt-1 w-full">
@@ -116,7 +379,7 @@ export default function DirectionalPool() {
                   key={feeTierIdx}
                   className={({ active }) =>
                     `relative cursor-default select-none py-2 px-4 cursor-pointer ${
-                      active ? "opacity-80 bg-dark" : "opacity-100"
+                      active ? 'opacity-80 bg-dark' : 'opacity-100'
                     }`
                   }
                   value={feeTier}
@@ -125,14 +388,14 @@ export default function DirectionalPool() {
                     <>
                       <span
                         className={`block truncate text-white ${
-                          selected ? "font-medium" : "font-normal"
+                          selected ? 'font-medium' : 'font-normal'
                         }`}
                       >
                         {feeTier.tier}
                       </span>
                       <span
                         className={`block truncate text-grey text-xs mt-1 ${
-                          selected ? "font-medium" : "font-normal"
+                          selected ? 'font-medium' : 'font-normal'
                         }`}
                       >
                         {feeTier.text}
@@ -145,7 +408,7 @@ export default function DirectionalPool() {
           </Transition>
         </div>
       </Listbox>
-    );
+    )
   }
 
   return (
@@ -156,14 +419,46 @@ export default function DirectionalPool() {
             <h1>Select Pair</h1>
           </div>
           <div className="flex items-center gap-x-5 mt-3">
-            <SelectToken />
-            <ArrowLongRightIcon className="w-6" />
-            <SelectToken />
+            <SelectToken
+              index="0"
+              selected={hasSelected}
+              tokenChosen={changeDefaultIn}
+              displayToken={tokenIn}
+              balance={setQueryTokenIn}
+              key={queryTokenIn}
+            />
+            <ArrowLongRightIcon
+              className="w-6 cursor-pointer"
+              onClick={() => {
+                if (hasSelected) {
+                  switchDirection();
+                }
+              }}
+            />
+            {hasSelected ? (
+              <SelectToken
+                index="1"
+                selected={hasSelected}
+                tokenChosen={changeDefaultOut}
+                displayToken={tokenOut}
+                balance={setQueryTokenOut}
+                key={queryTokenOut}
+              />
+            ) : (
+              //@dev add skeletons on load when switching sides/ initial selection
+              <SelectToken
+                index="1"
+                selected={hasSelected}
+                tokenChosen={changeDefaultOut}
+                displayToken={tokenOut}
+                balance={setQueryTokenOut}
+              />
+            )}
           </div>
         </div>
         <div>
           <div className="gap-x-4 mt-8">
-            <h1>Fee tier</h1>
+            <h1>Volatility tier</h1>
           </div>
           <div className="mt-3">
             <SelectFee />
@@ -176,32 +471,31 @@ export default function DirectionalPool() {
           <div className="mt-3 space-y-3">
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 ">
-                <input
-                  className="w-44 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
-                  placeholder="300"
-                />
-                <div className="flex">
-                  <div className="flex text-xs text-[#4C4C4C]">~300.50</div>
-                </div>
+                {inputBox("0")}
               </div>
               <div className="">
                 <div className=" ml-auto">
-                  <div >
+                  <div>
                     <div className="flex justify-end">
                       <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
                         <div className="flex items-center gap-x-2 w-full">
-                          <img className="w-7" src="/static/images/token.png" />
-                          USDC
+                          <img className="w-7" src={tokenIn.logoURI} />
+                          {tokenIn.symbol}
                         </div>
                       </button>
                     </div>
                     <div className="flex items-center justify-end gap-x-2 px-1 mt-2">
-                      <div className="text-xs text-[#4C4C4C]">
-                        Balance: 420.69
+                      <div className="flex text-xs text-[#4C4C4C]">
+                        Balance: {balance0 === "NaN" ? 0 : balance0}
                       </div>
-                      <div className="text-xs uppercase text-[#C9C9C9]">
-                        Max
-                      </div>
+                      {isConnected ? (
+                        <button
+                          className="flex text-xs uppercase text-[#C9C9C9]"
+                          onClick={() => maxBalance(balance0, "0")}
+                        >
+                          Max
+                        </button>
+                      ) : null}
                     </div>
                   </div>
                 </div>
@@ -213,12 +507,18 @@ export default function DirectionalPool() {
       <div className="w-1/2">
         <div>
           <div className="flex justify-between items-center">
-            <h1>Set price range</h1>
-            <button className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md">
-              Full Range
+            <h1>Set price cover</h1>
+            <button
+              className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
+              onClick={() => {
+                setMin(BigNumber.from(-887272));
+                setMax(BigNumber.from(887272));
+              }}
+            >
+              Full cover
             </button>
           </div>
-                    <div className="flex flex-col mt-6 gap-y-5 w-full">
+          <div className="flex flex-col mt-6 gap-y-5 w-full">
             <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
               <span className="text-xs text-grey">Min. Price</span>
               <div className="flex justify-center items-center">
@@ -275,7 +575,21 @@ export default function DirectionalPool() {
             </div>
           </div>
         </div>
-        <DirectionalPoolPreview />
+        <DirectionalPoolPreview
+          account={to}
+          poolId={poolId}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+          amount0={amount0}
+          amount1={amount1}
+          minPrice={minPrice}
+          maxPrice={maxPrice}
+          minTick={min}
+          maxTick={max}
+          fee={selected.tier}
+          allowance={allowance}
+          setAllowance={setAllowance}
+        />
       </div>
     </div>
   );

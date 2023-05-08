@@ -15,12 +15,15 @@ import {
   getRangePoolFromFactory,
 } from '../../utils/queries'
 import useInputBox from '../../hooks/useInputBox'
+import {
+  rangePoolAddress,
+} from '../../constants/contractAddresses'
 import { erc20ABI, useAccount } from 'wagmi'
 import { BigNumber, Contract, ethers } from 'ethers'
 import { useContractRead } from 'wagmi'
 import { rangePoolABI } from '../../abis/evm/rangePool'
 
-export default function ConcentratedPool({
+export default function RangePool({
   account,
   key,
   poolId,
@@ -98,8 +101,8 @@ export default function ConcentratedPool({
   const [balance1, setBalance1] = useState('0.00')
   const [allowanceIn, setAllowanceIn] = useState('0.00')
   const [allowanceOut, setAllowanceOut] = useState('0.00')
-  const [rangePrice, setRangePrice] = useState(undefined)
   const [rangePoolRoute, setRangePoolRoute] = useState(undefined)
+  const [rangePrice, setRangePrice] = useState(undefined)
 
   const initialBig = BigNumber.from(0)
   const [to, setTo] = useState('')
@@ -117,11 +120,7 @@ export default function ConcentratedPool({
 
   useEffect(() => {
     getRangePool()
-  }, [hasSelected, tokenIn.address, tokenOut.address, bnInput, bnInputLimit])
-
-  useEffect(() => {
-    fetchTokenPrice()
-  }, [rangePrice, tokenIn, tokenOut])
+  }, [hasSelected, tokenIn.address, tokenOut.address])
 
   useEffect(() => {
     setRangeParams()
@@ -150,30 +149,11 @@ export default function ConcentratedPool({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [address, poolId],
+    args: [address, rangePoolAddress],
     chainId: 421613,
     watch: true,
     onError(error) {
       console.log('Error', error)
-    },
-  })
-
-  const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
-    address: poolId,
-    abi: rangePoolABI,
-    functionName: 'poolState',
-    args: [],
-    chainId: 421613,
-    watch: true,
-    onSuccess(data) {
-      console.log('Success price Range', data)
-      setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
-    },
-    onError(error) {
-      console.log('Error price Range', error)
-    },
-    onSettled(data, error) {
-      console.log('Settled price Range', { data, error })
     },
   })
 
@@ -203,11 +183,30 @@ export default function ConcentratedPool({
     }
   }
 
+  const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
+    address: rangePoolRoute,
+    abi: rangePoolABI,
+    functionName: 'poolState',
+    args: [],
+    chainId: 421613,
+    watch: true,
+    onSuccess(data) {
+      console.log('Success price Range', data)
+      setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
+    },
+    onError(error) {
+      console.log('Error price Range', error)
+    },
+    onSettled(data, error) {
+      console.log('Settled price Range', { data, error })
+    },
+  })
+
   const fetchTokenPrice = async () => {
     try {
-      const price = rangePrice
+      const price = await rangePrice
       setMktRate({
-        TOKEN20A:
+        WETH:
           '~' +
           Number(price).toLocaleString(
             'en-US',
@@ -216,12 +215,16 @@ export default function ConcentratedPool({
               currency: 'USD',
             },
           ),
-        TOKEN20B: '~1.00',
+        USDC: '~1.00',
       })
     } catch (error) {
       console.log(error)
     }
   }
+
+  useEffect(() => {
+    fetchTokenPrice()
+  }, [rangePrice, tokenIn, tokenOut])
 
   async function setRangeParams() {
     try {
@@ -571,7 +574,7 @@ export default function ConcentratedPool({
             </div>
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 ">
-                {rangePrice ? (
+                {Number(bnInput) != 0 ? (
                   <div>
                     {(
                       parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
@@ -584,7 +587,7 @@ export default function ConcentratedPool({
                     ).toFixed(2)}
                   </div>
                 ) : (
-                  <div>?</div>
+                  <div>0</div>
                 )}
               </div>
               <div className="">
@@ -613,20 +616,11 @@ export default function ConcentratedPool({
       <div className="w-1/2">
         <div>
           <div className="flex justify-between items-center">
-            <h1>Set price range</h1>
-            <button
-              className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
-              onClick={() => {
-                setMin(BigNumber.from(-887272))
-                setMax(BigNumber.from(887272))
-              }}
-            >
-              Full Range
-            </button>
+            <h1>Set starting range</h1>
           </div>
           <div className="flex flex-col mt-6 gap-y-5 w-full">
             <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-              <span className="text-xs text-grey">Min. Price</span>
+              <span className="text-xs text-grey">Start. Price</span>
               <div className="flex justify-center items-center">
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
                   <button onClick={() => changePrice('minus', 'min')}>
@@ -652,33 +646,6 @@ export default function ConcentratedPool({
                 </div>
               </div>
             </div>
-            <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-              <span className="text-xs text-grey">Max. Price</span>
-              <div className="flex justify-center items-center">
-                <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  <button onClick={() => changePrice('minus', 'max')}>
-                    <MinusIcon className="w-5 h-5 ml-[2.5px]" />
-                  </button>
-                </div>
-                <input
-                  className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
-                  placeholder={maxPrice}
-                  id="maxInput"
-                  type="number"
-                  onChange={() =>
-                    setMaxPrice(
-                      (document.getElementById('maxInput') as HTMLInputElement)
-                        ?.value,
-                    )
-                  }
-                />
-                <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  <button onClick={() => changePrice('plus', 'max')}>
-                    <PlusIcon className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -693,8 +660,8 @@ export default function ConcentratedPool({
           amount1={bnInput}
           minPrice={minPrice}
           maxPrice={maxPrice}
-          minTick={BigNumber.from('10')}
-          maxTick={BigNumber.from('40')}
+          minTick={min}
+          maxTick={max}
           fee={selected.tier}
           allowanceIn={allowanceIn}
           setAllowanceIn={setAllowanceIn}

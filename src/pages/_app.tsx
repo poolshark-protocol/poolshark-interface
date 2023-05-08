@@ -5,7 +5,7 @@ import {
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
 import { configureChains, createClient, WagmiConfig } from 'wagmi';
-import { mainnet, goerli, arbitrumGoerli } from 'wagmi/chains';
+import { arbitrumGoerli } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import Head from 'next/head'

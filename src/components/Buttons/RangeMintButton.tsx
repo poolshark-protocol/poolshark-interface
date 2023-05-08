@@ -1,25 +1,24 @@
-import { ethers, BigNumber } from 'ethers'
+import { BigNumber } from 'ethers'
 import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
 } from 'wagmi'
-import { coverPoolABI } from '../../abis/evm/coverPool'
+import { rangePoolABI } from '../../abis/evm/rangePool'
 import { SuccessToast } from '../Toasts/Success'
 import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useState, useEffect } from 'react'
-import { coverPoolAddress } from '../../constants/contractAddresses'
-import { useCoverStore } from '../../hooks/useStore'
 
-export default function CoverMintButton({
+
+export default function RangeMintButton({
   disabled,
+  poolId,
   to,
   lower,
-  claim,
   upper,
-  amount,
-  zeroForOne,
+  amount0,
+  amount1
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
@@ -27,43 +26,42 @@ export default function CoverMintButton({
 
   useEffect(() => {}, [disabled])
 
-  /*const [coverContractParams, setCoverContractParams] = useState({
+  /*const [rangeContractParams, setRangeContractParams] = useState({
     to: to,
-    lower: lower,
-    claim: claim,
-    upper: upper,
-    amount: amount,
-    zeroForOne: zeroForOne,
+    min: lower,
+    max: upper,
+    amount0: amount0,
+    amount1: amount1,
+    fungible: fungible,
   })
-  console.log('cover contract', coverContractParams)
+  console.log('range contract', rangeContractParams)
 
- 
   useEffect(() => {
-    setCoverContractParams({
-    to: to,
-    lower: lower,
-    claim: claim,
-    upper: upper,
-    amount: amount,
-    zeroForOne: zeroForOne,
+    setRangeContractParams({
+      to: to,
+      min: lower,
+      max: upper,
+      amount0: amount0,
+      amount1: amount1,
+      fungible: fungible,
     })
-  }, [disabled, to, lower, claim, upper, amount, zeroForOne])*/
+  }, [to, lower, upper, amount0, amount1, fungible])*/
 
   const { config } = usePrepareContractWrite({
-    address: coverPoolAddress,
-    abi: coverPoolABI,
+    address: poolId,
+    abi: rangePoolABI,
     functionName: 'mint',
     args: [[
       to,
-      amount,
       lower,
-      claim,
       upper,
-      zeroForOne
+      amount0,
+      amount1,
+      true //@dev always fungible
     ]],
     chainId: 421613,
     overrides: {
-      gasLimit: BigNumber.from('3500000'),
+      gasLimit: BigNumber.from('210000000'),
     },
   })
 
@@ -88,9 +86,9 @@ export default function CoverMintButton({
             ? 'w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50'
             : 'w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80'
         }
-        onClick={() => (coverPoolAddress ? write?.() : null)}
+        onClick={() => (write?.())}
       >
-        Create Cover
+        Mint Range Position
       </button>
       <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
         {errorDisplay && (
