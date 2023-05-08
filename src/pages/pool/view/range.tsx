@@ -25,55 +25,92 @@ export default function Range() {
   }
   const { address } = useAccount()
   const router = useRouter()
-  const zeroAddress =
-    router.query.tokenZeroAddress === undefined
-      ? ''
-      : router.query.tokenZeroAddress.toString()
-  const oneAddress =
-    router.query.tokenOneAddress === undefined
-      ? ''
-      : router.query.tokenOneAddress.toString()
-  const poolAddress =
-    router.query.poolId === undefined ? '' : router.query.poolId.toString()
 
+  useEffect(() => {
+    if (router.isReady) {
+      const query = router.query
+      setPoolContractAdd(query.poolId)
+      setTokenIn({
+        name: query.tokenZeroName,
+        symbol: query.tokenZeroSymbol,
+        logoURI: query.tokenZeroLogoURI,
+        address: query.tokenZeroAddress,
+        value: query.tokenZeroValue,
+      } as token)
+      setTokenOut({
+        name: query.tokenOneName,
+        symbol: query.tokenOneSymbol,
+        logoURI: query.tokenOneLogoURI,
+        address: query.tokenOneAddress,
+        value: query.tokenOneValue,
+      } as token)
+      setLiquidity(query.liquidity)
+      setFeeTier(query.feeTier)
+      setMinLimit(query.min)
+      setMaxLimit(query.max)
+    }
+  }, [router.isReady])
+
+  const [poolAdd, setPoolContractAdd] = useState(router.query.poolId ?? '')
+  const [tokenIn, setTokenIn] = useState({
+    name: router.query.tokenZeroName ?? '',
+    symbol: router.query.tokenZeroSymbol ?? '',
+    logoURI: router.query.tokenZeroLogoURI ?? '',
+    address: router.query.tokenZeroAddress ?? '',
+    value: router.query.tokenZeroValue ?? '',
+  } as token)
+  const [tokenOut, setTokenOut] = useState({
+    name: router.query.tokenOneName ?? '',
+    symbol: router.query.tokenOneSymbol ?? '',
+    logoURI: router.query.tokenOneLogoURI ?? '',
+    address: router.query.tokenOneAddress ?? '',
+    value: router.query.tokenOneValue ?? '',
+  } as token)
+  const [liquidity, setLiquidity] = useState(router.query.liquidity ?? '0')
+  const [feeTier, setFeeTier] = useState(router.query.feeTier ?? '')
+  const [minLimit, setMinLimit] = useState(router.query.min ?? '0')
+  const [maxLimit, setMaxLimit] = useState(router.query.max ?? '0')
+  const [rangeQuote, setRangeQuote] = useState(undefined)
+  const [rangePrice, setRangePrice] = useState(undefined)
+  const [mktRate, setMktRate] = useState({})
+
+  //Pool Addresses
   const [is0Copied, setIs0Copied] = useState(false)
   const [is1Copied, setIs1Copied] = useState(false)
   const [isPoolCopied, setIsPoolCopied] = useState(false)
   const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-    zeroAddress.substring(0, 6) +
-      '...' +
-      zeroAddress.substring(zeroAddress.length - 4, zeroAddress.length),
+    tokenIn.address != ''
+      ? tokenIn.address.toString().substring(0, 6) +
+          '...' +
+          tokenIn.address
+            .toString()
+            .substring(
+              tokenIn.address.toString().length - 4,
+              tokenIn.address.toString().length,
+            )
+      : undefined,
   )
   const [tokenOneDisplay, setTokenOneDisplay] = useState(
-    oneAddress.substring(0, 6) +
-      '...' +
-      oneAddress.substring(oneAddress.length - 4, oneAddress.length),
+    tokenOut.address != ''
+      ? tokenOut.address.toString().substring(0, 6) +
+          '...' +
+          tokenOut.address
+            .toString()
+            .substring(
+              tokenOut.address.toString().length - 4,
+              tokenOut.address.toString().length,
+            )
+      : undefined,
   )
   const [poolDisplay, setPoolDisplay] = useState(
-    poolAddress.substring(0, 6) +
-      '...' +
-      poolAddress.substring(poolAddress.length - 4, poolAddress.length),
+    poolAdd != ''
+      ? poolAdd.toString().substring(0, 6) +
+          '...' +
+          poolAdd
+            .toString()
+            .substring(poolAdd.toString().length - 4, poolAdd.toString().length)
+      : undefined,
   )
-  const [poolContractAdd, setPoolContractAdd] = useState(
-    router.query.poolId ?? undefined,
-  )
-  const [tokenIn, setTokenIn] = useState({
-    name: router.query.tokenZeroName,
-    symbol: router.query.tokenZeroSymbol,
-    logoURI: router.query.tokenZeroLogoURI,
-    address: router.query.tokenZeroAddress,
-    value: router.query.tokenZeroValue,
-  } as token)
-  const [tokenOut, setTokenOut] = useState({
-    name: router.query.tokenOneName,
-    symbol: router.query.tokenOneSymbol,
-    logoURI: router.query.tokenOneLogoURI,
-    address: router.query.tokenOneAddress,
-    value: router.query.tokenOneValue,
-  } as token)
-  const [rangeQuote, setRangeQuote] = useState(undefined)
-  const [rangePrice, setRangePrice] = useState(undefined)
-  const [mktRate, setMktRate] = useState({})
 
   useEffect(() => {
     if (copyAddress0) {
@@ -102,6 +139,22 @@ export default function Range() {
     }
   })
 
+  function copyAddress0() {
+    navigator.clipboard.writeText(tokenIn.address.toString())
+    setIs0Copied(true)
+  }
+
+  function copyAddress1() {
+    navigator.clipboard.writeText(tokenOut.address.toString())
+    setIs1Copied(true)
+  }
+
+  function copyPoolAddress() {
+    navigator.clipboard.writeText(poolAdd.toString())
+    setIsPoolCopied
+  }
+  //
+
   useEffect(() => {
     getRangePool()
   }, [])
@@ -109,31 +162,6 @@ export default function Range() {
   useEffect(() => {
     fetchTokenPrice()
   }, [rangePrice])
-
-  function copyAddress0() {
-    navigator.clipboard.writeText(
-      router.query.tokenZeroAddress === undefined
-        ? ''
-        : router.query.tokenZeroAddress.toString(),
-    )
-    setIs0Copied(true)
-  }
-
-  function copyAddress1() {
-    navigator.clipboard.writeText(
-      router.query.tokenOneAddress === undefined
-        ? ''
-        : router.query.tokenOneAddress.toString(),
-    )
-    setIs1Copied(true)
-  }
-
-  function copyPoolAddress() {
-    navigator.clipboard.writeText(
-      router.query.poolId === undefined ? '' : router.query.poolId.toString(),
-    )
-    setIsPoolCopied(true)
-  }
 
   const getRangePool = async () => {
     try {
@@ -162,8 +190,6 @@ export default function Range() {
       console.log(error)
     }
   }
-  /* console.log('mktRate', mktRate)
-  console.log('rangePrice', rangePrice) */
 
   const fetchTokenPrice = async () => {
     try {
@@ -238,15 +264,14 @@ export default function Range() {
                 <></>
               )}
             </div>
-            <a href="#">
-              <a
-                href={'https://goerli.arbiscan.io/address/' + poolAddress}
-                target="_blank"
-                className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80"
-              >
-                View on Arbiscan
-                <ArrowTopRightOnSquareIcon className="w-5 " />
-              </a>
+
+            <a
+              href={'https://goerli.arbiscan.io/address/' + poolAdd}
+              target="_blank"
+              className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80"
+            >
+              View on Arbiscan
+              <ArrowTopRightOnSquareIcon className="w-5 " />
             </a>
           </div>
           <div className="mb-6">
@@ -364,58 +389,19 @@ export default function Range() {
                   href={{
                     pathname: '/pool/liquidity',
                     query: {
-                      account:
-                        router.query.account === undefined
-                          ? ''
-                          : router.query.account.toString(),
-                      poolId:
-                        router.query.poolId === undefined
-                          ? ''
-                          : router.query.poolId.toString(),
-                      tokenOneName:
-                        router.query.tokenOneName === undefined
-                          ? ''
-                          : router.query.tokenOneName.toString(),
-                      tokenOneSymbol:
-                        router.query.tokenOneSymbol === undefined
-                          ? ''
-                          : router.query.tokenOneSymbol.toString(),
-                      tokenOneLogoURI:
-                        router.query.tokenOneLogoURI === undefined
-                          ? ''
-                          : router.query.tokenOneLogoURI.toString(),
-                      tokenOneAddress:
-                        router.query.tokenOneAddress === undefined
-                          ? ''
-                          : router.query.tokenOneAddress.toString(),
-                      tokenZeroName:
-                        router.query.tokenZeroName === undefined
-                          ? ''
-                          : router.query.tokenZeroName.toString(),
-                      tokenZeroSymbol:
-                        router.query.tokenZeroSymbol === undefined
-                          ? ''
-                          : router.query.tokenZeroSymbol.toString(),
-                      tokenZeroLogoURI:
-                        router.query.tokenZeroLogoURI === undefined
-                          ? ''
-                          : router.query.tokenZeroLogoURI.toString(),
-                      tokenZeroAddress:
-                        router.query.tokenZeroAddress === undefined
-                          ? ''
-                          : router.query.tokenZeroAddress.toString(),
-                      feeTier:
-                        router.query.feeTier === undefined
-                          ? ''
-                          : router.query.feeTier.toString(),
-                      min:
-                        router.query.min === undefined
-                          ? ''
-                          : router.query.min.toString(),
-                      max:
-                        router.query.max === undefined
-                          ? ''
-                          : router.query.max.toString(),
+                      account: '',
+                      poolAdd: poolAdd,
+                      tokenOneName: tokenIn.name,
+                      tokenOneSymbol: tokenIn.symbol,
+                      tokenOneLogoURI: tokenIn.logoURI,
+                      tokenOneAddress: tokenIn.address,
+                      tokenZeroName: tokenIn.name,
+                      tokenZeroSymbol: tokenIn.symbol,
+                      tokenZeroLogoURI: tokenIn.logoURI,
+                      tokenZeroAddress: tokenIn.address,
+                      feeTier: feeTier,
+                      min: minLimit,
+                      max: maxLimit,
                     },
                   }}
                 >
@@ -468,23 +454,23 @@ export default function Range() {
                 <div className="mt-5 space-y-2">
                   <div className="space-y-3">
                     <RangeBurnButton
-                      poolAddress={router.query.poolId.toString()}
+                      poolAddress={poolAdd}
                       address={address}
-                      lower={BigNumber.from(router.query.min.toString())}
-                      upper={BigNumber.from(router.query.max.toString())}
-                      amount={BigNumber.from(router.query.liquidity.toString())}
+                      lower={BigNumber.from(minLimit)}
+                      upper={BigNumber.from(maxLimit)}
+                      amount={BigNumber.from(liquidity)}
                     />
                     <RangeCollectButton
-                      poolAddress={router.query.poolId.toString()}
+                      poolAddress={poolAdd.toString()}
                       address={address}
-                      lower={BigNumber.from(router.query.min.toString())}
-                      upper={BigNumber.from(router.query.max.toString())}
+                      lower={BigNumber.from(minLimit)}
+                      upper={BigNumber.from(maxLimit)}
                     />
                     <RangeCompoundButton
-                      poolAddress={router.query.poolId.toString()}
+                      poolAddress={poolAdd.toString()}
                       address={address}
-                      lower={BigNumber.from(router.query.min.toString())}
-                      upper={BigNumber.from(router.query.max.toString())}
+                      lower={BigNumber.from(minLimit)}
+                      upper={BigNumber.from(maxLimit)}
                     />
                   </div>
                 </div>
