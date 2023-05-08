@@ -176,7 +176,8 @@ export default function Cover() {
       }
     }
     else { 
-      const claimTick = await getTickIfNotZeroForOne(Number(max), poolAddress, Number(epochLast))
+      const claimTickQuery = await getTickIfNotZeroForOne(Number(max), poolAddress, Number(epochLast))
+      const claimTick = claimTickQuery['data']['ticks']['0']['index']
 
       if(claimTick != undefined) {
         setClaimTick(BigNumber.from(claimTick))

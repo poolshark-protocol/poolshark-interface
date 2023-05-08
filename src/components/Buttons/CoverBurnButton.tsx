@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import {
     usePrepareContractWrite,
     useContractWrite,
@@ -22,18 +22,18 @@ export default function CoverBurnButton({poolAddress, address, lower, claim, upp
         functionName: "burn",
         args:[[
             address,
+            ethers.utils.parseUnits("1", 38), //hardcoded to 100% for testnet
             lower,
             claim,
             upper,
-            zeroForOne,
-            amount, //TODO: this needs to be passed as a percent (1e38 = 100%)
+            zeroForOne, //TODO: this needs to be passed as a percent (1e38 = 100%)
             //percent = amount.mul(ethers.utils.parseUnits("1",38)).div(position.liquidity)
             // ^use this formula for burnPercent; position.liquidity will come from the Cover Subgraph
             true
         ]],
         chainId: 421613,
         overrides:{
-            gasLimit: BigNumber.from("3500000")
+            gasLimit: BigNumber.from("350000000")
         },
     })
 

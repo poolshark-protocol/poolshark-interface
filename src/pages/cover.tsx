@@ -205,8 +205,8 @@ export default function Cover() {
                       <div className="space-y-3">
                         {allCoverPositions.map((allCoverPosition) => {
                           if (
-                            /* allCoverPosition.userOwnerAddress ===
-                              address?.toLowerCase() */ true &&
+                            allCoverPosition.userOwnerAddress ===
+                              address?.toLowerCase() &&
                             (allCoverPosition.tokenZero.name === searchTerm ||
                               allCoverPosition.tokenOne.name === searchTerm ||
                               allCoverPosition.tokenZero.symbol ===

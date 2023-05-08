@@ -164,8 +164,8 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                   <div className="space-y-2">
                     {allRangePositions.map((allRangePosition) => {
                       if (
-                        /* allRangePosition.userOwnerAddress ===
-                          address?.toLowerCase() */ true &&
+                        allRangePosition.userOwnerAddress ===
+                          address?.toLowerCase() &&
                         (allRangePosition.tokenZero.name === searchTerm ||
                           allRangePosition.tokenOne.name === searchTerm ||
                           allRangePosition.tokenZero.symbol === searchTerm ||
@@ -212,8 +212,8 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                   <div className="space-y-2">
                     {allUniV3Positions.map((allUniV3Position) => {
                       if (
-                        /* allUniV3Position.userOwnerAddress ===
-                          address?.toLowerCase() */ true &&
+                        allUniV3Position.userOwnerAddress ===
+                          address?.toLowerCase() &&
                         (allUniV3Position.tokenZero.name === searchTerm ||
                           allUniV3Position.tokenOne.name === searchTerm ||
                           allUniV3Position.tokenZero.symbol === searchTerm ||

@@ -21,16 +21,16 @@ export default function CoverCollectButton({ poolAddress, address, lower, claim,
       functionName: "burn",
       args:[[
           address,
+          BigNumber.from(0),
           lower,
           claim,
           upper,
           zeroForOne,
-          ethers.utils.parseUnits('0'),
           true
       ]],
       chainId: 421613,
       overrides:{
-          gasLimit: BigNumber.from("3500000")
+          gasLimit: BigNumber.from("350000000")
       },
   })
 
