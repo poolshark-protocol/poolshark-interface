@@ -196,6 +196,7 @@ export default function DirectionalPoolPreview({
                         />
                       ) : (
                         <CoverMintButton
+                          poolAddress={poolId}
                           disabled={false}
                           to={account}
                           lower={minTick}

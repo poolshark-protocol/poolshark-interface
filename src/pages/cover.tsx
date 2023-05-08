@@ -7,7 +7,7 @@ import UserCoverPool from '../components/Pools/UserCoverPool'
 import { useState, useEffect } from 'react'
 import { useAccount, useProvider } from 'wagmi'
 import Link from 'next/link'
-import { fetchCoverPositions, fetchUniV3Positions } from '../utils/queries'
+import { fetchCoverPositions } from '../utils/queries'
 import React from 'react'
 import useTokenList from '../hooks/useTokenList'
 import Initial from '../components/Cover/Initial'
@@ -17,20 +17,11 @@ import { useRouter } from 'next/router'
 export default function Cover() {
   const router = useRouter()
 
-  const [maxPrice, setMaxPrice] = useState(0)
-  const [disabled, setDisabled] = useState(true)
-
   const [searchTerm, setSearchTerm] = useState('')
 
   const handleSearchTermChange = (event) => {
     setSearchTerm(event.target.value)
   }
-
-  const increaseMaxPrice = () => {
-    setMaxPrice((count) => count + 1)
-  }
-
-  const [minPrice, setMinPrice] = useState(0)
 
   const {
     network: { chainId },

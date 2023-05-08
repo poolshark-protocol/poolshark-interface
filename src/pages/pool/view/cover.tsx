@@ -351,6 +351,7 @@ export default function Cover() {
                     {' '}
                     {/**TO-DO: PASS PROPS */}
                     <CoverBurnButton
+                      poolAddress={poolAddress}
                       address={address}
                       lower={'lower'}
                       claim={'clain'}
@@ -359,7 +360,8 @@ export default function Cover() {
                       amount={'total position amount'}
                     />
                     <CoverCollectButton
-                      address={'address'}
+                      poolAddress={poolAddress}
+                      address={address}
                       lower={'lower'}
                       claim={'claim'}
                       upper={'upper'}

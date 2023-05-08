@@ -30,9 +30,10 @@ import {
 import JSBI from 'jsbi'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import { coverPoolABI } from '../../abis/evm/coverPool'
+import { useRouter } from 'next/router'
 
 export default function CreateCover(props: any) {
-  //console.log('props', props)
+  const router = useRouter()
   const [pool, setPool] = useState(props.query ?? undefined)
   const initialBig = BigNumber.from(0)
   const { bnInput, inputBox, maxBalance } = useInputBox()
@@ -89,6 +90,14 @@ export default function CreateCover(props: any) {
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
   const [coverPoolRoute, setCoverPoolRoute] = useState('')
   const [tokenOrder, setTokenOrder] = useState(true)
+  const poolId =
+    router.query.poolId === undefined ? '' : router.query.poolId.toString()
+
+  function setParams(query: any) {
+    setPool({
+      poolId: query.poolId,
+    })
+  }
 
   const { data } = useContractRead({
     address: tokenIn.address,
@@ -155,6 +164,10 @@ export default function CreateCover(props: any) {
   useEffect(() => {
     fetchTokenPrice()
   }, [coverQuote])
+
+  useEffect(() => {
+    setParams(router.query)
+  }, [router])
 
   useEffect(() => {
     getCoverPool()
@@ -668,6 +681,7 @@ export default function CreateCover(props: any) {
           approveToken={tokenIn.address} />
         ) : stateChainName === 'arbitrumGoerli' ? (
           <CoverMintButton
+            poolAddress={poolId}
             disabled={isDisabled}
             to={address}
             lower={min}

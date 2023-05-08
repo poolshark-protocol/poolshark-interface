@@ -11,13 +11,13 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 
-export default function CoverBurnButton({address, lower, claim, upper, zeroForOne, amount}) {
+export default function CoverBurnButton({poolAddress, address, lower, claim, upper, zeroForOne, amount}) {
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
   
     const { config } = usePrepareContractWrite({
-        address: coverPoolAddress,
+        address: poolAddress,
         abi: coverPoolABI,
         functionName: "burn",
         args:[[

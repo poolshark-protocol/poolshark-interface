@@ -550,6 +550,7 @@ export default function CoverExistingPool({
           approveToken={tokenIn.address} />
         ) : (
           <CoverMintButton
+            poolAddress={poolId}
             disabled={false}
             to={address}
             lower={min}
