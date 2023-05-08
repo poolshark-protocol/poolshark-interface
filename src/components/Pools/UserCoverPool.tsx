@@ -158,10 +158,10 @@ export default function UserCoverPool({
       <div
         onClick={() => setPool()}
         onMouseEnter={(e) => {
-          setShow(true)
+          setShow(true);
         }}
         onMouseLeave={(e) => {
-          setShow(false)
+          setShow(false);
         }}
         className="w-full cursor-pointer flex justify-between items-center bg-dark border border-grey2 rounded-xl py-3.5 pl-5 h-24 relative"
       >
@@ -181,15 +181,18 @@ export default function UserCoverPool({
               <ArrowLongRightIcon className="w-5" />
               {tokenOne.name}
             </div>
+            <div className="bg-black px-2 py-1 rounded-lg text-grey">
+              {feeTierPercentage}%
+            </div>
           </div>
           <div className="text-sm flex items-center gap-x-3">
             <span>
-              <span className="text-grey">Min:</span> {min} {tokenZero.symbol}{' '}
+              <span className="text-grey">Min:</span> {min} {tokenZero.symbol}{" "}
               per {tokenOne.symbol}
             </span>
             <ArrowsRightLeftIcon className="w-4 text-grey" />
             <span>
-              <span className="text-grey">Max:</span> {max} {tokenOne.symbol}{' '}
+              <span className="text-grey">Max:</span> {max} {tokenOne.symbol}{" "}
               per {tokenZero.symbol}
             </span>
           </div>
@@ -216,5 +219,5 @@ export default function UserCoverPool({
         )}
       </div>
     </Link>
-  )
+  );
 }
