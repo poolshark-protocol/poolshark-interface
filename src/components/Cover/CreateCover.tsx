@@ -685,10 +685,11 @@ export default function CreateCover(props: any) {
             disabled={isDisabled}
             to={address}
             lower={min}
-            claim={min}
+            claim={(tokenOut.address != '' && tokenIn.address < tokenOut.address) ?
+                max : min}
             upper={max}
             amount={bnInput}
-            zeroForOne={true}
+            zeroForOne={tokenOut.address != '' && tokenIn.address < tokenOut.address}
           />
         ) : null}
       </div>

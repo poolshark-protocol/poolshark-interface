@@ -551,12 +551,13 @@ export default function CoverExistingPool({
             disabled={false}
             to={address}
             lower={min}
-            claim={min}
+            claim={(tokenOut.address != '' && tokenIn.address < tokenOut.address) ?
+                max : min}
             upper={max}
             amount={ethers.utils
               .parseUnits(String(sliderValue * 0.01), 18)
               .mul(1)}
-            zeroForOne={true}
+            zeroForOne={tokenOut.address != '' && tokenIn.address < tokenOut.address}
           />
         )}
       </div>
