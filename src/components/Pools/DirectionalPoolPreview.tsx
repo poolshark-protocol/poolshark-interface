@@ -26,7 +26,7 @@ export default function DirectionalPoolPreview({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [address, coverPoolAddress],
+    args: [address, poolId],
     chainId: 421613,
     watch: true,
     onSuccess(data) {

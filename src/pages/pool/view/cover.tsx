@@ -33,6 +33,12 @@ export default function Cover() {
       : router.query.tokenOneAddress.toString()
   const poolAddress =
     router.query.poolId === undefined ? '' : router.query.poolId.toString()
+  const min =
+    router.query.min === undefined ? '0' : router.query.min.toString()
+  const max =
+    router.query.max === undefined ? '0' : router.query.max.toString()
+  const liquidity =
+    router.query.liquidity === undefined ? '0' : router.query.liquidity.toString()
 
   const [is0Copied, setIs0Copied] = useState(false)
   const [is1Copied, setIs1Copied] = useState(false)
@@ -353,19 +359,19 @@ export default function Cover() {
                     <CoverBurnButton
                       poolAddress={poolAddress}
                       address={address}
-                      lower={'lower'}
+                      lower={min}
                       claim={'clain'}
-                      upper={'upper'}
-                      zeroForOne={'true or false'}
-                      amount={'total position amount'}
+                      upper={max}
+                      zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address}
+                      amount={liquidity}
                     />
                     <CoverCollectButton
                       poolAddress={poolAddress}
                       address={address}
-                      lower={'lower'}
+                      lower={min}
                       claim={'claim'}
-                      upper={'upper'}
-                      zeroForOne={'trueOrFalse'}
+                      upper={max}
+                      zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address}
                     />
                     {/*TO-DO: add positionOwner ternary again*/}
                   </div>
