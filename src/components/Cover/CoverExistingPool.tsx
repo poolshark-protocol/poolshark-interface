@@ -552,7 +552,9 @@ export default function CoverExistingPool({
         {isDisconnected ? <ConnectWalletButton /> : null}
         {isDisconnected ||
         Number(allowance) < Number(sliderValue) * Number(tokenIn.value) ? (
-          <SwapCoverApproveButton approveToken={tokenIn.address} />
+          <SwapCoverApproveButton
+          poolAddress={poolId} 
+          approveToken={tokenIn.address} />
         ) : (
           <CoverMintButton
             disabled={false}

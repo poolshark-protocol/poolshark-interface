@@ -680,7 +680,9 @@ export default function CreateCover(props: any) {
         {isConnected &&
         Number(allowance) < Number(ethers.utils.formatUnits(bnInput, 18)) &&
         stateChainName === 'arbitrumGoerli' ? (
-          <SwapCoverApproveButton approveToken={tokenIn.address} />
+          <SwapCoverApproveButton
+          poolAddress={coverPoolAddress} 
+          approveToken={tokenIn.address} />
         ) : stateChainName === 'arbitrumGoerli' ? (
           <CoverMintButton
             disabled={isDisabled}

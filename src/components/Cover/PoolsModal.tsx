@@ -185,10 +185,11 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                               //prefill('exisingPool')
                               setParams(allRangePosition)
                             }}
+                            key={allRangePosition.min}
                           >
                             <UserPool
-                              key={allRangePosition.tokenOneName}
-                              account={'account'}
+                              key={allRangePosition.poolId}
+                              account={address}
                               poolId={allRangePosition.poolId}
                               tokenZero={allRangePosition.tokenZero}
                               tokenOne={allRangePosition.tokenOne}
@@ -232,10 +233,11 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                               //prefill('exisingPool')
                               setParams(allUniV3Position)
                             }}
+                            key={allUniV3Position.min}
                           >
                             <UserCoverPool
-                              key={allUniV3Position.tokenOneName}
-                              account={'account'}
+                              key={allUniV3Position.poolId}
+                              account={address}
                               poolId={allUniV3Position.poolId}
                               tokenZero={allUniV3Position.tokenZero}
                               valueTokenZero={allUniV3Position.valueTokenZero}

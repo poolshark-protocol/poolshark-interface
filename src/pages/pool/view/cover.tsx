@@ -200,6 +200,7 @@ export default function Cover() {
               <a
                 href={'https://goerli.arbiscan.io/address/' + poolAddress}
                 target="_blank"
+                rel="noreferrer"
                 className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80"
               >
                 View on Arbiscan

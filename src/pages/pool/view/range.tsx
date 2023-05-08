@@ -35,6 +35,12 @@ export default function Range() {
       : router.query.tokenOneAddress.toString()
   const poolAddress =
     router.query.poolId === undefined ? '' : router.query.poolId.toString()
+  const min =
+    router.query.min === undefined ? '0' : router.query.min.toString()
+  const max =
+    router.query.max === undefined ? '0' : router.query.max.toString()
+  const liquidity =
+    router.query.liquidity === undefined ? '0' : router.query.liquidity.toString()
 
   const [is0Copied, setIs0Copied] = useState(false)
   const [is1Copied, setIs1Copied] = useState(false)
@@ -242,6 +248,7 @@ export default function Range() {
               <a
                 href={'https://goerli.arbiscan.io/address/' + poolAddress}
                 target="_blank"
+                rel="noreferrer"
                 className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80"
               >
                 View on Arbiscan
@@ -468,23 +475,23 @@ export default function Range() {
                 <div className="mt-5 space-y-2">
                   <div className="space-y-3">
                     <RangeBurnButton
-                      poolAddress={router.query.poolId.toString()}
+                      poolAddress={poolAddress}
                       address={address}
-                      lower={BigNumber.from(router.query.min.toString())}
-                      upper={BigNumber.from(router.query.max.toString())}
-                      amount={BigNumber.from(router.query.liquidity.toString())}
+                      lower={BigNumber.from(min)}
+                      upper={BigNumber.from(max)}
+                      amount={BigNumber.from(liquidity)}
                     />
                     <RangeCollectButton
-                      poolAddress={router.query.poolId.toString()}
+                      poolAddress={poolAddress}
                       address={address}
-                      lower={BigNumber.from(router.query.min.toString())}
-                      upper={BigNumber.from(router.query.max.toString())}
+                      lower={BigNumber.from(min)}
+                      upper={BigNumber.from(max)}
                     />
                     <RangeCompoundButton
-                      poolAddress={router.query.poolId.toString()}
+                      poolAddress={poolAddress}
                       address={address}
-                      lower={BigNumber.from(router.query.min.toString())}
-                      upper={BigNumber.from(router.query.max.toString())}
+                      lower={BigNumber.from(min)}
+                      upper={BigNumber.from(max)}
                     />
                   </div>
                 </div>
