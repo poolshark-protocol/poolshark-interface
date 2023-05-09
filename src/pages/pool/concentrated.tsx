@@ -4,39 +4,92 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { ArrowLongLeftIcon } from '@heroicons/react/20/solid'
-import { tokenOneAddress, tokenZeroAddress } from '../../constants/contractAddresses'
+import {
+  tokenOneAddress,
+  tokenZeroAddress,
+} from '../../constants/contractAddresses'
 
 export default function Concentrated() {
+  type token = {
+    name: string
+    symbol: string
+    logoURI: string
+    address: string
+  }
   const router = useRouter()
-  //console.log('router.query: ', router.query)
-  const zeroAddress =
-    router.query.tokenZeroAddress === undefined
-      ? ''
-      : router.query.tokenZeroAddress.toString()
-  const oneAddress =
-    router.query.tokenOneAddress === undefined
-      ? ''
-      : router.query.tokenOneAddress.toString()
-  const poolAddress =
-    router.query.poolId === undefined ? '' : router.query.poolId.toString()
 
-  const [is0Copied, setIs0Copied] = useState(false)
+  useEffect(() => {
+    if (router.isReady) {
+      const query = router.query
+      setPoolId(query.poolId)
+      setTokenIn({
+        name: query.tokenZeroName,
+        symbol: query.tokenZeroSymbol,
+        logoURI: query.tokenZeroLogoURI,
+        address: query.tokenZeroAddress,
+        value: query.tokenZeroValue,
+      } as token)
+      setTokenOut({
+        name: query.tokenOneName,
+        symbol: query.tokenOneSymbol,
+        logoURI: query.tokenOneLogoURI,
+        address: query.tokenOneAddress,
+        value: query.tokenOneValue,
+      } as token)
+      setLiquidity(query.liquidity)
+      setFeeTier(query.feeTier)
+      setMinLimit(query.min)
+      setMaxLimit(query.max)
+    }
+  }, [router.isReady])
+
+  const [poolId, setPoolId] = useState(router.query.poolId ?? '')
+  const [tokenIn, setTokenIn] = useState({
+    name: router.query.tokenZeroName ?? '',
+    symbol: router.query.tokenZeroSymbol ?? '',
+    logoURI: router.query.tokenZeroLogoURI ?? '',
+    address: router.query.tokenZeroAddress ?? '',
+  } as token)
+  const [tokenOut, setTokenOut] = useState({
+    name: router.query.tokenOneName,
+    symbol: router.query.tokenOneSymbol,
+    logoURI: router.query.tokenOneLogoURI,
+    address: router.query.tokenOneAddress,
+  } as token)
+  const [liquidity, setLiquidity] = useState(router.query.liquidity ?? '0')
+  const [feeTier, setFeeTier] = useState(router.query.feeTier ?? '')
+  const [minLimit, setMinLimit] = useState(router.query.min ?? '0')
+  const [maxLimit, setMaxLimit] = useState(router.query.max ?? '0')
+
+  /*  const [is0Copied, setIs0Copied] = useState(false)
   const [is1Copied, setIs1Copied] = useState(false)
   const [isPoolCopied, setIsPoolCopied] = useState(false)
   const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-    zeroAddress.substring(0, 6) +
+    tokenIn.address.toString().substring(0, 6) +
       '...' +
-      zeroAddress.substring(zeroAddress.length - 4, zeroAddress.length),
+      tokenIn.address
+        .toString()
+        .substring(
+          tokenIn.address.toString().length - 4,
+          tokenIn.address.toString().length,
+        ),
   )
   const [tokenOneDisplay, setTokenOneDisplay] = useState(
-    oneAddress.substring(0, 6) +
+    tokenOut.address.toString().substring(0, 6) +
       '...' +
-      oneAddress.substring(oneAddress.length - 4, oneAddress.length),
+      tokenOut.address
+        .toString()
+        .substring(
+          tokenOut.address.toString().length - 4,
+          tokenOut.address.toString().length,
+        ),
   )
   const [poolDisplay, setPoolDisplay] = useState(
-    poolAddress.substring(0, 6) +
+    poolId.toString().substring(0, 6) +
       '...' +
-      poolAddress.substring(poolAddress.length - 4, poolAddress.length),
+      poolId
+        .toString()
+        .substring(poolId.toString().length - 4, poolId.toString().length),
   )
 
   useEffect(() => {
@@ -67,29 +120,29 @@ export default function Concentrated() {
   })
 
   function copyAddress0() {
-    navigator.clipboard.writeText(
-      router.query.tokenZeroAddress === undefined
-        ? ''
-        : router.query.tokenZeroAddress.toString(),
-    )
+    navigator.clipboard.writeText(tokenIn.address.toString())
     setIs0Copied(true)
   }
 
   function copyAddress1() {
-    navigator.clipboard.writeText(
-      router.query.tokenOneAddress === undefined
-        ? ''
-        : router.query.tokenOneAddress.toString(),
-    )
+    navigator.clipboard.writeText(tokenOut.address.toString())
     setIs1Copied(true)
   }
 
   function copyPoolAddress() {
-    navigator.clipboard.writeText(
-      router.query.poolId === undefined ? '' : router.query.poolId.toString(),
-    )
+    navigator.clipboard.writeText(poolId.toString())
     setIsPoolCopied(true)
-  }
+  } */
+
+  console.log('Concentrated Pool', {
+    poolId,
+    tokenIn,
+    tokenOut,
+    liquidity,
+    feeTier,
+    minLimit,
+    maxLimit,
+  })
 
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
@@ -107,78 +160,25 @@ export default function Concentrated() {
               </span>
             </Link>
           </div>
-
           <ConcentratedPool
-            account={"account"}
-            key={
-              router.query.poolId === undefined
-                ? "mock"
-                : router.query.poolId.toString()
-            }
-            poolId={
-              router.query.poolId === undefined
-                ? ""
-                : router.query.poolId.toString()
-            }
-            tokenOneName={
-              router.query.tokenOneName === undefined
-                ? ""
-                : router.query.tokenOneName.toString()
-            }
-            tokenOneSymbol={
-              router.query.tokenOneSymbol === undefined
-                ? ""
-                : router.query.tokenOneSymbol.toString()
-            }
-            tokenOneLogoURI={
-              router.query.tokenOneLogoURI === undefined
-                ? ""
-                : router.query.tokenOneLogoURI.toString()
-            }
-            tokenOneAddress={
-              router.query.tokenOneAddress === undefined
-                ? ""
-                : router.query.tokenOneAddress.toString()
-            }
-            tokenZeroName={
-              router.query.tokenZeroName === undefined
-                ? ""
-                : router.query.tokenZeroName.toString()
-            }
-            tokenZeroSymbol={
-              router.query.tokenZeroSymbol === undefined
-                ? ""
-                : router.query.tokenZeroSymbol.toString()
-            }
-            tokenZeroLogoURI={
-              router.query.tokenZeroLogoURI === undefined
-                ? ""
-                : router.query.tokenZeroLogoURI.toString()
-            }
-            tokenZeroAddress={
-               router.query.tokenZeroAddress === undefined
-                ? ""
-                : router.query.tokenZeroAddress.toString()
-            }
-            liquidity={
-              router.query.liquidity === undefined
-                ? 0
-                : router.query.liquidity.toString()
-            }
-            feeTier={
-              router.query.feeTier === undefined
-                ? 0
-                : router.query.feeTier.toString()
-            }
-            minLimit={
-              router.query.min === undefined ? 0 : router.query.min.toString()
-            }
-            maxLimit={
-              router.query.max === undefined ? 0 : router.query.max.toString()
-            }
+            key={poolId + 'pool'}
+            poolId={poolId}
+            tokenOneName={tokenOut.name}
+            tokenOneSymbol={tokenOut.symbol}
+            tokenOneLogoURI={tokenOut.logoURI}
+            tokenOneAddress={tokenOut.address}
+            tokenZeroName={tokenIn.name}
+            tokenZeroSymbol={tokenIn.symbol}
+            tokenZeroLogoURI={tokenIn.logoURI}
+            tokenZeroAddress={tokenIn.address}
+            minLimit={minLimit}
+            maxLimit={maxLimit}
+            liquidity={liquidity}
+            feeTier={feeTier}
+            account={undefined}
           />
         </div>
       </div>
     </div>
-  );
+  )
 }

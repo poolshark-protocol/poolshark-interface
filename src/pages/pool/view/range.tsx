@@ -48,12 +48,46 @@ export default function Range() {
       setFeeTier(query.feeTier)
       setMinLimit(query.min)
       setMaxLimit(query.max)
+      setTokenZeroDisplay(
+        query.tokenZeroAddress.toString().substring(0, 6) +
+          '...' +
+          query.tokenZeroAddress
+
+            .toString()
+            .substring(
+              query.tokenZeroAddress.toString().length - 4,
+              query.tokenZeroAddress.toString().length,
+            ),
+      )
+      setTokenOneDisplay(
+        query.tokenOneAddress.toString().substring(0, 6) +
+          '...' +
+          query.tokenOneAddress
+
+            .toString()
+            .substring(
+              query.tokenOneAddress.toString().length - 4,
+              query.tokenOneAddress.toString().length,
+            ),
+      )
+      setPoolDisplay(
+        query.poolId.toString().substring(0, 6) +
+          '...' +
+          query.poolId
+
+            .toString()
+            .substring(
+              query.poolId.toString().length - 4,
+              query.poolId.toString().length,
+            ),
+      )
+      setRangeTickPrice(query.rangeTickPrice)
     }
   }, [router.isReady])
 
   const [poolAdd, setPoolContractAdd] = useState(router.query.poolId ?? '')
   const [tokenIn, setTokenIn] = useState({
-    name: router.query.tokenZeroName ?? '',
+    name: router.query.tokenZeroAddress ?? '',
     symbol: router.query.tokenZeroSymbol ?? '',
     logoURI: router.query.tokenZeroLogoURI ?? '',
     address: router.query.tokenZeroAddress ?? '',
@@ -70,8 +104,8 @@ export default function Range() {
   const [feeTier, setFeeTier] = useState(router.query.feeTier ?? '')
   const [minLimit, setMinLimit] = useState(router.query.min ?? '0')
   const [maxLimit, setMaxLimit] = useState(router.query.max ?? '0')
-  const [rangeQuote, setRangeQuote] = useState(undefined)
-  const [rangePrice, setRangePrice] = useState(undefined)
+  const [rangeTickPrice, setRangeTickPrice] = useState(router.query.max ?? 0)
+
   const [mktRate, setMktRate] = useState({})
 
   //Pool Addresses
@@ -156,28 +190,28 @@ export default function Range() {
   //
 
   useEffect(() => {
-    getRangePool()
-  }, [])
-
-  useEffect(() => {
     fetchTokenPrice()
-  }, [rangePrice])
+  }, [rangeTickPrice])
 
-  const getRangePool = async () => {
+  /* useEffect(() => {
+    getRangePool()
+  }, []) */
+
+  /* const getRangePool = async () => {
     try {
       const pool = await getRangePoolFromFactory(
         tokenIn.address,
         tokenOut.address,
       )
       const id = pool['data']['rangePools']['0']['id']
-      /* console.log(
+      console.log(
         'rangeParams',
         rangePoolAddress,
         BigNumber.from(tokenIn.value),
         BigNumber.from('4295128739'),
         tokenIn.address,
         tokenOut.address,
-      ) */
+      )
       const price = await getRangeQuote(
         rangePoolAddress,
         BigNumber.from('100'),
@@ -185,18 +219,18 @@ export default function Range() {
         tokenIn.address,
         tokenOut.address,
       )
-      setRangePrice(price)
+      setRangeTickPrice(price)
     } catch (error) {
       console.log(error)
     }
-  }
+  } */
 
   const fetchTokenPrice = async () => {
     try {
       setMktRate({
         TOKEN20A:
           '~' +
-          Number(rangePrice).toLocaleString('en-US', {
+          Number(rangeTickPrice).toLocaleString('en-US', {
             style: 'currency',
             currency: 'USD',
           }),
@@ -215,53 +249,33 @@ export default function Range() {
           <div className="flex justify-between items-center mb-2">
             <div className="text-left flex items-center gap-x-5 py-2.5">
               <div className="flex items-center">
-                <img
-                  height="50"
-                  width="50"
-                  src={
-                    router.query.tokenZeroLogoURI === undefined
-                      ? ''
-                      : router.query.tokenZeroLogoURI.toString()
-                  }
-                />
+                <img height="50" width="50" src={tokenIn.logoURI} />
                 <img
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={
-                    router.query.tokenOneLogoURI === undefined
-                      ? ''
-                      : router.query.tokenOneLogoURI.toString()
-                  }
+                  src={tokenOut.logoURI}
                 />
               </div>
               <span className="text-3xl">
-                {router.query.tokenZeroName}-{router.query.tokenOneName}
+                {tokenIn.name}-{router.query.tokenOneName}
               </span>
               <span className="bg-white text-black rounded-md px-3 py-0.5">
                 {router.query.feeTier}%
               </span>
-              {mktRate[tokenIn.symbol] && rangePrice ? (
-                parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
-                  parseFloat(mktRate[tokenOut.symbol].replace(/[^\d.-]/g, '')) <
-                  Number(router.query.min) ||
-                parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
-                  parseFloat(mktRate[tokenOut.symbol].replace(/[^\d.-]/g, '')) >
-                  Number(router.query.max) ? (
-                  <div className="pr-5">
-                    <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-                      <ExclamationTriangleIcon className="w-4 text-yellow-600" />
-                      Out of Range
-                    </div>
-                  </div>
-                ) : (
+              {Number(rangeTickPrice) < Number(minLimit) ||
+              Number(rangeTickPrice) > Number(maxLimit) ? (
+                <div className="pr-5">
                   <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-                    <div className="w-2 h-2 bg-green-500 rounded-full" />
-                    In Range
+                    <ExclamationTriangleIcon className="w-4 text-yellow-600" />
+                    Out of Range
                   </div>
-                )
+                </div>
               ) : (
-                <></>
+                <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
+                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                  In Range
+                </div>
               )}
             </div>
 
@@ -281,7 +295,7 @@ export default function Range() {
                   onClick={() => copyAddress0()}
                   className="text-xs cursor-pointer w-32"
                 >
-                  {router.query.tokenZeroName}:
+                  {tokenIn.name}:
                   {is0Copied ? (
                     <span className="ml-1">Copied</span>
                   ) : (
@@ -292,7 +306,7 @@ export default function Range() {
                   onClick={() => copyAddress1()}
                   className="text-xs cursor-pointer"
                 >
-                  {router.query.tokenOneName}:
+                  {tokenOut.name}:
                   {is1Copied ? (
                     <span className="ml-1">Copied</span>
                   ) : (
@@ -320,33 +334,18 @@ export default function Range() {
                 <span className="text-4xl">
                   $
                   {Number(
-                    ethers.utils.formatUnits(
-                      router.query.liquidity === undefined
-                        ? '0'
-                        : router.query.liquidity.toString(),
-                      18,
-                    ),
+                    ethers.utils.formatUnits(liquidity.toString(), 18),
                   ).toFixed(2)}
                 </span>
 
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
-                      <img
-                        height="30"
-                        width="30"
-                        src={
-                          router.query.tokenZeroLogoURI === undefined
-                            ? '?'
-                            : router.query.tokenZeroLogoURI.toString()
-                        }
-                      />
-                      {router.query.tokenZeroName}
+                      <img height="30" width="30" src={tokenIn.logoURI} />
+                      {tokenIn.name}
                     </div>
                     <div className="flex items-center gap-x-4">
-                      {router.query.tokenZeroValue === undefined
-                        ? '?'
-                        : router.query.tokenZeroValue.toString()}
+                      {tokenIn.value}
                       <span className="bg-grey1 text-grey rounded-md px-3 py-0.5">
                         47%
                       </span>
@@ -359,21 +358,11 @@ export default function Range() {
                   </div>
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
-                      <img
-                        height="30"
-                        width="30"
-                        src={
-                          router.query.tokenOneLogoURI === undefined
-                            ? '0'
-                            : router.query.tokenOneLogoURI.toString()
-                        }
-                      />
-                      {router.query.tokenOneName}
+                      <img height="30" width="30" src={tokenOut.logoURI} />
+                      {tokenOut.name}
                     </div>
                     <div className="flex items-center gap-x-4">
-                      {router.query.tokenOneValue === undefined
-                        ? '0'
-                        : router.query.tokenOneValue.toString()}
+                      {tokenOut.value}
                       <span className="bg-grey1 text-grey rounded-md px-3 py-0.5">
                         53%
                       </span>
@@ -391,10 +380,10 @@ export default function Range() {
                     query: {
                       account: '',
                       poolAdd: poolAdd,
-                      tokenOneName: tokenIn.name,
-                      tokenOneSymbol: tokenIn.symbol,
-                      tokenOneLogoURI: tokenIn.logoURI,
-                      tokenOneAddress: tokenIn.address,
+                      tokenOneName: tokenOut.name,
+                      tokenOneSymbol: tokenOut.symbol,
+                      tokenOneLogoURI: tokenOut.logoURI,
+                      tokenOneAddress: tokenOut.address,
                       tokenZeroName: tokenIn.name,
                       tokenZeroSymbol: tokenIn.symbol,
                       tokenZeroLogoURI: tokenIn.logoURI,
@@ -422,31 +411,15 @@ export default function Range() {
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
-                      <img
-                        height="30"
-                        width="30"
-                        src={
-                          router.query.tokenZeroLogoURI === undefined
-                            ? ''
-                            : router.query.tokenZeroLogoURI.toString()
-                        }
-                      />
-                      {router.query.tokenZeroName}
+                      <img height="30" width="30" src={tokenIn.logoURI} />
+                      {tokenIn.name}
                     </div>
                     <span>2.25</span>
                   </div>
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
-                      <img
-                        height="30"
-                        width="30"
-                        src={
-                          router.query.tokenOneLogoURI === undefined
-                            ? ''
-                            : router.query.tokenOneLogoURI.toString()
-                        }
-                      />
-                      {router.query.tokenZeroName}
+                      <img height="30" width="30" src={tokenOut.logoURI} />
+                      {tokenOut.name}
                     </div>
                     <span>2.25</span>
                   </div>
@@ -479,31 +452,19 @@ export default function Range() {
             <div>
               <div className="flex mt-7 gap-x-6 items-center">
                 <h1 className="text-lg">Price Range </h1>
-                {mktRate[tokenIn.symbol] && rangePrice ? (
-                  parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
-                    parseFloat(
-                      mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                    ) <
-                    Number(router.query.min) ||
-                  parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
-                    parseFloat(
-                      mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                    ) >
-                    Number(router.query.max) ? (
-                    <div className="pr-5">
-                      <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-                        <ExclamationTriangleIcon className="w-4 text-yellow-600" />
-                        Out of Range
-                      </div>
-                    </div>
-                  ) : (
+                {Number(rangeTickPrice) < Number(minLimit) ||
+                Number(rangeTickPrice) > Number(maxLimit) ? (
+                  <div className="pr-5">
                     <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-                      <div className="w-2 h-2 bg-green-500 rounded-full" />
-                      In Range
+                      <ExclamationTriangleIcon className="w-4 text-yellow-600" />
+                      Out of Range
                     </div>
-                  )
+                  </div>
                 ) : (
-                  <></>
+                  <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
+                    <div className="w-2 h-2 bg-green-500 rounded-full" />
+                    In Range
+                  </div>
                 )}
               </div>
             </div>
@@ -511,32 +472,26 @@ export default function Range() {
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Min Price.</div>
                 <div className="text-white text-2xl my-2 w-full">
-                  {router.query.min === undefined
-                    ? '?'
-                    : router.query.min.toString()}
+                  {minLimit}
                 </div>
                 <div className="text-grey text-xs w-full">
-                  {router.query.tokenZeroName} per {router.query.tokenOneName}
+                  {tokenIn.name} per {tokenOut.name}
                 </div>
                 <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100% {router.query.tokenZeroName} at
-                  this price.
+                  Your position will be 100% {tokenIn.name} at this price.
                 </div>
               </div>
               <ArrowsRightLeftIcon className="w-12 text-grey" />
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Max Price.</div>
                 <div className="text-white text-2xl my-2 w-full">
-                  {router.query.max === undefined
-                    ? '?'
-                    : router.query.max.toString()}
+                  {maxLimit}
                 </div>
                 <div className="text-grey text-xs w-full">
-                  {router.query.tokenZeroName} per {router.query.tokenOneName}
+                  {tokenIn.name} per {tokenOut.name}
                 </div>
                 <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100% {router.query.tokenOneName} at this
-                  price.
+                  Your position will be 100% {tokenOut.name} at this price.
                 </div>
               </div>
             </div>
@@ -544,7 +499,7 @@ export default function Range() {
               <div className="text-grey text-xs w-full">Current Price</div>
               <div className="text-white text-2xl my-2 w-full">1.064</div>
               <div className="text-grey text-xs w-full">
-                {router.query.tokenZeroName} per {router.query.tokenOneName}
+                {tokenIn.name} per {tokenOut.name}
               </div>
             </div>
           </div>

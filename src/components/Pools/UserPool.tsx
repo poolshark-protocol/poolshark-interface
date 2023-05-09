@@ -142,7 +142,7 @@ export default function UserPool({
             tokenOneLogoURI: logoMap[tokenOne.symbol],
             tokenOneAddress: tokenOne.id,
             tokenOneValue: valueTokenOne,
-            price: rangeTickPrice
+            rangeTickPrice: rangeTickPrice
               ? ethers.utils.formatUnits(rangeTickPrice, 18)
               : 0,
             min: min,

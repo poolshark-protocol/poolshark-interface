@@ -154,7 +154,6 @@ export default function UserCoverPool({
           tokenOneLogoURI: logoMap[tokenOne.symbol],
           tokenOneAddress: tokenOne.id,
           tokenOneValue: valueTokenOne,
-          coverQuote: coverQuote ? coverQuote : 0,
           coverTickPrice: coverTickPrice ? coverTickPrice : 0,
           min: min,
           max: max,
