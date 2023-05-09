@@ -8,22 +8,15 @@ import {
 import { erc20ABI, useAccount, useContractRead } from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
-import CoverApproveButton from '../Buttons/CoverApproveButton'
 import { useEffect, useState } from 'react'
-import { useCoverStore } from '../../hooks/useStore'
-import useCoverAllowance from '../../hooks/useCoverAllowance'
 import { BigNumber, ethers } from 'ethers'
 import JSBI from 'jsbi'
 import {
   getCoverPoolFromFactory,
-  getPreviousTicksLower,
-  getPreviousTicksUpper,
 } from '../../utils/queries'
 import { TickMath } from '../../utils/math/tickMath'
 import {
   coverPoolAddress,
-  rangePoolAddress,
-  tokenOneAddress,
 } from '../../constants/contractAddresses'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import useInputBox from '../../hooks/useInputBox'
@@ -552,7 +545,9 @@ export default function CoverExistingPool({
         {isDisconnected ? <ConnectWalletButton /> : null}
         {isDisconnected ||
         Number(allowance) < Number(sliderValue) * Number(tokenIn.value) ? (
-          <SwapCoverApproveButton approveToken={tokenIn.address} />
+          <SwapCoverApproveButton
+          poolAddress={poolId} 
+          approveToken={tokenIn.address} />
         ) : (
           <CoverMintButton
             disabled={false}

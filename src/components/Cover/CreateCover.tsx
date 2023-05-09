@@ -9,20 +9,16 @@ import SelectToken from '../SelectToken'
 import {
   erc20ABI,
   useAccount,
-  useBalance,
   useProvider,
   useContractRead,
 } from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
-import CoverApproveButton from '../Buttons/CoverApproveButton'
 import { chainIdsToNamesForGitTokenList } from '../../utils/chains'
 import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 import { useState, useEffect } from 'react'
 import useInputBox from '../../hooks/useInputBox'
 import {
-  rangePoolAddress,
   tokenOneAddress,
-  tokenZeroAddress,
 } from '../../constants/contractAddresses'
 import { coverPoolAddress } from '../../constants/contractAddresses'
 import { TickMath } from '../../utils/math/tickMath'
@@ -30,12 +26,9 @@ import { BigNumber, Contract, ethers } from 'ethers'
 import { useCoverStore } from '../../hooks/useStore'
 import {
   getCoverPoolFromFactory,
-  getPreviousTicksLower,
-  getPreviousTicksUpper,
 } from '../../utils/queries'
 import JSBI from 'jsbi'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
-import Link from 'next/link'
 import { coverPoolABI } from '../../abis/evm/coverPool'
 
 export default function CreateCover(props: any) {
@@ -230,17 +223,7 @@ export default function CreateCover(props: any) {
             JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
           ),
         )
-        /* const data = await getPreviousTicksLower(
-          tokenIn['address'],
-          tokenOut['address'],
-          min,
-        )
-        const data1 = await getPreviousTicksUpper(
-          tokenIn['address'],
-          tokenOut['address'],
-          max,
-        )
-        updateCoverContractParams({
+        /* updateCoverContractParams({
           prevLower: ethers.utils.parseUnits(
             data['data']['ticks'][0]['index'],
             0,
@@ -680,7 +663,9 @@ export default function CreateCover(props: any) {
         {isConnected &&
         Number(allowance) < Number(ethers.utils.formatUnits(bnInput, 18)) &&
         stateChainName === 'arbitrumGoerli' ? (
-          <SwapCoverApproveButton approveToken={tokenIn.address} />
+          <SwapCoverApproveButton
+          poolAddress={coverPoolAddress} 
+          approveToken={tokenIn.address} />
         ) : stateChainName === 'arbitrumGoerli' ? (
           <CoverMintButton
             disabled={isDisabled}
@@ -697,7 +682,3 @@ export default function CreateCover(props: any) {
   )
 }
 
-//Line 265 after is connected
-//&& dataState === "0x00"
-
-//Make lines 303 - 305 ynamic and pull from current selected token

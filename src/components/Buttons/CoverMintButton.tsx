@@ -5,10 +5,6 @@ import {
   useWaitForTransaction,
 } from 'wagmi'
 import { coverPoolABI } from '../../abis/evm/coverPool'
-import {
-  getPreviousTicksLower,
-  getPreviousTicksUpper,
-} from '../../utils/queries'
 import { SuccessToast } from '../Toasts/Success'
 import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
@@ -28,43 +24,6 @@ export default function CoverMintButton({
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
   const [isDisabled, setDisabled] = useState(disabled)
-
-  // const getTicks = async () => {
-  //    if ((minInput !== undefined && minInput !== "" ) && (maxInput !== undefined && maxInput !== "")){
-  //   let provider = new ethers.providers.JsonRpcProvider(`https://rpc.ankr.com/eth_goerli`)
-  //   const contract = new ethers.Contract(tickMathAddress,tickMathABI,provider)
-  //   const min = await contract.getTickAtSqrtRatio(ethers.utils.parseUnits(minInput.toString()).mul(BigNumber.from('2').pow(96)).div(ethers.utils.parseUnits('1')).toString())
-  //   const max = await contract.getTickAtSqrtRatio(ethers.utils.parseUnits(maxInput.toString()).mul(BigNumber.from('2').pow(96)).div(ethers.utils.parseUnits('1')).toString())
-  //   console.log(min,max)
-  //   setTicks([min, max])
-  //    }
-  // }
-
-  // async function previousTicks() {
-  //   if (props.token0 !== undefined && props.token1 !== undefined) {
-  //     if ((minInput !== undefined && minInput !== "" ) && (maxInput !== undefined && maxInput !== "")){
-  //       let provider = new ethers.providers.JsonRpcProvider(`https://rpc.ankr.com/eth_goerli`)
-  //       const contract = new ethers.Contract(tickMathAddress,tickMathABI,provider)
-
-  //       const min = await contract.getTickAtSqrtRatio(ethers.utils.parseUnits(minInput.toString()).mul(BigNumber.from('2').pow(96)).div(ethers.utils.parseUnits('1')).toString())
-  //       const max = await contract.getTickAtSqrtRatio(ethers.utils.parseUnits(maxInput.toString()).mul(BigNumber.from('2').pow(96)).div(ethers.utils.parseUnits('1')).toString())
-
-  //       const data = await getPreviousTicksLower(props.token0["address"],props.token1["address"], Number(min))
-  //       const data1 = await getPreviousTicksUpper(props.token0["address"],props.token1["address"],   Number(max))
-  //        setPrevTicks({lower: data["data"].ticks[0]["index"], upper: data1["data"].ticks[0]["index"]})
-  //        setTicks({min:min, max:max})
-
-  //       console.log(String(prevTicks["lower"]))
-  //       console.log(String(ticks["min"]))
-  //       console.log(String(prevTicks["upper"]))
-  //       console.log(String(ticks["max"]))
-  //       console.log(String(ticks["min"]))
-  //       console.log(amount)
-
-  //   }
-
-  //   }
-  // }
 
   useEffect(() => {}, [disabled])
 

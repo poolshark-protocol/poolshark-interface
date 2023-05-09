@@ -2,7 +2,6 @@ import { ApolloClient, InMemoryCache, gql, HttpLink } from '@apollo/client'
 import { BigNumber, ethers } from 'ethers'
 import { rangePoolABI } from '../abis/evm/rangePool'
 import { coverPoolABI } from '../abis/evm/coverPool'
-import { rangePoolAddress } from '../constants/contractAddresses'
 
 interface PoolState {
   unlocked: number
@@ -105,84 +104,6 @@ export const getPrice = async (id: string) => {
   const contract = new ethers.Contract(id, rangePoolABI, provider)
   const price: PoolState = (await contract.poolState()).price
   return price.toString()
-}
-
-export const getRangeQuote = async (
-  id: string,
-  amountIn: BigNumber,
-  limit: BigNumber,
-  tokenInAddress: string,
-  tokenOutAddress: string,
-) => {
-  const provider = new ethers.providers.JsonRpcProvider(
-    'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
-  )
-  const contract = new ethers.Contract(id, rangePoolABI, provider)
-  const quote = await contract.quote(
-    true, //zeroForOne
-    amountIn, //amountIn
-    limit,
-  )
-
-  console.log(quote, 'rangeQuote')
-
-  const price = parseFloat(ethers.utils.formatUnits(quote[1]['output'], 0)) / parseFloat(ethers.utils.formatUnits(quote[1]['input'], 0))
-
-  return price
-}
-
-export const getRangePrice = async (
-  id: string,
-  zeroForOne: boolean
-) => {
-  const provider = new ethers.providers.JsonRpcProvider(
-    'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
-  )
-  const contract = new ethers.Contract(id, rangePoolABI, provider)
-  const quote = zeroForOne ? await contract.pool1()[4] : await contract.pool0(0)[4]
-
-  const price = parseFloat(ethers.utils.formatUnits(quote, 0)) / parseFloat(ethers.utils.formatUnits(quote, 0))
-
-  return price
-}
-
-export const getCoverQuote = async (
-  id: string,
-  amountIn: BigNumber,
-  limit: BigNumber,
-  tokenInAddress: string,
-  tokenOutAddress: string,
-) => {
-  const provider = new ethers.providers.JsonRpcProvider(
-    'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
-  )
-  const contract = new ethers.Contract(id, coverPoolABI, provider)
-  const quote = await contract.quote(
-    true, //zeroForOne
-    amountIn, //amountIn
-    limit,
-  )
-
-  console.log(quote, 'coverQuote')
-
-  const price = parseFloat(ethers.utils.formatUnits(quote['outAmount'], 0)) / parseFloat(ethers.utils.formatUnits(quote['inAmount'], 0))
-
-  return price
-}
-
-export const getCoverPrice = async (
-  id: string,
-  zeroForOne: boolean
-) => {
-  const provider = new ethers.providers.JsonRpcProvider(
-    'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
-  )
-  const contract = new ethers.Contract(id, coverPoolABI, provider)
-  const quote = zeroForOne ? await contract.pool1()[4] : await contract.pool0()[4]
-
-  const price = parseFloat(ethers.utils.formatUnits(quote, 0)) / parseFloat(ethers.utils.formatUnits(quote, 0))
-
-  return price
 }
 
 export const getPreviousTicksLower = (

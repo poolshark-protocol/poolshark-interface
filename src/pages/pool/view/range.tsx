@@ -10,10 +10,10 @@ import RangeCollectButton from '../../../components/Buttons/RangeCollectButton'
 import RangeBurnButton from '../../../components/Buttons/RangeBurnButton'
 import RangeCompoundButton from '../../../components/Buttons/RangeCompoundButton'
 import Link from 'next/link'
-import { useAccount } from 'wagmi'
+import { useAccount, useContractRead } from 'wagmi'
 import { BigNumber, ethers } from 'ethers'
-import { getRangePoolFromFactory, getRangeQuote } from '../../../utils/queries'
-import { rangePoolAddress } from '../../../constants/contractAddresses'
+import { getRangePoolFromFactory } from '../../../utils/queries'
+import { rangePoolABI } from '../../../abis/evm/rangePool'
 
 export default function Range() {
   type token = {
@@ -81,6 +81,7 @@ export default function Range() {
               query.poolId.toString().length,
             ),
       )
+      setRangePoolRoute(query.rangePoolRoute)
       setRangeTickPrice(query.rangeTickPrice)
     }
   }, [router.isReady])
@@ -104,7 +105,12 @@ export default function Range() {
   const [feeTier, setFeeTier] = useState(router.query.feeTier ?? '')
   const [minLimit, setMinLimit] = useState(router.query.min ?? '0')
   const [maxLimit, setMaxLimit] = useState(router.query.max ?? '0')
-  const [rangeTickPrice, setRangeTickPrice] = useState(router.query.max ?? 0)
+  const [rangePoolRoute, setRangePoolRoute] = useState(
+    router.query.rangePoolRoute ?? '0',
+  )
+  const [rangeTickPrice, setRangeTickPrice] = useState(
+    router.query.rangeTickPrice ?? 0,
+  )
 
   const [mktRate, setMktRate] = useState({})
 
@@ -145,6 +151,25 @@ export default function Range() {
             .substring(poolAdd.toString().length - 4, poolAdd.toString().length)
       : undefined,
   )
+
+  /* const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
+    address: rangePoolRoute.toString(),
+    abi: rangePoolABI,
+    functionName: 'poolState',
+    args: [],
+    chainId: 421613,
+    watch: true,
+    onSuccess(data) {
+      console.log('Success price Range', data)
+      setRangeTickPrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
+    },
+    onError(error) {
+      console.log('Error price Range', error)
+    },
+    onSettled(data, error) {
+      console.log('Settled price Range', { data, error })
+    },
+  }) */
 
   useEffect(() => {
     if (copyAddress0) {
@@ -219,7 +244,7 @@ export default function Range() {
         tokenIn.address,
         tokenOut.address,
       )
-      setRangeTickPrice(price)
+      setRangePoolRoute(price)
     } catch (error) {
       console.log(error)
     }

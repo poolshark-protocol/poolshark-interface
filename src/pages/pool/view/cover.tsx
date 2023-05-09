@@ -9,9 +9,9 @@ import { useState, useEffect } from 'react'
 import CoverBurnButton from '../../../components/Buttons/CoverBurnButton'
 import CoverCollectButton from '../../../components/Buttons/CoverCollectButton'
 import { useRouter } from 'next/router'
-import { useAccount, useContractRead } from 'wagmi'
+import { useAccount } from 'wagmi'
 import Link from 'next/link'
-import { BigNumber, ethers } from 'ethers'
+import { ethers } from 'ethers'
 
 export default function Cover() {
   type token = {
@@ -79,6 +79,7 @@ export default function Cover() {
               query.poolId.toString().length,
             ),
       )
+      setCoverPoolRoute(query.coverPoolRoute)
       setCoverTickPrice(query.coverTickPrice)
     }
   }, [router.isReady])
@@ -140,6 +141,9 @@ export default function Cover() {
             .toString()
             .substring(poolAdd.toString().length - 4, poolAdd.toString().length)
       : undefined,
+  )
+  const [coverPoolRoute, setCoverPoolRoute] = useState(
+    router.query.coverPoolRoute ?? '',
   )
   const [coverTickPrice, setCoverTickPrice] = useState(
     router.query.coverTickPrice ?? '0',

@@ -12,10 +12,6 @@ import { coverPoolABI } from '../../abis/evm/coverPool'
 import { ethers } from 'ethers'
 import { TickMath } from '../../utils/math/tickMath'
 import JSBI from 'jsbi'
-import {
-  tokenOneAddress,
-  tokenZeroAddress,
-} from '../../constants/contractAddresses'
 
 export default function UserCoverPool({
   account,
@@ -53,9 +49,6 @@ export default function UserCoverPool({
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
   const [coverPoolRoute, setCoverPoolRoute] = useState('')
 
-  //console.log('coverQuote', coverQuote)
-  //console.log('coverTickPrice', coverTickPrice)
-
   useEffect(() => {
     getCoverPool()
   }, [tokenOne, tokenZero])
@@ -69,14 +62,14 @@ export default function UserCoverPool({
     chainId: 421613,
     watch: true,
     onSuccess(data) {
-      //console.log('Success price Cover', data)
+      console.log('Success price Cover', data)
       setCoverQuote(parseFloat(ethers.utils.formatUnits(data[0], 18)))
     },
     onError(error) {
       console.log('Error price Cover', error)
     },
     onSettled(data, error) {
-      //console.log('Settled price Cover', { data, error })
+      console.log('Settled price Cover', { data, error })
     },
   })
 
@@ -119,7 +112,6 @@ export default function UserCoverPool({
             JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
           ),
         )
-        //console.log('price', price)
         setCoverTickPrice(ethers.utils.parseUnits(String(price), 0))
       }
     } catch (error) {
@@ -154,6 +146,7 @@ export default function UserCoverPool({
           tokenOneLogoURI: logoMap[tokenOne.symbol],
           tokenOneAddress: tokenOne.id,
           tokenOneValue: valueTokenOne,
+          coverPoolRoute: coverPoolRoute,
           coverTickPrice: coverTickPrice ? coverTickPrice : 0,
           min: min,
           max: max,

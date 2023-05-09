@@ -1,4 +1,4 @@
-import { ethers, BigNumber } from "ethers";
+import { BigNumber } from "ethers";
 import {
     usePrepareContractWrite,
     useContractWrite,
@@ -9,9 +9,7 @@ import { coverPoolABI } from "../../abis/evm/coverPool";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
-import { coverPoolAddress } from "../../constants/contractAddresses";
-import React, { useState, useEffect } from "react";
-import {useSwapStore} from "../../hooks/useStore"
+import React, { useState } from "react";
 
 export default function SwapCoverButton({poolAddress, amount, zeroForOne, baseLimit}) {
 

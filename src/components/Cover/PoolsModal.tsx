@@ -73,7 +73,6 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
   function mapUserUniV3Positions() {
     const mappedUniV3Positions = []
     uniV3Positions.map((uniV3Position) => {
-      //console.log(uniV3Position)
       const uniV3PositionData = {
         poolId: uniV3Position.id,
         tokenZero: uniV3Position.token0,
@@ -82,14 +81,12 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
         valueTokenOne: uniV3Position.depositedToken1,
         poolAddress: uniV3Position.id,
         liquidity: uniV3Position.liquidity,
-        //check if this values correspond to tag
         min: uniV3Position.withdrawnToken0,
         max: uniV3Position.withdrawnToken1,
         userOwnerAddress: uniV3Position.owner.replace(/"|'/g, ''),
       }
 
       mappedUniV3Positions.push(uniV3PositionData)
-      //console.log('mappedUniV3Positions_COVERPAGE: ', mappedUniV3Positions)
     })
 
     setAllUniV3Positions(mappedUniV3Positions)
@@ -103,7 +100,6 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
     })
   }
 
-  //async so needs to be wrapped
   useEffect(() => {
     getUserUniV3PositionData()
   }, [])
@@ -185,10 +181,11 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                               //prefill('exisingPool')
                               setParams(allRangePosition)
                             }}
+                            key={allRangePosition.min}
                           >
                             <UserPool
-                              key={allRangePosition.tokenOneName}
-                              account={'account'}
+                              key={allRangePosition.poolId}
+                              account={address}
                               poolId={allRangePosition.poolId}
                               tokenZero={allRangePosition.tokenZero}
                               tokenOne={allRangePosition.tokenOne}
@@ -232,10 +229,11 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                               //prefill('exisingPool')
                               setParams(allUniV3Position)
                             }}
+                            key={allUniV3Position.min}
                           >
                             <UserCoverPool
-                              key={allUniV3Position.tokenOneName}
-                              account={'account'}
+                              key={allUniV3Position.poolId}
+                              account={address}
                               poolId={allUniV3Position.poolId}
                               tokenZero={allUniV3Position.tokenZero}
                               valueTokenZero={allUniV3Position.valueTokenZero}

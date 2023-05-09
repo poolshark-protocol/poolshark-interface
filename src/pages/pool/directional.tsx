@@ -2,7 +2,6 @@ import DirectionalPool from '../../components/Pools/DirectionalPool'
 import Navbar from '../../components/Navbar'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import CoverExistingPool from '../../components/Cover/CoverExistingPool'
 import { useEffect, useState } from 'react'
 import { ArrowLongLeftIcon } from '@heroicons/react/20/solid'
 

@@ -9,10 +9,6 @@ import { SuccessToast } from '../Toasts/Success'
 import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useState, useEffect } from 'react'
-import {
-  rangePoolAddress
-} from '../../constants/contractAddresses'
-
 
 
 export default function RangeMintButton({
