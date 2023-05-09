@@ -10,8 +10,8 @@ export const coverPoolAddress   = "0xC0c4E0AA5a413373CACBC39AE5e6597D78d26325"
 export const coverPoolFactoryAddress = "0xaD1Aff1234193c1B0A8A178fDe27Fd786b99B7b3"
 
 // range pools
-export const rangePoolAddress = "0x8d35973D1c806EBb7408843654f84cB10fd21621"
-export const rangePoolFactoryAddress = "0x50475D93B8E374F4E34d910cb9696392a435d4F6"
+export const rangePoolAddress = "0xae9F52B4C794C8e00a72Ea19E086246F992a59Aa"
+export const rangePoolFactoryAddress = "0x453B53B16EA3ea598950094df5D6eAc8346c5a61"
 
 // libraries
 export const tickMathAddress = "0xC0A5e34d581c62c8D62ADa24A304E67A20DF9f45"
