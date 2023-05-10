@@ -7,7 +7,7 @@ import UserCoverPool from '../components/Pools/UserCoverPool'
 import { useState, useEffect } from 'react'
 import { useAccount, useProvider } from 'wagmi'
 import Link from 'next/link'
-import { fetchCoverPositions, fetchUniV3Positions } from '../utils/queries'
+import { fetchCoverPositions } from '../utils/queries'
 import React from 'react'
 import useTokenList from '../hooks/useTokenList'
 import Initial from '../components/Cover/Initial'
@@ -17,20 +17,11 @@ import { useRouter } from 'next/router'
 export default function Cover() {
   const router = useRouter()
 
-  const [maxPrice, setMaxPrice] = useState(0)
-  const [disabled, setDisabled] = useState(true)
-
   const [searchTerm, setSearchTerm] = useState('')
 
   const handleSearchTermChange = (event) => {
     setSearchTerm(event.target.value)
   }
-
-  const increaseMaxPrice = () => {
-    setMaxPrice((count) => count + 1)
-  }
-
-  const [minPrice, setMinPrice] = useState(0)
 
   const {
     network: { chainId },
@@ -215,8 +206,8 @@ export default function Cover() {
                       <div className="space-y-3">
                         {allCoverPositions.map((allCoverPosition) => {
                           if (
-                            /* allCoverPosition.userOwnerAddress ===
-                              address?.toLowerCase() */ true &&
+                            allCoverPosition.userOwnerAddress ===
+                              address?.toLowerCase() &&
                             (allCoverPosition.tokenZero.name === searchTerm ||
                               allCoverPosition.tokenOne.name === searchTerm ||
                               allCoverPosition.tokenZero.symbol ===
@@ -239,6 +230,7 @@ export default function Cover() {
                                 max={allCoverPosition.max}
                                 feeTier={allCoverPosition.feeTier}
                                 liquidity={allCoverPosition.liquidity}
+                                epochLast={undefined}
                                 prefill={undefined}
                                 close={undefined}
                                 href={'/pool/view/cover'}

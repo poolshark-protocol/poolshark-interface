@@ -13,6 +13,7 @@ import { coverPoolAddress } from '../../constants/contractAddresses'
 import { useCoverStore } from '../../hooks/useStore'
 
 export default function CoverMintButton({
+  poolAddress,
   disabled,
   to,
   lower,
@@ -50,7 +51,7 @@ export default function CoverMintButton({
   }, [disabled, to, lower, claim, upper, amount, zeroForOne])*/
 
   const { config } = usePrepareContractWrite({
-    address: coverPoolAddress,
+    address: poolAddress,
     abi: coverPoolABI,
     functionName: 'mint',
     args: [[

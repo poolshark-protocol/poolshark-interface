@@ -11,7 +11,11 @@ import CoverCollectButton from '../../../components/Buttons/CoverCollectButton'
 import { useRouter } from 'next/router'
 import { useAccount } from 'wagmi'
 import Link from 'next/link'
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
+import {
+  getTickIfNotZeroForOne,
+  getTickIfZeroForOne,
+} from '../../../utils/queries'
 
 export default function Cover() {
   type token = {
@@ -104,6 +108,7 @@ export default function Cover() {
   const [minLimit, setMinLimit] = useState(router.query.min ?? '0')
   const [maxLimit, setMaxLimit] = useState(router.query.max ?? '0')
   const [mktRate, setMktRate] = useState({})
+  const [epochLast, setEpochLast] = useState(router.query.epochLast ?? '0')
 
   //Pool Addresses
   const [is0Copied, setIs0Copied] = useState(false)
@@ -148,6 +153,7 @@ export default function Cover() {
   const [coverTickPrice, setCoverTickPrice] = useState(
     router.query.coverTickPrice ?? '0',
   )
+  const [claimTick, setClaimTick] = useState(BigNumber.from(0))
 
   useEffect(() => {
     if (copyAddress0) {
@@ -175,6 +181,10 @@ export default function Cover() {
       return () => clearTimeout(timer)
     }
   })
+
+  useEffect(() => {
+    getClaimTick()
+  }, [minLimit, maxLimit, poolAdd])
 
   function copyAddress0() {
     navigator.clipboard.writeText(tokenIn.address.toString())
@@ -204,6 +214,38 @@ export default function Cover() {
       })
     } catch (error) {
       console.log(error)
+    }
+  }
+
+  const getClaimTick = async () => {
+    if (tokenOut.address != '' && tokenIn.address < tokenOut.address) {
+      const claimTickQuery = await getTickIfZeroForOne(
+        Number(minLimit),
+        poolAdd.toString(),
+        Number(epochLast),
+      )
+      const claimTick = claimTickQuery['data']['ticks']['0']['index']
+
+      console.log('claimTick', claimTick)
+
+      if (claimTick != undefined) {
+        setClaimTick(BigNumber.from(claimTick))
+      } else {
+        setClaimTick(BigNumber.from(maxLimit))
+      }
+    } else {
+      const claimTickQuery = await getTickIfNotZeroForOne(
+        Number(maxLimit),
+        poolAdd.toString(),
+        Number(epochLast),
+      )
+      const claimTick = claimTickQuery['data']['ticks']['0']['index']
+
+      if (claimTick != undefined) {
+        setClaimTick(BigNumber.from(claimTick))
+      } else {
+        setClaimTick(BigNumber.from(minLimit))
+      }
     }
   }
 
@@ -368,19 +410,27 @@ export default function Cover() {
                   <div className="space-y-3">
                     {/**TO-DO: PASS PROPS */}
                     <CoverBurnButton
+                      poolAddress={poolAdd}
                       address={address}
-                      lower={'lower'}
-                      claim={'clain'}
-                      upper={'upper'}
-                      zeroForOne={'true or false'}
-                      amount={'total position amount'}
+                      lower={minLimit}
+                      claim={claimTick}
+                      upper={maxLimit}
+                      zeroForOne={
+                        tokenOut.address != '' &&
+                        tokenIn.address < tokenOut.address
+                      }
+                      amount={liquidity}
                     />
                     <CoverCollectButton
-                      address={'address'}
-                      lower={'lower'}
-                      claim={'claim'}
-                      upper={'upper'}
-                      zeroForOne={'trueOrFalse'}
+                      poolAddress={poolAdd}
+                      address={address}
+                      lower={minLimit}
+                      claim={claimTick}
+                      upper={maxLimit}
+                      zeroForOne={
+                        tokenOut.address != '' &&
+                        tokenIn.address < tokenOut.address
+                      }
                     />
                     {/*TO-DO: add positionOwner ternary again*/}
                   </div>

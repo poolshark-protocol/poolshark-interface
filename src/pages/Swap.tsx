@@ -53,12 +53,12 @@ export default function Swap() {
     LimitInputBox,
   } = useInputBox()
   const [gasFee, setGasFee] = useState('')
-  const [rangeBaseLimit, setRangeBaseLimit] = useState(undefined)
-  const [coverBaseLimit, setCoverBaseLimit] = useState(undefined)
+  const [rangeBaseLimit, setRangeBaseLimit] = useState(0)
+  const [coverBaseLimit, setCoverBaseLimit] = useState(0)
   const [coverQuote, setCoverQuote] = useState(undefined)
   const [rangeQuote, setRangeQuote] = useState(undefined)
-  const [coverPrice, setCoverPrice] = useState(undefined)
-  const [rangePrice, setRangePrice] = useState(undefined)
+  const [coverPrice, setCoverPrice] = useState(0)
+  const [rangePrice, setRangePrice] = useState(0)
   const [coverCurrentPrice, setCoverCurrentPrice] = useState(undefined)
   const [rangeCurrentPrice, setRangeCurrentPrice] = useState(undefined)
   const [zeroForOne, setZeroForOne] = useState(true)
@@ -119,45 +119,6 @@ export default function Swap() {
     },
   })
 
-  //@dev: TO-DO - create state w/o decimals for priceLimit math
-  const { refetch: refetchCoverQuote, data: quoteCover } = useContractRead({
-    address: coverPoolRoute,
-    abi: coverPoolABI,
-    functionName: "quote",
-    args: [tokenOut.address != '' && tokenIn.address < tokenOut.address, bnInput, BigNumber.from('4295128739')],
-    chainId: 421613,
-    watch: true,
-    onSuccess(data) {
-      console.log("Success cover wagmi", data);
-      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[1], 18)))
-      setCoverPriceAfter(parseFloat(ethers.utils.formatUnits(data[2], 18)))
-    },
-    onError(error) {
-      console.log("Error cover wagmi", error);
-    },
-    onSettled(data, error) {
-      console.log("Settled", { data, error });
-    },
-  });
-  const { refetch: refetchRangeQuote, data: quoteRange } = useContractRead({
-    address: rangePoolRoute,
-    abi: rangePoolABI,
-    functionName: "quote",
-    args: [tokenOut.address != '' && tokenIn.address < tokenOut.address, bnInput, BigNumber.from('4295128739')],
-    chainId: 421613,
-    watch: true,
-    onSuccess(data) {
-      console.log("Success range wagmi", data);
-      setRangeQuote(parseFloat(ethers.utils.formatUnits(data[1]['output'], 18)))
-    },
-    onError(error) {
-      console.log("Error range wagmi", error);
-    },
-    onSettled(data, error) {
-      console.log("Settled range wagmi", { data, error });
-    },
-  });
-
   const { refetch: refetchCoverPrice, data: priceCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
@@ -188,7 +149,6 @@ export default function Swap() {
     onSuccess(data) {
       console.log('Success price Range', data)
       setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
-      setRangeBaseLimit(rangePrice * parseFloat(slippage))
     },
     onError(error) {
       console.log('Error price Range', error)
@@ -197,6 +157,64 @@ export default function Swap() {
       console.log('Settled price Range', { data, error })
     },
   })
+
+  useEffect(() => {
+    setRangeBaseLimit(rangePrice * parseFloat(slippage))
+  }, [rangePrice])
+
+  useEffect(() => {
+    setCoverBaseLimit(coverPrice * parseFloat(slippage))
+  }, [coverPrice])
+
+  //@dev: TO-DO - create state w/o decimals for priceLimit math
+  const { refetch: refetchCoverQuote, data: quoteCover } = useContractRead({
+    address: coverPoolRoute,
+    abi: coverPoolABI,
+    functionName: "quote",
+    args: [tokenOut.address != '' && tokenIn.address < tokenOut.address, bnInput, 
+    tokenOut.address != '' && tokenIn.address < tokenOut.address ?
+    BigNumber.from(coverBaseLimit).gt((BigNumber.from(coverPrice))) ?
+    BigNumber.from(coverBaseLimit).sub(BigNumber.from(coverPrice)) :
+    BigNumber.from('0') : 
+    BigNumber.from(coverBaseLimit).add(BigNumber.from(coverPrice))
+    ],
+    chainId: 421613,
+    watch: true,
+    onSuccess(data) {
+      console.log("Success cover wagmi", data);
+      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[1], 18)))
+      setCoverPriceAfter(parseFloat(ethers.utils.formatUnits(data[2], 18)))
+    },
+    onError(error) {
+      console.log("Error cover wagmi", error);
+    },
+    onSettled(data, error) {
+      console.log("Settled", { data, error });
+    },
+  });
+  const { refetch: refetchRangeQuote, data: quoteRange } = useContractRead({
+    address: rangePoolRoute,
+    abi: rangePoolABI,
+    functionName: "quote",
+    args: [tokenOut.address != '' && tokenIn.address < tokenOut.address, bnInput, 
+    tokenOut.address != '' && tokenIn.address < tokenOut.address ?
+    BigNumber.from(rangeBaseLimit).gt((BigNumber.from(rangePrice))) ?
+    BigNumber.from(rangeBaseLimit).sub(BigNumber.from(rangePrice)) :
+    BigNumber.from('0') : 
+    BigNumber.from(rangeBaseLimit).add(BigNumber.from(rangePrice))],
+    chainId: 421613,
+    watch: true,
+    onSuccess(data) {
+      console.log("Success range wagmi", data);
+      setRangeQuote(parseFloat(ethers.utils.formatUnits(data[1], 18)))
+    },
+    onError(error) {
+      console.log("Error range wagmi", error);
+    },
+    onSettled(data, error) {
+      console.log("Settled range wagmi", { data, error });
+    },
+  });
 
   const {
     network: { chainId },
@@ -523,11 +541,11 @@ export default function Swap() {
             <div className="ml-auto text-xs">
               {Number(rangePrice) < Number(coverPrice)
                 ? (
-                    (parseFloat(rangePrice) - parseFloat(rangePriceAfter)) /
+                    (rangePrice - parseFloat(rangePriceAfter)) /
                     rangePrice
                   ).toFixed(2)
                 : (
-                    (parseFloat(coverPrice) - parseFloat(coverPriceAfter)) /
+                    (coverPrice - parseFloat(coverPriceAfter)) /
                     coverPrice
                   ).toFixed(2)}
             </div>

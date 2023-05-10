@@ -22,6 +22,7 @@ export default function UserCoverPool({
   valueTokenOne,
   min,
   max,
+  epochLast,
   liquidity,
   feeTier,
   href,
