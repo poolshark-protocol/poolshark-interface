@@ -99,7 +99,7 @@ export default function Pool() {
     rangePositions.map((rangePosition) => {
       //console.log('rangePosition', rangePosition)
       const rangePositionData = {
-        poolId: rangePosition.pool.factory.id,
+        poolId: rangePosition.pool.id,
         tokenZero: rangePosition.pool.token0,
         valueTokenZero: rangePosition.pool.totalValueLocked0,
         tokenOne: rangePosition.pool.token1,
