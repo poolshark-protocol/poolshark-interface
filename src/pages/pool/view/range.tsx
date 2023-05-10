@@ -167,6 +167,7 @@ export default function Range() {
         tokenOut.address,
       )
       const id = pool['data']['rangePools']['0']['id']
+      console.log('range pool address in view', id)
 
       setRangePoolRoute(id)
     } catch (error) {
