@@ -21,9 +21,7 @@ import { coverPoolABI } from '../../abis/evm/coverPool'
 
 export default function CoverExistingPool({
   account,
-  key,
   poolId,
-  liquidity,
   tokenOneName,
   tokenOneSymbol,
   tokenOneLogoURI,
@@ -34,6 +32,10 @@ export default function CoverExistingPool({
   tokenZeroLogoURI,
   tokenZeroAddress,
   tokenZeroValue,
+  minLimit,
+  maxLimit,
+  liquidity,
+  feeTier,
   goBack,
 }) {
   type token = {
@@ -147,9 +149,9 @@ export default function CoverExistingPool({
     setCoverParams()
   }, [minPrice, maxPrice, sliderValue, coverQuote])
 
-  console.log('tokenIn',tokenIn)
+  /* console.log('tokenIn',tokenIn)
   console.log('coverTickPrice', Number(coverTickPrice))
-  console.log('mktRatePrice', mktRate[tokenIn.symbol])
+  console.log('mktRatePrice', mktRate[tokenIn.symbol]) */
 
   const getCoverPool = async () => {
     try {

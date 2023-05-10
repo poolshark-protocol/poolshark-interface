@@ -1,5 +1,5 @@
 import { MinusIcon, PlusIcon } from '@heroicons/react/20/solid'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import CoverExistingPool from './CoverExistingPool'
 import CreateCover from './CreateCover'
 import PoolsModal from './PoolsModal'
@@ -8,7 +8,15 @@ import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 import { ethers } from 'ethers'
 
 export default function Initial(props: any) {
+  type token = {
+    name: string
+    symbol: string
+    logoURI: string
+    address: string
+    value: string
+  }
   const { address, isConnected, isDisconnected } = useAccount()
+
   const [isOpen, setIsOpen] = useState(false)
   const [pool, setPool] = useState(props.query ?? undefined)
   const [shifted, setIsShifted] = useState('initial')
@@ -42,6 +50,9 @@ export default function Initial(props: any) {
       tokenZeroLogoURI: logoMap[query.tokenZero.symbol],
       tokenZeroAddress: query.tokenZero.id,
       tokenZeroValue: query.valueTokenZero,
+      minLimit: query.min,
+      maxLimit: query.max,
+      feeTier: query.feeTier,
     })
     console.log('pool', pool)
   }
@@ -124,34 +135,23 @@ export default function Initial(props: any) {
   ) : (
     <CoverExistingPool
       account={'account'}
-      key={pool === undefined ? '' : pool.poolId.toString()}
-      poolId={pool === undefined ? '' : pool.poolId.toString()}
-      tokenOneName={pool === undefined ? '' : pool.tokenOneName.toString()}
-      tokenOneSymbol={pool === undefined ? '' : pool.tokenOneSymbol.toString()}
-      tokenOneLogoURI={
-        pool === undefined ? '' : pool.tokenOneLogoURI.toString()
-      }
-      tokenOneAddress={
-        pool === undefined ? '' : pool.tokenOneAddress.toString()
-      }
-      tokenZeroName={pool === undefined ? '' : pool.tokenZeroName.toString()}
-      tokenZeroSymbol={
-        pool === undefined ? '' : pool.tokenZeroSymbol.toString()
-      }
-      tokenZeroLogoURI={
-        pool === undefined ? '' : pool.tokenZeroLogoURI.toString()
-      }
-      tokenZeroAddress={
-        pool === undefined ? '' : pool.tokenZeroAddress.toString()
-      }
-      tokenOneValue={pool === undefined ? '' : pool.tokenOneValue.toString()}
-      tokenZeroValue={pool === undefined ? '' : pool.tokenZeroValue.toString()}
-      liquidity={
-        pool === undefined
-          ? ''
-          : String(ethers.utils.parseUnits(pool.liquidity))
-      }
+      key={pool.poolId}
+      poolId={pool.poolId}
+      tokenOneName={pool.tokenOneName}
+      tokenOneSymbol={pool.tokenOneSymbol}
+      tokenOneLogoURI={pool.tokenOneLogoURI}
+      tokenOneAddress={pool.tokenOneAddress}
+      tokenZeroName={pool.tokenZeroName}
+      tokenZeroSymbol={pool.tokenZeroSymbol}
+      tokenZeroLogoURI={pool.tokenZeroLogoURI}
+      tokenZeroAddress={pool.tokenZeroAddress}
+      tokenOneValue={pool.tokenOneValue}
+      tokenZeroValue={pool.tokenZeroValue}
+      liquidity={String(ethers.utils.parseUnits(pool.liquidity))}
       goBack={setIsShifted}
+      minLimit={pool.minLimit}
+      maxLimit={pool.maxLimit}
+      feeTier={pool.feeTier}
     />
   )
 }

@@ -11,9 +11,7 @@ import ConcentratedPoolPreview from './ConcentratedPoolPreview'
 import { useRangeStore } from '../../hooks/useStore'
 import { TickMath } from '../../utils/math/tickMath'
 import JSBI from 'jsbi'
-import {
-  getRangePoolFromFactory,
-} from '../../utils/queries'
+import { getRangePoolFromFactory } from '../../utils/queries'
 import useInputBox from '../../hooks/useInputBox'
 import { erc20ABI, useAccount } from 'wagmi'
 import { BigNumber, Contract, ethers } from 'ethers'
@@ -22,7 +20,6 @@ import { rangePoolABI } from '../../abis/evm/rangePool'
 
 export default function ConcentratedPool({
   account,
-  key,
   poolId,
   tokenOneName,
   tokenOneSymbol,
@@ -209,13 +206,10 @@ export default function ConcentratedPool({
       setMktRate({
         TOKEN20A:
           '~' +
-          Number(price).toLocaleString(
-            'en-US',
-            {
-              style: 'currency',
-              currency: 'USD',
-            },
-          ),
+          Number(price).toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+          }),
         TOKEN20B: '~1.00',
       })
     } catch (error) {
@@ -503,7 +497,7 @@ export default function ConcentratedPool({
                 tokenChosen={changeDefaultOut}
                 displayToken={tokenOut}
                 balance={setQueryTokenOut}
-                key={queryTokenOut}
+                key={queryTokenOut + 'selected'}
               />
             ) : (
               //@dev add skeletons on load when switching sides/ initial selection
@@ -513,6 +507,7 @@ export default function ConcentratedPool({
                 tokenChosen={changeDefaultOut}
                 displayToken={tokenOut}
                 balance={setQueryTokenOut}
+                key={queryTokenOut + 'notselected'}
               />
             )}
           </div>
@@ -556,14 +551,12 @@ export default function ConcentratedPool({
                       <div className="flex text-xs text-[#4C4C4C]">
                         Balance: {balance0 === 'NaN' ? 0 : balance0}
                       </div>
-                      {isConnected ? (
-                        <button
-                          className="flex text-xs uppercase text-[#C9C9C9]"
-                          onClick={() => maxBalance(balance0, '0')}
-                        >
-                          Max
-                        </button>
-                      ) : null}
+                      <button
+                        className="flex text-xs uppercase text-[#C9C9C9]"
+                        onClick={() => maxBalance(balance0, '0')}
+                      >
+                        Max
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -634,6 +627,7 @@ export default function ConcentratedPool({
                   </button>
                 </div>
                 <input
+                  key={minPrice}
                   className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
                   placeholder={minPrice}
                   id="minInput"
@@ -661,6 +655,7 @@ export default function ConcentratedPool({
                   </button>
                 </div>
                 <input
+                  key={maxPrice}
                   className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
                   placeholder={maxPrice}
                   id="maxInput"

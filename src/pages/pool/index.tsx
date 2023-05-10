@@ -99,6 +99,7 @@ export default function Pool() {
     rangePositions.map((rangePosition) => {
       //console.log('rangePosition', rangePosition)
       const rangePositionData = {
+        id: rangePosition.id,
         poolId: rangePosition.pool.id,
         tokenZero: rangePosition.pool.token0,
         valueTokenZero: rangePosition.pool.totalValueLocked0,
@@ -124,6 +125,7 @@ export default function Pool() {
     const mappedCoverPositions = []
     coverPositions.map((coverPosition) => {
       const coverPositionData = {
+        id: coverPosition.id,
         poolId: coverPosition.pool.id,
         tokenZero: coverPosition.pool.token0,
         valueTokenZero: coverPosition.inAmount,
@@ -306,7 +308,7 @@ export default function Pool() {
                       ) {
                         return (
                           <UserPool
-                            key={allRangePosition.tokenOneName}
+                            key={allRangePosition.id}
                             account={address}
                             poolId={allRangePosition.poolId}
                             tokenZero={allRangePosition.tokenZero}
@@ -328,8 +330,8 @@ export default function Pool() {
                     })
                   : allCoverPositions.map((allCoverPosition) => {
                       if (
-                        allCoverPosition.userOwnerAddress ===
-                          address?.toLowerCase() &&
+                        /* allCoverPosition.userOwnerAddress ===
+                          address?.toLowerCase() */ true &&
                         (allCoverPosition.tokenZero.name === searchTerm ||
                           allCoverPosition.tokenOne.name === searchTerm ||
                           allCoverPosition.tokenZero.symbol === searchTerm ||
@@ -340,7 +342,7 @@ export default function Pool() {
                       ) {
                         return (
                           <UserCoverPool
-                            key={allCoverPosition.tokenOneName}
+                            key={allCoverPosition.id}
                             account={address}
                             poolId={allCoverPosition.poolId}
                             tokenZero={allCoverPosition.tokenZero}
@@ -388,7 +390,7 @@ export default function Pool() {
                             return (
                               <PoolList
                                 account={address}
-                                key={allRangePool.tokenOneName}
+                                key={allRangePool.poolId}
                                 poolId={allRangePool.poolId}
                                 tokenZero={allRangePool.tokenZero}
                                 tokenOne={allRangePool.tokenOne}
@@ -414,7 +416,7 @@ export default function Pool() {
                             return (
                               <PoolList
                                 account={address}
-                                key={allCoverPool.tokenOneName}
+                                key={allCoverPool.poolId}
                                 poolId={allCoverPool.poolId}
                                 tokenZero={allCoverPool.tokenZero}
                                 tokenOne={allCoverPool.tokenOne}

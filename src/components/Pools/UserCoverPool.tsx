@@ -63,14 +63,14 @@ export default function UserCoverPool({
     chainId: 421613,
     watch: true,
     onSuccess(data) {
-      console.log('Success price Cover', data)
+      //console.log('Success price Cover', data)
       setCoverQuote(parseFloat(ethers.utils.formatUnits(data[0], 18)))
     },
     onError(error) {
       console.log('Error price Cover', error)
     },
     onSettled(data, error) {
-      console.log('Settled price Cover', { data, error })
+      //console.log('Settled price Cover', { data, error })
     },
   })
 
@@ -147,7 +147,7 @@ export default function UserCoverPool({
           tokenOneLogoURI: logoMap[tokenOne.symbol],
           tokenOneAddress: tokenOne.id,
           tokenOneValue: valueTokenOne,
-          coverQuote: coverQuote ? coverQuote : 0,
+          coverPoolRoute: coverPoolRoute,
           coverTickPrice: coverTickPrice ? coverTickPrice : 0,
           min: min,
           max: max,

@@ -12,7 +12,10 @@ import { useRouter } from 'next/router'
 import { useAccount } from 'wagmi'
 import Link from 'next/link'
 import { BigNumber, ethers } from 'ethers'
-import { getTickIfNotZeroForOne, getTickIfZeroForOne } from '../../../utils/queries'
+import {
+  getTickIfNotZeroForOne,
+  getTickIfZeroForOne,
+} from '../../../utils/queries'
 
 export default function Cover() {
   type token = {
@@ -24,70 +27,133 @@ export default function Cover() {
   }
   const { address } = useAccount()
   const router = useRouter()
-  const zeroAddress =
-    router.query.tokenZeroAddress === undefined
-      ? ''
-      : router.query.tokenZeroAddress.toString()
-  const oneAddress =
-    router.query.tokenOneAddress === undefined
-      ? ''
-      : router.query.tokenOneAddress.toString()
-  const poolAddress =
-    router.query.poolId === undefined ? '' : router.query.poolId.toString()
-  const min =
-    router.query.min === undefined ? '0' : router.query.min.toString()
-  const max =
-    router.query.max === undefined ? '0' : router.query.max.toString()
-  const epochLast =
-    router.query.epochLast === undefined ? '0' : router.query.epochLast.toString()
-  const liquidity =
-    router.query.liquidity === undefined ? '0' : router.query.liquidity.toString()
 
+  useEffect(() => {
+    if (router.isReady) {
+      const query = router.query
+      setPoolContractAdd(query.poolId)
+      setTokenIn({
+        name: query.tokenZeroName,
+        symbol: query.tokenZeroSymbol,
+        logoURI: query.tokenZeroLogoURI,
+        address: query.tokenZeroAddress,
+        value: query.tokenZeroValue,
+      } as token)
+      setTokenOut({
+        name: query.tokenOneName,
+        symbol: query.tokenOneSymbol,
+        logoURI: query.tokenOneLogoURI,
+        address: query.tokenOneAddress,
+        value: query.tokenOneValue,
+      } as token)
+      setLiquidity(query.liquidity)
+      setFeeTier(query.feeTier)
+      setMinLimit(query.min)
+      setMaxLimit(query.max)
+      setTokenZeroDisplay(
+        query.tokenZeroAddress.toString().substring(0, 6) +
+          '...' +
+          query.tokenZeroAddress
+
+            .toString()
+            .substring(
+              query.tokenZeroAddress.toString().length - 4,
+              query.tokenZeroAddress.toString().length,
+            ),
+      )
+      setTokenOneDisplay(
+        query.tokenOneAddress.toString().substring(0, 6) +
+          '...' +
+          query.tokenOneAddress
+
+            .toString()
+            .substring(
+              query.tokenOneAddress.toString().length - 4,
+              query.tokenOneAddress.toString().length,
+            ),
+      )
+      setPoolDisplay(
+        query.poolId.toString().substring(0, 6) +
+          '...' +
+          query.poolId
+
+            .toString()
+            .substring(
+              query.poolId.toString().length - 4,
+              query.poolId.toString().length,
+            ),
+      )
+      setCoverPoolRoute(query.coverPoolRoute)
+      setCoverTickPrice(query.coverTickPrice)
+    }
+  }, [router.isReady])
+
+  const [poolAdd, setPoolContractAdd] = useState(router.query.poolId ?? '')
+  const [tokenIn, setTokenIn] = useState({
+    name: router.query.tokenZeroAddress ?? '',
+    symbol: router.query.tokenZeroSymbol ?? '',
+    logoURI: router.query.tokenZeroLogoURI ?? '',
+    address: router.query.tokenZeroAddress ?? '',
+    value: router.query.tokenZeroValue ?? '',
+  } as token)
+  const [tokenOut, setTokenOut] = useState({
+    name: router.query.tokenOneAddress ?? '',
+    symbol: router.query.tokenOneSymbol ?? '',
+    logoURI: router.query.tokenOneLogoURI ?? '',
+    address: router.query.tokenOneAddress ?? '',
+    value: router.query.tokenOneValue ?? '',
+  } as token)
+  const [liquidity, setLiquidity] = useState(router.query.liquidity ?? '0')
+  const [feeTier, setFeeTier] = useState(router.query.feeTier ?? '')
+  const [minLimit, setMinLimit] = useState(router.query.min ?? '0')
+  const [maxLimit, setMaxLimit] = useState(router.query.max ?? '0')
+  const [mktRate, setMktRate] = useState({})
+  const [epochLast, setEpochLast] = useState(router.query.epochLast ?? '0')
+
+  //Pool Addresses
   const [is0Copied, setIs0Copied] = useState(false)
   const [is1Copied, setIs1Copied] = useState(false)
   const [isPoolCopied, setIsPoolCopied] = useState(false)
   const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-    zeroAddress.substring(0, 6) +
-      '...' +
-      zeroAddress.substring(zeroAddress.length - 4, zeroAddress.length),
+    tokenIn.address != ''
+      ? tokenIn.address.toString().substring(0, 6) +
+          '...' +
+          tokenIn.address
+            .toString()
+            .substring(
+              tokenIn.address.toString().length - 4,
+              tokenIn.address.toString().length,
+            )
+      : undefined,
   )
   const [tokenOneDisplay, setTokenOneDisplay] = useState(
-    oneAddress.substring(0, 6) +
-      '...' +
-      oneAddress.substring(oneAddress.length - 4, oneAddress.length),
+    tokenOut.address != ''
+      ? tokenOut.address.toString().substring(0, 6) +
+          '...' +
+          tokenOut.address
+            .toString()
+            .substring(
+              tokenOut.address.toString().length - 4,
+              tokenOut.address.toString().length,
+            )
+      : undefined,
   )
   const [poolDisplay, setPoolDisplay] = useState(
-    poolAddress.substring(0, 6) +
-      '...' +
-      poolAddress.substring(poolAddress.length - 4, poolAddress.length),
+    poolAdd != ''
+      ? poolAdd.toString().substring(0, 6) +
+          '...' +
+          poolAdd
+            .toString()
+            .substring(poolAdd.toString().length - 4, poolAdd.toString().length)
+      : undefined,
   )
-  const [poolContractAdd, setPoolContractAdd] = useState(
-    router.query.poolId ?? undefined,
-  )
-  const [tokenIn, setTokenIn] = useState({
-    name: router.query.tokenZeroName,
-    symbol: router.query.tokenZeroSymbol,
-    logoURI: router.query.tokenZeroLogoURI,
-    address: router.query.tokenZeroAddress,
-    value: router.query.tokenZeroValue,
-  } as token)
-  const [tokenOut, setTokenOut] = useState({
-    name: router.query.tokenOneName,
-    symbol: router.query.tokenOneSymbol,
-    logoURI: router.query.tokenOneLogoURI,
-    address: router.query.tokenOneAddress,
-    value: router.query.tokenOneValue,
-  } as token)
-  const [coverPrice, setCoverPrice] = useState(
-    router.query.coverPrice ?? undefined,
+  const [coverPoolRoute, setCoverPoolRoute] = useState(
+    router.query.coverPoolRoute ?? '',
   )
   const [coverTickPrice, setCoverTickPrice] = useState(
-    router.query.coverTickPrice ?? undefined,
+    router.query.coverTickPrice ?? '0',
   )
-  const [mktRate, setMktRate] = useState({})
   const [claimTick, setClaimTick] = useState(BigNumber.from(0))
-
-
 
   useEffect(() => {
     if (copyAddress0) {
@@ -118,31 +184,21 @@ export default function Cover() {
 
   useEffect(() => {
     getClaimTick()
-  }, [min, max, poolAddress])
+  }, [minLimit, maxLimit, poolAdd])
 
   function copyAddress0() {
-    navigator.clipboard.writeText(
-      router.query.tokenZeroAddress === undefined
-        ? ''
-        : router.query.tokenZeroAddress.toString(),
-    )
+    navigator.clipboard.writeText(tokenIn.address.toString())
     setIs0Copied(true)
   }
 
   function copyAddress1() {
-    navigator.clipboard.writeText(
-      router.query.tokenOneAddress === undefined
-        ? ''
-        : router.query.tokenOneAddress.toString(),
-    )
+    navigator.clipboard.writeText(tokenOut.address.toString())
     setIs1Copied(true)
   }
 
   function copyPoolAddress() {
-    navigator.clipboard.writeText(
-      router.query.poolId === undefined ? '' : router.query.poolId.toString(),
-    )
-    setIsPoolCopied(true)
+    navigator.clipboard.writeText(poolAdd.toString())
+    setIsPoolCopied
   }
 
   const fetchTokenPrice = async () => {
@@ -150,7 +206,7 @@ export default function Cover() {
       setMktRate({
         TOKEN20A:
           '~' +
-          Number(coverPrice).toLocaleString('en-US', {
+          Number(coverTickPrice).toLocaleString('en-US', {
             style: 'currency',
             currency: 'USD',
           }),
@@ -162,28 +218,33 @@ export default function Cover() {
   }
 
   const getClaimTick = async () => {
-    if (tokenOut.address != "" && tokenIn.address < tokenOut.address) {
-      const claimTickQuery = await getTickIfZeroForOne(Number(min), poolAddress, Number(epochLast))
+    if (tokenOut.address != '' && tokenIn.address < tokenOut.address) {
+      const claimTickQuery = await getTickIfZeroForOne(
+        Number(minLimit),
+        poolAdd.toString(),
+        Number(epochLast),
+      )
       const claimTick = claimTickQuery['data']['ticks']['0']['index']
 
       console.log('claimTick', claimTick)
 
-      if(claimTick != undefined) {
+      if (claimTick != undefined) {
         setClaimTick(BigNumber.from(claimTick))
+      } else {
+        setClaimTick(BigNumber.from(maxLimit))
       }
-      else {
-        setClaimTick(BigNumber.from(max))
-      }
-    }
-    else { 
-      const claimTickQuery = await getTickIfNotZeroForOne(Number(max), poolAddress, Number(epochLast))
+    } else {
+      const claimTickQuery = await getTickIfNotZeroForOne(
+        Number(maxLimit),
+        poolAdd.toString(),
+        Number(epochLast),
+      )
       const claimTick = claimTickQuery['data']['ticks']['0']['index']
 
-      if(claimTick != undefined) {
+      if (claimTick != undefined) {
         setClaimTick(BigNumber.from(claimTick))
-      }
-      else {
-        setClaimTick(BigNumber.from(min))
+      } else {
+        setClaimTick(BigNumber.from(minLimit))
       }
     }
   }
@@ -196,36 +257,23 @@ export default function Cover() {
           <div className="flex justify-between items-center mb-2">
             <div className="text-left flex items-center gap-x-5 py-2.5">
               <div className="flex items-center">
-                <img
-                  height="50"
-                  width="50"
-                  src={
-                    router.query.tokenZeroLogoURI === undefined
-                      ? ''
-                      : router.query.tokenZeroLogoURI.toString()
-                  }
-                />
+                <img height="50" width="50" src={tokenIn.logoURI} />
                 <img
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={
-                    router.query.tokenOneLogoURI === undefined
-                      ? ''
-                      : router.query.tokenOneLogoURI.toString()
-                  }
+                  src={tokenOut.logoURI}
                 />
               </div>
               <span className="text-3xl flex items-center gap-x-3">
-                {router.query.tokenZeroName}{' '}
-                <ArrowLongRightIcon className="w-5 " />{' '}
-                {router.query.tokenOneName}
+                {tokenIn.name} <ArrowLongRightIcon className="w-5 " />{' '}
+                {tokenOut.name}
               </span>
               <span className="bg-white text-black rounded-md px-3 py-0.5">
-                {router.query.feeTier}%
+                {feeTier}%
               </span>
-              {Number(coverTickPrice) < Number(router.query.min) ||
-              Number(coverTickPrice) > Number(router.query.max) ? (
+              {Number(coverTickPrice) < Number(minLimit) ||
+              Number(coverTickPrice) > Number(maxLimit) ? (
                 <div className="pr-5">
                   <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
                     <ExclamationTriangleIcon className="w-4 text-yellow-600" />
@@ -239,16 +287,14 @@ export default function Cover() {
                 </div>
               )}
             </div>
-            <a href="#">
-              <a
-                href={'https://goerli.arbiscan.io/address/' + poolAddress}
-                target="_blank"
-                rel="noreferrer"
-                className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80"
-              >
-                View on Arbiscan
-                <ArrowTopRightOnSquareIcon className="w-5 " />
-              </a>
+            <a
+              href={'https://goerli.arbiscan.io/address/' + poolAdd}
+              target="_blank"
+              rel="noreferrer"
+              className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80"
+            >
+              View on Arbiscan
+              <ArrowTopRightOnSquareIcon className="w-5 " />
             </a>
           </div>
           <div className="mb-6">
@@ -258,7 +304,7 @@ export default function Cover() {
                   onClick={() => copyAddress0()}
                   className="text-xs cursor-pointer w-32"
                 >
-                  {router.query.tokenOneName}:
+                  {tokenOut.name}:
                   {is0Copied ? (
                     <span className="ml-1">Copied</span>
                   ) : (
@@ -269,7 +315,7 @@ export default function Cover() {
                   onClick={() => copyAddress1()}
                   className="text-xs cursor-pointer"
                 >
-                  {router.query.tokenZeroName}:
+                  {tokenIn.name}:
                   {is1Copied ? (
                     <span className="ml-1">Copied</span>
                   ) : (
@@ -297,32 +343,17 @@ export default function Cover() {
                 <span className="text-4xl">
                   $
                   {Number(
-                    ethers.utils.formatUnits(
-                      router.query.liquidity === undefined
-                        ? '0'
-                        : router.query.liquidity.toString(),
-                      18,
-                    ),
+                    ethers.utils.formatUnits(liquidity.toString(), 18),
                   ).toFixed(2)}
                 </span>
 
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
-                      <img
-                        height="30"
-                        width="30"
-                        src={
-                          router.query.tokenZeroLogoURI === undefined
-                            ? ''
-                            : router.query.tokenZeroLogoURI.toString()
-                        }
-                      />
-                      {router.query.tokenZeroName}
+                      <img height="30" width="30" src={tokenIn.logoURI} />
+                      {tokenIn.name}
                     </div>
-                    {router.query.tokenZeroValue === undefined
-                      ? '?'
-                      : router.query.tokenZeroValue.toString()}
+                    {tokenIn.value}
                   </div>
                 </div>
                 <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
@@ -335,15 +366,15 @@ export default function Cover() {
                     pathname: '/pool/directional',
                     query: {
                       account: router.query.account,
-                      poolId: router.query.poolId,
-                      tokenOneName: router.query.tokenOneName,
-                      tokenOneSymbol: router.query.tokenOneSymbol,
-                      tokenOneLogoURI: router.query.tokenOneLogoURI,
-                      tokenOneAddress: router.query.tokenOneAddress,
-                      tokenZeroName: router.query.tokenZeroName,
-                      tokenZeroSymbol: router.query.tokenZeroSymbol,
-                      tokenZeroLogoURI: router.query.tokenZeroLogoURI,
-                      tokenZeroAddress: router.query.tokenZeroAddress,
+                      poolId: poolAdd,
+                      tokenOneName: tokenOut.name,
+                      tokenOneSymbol: tokenOut.symbol,
+                      tokenOneLogoURI: tokenOut.logoURI,
+                      tokenOneAddress: tokenOut.address,
+                      tokenZeroName: tokenIn.name,
+                      tokenZeroSymbol: tokenIn.symbol,
+                      tokenZeroLogoURI: tokenIn.logoURI,
+                      tokenZeroAddress: tokenIn.address,
                     },
                   }}
                 >
@@ -361,28 +392,15 @@ export default function Cover() {
                   <span className="text-grey">
                     /$
                     {Number(
-                      ethers.utils.formatUnits(
-                        router.query.liquidity === undefined
-                          ? '0'
-                          : router.query.liquidity.toString(),
-                        18,
-                      ),
+                      ethers.utils.formatUnits(liquidity.toString(), 18),
                     ).toFixed(2)}
                   </span>
                 </span>
                 <div className="text-grey mt-3">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
-                      <img
-                        height="30"
-                        width="30"
-                        src={
-                          router.query.tokenZeroLogoURI === undefined
-                            ? ''
-                            : router.query.tokenZeroLogoURI.toString()
-                        }
-                      />
-                      {router.query.tokenZeroName}
+                      <img height="30" width="30" src={tokenIn.logoURI} />
+                      {tokenIn.name}
                     </div>
                     <span className="text-white">
                       298<span className="text-grey">/600</span>
@@ -391,24 +409,29 @@ export default function Cover() {
                 </div>
                 <div className="mt-6 space-y-2">
                   <div className="space-y-3">
-                    {' '}
                     {/**TO-DO: PASS PROPS */}
                     <CoverBurnButton
-                      poolAddress={poolAddress}
+                      poolAddress={poolAdd}
                       address={address}
-                      lower={min}
+                      lower={minLimit}
                       claim={claimTick}
-                      upper={max}
-                      zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address}
+                      upper={maxLimit}
+                      zeroForOne={
+                        tokenOut.address != '' &&
+                        tokenIn.address < tokenOut.address
+                      }
                       amount={liquidity}
                     />
                     <CoverCollectButton
-                      poolAddress={poolAddress}
+                      poolAddress={poolAdd}
                       address={address}
-                      lower={min}
+                      lower={minLimit}
                       claim={claimTick}
-                      upper={max}
-                      zeroForOne={tokenOut.address != "" && tokenIn.address < tokenOut.address}
+                      upper={maxLimit}
+                      zeroForOne={
+                        tokenOut.address != '' &&
+                        tokenIn.address < tokenOut.address
+                      }
                     />
                     {/*TO-DO: add positionOwner ternary again*/}
                   </div>
@@ -418,8 +441,8 @@ export default function Cover() {
             <div>
               <div className="flex mt-7 gap-x-6 items-center">
                 <h1 className="text-lg">Price Range </h1>
-                {Number(coverTickPrice) < Number(router.query.min) ||
-                Number(coverTickPrice) > Number(router.query.max) ? (
+                {Number(coverTickPrice) < Number(minLimit) ||
+                Number(coverTickPrice) > Number(maxLimit) ? (
                   <div className="pr-5">
                     <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
                       <ExclamationTriangleIcon className="w-4 text-yellow-600" />
@@ -438,32 +461,26 @@ export default function Cover() {
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Min Price.</div>
                 <div className="text-white text-2xl my-2 w-full">
-                  {router.query.min === undefined
-                    ? ''
-                    : router.query.min.toString()}
+                  {minLimit.toString()}
                 </div>
                 <div className="text-grey text-xs w-full">
-                  {router.query.tokenZeroName} per {router.query.tokenOneName}
+                  {tokenIn.name} per {tokenOut.name}
                 </div>
                 <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100%{router.query.tokenZeroName} at this
-                  price.
+                  Your position will be 100%{tokenIn.name} at this price.
                 </div>
               </div>
               <ArrowsRightLeftIcon className="w-12 text-grey" />
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Max Price.</div>
                 <div className="text-white text-2xl my-2 w-full">
-                  {router.query.max === undefined
-                    ? ''
-                    : router.query.max.toString()}
+                  {maxLimit === undefined ? '' : maxLimit.toString()}
                 </div>
                 <div className="text-grey text-xs w-full">
-                  {router.query.tokenZeroName} per {router.query.tokenOneName}
+                  {tokenIn.name} per {tokenOut.name}
                 </div>
                 <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100%{router.query.tokenZeroName} at this
-                  price.
+                  Your position will be 100%{tokenIn.name} at this price.
                 </div>
               </div>
             </div>
@@ -471,7 +488,7 @@ export default function Cover() {
               <div className="text-grey text-xs w-full">Current Price</div>
               <div className="text-white text-2xl my-2 w-full">1.064</div>
               <div className="text-grey text-xs w-full">
-                {router.query.tokenZeroName} per {router.query.tokenOneName}
+                {tokenIn.name} per {tokenOut.name}
               </div>
             </div>
             <div>
@@ -485,28 +502,16 @@ export default function Cover() {
                 <div className="space-y-2">
                   <div className="flex items-center gap-x-5">
                     <div className="flex items-center ">
-                      <img
-                        height="30"
-                        width="30"
-                        src={
-                          router.query.tokenZeroLogoURI === undefined
-                            ? ''
-                            : router.query.tokenZeroLogoURI.toString()
-                        }
-                      />
+                      <img height="30" width="30" src={tokenIn.logoURI} />
                       <img
                         height="30"
                         width="30"
                         className="ml-[-8px]"
-                        src={
-                          router.query.tokenOneLogoURI === undefined
-                            ? ''
-                            : router.query.tokenOneLogoURI.toString()
-                        }
+                        src={tokenOut.logoURI}
                       />
                     </div>
                     <div className="flex gap-x-2">
-                      {router.query.tokenZeroName} -{router.query.tokenOneName}
+                      {tokenIn.name} -{tokenOut.name}
                     </div>
                     <div className="bg-black px-2 py-1 rounded-lg text-grey">
                       0.5%
@@ -515,14 +520,12 @@ export default function Cover() {
                   <div className="text-sm flex items-center gap-x-3">
                     <span>
                       <span className="text-grey">Min:</span> 1203
-                      {router.query.tokenZeroName} per{' '}
-                      {router.query.tokenOneName}
+                      {tokenIn.name} per {tokenOut.name}
                     </span>
                     <ArrowsRightLeftIcon className="w-4 text-grey" />
                     <span>
                       <span className="text-grey">Max:</span> 1643
-                      {router.query.tokenZeroName} per{' '}
-                      {router.query.tokenOneName}
+                      {tokenIn.name} per {tokenOut.name}
                     </span>
                   </div>
                 </div>
