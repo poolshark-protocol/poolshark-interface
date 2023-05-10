@@ -107,7 +107,7 @@ export const getTickIfZeroForOne = (
        { 
          ticks(
             first: 1
-            where: {index_gt:"${lower}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
+            where: {index_gte:"${lower}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
           ) {
             index
           }
@@ -139,7 +139,7 @@ export const getTickIfNotZeroForOne = (
        { 
          ticks(
             first: 1
-            where: {index_lt:"${upper}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
+            where: {index_lte:"${upper}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
           ) {
             index
           }
