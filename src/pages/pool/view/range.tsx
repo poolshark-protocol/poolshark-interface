@@ -294,6 +294,7 @@ export default function Range() {
             <a
               href={'https://goerli.arbiscan.io/address/' + poolAdd}
               target="_blank"
+              rel="noreferrer"
               className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80"
             >
               View on Arbiscan
