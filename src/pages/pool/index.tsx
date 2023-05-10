@@ -131,6 +131,7 @@ export default function Pool() {
         valueTokenOne: coverPosition.outAmount,
         min: coverPosition.lower,
         max: coverPosition.upper,
+        epochLast: coverPosition.epochLast,
         liquidity: coverPosition.liquidity,
         feeTier: coverPosition.pool.volatilityTier.feeAmount,
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
@@ -293,8 +294,8 @@ export default function Pool() {
                 {selected.id === 1
                   ? allRangePositions.map((allRangePosition) => {
                       if (
-                        /*allRangePosition.userOwnerAddress ===
-                          address?.toLowerCase()*/ true &&
+                        allRangePosition.userOwnerAddress ===
+                          address?.toLowerCase() &&
                         (allRangePosition.tokenZero.name === searchTerm ||
                           allRangePosition.tokenOne.name === searchTerm ||
                           allRangePosition.tokenZero.symbol === searchTerm ||
@@ -327,8 +328,8 @@ export default function Pool() {
                     })
                   : allCoverPositions.map((allCoverPosition) => {
                       if (
-                        /*allCoverPosition.userOwnerAddress ===
-                          address?.toLowerCase()*/ true &&
+                        allCoverPosition.userOwnerAddress ===
+                          address?.toLowerCase() &&
                         (allCoverPosition.tokenZero.name === searchTerm ||
                           allCoverPosition.tokenOne.name === searchTerm ||
                           allCoverPosition.tokenZero.symbol === searchTerm ||
@@ -348,6 +349,7 @@ export default function Pool() {
                             valueTokenOne={allCoverPosition.valueTokenOne}
                             min={allCoverPosition.min}
                             max={allCoverPosition.max}
+                            epochLast={allCoverPosition.epochLast}
                             liquidity={allCoverPosition.liquidity}
                             feeTier={allCoverPosition.feeTier}
                             prefill={undefined}

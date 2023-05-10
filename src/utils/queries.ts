@@ -97,33 +97,22 @@ export const getCoverPoolFromFactory = (token0: string, token1: string) => {
   })
 }
 
-export const getPrice = async (id: string) => {
-  const provider = new ethers.providers.JsonRpcProvider(
-    'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
-  )
-  const contract = new ethers.Contract(id, rangePoolABI, provider)
-  const price: PoolState = (await contract.poolState()).price
-  return price.toString()
-}
-
-export const getPreviousTicksLower = (
-  token0: string,
-  token1: string,
-  index: number,
+export const getTickIfZeroForOne = (
+  lower: number,
+  poolAddress: string,
+  epochLast: number
 ) => {
   return new Promise(function (resolve) {
-    //if ticks are 0/undefined then use min/max
     const getTicks = `
-        { 
-          ticks(
+       { 
+         ticks(
             first: 1
-             where: {index_lt:"${index}",pool_:{token0:"${token0.toLowerCase()}",token1:"0xc3a0736186516792c88e2c6d9b209471651aa46e"}}
-            
-           ) {
-             index
-           }
-         }
-         `
+            where: {index_gte:"${lower}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
+          ) {
+            index
+          }
+        }
+        `
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
       cache: new InMemoryCache(),
@@ -132,26 +121,25 @@ export const getPreviousTicksLower = (
       .query({ query: gql(getTicks) })
       .then((data) => {
         resolve(data)
+        /* console.log(data) */
       })
       .catch((err) => {
         resolve(err)
-        console.log(err)
       })
   })
 }
 
-export const getPreviousTicksUpper = (
-  token0: string,
-  token1: string,
-  index: number,
+export const getTickIfNotZeroForOne = (
+  upper: number,
+  poolAddress: string,
+  epochLast: number
 ) => {
   return new Promise(function (resolve) {
     const getTicks = `
        { 
          ticks(
             first: 1
-            where: {index_gt:"${index}", pool_:{token0:"${token0.toLowerCase()}",token1:"0xc3a0736186516792c88e2c6d9b209471651aa46e"}}
-            
+            where: {index_lte:"${upper}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
           ) {
             index
           }
