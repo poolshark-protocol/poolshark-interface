@@ -66,6 +66,7 @@ export default function Cover() {
     const mappedCoverPositions = []
     coverPositions.map((coverPosition) => {
       const coverPositionData = {
+        id: coverPosition.id,
         poolId: coverPosition.pool.id,
         tokenZero: coverPosition.inToken,
         valueTokenZero: coverPosition.inAmount,
@@ -227,7 +228,7 @@ export default function Cover() {
                           ) {
                             return (
                               <UserCoverPool
-                                key={allCoverPosition.tokenOneName}
+                                key={allCoverPosition.id}
                                 account={address}
                                 poolId={allCoverPosition.poolId}
                                 tokenZero={allCoverPosition.tokenZero}

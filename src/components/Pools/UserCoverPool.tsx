@@ -62,14 +62,14 @@ export default function UserCoverPool({
     chainId: 421613,
     watch: true,
     onSuccess(data) {
-      console.log('Success price Cover', data)
+      //console.log('Success price Cover', data)
       setCoverQuote(parseFloat(ethers.utils.formatUnits(data[0], 18)))
     },
     onError(error) {
       console.log('Error price Cover', error)
     },
     onSettled(data, error) {
-      console.log('Settled price Cover', { data, error })
+      //console.log('Settled price Cover', { data, error })
     },
   })
 

@@ -14,7 +14,7 @@ export default function Concentrated() {
   }
   const router = useRouter()
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (router.isReady) {
       const query = router.query
       setPoolId(query.poolId)
@@ -37,7 +37,7 @@ export default function Concentrated() {
       setMinLimit(query.min)
       setMaxLimit(query.max)
     }
-  }, [router.isReady])
+  }, [router.isReady]) */
 
   const [poolId, setPoolId] = useState(router.query.poolId ?? '')
   const [tokenIn, setTokenIn] = useState({
@@ -130,7 +130,7 @@ export default function Concentrated() {
     setIsPoolCopied(true)
   } */
 
-  console.log('Concentrated Pool', {
+  /* console.log('Concentrated Pool', {
     poolId,
     tokenIn,
     tokenOut,
@@ -138,7 +138,7 @@ export default function Concentrated() {
     feeTier,
     minLimit,
     maxLimit,
-  })
+  }) */
 
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">

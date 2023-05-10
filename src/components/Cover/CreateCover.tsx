@@ -6,27 +6,18 @@ import {
   ArrowLongLeftIcon,
 } from '@heroicons/react/20/solid'
 import SelectToken from '../SelectToken'
-import {
-  erc20ABI,
-  useAccount,
-  useProvider,
-  useContractRead,
-} from 'wagmi'
+import { erc20ABI, useAccount, useProvider, useContractRead } from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import { chainIdsToNamesForGitTokenList } from '../../utils/chains'
 import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 import { useState, useEffect } from 'react'
 import useInputBox from '../../hooks/useInputBox'
-import {
-  tokenOneAddress,
-} from '../../constants/contractAddresses'
+import { tokenOneAddress } from '../../constants/contractAddresses'
 import { coverPoolAddress } from '../../constants/contractAddresses'
 import { TickMath } from '../../utils/math/tickMath'
 import { BigNumber, Contract, ethers } from 'ethers'
 import { useCoverStore } from '../../hooks/useStore'
-import {
-  getCoverPoolFromFactory,
-} from '../../utils/queries'
+import { getCoverPoolFromFactory } from '../../utils/queries'
 import JSBI from 'jsbi'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import { coverPoolABI } from '../../abis/evm/coverPool'
@@ -503,7 +494,7 @@ export default function CreateCover(props: any) {
               tokenChosen={changeDefault1}
               displayToken={tokenOut}
               balance={setQueryTokenOut}
-              key={queryTokenOut}
+              key={queryTokenOut + 'selected'}
             />
           ) : (
             <SelectToken
@@ -512,6 +503,7 @@ export default function CreateCover(props: any) {
               tokenChosen={changeDefault1}
               displayToken={tokenOut}
               balance={setQueryTokenOut}
+              key={queryTokenOut + 'unselected'}
             />
           )}
         </div>
@@ -664,8 +656,9 @@ export default function CreateCover(props: any) {
         Number(allowance) < Number(ethers.utils.formatUnits(bnInput, 18)) &&
         stateChainName === 'arbitrumGoerli' ? (
           <SwapCoverApproveButton
-          poolAddress={coverPoolAddress} 
-          approveToken={tokenIn.address} />
+            poolAddress={coverPoolAddress}
+            approveToken={tokenIn.address}
+          />
         ) : stateChainName === 'arbitrumGoerli' ? (
           <CoverMintButton
             disabled={isDisabled}
@@ -681,4 +674,3 @@ export default function CreateCover(props: any) {
     </>
   )
 }
-
