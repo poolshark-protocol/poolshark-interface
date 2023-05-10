@@ -229,22 +229,9 @@ export default function Range() {
         tokenOut.address,
       )
       const id = pool['data']['rangePools']['0']['id']
-      console.log(
-        'rangeParams',
-        rangePoolAddress,
-        BigNumber.from(tokenIn.value),
-        BigNumber.from('4295128739'),
-        tokenIn.address,
-        tokenOut.address,
-      )
-      const price = await getRangeQuote(
-        rangePoolAddress,
-        BigNumber.from('100'),
-        BigNumber.from('4295128739'),
-        tokenIn.address,
-        tokenOut.address,
-      )
-      setRangePoolRoute(price)
+      console.log('range pool address in view', id)
+
+      setRangePoolRoute(id)
     } catch (error) {
       console.log(error)
     }

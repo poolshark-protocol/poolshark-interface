@@ -100,7 +100,7 @@ export default function Pool() {
       //console.log('rangePosition', rangePosition)
       const rangePositionData = {
         id: rangePosition.id,
-        poolId: rangePosition.pool.factory.id,
+        poolId: rangePosition.pool.id,
         tokenZero: rangePosition.pool.token0,
         valueTokenZero: rangePosition.pool.totalValueLocked0,
         tokenOne: rangePosition.pool.token1,
