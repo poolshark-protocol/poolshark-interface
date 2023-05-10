@@ -148,7 +148,7 @@ export default function Swap() {
     watch: true,
     onSuccess(data) {
       console.log("Success range wagmi", data);
-      setRangeQuote(parseFloat(ethers.utils.formatUnits(data[1]['output'], 18)))
+      setRangeQuote(parseFloat(ethers.utils.formatUnits(data[1], 18)))
     },
     onError(error) {
       console.log("Error range wagmi", error);
