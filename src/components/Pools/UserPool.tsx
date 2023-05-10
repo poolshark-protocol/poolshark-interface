@@ -100,23 +100,7 @@ export default function UserPool({
   async function setRangeParams() {
     try {
       if (rangePrice) {
-        const price = TickMath.getTickAtSqrtRatio(
-          JSBI.divide(
-            JSBI.multiply(
-              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
-              JSBI.BigInt(
-                String(
-                  Math.sqrt(Number(parseFloat(rangePrice).toFixed(30))).toFixed(
-                    30,
-                  ),
-                )
-                  .split('.')
-                  .join(''),
-              ),
-            ),
-            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
-          ),
-        )
+        const price = TickMath.getTickAtPriceString(rangePrice)
         setRangeTickPrice(ethers.utils.parseUnits(String(price), 0))
       }
     } catch (error) {
