@@ -112,7 +112,7 @@ export default function CreateCover(props: any) {
     address: coverPoolRoute,
     abi: coverPoolABI,
     functionName:
-      tokenOut.address != '' && tokenIn.address < tokenOut.address
+      tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1
         ? 'pool1'
         : 'pool0',
     args: [],
@@ -171,7 +171,7 @@ export default function CreateCover(props: any) {
   const getCoverPool = async () => {
     try {
       var pool = undefined
-      if (tokenIn.address < tokenOut.address) {
+      if (tokenIn.address.localeCompare(tokenOut.address) === -1) {
         pool = await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
       } else {
         pool = await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
@@ -678,11 +678,11 @@ export default function CreateCover(props: any) {
             disabled={isDisabled}
             to={address}
             lower={min}
-            claim={(tokenOut.address != '' && tokenIn.address < tokenOut.address) ?
+            claim={(tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1) ?
                 max : min}
             upper={max}
             amount={bnInput}
-            zeroForOne={tokenOut.address != '' && tokenIn.address < tokenOut.address}
+            zeroForOne={tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1}
           />
         ) : null}
       </div>

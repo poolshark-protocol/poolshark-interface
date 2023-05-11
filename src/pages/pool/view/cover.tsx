@@ -218,7 +218,7 @@ export default function Cover() {
   }
 
   const getClaimTick = async () => {
-    if (tokenOut.address != '' && tokenIn.address < tokenOut.address) {
+    if (tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1) {
       const claimTickQuery = await getTickIfZeroForOne(
         Number(minLimit),
         poolAdd.toString(),
@@ -418,7 +418,7 @@ export default function Cover() {
                       upper={maxLimit}
                       zeroForOne={
                         tokenOut.address != '' &&
-                        tokenIn.address < tokenOut.address
+                        tokenIn.address.localeCompare(tokenOut.address) === -1
                       }
                       amount={liquidity}
                     />
@@ -430,7 +430,7 @@ export default function Cover() {
                       upper={maxLimit}
                       zeroForOne={
                         tokenOut.address != '' &&
-                        tokenIn.address < tokenOut.address
+                        tokenIn.address.localeCompare(tokenOut.address) === -1
                       }
                     />
                     {/*TO-DO: add positionOwner ternary again*/}
