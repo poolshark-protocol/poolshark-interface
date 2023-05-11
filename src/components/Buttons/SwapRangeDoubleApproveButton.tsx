@@ -10,7 +10,7 @@ import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useState } from 'react'
 import { useSwapStore } from '../../hooks/useStore'
 
-export default function SwapRangeApproveButton({
+export default function SwapRangeDoubleApproveButton({
   poolAddress,
   tokenIn,
   tokenOut,
