@@ -357,10 +357,12 @@ export default function Swap() {
         coverPoolABI,
         provider,
       )
+
+      console.log('estimate route', coverPoolRoute)
       const recipient = address
       const zeroForOne =
         tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1
-      // const priceLimit =
+
       const estimation = await contract.estimateGas.swap(
         recipient,
         zeroForOne,
@@ -391,7 +393,6 @@ export default function Swap() {
       const poolAddress = data['data']['coverPools']['0']['id']
 
       console.log('cover pool subgraph address', poolAddress)
-      console.log('cover pool state address', rangePoolRoute)
 
       if (poolAddress === coverPoolRoute) {
         const feeTier = data['data']['coverPools']['0']['volatilityTier']['feeAmount']
@@ -406,7 +407,6 @@ export default function Swap() {
       const poolAddress = data['data']['rangePools']['1']['id']
 
       console.log('range pool subgraph address', poolAddress)
-      console.log('range pool state address', rangePoolRoute)
 
       if (poolAddress === rangePoolRoute) {
         const feeTier = data['data']['rangePools']['1']['feeTier']['feeAmount']
