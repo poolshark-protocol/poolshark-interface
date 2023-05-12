@@ -1,3 +1,4 @@
+import JSBI from 'jsbi';
 import { TickMath } from '../src/utils/math/tickMath'
 
 describe('TickMath tests', () => {
@@ -15,5 +16,9 @@ describe('TickMath tests', () => {
 
   test('price string of 3000.00 converts to tick 80067', () => {
     expect(TickMath.getTickAtPriceString('3000.000000')).toBe(80067);
+  });
+
+  test('sqrt price for 1.00 converts to price string', () => {
+    expect(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt('79228162514264337593543950336'))).toBe("1.00000e+0");
   });
 });

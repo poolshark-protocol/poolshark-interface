@@ -59,14 +59,8 @@ export abstract class TickMath {
   public static tickToPriceString(tick: number, tickSpacing: number): string {
     // round the tick based on tickSpacing
     let roundedTick = this.roundTick(Number(tick), tickSpacing)
-    // get the BigDecimal representation of sqrtPrice
-    let sqrtPrice = JSBD.BigDecimal(this.getSqrtRatioAtTick(roundedTick).toString())
-    // square sqrtPrice
-    let sqrtPriceExp = JSBD.pow(sqrtPrice, 2)
-    // square Q96 value
-    let Q96Exp = JSBD.pow(Q96_BD, 2)
     // divide and return formatted string
-    return JSBD.divide(sqrtPriceExp, Q96Exp).toExponential(5).toString()
+    return this.getPriceStringAtSqrtPrice(this.getSqrtRatioAtTick(roundedTick))
   }
 
   public static getSqrtPriceAtPriceString(priceString: string): JSBI {
@@ -85,6 +79,16 @@ export abstract class TickMath {
       ),
       JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
     )
+  }
+
+  public static getPriceStringAtSqrtPrice(sqrtPrice: JSBI): string {
+    let sqrtPriceBD = JSBD.BigDecimal(sqrtPrice.toString())
+    // square sqrtPrice
+    let sqrtPriceExp = JSBD.pow(sqrtPriceBD, 2)
+    // square Q96 value
+    let Q96Exp = JSBD.pow(Q96_BD, 2)
+    // divide and return formatted string
+    return JSBD.divide(sqrtPriceExp, Q96Exp).toExponential(5).toString()
   }
 
   public static getTickAtPriceString(priceString: string): number {
