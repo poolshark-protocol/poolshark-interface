@@ -90,7 +90,7 @@ export abstract class TickMath {
     )
   }
 
-  public static getPriceStringAtSqrtPrice(sqrtPrice: JSBI): string {
+  public static getPriceStringAtSqrtPrice(sqrtPrice: JSBD): string {
     let sqrtPriceBD = JSBD.BigDecimal(sqrtPrice.toString())
     // square sqrtPrice
     let sqrtPriceExp = JSBD.pow(sqrtPriceBD, 2)

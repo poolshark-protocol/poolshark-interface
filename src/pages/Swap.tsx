@@ -32,6 +32,9 @@ import SwapCoverApproveButton from '../components/Buttons/SwapCoverApproveButton
 import SwapCoverButton from '../components/Buttons/SwapCoverButton'
 import useSwapAllowance from '../hooks/useSwapAllowance'
 import { rangePoolABI } from '../abis/evm/rangePool'
+import {TickMath} from '../utils/math/tickMath'
+import JSBI from 'jsbi'
+import JSBD from 'jsbd'
 
 type token = {
   symbol: string
@@ -131,7 +134,7 @@ export default function Swap() {
     watch: true,
     onSuccess(data) {
       console.log('Success price Cover', data)
-      setCoverPrice(parseFloat(ethers.utils.formatUnits(data[4], 18)))
+      setCoverPrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBD.BigDecimal(data[4].toString()))))
     },
     onError(error) {
       console.log('Error price Cover', error)
@@ -150,7 +153,12 @@ export default function Swap() {
     watch: true,
     onSuccess(data) {
       console.log('Success price Range', data)
-      setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
+      setRangePrice(
+        parseFloat(TickMath.invertPrice(
+        TickMath.getPriceStringAtSqrtPrice(JSBD.BigDecimal(data[5].toString())),
+        tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1
+        )))
+      console.log('rangePrice if inverted', rangePrice)
     },
     onError(error) {
       console.log('Error price Range', error)
@@ -190,8 +198,8 @@ export default function Swap() {
     watch: true,
     onSuccess(data) {
       console.log('Success cover wagmi', data)
-      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[1], 18)))
-      setCoverPriceAfter(parseFloat(ethers.utils.formatUnits(data[2], 18)))
+      setCoverQuote(parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBD.BigDecimal(data[1].toString()))))
+      setCoverPriceAfter(parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBD.BigDecimal(data[2].toString()))))
     },
     onError(error) {
       console.log('Error cover wagmi', error)
@@ -217,7 +225,8 @@ export default function Swap() {
     watch: true,
     onSuccess(data) {
       console.log('Success range wagmi', data)
-      setRangeQuote(parseFloat(ethers.utils.formatUnits(data[1], 18)))
+      setRangeQuote(parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBD.BigDecimal(data[1].toString()))))
+      console.log('rangeQuote', rangeQuote)
     },
     onError(error) {
       console.log('Error range wagmi', error)
