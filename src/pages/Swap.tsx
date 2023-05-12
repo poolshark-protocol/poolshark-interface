@@ -128,7 +128,6 @@ export default function Swap() {
     onSuccess(data) {
       console.log('Success price Cover', data)
       setCoverPrice(parseFloat(ethers.utils.formatUnits(data[4], 18)))
-      setCoverBnPrice(BigNumber.from(data[4]))
     },
     onError(error) {
       console.log('Error price Cover', error)
@@ -148,7 +147,6 @@ export default function Swap() {
     onSuccess(data) {
       console.log('Success price Range', data)
       setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
-      setRangeBnPrice(BigNumber.from(data[5]))
     },
     onError(error) {
       console.log('Error price Range', error)
@@ -159,10 +157,12 @@ export default function Swap() {
   })
 
   useEffect(() => {
+    setRangeBnPrice(ethers.utils.parseUnits(rangePrice.toString(), 18))
     setRangeBnBaseLimit(rangeBnPrice.div(bnSlippage).div(BigNumber.from(100)))
   }, [rangePrice, tokenIn, tokenOut])
 
   useEffect(() => {
+    setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
     setCoverBnBaseLimit(coverBnPrice.div(bnSlippage).div(BigNumber.from(100)))
   }, [coverPrice, tokenIn, tokenOut])
 
@@ -234,7 +234,7 @@ export default function Swap() {
 
   useEffect(() => {
     getBalances()
-  }, [tokenOut, tokenIn])
+  }, [tokenOut.address, tokenIn.address])
 
   useEffect(() => {
     updateSwapAmount(bnInput)
@@ -250,7 +250,7 @@ export default function Swap() {
 
   useEffect(() => {
     fetchTokenPrice()
-  }, [rangeQuote, coverQuote, tokenIn, tokenOut])
+  }, [rangeQuote, coverQuote, tokenIn.address, tokenOut.address])
 
   useEffect(() => {
     getFeeTier()
