@@ -160,13 +160,12 @@ export default function Swap() {
 
   useEffect(() => {
     setRangeBnBaseLimit(rangeBnPrice.div(bnSlippage).div(BigNumber.from(100)))
-  }, [rangePrice])
+  }, [rangePrice, tokenIn, tokenOut])
 
   useEffect(() => {
     setCoverBnBaseLimit(coverBnPrice.div(bnSlippage).div(BigNumber.from(100)))
-  }, [coverPrice])
+  }, [coverPrice, tokenIn, tokenOut])
 
-  //@dev: TO-DO - create state w/o decimals for priceLimit math
   const { refetch: refetchCoverQuote, data: quoteCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
@@ -365,6 +364,7 @@ export default function Swap() {
 
       const estimation = await contract.estimateGas.swap(
         recipient,
+        recipient,
         zeroForOne,
         bnInput,
         BigNumber.from('79228162514264337593543950336'), // price of 1.00
@@ -382,6 +382,7 @@ export default function Swap() {
           currency: 'USD',
         })
       setGasFee(formattedPrice)
+      console.log('formatted price', formattedPrice)
     } catch (error) {
       console.log(error)
     }
@@ -420,22 +421,18 @@ export default function Swap() {
   const getBnSlippage = () => {
     if (Number(slippage) >= 0.05 && Number(slippage) < 0.1) {
       const convertedSlippage = BigNumber.from((1 / parseFloat(slippage)).toFixed(0))
-      //const bigSlippage = ethers.utils.parseUnits(convertedSlippage.toString(), 14)
       setBnSlippage(convertedSlippage)
     }
     if (Number(slippage) >= 0.1 && Number(slippage) < 1) {
       const convertedSlippage = BigNumber.from((1 / parseFloat(slippage)).toFixed(0))
-      //const bigSlippage = ethers.utils.parseUnits(convertedSlippage.toString(), 15)
       setBnSlippage(convertedSlippage)
     }
     if (Number(slippage) >= 1 && Number(slippage) < 10) {
       const convertedSlippage = BigNumber.from((1 / parseFloat(slippage)).toFixed(0))
-      //const bigSlippage = ethers.utils.parseUnits(convertedSlippage.toString(), 16)
       setBnSlippage(convertedSlippage)
     }
     if (Number(slippage) >= 10 && Number(slippage) < 100) {
       const convertedSlippage = BigNumber.from((1 / parseFloat(slippage)).toFixed(0))
-      //const bigSlippage = ethers.utils.parseUnits(convertedSlippage.toString(), 17)
       setBnSlippage(convertedSlippage)
     }
   }
@@ -955,8 +952,8 @@ export default function Swap() {
               }
               amount={bnInput}
               baseLimit={(tokenOut.address != "" && tokenIn.address.localeCompare(tokenOut.address) === -1) ?
-              BigNumber.from(rangeBnPrice).sub(rangeBnBaseLimit) :
-              BigNumber.from(rangeBnPrice).add(rangeBnBaseLimit)}
+              rangeBnPrice.sub(rangeBnBaseLimit) :
+              rangeBnPrice.add(rangeBnBaseLimit)}
             />
           )
         ) : Number(allowanceCover) <
@@ -981,8 +978,8 @@ export default function Swap() {
             }
             amount={bnInput}
             baseLimit={(tokenOut.address != "" && tokenIn.address.localeCompare(tokenOut.address) === -1) ?
-            BigNumber.from(coverPrice).sub(coverBnBaseLimit) :
-            BigNumber.from(coverPrice).add(coverBnBaseLimit)}
+            coverBnPrice.sub(coverBnBaseLimit) :
+            coverBnPrice.add(coverBnBaseLimit)}
           />
         )}
       </div>
