@@ -53,15 +53,10 @@ export default function Swap() {
     LimitInputBox,
   } = useInputBox()
   const [gasFee, setGasFee] = useState('')
-  const [rangeBaseLimit, setRangeBaseLimit] = useState(0)
-  const [coverBaseLimit, setCoverBaseLimit] = useState(0)
   const [coverQuote, setCoverQuote] = useState(undefined)
   const [rangeQuote, setRangeQuote] = useState(undefined)
   const [coverPrice, setCoverPrice] = useState(0)
   const [rangePrice, setRangePrice] = useState(0)
-  const [coverCurrentPrice, setCoverCurrentPrice] = useState(undefined)
-  const [rangeCurrentPrice, setRangeCurrentPrice] = useState(undefined)
-  const [zeroForOne, setZeroForOne] = useState(true)
   const [hasSelected, setHasSelected] = useState(false)
   const [mktRate, setMktRate] = useState({})
   const [tokenIn, setTokenIn] = useState({
@@ -95,8 +90,7 @@ export default function Swap() {
   const [rangeBnPrice, setRangeBnPrice] = useState(BigNumber.from(0))
   const [coverBnBaseLimit, setCoverBnBaseLimit] = useState(BigNumber.from(0))
   const [rangeBnBaseLimit, setRangeBnBaseLimit] = useState(BigNumber.from(0))
-  const [bnSlippage, setBnSlippage] = useState(BigNumber.from(0))
-  const [feeTier, setFeeTier] = useState('')
+  const [bnSlippage, setBnSlippage] = useState(BigNumber.from(1))
 
   const { data: signer } = useSigner()
   const provider = useProvider()
@@ -124,7 +118,7 @@ export default function Swap() {
     },
   })
 
-  const { refetch: refetchCoverPrice, data: priceCover } = useContractRead({
+  const { data: priceCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
     functionName: tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1 ? 'pool1' : 'pool0',
@@ -144,7 +138,7 @@ export default function Swap() {
     },
   })
 
-  const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
+  const { data: priceRange } = useContractRead({
     address: rangePoolRoute,
     abi: rangePoolABI,
     functionName: 'poolState',
@@ -165,13 +159,11 @@ export default function Swap() {
   })
 
   useEffect(() => {
-    setRangeBaseLimit(rangePrice * parseFloat(slippage) * 0.01)
-    setRangeBnBaseLimit(rangeBnPrice.mul(bnSlippage).mul(ethers.utils.parseUnits('1', 16)))
+    setRangeBnBaseLimit(rangeBnPrice.div(bnSlippage).div(BigNumber.from(100)))
   }, [rangePrice])
 
   useEffect(() => {
-    setCoverBaseLimit(coverPrice * parseFloat(slippage) * 0.01)
-    setCoverBnBaseLimit(coverBnPrice.mul(bnSlippage).mul(ethers.utils.parseUnits('1', 16)))
+    setCoverBnBaseLimit(coverBnPrice.div(bnSlippage).div(BigNumber.from(100)))
   }, [coverPrice])
 
   //@dev: TO-DO - create state w/o decimals for priceLimit math
@@ -181,8 +173,8 @@ export default function Swap() {
     functionName: "quote",
     args: [tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1, bnInput, 
     tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1 ?
-    coverBnPrice.sub(BigNumber.from(coverBaseLimit)) :
-    coverBnPrice.add(BigNumber.from(coverBaseLimit))
+    coverBnPrice.sub(coverBnBaseLimit) :
+    coverBnPrice.add(coverBnBaseLimit)
     ],
     chainId: 421613,
     watch: true,
@@ -204,8 +196,8 @@ export default function Swap() {
     functionName: "quote",
     args: [tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1, bnInput, 
     tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1 ?
-    BigNumber.from(rangePrice).sub(BigNumber.from(rangeBaseLimit)) :
-    BigNumber.from(rangePrice).add(BigNumber.from(rangeBaseLimit))],
+    rangeBnPrice.sub(rangeBnBaseLimit) :
+    rangeBnPrice.add(rangeBnBaseLimit)],
     chainId: 421613,
     watch: true,
     onSuccess(data) {
@@ -425,10 +417,27 @@ export default function Swap() {
     }
   }
 
-  const getBnSlippage= () => {
-    const convertedSlippage = parseFloat(slippage)
-    const bigSlippage = ethers.utils.parseUnits(slippage, 16)
-    setBnSlippage(bigSlippage)
+  const getBnSlippage = () => {
+    if (Number(slippage) >= 0.05 && Number(slippage) < 0.1) {
+      const convertedSlippage = BigNumber.from((1 / parseFloat(slippage)).toFixed(0))
+      //const bigSlippage = ethers.utils.parseUnits(convertedSlippage.toString(), 14)
+      setBnSlippage(convertedSlippage)
+    }
+    if (Number(slippage) >= 0.1 && Number(slippage) < 1) {
+      const convertedSlippage = BigNumber.from((1 / parseFloat(slippage)).toFixed(0))
+      //const bigSlippage = ethers.utils.parseUnits(convertedSlippage.toString(), 15)
+      setBnSlippage(convertedSlippage)
+    }
+    if (Number(slippage) >= 1 && Number(slippage) < 10) {
+      const convertedSlippage = BigNumber.from((1 / parseFloat(slippage)).toFixed(0))
+      //const bigSlippage = ethers.utils.parseUnits(convertedSlippage.toString(), 16)
+      setBnSlippage(convertedSlippage)
+    }
+    if (Number(slippage) >= 10 && Number(slippage) < 100) {
+      const convertedSlippage = BigNumber.from((1 / parseFloat(slippage)).toFixed(0))
+      //const bigSlippage = ethers.utils.parseUnits(convertedSlippage.toString(), 17)
+      setBnSlippage(convertedSlippage)
+    }
   }
 
   const getRangePool = async () => {
@@ -439,25 +448,9 @@ export default function Swap() {
           tokenOut.address,
         )
         const id = pool['data']['rangePools']['0']['id']
-
-        /*const price = await getRangeQuote(
-          rangePoolAddress,
-          bnInput,
-          BigNumber.from('4295128739'),
-          tokenIn.address,
-          tokenOut.address,
-        )*/
-
-        /*const currentPrice = await getRangePrice(
-          rangePoolAddress,
-          true
-        )*/
         
         setRangePoolRoute(id)
         console.log('range pool route', rangePoolRoute)
-        /*setRangeQuote(price)
-        setRangeBaseLimit(price)*/
-        //setRangeCurrentPrice(currentPrice)
       }
     } catch (error) {
       console.log(error)
@@ -467,8 +460,6 @@ export default function Swap() {
   const getCoverPool = async () => {
     try {
       if (hasSelected === true) {
-        /* console.log(tokenIn, tokenOut) */
-
         const pool = await getCoverPoolFromFactory(
           tokenIn.address,
           tokenOut.address,
@@ -964,8 +955,8 @@ export default function Swap() {
               }
               amount={bnInput}
               baseLimit={(tokenOut.address != "" && tokenIn.address.localeCompare(tokenOut.address) === -1) ?
-              BigNumber.from(rangePrice).sub(BigNumber.from(rangeBaseLimit)) :
-              BigNumber.from(rangePrice).add(BigNumber.from(rangeBaseLimit))}
+              BigNumber.from(rangeBnPrice).sub(rangeBnBaseLimit) :
+              BigNumber.from(rangeBnPrice).add(rangeBnBaseLimit)}
             />
           )
         ) : Number(allowanceCover) <
@@ -990,8 +981,8 @@ export default function Swap() {
             }
             amount={bnInput}
             baseLimit={(tokenOut.address != "" && tokenIn.address.localeCompare(tokenOut.address) === -1) ?
-            BigNumber.from(coverPrice).sub(BigNumber.from(coverBaseLimit)) :
-            BigNumber.from(coverPrice).add(BigNumber.from(coverBaseLimit))}
+            BigNumber.from(coverPrice).sub(coverBnBaseLimit) :
+            BigNumber.from(coverPrice).add(coverBnBaseLimit)}
           />
         )}
       </div>
