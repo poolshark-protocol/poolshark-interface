@@ -34,7 +34,6 @@ import useSwapAllowance from '../hooks/useSwapAllowance'
 import { rangePoolABI } from '../abis/evm/rangePool'
 import {TickMath} from '../utils/math/tickMath'
 import JSBI from 'jsbi'
-import JSBD from 'jsbd'
 
 type token = {
   symbol: string
@@ -134,7 +133,7 @@ export default function Swap() {
     watch: true,
     onSuccess(data) {
       console.log('Success price Cover', data)
-      setCoverPrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBD.BigDecimal(data[4].toString()))))
+      setCoverPrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[4].toString()))))
     },
     onError(error) {
       console.log('Error price Cover', error)
@@ -155,7 +154,7 @@ export default function Swap() {
       console.log('Success price Range', data)
       setRangePrice(
         parseFloat(TickMath.invertPrice(
-        TickMath.getPriceStringAtSqrtPrice(JSBD.BigDecimal(data[5].toString())),
+        TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[5].toString())),
         tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1
         )))
       console.log('rangePrice if inverted', rangePrice)
@@ -198,8 +197,8 @@ export default function Swap() {
     watch: true,
     onSuccess(data) {
       console.log('Success cover wagmi', data)
-      setCoverQuote(parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBD.BigDecimal(data[1].toString()))))
-      setCoverPriceAfter(parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBD.BigDecimal(data[2].toString()))))
+      setCoverQuote(parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[1].toString()))))
+      setCoverPriceAfter(parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[2].toString()))))
     },
     onError(error) {
       console.log('Error cover wagmi', error)
@@ -225,7 +224,7 @@ export default function Swap() {
     watch: true,
     onSuccess(data) {
       console.log('Success range wagmi', data)
-      setRangeQuote(parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBD.BigDecimal(data[1].toString()))))
+      setRangeQuote(parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[1].toString()))))
       console.log('rangeQuote', rangeQuote)
     },
     onError(error) {
