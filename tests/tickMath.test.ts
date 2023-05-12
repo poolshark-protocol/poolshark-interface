@@ -19,6 +19,13 @@ describe('TickMath tests', () => {
   });
 
   test('sqrt price for 1.00 converts to price string', () => {
-    expect(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt('79228162514264337593543950336'))).toBe("1.00000e+0");
+    // equals sqrtPrice of 1.00
+    const sqrtPrice1 = JSBI.BigInt('79228162514264337593543950336')
+    // equals priceString of '1.00'
+    const priceString1 = TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt('79228162514264337593543950336'))
+    // check priceString
+    expect(priceString1).toStrictEqual('1.00000e+0')
+    // check sqrtPrice at priceString
+    expect(TickMath.getSqrtPriceAtPriceString(priceString1)).toStrictEqual(sqrtPrice1);
   });
 });
