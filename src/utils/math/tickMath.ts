@@ -1,7 +1,8 @@
 import JSBI from 'jsbi'
 import invariant from 'tiny-invariant'
-import { Q32, ONE, ZERO, MAX_UINT256  } from './constants'
+import { Q32, ONE, ZERO, MAX_UINT256, Q96_BD  } from './constants'
 import { mostSignificantBit } from "./mostSignificantBit"
+import JSBD from 'jsbd'
 
 function mulShift(val: JSBI, mulBy: string): JSBI {
   return JSBI.signedRightShift(JSBI.multiply(val, JSBI.BigInt(mulBy)), JSBI.BigInt(128))
@@ -53,6 +54,42 @@ export abstract class TickMath {
       return this.getSqrtRatioAtTick(roundedTick)
     }
     return sqrtRatioX96
+  }
+
+  public static tickToPriceString(tick: number, tickSpacing: number): string {
+    // round the tick based on tickSpacing
+    let roundedTick = this.roundTick(Number(tick), tickSpacing)
+    // get the BigDecimal representation of sqrtPrice
+    let sqrtPrice = JSBD.BigDecimal(this.getSqrtRatioAtTick(roundedTick).toString())
+    // square sqrtPrice
+    let sqrtPriceExp = JSBD.pow(sqrtPrice, 2)
+    // square Q96 value
+    let Q96Exp = JSBD.pow(Q96_BD, 2)
+    // divide and return formatted string
+    return JSBD.divide(sqrtPriceExp, Q96Exp).toExponential(5).toString()
+  }
+
+  public static getSqrtPriceAtPriceString(priceString: string): JSBI {
+    return JSBI.divide(
+      JSBI.multiply(
+        JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
+        JSBI.BigInt(
+          String(
+            Math.sqrt(Number(parseFloat(priceString).toFixed(30))).toFixed(
+              30,
+            ),
+          )
+            .split('.')
+            .join(''),
+        ),
+      ),
+      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
+    )
+  }
+
+  public static getTickAtPriceString(priceString: string): number {
+    let sqrtPrice = this.getSqrtPriceAtPriceString(priceString)
+    return this.getTickAtSqrtRatio(sqrtPrice)
   }
 
   /**
