@@ -56,6 +56,15 @@ export abstract class TickMath {
     return sqrtRatioX96
   }
 
+  public static invertPrice(priceString: string, zeroForOne: boolean): string {
+    if(!zeroForOne) {
+      let price = JSBD.BigDecimal(priceString)
+      price = JSBD.divide(JSBD.BigDecimal('1.00'), price)
+      priceString = price.toExponential(5).toString()
+    }
+    return priceString
+  }
+
   public static tickToPriceString(tick: number, tickSpacing: number): string {
     // round the tick based on tickSpacing
     let roundedTick = this.roundTick(Number(tick), tickSpacing)
