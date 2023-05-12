@@ -8,6 +8,79 @@ function mulShift(val: JSBI, mulBy: string): JSBI {
   return JSBI.signedRightShift(JSBI.multiply(val, JSBI.BigInt(mulBy)), JSBI.BigInt(128))
 }
 
+export function roundTick(tick: number, tickSpacing: number): number {
+  if (tick % tickSpacing != 0) {
+    let roundedDown = tick / tickSpacing * tickSpacing;
+    let roundedUp = tick / tickSpacing * tickSpacing + tickSpacing;
+    // check which is closer
+    if (tick - roundedDown <= roundedUp - tick) {
+      return roundedDown
+    } else {
+      return roundedUp
+    }
+  }
+  return tick;
+}
+
+export function roundPrice(sqrtRatioX96: JSBI, tickSpacing: number): JSBI {
+  let spacing = JSBI.BigInt(tickSpacing.toString())
+  let tick = this.getTickAtSqrtRatio(sqrtRatioX96)
+  let roundedTick = this.roundTick(Number(tick), tickSpacing)
+  if (tick != roundedTick) {
+    return this.getSqrtRatioAtTick(roundedTick)
+  }
+  return sqrtRatioX96
+}
+
+export function invertPrice(priceString: string, zeroForOne: boolean): string {
+  if(!zeroForOne) {
+    let price = JSBD.BigDecimal(priceString)
+    price = JSBD.divide(JSBD.BigDecimal('1.00'), price)
+    priceString = price.toExponential(5).toString()
+  }
+  return priceString
+}
+
+export function tickToPriceString(tick: number, tickSpacing: number): string {
+  // round the tick based on tickSpacing
+  let roundedTick = this.roundTick(Number(tick), tickSpacing)
+  // divide and return formatted string
+  return this.getPriceStringAtSqrtPrice(this.getSqrtRatioAtTick(roundedTick))
+}
+
+export function getSqrtPriceAtPriceString(priceString: string): JSBI {
+  return JSBI.divide(
+    JSBI.multiply(
+      JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
+      JSBI.BigInt(
+        String(
+          Math.sqrt(Number(parseFloat(priceString).toFixed(30))).toFixed(
+            30,
+          ),
+        )
+          .split('.')
+          .join(''),
+      ),
+    ),
+    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
+  )
+}
+
+export function getPriceStringAtSqrtPrice(sqrtPrice: JSBI): string {
+  let sqrtPriceBD = JSBD.BigDecimal(sqrtPrice.toString())
+  // square sqrtPrice
+  let sqrtPriceExp = JSBD.pow(sqrtPriceBD, 2)
+  // square Q96 value
+  let Q96Exp = JSBD.pow(Q96_BD, 2)
+  // divide and return formatted string
+  return JSBD.divide(sqrtPriceExp, Q96Exp).toExponential(5).toString()
+}
+
+export function getTickAtPriceString(priceString: string): number {
+  let sqrtPrice = this.getSqrtPriceAtPriceString(priceString)
+  return this.getTickAtSqrtRatio(sqrtPrice)
+}
+
 export abstract class TickMath {
   /**
    * Cannot be constructed.
@@ -17,99 +90,28 @@ export abstract class TickMath {
   /**
    * The minimum tick that can be used on any pool.
    */
-  public static MIN_TICK: number = -887272
+  export function MIN_TICK: number = -887272
   /**
    * The maximum tick that can be used on any pool.
    */
-  public static MAX_TICK: number = -TickMath.MIN_TICK
+  export function MAX_TICK: number = -TickMath.MIN_TICK
 
   /**
    * The sqrt ratio corresponding to the minimum tick that could be used on any pool.
    */
-  public static MIN_SQRT_RATIO: JSBI = JSBI.BigInt('4295128739')
+  export function MIN_SQRT_RATIO: JSBI = JSBI.BigInt('4295128739')
   /**
    * The sqrt ratio corresponding to the maximum tick that could be used on any pool.
    */
-  public static MAX_SQRT_RATIO: JSBI = JSBI.BigInt('1461446703485210103287273052203988822378723970342')
+  export function MAX_SQRT_RATIO: JSBI = JSBI.BigInt('1461446703485210103287273052203988822378723970342')
 
-  public static roundTick(tick: number, tickSpacing: number): number {
-    if (tick % tickSpacing != 0) {
-      let roundedDown = tick / tickSpacing * tickSpacing;
-      let roundedUp = tick / tickSpacing * tickSpacing + tickSpacing;
-      // check which is closer
-      if (tick - roundedDown <= roundedUp - tick) {
-        return roundedDown
-      } else {
-        return roundedUp
-      }
-    }
-    return tick;
-  }
 
-  public static roundPrice(sqrtRatioX96: JSBI, tickSpacing: number): JSBI {
-    let spacing = JSBI.BigInt(tickSpacing.toString())
-    let tick = this.getTickAtSqrtRatio(sqrtRatioX96)
-    let roundedTick = this.roundTick(Number(tick), tickSpacing)
-    if (tick != roundedTick) {
-      return this.getSqrtRatioAtTick(roundedTick)
-    }
-    return sqrtRatioX96
-  }
-
-  public static invertPrice(priceString: string, zeroForOne: boolean): string {
-    if(!zeroForOne) {
-      let price = JSBD.BigDecimal(priceString)
-      price = JSBD.divide(JSBD.BigDecimal('1.00'), price)
-      priceString = price.toExponential(5).toString()
-    }
-    return priceString
-  }
-
-  public static tickToPriceString(tick: number, tickSpacing: number): string {
-    // round the tick based on tickSpacing
-    let roundedTick = this.roundTick(Number(tick), tickSpacing)
-    // divide and return formatted string
-    return this.getPriceStringAtSqrtPrice(this.getSqrtRatioAtTick(roundedTick))
-  }
-
-  public static getSqrtPriceAtPriceString(priceString: string): JSBI {
-    return JSBI.divide(
-      JSBI.multiply(
-        JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
-        JSBI.BigInt(
-          String(
-            Math.sqrt(Number(parseFloat(priceString).toFixed(30))).toFixed(
-              30,
-            ),
-          )
-            .split('.')
-            .join(''),
-        ),
-      ),
-      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
-    )
-  }
-
-  public static getPriceStringAtSqrtPrice(sqrtPrice: JSBI): string {
-    let sqrtPriceBD = JSBD.BigDecimal(sqrtPrice.toString())
-    // square sqrtPrice
-    let sqrtPriceExp = JSBD.pow(sqrtPriceBD, 2)
-    // square Q96 value
-    let Q96Exp = JSBD.pow(Q96_BD, 2)
-    // divide and return formatted string
-    return JSBD.divide(sqrtPriceExp, Q96Exp).toExponential(5).toString()
-  }
-
-  public static getTickAtPriceString(priceString: string): number {
-    let sqrtPrice = this.getSqrtPriceAtPriceString(priceString)
-    return this.getTickAtSqrtRatio(sqrtPrice)
-  }
 
   /**
    * Returns the sqrt ratio as a Q64.96 for the given tick. The sqrt ratio is computed as sqrt(1.0001)^tick
    * @param tick the tick for which to compute the sqrt ratio
    */
-  public static getSqrtRatioAtTick(tick: number): JSBI {
+  export function getSqrtRatioAtTick(tick: number): JSBI {
     invariant(tick >= TickMath.MIN_TICK && tick <= TickMath.MAX_TICK && Number.isInteger(tick), 'TICK')
     const absTick: number = tick < 0 ? tick * -1 : tick
 
@@ -150,7 +152,7 @@ export abstract class TickMath {
    * and #getSqrtRatioAtTick(tick + 1) > sqrtRatioX96
    * @param sqrtRatioX96 the sqrt ratio as a Q64.96 for which to compute the tick
    */
-  public static getTickAtSqrtRatio(sqrtRatioX96: JSBI): number {
+  export function getTickAtSqrtRatio(sqrtRatioX96: JSBI): number {
     invariant(
       JSBI.greaterThanOrEqual(sqrtRatioX96, TickMath.MIN_SQRT_RATIO) &&
         JSBI.lessThan(sqrtRatioX96, TickMath.MAX_SQRT_RATIO),
