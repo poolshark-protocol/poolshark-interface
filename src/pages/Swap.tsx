@@ -125,7 +125,7 @@ export default function Swap() {
     abi: coverPoolABI,
     functionName:
       tokenOut.address != '' &&
-      tokenIn.address.localeCompare(tokenOut.address) === -1
+      tokenIn.address.localeCompare(tokenOut.address) < 0
         ? 'pool1'
         : 'pool0',
     args: [],
@@ -155,7 +155,7 @@ export default function Swap() {
       setRangePrice(
         parseFloat(TickMath.invertPrice(
         TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[5].toString())),
-        tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1
+        tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) < 0
         )))
       console.log('rangePrice if inverted', rangePrice)
     },
@@ -186,10 +186,10 @@ export default function Swap() {
     functionName: 'quote',
     args: [
       tokenOut.address != '' &&
-        tokenIn.address.localeCompare(tokenOut.address) === -1,
+        tokenIn.address.localeCompare(tokenOut.address) < 0,
       bnInput,
       tokenOut.address != '' &&
-      tokenIn.address.localeCompare(tokenOut.address) === -1
+      tokenIn.address.localeCompare(tokenOut.address) < 0
         ? coverBnPrice.sub(coverBnBaseLimit)
         : coverBnPrice.add(coverBnBaseLimit),
     ],
@@ -213,10 +213,10 @@ export default function Swap() {
     functionName: 'quote',
     args: [
       tokenOut.address != '' &&
-        tokenIn.address.localeCompare(tokenOut.address) === -1,
+        tokenIn.address.localeCompare(tokenOut.address) < 0,
       bnInput,
       tokenOut.address != '' &&
-      tokenIn.address.localeCompare(tokenOut.address) === -1
+      tokenIn.address.localeCompare(tokenOut.address) < 0
         ? rangeBnPrice.sub(rangeBnBaseLimit)
         : rangeBnPrice.add(rangeBnBaseLimit),
     ],
@@ -390,7 +390,7 @@ export default function Swap() {
       const recipient = address
       const zeroForOne =
         tokenOut.address != '' &&
-        tokenIn.address.localeCompare(tokenOut.address) === -1
+        tokenIn.address.localeCompare(tokenOut.address) < 0
 
       const estimation = await contract.estimateGas.swap(
         recipient,
@@ -984,12 +984,12 @@ export default function Swap() {
               poolAddress={rangePoolRoute}
               zeroForOne={
                 tokenOut.address != '' &&
-                tokenIn.address.localeCompare(tokenOut.address) === -1
+                tokenIn.address.localeCompare(tokenOut.address) < 0
               }
               amount={bnInput}
               baseLimit={
                 tokenOut.address != '' &&
-                tokenIn.address.localeCompare(tokenOut.address) === -1
+                tokenIn.address.localeCompare(tokenOut.address) < 0
                   ? rangeBnPrice.sub(rangeBnBaseLimit)
                   : rangeBnPrice.add(rangeBnBaseLimit)
               }
@@ -1014,12 +1014,12 @@ export default function Swap() {
             poolAddress={coverPoolRoute}
             zeroForOne={
               tokenOut.address != '' &&
-              tokenIn.address.localeCompare(tokenOut.address) === -1
+              tokenIn.address.localeCompare(tokenOut.address) < 0
             }
             amount={bnInput}
             baseLimit={
               tokenOut.address != '' &&
-              tokenIn.address.localeCompare(tokenOut.address) === -1
+              tokenIn.address.localeCompare(tokenOut.address) < 0
                 ? coverBnPrice.sub(coverBnBaseLimit)
                 : coverBnPrice.add(coverBnBaseLimit)
             }
