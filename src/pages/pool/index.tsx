@@ -127,6 +127,7 @@ export default function Pool() {
       const coverPositionData = {
         id: coverPosition.id,
         poolId: coverPosition.pool.id,
+        poolLatestTick: coverPosition.pool.latestTick,
         tokenZero: coverPosition.pool.token0,
         valueTokenZero: coverPosition.inAmount,
         tokenOne: coverPosition.pool.token1,
@@ -139,7 +140,7 @@ export default function Pool() {
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
       mappedCoverPositions.push(coverPositionData)
-      //console.log('mappedCoverPositions', mappedCoverPositions)
+      console.log('mappedCoverPositions', coverPosition.pool.latestTick)
     })
     setAllCoverPositions(mappedCoverPositions)
   }

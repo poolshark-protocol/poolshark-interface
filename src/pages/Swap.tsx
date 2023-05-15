@@ -434,12 +434,12 @@ export default function Swap() {
       }
     } else {
       const data = await fetchRangePools()
-      const poolAddress = data['data']['rangePools']['1']['id']
+      const poolAddress = data['data']['rangePools']['0']['id']
 
       console.log('range pool subgraph address', poolAddress)
 
       if (poolAddress === rangePoolRoute) {
-        const feeTier = data['data']['rangePools']['1']['feeTier']['feeAmount']
+        const feeTier = data['data']['rangePools']['0']['feeTier']['feeAmount']
         console.log(feeTier, 'fee range')
         setSlippage((parseFloat(feeTier) / 10000).toString())
         setAuxSlippage((parseFloat(feeTier) / 10000).toString())

@@ -211,8 +211,8 @@ export default function CreateCover(props: any) {
           inverse: false,
         }) */
         setDisabled(false)
-        setMin(ethers.utils.parseUnits(String(min), 0))
-        setMax(ethers.utils.parseUnits(String(min), 0))
+        setMin(BigNumber.from(min))
+        setMax(BigNumber.from(max))
       }
     } catch (error) {
       console.log(error)
@@ -559,7 +559,7 @@ export default function CreateCover(props: any) {
             </div>
           </div>
           <span className="text-xs text-grey">
-            {tokenIn.symbol} per{' '}
+            {tokenIn.symbol} per {' '}
             {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOut.symbol}
           </span>
         </div>

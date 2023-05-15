@@ -59,6 +59,7 @@ export default function Cover() {
       const coverPositionData = {
         id: coverPosition.id,
         poolId: coverPosition.pool.id,
+        poolLatestTick: coverPosition.pool.latestTick,
         tokenZero: coverPosition.inToken,
         valueTokenZero: coverPosition.inAmount,
         tokenOne: coverPosition.outToken,
