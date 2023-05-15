@@ -106,13 +106,13 @@ export default function Cover() {
     address: router.query.tokenOneAddress ?? '',
     value: router.query.tokenOneValue ?? '',
   } as token)
-  const [latestTick, setLatestTick] = useState(router.query.latestTick ?? '0')
+  const [latestTick, setLatestTick] = useState(router.query.latestTick ?? 0)
   const [liquidity, setLiquidity] = useState(router.query.liquidity ?? '0')
   const [feeTier, setFeeTier] = useState(router.query.feeTier ?? '')
   const [minLimit, setMinLimit] = useState(router.query.min ?? '0')
   const [maxLimit, setMaxLimit] = useState(router.query.max ?? '0')
   const [mktRate, setMktRate] = useState({})
-  const [epochLast, setEpochLast] = useState(router.query.epochLast ?? '0')
+  const [epochLast, setEpochLast] = useState(router.query.epochLast ?? 0)
 
   //Pool Addresses
   const [is0Copied, setIs0Copied] = useState(false)
@@ -238,7 +238,6 @@ export default function Cover() {
         poolAdd.toString(),
         Number(1),
       )
-      console.log('epoch last:', epochLast)
       const claimTickDataLength = claimTickQuery['data']['ticks'].length
       if (claimTickDataLength > 0) claimTick = claimTickQuery['data']['ticks'][0]['index']
       if (claimTick != undefined) {

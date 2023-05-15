@@ -18,6 +18,7 @@ import {
 } from '../../utils/queries'
 import { Fragment, useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
+import { BigNumber } from 'ethers'
 
 export default function Pool() {
   const poolTypes = [
@@ -97,7 +98,6 @@ export default function Pool() {
   function mapUserRangePositions() {
     const mappedRangePositions = []
     rangePositions.map((rangePosition) => {
-      //console.log('rangePosition', rangePosition)
       const rangePositionData = {
         id: rangePosition.id,
         poolId: rangePosition.pool.id,
@@ -127,7 +127,6 @@ export default function Pool() {
       const coverPositionData = {
         id: coverPosition.id,
         poolId: coverPosition.pool.id,
-        latestTick: coverPosition.pool.latestTick,
         tokenZero: coverPosition.pool.token0,
         valueTokenZero: coverPosition.inAmount,
         tokenOne: coverPosition.pool.token1,
@@ -135,12 +134,12 @@ export default function Pool() {
         min: coverPosition.lower,
         max: coverPosition.upper,
         epochLast: coverPosition.epochLast,
+        latestTick: coverPosition.pool.latestTick,
         liquidity: coverPosition.liquidity,
         feeTier: coverPosition.pool.volatilityTier.feeAmount,
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
       mappedCoverPositions.push(coverPositionData)
-      console.log('mappedCoverPositions', coverPosition.pool.latestTick)
     })
     setAllCoverPositions(mappedCoverPositions)
   }
@@ -148,7 +147,6 @@ export default function Pool() {
   function mapRangePools() {
     const mappedRangePools = []
     rangePools.map((rangePool) => {
-      //console.log('rangePool', rangePool)
       const rangePoolData = {
         poolId: rangePool.id,
         tokenOne: rangePool.token1,
@@ -160,7 +158,6 @@ export default function Pool() {
         volumeEth: rangePool.volumeEth,
       }
       mappedRangePools.push(rangePoolData)
-      //console.log('mappedRangePools', mappedRangePools)
     })
     setAllRangePools(mappedRangePools)
   }
@@ -354,7 +351,7 @@ export default function Pool() {
                             max={allCoverPosition.max}
                             epochLast={allCoverPosition.epochLast}
                             liquidity={allCoverPosition.liquidity}
-                            latestTick={allCoverPosition.pool.latestTick}
+                            latestTick={allCoverPosition.latestTick}
                             feeTier={allCoverPosition.feeTier}
                             prefill={undefined}
                             close={undefined}

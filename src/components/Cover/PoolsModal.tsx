@@ -46,7 +46,6 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
       }
       mappedRangePositions.push(rangePositionData)
-      //console.log('mappedRangePositions', mappedRangePositions)
     })
     setAllRangePositions(mappedRangePositions)
   }

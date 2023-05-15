@@ -117,7 +117,6 @@ export default function UserCoverPool({
       tokenZero: tokenZero,
     }) */
   }
-
   return (
     <Link
       href={{
