@@ -148,7 +148,7 @@ export default function UserCoverPool({
         onMouseLeave={(e) => {
           setShow(false);
         }}
-        className="w-full cursor-pointer flex justify-between items-center bg-dark border border-grey2 rounded-xl py-3.5 pl-5 h-24 relative"
+        className="w-full cursor-pointer flex justify-between flex-col sm:flex-row items-center bg-dark border border-grey2 rounded-xl py-3.5 px-3 md:px-5 md:h-24 relative"
       >
         <div className="space-y-2">
           <div className="flex items-center gap-x-5">
@@ -166,34 +166,38 @@ export default function UserCoverPool({
               <ArrowLongRightIcon className="w-5" />
               {tokenOne.name}
             </div>
-            <div className="bg-black px-2 py-1 rounded-lg text-grey">
+            <div className="bg-black px-2 py-1 rounded-lg text-grey sm:block hidden">
               {feeTierPercentage}%
             </div>
           </div>
-          <div className="text-sm flex items-center gap-x-3">
+          <div className="text-xs flex items-center gap-x-3">
             <span>
               <span className="text-grey">Min:</span> {min} {tokenZero.symbol}{" "}
               per {tokenOne.symbol}
             </span>
-            <ArrowsRightLeftIcon className="w-4 text-grey" />
+            <ArrowsRightLeftIcon className="w-3 text-grey" />
             <span>
               <span className="text-grey">Max:</span> {max} {tokenOne.symbol}{" "}
               per {tokenZero.symbol}
             </span>
           </div>
         </div>
+        <div className="flex mt-4 w-full gap-x-5">
+                  <div className="bg-black px-2 py-1 rounded-lg text-grey sm:hidden block">
+              {feeTierPercentage}%
+            </div>
         {coverTickPrice ? (
           Number(ethers.utils.formatUnits(coverTickPrice, 18)) < Number(min) ||
           Number(ethers.utils.formatUnits(coverTickPrice, 18)) > Number(max) ? (
-            <div className="pr-5">
-              <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
+            <div className=" w-full sm:w-auto">
+              <div className="flex items-center justify-center bg-black py-2 px-5 rounded-lg gap-x-2 text-xs w-full sm:w-auto">
                 <ExclamationTriangleIcon className="w-4 text-yellow-600" />
                 Out of Range
               </div>
             </div>
           ) : (
-            <div className="pr-5">
-              <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
+            <div className=" w-full">
+              <div className="flex items-center justify-center bg-black py-2 px-5 rounded-lg gap-x-2 text-xs w-full sm:w-auto">
                 <div className="w-2 h-2 bg-green-500 rounded-full" />
                 In Range
               </div>
@@ -202,6 +206,7 @@ export default function UserCoverPool({
         ) : (
           <></>
         )}
+        </div>
       </div>
     </Link>
   );

@@ -18,7 +18,7 @@ export default function InputBoxProp() {
         return (
             <div className="flex gap-x-2">
             <input
-                className="bg-gray-800 text-white py-2 px-4 w-96"
+                className="bg-gray-800 text-white py-2 px-4 md:w-96"
                 type="text"
                 value={input}
                 onChange={handleChange}
@@ -39,7 +39,7 @@ export default function InputBoxProp() {
     return (
         <div className="flex gap-x-2">
         <input
-            className="bg-gray-800 text-white py-2 px-4 w-full"
+            className="bg-gray-800 text-white py-2 px-4 "
             type="text"
             value={input}
             onChange={handleChange}

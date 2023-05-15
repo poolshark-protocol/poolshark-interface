@@ -236,26 +236,15 @@ export default function Pool() {
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
       <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full">
-        <div className="w-[55rem] absolute bottom-0">
-          <div className="flex justify-between mb-6 items-end">
-            <div className="flex items-center gap-x-4">
+        <div className="lg:w-[55rem] w-full absolute bottom-0 px-2.5 lg:px-0">
+          <div className="flex w-full md:flex-row flex-col justify-between mb-6 space-y-3">
+            <div className="flex items-center justify-between gap-x-4">
               <h1 className="text-3xl">Pools</h1>
-              <div className="cursor-pointer">
+              <div className="cursor-pointer flex flex-row-reverse md:flex-row gap-x-3">
                 <SelectPool />
+                <InformationCircleIcon className="w-4 text-grey1"  />
               </div>
             </div>
-            <span className="bg-black flex items-center gap-x-2 border border-grey2 rounded-lg text-white px-6 py-[9px] cursor-pointer hover:opacity-80">
-              <InformationCircleIcon className="w-4 text-grey1" />
-              <Link
-                href={
-                  selected.id == 1
-                    ? 'https://docs.poolsharks.io/introduction/range-pools/'
-                    : 'https://docs.poolsharks.io/introduction/cover-pools/'
-                }
-              >
-                <a target="_blank">How it works?</a>
-              </Link>
-            </span>
             <Link
               href={{
                 pathname:
@@ -274,7 +263,7 @@ export default function Pool() {
                 },
               }}
             >
-              <button className="flex items-center gap-x-1.5 px-7 py-[9px] text-white text-sm transition whitespace-nowrap rounded-lg cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
+              <button className="flex items-center justify-center gap-x-1.5 px-7 py-[9px] text-white text-sm transition whitespace-nowrap rounded-lg cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
                 <PlusSmallIcon className="w-6" />
                 Create Pool
               </button>
@@ -363,7 +352,7 @@ export default function Pool() {
                     })}
               </div>
             </div>
-            <div className="">
+            <div className="pb-20">
               <h1 className="mb-3 ">All Pools</h1>
               <div className="space-y-2">
                 <table className="w-full table-auto">

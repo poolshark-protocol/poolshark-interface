@@ -42,7 +42,7 @@ export default function PoolList({
         },
       }}
     >
-      <tr className="text-right cursor-pointer">
+      <tr className="text-right cursor-pointer text-xs md:text-sm">
         <td className="text-left flex items-center gap-x-5 py-2.5">
           <div className="flex items-center ">
             <img height="30" width="30" src={logoMap[tokenZero.symbol]} />

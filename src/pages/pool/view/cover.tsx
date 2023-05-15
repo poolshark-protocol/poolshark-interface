@@ -253,9 +253,9 @@ export default function Cover() {
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
       <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full">
-        <div className="w-[55rem] absolute bottom-0">
-          <div className="flex justify-between items-center mb-2">
-            <div className="text-left flex items-center gap-x-5 py-2.5">
+        <div className="md:w-[55rem] w-full px-3 md:px-0 absolute bottom-0">
+          <div className="flex md:flex-row flex-col w-full justify-between items-start md:items-center mb-2">
+            <div className="text-left md:flex items-center gap-x-5 py-2.5">
               <div className="flex items-center">
                 <img height="50" width="50" src={tokenIn.logoURI} />
                 <img
@@ -269,6 +269,7 @@ export default function Cover() {
                 {tokenIn.name} <ArrowLongRightIcon className="w-5 " />{' '}
                 {tokenOut.name}
               </span>
+              <div className="flex items-center mt-3">
               <span className="bg-white text-black rounded-md px-3 py-0.5">
                 {feeTier}%
               </span>
@@ -286,6 +287,7 @@ export default function Cover() {
                   In Range
                 </div>
               )}
+              </div>
             </div>
             <a
               href={'https://goerli.arbiscan.io/address/' + poolAdd}
@@ -298,8 +300,8 @@ export default function Cover() {
             </a>
           </div>
           <div className="mb-6">
-            <div className="flex justify-between text-[#646464]">
-              <div className="grid grid-cols-2 gap-x-10 pl-2 ">
+            <div className="flex flex-col md:flex-row gap-y-2 justify-between text-[#646464]">
+              <div className="grid grid-cols-2 gap-x-10 ">
                 <h1
                   onClick={() => copyAddress0()}
                   className="text-xs cursor-pointer w-32"
@@ -336,9 +338,9 @@ export default function Cover() {
               </h1>
             </div>
           </div>
-          <div className="bg-black  border border-grey2 border-b-none w-full rounded-t-xl py-6 px-7 h-[70vh] overflow-y-auto">
-            <div className="flex gap-x-20 justify-between">
-              <div className="w-1/2">
+          <div className="bg-black  border border-grey2 border-b-none w-full rounded-t-xl py-6 px-7 h-[60vh] md:h-[70vh] overflow-y-auto">
+            <div className="flex md:flex-row flex-col gap-x-20 justify-between">
+              <div className="md:w-1/2 w-full">
                 <h1 className="text-lg mb-3">Cover Size</h1>
                 <span className="text-4xl">
                   $
@@ -385,8 +387,8 @@ export default function Cover() {
                   </div>
                 </Link>
               </div>
-              <div className="w-1/2">
-                <h1 className="text-lg mb-3">Filled Position</h1>
+              <div className="md:w-1/2 w-full">
+                <h1 className="text-lg mb-3 mt-10 md:mt-0">Filled Position</h1>
                 <span className="text-4xl">
                   $300
                   <span className="text-grey">
@@ -491,7 +493,7 @@ export default function Cover() {
                 {tokenIn.name} per {tokenOut.name}
               </div>
             </div>
-            <div>
+            <div className="mb-20 md:mb-0">
               <div className="flex justify-between items-center mt-10 mb-5">
                 <h1 className="text-lg">Original pool being covered </h1>
                 <h1 className="text-grey">

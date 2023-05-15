@@ -158,7 +158,7 @@ export default function SelectToken(props) {
       </Transition>
       <button
         onClick={() => openModal()}
-        className={props.index === "0" || props.index === "1" && props.selected === true  ? "flex items-center uppercase gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl":
+        className={props.index === "0" || props.index === "1" && props.selected === true  ? "flex items-center uppercase gap-x-6 md:gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl":
        "flex items-center bg-background text-main gap-x-3 hover:opacity-80  px-4 py-2 rounded-xl" }
       >
         <div className="flex items-center gap-x-2 w-full">

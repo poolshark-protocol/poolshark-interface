@@ -88,14 +88,14 @@ export default function useInputBox() {
   //TODO: add an optional param for changing value
   const inputBox = (placeholder: string, updateValue?: any) => {
     return (
-      <div className="flex gap-x-2">
+      <div className="">
         <input
           type="number"
           id="input"
           onChange={(e) => handleChange(e, updateValue)}
           value={display}
           placeholder={placeholder}
-          className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
+          className="bg-[#0C0C0C] placeholder:text-grey1 w-full text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
         />
       </div>
     )
