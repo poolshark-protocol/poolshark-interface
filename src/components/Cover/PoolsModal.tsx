@@ -84,6 +84,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
         valueTokenOne: uniV3Position.depositedToken1,
         poolAddress: uniV3Position.id,
         liquidity: uniV3Position.liquidity,
+        latestTick: uniV3Position.tick,
         min: uniV3Position.withdrawnToken0,
         max: uniV3Position.withdrawnToken1,
         userOwnerAddress: uniV3Position.owner.replace(/"|'/g, ''),
@@ -246,6 +247,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                               max={allUniV3Position.max}
                               liquidity={allUniV3Position.liquidity}
                               feeTier={allUniV3Position.feeTier}
+                              latestTick={allUniV3Position.tick}
                               epochLast={undefined}
                               prefill={undefined}
                               close={undefined}

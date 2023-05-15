@@ -47,6 +47,8 @@ export default function Cover() {
         address: query.tokenOneAddress,
         value: query.tokenOneValue,
       } as token)
+      setLatestTick(query.latestTick)
+      setEpochLast(query.epochLast)
       setLiquidity(query.liquidity)
       setFeeTier(query.feeTier)
       setMinLimit(query.min)
@@ -220,14 +222,15 @@ export default function Cover() {
   }
 
   const getClaimTick = async () => {
-    if (tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1) {
+    let zeroForOne: boolean = tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1
+    let claimTick = zeroForOne ? maxLimit : minLimit
+    if (zeroForOne) {
       const claimTickQuery = await getTickIfZeroForOne(
         Number(maxLimit),
         poolAdd.toString(),
         Number(epochLast),
       )
       const claimTickDataLength = claimTickQuery['data']['ticks'].length
-      let claimTick = maxLimit
       if (claimTickDataLength > 0) claimTick = claimTickQuery['data']['ticks'][0]['index']
     } else {
       const claimTickQuery = await getTickIfNotZeroForOne(
@@ -235,8 +238,8 @@ export default function Cover() {
         poolAdd.toString(),
         Number(1),
       )
+      console.log('epoch last:', epochLast)
       const claimTickDataLength = claimTickQuery['data']['ticks'].length
-      let claimTick = minLimit
       if (claimTickDataLength > 0) claimTick = claimTickQuery['data']['ticks'][0]['index']
       if (claimTick != undefined) {
         setClaimTick(BigNumber.from(claimTick))

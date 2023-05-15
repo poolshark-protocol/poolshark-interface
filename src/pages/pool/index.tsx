@@ -127,7 +127,7 @@ export default function Pool() {
       const coverPositionData = {
         id: coverPosition.id,
         poolId: coverPosition.pool.id,
-        poolLatestTick: coverPosition.pool.latestTick,
+        latestTick: coverPosition.pool.latestTick,
         tokenZero: coverPosition.pool.token0,
         valueTokenZero: coverPosition.inAmount,
         tokenOne: coverPosition.pool.token1,
@@ -354,6 +354,7 @@ export default function Pool() {
                             max={allCoverPosition.max}
                             epochLast={allCoverPosition.epochLast}
                             liquidity={allCoverPosition.liquidity}
+                            latestTick={allCoverPosition.pool.latestTick}
                             feeTier={allCoverPosition.feeTier}
                             prefill={undefined}
                             close={undefined}

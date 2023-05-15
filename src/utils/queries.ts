@@ -494,6 +494,7 @@ export const fetchUniV3Pools = () => {
             query($id: String) {
                 pools(id: $id) {
                     id
+                    tick
                     liquidity
                     sqrtPrice
                     totalValueLockedETH
@@ -551,6 +552,9 @@ export const fetchUniV3Positions = (address: string) => {
                         symbol
                         decimals
                     }
+                    pool {
+                      tick
+                    }
                     depositedToken0
                     depositedToken1
                     withdrawnToken0
@@ -559,7 +563,7 @@ export const fetchUniV3Positions = (address: string) => {
             }
         `
     const client = new ApolloClient({
-      uri: 'https://api.thegraph.com/subgraphs/name/liqwiz/uniswap-v3-goerli',
+      uri: 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
       cache: new InMemoryCache(),
     })
     client

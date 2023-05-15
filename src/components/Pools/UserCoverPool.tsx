@@ -24,6 +24,7 @@ export default function UserCoverPool({
   max,
   epochLast,
   liquidity,
+  latestTick,
   feeTier,
   href,
   prefill,
@@ -136,6 +137,8 @@ export default function UserCoverPool({
           min: min,
           max: max,
           liquidity: liquidity,
+          latestTick: latestTick,
+          epochLast: epochLast,
           feeTier: feeTierPercentage,
         },
       }}

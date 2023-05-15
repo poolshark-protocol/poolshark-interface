@@ -59,7 +59,7 @@ export default function Cover() {
       const coverPositionData = {
         id: coverPosition.id,
         poolId: coverPosition.pool.id,
-        poolLatestTick: coverPosition.pool.latestTick,
+        latestTick: coverPosition.pool.latestTick,
         tokenZero: coverPosition.inToken,
         valueTokenZero: coverPosition.inAmount,
         tokenOne: coverPosition.outToken,
@@ -231,7 +231,8 @@ export default function Cover() {
                                 max={allCoverPosition.max}
                                 feeTier={allCoverPosition.feeTier}
                                 liquidity={allCoverPosition.liquidity}
-                                epochLast={undefined}
+                                latestTick={allCoverPosition.latestTick}
+                                epochLast={allCoverPosition.epochLast}
                                 prefill={undefined}
                                 close={undefined}
                                 href={'/pool/view/cover'}
