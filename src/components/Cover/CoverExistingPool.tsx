@@ -18,6 +18,7 @@ import { TickMath } from '../../utils/math/tickMath'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import useInputBox from '../../hooks/useInputBox'
 import { coverPoolABI } from '../../abis/evm/coverPool'
+import { ZERO_ADDRESS } from '../../utils/math/constants'
 
 export default function CoverExistingPool({
   account,
@@ -161,7 +162,9 @@ export default function CoverExistingPool({
       } else {
         pool = await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
       }
-      const id = pool['data']['coverPools']['0']['id']
+      let id = ZERO_ADDRESS
+      let dataLength = pool['data']['coverPools'].length
+      if(dataLength != 0) id = pool['data']['coverPools']['0']['id']
       setCoverPoolRoute(id)
     } catch (error) {
       console.log(error)

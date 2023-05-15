@@ -34,6 +34,7 @@ import useSwapAllowance from '../hooks/useSwapAllowance'
 import { rangePoolABI } from '../abis/evm/rangePool'
 import {TickMath} from '../utils/math/tickMath'
 import JSBI from 'jsbi'
+import { ZERO_ADDRESS } from '../utils/math/constants'
 
 type token = {
   symbol: string
@@ -498,9 +499,9 @@ export default function Swap() {
           tokenIn.address,
           tokenOut.address,
         )
-
-        const id = pool['data']['coverPools']['0']['id']
-
+        let id = ZERO_ADDRESS
+        let dataLength = pool['data']['coverPools'].length
+        if(dataLength != 0) id = pool['data']['coverPools']['0']['id']
         setCoverPoolRoute(id)
         console.log('cover pool route', coverPoolRoute)
       }
