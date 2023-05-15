@@ -32,7 +32,7 @@ import SwapCoverApproveButton from '../components/Buttons/SwapCoverApproveButton
 import SwapCoverButton from '../components/Buttons/SwapCoverButton'
 import useSwapAllowance from '../hooks/useSwapAllowance'
 import { rangePoolABI } from '../abis/evm/rangePool'
-import {TickMath} from '../utils/math/tickMath'
+import { TickMath } from '../utils/math/tickMath'
 import JSBI from 'jsbi'
 
 type token = {
@@ -133,7 +133,11 @@ export default function Swap() {
     watch: true,
     onSuccess(data) {
       console.log('Success price Cover', data)
-      setCoverPrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[4].toString()))))
+      setCoverPrice(
+        parseFloat(
+          TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[4].toString())),
+        ),
+      )
     },
     onError(error) {
       console.log('Error price Cover', error)
@@ -153,10 +157,14 @@ export default function Swap() {
     onSuccess(data) {
       console.log('Success price Range', data)
       setRangePrice(
-        parseFloat(TickMath.invertPrice(
-        TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[5].toString())),
-        tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) < 0
-        )))
+        parseFloat(
+          TickMath.invertPrice(
+            TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[5].toString())),
+            tokenOut.address != '' &&
+              tokenIn.address.localeCompare(tokenOut.address) < 0,
+          ),
+        ),
+      )
       console.log('rangePrice if inverted', rangePrice)
     },
     onError(error) {
@@ -197,8 +205,16 @@ export default function Swap() {
     watch: true,
     onSuccess(data) {
       console.log('Success cover wagmi', data)
-      setCoverQuote(parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[1].toString()))))
-      setCoverPriceAfter(parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[2].toString()))))
+      setCoverQuote(
+        parseFloat(
+          TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[1].toString())),
+        ),
+      )
+      setCoverPriceAfter(
+        parseFloat(
+          TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[2].toString())),
+        ),
+      )
     },
     onError(error) {
       console.log('Error cover wagmi', error)
@@ -224,7 +240,11 @@ export default function Swap() {
     watch: true,
     onSuccess(data) {
       console.log('Success range wagmi', data)
-      setRangeQuote(parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[1].toString()))))
+      setRangeQuote(
+        parseFloat(
+          TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[1].toString())),
+        ),
+      )
       console.log('rangeQuote', rangeQuote)
     },
     onError(error) {
@@ -818,7 +838,7 @@ export default function Swap() {
                   ) : (
                     //@dev add skeletons on load when switching sides/ initial selection
                     <SelectToken
-                      index="1"
+                      index="2"
                       selected={hasSelected}
                       tokenChosen={changeDefaultOut}
                       displayToken={tokenOut}
