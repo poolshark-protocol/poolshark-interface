@@ -13,4 +13,5 @@ export const Q32 = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(32))
 // used in liquidity amount math
 export const Q96_BI = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96))
 export const Q96_BD = JSBD.pow(JSBD.BigDecimal(2), 96)
+export const Q128_BI = JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(128)) 
 export const Q192 = JSBI.exponentiate(Q96_BI, JSBI.BigInt(2))

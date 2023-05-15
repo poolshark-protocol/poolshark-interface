@@ -842,6 +842,62 @@ export const rangePoolABI = [
   {
     "inputs": [
       {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "int24",
+            "name": "lower",
+            "type": "int24"
+          },
+          {
+            "internalType": "int24",
+            "name": "upper",
+            "type": "int24"
+          }
+        ],
+        "internalType": "struct IRangePoolStructs.SnapshotParams",
+        "name": "params",
+        "type": "tuple"
+      }
+    ],
+    "name": "snapshot",
+    "outputs": [
+      {
+        "internalType": "int56",
+        "name": "tickSecondsAccum",
+        "type": "int56"
+      },
+      {
+        "internalType": "uint160",
+        "name": "secondsPerLiquidityAccum",
+        "type": "uint160"
+      },
+      {
+        "internalType": "uint32",
+        "name": "secondsGrowth",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint128",
+        "name": "feesOwed0",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "feesOwed1",
+        "type": "uint128"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes4",
         "name": "_interfaceId",
         "type": "bytes4"
