@@ -214,8 +214,8 @@ export default function CreateCover(props: any) {
           inverse: false,
         }) */
         setDisabled(false)
-        setMin(BigNumber.from(min))
-        setMax(BigNumber.from(max))
+        setMin(BigNumber.from(String(min)))
+        setMax(BigNumber.from(String(max)))
       }
     } catch (error) {
       console.log(error)

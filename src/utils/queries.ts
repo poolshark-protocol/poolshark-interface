@@ -321,9 +321,6 @@ export const fetchRangePools = () => {
             query($id: String) {
                 rangePools(id: $id) {
                     id
-                    factory{
-                        id
-                    }
                     token0{
                         id
                         name
@@ -351,6 +348,7 @@ export const fetchRangePools = () => {
                     price
                     price0
                     price1
+                    price
                     liquidity
                     feesEth
                     feesUsd
@@ -395,6 +393,7 @@ export const fetchRangePositions = (address: string) => {
                 upper
                 lower
                 pool{
+                    id
                     token0{
                         id
                         name
@@ -416,9 +415,11 @@ export const fetchRangePositions = (address: string) => {
                     factory{
                         id
                     }
+                    price
                     liquidity
                     feeTier{
                         feeAmount
+                        tickSpacing
                     }
                     feesEth
                     feesUsd

@@ -197,7 +197,9 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                               min={allRangePosition.min}
                               max={allRangePosition.max}
                               liquidity={allRangePosition.liquidity}
+                              price={allRangePosition.price}
                               feeTier={allRangePosition.feeTier}
+                              tickSpacing={allRangePosition.tickSpacing}
                               unclaimedFees={allRangePosition.unclaimedFees}
                               tvlUsd={allRangePosition.tvlUsd}
                               volumeUsd={allRangePosition.volumeUsd}

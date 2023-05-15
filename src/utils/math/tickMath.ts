@@ -3,7 +3,7 @@ import invariant from 'tiny-invariant'
 import { Q32, ONE, ZERO, MAX_UINT256, Q96_BD  } from './constants'
 import { mostSignificantBit } from "./mostSignificantBit"
 import JSBD from 'jsbd'
-import { priceToString } from './priceMath'
+import { priceToString, scale } from './priceMath'
 
 function mulShift(val: JSBI, mulBy: string): JSBI {
   return JSBI.signedRightShift(JSBI.multiply(val, JSBI.BigInt(mulBy)), JSBI.BigInt(128))
@@ -66,21 +66,25 @@ export abstract class TickMath {
     return priceString
   }
 
-  public static getPriceStringAtTick(tick: number): string {
+  public static getPriceStringAtTick(tick: number, tickSpacing?: number): string {
     // round the tick based on tickSpacing
     let roundedTick = tick
-    //this.roundTick(Number(tick), tickSpacing)
+    if (tickSpacing) roundedTick = this.roundTick(Number(tick), tickSpacing)
     // divide and return formatted string
     return this.getPriceStringAtSqrtPrice(this.getSqrtRatioAtTick(roundedTick))
   }
 
-  public static getSqrtPriceAtPriceString(priceString: string): JSBI {
+  public static getSqrtPriceAtPriceString(priceString: string, scaleFactor?: number): JSBI {
+    let price = Number(parseFloat(priceString).toFixed(30))
+    if (scaleFactor) {
+      price = price / (10 ** scaleFactor)
+    }
     return JSBI.divide(
       JSBI.multiply(
         JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
         JSBI.BigInt(
           String(
-            Math.sqrt(Number(parseFloat(priceString).toFixed(30))).toFixed(
+            Math.sqrt(price).toFixed(
               30,
             ),
           )
