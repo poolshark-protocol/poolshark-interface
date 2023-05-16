@@ -165,12 +165,12 @@ export default function UserPool({
             </div>
             <div className="text-sm flex items-center gap-x-3">
               <span>
-                <span className="text-grey">Min:</span> {min} {tokenZero.symbol}{' '}
+                <span className="text-grey">Min:</span> {TickMath.getPriceStringAtTick(min)} {tokenZero.symbol}{' '}
                 per {tokenOne.symbol}
               </span>
               <ArrowsRightLeftIcon className="w-4 text-grey" />
               <span>
-                <span className="text-grey">Max:</span> {max} {tokenOne.symbol}{' '}
+                <span className="text-grey">Max:</span> {TickMath.getPriceStringAtTick(max)} {tokenOne.symbol}{' '}
                 per {tokenZero.symbol}
               </span>
             </div>

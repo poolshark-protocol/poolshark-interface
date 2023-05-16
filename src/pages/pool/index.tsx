@@ -318,8 +318,8 @@ export default function Pool() {
                             tokenOne={allRangePosition.tokenOne}
                             valueTokenZero={allRangePosition.valueTokenZero}
                             valueTokenOne={allRangePosition.valueTokenOne}
-                            min={TickMath.getPriceStringAtTick(allRangePosition.min)}
-                            max={TickMath.getPriceStringAtTick(allRangePosition.max)}
+                            min={allRangePosition.min}
+                            max={allRangePosition.max}
                             price={allRangePosition.price}
                             liquidity={allRangePosition.liquidity}
                             feeTier={allRangePosition.feeTier}
