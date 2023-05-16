@@ -246,7 +246,7 @@ export default function Cover() {
     enabled: claimTick != undefined,
     onSuccess(data) {
       console.log('Success price filled amount', data)
-      // setCoverFilledAmount(ethers.utils.formatUnits(data[0][2], 18))
+      setCoverFilledAmount(ethers.utils.formatUnits(data[1], 18))
     },
     onError(error) {
       console.log('Error price Cover', error)
@@ -378,7 +378,7 @@ export default function Cover() {
                 <span className="text-4xl">
                   $
                   {Number(
-                    ethers.utils.formatUnits(liquidity.toString(), 18),
+                    ethers.utils.formatUnits(userFillOut.toString(), 18),
                   ).toFixed(2)}
                 </span>
 
@@ -425,12 +425,12 @@ export default function Cover() {
                 <span className="text-4xl">
                   ${' '}
                   {Number(
-                    ethers.utils.formatUnits(userFillIn.toString(), 18),
+                    coverFilledAmount,
                   ).toFixed(2)}
                   <span className="text-grey">
                     /$
                     {Number(
-                      ethers.utils.formatUnits(userFillOut.toString(), 18),
+                      ethers.utils.formatUnits(userFillIn.toString(), 18),
                     ).toFixed(2)}
                   </span>
                 </span>
