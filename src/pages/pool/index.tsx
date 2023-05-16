@@ -18,6 +18,8 @@ import {
 } from '../../utils/queries'
 import { Fragment, useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
+import { BigNumber } from 'ethers'
+import { TickMath } from '../../utils/math/tickMath'
 
 export default function Pool() {
   const poolTypes = [
@@ -97,7 +99,6 @@ export default function Pool() {
   function mapUserRangePositions() {
     const mappedRangePositions = []
     rangePositions.map((rangePosition) => {
-      //console.log('rangePosition', rangePosition)
       const rangePositionData = {
         id: rangePosition.id,
         poolId: rangePosition.pool.id,
@@ -107,15 +108,17 @@ export default function Pool() {
         valueTokenOne: rangePosition.pool.totalValueLocked1,
         min: rangePosition.lower,
         max: rangePosition.upper,
-        tvlUsd: rangePosition.pool.totalValueLockedUsd,
+        price: rangePosition.pool.price,
         feeTier: rangePosition.pool.feeTier.feeAmount,
+        tickSpacing: rangePosition.pool.feeTier.tickSpacing,
         unclaimedFees: rangePosition.pool.feesUsd,
         liquidity: rangePosition.liquidity,
-        volumeUsd: rangePosition.pool.volumeUsd,
-        volumeEth: rangePosition.pool.volumeEth,
+        tvlUsd: (Number(rangePosition.pool.totalValueLockedUsd) / 1_000_000).toFixed(2),
+        volumeUsd: (Number(rangePosition.pool.volumeUsd) / 1_000_000).toFixed(2),
+        volumeEth: (Number(rangePosition.pool.volumeEth) / 1).toFixed(2),
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
       }
-
+      console.log('range positions:', rangePositionData)
       mappedRangePositions.push(rangePositionData)
     })
     setAllRangePositions(mappedRangePositions)
@@ -134,12 +137,12 @@ export default function Pool() {
         min: coverPosition.lower,
         max: coverPosition.upper,
         epochLast: coverPosition.epochLast,
+        latestTick: coverPosition.pool.latestTick,
         liquidity: coverPosition.liquidity,
         feeTier: coverPosition.pool.volatilityTier.feeAmount,
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
       mappedCoverPositions.push(coverPositionData)
-      //console.log('mappedCoverPositions', mappedCoverPositions)
     })
     setAllCoverPositions(mappedCoverPositions)
   }
@@ -147,19 +150,19 @@ export default function Pool() {
   function mapRangePools() {
     const mappedRangePools = []
     rangePools.map((rangePool) => {
-      //console.log('rangePool', rangePool)
       const rangePoolData = {
         poolId: rangePool.id,
         tokenOne: rangePool.token1,
         tokenZero: rangePool.token0,
+        price: rangePool.price,
         liquidity: rangePool.liquidity,
         feeTier: rangePool.feeTier.feeAmount,
-        tvlUsd: rangePool.totalValueLockedUsd,
-        volumeUsd: rangePool.volumeUsd,
-        volumeEth: rangePool.volumeEth,
+        tickSpacing: rangePool.feeTier.tickSpacing,
+        tvlUsd: (Number(rangePool.totalValueLockedUsd) / 1_000_000).toFixed(2),
+        volumeUsd: (Number(rangePool.volumeUsd) / 1_000_000).toFixed(2),
+        volumeEth: (Number(rangePool.volumeEth) / 1).toFixed(2),
       }
       mappedRangePools.push(rangePoolData)
-      //console.log('mappedRangePools', mappedRangePools)
     })
     setAllRangePools(mappedRangePools)
   }
@@ -173,9 +176,9 @@ export default function Pool() {
         tokenZero: coverPool.token0,
         liquidity: coverPool.liquidity,
         feeTier: coverPool.volatilityTier.feeAmount,
-        tvlUsd: coverPool.totalValueLockedUsd,
-        volumeUsd: coverPool.volumeUsd,
-        volumeEth: coverPool.volumeEth,
+        tvlUsd: (Number(coverPool.totalValueLockedUsd) / 1_000_000).toFixed(2),
+        volumeUsd: (Number(coverPool.volumeUsd) / 1_000_000).toFixed(2),
+        volumeEth: (Number(coverPool.volumeEth) / 1).toFixed(2),
       }
 
       mappedCoverPools.push(coverPoolData)
@@ -317,8 +320,10 @@ export default function Pool() {
                             valueTokenOne={allRangePosition.valueTokenOne}
                             min={allRangePosition.min}
                             max={allRangePosition.max}
+                            price={allRangePosition.price}
                             liquidity={allRangePosition.liquidity}
                             feeTier={allRangePosition.feeTier}
+                            tickSpacing={allRangePosition.tickSpacing}
                             unclaimedFees={allRangePosition.unclaimedFees}
                             tvlUsd={allRangePosition.tvlUsd}
                             volumeUsd={allRangePosition.volumeUsd}
@@ -353,6 +358,7 @@ export default function Pool() {
                             max={allCoverPosition.max}
                             epochLast={allCoverPosition.epochLast}
                             liquidity={allCoverPosition.liquidity}
+                            latestTick={allCoverPosition.latestTick}
                             feeTier={allCoverPosition.feeTier}
                             prefill={undefined}
                             close={undefined}

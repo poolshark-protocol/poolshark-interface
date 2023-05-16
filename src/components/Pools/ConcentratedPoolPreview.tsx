@@ -31,6 +31,7 @@ export default function ConcentratedPoolPreview({
     args: [address, poolAddress],
     chainId: 421613,
     watch: true,
+    enabled: tokenIn.address != '',
     onSuccess() {
       console.log('Success')
     },
@@ -48,6 +49,7 @@ export default function ConcentratedPoolPreview({
     args: [address, poolAddress],
     chainId: 421613,
     watch: true,
+    enabled: tokenOut.address != '',
     onSuccess() {
       console.log('Success')
     },

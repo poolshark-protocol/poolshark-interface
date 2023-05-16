@@ -7,7 +7,6 @@ import { ArrowLongLeftIcon } from '@heroicons/react/20/solid'
 
 export default function Range() {
   const router = useRouter()
-  console.log('router.query: ', router.query)
   const zeroAddress =
     router.query.tokenZeroAddress === undefined
       ? ''

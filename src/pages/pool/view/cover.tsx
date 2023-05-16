@@ -9,13 +9,15 @@ import { useState, useEffect } from 'react'
 import CoverBurnButton from '../../../components/Buttons/CoverBurnButton'
 import CoverCollectButton from '../../../components/Buttons/CoverCollectButton'
 import { useRouter } from 'next/router'
-import { useAccount } from 'wagmi'
+import { useAccount, useContractRead } from 'wagmi'
 import Link from 'next/link'
 import { BigNumber, ethers } from 'ethers'
 import {
   getTickIfNotZeroForOne,
   getTickIfZeroForOne,
 } from '../../../utils/queries'
+import { TickMath } from '../../../utils/math/tickMath'
+import { coverPoolABI } from '../../../abis/evm/coverPool'
 
 export default function Cover() {
   type token = {
@@ -46,6 +48,8 @@ export default function Cover() {
         address: query.tokenOneAddress,
         value: query.tokenOneValue,
       } as token)
+      setLatestTick(query.latestTick)
+      setEpochLast(query.epochLast)
       setLiquidity(query.liquidity)
       setFeeTier(query.feeTier)
       setMinLimit(query.min)
@@ -103,13 +107,15 @@ export default function Cover() {
     address: router.query.tokenOneAddress ?? '',
     value: router.query.tokenOneValue ?? '',
   } as token)
+  const [latestTick, setLatestTick] = useState(router.query.latestTick ?? 0)
   const [liquidity, setLiquidity] = useState(router.query.liquidity ?? '0')
   const [feeTier, setFeeTier] = useState(router.query.feeTier ?? '')
   const [minLimit, setMinLimit] = useState(router.query.min ?? '0')
   const [maxLimit, setMaxLimit] = useState(router.query.max ?? '0')
   const [mktRate, setMktRate] = useState({})
-  const [epochLast, setEpochLast] = useState(router.query.epochLast ?? '0')
-
+  const [epochLast, setEpochLast] = useState(router.query.epochLast ?? 0)
+  const [zeroForOne, setZeroForOne] = useState(true)
+  const [coverFilledAmount, setCoverFilledAmount] = useState('')
   //Pool Addresses
   const [is0Copied, setIs0Copied] = useState(false)
   const [is1Copied, setIs1Copied] = useState(false)
@@ -217,36 +223,59 @@ export default function Cover() {
     }
   }
 
+  const { data: filledAmount } = useContractRead({
+    address: coverPoolRoute.toString(),
+    abi: coverPoolABI,
+    functionName: 'snapshot',
+    args: [[
+      address,
+      BigNumber.from('0'),
+      minLimit,
+      maxLimit,
+      claimTick,
+      zeroForOne
+    ]],
+    chainId: 421613,
+    watch: true,
+    enabled: claimTick != undefined,
+    onSuccess(data) {
+      console.log('Success price filled amount', data)
+      // setCoverFilledAmount(ethers.utils.formatUnits(data[0][2], 18))
+    },
+    onError(error) {
+      console.log('Error price Cover', error)
+    },
+    onSettled(data, error) {
+      //console.log('Settled price Cover', { data, error })
+    },
+  })
+
   const getClaimTick = async () => {
-    if (tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1) {
+   setZeroForOne(tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1)
+    let claimTick = zeroForOne ? maxLimit : minLimit
+    if (zeroForOne) {
       const claimTickQuery = await getTickIfZeroForOne(
-        Number(minLimit),
-        poolAdd.toString(),
-        Number(epochLast),
-      )
-      const claimTick = claimTickQuery['data']['ticks']['0']['index']
-
-      console.log('claimTick', claimTick)
-
-      if (claimTick != undefined) {
-        setClaimTick(BigNumber.from(claimTick))
-      } else {
-        setClaimTick(BigNumber.from(maxLimit))
-      }
-    } else {
-      const claimTickQuery = await getTickIfNotZeroForOne(
         Number(maxLimit),
         poolAdd.toString(),
         Number(epochLast),
       )
-      const claimTick = claimTickQuery['data']['ticks']['0']['index']
-
+      const claimTickDataLength = claimTickQuery['data']['ticks'].length
+      if (claimTickDataLength > 0) claimTick = claimTickQuery['data']['ticks'][0]['index']
+    } else {
+      const claimTickQuery = await getTickIfNotZeroForOne(
+        Number(minLimit),
+        poolAdd.toString(),
+        Number(1),
+      )
+      const claimTickDataLength = claimTickQuery['data']['ticks'].length
+      if (claimTickDataLength > 0) claimTick = claimTickQuery['data']['ticks'][0]['index']
       if (claimTick != undefined) {
         setClaimTick(BigNumber.from(claimTick))
       } else {
         setClaimTick(BigNumber.from(minLimit))
       }
     }
+    setClaimTick(BigNumber.from(claimTick))
   }
 
   return (
@@ -459,9 +488,9 @@ export default function Cover() {
             </div>
             <div className="flex justify-between items-center mt-4 gap-x-6">
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
-                <div className="text-grey text-xs w-full">Min Price.</div>
+                <div className="text-grey text-xs w-full">Min Price</div>
                 <div className="text-white text-2xl my-2 w-full">
-                  {minLimit.toString()}
+                 {minLimit === undefined ? '' : TickMath.getPriceStringAtTick(Number(minLimit))}
                 </div>
                 <div className="text-grey text-xs w-full">
                   {tokenIn.name} per {tokenOut.name}
@@ -472,9 +501,9 @@ export default function Cover() {
               </div>
               <ArrowsRightLeftIcon className="w-12 text-grey" />
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
-                <div className="text-grey text-xs w-full">Max Price.</div>
+                <div className="text-grey text-xs w-full">Max Price</div>
                 <div className="text-white text-2xl my-2 w-full">
-                  {maxLimit === undefined ? '' : maxLimit.toString()}
+                  {maxLimit === undefined ? '' : TickMath.getPriceStringAtTick(Number(maxLimit))}
                 </div>
                 <div className="text-grey text-xs w-full">
                   {tokenIn.name} per {tokenOut.name}
@@ -486,7 +515,7 @@ export default function Cover() {
             </div>
             <div className="border border-grey1 rounded-xl py-2 text-center w-full mt-4 bg-dark">
               <div className="text-grey text-xs w-full">Current Price</div>
-              <div className="text-white text-2xl my-2 w-full">1.064</div>
+              <div className="text-white text-2xl my-2 w-full">{TickMath.getPriceStringAtTick(Number(latestTick))}</div>
               <div className="text-grey text-xs w-full">
                 {tokenIn.name} per {tokenOut.name}
               </div>

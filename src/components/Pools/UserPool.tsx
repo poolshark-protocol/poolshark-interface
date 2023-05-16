@@ -26,8 +26,10 @@ export default function UserPool({
   valueTokenOne,
   min,
   max,
+  price,
   liquidity,
   feeTier,
+  tickSpacing,
   unclaimedFees,
   href,
   tvlUsd,
@@ -132,8 +134,10 @@ export default function UserPool({
               : 0,
             min: min,
             max: max,
+            price: price,
             liquidity: liquidity,
             feeTier: feeTierPercentage,
+            tickSpacing: tickSpacing,
             unclaimedFees: unclaimedFees,
           },
         }}
@@ -161,12 +165,12 @@ export default function UserPool({
             </div>
             <div className="text-sm flex items-center gap-x-3">
               <span>
-                <span className="text-grey">Min:</span> {min} {tokenZero.symbol}{' '}
+                <span className="text-grey">Min:</span> {TickMath.getPriceStringAtTick(min)} {tokenZero.symbol}{' '}
                 per {tokenOne.symbol}
               </span>
               <ArrowsRightLeftIcon className="w-4 text-grey" />
               <span>
-                <span className="text-grey">Max:</span> {max} {tokenOne.symbol}{' '}
+                <span className="text-grey">Max:</span> {TickMath.getPriceStringAtTick(max)} {tokenOne.symbol}{' '}
                 per {tokenZero.symbol}
               </span>
             </div>
