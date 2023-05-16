@@ -32,7 +32,7 @@ import SwapCoverApproveButton from '../components/Buttons/SwapCoverApproveButton
 import SwapCoverButton from '../components/Buttons/SwapCoverButton'
 import useSwapAllowance from '../hooks/useSwapAllowance'
 import { rangePoolABI } from '../abis/evm/rangePool'
-import { TickMath } from '../utils/math/tickMath'
+import { TickMath, invertPrice } from '../utils/math/tickMath'
 import JSBI from 'jsbi'
 import { ZERO_ADDRESS } from '../utils/math/constants'
 
@@ -157,7 +157,7 @@ export default function Swap() {
       console.log('Success price Range', data)
       setRangePrice(
         parseFloat(
-          TickMath.invertPrice(
+          invertPrice(
             TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[5].toString())),
             tokenOut.address != '' &&
               tokenIn.address.localeCompare(tokenOut.address) < 0,

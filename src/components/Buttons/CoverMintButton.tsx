@@ -11,6 +11,7 @@ import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useState, useEffect } from 'react'
 import { coverPoolAddress } from '../../constants/contractAddresses'
 import { useCoverStore } from '../../hooks/useStore'
+import { roundTick } from '../../utils/math/tickMath'
 
 export default function CoverMintButton({
   poolAddress,
@@ -21,6 +22,7 @@ export default function CoverMintButton({
   upper,
   amount,
   zeroForOne,
+  tickSpacing
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
@@ -50,6 +52,8 @@ export default function CoverMintButton({
     })
   }, [disabled, to, lower, claim, upper, amount, zeroForOne])*/
 
+  console.log('mint params', to, amount.toString(), roundTick(Number(lower), 40).toString(), roundTick(Number(claim), 40), roundTick(Number(upper), 40), zeroForOne)
+
   const { config } = usePrepareContractWrite({
     address: poolAddress,
     abi: coverPoolABI,
@@ -57,9 +61,9 @@ export default function CoverMintButton({
     args: [[
       to,
       amount,
-      lower,
-      claim,
-      upper,
+      roundTick(Number(lower), 40),
+      roundTick(Number(claim), 40),
+      roundTick(Number(upper), 40),
       zeroForOne
     ]],
     chainId: 421613,
