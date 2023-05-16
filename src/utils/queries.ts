@@ -177,6 +177,8 @@ export const fetchCoverPositions = (address: string) => {
                 liquidity
                 upper
                 lower
+                amountInDeltaMax
+                amountOutDeltaMax
                 epochLast
                 outAmount
                 outToken{

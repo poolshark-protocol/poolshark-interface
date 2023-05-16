@@ -123,6 +123,7 @@ export default function Pool() {
   function mapUserCoverPositions() {
     const mappedCoverPositions = []
     coverPositions.map((coverPosition) => {
+      console.log('coverPosition', coverPosition)
       const coverPositionData = {
         id: coverPosition.id,
         poolId: coverPosition.pool.id,
@@ -132,6 +133,8 @@ export default function Pool() {
         valueTokenOne: coverPosition.outAmount,
         min: coverPosition.lower,
         max: coverPosition.upper,
+        userFillIn: coverPosition.amountOutDeltaMax,
+        userFillOut: coverPosition.amountInDeltaMax,
         epochLast: coverPosition.epochLast,
         liquidity: coverPosition.liquidity,
         feeTier: coverPosition.pool.volatilityTier.feeAmount,
@@ -361,6 +364,8 @@ export default function Pool() {
                             valueTokenOne={allCoverPosition.valueTokenOne}
                             min={allCoverPosition.min}
                             max={allCoverPosition.max}
+                            userFillIn={allCoverPosition.userFillIn}
+                            userFillOut={allCoverPosition.userFillOut}
                             epochLast={allCoverPosition.epochLast}
                             liquidity={allCoverPosition.liquidity}
                             feeTier={allCoverPosition.feeTier}

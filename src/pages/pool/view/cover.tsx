@@ -50,6 +50,8 @@ export default function Cover() {
       setFeeTier(query.feeTier)
       setMinLimit(query.min)
       setMaxLimit(query.max)
+      setUserFillIn(query.userFillIn)
+      setUserFillOut(query.userFillOut)
       setTokenZeroDisplay(
         query.tokenZeroAddress.toString().substring(0, 6) +
           '...' +
@@ -107,6 +109,10 @@ export default function Cover() {
   const [feeTier, setFeeTier] = useState(router.query.feeTier ?? '')
   const [minLimit, setMinLimit] = useState(router.query.min ?? '0')
   const [maxLimit, setMaxLimit] = useState(router.query.max ?? '0')
+  const [userFillIn, setUserFillIn] = useState(router.query.userFillIn ?? '0')
+  const [userFillOut, setUserFillOut] = useState(
+    router.query.userFillOut ?? '0',
+  )
   const [mktRate, setMktRate] = useState({})
   const [epochLast, setEpochLast] = useState(router.query.epochLast ?? '0')
 
@@ -218,7 +224,10 @@ export default function Cover() {
   }
 
   const getClaimTick = async () => {
-    if (tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1) {
+    if (
+      tokenOut.address != '' &&
+      tokenIn.address.localeCompare(tokenOut.address) === -1
+    ) {
       const claimTickQuery = await getTickIfZeroForOne(
         Number(minLimit),
         poolAdd.toString(),
@@ -388,11 +397,14 @@ export default function Cover() {
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Filled Position</h1>
                 <span className="text-4xl">
-                  $300
+                  ${' '}
+                  {Number(
+                    ethers.utils.formatUnits(userFillIn.toString(), 18),
+                  ).toFixed(2)}
                   <span className="text-grey">
                     /$
                     {Number(
-                      ethers.utils.formatUnits(liquidity.toString(), 18),
+                      ethers.utils.formatUnits(userFillOut.toString(), 18),
                     ).toFixed(2)}
                   </span>
                 </span>
