@@ -14,6 +14,8 @@ import { useAccount, useContractRead } from 'wagmi'
 import { BigNumber, ethers } from 'ethers'
 import { getRangePoolFromFactory } from '../../../utils/queries'
 import { rangePoolABI } from '../../../abis/evm/rangePool'
+import { TickMath } from '../../../utils/math/tickMath'
+import JSBI from 'jsbi'
 
 export default function Range() {
   type token = {
@@ -46,8 +48,10 @@ export default function Range() {
       } as token)
       setLiquidity(query.liquidity)
       setFeeTier(query.feeTier)
+      setTickSpacing(query.tickSpacing)
       setMinLimit(query.min)
       setMaxLimit(query.max)
+      setPoolPrice(query.price)
       setTokenZeroDisplay(
         query.tokenZeroAddress.toString().substring(0, 6) +
           '...' +
@@ -103,8 +107,10 @@ export default function Range() {
   } as token)
   const [liquidity, setLiquidity] = useState(router.query.liquidity ?? '0')
   const [feeTier, setFeeTier] = useState(router.query.feeTier ?? '')
+  const [tickSpacing, setTickSpacing] = useState(router.query.tickSpacing ?? 10)
   const [minLimit, setMinLimit] = useState(router.query.min ?? '0')
   const [maxLimit, setMaxLimit] = useState(router.query.max ?? '0')
+  const [poolPrice, setPoolPrice] = useState(router.query.price ?? '0')
   const [rangePoolRoute, setRangePoolRoute] = useState(
     router.query.rangePoolRoute ?? '0',
   )
@@ -402,6 +408,7 @@ export default function Range() {
                       tokenZeroLogoURI: tokenIn.logoURI,
                       tokenZeroAddress: tokenIn.address,
                       feeTier: feeTier,
+                      tickSpacing: tickSpacing,
                       min: minLimit,
                       max: maxLimit,
                     },
@@ -485,7 +492,7 @@ export default function Range() {
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Min Price.</div>
                 <div className="text-white text-2xl my-2 w-full">
-                  {minLimit}
+                  {TickMath.getPriceStringAtTick(Number(minLimit), Number(tickSpacing))}
                 </div>
                 <div className="text-grey text-xs w-full">
                   {tokenIn.name} per {tokenOut.name}
@@ -498,7 +505,7 @@ export default function Range() {
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Max Price.</div>
                 <div className="text-white text-2xl my-2 w-full">
-                  {maxLimit}
+                  {TickMath.getPriceStringAtTick(Number(maxLimit), Number(tickSpacing))}
                 </div>
                 <div className="text-grey text-xs w-full">
                   {tokenIn.name} per {tokenOut.name}
@@ -510,7 +517,7 @@ export default function Range() {
             </div>
             <div className="border border-grey1 rounded-xl py-2 text-center w-full mt-4 bg-dark">
               <div className="text-grey text-xs w-full">Current Price</div>
-              <div className="text-white text-2xl my-2 w-full">1.064</div>
+              <div className="text-white text-2xl my-2 w-full">{poolPrice != undefined && TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(poolPrice))}</div>
               <div className="text-grey text-xs w-full">
                 {tokenIn.name} per {tokenOut.name}
               </div>

@@ -58,7 +58,7 @@ export default function PoolList({
         </td>
         <td>${tvlUsd}m</td>
         <td>${volumeUsd}m</td>
-        <td>${volumeEth}m</td>
+        <td>Ξ{volumeEth}</td>
       </tr>
     </Link>
   )

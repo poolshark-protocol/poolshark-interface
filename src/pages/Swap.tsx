@@ -34,6 +34,7 @@ import useSwapAllowance from '../hooks/useSwapAllowance'
 import { rangePoolABI } from '../abis/evm/rangePool'
 import { TickMath } from '../utils/math/tickMath'
 import JSBI from 'jsbi'
+import { ZERO_ADDRESS } from '../utils/math/constants'
 
 type token = {
   symbol: string
@@ -104,6 +105,7 @@ export default function Swap() {
     args: [address, rangePoolRoute],
     chainId: 421613,
     watch: true,
+    enabled: coverPoolRoute != undefined && tokenIn.address != '',
     onError(error) {
       console.log('Error', error)
     },
@@ -115,6 +117,7 @@ export default function Swap() {
     args: [address, coverPoolRoute],
     chainId: 421613,
     watch: true,
+    enabled: coverPoolRoute != undefined && tokenIn.address != '',
     onError(error) {
       console.log('Error', error)
     },
@@ -133,11 +136,7 @@ export default function Swap() {
     watch: true,
     onSuccess(data) {
       console.log('Success price Cover', data)
-      setCoverPrice(
-        parseFloat(
-          TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[4].toString())),
-        ),
-      )
+      setCoverPrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[0].toString()))))
     },
     onError(error) {
       console.log('Error price Cover', error)
@@ -198,8 +197,8 @@ export default function Swap() {
       bnInput,
       tokenOut.address != '' &&
       tokenIn.address.localeCompare(tokenOut.address) < 0
-        ? coverBnPrice.sub(coverBnBaseLimit)
-        : coverBnPrice.add(coverBnBaseLimit),
+      ? TickMath.getSqrtPriceAtPriceString(String(coverBnPrice.sub(coverBnBaseLimit)), 18)
+      : TickMath.getSqrtPriceAtPriceString(String(coverBnPrice.add(coverBnBaseLimit)), 18)
     ],
     chainId: 421613,
     watch: true,
@@ -233,8 +232,8 @@ export default function Swap() {
       bnInput,
       tokenOut.address != '' &&
       tokenIn.address.localeCompare(tokenOut.address) < 0
-        ? rangeBnPrice.sub(rangeBnBaseLimit)
-        : rangeBnPrice.add(rangeBnBaseLimit),
+        ? TickMath.getSqrtPriceAtPriceString(String(rangeBnPrice.sub(rangeBnBaseLimit)), 18)
+        : TickMath.getSqrtPriceAtPriceString(String(rangeBnPrice.add(rangeBnBaseLimit)), 18),
     ],
     chainId: 421613,
     watch: true,
@@ -400,6 +399,10 @@ export default function Swap() {
       const provider = new ethers.providers.JsonRpcProvider(
         'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
       )
+      if (!coverPoolRoute || !provider) {
+        setGasFee('0')
+        return
+      }
       const contract = new ethers.Contract(
         coverPoolRoute,
         coverPoolABI,
@@ -454,12 +457,10 @@ export default function Swap() {
       }
     } else {
       const data = await fetchRangePools()
-      const poolAddress = data['data']['rangePools']['1']['id']
-
-      console.log('range pool subgraph address', poolAddress)
+      const poolAddress = data['data']['rangePools']['0']['id']
 
       if (poolAddress === rangePoolRoute) {
-        const feeTier = data['data']['rangePools']['1']['feeTier']['feeAmount']
+        const feeTier = data['data']['rangePools']['0']['feeTier']['feeAmount']
         console.log(feeTier, 'fee range')
         setSlippage((parseFloat(feeTier) / 10000).toString())
         setAuxSlippage((parseFloat(feeTier) / 10000).toString())
@@ -504,7 +505,6 @@ export default function Swap() {
         const id = pool['data']['rangePools']['0']['id']
 
         setRangePoolRoute(id)
-        console.log('range pool route', rangePoolRoute)
       }
     } catch (error) {
       console.log(error)
@@ -518,9 +518,9 @@ export default function Swap() {
           tokenIn.address,
           tokenOut.address,
         )
-
-        const id = pool['data']['coverPools']['0']['id']
-
+        let id = ZERO_ADDRESS
+        let dataLength = pool['data']['coverPools'].length
+        if(dataLength != 0) id = pool['data']['coverPools']['0']['id']
         setCoverPoolRoute(id)
         console.log('cover pool route', coverPoolRoute)
       }
@@ -658,7 +658,6 @@ export default function Swap() {
       )
     }
   }
-
   return (
     <div className="pt-[10vh]">
       <div className="flex flex-col w-full md:max-w-md px-6 pt-5 pb-7 mx-auto bg-black border border-grey2 rounded-xl">
@@ -1010,8 +1009,8 @@ export default function Swap() {
               baseLimit={
                 tokenOut.address != '' &&
                 tokenIn.address.localeCompare(tokenOut.address) < 0
-                  ? rangeBnPrice.sub(rangeBnBaseLimit)
-                  : rangeBnPrice.add(rangeBnBaseLimit)
+                ? TickMath.getSqrtPriceAtPriceString(String(rangeBnPrice.sub(rangeBnBaseLimit)), 18)
+                : TickMath.getSqrtPriceAtPriceString(String(rangeBnPrice.add(rangeBnBaseLimit)), 18)
               }
             />
           )
@@ -1040,8 +1039,8 @@ export default function Swap() {
             baseLimit={
               tokenOut.address != '' &&
               tokenIn.address.localeCompare(tokenOut.address) < 0
-                ? coverBnPrice.sub(coverBnBaseLimit)
-                : coverBnPrice.add(coverBnBaseLimit)
+              ? TickMath.getSqrtPriceAtPriceString(String(coverBnPrice.sub(coverBnBaseLimit)), 18)
+              : TickMath.getSqrtPriceAtPriceString(String(coverBnPrice.add(coverBnBaseLimit)), 18)
             }
           />
         )}
