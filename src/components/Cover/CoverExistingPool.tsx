@@ -516,6 +516,7 @@ export default function CoverExistingPool({
               .parseUnits(String(sliderValue * 0.01), 18)
               .mul(1)}
             zeroForOne={tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1}
+            tickSpacing={20}
           />
         )}
       </div>

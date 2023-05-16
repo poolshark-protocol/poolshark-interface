@@ -556,7 +556,7 @@ export default function DirectionalPool({
           maxTick={max}
           fee={selected.tier}
           allowance={allowance}
-          tickSpacing={40}
+          tickSpacing={20}
           setAllowance={setAllowance}
         />
       </div>

@@ -638,6 +638,7 @@ export default function CreateCover(props: any) {
             upper={max}
             amount={bnInput}
             zeroForOne={tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1}
+            tickSpacing={20}
           />
         ) : null}
       </div>
