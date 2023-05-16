@@ -187,26 +187,14 @@ export default function UserCoverPool({
             </span>
           </div>
         </div>
-        {coverTickPrice ? (
-          Number(ethers.utils.formatUnits(coverTickPrice, 18)) < Number(min) ||
-          Number(ethers.utils.formatUnits(coverTickPrice, 18)) > Number(max) ? (
-            <div className="pr-5">
-              <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-                <ExclamationTriangleIcon className="w-4 text-yellow-600" />
-                Out of Range
+        <div className="pr-5">
+              <div className="flex relative bg-transparent items-center justify-center h-8 border-grey1 z-40 border rounded-lg gap-x-2 text-sm w-36">
+                <div className=" bg-white h-full absolute left-0 z-0 rounded-l-[7px] opacity-10 w-[40%]"/>
+                <div className="z-20 ">
+                40% Filled
+                </div>
               </div>
             </div>
-          ) : (
-            <div className="pr-5">
-              <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-                <div className="w-2 h-2 bg-green-500 rounded-full" />
-                In Range
-              </div>
-            </div>
-          )
-        ) : (
-          <></>
-        )}
       </div>
     </Link>
   );

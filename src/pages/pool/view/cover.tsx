@@ -426,12 +426,13 @@ export default function Cover() {
                   </span>
                 </span>
                 <div className="text-grey mt-3">
-                  <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
-                    <div className="flex items-center gap-x-4">
+                  <div className="flex items-center relative justify-between border border-grey1 py-3 px-4 rounded-xl">
+                    <div className="absolute left-0 h-full w-[30%] bg-white rounded-l-xl opacity-10"/>
+                    <div className="flex items-center gap-x-4 z-20">
                       <img height="30" width="30" src={tokenIn.logoURI} />
                       {tokenIn.name}
                     </div>
-                    <span className="text-white">
+                    <span className="text-white z-20">
                       298<span className="text-grey">/600</span>
                     </span>
                   </div>
@@ -468,23 +469,6 @@ export default function Cover() {
               </div>
             </div>
             <div>
-              <div className="flex mt-7 gap-x-6 items-center">
-                <h1 className="text-lg">Price Range </h1>
-                {Number(coverTickPrice) < Number(minLimit) ||
-                Number(coverTickPrice) > Number(maxLimit) ? (
-                  <div className="pr-5">
-                    <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-                      <ExclamationTriangleIcon className="w-4 text-yellow-600" />
-                      Out of Range
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-                    <div className="w-2 h-2 bg-green-500 rounded-full" />
-                    In Range
-                  </div>
-                )}
-              </div>
             </div>
             <div className="flex justify-between items-center mt-4 gap-x-6">
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
