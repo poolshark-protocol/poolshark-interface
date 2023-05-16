@@ -15,6 +15,10 @@ export default function CoverBurnButton({poolAddress, address, lower, claim, upp
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
+
+    const burnPercent = ethers.utils.parseUnits("5", 37)
+
+    // console.log(burnPercent.toString(), zeroForOne, claim.toString(), lower.toString(), upper.toString())
   
     const { config } = usePrepareContractWrite({
         address: poolAddress,
@@ -22,7 +26,7 @@ export default function CoverBurnButton({poolAddress, address, lower, claim, upp
         functionName: "burn",
         args:[[
             address,
-            ethers.utils.parseUnits("1", 38), //hardcoded to 100% for testnet
+            burnPercent, //hardcoded to 100% for testnet
             lower,
             claim,
             upper,

@@ -165,7 +165,7 @@ export default function Cover() {
   const [coverTickPrice, setCoverTickPrice] = useState(
     router.query.coverTickPrice ?? '0',
   )
-  const [claimTick, setClaimTick] = useState(BigNumber.from(0))
+  const [claimTick, setClaimTick] = useState(BigNumber.from('-887272'))
 
   const { data: filledAmount } = useContractRead({
     address: coverPoolRoute.toString(),
@@ -176,10 +176,10 @@ export default function Cover() {
     ],
     chainId: 421613,
     watch: true,
-    enabled: claimTick != undefined,
+    enabled: claimTick.gt(BigNumber.from('-887272')),
     onSuccess(data) {
-      //console.log('Success price filled amount', data)
-      setCoverFilledAmount(ethers.utils.formatUnits(data[1], 18))
+      console.log('Success price filled amount', data)
+      setCoverFilledAmount(ethers.utils.formatUnits(data[2], 18))
     },
     onError(error) {
       console.log('Error price Cover', error)
@@ -236,10 +236,13 @@ export default function Cover() {
   }
 
   const getClaimTick = async () => {
+    if (tokenOut.address == undefined || tokenIn.address == undefined)
+      return
     setZeroForOne(
       tokenOut.address != '' &&
-        tokenIn.address.localeCompare(tokenOut.address) === -1,
+        tokenIn.address.localeCompare(tokenOut.address) < 0,
     )
+    console.log('zfo', zeroForOne, tokenOut.address, tokenIn.address)
     let claimTick = zeroForOne ? maxLimit : minLimit
     if (zeroForOne) {
       const claimTickQuery = await getTickIfZeroForOne(

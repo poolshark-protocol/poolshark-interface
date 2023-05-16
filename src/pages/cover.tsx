@@ -66,11 +66,12 @@ export default function Cover() {
         valueTokenOne: coverPosition.outAmount,
         min: coverPosition.lower,
         max: coverPosition.upper,
+        userFillIn: coverPosition.amountInDeltaMax,
+        userFillOut: coverPosition.amountOutDeltaMax,
         liquidity: coverPosition.pool.liquidity,
         feeTier: coverPosition.pool.volatilityTier.feeAmount,
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
-
       mappedCoverPositions.push(coverPositionData)
     })
 
@@ -223,6 +224,7 @@ export default function Cover() {
                                 searchTerm.toLowerCase() ||
                               searchTerm === '')
                           ) {
+                            console.log('user fill out', allCoverPosition.userFillOut)
                             return (
                               <UserCoverPool
                                 key={allCoverPosition.id}

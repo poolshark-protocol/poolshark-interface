@@ -107,14 +107,13 @@ export const getTickIfZeroForOne = (
        { 
          ticks(
             first: 1
-            where: {index_gte:"${lower}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
+            where: {index_gte:"${lower}", pool_:{id:"${poolAddress}"},epochLast_gte:"${epochLast}"}
           ) {
             index
           }
         }
         `
-    console.log(getTicks)
-    console.log('pool address',  poolAddress)
+        console.log('pool address',  poolAddress)
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
       cache: new InMemoryCache(),
@@ -141,13 +140,14 @@ export const getTickIfNotZeroForOne = (
        { 
          ticks(
             first: 1
-            where: {index_gte:"${lower}", pool_:{id:"${poolAddress}"},epochLast_gte:"${epochLast}"}
+            where: {index_gte:"${lower}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
           ) {
             index
           }
         }
         `
-        console.log('pool address',  poolAddress)
+    console.log(getTicks)
+    console.log('pool address',  poolAddress)
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
       cache: new InMemoryCache(),
