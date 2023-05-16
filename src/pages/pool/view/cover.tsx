@@ -463,7 +463,7 @@ export default function Cover() {
                       upper={maxLimit}
                       zeroForOne={
                         tokenOut.address != '' &&
-                        tokenIn.address.localeCompare(tokenOut.address) === -1
+                        tokenIn.address.localeCompare(tokenOut.address) < 0
                       }
                       amount={liquidity}
                     />
@@ -475,7 +475,7 @@ export default function Cover() {
                       upper={maxLimit}
                       zeroForOne={
                         tokenOut.address != '' &&
-                        tokenIn.address.localeCompare(tokenOut.address) === -1
+                        tokenIn.address.localeCompare(tokenOut.address) < 0
                       }
                     />
                     {/*TO-DO: add positionOwner ternary again*/}
