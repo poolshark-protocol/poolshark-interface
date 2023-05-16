@@ -167,6 +167,28 @@ export default function Cover() {
   )
   const [claimTick, setClaimTick] = useState(BigNumber.from(0))
 
+  const { data: filledAmount } = useContractRead({
+    address: coverPoolRoute.toString(),
+    abi: coverPoolABI,
+    functionName: 'snapshot',
+    args: [
+      [address, BigNumber.from('0'), minLimit, maxLimit, claimTick, zeroForOne],
+    ],
+    chainId: 421613,
+    watch: true,
+    enabled: claimTick != undefined,
+    onSuccess(data) {
+      //console.log('Success price filled amount', data)
+      setCoverFilledAmount(ethers.utils.formatUnits(data[1], 18))
+    },
+    onError(error) {
+      console.log('Error price Cover', error)
+    },
+    onSettled(data, error) {
+      //console.log('Settled price Cover', { data, error })
+    },
+  })
+
   useEffect(() => {
     if (copyAddress0) {
       const timer = setTimeout(() => {
@@ -213,51 +235,11 @@ export default function Cover() {
     setIsPoolCopied
   }
 
-  const fetchTokenPrice = async () => {
-    try {
-      setMktRate({
-        TOKEN20A:
-          '~' +
-          Number(coverTickPrice).toLocaleString('en-US', {
-            style: 'currency',
-            currency: 'USD',
-          }),
-        TOKEN20B: '~1.00',
-      })
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const { data: filledAmount } = useContractRead({
-    address: coverPoolRoute.toString(),
-    abi: coverPoolABI,
-    functionName: 'snapshot',
-    args: [[
-      address,
-      BigNumber.from('0'),
-      minLimit,
-      maxLimit,
-      claimTick,
-      zeroForOne
-    ]],
-    chainId: 421613,
-    watch: true,
-    enabled: claimTick != undefined,
-    onSuccess(data) {
-      console.log('Success price filled amount', data)
-      setCoverFilledAmount(ethers.utils.formatUnits(data[1], 18))
-    },
-    onError(error) {
-      console.log('Error price Cover', error)
-    },
-    onSettled(data, error) {
-      //console.log('Settled price Cover', { data, error })
-    },
-  })
-
   const getClaimTick = async () => {
-   setZeroForOne(tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1)
+    setZeroForOne(
+      tokenOut.address != '' &&
+        tokenIn.address.localeCompare(tokenOut.address) === -1,
+    )
     let claimTick = zeroForOne ? maxLimit : minLimit
     if (zeroForOne) {
       const claimTickQuery = await getTickIfZeroForOne(
@@ -266,7 +248,8 @@ export default function Cover() {
         Number(epochLast),
       )
       const claimTickDataLength = claimTickQuery['data']['ticks'].length
-      if (claimTickDataLength > 0) claimTick = claimTickQuery['data']['ticks'][0]['index']
+      if (claimTickDataLength > 0)
+        claimTick = claimTickQuery['data']['ticks'][0]['index']
     } else {
       const claimTickQuery = await getTickIfNotZeroForOne(
         Number(minLimit),
@@ -274,7 +257,8 @@ export default function Cover() {
         Number(1),
       )
       const claimTickDataLength = claimTickQuery['data']['ticks'].length
-      if (claimTickDataLength > 0) claimTick = claimTickQuery['data']['ticks'][0]['index']
+      if (claimTickDataLength > 0)
+        claimTick = claimTickQuery['data']['ticks'][0]['index']
       if (claimTick != undefined) {
         setClaimTick(BigNumber.from(claimTick))
       } else {
@@ -425,10 +409,7 @@ export default function Cover() {
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Filled Position</h1>
                 <span className="text-4xl">
-                  ${' '}
-                  {Number(
-                    coverFilledAmount,
-                  ).toFixed(2)}
+                  $ {Number(coverFilledAmount).toFixed(2)}
                   <span className="text-grey">
                     /$
                     {Number(
@@ -438,17 +419,19 @@ export default function Cover() {
                 </span>
                 <div className="text-grey mt-3">
                   <div className="flex items-center relative justify-between border border-grey1 py-3 px-4 rounded-xl">
-                    <div className="absolute left-0 h-full w-[30%] bg-white rounded-l-xl opacity-10"/>
+                    <div className="absolute left-0 h-full w-[30%] bg-white rounded-l-xl opacity-10" />
                     <div className="flex items-center gap-x-4 z-20">
                       <img height="30" width="30" src={tokenOut.logoURI} />
                       {tokenOut.name}
                     </div>
                     <span className="text-white z-20">
-                    {Number(
-                    coverFilledAmount,
-                  ).toFixed(2)}<span className="text-grey">/{Number(
-                      ethers.utils.formatUnits(userFillIn.toString(), 18),
-                    ).toFixed(2)}</span>
+                      {Number(coverFilledAmount).toFixed(2)}
+                      <span className="text-grey">
+                        /
+                        {Number(
+                          ethers.utils.formatUnits(userFillIn.toString(), 18),
+                        ).toFixed(2)}
+                      </span>
                     </span>
                   </div>
                 </div>
@@ -483,13 +466,14 @@ export default function Cover() {
                 </div>
               </div>
             </div>
-            <div>
-            </div>
+
             <div className="flex justify-between items-center mt-4 gap-x-6">
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Min Price</div>
                 <div className="text-white text-2xl my-2 w-full">
-                 {minLimit === undefined ? '' : TickMath.getPriceStringAtTick(Number(minLimit))}
+                  {minLimit === undefined
+                    ? ''
+                    : TickMath.getPriceStringAtTick(Number(minLimit))}
                 </div>
                 <div className="text-grey text-xs w-full">
                   {tokenIn.name} per {tokenOut.name}
@@ -502,7 +486,9 @@ export default function Cover() {
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Max Price</div>
                 <div className="text-white text-2xl my-2 w-full">
-                  {maxLimit === undefined ? '' : TickMath.getPriceStringAtTick(Number(maxLimit))}
+                  {maxLimit === undefined
+                    ? ''
+                    : TickMath.getPriceStringAtTick(Number(maxLimit))}
                 </div>
                 <div className="text-grey text-xs w-full">
                   {tokenIn.name} per {tokenOut.name}
@@ -514,7 +500,9 @@ export default function Cover() {
             </div>
             <div className="border border-grey1 rounded-xl py-2 text-center w-full mt-4 bg-dark">
               <div className="text-grey text-xs w-full">Current Price</div>
-              <div className="text-white text-2xl my-2 w-full">{TickMath.getPriceStringAtTick(Number(latestTick))}</div>
+              <div className="text-white text-2xl my-2 w-full">
+                {TickMath.getPriceStringAtTick(Number(latestTick))}
+              </div>
               <div className="text-grey text-xs w-full">
                 {tokenIn.name} per {tokenOut.name}
               </div>
