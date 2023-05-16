@@ -134,7 +134,7 @@ export default function SelectToken(props) {
                       onChange={(e) => setInputVal(e.target.value)}
                     ></input>
                     <div className="flex justify-between flex-wrap mt-4 gap-y-2">
-                      {coinsForListing?.map((coin, index) => {
+                      {coinsForListing?.map((coin) => {
                         return (
                           <CoinListButton
                             key={coin.symbol + 'top'}
