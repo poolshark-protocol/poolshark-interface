@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react'
 import CoverBurnButton from '../../../components/Buttons/CoverBurnButton'
 import CoverCollectButton from '../../../components/Buttons/CoverCollectButton'
 import { useRouter } from 'next/router'
-import { useAccount } from 'wagmi'
+import { useAccount, useContractRead } from 'wagmi'
 import Link from 'next/link'
 import { BigNumber, ethers } from 'ethers'
 import {
@@ -17,6 +17,7 @@ import {
   getTickIfZeroForOne,
 } from '../../../utils/queries'
 import { TickMath } from '../../../utils/math/tickMath'
+import { coverPoolABI } from '../../../abis/evm/coverPool'
 
 export default function Cover() {
   type token = {
@@ -113,7 +114,8 @@ export default function Cover() {
   const [maxLimit, setMaxLimit] = useState(router.query.max ?? '0')
   const [mktRate, setMktRate] = useState({})
   const [epochLast, setEpochLast] = useState(router.query.epochLast ?? 0)
-
+  const [zeroForOne, setZeroForOne] = useState(true)
+  const [coverFilledAmount, setCoverFilledAmount] = useState('')
   //Pool Addresses
   const [is0Copied, setIs0Copied] = useState(false)
   const [is1Copied, setIs1Copied] = useState(false)
@@ -221,8 +223,35 @@ export default function Cover() {
     }
   }
 
+  const { data: filledAmount } = useContractRead({
+    address: coverPoolRoute.toString(),
+    abi: coverPoolABI,
+    functionName: 'snapshot',
+    args: [[
+      address,
+      BigNumber.from('0'),
+      minLimit,
+      maxLimit,
+      claimTick,
+      zeroForOne
+    ]],
+    chainId: 421613,
+    watch: true,
+    enabled: claimTick != undefined,
+    onSuccess(data) {
+      console.log('Success price filled amount', data)
+      // setCoverFilledAmount(ethers.utils.formatUnits(data[0][2], 18))
+    },
+    onError(error) {
+      console.log('Error price Cover', error)
+    },
+    onSettled(data, error) {
+      //console.log('Settled price Cover', { data, error })
+    },
+  })
+
   const getClaimTick = async () => {
-    let zeroForOne: boolean = tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1
+   setZeroForOne(tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1)
     let claimTick = zeroForOne ? maxLimit : minLimit
     if (zeroForOne) {
       const claimTickQuery = await getTickIfZeroForOne(
