@@ -19,6 +19,7 @@ import {
 import { Fragment, useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
 import { BigNumber } from 'ethers'
+import { TickMath } from '../../utils/math/tickMath'
 
 export default function Pool() {
   const poolTypes = [
@@ -108,13 +109,13 @@ export default function Pool() {
         min: rangePosition.lower,
         max: rangePosition.upper,
         price: rangePosition.pool.price,
-        tvlUsd: rangePosition.pool.totalValueLockedUsd,
         feeTier: rangePosition.pool.feeTier.feeAmount,
         tickSpacing: rangePosition.pool.feeTier.tickSpacing,
         unclaimedFees: rangePosition.pool.feesUsd,
         liquidity: rangePosition.liquidity,
-        volumeUsd: rangePosition.pool.volumeUsd,
-        volumeEth: rangePosition.pool.volumeEth,
+        tvlUsd: (Number(rangePosition.pool.totalValueLockedUsd) / 1_000_000).toFixed(2),
+        volumeUsd: (Number(rangePosition.pool.volumeUsd) / 1_000_000).toFixed(2),
+        volumeEth: (Number(rangePosition.pool.volumeEth) / 1).toFixed(2),
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
       }
       console.log('range positions:', rangePositionData)
@@ -157,9 +158,9 @@ export default function Pool() {
         liquidity: rangePool.liquidity,
         feeTier: rangePool.feeTier.feeAmount,
         tickSpacing: rangePool.feeTier.tickSpacing,
-        tvlUsd: rangePool.totalValueLockedUsd,
-        volumeUsd: rangePool.volumeUsd,
-        volumeEth: rangePool.volumeEth,
+        tvlUsd: (Number(rangePool.totalValueLockedUsd) / 1_000_000).toFixed(2),
+        volumeUsd: (Number(rangePool.volumeUsd) / 1_000_000).toFixed(2),
+        volumeEth: (Number(rangePool.volumeEth) / 1).toFixed(2),
       }
       mappedRangePools.push(rangePoolData)
     })
@@ -175,9 +176,9 @@ export default function Pool() {
         tokenZero: coverPool.token0,
         liquidity: coverPool.liquidity,
         feeTier: coverPool.volatilityTier.feeAmount,
-        tvlUsd: coverPool.totalValueLockedUsd,
-        volumeUsd: coverPool.volumeUsd,
-        volumeEth: coverPool.volumeEth,
+        tvlUsd: (Number(coverPool.totalValueLockedUsd) / 1_000_000).toFixed(2),
+        volumeUsd: (Number(coverPool.volumeUsd) / 1_000_000).toFixed(2),
+        volumeEth: (Number(coverPool.volumeEth) / 1).toFixed(2),
       }
 
       mappedCoverPools.push(coverPoolData)
@@ -317,8 +318,8 @@ export default function Pool() {
                             tokenOne={allRangePosition.tokenOne}
                             valueTokenZero={allRangePosition.valueTokenZero}
                             valueTokenOne={allRangePosition.valueTokenOne}
-                            min={allRangePosition.min}
-                            max={allRangePosition.max}
+                            min={TickMath.getPriceStringAtTick(allRangePosition.min)}
+                            max={TickMath.getPriceStringAtTick(allRangePosition.max)}
                             price={allRangePosition.price}
                             liquidity={allRangePosition.liquidity}
                             feeTier={allRangePosition.feeTier}
