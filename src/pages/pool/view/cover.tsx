@@ -438,8 +438,8 @@ export default function Cover() {
                   <div className="flex items-center relative justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="absolute left-0 h-full w-[30%] bg-white rounded-l-xl opacity-10"/>
                     <div className="flex items-center gap-x-4 z-20">
-                      <img height="30" width="30" src={tokenIn.logoURI} />
-                      {tokenIn.name}
+                      <img height="30" width="30" src={tokenOut.logoURI} />
+                      {tokenOut.name}
                     </div>
                     <span className="text-white z-20">
                       298<span className="text-grey">/600</span>
