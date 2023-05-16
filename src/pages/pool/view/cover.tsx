@@ -388,7 +388,9 @@ export default function Cover() {
                       <img height="30" width="30" src={tokenIn.logoURI} />
                       {tokenIn.name}
                     </div>
-                    {tokenIn.value}
+                    {Number(
+                      ethers.utils.formatUnits(userFillOut.toString(), 18),
+                    ).toFixed(2)}
                   </div>
                 </div>
                 <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
@@ -442,7 +444,11 @@ export default function Cover() {
                       {tokenOut.name}
                     </div>
                     <span className="text-white z-20">
-                      298<span className="text-grey">/600</span>
+                    {Number(
+                    coverFilledAmount,
+                  ).toFixed(2)}<span className="text-grey">/{Number(
+                      ethers.utils.formatUnits(userFillIn.toString(), 18),
+                    ).toFixed(2)}</span>
                     </span>
                   </div>
                 </div>
