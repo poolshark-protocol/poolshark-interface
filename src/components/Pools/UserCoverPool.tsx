@@ -7,11 +7,12 @@ import { useEffect, useState } from 'react'
 import { useCoverStore } from '../../hooks/useStore'
 import Link from 'next/link'
 import { getCoverPoolFromFactory } from '../../utils/queries'
-import { useContractRead } from 'wagmi'
+import { useAccount, useContractRead } from 'wagmi'
 import { coverPoolABI } from '../../abis/evm/coverPool'
 import { ethers } from 'ethers'
 import { TickMath } from '../../utils/math/tickMath'
 import JSBI from 'jsbi'
+import { ZERO_ADDRESS } from '../../utils/math/constants'
 
 export default function UserCoverPool({
   account,
@@ -24,6 +25,7 @@ export default function UserCoverPool({
   max,
   epochLast,
   liquidity,
+  latestTick,
   feeTier,
   href,
   prefill,
@@ -86,7 +88,9 @@ export default function UserCoverPool({
       } else {
         pool = await getCoverPoolFromFactory(tokenOne.id, tokenZero.id)
       }
-      const id = pool['data']['coverPools']['0']['id']
+      let id = ZERO_ADDRESS
+      let dataLength = pool['data']['coverPools'].length
+      if(dataLength != 0) id = pool['data']['coverPools']['0']['id']
       setCoverPoolRoute(id)
     } catch (error) {
       console.log(error)
@@ -113,7 +117,6 @@ export default function UserCoverPool({
       tokenZero: tokenZero,
     }) */
   }
-
   return (
     <Link
       href={{
@@ -136,6 +139,8 @@ export default function UserCoverPool({
           min: min,
           max: max,
           liquidity: liquidity,
+          latestTick: latestTick,
+          epochLast: epochLast,
           feeTier: feeTierPercentage,
         },
       }}
@@ -172,36 +177,24 @@ export default function UserCoverPool({
           </div>
           <div className="text-sm flex items-center gap-x-3">
             <span>
-              <span className="text-grey">Min:</span> {min} {tokenZero.symbol}{" "}
+              <span className="text-grey">Min:</span> {TickMath.getPriceStringAtTick(min)} {tokenZero.symbol}{" "}
               per {tokenOne.symbol}
             </span>
             <ArrowsRightLeftIcon className="w-4 text-grey" />
             <span>
-              <span className="text-grey">Max:</span> {max} {tokenOne.symbol}{" "}
+              <span className="text-grey">Max:</span> {TickMath.getPriceStringAtTick(max)} {tokenOne.symbol}{" "}
               per {tokenZero.symbol}
             </span>
           </div>
         </div>
-        {coverTickPrice ? (
-          Number(ethers.utils.formatUnits(coverTickPrice, 18)) < Number(min) ||
-          Number(ethers.utils.formatUnits(coverTickPrice, 18)) > Number(max) ? (
-            <div className="pr-5">
-              <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-                <ExclamationTriangleIcon className="w-4 text-yellow-600" />
-                Out of Range
+        <div className="pr-5">
+              <div className="flex relative bg-transparent items-center justify-center h-8 border-grey1 z-40 border rounded-lg gap-x-2 text-sm w-36">
+                <div className=" bg-white h-full absolute left-0 z-0 rounded-l-[7px] opacity-10 w-[40%]"/>
+                <div className="z-20 ">
+                40% Filled
+                </div>
               </div>
             </div>
-          ) : (
-            <div className="pr-5">
-              <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-                <div className="w-2 h-2 bg-green-500 rounded-full" />
-                In Range
-              </div>
-            </div>
-          )
-        ) : (
-          <></>
-        )}
       </div>
     </Link>
   );

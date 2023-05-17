@@ -18,6 +18,7 @@ import { TickMath } from '../../utils/math/tickMath'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import useInputBox from '../../hooks/useInputBox'
 import { coverPoolABI } from '../../abis/evm/coverPool'
+import { ZERO_ADDRESS } from '../../utils/math/constants'
 
 export default function CoverExistingPool({
   account,
@@ -92,6 +93,7 @@ export default function CoverExistingPool({
     args: [address, coverPoolRoute],
     chainId: 421613,
     watch: true,
+    enabled: coverPoolRoute != undefined && tokenIn.address != '',
     onSuccess(data) {
       console.log('Success')
     },
@@ -161,7 +163,9 @@ export default function CoverExistingPool({
       } else {
         pool = await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
       }
-      const id = pool['data']['coverPools']['0']['id']
+      let id = ZERO_ADDRESS
+      let dataLength = pool['data']['coverPools'].length
+      if(dataLength != 0) id = pool['data']['coverPools']['0']['id']
       setCoverPoolRoute(id)
     } catch (error) {
       console.log(error)
@@ -420,7 +424,7 @@ export default function CoverExistingPool({
       <h1 className="mb-3 mt-4">Set Price Range</h1>
       <div className="flex justify-between w-full gap-x-6">
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-          <span className="text-xs text-grey">Min. Price</span>
+          <span className="text-xs text-grey">Min Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice('minus', 'min')}>

@@ -37,16 +37,15 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
         valueTokenOne: rangePosition.pool.totalValueLocked0,
         min: rangePosition.lower,
         max: rangePosition.upper,
-        tvlUsd: rangePosition.pool.totalValueLockedUsd,
         feeTier: rangePosition.pool.feeTier.feeAmount,
         unclaimedFees: rangePosition.pool.feesUsd,
         liquidity: rangePosition.liquidity,
-        volumeUsd: rangePosition.pool.volumeUsd,
-        volumeEth: rangePosition.pool.volumeEth,
+        tvlUsd: (Number(rangePosition.pool.totalValueLockedUsd) / 1_000_000).toFixed(2),
+        volumeUsd: (Number(rangePosition.pool.volumeUsd) / 1_000_000).toFixed(2),
+        volumeEth: (Number(rangePosition.pool.volumeEth) / 1).toFixed(2),
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
       }
       mappedRangePositions.push(rangePositionData)
-      //console.log('mappedRangePositions', mappedRangePositions)
     })
     setAllRangePositions(mappedRangePositions)
   }
@@ -84,6 +83,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
         valueTokenOne: uniV3Position.depositedToken1,
         poolAddress: uniV3Position.id,
         liquidity: uniV3Position.liquidity,
+        latestTick: uniV3Position.tick,
         min: uniV3Position.withdrawnToken0,
         max: uniV3Position.withdrawnToken1,
         userOwnerAddress: uniV3Position.owner.replace(/"|'/g, ''),
