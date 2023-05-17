@@ -150,6 +150,7 @@ export default function ConcentratedPool({
     args: [address, poolId],
     chainId: 421613,
     watch: true,
+    enabled: rangePoolRoute != undefined && tokenIn.address != '',
     onError(error) {
       console.log('Error', error)
     },
