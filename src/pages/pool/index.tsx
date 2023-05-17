@@ -15,11 +15,11 @@ import {
   fetchRangePositions,
   fetchCoverPools,
   fetchCoverPositions,
+  getTickIfNotZeroForOne,
+  getTickIfZeroForOne,
 } from '../../utils/queries'
 import { Fragment, useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
-import { BigNumber } from 'ethers'
-import { TickMath } from '../../utils/math/tickMath'
 
 export default function Pool() {
   const poolTypes = [
@@ -125,7 +125,7 @@ export default function Pool() {
 
   function mapUserCoverPositions() {
     const mappedCoverPositions = []
-    coverPositions.map((coverPosition) => {
+      coverPositions.map((coverPosition) => {
       console.log('coverPosition', coverPosition)
       const coverPositionData = {
         id: coverPosition.id,
@@ -136,6 +136,14 @@ export default function Pool() {
         valueTokenOne: coverPosition.outAmount,
         min: coverPosition.lower,
         max: coverPosition.upper,
+        claim: getClaimTick(
+          coverPosition.pool.id,
+          coverPosition.lower,
+          coverPosition.upper,
+          coverPosition.zeroForOne,
+          coverPosition.epochLast
+        ),
+        zeroForOne: coverPosition.zeroForOne,
         userFillIn: coverPosition.amountInDeltaMax,
         userFillOut: coverPosition.amountOutDeltaMax,
         epochLast: coverPosition.epochLast,
@@ -236,12 +244,18 @@ export default function Pool() {
     )
   }
 
-  const getClaimTick = async () => {
+  const getClaimTick = async (
+    coverPoolAddress: string,
+    minLimit: number,
+    maxLimit: number,
+    zeroForOne: boolean,
+    epochLast: number
+  )  => {
     let claimTick = zeroForOne ? maxLimit : minLimit
     if (zeroForOne) {
       const claimTickQuery = await getTickIfZeroForOne(
         Number(maxLimit),
-        poolAdd.toString(),
+        coverPoolAddress,
         Number(epochLast),
       )
       const claimTickDataLength = claimTickQuery['data']['ticks'].length
@@ -250,20 +264,20 @@ export default function Pool() {
     } else {
       const claimTickQuery = await getTickIfNotZeroForOne(
         Number(minLimit),
-        poolAdd.toString(),
+        coverPoolAddress,
         Number(epochLast),
       )
       const claimTickDataLength = claimTickQuery['data']['ticks'].length
       if (claimTickDataLength > 0)
         claimTick = claimTickQuery['data']['ticks'][0]['index']
       if (claimTick != undefined) {
-        setClaimTick(BigNumber.from(claimTick))
+        return claimTick
       } else {
-        setClaimTick(BigNumber.from(minLimit))
+        return minLimit
       }
     }
-      console.log('claim tick:', claimTick)
-      setClaimTick(BigNumber.from(claimTick))
+      console.log('claim tick found:', claimTick)
+      return claimTick
     }
 
   return (

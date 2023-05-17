@@ -180,6 +180,7 @@ export const fetchCoverPositions = (address: string) => {
                     decimals
                 }
                 liquidity
+                zeroForOne
                 upper
                 lower
                 amountInDeltaMax
