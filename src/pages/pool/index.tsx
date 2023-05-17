@@ -308,18 +308,18 @@ export default function Pool() {
             <Link
               href={{
                 pathname:
-                  selected.id == 1 ? '/pool/concentrated' : '/pool/directional',
+                  selected.id == 1 ? "/pool/concentrated" : "/pool/directional",
                 query: {
-                  account: '',
+                  account: "",
                   poolId: selected.id.toString(),
-                  tokenOneName: '',
-                  tokenOneSymbol: '',
-                  tokenOneLogoURI: '',
-                  tokenOneAddress: '',
-                  tokenZeroName: '',
-                  tokenZeroSymbol: '',
-                  tokenZeroLogoURI: '',
-                  tokenZeroAddress: '',
+                  tokenOneName: "",
+                  tokenOneSymbol: "",
+                  tokenOneLogoURI: "",
+                  tokenOneAddress: "",
+                  tokenZeroName: "",
+                  tokenZeroSymbol: "",
+                  tokenZeroLogoURI: "",
+                  tokenZeroAddress: "",
                 },
               }}
             >
@@ -342,7 +342,30 @@ export default function Pool() {
             <div className="">
               <h1 className="mb-3">My Positions</h1>
               <div className="space-y-2">
-                {selected.id === 1
+                {isDisconnected ||
+                  allRangePositions.length === 0 ||
+                  allCoverPositions.length === 0 ? (
+                    <div className="space-y-2">
+                        <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            className="w-14 py-4 mx-auto text-grey"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          Your {selected.id === 1 ? <>range</>: <>cover</>} pools will appear here
+                        </div>
+                      </div>
+                  )
+                  :(
+                  <>
+                  {selected.id === 1
                   ? allRangePositions.map((allRangePosition) => {
                       if (
                         allRangePosition.userOwnerAddress ===
@@ -359,7 +382,7 @@ export default function Pool() {
                             searchTerm.toLowerCase() ||
                           allRangePosition.tokenOne.id.toLowerCase() ===
                             searchTerm.toLowerCase() ||
-                          searchTerm === '')
+                          searchTerm === "")
                       ) {
                         return (
                           <UserPool
@@ -380,9 +403,9 @@ export default function Pool() {
                             tvlUsd={allRangePosition.tvlUsd}
                             volumeUsd={allRangePosition.volumeUsd}
                             volumeEth={allRangePosition.volumeEth}
-                            href={'/pool/view/range'}
+                            href={"/pool/view/range"}
                           />
-                        )
+                        );
                       }
                     })
                   : allCoverPositions.map((allCoverPosition) => {
@@ -401,7 +424,7 @@ export default function Pool() {
                             searchTerm.toLowerCase() ||
                           allCoverPosition.tokenOne.id.toLowerCase() ===
                             searchTerm.toLowerCase() ||
-                          searchTerm === '')
+                          searchTerm === "")
                       ) {
                         return (
                           <UserCoverPool
@@ -423,11 +446,19 @@ export default function Pool() {
                             feeTier={allCoverPosition.feeTier}
                             prefill={undefined}
                             close={undefined}
-                            href={'/pool/view/cover'}
+                            href={"/pool/view/cover"}
                           />
-                        )
+                        );
                       }
                     })}
+
+                  </>
+                  )
+
+
+                }
+
+                
               </div>
             </div>
             <div className="">
@@ -458,7 +489,7 @@ export default function Pool() {
                               searchTerm.toLowerCase() ||
                             allRangePool.tokenOne.id.toLowerCase() ===
                               searchTerm.toLowerCase() ||
-                            searchTerm === ''
+                            searchTerm === ""
                           )
                             return (
                               <PoolList
@@ -474,7 +505,7 @@ export default function Pool() {
                                 volumeEth={allRangePool.volumeEth}
                                 href="/pool/concentrated"
                               />
-                            )
+                            );
                         })
                       : allCoverPools.map((allCoverPool) => {
                           if (
@@ -490,7 +521,7 @@ export default function Pool() {
                               searchTerm.toLowerCase() ||
                             allCoverPool.tokenOne.id.toLowerCase() ===
                               searchTerm.toLowerCase() ||
-                            searchTerm === ''
+                            searchTerm === ""
                           )
                             return (
                               <PoolList
@@ -506,7 +537,7 @@ export default function Pool() {
                                 volumeEth={allCoverPool.volumeEth}
                                 href="/cover"
                               />
-                            )
+                            );
                         })}
                   </tbody>
                 </table>
@@ -516,5 +547,5 @@ export default function Pool() {
         </div>
       </div>
     </div>
-  )
+  );
 }
