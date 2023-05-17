@@ -16,7 +16,7 @@ export default function CoverBurnButton({poolAddress, address, lower, claim, upp
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
 
-    const burnPercent = ethers.utils.parseUnits("5", 37)
+    const burnPercent = ethers.utils.parseUnits("5", 34)
 
     // console.log(burnPercent.toString(), zeroForOne, claim.toString(), lower.toString(), upper.toString())
   

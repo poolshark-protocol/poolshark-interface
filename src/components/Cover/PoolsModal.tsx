@@ -5,6 +5,7 @@ import UserCoverPool from '../Pools/UserCoverPool'
 import { fetchRangePositions, fetchUniV3Positions } from '../../utils/queries'
 import { useAccount } from 'wagmi'
 import UserPool from '../Pools/UserPool'
+import { BigNumber } from 'ethers'
 
 export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
   const { address } = useAccount()
@@ -246,12 +247,12 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                               valueTokenOne={allUniV3Position.valueTokenOne}
                               min={allUniV3Position.min}
                               max={allUniV3Position.max}
-                              userFillIn={undefined}
-                              userFillOut={undefined}
+                              userFillIn={0}
+                              userFillOut={0}
                               liquidity={allUniV3Position.liquidity}
                               feeTier={allUniV3Position.feeTier}
                               latestTick={allUniV3Position.tick}
-                              epochLast={undefined}
+                              epochLast={0}
                               prefill={undefined}
                               close={undefined}
                               href={'/cover'}
