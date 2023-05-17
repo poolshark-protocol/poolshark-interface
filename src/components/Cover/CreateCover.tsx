@@ -57,23 +57,14 @@ export default function CreateCover(props: any) {
   const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [tokenIn, setTokenIn] = useState({
-    symbol: pool != undefined ? props.query.tokenZeroSymbol : 'TOKEN20A',
-    logoURI:
-      pool != undefined
-        ? props.query.tokenZeroLogoURI
-        : 'https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png',
-    address:
-      pool != undefined
-        ? props.query.tokenZeroAddress
-        : '0x829e4a03A5Bd1EC5b6f5CC1d3A77c8e54A294847',
+    symbol: props.query ? props.query.tokenZeroSymbol: 'TOKEN20A',
+    logoURI: props.query ? props.query.tokenZeroLogoURI: 'https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png',
+    address: props.query ? props.query.tokenZeroAddress: '0x829e4a03A5Bd1EC5b6f5CC1d3A77c8e54A294847',
   })
   const [tokenOut, setTokenOut] = useState({
-    symbol: pool != undefined ? props.query.tokenOneSymbol : 'Select Token',
-    logoURI: pool != undefined ? props.query.tokenOneLogoURI : undefined,
-    address:
-      pool != undefined
-        ? props.query.tokenOneAddress
-        : '0xf853592f1e4ceA2B5e722A17C6f917a4c70d40Ca',
+    symbol: props.query ? props.query.tokenOneSymbol: 'Select Token',
+    logoURI: props.query ? props.query.tokenOneLogoURI: undefined,
+    address: props.query ? props.query.tokenOneAddress:'0xf853592f1e4ceA2B5e722A17C6f917a4c70d40Ca',
   })
   const [usdcBalance, setUsdcBalance] = useState(0)
   const [amountToPay, setAmountToPay] = useState(0)
@@ -113,7 +104,8 @@ export default function CreateCover(props: any) {
     address: coverPoolRoute,
     abi: coverPoolABI,
     functionName:
-      tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1
+      tokenOut.address != '' &&
+      tokenIn.address.localeCompare(tokenOut.address) === -1
         ? 'pool1'
         : 'pool0',
     args: [],
@@ -179,7 +171,7 @@ export default function CreateCover(props: any) {
       }
       let id = ZERO_ADDRESS
       let dataLength = pool['data']['coverPools'].length
-      if(dataLength != 0) id = pool['data']['coverPools']['0']['id']
+      if (dataLength != 0) id = pool['data']['coverPools']['0']['id']
       setCoverPoolRoute(id)
     } catch (error) {
       console.log(error)
@@ -562,7 +554,7 @@ export default function CreateCover(props: any) {
             </div>
           </div>
           <span className="text-xs text-grey">
-            {tokenIn.symbol} per {' '}
+            {tokenIn.symbol} per{' '}
             {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOut.symbol}
           </span>
         </div>
@@ -633,11 +625,18 @@ export default function CreateCover(props: any) {
             disabled={isDisabled}
             to={address}
             lower={min}
-            claim={(tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1) ?
-                max : min}
+            claim={
+              tokenOut.address != '' &&
+              tokenIn.address.localeCompare(tokenOut.address) === -1
+                ? max
+                : min
+            }
             upper={max}
             amount={bnInput}
-            zeroForOne={tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1}
+            zeroForOne={
+              tokenOut.address != '' &&
+              tokenIn.address.localeCompare(tokenOut.address) === -1
+            }
             tickSpacing={20}
           />
         ) : null}

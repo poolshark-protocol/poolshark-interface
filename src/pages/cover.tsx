@@ -224,7 +224,7 @@ export default function Cover() {
                                 searchTerm.toLowerCase() ||
                               searchTerm === '')
                           ) {
-                            console.log('user fill out', allCoverPosition.userFillOut)
+                            //console.log('user fill out', allCoverPosition.userFillOut)
                             return (
                               <UserCoverPool
                                 key={allCoverPosition.id}
