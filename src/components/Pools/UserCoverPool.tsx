@@ -2,17 +2,16 @@ import {
   ArrowsRightLeftIcon,
   ArrowLongRightIcon,
   ExclamationTriangleIcon,
-} from '@heroicons/react/20/solid'
-import { useEffect, useState } from 'react'
-import { useCoverStore } from '../../hooks/useStore'
-import Link from 'next/link'
-import { getCoverPoolFromFactory } from '../../utils/queries'
-import { useAccount, useContractRead } from 'wagmi'
-import { coverPoolABI } from '../../abis/evm/coverPool'
-import { ethers } from 'ethers'
-import { TickMath } from '../../utils/math/tickMath'
-import JSBI from 'jsbi'
-import { ZERO_ADDRESS } from '../../utils/math/constants'
+} from "@heroicons/react/20/solid";
+import { useEffect, useState } from "react";
+import { useCoverStore } from "../../hooks/useStore";
+import Link from "next/link";
+import { getCoverPoolFromFactory } from "../../utils/queries";
+import { useContractRead } from "wagmi";
+import { coverPoolABI } from "../../abis/evm/coverPool";
+import { ethers } from "ethers";
+import { TickMath } from "../../utils/math/tickMath";
+import JSBI from "jsbi";
 
 export default function UserCoverPool({
   account,
@@ -25,98 +24,96 @@ export default function UserCoverPool({
   max,
   epochLast,
   liquidity,
-  latestTick,
   feeTier,
   href,
   prefill,
   close,
 }) {
   const logoMap = {
-    TOKEN20A: '/static/images/eth_icon.png',
-    TOKEN20B: '/static/images/token.png',
-    USDC: '/static/images/token.png',
-    WETH: '/static/images/eth_icon.png',
-    DAI: '/static/images/dai_icon.png',
-    stkEth: '/static/images/eth_icon.png',
-    pStake: '/static/images/eth_icon.png',
-    UNI: '/static/images/dai_icon.png',
-  }
-  const feeTierPercentage = feeTier / 10000
+    TOKEN20A: "/static/images/eth_icon.png",
+    TOKEN20B: "/static/images/token.png",
+    USDC: "/static/images/token.png",
+    WETH: "/static/images/eth_icon.png",
+    DAI: "/static/images/dai_icon.png",
+    stkEth: "/static/images/eth_icon.png",
+    pStake: "/static/images/eth_icon.png",
+    UNI: "/static/images/dai_icon.png",
+  };
+  const feeTierPercentage = feeTier / 10000;
   const [currentPool, resetPool, updatePool] = useCoverStore((state) => [
     state.pool,
     state.resetPool,
     state.updatePool,
-  ])
-  const [show, setShow] = useState(false)
-  const [coverQuote, setCoverQuote] = useState(undefined)
-  const [coverTickPrice, setCoverTickPrice] = useState(undefined)
-  const [coverPoolRoute, setCoverPoolRoute] = useState('')
+  ]);
+  const [show, setShow] = useState(false);
+  const [coverQuote, setCoverQuote] = useState(undefined);
+  const [coverTickPrice, setCoverTickPrice] = useState(undefined);
+  const [coverPoolRoute, setCoverPoolRoute] = useState("");
 
   useEffect(() => {
-    getCoverPool()
-  }, [tokenOne, tokenZero])
+    getCoverPool();
+  }, [tokenOne, tokenZero]);
 
   const { refetch: refetchcoverQuote, data: priceCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
     functionName:
-      tokenOne.id != '' && tokenZero.id < tokenOne.id ? 'pool1' : 'pool0',
+      tokenOne.id != "" && tokenZero.id < tokenOne.id ? "pool1" : "pool0",
     args: [],
     chainId: 421613,
     watch: true,
     onSuccess(data) {
       //console.log('Success price Cover', data)
-      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[0], 18)))
+      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[0], 18)));
     },
     onError(error) {
-      console.log('Error price Cover', error)
+      console.log("Error price Cover", error);
     },
     onSettled(data, error) {
       //console.log('Settled price Cover', { data, error })
     },
-  })
+  });
 
   useEffect(() => {
-    setCoverParams()
-  }, [coverQuote])
+    setCoverParams();
+  }, [coverQuote]);
 
   const getCoverPool = async () => {
     try {
-      var pool = undefined
+      var pool = undefined;
       if (tokenZero.id < tokenOne.id) {
-        pool = await getCoverPoolFromFactory(tokenZero.id, tokenOne.id)
+        pool = await getCoverPoolFromFactory(tokenZero.id, tokenOne.id);
       } else {
-        pool = await getCoverPoolFromFactory(tokenOne.id, tokenZero.id)
+        pool = await getCoverPoolFromFactory(tokenOne.id, tokenZero.id);
       }
-      let id = ZERO_ADDRESS
-      let dataLength = pool['data']['coverPools'].length
-      if(dataLength != 0) id = pool['data']['coverPools']['0']['id']
-      setCoverPoolRoute(id)
+      const id = pool["data"]["coverPools"]["0"]["id"];
+      setCoverPoolRoute(id);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   async function setCoverParams() {
     try {
       if (coverQuote != undefined) {
-        const price = TickMath.getTickAtPriceString(coverQuote)
-        setCoverTickPrice(ethers.utils.parseUnits(String(price), 0))
+        const price = TickMath.getTickAtPriceString(coverQuote);
+        setCoverTickPrice(ethers.utils.parseUnits(String(price), 0));
       }
     } catch (error) {
-      setCoverTickPrice(ethers.utils.parseUnits(String(coverQuote), 0))
-      console.log(error)
+      setCoverTickPrice(ethers.utils.parseUnits(String(coverQuote), 0));
+      console.log(error);
     }
   }
 
   const setPool = () => {
-    resetPool
+    resetPool;
     /* updatePool({
       pool: poolId,
       tokenOne: tokenOne,
       tokenZero: tokenZero,
     }) */
-  }
+  };
+
   return (
     <Link
       href={{
@@ -139,8 +136,6 @@ export default function UserCoverPool({
           min: min,
           max: max,
           liquidity: liquidity,
-          latestTick: latestTick,
-          epochLast: epochLast,
           feeTier: feeTierPercentage,
         },
       }}
@@ -177,25 +172,24 @@ export default function UserCoverPool({
           </div>
           <div className="text-sm flex items-center gap-x-3">
             <span>
-              <span className="text-grey">Min:</span> {TickMath.getPriceStringAtTick(min)} {tokenZero.symbol}{" "}
+              <span className="text-grey">Min:</span> {min} {tokenZero.symbol}{" "}
               per {tokenOne.symbol}
             </span>
             <ArrowsRightLeftIcon className="w-4 text-grey" />
             <span>
-              <span className="text-grey">Max:</span> {TickMath.getPriceStringAtTick(max)} {tokenOne.symbol}{" "}
+              <span className="text-grey">Max:</span> {max} {tokenOne.symbol}{" "}
               per {tokenZero.symbol}
             </span>
           </div>
         </div>
         <div className="pr-5">
-              <div className="flex relative bg-transparent items-center justify-center h-8 border-grey1 z-40 border rounded-lg gap-x-2 text-sm w-36">
-                <div className=" bg-white h-full absolute left-0 z-0 rounded-l-[7px] opacity-10 w-[40%]"/>
-                <div className="z-20 ">
-                40% Filled
-                </div>
-              </div>
-            </div>
+          <div className="flex relative bg-transparent items-center justify-center h-8 border-grey1 z-40 border rounded-lg gap-x-2 text-sm w-36">
+            <div className=" bg-white h-full absolute left-0 z-0 rounded-l-[7px] opacity-10 w-[40%]" />
+            <div className="z-20 ">40% Filled</div>
+          </div>
+        </div>
       </div>
     </Link>
   );
 }
+

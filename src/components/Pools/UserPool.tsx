@@ -2,20 +2,20 @@ import {
   ArrowsRightLeftIcon,
   ArrowLongRightIcon,
   ExclamationTriangleIcon,
-} from '@heroicons/react/20/solid'
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import { useRangeStore } from '../../hooks/useStore'
-import { getRangePoolFromFactory } from '../../utils/queries'
-import { TickMath } from '../../utils/math/tickMath'
-import JSBI from 'jsbi'
-import { ethers } from 'ethers'
-import { useContractRead } from 'wagmi'
-import { rangePoolABI } from '../../abis/evm/rangePool'
+} from "@heroicons/react/20/solid";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRangeStore } from "../../hooks/useStore";
+import { getRangePoolFromFactory } from "../../utils/queries";
+import { TickMath } from "../../utils/math/tickMath";
+import JSBI from "jsbi";
+import { ethers } from "ethers";
+import { useContractRead } from "wagmi";
+import { rangePoolABI } from "../../abis/evm/rangePool";
 import {
   tokenOneAddress,
   tokenZeroAddress,
-} from '../../constants/contractAddresses'
+} from "../../constants/contractAddresses";
 
 export default function UserPool({
   account,
@@ -26,10 +26,8 @@ export default function UserPool({
   valueTokenOne,
   min,
   max,
-  price,
   liquidity,
   feeTier,
-  tickSpacing,
   unclaimedFees,
   href,
   tvlUsd,
@@ -37,76 +35,76 @@ export default function UserPool({
   volumeEth,
 }) {
   const logoMap = {
-    TOKEN20A: '/static/images/eth_icon.png',
-    TOKEN20B: '/static/images/token.png',
-    USDC: '/static/images/token.png',
-    WETH: '/static/images/eth_icon.png',
-    DAI: '/static/images/dai_icon.png',
-    stkEth: '/static/images/eth_icon.png',
-    pStake: '/static/images/eth_icon.png',
-    UNI: '/static/images/dai_icon.png',
-  }
-  const feeTierPercentage = feeTier / 10000
+    TOKEN20A: "/static/images/eth_icon.png",
+    TOKEN20B: "/static/images/token.png",
+    USDC: "/static/images/token.png",
+    WETH: "/static/images/eth_icon.png",
+    DAI: "/static/images/dai_icon.png",
+    stkEth: "/static/images/eth_icon.png",
+    pStake: "/static/images/eth_icon.png",
+    UNI: "/static/images/dai_icon.png",
+  };
+  const feeTierPercentage = feeTier / 10000;
   const [currentPool, resetPool, updatePool] = useRangeStore((state) => [
     state.pool,
     state.resetPool,
     state.updatePool,
-  ])
-  const [show, setShow] = useState(false)
-  const [rangePrice, setRangePrice] = useState(undefined)
-  const [rangeTickPrice, setRangeTickPrice] = useState(undefined)
-  const [rangePoolRoute, setRangePoolRoute] = useState('')
+  ]);
+  const [show, setShow] = useState(false);
+  const [rangePrice, setRangePrice] = useState(undefined);
+  const [rangeTickPrice, setRangeTickPrice] = useState(undefined);
+  const [rangePoolRoute, setRangePoolRoute] = useState("");
 
   //console.log('rangePoolRoute', rangePoolRoute)
 
   useEffect(() => {
-    getRangePool()
-  })
+    getRangePool();
+  });
 
   useEffect(() => {
-    setRangeParams()
-  }, [rangePrice])
+    setRangeParams();
+  }, [rangePrice]);
 
   const getRangePool = async () => {
     try {
       const pool = await getRangePoolFromFactory(
         tokenZeroAddress,
-        tokenOneAddress,
-      )
-      const id = pool['data']['rangePools']['0']['id']
-      setRangePoolRoute(id)
+        tokenOneAddress
+      );
+      const id = pool["data"]["rangePools"]["0"]["id"];
+      setRangePoolRoute(id);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
     address: rangePoolRoute,
     abi: rangePoolABI,
-    functionName: 'poolState',
+    functionName: "poolState",
     args: [],
     chainId: 421613,
     watch: true,
     onSuccess(data) {
-      console.log('Success price Range', data)
-      setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
+      console.log("Success price Range", data);
+      setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)));
     },
     onError(error) {
-      console.log('Error price Range', error)
+      console.log("Error price Range", error);
     },
     onSettled(data, error) {
-      console.log('Settled price Range', { data, error })
+      console.log("Settled price Range", { data, error });
     },
-  })
+  });
 
   async function setRangeParams() {
     try {
       if (rangePrice) {
-        const price = TickMath.getTickAtPriceString(rangePrice)
-        setRangeTickPrice(ethers.utils.parseUnits(String(price), 0))
+        const price = TickMath.getTickAtPriceString(rangePrice);
+        setRangeTickPrice(ethers.utils.parseUnits(String(price), 0));
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 
@@ -134,10 +132,8 @@ export default function UserPool({
               : 0,
             min: min,
             max: max,
-            price: price,
             liquidity: liquidity,
             feeTier: feeTierPercentage,
-            tickSpacing: tickSpacing,
             unclaimedFees: unclaimedFees,
           },
         }}
@@ -165,16 +161,16 @@ export default function UserPool({
             </div>
             <div className="text-sm flex items-center gap-x-3">
               <span>
-                <span className="text-grey">Min:</span> {TickMath.getPriceStringAtTick(min)} {tokenZero.symbol}{' '}
+                <span className="text-grey">Min:</span> {min} {tokenZero.symbol}{" "}
                 per {tokenOne.symbol}
               </span>
               <ArrowsRightLeftIcon className="w-4 text-grey" />
               <span>
-                <span className="text-grey">Max:</span> {TickMath.getPriceStringAtTick(max)} {tokenOne.symbol}{' '}
+                <span className="text-grey">Max:</span> {max} {tokenOne.symbol}{" "}
                 per {tokenZero.symbol}
               </span>
             </div>
-          </div>{' '}
+          </div>{" "}
           {rangeTickPrice ? (
             Number(ethers.utils.formatUnits(rangeTickPrice, 18)) <
               Number(min) ||
@@ -200,5 +196,5 @@ export default function UserPool({
         </div>
       </Link>
     </>
-  )
+  );
 }
