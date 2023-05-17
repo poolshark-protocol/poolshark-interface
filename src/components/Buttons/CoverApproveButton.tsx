@@ -18,6 +18,8 @@ export default function CoverApproveButton({poolAddress, address}) {
     state.coverContractParams, state.updateCoverAllowance
   ]);
 
+  console.log('create cover')
+
   const { config } = usePrepareContractWrite({
     address: address,
     abi: erc20ABI,

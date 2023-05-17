@@ -118,7 +118,6 @@ export default function Pool() {
         volumeEth: (Number(rangePosition.pool.volumeEth) / 1).toFixed(2),
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
       }
-      console.log('range positions:', rangePositionData)
       mappedRangePositions.push(rangePositionData)
     })
     setAllRangePositions(mappedRangePositions)
@@ -127,6 +126,7 @@ export default function Pool() {
   function mapUserCoverPositions() {
     const mappedCoverPositions = []
     coverPositions.map((coverPosition) => {
+      console.log('coverPosition', coverPosition)
       const coverPositionData = {
         id: coverPosition.id,
         poolId: coverPosition.pool.id,
@@ -136,6 +136,8 @@ export default function Pool() {
         valueTokenOne: coverPosition.outAmount,
         min: coverPosition.lower,
         max: coverPosition.upper,
+        userFillIn: coverPosition.amountInDeltaMax,
+        userFillOut: coverPosition.amountOutDeltaMax,
         epochLast: coverPosition.epochLast,
         latestTick: coverPosition.pool.latestTick,
         liquidity: coverPosition.liquidity,
@@ -180,7 +182,6 @@ export default function Pool() {
         volumeUsd: (Number(coverPool.volumeUsd) / 1_000_000).toFixed(2),
         volumeEth: (Number(coverPool.volumeEth) / 1).toFixed(2),
       }
-
       mappedCoverPools.push(coverPoolData)
     })
 
@@ -320,12 +321,18 @@ export default function Pool() {
                       if (
                         allRangePosition.userOwnerAddress ===
                           address?.toLowerCase() &&
-                        (allRangePosition.tokenZero.name === searchTerm ||
-                          allRangePosition.tokenOne.name === searchTerm ||
-                          allRangePosition.tokenZero.symbol === searchTerm ||
-                          allRangePosition.tokenOne.symbol === searchTerm ||
-                          allRangePosition.tokenZero.id === searchTerm ||
-                          allRangePosition.tokenOne.id === searchTerm ||
+                        (allRangePosition.tokenZero.name.toLowerCase() ===
+                          searchTerm.toLowerCase() ||
+                          allRangePosition.tokenOne.name.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allRangePosition.tokenZero.symbol.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allRangePosition.tokenOne.symbol.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allRangePosition.tokenZero.id.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allRangePosition.tokenOne.id.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
                           searchTerm === '')
                       ) {
                         return (
@@ -356,12 +363,18 @@ export default function Pool() {
                       if (
                         /* allCoverPosition.userOwnerAddress ===
                           address?.toLowerCase() */ true &&
-                        (allCoverPosition.tokenZero.name === searchTerm ||
-                          allCoverPosition.tokenOne.name === searchTerm ||
-                          allCoverPosition.tokenZero.symbol === searchTerm ||
-                          allCoverPosition.tokenOne.symbol === searchTerm ||
-                          allCoverPosition.tokenZero.id === searchTerm ||
-                          allCoverPosition.tokenOne.id === searchTerm ||
+                        (allCoverPosition.tokenZero.name.toLowerCase() ===
+                          searchTerm.toLowerCase() ||
+                          allCoverPosition.tokenOne.name.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPosition.tokenZero.symbol.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPosition.tokenOne.symbol.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPosition.tokenZero.id.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPosition.tokenOne.id.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
                           searchTerm === '')
                       ) {
                         return (
@@ -375,6 +388,8 @@ export default function Pool() {
                             valueTokenOne={allCoverPosition.valueTokenOne}
                             min={allCoverPosition.min}
                             max={allCoverPosition.max}
+                            userFillIn={allCoverPosition.userFillIn}
+                            userFillOut={allCoverPosition.userFillOut}
                             epochLast={allCoverPosition.epochLast}
                             liquidity={allCoverPosition.liquidity}
                             latestTick={allCoverPosition.latestTick}
@@ -405,12 +420,18 @@ export default function Pool() {
                       ? 
                       allRangePools.map((allRangePool) => {
                           if (
-                            allRangePool.tokenZero.name === searchTerm ||
-                            allRangePool.tokenOne.name === searchTerm ||
-                            allRangePool.tokenZero.symbol === searchTerm ||
-                            allRangePool.tokenOne.symbol === searchTerm ||
-                            allRangePool.tokenZero.id === searchTerm ||
-                            allRangePool.tokenOne.id === searchTerm ||
+                            allRangePool.tokenZero.name.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenOne.name.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenZero.symbol.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenOne.symbol.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenZero.id.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenOne.id.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
                             searchTerm === ''
                           )
                             return (
@@ -431,12 +452,18 @@ export default function Pool() {
                         })
                       : allCoverPools.map((allCoverPool) => {
                           if (
-                            allCoverPool.tokenZero.name === searchTerm ||
-                            allCoverPool.tokenOne.name === searchTerm ||
-                            allCoverPool.tokenZero.symbol === searchTerm ||
-                            allCoverPool.tokenOne.symbol === searchTerm ||
-                            allCoverPool.tokenZero.id === searchTerm ||
-                            allCoverPool.tokenOne.id === searchTerm ||
+                            allCoverPool.tokenZero.name.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allCoverPool.tokenOne.name.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allCoverPool.tokenZero.symbol.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allCoverPool.tokenOne.symbol.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allCoverPool.tokenZero.id.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allCoverPool.tokenOne.id.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
                             searchTerm === ''
                           )
                             return (

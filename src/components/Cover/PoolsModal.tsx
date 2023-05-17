@@ -5,6 +5,7 @@ import UserCoverPool from '../Pools/UserCoverPool'
 import { fetchRangePositions, fetchUniV3Positions } from '../../utils/queries'
 import { useAccount } from 'wagmi'
 import UserPool from '../Pools/UserPool'
+import { BigNumber } from 'ethers'
 
 export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
   const { address } = useAccount()

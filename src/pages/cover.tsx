@@ -66,11 +66,12 @@ export default function Cover() {
         valueTokenOne: coverPosition.outAmount,
         min: coverPosition.lower,
         max: coverPosition.upper,
+        userFillIn: coverPosition.amountInDeltaMax,
+        userFillOut: coverPosition.amountOutDeltaMax,
         liquidity: coverPosition.pool.liquidity,
         feeTier: coverPosition.pool.volatilityTier.feeAmount,
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
-
       mappedCoverPositions.push(coverPositionData)
     })
 
@@ -209,15 +210,21 @@ export default function Cover() {
                           if (
                             allCoverPosition.userOwnerAddress ===
                               address?.toLowerCase() &&
-                            (allCoverPosition.tokenZero.name === searchTerm ||
-                              allCoverPosition.tokenOne.name === searchTerm ||
-                              allCoverPosition.tokenZero.symbol ===
-                                searchTerm ||
-                              allCoverPosition.tokenOne.symbol === searchTerm ||
-                              allCoverPosition.tokenZero.id === searchTerm ||
-                              allCoverPosition.tokenOne.id === searchTerm ||
+                            (allCoverPosition.tokenZero.name.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenOne.name.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenZero.symbol.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenOne.symbol.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenZero.id.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenOne.id.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
                               searchTerm === '')
                           ) {
+                            console.log('user fill out', allCoverPosition.userFillOut)
                             return (
                               <UserCoverPool
                                 key={allCoverPosition.id}
@@ -229,6 +236,8 @@ export default function Cover() {
                                 valueTokenOne={allCoverPosition.valueTokenOne}
                                 min={allCoverPosition.min}
                                 max={allCoverPosition.max}
+                                userFillIn={allCoverPosition.userFillIn}
+                                userFillOut={allCoverPosition.userFillOut}
                                 feeTier={allCoverPosition.feeTier}
                                 liquidity={allCoverPosition.liquidity}
                                 latestTick={allCoverPosition.latestTick}

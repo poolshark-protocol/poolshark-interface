@@ -2,7 +2,7 @@ import useTokenBalance from '../hooks/useTokenBalance'
 
 function CoinListItem({ chooseToken, coin }) {
   const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance(coin?.address)
- /*  console.log('coin', coin.symbol)
+  /*  console.log('coin', coin.symbol)
   console.log('tokenBalanceInfo', tokenBalanceInfo) */
 
   return (
@@ -30,9 +30,11 @@ function CoinListItem({ chooseToken, coin }) {
         <span>
           {!Number.isNaN(tokenBalanceBox().props.children[1])
             ? Number(tokenBalanceBox().props.children[1]) >= 1000000
-              ? Number(tokenBalanceBox().props.children[1]).toExponential(5)
-              : Number(tokenBalanceBox().props.children[1])
-            : 0}
+              ? Number(tokenBalanceBox().props.children[1])
+                  .toExponential(5)
+                  .toString()
+              : Number(tokenBalanceBox().props.children[1]).toString()
+            : '0'}
         </span>
       </button>
     </div>
