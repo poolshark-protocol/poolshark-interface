@@ -247,6 +247,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                               valueTokenOne={allUniV3Position.valueTokenOne}
                               min={allUniV3Position.min}
                               max={allUniV3Position.max}
+                              zeroForOne={true}
                               userFillIn={0}
                               userFillOut={0}
                               liquidity={allUniV3Position.liquidity}

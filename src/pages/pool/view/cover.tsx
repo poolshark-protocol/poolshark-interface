@@ -121,7 +121,7 @@ export default function Cover() {
   )
   const [mktRate, setMktRate] = useState({})
   const [epochLast, setEpochLast] = useState(router.query.epochLast ?? 0)
-  const [zeroForOne, setZeroForOne] = useState(true)
+  const [zeroForOne, setZeroForOne] = useState(tokenIn.address.localeCompare(tokenOut.address) < 0)
   const [coverFilledAmount, setCoverFilledAmount] = useState('')
   //Pool Addresses
   const [is0Copied, setIs0Copied] = useState(false)
@@ -239,10 +239,6 @@ export default function Cover() {
   const getClaimTick = async () => {
     if (tokenOut.address == undefined || tokenIn.address == undefined)
       return
-    setZeroForOne(
-      tokenOut.address != '' &&
-        tokenOut.address.localeCompare(tokenIn.address) < 0,
-    )
     console.log('zfo', zeroForOne, tokenOut.address, tokenIn.address)
     let claimTick = zeroForOne ? maxLimit : minLimit
     if (zeroForOne) {
@@ -328,7 +324,8 @@ export default function Cover() {
                   onClick={() => copyAddress0()}
                   className="text-xs cursor-pointer w-32"
                 >
-                  {tokenOut.name}:
+                  {
+                  tokenIn.name}:
                   {is0Copied ? (
                     <span className="ml-1">Copied</span>
                   ) : (
@@ -339,7 +336,7 @@ export default function Cover() {
                   onClick={() => copyAddress1()}
                   className="text-xs cursor-pointer"
                 >
-                  {tokenIn.name}:
+                  {tokenOut.name}:
                   {is1Copied ? (
                     <span className="ml-1">Copied</span>
                   ) : (

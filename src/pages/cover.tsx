@@ -236,6 +236,7 @@ export default function Cover() {
                                 valueTokenOne={allCoverPosition.valueTokenOne}
                                 min={allCoverPosition.min}
                                 max={allCoverPosition.max}
+                                zeroForOne={allCoverPosition.zeroForOne}
                                 userFillIn={allCoverPosition.userFillIn}
                                 userFillOut={allCoverPosition.userFillOut}
                                 feeTier={allCoverPosition.feeTier}

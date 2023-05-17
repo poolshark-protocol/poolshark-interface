@@ -130,12 +130,13 @@ export default function Pool() {
       const coverPositionData = {
         id: coverPosition.id,
         poolId: coverPosition.pool.id,
-        tokenZero: coverPosition.pool.token0,
+        tokenZero: coverPosition.zeroForOne ? coverPosition.pool.token0 : coverPosition.pool.token1,
         valueTokenZero: coverPosition.inAmount,
-        tokenOne: coverPosition.pool.token1,
+        tokenOne: coverPosition.zeroForOne ? coverPosition.pool.token1 : coverPosition.pool.token0,
         valueTokenOne: coverPosition.outAmount,
         min: coverPosition.lower,
         max: coverPosition.upper,
+        //TODO: needs to be awaited
         claim: getClaimTick(
           coverPosition.pool.id,
           coverPosition.lower,
@@ -413,6 +414,7 @@ export default function Pool() {
                             valueTokenOne={allCoverPosition.valueTokenOne}
                             min={allCoverPosition.min}
                             max={allCoverPosition.max}
+                            zeroForOne={allCoverPosition.zeroForOne}
                             userFillIn={allCoverPosition.userFillIn}
                             userFillOut={allCoverPosition.userFillOut}
                             epochLast={allCoverPosition.epochLast}

@@ -170,7 +170,7 @@ export const fetchCoverPositions = (address: string) => {
   return new Promise(function (resolve) {
     const positionsQuery = `
       query($owner: String) {
-          positions(owner: $owner) {
+          positions(where: {owner:"${address}"}) {
                 id
                 inAmount
                 inToken{
