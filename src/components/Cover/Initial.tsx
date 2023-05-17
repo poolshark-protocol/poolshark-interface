@@ -137,7 +137,6 @@ export default function Initial(props: any) {
       account={'account'}
       key={pool.poolId}
       poolId={pool.poolId}
-      coverPoolId={pool.coverPoolId}
       tokenOneName={pool.tokenOneName}
       tokenOneSymbol={pool.tokenOneSymbol}
       tokenOneLogoURI={pool.tokenOneLogoURI}
@@ -148,7 +147,7 @@ export default function Initial(props: any) {
       tokenZeroAddress={pool.tokenZeroAddress}
       tokenOneValue={pool.tokenOneValue}
       tokenZeroValue={pool.tokenZeroValue}
-      liquidity={String(ethers.utils.parseUnits(pool.liquidity))}
+      liquidity={String(ethers.utils.parseUnits(pool.liquidity, 0))}
       goBack={setIsShifted}
       minLimit={pool.minLimit}
       maxLimit={pool.maxLimit}

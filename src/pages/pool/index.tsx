@@ -236,6 +236,36 @@ export default function Pool() {
     )
   }
 
+  const getClaimTick = async () => {
+    let claimTick = zeroForOne ? maxLimit : minLimit
+    if (zeroForOne) {
+      const claimTickQuery = await getTickIfZeroForOne(
+        Number(maxLimit),
+        poolAdd.toString(),
+        Number(epochLast),
+      )
+      const claimTickDataLength = claimTickQuery['data']['ticks'].length
+      if (claimTickDataLength > 0)
+        claimTick = claimTickQuery['data']['ticks'][0]['index']
+    } else {
+      const claimTickQuery = await getTickIfNotZeroForOne(
+        Number(minLimit),
+        poolAdd.toString(),
+        Number(epochLast),
+      )
+      const claimTickDataLength = claimTickQuery['data']['ticks'].length
+      if (claimTickDataLength > 0)
+        claimTick = claimTickQuery['data']['ticks'][0]['index']
+      if (claimTick != undefined) {
+        setClaimTick(BigNumber.from(claimTick))
+      } else {
+        setClaimTick(BigNumber.from(minLimit))
+      }
+    }
+      console.log('claim tick:', claimTick)
+      setClaimTick(BigNumber.from(claimTick))
+    }
+
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
@@ -253,8 +283,8 @@ export default function Pool() {
               <Link
                 href={
                   selected.id == 1
-                    ? 'https://docs.poolsharks.io/introduction/range-pools/'
-                    : 'https://docs.poolsharks.io/introduction/cover-pools/'
+                    ? 'https://docs.poolsharks.io/overview/range-pools/'
+                    : 'https://docs.poolsharks.io/overview/cover-pools/'
                 }
               >
                 <a target="_blank">How it works?</a>

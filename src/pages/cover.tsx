@@ -140,7 +140,7 @@ export default function Cover() {
             <h1 className="text-3xl">Cover</h1>
             <span className="bg-black flex items-center gap-x-2 border border-grey2 rounded-lg text-white px-6 py-[9px] cursor-pointer hover:opacity-80">
               <InformationCircleIcon className="w-4 text-grey1" />
-              <Link href="https://docs.poolsharks.io/introduction/cover-pools/">
+              <Link href="https://docs.poolsharks.io/overview/cover-pools/">
                 <a target="_blank">How it works?</a>
               </Link>
             </span>

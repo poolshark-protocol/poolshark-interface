@@ -269,9 +269,9 @@ export default function Cover() {
         setClaimTick(BigNumber.from(minLimit))
       }
     }
-    console.log('claim tick:', claimTick)
-    setClaimTick(BigNumber.from(claimTick))
-  }
+      console.log('claim tick:', claimTick)
+      setClaimTick(BigNumber.from(claimTick))
+    }
 
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">

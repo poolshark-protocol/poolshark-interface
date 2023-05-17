@@ -19,6 +19,7 @@ import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import useInputBox from '../../hooks/useInputBox'
 import { coverPoolABI } from '../../abis/evm/coverPool'
 import { ZERO_ADDRESS } from '../../utils/math/constants'
+import { DyDxMath } from '../../utils/math/dydxMath'
 
 export default function CoverExistingPool({
   account,
@@ -65,19 +66,20 @@ export default function CoverExistingPool({
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [isDisabled, setDisabled] = useState(true)
   const [tokenIn, setTokenIn] = useState({
-    name: tokenZeroName,
-    symbol: tokenZeroSymbol,
-    logoURI: tokenZeroLogoURI,
-    address: tokenZeroAddress,
-    value: tokenZeroValue,
-  } as token)
-  const [tokenOut, setTokenOut] = useState({
     name: tokenOneName,
     symbol: tokenOneSymbol,
     logoURI: tokenOneLogoURI,
     address: tokenOneAddress,
     value: tokenOneValue,
   } as token)
+  const [tokenOut, setTokenOut] = useState({
+    name: tokenZeroName,
+    symbol: tokenZeroSymbol,
+    logoURI: tokenZeroLogoURI,
+    address: tokenZeroAddress,
+    value: tokenZeroValue,
+  } as token)
+
   const [sliderValue, setSliderValue] = useState(50)
   const [coverValue, setCoverValue] = useState(
     Number(Number(Number(tokenOut.value) / 2).toFixed(5)),
@@ -85,6 +87,7 @@ export default function CoverExistingPool({
   const [coverQuote, setCoverQuote] = useState(undefined)
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
   const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
+  const [coverAmount, setCoverAmount] = useState(BigNumber.from('0'))
   const [allowance, setAllowance] = useState('0')
   const [mktRate, setMktRate] = useState({})
   const { data } = useContractRead({
@@ -157,6 +160,7 @@ export default function CoverExistingPool({
   console.log('mktRatePrice', mktRate[tokenIn.symbol]) */
 
   const getCoverPool = async () => {
+    console.log('liquidity', liquidity)
     try {
       let pool
       if (tokenIn.address.localeCompare(tokenOut.address) === -1) {
@@ -381,7 +385,10 @@ export default function CoverExistingPool({
             <input
               type="string"
               id="input"
-              onChange={(e) => setSliderValue(Number(e.target.value))}
+              onChange={(e) => {
+                setSliderValue(Number(e.target.value))
+                console.log('slider value', sliderValue)
+              }}
               value={sliderValue}
               className="text-right placeholder:text-grey1 text-white text-2xl w-20 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
             />
@@ -395,6 +402,7 @@ export default function CoverExistingPool({
               type="string"
               id="input"
               onChange={(e) => {
+                console.log('cover amount changed', sliderValue)
                 if (Number(e.target.value) / Number(tokenOut.value) < 100) {
                   setSliderValue(
                     Number(e.target.value) / Number(tokenOut.value),
@@ -518,8 +526,8 @@ export default function CoverExistingPool({
                 max : min}
             upper={max}
             amount={ethers.utils
-              .parseUnits(String(sliderValue * 100), 18)
-              .mul(1)}
+              .parseUnits(String(sliderValue * 100), 0)
+              .mul(ethers.utils.parseUnits(tokenIn.value, 18))}
             zeroForOne={tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) < 0}
             tickSpacing={20}
           />
