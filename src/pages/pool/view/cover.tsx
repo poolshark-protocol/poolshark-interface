@@ -18,6 +18,7 @@ import {
 } from '../../../utils/queries'
 import { TickMath } from '../../../utils/math/tickMath'
 import { coverPoolABI } from '../../../abis/evm/coverPool'
+import { tokenZero } from '../../../abis/evm/tokenZero'
 
 export default function Cover() {
   type token = {
@@ -165,7 +166,7 @@ export default function Cover() {
   const [coverTickPrice, setCoverTickPrice] = useState(
     router.query.coverTickPrice ?? '0',
   )
-  const [claimTick, setClaimTick] = useState(BigNumber.from('-887272'))
+  const [claimTick, setClaimTick] = useState(BigNumber.from('887272'))
 
   const { data: filledAmount } = useContractRead({
     address: coverPoolRoute.toString(),
@@ -176,7 +177,7 @@ export default function Cover() {
     ],
     chainId: 421613,
     watch: true,
-    enabled: claimTick.gt(BigNumber.from('-887272')),
+    enabled: claimTick.lt(BigNumber.from('887272')),
     onSuccess(data) {
       console.log('Success price filled amount', data)
       setCoverFilledAmount(ethers.utils.formatUnits(data[2], 18))
@@ -218,7 +219,7 @@ export default function Cover() {
 
   useEffect(() => {
     getClaimTick()
-  }, [minLimit, maxLimit, poolAdd])
+  }, [])
 
   function copyAddress0() {
     navigator.clipboard.writeText(tokenIn.address.toString())
@@ -240,7 +241,7 @@ export default function Cover() {
       return
     setZeroForOne(
       tokenOut.address != '' &&
-        tokenIn.address.localeCompare(tokenOut.address) < 0,
+        tokenOut.address.localeCompare(tokenIn.address) < 0,
     )
     console.log('zfo', zeroForOne, tokenOut.address, tokenIn.address)
     let claimTick = zeroForOne ? maxLimit : minLimit
@@ -257,7 +258,7 @@ export default function Cover() {
       const claimTickQuery = await getTickIfNotZeroForOne(
         Number(minLimit),
         poolAdd.toString(),
-        Number(1),
+        Number(epochLast),
       )
       const claimTickDataLength = claimTickQuery['data']['ticks'].length
       if (claimTickDataLength > 0)
@@ -268,6 +269,7 @@ export default function Cover() {
         setClaimTick(BigNumber.from(minLimit))
       }
     }
+    console.log('claim tick:', claimTick)
     setClaimTick(BigNumber.from(claimTick))
   }
 
@@ -447,10 +449,7 @@ export default function Cover() {
                       lower={minLimit}
                       claim={claimTick}
                       upper={maxLimit}
-                      zeroForOne={
-                        tokenOut.address != '' &&
-                        tokenIn.address.localeCompare(tokenOut.address) < 0
-                      }
+                      zeroForOne={zeroForOne}
                       amount={liquidity}
                     />
                     <CoverCollectButton
@@ -459,9 +458,7 @@ export default function Cover() {
                       lower={minLimit}
                       claim={claimTick}
                       upper={maxLimit}
-                      zeroForOne={
-                        tokenOut.address != '' &&
-                        tokenIn.address.localeCompare(tokenOut.address) < 0
+                      zeroForOne={zeroForOne
                       }
                     />
                     {/*TO-DO: add positionOwner ternary again*/}
