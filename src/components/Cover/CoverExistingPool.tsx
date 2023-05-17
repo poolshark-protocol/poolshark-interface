@@ -14,7 +14,7 @@ import JSBI from 'jsbi'
 import {
   getCoverPoolFromFactory,
 } from '../../utils/queries'
-import { TickMath } from '../../utils/math/tickMath'
+import { TickMath, roundTick } from '../../utils/math/tickMath'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import useInputBox from '../../hooks/useInputBox'
 import { coverPoolABI } from '../../abis/evm/coverPool'
@@ -63,6 +63,7 @@ export default function CoverExistingPool({
   const [hasSelected, setHasSelected] = useState(true)
   const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
+  const [isDisabled, setDisabled] = useState(true)
   const [tokenIn, setTokenIn] = useState({
     name: tokenZeroName,
     symbol: tokenZeroSymbol,
@@ -157,7 +158,7 @@ export default function CoverExistingPool({
 
   const getCoverPool = async () => {
     try {
-      var pool = undefined
+      let pool
       if (tokenIn.address.localeCompare(tokenOut.address) === -1) {
         pool = await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
       } else {
@@ -199,8 +200,12 @@ export default function CoverExistingPool({
         const min = TickMath.getTickAtPriceString(minPrice)
         const max = TickMath.getTickAtPriceString(maxPrice)
       }
-      setMin(ethers.utils.parseUnits(String(min), 0))
-      setMax(ethers.utils.parseUnits(String(max), 0))
+      const min = TickMath.getTickAtPriceString(minPrice)
+      const max = TickMath.getTickAtPriceString(maxPrice)
+      setMin(BigNumber.from(String(min)))
+      setMax(BigNumber.from(String(max)))
+      setDisabled(false)
+
     } catch (error) {
       console.log(error)
     }
@@ -505,17 +510,17 @@ export default function CoverExistingPool({
           approveToken={tokenIn.address} />
         ) : (
           <CoverMintButton
-            poolAddress={poolId}
-            disabled={false}
+            poolAddress={coverPoolRoute}
+            disabled={isDisabled}
             to={address}
             lower={min}
-            claim={(tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1) ?
+            claim={(tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) < 0) ?
                 max : min}
             upper={max}
             amount={ethers.utils
-              .parseUnits(String(sliderValue * 0.01), 18)
+              .parseUnits(String(sliderValue * 100), 18)
               .mul(1)}
-            zeroForOne={tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1}
+            zeroForOne={tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) < 0}
             tickSpacing={20}
           />
         )}

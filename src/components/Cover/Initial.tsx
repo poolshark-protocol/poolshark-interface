@@ -137,6 +137,7 @@ export default function Initial(props: any) {
       account={'account'}
       key={pool.poolId}
       poolId={pool.poolId}
+      coverPoolId={pool.coverPoolId}
       tokenOneName={pool.tokenOneName}
       tokenOneSymbol={pool.tokenOneSymbol}
       tokenOneLogoURI={pool.tokenOneLogoURI}

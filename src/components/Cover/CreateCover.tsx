@@ -49,7 +49,7 @@ export default function CreateCover(props: any) {
   const [balance0, setBalance0] = useState('')
   const [allowance, setAllowance] = useState('0')
   const { address, isConnected, isDisconnected } = useAccount()
-  const [isDisabled, setDisabled] = useState(false)
+  const [isDisabled, setDisabled] = useState(true)
   const [mktRate, setMktRate] = useState({})
   const [hasSelected, setHasSelected] = useState(
     pool != undefined ? true : false,
