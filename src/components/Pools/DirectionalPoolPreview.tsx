@@ -18,6 +18,7 @@ export default function DirectionalPoolPreview({
   minTick,
   maxTick,
   fee,
+  tickSpacing,
   allowance,
   setAllowance,
 }) {
@@ -29,6 +30,7 @@ export default function DirectionalPoolPreview({
     args: [address, poolId],
     chainId: 421613,
     watch: true,
+    enabled: tokenIn.address != undefined,
     onSuccess(data) {
       console.log('Success')
     },
@@ -204,6 +206,7 @@ export default function DirectionalPoolPreview({
                           upper={maxTick}
                           amount={amount0}
                           zeroForOne={true}
+                          tickSpacing={tickSpacing}
                         />
                       )}
                     </div>
