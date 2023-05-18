@@ -42,12 +42,12 @@ export default function Initial(props: any) {
       liquidity: query.liquidity,
       tokenOneName: query.tokenOne.name,
       tokenOneSymbol: query.tokenOne.symbol,
-      tokenOneLogoURI: logoMap[query.tokenOne.symbol],
+      tokenOneLogoURI: logoMap[query.tokenZero.symbol],
       tokenOneAddress: query.tokenOne.id,
       tokenOneValue: query.valueTokenOne,
       tokenZeroName: query.tokenZero.symbol,
       tokenZeroSymbol: query.tokenZero.symbol,
-      tokenZeroLogoURI: logoMap[query.tokenZero.symbol],
+      tokenZeroLogoURI: logoMap[query.tokenOne.symbol],
       tokenZeroAddress: query.tokenZero.id,
       tokenZeroValue: query.valueTokenZero,
       minLimit: query.min,
@@ -191,6 +191,7 @@ export default function Initial(props: any) {
       tokenZeroAddress={pool.tokenZeroAddress}
       tokenOneValue={pool.tokenOneValue}
       tokenZeroValue={pool.tokenZeroValue}
+      zeroForOne={false}
       liquidity={String(ethers.utils.parseUnits(pool.liquidity, 0))}
       goBack={setIsShifted}
       minLimit={pool.minLimit}

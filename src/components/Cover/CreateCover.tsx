@@ -115,7 +115,7 @@ export default function CreateCover(props: any) {
     enabled: tokenOut.address != undefined && coverPoolRoute != ZERO_ADDRESS,
     onSuccess(data) {
       //console.log('Success price Cover', data)
-      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[1], 18)))
+      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[0], 18)))
     },
     onError(error) {
       console.log('Error price Cover', error)

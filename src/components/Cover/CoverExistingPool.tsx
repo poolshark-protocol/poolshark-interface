@@ -18,7 +18,7 @@ import { TickMath, roundTick } from '../../utils/math/tickMath'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import useInputBox from '../../hooks/useInputBox'
 import { coverPoolABI } from '../../abis/evm/coverPool'
-import { ZERO_ADDRESS } from '../../utils/math/constants'
+import { BN_ZERO, ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
 
 export default function CoverExistingPool({
@@ -36,6 +36,7 @@ export default function CoverExistingPool({
   tokenZeroValue,
   minLimit,
   maxLimit,
+  zeroForOne,
   liquidity,
   feeTier,
   goBack,
@@ -60,24 +61,25 @@ export default function CoverExistingPool({
   const [max, setMax] = useState(initialBig)
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
-  const [tokenOrder, setTokenOrder] = useState(true)
+  const [tokenOrder, setTokenOrder] = useState(zeroForOne)
   const [hasSelected, setHasSelected] = useState(true)
   const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [isDisabled, setDisabled] = useState(true)
+  const [amountToPay, setAmountToPay] = useState(0)
   const [tokenIn, setTokenIn] = useState({
-    name: tokenOneName,
-    symbol: tokenOneSymbol,
-    logoURI: tokenOneLogoURI,
-    address: tokenOneAddress,
-    value: tokenOneValue,
+    name: zeroForOne ? tokenZeroName : tokenOneName,
+    symbol: zeroForOne ? tokenZeroSymbol : tokenOneSymbol,
+    logoURI: zeroForOne ? tokenZeroLogoURI : tokenOneLogoURI,
+    address: zeroForOne ? tokenZeroAddress : tokenOneAddress,
+    value: zeroForOne ? tokenZeroValue : tokenOneValue,
   } as token)
   const [tokenOut, setTokenOut] = useState({
-    name: tokenZeroName,
-    symbol: tokenZeroSymbol,
-    logoURI: tokenZeroLogoURI,
-    address: tokenZeroAddress,
-    value: tokenZeroValue,
+    name: zeroForOne ? tokenOneName : tokenZeroName,
+    symbol: zeroForOne ? tokenOneSymbol : tokenZeroSymbol,
+    logoURI: zeroForOne ? tokenOneLogoURI : tokenZeroLogoURI,
+    address: zeroForOne ? tokenOneAddress : tokenZeroAddress,
+    value: zeroForOne ? tokenOneValue : tokenZeroValue,
   } as token)
 
   const [sliderValue, setSliderValue] = useState(50)
@@ -87,7 +89,7 @@ export default function CoverExistingPool({
   const [coverQuote, setCoverQuote] = useState(undefined)
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
   const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
-  const [coverAmount, setCoverAmount] = useState(BigNumber.from('0'))
+  const [coverAmountIn, setCoverAmountIn] = useState(ZERO)
   const [allowance, setAllowance] = useState('0')
   const [mktRate, setMktRate] = useState({})
   const { data } = useContractRead({
@@ -99,7 +101,10 @@ export default function CoverExistingPool({
     watch: true,
     enabled: coverPoolRoute != undefined && tokenIn.address != '',
     onSuccess(data) {
+      console.log('allowance set:', allowance)
+      console.log('slider value:', (sliderValue * Number(tokenIn.value)))
       console.log('Success')
+      setAllowance(ethers.utils.formatUnits(data, 18))
     },
     onError(error) {
       console.log('Error', error)
@@ -120,10 +125,13 @@ export default function CoverExistingPool({
     chainId: 421613,
     watch: true,
     onSuccess(data) {
-      //console.log('Success price Cover', data)
-      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[1], 18)))
+      console.log('Success price Cover', data)
+      setCoverQuote(data[0])
+      const price = TickMath.getPriceStringAtSqrtPrice(data[0])
+      setCoverTickPrice(price)
     },
     onError(error) {
+      setCoverTickPrice(ethers.utils.parseUnits(String(coverQuote), 0))
       console.log('Error price Cover', error)
     },
     onSettled(data, error) {
@@ -132,16 +140,16 @@ export default function CoverExistingPool({
   })
 
   useEffect(() => {
-    if (data) {
-      setAllowance(ethers.utils.formatUnits(data, 18))
-    }
-  }, [data, tokenIn.address, sliderValue])
-
-  useEffect(() => {
     setCoverValue(
       Number(Number(Number(tokenOut.value)).toFixed(5)) * sliderValue,
     )
-  }, [sliderValue, tokenIn.value, tokenOut.value])
+  }, [minPrice, maxPrice, sliderValue, tokenIn.value, tokenOut.value])
+
+  // TODO: update cover amount using changeAmountIn()
+  // useEffect(() => {
+  //   if (minPrice == '' || maxPrice == '') return
+  //   changeAmountIn()
+  // }), [coverValue]
 
   useEffect(() => {
     getCoverPool()
@@ -153,7 +161,7 @@ export default function CoverExistingPool({
 
   useEffect(() => {
     setCoverParams()
-  }, [minPrice, maxPrice, sliderValue, coverQuote])
+  }, [minPrice, maxPrice])
 
   /* console.log('tokenIn',tokenIn)
   console.log('coverTickPrice', Number(coverTickPrice))
@@ -175,6 +183,24 @@ export default function CoverExistingPool({
     } catch (error) {
       console.log(error)
     }
+  }
+
+  const changeAmountIn = () => {
+    console.log('prices set:', minPrice, maxPrice)
+    if (minPrice == maxPrice) return
+    const minSqrtPrice = TickMath.getSqrtPriceAtPriceString(minPrice, 20)
+    const maxSqrtPrice = TickMath.getSqrtPriceAtPriceString(maxPrice, 20)
+    const liquidityAmount = DyDxMath.getLiquidityForAmounts(
+      minSqrtPrice,
+      maxSqrtPrice,
+      tokenOrder ? minSqrtPrice
+                 : maxSqrtPrice,
+      tokenOrder ? ethers.utils.parseUnits(coverValue.toString(), 18) : BN_ZERO,
+      tokenOrder ? BN_ZERO : ethers.utils.parseUnits(coverValue.toString(), 18)
+    )
+    setCoverAmountIn(tokenOrder ? DyDxMath.getDx(liquidityAmount, minSqrtPrice, maxSqrtPrice, true)
+                                : DyDxMath.getDy(liquidityAmount, minSqrtPrice, maxSqrtPrice, true))
+  console.log('amount in set:', coverAmountIn.toString())
   }
 
   const handleChange = (event: any) => {
@@ -203,25 +229,15 @@ export default function CoverExistingPool({
       ) {
         const min = TickMath.getTickAtPriceString(minPrice)
         const max = TickMath.getTickAtPriceString(maxPrice)
+      } else {
+        return
       }
       const min = TickMath.getTickAtPriceString(minPrice)
       const max = TickMath.getTickAtPriceString(maxPrice)
       setMin(BigNumber.from(String(min)))
       setMax(BigNumber.from(String(max)))
       setDisabled(false)
-
     } catch (error) {
-      console.log(error)
-    }
-
-    try {
-      if (coverQuote) {
-        const price = TickMath.getTickAtPriceString(coverQuote)
-        console.log('price', price)
-        setCoverTickPrice(ethers.utils.parseUnits(String(price), 0))
-      }
-    } catch (error) {
-      setCoverTickPrice(ethers.utils.parseUnits(String(coverQuote), 0))
       console.log(error)
     }
   }
@@ -288,13 +304,13 @@ export default function CoverExistingPool({
     try {
       setMktRate({
         TOKEN20A:
-          '~' +
           Number(coverTickPrice).toLocaleString('en-US', {
             style: 'currency',
             currency: 'USD',
           }),
-        TOKEN20B: '~1.00',
+        TOKEN20B: '1.00',
       })
+      console.log('market rate set', mktRate)
     } catch (error) {
       console.log(error)
     }
@@ -422,11 +438,7 @@ export default function CoverExistingPool({
           <div className="flex justify-between text-sm">
             <div className="text-[#646464]">Amount to pay</div>
             <div>
-              {Number(sliderValue) *
-                Number(tokenIn.value) *
-                parseFloat(
-                  mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-                )}{' '}
+              {Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18)).toFixed(2)}
               $
             </div>
           </div>
