@@ -17,9 +17,6 @@ export default function SwapCoverApproveButton({
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
-  const [isDisabled, setDisabled] = useState(disabled)
-
-  useEffect(() => {}, [disabled])
 
   const [
     Amount,
@@ -31,7 +28,6 @@ export default function SwapCoverApproveButton({
     state.updateSwapAllowance,
   ])
 
-  console.log('approve args:', poolAddress, approveToken)
 
   const { config } = usePrepareContractWrite({
     address: approveToken,
@@ -58,11 +54,11 @@ export default function SwapCoverApproveButton({
     <>
       <div
         className={
-          isDisabled
+          disabled
             ? 'w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50'
             : 'w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80'
         }
-        onClick={(address) => (address ? write?.() : null)}
+        onClick={(address) => (address && !disabled ? write?.() : null)}
       >
         Approve
       </div>
