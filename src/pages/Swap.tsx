@@ -1031,6 +1031,7 @@ export default function Swap() {
               {tokenIn.symbol}
             </div>
             <SwapCoverApproveButton
+              disabled={false}
               poolAddress={coverPoolRoute}
               approveToken={tokenIn.address}
             />
