@@ -15,11 +15,11 @@ import {
   fetchRangePositions,
   fetchCoverPools,
   fetchCoverPositions,
+  getTickIfNotZeroForOne,
+  getTickIfZeroForOne,
 } from '../../utils/queries'
 import { Fragment, useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
-import { BigNumber } from 'ethers'
-import { TickMath } from '../../utils/math/tickMath'
 
 export default function Pool() {
   const poolTypes = [
@@ -125,17 +125,26 @@ export default function Pool() {
 
   function mapUserCoverPositions() {
     const mappedCoverPositions = []
-    coverPositions.map((coverPosition) => {
+      coverPositions.map((coverPosition) => {
       console.log('coverPosition', coverPosition)
       const coverPositionData = {
         id: coverPosition.id,
         poolId: coverPosition.pool.id,
-        tokenZero: coverPosition.pool.token0,
+        tokenZero: coverPosition.zeroForOne ? coverPosition.pool.token0 : coverPosition.pool.token1,
         valueTokenZero: coverPosition.inAmount,
-        tokenOne: coverPosition.pool.token1,
+        tokenOne: coverPosition.zeroForOne ? coverPosition.pool.token1 : coverPosition.pool.token0,
         valueTokenOne: coverPosition.outAmount,
         min: coverPosition.lower,
         max: coverPosition.upper,
+        //TODO: needs to be awaited
+        claim: getClaimTick(
+          coverPosition.pool.id,
+          coverPosition.lower,
+          coverPosition.upper,
+          coverPosition.zeroForOne,
+          coverPosition.epochLast
+        ),
+        zeroForOne: coverPosition.zeroForOne,
         userFillIn: coverPosition.amountInDeltaMax,
         userFillOut: coverPosition.amountOutDeltaMax,
         epochLast: coverPosition.epochLast,
@@ -236,6 +245,42 @@ export default function Pool() {
     )
   }
 
+  const getClaimTick = async (
+    coverPoolAddress: string,
+    minLimit: number,
+    maxLimit: number,
+    zeroForOne: boolean,
+    epochLast: number
+  )  => {
+    let claimTick = zeroForOne ? maxLimit : minLimit
+    if (zeroForOne) {
+      const claimTickQuery = await getTickIfZeroForOne(
+        Number(maxLimit),
+        coverPoolAddress,
+        Number(epochLast),
+      )
+      const claimTickDataLength = claimTickQuery['data']['ticks'].length
+      if (claimTickDataLength > 0)
+        claimTick = claimTickQuery['data']['ticks'][0]['index']
+    } else {
+      const claimTickQuery = await getTickIfNotZeroForOne(
+        Number(minLimit),
+        coverPoolAddress,
+        Number(epochLast),
+      )
+      const claimTickDataLength = claimTickQuery['data']['ticks'].length
+      if (claimTickDataLength > 0)
+        claimTick = claimTickQuery['data']['ticks'][0]['index']
+      if (claimTick != undefined) {
+        return claimTick
+      } else {
+        return minLimit
+      }
+    }
+      console.log('claim tick found:', claimTick)
+      return claimTick
+    }
+
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
@@ -253,8 +298,8 @@ export default function Pool() {
               <Link
                 href={
                   selected.id == 1
-                    ? "https://docs.poolsharks.io/introduction/range-pools/"
-                    : "https://docs.poolsharks.io/introduction/cover-pools/"
+                    ? 'https://docs.poolsharks.io/overview/range-pools/'
+                    : 'https://docs.poolsharks.io/overview/cover-pools/'
                 }
               >
                 <a target="_blank">How it works?</a>
@@ -392,6 +437,7 @@ export default function Pool() {
                             valueTokenOne={allCoverPosition.valueTokenOne}
                             min={allCoverPosition.min}
                             max={allCoverPosition.max}
+                            zeroForOne={allCoverPosition.zeroForOne}
                             userFillIn={allCoverPosition.userFillIn}
                             userFillOut={allCoverPosition.userFillOut}
                             epochLast={allCoverPosition.epochLast}
