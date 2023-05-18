@@ -165,10 +165,17 @@ export default function CreateCover(props: any) {
     getCoverPool()
   }, [hasSelected, tokenIn.address, tokenOut.address])
 
-  /* console.log('tokenIn', tokenIn)
-  console.log('coverTickPrice', Number(coverTickPrice))
-  console.log('mktRatePrice', mktRate[tokenIn.symbol]) */
-  console.log('tickSp', tickSp)
+  useEffect(() => {
+    setDisabled(
+      minPrice === undefined ||
+        maxPrice === undefined ||
+        Number(ethers.utils.formatUnits(bnInput)) === 0 ||
+        tokenOut.symbol === 'Select Token' ||
+        hasSelected == false,
+    )
+  }, [minPrice, maxPrice, bnInput, tokenOut, hasSelected])
+
+  console.log('isDisabled', isDisabled)
 
   const getCoverPool = async () => {
     try {
@@ -202,6 +209,7 @@ export default function CreateCover(props: any) {
         maxPrice !== undefined &&
         maxPrice !== '' &&
         Number(ethers.utils.formatUnits(bnInput)) !== 0 &&
+        tokenOut.symbol !== 'Select Token' &&
         hasSelected == true
       ) {
         const min = TickMath.getTickAtPriceString(minPrice)
@@ -221,7 +229,6 @@ export default function CreateCover(props: any) {
           amount: bnInput,
           inverse: false,
         }) */
-        setDisabled(false)
         setMin(BigNumber.from(String(min)))
         setMax(BigNumber.from(String(max)))
       }
@@ -267,7 +274,7 @@ export default function CreateCover(props: any) {
     //console.log(token)
     setTokenOut(token)
     setHasSelected(true)
-    setDisabled(false)
+    //setDisabled(false)
   }
 
   function switchDirection() {
@@ -639,7 +646,7 @@ export default function CreateCover(props: any) {
         ) : stateChainName === 'arbitrumGoerli' ? (
           <CoverMintButton
             poolAddress={coverPoolRoute}
-            disabled={false}
+            disabled={isDisabled}
             to={address}
             lower={min}
             claim={
