@@ -111,6 +111,8 @@ export default function Cover() {
     value: router.query.tokenOneValue ?? '',
   } as token)
   const [latestTick, setLatestTick] = useState(router.query.latestTick ?? 0)
+  const [tickSp, setTickSp] = useState(router.query.tickSp ?? 20)
+
   const [liquidity, setLiquidity] = useState(router.query.liquidity ?? '0')
   const [feeTier, setFeeTier] = useState(router.query.feeTier ?? '')
   const [minLimit, setMinLimit] = useState(router.query.min ?? '0')
@@ -121,7 +123,9 @@ export default function Cover() {
   )
   const [mktRate, setMktRate] = useState({})
   const [epochLast, setEpochLast] = useState(router.query.epochLast ?? 0)
-  const [zeroForOne, setZeroForOne] = useState(tokenIn.address.localeCompare(tokenOut.address) < 0)
+  const [zeroForOne, setZeroForOne] = useState(
+    tokenIn.address.localeCompare(tokenOut.address) < 0,
+  )
   const [coverFilledAmount, setCoverFilledAmount] = useState('')
   //Pool Addresses
   const [is0Copied, setIs0Copied] = useState(false)
@@ -237,8 +241,7 @@ export default function Cover() {
   }
 
   const getClaimTick = async () => {
-    if (tokenOut.address == undefined || tokenIn.address == undefined)
-      return
+    if (tokenOut.address == undefined || tokenIn.address == undefined) return
     console.log('zfo', zeroForOne, tokenOut.address, tokenIn.address)
     let claimTick = zeroForOne ? maxLimit : minLimit
     if (zeroForOne) {
@@ -265,9 +268,9 @@ export default function Cover() {
         setClaimTick(BigNumber.from(minLimit))
       }
     }
-      console.log('claim tick:', claimTick)
-      setClaimTick(BigNumber.from(claimTick))
-    }
+    console.log('claim tick:', claimTick)
+    setClaimTick(BigNumber.from(claimTick))
+  }
 
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
@@ -324,8 +327,7 @@ export default function Cover() {
                   onClick={() => copyAddress0()}
                   className="text-xs cursor-pointer w-32"
                 >
-                  {
-                  tokenIn.name}:
+                  {tokenIn.name}:
                   {is0Copied ? (
                     <span className="ml-1">Copied</span>
                   ) : (
@@ -386,7 +388,7 @@ export default function Cover() {
                 </div>
                 <Link
                   href={{
-                    pathname: '/pool/directional',
+                    pathname: '/cover',
                     query: {
                       account: router.query.account,
                       poolId: poolAdd,
@@ -398,6 +400,10 @@ export default function Cover() {
                       tokenZeroSymbol: tokenIn.symbol,
                       tokenZeroLogoURI: tokenIn.logoURI,
                       tokenZeroAddress: tokenIn.address,
+                      feeTier: Number(feeTier) / 10000,
+                      tickSp: tickSp,
+                      liquidity: liquidity,
+                      state: 'existing',
                     },
                   }}
                 >
@@ -455,8 +461,7 @@ export default function Cover() {
                       lower={minLimit}
                       claim={claimTick}
                       upper={maxLimit}
-                      zeroForOne={zeroForOne
-                      }
+                      zeroForOne={zeroForOne}
                     />
                     {/*TO-DO: add positionOwner ternary again*/}
                   </div>

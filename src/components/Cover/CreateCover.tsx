@@ -57,14 +57,18 @@ export default function CreateCover(props: any) {
   const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [tokenIn, setTokenIn] = useState({
-    symbol: props.query ? props.query.tokenZeroSymbol: 'USDC',
-    logoURI: props.query ? props.query.tokenZeroLogoURI: '/static/images/token.png',
-    address: props.query ? props.query.tokenZeroAddress: '0xC26906E10E8BDaDeb2cf297eb56DF59775eE52c4',
+    symbol: props.query ? props.query.tokenZeroSymbol : 'USDC',
+    logoURI: props.query
+      ? props.query.tokenZeroLogoURI
+      : '/static/images/token.png',
+    address: props.query
+      ? props.query.tokenZeroAddress
+      : '0xC26906E10E8BDaDeb2cf297eb56DF59775eE52c4',
   })
   const [tokenOut, setTokenOut] = useState({
-    symbol: props.query ? props.query.tokenOneSymbol: 'Select Token',
-    logoURI: props.query ? props.query.tokenOneLogoURI: '',
-    address: props.query ? props.query.tokenOneAddress:'',
+    symbol: props.query ? props.query.tokenOneSymbol : 'Select Token',
+    logoURI: props.query ? props.query.tokenOneLogoURI : '',
+    address: props.query ? props.query.tokenOneAddress : '',
   })
   const [usdcBalance, setUsdcBalance] = useState(0)
   const [amountToPay, setAmountToPay] = useState(0)
@@ -73,6 +77,7 @@ export default function CreateCover(props: any) {
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
   const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
   const [tokenOrder, setTokenOrder] = useState(true)
+  const [tickSp, setTickSp] = useState(props.query ? props.query.tickSp : 20)
   const poolId =
     router.query.poolId === undefined ? '' : router.query.poolId.toString()
 
@@ -89,7 +94,8 @@ export default function CreateCover(props: any) {
     args: [address, coverPoolRoute],
     chainId: 421613,
     watch: true,
-    enabled: address != '0x' && mktRate != undefined && coverPoolRoute != ZERO_ADDRESS,
+    enabled:
+      address != '0x' && mktRate != undefined && coverPoolRoute != ZERO_ADDRESS,
     onSuccess(data) {
       console.log('Success')
     },
@@ -159,9 +165,10 @@ export default function CreateCover(props: any) {
     getCoverPool()
   }, [hasSelected, tokenIn.address, tokenOut.address])
 
-  console.log('tokenIn', tokenIn)
+  /* console.log('tokenIn', tokenIn)
   console.log('coverTickPrice', Number(coverTickPrice))
-  console.log('mktRatePrice', mktRate[tokenIn.symbol])
+  console.log('mktRatePrice', mktRate[tokenIn.symbol]) */
+  console.log('tickSp', tickSp)
 
   const getCoverPool = async () => {
     try {
@@ -647,7 +654,7 @@ export default function CreateCover(props: any) {
               tokenOut.address != '' &&
               tokenIn.address.localeCompare(tokenOut.address) < 0
             }
-            tickSpacing={20}
+            tickSpacing={tickSp}
           />
         ) : null}
       </div>

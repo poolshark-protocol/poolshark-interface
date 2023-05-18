@@ -130,7 +130,7 @@ export default function Pool() {
   function mapUserCoverPositions() {
     const mappedCoverPositions = []
       coverPositions.map((coverPosition) => {
-      console.log('coverPosition', coverPosition)
+      //console.log('coverPosition', coverPosition)
       const coverPositionData = {
         id: coverPosition.id,
         poolId: coverPosition.pool.id,
@@ -155,6 +155,7 @@ export default function Pool() {
         latestTick: coverPosition.pool.latestTick,
         liquidity: coverPosition.liquidity,
         feeTier: coverPosition.pool.volatilityTier.feeAmount,
+        tickSpread: coverPosition.pool.volatilityTier.tickSpread,
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
       mappedCoverPositions.push(coverPositionData)
@@ -448,6 +449,7 @@ export default function Pool() {
                             epochLast={allCoverPosition.epochLast}
                             liquidity={allCoverPosition.liquidity}
                             latestTick={allCoverPosition.latestTick}
+                            tickSp={allCoverPosition.tickSp}
                             feeTier={allCoverPosition.feeTier}
                             prefill={undefined}
                             close={undefined}
