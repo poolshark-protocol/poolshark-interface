@@ -259,6 +259,7 @@ export const fetchCoverPools = () => {
                     liquidity
                     volatilityTier{
                         feeAmount
+                        tickSpread
                     }
                     price0
                     price1

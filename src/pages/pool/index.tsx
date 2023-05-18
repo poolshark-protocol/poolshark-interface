@@ -113,8 +113,12 @@ export default function Pool() {
         tickSpacing: rangePosition.pool.feeTier.tickSpacing,
         unclaimedFees: rangePosition.pool.feesUsd,
         liquidity: rangePosition.liquidity,
-        tvlUsd: (Number(rangePosition.pool.totalValueLockedUsd) / 1_000_000).toFixed(2),
-        volumeUsd: (Number(rangePosition.pool.volumeUsd) / 1_000_000).toFixed(2),
+        tvlUsd: (
+          Number(rangePosition.pool.totalValueLockedUsd) / 1_000_000
+        ).toFixed(2),
+        volumeUsd: (Number(rangePosition.pool.volumeUsd) / 1_000_000).toFixed(
+          2,
+        ),
         volumeEth: (Number(rangePosition.pool.volumeEth) / 1).toFixed(2),
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
       }
@@ -178,6 +182,7 @@ export default function Pool() {
         tokenZero: coverPool.token0,
         liquidity: coverPool.liquidity,
         feeTier: coverPool.volatilityTier.feeAmount,
+        tickSpread: coverPool.volatilityTier.tickSpread,
         tvlUsd: (Number(coverPool.totalValueLockedUsd) / 1_000_000).toFixed(2),
         volumeUsd: (Number(coverPool.volumeUsd) / 1_000_000).toFixed(2),
         volumeEth: (Number(coverPool.volumeEth) / 1).toFixed(2),
@@ -423,6 +428,7 @@ export default function Pool() {
                                 tokenOne={allRangePool.tokenOne}
                                 liquidity={allRangePool.liquidity}
                                 feeTier={allRangePool.feeTier}
+                                tickSp={allRangePool.tickSpacing}
                                 tvlUsd={allRangePool.tvlUsd}
                                 volumeUsd={allRangePool.volumeUsd}
                                 volumeEth={allRangePool.volumeEth}
@@ -455,6 +461,7 @@ export default function Pool() {
                                 tokenOne={allCoverPool.tokenOne}
                                 liquidity={allCoverPool.liquidity}
                                 feeTier={allCoverPool.feeTier}
+                                tickSp={allCoverPool.tickSpread}
                                 tvlUsd={allCoverPool.tvlUsd}
                                 volumeUsd={allCoverPool.volumeUsd}
                                 volumeEth={allCoverPool.volumeEth}
