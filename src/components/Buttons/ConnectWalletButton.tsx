@@ -4,7 +4,12 @@ import Network from "../Modals/Network";
 import { useState } from "react";
 import React from "react";
 
-export const ConnectWalletButton = () => {
+interface Props {
+    xl?: boolean;
+}
+
+
+export const ConnectWalletButton = ({xl= false}: Props) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -41,7 +46,7 @@ export const ConnectWalletButton = () => {
                 if (!connected) {
                   return (
                     <button
-                      className="w-full py-2.5 text-sm mx-auto text-white px-8 font-Satoshi text-center transition rounded-lg cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+                      className={`w-full mx-auto text-white px-8 font-Satoshi text-center transition rounded-lg cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80 ${xl ? `py-4 font-medium` : `py-2.5 text-sm`}`}
                       onClick={openConnectModal}
                       type="button"
                     >
