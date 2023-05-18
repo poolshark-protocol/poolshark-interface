@@ -175,8 +175,13 @@ export default function CreateCover(props: any) {
       }
       let id = ZERO_ADDRESS
       let dataLength = pool['data']['coverPools'].length
-      if (dataLength != 0) id = pool['data']['coverPools']['0']['id']
+      let latestTick = 0
+      if (dataLength != 0) {
+        id = pool['data']['coverPools']['0']['id']
+        latestTick = pool['data']['coverPools']['0']['latestTick']
+      }
       setCoverPoolRoute(id)
+      setCoverTickPrice(TickMath.getPriceStringAtTick(latestTick))
     } catch (error) {
       console.log(error)
     }
