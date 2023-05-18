@@ -7,16 +7,21 @@ import { erc20ABI } from 'wagmi';
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSwapStore } from '../../hooks/useStore';
 
-export default function SwapCoverApproveButton({poolAddress,approveToken}) {
+export default function SwapCoverApproveButton({poolAddress,approveToken, disabled}) {
   const [ errorDisplay,    setErrorDisplay   ] = useState(false);
   const [ successDisplay,  setSuccessDisplay ] = useState(false);
+  const [isDisabled, setDisabled] = useState(disabled)
+
+  useEffect(() => {}, [disabled])
 
   const [Amount, SwapParams, updateSwapAllowance] = useSwapStore((state: any) => [
    state.Amount, state.SwapParams, state.updateSwapAllowance
   ]);
+
+  console.log('approve args:', poolAddress, approveToken)
 
   const { config } = usePrepareContractWrite({
     address: approveToken,

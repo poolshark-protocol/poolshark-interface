@@ -59,7 +59,7 @@ export default function CreateCover(props: any) {
   const [tokenIn, setTokenIn] = useState({
     symbol: props.query ? props.query.tokenZeroSymbol: 'USDC',
     logoURI: props.query ? props.query.tokenZeroLogoURI: '/static/images/token.png',
-    address: props.query ? props.query.tokenZeroAddress: '"0xC26906E10E8BDaDeb2cf297eb56DF59775eE52c4"',
+    address: props.query ? props.query.tokenZeroAddress: '0xC26906E10E8BDaDeb2cf297eb56DF59775eE52c4',
   })
   const [tokenOut, setTokenOut] = useState({
     symbol: props.query ? props.query.tokenOneSymbol: 'Select Token',
@@ -89,6 +89,7 @@ export default function CreateCover(props: any) {
     args: [address, coverPoolRoute],
     chainId: 421613,
     watch: true,
+    enabled: address != '0x' && coverPoolRoute != ZERO_ADDRESS,
     onSuccess(data) {
       console.log('Success')
     },
@@ -105,12 +106,13 @@ export default function CreateCover(props: any) {
     abi: coverPoolABI,
     functionName:
       tokenOut.address != '' &&
-      tokenIn.address.localeCompare(tokenOut.address) === -1
+      tokenIn.address.localeCompare(tokenOut.address) < 0
         ? 'pool1'
         : 'pool0',
     args: [],
     chainId: 421613,
     watch: true,
+    enabled: tokenOut.address != undefined && coverPoolRoute != ZERO_ADDRESS,
     onSuccess(data) {
       //console.log('Success price Cover', data)
       setCoverQuote(parseFloat(ethers.utils.formatUnits(data[1], 18)))
@@ -164,9 +166,11 @@ export default function CreateCover(props: any) {
   const getCoverPool = async () => {
     try {
       var pool = undefined
-      if (tokenIn.address.localeCompare(tokenOut.address) === -1) {
+      if (tokenIn.address.localeCompare(tokenOut.address) < 0) {
+        console.log('tokens:', tokenIn.address, tokenOut.address)
         pool = await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
       } else {
+        console.log('tokens:', tokenIn.address, tokenOut.address)
         pool = await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
       }
       let id = ZERO_ADDRESS
@@ -616,18 +620,19 @@ export default function CreateCover(props: any) {
         Number(allowance) < Number(ethers.utils.formatUnits(bnInput, 18)) &&
         stateChainName === 'arbitrumGoerli' ? (
           <SwapCoverApproveButton
-            poolAddress={coverPoolAddress}
+            disabled={isDisabled}
+            poolAddress={coverPoolRoute}
             approveToken={tokenIn.address}
           />
         ) : stateChainName === 'arbitrumGoerli' ? (
           <CoverMintButton
-            poolAddress={poolId}
-            disabled={isDisabled}
+            poolAddress={coverPoolRoute}
+            disabled={false}
             to={address}
             lower={min}
             claim={
               tokenOut.address != '' &&
-              tokenIn.address.localeCompare(tokenOut.address) === -1
+              tokenIn.address.localeCompare(tokenOut.address) < 0
                 ? max
                 : min
             }
@@ -635,7 +640,7 @@ export default function CreateCover(props: any) {
             amount={bnInput}
             zeroForOne={
               tokenOut.address != '' &&
-              tokenIn.address.localeCompare(tokenOut.address) === -1
+              tokenIn.address.localeCompare(tokenOut.address) < 0
             }
             tickSpacing={20}
           />
