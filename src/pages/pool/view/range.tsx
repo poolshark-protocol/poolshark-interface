@@ -14,6 +14,8 @@ import { useAccount, useContractRead } from 'wagmi'
 import { BigNumber, ethers } from 'ethers'
 import { getRangePoolFromFactory } from '../../../utils/queries'
 import { rangePoolABI } from '../../../abis/evm/rangePool'
+import { TickMath } from '../../../utils/math/tickMath'
+import JSBI from 'jsbi'
 
 export default function Range() {
   type token = {
@@ -25,64 +27,139 @@ export default function Range() {
   }
   const { address } = useAccount()
   const router = useRouter()
-  const zeroAddress =
-    router.query.tokenZeroAddress === undefined
-      ? ''
-      : router.query.tokenZeroAddress.toString()
-  const oneAddress =
-    router.query.tokenOneAddress === undefined
-      ? ''
-      : router.query.tokenOneAddress.toString()
-  const poolAddress =
-    router.query.poolId === undefined ? '' : router.query.poolId.toString()
-  const min =
-    router.query.min === undefined ? '0' : router.query.min.toString()
-  const max =
-    router.query.max === undefined ? '0' : router.query.max.toString()
-  const liquidity =
-    router.query.liquidity === undefined ? '0' : router.query.liquidity.toString()
 
+  useEffect(() => {
+    if (router.isReady) {
+      const query = router.query
+      setPoolContractAdd(query.poolId)
+      setTokenIn({
+        name: query.tokenZeroName,
+        symbol: query.tokenZeroSymbol,
+        logoURI: query.tokenZeroLogoURI,
+        address: query.tokenZeroAddress,
+        value: query.tokenZeroValue,
+      } as token)
+      setTokenOut({
+        name: query.tokenOneName,
+        symbol: query.tokenOneSymbol,
+        logoURI: query.tokenOneLogoURI,
+        address: query.tokenOneAddress,
+        value: query.tokenOneValue,
+      } as token)
+      setLiquidity(query.liquidity)
+      setFeeTier(query.feeTier)
+      setTickSpacing(query.tickSpacing)
+      setMinLimit(query.min)
+      setMaxLimit(query.max)
+      setPoolPrice(query.price)
+      setTokenZeroDisplay(
+        query.tokenZeroAddress.toString().substring(0, 6) +
+          '...' +
+          query.tokenZeroAddress
+
+            .toString()
+            .substring(
+              query.tokenZeroAddress.toString().length - 4,
+              query.tokenZeroAddress.toString().length,
+            ),
+      )
+      setTokenOneDisplay(
+        query.tokenOneAddress.toString().substring(0, 6) +
+          '...' +
+          query.tokenOneAddress
+
+            .toString()
+            .substring(
+              query.tokenOneAddress.toString().length - 4,
+              query.tokenOneAddress.toString().length,
+            ),
+      )
+      setPoolDisplay(
+        query.poolId.toString().substring(0, 6) +
+          '...' +
+          query.poolId
+
+            .toString()
+            .substring(
+              query.poolId.toString().length - 4,
+              query.poolId.toString().length,
+            ),
+      )
+      setRangePoolRoute(query.rangePoolRoute)
+      setRangeTickPrice(query.rangeTickPrice)
+    }
+  }, [router.isReady])
+
+  const [poolAdd, setPoolContractAdd] = useState(router.query.poolId ?? '')
+  const [tokenIn, setTokenIn] = useState({
+    name: router.query.tokenZeroAddress ?? '',
+    symbol: router.query.tokenZeroSymbol ?? '',
+    logoURI: router.query.tokenZeroLogoURI ?? '',
+    address: router.query.tokenZeroAddress ?? '',
+    value: router.query.tokenZeroValue ?? '',
+  } as token)
+  const [tokenOut, setTokenOut] = useState({
+    name: router.query.tokenOneName ?? '',
+    symbol: router.query.tokenOneSymbol ?? '',
+    logoURI: router.query.tokenOneLogoURI ?? '',
+    address: router.query.tokenOneAddress ?? '',
+    value: router.query.tokenOneValue ?? '',
+  } as token)
+  const [liquidity, setLiquidity] = useState(router.query.liquidity ?? '0')
+  const [feeTier, setFeeTier] = useState(router.query.feeTier ?? '')
+  const [tickSpacing, setTickSpacing] = useState(router.query.tickSpacing ?? 10)
+  const [minLimit, setMinLimit] = useState(router.query.min ?? '0')
+  const [maxLimit, setMaxLimit] = useState(router.query.max ?? '0')
+  const [poolPrice, setPoolPrice] = useState(router.query.price ?? '0')
+  const [rangePoolRoute, setRangePoolRoute] = useState(
+    router.query.rangePoolRoute ?? '0',
+  )
+  const [rangeTickPrice, setRangeTickPrice] = useState(
+    router.query.rangeTickPrice ?? 0,
+  )
+
+  const [mktRate, setMktRate] = useState({})
+
+  //Pool Addresses
   const [is0Copied, setIs0Copied] = useState(false)
   const [is1Copied, setIs1Copied] = useState(false)
   const [isPoolCopied, setIsPoolCopied] = useState(false)
   const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-    zeroAddress.substring(0, 6) +
-      '...' +
-      zeroAddress.substring(zeroAddress.length - 4, zeroAddress.length),
+    tokenIn.address != ''
+      ? tokenIn.address.toString().substring(0, 6) +
+          '...' +
+          tokenIn.address
+            .toString()
+            .substring(
+              tokenIn.address.toString().length - 4,
+              tokenIn.address.toString().length,
+            )
+      : undefined,
   )
   const [tokenOneDisplay, setTokenOneDisplay] = useState(
-    oneAddress.substring(0, 6) +
-      '...' +
-      oneAddress.substring(oneAddress.length - 4, oneAddress.length),
+    tokenOut.address != ''
+      ? tokenOut.address.toString().substring(0, 6) +
+          '...' +
+          tokenOut.address
+            .toString()
+            .substring(
+              tokenOut.address.toString().length - 4,
+              tokenOut.address.toString().length,
+            )
+      : undefined,
   )
   const [poolDisplay, setPoolDisplay] = useState(
-    poolAddress.substring(0, 6) +
-      '...' +
-      poolAddress.substring(poolAddress.length - 4, poolAddress.length),
+    poolAdd != ''
+      ? poolAdd.toString().substring(0, 6) +
+          '...' +
+          poolAdd
+            .toString()
+            .substring(poolAdd.toString().length - 4, poolAdd.toString().length)
+      : undefined,
   )
-  const [poolContractAdd, setPoolContractAdd] = useState(
-    router.query.poolId ?? undefined,
-  )
-  const [tokenIn, setTokenIn] = useState({
-    name: router.query.tokenZeroName,
-    symbol: router.query.tokenZeroSymbol,
-    logoURI: router.query.tokenZeroLogoURI,
-    address: router.query.tokenZeroAddress,
-    value: router.query.tokenZeroValue,
-  } as token)
-  const [tokenOut, setTokenOut] = useState({
-    name: router.query.tokenOneName,
-    symbol: router.query.tokenOneSymbol,
-    logoURI: router.query.tokenOneLogoURI,
-    address: router.query.tokenOneAddress,
-    value: router.query.tokenOneValue,
-  } as token)
-  const [rangePoolRoute, setRangePoolRoute] = useState(undefined)
-  const [rangePrice, setRangePrice] = useState(undefined)
-  const [mktRate, setMktRate] = useState({})
 
-  const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
-    address: rangePoolRoute,
+  /* const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
+    address: rangePoolRoute.toString(),
     abi: rangePoolABI,
     functionName: 'poolState',
     args: [],
@@ -90,7 +167,7 @@ export default function Range() {
     watch: true,
     onSuccess(data) {
       console.log('Success price Range', data)
-      setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
+      setRangeTickPrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
     },
     onError(error) {
       console.log('Error price Range', error)
@@ -98,7 +175,7 @@ export default function Range() {
     onSettled(data, error) {
       console.log('Settled price Range', { data, error })
     },
-  })
+  }) */
 
   useEffect(() => {
     if (copyAddress0) {
@@ -127,59 +204,51 @@ export default function Range() {
     }
   })
 
-  useEffect(() => {
-    getRangePool()
-  }, [])
-
-  useEffect(() => {
-    fetchTokenPrice()
-  }, [rangePrice])
-
   function copyAddress0() {
-    navigator.clipboard.writeText(
-      router.query.tokenZeroAddress === undefined
-        ? ''
-        : router.query.tokenZeroAddress.toString(),
-    )
+    navigator.clipboard.writeText(tokenIn.address.toString())
     setIs0Copied(true)
   }
 
   function copyAddress1() {
-    navigator.clipboard.writeText(
-      router.query.tokenOneAddress === undefined
-        ? ''
-        : router.query.tokenOneAddress.toString(),
-    )
+    navigator.clipboard.writeText(tokenOut.address.toString())
     setIs1Copied(true)
   }
 
   function copyPoolAddress() {
-    navigator.clipboard.writeText(
-      router.query.poolId === undefined ? '' : router.query.poolId.toString(),
-    )
-    setIsPoolCopied(true)
+    navigator.clipboard.writeText(poolAdd.toString())
+    setIsPoolCopied
   }
+  //
 
-  const getRangePool = async () => {
+  useEffect(() => {
+    fetchTokenPrice()
+  }, [rangeTickPrice])
+
+  /* useEffect(() => {
+    getRangePool()
+  }, []) */
+
+  /* const getRangePool = async () => {
     try {
       const pool = await getRangePoolFromFactory(
         tokenIn.address,
         tokenOut.address,
       )
       const id = pool['data']['rangePools']['0']['id']
+      console.log('range pool address in view', id)
 
       setRangePoolRoute(id)
     } catch (error) {
       console.log(error)
     }
-  }
+  } */
 
   const fetchTokenPrice = async () => {
     try {
       setMktRate({
         TOKEN20A:
           '~' +
-          Number(rangePrice).toLocaleString('en-US', {
+          Number(rangeTickPrice).toLocaleString('en-US', {
             style: 'currency',
             currency: 'USD',
           }),
@@ -198,65 +267,44 @@ export default function Range() {
           <div className="flex justify-between items-center mb-2">
             <div className="text-left flex items-center gap-x-5 py-2.5">
               <div className="flex items-center">
-                <img
-                  height="50"
-                  width="50"
-                  src={
-                    router.query.tokenZeroLogoURI === undefined
-                      ? ''
-                      : router.query.tokenZeroLogoURI.toString()
-                  }
-                />
+                <img height="50" width="50" src={tokenIn.logoURI} />
                 <img
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={
-                    router.query.tokenOneLogoURI === undefined
-                      ? ''
-                      : router.query.tokenOneLogoURI.toString()
-                  }
+                  src={tokenOut.logoURI}
                 />
               </div>
               <span className="text-3xl">
-                {router.query.tokenZeroName}-{router.query.tokenOneName}
+                {tokenIn.name}-{router.query.tokenOneName}
               </span>
               <span className="bg-white text-black rounded-md px-3 py-0.5">
                 {router.query.feeTier}%
               </span>
-              {mktRate[tokenIn.symbol] && rangePrice ? (
-                parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
-                  parseFloat(mktRate[tokenOut.symbol].replace(/[^\d.-]/g, '')) <
-                  Number(router.query.min) ||
-                parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
-                  parseFloat(mktRate[tokenOut.symbol].replace(/[^\d.-]/g, '')) >
-                  Number(router.query.max) ? (
-                  <div className="pr-5">
-                    <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-                      <ExclamationTriangleIcon className="w-4 text-yellow-600" />
-                      Out of Range
-                    </div>
-                  </div>
-                ) : (
+              {Number(rangeTickPrice) < Number(minLimit) ||
+              Number(rangeTickPrice) > Number(maxLimit) ? (
+                <div className="pr-5">
                   <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-                    <div className="w-2 h-2 bg-green-500 rounded-full" />
-                    In Range
+                    <ExclamationTriangleIcon className="w-4 text-yellow-600" />
+                    Out of Range
                   </div>
-                )
+                </div>
               ) : (
-                <></>
+                <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
+                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                  In Range
+                </div>
               )}
             </div>
-            <a href="#">
-              <a
-                href={'https://goerli.arbiscan.io/address/' + poolAddress}
-                target="_blank"
-                rel="noreferrer"
-                className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80"
-              >
-                View on Arbiscan
-                <ArrowTopRightOnSquareIcon className="w-5 " />
-              </a>
+
+            <a
+              href={'https://goerli.arbiscan.io/address/' + poolAdd}
+              target="_blank"
+              rel="noreferrer"
+              className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80"
+            >
+              View on Arbiscan
+              <ArrowTopRightOnSquareIcon className="w-5 " />
             </a>
           </div>
           <div className="mb-6">
@@ -266,7 +314,7 @@ export default function Range() {
                   onClick={() => copyAddress0()}
                   className="text-xs cursor-pointer w-32"
                 >
-                  {router.query.tokenZeroName}:
+                  {tokenIn.name}:
                   {is0Copied ? (
                     <span className="ml-1">Copied</span>
                   ) : (
@@ -277,7 +325,7 @@ export default function Range() {
                   onClick={() => copyAddress1()}
                   className="text-xs cursor-pointer"
                 >
-                  {router.query.tokenOneName}:
+                  {tokenOut.name}:
                   {is1Copied ? (
                     <span className="ml-1">Copied</span>
                   ) : (
@@ -305,33 +353,18 @@ export default function Range() {
                 <span className="text-4xl">
                   $
                   {Number(
-                    ethers.utils.formatUnits(
-                      router.query.liquidity === undefined
-                        ? '0'
-                        : router.query.liquidity.toString(),
-                      18,
-                    ),
+                    ethers.utils.formatUnits(liquidity.toString(), 18),
                   ).toFixed(2)}
                 </span>
 
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
-                      <img
-                        height="30"
-                        width="30"
-                        src={
-                          router.query.tokenZeroLogoURI === undefined
-                            ? '?'
-                            : router.query.tokenZeroLogoURI.toString()
-                        }
-                      />
-                      {router.query.tokenZeroName}
+                      <img height="30" width="30" src={tokenIn.logoURI} />
+                      {tokenIn.name}
                     </div>
                     <div className="flex items-center gap-x-4">
-                      {router.query.tokenZeroValue === undefined
-                        ? '?'
-                        : router.query.tokenZeroValue.toString()}
+                      {tokenIn.value}
                       <span className="bg-grey1 text-grey rounded-md px-3 py-0.5">
                         47%
                       </span>
@@ -344,21 +377,11 @@ export default function Range() {
                   </div>
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
-                      <img
-                        height="30"
-                        width="30"
-                        src={
-                          router.query.tokenOneLogoURI === undefined
-                            ? '0'
-                            : router.query.tokenOneLogoURI.toString()
-                        }
-                      />
-                      {router.query.tokenOneName}
+                      <img height="30" width="30" src={tokenOut.logoURI} />
+                      {tokenOut.name}
                     </div>
                     <div className="flex items-center gap-x-4">
-                      {router.query.tokenOneValue === undefined
-                        ? '0'
-                        : router.query.tokenOneValue.toString()}
+                      {tokenOut.value}
                       <span className="bg-grey1 text-grey rounded-md px-3 py-0.5">
                         53%
                       </span>
@@ -374,58 +397,20 @@ export default function Range() {
                   href={{
                     pathname: '/pool/liquidity',
                     query: {
-                      account:
-                        router.query.account === undefined
-                          ? ''
-                          : router.query.account.toString(),
-                      poolId:
-                        router.query.poolId === undefined
-                          ? ''
-                          : router.query.poolId.toString(),
-                      tokenOneName:
-                        router.query.tokenOneName === undefined
-                          ? ''
-                          : router.query.tokenOneName.toString(),
-                      tokenOneSymbol:
-                        router.query.tokenOneSymbol === undefined
-                          ? ''
-                          : router.query.tokenOneSymbol.toString(),
-                      tokenOneLogoURI:
-                        router.query.tokenOneLogoURI === undefined
-                          ? ''
-                          : router.query.tokenOneLogoURI.toString(),
-                      tokenOneAddress:
-                        router.query.tokenOneAddress === undefined
-                          ? ''
-                          : router.query.tokenOneAddress.toString(),
-                      tokenZeroName:
-                        router.query.tokenZeroName === undefined
-                          ? ''
-                          : router.query.tokenZeroName.toString(),
-                      tokenZeroSymbol:
-                        router.query.tokenZeroSymbol === undefined
-                          ? ''
-                          : router.query.tokenZeroSymbol.toString(),
-                      tokenZeroLogoURI:
-                        router.query.tokenZeroLogoURI === undefined
-                          ? ''
-                          : router.query.tokenZeroLogoURI.toString(),
-                      tokenZeroAddress:
-                        router.query.tokenZeroAddress === undefined
-                          ? ''
-                          : router.query.tokenZeroAddress.toString(),
-                      feeTier:
-                        router.query.feeTier === undefined
-                          ? ''
-                          : router.query.feeTier.toString(),
-                      min:
-                        router.query.min === undefined
-                          ? ''
-                          : router.query.min.toString(),
-                      max:
-                        router.query.max === undefined
-                          ? ''
-                          : router.query.max.toString(),
+                      account: '',
+                      poolAdd: poolAdd,
+                      tokenOneName: tokenOut.name,
+                      tokenOneSymbol: tokenOut.symbol,
+                      tokenOneLogoURI: tokenOut.logoURI,
+                      tokenOneAddress: tokenOut.address,
+                      tokenZeroName: tokenIn.name,
+                      tokenZeroSymbol: tokenIn.symbol,
+                      tokenZeroLogoURI: tokenIn.logoURI,
+                      tokenZeroAddress: tokenIn.address,
+                      feeTier: feeTier,
+                      tickSpacing: tickSpacing,
+                      min: minLimit,
+                      max: maxLimit,
                     },
                   }}
                 >
@@ -446,31 +431,15 @@ export default function Range() {
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
-                      <img
-                        height="30"
-                        width="30"
-                        src={
-                          router.query.tokenZeroLogoURI === undefined
-                            ? ''
-                            : router.query.tokenZeroLogoURI.toString()
-                        }
-                      />
-                      {router.query.tokenZeroName}
+                      <img height="30" width="30" src={tokenIn.logoURI} />
+                      {tokenIn.name}
                     </div>
                     <span>2.25</span>
                   </div>
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
-                      <img
-                        height="30"
-                        width="30"
-                        src={
-                          router.query.tokenOneLogoURI === undefined
-                            ? ''
-                            : router.query.tokenOneLogoURI.toString()
-                        }
-                      />
-                      {router.query.tokenZeroName}
+                      <img height="30" width="30" src={tokenOut.logoURI} />
+                      {tokenOut.name}
                     </div>
                     <span>2.25</span>
                   </div>
@@ -478,23 +447,23 @@ export default function Range() {
                 <div className="mt-5 space-y-2">
                   <div className="space-y-3">
                     <RangeBurnButton
-                      poolAddress={poolAddress}
+                      poolAddress={poolAdd}
                       address={address}
-                      lower={BigNumber.from(min)}
-                      upper={BigNumber.from(max)}
+                      lower={BigNumber.from(minLimit)}
+                      upper={BigNumber.from(maxLimit)}
                       amount={BigNumber.from(liquidity)}
                     />
                     <RangeCollectButton
-                      poolAddress={poolAddress}
+                      poolAddress={poolAdd.toString()}
                       address={address}
-                      lower={BigNumber.from(min)}
-                      upper={BigNumber.from(max)}
+                      lower={BigNumber.from(minLimit)}
+                      upper={BigNumber.from(maxLimit)}
                     />
                     <RangeCompoundButton
-                      poolAddress={poolAddress}
+                      poolAddress={poolAdd.toString()}
                       address={address}
-                      lower={BigNumber.from(min)}
-                      upper={BigNumber.from(max)}
+                      lower={BigNumber.from(minLimit)}
+                      upper={BigNumber.from(maxLimit)}
                     />
                   </div>
                 </div>
@@ -503,31 +472,19 @@ export default function Range() {
             <div>
               <div className="flex mt-7 gap-x-6 items-center">
                 <h1 className="text-lg">Price Range </h1>
-                {mktRate[tokenIn.symbol] && rangePrice ? (
-                  parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
-                    parseFloat(
-                      mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                    ) <
-                    Number(router.query.min) ||
-                  parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
-                    parseFloat(
-                      mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                    ) >
-                    Number(router.query.max) ? (
-                    <div className="pr-5">
-                      <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-                        <ExclamationTriangleIcon className="w-4 text-yellow-600" />
-                        Out of Range
-                      </div>
-                    </div>
-                  ) : (
+                {Number(rangeTickPrice) < Number(minLimit) ||
+                Number(rangeTickPrice) > Number(maxLimit) ? (
+                  <div className="pr-5">
                     <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-                      <div className="w-2 h-2 bg-green-500 rounded-full" />
-                      In Range
+                      <ExclamationTriangleIcon className="w-4 text-yellow-600" />
+                      Out of Range
                     </div>
-                  )
+                  </div>
                 ) : (
-                  <></>
+                  <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
+                    <div className="w-2 h-2 bg-green-500 rounded-full" />
+                    In Range
+                  </div>
                 )}
               </div>
             </div>
@@ -535,40 +492,34 @@ export default function Range() {
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Min Price.</div>
                 <div className="text-white text-2xl my-2 w-full">
-                  {router.query.min === undefined
-                    ? '?'
-                    : router.query.min.toString()}
+                  {TickMath.getPriceStringAtTick(Number(minLimit), Number(tickSpacing))}
                 </div>
                 <div className="text-grey text-xs w-full">
-                  {router.query.tokenZeroName} per {router.query.tokenOneName}
+                  {tokenIn.name} per {tokenOut.name}
                 </div>
                 <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100% {router.query.tokenZeroName} at
-                  this price.
+                  Your position will be 100% {tokenIn.name} at this price.
                 </div>
               </div>
               <ArrowsRightLeftIcon className="w-12 text-grey" />
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Max Price.</div>
                 <div className="text-white text-2xl my-2 w-full">
-                  {router.query.max === undefined
-                    ? '?'
-                    : router.query.max.toString()}
+                  {TickMath.getPriceStringAtTick(Number(maxLimit), Number(tickSpacing))}
                 </div>
                 <div className="text-grey text-xs w-full">
-                  {router.query.tokenZeroName} per {router.query.tokenOneName}
+                  {tokenIn.name} per {tokenOut.name}
                 </div>
                 <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100% {router.query.tokenOneName} at this
-                  price.
+                  Your position will be 100% {tokenOut.name} at this price.
                 </div>
               </div>
             </div>
             <div className="border border-grey1 rounded-xl py-2 text-center w-full mt-4 bg-dark">
               <div className="text-grey text-xs w-full">Current Price</div>
-              <div className="text-white text-2xl my-2 w-full">1.064</div>
+              <div className="text-white text-2xl my-2 w-full">{poolPrice != undefined && TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(poolPrice))}</div>
               <div className="text-grey text-xs w-full">
-                {router.query.tokenZeroName} per {router.query.tokenOneName}
+                {tokenIn.name} per {tokenOut.name}
               </div>
             </div>
           </div>

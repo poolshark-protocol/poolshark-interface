@@ -1,10 +1,46 @@
 import JSBI from 'jsbi'
 import invariant from 'tiny-invariant'
-import { Q32, ONE, ZERO, MAX_UINT256  } from './constants'
+import { Q32, ONE, ZERO, MAX_UINT256, Q96_BD  } from './constants'
 import { mostSignificantBit } from "./mostSignificantBit"
+import JSBD from 'jsbd'
+import { priceToString, scale } from './priceMath'
 
 function mulShift(val: JSBI, mulBy: string): JSBI {
   return JSBI.signedRightShift(JSBI.multiply(val, JSBI.BigInt(mulBy)), JSBI.BigInt(128))
+}
+
+export function roundTick(tick: number, tickSpacing: number): number {
+
+  if (tick % tickSpacing != 0) {
+    let roundedDown = Math.round(tick / tickSpacing) * tickSpacing;
+    let roundedUp = Math.round(tick / tickSpacing) * tickSpacing + tickSpacing;
+    // check which is closer
+    if (tick - roundedDown <= roundedUp - tick) {
+      return roundedDown
+    } else {
+      return roundedUp
+    }
+  }
+  return tick;
+}
+
+export function roundPrice(sqrtRatioX96: JSBI, tickSpacing: number): JSBI {
+  let spacing = JSBI.BigInt(tickSpacing.toString())
+  let tick = this.getTickAtSqrtRatio(sqrtRatioX96)
+  let roundedTick = this.roundTick(Number(tick), tickSpacing)
+  if (tick != roundedTick) {
+    return this.getSqrtRatioAtTick(roundedTick)
+  }
+  return sqrtRatioX96
+}
+
+export function invertPrice(priceString: string, zeroForOne: boolean): string {
+  if(!zeroForOne) {
+    let price = JSBD.BigDecimal(priceString)
+    price = JSBD.divide(JSBD.BigDecimal('1.00'), price)
+    priceString = price.toExponential(5).toString()
+  }
+  return priceString
 }
 
 export abstract class TickMath {
@@ -31,28 +67,58 @@ export abstract class TickMath {
    */
   public static MAX_SQRT_RATIO: JSBI = JSBI.BigInt('1461446703485210103287273052203988822378723970342')
 
-  public static roundTick(tick: number, tickSpacing: number): number {
-    if (tick % tickSpacing != 0) {
-      let roundedDown = tick / tickSpacing * tickSpacing;
-      let roundedUp = tick / tickSpacing * tickSpacing + tickSpacing;
-      // check which is closer
-      if (tick - roundedDown <= roundedUp - tick) {
-        return roundedDown
-      } else {
-        return roundedUp
-      }
-    }
-    return tick;
+  public static getPriceStringAtTick(tick: number, tickSpacing?: number): string {
+    // round the tick based on tickSpacing
+    let roundedTick = tick
+    if (tickSpacing) roundedTick = roundTick(Number(tick), tickSpacing)
+    // divide and return formatted string
+    return this.getPriceStringAtSqrtPrice(this.getSqrtRatioAtTick(roundedTick))
   }
 
-  public static roundPrice(sqrtRatioX96: JSBI, tickSpacing: number): JSBI {
-    let spacing = JSBI.BigInt(tickSpacing.toString())
-    let tick = this.getTickAtSqrtRatio(sqrtRatioX96)
-    let roundedTick = this.roundTick(Number(tick), tickSpacing)
-    if (tick != roundedTick) {
-      return this.getSqrtRatioAtTick(roundedTick)
+  public static getSqrtPriceAtPriceString(priceString: string, scaleFactor?: number): JSBI {
+    let price = Number(parseFloat(priceString).toFixed(30))
+    if (scaleFactor) {
+      price = price / (10 ** scaleFactor)
     }
-    return sqrtRatioX96
+    return JSBI.divide(
+      JSBI.multiply(
+        JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
+        JSBI.BigInt(
+          String(
+            Math.sqrt(price).toFixed(
+              30,
+            ),
+          )
+            .split('.')
+            .join(''),
+        ),
+      ),
+      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
+    )
+  }
+
+  public static getPriceStringAtSqrtPrice(sqrtPrice: JSBI): string {
+    let sqrtPriceBD = JSBD.BigDecimal(sqrtPrice.toString())
+    // square sqrtPrice
+    let sqrtPriceExp = JSBD.pow(sqrtPriceBD, 2)
+    // square Q96 value
+    let Q96Exp = JSBD.pow(Q96_BD, 2)
+    // divide and return formatted string
+    let price = JSBD.divide(sqrtPriceExp, Q96Exp)
+    // prices greater than 100k use scientific notation
+    if (JSBD.greaterThanOrEqual(price, JSBD.BigDecimal(100000)))
+      return price.toExponential(3).toString()
+    // prices less than 0.00001 use scientific notation
+    else if (JSBD.lessThanOrEqual(price, JSBD.BigDecimal(0.01)))
+      return price.toExponential(3).toString()
+    // normal display for other prices
+    else
+      return priceToString(price)
+  }
+
+  public static getTickAtPriceString(priceString: string): number {
+    let sqrtPrice = this.getSqrtPriceAtPriceString(priceString)
+    return this.getTickAtSqrtRatio(sqrtPrice)
   }
 
   /**
@@ -60,7 +126,7 @@ export abstract class TickMath {
    * @param tick the tick for which to compute the sqrt ratio
    */
   public static getSqrtRatioAtTick(tick: number): JSBI {
-    invariant(tick >= TickMath.MIN_TICK && tick <= TickMath.MAX_TICK && Number.isInteger(tick), 'TICK')
+    invariant(tick >= TickMath.MIN_TICK && tick <= TickMath.MAX_TICK && Number.isInteger(Number(tick)), 'TICK')
     const absTick: number = tick < 0 ? tick * -1 : tick
 
     let ratio: JSBI =

@@ -11,9 +11,7 @@ import ConcentratedPoolPreview from './ConcentratedPoolPreview'
 import { useRangeStore } from '../../hooks/useStore'
 import { TickMath } from '../../utils/math/tickMath'
 import JSBI from 'jsbi'
-import {
-  getRangePoolFromFactory,
-} from '../../utils/queries'
+import { getRangePoolFromFactory } from '../../utils/queries'
 import useInputBox from '../../hooks/useInputBox'
 import { erc20ABI, useAccount } from 'wagmi'
 import { BigNumber, Contract, ethers } from 'ethers'
@@ -22,7 +20,6 @@ import { rangePoolABI } from '../../abis/evm/rangePool'
 
 export default function ConcentratedPool({
   account,
-  key,
   poolId,
   tokenOneName,
   tokenOneSymbol,
@@ -153,6 +150,7 @@ export default function ConcentratedPool({
     args: [address, poolId],
     chainId: 421613,
     watch: true,
+    enabled: rangePoolRoute != undefined && tokenIn.address != '',
     onError(error) {
       console.log('Error', error)
     },
@@ -209,13 +207,10 @@ export default function ConcentratedPool({
       setMktRate({
         TOKEN20A:
           '~' +
-          Number(price).toLocaleString(
-            'en-US',
-            {
-              style: 'currency',
-              currency: 'USD',
-            },
-          ),
+          Number(price).toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+          }),
         TOKEN20B: '~1.00',
       })
     } catch (error) {
@@ -233,40 +228,8 @@ export default function ConcentratedPool({
         Number(ethers.utils.formatUnits(bnInput)) !== 0 &&
         hasSelected == true
       ) {
-        const min = TickMath.getTickAtSqrtRatio(
-          JSBI.divide(
-            JSBI.multiply(
-              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
-              JSBI.BigInt(
-                String(
-                  Math.sqrt(Number(parseFloat(minPrice).toFixed(30))).toFixed(
-                    30,
-                  ),
-                )
-                  .split('.')
-                  .join(''),
-              ),
-            ),
-            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
-          ),
-        )
-        const max = TickMath.getTickAtSqrtRatio(
-          JSBI.divide(
-            JSBI.multiply(
-              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
-              JSBI.BigInt(
-                String(
-                  Math.sqrt(Number(parseFloat(maxPrice).toFixed(30))).toFixed(
-                    30,
-                  ),
-                )
-                  .split('.')
-                  .join(''),
-              ),
-            ),
-            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
-          ),
-        )
+        const min = TickMath.getTickAtPriceString(minPrice)
+        const max = TickMath.getTickAtPriceString(maxPrice)
         setTo(address)
         setMin(ethers.utils.parseUnits(String(min), 0))
         setMax(ethers.utils.parseUnits(String(max), 0))
@@ -503,7 +466,7 @@ export default function ConcentratedPool({
                 tokenChosen={changeDefaultOut}
                 displayToken={tokenOut}
                 balance={setQueryTokenOut}
-                key={queryTokenOut}
+                key={queryTokenOut + 'selected'}
               />
             ) : (
               //@dev add skeletons on load when switching sides/ initial selection
@@ -513,6 +476,7 @@ export default function ConcentratedPool({
                 tokenChosen={changeDefaultOut}
                 displayToken={tokenOut}
                 balance={setQueryTokenOut}
+                key={queryTokenOut + 'notselected'}
               />
             )}
           </div>
@@ -556,14 +520,12 @@ export default function ConcentratedPool({
                       <div className="flex text-xs text-[#4C4C4C]">
                         Balance: {balance0 === 'NaN' ? 0 : balance0}
                       </div>
-                      {isConnected ? (
-                        <button
-                          className="flex text-xs uppercase text-[#C9C9C9]"
-                          onClick={() => maxBalance(balance0, '0')}
-                        >
-                          Max
-                        </button>
-                      ) : null}
+                      <button
+                        className="flex text-xs uppercase text-[#C9C9C9]"
+                        onClick={() => maxBalance(balance0, '0')}
+                      >
+                        Max
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -634,6 +596,7 @@ export default function ConcentratedPool({
                   </button>
                 </div>
                 <input
+                  key={minPrice}
                   className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
                   placeholder={minPrice}
                   id="minInput"
@@ -661,6 +624,7 @@ export default function ConcentratedPool({
                   </button>
                 </div>
                 <input
+                  key={maxPrice}
                   className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
                   placeholder={maxPrice}
                   id="maxInput"

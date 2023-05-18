@@ -3,7 +3,7 @@ export const rangePoolFactoryABI = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "owner_",
+        "name": "_owner",
         "type": "address"
       }
     ],
@@ -17,12 +17,7 @@ export const rangePoolFactoryABI = [
   },
   {
     "inputs": [],
-    "name": "IdenticalTokenAddresses",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidTokenDecimals",
+    "name": "InvalidTokenAddress",
     "type": "error"
   },
   {
@@ -68,28 +63,15 @@ export const rangePoolFactoryABI = [
     "type": "event"
   },
   {
-    "inputs": [],
-    "name": "_owner",
-    "outputs": [
-      {
-        "internalType": "contract IRangePoolManager",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",
-        "name": "fromToken",
+        "name": "tokenIn",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "destToken",
+        "name": "tokenOut",
         "type": "address"
       },
       {
@@ -118,17 +100,17 @@ export const rangePoolFactoryABI = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "fromToken",
+        "name": "tokenIn",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "destToken",
+        "name": "tokenOut",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "fee",
+        "name": "swapFee",
         "type": "uint256"
       }
     ],

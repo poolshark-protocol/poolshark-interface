@@ -14,19 +14,16 @@ import JSBI from 'jsbi'
 import {
   getCoverPoolFromFactory,
 } from '../../utils/queries'
-import { TickMath } from '../../utils/math/tickMath'
-import {
-  coverPoolAddress,
-} from '../../constants/contractAddresses'
+import { TickMath, roundTick } from '../../utils/math/tickMath'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import useInputBox from '../../hooks/useInputBox'
 import { coverPoolABI } from '../../abis/evm/coverPool'
+import { ZERO_ADDRESS } from '../../utils/math/constants'
+import { DyDxMath } from '../../utils/math/dydxMath'
 
 export default function CoverExistingPool({
   account,
-  key,
   poolId,
-  liquidity,
   tokenOneName,
   tokenOneSymbol,
   tokenOneLogoURI,
@@ -37,6 +34,10 @@ export default function CoverExistingPool({
   tokenZeroLogoURI,
   tokenZeroAddress,
   tokenZeroValue,
+  minLimit,
+  maxLimit,
+  liquidity,
+  feeTier,
   goBack,
 }) {
   type token = {
@@ -63,36 +64,40 @@ export default function CoverExistingPool({
   const [hasSelected, setHasSelected] = useState(true)
   const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
+  const [isDisabled, setDisabled] = useState(true)
   const [tokenIn, setTokenIn] = useState({
-    name: tokenZeroName,
-    symbol: tokenZeroSymbol,
-    logoURI: tokenZeroLogoURI,
-    address: tokenZeroAddress,
-    value: tokenZeroValue,
-  } as token)
-  const [tokenOut, setTokenOut] = useState({
     name: tokenOneName,
     symbol: tokenOneSymbol,
     logoURI: tokenOneLogoURI,
     address: tokenOneAddress,
     value: tokenOneValue,
   } as token)
+  const [tokenOut, setTokenOut] = useState({
+    name: tokenZeroName,
+    symbol: tokenZeroSymbol,
+    logoURI: tokenZeroLogoURI,
+    address: tokenZeroAddress,
+    value: tokenZeroValue,
+  } as token)
+
   const [sliderValue, setSliderValue] = useState(50)
   const [coverValue, setCoverValue] = useState(
     Number(Number(Number(tokenOut.value) / 2).toFixed(5)),
   )
   const [coverQuote, setCoverQuote] = useState(undefined)
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
-  const [coverPoolRoute, setCoverPoolRoute] = useState('')
+  const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
+  const [coverAmount, setCoverAmount] = useState(BigNumber.from('0'))
   const [allowance, setAllowance] = useState('0')
   const [mktRate, setMktRate] = useState({})
   const { data } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [address, coverPoolAddress],
+    args: [address, coverPoolRoute],
     chainId: 421613,
     watch: true,
+    enabled: coverPoolRoute != undefined && tokenIn.address != '',
     onSuccess(data) {
       console.log('Success')
     },
@@ -108,7 +113,7 @@ export default function CoverExistingPool({
     address: coverPoolRoute,
     abi: coverPoolABI,
     functionName:
-      tokenOut.address != '' && tokenIn.address < tokenOut.address
+      tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) < 0
         ? 'pool1'
         : 'pool0',
     args: [],
@@ -150,19 +155,22 @@ export default function CoverExistingPool({
     setCoverParams()
   }, [minPrice, maxPrice, sliderValue, coverQuote])
 
-  console.log('tokenIn',tokenIn)
+  /* console.log('tokenIn',tokenIn)
   console.log('coverTickPrice', Number(coverTickPrice))
-  console.log('mktRatePrice', mktRate[tokenIn.symbol])
+  console.log('mktRatePrice', mktRate[tokenIn.symbol]) */
 
   const getCoverPool = async () => {
+    console.log('liquidity', liquidity)
     try {
-      var pool = undefined
-      if (tokenIn.address < tokenOut.address) {
+      let pool
+      if (tokenIn.address.localeCompare(tokenOut.address) < 0) {
         pool = await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
       } else {
         pool = await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
       }
-      const id = pool['data']['coverPools']['0']['id']
+      let id = ZERO_ADDRESS
+      let dataLength = pool['data']['coverPools'].length
+      if(dataLength != 0) id = pool['data']['coverPools']['0']['id']
       setCoverPoolRoute(id)
     } catch (error) {
       console.log(error)
@@ -193,66 +201,22 @@ export default function CoverExistingPool({
         maxPrice !== '' &&
         Number(ethers.utils.formatUnits(sliderValue)) !== 0
       ) {
-        const min = TickMath.getTickAtSqrtRatio(
-          JSBI.divide(
-            JSBI.multiply(
-              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
-              JSBI.BigInt(
-                String(
-                  Math.sqrt(Number(parseFloat(minPrice).toFixed(30))).toFixed(
-                    30,
-                  ),
-                )
-                  .split('.')
-                  .join(''),
-              ),
-            ),
-            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
-          ),
-        )
-        const max = TickMath.getTickAtSqrtRatio(
-          JSBI.divide(
-            JSBI.multiply(
-              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
-              JSBI.BigInt(
-                String(
-                  Math.sqrt(Number(parseFloat(maxPrice).toFixed(30))).toFixed(
-                    30,
-                  ),
-                )
-                  .split('.')
-                  .join(''),
-              ),
-            ),
-            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
-          ),
-        )
+        const min = TickMath.getTickAtPriceString(minPrice)
+        const max = TickMath.getTickAtPriceString(maxPrice)
       }
-      setMin(ethers.utils.parseUnits(String(min), 0))
-      setMax(ethers.utils.parseUnits(String(max), 0))
+      const min = TickMath.getTickAtPriceString(minPrice)
+      const max = TickMath.getTickAtPriceString(maxPrice)
+      setMin(BigNumber.from(String(min)))
+      setMax(BigNumber.from(String(max)))
+      setDisabled(false)
+
     } catch (error) {
       console.log(error)
     }
 
     try {
       if (coverQuote) {
-        const price = TickMath.getTickAtSqrtRatio(
-          JSBI.divide(
-            JSBI.multiply(
-              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
-              JSBI.BigInt(
-                String(
-                  Math.sqrt(Number(parseFloat(coverQuote).toFixed(30))).toFixed(
-                    30,
-                  ),
-                )
-                  .split('.')
-                  .join(''),
-              ),
-            ),
-            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
-          ),
-        )
+        const price = TickMath.getTickAtPriceString(coverQuote)
         console.log('price', price)
         setCoverTickPrice(ethers.utils.parseUnits(String(price), 0))
       }
@@ -421,7 +385,10 @@ export default function CoverExistingPool({
             <input
               type="string"
               id="input"
-              onChange={(e) => setSliderValue(Number(e.target.value))}
+              onChange={(e) => {
+                setSliderValue(Number(e.target.value))
+                console.log('slider value', sliderValue)
+              }}
               value={sliderValue}
               className="text-right placeholder:text-grey1 text-white text-2xl w-20 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
             />
@@ -435,6 +402,7 @@ export default function CoverExistingPool({
               type="string"
               id="input"
               onChange={(e) => {
+                console.log('cover amount changed', sliderValue)
                 if (Number(e.target.value) / Number(tokenOut.value) < 100) {
                   setSliderValue(
                     Number(e.target.value) / Number(tokenOut.value),
@@ -469,7 +437,7 @@ export default function CoverExistingPool({
       <h1 className="mb-3 mt-4">Set Price Range</h1>
       <div className="flex justify-between w-full gap-x-6">
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-          <span className="text-xs text-grey">Min. Price</span>
+          <span className="text-xs text-grey">Min Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice('minus', 'min')}>
@@ -546,19 +514,23 @@ export default function CoverExistingPool({
         {isDisconnected ||
         Number(allowance) < Number(sliderValue) * Number(tokenIn.value) ? (
           <SwapCoverApproveButton
+          disabled={isDisabled}
           poolAddress={poolId} 
           approveToken={tokenIn.address} />
         ) : (
           <CoverMintButton
-            disabled={false}
+            poolAddress={coverPoolRoute}
+            disabled={isDisabled}
             to={address}
             lower={min}
-            claim={min}
+            claim={(tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) < 0) ?
+                max : min}
             upper={max}
             amount={ethers.utils
-              .parseUnits(String(sliderValue * 0.01), 18)
-              .mul(1)}
-            zeroForOne={true}
+              .parseUnits(String(sliderValue * 100), 0)
+              .mul(ethers.utils.parseUnits(tokenIn.value, 18))}
+            zeroForOne={tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) < 0}
+            tickSpacing={20}
           />
         )}
       </div>

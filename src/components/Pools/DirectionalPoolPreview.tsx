@@ -18,6 +18,7 @@ export default function DirectionalPoolPreview({
   minTick,
   maxTick,
   fee,
+  tickSpacing,
   allowance,
   setAllowance,
 }) {
@@ -26,9 +27,10 @@ export default function DirectionalPoolPreview({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [address, coverPoolAddress],
+    args: [address, poolId],
     chainId: 421613,
     watch: true,
+    enabled: tokenIn.address != undefined,
     onSuccess(data) {
       console.log('Success')
     },
@@ -191,11 +193,13 @@ export default function DirectionalPoolPreview({
                       {Number(allowance) <
                       Number(ethers.utils.formatUnits(amount0, 18)) ? (
                         <SwapCoverApproveButton
+                          disabled={true}
                           poolAddress={poolId}
                           approveToken={tokenIn.address}
                         />
                       ) : (
                         <CoverMintButton
+                          poolAddress={poolId}
                           disabled={false}
                           to={account}
                           lower={minTick}
@@ -203,6 +207,7 @@ export default function DirectionalPoolPreview({
                           upper={maxTick}
                           amount={amount0}
                           zeroForOne={true}
+                          tickSpacing={tickSpacing}
                         />
                       )}
                     </div>

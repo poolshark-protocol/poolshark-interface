@@ -4,6 +4,7 @@ import RangeMintButton from '../Buttons/RangeMintButton'
 import { ethers } from 'ethers'
 import { erc20ABI, useAccount, useContractRead } from 'wagmi'
 import SwapRangeApproveButton from '../Buttons/SwapRangeApproveButton'
+import SwapRangeDoubleApproveButton from '../Buttons/SwapRangeDoubleApproveButton'
 
 export default function ConcentratedPoolPreview({
   account,
@@ -30,6 +31,7 @@ export default function ConcentratedPoolPreview({
     args: [address, poolAddress],
     chainId: 421613,
     watch: true,
+    enabled: tokenIn.address != '',
     onSuccess() {
       console.log('Success')
     },
@@ -47,6 +49,7 @@ export default function ConcentratedPoolPreview({
     args: [address, poolAddress],
     chainId: 421613,
     watch: true,
+    enabled: tokenOut.address != '',
     onSuccess() {
       console.log('Success')
     },
@@ -243,7 +246,16 @@ export default function ConcentratedPoolPreview({
                       Number(allowanceOut) <
                         Number(ethers.utils.formatUnits(amount1, 18)) ? (
                         Number(allowanceIn) <
-                        Number(ethers.utils.formatUnits(amount0, 18)) ? (
+                          Number(ethers.utils.formatUnits(amount0, 18)) &&
+                        Number(allowanceOut) <
+                          Number(ethers.utils.formatUnits(amount1, 18)) ? (
+                          <SwapRangeDoubleApproveButton
+                            poolAddress={poolAddress}
+                            tokenIn={tokenIn.address}
+                            tokenOut={tokenOut.address}
+                          />
+                        ) : Number(allowanceIn) <
+                          Number(ethers.utils.formatUnits(amount0, 18)) ? (
                           <SwapRangeApproveButton
                             poolAddress={poolAddress}
                             approveToken={tokenIn.address}

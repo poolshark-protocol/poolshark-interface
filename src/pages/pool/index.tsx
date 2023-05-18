@@ -15,6 +15,8 @@ import {
   fetchRangePositions,
   fetchCoverPools,
   fetchCoverPositions,
+  getTickIfNotZeroForOne,
+  getTickIfZeroForOne,
 } from '../../utils/queries'
 import { Fragment, useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
@@ -97,24 +99,29 @@ export default function Pool() {
   function mapUserRangePositions() {
     const mappedRangePositions = []
     rangePositions.map((rangePosition) => {
-      //console.log('rangePosition', rangePosition)
       const rangePositionData = {
-        poolId: rangePosition.pool.factory.id,
+        id: rangePosition.id,
+        poolId: rangePosition.pool.id,
         tokenZero: rangePosition.pool.token0,
         valueTokenZero: rangePosition.pool.totalValueLocked0,
         tokenOne: rangePosition.pool.token1,
         valueTokenOne: rangePosition.pool.totalValueLocked1,
         min: rangePosition.lower,
         max: rangePosition.upper,
-        tvlUsd: rangePosition.pool.totalValueLockedUsd,
+        price: rangePosition.pool.price,
         feeTier: rangePosition.pool.feeTier.feeAmount,
+        tickSpacing: rangePosition.pool.feeTier.tickSpacing,
         unclaimedFees: rangePosition.pool.feesUsd,
         liquidity: rangePosition.liquidity,
-        volumeUsd: rangePosition.pool.volumeUsd,
-        volumeEth: rangePosition.pool.volumeEth,
+        tvlUsd: (
+          Number(rangePosition.pool.totalValueLockedUsd) / 1_000_000
+        ).toFixed(2),
+        volumeUsd: (Number(rangePosition.pool.volumeUsd) / 1_000_000).toFixed(
+          2,
+        ),
+        volumeEth: (Number(rangePosition.pool.volumeEth) / 1).toFixed(2),
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
       }
-
       mappedRangePositions.push(rangePositionData)
     })
     setAllRangePositions(mappedRangePositions)
@@ -122,21 +129,35 @@ export default function Pool() {
 
   function mapUserCoverPositions() {
     const mappedCoverPositions = []
-    coverPositions.map((coverPosition) => {
+      coverPositions.map((coverPosition) => {
+      console.log('coverPosition', coverPosition)
       const coverPositionData = {
+        id: coverPosition.id,
         poolId: coverPosition.pool.id,
-        tokenZero: coverPosition.pool.token0,
+        tokenZero: coverPosition.zeroForOne ? coverPosition.pool.token0 : coverPosition.pool.token1,
         valueTokenZero: coverPosition.inAmount,
-        tokenOne: coverPosition.pool.token1,
+        tokenOne: coverPosition.zeroForOne ? coverPosition.pool.token1 : coverPosition.pool.token0,
         valueTokenOne: coverPosition.outAmount,
         min: coverPosition.lower,
         max: coverPosition.upper,
+        //TODO: needs to be awaited
+        claim: getClaimTick(
+          coverPosition.pool.id,
+          coverPosition.lower,
+          coverPosition.upper,
+          coverPosition.zeroForOne,
+          coverPosition.epochLast
+        ),
+        zeroForOne: coverPosition.zeroForOne,
+        userFillIn: coverPosition.amountInDeltaMax,
+        userFillOut: coverPosition.amountOutDeltaMax,
+        epochLast: coverPosition.epochLast,
+        latestTick: coverPosition.pool.latestTick,
         liquidity: coverPosition.liquidity,
         feeTier: coverPosition.pool.volatilityTier.feeAmount,
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
       mappedCoverPositions.push(coverPositionData)
-      //console.log('mappedCoverPositions', mappedCoverPositions)
     })
     setAllCoverPositions(mappedCoverPositions)
   }
@@ -144,19 +165,19 @@ export default function Pool() {
   function mapRangePools() {
     const mappedRangePools = []
     rangePools.map((rangePool) => {
-      //console.log('rangePool', rangePool)
       const rangePoolData = {
         poolId: rangePool.id,
         tokenOne: rangePool.token1,
         tokenZero: rangePool.token0,
+        price: rangePool.price,
         liquidity: rangePool.liquidity,
         feeTier: rangePool.feeTier.feeAmount,
-        tvlUsd: rangePool.totalValueLockedUsd,
-        volumeUsd: rangePool.volumeUsd,
-        volumeEth: rangePool.volumeEth,
+        tickSpacing: rangePool.feeTier.tickSpacing,
+        tvlUsd: (Number(rangePool.totalValueLockedUsd) / 1_000_000).toFixed(2),
+        volumeUsd: (Number(rangePool.volumeUsd) / 1_000_000).toFixed(2),
+        volumeEth: (Number(rangePool.volumeEth) / 1).toFixed(2),
       }
       mappedRangePools.push(rangePoolData)
-      //console.log('mappedRangePools', mappedRangePools)
     })
     setAllRangePools(mappedRangePools)
   }
@@ -170,11 +191,11 @@ export default function Pool() {
         tokenZero: coverPool.token0,
         liquidity: coverPool.liquidity,
         feeTier: coverPool.volatilityTier.feeAmount,
-        tvlUsd: coverPool.totalValueLockedUsd,
-        volumeUsd: coverPool.volumeUsd,
-        volumeEth: coverPool.volumeEth,
+        tickSpread: coverPool.volatilityTier.tickSpread,
+        tvlUsd: (Number(coverPool.totalValueLockedUsd) / 1_000_000).toFixed(2),
+        volumeUsd: (Number(coverPool.volumeUsd) / 1_000_000).toFixed(2),
+        volumeEth: (Number(coverPool.volumeEth) / 1).toFixed(2),
       }
-
       mappedCoverPools.push(coverPoolData)
     })
 
@@ -229,6 +250,42 @@ export default function Pool() {
     )
   }
 
+  const getClaimTick = async (
+    coverPoolAddress: string,
+    minLimit: number,
+    maxLimit: number,
+    zeroForOne: boolean,
+    epochLast: number
+  )  => {
+    let claimTick = zeroForOne ? maxLimit : minLimit
+    if (zeroForOne) {
+      const claimTickQuery = await getTickIfZeroForOne(
+        Number(maxLimit),
+        coverPoolAddress,
+        Number(epochLast),
+      )
+      const claimTickDataLength = claimTickQuery['data']['ticks'].length
+      if (claimTickDataLength > 0)
+        claimTick = claimTickQuery['data']['ticks'][0]['index']
+    } else {
+      const claimTickQuery = await getTickIfNotZeroForOne(
+        Number(minLimit),
+        coverPoolAddress,
+        Number(epochLast),
+      )
+      const claimTickDataLength = claimTickQuery['data']['ticks'].length
+      if (claimTickDataLength > 0)
+        claimTick = claimTickQuery['data']['ticks'][0]['index']
+      if (claimTick != undefined) {
+        return claimTick
+      } else {
+        return minLimit
+      }
+    }
+      console.log('claim tick found:', claimTick)
+      return claimTick
+    }
+
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
@@ -246,36 +303,36 @@ export default function Pool() {
               <Link
                 href={
                   selected.id == 1
-                    ? 'https://docs.poolsharks.io/introduction/range-pools/'
-                    : 'https://docs.poolsharks.io/introduction/cover-pools/'
+                    ? 'https://docs.poolsharks.io/overview/range-pools/'
+                    : 'https://docs.poolsharks.io/overview/cover-pools/'
                 }
               >
                 <a target="_blank">How it works?</a>
               </Link>
             </span>
-            <Link
-              href={{
-                pathname:
-                  selected.id == 1 ? '/pool/concentrated' : '/pool/directional',
-                query: {
-                  account: '',
-                  poolId: selected.id.toString(),
-                  tokenOneName: '',
-                  tokenOneSymbol: '',
-                  tokenOneLogoURI: '',
-                  tokenOneAddress: '',
-                  tokenZeroName: '',
-                  tokenZeroSymbol: '',
-                  tokenZeroLogoURI: '',
-                  tokenZeroAddress: '',
-                },
-              }}
-            >
+            {/* <Link
+              // href={{
+              //   pathname:
+              //     selected.id == 1 ? "/pool/concentrated" : "/pool/directional",
+              //   query: {
+              //     account: "",
+              //     poolId: selected.id.toString(),
+              //     tokenOneName: "",
+              //     tokenOneSymbol: "",
+              //     tokenOneLogoURI: "",
+              //     tokenOneAddress: "",
+              //     tokenZeroName: "",
+              //     tokenZeroSymbol: "",
+              //     tokenZeroLogoURI: "",
+              //     tokenZeroAddress: "",
+              //   },
+              // }}
+            > */}
               <button className="flex items-center gap-x-1.5 px-7 py-[9px] text-white text-sm transition whitespace-nowrap rounded-lg cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
                 <PlusSmallIcon className="w-6" />
                 Create Pool
               </button>
-            </Link>
+            {/* </Link> */}
           </div>
           <div className="bg-black  border border-grey2 w-full rounded-t-xl p-6 space-y-4 h-[70vh] overflow-auto">
             <div className="relative">
@@ -290,22 +347,51 @@ export default function Pool() {
             <div className="">
               <h1 className="mb-3">My Positions</h1>
               <div className="space-y-2">
-                {selected.id === 1
+                {isDisconnected ||
+                  allRangePositions.length === 0 ||
+                  allCoverPositions.length === 0 ? (
+                    <div className="space-y-2">
+                        <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            className="w-14 py-4 mx-auto text-grey"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          Your {selected.id === 1 ? <>range</>: <>cover</>} pools will appear here
+                        </div>
+                      </div>
+                  )
+                  :(
+                  <>
+                  {selected.id === 1
                   ? allRangePositions.map((allRangePosition) => {
                       if (
-                        /*allRangePosition.userOwnerAddress ===
-                          address?.toLowerCase()*/ true &&
-                        (allRangePosition.tokenZero.name === searchTerm ||
-                          allRangePosition.tokenOne.name === searchTerm ||
-                          allRangePosition.tokenZero.symbol === searchTerm ||
-                          allRangePosition.tokenOne.symbol === searchTerm ||
-                          allRangePosition.tokenZero.id === searchTerm ||
-                          allRangePosition.tokenOne.id === searchTerm ||
-                          searchTerm === '')
+                        allRangePosition.userOwnerAddress ===
+                          address?.toLowerCase() &&
+                        (allRangePosition.tokenZero.name.toLowerCase() ===
+                          searchTerm.toLowerCase() ||
+                          allRangePosition.tokenOne.name.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allRangePosition.tokenZero.symbol.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allRangePosition.tokenOne.symbol.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allRangePosition.tokenZero.id.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allRangePosition.tokenOne.id.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          searchTerm === "")
                       ) {
                         return (
                           <UserPool
-                            key={allRangePosition.tokenOneName}
+                            key={allRangePosition.id}
                             account={address}
                             poolId={allRangePosition.poolId}
                             tokenZero={allRangePosition.tokenZero}
@@ -314,32 +400,40 @@ export default function Pool() {
                             valueTokenOne={allRangePosition.valueTokenOne}
                             min={allRangePosition.min}
                             max={allRangePosition.max}
+                            price={allRangePosition.price}
                             liquidity={allRangePosition.liquidity}
                             feeTier={allRangePosition.feeTier}
+                            tickSpacing={allRangePosition.tickSpacing}
                             unclaimedFees={allRangePosition.unclaimedFees}
                             tvlUsd={allRangePosition.tvlUsd}
                             volumeUsd={allRangePosition.volumeUsd}
                             volumeEth={allRangePosition.volumeEth}
-                            href={'/pool/view/range'}
+                            href={"/pool/view/range"}
                           />
-                        )
+                        );
                       }
                     })
                   : allCoverPositions.map((allCoverPosition) => {
                       if (
-                        /*allCoverPosition.userOwnerAddress ===
-                          address?.toLowerCase()*/ true &&
-                        (allCoverPosition.tokenZero.name === searchTerm ||
-                          allCoverPosition.tokenOne.name === searchTerm ||
-                          allCoverPosition.tokenZero.symbol === searchTerm ||
-                          allCoverPosition.tokenOne.symbol === searchTerm ||
-                          allCoverPosition.tokenZero.id === searchTerm ||
-                          allCoverPosition.tokenOne.id === searchTerm ||
-                          searchTerm === '')
+                        /* allCoverPosition.userOwnerAddress ===
+                          address?.toLowerCase() */ true &&
+                        (allCoverPosition.tokenZero.name.toLowerCase() ===
+                          searchTerm.toLowerCase() ||
+                          allCoverPosition.tokenOne.name.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPosition.tokenZero.symbol.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPosition.tokenOne.symbol.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPosition.tokenZero.id.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPosition.tokenOne.id.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          searchTerm === "")
                       ) {
                         return (
                           <UserCoverPool
-                            key={allCoverPosition.tokenOneName}
+                            key={allCoverPosition.id}
                             account={address}
                             poolId={allCoverPosition.poolId}
                             tokenZero={allCoverPosition.tokenZero}
@@ -348,15 +442,28 @@ export default function Pool() {
                             valueTokenOne={allCoverPosition.valueTokenOne}
                             min={allCoverPosition.min}
                             max={allCoverPosition.max}
+                            zeroForOne={allCoverPosition.zeroForOne}
+                            userFillIn={allCoverPosition.userFillIn}
+                            userFillOut={allCoverPosition.userFillOut}
+                            epochLast={allCoverPosition.epochLast}
                             liquidity={allCoverPosition.liquidity}
+                            latestTick={allCoverPosition.latestTick}
                             feeTier={allCoverPosition.feeTier}
                             prefill={undefined}
                             close={undefined}
-                            href={'/pool/view/cover'}
+                            href={"/pool/view/cover"}
                           />
-                        )
+                        );
                       }
                     })}
+
+                  </>
+                  )
+
+
+                }
+
+                
               </div>
             </div>
             <div className="">
@@ -375,55 +482,69 @@ export default function Pool() {
                     {selected.id === 1
                       ? allRangePools.map((allRangePool) => {
                           if (
-                            allRangePool.tokenZero.name === searchTerm ||
-                            allRangePool.tokenOne.name === searchTerm ||
-                            allRangePool.tokenZero.symbol === searchTerm ||
-                            allRangePool.tokenOne.symbol === searchTerm ||
-                            allRangePool.tokenZero.id === searchTerm ||
-                            allRangePool.tokenOne.id === searchTerm ||
-                            searchTerm === ''
+                            allRangePool.tokenZero.name.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenOne.name.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenZero.symbol.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenOne.symbol.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenZero.id.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePool.tokenOne.id.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            searchTerm === ""
                           )
                             return (
                               <PoolList
                                 account={address}
-                                key={allRangePool.tokenOneName}
+                                key={allRangePool.poolId}
                                 poolId={allRangePool.poolId}
                                 tokenZero={allRangePool.tokenZero}
                                 tokenOne={allRangePool.tokenOne}
                                 liquidity={allRangePool.liquidity}
                                 feeTier={allRangePool.feeTier}
+                                tickSp={allRangePool.tickSpacing}
                                 tvlUsd={allRangePool.tvlUsd}
                                 volumeUsd={allRangePool.volumeUsd}
                                 volumeEth={allRangePool.volumeEth}
                                 href="/pool/concentrated"
                               />
-                            )
+                            );
                         })
                       : allCoverPools.map((allCoverPool) => {
                           if (
-                            allCoverPool.tokenZero.name === searchTerm ||
-                            allCoverPool.tokenOne.name === searchTerm ||
-                            allCoverPool.tokenZero.symbol === searchTerm ||
-                            allCoverPool.tokenOne.symbol === searchTerm ||
-                            allCoverPool.tokenZero.id === searchTerm ||
-                            allCoverPool.tokenOne.id === searchTerm ||
-                            searchTerm === ''
+                            allCoverPool.tokenZero.name.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allCoverPool.tokenOne.name.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allCoverPool.tokenZero.symbol.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allCoverPool.tokenOne.symbol.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allCoverPool.tokenZero.id.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allCoverPool.tokenOne.id.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            searchTerm === ""
                           )
                             return (
                               <PoolList
                                 account={address}
-                                key={allCoverPool.tokenOneName}
+                                key={allCoverPool.poolId}
                                 poolId={allCoverPool.poolId}
                                 tokenZero={allCoverPool.tokenZero}
                                 tokenOne={allCoverPool.tokenOne}
                                 liquidity={allCoverPool.liquidity}
                                 feeTier={allCoverPool.feeTier}
+                                tickSp={allCoverPool.tickSpread}
                                 tvlUsd={allCoverPool.tvlUsd}
                                 volumeUsd={allCoverPool.volumeUsd}
                                 volumeEth={allCoverPool.volumeEth}
                                 href="/cover"
                               />
-                            )
+                            );
                         })}
                   </tbody>
                 </table>
@@ -433,5 +554,5 @@ export default function Pool() {
         </div>
       </div>
     </div>
-  )
+  );
 }
