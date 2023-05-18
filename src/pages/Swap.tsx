@@ -972,8 +972,10 @@ export default function Swap() {
             <Option />
           </div>
         </div>
-        {isDisconnected ? <ConnectWalletButton /> : null}
-        {isDisconnected ||
+        {isDisconnected ? <ConnectWalletButton xl={true} /> : 
+        (
+          <>
+        {
         stateChainName !== 'arbitrumGoerli' ||
         mktRate[tokenIn.symbol] === '~$NaN' ||
         mktRate[tokenOut.symbol] === '~$NaN' ||
@@ -981,8 +983,13 @@ export default function Swap() {
           parseFloat(mktRate[tokenOut.symbol].replace(/[^\d.-]/g, '')) /
             parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')),
         ) == 'NaN' ||
-        bnInput._hex == '0x00' ? null : hasSelected === false ? (
-          <SelectTokenButton />
+        bnInput._hex == '0x00' ? (
+          <button 
+          disabled
+        className="w-full py-4 mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
+      >
+        Swap
+      </button>
         ) : Number(rangeQuote) < Number(coverQuote) ? (
           Number(allowanceRange) <
           Number(ethers.utils.formatUnits(bnInput, 18)) ? (
@@ -1043,6 +1050,8 @@ export default function Swap() {
               : TickMath.getSqrtPriceAtPriceString(String(coverBnPrice.add(coverBnBaseLimit)), 18)
             }
           />
+        )}
+        </>
         )}
       </div>
     </div>
