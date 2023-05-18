@@ -89,7 +89,7 @@ export default function CreateCover(props: any) {
     args: [address, coverPoolRoute],
     chainId: 421613,
     watch: true,
-    enabled: address != '0x' && coverPoolRoute != ZERO_ADDRESS,
+    enabled: address != '0x' && mktRate != undefined && coverPoolRoute != ZERO_ADDRESS,
     onSuccess(data) {
       console.log('Success')
     },
