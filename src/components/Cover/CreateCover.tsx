@@ -57,14 +57,14 @@ export default function CreateCover(props: any) {
   const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [tokenIn, setTokenIn] = useState({
-    symbol: props.query ? props.query.tokenZeroSymbol: 'TOKEN20A',
-    logoURI: props.query ? props.query.tokenZeroLogoURI: 'https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png',
-    address: props.query ? props.query.tokenZeroAddress: '0x829e4a03A5Bd1EC5b6f5CC1d3A77c8e54A294847',
+    symbol: props.query ? props.query.tokenZeroSymbol: 'USDC',
+    logoURI: props.query ? props.query.tokenZeroLogoURI: '/static/images/token.png',
+    address: props.query ? props.query.tokenZeroAddress: '"0xC26906E10E8BDaDeb2cf297eb56DF59775eE52c4"',
   })
   const [tokenOut, setTokenOut] = useState({
     symbol: props.query ? props.query.tokenOneSymbol: 'Select Token',
-    logoURI: props.query ? props.query.tokenOneLogoURI: undefined,
-    address: props.query ? props.query.tokenOneAddress:'0xf853592f1e4ceA2B5e722A17C6f917a4c70d40Ca',
+    logoURI: props.query ? props.query.tokenOneLogoURI: '',
+    address: props.query ? props.query.tokenOneAddress:'',
   })
   const [usdcBalance, setUsdcBalance] = useState(0)
   const [amountToPay, setAmountToPay] = useState(0)
