@@ -113,7 +113,7 @@ export default function CoverExistingPool({
     address: coverPoolRoute,
     abi: coverPoolABI,
     functionName:
-      tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1
+      tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) < 0
         ? 'pool1'
         : 'pool0',
     args: [],
@@ -163,7 +163,7 @@ export default function CoverExistingPool({
     console.log('liquidity', liquidity)
     try {
       let pool
-      if (tokenIn.address.localeCompare(tokenOut.address) === -1) {
+      if (tokenIn.address.localeCompare(tokenOut.address) < 0) {
         pool = await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
       } else {
         pool = await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
@@ -514,6 +514,7 @@ export default function CoverExistingPool({
         {isDisconnected ||
         Number(allowance) < Number(sliderValue) * Number(tokenIn.value) ? (
           <SwapCoverApproveButton
+          disabled={isDisabled}
           poolAddress={poolId} 
           approveToken={tokenIn.address} />
         ) : (

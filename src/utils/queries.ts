@@ -77,9 +77,11 @@ export const getCoverPoolFromFactory = (token0: string, token1: string) => {
         {
             coverPools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
               id
+              latestTick
             }
           }
          `
+    console.log('query:', getPool)
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
       cache: new InMemoryCache(),
@@ -260,6 +262,7 @@ export const fetchCoverPools = () => {
                     liquidity
                     volatilityTier{
                         feeAmount
+                        tickSpread
                     }
                     price0
                     price1

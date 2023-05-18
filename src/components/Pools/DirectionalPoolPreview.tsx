@@ -193,6 +193,7 @@ export default function DirectionalPoolPreview({
                       {Number(allowance) <
                       Number(ethers.utils.formatUnits(amount0, 18)) ? (
                         <SwapCoverApproveButton
+                          disabled={true}
                           poolAddress={poolId}
                           approveToken={tokenIn.address}
                         />

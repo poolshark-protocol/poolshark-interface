@@ -57,14 +57,14 @@ export default function CreateCover(props: any) {
   const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [tokenIn, setTokenIn] = useState({
-    symbol: props.query ? props.query.tokenZeroSymbol: 'TOKEN20A',
-    logoURI: props.query ? props.query.tokenZeroLogoURI: 'https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png',
-    address: props.query ? props.query.tokenZeroAddress: '0x829e4a03A5Bd1EC5b6f5CC1d3A77c8e54A294847',
+    symbol: props.query ? props.query.tokenZeroSymbol: 'USDC',
+    logoURI: props.query ? props.query.tokenZeroLogoURI: '/static/images/token.png',
+    address: props.query ? props.query.tokenZeroAddress: '0xC26906E10E8BDaDeb2cf297eb56DF59775eE52c4',
   })
   const [tokenOut, setTokenOut] = useState({
     symbol: props.query ? props.query.tokenOneSymbol: 'Select Token',
-    logoURI: props.query ? props.query.tokenOneLogoURI: undefined,
-    address: props.query ? props.query.tokenOneAddress:'0xf853592f1e4ceA2B5e722A17C6f917a4c70d40Ca',
+    logoURI: props.query ? props.query.tokenOneLogoURI: '',
+    address: props.query ? props.query.tokenOneAddress:'',
   })
   const [usdcBalance, setUsdcBalance] = useState(0)
   const [amountToPay, setAmountToPay] = useState(0)
@@ -89,6 +89,7 @@ export default function CreateCover(props: any) {
     args: [address, coverPoolRoute],
     chainId: 421613,
     watch: true,
+    enabled: address != '0x' && mktRate != undefined && coverPoolRoute != ZERO_ADDRESS,
     onSuccess(data) {
       console.log('Success')
     },
@@ -105,12 +106,13 @@ export default function CreateCover(props: any) {
     abi: coverPoolABI,
     functionName:
       tokenOut.address != '' &&
-      tokenIn.address.localeCompare(tokenOut.address) === -1
+      tokenIn.address.localeCompare(tokenOut.address) < 0
         ? 'pool1'
         : 'pool0',
     args: [],
     chainId: 421613,
     watch: true,
+    enabled: tokenOut.address != undefined && coverPoolRoute != ZERO_ADDRESS,
     onSuccess(data) {
       //console.log('Success price Cover', data)
       setCoverQuote(parseFloat(ethers.utils.formatUnits(data[1], 18)))
@@ -164,15 +166,22 @@ export default function CreateCover(props: any) {
   const getCoverPool = async () => {
     try {
       var pool = undefined
-      if (tokenIn.address.localeCompare(tokenOut.address) === -1) {
+      if (tokenIn.address.localeCompare(tokenOut.address) < 0) {
+        console.log('tokens:', tokenIn.address, tokenOut.address)
         pool = await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
       } else {
+        console.log('tokens:', tokenIn.address, tokenOut.address)
         pool = await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
       }
       let id = ZERO_ADDRESS
       let dataLength = pool['data']['coverPools'].length
-      if (dataLength != 0) id = pool['data']['coverPools']['0']['id']
+      let latestTick = 0
+      if (dataLength != 0) {
+        id = pool['data']['coverPools']['0']['id']
+        latestTick = pool['data']['coverPools']['0']['latestTick']
+      }
       setCoverPoolRoute(id)
+      setCoverTickPrice(TickMath.getPriceStringAtTick(latestTick))
     } catch (error) {
       console.log(error)
     }
@@ -616,18 +625,19 @@ export default function CreateCover(props: any) {
         Number(allowance) < Number(ethers.utils.formatUnits(bnInput, 18)) &&
         stateChainName === 'arbitrumGoerli' ? (
           <SwapCoverApproveButton
-            poolAddress={coverPoolAddress}
+            disabled={isDisabled}
+            poolAddress={coverPoolRoute}
             approveToken={tokenIn.address}
           />
         ) : stateChainName === 'arbitrumGoerli' ? (
           <CoverMintButton
-            poolAddress={poolId}
-            disabled={isDisabled}
+            poolAddress={coverPoolRoute}
+            disabled={false}
             to={address}
             lower={min}
             claim={
               tokenOut.address != '' &&
-              tokenIn.address.localeCompare(tokenOut.address) === -1
+              tokenIn.address.localeCompare(tokenOut.address) < 0
                 ? max
                 : min
             }
@@ -635,7 +645,7 @@ export default function CreateCover(props: any) {
             amount={bnInput}
             zeroForOne={
               tokenOut.address != '' &&
-              tokenIn.address.localeCompare(tokenOut.address) === -1
+              tokenIn.address.localeCompare(tokenOut.address) < 0
             }
             tickSpacing={20}
           />
