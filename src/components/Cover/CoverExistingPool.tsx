@@ -163,6 +163,10 @@ export default function CoverExistingPool({
     setCoverParams()
   }, [minPrice, maxPrice])
 
+  useEffect(() => {
+    changeAmountIn()
+  }, [coverValue, minPrice, maxPrice])
+
   /* console.log('tokenIn',tokenIn)
   console.log('coverTickPrice', Number(coverTickPrice))
   console.log('mktRatePrice', mktRate[tokenIn.symbol]) */
@@ -185,7 +189,7 @@ export default function CoverExistingPool({
     }
   }
 
-  const changeAmountIn = () => {
+  function changeAmountIn() {
     console.log('prices set:', minPrice, maxPrice)
     if (minPrice == maxPrice) return
     const minSqrtPrice = TickMath.getSqrtPriceAtPriceString(minPrice, 20)
