@@ -191,7 +191,7 @@ export default function CoverExistingPool({
 
   function changeAmountIn() {
     console.log('prices set:', minPrice, maxPrice)
-    if (minPrice == maxPrice) return
+    if (minPrice == maxPrice || minPrice !== '' || maxPrice !== '') return
     const minSqrtPrice = TickMath.getSqrtPriceAtPriceString(minPrice, 20)
     const maxSqrtPrice = TickMath.getSqrtPriceAtPriceString(maxPrice, 20)
     const liquidityAmount = DyDxMath.getLiquidityForAmounts(
