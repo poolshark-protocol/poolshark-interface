@@ -213,6 +213,7 @@ export const fetchCoverPositions = (address: string) => {
                     liquidity
                     volatilityTier{
                         feeAmount
+                        tickSpread
                     }
                     latestTick
                 }
