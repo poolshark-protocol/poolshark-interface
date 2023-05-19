@@ -1,6 +1,7 @@
 import JSBI from 'jsbi';
 import { Q96_BI } from './constants'
 import { PrecisionMath } from './precisionMath';
+import { BigNumber } from 'ethers';
 
 export abstract class DyDxMath {
 
@@ -46,10 +47,12 @@ export abstract class DyDxMath {
     priceLower: JSBI,
     priceUpper: JSBI,
     currentPrice: JSBI,
-    dy: JSBI,
-    dx: JSBI
+    dyBN: BigNumber,
+    dxBN: BigNumber
   ): JSBI {
     let liquidity: JSBI;
+    let dx = JSBI.BigInt(dyBN.toString())
+    let dy = JSBI.BigInt(dxBN.toString())
     if (JSBI.lessThanOrEqual(priceUpper, currentPrice)) {
       liquidity = PrecisionMath.mulDivRoundingUp(dy, Q96_BI, JSBI.subtract(priceUpper, priceLower));
     } else if (JSBI.lessThanOrEqual(currentPrice, priceLower)) {
