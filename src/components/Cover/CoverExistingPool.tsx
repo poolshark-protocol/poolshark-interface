@@ -114,7 +114,7 @@ export default function CoverExistingPool({
     },
   })
 
-  const { refetch: refetchcoverQuote, data: priceCover } = useContractRead({
+  const { refetch: refetchCoverQuote, data: priceCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
     functionName:

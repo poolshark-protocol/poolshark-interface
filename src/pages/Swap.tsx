@@ -136,7 +136,8 @@ export default function Swap() {
     watch: true,
     onSuccess(data) {
       console.log('Success price Cover', data)
-      setCoverPrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[0].toString()))))
+      setCoverPrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(data[0])))
+      console.log('coverPrice', coverPrice)
     },
     onError(error) {
       console.log('Error price Cover', error)
@@ -158,7 +159,7 @@ export default function Swap() {
       setRangePrice(
         parseFloat(
           invertPrice(
-            TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[5].toString())),
+            TickMath.getPriceStringAtSqrtPrice(data[5]),
             tokenOut.address != '' &&
               tokenIn.address.localeCompare(tokenOut.address) < 0,
           ),
@@ -206,14 +207,16 @@ export default function Swap() {
       console.log('Success cover wagmi', data)
       setCoverQuote(
         parseFloat(
-          TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[1].toString())),
+          TickMath.getPriceStringAtSqrtPrice(data[1]),
         ),
       )
       setCoverPriceAfter(
         parseFloat(
-          TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[2].toString())),
+          TickMath.getPriceStringAtSqrtPrice(data[2]),
         ),
       )
+      console.log('coverQuote', coverQuote)
+      console.log('coverPriceAfter', coverPriceAfter)
     },
     onError(error) {
       console.log('Error cover wagmi', error)
