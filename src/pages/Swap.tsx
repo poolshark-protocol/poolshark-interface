@@ -392,6 +392,7 @@ export default function Swap() {
     const tempBal = queryTokenIn
     setQueryTokenIn(queryTokenOut)
     setQueryTokenOut(tempBal)
+    console.log('mkt rate token out', mktRate[tokenOut.symbol])
   }
 
   function openModal() {
