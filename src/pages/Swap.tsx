@@ -245,7 +245,7 @@ export default function Swap() {
       console.log('Success range wagmi', data)
       setRangeQuote(
         parseFloat(
-          TickMath.getPriceStringAtSqrtPrice(data[1]),
+          ethers.utils.formatUnits(data[1], 18),
         ),
       )
       console.log('rangeQuote', rangeQuote)
