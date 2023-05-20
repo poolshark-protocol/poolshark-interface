@@ -606,6 +606,7 @@ export default function ConcentratedPool({
                         ?.value,
                     )
                   }
+                  onKeyDown={ (evt) => (evt.key === 'e' || evt.key === 'E')  && evt.preventDefault() } 
                 />
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
                   <button onClick={() => changePrice('plus', 'min')}>
@@ -633,6 +634,7 @@ export default function ConcentratedPool({
                         ?.value,
                     )
                   }
+                  onKeyDown={ (evt) => (evt.key === 'e' || evt.key === 'E')  && evt.preventDefault() } 
                 />
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
                   <button onClick={() => changePrice('plus', 'max')}>

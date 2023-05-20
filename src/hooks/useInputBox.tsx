@@ -93,7 +93,7 @@ export default function useInputBox() {
           type="number"
           id="input"
           onChange={(e) => handleChange(e, updateValue)}
-          onKeyDown={ (evt) => evt.key === 'e' || 'E'  && evt.preventDefault() } 
+          onKeyDown={ (evt) => (evt.key === 'e' || evt.key === 'E')  && evt.preventDefault() } 
           value={display}
           placeholder={placeholder}
           className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
@@ -109,7 +109,7 @@ export default function useInputBox() {
           type="number"
           id="LimitInput"
           onChange={(e) => handleChangeLimit(e, updateValue)}
-          onKeyDown={ (evt) => evt.key === 'e' || 'E' && evt.preventDefault() } 
+          onKeyDown={ (evt) => (evt.key === 'e' || evt.key === 'E') && evt.preventDefault() } 
           value={displayLimit}
           placeholder={placeholder}
           className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"

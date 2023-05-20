@@ -407,9 +407,10 @@ export default function CoverExistingPool({
               type="string"
               id="input"
               onChange={(e) => {
-                setSliderValue(Number(e.target.value))
+                setSliderValue(Number(e.target.value.replace(/[^\d.]/g, '')))
                 console.log('slider value', sliderValue)
               }}
+              onKeyDown={ (evt) => (evt.key === 'e' || evt.key === 'E')  && evt.preventDefault() } 
               value={sliderValue}
               className="text-right placeholder:text-grey1 text-white text-2xl w-20 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
             />
@@ -424,15 +425,16 @@ export default function CoverExistingPool({
               id="input"
               onChange={(e) => {
                 console.log('cover amount changed', sliderValue)
-                if (Number(e.target.value) / Number(tokenOut.value) < 100) {
+                if (Number(e.target.value.replace(/[^\d.]/g, '')) / Number(tokenOut.value) < 100) {
                   setSliderValue(
-                    Number(e.target.value) / Number(tokenOut.value),
+                    Number(e.target.value.replace(/[^\d.]/g, '')) / Number(tokenOut.value),
                   )
                 } else {
                   setSliderValue(100)
                 }
-                setCoverValue(Number(e.target.value))
+                setCoverValue(Number(e.target.value.replace(/[^\d.]/g, '')))
               }}
+              onKeyDown={ (evt) => (evt.key === 'e' || evt.key === 'E')  && evt.preventDefault() } 
               value={coverValue}
               className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
             />
@@ -472,6 +474,7 @@ export default function CoverExistingPool({
                     ?.value,
                 )
               }
+              onKeyDown={ (evt) => (evt.key === 'e' || evt.key === 'E')  && evt.preventDefault() } 
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice('plus', 'min')}>
@@ -499,6 +502,7 @@ export default function CoverExistingPool({
                     ?.value,
                 )
               }
+              onKeyDown={ (evt) => (evt.key === 'e' || evt.key === 'E')  && evt.preventDefault() } 
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice('plus', 'max')}>
