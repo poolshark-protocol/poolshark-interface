@@ -205,11 +205,12 @@ export default function Swap() {
     watch: true,
     onSuccess(data) {
       console.log('Success cover wagmi', data)
+      console.log('cover quote to number', data[1].toString())
+      console.log('amountIn to number', data[0].toString())
+      console.log('priceLimit conversion', BigNumber.from(TickMath.getSqrtPriceAtPriceString(String(coverBnPrice.sub(coverBnBaseLimit)), 18).toString()).toString())
       setCoverQuote(
-        parseFloat(
-          TickMath.getPriceStringAtSqrtPrice(data[1]),
-        ),
-      )
+        parseFloat(ethers.utils.formatUnits(data[1], 18)
+      ))
       setCoverPriceAfter(
         parseFloat(
           TickMath.getPriceStringAtSqrtPrice(data[2]),
