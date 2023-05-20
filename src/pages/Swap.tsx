@@ -232,8 +232,8 @@ export default function Swap() {
       bnInput,
       tokenOut.address != '' &&
       tokenIn.address.localeCompare(tokenOut.address) < 0
-        ? TickMath.getSqrtPriceAtPriceString(String(rangeBnPrice.sub(rangeBnBaseLimit)), 18)
-        : TickMath.getSqrtPriceAtPriceString(String(rangeBnPrice.add(rangeBnBaseLimit)), 18),
+        ? BigNumber.from(TickMath.getSqrtPriceAtPriceString(String(rangeBnPrice.sub(rangeBnBaseLimit)), 18).toString())
+        : BigNumber.from(TickMath.getSqrtPriceAtPriceString(String(rangeBnPrice.add(rangeBnBaseLimit)), 18).toString())
     ],
     chainId: 421613,
     watch: true,
