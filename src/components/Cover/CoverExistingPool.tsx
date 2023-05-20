@@ -129,6 +129,7 @@ export default function CoverExistingPool({
       setCoverQuote(data[0])
       const price = TickMath.getPriceStringAtSqrtPrice(data[0])
       setCoverTickPrice(price)
+      console.log('price set:', coverTickPrice)
     },
     onError(error) {
       setCoverTickPrice(ethers.utils.parseUnits(String(coverQuote), 0))
@@ -528,7 +529,7 @@ export default function CoverExistingPool({
       <div className="space-y-3">
         {isDisconnected ? <ConnectWalletButton /> : null}
         {isDisconnected ||
-        Number(allowance) < Number(sliderValue) * Number(coverAmountIn) ? (
+        Number(allowance) < Number(sliderValue) * JSBI.toNumber(coverAmountIn) ? (
           <SwapCoverApproveButton
           disabled={isDisabled}
           poolAddress={poolId} 

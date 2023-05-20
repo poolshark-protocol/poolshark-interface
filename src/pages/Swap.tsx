@@ -241,7 +241,7 @@ export default function Swap() {
       console.log('Success range wagmi', data)
       setRangeQuote(
         parseFloat(
-          TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[1].toString())),
+          TickMath.getPriceStringAtSqrtPrice(data[1]),
         ),
       )
       console.log('rangeQuote', rangeQuote)
@@ -536,6 +536,7 @@ export default function Swap() {
     try {
       if (Number(rangeQuote) < Number(coverQuote)) {
         const price = rangeQuote
+        console.log('range quote on fetch token', price)
         setMktRate({
           WETH:
             '~' +
@@ -547,6 +548,7 @@ export default function Swap() {
         })
       } else {
         const price = coverQuote
+        console.log('cover quote on fetch token', price)
         setMktRate({
           WETH:
             '~' +
