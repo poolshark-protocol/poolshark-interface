@@ -175,19 +175,6 @@ export default function Swap() {
     },
   })
 
-  useEffect(() => {
-    setRangeBnPrice(ethers.utils.parseUnits(rangePrice.toString(), 18))
-  }, [rangePrice, tokenIn, tokenOut])
-
-  useEffect(() => {
-    setRangeBnBaseLimit(rangeBnPrice.div(bnSlippage).div(BigNumber.from(100)))
-  }, [rangeBnPrice, tokenIn, tokenOut])
-
-  useEffect(() => {
-    setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
-    setCoverBnBaseLimit(coverBnPrice.div(bnSlippage).div(BigNumber.from(100)))
-  }, [coverPrice, tokenIn, tokenOut])
-
   const { refetch: refetchCoverQuote, data: quoteCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
@@ -306,6 +293,22 @@ export default function Swap() {
   useEffect(() => {
     getBnSlippage()
   }, [slippage])
+
+  useEffect(() => {
+    setRangeBnPrice(ethers.utils.parseUnits(rangePrice.toString(), 18))
+  }, [rangePrice, tokenIn.address, tokenOut.address])
+
+  useEffect(() => {
+    setRangeBnBaseLimit(rangeBnPrice.div(bnSlippage).div(BigNumber.from(100)))
+  }, [rangeBnPrice])
+
+  useEffect(() => {
+    setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
+  }, [coverPrice, tokenIn.address, tokenOut.address])
+
+  useEffect(() => {
+    setCoverBnBaseLimit(coverBnPrice.div(bnSlippage).div(BigNumber.from(100)))
+  }, [coverBnPrice])
 
   function closeModal() {
     setIsOpen(false)
