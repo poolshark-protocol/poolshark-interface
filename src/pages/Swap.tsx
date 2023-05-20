@@ -540,6 +540,7 @@ export default function Swap() {
       if (Number(rangeQuote) < Number(coverQuote)) {
         const price = rangeQuote
         console.log('range quote on fetch token', price)
+        console.log('number range quote', Number(price))
         setMktRate({
           WETH:
             '~' +
@@ -549,9 +550,12 @@ export default function Swap() {
             }),
           USDC: '~1.00',
         })
+        console.log('mkt rate token in', mktRate[tokenIn.symbol])
+        console.log('mkt rate token out', mktRate[tokenOut.symbol])
       } else {
         const price = coverQuote
         console.log('cover quote on fetch token', price)
+        console.log('number cover quote', Number(price))
         setMktRate({
           WETH:
             '~' +
@@ -561,6 +565,8 @@ export default function Swap() {
             }),
           USDC: '~1.00',
         })
+        console.log('mkt rate token in', mktRate[tokenIn.symbol])
+        console.log('mkt rate token out', mktRate[tokenOut.symbol])
       }
     } catch (error) {
       console.log(error)
@@ -963,7 +969,7 @@ export default function Swap() {
                 : ' ' +
                   parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
                     parseFloat(
-                      mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
+                      mktRate[tokenOut.symbol].replace(/[^\d.-]/g, '')
                     )}{' '}
               {tokenOut.symbol}
             </div>
