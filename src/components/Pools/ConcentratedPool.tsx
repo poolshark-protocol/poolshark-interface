@@ -596,9 +596,8 @@ export default function ConcentratedPool({
                   </button>
                 </div>
                 <input
-                  key={minPrice}
                   className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
-                  placeholder={minPrice}
+                  placeholder="0"
                   id="minInput"
                   type="number"
                   onChange={() =>
@@ -624,9 +623,8 @@ export default function ConcentratedPool({
                   </button>
                 </div>
                 <input
-                  key={maxPrice}
                   className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
-                  placeholder={maxPrice}
+                  placeholder="0"
                   id="maxInput"
                   type="number"
                   onChange={() =>
