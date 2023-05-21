@@ -291,7 +291,7 @@ export default function Swap() {
 
   useEffect(() => {
     fetchTokenPrice()
-  }, [rangeQuote, coverQuote, tokenIn.address, tokenOut.address])
+  }, [rangeQuote, coverQuote, tokenIn.address, tokenOut.address, tokenOrder])
 
   useEffect(() => {
     getFeeTier()
@@ -402,7 +402,6 @@ export default function Swap() {
     const tempBal = queryTokenIn
     setQueryTokenIn(queryTokenOut)
     setQueryTokenOut(tempBal)
-    console.log('mkt rate token out', mktRate[tokenOut.symbol])
   }
 
   function openModal() {
