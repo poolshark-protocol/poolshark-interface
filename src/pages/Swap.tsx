@@ -33,7 +33,6 @@ import SwapCoverButton from '../components/Buttons/SwapCoverButton'
 import useSwapAllowance from '../hooks/useSwapAllowance'
 import { rangePoolABI } from '../abis/evm/rangePool'
 import { TickMath, invertPrice } from '../utils/math/tickMath'
-import JSBI from 'jsbi'
 import { ZERO_ADDRESS } from '../utils/math/constants'
 
 type token = {
@@ -56,12 +55,11 @@ export default function Swap() {
     LimitInputBox,
   } = useInputBox()
   const [gasFee, setGasFee] = useState('')
-  const [coverQuote, setCoverQuote] = useState(undefined)
-  const [rangeQuote, setRangeQuote] = useState(undefined)
+  const [coverQuote, setCoverQuote] = useState(0)
+  const [rangeQuote, setRangeQuote] = useState(0)
   const [coverPrice, setCoverPrice] = useState(0)
   const [rangePrice, setRangePrice] = useState(0)
   const [hasSelected, setHasSelected] = useState(false)
-  const [mktRate, setMktRate] = useState({})
   const [tokenIn, setTokenIn] = useState({
     symbol: 'WETH',
     logoURI: '/static/images/eth_icon.png',
@@ -104,8 +102,8 @@ export default function Swap() {
     functionName: 'allowance',
     args: [address, rangePoolRoute],
     chainId: 421613,
-    watch: true,
-    enabled: coverPoolRoute != undefined && tokenIn.address != '',
+    watch: rangePoolRoute !== undefined && tokenIn.address !== '',
+    enabled: rangePoolRoute !== undefined && tokenIn.address !== '',
     onError(error) {
       console.log('Error allowance', error)
     },
@@ -120,8 +118,8 @@ export default function Swap() {
     functionName: 'allowance',
     args: [address, coverPoolRoute],
     chainId: 421613,
-    watch: true,
-    enabled: coverPoolRoute != undefined && tokenIn.address != '',
+    watch: coverPoolRoute !== undefined && tokenIn.address !== '',
+    enabled: coverPoolRoute !== undefined && tokenIn.address !== '',
     onError(error) {
       console.log('Error allowance', error)
     },
@@ -140,7 +138,8 @@ export default function Swap() {
         : 'pool0',
     args: [],
     chainId: 421613,
-    watch: true,
+    watch: coverPoolRoute !== undefined && tokenIn.address !== '' && tokenOut.address !== '',
+    enabled: coverPoolRoute !== undefined && tokenIn.address !== '' && tokenOut.address !== '',
     onSuccess(data) {
       console.log('Success price Cover', data)
       setCoverPrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(data[0])))
@@ -160,7 +159,8 @@ export default function Swap() {
     functionName: 'poolState',
     args: [],
     chainId: 421613,
-    watch: true,
+    watch: rangePoolRoute !== undefined && tokenIn.address !== '' && tokenOut.address !== '',
+    enabled: rangePoolRoute !== undefined && tokenIn.address !== '' && tokenOut.address !== '',
     onSuccess(data) {
       console.log('Success price Range', data)
       setRangePrice(
@@ -196,12 +196,10 @@ export default function Swap() {
       : BigNumber.from(TickMath.getSqrtPriceAtPriceString((coverBnPrice.add(coverBnBaseLimit)).toString(), 18).toString())
     ],
     chainId: 421613,
-    watch: true,
+    watch: (coverPrice !== 0 && coverPrice !== undefined) && (coverBnPrice !== BigNumber.from(0) && coverBnPrice !== undefined),
+    enabled: (coverPrice !== 0 && coverPrice !== undefined) && (coverBnPrice !== BigNumber.from(0) && coverBnPrice !== undefined),
     onSuccess(data) {
       console.log('Success cover wagmi', data)
-      console.log('cover quote to number', data[1].toString())
-      console.log('amountIn to number', data[0].toString())
-      console.log('priceLimit conversion', (TickMath.getSqrtPriceAtPriceString((coverBnPrice.sub(coverBnBaseLimit)).toString(), 18).toString()))
       setCoverQuote(
         parseFloat(ethers.utils.formatUnits(data[1], 18)
       ))
@@ -234,7 +232,8 @@ export default function Swap() {
         : BigNumber.from(TickMath.getSqrtPriceAtPriceString((rangeBnPrice.add(rangeBnBaseLimit)).toString(), 18).toString())
     ],
     chainId: 421613,
-    watch: true,
+    watch: (rangePrice !== 0 && rangePrice !== undefined) && (rangeBnPrice !== BigNumber.from(0) && rangeBnPrice !== undefined),
+    enabled: (rangePrice !== 0 && rangePrice !== undefined) && (rangeBnPrice !== BigNumber.from(0) && rangeBnPrice !== undefined),
     onSuccess(data) {
       console.log('Success range wagmi', data)
       setRangeQuote(
@@ -290,10 +289,6 @@ export default function Swap() {
   }, [hasSelected, tokenIn.address, tokenOut.address])
 
   useEffect(() => {
-    fetchTokenPrice()
-  }, [rangeQuote, coverQuote, tokenIn.address, tokenOut.address, tokenOrder])
-
-  useEffect(() => {
     getFeeTier()
   }, [rangeQuote, coverQuote])
 
@@ -303,7 +298,7 @@ export default function Swap() {
 
   useEffect(() => {
     setRangeBnPrice(ethers.utils.parseUnits(rangePrice.toString(), 18))
-  }, [rangePrice, tokenIn, tokenOut])
+  }, [rangePrice])
 
   useEffect(() => {
     setRangeBnBaseLimit(rangeBnPrice.div(bnSlippage).div(BigNumber.from(100)))
@@ -311,20 +306,11 @@ export default function Swap() {
 
   useEffect(() => {
     setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
-  }, [coverPrice, tokenIn, tokenOut])
+  }, [coverPrice])
 
   useEffect(() => {
     setCoverBnBaseLimit(coverBnPrice.div(bnSlippage).div(BigNumber.from(100)))
   }, [coverBnPrice])
-
-  function closeModal() {
-    setIsOpen(false)
-  }
-
-  console.log('tokenIn', tokenIn)
-  console.log('rangeBnPrice', rangeBnPrice.toString())
-  console.log('rangeBnBaseLimit', rangeBnBaseLimit.toString())
-  console.log('tokenOut', tokenOut)
 
   //@dev put balanc
   const getBalances = async () => {
@@ -456,11 +442,9 @@ export default function Swap() {
   }
 
   const getFeeTier = async () => {
-    if (Number(rangeQuote) > Number(coverQuote)) {
+    if (rangeQuote > coverQuote) {
       const data = await fetchCoverPools()
       const poolAddress = data['data']['coverPools']['0']['id']
-
-      console.log('cover pool subgraph address', poolAddress)
 
       if (poolAddress === coverPoolRoute) {
         const feeTier =
@@ -516,7 +500,9 @@ export default function Swap() {
           tokenIn.address,
           tokenOut.address,
         )
-        const id = pool['data']['rangePools']['0']['id']
+        let id = ZERO_ADDRESS
+        let dataLength = pool['data']['rangePools'].length
+        if(dataLength != 0) id = pool['data']['rangePools']['0']['id']
 
         setRangePoolRoute(id)
       }
@@ -536,7 +522,6 @@ export default function Swap() {
         let dataLength = pool['data']['coverPools'].length
         if(dataLength != 0) id = pool['data']['coverPools']['0']['id']
         setCoverPoolRoute(id)
-        console.log('cover pool route', coverPoolRoute)
       }
     } catch (error) {
       console.log(error)
@@ -546,38 +531,6 @@ export default function Swap() {
   //@dev TO-DO: fetch token Addresses, use for pool quote (smallest fee tier)
   //@dev TO-DO: re-route pool and handle allowances
 
-  const fetchTokenPrice = () => {
-    try {
-      if (Number(rangeQuote) < Number(coverQuote)) {
-        setMktRate({
-          WETH:
-            '~' +
-            rangeQuote.toLocaleString('en-US', {
-              style: 'currency',
-              currency: 'USD',
-            }),
-          USDC: '~1.00',
-        })
-        console.log('mkt rate token in', mktRate[tokenIn.symbol])
-        console.log('mkt rate token out', mktRate[tokenOut.symbol])
-      } else {
-        setMktRate({
-          WETH:
-            '~' +
-            coverQuote.toLocaleString('en-US', {
-              style: 'currency',
-              currency: 'USD',
-            }),
-          USDC: '~1.00',
-        })
-        console.log('mkt rate token in', mktRate[tokenIn.symbol])
-        console.log('mkt rate token out', mktRate[tokenOut.symbol])
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
   const Option = () => {
     if (expanded) {
       return (
@@ -585,15 +538,15 @@ export default function Swap() {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Expected Output</div>
             <div className="ml-auto text-xs">
-              {Number(rangeQuote) < Number(coverQuote)
-                ? rangeQuote === undefined
+              {rangeQuote < coverQuote
+                ? rangeQuote === 0
                   ? 'Select Token'
                   : (
                       parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                       (tokenOrder ?
                         (rangeQuote) : (1 / rangeQuote))
                     ).toFixed(2)
-                : coverQuote === undefined
+                : coverQuote === 0
                 ? 'Select Token'
                 : (
                     parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
@@ -605,7 +558,8 @@ export default function Swap() {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Price Impact</div>
             <div className="ml-auto text-xs">
-              {Number(rangePrice) < Number(coverPrice)
+              {rangePrice !== 0 && coverPrice !== 0 ?
+                (rangePrice < coverPrice)
                 ? (
                     (rangePrice - parseFloat(rangePriceAfter)) /
                     rangePrice
@@ -613,7 +567,8 @@ export default function Swap() {
                 : (
                     (coverPrice - parseFloat(coverPriceAfter)) /
                     coverPrice
-                  ).toFixed(2)}
+                  ).toFixed(2) :
+                  'Select Token'}
             </div>
           </div>
           <div className="flex p-1">
@@ -622,8 +577,9 @@ export default function Swap() {
             </div>
             <div className="ml-auto text-xs">
               {rangeQuote < coverQuote
-                ? (
-                    parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                ? rangeQuote === 0 ?
+                    ('Select Token') :
+                    (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                     (tokenOrder ?
                       (rangeQuote) : (1 / rangeQuote)) -
                     (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
@@ -631,8 +587,9 @@ export default function Swap() {
                       (rangeQuote) : (1 / rangeQuote)) *
                     (parseFloat(slippage) * 0.01))
                   ).toFixed(2)
-                : (
-                    parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                : coverQuote === 0 ?
+                    ('Select Token') :
+                    (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                     (tokenOrder ?
                       (coverQuote) : (1 / coverQuote)) -
                     (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
@@ -730,10 +687,12 @@ export default function Swap() {
         <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
             {inputBox('0')}
-            {mktRate[tokenIn.symbol] != '~$NaN' ? (
+            {rangeQuote !== 0 && coverQuote !== 0 ? (
               <div className="flex">
                 <div className="flex text-xs text-[#4C4C4C]">
-                  {mktRate[tokenIn.symbol]}
+                  {rangeQuote < coverQuote
+                   ? rangeQuote.toFixed(2)
+                   : coverQuote.toFixed(2)}
                 </div>
               </div>
             ) : (
@@ -784,28 +743,32 @@ export default function Swap() {
           <div className="flex-col justify-center w-1/2 p-2 ">
             <div className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
               {hasSelected &&
-              mktRate[tokenIn.symbol] != '~$NaN' &&
-              mktRate[tokenOut.symbol] != '~$NaN' &&
+              coverQuote !== 0 &&
+              rangeQuote !== 0 &&
               bnInput._hex != '0x00' ? (
                 <div>
-                  {(
+                  {rangeQuote < coverQuote
+                ? (
                     parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                    (parseFloat(
-                      mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-                    ) /
-                      parseFloat(
-                        mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                      ))
+                    (tokenOrder ?
+                      (rangeQuote) : (1 / rangeQuote))
+                  ).toFixed(2)
+                : (
+                    parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                    (tokenOrder ?
+                      (coverQuote) : (1 / coverQuote))
                   ).toFixed(2)}
                 </div>
               ) : (
                 <div>0</div>
               )}
             </div>
-            {mktRate[tokenOut.symbol] != '~$NaN' ? (
+            {rangeQuote !== 0 && coverQuote !== 0 ? (
               <div className="flex">
                 <div className="flex text-xs text-[#4C4C4C]">
-                  {mktRate[tokenOut.symbol]}
+                  {rangeQuote < coverQuote
+                   ? (1 / rangeQuote).toFixed(2)
+                   : (1 / coverQuote).toFixed(2)}
                 </div>
               </div>
             ) : (
@@ -860,33 +823,6 @@ export default function Swap() {
                   type="number"
                 />
                 <>
-                  {/* 
-                {hasSelected === false ||
-                String(
-                  parseFloat(mktRate[tokenOut.symbol].replace(/[^\d.-]/g, "")) /
-                    parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ""))
-                ) == "NaN" ? (
-                  <div>?</div>
-                ) : tokenOrder && hasSelected === true ? (
-                  <div>
-                    {parseFloat(
-                      mktRate[tokenOut.symbol].replace(/[^\d.-]/g, "")
-                    ) /
-                      parseFloat(
-                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, "")
-                      )}
-                  </div>
-                ) : (
-                  <div>
-                    {parseFloat(
-                      mktRate[tokenIn.symbol].replace(/[^\d.-]/g, "")
-                    ) /
-                      parseFloat(
-                        mktRate[tokenOut.symbol].replace(/[^\d.-]/g, "")
-                      )}
-                  </div>
-                )}
-                 */}
                 </>
                 <div className="flex">
                   {/* <div className="flex text-xs text-[#4C4C4C]"> // Implement later 
@@ -947,11 +883,14 @@ export default function Swap() {
               {tokenOut.symbol === 'Select Token'
                 ? ' ?'
                 : ' ' +
-                (rangeQuote < coverQuote) ?
-                (tokenOrder ? 
-                (coverQuote).toFixed(2) : (1 / coverQuote).toFixed(2))
-                : (tokenOrder ?
-                (rangeQuote).toFixed(2) : (1 / rangeQuote).toFixed(2))
+                (rangeQuote !== 0 && coverQuote !== 0) ?
+                ((rangeQuote < coverQuote) ?
+                  (tokenOrder ? 
+                  (coverQuote).toFixed(2) : (1 / coverQuote).toFixed(2))
+                : 
+                  (tokenOrder ?
+                  (rangeQuote).toFixed(2) : (1 / rangeQuote).toFixed(2))) 
+                : ' ?'
                   }{' '}
               {tokenOut.symbol}
             </div>
@@ -970,12 +909,8 @@ export default function Swap() {
           <>
         {
         stateChainName !== 'arbitrumGoerli' ||
-        mktRate[tokenIn.symbol] === '~$NaN' ||
-        mktRate[tokenOut.symbol] === '~$NaN' ||
-        String(
-          parseFloat(mktRate[tokenOut.symbol].replace(/[^\d.-]/g, '')) /
-            parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')),
-        ) == 'NaN' ||
+        coverQuote === 0 ||
+        rangeQuote === 0 ||
         bnInput._hex == '0x00' ? (
           <button 
           disabled
@@ -983,12 +918,12 @@ export default function Swap() {
       >
         Swap
       </button>
-        ) : Number(rangeQuote) < Number(coverQuote) ? (
+        ) : (rangeQuote < coverQuote) ? (
           Number(allowanceRange) <
           Number(ethers.utils.formatUnits(bnInput, 18)) ? (
             <div>
               <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                Your {tokenIn.symbol} rangePool allowance is missing{' '}
+                Your {tokenIn.symbol} rangePool allowance is missing {' '}
                 {Number(ethers.utils.formatUnits(bnInput, 18)) -
                   Number(allowanceRange)}{' '}
                 {tokenIn.symbol}
@@ -1018,7 +953,7 @@ export default function Swap() {
           Number(ethers.utils.formatUnits(bnInput, 18)) ? (
           <div>
             <div className="flex-none ">
-              Your {tokenIn.symbol} coverPool allowance is missing{' '}
+              Your {tokenIn.symbol} coverPool allowance is missing {' '}
               {Number(ethers.utils.formatUnits(bnInput, 18)) -
                 Number(allowanceCover)}{' '}
               {tokenIn.symbol}
