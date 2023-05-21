@@ -304,18 +304,22 @@ export default function Swap() {
 
   useEffect(() => {
     setRangeBnPrice(ethers.utils.parseUnits(rangePrice.toString(), 18))
+    console.log('rangeBnPrice', rangeBnPrice.toString())
   }, [rangePrice])
 
   useEffect(() => {
     setRangeBnBaseLimit(rangeBnPrice.div(bnSlippage).div(BigNumber.from(100)))
+    console.log('rangeBnBaseLimit', rangeBnBaseLimit.toString())
   }, [rangeBnPrice])
 
   useEffect(() => {
     setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
+    console.log('coverBnPrice', coverBnPrice.toString())
   }, [coverPrice])
 
   useEffect(() => {
     setCoverBnBaseLimit(coverBnPrice.div(bnSlippage).div(BigNumber.from(100)))
+    console.log('coverBnBaseLimit', coverBnBaseLimit.toString())
   }, [coverBnPrice])
 
   //@dev put balanc
@@ -394,6 +398,8 @@ export default function Swap() {
     const tempBal = queryTokenIn
     setQueryTokenIn(queryTokenOut)
     setQueryTokenOut(tempBal)
+    console.log('tokenIn after switch', tokenIn)
+    console.log('tokenOut after switch', tokenOut)
   }
 
   const gasEstimate = async () => {
@@ -765,8 +771,7 @@ export default function Swap() {
             <div className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
               {hasSelected &&
               coverQuote !== 0 &&
-              rangeQuote !== 0 &&
-              bnInput._hex != '0x00' ? (
+              rangeQuote !== 0 ? (
                 <div>
                   {rangeQuote < coverQuote
                 ? (
@@ -905,12 +910,13 @@ export default function Swap() {
                 ? ' ?'
                 : ' ' +
                 (rangeQuote !== 0 && coverQuote !== 0) ?
-                ((rangeQuote < coverQuote) ?
-                  (tokenOrder ? 
-                  (rangeQuote).toFixed(2) : (1 / rangeQuote).toFixed(2))
-                : 
-                  (tokenOrder ?
-                  (coverQuote).toFixed(2) : (1 / coverQuote).toFixed(2))) 
+                  ((rangeQuote < coverQuote) ?
+                    (tokenOrder ? 
+                    (rangeQuote).toFixed(2) : (1 / rangeQuote).toFixed(2))
+                  : 
+                    (tokenOrder ?
+                    (coverQuote).toFixed(2) : (1 / coverQuote).toFixed(2))
+                  ) 
                 : ' ?'
                   } {' '}
               {tokenOut.symbol}
