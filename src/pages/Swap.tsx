@@ -107,8 +107,12 @@ export default function Swap() {
     watch: true,
     enabled: coverPoolRoute != undefined && tokenIn.address != '',
     onError(error) {
-      console.log('Error', error)
+      console.log('Error allowance', error)
     },
+    onSuccess(data) {
+      console.log('Success allowance', data)
+    }
+
   })
   const { data: dataCover } = useContractRead({
     address: tokenIn.address,
@@ -119,8 +123,11 @@ export default function Swap() {
     watch: true,
     enabled: coverPoolRoute != undefined && tokenIn.address != '',
     onError(error) {
-      console.log('Error', error)
+      console.log('Error allowance', error)
     },
+    onSuccess(data) {
+      console.log('Success allowance', data)
+    }
   })
 
   const { data: priceCover } = useContractRead({
@@ -185,8 +192,8 @@ export default function Swap() {
       bnInput,
       tokenOut.address != '' &&
       tokenIn.address.localeCompare(tokenOut.address) < 0
-      ? BigNumber.from(TickMath.getSqrtPriceAtPriceString(String(coverBnPrice.sub(coverBnBaseLimit)), 18).toString())
-      : BigNumber.from(TickMath.getSqrtPriceAtPriceString(String(coverBnPrice.add(coverBnBaseLimit)), 18).toString())
+      ? BigNumber.from(TickMath.getSqrtPriceAtPriceString((coverBnPrice.sub(coverBnBaseLimit)).toString(), 18).toString())
+      : BigNumber.from(TickMath.getSqrtPriceAtPriceString((coverBnPrice.add(coverBnBaseLimit)).toString(), 18).toString())
     ],
     chainId: 421613,
     watch: true,
@@ -194,7 +201,7 @@ export default function Swap() {
       console.log('Success cover wagmi', data)
       console.log('cover quote to number', data[1].toString())
       console.log('amountIn to number', data[0].toString())
-      console.log('priceLimit conversion', BigNumber.from(TickMath.getSqrtPriceAtPriceString(String(coverBnPrice.sub(coverBnBaseLimit)), 18).toString()).toString())
+      console.log('priceLimit conversion', (TickMath.getSqrtPriceAtPriceString((coverBnPrice.sub(coverBnBaseLimit)).toString(), 18).toString()))
       setCoverQuote(
         parseFloat(ethers.utils.formatUnits(data[1], 18)
       ))
@@ -223,8 +230,8 @@ export default function Swap() {
       bnInput,
       tokenOut.address != '' &&
       tokenIn.address.localeCompare(tokenOut.address) < 0
-        ? BigNumber.from(TickMath.getSqrtPriceAtPriceString(String(rangeBnPrice.sub(rangeBnBaseLimit)), 18).toString())
-        : BigNumber.from(TickMath.getSqrtPriceAtPriceString(String(rangeBnPrice.add(rangeBnBaseLimit)), 18).toString())
+        ? BigNumber.from(TickMath.getSqrtPriceAtPriceString((rangeBnPrice.sub(rangeBnBaseLimit)).toString(), 18).toString())
+        : BigNumber.from(TickMath.getSqrtPriceAtPriceString((rangeBnPrice.add(rangeBnBaseLimit)).toString(), 18).toString())
     ],
     chainId: 421613,
     watch: true,
@@ -296,7 +303,7 @@ export default function Swap() {
 
   useEffect(() => {
     setRangeBnPrice(ethers.utils.parseUnits(rangePrice.toString(), 18))
-  }, [rangePrice, tokenIn.address, tokenOut.address])
+  }, [rangePrice, tokenIn, tokenOut])
 
   useEffect(() => {
     setRangeBnBaseLimit(rangeBnPrice.div(bnSlippage).div(BigNumber.from(100)))
@@ -304,7 +311,7 @@ export default function Swap() {
 
   useEffect(() => {
     setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
-  }, [coverPrice, tokenIn.address, tokenOut.address])
+  }, [coverPrice, tokenIn, tokenOut])
 
   useEffect(() => {
     setCoverBnBaseLimit(coverBnPrice.div(bnSlippage).div(BigNumber.from(100)))
@@ -1033,8 +1040,8 @@ export default function Swap() {
               baseLimit={
                 tokenOut.address != '' &&
                 tokenIn.address.localeCompare(tokenOut.address) < 0
-                ? TickMath.getSqrtPriceAtPriceString(String(rangeBnPrice.sub(rangeBnBaseLimit)), 18)
-                : TickMath.getSqrtPriceAtPriceString(String(rangeBnPrice.add(rangeBnBaseLimit)), 18)
+              ? BigNumber.from(TickMath.getSqrtPriceAtPriceString((rangeBnPrice.sub(rangeBnBaseLimit)).toString(), 18).toString())
+              : BigNumber.from(TickMath.getSqrtPriceAtPriceString((rangeBnPrice.add(rangeBnBaseLimit)).toString(), 18).toString())
               }
             />
           )
@@ -1064,8 +1071,8 @@ export default function Swap() {
             baseLimit={
               tokenOut.address != '' &&
               tokenIn.address.localeCompare(tokenOut.address) < 0
-              ? TickMath.getSqrtPriceAtPriceString(String(coverBnPrice.sub(coverBnBaseLimit)), 18)
-              : TickMath.getSqrtPriceAtPriceString(String(coverBnPrice.add(coverBnBaseLimit)), 18)
+            ? BigNumber.from(TickMath.getSqrtPriceAtPriceString((coverBnPrice.sub(coverBnBaseLimit)).toString(), 18).toString())
+            : BigNumber.from(TickMath.getSqrtPriceAtPriceString((coverBnPrice.add(coverBnBaseLimit)).toString(), 18).toString())
             }
           />
         )}
