@@ -743,7 +743,6 @@ export default function Swap() {
                               : '',
                           )
                         }
-                        onKeyDown={ (evt) => (evt.key === 'e' || evt.key === 'E')  && evt.preventDefault() } 
                       />
                       <button
                         className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"

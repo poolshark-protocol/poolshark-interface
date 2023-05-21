@@ -599,14 +599,18 @@ export default function RangePool({
                   className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
                   placeholder={minPrice}
                   id="minInput"
-                  type="number"
+                  type="text"
+                  value={minPrice}
                   onChange={() =>
                     setMinPrice(
                       (document.getElementById('minInput') as HTMLInputElement)
-                        ?.value,
+                        ?.value
+                          .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+                          .replace(/^(\.)+/, '0')
+                          .replace(/(?<=\..*)\./g, '')
+                          .replace(/[^\d.]/g, ''),
                     )
                   }
-                  onKeyDown={ (evt) => (evt.key === 'e' || evt.key === 'E')  && evt.preventDefault() } 
                 />
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
                   <button onClick={() => changePrice('plus', 'min')}>

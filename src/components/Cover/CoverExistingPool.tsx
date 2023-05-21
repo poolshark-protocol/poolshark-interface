@@ -404,13 +404,16 @@ export default function CoverExistingPool({
           <div className="text-[#646464]">Percentage Covered</div>
           <div className="flex gap-x-2 items-center">
             <input
-              type="string"
+              type="text"
               id="input"
               onChange={(e) => {
-                setSliderValue(Number(e.target.value.replace(/[^\d.]/g, '')))
+                setSliderValue(Number(e.target.value
+                  .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+                  .replace(/^(\.)+/, '0')
+                  .replace(/(?<=\..*)\./g, '')
+                  .replace(/[^\d.]/g, '')))
                 console.log('slider value', sliderValue)
               }}
-              onKeyDown={ (evt) => (evt.key === 'e' || evt.key === 'E')  && evt.preventDefault() } 
               value={sliderValue}
               className="text-right placeholder:text-grey1 text-white text-2xl w-20 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
             />
@@ -421,20 +424,33 @@ export default function CoverExistingPool({
           <div className="text-[#646464]">Amount Covered</div>
           <div>
             <input
-              type="string"
+              type="text"
               id="input"
               onChange={(e) => {
                 console.log('cover amount changed', sliderValue)
-                if (Number(e.target.value.replace(/[^\d.]/g, '')) / Number(tokenOut.value) < 100) {
+                if (Number(e.target.value
+                    .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+                    .replace(/^(\.)+/, '0')
+                    .replace(/(?<=\..*)\./g, '')
+                    .replace(/[^\d.]/g, '')) 
+                    / Number(tokenOut.value) < 100) {
                   setSliderValue(
-                    Number(e.target.value.replace(/[^\d.]/g, '')) / Number(tokenOut.value),
+                    Number(e.target.value
+                      .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+                      .replace(/^(\.)+/, '0')
+                      .replace(/(?<=\..*)\./g, '')
+                      .replace(/[^\d.]/g, '')) 
+                    / Number(tokenOut.value),
                   )
                 } else {
                   setSliderValue(100)
                 }
-                setCoverValue(Number(e.target.value.replace(/[^\d.]/g, '')))
+                setCoverValue(Number(e.target.value
+                  .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+                  .replace(/^(\.)+/, '0')
+                  .replace(/(?<=\..*)\./g, '')
+                  .replace(/[^\d.]/g, '')))
               }}
-              onKeyDown={ (evt) => (evt.key === 'e' || evt.key === 'E')  && evt.preventDefault() } 
               value={coverValue}
               className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
             />
@@ -467,14 +483,18 @@ export default function CoverExistingPool({
               className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
               placeholder="0"
               id="minInput"
-              type="number"
+              type="text"
+              value={minPrice}
               onChange={() =>
                 setMinPrice(
                   (document.getElementById('minInput') as HTMLInputElement)
-                    ?.value,
+                    ?.value
+                      .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+                      .replace(/^(\.)+/, '0')
+                      .replace(/(?<=\..*)\./g, '')
+                      .replace(/[^\d.]/g, ''),
                 )
               }
-              onKeyDown={ (evt) => (evt.key === 'e' || evt.key === 'E')  && evt.preventDefault() } 
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice('plus', 'min')}>
@@ -495,14 +515,18 @@ export default function CoverExistingPool({
               className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
               placeholder="0"
               id="maxInput"
-              type="number"
+              type="text"
+              value={maxPrice}
               onChange={() =>
                 setMaxPrice(
                   (document.getElementById('maxInput') as HTMLInputElement)
-                    ?.value,
+                    ?.value
+                      .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+                      .replace(/^(\.)+/, '0')
+                      .replace(/(?<=\..*)\./g, '')
+                      .replace(/[^\d.]/g, ''),
                 )
-              }
-              onKeyDown={ (evt) => (evt.key === 'e' || evt.key === 'E')  && evt.preventDefault() } 
+              } 
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice('plus', 'max')}>

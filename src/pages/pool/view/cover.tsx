@@ -18,7 +18,6 @@ import {
 } from '../../../utils/queries'
 import { TickMath } from '../../../utils/math/tickMath'
 import { coverPoolABI } from '../../../abis/evm/coverPool'
-import { tokenZero } from '../../../abis/evm/tokenZero'
 
 export default function Cover() {
   type token = {

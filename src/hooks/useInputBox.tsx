@@ -16,7 +16,11 @@ export default function useInputBox() {
   const [bnInputLimit, setBnInputLimit] = useState(BigNumber.from('0'))
 
   const handleChange = (event, updateValue) => {
-    const result = event.target.value.replace(/[^\d.]/g, '')
+    const result = event.target.value
+      .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+      .replace(/^(\.)+/, '0')
+      .replace(/(?<=\..*)\./g, '')
+      .replace(/[^\d.]/g, '')
     //TODO: do not allow for exceeding max decimals
     setDisplay(result == '' ? '' : result)
     if (result == '') {
@@ -90,10 +94,9 @@ export default function useInputBox() {
     return (
       <div className="flex gap-x-2">
         <input
-          type="number"
+          type="text"
           id="input"
           onChange={(e) => handleChange(e, updateValue)}
-          onKeyDown={ (evt) => (evt.key === 'e' || evt.key === 'E')  && evt.preventDefault() } 
           value={display}
           placeholder={placeholder}
           className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
@@ -106,10 +109,9 @@ export default function useInputBox() {
     return (
       <div className="flex gap-x-2">
         <input
-          type="number"
+          type="text"
           id="LimitInput"
           onChange={(e) => handleChangeLimit(e, updateValue)}
-          onKeyDown={ (evt) => (evt.key === 'e' || evt.key === 'E') && evt.preventDefault() } 
           value={displayLimit}
           placeholder={placeholder}
           className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
