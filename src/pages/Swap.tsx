@@ -190,8 +190,8 @@ export default function Swap() {
       tokenOut.address != '' &&
         tokenIn.address.localeCompare(tokenOut.address) < 0,
       bnInput,
-      tokenOut.address != '' &&
-      tokenIn.address.localeCompare(tokenOut.address) < 0
+      (tokenOut.address != '' &&
+      tokenIn.address.localeCompare(tokenOut.address) < 0)
       ? BigNumber.from(TickMath.getSqrtPriceAtPriceString((coverBnPrice.sub(coverBnBaseLimit)).toString(), 18).toString())
       : BigNumber.from(TickMath.getSqrtPriceAtPriceString((coverBnPrice.add(coverBnBaseLimit)).toString(), 18).toString())
     ],
@@ -228,8 +228,8 @@ export default function Swap() {
       tokenOut.address != '' &&
         tokenIn.address.localeCompare(tokenOut.address) < 0,
       bnInput,
-      tokenOut.address != '' &&
-      tokenIn.address.localeCompare(tokenOut.address) < 0
+      (tokenOut.address != '' &&
+      tokenIn.address.localeCompare(tokenOut.address) < 0)
         ? BigNumber.from(TickMath.getSqrtPriceAtPriceString((rangeBnPrice.sub(rangeBnBaseLimit)).toString(), 18).toString())
         : BigNumber.from(TickMath.getSqrtPriceAtPriceString((rangeBnPrice.add(rangeBnBaseLimit)).toString(), 18).toString())
     ],
@@ -590,23 +590,15 @@ export default function Swap() {
                   ? 'Select Token'
                   : (
                       parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                      (parseFloat(
-                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-                      ) /
-                        parseFloat(
-                          mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                        ))
+                      (tokenOrder ?
+                        (rangeQuote) : (1 / rangeQuote))
                     ).toFixed(2)
                 : coverQuote === undefined
                 ? 'Select Token'
                 : (
                     parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                    (parseFloat(
-                      mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-                    ) /
-                      parseFloat(
-                        mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                      ))
+                    (tokenOrder ?
+                      (coverQuote) : (1 / coverQuote))
                   ).toFixed(2)}
             </div>
           </div>
@@ -629,40 +621,24 @@ export default function Swap() {
               Minimum received after slippage ({slippage}%)
             </div>
             <div className="ml-auto text-xs">
-              {Number(rangeQuote) < Number(coverQuote)
+              {rangeQuote < coverQuote
                 ? (
                     parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                      (parseFloat(
-                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-                      ) /
-                        parseFloat(
-                          mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                        )) -
-                    parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                      (parseFloat(
-                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-                      ) /
-                        parseFloat(
-                          mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                        )) *
-                      (parseFloat(slippage) * 0.01)
+                    (tokenOrder ?
+                      (rangeQuote) : (1 / rangeQuote)) -
+                    (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                    (tokenOrder ?
+                      (rangeQuote) : (1 / rangeQuote)) *
+                    (parseFloat(slippage) * 0.01))
                   ).toFixed(2)
                 : (
                     parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                      (parseFloat(
-                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-                      ) /
-                        parseFloat(
-                          mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                        )) -
-                    parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                      (parseFloat(
-                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-                      ) /
-                        parseFloat(
-                          mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                        )) *
-                      (parseFloat(slippage) * 0.01)
+                    (tokenOrder ?
+                      (coverQuote) : (1 / coverQuote)) -
+                    (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                    (tokenOrder ?
+                      (coverQuote) : (1 / coverQuote)) *
+                    (parseFloat(slippage) * 0.01))
                   ).toFixed(2)}
             </div>
           </div>
@@ -971,10 +947,12 @@ export default function Swap() {
               {tokenOut.symbol === 'Select Token'
                 ? ' ?'
                 : ' ' +
-                  (parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
-                    parseFloat(
-                      mktRate[tokenOut.symbol].replace(/[^\d.-]/g, '')
-                    )).toFixed(2)}{' '}
+                (rangeQuote < coverQuote) ?
+                (tokenOrder ? 
+                (coverQuote).toFixed(2) : (1 / coverQuote).toFixed(2))
+                : (tokenOrder ?
+                (rangeQuote).toFixed(2) : (1 / rangeQuote).toFixed(2))
+                  }{' '}
               {tokenOut.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
