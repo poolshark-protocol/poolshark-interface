@@ -182,7 +182,7 @@ export default function Swap() {
     },
   })
 
-  const { refetch: refetchCoverQuote, data: quoteCover } = useContractRead({
+  const { data: quoteCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
     functionName: 'quote',
@@ -218,7 +218,7 @@ export default function Swap() {
       console.log('Settled', { data, error })
     },
   })
-  const { refetch: refetchRangeQuote, data: quoteRange } = useContractRead({
+  const { data: quoteRange } = useContractRead({
     address: rangePoolRoute,
     abi: rangePoolABI,
     functionName: 'quote',
@@ -241,7 +241,13 @@ export default function Swap() {
           ethers.utils.formatUnits(data[1], 18),
         ),
       )
+      setRangePriceAfter(
+        parseFloat(
+          TickMath.getPriceStringAtSqrtPrice(data[2]),
+        ),
+      )
       console.log('rangeQuote', rangeQuote)
+      console.log('rangePriceAfter', rangePriceAfter)
     },
     onError(error) {
       console.log('Error range wagmi', error)
