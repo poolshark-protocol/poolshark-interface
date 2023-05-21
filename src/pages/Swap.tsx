@@ -87,8 +87,8 @@ export default function Swap() {
   const [rangePoolRoute, setRangePoolRoute] = useState(undefined)
   const [coverPriceAfter, setCoverPriceAfter] = useState(undefined)
   const [rangePriceAfter, setRangePriceAfter] = useState(undefined)
-  const [coverBnPrice, setCoverBnPrice] = useState(BigNumber.from(0))
-  const [rangeBnPrice, setRangeBnPrice] = useState(BigNumber.from(0))
+  const [coverBnPrice, setCoverBnPrice] = useState(BigNumber.from(1))
+  const [rangeBnPrice, setRangeBnPrice] = useState(BigNumber.from(1))
   const [coverBnBaseLimit, setCoverBnBaseLimit] = useState(BigNumber.from(0))
   const [rangeBnBaseLimit, setRangeBnBaseLimit] = useState(BigNumber.from(0))
   const [bnSlippage, setBnSlippage] = useState(BigNumber.from(1))
@@ -396,10 +396,6 @@ export default function Swap() {
     setQueryTokenOut(tempBal)
   }
 
-  function openModal() {
-    setIsOpen(true)
-  }
-
   const gasEstimate = async () => {
     try {
       const provider = new ethers.providers.JsonRpcProvider(
@@ -508,9 +504,18 @@ export default function Swap() {
         )
         let id = ZERO_ADDRESS
         let dataLength = pool['data']['rangePools'].length
-        if(dataLength != 0) id = pool['data']['rangePools']['0']['id']
-
-        setRangePoolRoute(id)
+        if(dataLength != 0) {
+          id = pool['data']['rangePools']['0']['id']
+          setRangePoolRoute(id)
+        }
+        else {
+          const fallbackPool = await getRangePoolFromFactory(
+            tokenOut.address,
+            tokenIn.address,
+          )
+          id = fallbackPool['data']['rangePools']['0']['id']
+          setRangePoolRoute(id)
+        }
       }
     } catch (error) {
       console.log(error)
@@ -526,8 +531,18 @@ export default function Swap() {
         )
         let id = ZERO_ADDRESS
         let dataLength = pool['data']['coverPools'].length
-        if(dataLength != 0) id = pool['data']['coverPools']['0']['id']
-        setCoverPoolRoute(id)
+        if(dataLength != 0) {
+          id = pool['data']['coverPools']['0']['id']
+          setCoverPoolRoute(id)
+        }
+        else {
+          const fallbackPool = await getCoverPoolFromFactory(
+            tokenOut.address,
+            tokenIn.address,
+          )
+          id = fallbackPool['data']['coverPools']['0']['id']
+          setCoverPoolRoute(id)
+        }
       }
     } catch (error) {
       console.log(error)
@@ -892,10 +907,10 @@ export default function Swap() {
                 (rangeQuote !== 0 && coverQuote !== 0) ?
                 ((rangeQuote < coverQuote) ?
                   (tokenOrder ? 
-                  (coverQuote).toFixed(2) : (1 / coverQuote).toFixed(2))
+                  (rangeQuote).toFixed(2) : (1 / rangeQuote).toFixed(2))
                 : 
                   (tokenOrder ?
-                  (rangeQuote).toFixed(2) : (1 / rangeQuote).toFixed(2))) 
+                  (coverQuote).toFixed(2) : (1 / coverQuote).toFixed(2))) 
                 : ' ?'
                   }{' '}
               {tokenOut.symbol}
