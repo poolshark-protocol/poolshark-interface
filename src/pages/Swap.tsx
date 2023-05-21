@@ -945,8 +945,8 @@ export default function Swap() {
             <div>
               <div className="flex-none text-xs uppercase text-[#C9C9C9]">
                 Your {tokenIn.symbol} rangePool allowance is missing {' '}
-                {Number(ethers.utils.formatUnits(bnInput, 18)) -
-                  Number(allowanceRange)}{' '}
+                {(Number(ethers.utils.formatUnits(bnInput, 18)) -
+                  Number(allowanceRange)).toFixed(2)}{' '}
                 {tokenIn.symbol}
               </div>
               <SwapRangeApproveButton
@@ -975,8 +975,8 @@ export default function Swap() {
           <div>
             <div className="flex-none ">
               Your {tokenIn.symbol} coverPool allowance is missing {' '}
-              {Number(ethers.utils.formatUnits(bnInput, 18)) -
-                Number(allowanceCover)}{' '}
+              {(Number(ethers.utils.formatUnits(bnInput, 18)) -
+                Number(allowanceCover)).toFixed(2)}{' '}
               {tokenIn.symbol}
             </div>
             <SwapCoverApproveButton
