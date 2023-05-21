@@ -546,16 +546,13 @@ export default function Swap() {
   //@dev TO-DO: fetch token Addresses, use for pool quote (smallest fee tier)
   //@dev TO-DO: re-route pool and handle allowances
 
-  const fetchTokenPrice = async () => {
+  const fetchTokenPrice = () => {
     try {
       if (Number(rangeQuote) < Number(coverQuote)) {
-        const price = rangeQuote
-        console.log('range quote on fetch token', price)
-        console.log('number range quote', Number(price))
         setMktRate({
           WETH:
             '~' +
-            Number(price).toLocaleString('en-US', {
+            rangeQuote.toLocaleString('en-US', {
               style: 'currency',
               currency: 'USD',
             }),
@@ -564,13 +561,10 @@ export default function Swap() {
         console.log('mkt rate token in', mktRate[tokenIn.symbol])
         console.log('mkt rate token out', mktRate[tokenOut.symbol])
       } else {
-        const price = coverQuote
-        console.log('cover quote on fetch token', price)
-        console.log('number cover quote', Number(price))
         setMktRate({
           WETH:
             '~' +
-            Number(price).toLocaleString('en-US', {
+            coverQuote.toLocaleString('en-US', {
               style: 'currency',
               currency: 'USD',
             }),
@@ -810,7 +804,6 @@ export default function Swap() {
             }}
           />
         </div>
-
         <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
             <div className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
@@ -978,10 +971,10 @@ export default function Swap() {
               {tokenOut.symbol === 'Select Token'
                 ? ' ?'
                 : ' ' +
-                  parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
+                  (parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
                     parseFloat(
                       mktRate[tokenOut.symbol].replace(/[^\d.-]/g, '')
-                    )}{' '}
+                    )).toFixed(2)}{' '}
               {tokenOut.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
