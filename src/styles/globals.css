@@ -65,7 +65,7 @@ input[type=number] {
 
 
 /* CUSTOM RAINBOW */
-[data-rk] .ju367vbl{
+[data-rk] .ju367vbl, [data-rk] .ju367vb0{
   background: black !important;
 }
 [data-rk] .ju367vdl  {
@@ -103,3 +103,4 @@ font-weight: 500 !important
   background: #0C0C0C !important;
   border: 1px solid #1C1C1C !important
 }
+
