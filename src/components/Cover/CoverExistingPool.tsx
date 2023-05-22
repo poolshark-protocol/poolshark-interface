@@ -528,7 +528,7 @@ export default function CoverExistingPool({
       <div className="space-y-3">
         {isDisconnected ? <ConnectWalletButton /> : null}
         {isDisconnected ||
-        Number(allowance) < Number(sliderValue) * Number(tokenIn.value) ? (
+        Number(allowance) < Number(sliderValue) * Number(coverAmountIn) ? (
           <SwapCoverApproveButton
           disabled={isDisabled}
           poolAddress={poolId} 
@@ -542,9 +542,7 @@ export default function CoverExistingPool({
             claim={(tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) < 0) ?
                 max : min}
             upper={max}
-            amount={ethers.utils
-              .parseUnits(String(sliderValue * 100), 0)
-              .mul(ethers.utils.parseUnits(tokenIn.value, 18))}
+            amount={coverAmountIn}
             zeroForOne={tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) < 0}
             tickSpacing={20}
           />
