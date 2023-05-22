@@ -277,7 +277,7 @@ export default function Swap() {
 
   useEffect(() => {
     getBalances()
-  }, [tokenOut.address, tokenIn.address])
+  }, [tokenOut.address, tokenIn.address, hasSelected, address])
 
   useEffect(() => {
     updateSwapAmount(bnInput)
