@@ -41,8 +41,12 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
         feeTier: rangePosition.pool.feeTier.feeAmount,
         unclaimedFees: rangePosition.pool.feesUsd,
         liquidity: rangePosition.liquidity,
-        tvlUsd: (Number(rangePosition.pool.totalValueLockedUsd) / 1_000_000).toFixed(2),
-        volumeUsd: (Number(rangePosition.pool.volumeUsd) / 1_000_000).toFixed(2),
+        tvlUsd: (
+          Number(rangePosition.pool.totalValueLockedUsd) / 1_000_000
+        ).toFixed(2),
+        volumeUsd: (Number(rangePosition.pool.volumeUsd) / 1_000_000).toFixed(
+          2,
+        ),
         volumeEth: (Number(rangePosition.pool.volumeEth) / 1).toFixed(2),
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
       }
@@ -166,8 +170,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                 <div>
                   <h1 className="mb-3">Poolshark Positions</h1>
                   <div className="space-y-2">
-                    {allRangePositions.length === 0 ?
-                    (
+                    {allRangePositions.length === 0 ? (
                       <div className="space-y-2">
                         <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
                           <svg
@@ -185,67 +188,64 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                           Your Poolshark pools will appear here
                         </div>
                       </div>
-                    )
-                    :
-                    (
+                    ) : (
                       <>
-                      {allRangePositions.map((allRangePosition) => {
-                      if (
-                        allRangePosition.userOwnerAddress ===
-                          address?.toLowerCase() &&
-                        (allRangePosition.tokenZero.name === searchTerm ||
-                          allRangePosition.tokenOne.name === searchTerm ||
-                          allRangePosition.tokenZero.symbol === searchTerm ||
-                          allRangePosition.tokenOne.symbol === searchTerm ||
-                          allRangePosition.tokenZero.id === searchTerm ||
-                          allRangePosition.tokenOne.id === searchTerm ||
-                          searchTerm === '')
-                      ) {
-                        return (
-                          <div
-                            onClick={() => {
-                              setIsOpen(false)
-                              //prefill('exisingPool')
-                              setParams(allRangePosition)
-                            }}
-                            key={allRangePosition.id + 'click'}
-                          >
-                            <UserPool
-                              key={allRangePosition.id}
-                              account={address}
-                              poolId={allRangePosition.poolId}
-                              tokenZero={allRangePosition.tokenZero}
-                              tokenOne={allRangePosition.tokenOne}
-                              valueTokenZero={allRangePosition.valueTokenZero}
-                              valueTokenOne={allRangePosition.valueTokenOne}
-                              min={allRangePosition.min}
-                              max={allRangePosition.max}
-                              liquidity={allRangePosition.liquidity}
-                              price={allRangePosition.price}
-                              feeTier={allRangePosition.feeTier}
-                              tickSpacing={allRangePosition.tickSpacing}
-                              unclaimedFees={allRangePosition.unclaimedFees}
-                              tvlUsd={allRangePosition.tvlUsd}
-                              volumeUsd={allRangePosition.volumeUsd}
-                              volumeEth={allRangePosition.volumeEth}
-                              href={'/cover'}
-                            />
-                          </div>
-                        )
-                        
-                      }
-                    })}
-                    </>
-                    )
-                  }
-                    
+                        {allRangePositions.map((allRangePosition) => {
+                          if (
+                            allRangePosition.userOwnerAddress ===
+                              address?.toLowerCase() &&
+                            (allRangePosition.tokenZero.name === searchTerm ||
+                              allRangePosition.tokenOne.name === searchTerm ||
+                              allRangePosition.tokenZero.symbol ===
+                                searchTerm ||
+                              allRangePosition.tokenOne.symbol === searchTerm ||
+                              allRangePosition.tokenZero.id === searchTerm ||
+                              allRangePosition.tokenOne.id === searchTerm ||
+                              searchTerm === '')
+                          ) {
+                            return (
+                              <div
+                                onClick={() => {
+                                  setIsOpen(false)
+                                  //prefill('exisingPool')
+                                  setParams(allRangePosition)
+                                }}
+                                key={allRangePosition.id + 'click'}
+                              >
+                                <UserPool
+                                  key={allRangePosition.id}
+                                  account={address}
+                                  poolId={allRangePosition.poolId}
+                                  tokenZero={allRangePosition.tokenZero}
+                                  tokenOne={allRangePosition.tokenOne}
+                                  valueTokenZero={
+                                    allRangePosition.valueTokenZero
+                                  }
+                                  valueTokenOne={allRangePosition.valueTokenOne}
+                                  min={allRangePosition.min}
+                                  max={allRangePosition.max}
+                                  liquidity={allRangePosition.liquidity}
+                                  price={allRangePosition.price}
+                                  feeTier={allRangePosition.feeTier}
+                                  tickSpacing={allRangePosition.tickSpacing}
+                                  unclaimedFees={allRangePosition.unclaimedFees}
+                                  tvlUsd={allRangePosition.tvlUsd}
+                                  volumeUsd={allRangePosition.volumeUsd}
+                                  volumeEth={allRangePosition.volumeEth}
+                                  href={'/cover'}
+                                />
+                              </div>
+                            )
+                          }
+                        })}
+                      </>
+                    )}
                   </div>
                 </div>
                 <div>
                   <h1 className="mb-3 mt-4">UNI-V3 Positions</h1>
                   <div className="space-y-2">
-                    {allUniV3Positions.length === 0 ?
-                    (
+                    {allUniV3Positions.length === 0 ? (
                       <div className="space-y-2">
                         <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
                           <svg
@@ -263,59 +263,61 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                           Your UNI-V3 pools will appear here
                         </div>
                       </div>
-                    )
-                    :
-                    (
+                    ) : (
                       <>
-                    {allUniV3Positions.map((allUniV3Position) => {
-                      if (
-                        allUniV3Position.userOwnerAddress ===
-                          address?.toLowerCase() &&
-                        (allUniV3Position.tokenZero.name === searchTerm ||
-                          allUniV3Position.tokenOne.name === searchTerm ||
-                          allUniV3Position.tokenZero.symbol === searchTerm ||
-                          allUniV3Position.tokenOne.symbol === searchTerm ||
-                          allUniV3Position.tokenZero.id === searchTerm ||
-                          allUniV3Position.tokenOne.id === searchTerm ||
-                          searchTerm === '')
-                      ) {
-                        return (
-                          <div
-                            onClick={() => {
-                              setIsOpen(false)
-                              //prefill('exisingPool')
-                              setParams(allUniV3Position)
-                            }}
-                            key={allUniV3Position.id + 'click'}
-                          >
-                            <UserCoverPool
-                              key={allUniV3Position.id}
-                              account={address}
-                              poolId={allUniV3Position.poolId}
-                              tokenZero={allUniV3Position.tokenZero}
-                              valueTokenZero={allUniV3Position.valueTokenZero}
-                              tokenOne={allUniV3Position.tokenOne}
-                              valueTokenOne={allUniV3Position.valueTokenOne}
-                              min={allUniV3Position.min}
-                              max={allUniV3Position.max}
-                              zeroForOne={true}
-                              userFillIn={0}
-                              userFillOut={0}
-                              liquidity={allUniV3Position.liquidity}
-                              feeTier={allUniV3Position.feeTier}
-                              latestTick={allUniV3Position.tick}
-                              epochLast={0}
-                              prefill={undefined}
-                              close={undefined}
-                              href={'/cover'}
-                            />
-                          </div>
-                        )
-                      }
-                    })}
-                    </>
-                    )
-                  }
+                        {allUniV3Positions.map((allUniV3Position) => {
+                          if (
+                            allUniV3Position.userOwnerAddress ===
+                              address?.toLowerCase() &&
+                            (allUniV3Position.tokenZero.name === searchTerm ||
+                              allUniV3Position.tokenOne.name === searchTerm ||
+                              allUniV3Position.tokenZero.symbol ===
+                                searchTerm ||
+                              allUniV3Position.tokenOne.symbol === searchTerm ||
+                              allUniV3Position.tokenZero.id === searchTerm ||
+                              allUniV3Position.tokenOne.id === searchTerm ||
+                              searchTerm === '')
+                          ) {
+                            return (
+                              <div
+                                onClick={() => {
+                                  setIsOpen(false)
+                                  //prefill('exisingPool')
+                                  setParams(allUniV3Position)
+                                }}
+                                key={allUniV3Position.id + 'click'}
+                              >
+                                <UserCoverPool
+                                  key={allUniV3Position.id}
+                                  account={address}
+                                  poolId={allUniV3Position.poolId}
+                                  tokenZero={allUniV3Position.tokenZero}
+                                  valueTokenZero={
+                                    allUniV3Position.valueTokenZero
+                                  }
+                                  tokenOne={allUniV3Position.tokenOne}
+                                  valueTokenOne={allUniV3Position.valueTokenOne}
+                                  min={allUniV3Position.min}
+                                  max={allUniV3Position.max}
+                                  zeroForOne={true}
+                                  userFillIn={0}
+                                  userFillOut={0}
+                                  liquidity={allUniV3Position.liquidity}
+                                  feeTier={allUniV3Position.feeTier}
+                                  latestTick={allUniV3Position.tick}
+                                  //TODO get univ3 spacings
+                                  tickSp={20}
+                                  epochLast={0}
+                                  prefill={undefined}
+                                  close={undefined}
+                                  href={'/cover'}
+                                />
+                              </div>
+                            )
+                          }
+                        })}
+                      </>
+                    )}
                   </div>
                 </div>
               </Dialog.Panel>

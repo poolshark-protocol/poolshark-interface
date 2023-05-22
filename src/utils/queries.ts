@@ -102,7 +102,7 @@ export const getCoverPoolFromFactory = (token0: string, token1: string) => {
 export const getTickIfZeroForOne = (
   upper: number,
   poolAddress: string,
-  epochLast: number
+  epochLast: number,
 ) => {
   return new Promise(function (resolve) {
     const getTicks = `
@@ -115,7 +115,7 @@ export const getTickIfZeroForOne = (
           }
         }
         `
-        console.log('pool address',  poolAddress)
+    console.log('pool address', poolAddress)
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
       cache: new InMemoryCache(),
@@ -135,7 +135,7 @@ export const getTickIfZeroForOne = (
 export const getTickIfNotZeroForOne = (
   lower: number,
   poolAddress: string,
-  epochLast: number
+  epochLast: number,
 ) => {
   return new Promise(function (resolve) {
     const getTicks = `
@@ -149,7 +149,7 @@ export const getTickIfNotZeroForOne = (
         }
         `
     console.log(getTicks)
-    console.log('pool address',  poolAddress)
+    console.log('pool address', poolAddress)
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
       cache: new InMemoryCache(),
@@ -165,8 +165,6 @@ export const getTickIfNotZeroForOne = (
       })
   })
 }
-
-
 
 export const fetchCoverPositions = (address: string) => {
   return new Promise(function (resolve) {
@@ -213,6 +211,7 @@ export const fetchCoverPositions = (address: string) => {
                     liquidity
                     volatilityTier{
                         feeAmount
+                        tickSpread
                     }
                     latestTick
                 }
@@ -391,8 +390,8 @@ export const fetchRangePools = () => {
 export const fetchRangePositions = (address: string) => {
   return new Promise(function (resolve) {
     const positionsQuery = `
-        query($owner: String) {
-            positions(owner: $owner) {
+    query($owner: String) {
+      positions(where: {owner:"${address}"}) {
                 id
                 owner
                 liquidity

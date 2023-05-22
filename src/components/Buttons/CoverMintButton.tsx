@@ -22,13 +22,10 @@ export default function CoverMintButton({
   upper,
   amount,
   zeroForOne,
-  tickSpacing
+  tickSpacing,
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
-  const [isDisabled, setDisabled] = useState(disabled)
-
-  useEffect(() => {}, [disabled])
 
   /*const [coverContractParams, setCoverContractParams] = useState({
     to: to,
@@ -52,20 +49,30 @@ export default function CoverMintButton({
     })
   }, [disabled, to, lower, claim, upper, amount, zeroForOne])*/
 
-  console.log('mint params', to, amount.toString(), roundTick(Number(lower), 40).toString(), roundTick(Number(claim), 40), roundTick(Number(upper), 40), zeroForOne)
+  console.log(
+    'mint params',
+    to,
+    amount.toString(),
+    roundTick(Number(lower), 40).toString(),
+    roundTick(Number(claim), 40),
+    roundTick(Number(upper), 40),
+    zeroForOne,
+  )
 
   const { config } = usePrepareContractWrite({
     address: poolAddress,
     abi: coverPoolABI,
     functionName: 'mint',
-    args: [[
-      to,
-      amount,
-      roundTick(Number(lower), 40),
-      roundTick(Number(claim), 40),
-      roundTick(Number(upper), 40),
-      zeroForOne
-    ]],
+    args: [
+      [
+        to,
+        amount,
+        roundTick(Number(lower), 40),
+        roundTick(Number(claim), 40),
+        roundTick(Number(upper), 40),
+        zeroForOne,
+      ],
+    ],
     chainId: 421613,
     overrides: {
       gasLimit: BigNumber.from('3500000'),
@@ -93,7 +100,7 @@ export default function CoverMintButton({
             ? 'w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50'
             : 'w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80'
         }
-        onClick={() => (coverPoolAddress ? write?.() : null)}
+        onClick={() => (coverPoolAddress && !disabled ? write?.() : null)}
       >
         Create Cover
       </button>
