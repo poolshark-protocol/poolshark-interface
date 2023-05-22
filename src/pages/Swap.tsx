@@ -76,6 +76,7 @@ export default function Swap() {
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [slippage, setSlippage] = useState('0.5')
   const [auxSlippage, setAuxSlippage] = useState('0.5')
+  const [modalOpen, setModalOpen] = useState(false)
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
   const [stateChainName, setStateChainName] = useState()
@@ -136,7 +137,11 @@ export default function Swap() {
     watch: true,
     onSuccess(data) {
       console.log('Success price Cover', data)
-      setCoverPrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[0].toString()))))
+      setCoverPrice(
+        parseFloat(
+          TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[0].toString())),
+        ),
+      )
     },
     onError(error) {
       console.log('Error price Cover', error)
@@ -197,8 +202,14 @@ export default function Swap() {
       bnInput,
       tokenOut.address != '' &&
       tokenIn.address.localeCompare(tokenOut.address) < 0
-      ? TickMath.getSqrtPriceAtPriceString(String(coverBnPrice.sub(coverBnBaseLimit)), 18)
-      : TickMath.getSqrtPriceAtPriceString(String(coverBnPrice.add(coverBnBaseLimit)), 18)
+        ? TickMath.getSqrtPriceAtPriceString(
+            String(coverBnPrice.sub(coverBnBaseLimit)),
+            18,
+          )
+        : TickMath.getSqrtPriceAtPriceString(
+            String(coverBnPrice.add(coverBnBaseLimit)),
+            18,
+          ),
     ],
     chainId: 421613,
     watch: true,
@@ -232,8 +243,14 @@ export default function Swap() {
       bnInput,
       tokenOut.address != '' &&
       tokenIn.address.localeCompare(tokenOut.address) < 0
-        ? TickMath.getSqrtPriceAtPriceString(String(rangeBnPrice.sub(rangeBnBaseLimit)), 18)
-        : TickMath.getSqrtPriceAtPriceString(String(rangeBnPrice.add(rangeBnBaseLimit)), 18),
+        ? TickMath.getSqrtPriceAtPriceString(
+            String(rangeBnPrice.sub(rangeBnBaseLimit)),
+            18,
+          )
+        : TickMath.getSqrtPriceAtPriceString(
+            String(rangeBnPrice.add(rangeBnBaseLimit)),
+            18,
+          ),
     ],
     chainId: 421613,
     watch: true,
@@ -302,10 +319,6 @@ export default function Swap() {
   useEffect(() => {
     getBnSlippage()
   }, [slippage])
-
-  function closeModal() {
-    setIsOpen(false)
-  }
 
   console.log('tokenIn', tokenIn)
   console.log('rangeBnPrice', rangeBnPrice.toString())
@@ -388,10 +401,6 @@ export default function Swap() {
     const tempBal = queryTokenIn
     setQueryTokenIn(queryTokenOut)
     setQueryTokenOut(tempBal)
-  }
-
-  function openModal() {
-    setIsOpen(true)
   }
 
   const gasEstimate = async () => {
@@ -521,7 +530,7 @@ export default function Swap() {
         )
         let id = ZERO_ADDRESS
         let dataLength = pool['data']['coverPools'].length
-        if(dataLength != 0) id = pool['data']['coverPools']['0']['id']
+        if (dataLength != 0) id = pool['data']['coverPools']['0']['id']
         setCoverPoolRoute(id)
         console.log('cover pool route', coverPoolRoute)
       }
@@ -689,50 +698,58 @@ export default function Swap() {
           <div className="ml-auto">
             <Popover className="relative">
               <Popover.Button className="outline-none">
-                <AdjustmentsHorizontalIcon className="w-5 h-5 outline-none" />
+                <div onClick={() => setModalOpen(true)}>
+                  <AdjustmentsHorizontalIcon className="w-5 h-5 outline-none" />
+                </div>
               </Popover.Button>
-              <Transition
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <Popover.Panel className="absolute z-10 ml-14 -mt-[48px] bg-black border border-grey2 rounded-xl p-5">
-                  <div className="w-full">
-                    <h1>
-                      {LimitActive ? (
-                        <>Range Tolerance</>
-                      ) : (
-                        <>Slippage Tolerance</>
-                      )}
-                    </h1>
-                    <div className="flex mt-3 gap-x-3">
-                      <input
-                        placeholder="0%"
-                        className="bg-dark rounded-xl outline-none border border-grey1 pl-3 placeholder:text-grey1"
-                        value={auxSlippage + '%'}
-                        onChange={(e) =>
-                          setAuxSlippage(
-                            parseFloat(e.target.value.replace(/[^\d.-]/g, '')) <
-                              100
-                              ? e.target.value.replace(/[^\d.-]/g, '')
-                              : '',
-                          )
-                        }
-                      />
-                      <button
-                        className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
-                        onClick={(e) => setSlippage(auxSlippage)}
-                      >
-                        Set
-                      </button>
+              {modalOpen ? (
+                <Transition
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0"
+                  enterTo="opacity-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100"
+                  leaveTo="opacity-0"
+                >
+                  <Popover.Panel className="absolute z-10 ml-14 -mt-[48px] bg-black border border-grey2 rounded-xl p-5">
+                    <div className="w-full">
+                      <h1>
+                        {LimitActive ? (
+                          <>Range Tolerance</>
+                        ) : (
+                          <>Slippage Tolerance</>
+                        )}
+                      </h1>
+                      <div className="flex mt-3 gap-x-3">
+                        <input
+                          placeholder="0%"
+                          className="bg-dark rounded-xl outline-none border border-grey1 pl-3 placeholder:text-grey1"
+                          value={auxSlippage + '%'}
+                          onChange={(e) =>
+                            setAuxSlippage(
+                              parseFloat(
+                                e.target.value.replace(/[^\d.-]/g, ''),
+                              ) < 100
+                                ? e.target.value.replace(/[^\d.-]/g, '')
+                                : '',
+                            )
+                          }
+                        />
+                        <button
+                          className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+                          onClick={(e) => {
+                            setSlippage(auxSlippage)
+                            setModalOpen(false)
+                          }}
+                        >
+                          Set
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </Popover.Panel>
-              </Transition>
+                  </Popover.Panel>
+                </Transition>
+              ) : null}
             </Popover>
           </div>
         </div>
@@ -973,87 +990,99 @@ export default function Swap() {
             <Option />
           </div>
         </div>
-        {isDisconnected ? <ConnectWalletButton xl={true} /> : 
-        (
-          <>
-        {
-        stateChainName !== 'arbitrumGoerli' ||
-        mktRate[tokenIn.symbol] === '~$NaN' ||
-        mktRate[tokenOut.symbol] === '~$NaN' ||
-        String(
-          parseFloat(mktRate[tokenOut.symbol].replace(/[^\d.-]/g, '')) /
-            parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')),
-        ) == 'NaN' ||
-        bnInput._hex == '0x00' ? (
-          <button 
-          disabled
-        className="w-full py-4 mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
-      >
-        Swap
-      </button>
-        ) : Number(rangeQuote) < Number(coverQuote) ? (
-          Number(allowanceRange) <
-          Number(ethers.utils.formatUnits(bnInput, 18)) ? (
-            <div>
-              <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                Your {tokenIn.symbol} rangePool allowance is missing{' '}
-                {Number(ethers.utils.formatUnits(bnInput, 18)) -
-                  Number(allowanceRange)}{' '}
-                {tokenIn.symbol}
-              </div>
-              <SwapRangeApproveButton
-                poolAddress={rangePoolRoute}
-                approveToken={tokenIn.address}
-              />
-            </div>
-          ) : (
-            <SwapRangeButton
-              poolAddress={rangePoolRoute}
-              zeroForOne={
-                tokenOut.address != '' &&
-                tokenIn.address.localeCompare(tokenOut.address) < 0
-              }
-              amount={bnInput}
-              baseLimit={
-                tokenOut.address != '' &&
-                tokenIn.address.localeCompare(tokenOut.address) < 0
-                ? TickMath.getSqrtPriceAtPriceString(String(rangeBnPrice.sub(rangeBnBaseLimit)), 18)
-                : TickMath.getSqrtPriceAtPriceString(String(rangeBnPrice.add(rangeBnBaseLimit)), 18)
-              }
-            />
-          )
-        ) : Number(allowanceCover) <
-          Number(ethers.utils.formatUnits(bnInput, 18)) ? (
-          <div>
-            <div className="flex-none ">
-              Your {tokenIn.symbol} coverPool allowance is missing{' '}
-              {Number(ethers.utils.formatUnits(bnInput, 18)) -
-                Number(allowanceCover)}{' '}
-              {tokenIn.symbol}
-            </div>
-            <SwapCoverApproveButton
-              disabled={false}
-              poolAddress={coverPoolRoute}
-              approveToken={tokenIn.address}
-            />
-          </div>
+        {isDisconnected ? (
+          <ConnectWalletButton xl={true} />
         ) : (
-          <SwapCoverButton
-            poolAddress={coverPoolRoute}
-            zeroForOne={
-              tokenOut.address != '' &&
-              tokenIn.address.localeCompare(tokenOut.address) < 0
-            }
-            amount={bnInput}
-            baseLimit={
-              tokenOut.address != '' &&
-              tokenIn.address.localeCompare(tokenOut.address) < 0
-              ? TickMath.getSqrtPriceAtPriceString(String(coverBnPrice.sub(coverBnBaseLimit)), 18)
-              : TickMath.getSqrtPriceAtPriceString(String(coverBnPrice.add(coverBnBaseLimit)), 18)
-            }
-          />
-        )}
-        </>
+          <>
+            {stateChainName !== 'arbitrumGoerli' ||
+            mktRate[tokenIn.symbol] === '~$NaN' ||
+            mktRate[tokenOut.symbol] === '~$NaN' ||
+            String(
+              parseFloat(mktRate[tokenOut.symbol].replace(/[^\d.-]/g, '')) /
+                parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')),
+            ) == 'NaN' ||
+            bnInput._hex == '0x00' ? (
+              <button
+                disabled
+                className="w-full py-4 mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
+              >
+                Swap
+              </button>
+            ) : Number(rangeQuote) < Number(coverQuote) ? (
+              Number(allowanceRange) <
+              Number(ethers.utils.formatUnits(bnInput, 18)) ? (
+                <div>
+                  <div className="flex-none text-xs uppercase text-[#C9C9C9]">
+                    Your {tokenIn.symbol} rangePool allowance is missing{' '}
+                    {Number(ethers.utils.formatUnits(bnInput, 18)) -
+                      Number(allowanceRange)}{' '}
+                    {tokenIn.symbol}
+                  </div>
+                  <SwapRangeApproveButton
+                    poolAddress={rangePoolRoute}
+                    approveToken={tokenIn.address}
+                  />
+                </div>
+              ) : (
+                <SwapRangeButton
+                  poolAddress={rangePoolRoute}
+                  zeroForOne={
+                    tokenOut.address != '' &&
+                    tokenIn.address.localeCompare(tokenOut.address) < 0
+                  }
+                  amount={bnInput}
+                  baseLimit={
+                    tokenOut.address != '' &&
+                    tokenIn.address.localeCompare(tokenOut.address) < 0
+                      ? TickMath.getSqrtPriceAtPriceString(
+                          String(rangeBnPrice.sub(rangeBnBaseLimit)),
+                          18,
+                        )
+                      : TickMath.getSqrtPriceAtPriceString(
+                          String(rangeBnPrice.add(rangeBnBaseLimit)),
+                          18,
+                        )
+                  }
+                />
+              )
+            ) : Number(allowanceCover) <
+              Number(ethers.utils.formatUnits(bnInput, 18)) ? (
+              <div>
+                <div className="flex-none ">
+                  Your {tokenIn.symbol} coverPool allowance is missing{' '}
+                  {Number(ethers.utils.formatUnits(bnInput, 18)) -
+                    Number(allowanceCover)}{' '}
+                  {tokenIn.symbol}
+                </div>
+                <SwapCoverApproveButton
+                  disabled={false}
+                  poolAddress={coverPoolRoute}
+                  approveToken={tokenIn.address}
+                />
+              </div>
+            ) : (
+              <SwapCoverButton
+                poolAddress={coverPoolRoute}
+                zeroForOne={
+                  tokenOut.address != '' &&
+                  tokenIn.address.localeCompare(tokenOut.address) < 0
+                }
+                amount={bnInput}
+                baseLimit={
+                  tokenOut.address != '' &&
+                  tokenIn.address.localeCompare(tokenOut.address) < 0
+                    ? TickMath.getSqrtPriceAtPriceString(
+                        String(coverBnPrice.sub(coverBnBaseLimit)),
+                        18,
+                      )
+                    : TickMath.getSqrtPriceAtPriceString(
+                        String(coverBnPrice.add(coverBnBaseLimit)),
+                        18,
+                      )
+                }
+              />
+            )}
+          </>
         )}
       </div>
     </div>
