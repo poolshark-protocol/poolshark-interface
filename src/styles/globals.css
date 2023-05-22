@@ -73,8 +73,11 @@ input[type=number] {
 }
 [data-rk] .ju367vax {
   background: rgba(0, 0, 0, 0.5) !important;
-  
-  
+}
+
+[data-rk] .ju367v84:hover {
+  border: 1px solid #1C1C1C !important;
+  background: #0C0C0C !important;
 }
 
 [data-rk] .ju367vgo {
