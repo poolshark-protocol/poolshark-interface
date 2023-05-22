@@ -457,6 +457,7 @@ export default function Swap() {
       }
     } else {
       const data = await fetchRangePools()
+      console.log('range pool subgraph data', data)
       const poolAddress = data['data']['rangePools']['0']['id']
 
       if (poolAddress === rangePoolRoute) {
