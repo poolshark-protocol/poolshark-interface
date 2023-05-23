@@ -466,7 +466,7 @@ export default function Swap() {
         setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
       }
     }
-  }, [coverPoolRoute, tokenIn.address, tokenOut.address, priceCover])
+  }, [tokenIn.address, tokenOut.address, coverPoolRoute])
 
   useEffect(() => {
     if (priceRange) {
@@ -485,7 +485,7 @@ export default function Swap() {
         setRangeBnPrice(ethers.utils.parseUnits(rangePrice.toString(), 18))
       }
     }
-  }, [rangePoolRoute, tokenIn.address, tokenOut.address, priceRange])
+  }, [tokenIn.address, tokenOut.address, rangePoolRoute])
 
   useEffect(() => {
     if (quoteCover) {
