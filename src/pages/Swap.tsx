@@ -59,6 +59,8 @@ export default function Swap() {
   const [rangeQuote, setRangeQuote] = useState(0)
   const [coverPrice, setCoverPrice] = useState(0)
   const [rangePrice, setRangePrice] = useState(0)
+  const [coverOutput, setCoverOutput] = useState(0)
+  const [rangeOutput, setRangeOutput] = useState(0)
   const [hasSelected, setHasSelected] = useState(false)
   const [tokenIn, setTokenIn] = useState({
     symbol: 'WETH',
@@ -136,7 +138,6 @@ export default function Swap() {
     address: coverPoolRoute,
     abi: coverPoolABI,
     functionName:
-      tokenOut.address != '' &&
       tokenIn.address.localeCompare(tokenOut.address) < 0
         ? 'pool1'
         : 'pool0',
@@ -181,11 +182,9 @@ export default function Swap() {
     abi: coverPoolABI,
     functionName: 'quote',
     args: [
-      tokenOut.address != '' &&
         tokenIn.address.localeCompare(tokenOut.address) < 0,
       bnInput,
-      (tokenOut.address != '' &&
-      tokenIn.address.localeCompare(tokenOut.address) < 0)
+      tokenIn.address.localeCompare(tokenOut.address) < 0
       ? BigNumber.from(TickMath.getSqrtPriceAtPriceString((coverBnPrice.sub(coverBnBaseLimit)).toString(), 18).toString())
       : BigNumber.from(TickMath.getSqrtPriceAtPriceString((coverBnPrice.add(coverBnBaseLimit)).toString(), 18).toString())
     ],
@@ -210,11 +209,9 @@ export default function Swap() {
     abi: rangePoolABI,
     functionName: 'quote',
     args: [
-      tokenOut.address != '' &&
-        tokenIn.address.localeCompare(tokenOut.address) < 0,
+      tokenIn.address.localeCompare(tokenOut.address) < 0,
       bnInput,
-      (tokenOut.address != '' &&
-      tokenIn.address.localeCompare(tokenOut.address) < 0)
+      tokenIn.address.localeCompare(tokenOut.address) < 0
         ? BigNumber.from(TickMath.getSqrtPriceAtPriceString((rangeBnPrice.sub(rangeBnBaseLimit)).toString(), 18).toString())
         : BigNumber.from(TickMath.getSqrtPriceAtPriceString((rangeBnPrice.add(rangeBnBaseLimit)).toString(), 18).toString())
     ],
@@ -332,7 +329,6 @@ export default function Swap() {
       console.log('estimate route', coverPoolRoute)
       const recipient = address
       const zeroForOne =
-        tokenOut.address != '' &&
         tokenIn.address.localeCompare(tokenOut.address) < 0
 
       const estimation = await contract.estimateGas.swap(
@@ -461,51 +457,58 @@ export default function Swap() {
     if (priceCover) {
       if(priceCover[0].toString() !== BigNumber.from(0).toString()
       && tokenIn.address != ''
+      && tokenOut.address != ''
       && priceCover != undefined) {
         setCoverPrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(priceCover[0])))
       }
     }
-  }, [tokenIn.address, tokenOut.address, coverPoolRoute])
+  }, [tokenIn.address, tokenOut.address, coverPoolRoute, priceCover])
 
   useEffect(() => {
     if (priceRange) {
       if(priceRange[5].toString() !== BigNumber.from(0).toString()
       && tokenIn.address != ''
+      && tokenOut.address != ''
       && priceRange != undefined) {
         setRangePrice(
           parseFloat(
             invertPrice(
               TickMath.getPriceStringAtSqrtPrice(priceRange[5]),
-              tokenOut.address != '' &&
                 tokenIn.address.localeCompare(tokenOut.address) < 0,
             ),
           ),
         )
       }
     }
-  }, [tokenIn.address, tokenOut.address, rangePoolRoute])
+  }, [tokenIn.address, tokenOut.address, rangePoolRoute, priceRange])
 
   useEffect(() => {
     if (quoteCover) {
-      if (quoteCover[1].toString() !== BigNumber.from(0).toString()
+      if (quoteCover[0].toString() !== BigNumber.from(0).toString() &&
+        quoteCover[1].toString() !== BigNumber.from(0).toString()
         && bnInput._hex != '0x00'
         && coverBnPrice.toString() !== BigNumber.from(0).toString()) {
-          setCoverQuote(parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)))
+          setCoverOutput(parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)))
+          setCoverQuote(parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)) /
+            parseFloat(ethers.utils.formatUnits(quoteCover[0], 18)))
           setCoverPriceAfter(parseFloat(TickMath.getPriceStringAtSqrtPrice(quoteCover[2])))
       }
     }
-  }, [tokenIn.address, tokenOut.address, coverPoolRoute, bnInput])
+  }, [tokenIn.address, tokenOut.address, coverPoolRoute, quoteCover, bnInput])
 
   useEffect(() => {
     if (quoteRange) {
-      if (quoteRange[1].toString() !== BigNumber.from(0).toString()
+      if (quoteRange[0].toString() !== BigNumber.from(0).toString() &&
+        quoteRange[1].toString() !== BigNumber.from(0).toString()
         && bnInput._hex != '0x00'
         && rangeBnPrice.toString() !== BigNumber.from(0).toString()) {
-          setRangeQuote(parseFloat(ethers.utils.formatUnits(quoteRange[1], 18)))
+          setRangeOutput(parseFloat(ethers.utils.formatUnits(quoteRange[1], 18)))
+          setRangeQuote(parseFloat(ethers.utils.formatUnits(quoteRange[1], 18))
+          / parseFloat(ethers.utils.formatUnits(quoteRange[0], 18)))
           setRangePriceAfter(parseFloat(TickMath.getPriceStringAtSqrtPrice(quoteRange[2])))
       }
     }
-  }, [tokenIn.address, tokenOut.address, rangePoolRoute, bnInput])
+  }, [tokenIn.address, tokenOut.address, rangePoolRoute, quoteRange, bnInput])
 
   useEffect(() => {
     setTimeout(() => {
@@ -595,15 +598,15 @@ export default function Swap() {
                 (rangeQuote !== 0 && coverQuote !== 0) ?
                   ((rangePrice < coverPrice)
                   ? (
-                      (rangePriceAfter - rangePrice) 
+                      Math.abs((rangePriceAfter - rangePrice) 
                       * 100
                       / rangePrice
-                    ).toFixed(2) + '%'
+                    )).toFixed(2) + '%'
                   : (
-                      (coverPriceAfter - coverPrice) 
+                      Math.abs((coverPriceAfter - coverPrice) 
                       * 100
                       / coverPrice
-                    ).toFixed(2) + '%' ):
+                   )).toFixed(2) + '%' ):
                     '0%') :
                   'Select Token')}
             </div>
@@ -982,12 +985,10 @@ export default function Swap() {
             <SwapRangeButton
               poolAddress={rangePoolRoute}
               zeroForOne={
-                tokenOut.address != '' &&
                 tokenIn.address.localeCompare(tokenOut.address) < 0
               }
               amount={bnInput}
               baseLimit={
-                tokenOut.address != '' &&
                 tokenIn.address.localeCompare(tokenOut.address) < 0
               ? BigNumber.from(TickMath.getSqrtPriceAtPriceString((rangeBnPrice.sub(rangeBnBaseLimit)).toString(), 18).toString())
               : BigNumber.from(TickMath.getSqrtPriceAtPriceString((rangeBnPrice.add(rangeBnBaseLimit)).toString(), 18).toString())
@@ -1013,12 +1014,10 @@ export default function Swap() {
           <SwapCoverButton
             poolAddress={coverPoolRoute}
             zeroForOne={
-              tokenOut.address != '' &&
               tokenIn.address.localeCompare(tokenOut.address) < 0
             }
             amount={bnInput}
             baseLimit={
-              tokenOut.address != '' &&
               tokenIn.address.localeCompare(tokenOut.address) < 0
             ? BigNumber.from(TickMath.getSqrtPriceAtPriceString((coverBnPrice.sub(coverBnBaseLimit)).toString(), 18).toString())
             : BigNumber.from(TickMath.getSqrtPriceAtPriceString((coverBnPrice.add(coverBnBaseLimit)).toString(), 18).toString())
