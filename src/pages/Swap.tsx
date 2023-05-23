@@ -96,6 +96,10 @@ export default function Swap() {
   const { data: signer } = useSigner()
   const provider = useProvider()
 
+  const {
+    network: { chainId },
+  } = useProvider()
+
   const { data: dataRange } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -229,119 +233,6 @@ export default function Swap() {
       console.log('Settled range wagmi', { data, error })
     },
   })
-
-  const {
-    network: { chainId },
-  } = useProvider()
-
-  useEffect(() => {
-    if (dataRange && dataCover) {
-      setAllowanceRange(ethers.utils.formatUnits(dataRange, 18))
-      setAllowanceCover(ethers.utils.formatUnits(dataCover, 18))
-    }
-  }, [dataRange, dataCover, tokenIn.address, tokenOut.address, bnInput])
-
-  useEffect(() => {
-    if (priceCover) {
-      if(priceCover[0].toString() !== BigNumber.from(0).toString()
-      && tokenIn.address != ''
-      && priceCover != undefined) {
-        setCoverPrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(priceCover[0])))
-      }
-    }
-  }, [coverPoolRoute, tokenIn.address, tokenOut.address])
-
-  useEffect(() => {
-    if (priceRange) {
-      if(priceRange[5].toString() !== BigNumber.from(0).toString()
-      && tokenIn.address != ''
-      && priceRange != undefined) {
-        setRangePrice(
-          parseFloat(
-            invertPrice(
-              TickMath.getPriceStringAtSqrtPrice(priceRange[5]),
-              tokenOut.address != '' &&
-                tokenIn.address.localeCompare(tokenOut.address) < 0,
-            ),
-          ),
-        )
-      }
-    }
-  }, [rangePoolRoute, tokenIn.address, tokenOut.address])
-
-  useEffect(() => {
-    if (quoteCover) {
-      if (quoteCover[1].toString() !== BigNumber.from(0).toString()
-        && bnInput._hex != '0x00'
-        && coverBnPrice.toString() !== BigNumber.from(0).toString()) {
-          setCoverQuote(parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)))
-          setCoverPriceAfter(parseFloat(TickMath.getPriceStringAtSqrtPrice(quoteCover[2])))
-      }
-    }
-
-    if (quoteRange) {
-      if (quoteRange[1].toString() !== BigNumber.from(0).toString()
-        && bnInput._hex != '0x00'
-        && rangeBnPrice.toString() !== BigNumber.from(0).toString()) {
-          setRangeQuote(parseFloat(ethers.utils.formatUnits(quoteRange[1], 18)))
-          setRangePriceAfter(parseFloat(TickMath.getPriceStringAtSqrtPrice(quoteRange[2])))
-      }
-    }
-  }, [tokenIn.address, tokenOut.address, coverBnPrice, rangeBnPrice])
-
-  useEffect(() => {
-    setTimeout(() => {
-      gasEstimate()
-    }, 10000)
-  }, [])
-
-  useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
-  }, [chainId])
-
-  useEffect(() => {
-    getBalances()
-  }, [tokenOut.address, tokenIn.address])
-
-  useEffect(() => {
-    updateSwapAmount(bnInput)
-  }, [bnInput])
-
-  useEffect(() => {
-    getRangePool()
-  }, [hasSelected, tokenIn.address, tokenOut.address])
-
-  useEffect(() => {
-    getCoverPool()
-  }, [hasSelected, tokenIn.address, tokenOut.address])
-
-  useEffect(() => {
-    getFeeTier()
-  }, [rangeQuote, coverQuote])
-
-  useEffect(() => {
-    getBnSlippage()
-  }, [slippage])
-
-  useEffect(() => {
-    setRangeBnPrice(ethers.utils.parseUnits(rangePrice.toString(), 18))
-    console.log('rangeBnPrice', rangeBnPrice.toString())
-  }, [rangePrice])
-
-  useEffect(() => {
-    setRangeBnBaseLimit(rangeBnPrice.div(bnSlippage).div(BigNumber.from(100)))
-    console.log('rangeBnBaseLimit', rangeBnBaseLimit.toString())
-  }, [rangeBnPrice, bnSlippage])
-
-  useEffect(() => {
-    setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
-    console.log('coverBnPrice', coverBnPrice.toString())
-  }, [coverPrice])
-
-  useEffect(() => {
-    setCoverBnBaseLimit(coverBnPrice.div(bnSlippage).div(BigNumber.from(100)))
-    console.log('coverBnBaseLimit', coverBnBaseLimit.toString())
-  }, [coverBnPrice, bnSlippage])
 
   //@dev put balanc
   const getBalances = async () => {
@@ -575,6 +466,114 @@ export default function Swap() {
       console.log(error)
     }
   }
+
+
+  useEffect(() => {
+    if (dataRange && dataCover) {
+      setAllowanceRange(ethers.utils.formatUnits(dataRange, 18))
+      setAllowanceCover(ethers.utils.formatUnits(dataCover, 18))
+    }
+  }, [dataRange, dataCover, tokenIn.address])
+
+  useEffect(() => {
+    if (priceCover) {
+      if(priceCover[0].toString() !== BigNumber.from(0).toString()
+      && tokenIn.address != ''
+      && priceCover != undefined) {
+        setCoverPrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(priceCover[0])))
+        setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
+      }
+    }
+
+    if (priceRange) {
+      if(priceRange[5].toString() !== BigNumber.from(0).toString()
+      && tokenIn.address != ''
+      && priceRange != undefined) {
+        setRangePrice(
+          parseFloat(
+            invertPrice(
+              TickMath.getPriceStringAtSqrtPrice(priceRange[5]),
+              tokenOut.address != '' &&
+                tokenIn.address.localeCompare(tokenOut.address) < 0,
+            ),
+          ),
+        )
+        setRangeBnPrice(ethers.utils.parseUnits(rangePrice.toString(), 18))
+      }
+    }
+  }, [coverPoolRoute, rangePoolRoute, tokenIn.address, tokenOut.address, priceCover, priceRange])
+
+  useEffect(() => {
+    if (quoteCover) {
+      if (quoteCover[1].toString() !== BigNumber.from(0).toString()
+        && bnInput._hex != '0x00'
+        && coverBnPrice.toString() !== BigNumber.from(0).toString()) {
+          setCoverQuote(parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)))
+          setCoverPriceAfter(parseFloat(TickMath.getPriceStringAtSqrtPrice(quoteCover[2])))
+      }
+    }
+
+    if (quoteRange) {
+      if (quoteRange[1].toString() !== BigNumber.from(0).toString()
+        && bnInput._hex != '0x00'
+        && rangeBnPrice.toString() !== BigNumber.from(0).toString()) {
+          setRangeQuote(parseFloat(ethers.utils.formatUnits(quoteRange[1], 18)))
+          setRangePriceAfter(parseFloat(TickMath.getPriceStringAtSqrtPrice(quoteRange[2])))
+      }
+    }
+  }, [tokenIn.address, tokenOut.address, quoteCover, quoteRange, coverPoolRoute, rangePoolRoute])
+
+  useEffect(() => {
+    setTimeout(() => {
+      gasEstimate()
+    }, 10000)
+  }, [])
+
+  useEffect(() => {
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
+  }, [chainId])
+
+  useEffect(() => {
+    getBalances()
+  }, [tokenOut.address, tokenIn.address])
+
+  useEffect(() => {
+    updateSwapAmount(bnInput)
+  }, [bnInput])
+
+  useEffect(() => {
+    getRangePool()
+    getCoverPool()
+  }, [hasSelected, tokenIn.address, tokenOut.address])
+
+  useEffect(() => {
+    getFeeTier()
+  }, [rangeQuote, coverQuote])
+
+  useEffect(() => {
+    getBnSlippage()
+  }, [slippage])
+
+  useEffect(() => {
+    setRangeBnPrice(ethers.utils.parseUnits(rangePrice.toString(), 18))
+    console.log('rangeBnPrice', rangeBnPrice.toString())
+  }, [rangePrice])
+
+  useEffect(() => {
+    setRangeBnBaseLimit(rangeBnPrice.div(bnSlippage).div(BigNumber.from(100)))
+    console.log('rangeBnBaseLimit', rangeBnBaseLimit.toString())
+  }, [rangeBnPrice, bnSlippage])
+
+  useEffect(() => {
+    setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
+    console.log('coverBnPrice', coverBnPrice.toString())
+  }, [coverPrice])
+
+  useEffect(() => {
+    setCoverBnBaseLimit(coverBnPrice.div(bnSlippage).div(BigNumber.from(100)))
+    console.log('coverBnBaseLimit', coverBnBaseLimit.toString())
+  }, [coverBnPrice, bnSlippage])
+
 
   //@dev TO-DO: fetch token Addresses, use for pool quote (smallest fee tier)
   //@dev TO-DO: re-route pool and handle allowances
