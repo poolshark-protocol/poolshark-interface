@@ -590,13 +590,15 @@ export default function Swap() {
               {(rangeQuote !== 0 && coverQuote !== 0 && hasSelected) ?
                 ((rangePrice > coverPrice)
                 ? (
-                    (rangePrice - parseFloat(rangePriceAfter)) /
-                    rangePrice
-                  ).toFixed(2)
+                    (rangePriceAfter - rangePrice) 
+                    * 100
+                    / rangePrice
+                  ).toFixed(2) + '%'
                 : (
-                    (coverPrice - parseFloat(coverPriceAfter)) /
-                    coverPrice
-                  ).toFixed(2)) :
+                    (coverPriceAfter - coverPrice) 
+                    * 100
+                    / coverPrice
+                  ).toFixed(2) + '%' ):
                   'Select Token'}
             </div>
           </div>
