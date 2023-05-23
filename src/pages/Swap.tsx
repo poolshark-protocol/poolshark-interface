@@ -325,7 +325,7 @@ export default function Swap() {
   useEffect(() => {
     setRangeBnBaseLimit(rangeBnPrice.div(bnSlippage).div(BigNumber.from(100)))
     console.log('rangeBnBaseLimit', rangeBnBaseLimit.toString())
-  }, [rangeBnPrice])
+  }, [rangeBnPrice, bnSlippage])
 
   useEffect(() => {
     setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
@@ -335,7 +335,7 @@ export default function Swap() {
   useEffect(() => {
     setCoverBnBaseLimit(coverBnPrice.div(bnSlippage).div(BigNumber.from(100)))
     console.log('coverBnBaseLimit', coverBnBaseLimit.toString())
-  }, [coverBnPrice])
+  }, [coverBnPrice, bnSlippage])
 
   //@dev put balanc
   const getBalances = async () => {
