@@ -200,21 +200,6 @@ export default function Swap() {
     enabled: (coverPrice !== 0 && coverPrice !== undefined) && (coverBnPrice !== BigNumber.from(0) && coverBnPrice !== undefined),
     onSuccess(data) {
       console.log('Success cover wagmi', data)
-
-      if(data[1].toString() !== BigNumber.from(0).toString()) {
-        setCoverQuote(
-          parseFloat(ethers.utils.formatUnits(data[1], 18)
-        ))
-      }
-
-      if(data[2].toString() !== BigNumber.from(0).toString()) {
-        setCoverPriceAfter(
-          parseFloat(
-            TickMath.getPriceStringAtSqrtPrice(data[2]),
-          ),
-        )
-      }
-
       console.log('coverQuote', coverQuote)
       console.log('coverPriceAfter', coverPriceAfter)
     },
@@ -244,23 +229,6 @@ export default function Swap() {
     enabled: (rangePrice !== 0 && rangePrice !== undefined) && (rangeBnPrice !== BigNumber.from(0) && rangeBnPrice !== undefined),
     onSuccess(data) {
       console.log('Success range wagmi', data)
-
-      if (data[1].toString() !== BigNumber.from(0).toString()) {
-        setRangeQuote(
-          parseFloat(
-            ethers.utils.formatUnits(data[1], 18),
-          ),
-        )
-      }
-
-      if(data[2].toString() !== BigNumber.from(0).toString()) {
-        setRangePriceAfter(
-          parseFloat(
-            TickMath.getPriceStringAtSqrtPrice(data[2]),
-          ),
-        )
-      }
-
       console.log('rangeQuote', rangeQuote)
       console.log('rangePriceAfter', rangePriceAfter)
     },
@@ -282,6 +250,26 @@ export default function Swap() {
       setAllowanceCover(ethers.utils.formatUnits(dataCover, 18))
     }
   }, [dataRange, dataCover, tokenIn.address, tokenOut.address, bnInput])
+
+  useEffect(() => {
+    if (quoteCover) {
+      if (quoteCover[1].toString() !== BigNumber.from(0).toString()
+        && bnInput._hex != '0x00'
+        && coverBnPrice.toString() !== BigNumber.from(0).toString()) {
+          setCoverQuote(parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)))
+          setCoverPriceAfter(parseFloat(TickMath.getPriceStringAtSqrtPrice(quoteCover[2])))
+      }
+    }
+
+    if (quoteRange) {
+      if (quoteRange[1].toString() !== BigNumber.from(0).toString()
+        && bnInput._hex != '0x00'
+        && rangeBnPrice.toString() !== BigNumber.from(0).toString()) {
+          setRangeQuote(parseFloat(ethers.utils.formatUnits(quoteRange[1], 18)))
+          setRangePriceAfter(parseFloat(TickMath.getPriceStringAtSqrtPrice(quoteRange[2])))
+      }
+    }
+  }, [tokenIn.address, tokenOut.address, coverBnPrice, rangeBnPrice])
 
   useEffect(() => {
     setTimeout(() => {
@@ -465,7 +453,7 @@ export default function Swap() {
   }
 
   const getFeeTier = async () => {
-    if (rangeQuote > coverQuote) {
+    if (rangeQuote < coverQuote) {
       const data = await fetchCoverPools()
       const poolAddress = data['data']['coverPools']['0']['id']
 
@@ -580,7 +568,7 @@ export default function Swap() {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Expected Output</div>
             <div className="ml-auto text-xs">
-              {rangeQuote < coverQuote
+              {rangeQuote > coverQuote
                 ? rangeQuote === 0
                   ? 'Select Token'
                   : (
@@ -618,7 +606,7 @@ export default function Swap() {
               Minimum received after slippage ({slippage}%)
             </div>
             <div className="ml-auto text-xs">
-              {rangeQuote < coverQuote
+              {rangeQuote > coverQuote
                 ? rangeQuote === 0 ?
                     ('Select Token') :
                     (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
@@ -732,7 +720,7 @@ export default function Swap() {
             {rangeQuote !== 0 && coverQuote !== 0 ? (
               <div className="flex">
                 <div className="flex text-xs text-[#4C4C4C]">
-                  {rangeQuote < coverQuote
+                  {rangeQuote > coverQuote
                    ? rangeQuote.toFixed(2)
                    : coverQuote.toFixed(2)}
                 </div>
@@ -789,7 +777,7 @@ export default function Swap() {
               rangeQuote !== 0 &&
               bnInput._hex != '0x00' ? (
                 <div>
-                  {rangeQuote < coverQuote
+                  {rangeQuote > coverQuote
                 ? (
                     parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                     (tokenOrder ?
@@ -808,7 +796,7 @@ export default function Swap() {
             {rangeQuote !== 0 && coverQuote !== 0 ? (
               <div className="flex">
                 <div className="flex text-xs text-[#4C4C4C]">
-                  {rangeQuote < coverQuote
+                  {rangeQuote > coverQuote
                    ? (1 / rangeQuote).toFixed(2)
                    : (1 / coverQuote).toFixed(2)}
                 </div>
@@ -926,7 +914,7 @@ export default function Swap() {
                 ? ' ?'
                 : ' ' +
                 (rangeQuote !== 0 && coverQuote !== 0) ?
-                  ((rangeQuote < coverQuote) ?
+                  ((rangeQuote > coverQuote) ?
                     (tokenOrder ? 
                     (rangeQuote).toFixed(2) : (1 / rangeQuote).toFixed(2))
                   : 
@@ -961,7 +949,7 @@ export default function Swap() {
       >
         Swap
       </button>
-        ) : (rangeQuote < coverQuote) ? (
+        ) : (rangeQuote > coverQuote) ? (
           Number(allowanceRange) <
           Number(ethers.utils.formatUnits(bnInput, 18)) ? (
             <div>
