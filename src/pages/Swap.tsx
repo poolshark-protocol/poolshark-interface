@@ -387,25 +387,7 @@ export default function Swap() {
   }
 
   const getBnSlippage = () => {
-    if (Number(slippage) >= 0.05 && Number(slippage) < 0.1) {
-      const convertedSlippage = BigNumber.from(
-        (1 / parseFloat(slippage)).toFixed(0),
-      )
-      setBnSlippage(convertedSlippage)
-    }
-    if (Number(slippage) >= 0.1 && Number(slippage) < 1) {
-      const convertedSlippage = BigNumber.from(
-        (1 / parseFloat(slippage)).toFixed(0),
-      )
-      setBnSlippage(convertedSlippage)
-    }
-    if (Number(slippage) >= 1 && Number(slippage) < 10) {
-      const convertedSlippage = BigNumber.from(
-        (1 / parseFloat(slippage)).toFixed(0),
-      )
-      setBnSlippage(convertedSlippage)
-    }
-    if (Number(slippage) >= 10 && Number(slippage) < 100) {
+    if (Number(slippage) >= 0.05 && Number(slippage) < 100) {
       const convertedSlippage = BigNumber.from(
         (1 / parseFloat(slippage)).toFixed(0),
       )
@@ -605,8 +587,8 @@ export default function Swap() {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Price Impact</div>
             <div className="ml-auto text-xs">
-              {rangePrice !== 0 && coverPrice !== 0 ?
-                (rangePrice < coverPrice)
+              {(rangePrice !== 0 && coverPrice !== 0 && hasSelected) ?
+                ((rangePrice > coverPrice)
                 ? (
                     (rangePrice - parseFloat(rangePriceAfter)) /
                     rangePrice
@@ -614,7 +596,7 @@ export default function Swap() {
                 : (
                     (coverPrice - parseFloat(coverPriceAfter)) /
                     coverPrice
-                  ).toFixed(2) :
+                  ).toFixed(2)) :
                   'Select Token'}
             </div>
           </div>
@@ -789,10 +771,10 @@ export default function Swap() {
         <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
             <div className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
-              {hasSelected &&
+              {(hasSelected &&
               coverQuote !== 0 &&
               rangeQuote !== 0 &&
-              bnInput._hex != '0x00' ? (
+              bnInput._hex != '0x00') ? (
                 <div>
                   {rangeQuote > coverQuote
                 ? (
