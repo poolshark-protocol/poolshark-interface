@@ -339,75 +339,73 @@ export default function Swap() {
         'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
       )
 
-      console.log('gas cover route', coverPoolRoute)
+      /* console.log('gas cover route', coverPoolRoute)
       console.log('gas range route', rangePoolRoute)
-      console.log('gas provider', provider)
+      console.log('gas provider', provider) */
       if (!coverPoolRoute || !provider) {
         setGasFee('0')
         return
       }
       var contract: Contract
       if (rangeQuote > coverQuote) {
-        console.log('range gas estimate')
+        //console.log('range gas estimate')
         contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
       } else {
         contract = new ethers.Contract(coverPoolRoute, coverPoolABI, provider)
       }
 
-      console.log('gas contract', contract)
+      //console.log('gas contract', contract)
       const recipient = address
       const zeroForOne =
         tokenOut.address != '' &&
         tokenIn.address.localeCompare(tokenOut.address) < 0
 
-      const priceLimit = tokenOut.address != '' &&
-      tokenIn.address.localeCompare(tokenOut.address) < 0
-        ? BigNumber.from(
-            TickMath.getSqrtPriceAtPriceString(
-              rangeBnPrice.sub(rangeBnBaseLimit).toString(),
-              18,
-            ).toString(),
-          )
-        : BigNumber.from(
-            TickMath.getSqrtPriceAtPriceString(
-              rangeBnPrice.add(rangeBnBaseLimit).toString(),
-              18,
-            ).toString(),
-          )
+      const priceLimit =
+        tokenOut.address != '' &&
+        tokenIn.address.localeCompare(tokenOut.address) < 0
+          ? BigNumber.from(
+              TickMath.getSqrtPriceAtPriceString(
+                rangeBnPrice.sub(rangeBnBaseLimit).toString(),
+                18,
+              ).toString(),
+            )
+          : BigNumber.from(
+              TickMath.getSqrtPriceAtPriceString(
+                rangeBnPrice.add(rangeBnBaseLimit).toString(),
+                18,
+              ).toString(),
+            )
 
       //recipient,
-      console.log('gas estimation', contract.address, bnInput.toString(), priceLimit.toString(), zeroForOne, recipient)
-      
+      //console.log('gas estimation', contract.address, bnInput.toString(), priceLimit.toString(), zeroForOne, recipient)
+
       let estimation
       if (rangeQuote > coverQuote)
-        estimation = await contract.connect(signer).estimateGas.swap(
-          recipient,
-          recipient,
-          zeroForOne,
-          bnInput,
-          priceLimit
-        )
-      else 
-        estimation = await contract.connect(signer).estimateGas.swap(
-          recipient,
-          zeroForOne,
-          bnInput,
-          priceLimit
-        ) 
-
-      console.log('gas estimation 2', estimation.toString())
+        estimation = await contract
+          .connect(signer)
+          .estimateGas.swap(
+            recipient,
+            recipient,
+            zeroForOne,
+            bnInput,
+            priceLimit,
+          )
+      else
+        estimation = await contract
+          .connect(signer)
+          .estimateGas.swap(recipient, zeroForOne, bnInput, priceLimit)
       const price = await fetchPrice('0x000')
       const ethPrice: number =
         Number(price['data']['bundles']['0']['ethPriceUSD']) *
-        Number(ethers.utils.formatEther(estimation))
+        (Number(estimation) * 0.000000001)
       const formattedPrice: string =
         '~' +
         ethPrice.toLocaleString('en-US', {
           style: 'currency',
           currency: 'USD',
         })
+
       setGasFee(formattedPrice)
-      console.log('formatted price', formattedPrice)
     } catch (error) {
       console.log('gas error', error)
     }
