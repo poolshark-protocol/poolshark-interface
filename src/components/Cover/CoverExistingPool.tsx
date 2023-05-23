@@ -411,6 +411,7 @@ export default function CoverExistingPool({
                   .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
                   .replace(/^(\.)+/, '0')
                   .replace(/(?<=\..*)\./g, '')
+                  .replace(/^0+(?=\d)/, '')
                   .replace(/[^\d.]/g, '')))
                 console.log('slider value', sliderValue)
               }}
@@ -432,6 +433,7 @@ export default function CoverExistingPool({
                     .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
                     .replace(/^(\.)+/, '0')
                     .replace(/(?<=\..*)\./g, '')
+                    .replace(/^0+(?=\d)/, '')
                     .replace(/[^\d.]/g, '')) 
                     / Number(tokenOut.value) < 100) {
                   setSliderValue(
@@ -439,6 +441,7 @@ export default function CoverExistingPool({
                       .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
                       .replace(/^(\.)+/, '0')
                       .replace(/(?<=\..*)\./g, '')
+                      .replace(/^0+(?=\d)/, '')
                       .replace(/[^\d.]/g, '')) 
                     / Number(tokenOut.value),
                   )
@@ -449,8 +452,9 @@ export default function CoverExistingPool({
                   .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
                   .replace(/^(\.)+/, '0')
                   .replace(/(?<=\..*)\./g, '')
-                  .replace(/[^\d.]/g, '')))
-              }}
+                  .replace(/^0+(?=\d)/, '')
+                  .replace(/[^\d.]/g, '')
+                ))}}
               value={coverValue}
               className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
             />
@@ -492,7 +496,8 @@ export default function CoverExistingPool({
                       .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
                       .replace(/^(\.)+/, '0')
                       .replace(/(?<=\..*)\./g, '')
-                      .replace(/[^\d.]/g, ''),
+                      .replace(/^0+(?=\d)/, '')
+                      .replace(/[^\d.]/g, '')
                 )
               }
             />
@@ -524,7 +529,8 @@ export default function CoverExistingPool({
                       .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
                       .replace(/^(\.)+/, '0')
                       .replace(/(?<=\..*)\./g, '')
-                      .replace(/[^\d.]/g, ''),
+                      .replace(/^0+(?=\d)/, '')
+                      .replace(/[^\d.]/g, '')
                 )
               } 
             />

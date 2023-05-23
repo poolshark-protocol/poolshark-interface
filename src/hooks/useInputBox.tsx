@@ -20,7 +20,8 @@ export default function useInputBox() {
       .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
       .replace(/^(\.)+/, '0')
       .replace(/(?<=\..*)\./g, '')
-      .replace(/[^\d.]/g, '')
+      .replace(/^0+(?=\d)/, '')
+      .replace(/[^\d.]/g, '');
     //TODO: do not allow for exceeding max decimals
     setDisplay(result == '' ? '' : result)
     if (result == '') {

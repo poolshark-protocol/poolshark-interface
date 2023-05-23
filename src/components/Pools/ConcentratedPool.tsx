@@ -608,7 +608,8 @@ export default function ConcentratedPool({
                           .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
                           .replace(/^(\.)+/, '0')
                           .replace(/(?<=\..*)\./g, '')
-                          .replace(/[^\d.]/g, ''),
+                          .replace(/^0+(?=\d)/, '')
+                          .replace(/[^\d.]/g, '')
                     )
                   } 
                 />
@@ -640,7 +641,8 @@ export default function ConcentratedPool({
                           .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
                           .replace(/^(\.)+/, '0')
                           .replace(/(?<=\..*)\./g, '')
-                          .replace(/[^\d.]/g, ''),
+                          .replace(/^0+(?=\d)/, '')
+                          .replace(/[^\d.]/g, '')
                     )
                   }
                 />
