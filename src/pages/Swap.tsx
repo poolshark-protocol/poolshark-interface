@@ -567,39 +567,43 @@ export default function Swap() {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Expected Output</div>
             <div className="ml-auto text-xs">
-              {rangeQuote > coverQuote
-                ? rangeQuote === 0
-                  ? 'Select Token'
+              {hasSelected ? (
+                rangeQuote > coverQuote
+                  ? rangeQuote === 0
+                    ? '0'
+                    : (
+                        parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                        (tokenOrder ?
+                          (rangeQuote) : (1 / rangeQuote))
+                      ).toFixed(2)
+                  : coverQuote === 0
+                  ? '0'
                   : (
                       parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                       (tokenOrder ?
-                        (rangeQuote) : (1 / rangeQuote))
-                    ).toFixed(2)
-                : coverQuote === 0
-                ? 'Select Token'
-                : (
-                    parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                    (tokenOrder ?
-                      (coverQuote) : (1 / coverQuote))
-                  ).toFixed(2)}
+                        (coverQuote) : (1 / coverQuote))
+                    ).toFixed(2)) :
+                    'Select Token'}
             </div>
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Price Impact</div>
             <div className="ml-auto text-xs">
-              {(rangeQuote !== 0 && coverQuote !== 0 && hasSelected) ?
-                ((rangePrice > coverPrice)
-                ? (
-                    (rangePriceAfter - rangePrice) 
-                    * 100
-                    / rangePrice
-                  ).toFixed(2) + '%'
-                : (
-                    (coverPriceAfter - coverPrice) 
-                    * 100
-                    / coverPrice
-                  ).toFixed(2) + '%' ):
-                  'Select Token'}
+              {(hasSelected ? (
+                (rangeQuote !== 0 && coverQuote !== 0) ?
+                  ((rangePrice < coverPrice)
+                  ? (
+                      (rangePriceAfter - rangePrice) 
+                      * 100
+                      / rangePrice
+                    ).toFixed(2) + '%'
+                  : (
+                      (coverPriceAfter - coverPrice) 
+                      * 100
+                      / coverPrice
+                    ).toFixed(2) + '%' ):
+                    '0%') :
+                  'Select Token')}
             </div>
           </div>
           <div className="flex p-1">
@@ -607,9 +611,10 @@ export default function Swap() {
               Minimum received after slippage ({slippage}%)
             </div>
             <div className="ml-auto text-xs">
-              {rangeQuote > coverQuote
-                ? rangeQuote === 0 ?
-                    ('Select Token') :
+              {hasSelected ? (
+                rangeQuote > coverQuote
+                  ? rangeQuote === 0 ?
+                    ('0') :
                     (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                     (tokenOrder ?
                       (rangeQuote) : (1 / rangeQuote)) -
@@ -618,8 +623,8 @@ export default function Swap() {
                       (rangeQuote) : (1 / rangeQuote)) *
                     (parseFloat(slippage) * 0.01))
                   ).toFixed(2)
-                : coverQuote === 0 ?
-                    ('Select Token') :
+                  : coverQuote === 0 ?
+                    ('0') :
                     (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                     (tokenOrder ?
                       (coverQuote) : (1 / coverQuote)) -
@@ -627,7 +632,8 @@ export default function Swap() {
                     (tokenOrder ?
                       (coverQuote) : (1 / coverQuote)) *
                     (parseFloat(slippage) * 0.01))
-                  ).toFixed(2)}
+                  ).toFixed(2)) :
+                  'Select Token'}
             </div>
           </div>
           <div className="flex p-1">
