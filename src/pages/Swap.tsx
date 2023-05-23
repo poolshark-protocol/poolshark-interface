@@ -347,7 +347,8 @@ export default function Swap() {
         return
       }
       var contract: Contract
-      if (rangeQuote < coverQuote) {
+      if (rangeQuote > coverQuote) {
+        console.log('range gas estimate')
         contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
       } else {
         contract = new ethers.Contract(coverPoolRoute, coverPoolABI, provider)
@@ -359,16 +360,42 @@ export default function Swap() {
         tokenOut.address != '' &&
         tokenIn.address.localeCompare(tokenOut.address) < 0
 
-      //recipient,
-      const estimation = await contract.estimateGas.swap(
-        //recipient,
-        recipient,
-        zeroForOne,
-        bnInput,
-        ethers.BigNumber.from('79228162514264337593543950336'), // price of 1.00
-      )
+      const priceLimit = tokenOut.address != '' &&
+      tokenIn.address.localeCompare(tokenOut.address) < 0
+        ? BigNumber.from(
+            TickMath.getSqrtPriceAtPriceString(
+              rangeBnPrice.sub(rangeBnBaseLimit).toString(),
+              18,
+            ).toString(),
+          )
+        : BigNumber.from(
+            TickMath.getSqrtPriceAtPriceString(
+              rangeBnPrice.add(rangeBnBaseLimit).toString(),
+              18,
+            ).toString(),
+          )
 
-      console.log('gas estimation', estimation)
+      //recipient,
+      console.log('gas estimation', contract.address, bnInput.toString(), priceLimit.toString(), zeroForOne, recipient)
+      
+      let estimation
+      if (rangeQuote > coverQuote)
+        estimation = await contract.connect(signer).estimateGas.swap(
+          recipient,
+          recipient,
+          zeroForOne,
+          bnInput,
+          priceLimit
+        )
+      else 
+        estimation = await contract.connect(signer).estimateGas.swap(
+          recipient,
+          zeroForOne,
+          bnInput,
+          priceLimit
+        ) 
+
+      console.log('gas estimation 2', estimation.toString())
       const price = await fetchPrice('0x000')
       const ethPrice: number =
         Number(price['data']['bundles']['0']['ethPriceUSD']) *
