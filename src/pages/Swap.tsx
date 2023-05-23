@@ -466,7 +466,9 @@ export default function Swap() {
         setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
       }
     }
+  }, [coverPoolRoute, tokenIn.address, tokenOut.address, priceCover])
 
+  useEffect(() => {
     if (priceRange) {
       if(priceRange[5].toString() !== BigNumber.from(0).toString()
       && tokenIn.address != ''
@@ -483,7 +485,7 @@ export default function Swap() {
         setRangeBnPrice(ethers.utils.parseUnits(rangePrice.toString(), 18))
       }
     }
-  }, [coverPoolRoute, rangePoolRoute, tokenIn.address, tokenOut.address, priceCover, priceRange])
+  }, [rangePoolRoute, tokenIn.address, tokenOut.address, priceRange])
 
   useEffect(() => {
     if (quoteCover) {
@@ -494,7 +496,9 @@ export default function Swap() {
           setCoverPriceAfter(parseFloat(TickMath.getPriceStringAtSqrtPrice(quoteCover[2])))
       }
     }
+  }, [tokenIn.address, tokenOut.address, coverPoolRoute, bnInput])
 
+  useEffect(() => {
     if (quoteRange) {
       if (quoteRange[1].toString() !== BigNumber.from(0).toString()
         && bnInput._hex != '0x00'
@@ -503,7 +507,7 @@ export default function Swap() {
           setRangePriceAfter(parseFloat(TickMath.getPriceStringAtSqrtPrice(quoteRange[2])))
       }
     }
-  }, [tokenIn.address, tokenOut.address, quoteCover, quoteRange, coverPoolRoute, rangePoolRoute, bnInput])
+  }, [tokenIn.address, tokenOut.address, rangePoolRoute, bnInput])
 
   useEffect(() => {
     setTimeout(() => {
