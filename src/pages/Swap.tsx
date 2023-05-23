@@ -686,36 +686,41 @@ export default function Swap() {
                 leaveTo="opacity-0"
               >
                 <Popover.Panel className="absolute z-10 ml-14 -mt-[48px] bg-black border border-grey2 rounded-xl p-5">
-                  <div className="w-full">
-                    <h1>
-                      {LimitActive ? (
-                        <>Range Tolerance</>
-                      ) : (
-                        <>Slippage Tolerance</>
-                      )}
-                    </h1>
-                    <div className="flex mt-3 gap-x-3">
-                      <input
-                        placeholder="0%"
-                        className="bg-dark rounded-xl outline-none border border-grey1 pl-3 placeholder:text-grey1"
-                        value={auxSlippage + '%'}
-                        onChange={(e) =>
-                          setAuxSlippage(
-                            parseFloat(e.target.value.replace(/[^\d.-]/g, '')) <
-                              100
-                              ? e.target.value.replace(/[^\d.-]/g, '')
-                              : '',
-                          )
-                        }
-                      />
-                      <button
-                        className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
-                        onClick={(e) => setSlippage(auxSlippage)}
-                      >
-                        Set
-                      </button>
+                  {({ close }) => (
+                    <div className="w-full">
+                      <h1>
+                        {LimitActive ? (
+                          <>Range Tolerance</>
+                        ) : (
+                          <>Slippage Tolerance</>
+                        )}
+                      </h1>
+                      <div className="flex mt-3 gap-x-3">
+                        <input
+                          placeholder="0%"
+                          className="bg-dark rounded-xl outline-none border border-grey1 pl-3 placeholder:text-grey1"
+                          value={auxSlippage + '%'}
+                          onChange={(e) =>
+                            setAuxSlippage(
+                              parseFloat(e.target.value.replace(/[^\d.-]/g, '')) <
+                                100
+                                ? e.target.value.replace(/[^\d.-]/g, '')
+                                : '',
+                            )
+                          }
+                        />
+                        <button
+                          className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+                          onClick={async () => {
+                            setSlippage(auxSlippage)
+                            close()
+                          }}
+                        >
+                          Set
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </Popover.Panel>
               </Transition>
             </Popover>
