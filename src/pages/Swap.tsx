@@ -463,7 +463,6 @@ export default function Swap() {
       && tokenIn.address != ''
       && priceCover != undefined) {
         setCoverPrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(priceCover[0])))
-        setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
       }
     }
   }, [tokenIn.address, tokenOut.address, coverPoolRoute])
@@ -482,7 +481,6 @@ export default function Swap() {
             ),
           ),
         )
-        setRangeBnPrice(ethers.utils.parseUnits(rangePrice.toString(), 18))
       }
     }
   }, [tokenIn.address, tokenOut.address, rangePoolRoute])
