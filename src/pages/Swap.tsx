@@ -521,7 +521,7 @@ export default function Swap() {
           setRangePriceAfter(parseFloat(TickMath.getPriceStringAtSqrtPrice(quoteRange[2])))
       }
     }
-  }, [tokenIn.address, tokenOut.address, quoteCover, quoteRange, coverPoolRoute, rangePoolRoute])
+  }, [tokenIn.address, tokenOut.address, quoteCover, quoteRange, coverPoolRoute, rangePoolRoute, bnInput])
 
   useEffect(() => {
     setTimeout(() => {
