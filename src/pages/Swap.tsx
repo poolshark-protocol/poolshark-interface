@@ -87,8 +87,8 @@ export default function Swap() {
   const [rangePoolRoute, setRangePoolRoute] = useState(undefined)
   const [coverPriceAfter, setCoverPriceAfter] = useState(undefined)
   const [rangePriceAfter, setRangePriceAfter] = useState(undefined)
-  const [coverBnPrice, setCoverBnPrice] = useState(BigNumber.from(1))
-  const [rangeBnPrice, setRangeBnPrice] = useState(BigNumber.from(1))
+  const [coverBnPrice, setCoverBnPrice] = useState(BigNumber.from(0))
+  const [rangeBnPrice, setRangeBnPrice] = useState(BigNumber.from(0))
   const [coverBnBaseLimit, setCoverBnBaseLimit] = useState(BigNumber.from(0))
   const [rangeBnBaseLimit, setRangeBnBaseLimit] = useState(BigNumber.from(0))
   const [bnSlippage, setBnSlippage] = useState(BigNumber.from(1))
@@ -106,7 +106,7 @@ export default function Swap() {
     functionName: 'allowance',
     args: [address, rangePoolRoute],
     chainId: 421613,
-    watch: rangePoolRoute !== undefined && tokenIn.address !== '',
+    watch: true,
     enabled: rangePoolRoute !== undefined && tokenIn.address !== '',
     onError(error) {
       console.log('Error allowance', error)
@@ -122,7 +122,7 @@ export default function Swap() {
     functionName: 'allowance',
     args: [address, coverPoolRoute],
     chainId: 421613,
-    watch: coverPoolRoute !== undefined && tokenIn.address !== '',
+    watch: true,
     enabled: coverPoolRoute !== undefined && tokenIn.address !== '',
     onError(error) {
       console.log('Error allowance', error)
@@ -142,8 +142,8 @@ export default function Swap() {
         : 'pool0',
     args: [],
     chainId: 421613,
-    watch: coverPoolRoute !== undefined && tokenIn.address !== '' && tokenOut.address !== '',
-    enabled: coverPoolRoute !== undefined && tokenIn.address !== '' && tokenOut.address !== '',
+    watch: true,
+    enabled: coverPoolRoute !== undefined,
     onSuccess(data) {
       console.log('Success price Cover', data)
       console.log('coverPrice', coverPrice)
@@ -162,8 +162,8 @@ export default function Swap() {
     functionName: 'poolState',
     args: [],
     chainId: 421613,
-    watch: rangePoolRoute !== undefined && tokenIn.address !== '' && tokenOut.address !== '',
-    enabled: rangePoolRoute !== undefined && tokenIn.address !== '' && tokenOut.address !== '',
+    watch: true,
+    enabled: rangePoolRoute !== undefined,
     onSuccess(data) {
       console.log('Success price Range', data)
       console.log('rangePrice if inverted', rangePrice)
@@ -190,8 +190,8 @@ export default function Swap() {
       : BigNumber.from(TickMath.getSqrtPriceAtPriceString((coverBnPrice.add(coverBnBaseLimit)).toString(), 18).toString())
     ],
     chainId: 421613,
-    watch: (coverPrice !== 0 && coverPrice !== undefined) && (coverBnPrice !== BigNumber.from(0) && coverBnPrice !== undefined),
-    enabled: (coverPrice !== 0 && coverPrice !== undefined) && (coverBnPrice !== BigNumber.from(0) && coverBnPrice !== undefined),
+    watch: true,
+    enabled: coverBnPrice !== BigNumber.from(0),
     onSuccess(data) {
       console.log('Success cover wagmi', data)
       console.log('coverQuote', coverQuote)
@@ -219,8 +219,8 @@ export default function Swap() {
         : BigNumber.from(TickMath.getSqrtPriceAtPriceString((rangeBnPrice.add(rangeBnBaseLimit)).toString(), 18).toString())
     ],
     chainId: 421613,
-    watch: (rangePrice !== 0 && rangePrice !== undefined) && (rangeBnPrice !== BigNumber.from(0) && rangeBnPrice !== undefined),
-    enabled: (rangePrice !== 0 && rangePrice !== undefined) && (rangeBnPrice !== BigNumber.from(0) && rangeBnPrice !== undefined),
+    watch: true,
+    enabled: rangeBnPrice !== BigNumber.from(0),
     onSuccess(data) {
       console.log('Success range wagmi', data)
       console.log('rangeQuote', rangeQuote)
