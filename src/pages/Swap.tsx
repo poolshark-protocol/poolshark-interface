@@ -200,14 +200,21 @@ export default function Swap() {
     enabled: (coverPrice !== 0 && coverPrice !== undefined) && (coverBnPrice !== BigNumber.from(0) && coverBnPrice !== undefined),
     onSuccess(data) {
       console.log('Success cover wagmi', data)
-      setCoverQuote(
-        parseFloat(ethers.utils.formatUnits(data[1], 18)
-      ))
-      setCoverPriceAfter(
-        parseFloat(
-          TickMath.getPriceStringAtSqrtPrice(data[2]),
-        ),
-      )
+
+      if(data[1].toString() !== BigNumber.from(0).toString()) {
+        setCoverQuote(
+          parseFloat(ethers.utils.formatUnits(data[1], 18)
+        ))
+      }
+
+      if(data[2].toString() !== BigNumber.from(0).toString()) {
+        setCoverPriceAfter(
+          parseFloat(
+            TickMath.getPriceStringAtSqrtPrice(data[2]),
+          ),
+        )
+      }
+
       console.log('coverQuote', coverQuote)
       console.log('coverPriceAfter', coverPriceAfter)
     },
@@ -218,6 +225,7 @@ export default function Swap() {
       console.log('Settled', { data, error })
     },
   })
+
   const { data: quoteRange } = useContractRead({
     address: rangePoolRoute,
     abi: rangePoolABI,
@@ -236,16 +244,23 @@ export default function Swap() {
     enabled: (rangePrice !== 0 && rangePrice !== undefined) && (rangeBnPrice !== BigNumber.from(0) && rangeBnPrice !== undefined),
     onSuccess(data) {
       console.log('Success range wagmi', data)
-      setRangeQuote(
-        parseFloat(
-          ethers.utils.formatUnits(data[1], 18),
-        ),
-      )
-      setRangePriceAfter(
-        parseFloat(
-          TickMath.getPriceStringAtSqrtPrice(data[2]),
-        ),
-      )
+
+      if (data[1].toString() !== BigNumber.from(0).toString()) {
+        setRangeQuote(
+          parseFloat(
+            ethers.utils.formatUnits(data[1], 18),
+          ),
+        )
+      }
+
+      if(data[2].toString() !== BigNumber.from(0).toString()) {
+        setRangePriceAfter(
+          parseFloat(
+            TickMath.getPriceStringAtSqrtPrice(data[2]),
+          ),
+        )
+      }
+
       console.log('rangeQuote', rangeQuote)
       console.log('rangePriceAfter', rangePriceAfter)
     },
@@ -771,7 +786,8 @@ export default function Swap() {
             <div className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
               {hasSelected &&
               coverQuote !== 0 &&
-              rangeQuote !== 0 ? (
+              rangeQuote !== 0 &&
+              bnInput._hex != '0x00' ? (
                 <div>
                   {rangeQuote < coverQuote
                 ? (
