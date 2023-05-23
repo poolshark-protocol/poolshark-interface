@@ -587,7 +587,7 @@ export default function Swap() {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Price Impact</div>
             <div className="ml-auto text-xs">
-              {(rangePrice !== 0 && coverPrice !== 0 && hasSelected) ?
+              {(rangeQuote !== 0 && coverQuote !== 0 && hasSelected) ?
                 ((rangePrice > coverPrice)
                 ? (
                     (rangePrice - parseFloat(rangePriceAfter)) /
