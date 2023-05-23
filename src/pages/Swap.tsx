@@ -347,7 +347,6 @@ export default function Swap() {
         return
       }
       var contract: Contract
-      //if range quote is less than cover quote, use range pool
       if (rangeQuote < coverQuote) {
         contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
       } else {
