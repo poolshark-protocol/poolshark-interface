@@ -338,28 +338,35 @@ export default function Swap() {
       const provider = new ethers.providers.JsonRpcProvider(
         'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
       )
+
+      console.log('gas cover route', coverPoolRoute)
+      console.log('gas range route', rangePoolRoute)
+      console.log('gas provider', provider)
       if (!coverPoolRoute || !provider) {
         setGasFee('0')
         return
       }
-      const contract = new ethers.Contract(
-        coverPoolRoute,
-        coverPoolABI,
-        provider,
-      )
+      var contract: Contract
+      //if range quote is less than cover quote, use range pool
+      if (rangeQuote < coverQuote) {
+        contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
+      } else {
+        contract = new ethers.Contract(coverPoolRoute, coverPoolABI, provider)
+      }
 
-      console.log('estimate route', coverPoolRoute)
+      console.log('gas contract', contract)
       const recipient = address
       const zeroForOne =
         tokenOut.address != '' &&
         tokenIn.address.localeCompare(tokenOut.address) < 0
 
+      //recipient,
       const estimation = await contract.estimateGas.swap(
-        recipient,
+        //recipient,
         recipient,
         zeroForOne,
         bnInput,
-        BigNumber.from('79228162514264337593543950336'), // price of 1.00
+        ethers.BigNumber.from('79228162514264337593543950336'), // price of 1.00
       )
 
       console.log('gas estimation', estimation)
@@ -376,7 +383,7 @@ export default function Swap() {
       setGasFee(formattedPrice)
       console.log('formatted price', formattedPrice)
     } catch (error) {
-      console.log(error)
+      console.log('gas error', error)
     }
   }
 
@@ -539,10 +546,17 @@ export default function Swap() {
   }, [tokenIn.address, tokenOut.address, rangePoolRoute, bnInput])
 
   useEffect(() => {
+    gasEstimate()
     setTimeout(() => {
       gasEstimate()
     }, 10000)
-  }, [])
+  }, [
+    bnInput,
+    tokenIn.address,
+    tokenOut.address,
+    coverPoolRoute,
+    rangePoolRoute,
+  ])
 
   useEffect(() => {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId])
@@ -995,26 +1009,11 @@ export default function Swap() {
                     ).toFixed(2)}{' '}
                     {tokenIn.symbol}
                   </div>
-                  ) : (
-                  <SwapCoverButton
-                    poolAddress={coverPoolRoute}
-                    zeroForOne={
-                      tokenOut.address != '' &&
-                      tokenIn.address.localeCompare(tokenOut.address) < 0
-                    }
-                    amount={bnInput}
-                    baseLimit={
-                      tokenOut.address != '' &&
-                      tokenIn.address.localeCompare(tokenOut.address) < 0
-                        ? TickMath.getSqrtPriceAtPriceString(
-                            String(coverBnPrice.sub(coverBnBaseLimit)),
-                            18,
-                          )
-                        : TickMath.getSqrtPriceAtPriceString(
-                            String(coverBnPrice.add(coverBnBaseLimit)),
-                            18,
-                          )
-                    }
+
+                  <SwapRangeApproveButton
+                    disabled={false}
+                    poolAddress={rangePoolRoute}
+                    approveToken={tokenIn.address}
                   />
                 </div>
               ) : (
