@@ -142,7 +142,6 @@ export default function Swap() {
     enabled: coverPoolRoute !== undefined && tokenIn.address !== '' && tokenOut.address !== '',
     onSuccess(data) {
       console.log('Success price Cover', data)
-      setCoverPrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(data[0])))
       console.log('coverPrice', coverPrice)
     },
     onError(error) {
@@ -163,15 +162,6 @@ export default function Swap() {
     enabled: rangePoolRoute !== undefined && tokenIn.address !== '' && tokenOut.address !== '',
     onSuccess(data) {
       console.log('Success price Range', data)
-      setRangePrice(
-        parseFloat(
-          invertPrice(
-            TickMath.getPriceStringAtSqrtPrice(data[5]),
-            tokenOut.address != '' &&
-              tokenIn.address.localeCompare(tokenOut.address) < 0,
-          ),
-        ),
-      )
       console.log('rangePrice if inverted', rangePrice)
     },
     onError(error) {
@@ -250,6 +240,34 @@ export default function Swap() {
       setAllowanceCover(ethers.utils.formatUnits(dataCover, 18))
     }
   }, [dataRange, dataCover, tokenIn.address, tokenOut.address, bnInput])
+
+  useEffect(() => {
+    if (priceCover) {
+      if(priceCover[0].toString() !== BigNumber.from(0).toString()
+      && tokenIn.address != ''
+      && priceCover != undefined) {
+        setCoverPrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(priceCover[0])))
+      }
+    }
+  }, [coverPoolRoute, tokenIn.address, tokenOut.address])
+
+  useEffect(() => {
+    if (priceRange) {
+      if(priceRange[5].toString() !== BigNumber.from(0).toString()
+      && tokenIn.address != ''
+      && priceRange != undefined) {
+        setRangePrice(
+          parseFloat(
+            invertPrice(
+              TickMath.getPriceStringAtSqrtPrice(priceRange[5]),
+              tokenOut.address != '' &&
+                tokenIn.address.localeCompare(tokenOut.address) < 0,
+            ),
+          ),
+        )
+      }
+    }
+  }, [rangePoolRoute, tokenIn.address, tokenOut.address])
 
   useEffect(() => {
     if (quoteCover) {
