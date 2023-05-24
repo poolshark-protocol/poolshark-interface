@@ -447,6 +447,7 @@ export default function Swap() {
   }
 
 
+
   useEffect(() => {
     if (dataRange && dataCover) {
       setAllowanceRange(ethers.utils.formatUnits(dataRange, 18))
@@ -461,6 +462,7 @@ export default function Swap() {
       && tokenOut.address != ''
       && priceCover != undefined) {
         setCoverPrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(priceCover[0])))
+        setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
       }
     }
 
@@ -477,6 +479,8 @@ export default function Swap() {
             ),
           ),
         )
+        setRangeBnPrice(ethers.utils.parseUnits(rangePrice.toString(), 18))
+        console.log('rangeBnPrice', rangeBnPrice.toString())
       }
     }
   }, [tokenIn.address, tokenOut.address, coverPoolRoute, rangePoolRoute, priceCover, priceRange])
@@ -519,6 +523,8 @@ export default function Swap() {
 
   useEffect(() => {
     getBalances()
+    getRangePool()
+    getCoverPool()
   }, [tokenOut.address, tokenIn.address, hasSelected])
 
   useEffect(() => {
@@ -526,39 +532,19 @@ export default function Swap() {
   }, [bnInput])
 
   useEffect(() => {
-    getRangePool()
-    getCoverPool()
-  }, [hasSelected, tokenIn.address, tokenOut.address])
-
-  useEffect(() => {
     getFeeTier()
   }, [rangeQuote, coverQuote])
 
   useEffect(() => {
     getBnSlippage()
-  }, [slippage])
-
-  useEffect(() => {
-    setRangeBnPrice(ethers.utils.parseUnits(rangePrice.toString(), 18))
-    console.log('rangeBnPrice', rangeBnPrice.toString())
-  }, [rangePrice])
-
-  useEffect(() => {
     setRangeBnBaseLimit(rangeBnPrice.div(bnSlippage).div(BigNumber.from(100)))
-    console.log('rangeBnBaseLimit', rangeBnBaseLimit.toString())
-  }, [rangeBnPrice, bnSlippage])
-
-  useEffect(() => {
-    setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
-    console.log('coverBnPrice', coverBnPrice.toString())
-  }, [coverPrice])
-
-  useEffect(() => {
     setCoverBnBaseLimit(coverBnPrice.div(bnSlippage).div(BigNumber.from(100)))
+    console.log('rangeBnBaseLimit', rangeBnBaseLimit.toString())
     console.log('coverBnBaseLimit', coverBnBaseLimit.toString())
-  }, [coverBnPrice, bnSlippage])
+  }, [slippage, rangeBnPrice, coverBnPrice])
 
 
+  
   //@dev TO-DO: fetch token Addresses, use for pool quote (smallest fee tier)
   //@dev TO-DO: re-route pool and handle allowances
 
