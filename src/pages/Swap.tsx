@@ -928,9 +928,9 @@ export default function Swap() {
             <div className="flex-none text-xs uppercase text-[#C9C9C9]">
               1 {tokenIn.symbol} = 
               {' '} {tokenOut.symbol === 'Select Token'
-                ? ' ?'
-                : ' ' +
-                (rangeQuote !== 0 && coverQuote !== 0) ?
+                ? ' ?' 
+                : ' ' + (
+                (rangeQuote != 0 && coverQuote != 0) ?
                   ((rangeQuote > coverQuote) ?
                     (tokenOrder ? 
                     (rangeQuote).toFixed(2) : (1 / rangeQuote).toFixed(2))
@@ -938,8 +938,8 @@ export default function Swap() {
                     (tokenOrder ?
                     (coverQuote).toFixed(2) : (1 / coverQuote).toFixed(2))
                   ) 
-                : ' ?'
-                  } {' '}
+                : ('0')
+                  )} {' '}
               {tokenOut.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
