@@ -395,15 +395,15 @@ export default function Swap() {
           .connect(signer)
           .estimateGas.swap(recipient, zeroForOne, bnInput, priceLimit)
       const price = await fetchPrice('0x000')
-      const gasPrice = await provider.getGasPrice();
+      const gasPrice = await provider.getGasPrice()
       const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])
       const networkFeeWei = gasPrice.mul(gasUnits)
       const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18))
       const networkFeeUsd = networkFeeEth * ethUsdPrice
-      console.log('eth price:', ethUsdPrice)
+      console.log('fee price:', networkFeeUsd)
       const formattedPrice: string =
         '~' +
-        ethUsdPrice.toLocaleString('en-US', {
+        networkFeeUsd.toLocaleString('en-US', {
           style: 'currency',
           currency: 'USD',
         })
