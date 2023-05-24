@@ -379,9 +379,9 @@ export default function Swap() {
       //recipient,
       //console.log('gas estimation', contract.address, bnInput.toString(), priceLimit.toString(), zeroForOne, recipient)
 
-      let estimation
+      let gasUnits: BigNumber
       if (rangeQuote > coverQuote)
-        estimation = await contract
+        gasUnits = await contract
           .connect(signer)
           .estimateGas.swap(
             recipient,
@@ -391,16 +391,19 @@ export default function Swap() {
             priceLimit,
           )
       else
-        estimation = await contract
+        gasUnits = await contract
           .connect(signer)
           .estimateGas.swap(recipient, zeroForOne, bnInput, priceLimit)
       const price = await fetchPrice('0x000')
-      const ethPrice: number =
-        Number(price['data']['bundles']['0']['ethPriceUSD']) *
-        (Number(estimation) * 0.000000001)
+      const gasPrice = await provider.getGasPrice();
+      const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])
+      const networkFeeWei = gasPrice.mul(gasUnits)
+      const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18))
+      const networkFeeUsd = networkFeeEth * ethUsdPrice
+      console.log('eth price:', ethUsdPrice)
       const formattedPrice: string =
         '~' +
-        ethPrice.toLocaleString('en-US', {
+        ethUsdPrice.toLocaleString('en-US', {
           style: 'currency',
           currency: 'USD',
         })
