@@ -400,7 +400,7 @@ export default function Swap() {
       const networkFeeWei = gasPrice.mul(gasUnits)
       const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18))
       const networkFeeUsd = networkFeeEth * ethUsdPrice
-      console.log('eth price:', ethUsdPrice)
+      console.log('eth price:', networkFeeUsd)
       const formattedPrice: string =
         '~' +
         ethUsdPrice.toLocaleString('en-US', {

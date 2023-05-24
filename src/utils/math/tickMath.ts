@@ -116,9 +116,11 @@ export abstract class TickMath {
       return priceToString(price)
   }
 
-  public static getTickAtPriceString(priceString: string): number {
+  public static getTickAtPriceString(priceString: string, tickSpacing?: number): number {
     let sqrtPrice = this.getSqrtPriceAtPriceString(priceString)
-    return this.getTickAtSqrtRatio(sqrtPrice)
+    let tick = this.getTickAtSqrtRatio(sqrtPrice)
+    if (tickSpacing) return roundTick(tick, tickSpacing)
+    else return tick
   }
 
   /**
