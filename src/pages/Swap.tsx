@@ -388,6 +388,7 @@ export default function Swap() {
         (1 / parseFloat(slippage)).toFixed(0),
       )
       setBnSlippage(convertedSlippage)
+      console.log('bnSlippage', bnSlippage.toString())
     }
   }
 
@@ -462,9 +463,7 @@ export default function Swap() {
         setCoverPrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(priceCover[0])))
       }
     }
-  }, [tokenIn.address, tokenOut.address, coverPoolRoute, priceCover])
 
-  useEffect(() => {
     if (priceRange) {
       if(priceRange[5].toString() !== BigNumber.from(0).toString()
       && tokenIn.address != ''
@@ -480,21 +479,7 @@ export default function Swap() {
         )
       }
     }
-  }, [tokenIn.address, tokenOut.address, rangePoolRoute, priceRange])
-
-  useEffect(() => {
-    if (quoteCover) {
-      if (quoteCover[0].toString() !== BigNumber.from(0).toString() &&
-        quoteCover[1].toString() !== BigNumber.from(0).toString()
-        && bnInput._hex != '0x00'
-        && coverBnPrice.toString() !== BigNumber.from(0).toString()) {
-          setCoverOutput(parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)))
-          setCoverQuote(parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)) /
-            parseFloat(ethers.utils.formatUnits(quoteCover[0], 18)))
-          setCoverPriceAfter(parseFloat(TickMath.getPriceStringAtSqrtPrice(quoteCover[2])))
-      }
-    }
-  }, [tokenIn.address, tokenOut.address, coverPoolRoute, quoteCover, bnInput])
+  }, [tokenIn.address, tokenOut.address, coverPoolRoute, rangePoolRoute, priceCover, priceRange])
 
   useEffect(() => {
     if (quoteRange) {
@@ -508,7 +493,19 @@ export default function Swap() {
           setRangePriceAfter(parseFloat(TickMath.getPriceStringAtSqrtPrice(quoteRange[2])))
       }
     }
-  }, [tokenIn.address, tokenOut.address, rangePoolRoute, quoteRange, bnInput])
+    
+    if (quoteCover) {
+      if (quoteCover[0].toString() !== BigNumber.from(0).toString() &&
+        quoteCover[1].toString() !== BigNumber.from(0).toString()
+        && bnInput._hex != '0x00'
+        && coverBnPrice.toString() !== BigNumber.from(0).toString()) {
+          setCoverOutput(parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)))
+          setCoverQuote(parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)) /
+            parseFloat(ethers.utils.formatUnits(quoteCover[0], 18)))
+          setCoverPriceAfter(parseFloat(TickMath.getPriceStringAtSqrtPrice(quoteCover[2])))
+      }
+    }
+  }, [tokenIn.address, tokenOut.address, rangePoolRoute, coverPoolRoute, quoteCover, quoteRange, bnInput])
 
   useEffect(() => {
     setTimeout(() => {
