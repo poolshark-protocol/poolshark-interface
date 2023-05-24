@@ -36,6 +36,7 @@ export default function CoverExistingPool({
   tokenZeroValue,
   minLimit,
   maxLimit,
+  tickSpacing,
   zeroForOne,
   liquidity,
   feeTier,

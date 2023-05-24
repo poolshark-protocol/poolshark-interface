@@ -52,6 +52,7 @@ export default function Initial(props: any) {
       tokenZeroValue: query.valueTokenZero,
       minLimit: query.min,
       maxLimit: query.max,
+      tickSpacing: query.tickSpacing,
       feeTier: query.feeTier,
     })
     console.log('pool', pool)
@@ -196,6 +197,7 @@ export default function Initial(props: any) {
       goBack={setIsShifted}
       minLimit={pool.minLimit}
       maxLimit={pool.maxLimit}
+      tickSpacing={pool.tickSpacing}
       feeTier={pool.feeTier}
     />
   );

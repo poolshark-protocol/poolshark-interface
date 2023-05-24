@@ -77,7 +77,7 @@ export default function CreateCover(props: any) {
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
   const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
   const [tokenOrder, setTokenOrder] = useState(true)
-  const [tickSp, setTickSp] = useState(props.query ? props.query.tickSp : 20)
+  const [tickSpacing, setTickSpacing] = useState(props.query ? props.query.tickSpacing : 20)
   const poolId =
     router.query.poolId === undefined ? '' : router.query.poolId.toString()
 

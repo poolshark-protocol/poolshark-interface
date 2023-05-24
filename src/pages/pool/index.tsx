@@ -163,7 +163,7 @@ export default function Pool() {
         latestTick: coverPosition.pool.latestTick,
         liquidity: coverPosition.liquidity,
         feeTier: coverPosition.pool.volatilityTier.feeAmount,
-        tickSpread: coverPosition.pool.volatilityTier.tickSpread,
+        tickSpacing: coverPosition.pool.volatilityTier.tickSpread,
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
       mappedCoverPositions.push(coverPositionData)

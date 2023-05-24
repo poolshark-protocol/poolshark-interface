@@ -10,7 +10,6 @@ function mulShift(val: JSBI, mulBy: string): JSBI {
 }
 
 export function roundTick(tick: number, tickSpacing: number): number {
-
   if (tick % tickSpacing != 0) {
     let roundedDown = Math.round(tick / tickSpacing) * tickSpacing;
     let roundedUp = Math.round(tick / tickSpacing) * tickSpacing + tickSpacing;

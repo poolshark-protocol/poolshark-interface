@@ -70,7 +70,7 @@ export default function Cover() {
         userFillOut: coverPosition.amountOutDeltaMax,
         liquidity: coverPosition.pool.liquidity,
         feeTier: coverPosition.pool.volatilityTier.feeAmount,
-        tickSpread: coverPosition.pool.volatilityTier.tickSpread,
+        tickSpacing: coverPosition.pool.volatilityTier.tickSpread,
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
       mappedCoverPositions.push(coverPositionData)

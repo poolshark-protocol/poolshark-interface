@@ -38,6 +38,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
         valueTokenOne: rangePosition.pool.totalValueLocked0,
         min: rangePosition.lower,
         max: rangePosition.upper,
+        tickSpacing: rangePosition.pool.feeTier.tickSpacing,
         feeTier: rangePosition.pool.feeTier.feeAmount,
         unclaimedFees: rangePosition.pool.feesUsd,
         liquidity: rangePosition.liquidity,
