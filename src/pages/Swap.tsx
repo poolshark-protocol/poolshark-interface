@@ -75,6 +75,8 @@ export default function Swap() {
   const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [slippage, setSlippage] = useState('0.5')
+  const [coverSlippage, setCoverSlippage] = useState('0.5')
+  const [rangeSlippage, setRangeSlippage] = useState('0.5')
   const [auxSlippage, setAuxSlippage] = useState('0.5')
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
@@ -94,6 +96,7 @@ export default function Swap() {
   const [coverBnBaseLimit, setCoverBnBaseLimit] = useState(BigNumber.from(0))
   const [rangeBnBaseLimit, setRangeBnBaseLimit] = useState(BigNumber.from(0))
   const [bnSlippage, setBnSlippage] = useState(BigNumber.from(1))
+  const [slippageFetched, setSlippageFetched] = useState(false)
 
   const { data: signer } = useSigner()
   const provider = useProvider()
@@ -358,27 +361,32 @@ export default function Swap() {
   }
 
   const getFeeTier = async () => {
-    if (rangeQuote < coverQuote) {
-      const data = await fetchCoverPools()
-      const poolAddress = data['data']['coverPools']['0']['id']
+      const coverData = await fetchCoverPools()
+      const coverPoolAddress = coverData['data']['coverPools']['0']['id']
 
-      if (poolAddress === coverPoolRoute) {
+      if (coverPoolAddress === coverPoolRoute) {
         const feeTier =
-          data['data']['coverPools']['0']['volatilityTier']['feeAmount']
+          coverData['data']['coverPools']['0']['volatilityTier']['feeAmount']
         console.log(feeTier, 'fee cover')
-        setSlippage((parseFloat(feeTier) / 10000).toString())
-        setAuxSlippage((parseFloat(feeTier) / 10000).toString())
+        setCoverSlippage((parseFloat(feeTier) / 10000).toString())
       }
-    } else {
       const data = await fetchRangePools()
-      const poolAddress = data['data']['rangePools']['0']['id']
+      const rangePoolAddress = data['data']['rangePools']['0']['id']
 
-      if (poolAddress === rangePoolRoute) {
+      if (rangePoolAddress === rangePoolRoute) {
         const feeTier = data['data']['rangePools']['0']['feeTier']['feeAmount']
         console.log(feeTier, 'fee range')
-        setSlippage((parseFloat(feeTier) / 10000).toString())
-        setAuxSlippage((parseFloat(feeTier) / 10000).toString())
+        setRangeSlippage((parseFloat(feeTier) / 10000).toString())
       }
+    }
+  
+  const getSlippage = () => {
+    if (rangeQuote > coverQuote) {
+      setSlippage(rangeSlippage)
+      setAuxSlippage(rangeSlippage)
+    } else {
+      setSlippage(coverSlippage)
+      setAuxSlippage(coverSlippage)
     }
   }
 
@@ -509,6 +517,14 @@ export default function Swap() {
           setCoverPriceAfter(parseFloat(TickMath.getPriceStringAtSqrtPrice(quoteCover[2])))
       }
     }
+
+    if (slippageFetched === false 
+      && quoteCover[0].toString() !== BigNumber.from(0).toString()
+      && quoteRange[0].toString() !== BigNumber.from(0).toString()) {
+        getFeeTier()
+        getSlippage()
+        setSlippageFetched(true)
+    }
   }, [tokenIn.address, tokenOut.address, rangePoolRoute, coverPoolRoute, quoteCover, quoteRange, bnInput])
 
   useEffect(() => {
@@ -532,10 +548,6 @@ export default function Swap() {
   }, [bnInput])
 
   useEffect(() => {
-    getFeeTier()
-  }, [rangeQuote, coverQuote])
-
-  useEffect(() => {
     getBnSlippage()
     setRangeBnBaseLimit(rangeBnPrice.div(bnSlippage).div(BigNumber.from(100)))
     setCoverBnBaseLimit(coverBnPrice.div(bnSlippage).div(BigNumber.from(100)))
@@ -544,7 +556,7 @@ export default function Swap() {
   }, [slippage, rangeBnPrice, coverBnPrice])
 
 
-  
+
   //@dev TO-DO: fetch token Addresses, use for pool quote (smallest fee tier)
   //@dev TO-DO: re-route pool and handle allowances
 
