@@ -307,7 +307,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                                   feeTier={allUniV3Position.feeTier}
                                   latestTick={allUniV3Position.tick}
                                   //TODO get univ3 spacings
-                                  tickSp={20}
+                                  tickSpacing={20}
                                   epochLast={0}
                                   prefill={undefined}
                                   close={undefined}

@@ -673,7 +673,7 @@ export default function CreateCover(props: any) {
               tokenOut.address != '' &&
               tokenIn.address.localeCompare(tokenOut.address) < 0
             }
-            tickSpacing={tickSp}
+            tickSpacing={tickSpacing}
           />
         ) : null}
       </div>

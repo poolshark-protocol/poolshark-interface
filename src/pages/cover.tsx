@@ -243,7 +243,7 @@ export default function Cover() {
                                 feeTier={allCoverPosition.feeTier}
                                 liquidity={allCoverPosition.liquidity}
                                 latestTick={allCoverPosition.latestTick}
-                                tickSp={allCoverPosition.tickSp}
+                                tickSpacing={allCoverPosition.tickSp}
                                 epochLast={allCoverPosition.epochLast}
                                 prefill={undefined}
                                 close={undefined}

@@ -497,7 +497,7 @@ export default function Pool() {
                               epochLast={allCoverPosition.epochLast}
                               liquidity={allCoverPosition.liquidity}
                               latestTick={allCoverPosition.latestTick}
-                              tickSp={allCoverPosition.tickSp}
+                              tickSpacing={allCoverPosition.tickSp}
                               feeTier={allCoverPosition.feeTier}
                               prefill={undefined}
                               close={undefined}
@@ -550,7 +550,7 @@ export default function Pool() {
                                 tokenOne={allRangePool.tokenOne}
                                 liquidity={allRangePool.liquidity}
                                 feeTier={allRangePool.feeTier}
-                                tickSp={allRangePool.tickSpacing}
+                                tickSpacing={allRangePool.tickSpacing}
                                 tvlUsd={allRangePool.tvlUsd}
                                 volumeUsd={allRangePool.volumeUsd}
                                 volumeEth={allRangePool.volumeEth}
@@ -583,7 +583,7 @@ export default function Pool() {
                                 tokenOne={allCoverPool.tokenOne}
                                 liquidity={allCoverPool.liquidity}
                                 feeTier={allCoverPool.feeTier}
-                                tickSp={allCoverPool.tickSpread}
+                                tickSpacing={allCoverPool.tickSpread}
                                 tvlUsd={allCoverPool.tvlUsd}
                                 volumeUsd={allCoverPool.volumeUsd}
                                 volumeEth={allCoverPool.volumeEth}
