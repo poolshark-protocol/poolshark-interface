@@ -49,7 +49,7 @@ export default function CoverMintButton({
     })
   }, [disabled, to, lower, claim, upper, amount, zeroForOne])*/
 
-  console.log(
+  /* console.log(
     'mint params',
     to,
     amount.toString(),
@@ -57,7 +57,7 @@ export default function CoverMintButton({
     roundTick(Number(claim), 40),
     roundTick(Number(upper), 40),
     zeroForOne,
-  )
+  ) */
 
   const { config } = usePrepareContractWrite({
     address: poolAddress,
