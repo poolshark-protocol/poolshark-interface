@@ -12,7 +12,14 @@ import { useEffect, useState } from 'react'
 import { BigNumber, ethers } from 'ethers'
 import JSBI from 'jsbi'
 import { getCoverPoolFromFactory } from '../../utils/queries'
-import { TickMath, getDefaultLowerPrice, getDefaultLowerTick, getDefaultUpperPrice, getDefaultUpperTick, roundTick } from '../../utils/math/tickMath'
+import {
+  TickMath,
+  getDefaultLowerPrice,
+  getDefaultLowerTick,
+  getDefaultUpperPrice,
+  getDefaultUpperTick,
+  roundTick,
+} from '../../utils/math/tickMath'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import useInputBox from '../../hooks/useInputBox'
 import { coverPoolABI } from '../../abis/evm/coverPool'
@@ -52,10 +59,18 @@ export default function CoverExistingPool({
   const [expanded, setExpanded] = useState(false)
   const [tickSpread, setTickSpread] = useState(10)
   const [tokenOrder, setTokenOrder] = useState(zeroForOne)
-  const [lowerTick, setLowerTick] = useState(getDefaultLowerTick(minLimit, maxLimit, zeroForOne))
-  const [upperTick, setUpperTick] = useState(getDefaultUpperTick(minLimit, maxLimit, zeroForOne))
-  const [lowerPrice, setLowerPrice] = useState(getDefaultLowerPrice(minLimit, maxLimit, zeroForOne))
-  const [upperPrice, setUpperPrice] = useState(getDefaultUpperPrice(minLimit, maxLimit, zeroForOne))
+  const [lowerTick, setLowerTick] = useState(
+    getDefaultLowerTick(minLimit, maxLimit, zeroForOne),
+  )
+  const [upperTick, setUpperTick] = useState(
+    getDefaultUpperTick(minLimit, maxLimit, zeroForOne),
+  )
+  const [lowerPrice, setLowerPrice] = useState(
+    getDefaultLowerPrice(minLimit, maxLimit, zeroForOne),
+  )
+  const [upperPrice, setUpperPrice] = useState(
+    getDefaultUpperPrice(minLimit, maxLimit, zeroForOne),
+  )
   const [hasSelected, setHasSelected] = useState(true)
   const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
@@ -182,7 +197,6 @@ export default function CoverExistingPool({
   }
 
   useEffect(() => {
-
     changeAmountIn()
   }, [coverValue, lowerTick, upperTick])
 
@@ -193,37 +207,77 @@ export default function CoverExistingPool({
 
   function changeAmountIn() {
     console.log('prices set:', lowerTick, upperTick, tickSpread)
-    if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))
-         && !isNaN(parseFloat(userLiquidity))) {
-          console.log('tick check', lowerTick, upperTick)
+    if (
+      !isNaN(parseFloat(lowerPrice)) &&
+      !isNaN(parseFloat(upperPrice)) &&
+      !isNaN(parseFloat(userLiquidity))
+    ) {
+      console.log('tick check', lowerTick, upperTick)
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
       console.log('sqrt prices', String(lowerSqrtPrice), String(upperSqrtPrice))
       const liquidityAmount = JSBI.BigInt(userLiquidity)
       setCoverAmountIn(
         tokenOrder
-          ? DyDxMath.getDx(liquidityAmount, lowerSqrtPrice, upperSqrtPrice, true)
-          : DyDxMath.getDy(liquidityAmount, lowerSqrtPrice, upperSqrtPrice, true),
+          ? DyDxMath.getDx(
+              liquidityAmount,
+              lowerSqrtPrice,
+              upperSqrtPrice,
+              true,
+            )
+          : DyDxMath.getDy(
+              liquidityAmount,
+              lowerSqrtPrice,
+              upperSqrtPrice,
+              true,
+            ),
       )
-      console.log('dydx math check', String(lowerSqrtPrice), String(upperSqrtPrice), String(liquidityAmount), tokenOrder)
-      console.log('amount in covered:',String(tokenOrder
-      ? DyDxMath.getDx(liquidityAmount, lowerSqrtPrice, upperSqrtPrice, true)
-      : DyDxMath.getDy(liquidityAmount, lowerSqrtPrice, upperSqrtPrice, true) ))
-      setCoverAmountOut(tokenOrder ? 
-                          DyDxMath.getDy(
-                                JSBI.BigInt(userLiquidity),
-                                lowerSqrtPrice,
-                                upperSqrtPrice,
-                                true
-                          )
-                        : DyDxMath.getDx(
-                              JSBI.BigInt(userLiquidity),
-                              lowerSqrtPrice,
-                              upperSqrtPrice,
-                              true
-                        )
+      console.log(
+        'dydx math check',
+        String(lowerSqrtPrice),
+        String(upperSqrtPrice),
+        String(liquidityAmount),
+        tokenOrder,
       )
-      console.log('amount in set:', coverAmountIn.toString(), coverAmountOut.toString(), String(liquidityAmount))
+      console.log(
+        'amount in covered:',
+        String(
+          tokenOrder
+            ? DyDxMath.getDx(
+                liquidityAmount,
+                lowerSqrtPrice,
+                upperSqrtPrice,
+                true,
+              )
+            : DyDxMath.getDy(
+                liquidityAmount,
+                lowerSqrtPrice,
+                upperSqrtPrice,
+                true,
+              ),
+        ),
+      )
+      setCoverAmountOut(
+        tokenOrder
+          ? DyDxMath.getDy(
+              JSBI.BigInt(userLiquidity),
+              lowerSqrtPrice,
+              upperSqrtPrice,
+              true,
+            )
+          : DyDxMath.getDx(
+              JSBI.BigInt(userLiquidity),
+              lowerSqrtPrice,
+              upperSqrtPrice,
+              true,
+            ),
+      )
+      console.log(
+        'amount in set:',
+        coverAmountIn.toString(),
+        coverAmountOut.toString(),
+        String(liquidityAmount),
+      )
     }
   }
 
@@ -335,7 +389,13 @@ export default function CoverExistingPool({
     if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
       console.log('set prices start')
       console.log('lowerPrice:', lowerPrice, 'upperPrice:', upperPrice)
-      console.log('NaN', isNaN(Number('')), isNaN(parseFloat(' ')), Number(''), Number(' '))
+      console.log(
+        'NaN',
+        isNaN(Number('')),
+        isNaN(parseFloat(' ')),
+        Number(''),
+        Number(' '),
+      )
       setLowerTick(TickMath.getTickAtPriceString(lowerPrice, tickSpread))
       console.log('setting upper tick')
       setUpperTick(TickMath.getTickAtPriceString(upperPrice, tickSpread))
@@ -540,7 +600,17 @@ export default function CoverExistingPool({
               placeholder="0"
               id="minInput"
               type="text"
-              value={lowerPrice}
+              value={
+                lowerPrice.toString().includes('e')
+                  ? Number(lowerPrice).toLocaleString(undefined, {
+                      maximumFractionDigits: 0,
+                    }).length > 6
+                    ? 'infinity'
+                    : Number(lowerPrice).toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })
+                  : lowerPrice
+              }
               onChange={() =>
                 setLowerPrice(
                   (document.getElementById('minInput') as HTMLInputElement)
@@ -568,7 +638,18 @@ export default function CoverExistingPool({
               placeholder="0"
               id="maxInput"
               type="text"
-              value={upperPrice}
+              //TODO find alternative for scientific notation
+              value={
+                upperPrice.toString().includes('e')
+                  ? Number(upperPrice).toLocaleString(undefined, {
+                      maximumFractionDigits: 0,
+                    }).length > 6
+                    ? 'infinity'
+                    : Number(upperPrice).toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })
+                  : upperPrice
+              }
               onChange={() =>
                 setUpperPrice(
                   (document.getElementById('maxInput') as HTMLInputElement)
@@ -637,4 +718,3 @@ export default function CoverExistingPool({
     </>
   )
 }
-
