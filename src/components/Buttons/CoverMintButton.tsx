@@ -67,7 +67,8 @@ export default function CoverMintButton({
     args: [
       [
         to,
-        amount,
+        // amount,
+        ethers.utils.parseUnits('1000', 18),
         roundTick(Number(lower), 40),
         roundTick(Number(claim), 40),
         roundTick(Number(upper), 40),
