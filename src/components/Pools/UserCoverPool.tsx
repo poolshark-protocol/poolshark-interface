@@ -70,7 +70,7 @@ export default function UserCoverPool({
     watch: true,
     onSuccess(data) {
       //console.log('Success price Cover', data)
-      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[0], 18)))
+      setCoverQuote(TickMath.getPriceStringAtSqrtPrice(data[0]))
     },
     onError(error) {
       console.log('Error price Cover', error)
@@ -104,6 +104,7 @@ export default function UserCoverPool({
   async function setCoverParams() {
     try {
       if (coverQuote != undefined) {
+        console.log('cover quote check', coverQuote)
         const price = TickMath.getTickAtPriceString(coverQuote)
         setCoverTickPrice(ethers.utils.parseUnits(String(price), 0))
       }

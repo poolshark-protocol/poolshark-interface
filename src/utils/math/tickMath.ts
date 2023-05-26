@@ -117,6 +117,9 @@ export abstract class TickMath {
 
   public static getTickAtPriceString(priceString: string, tickSpacing?: number): number {
     let sqrtPrice = this.getSqrtPriceAtPriceString(priceString)
+    if (JSBI.lessThan(sqrtPrice, this.MIN_SQRT_RATIO)) return this.MIN_TICK
+    // if (sqrtPrice > this.MAX_SQRT_RATIO) return this.MAX_TICK
+    console.log('sqrtPrice', String(sqrtPrice), String(this.MIN_SQRT_RATIO))
     let tick = this.getTickAtSqrtRatio(sqrtPrice)
     if (tickSpacing) return roundTick(tick, tickSpacing)
     else return tick

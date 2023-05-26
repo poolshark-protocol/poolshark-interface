@@ -12,6 +12,7 @@ import React, { useState, useEffect } from 'react'
 import { coverPoolAddress } from '../../constants/contractAddresses'
 import { useCoverStore } from '../../hooks/useStore'
 import { roundTick } from '../../utils/math/tickMath'
+import { BN_ZERO } from '../../utils/math/constants'
 
 export default function CoverMintButton({
   poolAddress,
@@ -73,6 +74,7 @@ export default function CoverMintButton({
         zeroForOne,
       ],
     ],
+    enabled: amount.toString() != '0',
     chainId: 421613,
     overrides: {
       gasLimit: BigNumber.from('3500000'),

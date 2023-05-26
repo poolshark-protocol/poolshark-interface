@@ -49,10 +49,10 @@ export default function CoverExistingPool({
   }
   const { address, isConnected, isDisconnected } = useAccount()
   const [expanded, setExpanded] = useState(false)
-  const [min, setMin] = useState(BigNumber.from(minLimit ?? 0))
-  const [max, setMax] = useState(BigNumber.from(maxLimit ?? 0))
-  const [minPrice, setMinPrice] = useState(minLimit)
-  const [maxPrice, setMaxPrice] = useState(maxLimit)
+  const [lowerTick, setLowerTick] = useState(Number(minLimit))
+  const [upperTick, setUpperTick] = useState(Number(maxLimit))
+  const [lowerPrice, setLowerPrice] = useState(TickMath.getPriceStringAtTick(Number(minLimit)))
+  const [upperPrice, setUpperPrice] = useState(TickMath.getPriceStringAtTick(Number(maxLimit)))
   const [tokenOrder, setTokenOrder] = useState(zeroForOne)
   const [hasSelected, setHasSelected] = useState(true)
   const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
@@ -94,10 +94,6 @@ export default function CoverExistingPool({
     watch: true,
     enabled: coverPoolRoute != undefined && tokenIn.address != '',
     onSuccess(data) {
-      //console.log('allowance set:', allowance)
-      //console.log('slider value:', sliderValue * Number(tokenIn.value))
-      //console.log('Success')
-      //setAllowance(ethers.utils.formatUnits(data, 18))
     },
     onError(error) {
       console.log('Error', error)
@@ -124,6 +120,7 @@ export default function CoverExistingPool({
     args: [],
     chainId: 421613,
     watch: true,
+    enabled: coverPoolRoute != undefined && tokenOut.address != '',
     onSuccess(data) {
       //console.log('Success price Cover', data)
       //console.log('price set:', coverTickPrice)
@@ -139,6 +136,7 @@ export default function CoverExistingPool({
 
   useEffect(() => {
     if (priceCover) {
+      console.log('price cover:', priceCover[0])
       setCoverQuote(priceCover[0])
       const price = TickMath.getPriceStringAtSqrtPrice(priceCover[0])
       setCoverTickPrice(price)
@@ -175,10 +173,20 @@ export default function CoverExistingPool({
 
   useEffect(() => {
     changeAmountIn()
-  }, [coverValue, min, max])
+  }, [coverValue, lowerTick, upperTick])
+
+
+  // check for valid inputs
+  useEffect(() => {
+    setDisabled(
+      (lowerPrice === undefined ||
+        upperPrice === undefined )
+    )
+  }, [lowerPrice, upperPrice, coverAmountIn])
+
 
   function changeAmountIn() {
-    console.log('prices set:', min, max)
+    console.log('prices set:', lowerTick, upperTick)
     /* if (min != BigNumber.from(0) && max != BigNumber.from(0)) {
       const minSqrtPrice = TickMath.getSqrtPriceAtPriceString(
         Number(max.toString()).toFixed(5),
@@ -299,25 +307,28 @@ export default function CoverExistingPool({
       Number((document.getElementById('maxInput') as HTMLInputElement).value),
     )
     if (minMax === 'max') {
-      setMaxPrice(
+      setUpperPrice(
         (document.getElementById('maxInput') as HTMLInputElement).value,
       )
     }
     if (minMax === 'min') {
-      setMinPrice(
+      setLowerPrice(
         (document.getElementById('minInput') as HTMLInputElement).value,
       )
     }
   }
 
   useEffect(() => {
-    console.log('min max set', min, max)
-    console.log('min max price set', minPrice, maxPrice)
-    if (minPrice != '0' && maxPrice != '0') {
-      setMin(ethers.utils.parseUnits(minPrice, 18))
-      setMax(ethers.utils.parseUnits(maxPrice, 18))
+    console.log('min max set', lowerTick, upperTick)
+    console.log('min max price set', lowerPrice, upperPrice)
+    if (lowerPrice != '0' && upperPrice != '0') {
+      console.log('set prices start')
+      console.log(lowerPrice, upperPrice)
+      setLowerTick(TickMath.getTickAtPriceString(lowerPrice))
+      setUpperTick(TickMath.getTickAtPriceString(upperPrice))
+      console.log('set prices success')
     }
-  }, [minPrice, maxPrice])
+  }, [lowerPrice, upperPrice])
 
   const handleChange = (event: any) => {
     setSliderValue(event.target.value)
@@ -514,9 +525,9 @@ export default function CoverExistingPool({
               placeholder="0"
               id="minInput"
               type="text"
-              value={minPrice}
+              value={lowerPrice}
               onChange={() =>
-                setMinPrice(
+                setLowerPrice(
                   (document.getElementById('minInput') as HTMLInputElement)
                     ?.value,
                 )
@@ -542,9 +553,9 @@ export default function CoverExistingPool({
               placeholder="0"
               id="maxInput"
               type="text"
-              value={maxPrice}
+              value={upperPrice}
               onChange={() =>
-                setMaxPrice(
+                setUpperPrice(
                   (document.getElementById('maxInput') as HTMLInputElement)
                     ?.value,
                 )
@@ -591,14 +602,14 @@ export default function CoverExistingPool({
             poolAddress={coverPoolRoute}
             disabled={isDisabled}
             to={address}
-            lower={min}
+            lower={lowerTick}
             claim={
               tokenOut.address != '' &&
               tokenIn.address.localeCompare(tokenOut.address) < 0
-                ? max
-                : min
+                ? upperTick
+                : lowerTick
             }
-            upper={max}
+            upper={upperTick}
             amount={coverAmountIn}
             zeroForOne={
               tokenOut.address != '' &&
