@@ -51,8 +51,12 @@ export default function CoverExistingPool({
   const [expanded, setExpanded] = useState(false)
   const [lowerTick, setLowerTick] = useState(Number(minLimit))
   const [upperTick, setUpperTick] = useState(Number(maxLimit))
-  const [lowerPrice, setLowerPrice] = useState(TickMath.getPriceStringAtTick(Number(minLimit)))
-  const [upperPrice, setUpperPrice] = useState(TickMath.getPriceStringAtTick(Number(maxLimit)))
+  const [lowerPrice, setLowerPrice] = useState(
+    TickMath.getPriceStringAtTick(Number(minLimit)),
+  )
+  const [upperPrice, setUpperPrice] = useState(
+    TickMath.getPriceStringAtTick(Number(maxLimit)),
+  )
   const [tickSpread, setTickSpread] = useState(10)
   const [tokenOrder, setTokenOrder] = useState(zeroForOne)
   const [hasSelected, setHasSelected] = useState(true)
@@ -93,8 +97,9 @@ export default function CoverExistingPool({
     args: [address, coverPoolRoute],
     chainId: 421613,
     watch: true,
-    enabled: coverPoolRoute != undefined && tokenIn.address != '',
+    enabled: coverPoolRoute && tokenIn.address != '',
     onSuccess(data) {
+      //console.log('Success allowance', data)
     },
     onError(error) {
       console.log('Error', error)
@@ -168,8 +173,9 @@ export default function CoverExistingPool({
       let dataLength = pool['data']['coverPools'].length
       if (dataLength != 0) {
         id = pool['data']['coverPools']['0']['id']
-        tickSpread = pool['data']['coverPools']['0']['volatilityTier']['tickSpread']
-      } 
+        tickSpread =
+          pool['data']['coverPools']['0']['volatilityTier']['tickSpread']
+      }
       setCoverPoolRoute(id)
       setTickSpread(tickSpread)
     } catch (error) {
@@ -181,15 +187,10 @@ export default function CoverExistingPool({
     changeAmountIn()
   }, [coverValue, lowerTick, upperTick])
 
-
   // check for valid inputs
   useEffect(() => {
-    setDisabled(
-      (lowerPrice === undefined ||
-        upperPrice === undefined )
-    )
+    setDisabled(lowerPrice === undefined || upperPrice === undefined)
   }, [lowerPrice, upperPrice, coverAmountIn])
-
 
   function changeAmountIn() {
     console.log('prices set:', lowerTick, upperTick, tickSpread)
@@ -331,7 +332,6 @@ export default function CoverExistingPool({
     } else {
       console.log('not a number')
     }
-
   }, [lowerPrice, upperPrice])
 
   const handleChange = (event: any) => {
@@ -598,7 +598,7 @@ export default function CoverExistingPool({
           Number(sliderValue) * JSBI.toNumber(coverAmountIn) ? (
           <SwapCoverApproveButton
             disabled={isDisabled}
-            poolAddress={poolId}
+            poolAddress={coverPoolRoute}
             approveToken={tokenIn.address}
           />
         ) : (
