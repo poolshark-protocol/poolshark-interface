@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react'
 import { BigNumber, ethers } from 'ethers'
 import JSBI from 'jsbi'
 import { getCoverPoolFromFactory } from '../../utils/queries'
-import { TickMath, roundTick } from '../../utils/math/tickMath'
+import { TickMath, getDefaultLowerPrice, getDefaultUpperPrice, roundTick } from '../../utils/math/tickMath'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import useInputBox from '../../hooks/useInputBox'
 import { coverPoolABI } from '../../abis/evm/coverPool'
@@ -50,16 +50,12 @@ export default function CoverExistingPool({
   }
   const { address, isConnected, isDisconnected } = useAccount()
   const [expanded, setExpanded] = useState(false)
-  const [lowerTick, setLowerTick] = useState(Number(minLimit))
-  const [upperTick, setUpperTick] = useState(Number(maxLimit))
-  const [lowerPrice, setLowerPrice] = useState(
-    TickMath.getPriceStringAtTick(Number(minLimit)),
-  )
-  const [upperPrice, setUpperPrice] = useState(
-    TickMath.getPriceStringAtTick(Number(maxLimit)),
-  )
   const [tickSpread, setTickSpread] = useState(10)
   const [tokenOrder, setTokenOrder] = useState(zeroForOne)
+  const [lowerTick, setLowerTick] = useState(Number(minLimit))
+  const [upperTick, setUpperTick] = useState(Number(maxLimit))
+  const [lowerPrice, setLowerPrice] = useState(getDefaultLowerPrice(minLimit, maxLimit, zeroForOne))
+  const [upperPrice, setUpperPrice] = useState(getDefaultUpperPrice(minLimit, maxLimit, zeroForOne))
   const [hasSelected, setHasSelected] = useState(true)
   const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
@@ -640,3 +636,4 @@ export default function CoverExistingPool({
     </>
   )
 }
+
