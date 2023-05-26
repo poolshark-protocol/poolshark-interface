@@ -169,7 +169,6 @@ export abstract class TickMath {
    * @param tick the tick for which to compute the sqrt ratio
    */
   public static getSqrtRatioAtTick(tick: number): JSBI {
-    console.log('tick passed', tick)
     invariant(tick >= TickMath.MIN_TICK && tick <= TickMath.MAX_TICK && Number.isInteger(Number(tick)), 'TICK')
     const absTick: number = tick < 0 ? tick * -1 : tick
 
