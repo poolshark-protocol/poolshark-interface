@@ -109,18 +109,20 @@ export default function Pool() {
     rangePositions.map((rangePosition) => {
       const rangePositionData = {
         id: rangePosition.id,
-        poolId: rangePosition.pool.id,
-        tokenZero: rangePosition.pool.token0,
-        valueTokenZero: rangePosition.pool.totalValueLocked0,
-        tokenOne: rangePosition.pool.token1,
-        valueTokenOne: rangePosition.pool.totalValueLocked1,
-        min: rangePosition.lower,
-        max: rangePosition.upper,
-        price: rangePosition.pool.price,
-        feeTier: rangePosition.pool.feeTier.feeAmount,
-        tickSpacing: rangePosition.pool.feeTier.tickSpacing,
-        unclaimedFees: rangePosition.pool.feesUsd,
-        liquidity: rangePosition.liquidity,
+        poolId: rangePosition.token.position.pool.id,
+        tokenZero: rangePosition.token.position.pool.token0,
+        valueTokenZero: rangePosition.token.position.pool.totalValueLocked0,
+        tokenOne: rangePosition.token.position.pool.token1,
+        valueTokenOne: rangePosition.token.position.pool.totalValueLocked1,
+        min: rangePosition.token.position.lower,
+        max: rangePosition.token.position.upper,
+        price: rangePosition.token.position.pool.price,
+        tickSpacing: rangePosition.token.position.pool.feeTier.tickSpacing,
+        feeTier: rangePosition.token.position.pool.feeTier.feeAmount,
+        unclaimedFees: rangePosition.token.position.pool.feesUsd,
+        liquidity: rangePosition.token.position.pool.liquidity,
+        userLiquidity: Math.round(rangePosition.amount / rangePosition.token.totalSupply 
+                                  * rangePosition.token.position.liquidity),
         tvlUsd: (
           Number(rangePosition.pool.totalValueLockedUsd) / 1_000_000
         ).toFixed(2),

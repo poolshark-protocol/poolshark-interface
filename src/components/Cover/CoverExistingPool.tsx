@@ -37,6 +37,7 @@ export default function CoverExistingPool({
   tickSpacing,
   zeroForOne,
   liquidity,
+  userLiquidity,
   feeTier,
   goBack,
 }) {
@@ -87,6 +88,7 @@ export default function CoverExistingPool({
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
   const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
   const [coverAmountIn, setCoverAmountIn] = useState(ZERO)
+  const [coverAmountOut, setCoverAmountOut] = useState(ZERO)
   const [allowance, setAllowance] = useState('0')
   const [mktRate, setMktRate] = useState({})
 
@@ -184,6 +186,7 @@ export default function CoverExistingPool({
   }
 
   useEffect(() => {
+
     changeAmountIn()
   }, [coverValue, lowerTick, upperTick])
 
@@ -194,26 +197,36 @@ export default function CoverExistingPool({
 
   function changeAmountIn() {
     console.log('prices set:', lowerTick, upperTick, tickSpread)
-    if (!isNaN(Number(lowerPrice)) && !isNaN(Number(upperPrice))) {
-      const minSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
-      const maxSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
-      const liquidityAmount = DyDxMath.getLiquidityForAmounts(
-        minSqrtPrice,
-        maxSqrtPrice,
-        tokenOrder ? minSqrtPrice : maxSqrtPrice,
-        tokenOrder
-          ? ethers.utils.parseUnits(coverValue.toString(), 18)
-          : BN_ZERO,
-        tokenOrder
-          ? BN_ZERO
-          : ethers.utils.parseUnits(coverValue.toString(), 18),
-      )
+    if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))
+         && !isNaN(parseFloat(userLiquidity))) {
+      const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
+      const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
+      console.log('sqrt prices', String(lowerSqrtPrice), String(upperSqrtPrice))
+      const liquidityAmount = JSBI.BigInt(userLiquidity)
       setCoverAmountIn(
         tokenOrder
-          ? DyDxMath.getDx(liquidityAmount, minSqrtPrice, maxSqrtPrice, true)
-          : DyDxMath.getDy(liquidityAmount, minSqrtPrice, maxSqrtPrice, true),
+          ? DyDxMath.getDx(liquidityAmount, lowerSqrtPrice, upperSqrtPrice, true)
+          : DyDxMath.getDy(liquidityAmount, lowerSqrtPrice, upperSqrtPrice, true),
       )
-      console.log('amount in set:', coverAmountIn.toString())
+      console.log('dydx math check', String(lowerSqrtPrice), String(upperSqrtPrice), String(liquidityAmount), tokenOrder)
+      console.log('amount in covered:',String(tokenOrder
+      ? DyDxMath.getDx(liquidityAmount, lowerSqrtPrice, upperSqrtPrice, true)
+      : DyDxMath.getDy(liquidityAmount, lowerSqrtPrice, upperSqrtPrice, true) ))
+      setCoverAmountOut(tokenOrder ? 
+                          DyDxMath.getDy(
+                                JSBI.BigInt(userLiquidity),
+                                lowerSqrtPrice,
+                                upperSqrtPrice,
+                                true
+                          )
+                        : DyDxMath.getDx(
+                              JSBI.BigInt(userLiquidity),
+                              lowerSqrtPrice,
+                              upperSqrtPrice,
+                              true
+                        )
+      )
+      console.log('amount in set:', coverAmountIn.toString(), coverAmountOut.toString(), String(liquidityAmount))
     }
   }
 
@@ -322,9 +335,10 @@ export default function CoverExistingPool({
   useEffect(() => {
     console.log('min max set', lowerTick, upperTick)
     console.log('min max price set', lowerPrice, upperPrice)
-    if (!isNaN(Number(lowerPrice)) && !isNaN(Number(upperPrice))) {
+    if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
       console.log('set prices start')
-      console.log(lowerPrice, upperPrice)
+      console.log('lowerPrice:', lowerPrice, 'upperPrice:', upperPrice)
+      console.log('NaN', isNaN(Number('')), isNaN(parseFloat(' ')), Number(''), Number(' '))
       setLowerTick(TickMath.getTickAtPriceString(lowerPrice, tickSpread))
       console.log('setting upper tick')
       setUpperTick(TickMath.getTickAtPriceString(upperPrice, tickSpread))

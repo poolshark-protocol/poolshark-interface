@@ -82,12 +82,13 @@ export abstract class TickMath {
     return this.getPriceStringAtSqrtPrice(this.getSqrtRatioAtTick(roundedTick))
   }
 
-  public static getSqrtPriceAtPriceString(priceString: string, scaleFactor?: number): JSBI {
+  public static getSqrtPriceAtPriceString(priceString: string, scaleFactor?: number, tickSpacing?: number): JSBI {
+    console.log('price string found', priceString)
     let price = Number(parseFloat(priceString).toFixed(30))
     if (scaleFactor) {
       price = price / (10 ** scaleFactor)
     }
-    return JSBI.divide(
+    let sqrtPrice = JSBI.divide(
       JSBI.multiply(
         JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
         JSBI.BigInt(
@@ -102,6 +103,9 @@ export abstract class TickMath {
       ),
       JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
     )
+    if (JSBI.lessThan(sqrtPrice, TickMath.MIN_SQRT_RATIO)) return TickMath.MIN_SQRT_RATIO
+    if (JSBI.greaterThan(sqrtPrice, TickMath.MAX_SQRT_RATIO)) return TickMath.MAX_SQRT_RATIO
+    return sqrtPrice
   }
 
   public static getPriceStringAtSqrtPrice(sqrtPrice: JSBI): string {
