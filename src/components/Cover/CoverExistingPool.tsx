@@ -193,15 +193,9 @@ export default function CoverExistingPool({
 
   function changeAmountIn() {
     console.log('prices set:', lowerTick, upperTick, tickSpread)
-    /* if (min != BigNumber.from(0) && max != BigNumber.from(0)) {
-      const minSqrtPrice = TickMath.getSqrtPriceAtPriceString(
-        Number(max.toString()).toFixed(5),
-        Number(tickSpacing),
-      )
-      const maxSqrtPrice = TickMath.getSqrtPriceAtPriceString(
-        Number(max.toString()).toFixed(5),
-        Number(tickSpacing),
-      )
+    if (!isNaN(Number(lowerPrice)) && !isNaN(Number(upperPrice))) {
+      const minSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
+      const maxSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
       const liquidityAmount = DyDxMath.getLiquidityForAmounts(
         minSqrtPrice,
         maxSqrtPrice,
@@ -219,7 +213,7 @@ export default function CoverExistingPool({
           : DyDxMath.getDy(liquidityAmount, minSqrtPrice, maxSqrtPrice, true),
       )
       console.log('amount in set:', coverAmountIn.toString())
-    } */
+    }
   }
 
   useEffect(() => {
@@ -331,11 +325,13 @@ export default function CoverExistingPool({
       console.log('set prices start')
       console.log(lowerPrice, upperPrice)
       setLowerTick(TickMath.getTickAtPriceString(lowerPrice, tickSpread))
+      console.log('setting upper tick')
       setUpperTick(TickMath.getTickAtPriceString(upperPrice, tickSpread))
-      console.log('set prices success')
+      console.log('set upper tick', upperTick)
     } else {
       console.log('not a number')
     }
+
   }, [lowerPrice, upperPrice])
 
   const handleChange = (event: any) => {

@@ -12,6 +12,8 @@ function mulShift(val: JSBI, mulBy: string): JSBI {
 export function roundTick(tick: number, tickSpacing: number): number {
   let minTick = Math.round(TickMath.MIN_TICK / tickSpacing) * tickSpacing
   let maxTick = Math.round(TickMath.MAX_TICK / tickSpacing) * tickSpacing
+  if (minTick < TickMath.MIN_TICK) minTick += tickSpacing;
+  if (maxTick > TickMath.MAX_TICK) maxTick -= tickSpacing;
   if (tick % tickSpacing != 0) {
     let roundedDown = Math.round(tick / tickSpacing) * tickSpacing;
     let roundedUp = Math.round(tick / tickSpacing) * tickSpacing + tickSpacing;
@@ -127,7 +129,10 @@ export abstract class TickMath {
     // if (sqrtPrice > this.MAX_SQRT_RATIO) return this.MAX_TICK
     console.log('sqrtPrice', String(sqrtPrice), String(this.MIN_SQRT_RATIO))
     let tick = this.getTickAtSqrtRatio(sqrtPrice)
-    if (tickSpacing) return roundTick(tick, tickSpacing)
+    if (tickSpacing){
+      console.log('rounding tick')
+      return roundTick(tick, tickSpacing)
+    } 
     else return tick
   }
 
@@ -136,6 +141,7 @@ export abstract class TickMath {
    * @param tick the tick for which to compute the sqrt ratio
    */
   public static getSqrtRatioAtTick(tick: number): JSBI {
+    console.log('tick passed', tick)
     invariant(tick >= TickMath.MIN_TICK && tick <= TickMath.MAX_TICK && Number.isInteger(Number(tick)), 'TICK')
     const absTick: number = tick < 0 ? tick * -1 : tick
 
