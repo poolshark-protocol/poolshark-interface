@@ -10,13 +10,19 @@ function mulShift(val: JSBI, mulBy: string): JSBI {
 }
 
 export function roundTick(tick: number, tickSpacing: number): number {
+  let minTick = Math.round(TickMath.MIN_TICK / tickSpacing) * tickSpacing
+  let maxTick = Math.round(TickMath.MAX_TICK / tickSpacing) * tickSpacing
   if (tick % tickSpacing != 0) {
     let roundedDown = Math.round(tick / tickSpacing) * tickSpacing;
     let roundedUp = Math.round(tick / tickSpacing) * tickSpacing + tickSpacing;
     // check which is closer
     if (tick - roundedDown <= roundedUp - tick) {
+      if (roundedDown < minTick) return minTick
+      if (roundedDown > maxTick) return maxTick
       return roundedDown
     } else {
+      if (roundedUp < minTick) return minTick
+      if (roundedUp > maxTick) return maxTick
       return roundedUp
     }
   }

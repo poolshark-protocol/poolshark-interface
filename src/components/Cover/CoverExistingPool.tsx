@@ -53,6 +53,7 @@ export default function CoverExistingPool({
   const [upperTick, setUpperTick] = useState(Number(maxLimit))
   const [lowerPrice, setLowerPrice] = useState(TickMath.getPriceStringAtTick(Number(minLimit)))
   const [upperPrice, setUpperPrice] = useState(TickMath.getPriceStringAtTick(Number(maxLimit)))
+  const [tickSpread, setTickSpread] = useState(10)
   const [tokenOrder, setTokenOrder] = useState(zeroForOne)
   const [hasSelected, setHasSelected] = useState(true)
   const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
@@ -151,7 +152,7 @@ export default function CoverExistingPool({
 
   useEffect(() => {
     getCoverPool()
-  }, [hasSelected, tokenIn.address, tokenOut.address])
+  }, [])
 
   const getCoverPool = async () => {
     //console.log('liquidity', liquidity)
@@ -163,9 +164,14 @@ export default function CoverExistingPool({
         pool = await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
       }
       let id = ZERO_ADDRESS
+      let tickSpread = 20
       let dataLength = pool['data']['coverPools'].length
-      if (dataLength != 0) id = pool['data']['coverPools']['0']['id']
+      if (dataLength != 0) {
+        id = pool['data']['coverPools']['0']['id']
+        tickSpread = pool['data']['coverPools']['0']['volatilityTier']['tickSpread']
+      } 
       setCoverPoolRoute(id)
+      setTickSpread(tickSpread)
     } catch (error) {
       console.log(error)
     }
@@ -186,7 +192,7 @@ export default function CoverExistingPool({
 
 
   function changeAmountIn() {
-    console.log('prices set:', lowerTick, upperTick)
+    console.log('prices set:', lowerTick, upperTick, tickSpread)
     /* if (min != BigNumber.from(0) && max != BigNumber.from(0)) {
       const minSqrtPrice = TickMath.getSqrtPriceAtPriceString(
         Number(max.toString()).toFixed(5),
@@ -321,12 +327,14 @@ export default function CoverExistingPool({
   useEffect(() => {
     console.log('min max set', lowerTick, upperTick)
     console.log('min max price set', lowerPrice, upperPrice)
-    if (lowerPrice != '0' && upperPrice != '0') {
+    if (!isNaN(Number(lowerPrice)) && !isNaN(Number(upperPrice))) {
       console.log('set prices start')
       console.log(lowerPrice, upperPrice)
-      setLowerTick(TickMath.getTickAtPriceString(lowerPrice))
-      setUpperTick(TickMath.getTickAtPriceString(upperPrice))
+      setLowerTick(TickMath.getTickAtPriceString(lowerPrice, tickSpread))
+      setUpperTick(TickMath.getTickAtPriceString(upperPrice, tickSpread))
       console.log('set prices success')
+    } else {
+      console.log('not a number')
     }
   }, [lowerPrice, upperPrice])
 
@@ -615,7 +623,7 @@ export default function CoverExistingPool({
               tokenOut.address != '' &&
               tokenIn.address.localeCompare(tokenOut.address) < 0
             }
-            tickSpacing={20}
+            tickSpacing={tickSpread}
           />
         )}
       </div>

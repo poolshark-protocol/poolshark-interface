@@ -110,7 +110,7 @@ export default function Cover() {
     value: router.query.tokenOneValue ?? '',
   } as token)
   const [latestTick, setLatestTick] = useState(router.query.latestTick ?? 0)
-  const [tickSpacing, setTickSpacing] = useState(router.query.tickSp ?? 20)
+  const [tickSpacing, setTickSpacing] = useState(router.query.tickSpacing ?? 20)
 
   const [liquidity, setLiquidity] = useState(router.query.liquidity ?? '0')
   const [feeTier, setFeeTier] = useState(router.query.feeTier ?? '')
