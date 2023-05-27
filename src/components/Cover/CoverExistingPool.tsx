@@ -58,8 +58,10 @@ export default function CoverExistingPool({
   }
   const { address, isConnected, isDisconnected } = useAccount()
   const [expanded, setExpanded] = useState(false)
+  const [fetchDelay, setFetchDelay] = useState(false)
   const [tickSpread, setTickSpread] = useState(10)
   const [tokenOrder, setTokenOrder] = useState(zeroForOne)
+  const [latestTick, setLatestTick] = useState(0)
   const [lowerTick, setLowerTick] = useState(
     getDefaultLowerTick(minLimit, maxLimit, zeroForOne),
   )
@@ -172,8 +174,27 @@ export default function CoverExistingPool({
   }, [sliderValue, tokenOut.value])
 
   useEffect(() => {
-    getCoverPool()
+    setFetchDelay(false)
+  }, [coverPoolRoute])
+
+  useEffect(() => {
+    setFetchDelay(true)
   }, [])
+
+  // fetches
+  // - coverPoolRoute => pool address
+  // - tickSpread => pool tick spacing
+  // - latestTick => current TWAP tick
+  useEffect(() => {
+    if(!fetchDelay) {
+      getCoverPool()
+    } else {
+      const interval = setInterval(() => {
+        getCoverPool()
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [fetchDelay])
 
   const getCoverPool = async () => {
     //console.log('liquidity', liquidity)
@@ -185,22 +206,25 @@ export default function CoverExistingPool({
         pool = await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
       }
       let id = ZERO_ADDRESS
-      let tickSpread = 20
+      let tickSpread = 10
+      let newLatestTick = 0
       let dataLength = pool['data']['coverPools'].length
       if (dataLength != 0) {
         id = pool['data']['coverPools']['0']['id']
         tickSpread =
           pool['data']['coverPools']['0']['volatilityTier']['tickSpread']
+        newLatestTick = pool['data']['coverPools']['0']['latestTick']
       }
       setCoverPoolRoute(id)
       setTickSpread(tickSpread)
+      setLatestTick(newLatestTick)
     } catch (error) {
       console.log(error)
     }
   }
 
   useEffect(() => {
-    changeAmountIn()
+    changeCoverAmounts()
   }, [coverValue, lowerTick, upperTick])
 
   // check for valid inputs
@@ -208,12 +232,14 @@ export default function CoverExistingPool({
     setDisabled(lowerPrice === undefined || upperPrice === undefined)
   }, [lowerPrice, upperPrice, coverAmountIn])
 
-  function changeAmountIn() {
+  function changeCoverAmounts() {
     console.log('prices set:', lowerTick, upperTick, tickSpread)
     if (
       !isNaN(parseFloat(lowerPrice)) &&
       !isNaN(parseFloat(upperPrice)) &&
-      !isNaN(parseFloat(userLiquidity))
+      !isNaN(parseFloat(userLiquidity)) &&
+      parseFloat(lowerPrice) > 0 &&
+      parseFloat(upperPrice) > 0
     ) {
       console.log('tick check', lowerTick, upperTick)
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
@@ -535,7 +561,7 @@ export default function CoverExistingPool({
               className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
             />
           </div>
-          <div>{tokenOut.name}</div>
+          <div>{tokenOut.symbol}</div>
         </div>
         {mktRate[tokenIn.symbol] ? (
           <div className="flex justify-between text-sm">
