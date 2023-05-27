@@ -83,7 +83,7 @@ export default function Pool() {
   async function getUserRangePositionData() {
     const data = await fetchRangePositions(address)
     if (data) {
-      const positions = data['data'].positions
+      const positions = data['data'].positionFractions
       setRangePositions(positions)
     }
   }
@@ -124,12 +124,12 @@ export default function Pool() {
         userLiquidity: Math.round(rangePosition.amount / rangePosition.token.totalSupply 
                                   * rangePosition.token.position.liquidity),
         tvlUsd: (
-          Number(rangePosition.pool.totalValueLockedUsd) / 1_000_000
+          Number(rangePosition.token.position.pool.totalValueLockedUsd) / 1_000_000
         ).toFixed(2),
-        volumeUsd: (Number(rangePosition.pool.volumeUsd) / 1_000_000).toFixed(
+        volumeUsd: (Number(rangePosition.token.position.pool.volumeUsd) / 1_000_000).toFixed(
           2,
         ),
-        volumeEth: (Number(rangePosition.pool.volumeEth) / 1).toFixed(2),
+        volumeEth: (Number(rangePosition.token.position.pool.volumeEth) / 1).toFixed(2),
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
       }
       mappedRangePositions.push(rangePositionData)
@@ -144,6 +144,9 @@ export default function Pool() {
       const coverPositionData = {
         poolId: coverPosition.pool.id,
         valueTokenZero: coverPosition.inAmount,
+        tokenZero: coverPosition.zeroForOne
+        ? coverPosition.pool.token0
+        : coverPosition.pool.token1,
         tokenOne: coverPosition.zeroForOne
           ? coverPosition.pool.token1
           : coverPosition.pool.token0,
