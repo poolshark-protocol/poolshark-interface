@@ -470,7 +470,6 @@ export default function Swap() {
       && tokenOut.address != ''
       && priceCover != undefined) {
         setCoverPrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(priceCover[0])))
-        setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
       }
     }
 
@@ -487,11 +486,9 @@ export default function Swap() {
             ),
           ),
         )
-        setRangeBnPrice(ethers.utils.parseUnits(rangePrice.toString(), 18))
-        console.log('rangeBnPrice', rangeBnPrice.toString())
       }
     }
-  }, [priceCover, priceRange])
+  }, [coverPoolRoute, rangePoolRoute, priceCover, priceRange])
 
   useEffect(() => {
     if (quoteRange) {
@@ -548,6 +545,11 @@ export default function Swap() {
   useEffect(() => {
     updateSwapAmount(bnInput)
   }, [bnInput])
+
+  useEffect(() => {
+    setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
+    setRangeBnPrice(ethers.utils.parseUnits(rangePrice.toString(), 18))
+  }, [coverPrice, rangePrice])
 
   useEffect(() => {
     getBnSlippage()
