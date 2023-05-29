@@ -226,7 +226,7 @@ export default function RangePool({
     fetchTokenPrice()
   }, [rangePrice, tokenIn, tokenOut])
 
-  async function setRangeParams() {
+  function setRangeParams() {
     try {
       if (
         minPrice !== undefined &&

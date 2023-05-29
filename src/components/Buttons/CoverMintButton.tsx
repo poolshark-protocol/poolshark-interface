@@ -12,6 +12,7 @@ import React, { useState, useEffect } from 'react'
 import { coverPoolAddress } from '../../constants/contractAddresses'
 import { useCoverStore } from '../../hooks/useStore'
 import { roundTick } from '../../utils/math/tickMath'
+import { BN_ZERO } from '../../utils/math/constants'
 
 export default function CoverMintButton({
   poolAddress,
@@ -49,7 +50,7 @@ export default function CoverMintButton({
     })
   }, [disabled, to, lower, claim, upper, amount, zeroForOne])*/
 
-  console.log(
+  /* console.log(
     'mint params',
     to,
     amount.toString(),
@@ -57,7 +58,7 @@ export default function CoverMintButton({
     roundTick(Number(claim), 40),
     roundTick(Number(upper), 40),
     zeroForOne,
-  )
+  ) */
 
   const { config } = usePrepareContractWrite({
     address: poolAddress,
@@ -66,13 +67,15 @@ export default function CoverMintButton({
     args: [
       [
         to,
-        amount,
+        // amount,
+        ethers.utils.parseUnits('1000', 18),
         roundTick(Number(lower), 40),
         roundTick(Number(claim), 40),
         roundTick(Number(upper), 40),
         zeroForOne,
       ],
     ],
+    enabled: amount.toString() != '0',
     chainId: 421613,
     overrides: {
       gasLimit: BigNumber.from('3500000'),

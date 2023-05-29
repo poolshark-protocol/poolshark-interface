@@ -74,27 +74,34 @@ export default function Pool() {
 
   async function getRangePoolData() {
     const data = await fetchRangePools()
-    const pools = data['data'].rangePools
-    setRangePools(pools)
+    if (data) {
+      const pools = data['data'].rangePools
+      setRangePools(pools)
+    }
   }
 
   async function getUserRangePositionData() {
     const data = await fetchRangePositions(address)
-    const positions = data['data'].positions
-    setRangePositions(positions)
+    if (data) {
+      const positions = data['data'].positionFractions
+      setRangePositions(positions)
+    }
   }
 
   async function getCoverPoolData() {
     const data = await fetchCoverPools()
-    const pools = data['data'].coverPools
-    setCoverPools(pools)
+    if (data) {
+      const pools = data['data'].coverPools
+      setCoverPools(pools)
+    }
   }
 
   async function getUserCoverPositionData() {
     const data = await fetchCoverPositions(address)
-    const positions = data['data'].positions
-    console.log('cover positions', positions)
-    setCoverPositions(positions)
+    if (data) {
+      const positions = data['data'].positions
+      setCoverPositions(positions)
+    }
   }
 
   function mapUserRangePositions() {
@@ -102,25 +109,27 @@ export default function Pool() {
     rangePositions.map((rangePosition) => {
       const rangePositionData = {
         id: rangePosition.id,
-        poolId: rangePosition.pool.id,
-        tokenZero: rangePosition.pool.token0,
-        valueTokenZero: rangePosition.pool.totalValueLocked0,
-        tokenOne: rangePosition.pool.token1,
-        valueTokenOne: rangePosition.pool.totalValueLocked1,
-        min: rangePosition.lower,
-        max: rangePosition.upper,
-        price: rangePosition.pool.price,
-        feeTier: rangePosition.pool.feeTier.feeAmount,
-        tickSpacing: rangePosition.pool.feeTier.tickSpacing,
-        unclaimedFees: rangePosition.pool.feesUsd,
-        liquidity: rangePosition.liquidity,
+        poolId: rangePosition.token.position.pool.id,
+        tokenZero: rangePosition.token.position.pool.token0,
+        valueTokenZero: rangePosition.token.position.pool.totalValueLocked0,
+        tokenOne: rangePosition.token.position.pool.token1,
+        valueTokenOne: rangePosition.token.position.pool.totalValueLocked1,
+        min: rangePosition.token.position.lower,
+        max: rangePosition.token.position.upper,
+        price: rangePosition.token.position.pool.price,
+        tickSpacing: rangePosition.token.position.pool.feeTier.tickSpacing,
+        feeTier: rangePosition.token.position.pool.feeTier.feeAmount,
+        unclaimedFees: rangePosition.token.position.pool.feesUsd,
+        liquidity: rangePosition.token.position.pool.liquidity,
+        userLiquidity: Math.round(rangePosition.amount / rangePosition.token.totalSupply 
+                                  * rangePosition.token.position.liquidity),
         tvlUsd: (
-          Number(rangePosition.pool.totalValueLockedUsd) / 1_000_000
+          Number(rangePosition.token.position.pool.totalValueLockedUsd) / 1_000_000
         ).toFixed(2),
-        volumeUsd: (Number(rangePosition.pool.volumeUsd) / 1_000_000).toFixed(
+        volumeUsd: (Number(rangePosition.token.position.pool.volumeUsd) / 1_000_000).toFixed(
           2,
         ),
-        volumeEth: (Number(rangePosition.pool.volumeEth) / 1).toFixed(2),
+        volumeEth: (Number(rangePosition.token.position.pool.volumeEth) / 1).toFixed(2),
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
       }
       mappedRangePositions.push(rangePositionData)
@@ -130,29 +139,29 @@ export default function Pool() {
 
   function mapUserCoverPositions() {
     const mappedCoverPositions = []
-    coverPositions.map((coverPosition) => {
+    coverPositions.map(async (coverPosition): Promise<void> => {
       console.log('coverPosition', coverPosition)
+      // console.log('mapped positions', mappedCoverPositions)
+      let claimTick = await getClaimTick(
+        coverPosition.pool.id,
+        coverPosition.lower,
+        coverPosition.upper,
+        coverPosition.zeroForOne,
+        coverPosition.epochLast,
+      )
       const coverPositionData = {
-        id: coverPosition.id,
         poolId: coverPosition.pool.id,
-        tokenZero: coverPosition.zeroForOne
-          ? coverPosition.pool.token0
-          : coverPosition.pool.token1,
         valueTokenZero: coverPosition.inAmount,
+        tokenZero: coverPosition.zeroForOne
+        ? coverPosition.pool.token0
+        : coverPosition.pool.token1,
         tokenOne: coverPosition.zeroForOne
           ? coverPosition.pool.token1
           : coverPosition.pool.token0,
         valueTokenOne: coverPosition.outAmount,
         min: coverPosition.lower,
         max: coverPosition.upper,
-        //TODO: needs to be awaited
-        claim: getClaimTick(
-          coverPosition.pool.id,
-          coverPosition.lower,
-          coverPosition.upper,
-          coverPosition.zeroForOne,
-          coverPosition.epochLast,
-        ),
+        claim: claimTick,
         zeroForOne: coverPosition.zeroForOne,
         userFillIn: coverPosition.amountInDeltaMax,
         userFillOut: coverPosition.amountOutDeltaMax,
@@ -160,11 +169,12 @@ export default function Pool() {
         latestTick: coverPosition.pool.latestTick,
         liquidity: coverPosition.liquidity,
         feeTier: coverPosition.pool.volatilityTier.feeAmount,
-        tickSpread: coverPosition.pool.volatilityTier.tickSpread,
+        tickSpacing: coverPosition.pool.volatilityTier.tickSpread,
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
       mappedCoverPositions.push(coverPositionData)
     })
+    console.log('mapped positions', mappedCoverPositions)
     setAllCoverPositions(mappedCoverPositions)
   }
 
@@ -197,7 +207,7 @@ export default function Pool() {
         tokenZero: coverPool.token0,
         liquidity: coverPool.liquidity,
         feeTier: coverPool.volatilityTier.feeAmount,
-        tickSpread: coverPool.volatilityTier.tickSpread,
+        tickSpacing: coverPool.volatilityTier.tickSpread,
         tvlUsd: (Number(coverPool.totalValueLockedUsd) / 1_000_000).toFixed(2),
         volumeUsd: (Number(coverPool.volumeUsd) / 1_000_000).toFixed(2),
         volumeEth: (Number(coverPool.volumeEth) / 1).toFixed(2),
@@ -393,7 +403,7 @@ export default function Pool() {
                                 clipRule="evenodd"
                               />
                             </svg>
-                            Your range pools will appear here.
+                            Your range positions will appear here.
                           </div>
                         </div>
                       ) : (
@@ -455,7 +465,7 @@ export default function Pool() {
                               clipRule="evenodd"
                             />
                           </svg>
-                          Your cover pools will appear here.
+                          Your cover positions will appear here.
                         </div>
                       </div>
                     ) : (
@@ -494,7 +504,7 @@ export default function Pool() {
                               epochLast={allCoverPosition.epochLast}
                               liquidity={allCoverPosition.liquidity}
                               latestTick={allCoverPosition.latestTick}
-                              tickSp={allCoverPosition.tickSp}
+                              tickSpacing={allCoverPosition.tickSpacing}
                               feeTier={allCoverPosition.feeTier}
                               prefill={undefined}
                               close={undefined}
@@ -547,7 +557,7 @@ export default function Pool() {
                                 tokenOne={allRangePool.tokenOne}
                                 liquidity={allRangePool.liquidity}
                                 feeTier={allRangePool.feeTier}
-                                tickSp={allRangePool.tickSpacing}
+                                tickSpacing={allRangePool.tickSpacing}
                                 tvlUsd={allRangePool.tvlUsd}
                                 volumeUsd={allRangePool.volumeUsd}
                                 volumeEth={allRangePool.volumeEth}
@@ -580,7 +590,7 @@ export default function Pool() {
                                 tokenOne={allCoverPool.tokenOne}
                                 liquidity={allCoverPool.liquidity}
                                 feeTier={allCoverPool.feeTier}
-                                tickSp={allCoverPool.tickSpread}
+                                tickSpacing={allCoverPool.tickSpacing}
                                 tvlUsd={allCoverPool.tvlUsd}
                                 volumeUsd={allCoverPool.volumeUsd}
                                 volumeEth={allCoverPool.volumeEth}

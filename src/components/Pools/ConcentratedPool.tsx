@@ -218,7 +218,7 @@ export default function ConcentratedPool({
     }
   }
 
-  async function setRangeParams() {
+  function setRangeParams() {
     try {
       if (
         minPrice !== undefined &&

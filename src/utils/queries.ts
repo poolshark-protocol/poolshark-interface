@@ -78,6 +78,9 @@ export const getCoverPoolFromFactory = (token0: string, token1: string) => {
             coverPools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
               id
               latestTick
+              volatilityTier {
+                tickSpread
+              }
             }
           }
          `
@@ -390,55 +393,61 @@ export const fetchRangePools = () => {
 export const fetchRangePositions = (address: string) => {
   return new Promise(function (resolve) {
     const positionsQuery = `
-    query($owner: String) {
-      positions(where: {owner:"${address}"}) {
-                id
-                owner
-                liquidity
-                upper
-                lower
-                pool{
-                    id
-                    token0{
-                        id
-                        name
-                        symbol
-                        decimals
-                    }
-                    token1{
-                        id
-                        name
-                        symbol
-                        decimals
-                    }
-                    ticks{
-                        price0
-                        price1
-                        liquidityDelta
-                        liquidityDeltaMinus
-                    }
-                    factory{
-                        id
-                    }
-                    price
-                    liquidity
-                    feeTier{
-                        feeAmount
-                        tickSpacing
-                    }
-                    feesEth
-                    feesUsd
-                    totalValueLockedEth
-                    totalValueLockedUsd
-                    totalValueLocked0
-                    totalValueLocked1
-                    volumeEth
-                    volumeToken0
-                    volumeToken1
-                    volumeUsd
-                }
-            }  
+    {
+      positionFractions(where: {owner:"${address}"}) {
+        id
+        owner
+        amount
+        token{
+          totalSupply
+          position{
+            lower
+            upper
+            liquidity
+            pool {
+              id
+              token0{
+                  id
+                  name
+                  symbol
+                  decimals
+              }
+              token1{
+                  id
+                  name
+                  symbol
+                  decimals
+              }
+              ticks{
+                  price0
+                  price1
+                  liquidityDelta
+                  liquidityDeltaMinus
+              }
+              factory{
+                  id
+              }
+              price
+              liquidity
+              feeTier{
+                  feeAmount
+                  tickSpacing
+              }
+              feesEth
+              feesUsd
+              totalValueLockedEth
+              totalValueLockedUsd
+              totalValueLocked0
+              totalValueLocked1
+              volumeEth
+              volumeToken0
+              volumeToken1
+              volumeUsd
+            }
+          }
         }
+      }  
+  }
     `
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-range',
@@ -453,6 +462,7 @@ export const fetchRangePositions = (address: string) => {
       })
       .then((data) => {
         resolve(data)
+        console.log(data)
       })
       .catch((err) => {
         resolve(err)

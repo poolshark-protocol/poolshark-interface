@@ -77,7 +77,9 @@ export default function CreateCover(props: any) {
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
   const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
   const [tokenOrder, setTokenOrder] = useState(true)
-  const [tickSp, setTickSp] = useState(props.query ? props.query.tickSp : 20)
+  const [tickSpacing, setTickSpacing] = useState(
+    props.query ? props.query.tickSpacing : 20,
+  )
   const poolId =
     router.query.poolId === undefined ? '' : router.query.poolId.toString()
 
@@ -566,13 +568,16 @@ export default function CreateCover(props: any) {
               value={minPrice}
               onChange={() =>
                 setMinPrice(
-                  (document.getElementById('minInput') as HTMLInputElement)
-                    ?.value
-                      .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
-                      .replace(/^(\.)+/, '0')
-                      .replace(/(?<=\..*)\./g, '')
-                      .replace(/^0+(?=\d)/, '')
-                      .replace(/[^\d.]/g, '')
+                  (document.getElementById(
+                    'minInput',
+                  ) as HTMLInputElement)?.value
+                    .replace(/^0+(?=[^.0-9]|$)/, (match) =>
+                      match.length > 1 ? '0' : match,
+                    )
+                    .replace(/^(\.)+/, '0')
+                    .replace(/(?<=\..*)\./g, '')
+                    .replace(/^0+(?=\d)/, '')
+                    .replace(/[^\d.]/g, ''),
                 )
               }
             />
@@ -603,13 +608,16 @@ export default function CreateCover(props: any) {
               value={maxPrice}
               onChange={() =>
                 setMaxPrice(
-                  (document.getElementById('maxInput') as HTMLInputElement)
-                    ?.value
-                      .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
-                      .replace(/^(\.)+/, '0')
-                      .replace(/(?<=\..*)\./g, '')
-                      .replace(/^0+(?=\d)/, '')
-                      .replace(/[^\d.]/g, '')
+                  (document.getElementById(
+                    'maxInput',
+                  ) as HTMLInputElement)?.value
+                    .replace(/^0+(?=[^.0-9]|$)/, (match) =>
+                      match.length > 1 ? '0' : match,
+                    )
+                    .replace(/^(\.)+/, '0')
+                    .replace(/(?<=\..*)\./g, '')
+                    .replace(/^0+(?=\d)/, '')
+                    .replace(/[^\d.]/g, ''),
                 )
               }
             />
@@ -673,7 +681,7 @@ export default function CreateCover(props: any) {
               tokenOut.address != '' &&
               tokenIn.address.localeCompare(tokenOut.address) < 0
             }
-            tickSpacing={tickSp}
+            tickSpacing={tickSpacing}
           />
         ) : null}
       </div>
