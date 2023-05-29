@@ -450,7 +450,7 @@ export default function Pool() {
                           }
                         })
                       )
-                    ) : allCoverPositions.length === 0 ? (
+                    ) : allCoverPositions.length == 0 ? (
                       <div className="space-y-2">
                         <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
                           <svg
