@@ -491,7 +491,7 @@ export default function Swap() {
         console.log('rangeBnPrice', rangeBnPrice.toString())
       }
     }
-  }, [tokenIn.address, tokenOut.address, coverPoolRoute, rangePoolRoute, priceCover, priceRange])
+  }, [priceCover, priceRange])
 
   useEffect(() => {
     if (quoteRange) {
@@ -527,7 +527,7 @@ export default function Swap() {
           setSlippageFetched(true)
       }
     }
-  }, [tokenIn.address, tokenOut.address, rangePoolRoute, coverPoolRoute, quoteCover, quoteRange, bnInput])
+  }, [quoteCover, quoteRange, bnInput])
 
   useEffect(() => {
     setTimeout(() => {
@@ -556,8 +556,6 @@ export default function Swap() {
     console.log('rangeBnBaseLimit', rangeBnBaseLimit.toString())
     console.log('coverBnBaseLimit', coverBnBaseLimit.toString())
   }, [slippage, rangeBnPrice, coverBnPrice])
-
-
 
   //@dev TO-DO: fetch token Addresses, use for pool quote (smallest fee tier)
   //@dev TO-DO: re-route pool and handle allowances
