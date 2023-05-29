@@ -4,7 +4,12 @@ import Network from "../Modals/Network";
 import { useState } from "react";
 import React from "react";
 
-export const ConnectWalletButton = () => {
+interface Props {
+    xl?: boolean;
+}
+
+
+export const ConnectWalletButton = ({xl= false}: Props) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -41,7 +46,7 @@ export const ConnectWalletButton = () => {
                 if (!connected) {
                   return (
                     <button
-                      className="w-full py-2.5 text-sm mx-auto text-white px-8 font-Satoshi text-center transition rounded-lg cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+                      className={`w-full mx-auto text-white px-8 font-Satoshi text-center transition rounded-lg cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80 ${xl ? `py-4 font-medium` : `py-2.5 text-sm`}`}
                       onClick={openConnectModal}
                       type="button"
                     >
@@ -65,12 +70,12 @@ export const ConnectWalletButton = () => {
                 }
                 return (
                   <>
-                    <div className="flex text-white gap-x-4">
+                    <div className="flex flex-col items-end mt-14 xl:flex-row xl:mt-0 justify-end gap-y-4 text-white gap-x-4">
                       <button
                         onClick={() => setIsOpen(true)}
                         style={{ display: "flex", alignItems: "center" }}
                         type="button"
-                        className="bg-black border-grey1 border rounded-lg py-2 px-4 gap-x-2 hover:opacity-80"
+                        className="bg-black border-grey1 border rounded-lg w-min py-2 px-4 gap-x-2 hover:opacity-80"
                       >
                         {chain.hasIcon && (
                           <div>
@@ -91,7 +96,9 @@ export const ConnectWalletButton = () => {
                         ) : (
                           ""
                         )}
+                        <div className="whitespace-nowrap pr-4">
                         {chain.name}
+                        </div>
                       </button>
                       <button
                         onClick={openAccountModal}

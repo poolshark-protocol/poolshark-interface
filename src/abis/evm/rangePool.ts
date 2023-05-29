@@ -12,6 +12,16 @@ export const rangePoolABI = [
         "type": "address"
       },
       {
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
+      },
+      {
+        "internalType": "uint160",
+        "name": "_startPrice",
+        "type": "uint160"
+      },
+      {
         "internalType": "int24",
         "name": "_tickSpacing",
         "type": "int24"
@@ -20,16 +30,6 @@ export const rangePoolABI = [
         "internalType": "uint16",
         "name": "_swapFee",
         "type": "uint16"
-      },
-      {
-        "internalType": "uint160",
-        "name": "_startPrice",
-        "type": "uint160"
-      },
-      {
-        "internalType": "contract IRangePoolManager",
-        "name": "_owner",
-        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -67,36 +67,6 @@ export const rangePoolABI = [
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "FactoryOnly",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidPosition",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidSwapFee",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidTick",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidTickSpread",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidToken",
-    "type": "error"
-  },
-  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -114,12 +84,12 @@ export const rangePoolABI = [
   },
   {
     "inputs": [],
-    "name": "LiquidityOverflow",
+    "name": "Locked",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "Locked",
+    "name": "ManagerOnly",
     "type": "error"
   },
   {
@@ -129,22 +99,7 @@ export const rangePoolABI = [
   },
   {
     "inputs": [],
-    "name": "NotEnoughOutputLiquidity",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "OwnerOnly",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "RangeErc20InsufficientBalance",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "RangeErc20NotFound",
     "type": "error"
   },
   {
@@ -219,11 +174,6 @@ export const rangePoolABI = [
   {
     "inputs": [],
     "name": "TransferToSelf",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "WaitUntilEnoughObservations",
     "type": "error"
   },
   {
@@ -442,24 +392,6 @@ export const rangePoolABI = [
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "collectFees",
-    "outputs": [
-      {
-        "internalType": "uint128",
-        "name": "token0Fees",
-        "type": "uint128"
-      },
-      {
-        "internalType": "uint128",
-        "name": "token1Fees",
-        "type": "uint128"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "uint16",
@@ -582,7 +514,7 @@ export const rangePoolABI = [
     "name": "owner",
     "outputs": [
       {
-        "internalType": "contract IRangePoolManager",
+        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -600,14 +532,14 @@ export const rangePoolABI = [
         "type": "uint8"
       },
       {
-        "internalType": "int24",
-        "name": "nearestTick",
-        "type": "int24"
+        "internalType": "uint16",
+        "name": "protocolFee",
+        "type": "uint16"
       },
       {
-        "internalType": "uint32",
-        "name": "secondsGrowthGlobal",
-        "type": "uint32"
+        "internalType": "int24",
+        "name": "tickAtPrice",
+        "type": "int24"
       },
       {
         "internalType": "int56",
@@ -739,6 +671,35 @@ export const rangePoolABI = [
   {
     "inputs": [
       {
+        "internalType": "uint16",
+        "name": "protocolFee",
+        "type": "uint16"
+      },
+      {
+        "internalType": "bool",
+        "name": "setFee",
+        "type": "bool"
+      }
+    ],
+    "name": "protocolFees",
+    "outputs": [
+      {
+        "internalType": "uint128",
+        "name": "token0Fees",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "token1Fees",
+        "type": "uint128"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bool",
         "name": "zeroForOne",
         "type": "bool"
@@ -757,157 +718,19 @@ export const rangePoolABI = [
     "name": "quote",
     "outputs": [
       {
-        "components": [
-          {
-            "internalType": "uint8",
-            "name": "unlocked",
-            "type": "uint8"
-          },
-          {
-            "internalType": "int24",
-            "name": "nearestTick",
-            "type": "int24"
-          },
-          {
-            "internalType": "uint32",
-            "name": "secondsGrowthGlobal",
-            "type": "uint32"
-          },
-          {
-            "internalType": "int56",
-            "name": "tickSecondsAccum",
-            "type": "int56"
-          },
-          {
-            "internalType": "uint160",
-            "name": "secondsPerLiquidityAccum",
-            "type": "uint160"
-          },
-          {
-            "internalType": "uint160",
-            "name": "price",
-            "type": "uint160"
-          },
-          {
-            "internalType": "uint128",
-            "name": "liquidity",
-            "type": "uint128"
-          },
-          {
-            "internalType": "uint128",
-            "name": "liquidityGlobal",
-            "type": "uint128"
-          },
-          {
-            "internalType": "uint200",
-            "name": "feeGrowthGlobal0",
-            "type": "uint200"
-          },
-          {
-            "internalType": "uint200",
-            "name": "feeGrowthGlobal1",
-            "type": "uint200"
-          },
-          {
-            "components": [
-              {
-                "internalType": "uint16",
-                "name": "index",
-                "type": "uint16"
-              },
-              {
-                "internalType": "uint16",
-                "name": "length",
-                "type": "uint16"
-              },
-              {
-                "internalType": "uint16",
-                "name": "lengthNext",
-                "type": "uint16"
-              }
-            ],
-            "internalType": "struct IRangePoolStructs.SampleState",
-            "name": "samples",
-            "type": "tuple"
-          },
-          {
-            "components": [
-              {
-                "internalType": "uint128",
-                "name": "token0",
-                "type": "uint128"
-              },
-              {
-                "internalType": "uint128",
-                "name": "token1",
-                "type": "uint128"
-              }
-            ],
-            "internalType": "struct IRangePoolStructs.ProtocolFees",
-            "name": "protocolFees",
-            "type": "tuple"
-          }
-        ],
-        "internalType": "struct IRangePoolStructs.PoolState",
+        "internalType": "uint256",
         "name": "",
-        "type": "tuple"
+        "type": "uint256"
       },
       {
-        "components": [
-          {
-            "internalType": "bool",
-            "name": "cross",
-            "type": "bool"
-          },
-          {
-            "internalType": "int24",
-            "name": "tick",
-            "type": "int24"
-          },
-          {
-            "internalType": "int24",
-            "name": "crossTick",
-            "type": "int24"
-          },
-          {
-            "internalType": "uint16",
-            "name": "swapFee",
-            "type": "uint16"
-          },
-          {
-            "internalType": "uint16",
-            "name": "protocolFee",
-            "type": "uint16"
-          },
-          {
-            "internalType": "uint256",
-            "name": "input",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "output",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amountIn",
-            "type": "uint256"
-          },
-          {
-            "internalType": "int56",
-            "name": "tickSecondsAccum",
-            "type": "int56"
-          },
-          {
-            "internalType": "uint160",
-            "name": "secondsPerLiquidityAccum",
-            "type": "uint160"
-          }
-        ],
-        "internalType": "struct IRangePoolStructs.SwapCache",
+        "internalType": "uint256",
         "name": "",
-        "type": "tuple"
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint160",
+        "name": "",
+        "type": "uint160"
       }
     ],
     "stateMutability": "view",
@@ -1019,6 +842,62 @@ export const rangePoolABI = [
   {
     "inputs": [
       {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "int24",
+            "name": "lower",
+            "type": "int24"
+          },
+          {
+            "internalType": "int24",
+            "name": "upper",
+            "type": "int24"
+          }
+        ],
+        "internalType": "struct IRangePoolStructs.SnapshotParams",
+        "name": "params",
+        "type": "tuple"
+      }
+    ],
+    "name": "snapshot",
+    "outputs": [
+      {
+        "internalType": "int56",
+        "name": "tickSecondsAccum",
+        "type": "int56"
+      },
+      {
+        "internalType": "uint160",
+        "name": "secondsPerLiquidityAccum",
+        "type": "uint160"
+      },
+      {
+        "internalType": "uint32",
+        "name": "secondsGrowth",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint128",
+        "name": "feesOwed0",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "feesOwed1",
+        "type": "uint128"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes4",
         "name": "_interfaceId",
         "type": "bytes4"
@@ -1043,6 +922,11 @@ export const rangePoolABI = [
         "type": "address"
       },
       {
+        "internalType": "address",
+        "name": "refundRecipient",
+        "type": "address"
+      },
+      {
         "internalType": "bool",
         "name": "zeroForOne",
         "type": "bool"
@@ -1059,7 +943,18 @@ export const rangePoolABI = [
       }
     ],
     "name": "swap",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
+      },
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -1149,11 +1044,6 @@ export const rangePoolABI = [
         "internalType": "uint160",
         "name": "secondsPerLiquidityAccumOutside",
         "type": "uint160"
-      },
-      {
-        "internalType": "uint32",
-        "name": "secondsGrowthOutside",
-        "type": "uint32"
       }
     ],
     "stateMutability": "view",

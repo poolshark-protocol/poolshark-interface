@@ -77,9 +77,14 @@ export const getCoverPoolFromFactory = (token0: string, token1: string) => {
         {
             coverPools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
               id
+              latestTick
+              volatilityTier {
+                tickSpread
+              }
             }
           }
          `
+    console.log('query:', getPool)
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
       cache: new InMemoryCache(),
@@ -97,33 +102,23 @@ export const getCoverPoolFromFactory = (token0: string, token1: string) => {
   })
 }
 
-export const getPrice = async (id: string) => {
-  const provider = new ethers.providers.JsonRpcProvider(
-    'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
-  )
-  const contract = new ethers.Contract(id, rangePoolABI, provider)
-  const price: PoolState = (await contract.poolState()).price
-  return price.toString()
-}
-
-export const getPreviousTicksLower = (
-  token0: string,
-  token1: string,
-  index: number,
+export const getTickIfZeroForOne = (
+  upper: number,
+  poolAddress: string,
+  epochLast: number,
 ) => {
   return new Promise(function (resolve) {
-    //if ticks are 0/undefined then use min/max
     const getTicks = `
-        { 
-          ticks(
+       { 
+         ticks(
             first: 1
-             where: {index_lt:"${index}",pool_:{token0:"${token0.toLowerCase()}",token1:"0xc3a0736186516792c88e2c6d9b209471651aa46e"}}
-            
-           ) {
-             index
-           }
-         }
-         `
+            where: {index_lte:"${upper}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
+          ) {
+            index
+          }
+        }
+        `
+    console.log('pool address', poolAddress)
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
       cache: new InMemoryCache(),
@@ -132,31 +127,32 @@ export const getPreviousTicksLower = (
       .query({ query: gql(getTicks) })
       .then((data) => {
         resolve(data)
+        /* console.log(data) */
       })
       .catch((err) => {
         resolve(err)
-        console.log(err)
       })
   })
 }
 
-export const getPreviousTicksUpper = (
-  token0: string,
-  token1: string,
-  index: number,
+export const getTickIfNotZeroForOne = (
+  lower: number,
+  poolAddress: string,
+  epochLast: number,
 ) => {
   return new Promise(function (resolve) {
     const getTicks = `
        { 
          ticks(
             first: 1
-            where: {index_gt:"${index}", pool_:{token0:"${token0.toLowerCase()}",token1:"0xc3a0736186516792c88e2c6d9b209471651aa46e"}}
-            
+            where: {index_gte:"${lower}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
           ) {
             index
           }
         }
         `
+    console.log(getTicks)
+    console.log('pool address', poolAddress)
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
       cache: new InMemoryCache(),
@@ -177,7 +173,7 @@ export const fetchCoverPositions = (address: string) => {
   return new Promise(function (resolve) {
     const positionsQuery = `
       query($owner: String) {
-          positions(owner: $owner) {
+          positions(where: {owner:"${address}"}) {
                 id
                 inAmount
                 inToken{
@@ -187,8 +183,11 @@ export const fetchCoverPositions = (address: string) => {
                     decimals
                 }
                 liquidity
+                zeroForOne
                 upper
                 lower
+                amountInDeltaMax
+                amountOutDeltaMax
                 epochLast
                 outAmount
                 outToken{
@@ -215,7 +214,9 @@ export const fetchCoverPositions = (address: string) => {
                     liquidity
                     volatilityTier{
                         feeAmount
+                        tickSpread
                     }
+                    latestTick
                 }
                 txnHash
             }
@@ -263,6 +264,7 @@ export const fetchCoverPools = () => {
                     liquidity
                     volatilityTier{
                         feeAmount
+                        tickSpread
                     }
                     price0
                     price1
@@ -327,9 +329,6 @@ export const fetchRangePools = () => {
             query($id: String) {
                 rangePools(id: $id) {
                     id
-                    factory{
-                        id
-                    }
                     token0{
                         id
                         name
@@ -357,6 +356,7 @@ export const fetchRangePools = () => {
                     price
                     price0
                     price1
+                    price
                     liquidity
                     feesEth
                     feesUsd
@@ -393,52 +393,61 @@ export const fetchRangePools = () => {
 export const fetchRangePositions = (address: string) => {
   return new Promise(function (resolve) {
     const positionsQuery = `
-        query($owner: String) {
-            positions(owner: $owner) {
-                id
-                owner
-                liquidity
-                upper
-                lower
-                pool{
-                    token0{
-                        id
-                        name
-                        symbol
-                        decimals
-                    }
-                    token1{
-                        id
-                        name
-                        symbol
-                        decimals
-                    }
-                    ticks{
-                        price0
-                        price1
-                        liquidityDelta
-                        liquidityDeltaMinus
-                    }
-                    factory{
-                        id
-                    }
-                    liquidity
-                    feeTier{
-                        feeAmount
-                    }
-                    feesEth
-                    feesUsd
-                    totalValueLockedEth
-                    totalValueLockedUsd
-                    totalValueLocked0
-                    totalValueLocked1
-                    volumeEth
-                    volumeToken0
-                    volumeToken1
-                    volumeUsd
-                }
-            }  
+    {
+      positionFractions(where: {owner:"${address}"}) {
+        id
+        owner
+        amount
+        token{
+          totalSupply
+          position{
+            lower
+            upper
+            liquidity
+            pool {
+              id
+              token0{
+                  id
+                  name
+                  symbol
+                  decimals
+              }
+              token1{
+                  id
+                  name
+                  symbol
+                  decimals
+              }
+              ticks{
+                  price0
+                  price1
+                  liquidityDelta
+                  liquidityDeltaMinus
+              }
+              factory{
+                  id
+              }
+              price
+              liquidity
+              feeTier{
+                  feeAmount
+                  tickSpacing
+              }
+              feesEth
+              feesUsd
+              totalValueLockedEth
+              totalValueLockedUsd
+              totalValueLocked0
+              totalValueLocked1
+              volumeEth
+              volumeToken0
+              volumeToken1
+              volumeUsd
+            }
+          }
         }
+      }  
+  }
     `
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-range',
@@ -453,6 +462,7 @@ export const fetchRangePositions = (address: string) => {
       })
       .then((data) => {
         resolve(data)
+        console.log(data)
       })
       .catch((err) => {
         resolve(err)
@@ -500,6 +510,7 @@ export const fetchUniV3Pools = () => {
             query($id: String) {
                 pools(id: $id) {
                     id
+                    tick
                     liquidity
                     sqrtPrice
                     totalValueLockedETH
@@ -557,6 +568,9 @@ export const fetchUniV3Positions = (address: string) => {
                         symbol
                         decimals
                     }
+                    pool {
+                      tick
+                    }
                     depositedToken0
                     depositedToken1
                     withdrawnToken0
@@ -565,7 +579,7 @@ export const fetchUniV3Positions = (address: string) => {
             }
         `
     const client = new ApolloClient({
-      uri: 'https://api.thegraph.com/subgraphs/name/liqwiz/uniswap-v3-goerli',
+      uri: 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
       cache: new InMemoryCache(),
     })
     client

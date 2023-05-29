@@ -27,23 +27,5 @@ export default function useSwapAllowance(address) {
      },
    });
    return allowance;
- }
-
-//This wass the alternative Fucntion on Swap page
-/*  const getAllowance = async () => {
-  try {
-    const provider = new ethers.providers.JsonRpcProvider(
-      'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
-    )
-    const signer = new ethers.VoidSigner(address, provider)
-    const contract = new ethers.Contract(tokenIn.address, erc20ABI, signer)
-    const allowance = await contract.allowance(address, rangePoolAddress)
-    
-    //console.log('allowance', allowance)
-    setAllowance(allowance)
-  } catch (error) {
-    console.log(error)
-  }
-} */
-
+}
     

@@ -4,34 +4,33 @@ import {
     useWaitForTransaction,
 } from 'wagmi';
 import { coverPoolABI } from "../../abis/evm/coverPool";
-import { coverPoolAddress } from "../../constants/contractAddresses";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BigNumber, ethers } from "ethers";
 
-export default function CoverCollectButton({ address, lower, claim, upper, zeroForOne }) {
+export default function CoverCollectButton({ poolAddress, address, lower, claim, upper, zeroForOne }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
 
   const { config } = usePrepareContractWrite({
-      address: coverPoolAddress,
+      address: poolAddress,
       abi: coverPoolABI,
       functionName: "burn",
       args:[[
           address,
+          BigNumber.from(0),
           lower,
           claim,
           upper,
           zeroForOne,
-          ethers.utils.parseUnits('0'),
           true
       ]],
       chainId: 421613,
       overrides:{
-          gasLimit: BigNumber.from("3500000")
+          gasLimit: BigNumber.from("350000000")
       },
   })
 

@@ -1,6 +1,7 @@
 import JSBI from 'jsbi';
-import { Q96 } from './constants'
+import { Q96_BI } from './constants'
 import { PrecisionMath } from './precisionMath';
+import { BigNumber } from 'ethers';
 
 export abstract class DyDxMath {
 
@@ -13,9 +14,9 @@ export abstract class DyDxMath {
     let dy: JSBI;
     const priceDiff = JSBI.subtract(priceUpper, priceLower);
     if (roundUp) {
-      dy = PrecisionMath.mulDivRoundingUp(liquidity, priceDiff, Q96);
+      dy = PrecisionMath.mulDivRoundingUp(liquidity, priceDiff, Q96_BI);
     } else {
-      dy = PrecisionMath.mulDiv(liquidity, priceDiff, Q96);
+      dy = PrecisionMath.mulDiv(liquidity, priceDiff, Q96_BI);
     }
     return dy;
   }
@@ -46,25 +47,27 @@ export abstract class DyDxMath {
     priceLower: JSBI,
     priceUpper: JSBI,
     currentPrice: JSBI,
-    dy: JSBI,
-    dx: JSBI
+    dyBN: BigNumber,
+    dxBN: BigNumber
   ): JSBI {
     let liquidity: JSBI;
+    let dx = JSBI.BigInt(dyBN.toString())
+    let dy = JSBI.BigInt(dxBN.toString())
     if (JSBI.lessThanOrEqual(priceUpper, currentPrice)) {
-      liquidity = PrecisionMath.mulDivRoundingUp(dy, Q96, JSBI.subtract(priceUpper, priceLower));
+      liquidity = PrecisionMath.mulDivRoundingUp(dy, Q96_BI, JSBI.subtract(priceUpper, priceLower));
     } else if (JSBI.lessThanOrEqual(currentPrice, priceLower)) {
       liquidity = PrecisionMath.mulDivRoundingUp(
         dx,
-        PrecisionMath.mulDivRoundingUp(priceLower, priceUpper, Q96),
+        PrecisionMath.mulDivRoundingUp(priceLower, priceUpper, Q96_BI),
         JSBI.subtract(priceUpper, priceLower)
       );
     } else {
       const liquidity0 = PrecisionMath.mulDivRoundingUp(
         dx,
-        PrecisionMath.mulDivRoundingUp(priceUpper, currentPrice, Q96),
+        PrecisionMath.mulDivRoundingUp(priceUpper, currentPrice, Q96_BI),
         JSBI.subtract(priceUpper, currentPrice)
       );
-      const liquidity1 = PrecisionMath.mulDivRoundingUp(dy, Q96, JSBI.subtract(currentPrice, priceLower));
+      const liquidity1 = PrecisionMath.mulDivRoundingUp(dy, Q96_BI, JSBI.subtract(currentPrice, priceLower));
       liquidity = JSBI.lessThan(liquidity0, liquidity1) ? liquidity0 : liquidity1;
     }
     return liquidity;

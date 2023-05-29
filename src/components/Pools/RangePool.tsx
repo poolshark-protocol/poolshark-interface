@@ -226,7 +226,7 @@ export default function RangePool({
     fetchTokenPrice()
   }, [rangePrice, tokenIn, tokenOut])
 
-  async function setRangeParams() {
+  function setRangeParams() {
     try {
       if (
         minPrice !== undefined &&
@@ -236,40 +236,8 @@ export default function RangePool({
         Number(ethers.utils.formatUnits(bnInput)) !== 0 &&
         hasSelected == true
       ) {
-        const min = TickMath.getTickAtSqrtRatio(
-          JSBI.divide(
-            JSBI.multiply(
-              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
-              JSBI.BigInt(
-                String(
-                  Math.sqrt(Number(parseFloat(minPrice).toFixed(30))).toFixed(
-                    30,
-                  ),
-                )
-                  .split('.')
-                  .join(''),
-              ),
-            ),
-            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
-          ),
-        )
-        const max = TickMath.getTickAtSqrtRatio(
-          JSBI.divide(
-            JSBI.multiply(
-              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
-              JSBI.BigInt(
-                String(
-                  Math.sqrt(Number(parseFloat(maxPrice).toFixed(30))).toFixed(
-                    30,
-                  ),
-                )
-                  .split('.')
-                  .join(''),
-              ),
-            ),
-            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
-          ),
-        )
+        const min = TickMath.getTickAtPriceString(minPrice)
+        const max = TickMath.getTickAtPriceString(maxPrice)
         setTo(address)
         setMin(ethers.utils.parseUnits(String(min), 0))
         setMax(ethers.utils.parseUnits(String(max), 0))
@@ -631,11 +599,17 @@ export default function RangePool({
                   className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
                   placeholder={minPrice}
                   id="minInput"
-                  type="number"
+                  type="text"
+                  value={minPrice}
                   onChange={() =>
                     setMinPrice(
                       (document.getElementById('minInput') as HTMLInputElement)
-                        ?.value,
+                        ?.value
+                          .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+                          .replace(/^(\.)+/, '0')
+                          .replace(/(?<=\..*)\./g, '')
+                          .replace(/^0+(?=\d)/, '')
+                          .replace(/[^\d.]/g, '')
                     )
                   }
                 />

@@ -6,6 +6,7 @@ export default function PoolList({
   tokenZero,
   liquidity,
   feeTier,
+  tickSpacing,
   tvlUsd,
   volumeUsd,
   volumeEth,
@@ -37,6 +38,7 @@ export default function PoolList({
           tokenZeroLogoURI: logoMap[tokenZero.symbol],
           tokenZeroAddress: tokenZero.id,
           feeTier: feeTierPercentage,
+          tickSpacing: tickSpacing,
           liquidity: liquidity,
           state: href == '/cover' ? 'existing' : undefined,
         },
@@ -58,7 +60,7 @@ export default function PoolList({
         </td>
         <td>${tvlUsd}m</td>
         <td>${volumeUsd}m</td>
-        <td>${volumeEth}m</td>
+        <td>Ξ{volumeEth}</td>
       </tr>
     </Link>
   )

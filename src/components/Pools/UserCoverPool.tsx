@@ -7,11 +7,12 @@ import { useEffect, useState } from 'react'
 import { useCoverStore } from '../../hooks/useStore'
 import Link from 'next/link'
 import { getCoverPoolFromFactory } from '../../utils/queries'
-import { useContractRead } from 'wagmi'
+import { useAccount, useContractRead } from 'wagmi'
 import { coverPoolABI } from '../../abis/evm/coverPool'
 import { ethers } from 'ethers'
 import { TickMath } from '../../utils/math/tickMath'
 import JSBI from 'jsbi'
+import { ZERO_ADDRESS } from '../../utils/math/constants'
 
 export default function UserCoverPool({
   account,
@@ -22,15 +23,21 @@ export default function UserCoverPool({
   valueTokenOne,
   min,
   max,
+  zeroForOne,
+  userFillIn,
+  userFillOut,
+  epochLast,
   liquidity,
+  latestTick,
+  tickSpacing,
   feeTier,
   href,
   prefill,
   close,
 }) {
   const logoMap = {
-    TOKEN20A: '/static/images/eth_icon.png',
-    TOKEN20B: '/static/images/token.png',
+    TOKEN20A: '/static/images/token.png',
+    TOKEN20B: '/static/images/eth_icon.png',
     USDC: '/static/images/token.png',
     WETH: '/static/images/eth_icon.png',
     DAI: '/static/images/dai_icon.png',
@@ -62,14 +69,14 @@ export default function UserCoverPool({
     chainId: 421613,
     watch: true,
     onSuccess(data) {
-      console.log('Success price Cover', data)
-      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[0], 18)))
+      //console.log('Success price Cover', data)
+      setCoverQuote(TickMath.getPriceStringAtSqrtPrice(data[0]))
     },
     onError(error) {
       console.log('Error price Cover', error)
     },
     onSettled(data, error) {
-      console.log('Settled price Cover', { data, error })
+      //console.log('Settled price Cover', { data, error })
     },
   })
 
@@ -85,7 +92,9 @@ export default function UserCoverPool({
       } else {
         pool = await getCoverPoolFromFactory(tokenOne.id, tokenZero.id)
       }
-      const id = pool['data']['coverPools']['0']['id']
+      let id = ZERO_ADDRESS
+      let dataLength = pool['data']['coverPools'].length
+      if(dataLength != 0) id = pool['data']['coverPools']['0']['id']
       setCoverPoolRoute(id)
     } catch (error) {
       console.log(error)
@@ -95,23 +104,8 @@ export default function UserCoverPool({
   async function setCoverParams() {
     try {
       if (coverQuote != undefined) {
-        const price = TickMath.getTickAtSqrtRatio(
-          JSBI.divide(
-            JSBI.multiply(
-              JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
-              JSBI.BigInt(
-                String(
-                  Math.sqrt(Number(parseFloat(coverQuote).toFixed(30))).toFixed(
-                    30,
-                  ),
-                )
-                  .split('.')
-                  .join(''),
-              ),
-            ),
-            JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(30)),
-          ),
-        )
+        console.log('cover quote check', coverQuote)
+        const price = TickMath.getTickAtPriceString(coverQuote)
         setCoverTickPrice(ethers.utils.parseUnits(String(price), 0))
       }
     } catch (error) {
@@ -128,7 +122,6 @@ export default function UserCoverPool({
       tokenZero: tokenZero,
     }) */
   }
-
   return (
     <Link
       href={{
@@ -138,19 +131,24 @@ export default function UserCoverPool({
           poolId: poolId,
           tokenZeroName: tokenZero.name,
           tokenZeroSymbol: tokenZero.symbol,
-          tokenZeroLogoURI: logoMap[tokenZero.symbol],
+          tokenZeroLogoURI: zeroForOne ? logoMap[tokenOne.symbol] : logoMap[tokenZero.symbol],
           tokenZeroAddress: tokenZero.id,
           tokenZeroValue: valueTokenZero,
           tokenOneName: tokenOne.name,
           tokenOneSymbol: tokenOne.symbol,
-          tokenOneLogoURI: logoMap[tokenOne.symbol],
+          tokenOneLogoURI: zeroForOne ? logoMap[tokenZero.symbol] : logoMap[tokenOne.symbol],
           tokenOneAddress: tokenOne.id,
           tokenOneValue: valueTokenOne,
-          coverQuote: coverQuote ? coverQuote : 0,
+          coverPoolRoute: coverPoolRoute,
           coverTickPrice: coverTickPrice ? coverTickPrice : 0,
           min: min,
           max: max,
+          userFillIn: userFillIn,
+          userFillOut: userFillOut,
           liquidity: liquidity,
+          latestTick: latestTick,
+          tickSpacing: tickSpacing,
+          epochLast: epochLast,
           feeTier: feeTierPercentage,
         },
       }}
@@ -158,10 +156,10 @@ export default function UserCoverPool({
       <div
         onClick={() => setPool()}
         onMouseEnter={(e) => {
-          setShow(true)
+          setShow(true);
         }}
         onMouseLeave={(e) => {
-          setShow(false)
+          setShow(false);
         }}
         className="w-full cursor-pointer flex justify-between items-center bg-dark border border-grey2 rounded-xl py-3.5 pl-5 h-24 relative"
       >
@@ -181,40 +179,31 @@ export default function UserCoverPool({
               <ArrowLongRightIcon className="w-5" />
               {tokenOne.name}
             </div>
+            <div className="bg-black px-2 py-1 rounded-lg text-grey">
+              {feeTierPercentage}%
+            </div>
           </div>
           <div className="text-sm flex items-center gap-x-3">
             <span>
-              <span className="text-grey">Min:</span> {min} {tokenZero.symbol}{' '}
+              <span className="text-grey">Min:</span> {TickMath.getPriceStringAtTick(min)} {tokenZero.symbol}{" "}
               per {tokenOne.symbol}
             </span>
             <ArrowsRightLeftIcon className="w-4 text-grey" />
             <span>
-              <span className="text-grey">Max:</span> {max} {tokenOne.symbol}{' '}
+              <span className="text-grey">Max:</span> {TickMath.getPriceStringAtTick(max)} {tokenOne.symbol}{" "}
               per {tokenZero.symbol}
             </span>
           </div>
         </div>
-        {coverTickPrice ? (
-          Number(ethers.utils.formatUnits(coverTickPrice, 18)) < Number(min) ||
-          Number(ethers.utils.formatUnits(coverTickPrice, 18)) > Number(max) ? (
-            <div className="pr-5">
-              <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-                <ExclamationTriangleIcon className="w-4 text-yellow-600" />
-                Out of Range
+        <div className="pr-5">
+              <div className="flex relative bg-transparent items-center justify-center h-8 border-grey1 z-40 border rounded-lg gap-x-2 text-sm w-36">
+                <div className=" bg-white h-full absolute left-0 z-0 rounded-l-[7px] opacity-10 w-[40%]"/>
+                <div className="z-20 ">
+                40% Filled
+                </div>
               </div>
             </div>
-          ) : (
-            <div className="pr-5">
-              <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-                <div className="w-2 h-2 bg-green-500 rounded-full" />
-                In Range
-              </div>
-            </div>
-          )
-        ) : (
-          <></>
-        )}
       </div>
     </Link>
-  )
+  );
 }
