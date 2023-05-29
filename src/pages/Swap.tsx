@@ -33,7 +33,6 @@ import SwapCoverButton from '../components/Buttons/SwapCoverButton'
 import useSwapAllowance from '../hooks/useSwapAllowance'
 import { rangePoolABI } from '../abis/evm/rangePool'
 import { TickMath, invertPrice } from '../utils/math/tickMath'
-import JSBI from 'jsbi'
 import { ZERO_ADDRESS } from '../utils/math/constants'
 
 type token = {
@@ -56,12 +55,13 @@ export default function Swap() {
     LimitInputBox,
   } = useInputBox()
   const [gasFee, setGasFee] = useState('')
-  const [coverQuote, setCoverQuote] = useState(undefined)
-  const [rangeQuote, setRangeQuote] = useState(undefined)
+  const [coverQuote, setCoverQuote] = useState(0)
+  const [rangeQuote, setRangeQuote] = useState(0)
   const [coverPrice, setCoverPrice] = useState(0)
   const [rangePrice, setRangePrice] = useState(0)
+  const [coverOutput, setCoverOutput] = useState(0)
+  const [rangeOutput, setRangeOutput] = useState(0)
   const [hasSelected, setHasSelected] = useState(false)
-  const [mktRate, setMktRate] = useState({})
   const [tokenIn, setTokenIn] = useState({
     symbol: 'WETH',
     logoURI: '/static/images/eth_icon.png',
@@ -75,6 +75,8 @@ export default function Swap() {
   const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [slippage, setSlippage] = useState('0.5')
+  const [coverSlippage, setCoverSlippage] = useState('0.5')
+  const [rangeSlippage, setRangeSlippage] = useState('0.5')
   const [auxSlippage, setAuxSlippage] = useState('0.5')
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
@@ -94,9 +96,14 @@ export default function Swap() {
   const [coverBnBaseLimit, setCoverBnBaseLimit] = useState(BigNumber.from(0))
   const [rangeBnBaseLimit, setRangeBnBaseLimit] = useState(BigNumber.from(0))
   const [bnSlippage, setBnSlippage] = useState(BigNumber.from(1))
+  const [slippageFetched, setSlippageFetched] = useState(false)
 
   const { data: signer } = useSigner()
   const provider = useProvider()
+
+  const {
+    network: { chainId },
+  } = useProvider()
 
   const { data: dataRange } = useContractRead({
     address: tokenIn.address,
@@ -105,10 +112,13 @@ export default function Swap() {
     args: [address, rangePoolRoute],
     chainId: 421613,
     watch: true,
-    enabled: coverPoolRoute != undefined && tokenIn.address != '',
     onError(error) {
-      console.log('Error', error)
+      console.log('Error allowance', error)
     },
+    onSuccess(data) {
+      console.log('Success allowance', data)
+    }
+
   })
   const { data: dataCover } = useContractRead({
     address: tokenIn.address,
@@ -117,17 +127,18 @@ export default function Swap() {
     args: [address, coverPoolRoute],
     chainId: 421613,
     watch: true,
-    enabled: coverPoolRoute != undefined && tokenIn.address != '',
     onError(error) {
-      console.log('Error', error)
+      console.log('Error allowance', error)
     },
+    onSuccess(data) {
+      console.log('Success allowance', data)
+    }
   })
 
   const { data: priceCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
     functionName:
-      tokenOut.address != '' &&
       tokenIn.address.localeCompare(tokenOut.address) < 0
         ? 'pool1'
         : 'pool0',
@@ -136,7 +147,7 @@ export default function Swap() {
     watch: true,
     onSuccess(data) {
       console.log('Success price Cover', data)
-      setCoverPrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[0].toString()))))
+      console.log('coverPrice', coverPrice)
     },
     onError(error) {
       console.log('Error price Cover', error)
@@ -155,15 +166,6 @@ export default function Swap() {
     watch: true,
     onSuccess(data) {
       console.log('Success price Range', data)
-      setRangePrice(
-        parseFloat(
-          invertPrice(
-            TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[5].toString())),
-            tokenOut.address != '' &&
-              tokenIn.address.localeCompare(tokenOut.address) < 0,
-          ),
-        ),
-      )
       console.log('rangePrice if inverted', rangePrice)
     },
     onError(error) {
@@ -174,46 +176,24 @@ export default function Swap() {
     },
   })
 
-  useEffect(() => {
-    setRangeBnPrice(ethers.utils.parseUnits(rangePrice.toString(), 18))
-  }, [rangePrice, tokenIn, tokenOut])
-
-  useEffect(() => {
-    setRangeBnBaseLimit(rangeBnPrice.div(bnSlippage).div(BigNumber.from(100)))
-  }, [rangeBnPrice, tokenIn, tokenOut])
-
-  useEffect(() => {
-    setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
-    setCoverBnBaseLimit(coverBnPrice.div(bnSlippage).div(BigNumber.from(100)))
-  }, [coverPrice, tokenIn, tokenOut])
-
-  const { refetch: refetchCoverQuote, data: quoteCover } = useContractRead({
+  const { data: quoteCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
     functionName: 'quote',
     args: [
-      tokenOut.address != '' &&
         tokenIn.address.localeCompare(tokenOut.address) < 0,
       bnInput,
-      tokenOut.address != '' &&
       tokenIn.address.localeCompare(tokenOut.address) < 0
-      ? TickMath.getSqrtPriceAtPriceString(String(coverBnPrice.sub(coverBnBaseLimit)), 18)
-      : TickMath.getSqrtPriceAtPriceString(String(coverBnPrice.add(coverBnBaseLimit)), 18)
+      ? BigNumber.from(TickMath.getSqrtPriceAtPriceString((coverBnPrice.sub(coverBnBaseLimit)).toString(), 18).toString())
+      : BigNumber.from(TickMath.getSqrtPriceAtPriceString((coverBnPrice.add(coverBnBaseLimit)).toString(), 18).toString())
     ],
     chainId: 421613,
     watch: true,
     onSuccess(data) {
       console.log('Success cover wagmi', data)
-      setCoverQuote(
-        parseFloat(
-          TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[1].toString())),
-        ),
-      )
-      setCoverPriceAfter(
-        parseFloat(
-          TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[2].toString())),
-        ),
-      )
+      console.log('coverQuote', coverQuote)
+      console.log('coverPriceAfter', coverPriceAfter)
+      console.log('zeroForOne', tokenIn.address.localeCompare(tokenOut.address) < 0)
     },
     onError(error) {
       console.log('Error cover wagmi', error)
@@ -222,29 +202,24 @@ export default function Swap() {
       console.log('Settled', { data, error })
     },
   })
-  const { refetch: refetchRangeQuote, data: quoteRange } = useContractRead({
+
+  const { data: quoteRange } = useContractRead({
     address: rangePoolRoute,
     abi: rangePoolABI,
     functionName: 'quote',
     args: [
-      tokenOut.address != '' &&
-        tokenIn.address.localeCompare(tokenOut.address) < 0,
+      tokenIn.address.localeCompare(tokenOut.address) < 0,
       bnInput,
-      tokenOut.address != '' &&
       tokenIn.address.localeCompare(tokenOut.address) < 0
-        ? TickMath.getSqrtPriceAtPriceString(String(rangeBnPrice.sub(rangeBnBaseLimit)), 18)
-        : TickMath.getSqrtPriceAtPriceString(String(rangeBnPrice.add(rangeBnBaseLimit)), 18),
+        ? BigNumber.from(TickMath.getSqrtPriceAtPriceString((rangeBnPrice.sub(rangeBnBaseLimit)).toString(), 18).toString())
+        : BigNumber.from(TickMath.getSqrtPriceAtPriceString((rangeBnPrice.add(rangeBnBaseLimit)).toString(), 18).toString())
     ],
     chainId: 421613,
     watch: true,
     onSuccess(data) {
       console.log('Success range wagmi', data)
-      setRangeQuote(
-        parseFloat(
-          TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(data[1].toString())),
-        ),
-      )
       console.log('rangeQuote', rangeQuote)
+      console.log('rangePriceAfter', rangePriceAfter)
     },
     onError(error) {
       console.log('Error range wagmi', error)
@@ -253,64 +228,6 @@ export default function Swap() {
       console.log('Settled range wagmi', { data, error })
     },
   })
-
-  const {
-    network: { chainId },
-  } = useProvider()
-
-  useEffect(() => {
-    if (dataRange && dataCover) {
-      setAllowanceRange(ethers.utils.formatUnits(dataRange, 18))
-      setAllowanceCover(ethers.utils.formatUnits(dataCover, 18))
-    }
-  }, [dataRange, dataCover, tokenIn.address, tokenOut.address, bnInput])
-
-  useEffect(() => {
-    setTimeout(() => {
-      gasEstimate()
-    }, 10000)
-  }, [])
-
-  useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
-  }, [chainId])
-
-  useEffect(() => {
-    getBalances()
-  }, [tokenOut.address, tokenIn.address])
-
-  useEffect(() => {
-    updateSwapAmount(bnInput)
-  }, [bnInput])
-
-  useEffect(() => {
-    getRangePool()
-  }, [hasSelected, tokenIn.address, tokenOut.address])
-
-  useEffect(() => {
-    getCoverPool()
-  }, [hasSelected, tokenIn.address, tokenOut.address])
-
-  useEffect(() => {
-    fetchTokenPrice()
-  }, [rangeQuote, coverQuote, tokenIn.address, tokenOut.address])
-
-  useEffect(() => {
-    getFeeTier()
-  }, [rangeQuote, coverQuote])
-
-  useEffect(() => {
-    getBnSlippage()
-  }, [slippage])
-
-  function closeModal() {
-    setIsOpen(false)
-  }
-
-  console.log('tokenIn', tokenIn)
-  console.log('rangeBnPrice', rangeBnPrice.toString())
-  console.log('rangeBnBaseLimit', rangeBnBaseLimit.toString())
-  console.log('tokenOut', tokenOut)
 
   //@dev put balanc
   const getBalances = async () => {
@@ -388,10 +305,8 @@ export default function Swap() {
     const tempBal = queryTokenIn
     setQueryTokenIn(queryTokenOut)
     setQueryTokenOut(tempBal)
-  }
-
-  function openModal() {
-    setIsOpen(true)
+    console.log('tokenIn after switch', tokenIn)
+    console.log('tokenOut after switch', tokenOut)
   }
 
   const gasEstimate = async () => {
@@ -412,7 +327,6 @@ export default function Swap() {
       console.log('estimate route', coverPoolRoute)
       const recipient = address
       const zeroForOne =
-        tokenOut.address != '' &&
         tokenIn.address.localeCompare(tokenOut.address) < 0
 
       const estimation = await contract.estimateGas.swap(
@@ -442,56 +356,42 @@ export default function Swap() {
   }
 
   const getFeeTier = async () => {
-    if (Number(rangeQuote) > Number(coverQuote)) {
-      const data = await fetchCoverPools()
-      const poolAddress = data['data']['coverPools']['0']['id']
+      const coverData = await fetchCoverPools()
+      const coverPoolAddress = coverData['data']['coverPools']['0']['id']
 
-      console.log('cover pool subgraph address', poolAddress)
-
-      if (poolAddress === coverPoolRoute) {
+      if (coverPoolAddress === coverPoolRoute) {
         const feeTier =
-          data['data']['coverPools']['0']['volatilityTier']['feeAmount']
+          coverData['data']['coverPools']['0']['volatilityTier']['feeAmount']
         console.log(feeTier, 'fee cover')
-        setSlippage((parseFloat(feeTier) / 10000).toString())
-        setAuxSlippage((parseFloat(feeTier) / 10000).toString())
+        setCoverSlippage((parseFloat(feeTier) / 10000).toString())
       }
-    } else {
       const data = await fetchRangePools()
-      const poolAddress = data['data']['rangePools']['0']['id']
+      const rangePoolAddress = data['data']['rangePools']['0']['id']
 
-      if (poolAddress === rangePoolRoute) {
+      if (rangePoolAddress === rangePoolRoute) {
         const feeTier = data['data']['rangePools']['0']['feeTier']['feeAmount']
         console.log(feeTier, 'fee range')
-        setSlippage((parseFloat(feeTier) / 10000).toString())
-        setAuxSlippage((parseFloat(feeTier) / 10000).toString())
+        setRangeSlippage((parseFloat(feeTier) / 10000).toString())
       }
+    }
+  
+  const getSlippage = () => {
+    if (rangeQuote > coverQuote) {
+      setSlippage(rangeSlippage)
+      setAuxSlippage(rangeSlippage)
+    } else {
+      setSlippage(coverSlippage)
+      setAuxSlippage(coverSlippage)
     }
   }
 
   const getBnSlippage = () => {
-    if (Number(slippage) >= 0.05 && Number(slippage) < 0.1) {
+    if (Number(slippage) >= 0.05 && Number(slippage) < 100) {
       const convertedSlippage = BigNumber.from(
         (1 / parseFloat(slippage)).toFixed(0),
       )
       setBnSlippage(convertedSlippage)
-    }
-    if (Number(slippage) >= 0.1 && Number(slippage) < 1) {
-      const convertedSlippage = BigNumber.from(
-        (1 / parseFloat(slippage)).toFixed(0),
-      )
-      setBnSlippage(convertedSlippage)
-    }
-    if (Number(slippage) >= 1 && Number(slippage) < 10) {
-      const convertedSlippage = BigNumber.from(
-        (1 / parseFloat(slippage)).toFixed(0),
-      )
-      setBnSlippage(convertedSlippage)
-    }
-    if (Number(slippage) >= 10 && Number(slippage) < 100) {
-      const convertedSlippage = BigNumber.from(
-        (1 / parseFloat(slippage)).toFixed(0),
-      )
-      setBnSlippage(convertedSlippage)
+      console.log('bnSlippage', bnSlippage.toString())
     }
   }
 
@@ -502,9 +402,20 @@ export default function Swap() {
           tokenIn.address,
           tokenOut.address,
         )
-        const id = pool['data']['rangePools']['0']['id']
-
-        setRangePoolRoute(id)
+        let id = ZERO_ADDRESS
+        let dataLength = pool['data']['rangePools'].length
+        if(dataLength != 0) {
+          id = pool['data']['rangePools']['0']['id']
+          setRangePoolRoute(id)
+        }
+        else {
+          const fallbackPool = await getRangePoolFromFactory(
+            tokenOut.address,
+            tokenIn.address,
+          )
+          id = fallbackPool['data']['rangePools']['0']['id']
+          setRangePoolRoute(id)
+        }
       }
     } catch (error) {
       console.log(error)
@@ -520,47 +431,133 @@ export default function Swap() {
         )
         let id = ZERO_ADDRESS
         let dataLength = pool['data']['coverPools'].length
-        if(dataLength != 0) id = pool['data']['coverPools']['0']['id']
-        setCoverPoolRoute(id)
-        console.log('cover pool route', coverPoolRoute)
+        if(dataLength != 0) {
+          id = pool['data']['coverPools']['0']['id']
+          setCoverPoolRoute(id)
+        }
+        else {
+          const fallbackPool = await getCoverPoolFromFactory(
+            tokenOut.address,
+            tokenIn.address,
+          )
+          id = fallbackPool['data']['coverPools']['0']['id']
+          setCoverPoolRoute(id)
+        }
       }
     } catch (error) {
       console.log(error)
     }
   }
+
+
+
+  useEffect(() => {
+    if (dataRange && dataCover) {
+      setAllowanceRange(ethers.utils.formatUnits(dataRange, 18))
+      setAllowanceCover(ethers.utils.formatUnits(dataCover, 18))
+    }
+  }, [dataRange, dataCover, tokenIn.address])
+
+  useEffect(() => {
+    if (priceCover) {
+      if(priceCover[0].toString() !== BigNumber.from(0).toString()
+      && tokenIn.address != ''
+      && tokenOut.address != ''
+      && priceCover != undefined) {
+        setCoverPrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(priceCover[0])))
+      }
+    }
+
+    if (priceRange) {
+      if(priceRange[5].toString() !== BigNumber.from(0).toString()
+      && tokenIn.address != ''
+      && tokenOut.address != ''
+      && priceRange != undefined) {
+        setRangePrice(
+          parseFloat(
+            invertPrice(
+              TickMath.getPriceStringAtSqrtPrice(priceRange[5]),
+                tokenIn.address.localeCompare(tokenOut.address) < 0,
+            ),
+          ),
+        )
+      }
+    }
+  }, [coverPoolRoute, rangePoolRoute, priceCover, priceRange])
+
+  useEffect(() => {
+    if (quoteRange) {
+      if (quoteRange[0].toString() !== BigNumber.from(0).toString() &&
+        quoteRange[1].toString() !== BigNumber.from(0).toString()
+        && bnInput._hex != '0x00'
+        && rangeBnPrice.toString() !== BigNumber.from(0).toString()) {
+          setRangeOutput(parseFloat(ethers.utils.formatUnits(quoteRange[1], 18)))
+          setRangeQuote(parseFloat(ethers.utils.formatUnits(quoteRange[1], 18))
+          / parseFloat(ethers.utils.formatUnits(quoteRange[0], 18)))
+          setRangePriceAfter(parseFloat(TickMath.getPriceStringAtSqrtPrice(quoteRange[2])))
+      }
+    }
+    
+    if (quoteCover) {
+      if (quoteCover[0].toString() !== BigNumber.from(0).toString() &&
+        quoteCover[1].toString() !== BigNumber.from(0).toString()
+        && bnInput._hex != '0x00'
+        && coverBnPrice.toString() !== BigNumber.from(0).toString()) {
+          setCoverOutput(parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)))
+          setCoverQuote(parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)) /
+            parseFloat(ethers.utils.formatUnits(quoteCover[0], 18)))
+          setCoverPriceAfter(parseFloat(TickMath.getPriceStringAtSqrtPrice(quoteCover[2])))
+      }
+    }
+
+    if(quoteCover && quoteRange) {
+      if (slippageFetched === false 
+        && quoteCover[0].toString() !== BigNumber.from(0).toString()
+        && quoteRange[0].toString() !== BigNumber.from(0).toString()) {
+          getFeeTier()
+          getSlippage()
+          setSlippageFetched(true)
+      }
+    }
+  }, [quoteCover, quoteRange, bnInput])
+
+  useEffect(() => {
+    setTimeout(() => {
+      gasEstimate()
+    }, 10000)
+  }, [])
+
+  useEffect(() => {
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
+  }, [chainId])
+
+  useEffect(() => {
+    getBalances()
+    getRangePool()
+    getCoverPool()
+  }, [tokenOut.address, tokenIn.address, hasSelected])
+
+  useEffect(() => {
+    updateSwapAmount(bnInput)
+  }, [bnInput])
+
+  useEffect(() => {
+    setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
+    setRangeBnPrice(ethers.utils.parseUnits(rangePrice.toString(), 18))
+    console.log('coverBnPrice', coverBnPrice.toString())
+    console.log('rangeBnPrice', rangeBnPrice.toString())
+  }, [coverPrice, rangePrice])
+
+  useEffect(() => {
+    getBnSlippage()
+    setRangeBnBaseLimit(rangeBnPrice.div(bnSlippage).div(BigNumber.from(100)))
+    setCoverBnBaseLimit(coverBnPrice.div(bnSlippage).div(BigNumber.from(100)))
+    console.log('rangeBnBaseLimit', rangeBnBaseLimit.toString())
+    console.log('coverBnBaseLimit', coverBnBaseLimit.toString())
+  }, [slippage, rangeBnPrice, coverBnPrice])
 
   //@dev TO-DO: fetch token Addresses, use for pool quote (smallest fee tier)
   //@dev TO-DO: re-route pool and handle allowances
-
-  const fetchTokenPrice = async () => {
-    try {
-      if (Number(rangeQuote) < Number(coverQuote)) {
-        const price = rangeQuote
-        setMktRate({
-          WETH:
-            '~' +
-            Number(price).toLocaleString('en-US', {
-              style: 'currency',
-              currency: 'USD',
-            }),
-          USDC: '~1.00',
-        })
-      } else {
-        const price = coverQuote
-        setMktRate({
-          WETH:
-            '~' +
-            Number(price).toLocaleString('en-US', {
-              style: 'currency',
-              currency: 'USD',
-            }),
-          USDC: '~1.00',
-        })
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
 
   const Option = () => {
     if (expanded) {
@@ -569,43 +566,39 @@ export default function Swap() {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Expected Output</div>
             <div className="ml-auto text-xs">
-              {Number(rangeQuote) < Number(coverQuote)
-                ? rangeQuote === undefined
-                  ? 'Select Token'
+              {hasSelected ? (
+                rangeQuote > coverQuote
+                  ? rangeQuote === 0
+                    ? '0'
+                    : (
+                        parseFloat(ethers.utils.formatUnits(bnInput, 18)) * (rangeQuote)
+                      ).toFixed(2)
+                  : coverQuote === 0
+                  ? '0'
                   : (
-                      parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                      (parseFloat(
-                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-                      ) /
-                        parseFloat(
-                          mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                        ))
-                    ).toFixed(2)
-                : coverQuote === undefined
-                ? 'Select Token'
-                : (
-                    parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                    (parseFloat(
-                      mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-                    ) /
-                      parseFloat(
-                        mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                      ))
-                  ).toFixed(2)}
+                      parseFloat(ethers.utils.formatUnits(bnInput, 18)) * (coverQuote)
+                    ).toFixed(2)) :
+                    'Select Token'}
             </div>
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Price Impact</div>
             <div className="ml-auto text-xs">
-              {Number(rangePrice) < Number(coverPrice)
-                ? (
-                    (rangePrice - parseFloat(rangePriceAfter)) /
-                    rangePrice
-                  ).toFixed(2)
-                : (
-                    (coverPrice - parseFloat(coverPriceAfter)) /
-                    coverPrice
-                  ).toFixed(2)}
+              {(hasSelected ? (
+                (rangeQuote !== 0 && coverQuote !== 0) ?
+                  ((rangeQuote > coverQuote)
+                  ? (
+                      Math.abs((rangePriceAfter - rangePrice) 
+                      * 100
+                      / rangePrice
+                    )).toFixed(2) + '%'
+                  : (
+                      Math.abs((coverPriceAfter - coverPrice) 
+                      * 100
+                      / coverPrice
+                   )).toFixed(2) + '%' ):
+                    '0%') :
+                  'Select Token')}
             </div>
           </div>
           <div className="flex p-1">
@@ -613,41 +606,25 @@ export default function Swap() {
               Minimum received after slippage ({slippage}%)
             </div>
             <div className="ml-auto text-xs">
-              {Number(rangeQuote) < Number(coverQuote)
-                ? (
-                    parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                      (parseFloat(
-                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-                      ) /
-                        parseFloat(
-                          mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                        )) -
-                    parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                      (parseFloat(
-                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-                      ) /
-                        parseFloat(
-                          mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                        )) *
-                      (parseFloat(slippage) * 0.01)
+              {hasSelected ? (
+                rangeQuote > coverQuote
+                  ? rangeQuote === 0 ?
+                    ('0') :
+                    (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                      (rangeQuote) -
+                    (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                      (rangeQuote) *
+                    (parseFloat(slippage) * 0.01))
                   ).toFixed(2)
-                : (
-                    parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                      (parseFloat(
-                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-                      ) /
-                        parseFloat(
-                          mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                        )) -
-                    parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                      (parseFloat(
-                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-                      ) /
-                        parseFloat(
-                          mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                        )) *
-                      (parseFloat(slippage) * 0.01)
-                  ).toFixed(2)}
+                  : coverQuote === 0 ?
+                    ('0') :
+                    (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                      (coverQuote) -
+                    (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                      (coverQuote) *
+                    (parseFloat(slippage) * 0.01))
+                  ).toFixed(2)) :
+                  'Select Token'}
             </div>
           </div>
           <div className="flex p-1">
@@ -700,36 +677,41 @@ export default function Swap() {
                 leaveTo="opacity-0"
               >
                 <Popover.Panel className="absolute z-10 ml-14 -mt-[48px] bg-black border border-grey2 rounded-xl p-5">
-                  <div className="w-full">
-                    <h1>
-                      {LimitActive ? (
-                        <>Range Tolerance</>
-                      ) : (
-                        <>Slippage Tolerance</>
-                      )}
-                    </h1>
-                    <div className="flex mt-3 gap-x-3">
-                      <input
-                        placeholder="0%"
-                        className="bg-dark rounded-xl outline-none border border-grey1 pl-3 placeholder:text-grey1"
-                        value={auxSlippage + '%'}
-                        onChange={(e) =>
-                          setAuxSlippage(
-                            parseFloat(e.target.value.replace(/[^\d.-]/g, '')) <
-                              100
-                              ? e.target.value.replace(/[^\d.-]/g, '')
-                              : '',
-                          )
-                        }
-                      />
-                      <button
-                        className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
-                        onClick={(e) => setSlippage(auxSlippage)}
-                      >
-                        Set
-                      </button>
+                  {({ close }) => (
+                    <div className="w-full">
+                      <h1>
+                        {LimitActive ? (
+                          <>Range Tolerance</>
+                        ) : (
+                          <>Slippage Tolerance</>
+                        )}
+                      </h1>
+                      <div className="flex mt-3 gap-x-3">
+                        <input
+                          placeholder="0%"
+                          className="bg-dark rounded-xl outline-none border border-grey1 pl-3 placeholder:text-grey1"
+                          value={auxSlippage + '%'}
+                          onChange={(e) =>
+                            setAuxSlippage(
+                              parseFloat(e.target.value.replace(/[^\d.-]/g, '')) <
+                                100
+                                ? e.target.value.replace(/[^\d.-]/g, '')
+                                : '',
+                            )
+                          }
+                        />
+                        <button
+                          className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+                          onClick={async () => {
+                            setSlippage(auxSlippage)
+                            close()
+                          }}
+                        >
+                          Set
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </Popover.Panel>
               </Transition>
             </Popover>
@@ -738,10 +720,12 @@ export default function Swap() {
         <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
             {inputBox('0')}
-            {mktRate[tokenIn.symbol] != '~$NaN' ? (
+            {rangeQuote !== 0 && coverQuote !== 0 ? (
               <div className="flex">
                 <div className="flex text-xs text-[#4C4C4C]">
-                  {mktRate[tokenIn.symbol]}
+                  {rangeQuote > coverQuote
+                   ? rangeQuote.toFixed(2)
+                   : coverQuote.toFixed(2)}
                 </div>
               </div>
             ) : (
@@ -788,33 +772,34 @@ export default function Swap() {
             }}
           />
         </div>
-
         <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
             <div className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
-              {hasSelected &&
-              mktRate[tokenIn.symbol] != '~$NaN' &&
-              mktRate[tokenOut.symbol] != '~$NaN' &&
-              bnInput._hex != '0x00' ? (
+              {(hasSelected &&
+              coverQuote !== 0 &&
+              rangeQuote !== 0 &&
+              bnInput._hex != '0x00') ? (
                 <div>
-                  {(
+                  {rangeQuote > coverQuote
+                ? (
                     parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                    (parseFloat(
-                      mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-                    ) /
-                      parseFloat(
-                        mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                      ))
+                      (rangeQuote)
+                  ).toFixed(2)
+                : (
+                    parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                      (coverQuote)
                   ).toFixed(2)}
                 </div>
               ) : (
                 <div>0</div>
               )}
             </div>
-            {mktRate[tokenOut.symbol] != '~$NaN' ? (
+            {rangeQuote !== 0 && coverQuote !== 0 ? (
               <div className="flex">
                 <div className="flex text-xs text-[#4C4C4C]">
-                  {mktRate[tokenOut.symbol]}
+                  {rangeQuote > coverQuote
+                   ? (1 / rangeQuote).toFixed(2)
+                   : (1 / coverQuote).toFixed(2)}
                 </div>
               </div>
             ) : (
@@ -869,33 +854,6 @@ export default function Swap() {
                   type="number"
                 />
                 <>
-                  {/* 
-                {hasSelected === false ||
-                String(
-                  parseFloat(mktRate[tokenOut.symbol].replace(/[^\d.-]/g, "")) /
-                    parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ""))
-                ) == "NaN" ? (
-                  <div>?</div>
-                ) : tokenOrder && hasSelected === true ? (
-                  <div>
-                    {parseFloat(
-                      mktRate[tokenOut.symbol].replace(/[^\d.-]/g, "")
-                    ) /
-                      parseFloat(
-                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, "")
-                      )}
-                  </div>
-                ) : (
-                  <div>
-                    {parseFloat(
-                      mktRate[tokenIn.symbol].replace(/[^\d.-]/g, "")
-                    ) /
-                      parseFloat(
-                        mktRate[tokenOut.symbol].replace(/[^\d.-]/g, "")
-                      )}
-                  </div>
-                )}
-                 */}
                 </>
                 <div className="flex">
                   {/* <div className="flex text-xs text-[#4C4C4C]"> // Implement later 
@@ -952,14 +910,18 @@ export default function Swap() {
             onClick={() => setExpanded(!expanded)}
           >
             <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-              1 {tokenIn.symbol} =
-              {tokenOut.symbol === 'Select Token'
-                ? ' ?'
-                : ' ' +
-                  parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')) /
-                    parseFloat(
-                      mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                    )}{' '}
+              1 {tokenIn.symbol} = 
+              {' '} {tokenOut.symbol === 'Select Token'
+                ? ' ?' 
+                : ' ' + (
+                (rangeQuote != 0 && coverQuote != 0) ?
+                  ((rangeQuote > coverQuote) ?
+                    (rangeQuote).toFixed(2)
+                  : 
+                    (coverQuote).toFixed(2)
+                  ) 
+                : ('0')
+                  )} {' '}
               {tokenOut.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
@@ -977,12 +939,8 @@ export default function Swap() {
           <>
         {
         stateChainName !== 'arbitrumGoerli' ||
-        mktRate[tokenIn.symbol] === '~$NaN' ||
-        mktRate[tokenOut.symbol] === '~$NaN' ||
-        String(
-          parseFloat(mktRate[tokenOut.symbol].replace(/[^\d.-]/g, '')) /
-            parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, '')),
-        ) == 'NaN' ||
+        coverQuote === 0 ||
+        rangeQuote === 0 ||
         bnInput._hex == '0x00' ? (
           <button 
           disabled
@@ -990,14 +948,14 @@ export default function Swap() {
       >
         Swap
       </button>
-        ) : Number(rangeQuote) < Number(coverQuote) ? (
+        ) : (rangeQuote > coverQuote) ? (
           Number(allowanceRange) <
           Number(ethers.utils.formatUnits(bnInput, 18)) ? (
             <div>
               <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                Your {tokenIn.symbol} rangePool allowance is missing{' '}
-                {Number(ethers.utils.formatUnits(bnInput, 18)) -
-                  Number(allowanceRange)}{' '}
+                Your {tokenIn.symbol} rangePool allowance is missing {' '}
+                {(Number(ethers.utils.formatUnits(bnInput, 18)) -
+                  Number(allowanceRange)).toFixed(2)}{' '}
                 {tokenIn.symbol}
               </div>
               <SwapRangeApproveButton
@@ -1009,15 +967,13 @@ export default function Swap() {
             <SwapRangeButton
               poolAddress={rangePoolRoute}
               zeroForOne={
-                tokenOut.address != '' &&
                 tokenIn.address.localeCompare(tokenOut.address) < 0
               }
               amount={bnInput}
               baseLimit={
-                tokenOut.address != '' &&
                 tokenIn.address.localeCompare(tokenOut.address) < 0
-                ? TickMath.getSqrtPriceAtPriceString(String(rangeBnPrice.sub(rangeBnBaseLimit)), 18)
-                : TickMath.getSqrtPriceAtPriceString(String(rangeBnPrice.add(rangeBnBaseLimit)), 18)
+              ? BigNumber.from(TickMath.getSqrtPriceAtPriceString((rangeBnPrice.sub(rangeBnBaseLimit)).toString(), 18).toString())
+              : BigNumber.from(TickMath.getSqrtPriceAtPriceString((rangeBnPrice.add(rangeBnBaseLimit)).toString(), 18).toString())
               }
             />
           )
@@ -1025,9 +981,9 @@ export default function Swap() {
           Number(ethers.utils.formatUnits(bnInput, 18)) ? (
           <div>
             <div className="flex-none ">
-              Your {tokenIn.symbol} coverPool allowance is missing{' '}
-              {Number(ethers.utils.formatUnits(bnInput, 18)) -
-                Number(allowanceCover)}{' '}
+              Your {tokenIn.symbol} coverPool allowance is missing {' '}
+              {(Number(ethers.utils.formatUnits(bnInput, 18)) -
+                Number(allowanceCover)).toFixed(2)}{' '}
               {tokenIn.symbol}
             </div>
             <SwapCoverApproveButton
@@ -1040,15 +996,13 @@ export default function Swap() {
           <SwapCoverButton
             poolAddress={coverPoolRoute}
             zeroForOne={
-              tokenOut.address != '' &&
               tokenIn.address.localeCompare(tokenOut.address) < 0
             }
             amount={bnInput}
             baseLimit={
-              tokenOut.address != '' &&
               tokenIn.address.localeCompare(tokenOut.address) < 0
-              ? TickMath.getSqrtPriceAtPriceString(String(coverBnPrice.sub(coverBnBaseLimit)), 18)
-              : TickMath.getSqrtPriceAtPriceString(String(coverBnPrice.add(coverBnBaseLimit)), 18)
+            ? BigNumber.from(TickMath.getSqrtPriceAtPriceString((coverBnPrice.sub(coverBnBaseLimit)).toString(), 18).toString())
+            : BigNumber.from(TickMath.getSqrtPriceAtPriceString((coverBnPrice.add(coverBnBaseLimit)).toString(), 18).toString())
             }
           />
         )}

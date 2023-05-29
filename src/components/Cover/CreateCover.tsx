@@ -562,11 +562,17 @@ export default function CreateCover(props: any) {
               className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
               placeholder="0"
               id="minInput"
-              type="number"
+              type="text"
+              value={minPrice}
               onChange={() =>
                 setMinPrice(
                   (document.getElementById('minInput') as HTMLInputElement)
-                    ?.value,
+                    ?.value
+                      .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+                      .replace(/^(\.)+/, '0')
+                      .replace(/(?<=\..*)\./g, '')
+                      .replace(/^0+(?=\d)/, '')
+                      .replace(/[^\d.]/g, '')
                 )
               }
             />
@@ -593,11 +599,17 @@ export default function CreateCover(props: any) {
               className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
               placeholder="0"
               id="maxInput"
-              type="number"
+              type="text"
+              value={maxPrice}
               onChange={() =>
                 setMaxPrice(
                   (document.getElementById('maxInput') as HTMLInputElement)
-                    ?.value,
+                    ?.value
+                      .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+                      .replace(/^(\.)+/, '0')
+                      .replace(/(?<=\..*)\./g, '')
+                      .replace(/^0+(?=\d)/, '')
+                      .replace(/[^\d.]/g, '')
                 )
               }
             />

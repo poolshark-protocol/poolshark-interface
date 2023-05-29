@@ -114,7 +114,7 @@ export default function CoverExistingPool({
     },
   })
 
-  const { refetch: refetchcoverQuote, data: priceCover } = useContractRead({
+  const { refetch: refetchCoverQuote, data: priceCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
     functionName:
@@ -129,6 +129,7 @@ export default function CoverExistingPool({
       setCoverQuote(data[0])
       const price = TickMath.getPriceStringAtSqrtPrice(data[0])
       setCoverTickPrice(price)
+      console.log('price set:', coverTickPrice)
     },
     onError(error) {
       setCoverTickPrice(ethers.utils.parseUnits(String(coverQuote), 0))
@@ -403,10 +404,15 @@ export default function CoverExistingPool({
           <div className="text-[#646464]">Percentage Covered</div>
           <div className="flex gap-x-2 items-center">
             <input
-              type="string"
+              type="text"
               id="input"
               onChange={(e) => {
-                setSliderValue(Number(e.target.value))
+                setSliderValue(Number(e.target.value
+                  .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+                  .replace(/^(\.)+/, '0')
+                  .replace(/(?<=\..*)\./g, '')
+                  .replace(/^0+(?=\d)/, '')
+                  .replace(/[^\d.]/g, '')))
                 console.log('slider value', sliderValue)
               }}
               value={sliderValue}
@@ -419,19 +425,36 @@ export default function CoverExistingPool({
           <div className="text-[#646464]">Amount Covered</div>
           <div>
             <input
-              type="string"
+              type="text"
               id="input"
               onChange={(e) => {
                 console.log('cover amount changed', sliderValue)
-                if (Number(e.target.value) / Number(tokenOut.value) < 100) {
+                if (Number(e.target.value
+                    .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+                    .replace(/^(\.)+/, '0')
+                    .replace(/(?<=\..*)\./g, '')
+                    .replace(/^0+(?=\d)/, '')
+                    .replace(/[^\d.]/g, '')) 
+                    / Number(tokenOut.value) < 100) {
                   setSliderValue(
-                    Number(e.target.value) / Number(tokenOut.value),
+                    Number(e.target.value
+                      .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+                      .replace(/^(\.)+/, '0')
+                      .replace(/(?<=\..*)\./g, '')
+                      .replace(/^0+(?=\d)/, '')
+                      .replace(/[^\d.]/g, '')) 
+                    / Number(tokenOut.value),
                   )
                 } else {
                   setSliderValue(100)
                 }
-                setCoverValue(Number(e.target.value))
-              }}
+                setCoverValue(Number(e.target.value
+                  .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+                  .replace(/^(\.)+/, '0')
+                  .replace(/(?<=\..*)\./g, '')
+                  .replace(/^0+(?=\d)/, '')
+                  .replace(/[^\d.]/g, '')
+                ))}}
               value={coverValue}
               className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
             />
@@ -464,11 +487,17 @@ export default function CoverExistingPool({
               className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
               placeholder="0"
               id="minInput"
-              type="number"
+              type="text"
+              value={minPrice}
               onChange={() =>
                 setMinPrice(
                   (document.getElementById('minInput') as HTMLInputElement)
-                    ?.value,
+                    ?.value
+                      .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+                      .replace(/^(\.)+/, '0')
+                      .replace(/(?<=\..*)\./g, '')
+                      .replace(/^0+(?=\d)/, '')
+                      .replace(/[^\d.]/g, '')
                 )
               }
             />
@@ -491,13 +520,19 @@ export default function CoverExistingPool({
               className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
               placeholder="0"
               id="maxInput"
-              type="number"
+              type="text"
+              value={maxPrice}
               onChange={() =>
                 setMaxPrice(
                   (document.getElementById('maxInput') as HTMLInputElement)
-                    ?.value,
+                    ?.value
+                      .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+                      .replace(/^(\.)+/, '0')
+                      .replace(/(?<=\..*)\./g, '')
+                      .replace(/^0+(?=\d)/, '')
+                      .replace(/[^\d.]/g, '')
                 )
-              }
+              } 
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice('plus', 'max')}>
@@ -528,7 +563,7 @@ export default function CoverExistingPool({
       <div className="space-y-3">
         {isDisconnected ? <ConnectWalletButton /> : null}
         {isDisconnected ||
-        Number(allowance) < Number(sliderValue) * Number(coverAmountIn) ? (
+        Number(allowance) < Number(sliderValue) * JSBI.toNumber(coverAmountIn) ? (
           <SwapCoverApproveButton
           disabled={isDisabled}
           poolAddress={poolId} 
