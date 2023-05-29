@@ -139,8 +139,16 @@ export default function Pool() {
 
   function mapUserCoverPositions() {
     const mappedCoverPositions = []
-    coverPositions.map((coverPosition) => {
-      //console.log('coverPosition', coverPosition)
+    coverPositions.map(async (coverPosition): Promise<void> => {
+      console.log('coverPosition', coverPosition)
+      // console.log('mapped positions', mappedCoverPositions)
+      let claimTick = await getClaimTick(
+        coverPosition.pool.id,
+        coverPosition.lower,
+        coverPosition.upper,
+        coverPosition.zeroForOne,
+        coverPosition.epochLast,
+      )
       const coverPositionData = {
         poolId: coverPosition.pool.id,
         valueTokenZero: coverPosition.inAmount,
@@ -153,14 +161,7 @@ export default function Pool() {
         valueTokenOne: coverPosition.outAmount,
         min: coverPosition.lower,
         max: coverPosition.upper,
-        //TODO: needs to be awaited
-        claim: getClaimTick(
-          coverPosition.pool.id,
-          coverPosition.lower,
-          coverPosition.upper,
-          coverPosition.zeroForOne,
-          coverPosition.epochLast,
-        ),
+        claim: claimTick,
         zeroForOne: coverPosition.zeroForOne,
         userFillIn: coverPosition.amountInDeltaMax,
         userFillOut: coverPosition.amountOutDeltaMax,
@@ -173,6 +174,7 @@ export default function Pool() {
       }
       mappedCoverPositions.push(coverPositionData)
     })
+    console.log('mapped positions', mappedCoverPositions)
     setAllCoverPositions(mappedCoverPositions)
   }
 
@@ -205,7 +207,7 @@ export default function Pool() {
         tokenZero: coverPool.token0,
         liquidity: coverPool.liquidity,
         feeTier: coverPool.volatilityTier.feeAmount,
-        tickSpread: coverPool.volatilityTier.tickSpread,
+        tickSpacing: coverPool.volatilityTier.tickSpread,
         tvlUsd: (Number(coverPool.totalValueLockedUsd) / 1_000_000).toFixed(2),
         volumeUsd: (Number(coverPool.volumeUsd) / 1_000_000).toFixed(2),
         volumeEth: (Number(coverPool.volumeEth) / 1).toFixed(2),
@@ -401,7 +403,7 @@ export default function Pool() {
                                 clipRule="evenodd"
                               />
                             </svg>
-                            Your range pools will appear here.
+                            Your range positions will appear here.
                           </div>
                         </div>
                       ) : (
@@ -463,7 +465,7 @@ export default function Pool() {
                               clipRule="evenodd"
                             />
                           </svg>
-                          Your cover pools will appear here.
+                          Your cover positions will appear here.
                         </div>
                       </div>
                     ) : (
@@ -502,7 +504,7 @@ export default function Pool() {
                               epochLast={allCoverPosition.epochLast}
                               liquidity={allCoverPosition.liquidity}
                               latestTick={allCoverPosition.latestTick}
-                              tickSpacing={allCoverPosition.tickSp}
+                              tickSpacing={allCoverPosition.tickSpacing}
                               feeTier={allCoverPosition.feeTier}
                               prefill={undefined}
                               close={undefined}
@@ -588,7 +590,7 @@ export default function Pool() {
                                 tokenOne={allCoverPool.tokenOne}
                                 liquidity={allCoverPool.liquidity}
                                 feeTier={allCoverPool.feeTier}
-                                tickSpacing={allCoverPool.tickSpread}
+                                tickSpacing={allCoverPool.tickSpacing}
                                 tvlUsd={allCoverPool.tvlUsd}
                                 volumeUsd={allCoverPool.volumeUsd}
                                 volumeEth={allCoverPool.volumeEth}
