@@ -198,6 +198,7 @@ export default function Swap() {
       console.log('Success cover wagmi', data)
       console.log('coverQuote', coverQuote)
       console.log('coverPriceAfter', coverPriceAfter)
+      console.log('zeroForOne', tokenIn.address.localeCompare(tokenOut.address) < 0)
     },
     onError(error) {
       console.log('Error cover wagmi', error)
