@@ -53,6 +53,7 @@ export default function Concentrated() {
     address: router.query.tokenOneAddress,
   } as token)
   const [liquidity, setLiquidity] = useState(router.query.liquidity ?? '0')
+  const [tickSpacing, setTickSpacing] = useState(router.query.tickSpacing ?? 10)
   const [feeTier, setFeeTier] = useState(router.query.feeTier ?? '')
   const [minLimit, setMinLimit] = useState(router.query.min ?? '0')
   const [maxLimit, setMaxLimit] = useState(router.query.max ?? '0')
@@ -130,7 +131,7 @@ export default function Concentrated() {
     setIsPoolCopied(true)
   } */
 
-  /* console.log('Concentrated Pool', {
+  console.log('Concentrated Pool', {
     poolId,
     tokenIn,
     tokenOut,
@@ -138,7 +139,8 @@ export default function Concentrated() {
     feeTier,
     minLimit,
     maxLimit,
-  }) */
+    tickSpacing
+  })
 
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">

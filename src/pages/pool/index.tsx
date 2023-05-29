@@ -66,7 +66,7 @@ export default function Pool() {
 
   useEffect(() => {
     getUserCoverPositionData()
-  }, [selected])
+  }, [])
 
   useEffect(() => {
     mapUserCoverPositions()
@@ -137,12 +137,12 @@ export default function Pool() {
     setAllRangePositions(mappedRangePositions)
   }
 
-  function mapUserCoverPositions() {
+  async function mapUserCoverPositions() {
     const mappedCoverPositions = []
-    coverPositions.map(async (coverPosition): Promise<void> => {
+    coverPositions.map((coverPosition) => {
       console.log('coverPosition', coverPosition)
       // console.log('mapped positions', mappedCoverPositions)
-      let claimTick = await getClaimTick(
+      const claimTick = getClaimTick(
         coverPosition.pool.id,
         coverPosition.lower,
         coverPosition.upper,
@@ -176,6 +176,7 @@ export default function Pool() {
     })
     console.log('mapped positions', mappedCoverPositions)
     setAllCoverPositions(mappedCoverPositions)
+    
   }
 
   function mapRangePools() {
