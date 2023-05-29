@@ -571,16 +571,12 @@ export default function Swap() {
                   ? rangeQuote === 0
                     ? '0'
                     : (
-                        parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                        (tokenOrder ?
-                          (rangeQuote) : (1 / coverQuote))
+                        parseFloat(ethers.utils.formatUnits(bnInput, 18)) * (rangeQuote)
                       ).toFixed(2)
                   : coverQuote === 0
                   ? '0'
                   : (
-                      parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                      (tokenOrder ?
-                        (coverQuote) : (1 / rangeQuote))
+                      parseFloat(ethers.utils.formatUnits(bnInput, 18)) * (coverQuote)
                     ).toFixed(2)) :
                     'Select Token'}
             </div>
@@ -590,7 +586,7 @@ export default function Swap() {
             <div className="ml-auto text-xs">
               {(hasSelected ? (
                 (rangeQuote !== 0 && coverQuote !== 0) ?
-                  ((rangePrice < coverPrice)
+                  ((rangeQuote > coverQuote)
                   ? (
                       Math.abs((rangePriceAfter - rangePrice) 
                       * 100
@@ -615,21 +611,17 @@ export default function Swap() {
                   ? rangeQuote === 0 ?
                     ('0') :
                     (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                    (tokenOrder ?
-                      (rangeQuote) : (1 / coverQuote)) -
+                      (rangeQuote) -
                     (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                    (tokenOrder ?
-                      (rangeQuote) : (1 / coverQuote)) *
+                      (rangeQuote) *
                     (parseFloat(slippage) * 0.01))
                   ).toFixed(2)
                   : coverQuote === 0 ?
                     ('0') :
                     (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                    (tokenOrder ?
-                      (coverQuote) : (1 / rangeQuote)) -
+                      (coverQuote) -
                     (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                    (tokenOrder ?
-                      (coverQuote) : (1 / rangeQuote)) *
+                      (coverQuote) *
                     (parseFloat(slippage) * 0.01))
                   ).toFixed(2)) :
                   'Select Token'}
@@ -791,13 +783,11 @@ export default function Swap() {
                   {rangeQuote > coverQuote
                 ? (
                     parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                    (tokenOrder ?
-                      (rangeQuote) : (1 / coverQuote))
+                      (rangeQuote)
                   ).toFixed(2)
                 : (
                     parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                    (tokenOrder ?
-                      (coverQuote) : (1 / rangeQuote))
+                      (coverQuote)
                   ).toFixed(2)}
                 </div>
               ) : (
@@ -926,11 +916,9 @@ export default function Swap() {
                 : ' ' + (
                 (rangeQuote != 0 && coverQuote != 0) ?
                   ((rangeQuote > coverQuote) ?
-                    (tokenOrder ? 
-                    (rangeQuote).toFixed(2) : (1 / coverQuote).toFixed(2))
+                    (rangeQuote).toFixed(2)
                   : 
-                    (tokenOrder ?
-                    (coverQuote).toFixed(2) : (1 / rangeQuote).toFixed(2))
+                    (coverQuote).toFixed(2)
                   ) 
                 : ('0')
                   )} {' '}
