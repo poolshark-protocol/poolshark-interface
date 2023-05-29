@@ -226,7 +226,7 @@ export default function RangePool({
     fetchTokenPrice()
   }, [rangePrice, tokenIn, tokenOut])
 
-  async function setRangeParams() {
+  function setRangeParams() {
     try {
       if (
         minPrice !== undefined &&
@@ -599,11 +599,17 @@ export default function RangePool({
                   className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
                   placeholder={minPrice}
                   id="minInput"
-                  type="number"
+                  type="text"
+                  value={minPrice}
                   onChange={() =>
                     setMinPrice(
                       (document.getElementById('minInput') as HTMLInputElement)
-                        ?.value,
+                        ?.value
+                          .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+                          .replace(/^(\.)+/, '0')
+                          .replace(/(?<=\..*)\./g, '')
+                          .replace(/^0+(?=\d)/, '')
+                          .replace(/[^\d.]/g, '')
                     )
                   }
                 />

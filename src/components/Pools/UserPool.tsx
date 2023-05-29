@@ -99,7 +99,7 @@ export default function UserPool({
     },
   })
 
-  async function setRangeParams() {
+  function setRangeParams() {
     try {
       if (rangePrice) {
         const price = TickMath.getTickAtPriceString(rangePrice)

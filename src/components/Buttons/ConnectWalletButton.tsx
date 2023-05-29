@@ -70,12 +70,12 @@ export const ConnectWalletButton = ({xl= false}: Props) => {
                 }
                 return (
                   <>
-                    <div className="flex text-white gap-x-4">
+                    <div className="flex flex-col items-end mt-14 xl:flex-row xl:mt-0 justify-end gap-y-4 text-white gap-x-4">
                       <button
                         onClick={() => setIsOpen(true)}
                         style={{ display: "flex", alignItems: "center" }}
                         type="button"
-                        className="bg-black border-grey1 border rounded-lg py-2 px-4 gap-x-2 hover:opacity-80"
+                        className="bg-black border-grey1 border rounded-lg w-min py-2 px-4 gap-x-2 hover:opacity-80"
                       >
                         {chain.hasIcon && (
                           <div>
@@ -96,7 +96,9 @@ export const ConnectWalletButton = ({xl= false}: Props) => {
                         ) : (
                           ""
                         )}
+                        <div className="whitespace-nowrap pr-4">
                         {chain.name}
+                        </div>
                       </button>
                       <button
                         onClick={openAccountModal}

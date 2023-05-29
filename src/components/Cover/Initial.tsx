@@ -40,18 +40,20 @@ export default function Initial(props: any) {
     setPool({
       poolId: query.poolId,
       liquidity: query.liquidity,
+      userLiquidity: query.userLiquidity,
       tokenOneName: query.tokenOne.name,
       tokenOneSymbol: query.tokenOne.symbol,
-      tokenOneLogoURI: logoMap[query.tokenOne.symbol],
+      tokenOneLogoURI: logoMap[query.tokenZero.symbol],
       tokenOneAddress: query.tokenOne.id,
       tokenOneValue: query.valueTokenOne,
       tokenZeroName: query.tokenZero.symbol,
       tokenZeroSymbol: query.tokenZero.symbol,
-      tokenZeroLogoURI: logoMap[query.tokenZero.symbol],
+      tokenZeroLogoURI: logoMap[query.tokenOne.symbol],
       tokenZeroAddress: query.tokenZero.id,
       tokenZeroValue: query.valueTokenZero,
       minLimit: query.min,
       maxLimit: query.max,
+      tickSpacing: query.tickSpacing,
       feeTier: query.feeTier,
     })
     console.log('pool', pool)
@@ -191,10 +193,13 @@ export default function Initial(props: any) {
       tokenZeroAddress={pool.tokenZeroAddress}
       tokenOneValue={pool.tokenOneValue}
       tokenZeroValue={pool.tokenZeroValue}
-      liquidity={String(ethers.utils.parseUnits(pool.liquidity, 0))}
+      zeroForOne={false}
+      liquidity={String(pool.liquidity)}
+      userLiquidity={String(pool.userLiquidity)}
       goBack={setIsShifted}
       minLimit={pool.minLimit}
       maxLimit={pool.maxLimit}
+      tickSpacing={pool.tickSpacing}
       feeTier={pool.feeTier}
     />
   );

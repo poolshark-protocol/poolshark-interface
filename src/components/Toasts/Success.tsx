@@ -5,11 +5,11 @@ import {
 
 export const SuccessToast = ({successDisplay, setSuccessDisplay, hash}) => {
   return (
-    <div className="bg-black py-3 px-4 rounded-xl flex gap-x-5">
+    <div className="bg-black py-3 px-4 rounded-xl flex gap-x-5 front">
       <div>
         <div className="flex gap-x-2 pb-1">
           <CheckCircleIcon className="w-6 text-green-500" />
-          <h1>Your Transaction was succesful</h1>
+          <h1>Your Transaction was successful</h1>
         </div>
         <a
           href={`https://goerli.arbiscan.io/tx/${hash}`}

@@ -70,6 +70,7 @@ export default function Cover() {
         userFillOut: coverPosition.amountOutDeltaMax,
         liquidity: coverPosition.pool.liquidity,
         feeTier: coverPosition.pool.volatilityTier.feeAmount,
+        tickSpacing: coverPosition.pool.volatilityTier.tickSpread,
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
       mappedCoverPositions.push(coverPositionData)
@@ -242,6 +243,7 @@ export default function Cover() {
                                 feeTier={allCoverPosition.feeTier}
                                 liquidity={allCoverPosition.liquidity}
                                 latestTick={allCoverPosition.latestTick}
+                                tickSpacing={allCoverPosition.tickSpacing}
                                 epochLast={allCoverPosition.epochLast}
                                 prefill={undefined}
                                 close={undefined}
