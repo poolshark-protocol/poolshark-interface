@@ -518,12 +518,14 @@ export default function Swap() {
       }
     }
 
-    if (slippageFetched === false 
-      && quoteCover[0].toString() !== BigNumber.from(0).toString()
-      && quoteRange[0].toString() !== BigNumber.from(0).toString()) {
-        getFeeTier()
-        getSlippage()
-        setSlippageFetched(true)
+    if(quoteCover && quoteRange) {
+      if (slippageFetched === false 
+        && quoteCover[0].toString() !== BigNumber.from(0).toString()
+        && quoteRange[0].toString() !== BigNumber.from(0).toString()) {
+          getFeeTier()
+          getSlippage()
+          setSlippageFetched(true)
+      }
     }
   }, [tokenIn.address, tokenOut.address, rangePoolRoute, coverPoolRoute, quoteCover, quoteRange, bnInput])
 
