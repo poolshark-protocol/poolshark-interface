@@ -112,7 +112,6 @@ export default function Swap() {
     args: [address, rangePoolRoute],
     chainId: 421613,
     watch: true,
-    enabled: rangePoolRoute !== undefined && tokenIn.address !== '',
     onError(error) {
       console.log('Error allowance', error)
     },
@@ -128,7 +127,6 @@ export default function Swap() {
     args: [address, coverPoolRoute],
     chainId: 421613,
     watch: true,
-    enabled: coverPoolRoute !== undefined && tokenIn.address !== '',
     onError(error) {
       console.log('Error allowance', error)
     },
@@ -147,7 +145,6 @@ export default function Swap() {
     args: [],
     chainId: 421613,
     watch: true,
-    enabled: coverPoolRoute !== undefined,
     onSuccess(data) {
       console.log('Success price Cover', data)
       console.log('coverPrice', coverPrice)
@@ -167,7 +164,6 @@ export default function Swap() {
     args: [],
     chainId: 421613,
     watch: true,
-    enabled: rangePoolRoute !== undefined,
     onSuccess(data) {
       console.log('Success price Range', data)
       console.log('rangePrice if inverted', rangePrice)
@@ -193,7 +189,6 @@ export default function Swap() {
     ],
     chainId: 421613,
     watch: true,
-    enabled: coverBnPrice !== BigNumber.from(0),
     onSuccess(data) {
       console.log('Success cover wagmi', data)
       console.log('coverQuote', coverQuote)
@@ -221,7 +216,6 @@ export default function Swap() {
     ],
     chainId: 421613,
     watch: true,
-    enabled: rangeBnPrice !== BigNumber.from(0),
     onSuccess(data) {
       console.log('Success range wagmi', data)
       console.log('rangeQuote', rangeQuote)
@@ -550,6 +544,8 @@ export default function Swap() {
   useEffect(() => {
     setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
     setRangeBnPrice(ethers.utils.parseUnits(rangePrice.toString(), 18))
+    console.log('coverBnPrice', coverBnPrice.toString())
+    console.log('rangeBnPrice', rangeBnPrice.toString())
   }, [coverPrice, rangePrice])
 
   useEffect(() => {
@@ -577,14 +573,14 @@ export default function Swap() {
                     : (
                         parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                         (tokenOrder ?
-                          (rangeQuote) : (1 / rangeQuote))
+                          (rangeQuote) : (1 / coverQuote))
                       ).toFixed(2)
                   : coverQuote === 0
                   ? '0'
                   : (
                       parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                       (tokenOrder ?
-                        (coverQuote) : (1 / coverQuote))
+                        (coverQuote) : (1 / rangeQuote))
                     ).toFixed(2)) :
                     'Select Token'}
             </div>
@@ -620,20 +616,20 @@ export default function Swap() {
                     ('0') :
                     (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                     (tokenOrder ?
-                      (rangeQuote) : (1 / rangeQuote)) -
+                      (rangeQuote) : (1 / coverQuote)) -
                     (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                     (tokenOrder ?
-                      (rangeQuote) : (1 / rangeQuote)) *
+                      (rangeQuote) : (1 / coverQuote)) *
                     (parseFloat(slippage) * 0.01))
                   ).toFixed(2)
                   : coverQuote === 0 ?
                     ('0') :
                     (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                     (tokenOrder ?
-                      (coverQuote) : (1 / coverQuote)) -
+                      (coverQuote) : (1 / rangeQuote)) -
                     (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                     (tokenOrder ?
-                      (coverQuote) : (1 / coverQuote)) *
+                      (coverQuote) : (1 / rangeQuote)) *
                     (parseFloat(slippage) * 0.01))
                   ).toFixed(2)) :
                   'Select Token'}
@@ -796,12 +792,12 @@ export default function Swap() {
                 ? (
                     parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                     (tokenOrder ?
-                      (rangeQuote) : (1 / rangeQuote))
+                      (rangeQuote) : (1 / coverQuote))
                   ).toFixed(2)
                 : (
                     parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                     (tokenOrder ?
-                      (coverQuote) : (1 / coverQuote))
+                      (coverQuote) : (1 / rangeQuote))
                   ).toFixed(2)}
                 </div>
               ) : (
@@ -931,10 +927,10 @@ export default function Swap() {
                 (rangeQuote != 0 && coverQuote != 0) ?
                   ((rangeQuote > coverQuote) ?
                     (tokenOrder ? 
-                    (rangeQuote).toFixed(2) : (1 / rangeQuote).toFixed(2))
+                    (rangeQuote).toFixed(2) : (1 / coverQuote).toFixed(2))
                   : 
                     (tokenOrder ?
-                    (coverQuote).toFixed(2) : (1 / coverQuote).toFixed(2))
+                    (coverQuote).toFixed(2) : (1 / rangeQuote).toFixed(2))
                   ) 
                 : ('0')
                   )} {' '}
