@@ -196,25 +196,19 @@ export default function CoverExistingPool({
   const getCoverPool = async () => {
     //console.log('liquidity', liquidity)
     try {
-      let pool
-      if (tokenIn.address.localeCompare(tokenOut.address) < 0) {
-        pool = await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
-      } else {
-        pool = await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
-      }
-      let id = ZERO_ADDRESS
-      let tickSpread = 10
-      let newLatestTick = 0
-      let dataLength = pool['data']['coverPools'].length
+      const pool = tokenOrder ?
+                        await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
+                      : await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
+      const dataLength = pool['data']['coverPools'].length
       if (dataLength != 0) {
-        id = pool['data']['coverPools']['0']['id']
-        tickSpread =
-          pool['data']['coverPools']['0']['volatilityTier']['tickSpread']
-        newLatestTick = pool['data']['coverPools']['0']['latestTick']
+        setCoverPoolRoute(pool['data']['coverPools']['0']['id'])
+        setTickSpread(['data']['coverPools']['0']['volatilityTier']['tickSpread'])
+        setLatestTick(pool['data']['coverPools']['0']['latestTick'])
+      } else {
+        setCoverPoolRoute(ZERO_ADDRESS)
+        setTickSpread(10)
+        setLatestTick(0)
       }
-      setCoverPoolRoute(id)
-      setTickSpread(tickSpread)
-      setLatestTick(newLatestTick)
     } catch (error) {
       console.log(error)
     }
