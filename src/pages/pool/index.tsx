@@ -181,7 +181,6 @@ export default function Pool() {
     })
     console.log('mapped positions', mappedCoverPositions)
     setAllCoverPositions(mappedCoverPositions)
-    
   }
 
   function mapRangePools() {
@@ -495,9 +494,7 @@ export default function Pool() {
                         ) {
                           return (
                             <UserCoverPool
-                              key={
-                                allCoverPosition.id + 'coverPosition'
-                              }
+                              key={allCoverPosition.id + 'coverPosition'}
                               account={address}
                               poolId={allCoverPosition.poolId}
                               tokenZero={allCoverPosition.tokenZero}
