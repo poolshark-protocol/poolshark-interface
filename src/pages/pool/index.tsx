@@ -297,10 +297,8 @@ export default function Pool() {
       const claimTickDataLength = claimTickQuery['data']['ticks'].length
       if (claimTickDataLength > 0)
         claimTick = claimTickQuery['data']['ticks'][0]['index']
-      if (claimTick != undefined) {
-        return claimTick
-      } else {
-        return minLimit
+      if (claimTick == undefined) {
+        claimTick = minLimit
       }
     }
     console.log('claim tick found:', claimTick)
