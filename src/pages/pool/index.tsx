@@ -345,10 +345,10 @@ export default function Pool() {
               //   },
               // }}
             > */}
-            <button className="flex items-center gap-x-1.5 px-7 py-[9px] text-white text-sm transition whitespace-nowrap rounded-lg cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
+            {/*<button className="flex items-center gap-x-1.5 px-7 py-[9px] text-white text-sm transition whitespace-nowrap rounded-lg cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
               <PlusSmallIcon className="w-6" />
               Create Pool
-            </button>
+            </button>*/}
             {/* </Link> */}
           </div>
           <div className="bg-black  border border-grey2 w-full rounded-t-xl p-6 space-y-4 h-[70vh] overflow-auto">
