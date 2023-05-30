@@ -14,7 +14,7 @@ import { useState, useEffect } from 'react'
 import useInputBox from '../../hooks/useInputBox'
 import { tokenOneAddress } from '../../constants/contractAddresses'
 import { coverPoolAddress } from '../../constants/contractAddresses'
-import { TickMath } from '../../utils/math/tickMath'
+import { TickMath, invertPrice } from '../../utils/math/tickMath'
 import { BigNumber, Contract, ethers } from 'ethers'
 import { useCoverStore } from '../../hooks/useStore'
 import { getCoverPoolFromFactory } from '../../utils/queries'
@@ -722,7 +722,7 @@ export default function CreateCover(props: any) {
             {1} {tokenIn.symbol} ={' '}
             {tokenOut.symbol === 'Select Token'
               ? '?'
-              : (tokenOrder ? coverTickPrice : coverTickPrice)  + ' ' + tokenOut.symbol}
+              : (invertPrice(coverTickPrice, tokenOrder))  + ' ' + tokenOut.symbol}
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
             <button>

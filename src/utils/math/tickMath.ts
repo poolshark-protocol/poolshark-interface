@@ -50,28 +50,34 @@ export function invertPrice(priceString: string, zeroForOne: boolean): string {
   return priceString
 }
 
-export function getDefaultLowerTick(minLimit, maxLimit, zeroForOne): any {
-  if (zeroForOne) return minLimit
+export function getDefaultLowerTick(minLimit, maxLimit, zeroForOne, latestTick = 0): any {
   const midTick = Math.round((Number(minLimit) + Number(maxLimit)) / 2)
-  return midTick
+  if (zeroForOne) {
+    if (latestTick < minLimit) return latestTick - 1000
+    return midTick - 1000
+  } else {
+    if (latestTick < midTick) return midTick
+    return latestTick
+  }
 }
 
-export function getDefaultUpperTick(minLimit, maxLimit, zeroForOne): any {
-  if (!zeroForOne) return maxLimit
+export function getDefaultUpperTick(minLimit, maxLimit, zeroForOne, latestTick = 0): any {
   const midTick = Math.round(Number(minLimit) + Number(maxLimit) / 2)
-  return midTick
+  if (!zeroForOne) {
+    if (latestTick > maxLimit) return latestTick + 1000
+    return latestTick + 1000
+  } else {
+    if (latestTick > midTick) return midTick
+    return latestTick
+  }
 }
 
-export function getDefaultLowerPrice(minLimit, maxLimit, zeroForOne): any {
-  if (zeroForOne) return TickMath.getPriceStringAtTick(minLimit)
-  const midTick = Math.round((Number(minLimit) + Number(maxLimit)) / 2)
-  return TickMath.getPriceStringAtTick(midTick)
+export function getDefaultLowerPrice(minLimit, maxLimit, zeroForOne, latestTick = 0): any {
+  return TickMath.getPriceStringAtTick(getDefaultLowerTick(minLimit, maxLimit, zeroForOne, latestTick))
 }
 
-export function getDefaultUpperPrice(minLimit, maxLimit, zeroForOne): any {
-  if (!zeroForOne) return TickMath.getPriceStringAtTick(maxLimit)
-  const midTick = Math.round(Number(minLimit) + Number(maxLimit) / 2)
-  return TickMath.getPriceStringAtTick(midTick)
+export function getDefaultUpperPrice(minLimit, maxLimit, zeroForOne, latestTick = 0): any {
+  return TickMath.getPriceStringAtTick(getDefaultUpperTick(minLimit, maxLimit, zeroForOne, latestTick))
 }
 
 export abstract class TickMath {
