@@ -22,6 +22,7 @@ import JSBI from 'jsbi'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import { coverPoolABI } from '../../abis/evm/coverPool'
 import { useRouter } from 'next/router'
+import { ZERO_ADDRESS } from '../../utils/math/constants'
 
 export default function CreateCover(props: any) {
   const router = useRouter()
@@ -48,7 +49,7 @@ export default function CreateCover(props: any) {
   const [balance0, setBalance0] = useState('')
   const [allowance, setAllowance] = useState('0')
   const { address, isConnected, isDisconnected } = useAccount()
-  const [isDisabled, setDisabled] = useState(false)
+  const [isDisabled, setDisabled] = useState(true)
   const [mktRate, setMktRate] = useState({})
   const [hasSelected, setHasSelected] = useState(
     pool != undefined ? true : false,
@@ -56,23 +57,18 @@ export default function CreateCover(props: any) {
   const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [tokenIn, setTokenIn] = useState({
-    symbol: pool != undefined ? props.query.tokenZeroSymbol : 'TOKEN20A',
-    logoURI:
-      pool != undefined
-        ? props.query.tokenZeroLogoURI
-        : 'https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png',
-    address:
-      pool != undefined
-        ? props.query.tokenZeroAddress
-        : '0x829e4a03A5Bd1EC5b6f5CC1d3A77c8e54A294847',
+    symbol: props.query ? props.query.tokenZeroSymbol : 'USDC',
+    logoURI: props.query
+      ? props.query.tokenZeroLogoURI
+      : '/static/images/token.png',
+    address: props.query
+      ? props.query.tokenZeroAddress
+      : '0xC26906E10E8BDaDeb2cf297eb56DF59775eE52c4',
   })
   const [tokenOut, setTokenOut] = useState({
-    symbol: pool != undefined ? props.query.tokenOneSymbol : 'Select Token',
-    logoURI: pool != undefined ? props.query.tokenOneLogoURI : undefined,
-    address:
-      pool != undefined
-        ? props.query.tokenOneAddress
-        : '0xf853592f1e4ceA2B5e722A17C6f917a4c70d40Ca',
+    symbol: props.query ? props.query.tokenOneSymbol : 'Select Token',
+    logoURI: props.query ? props.query.tokenOneLogoURI : '',
+    address: props.query ? props.query.tokenOneAddress : '',
   })
   const [usdcBalance, setUsdcBalance] = useState(0)
   const [amountToPay, setAmountToPay] = useState(0)
@@ -81,6 +77,9 @@ export default function CreateCover(props: any) {
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
   const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
   const [tokenOrder, setTokenOrder] = useState(true)
+  const [tickSpacing, setTickSpacing] = useState(
+    props.query ? props.query.tickSpacing : 20,
+  )
   const poolId =
     router.query.poolId === undefined ? '' : router.query.poolId.toString()
 
@@ -97,6 +96,8 @@ export default function CreateCover(props: any) {
     args: [address, coverPoolRoute],
     chainId: 421613,
     watch: true,
+    enabled:
+      address != '0x' && mktRate != undefined && coverPoolRoute != ZERO_ADDRESS,
     onSuccess(data) {
       console.log('Success')
     },
@@ -112,15 +113,17 @@ export default function CreateCover(props: any) {
     address: coverPoolRoute,
     abi: coverPoolABI,
     functionName:
-      tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1
+      tokenOut.address != '' &&
+      tokenIn.address.localeCompare(tokenOut.address) < 0
         ? 'pool1'
         : 'pool0',
     args: [],
     chainId: 421613,
     watch: true,
+    enabled: tokenOut.address != undefined && coverPoolRoute != ZERO_ADDRESS,
     onSuccess(data) {
       //console.log('Success price Cover', data)
-      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[1], 18)))
+      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[0], 18)))
     },
     onError(error) {
       console.log('Error price Cover', error)
@@ -164,20 +167,37 @@ export default function CreateCover(props: any) {
     getCoverPool()
   }, [hasSelected, tokenIn.address, tokenOut.address])
 
-  console.log('tokenIn', tokenIn)
-  console.log('coverTickPrice', Number(coverTickPrice))
-  console.log('mktRatePrice', mktRate[tokenIn.symbol])
+  useEffect(() => {
+    setDisabled(
+      minPrice === undefined ||
+        maxPrice === undefined ||
+        Number(ethers.utils.formatUnits(bnInput)) === 0 ||
+        tokenOut.symbol === 'Select Token' ||
+        hasSelected == false,
+    )
+  }, [minPrice, maxPrice, bnInput, tokenOut, hasSelected])
+
+  console.log('isDisabled', isDisabled)
 
   const getCoverPool = async () => {
     try {
       var pool = undefined
-      if (tokenIn.address.localeCompare(tokenOut.address) === -1) {
+      if (tokenIn.address.localeCompare(tokenOut.address) < 0) {
+        console.log('tokens:', tokenIn.address, tokenOut.address)
         pool = await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
       } else {
+        console.log('tokens:', tokenIn.address, tokenOut.address)
         pool = await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
       }
-      const id = pool['data']['coverPools']['0']['id']
+      let id = ZERO_ADDRESS
+      let dataLength = pool['data']['coverPools'].length
+      let latestTick = 0
+      if (dataLength != 0) {
+        id = pool['data']['coverPools']['0']['id']
+        latestTick = pool['data']['coverPools']['0']['latestTick']
+      }
       setCoverPoolRoute(id)
+      setCoverTickPrice(TickMath.getPriceStringAtTick(latestTick))
     } catch (error) {
       console.log(error)
     }
@@ -191,6 +211,7 @@ export default function CreateCover(props: any) {
         maxPrice !== undefined &&
         maxPrice !== '' &&
         Number(ethers.utils.formatUnits(bnInput)) !== 0 &&
+        tokenOut.symbol !== 'Select Token' &&
         hasSelected == true
       ) {
         const min = TickMath.getTickAtPriceString(minPrice)
@@ -210,9 +231,8 @@ export default function CreateCover(props: any) {
           amount: bnInput,
           inverse: false,
         }) */
-        setDisabled(false)
-        setMin(ethers.utils.parseUnits(String(min), 0))
-        setMax(ethers.utils.parseUnits(String(min), 0))
+        setMin(BigNumber.from(String(min)))
+        setMax(BigNumber.from(String(max)))
       }
     } catch (error) {
       console.log(error)
@@ -256,7 +276,7 @@ export default function CreateCover(props: any) {
     //console.log(token)
     setTokenOut(token)
     setHasSelected(true)
-    setDisabled(false)
+    //setDisabled(false)
   }
 
   function switchDirection() {
@@ -544,11 +564,20 @@ export default function CreateCover(props: any) {
               className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
               placeholder="0"
               id="minInput"
-              type="number"
+              type="text"
+              value={minPrice}
               onChange={() =>
                 setMinPrice(
-                  (document.getElementById('minInput') as HTMLInputElement)
-                    ?.value,
+                  (document.getElementById(
+                    'minInput',
+                  ) as HTMLInputElement)?.value
+                    .replace(/^0+(?=[^.0-9]|$)/, (match) =>
+                      match.length > 1 ? '0' : match,
+                    )
+                    .replace(/^(\.)+/, '0')
+                    .replace(/(?<=\..*)\./g, '')
+                    .replace(/^0+(?=\d)/, '')
+                    .replace(/[^\d.]/g, ''),
                 )
               }
             />
@@ -575,11 +604,20 @@ export default function CreateCover(props: any) {
               className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
               placeholder="0"
               id="maxInput"
-              type="number"
+              type="text"
+              value={maxPrice}
               onChange={() =>
                 setMaxPrice(
-                  (document.getElementById('maxInput') as HTMLInputElement)
-                    ?.value,
+                  (document.getElementById(
+                    'maxInput',
+                  ) as HTMLInputElement)?.value
+                    .replace(/^0+(?=[^.0-9]|$)/, (match) =>
+                      match.length > 1 ? '0' : match,
+                    )
+                    .replace(/^(\.)+/, '0')
+                    .replace(/(?<=\..*)\./g, '')
+                    .replace(/^0+(?=\d)/, '')
+                    .replace(/[^\d.]/g, ''),
                 )
               }
             />
@@ -621,20 +659,29 @@ export default function CreateCover(props: any) {
         Number(allowance) < Number(ethers.utils.formatUnits(bnInput, 18)) &&
         stateChainName === 'arbitrumGoerli' ? (
           <SwapCoverApproveButton
-            poolAddress={coverPoolAddress}
+            disabled={isDisabled}
+            poolAddress={coverPoolRoute}
             approveToken={tokenIn.address}
           />
         ) : stateChainName === 'arbitrumGoerli' ? (
           <CoverMintButton
-            poolAddress={poolId}
+            poolAddress={coverPoolRoute}
             disabled={isDisabled}
             to={address}
             lower={min}
-            claim={(tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1) ?
-                max : min}
+            claim={
+              tokenOut.address != '' &&
+              tokenIn.address.localeCompare(tokenOut.address) < 0
+                ? max
+                : min
+            }
             upper={max}
             amount={bnInput}
-            zeroForOne={tokenOut.address != '' && tokenIn.address.localeCompare(tokenOut.address) === -1}
+            zeroForOne={
+              tokenOut.address != '' &&
+              tokenIn.address.localeCompare(tokenOut.address) < 0
+            }
+            tickSpacing={tickSpacing}
           />
         ) : null}
       </div>

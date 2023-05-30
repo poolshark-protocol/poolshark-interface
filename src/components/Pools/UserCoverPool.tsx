@@ -7,11 +7,12 @@ import { useEffect, useState } from 'react'
 import { useCoverStore } from '../../hooks/useStore'
 import Link from 'next/link'
 import { getCoverPoolFromFactory } from '../../utils/queries'
-import { useContractRead } from 'wagmi'
+import { useAccount, useContractRead } from 'wagmi'
 import { coverPoolABI } from '../../abis/evm/coverPool'
 import { ethers } from 'ethers'
 import { TickMath } from '../../utils/math/tickMath'
 import JSBI from 'jsbi'
+import { ZERO_ADDRESS } from '../../utils/math/constants'
 
 export default function UserCoverPool({
   account,
@@ -22,16 +23,21 @@ export default function UserCoverPool({
   valueTokenOne,
   min,
   max,
+  zeroForOne,
+  userFillIn,
+  userFillOut,
   epochLast,
   liquidity,
+  latestTick,
+  tickSpacing,
   feeTier,
   href,
   prefill,
   close,
 }) {
   const logoMap = {
-    TOKEN20A: '/static/images/eth_icon.png',
-    TOKEN20B: '/static/images/token.png',
+    TOKEN20A: '/static/images/token.png',
+    TOKEN20B: '/static/images/eth_icon.png',
     USDC: '/static/images/token.png',
     WETH: '/static/images/eth_icon.png',
     DAI: '/static/images/dai_icon.png',
@@ -64,7 +70,7 @@ export default function UserCoverPool({
     watch: true,
     onSuccess(data) {
       //console.log('Success price Cover', data)
-      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[0], 18)))
+      setCoverQuote(TickMath.getPriceStringAtSqrtPrice(data[0]))
     },
     onError(error) {
       console.log('Error price Cover', error)
@@ -86,7 +92,9 @@ export default function UserCoverPool({
       } else {
         pool = await getCoverPoolFromFactory(tokenOne.id, tokenZero.id)
       }
-      const id = pool['data']['coverPools']['0']['id']
+      let id = ZERO_ADDRESS
+      let dataLength = pool['data']['coverPools'].length
+      if(dataLength != 0) id = pool['data']['coverPools']['0']['id']
       setCoverPoolRoute(id)
     } catch (error) {
       console.log(error)
@@ -96,6 +104,7 @@ export default function UserCoverPool({
   async function setCoverParams() {
     try {
       if (coverQuote != undefined) {
+        console.log('cover quote check', coverQuote)
         const price = TickMath.getTickAtPriceString(coverQuote)
         setCoverTickPrice(ethers.utils.parseUnits(String(price), 0))
       }
@@ -113,7 +122,6 @@ export default function UserCoverPool({
       tokenZero: tokenZero,
     }) */
   }
-
   return (
     <Link
       href={{
@@ -123,19 +131,24 @@ export default function UserCoverPool({
           poolId: poolId,
           tokenZeroName: tokenZero.name,
           tokenZeroSymbol: tokenZero.symbol,
-          tokenZeroLogoURI: logoMap[tokenZero.symbol],
+          tokenZeroLogoURI: zeroForOne ? logoMap[tokenOne.symbol] : logoMap[tokenZero.symbol],
           tokenZeroAddress: tokenZero.id,
           tokenZeroValue: valueTokenZero,
           tokenOneName: tokenOne.name,
           tokenOneSymbol: tokenOne.symbol,
-          tokenOneLogoURI: logoMap[tokenOne.symbol],
+          tokenOneLogoURI: zeroForOne ? logoMap[tokenZero.symbol] : logoMap[tokenOne.symbol],
           tokenOneAddress: tokenOne.id,
           tokenOneValue: valueTokenOne,
           coverPoolRoute: coverPoolRoute,
           coverTickPrice: coverTickPrice ? coverTickPrice : 0,
           min: min,
           max: max,
+          userFillIn: userFillIn,
+          userFillOut: userFillOut,
           liquidity: liquidity,
+          latestTick: latestTick,
+          tickSpacing: tickSpacing,
+          epochLast: epochLast,
           feeTier: feeTierPercentage,
         },
       }}
@@ -172,41 +185,24 @@ export default function UserCoverPool({
           </div>
           <div className="text-xs flex items-center gap-x-3">
             <span>
-              <span className="text-grey">Min:</span> {min} {tokenZero.symbol}{" "}
+              <span className="text-grey">Min:</span> {TickMath.getPriceStringAtTick(min)} {tokenZero.symbol}{" "}
               per {tokenOne.symbol}
             </span>
             <ArrowsRightLeftIcon className="w-3 text-grey" />
             <span>
-              <span className="text-grey">Max:</span> {max} {tokenOne.symbol}{" "}
+              <span className="text-grey">Max:</span> {TickMath.getPriceStringAtTick(max)} {tokenOne.symbol}{" "}
               per {tokenZero.symbol}
             </span>
           </div>
         </div>
-        <div className="flex mt-4 w-full gap-x-5">
-                  <div className="bg-black px-2 py-1 rounded-lg text-grey sm:hidden block">
-              {feeTierPercentage}%
-            </div>
-        {coverTickPrice ? (
-          Number(ethers.utils.formatUnits(coverTickPrice, 18)) < Number(min) ||
-          Number(ethers.utils.formatUnits(coverTickPrice, 18)) > Number(max) ? (
-            <div className=" w-full sm:w-auto">
-              <div className="flex items-center justify-center bg-black py-2 px-5 rounded-lg gap-x-2 text-xs w-full sm:w-auto">
-                <ExclamationTriangleIcon className="w-4 text-yellow-600" />
-                Out of Range
+        <div className="pr-5">
+              <div className="flex relative bg-transparent items-center justify-center h-8 border-grey1 z-40 border rounded-lg gap-x-2 text-sm w-36">
+                <div className=" bg-white h-full absolute left-0 z-0 rounded-l-[7px] opacity-10 w-[40%]"/>
+                <div className="z-20 ">
+                40% Filled
+                </div>
               </div>
             </div>
-          ) : (
-            <div className=" w-full">
-              <div className="flex items-center justify-center bg-black py-2 px-5 rounded-lg gap-x-2 text-xs w-full sm:w-auto">
-                <div className="w-2 h-2 bg-green-500 rounded-full" />
-                In Range
-              </div>
-            </div>
-          )
-        ) : (
-          <></>
-        )}
-        </div>
       </div>
     </Link>
   );

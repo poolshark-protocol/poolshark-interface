@@ -61,17 +61,20 @@ export default function Cover() {
       const coverPositionData = {
         id: coverPosition.id,
         poolId: coverPosition.pool.id,
+        latestTick: coverPosition.pool.latestTick,
         tokenZero: coverPosition.inToken,
         valueTokenZero: coverPosition.inAmount,
         tokenOne: coverPosition.outToken,
         valueTokenOne: coverPosition.outAmount,
         min: coverPosition.lower,
         max: coverPosition.upper,
+        userFillIn: coverPosition.amountInDeltaMax,
+        userFillOut: coverPosition.amountOutDeltaMax,
         liquidity: coverPosition.pool.liquidity,
         feeTier: coverPosition.pool.volatilityTier.feeAmount,
+        tickSpacing: coverPosition.pool.volatilityTier.tickSpread,
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
-
       mappedCoverPositions.push(coverPositionData)
     })
 
@@ -140,7 +143,7 @@ export default function Cover() {
             <h1 className="text-3xl">Cover</h1>
             <span className="bg-black flex items-center gap-x-2 border border-grey2 rounded-lg text-white px-6 py-[9px] cursor-pointer hover:opacity-80">
               <InformationCircleIcon className="w-4 text-grey1" />
-              <Link href="https://docs.poolsharks.io/introduction/cover-pools/">
+              <Link href="https://docs.poolsharks.io/overview/cover-pools/">
                 <a target="_blank">How it works?</a>
               </Link>
             </span>
@@ -317,15 +320,21 @@ export default function Cover() {
                           if (
                             allCoverPosition.userOwnerAddress ===
                               address?.toLowerCase() &&
-                            (allCoverPosition.tokenZero.name === searchTerm ||
-                              allCoverPosition.tokenOne.name === searchTerm ||
-                              allCoverPosition.tokenZero.symbol ===
-                                searchTerm ||
-                              allCoverPosition.tokenOne.symbol === searchTerm ||
-                              allCoverPosition.tokenZero.id === searchTerm ||
-                              allCoverPosition.tokenOne.id === searchTerm ||
+                            (allCoverPosition.tokenZero.name.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenOne.name.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenZero.symbol.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenOne.symbol.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenZero.id.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenOne.id.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
                               searchTerm === '')
                           ) {
+                            //console.log('user fill out', allCoverPosition.userFillOut)
                             return (
                               <UserCoverPool
                                 key={allCoverPosition.id}
@@ -337,9 +346,14 @@ export default function Cover() {
                                 valueTokenOne={allCoverPosition.valueTokenOne}
                                 min={allCoverPosition.min}
                                 max={allCoverPosition.max}
+                                zeroForOne={allCoverPosition.zeroForOne}
+                                userFillIn={allCoverPosition.userFillIn}
+                                userFillOut={allCoverPosition.userFillOut}
                                 feeTier={allCoverPosition.feeTier}
                                 liquidity={allCoverPosition.liquidity}
-                                epochLast={undefined}
+                                latestTick={allCoverPosition.latestTick}
+                                tickSpacing={allCoverPosition.tickSpacing}
+                                epochLast={allCoverPosition.epochLast}
                                 prefill={undefined}
                                 close={undefined}
                                 href={'/pool/view/cover'}

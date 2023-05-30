@@ -150,6 +150,7 @@ export default function ConcentratedPool({
     args: [address, poolId],
     chainId: 421613,
     watch: true,
+    enabled: rangePoolRoute != undefined && tokenIn.address != '',
     onError(error) {
       console.log('Error', error)
     },
@@ -217,7 +218,7 @@ export default function ConcentratedPool({
     }
   }
 
-  async function setRangeParams() {
+  function setRangeParams() {
     try {
       if (
         minPrice !== undefined &&
@@ -595,17 +596,22 @@ export default function ConcentratedPool({
                   </button>
                 </div>
                 <input
-                  key={minPrice}
                   className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
-                  placeholder={minPrice}
+                  placeholder="0"
                   id="minInput"
-                  type="number"
+                  type="text"
+                  value={minPrice}
                   onChange={() =>
                     setMinPrice(
                       (document.getElementById('minInput') as HTMLInputElement)
-                        ?.value,
+                        ?.value
+                          .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+                          .replace(/^(\.)+/, '0')
+                          .replace(/(?<=\..*)\./g, '')
+                          .replace(/^0+(?=\d)/, '')
+                          .replace(/[^\d.]/g, '')
                     )
-                  }
+                  } 
                 />
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
                   <button onClick={() => changePrice('plus', 'min')}>
@@ -623,15 +629,20 @@ export default function ConcentratedPool({
                   </button>
                 </div>
                 <input
-                  key={maxPrice}
                   className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
-                  placeholder={maxPrice}
+                  placeholder="0"
                   id="maxInput"
-                  type="number"
+                  type="text"
+                  value={maxPrice}
                   onChange={() =>
                     setMaxPrice(
                       (document.getElementById('maxInput') as HTMLInputElement)
-                        ?.value,
+                        ?.value
+                          .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+                          .replace(/^(\.)+/, '0')
+                          .replace(/(?<=\..*)\./g, '')
+                          .replace(/^0+(?=\d)/, '')
+                          .replace(/[^\d.]/g, '')
                     )
                   }
                 />

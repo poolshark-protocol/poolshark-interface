@@ -1,5 +1,5 @@
 import JSBI from 'jsbi';
-import { TickMath } from '../src/utils/math/tickMath'
+import { TickMath, invertPrice } from '../src/utils/math/tickMath'
 
 describe('TickMath tests', () => {
   test('price string of 1.00 converts to tick 0', () => {
@@ -24,15 +24,38 @@ describe('TickMath tests', () => {
     // equals priceString of '1.00'
     const priceString1 = TickMath.getPriceStringAtSqrtPrice(sqrtPrice1)
     // check priceString
-    expect(priceString1).toStrictEqual('1.00000e+0')
+    expect(priceString1).toStrictEqual('1.00000')
     // check sqrtPrice at priceString
     expect(TickMath.getSqrtPriceAtPriceString(priceString1)).toStrictEqual(sqrtPrice1);
   });
 
+  test('price string at tick 84467 should be 4657.70', () => {
+
+    const priceString1 = TickMath.getPriceStringAtTick(84467)
+
+    expect(priceString1).toStrictEqual('4657.70')
+  })
+
   test('price string for 2.00 inverts to 0.50', () => {
     const priceString2 = '2.00'
-    const priceStringOneHalf = TickMath.invertPrice(priceString2, false)
+    const priceStringOneHalf = invertPrice(priceString2, false)
     // check priceString
     expect(priceStringOneHalf).toStrictEqual('5.00000e-1')
+  });
+
+  test('price string for 3.402e+38 inverts to 0.50', () => {
+    const priceString2 = '3.402e+38'
+    const priceString = TickMath.getSqrtPriceAtPriceString(priceString2)
+    // check priceString
+    console.log(priceString.toString())
+    expect(priceString).toStrictEqual('5.00000e-1')
+  });
+
+  test('price string for 2.97e-39 inverts to 0.50', () => {
+    const priceString2 = '2.970e-39'
+    const priceString = TickMath.getTickAtPriceString(priceString2)
+    // check priceString
+    console.log('minPrice', priceString.toString())
+    expect(priceString).toStrictEqual('5.00000e-1')
   });
 });

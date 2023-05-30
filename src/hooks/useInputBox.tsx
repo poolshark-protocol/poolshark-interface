@@ -16,7 +16,12 @@ export default function useInputBox() {
   const [bnInputLimit, setBnInputLimit] = useState(BigNumber.from('0'))
 
   const handleChange = (event, updateValue) => {
-    const result = event.target.value.replace(/[^\d.]/g, '')
+    const result = event.target.value
+      .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+      .replace(/^(\.)+/, '0')
+      .replace(/(?<=\..*)\./g, '')
+      .replace(/^0+(?=\d)/, '')
+      .replace(/[^\d.]/g, '');
     //TODO: do not allow for exceeding max decimals
     setDisplay(result == '' ? '' : result)
     if (result == '') {
@@ -90,7 +95,7 @@ export default function useInputBox() {
     return (
       <div className="">
         <input
-          type="number"
+          type="text"
           id="input"
           onChange={(e) => handleChange(e, updateValue)}
           value={display}
@@ -105,7 +110,7 @@ export default function useInputBox() {
     return (
       <div className="flex gap-x-2">
         <input
-          type="number"
+          type="text"
           id="LimitInput"
           onChange={(e) => handleChangeLimit(e, updateValue)}
           value={displayLimit}

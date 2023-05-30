@@ -31,6 +31,7 @@ export default function ConcentratedPoolPreview({
     args: [address, poolAddress],
     chainId: 421613,
     watch: true,
+    enabled: tokenIn.address != '',
     onSuccess() {
       console.log('Success')
     },
@@ -48,6 +49,7 @@ export default function ConcentratedPoolPreview({
     args: [address, poolAddress],
     chainId: 421613,
     watch: true,
+    enabled: tokenOut.address != '',
     onSuccess() {
       console.log('Success')
     },
@@ -255,11 +257,13 @@ export default function ConcentratedPoolPreview({
                         ) : Number(allowanceIn) <
                           Number(ethers.utils.formatUnits(amount0, 18)) ? (
                           <SwapRangeApproveButton
+                            disabled={false}
                             poolAddress={poolAddress}
                             approveToken={tokenIn.address}
                           />
                         ) : (
                           <SwapRangeApproveButton
+                            disabled={false}
                             poolAddress={poolAddress}
                             approveToken={tokenOut.address}
                           />

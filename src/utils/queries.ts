@@ -77,9 +77,14 @@ export const getCoverPoolFromFactory = (token0: string, token1: string) => {
         {
             coverPools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
               id
+              latestTick
+              volatilityTier {
+                tickSpread
+              }
             }
           }
          `
+    console.log('query:', getPool)
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
       cache: new InMemoryCache(),
@@ -98,21 +103,22 @@ export const getCoverPoolFromFactory = (token0: string, token1: string) => {
 }
 
 export const getTickIfZeroForOne = (
-  lower: number,
+  upper: number,
   poolAddress: string,
-  epochLast: number
+  epochLast: number,
 ) => {
   return new Promise(function (resolve) {
     const getTicks = `
        { 
          ticks(
             first: 1
-            where: {index_gte:"${lower}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
+            where: {index_lte:"${upper}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
           ) {
             index
           }
         }
         `
+    console.log('pool address', poolAddress)
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
       cache: new InMemoryCache(),
@@ -130,21 +136,23 @@ export const getTickIfZeroForOne = (
 }
 
 export const getTickIfNotZeroForOne = (
-  upper: number,
+  lower: number,
   poolAddress: string,
-  epochLast: number
+  epochLast: number,
 ) => {
   return new Promise(function (resolve) {
     const getTicks = `
        { 
          ticks(
             first: 1
-            where: {index_lte:"${upper}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
+            where: {index_gte:"${lower}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
           ) {
             index
           }
         }
         `
+    console.log(getTicks)
+    console.log('pool address', poolAddress)
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
       cache: new InMemoryCache(),
@@ -165,7 +173,7 @@ export const fetchCoverPositions = (address: string) => {
   return new Promise(function (resolve) {
     const positionsQuery = `
       query($owner: String) {
-          positions(owner: $owner) {
+          positions(where: {owner:"${address}"}) {
                 id
                 inAmount
                 inToken{
@@ -175,8 +183,11 @@ export const fetchCoverPositions = (address: string) => {
                     decimals
                 }
                 liquidity
+                zeroForOne
                 upper
                 lower
+                amountInDeltaMax
+                amountOutDeltaMax
                 epochLast
                 outAmount
                 outToken{
@@ -203,7 +214,9 @@ export const fetchCoverPositions = (address: string) => {
                     liquidity
                     volatilityTier{
                         feeAmount
+                        tickSpread
                     }
+                    latestTick
                 }
                 txnHash
             }
@@ -251,6 +264,7 @@ export const fetchCoverPools = () => {
                     liquidity
                     volatilityTier{
                         feeAmount
+                        tickSpread
                     }
                     price0
                     price1
@@ -315,9 +329,6 @@ export const fetchRangePools = () => {
             query($id: String) {
                 rangePools(id: $id) {
                     id
-                    factory{
-                        id
-                    }
                     token0{
                         id
                         name
@@ -345,6 +356,7 @@ export const fetchRangePools = () => {
                     price
                     price0
                     price1
+                    price
                     liquidity
                     feesEth
                     feesUsd
@@ -381,52 +393,61 @@ export const fetchRangePools = () => {
 export const fetchRangePositions = (address: string) => {
   return new Promise(function (resolve) {
     const positionsQuery = `
-        query($owner: String) {
-            positions(owner: $owner) {
-                id
-                owner
-                liquidity
-                upper
-                lower
-                pool{
-                    token0{
-                        id
-                        name
-                        symbol
-                        decimals
-                    }
-                    token1{
-                        id
-                        name
-                        symbol
-                        decimals
-                    }
-                    ticks{
-                        price0
-                        price1
-                        liquidityDelta
-                        liquidityDeltaMinus
-                    }
-                    factory{
-                        id
-                    }
-                    liquidity
-                    feeTier{
-                        feeAmount
-                    }
-                    feesEth
-                    feesUsd
-                    totalValueLockedEth
-                    totalValueLockedUsd
-                    totalValueLocked0
-                    totalValueLocked1
-                    volumeEth
-                    volumeToken0
-                    volumeToken1
-                    volumeUsd
-                }
-            }  
+    {
+      positionFractions(where: {owner:"${address}"}) {
+        id
+        owner
+        amount
+        token{
+          totalSupply
+          position{
+            lower
+            upper
+            liquidity
+            pool {
+              id
+              token0{
+                  id
+                  name
+                  symbol
+                  decimals
+              }
+              token1{
+                  id
+                  name
+                  symbol
+                  decimals
+              }
+              ticks{
+                  price0
+                  price1
+                  liquidityDelta
+                  liquidityDeltaMinus
+              }
+              factory{
+                  id
+              }
+              price
+              liquidity
+              feeTier{
+                  feeAmount
+                  tickSpacing
+              }
+              feesEth
+              feesUsd
+              totalValueLockedEth
+              totalValueLockedUsd
+              totalValueLocked0
+              totalValueLocked1
+              volumeEth
+              volumeToken0
+              volumeToken1
+              volumeUsd
+            }
+          }
         }
+      }  
+  }
     `
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-range',
@@ -441,6 +462,7 @@ export const fetchRangePositions = (address: string) => {
       })
       .then((data) => {
         resolve(data)
+        console.log(data)
       })
       .catch((err) => {
         resolve(err)
@@ -488,6 +510,7 @@ export const fetchUniV3Pools = () => {
             query($id: String) {
                 pools(id: $id) {
                     id
+                    tick
                     liquidity
                     sqrtPrice
                     totalValueLockedETH
@@ -545,6 +568,9 @@ export const fetchUniV3Positions = (address: string) => {
                         symbol
                         decimals
                     }
+                    pool {
+                      tick
+                    }
                     depositedToken0
                     depositedToken1
                     withdrawnToken0
@@ -553,7 +579,7 @@ export const fetchUniV3Positions = (address: string) => {
             }
         `
     const client = new ApolloClient({
-      uri: 'https://api.thegraph.com/subgraphs/name/liqwiz/uniswap-v3-goerli',
+      uri: 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
       cache: new InMemoryCache(),
     })
     client

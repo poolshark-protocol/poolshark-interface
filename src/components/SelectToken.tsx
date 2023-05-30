@@ -1,42 +1,43 @@
-import { Fragment, useState, useEffect } from "react";
+import { Fragment, useState, useEffect } from 'react'
 import {
   ChevronDownIcon,
   XMarkIcon,
   MagnifyingGlassIcon,
-} from "@heroicons/react/20/solid";
-import { Transition, Dialog } from "@headlessui/react";
-import { tokenZeroAddress, tokenOneAddress } from "../constants/contractAddresses";
-import useTokenList from "../hooks/useTokenList";
-import CoinListButton from "./Buttons/CoinListButton";
-import CoinListItem from "./CoinListItem";
-
-
+} from '@heroicons/react/20/solid'
+import { Transition, Dialog } from '@headlessui/react'
+import {
+  tokenZeroAddress,
+  tokenOneAddress,
+} from '../constants/contractAddresses'
+import useTokenList from '../hooks/useTokenList'
+import CoinListButton from './Buttons/CoinListButton'
+import CoinListItem from './CoinListItem'
 
 export default function SelectToken(props) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [inputVal, setInputVal] = useState("");
-  const coins = useTokenList()[0];
+  const [isOpen, setIsOpen] = useState(false)
+  const [inputVal, setInputVal] = useState('')
+  const coins = useTokenList()[0]
 
   //@dev this is temporary for testnet
   // const [coinsForListing, setCoinsForListing] = useState(coins["listed_tokens"]);
-  const [coinsForListing, setCoinsForListing] = useState([{
-    name: "Wrapped Ether",
-    address: tokenZeroAddress,
-    symbol: "WETH",
-    logoURI: "/static/images/eth_icon.png",
-    decimals: 18
-},
-{
-  name: "USDC",
-  address: tokenOneAddress,
-  symbol: "USDC",
-  logoURI:  "/static/images/token.png",
-  decimals: 18
-}
+  const [coinsForListing, setCoinsForListing] = useState([
+    {
+      name: 'Wrapped Ether',
+      address: tokenZeroAddress,
+      symbol: 'WETH',
+      logoURI: '/static/images/eth_icon.png',
+      decimals: 18,
+    },
+    {
+      name: 'USDC',
+      address: tokenOneAddress,
+      symbol: 'USDC',
+      logoURI: '/static/images/token.png',
+      decimals: 18,
+    },
+  ])
 
-])
-
-//@dev this is temporary for testnet
+  //@dev this is temporary for testnet
   // const findCoin = () => {
   //   if (inputVal.length === 0) {
   //     setCoinsForListing(coins["listed_tokens"]);
@@ -64,29 +65,29 @@ export default function SelectToken(props) {
   const chooseToken = (coin) => {
     props.tokenChosen({
       name: coin?.name,
-      address: coin?.address,    //@dev use id for address in production like so address: coin?.id because thats what coin [] will have instead of address
+      address: coin?.address, //@dev use id for address in production like so address: coin?.id because thats what coin [] will have instead of address
       symbol: coin?.symbol,
       logoURI: coin?.logoURI,
       decimals: coin?.decimals,
     })
     props.balance(coin?.id)
-    closeModal();
-  };
+    closeModal()
+  }
 
   useEffect(() => {
     //@dev this is temporary for testnet
     // findCoin();
-  }, [inputVal, isOpen]);
+  }, [inputVal, isOpen])
 
   //   useEffect(() => {
   // }, [coinsForListing]);
 
   function closeModal() {
-    setIsOpen(false);
+    setIsOpen(false)
   }
 
   function openModal() {
-    setIsOpen(true);
+    setIsOpen(true)
   }
 
   return (
@@ -133,22 +134,27 @@ export default function SelectToken(props) {
                       onChange={(e) => setInputVal(e.target.value)}
                     ></input>
                     <div className="flex justify-between flex-wrap mt-4 gap-y-2">
-                      {coinsForListing?.map((coin, index) => {
-                        return <CoinListButton key={index} coin={coin} chooseToken={chooseToken} />;
+                      {coinsForListing?.map((coin) => {
+                        return (
+                          <CoinListButton
+                            key={coin.symbol + 'top'}
+                            coin={coin}
+                            chooseToken={chooseToken}
+                          />
+                        )
                       })}
                     </div>
                   </div>
                   <div>
                     {coinsForListing?.map((coin) => {
-                      /* console.log('props',props)
-                      console.log('coin',coin) */
                       return (
-                        <CoinListItem key={props.index} coin={coin} chooseToken={chooseToken} />
-                      );
+                        <CoinListItem
+                          key={coin.symbol}
+                          coin={coin}
+                          chooseToken={chooseToken}
+                        />
+                      )
                     })}
-                    {/* {(coinsForListing === null || coinsForListing.length === 0) &&
-                                <div>No coin</div>
-                                } */}
                   </div>
                 </Dialog.Panel>
               </Transition.Child>
@@ -162,11 +168,16 @@ export default function SelectToken(props) {
        "flex items-center bg-background text-main gap-x-3 hover:opacity-80  px-4 py-2 rounded-xl" }
       >
         <div className="flex items-center gap-x-2 w-full">
-          { props.index === "0" || props.index === "1" && props.selected === true  ? <img className="w-7" src={props.displayToken?.logoURI} /> : <></>}
+          {props.index === '0' ||
+          (props.index === '1' && props.selected === true) ? (
+            <img className="w-7" src={props.displayToken?.logoURI} />
+          ) : (
+            <></>
+          )}
           {props.displayToken?.symbol}
         </div>
         <ChevronDownIcon className="w-5" />
       </button>
     </div>
-  );
+  )
 }

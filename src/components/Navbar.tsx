@@ -12,7 +12,7 @@ export default function Navbar({create, setCreate}) {
   return (
     <div className="md:px-10 px-4 pt-3 mx-auto w-full">
       <div className="relative flex items-center justify-between h-16 w-full">
-        <div className="grid md:grid-cols-3 grid-cols-2 items-center w-full mx-auto">
+        <div className="grid md:grid-cols-3 grid-cols-2 w-full mx-auto">
           <div className="flex items-center justify-start flex-shrink-0">
             <div className="relative w-40 md:h-40">
               <div className="hidden md:block">
