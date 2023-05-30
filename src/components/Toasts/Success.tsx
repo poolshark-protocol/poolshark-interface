@@ -2,10 +2,45 @@ import {
   CheckCircleIcon,
   XMarkIcon
 } from "@heroicons/react/24/outline";
+import { useEffect, useState } from "react";
 
-export const SuccessToast = ({successDisplay, setSuccessDisplay, hash}) => {
+export const SuccessToast = ({ successDisplay, setSuccessDisplay, hash }) => {
+  const [fadeOut, setFadeOut] = useState(false);
+
+  useEffect(() => {
+    if (successDisplay) {
+      const timeout = setTimeout(() => {
+        setFadeOut(true);
+      }, 3000);
+
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
+  }, [successDisplay]);
+
+  useEffect(() => {
+    if (fadeOut) {
+      const timeout = setTimeout(() => {
+        setSuccessDisplay(false);
+      }, 500);
+
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
+  }, [fadeOut, setSuccessDisplay]);
+
+  if (!successDisplay) {
+    return null;
+  }
+
   return (
-    <div className="bg-black py-3 px-4 rounded-xl flex gap-x-5 front">
+    <div
+      className={`bg-black py-3 px-4 rounded-xl flex gap-x-5 front ${
+        fadeOut ? "fade-out" : ""
+      }`}
+    >
       <div>
         <div className="flex gap-x-2 pb-1">
           <CheckCircleIcon className="w-6 text-green-500" />
@@ -21,7 +56,7 @@ export const SuccessToast = ({successDisplay, setSuccessDisplay, hash}) => {
         </a>
       </div>
       <XMarkIcon
-        onClick={() => setSuccessDisplay(false)}
+        onClick={() => setFadeOut(true)}
         className="w-6 text-gray-400 cursor-pointer"
       />
     </div>
