@@ -74,7 +74,7 @@ export default function CreateCover(props: any) {
   })
   const [amountToPay, setAmountToPay] = useState(0)
   const [prices, setPrices] = useState({ tokenIn: 0, tokenOut: 0 })
-  const [coverQuote, setCoverQuote] = useState(undefined)
+  const [coverPrice, setCoverPrice] = useState(undefined)
   const [coverAmountIn, setCoverAmountIn] = useState(ZERO)
   const [coverAmountOut, setCoverAmountOut] = useState(ZERO)
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
@@ -99,11 +99,6 @@ export default function CreateCover(props: any) {
     args: [address, coverPoolRoute],
     chainId: 421613,
     watch: true,
-    enabled:
-      address != '0x' &&
-      mktRate != undefined &&
-      coverPoolRoute != ZERO_ADDRESS &&
-      tokenOut.address != '',
     onSuccess(data) {
       console.log('Success')
     },
@@ -115,39 +110,18 @@ export default function CreateCover(props: any) {
     },
   })
 
-  const { refetch: refetchcoverQuote, data: priceCover } = useContractRead({
-    address: coverPoolRoute,
-    abi: coverPoolABI,
-    functionName:
-      tokenOut.address != '' &&
-      tokenIn.address.localeCompare(tokenOut.address) < 0
-        ? 'pool1'
-        : 'pool0',
-    args: [],
-    chainId: 421613,
-    watch: true,
-    enabled: tokenOut.address != undefined && coverPoolRoute != ZERO_ADDRESS,
-    onSuccess(data) {
-      //console.log('Success price Cover', data)
-      setCoverQuote(parseFloat(ethers.utils.formatUnits(data[0], 18)))
-    },
-    onError(error) {
-      console.log('Error price Cover', error)
-    },
-    onSettled(data, error) {
-      //console.log('Settled price Cover', { data, error })
-    },
-  })
-
   useEffect(() => {
-    if (data) {
+    if (data)
+      if(address != '0x' && 
+        mktRate != undefined &&
+        coverPoolRoute != ZERO_ADDRESS) {
       setAllowance(ethers.utils.formatUnits(data, 18))
     }
   }, [data, tokenIn.address, bnInput])
 
-  useEffect(() => {
-    setCoverParams()
-  }, [lowerPrice, upperPrice, bnInput, coverQuote])
+  // useEffect(() => {
+  //   setCoverParams()
+  // }, [lowerPrice, upperPrice, bnInput, coverPrice])
 
   const {
     network: { chainId },
@@ -163,7 +137,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     fetchTokenPrice()
-  }, [coverQuote])
+  }, [coverPrice])
 
   useEffect(() => {
     setParams(router.query)
@@ -174,13 +148,16 @@ export default function CreateCover(props: any) {
   }, [hasSelected, tokenIn.address, tokenOut.address])
 
   useEffect(() => {
-    setDisabled(
-      isNaN(parseFloat(lowerPrice)) ||
-      isNaN(parseFloat(upperPrice)) ||
-        Number(ethers.utils.formatUnits(bnInput)) === 0 ||
-        tokenOut.symbol === 'Select Token' ||
-        hasSelected == false,
-    )
+    if (data) {
+      setCoverParams()
+      setDisabled(
+        isNaN(parseFloat(lowerPrice)) ||
+        isNaN(parseFloat(upperPrice)) ||
+          Number(ethers.utils.formatUnits(bnInput)) === 0 ||
+          tokenOut.symbol === 'Select Token' ||
+          hasSelected == false,
+      )
+    }
   }, [lowerPrice, upperPrice, bnInput, tokenOut, hasSelected])
 
   const getCoverPool = async () => {
@@ -193,10 +170,10 @@ export default function CreateCover(props: any) {
         console.log('tokens:', tokenIn.address, tokenOut.address)
         pool = await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
       }
-      let id = ZERO_ADDRESS
-      let tickSpread = 10
-      let newLatestTick = 0
-      let dataLength = pool['data']['coverPools'].length
+      var id = ZERO_ADDRESS
+      var tickSpread = 10
+      var newLatestTick = 0
+      const dataLength = pool['data']['coverPools'].length
       if (dataLength != 0) {
         id = pool['data']['coverPools']['0']['id']
         tickSpread =
@@ -204,8 +181,7 @@ export default function CreateCover(props: any) {
         newLatestTick = pool['data']['coverPools']['0']['latestTick']
       }
       setCoverPoolRoute(id)
-      setTickSpacing(tickSpread)
-      setCoverTickPrice(TickMath.getPriceStringAtTick(newLatestTick))
+      setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick))
     } catch (error) {
       console.log(error)
     }
@@ -373,13 +349,13 @@ export default function CreateCover(props: any) {
       setMktRate({
         TOKEN20A:
           '~' +
-          Number(coverTickPrice).toLocaleString('en-US', {
+          Number(coverPrice).toLocaleString('en-US', {
             style: 'currency',
             currency: 'USD',
           }),
         WETH:
           '~' +
-          Number(coverTickPrice).toLocaleString('en-US', {
+          Number(coverPrice).toLocaleString('en-US', {
             style: 'currency',
             currency: 'USD',
           }),
@@ -722,7 +698,7 @@ export default function CreateCover(props: any) {
             {1} {tokenIn.symbol} ={' '}
             {tokenOut.symbol === 'Select Token'
               ? '?'
-              : (invertPrice(coverTickPrice, tokenOrder))  + ' ' + tokenOut.symbol}
+              : (invertPrice(coverPrice, tokenOrder))  + ' ' + tokenOut.symbol}
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
             <button>
