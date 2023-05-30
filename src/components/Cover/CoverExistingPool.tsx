@@ -56,7 +56,7 @@ export default function CoverExistingPool({
   const { address, isConnected, isDisconnected } = useAccount()
   const [expanded, setExpanded] = useState(false)
   const [fetchDelay, setFetchDelay] = useState(false)
-  const [tickSpread, setTickSpread] = useState(10)
+  const [tickSpread, setTickSpread] = useState(20)
   const [tokenOrder, setTokenOrder] = useState(zeroForOne)
   const [latestTick, setLatestTick] = useState(0)
   const [lowerTick, setLowerTick] = useState(
@@ -194,7 +194,6 @@ export default function CoverExistingPool({
   }, [fetchDelay])
 
   const getCoverPool = async () => {
-    //console.log('liquidity', liquidity)
     try {
       const pool = tokenOrder ?
                         await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)

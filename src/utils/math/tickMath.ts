@@ -45,7 +45,7 @@ export function invertPrice(priceString: string, zeroForOne: boolean): string {
   if(!zeroForOne) {
     let price = JSBD.BigDecimal(priceString)
     price = JSBD.divide(JSBD.BigDecimal('1.00'), price)
-    priceString = price.toExponential(5).toString()
+    priceString = priceToString(price)
   }
   return priceString
 }

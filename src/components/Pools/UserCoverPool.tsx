@@ -12,7 +12,7 @@ import { coverPoolABI } from '../../abis/evm/coverPool'
 import { ethers } from 'ethers'
 import { TickMath } from '../../utils/math/tickMath'
 import JSBI from 'jsbi'
-import { ZERO_ADDRESS } from '../../utils/math/constants'
+import { ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 
 export default function UserCoverPool({
   account,
@@ -86,16 +86,12 @@ export default function UserCoverPool({
 
   const getCoverPool = async () => {
     try {
-      var pool = undefined
-      if (tokenZero.id < tokenOne.id) {
-        pool = await getCoverPoolFromFactory(tokenZero.id, tokenOne.id)
-      } else {
-        pool = await getCoverPoolFromFactory(tokenOne.id, tokenZero.id)
-      }
-      let id = ZERO_ADDRESS
+      var pool = tokenZero.id < tokenOne.id ?
+                    await getCoverPoolFromFactory(tokenZero.id, tokenOne.id)
+                  : await getCoverPoolFromFactory(tokenOne.id, tokenZero.id)
       let dataLength = pool['data']['coverPools'].length
-      if(dataLength != 0) id = pool['data']['coverPools']['0']['id']
-      setCoverPoolRoute(id)
+      if(dataLength != 0) setCoverPoolRoute(pool['data']['coverPools']['0']['id'])
+      else setCoverPoolRoute(ZERO_ADDRESS)
     } catch (error) {
       console.log(error)
     }

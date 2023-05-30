@@ -201,27 +201,20 @@ export default function CreateCover(props: any) {
 
   const getCoverPool = async () => {
     try {
-      var pool = undefined
-      if (tokenIn.address.localeCompare(tokenOut.address) < 0) {
-        console.log('tokens:', tokenIn.address, tokenOut.address)
-        pool = await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
-      } else {
-        console.log('tokens:', tokenIn.address, tokenOut.address)
-        pool = await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
-      }
-      var id = ZERO_ADDRESS
-      var tickSpread = 10
-      var newLatestTick = 0
+      const pool = tokenOrder ?
+                        await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
+                      : await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
       const dataLength = pool['data']['coverPools'].length
       if (dataLength != 0) {
-        id = pool['data']['coverPools']['0']['id']
-        tickSpread =
-          pool['data']['coverPools']['0']['volatilityTier']['tickSpread']
-        newLatestTick = pool['data']['coverPools']['0']['latestTick']
+        setCoverPoolRoute(pool['data']['coverPools']['0']['id'])
+        setTickSpacing(pool['data']['coverPools']['0']['volatilityTier']['tickSpread'])
+        const newLatestTick = pool['data']['coverPools']['0']['latestTick']
+        setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick))
+      } else {
+        setCoverPoolRoute(ZERO_ADDRESS)
+        setCoverPrice('1.00')
+        setTickSpacing(10)
       }
-      setCoverPoolRoute(id)
-      setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick))
-      setTickSpacing(tickSpread)
     } catch (error) {
       console.log(error)
     }
