@@ -72,12 +72,9 @@ export default function CreateCover(props: any) {
     logoURI: props.query ? props.query.tokenOneLogoURI : '',
     address: props.query ? props.query.tokenOneAddress : '',
   })
-  const [amountToPay, setAmountToPay] = useState(0)
-  const [prices, setPrices] = useState({ tokenIn: 0, tokenOut: 0 })
   const [coverPrice, setCoverPrice] = useState(undefined)
   const [coverAmountIn, setCoverAmountIn] = useState(ZERO)
   const [coverAmountOut, setCoverAmountOut] = useState(ZERO)
-  const [coverTickPrice, setCoverTickPrice] = useState(undefined)
   const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
   const [tokenOrder, setTokenOrder] = useState(false)
   const [tickSpacing, setTickSpacing] = useState(
@@ -92,7 +89,7 @@ export default function CreateCover(props: any) {
     })
   }
 
-  const { data } = useContractRead({
+  const { data: allowanceValue } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'allowance',
@@ -111,17 +108,13 @@ export default function CreateCover(props: any) {
   })
 
   useEffect(() => {
-    if (data)
+    if (allowanceValue)
       if(address != '0x' && 
         mktRate != undefined &&
         coverPoolRoute != ZERO_ADDRESS) {
-      setAllowance(ethers.utils.formatUnits(data, 18))
+      setAllowance(ethers.utils.formatUnits(allowanceValue, 18))
     }
-  }, [data, tokenIn.address, bnInput])
-
-  // useEffect(() => {
-  //   setCoverParams()
-  // }, [lowerPrice, upperPrice, bnInput, coverPrice])
+  }, [allowanceValue, tokenIn.address, bnInput])
 
   const {
     network: { chainId },
@@ -147,18 +140,64 @@ export default function CreateCover(props: any) {
     getCoverPool()
   }, [hasSelected, tokenIn.address, tokenOut.address])
 
+  // set disabled
   useEffect(() => {
-    if (data) {
-      setCoverParams()
-      setDisabled(
-        isNaN(parseFloat(lowerPrice)) ||
-        isNaN(parseFloat(upperPrice)) ||
-          Number(ethers.utils.formatUnits(bnInput)) === 0 ||
-          tokenOut.symbol === 'Select Token' ||
-          hasSelected == false,
-      )
-    }
+    setDisabled(
+      isNaN(parseFloat(lowerPrice)) ||
+      isNaN(parseFloat(upperPrice)) ||
+      parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
+        Number(ethers.utils.formatUnits(bnInput)) === 0 ||
+        tokenOut.symbol === 'Select Token' ||
+        hasSelected == false,
+    )
   }, [lowerPrice, upperPrice, bnInput, tokenOut, hasSelected])
+
+  // set amount in
+  useEffect(() => {
+    if (Number(ethers.utils.formatUnits(bnInput)) !== 0) {
+      setCoverAmountIn(JSBI.BigInt(bnInput.toString()))
+    }
+  }, [bnInput, lowerTick, upperTick])
+
+  // set lower tick
+  useEffect(() => {
+    try {
+      if (tokenOut.symbol !== 'Select Token' &&
+      hasSelected == true) {
+        if (
+          !isNaN(parseFloat(lowerPrice)) &&
+          parseFloat(lowerPrice) > 0
+        ) {
+          const lower = TickMath.getTickAtPriceString(lowerPrice, tickSpacing)
+          setLowerTick(BigNumber.from(String(lower)))
+        }
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }, [lowerPrice])
+
+  // set upper tick
+  useEffect(() => {
+    try {
+      if (tokenOut.symbol !== 'Select Token' &&
+      hasSelected == true) {
+        if (
+          !isNaN(parseFloat(upperPrice)) &&
+          parseFloat(upperPrice) > 0
+        ) {
+          const upper = TickMath.getTickAtPriceString(upperPrice, tickSpacing)
+          setUpperTick(BigNumber.from(String(upper)))
+        }
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }, [upperPrice])
+
+  useEffect(() => {
+    changeCoverAmounts(true)
+  }, [coverAmountIn])
 
   const getCoverPool = async () => {
     try {
@@ -182,33 +221,7 @@ export default function CreateCover(props: any) {
       }
       setCoverPoolRoute(id)
       setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick))
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  async function setCoverParams() {
-    try {
-      if (
-        lowerPrice !== undefined &&
-        lowerPrice !== '' &&
-        upperPrice !== undefined &&
-        upperPrice !== '' &&
-        Number(ethers.utils.formatUnits(bnInput)) !== 0 &&
-        tokenOut.symbol !== 'Select Token' &&
-        hasSelected == true
-      ) {
-        const lower = TickMath.getTickAtPriceString(lowerPrice)
-        const upper = TickMath.getTickAtPriceString(upperPrice)
-
-        setLowerTick(BigNumber.from(String(lower)))
-        setUpperTick(BigNumber.from(String(upper)))
-        console.log('prices set', lowerPrice, upperPrice)
-        setCoverAmountIn(JSBI.BigInt(bnInput.toString()))
-        console.log('cover amount in', coverAmountIn.toString())
-        // only amountIn can change for now
-        changeCoverAmounts(true)
-      }
+      setTickSpacing(tickSpread)
     } catch (error) {
       console.log(error)
     }
@@ -244,7 +257,6 @@ export default function CreateCover(props: any) {
     setHasSelected(true)
     setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0)
     console.log('set token order', tokenIn.address.localeCompare(tokenOut.address) < 0)
-    //setDisabled(false)
   }
 
   function switchDirection() {
@@ -264,7 +276,6 @@ export default function CreateCover(props: any) {
       return
     }
     const current = document.getElementById('input') as HTMLInputElement
-    setAmountToPay(Number(current.value))
   }
 
   const changePrice = (direction: string, minMax: string) => {
@@ -396,15 +407,18 @@ export default function CreateCover(props: any) {
 
   function changeCoverAmounts(amountInChanged: boolean) {
     console.log('prices set:', lowerTick.toString(), upperTick.toString(), tickSpread)
+    console.log('price check', parseFloat(lowerPrice) < parseFloat(upperPrice))
     if (
       !isNaN(parseFloat(lowerPrice)) &&
       !isNaN(parseFloat(upperPrice)) &&
       parseFloat(lowerPrice) > 0 &&
-      parseFloat(upperPrice) > 0
+      parseFloat(upperPrice) > 0 &&
+      parseFloat(lowerPrice) < parseFloat(upperPrice)
     ) {
+      console.log('tick check', lowerTick.toString(), upperTick.toString())
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(lowerTick))
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(upperTick))
-      console.log('sqrt prices', String(lowerSqrtPrice), String(upperSqrtPrice))
+
       console.log('amount in', coverAmountIn.toString())
       if (amountInChanged) {
         // amountIn changed
@@ -474,7 +488,6 @@ export default function CreateCover(props: any) {
               ),
         )
       }
-
     }
   }
 
@@ -548,7 +561,7 @@ export default function CreateCover(props: any) {
       <h1 className="mb-3">How much do you want to Cover?</h1>
       <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
         <div className="flex-col justify-center w-1/2 p-2 ">
-          {inputBox('0', setAmountToPay)}
+          {inputBox('0', setCoverAmountIn)}
           <div className="flex text-xs text-[#4C4C4C]">~${Number(ethers.utils.formatUnits(bnInput, 18)).toFixed(2)}</div>
         </div>
         <div className="flex w-1/2">
@@ -590,7 +603,7 @@ export default function CreateCover(props: any) {
           <div className="text-[#646464]">Amount to receive</div>
           <div>
             {/* {amountToPay} {tokenIn.symbol} */}
-            {hasSelected && mktRate[tokenIn.symbol] ? (
+            {hasSelected && mktRate[tokenIn.symbol] && parseFloat(lowerPrice) < parseFloat(upperPrice) ? (
               (
                 parseFloat(ethers.utils.formatUnits(String(coverAmountOut), 18)) *
                 parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''))
@@ -605,7 +618,7 @@ export default function CreateCover(props: any) {
       <h1 className="mb-3 mt-4">Set Price Range</h1>
       <div className="flex justify-between w-full gap-x-6">
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-          <span className="text-xs text-grey">Min. Price</span>
+          <span className="text-xs text-grey">Min Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice('minus', 'min')}>
@@ -617,21 +630,18 @@ export default function CreateCover(props: any) {
               placeholder="0"
               id="minInput"
               type="text"
-              value={
-                lowerPrice.toString().includes('e')
-                  ? Number(lowerPrice).toLocaleString(undefined, {
-                      maximumFractionDigits: 0,
-                    }).length > 6
-                    ? '-∞'
-                    : Number(lowerPrice).toLocaleString(undefined, {
-                        maximumFractionDigits: 0,
-                      })
-                  : lowerPrice
-              }
+              value={lowerPrice}
               onChange={() =>
                 setLowerPrice(
                   (document.getElementById('minInput') as HTMLInputElement)
-                    ?.value,
+                    ?.value
+                    .replace(/^0+(?=[^.0-9]|$)/, (match) =>
+                      match.length > 1 ? '0' : match,
+                    )
+                    .replace(/^(\.)+/, '0.')
+                    .replace(/(?<=\..*)\./g, '')
+                    .replace(/^0+(?=\d)/, '')
+                    .replace(/[^\d.]/g, ''),
                 )
               }
             />
@@ -659,21 +669,18 @@ export default function CreateCover(props: any) {
               placeholder="0"
               id="maxInput"
               type="text"
-              value={
-                upperPrice.toString().includes('e')
-                  ? Number(upperPrice).toLocaleString(undefined, {
-                      maximumFractionDigits: 0,
-                    }).length > 6
-                    ? '∞'
-                    : Number(upperPrice).toLocaleString(undefined, {
-                        maximumFractionDigits: 0,
-                      })
-                  : upperPrice
-              }
+              value={upperPrice}
               onChange={() =>
                 setUpperPrice(
                   (document.getElementById('maxInput') as HTMLInputElement)
-                    ?.value,
+                    ?.value
+                    .replace(/^0+(?=[^.0-9]|$)/, (match) =>
+                      match.length > 1 ? '0' : match,
+                    )
+                    .replace(/^(\.)+/, '0.')
+                    .replace(/(?<=\..*)\./g, '')
+                    .replace(/^0+(?=\d)/, '')
+                    .replace(/[^\d.]/g, ''),
                 )
               }
             />

@@ -9,7 +9,7 @@ import { erc20ABI, useAccount, useContractRead } from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 import { useEffect, useState } from 'react'
-import { BigNumber, ethers } from 'ethers'
+import { ethers } from 'ethers'
 import JSBI from 'jsbi'
 import { getCoverPoolFromFactory } from '../../utils/queries'
 import {
@@ -18,12 +18,9 @@ import {
   getDefaultLowerTick,
   getDefaultUpperPrice,
   getDefaultUpperTick,
-  roundTick,
 } from '../../utils/math/tickMath'
-import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
-import useInputBox from '../../hooks/useInputBox'
 import { coverPoolABI } from '../../abis/evm/coverPool'
-import { BN_ZERO, ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
+import { ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
 import CoverMintApproveButton from '../Buttons/CoverMintApproveButton'
 
@@ -229,7 +226,12 @@ export default function CoverExistingPool({
 
   // check for valid inputs
   useEffect(() => {
-    setDisabled(lowerPrice === undefined || upperPrice === undefined)
+    setDisabled(
+      isNaN(parseFloat(lowerPrice)) ||
+      isNaN(parseFloat(upperPrice)) ||
+      parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
+      hasSelected == false
+    )
   }, [lowerPrice, upperPrice, coverAmountIn])
 
   function changeCoverAmounts() {
@@ -239,7 +241,8 @@ export default function CoverExistingPool({
       !isNaN(parseFloat(upperPrice)) &&
       !isNaN(parseFloat(userLiquidity)) &&
       parseFloat(lowerPrice) > 0 &&
-      parseFloat(upperPrice) > 0
+      parseFloat(upperPrice) > 0 &&
+      parseFloat(lowerPrice) < parseFloat(upperPrice)
     ) {
       console.log('tick check', lowerTick, upperTick)
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
@@ -493,10 +496,11 @@ export default function CoverExistingPool({
                       .replace(/^0+(?=[^.0-9]|$)/, (match) =>
                         match.length > 1 ? '0' : match,
                       )
-                      .replace(/^(\.)+/, '0')
+                      .replace(/^(\.)+/, '0.')
                       .replace(/(?<=\..*)\./g, '')
                       .replace(/^0+(?=\d)/, '')
-                      .replace(/[^\d.]/g, ''),
+                      .replace(/[^\d.]/g, '')
+ 
                   ),
                 )
                 console.log('slider value', sliderValue)
@@ -606,7 +610,14 @@ export default function CoverExistingPool({
               onChange={() =>
                 setLowerPrice(
                   (document.getElementById('minInput') as HTMLInputElement)
-                    ?.value,
+                    ?.value
+                    .replace(/^0+(?=[^.0-9]|$)/, (match) =>
+                      match.length > 1 ? '0' : match,
+                    )
+                    .replace(/^(\.)+/, '0.')
+                    .replace(/(?<=\..*)\./g, '')
+                    .replace(/^0+(?=\d)/, '')
+                    .replace(/[^\d.]/g, ''),
                 )
               }
             />
@@ -645,7 +656,14 @@ export default function CoverExistingPool({
               onChange={() =>
                 setUpperPrice(
                   (document.getElementById('maxInput') as HTMLInputElement)
-                    ?.value,
+                    ?.value
+                    .replace(/^0+(?=[^.0-9]|$)/, (match) =>
+                      match.length > 1 ? '0' : match,
+                    )
+                    .replace(/^(\.)+/, '0.')
+                    .replace(/(?<=\..*)\./g, '')
+                    .replace(/^0+(?=\d)/, '')
+                    .replace(/[^\d.]/g, ''),
                 )
               }
             />

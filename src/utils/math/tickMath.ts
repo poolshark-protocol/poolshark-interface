@@ -12,11 +12,11 @@ function mulShift(val: JSBI, mulBy: string): JSBI {
 export function roundTick(tick: number, tickSpacing: number): number {
   let minTick = Math.round(TickMath.MIN_TICK / tickSpacing) * tickSpacing
   let maxTick = Math.round(TickMath.MAX_TICK / tickSpacing) * tickSpacing
-  if (minTick < TickMath.MIN_TICK) minTick += tickSpacing;
+  if (minTick < TickMath.MIN_TICK) minTick -= -tickSpacing;
   if (maxTick > TickMath.MAX_TICK) maxTick -= tickSpacing;
   if (tick % tickSpacing != 0) {
     let roundedDown = Math.round(tick / tickSpacing) * tickSpacing;
-    let roundedUp = Math.round(tick / tickSpacing) * tickSpacing + tickSpacing;
+    let roundedUp = Math.round(tick / tickSpacing) * tickSpacing - (-tickSpacing);
     // check which is closer
     if (tick - roundedDown <= roundedUp - tick) {
       if (roundedDown < minTick) return minTick
@@ -113,7 +113,6 @@ export abstract class TickMath {
   }
 
   public static getSqrtPriceAtPriceString(priceString: string, scaleFactor?: number, tickSpacing?: number): JSBI {
-    console.log('price string found', priceString)
     let price = Number(parseFloat(priceString).toFixed(30))
     if (scaleFactor) {
       price = price / (10 ** scaleFactor)
@@ -159,12 +158,10 @@ export abstract class TickMath {
 
   public static getTickAtPriceString(priceString: string, tickSpacing?: number): number {
     let sqrtPrice = this.getSqrtPriceAtPriceString(priceString)
-    if (JSBI.lessThan(sqrtPrice, this.MIN_SQRT_RATIO)) return this.MIN_TICK
-    // if (sqrtPrice > this.MAX_SQRT_RATIO) return this.MAX_TICK
-    console.log('sqrtPrice', String(sqrtPrice), String(this.MIN_SQRT_RATIO))
+    if (JSBI.lessThan(sqrtPrice, this.MIN_SQRT_RATIO)){ return this.MIN_TICK}
+    if (JSBI.greaterThan(sqrtPrice, this.MAX_SQRT_RATIO)) return this.MAX_TICK
     let tick = this.getTickAtSqrtRatio(sqrtPrice)
     if (tickSpacing){
-      console.log('rounding tick')
       return roundTick(tick, tickSpacing)
     } 
     else return tick
