@@ -209,6 +209,8 @@ export default function Pool() {
         liquidity: coverPool.liquidity,
         feeTier: coverPool.volatilityTier.feeAmount,
         tickSpacing: coverPool.volatilityTier.tickSpread,
+        //TODO: grab usdPrice of token from range subgraph
+        //totalValueLocked0 * token0.usdPrice + totalValueLocked1 * token1.usdPrice
         tvlUsd: (Number(coverPool.totalValueLockedUsd) / 1_000_000).toFixed(2),
         volumeUsd: (Number(coverPool.volumeUsd) / 1_000_000).toFixed(2),
         volumeEth: (Number(coverPool.volumeEth) / 1).toFixed(2),
