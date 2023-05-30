@@ -121,15 +121,20 @@ export default function Pool() {
         feeTier: rangePosition.token.position.pool.feeTier.feeAmount,
         unclaimedFees: rangePosition.token.position.pool.feesUsd,
         liquidity: rangePosition.token.position.pool.liquidity,
-        userLiquidity: Math.round(rangePosition.amount / rangePosition.token.totalSupply 
-                                  * rangePosition.token.position.liquidity),
-        tvlUsd: (
-          Number(rangePosition.token.position.pool.totalValueLockedUsd) / 1_000_000
-        ).toFixed(2),
-        volumeUsd: (Number(rangePosition.token.position.pool.volumeUsd) / 1_000_000).toFixed(
-          2,
+        userLiquidity: Math.round(
+          (rangePosition.amount / rangePosition.token.totalSupply) *
+            rangePosition.token.position.liquidity,
         ),
-        volumeEth: (Number(rangePosition.token.position.pool.volumeEth) / 1).toFixed(2),
+        tvlUsd: (
+          Number(rangePosition.token.position.pool.totalValueLockedUsd) /
+          1_000_000
+        ).toFixed(2),
+        volumeUsd: (
+          Number(rangePosition.token.position.pool.volumeUsd) / 1_000_000
+        ).toFixed(2),
+        volumeEth: (
+          Number(rangePosition.token.position.pool.volumeEth) / 1
+        ).toFixed(2),
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
       }
       mappedRangePositions.push(rangePositionData)
@@ -139,29 +144,20 @@ export default function Pool() {
 
   function mapUserCoverPositions() {
     const mappedCoverPositions = []
-    coverPositions.map(async (coverPosition): Promise<void> => {
-      console.log('coverPosition', coverPosition)
-      // console.log('mapped positions', mappedCoverPositions)
-      let claimTick = await getClaimTick(
-        coverPosition.pool.id,
-        coverPosition.lower,
-        coverPosition.upper,
-        coverPosition.zeroForOne,
-        coverPosition.epochLast,
-      )
+    coverPositions.map(async (coverPosition) => {
       const coverPositionData = {
         poolId: coverPosition.pool.id,
         valueTokenZero: coverPosition.inAmount,
         tokenZero: coverPosition.zeroForOne
-        ? coverPosition.pool.token0
-        : coverPosition.pool.token1,
+          ? coverPosition.pool.token0
+          : coverPosition.pool.token1,
         tokenOne: coverPosition.zeroForOne
           ? coverPosition.pool.token1
           : coverPosition.pool.token0,
         valueTokenOne: coverPosition.outAmount,
         min: coverPosition.lower,
         max: coverPosition.upper,
-        claim: claimTick,
+        claim: undefined,
         zeroForOne: coverPosition.zeroForOne,
         userFillIn: coverPosition.amountInDeltaMax,
         userFillOut: coverPosition.amountOutDeltaMax,
@@ -173,6 +169,15 @@ export default function Pool() {
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
       mappedCoverPositions.push(coverPositionData)
+    })
+    mappedCoverPositions.map(async (coverPosition) => {
+      coverPosition.claim = await getClaimTick(
+        coverPosition.poolId,
+        coverPosition.min,
+        coverPosition.max,
+        coverPosition.zeroForOne,
+        coverPosition.epochLast,
+      )
     })
     console.log('mapped positions', mappedCoverPositions)
     setAllCoverPositions(mappedCoverPositions)
@@ -427,7 +432,7 @@ export default function Pool() {
                           ) {
                             return (
                               <UserPool
-                                key={allRangePosition.id}
+                                key={allRangePosition.id + 'rangePosition'}
                                 account={address}
                                 poolId={allRangePosition.poolId}
                                 tokenZero={allRangePosition.tokenZero}
@@ -489,7 +494,9 @@ export default function Pool() {
                         ) {
                           return (
                             <UserCoverPool
-                              key={allCoverPosition.id}
+                              key={
+                                allCoverPosition.id + 'coverPosition'
+                              }
                               account={address}
                               poolId={allCoverPosition.poolId}
                               tokenZero={allCoverPosition.tokenZero}

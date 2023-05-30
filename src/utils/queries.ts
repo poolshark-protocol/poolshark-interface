@@ -84,7 +84,7 @@ export const getCoverPoolFromFactory = (token0: string, token1: string) => {
             }
           }
          `
-    console.log('query:', getPool)
+    //console.log('query:', getPool)
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
       cache: new InMemoryCache(),
@@ -118,7 +118,7 @@ export const getTickIfZeroForOne = (
           }
         }
         `
-    console.log('pool address', poolAddress)
+    //console.log('pool address', poolAddress)
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
       cache: new InMemoryCache(),
@@ -151,8 +151,8 @@ export const getTickIfNotZeroForOne = (
           }
         }
         `
-    console.log(getTicks)
-    console.log('pool address', poolAddress)
+    //console.log(getTicks)
+    //console.log('pool address', poolAddress)
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
       cache: new InMemoryCache(),
@@ -462,7 +462,7 @@ export const fetchRangePositions = (address: string) => {
       })
       .then((data) => {
         resolve(data)
-        console.log(data)
+        //console.log(data)
       })
       .catch((err) => {
         resolve(err)
