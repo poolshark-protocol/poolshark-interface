@@ -18,7 +18,12 @@ import {
 } from '../../utils/queries'
 import { Fragment, useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
-import { mapUserCoverPositions } from '../../utils/maps'
+import {
+  mapCoverPools,
+  mapRangePools,
+  mapUserCoverPositions,
+  mapUserRangePositions,
+} from '../../utils/maps'
 
 export default function Pool() {
   const poolTypes = [
@@ -26,67 +31,27 @@ export default function Pool() {
     { id: 2, type: 'Cover Pools', unavailable: false },
   ]
   const { address, isConnected, isDisconnected } = useAccount()
+
   const [selected, setSelected] = useState(poolTypes[0])
   const [searchTerm, setSearchTerm] = useState('')
 
-  const [allRangePools, setAllRangePools] = useState([])
-  const [rangePositions, setRangePositions] = useState([])
-  const [coverPools, setCoverPools] = useState([])
   const [allRangePositions, setAllRangePositions] = useState([])
-  const [rangePools, setRangePools] = useState([])
   const [allCoverPositions, setAllCoverPositions] = useState([])
+  const [allRangePools, setAllRangePools] = useState([])
   const [allCoverPools, setAllCoverPools] = useState([])
-
-  //async so needs to be wrapped
-  useEffect(() => {
-    getRangePoolData()
-  }, [])
-
-  useEffect(() => {
-    mapRangePools()
-  }, [rangePools])
 
   useEffect(() => {
     getUserRangePositionData()
-  }, [selected])
-
-  useEffect(() => {
-    mapUserRangePositions()
-  }, [rangePositions])
-
-  useEffect(() => {
+    getUserCoverPositionData()
+    getRangePoolData()
     getCoverPoolData()
   }, [selected])
-
-  useEffect(() => {
-    mapCoverPools()
-  }, [coverPools])
-
-  useEffect(() => {
-    getUserCoverPositionData()
-  }, [])
-
-  async function getRangePoolData() {
-    const data = await fetchRangePools()
-    if (data) {
-      const pools = data['data'].rangePools
-      setRangePools(pools)
-    }
-  }
 
   async function getUserRangePositionData() {
     const data = await fetchRangePositions(address)
     if (data) {
       const positions = data['data'].positionFractions
-      setRangePositions(positions)
-    }
-  }
-
-  async function getCoverPoolData() {
-    const data = await fetchCoverPools()
-    if (data) {
-      const pools = data['data'].coverPools
-      setCoverPools(pools)
+      setAllRangePositions(mapUserRangePositions(positions))
     }
   }
 
@@ -94,86 +59,24 @@ export default function Pool() {
     const data = await fetchCoverPositions(address)
     if (data) {
       const positions = data['data'].positions
-      setAllCoverPositions(await mapUserCoverPositions(positions))
+      setAllCoverPositions(mapUserCoverPositions(positions))
     }
   }
 
-  function mapUserRangePositions() {
-    const mappedRangePositions = []
-    rangePositions.map((rangePosition) => {
-      const rangePositionData = {
-        id: rangePosition.id,
-        poolId: rangePosition.token.position.pool.id,
-        tokenZero: rangePosition.token.position.pool.token0,
-        valueTokenZero: rangePosition.token.position.pool.totalValueLocked0,
-        tokenOne: rangePosition.token.position.pool.token1,
-        valueTokenOne: rangePosition.token.position.pool.totalValueLocked1,
-        min: rangePosition.token.position.lower,
-        max: rangePosition.token.position.upper,
-        price: rangePosition.token.position.pool.price,
-        tickSpacing: rangePosition.token.position.pool.feeTier.tickSpacing,
-        feeTier: rangePosition.token.position.pool.feeTier.feeAmount,
-        unclaimedFees: rangePosition.token.position.pool.feesUsd,
-        liquidity: rangePosition.token.position.pool.liquidity,
-        userLiquidity: Math.round(
-          (rangePosition.amount / rangePosition.token.totalSupply) *
-            rangePosition.token.position.liquidity,
-        ),
-        tvlUsd: (
-          Number(rangePosition.token.position.pool.totalValueLockedUsd) /
-          1_000_000
-        ).toFixed(2),
-        volumeUsd: (
-          Number(rangePosition.token.position.pool.volumeUsd) / 1_000_000
-        ).toFixed(2),
-        volumeEth: (
-          Number(rangePosition.token.position.pool.volumeEth) / 1
-        ).toFixed(2),
-        userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
-      }
-      mappedRangePositions.push(rangePositionData)
-    })
-    setAllRangePositions(mappedRangePositions)
+  async function getRangePoolData() {
+    const data = await fetchRangePools()
+    if (data) {
+      const pools = data['data'].rangePools
+      setAllRangePools(mapRangePools(pools))
+    }
   }
 
-  function mapRangePools() {
-    const mappedRangePools = []
-    rangePools.map((rangePool) => {
-      const rangePoolData = {
-        poolId: rangePool.id,
-        tokenOne: rangePool.token1,
-        tokenZero: rangePool.token0,
-        price: rangePool.price,
-        liquidity: rangePool.liquidity,
-        feeTier: rangePool.feeTier.feeAmount,
-        tickSpacing: rangePool.feeTier.tickSpacing,
-        tvlUsd: (Number(rangePool.totalValueLockedUsd) / 1_000_000).toFixed(2),
-        volumeUsd: (Number(rangePool.volumeUsd) / 1_000_000).toFixed(2),
-        volumeEth: (Number(rangePool.volumeEth) / 1).toFixed(2),
-      }
-      mappedRangePools.push(rangePoolData)
-    })
-    setAllRangePools(mappedRangePools)
-  }
-
-  function mapCoverPools() {
-    const mappedCoverPools = []
-    coverPools.map((coverPool) => {
-      const coverPoolData = {
-        poolId: coverPool.id,
-        tokenOne: coverPool.token1,
-        tokenZero: coverPool.token0,
-        liquidity: coverPool.liquidity,
-        feeTier: coverPool.volatilityTier.feeAmount,
-        tickSpacing: coverPool.volatilityTier.tickSpread,
-        tvlUsd: (Number(coverPool.totalValueLockedUsd) / 1_000_000).toFixed(2),
-        volumeUsd: (Number(coverPool.volumeUsd) / 1_000_000).toFixed(2),
-        volumeEth: (Number(coverPool.volumeEth) / 1).toFixed(2),
-      }
-      mappedCoverPools.push(coverPoolData)
-    })
-
-    setAllCoverPools(mappedCoverPools)
+  async function getCoverPoolData() {
+    const data = await fetchCoverPools()
+    if (data) {
+      const pools = data['data'].coverPools
+      setAllCoverPools(mapCoverPools(pools))
+    }
   }
 
   const handleSearchTermChange = (event) => {
