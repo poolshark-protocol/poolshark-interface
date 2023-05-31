@@ -76,7 +76,9 @@ export default function CreateCover(props: any) {
   const [coverAmountIn, setCoverAmountIn] = useState(ZERO)
   const [coverAmountOut, setCoverAmountOut] = useState(ZERO)
   const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
-  const [tokenOrder, setTokenOrder] = useState(false)
+  const [tokenOrder, setTokenOrder] = useState(
+    tokenIn.address.localeCompare(tokenOut.address) < 0
+  )
   const [tickSpacing, setTickSpacing] = useState(
     props.query ? props.query.tickSpacing : 20,
   )
@@ -103,7 +105,7 @@ export default function CreateCover(props: any) {
       console.log('Error', error)
     },
     onSettled(data, error) {
-      console.log('Settled', { data, error })
+      console.log('Allowance Settled', { data, error, coverPoolRoute, tokenIn, tokenOut })
     },
   })
 
