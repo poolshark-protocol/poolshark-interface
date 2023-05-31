@@ -215,7 +215,7 @@ export default function ConcentratedPoolPreview({
                         <div className="mt-3 space-y-3">
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
                             <span className="text-xs text-grey">
-                              Min. Price
+                              Min Price
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
