@@ -15,11 +15,10 @@ import {
   fetchRangePositions,
   fetchCoverPools,
   fetchCoverPositions,
-  getTickIfNotZeroForOne,
-  getTickIfZeroForOne,
 } from '../../utils/queries'
 import { Fragment, useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
+import { mapUserCoverPositions } from '../../utils/maps'
 
 export default function Pool() {
   const poolTypes = [
@@ -30,14 +29,13 @@ export default function Pool() {
   const [selected, setSelected] = useState(poolTypes[0])
   const [searchTerm, setSearchTerm] = useState('')
 
-  const [rangePools, setRangePools] = useState([])
   const [allRangePools, setAllRangePools] = useState([])
   const [rangePositions, setRangePositions] = useState([])
-  const [allRangePositions, setAllRangePositions] = useState([])
   const [coverPools, setCoverPools] = useState([])
-  const [allCoverPools, setAllCoverPools] = useState([])
-  const [coverPositions, setCoverPositions] = useState([])
+  const [allRangePositions, setAllRangePositions] = useState([])
+  const [rangePools, setRangePools] = useState([])
   const [allCoverPositions, setAllCoverPositions] = useState([])
+  const [allCoverPools, setAllCoverPools] = useState([])
 
   //async so needs to be wrapped
   useEffect(() => {
@@ -68,10 +66,6 @@ export default function Pool() {
     getUserCoverPositionData()
   }, [])
 
-  useEffect(() => {
-    mapUserCoverPositions()
-  }, [coverPositions])
-
   async function getRangePoolData() {
     const data = await fetchRangePools()
     if (data) {
@@ -100,7 +94,7 @@ export default function Pool() {
     const data = await fetchCoverPositions(address)
     if (data) {
       const positions = data['data'].positions
-      setCoverPositions(positions)
+      setAllCoverPositions(await mapUserCoverPositions(positions))
     }
   }
 
@@ -140,47 +134,6 @@ export default function Pool() {
       mappedRangePositions.push(rangePositionData)
     })
     setAllRangePositions(mappedRangePositions)
-  }
-
-  async function mapUserCoverPositions() {
-    const mappedCoverPositions = []
-    coverPositions.map((coverPosition) => {
-      const coverPositionData = {
-        poolId: coverPosition.pool.id,
-        valueTokenZero: coverPosition.inAmount,
-        tokenZero: coverPosition.zeroForOne
-          ? coverPosition.pool.token0
-          : coverPosition.pool.token1,
-        tokenOne: coverPosition.zeroForOne
-          ? coverPosition.pool.token1
-          : coverPosition.pool.token0,
-        valueTokenOne: coverPosition.outAmount,
-        min: coverPosition.lower,
-        max: coverPosition.upper,
-        claim: undefined,
-        zeroForOne: coverPosition.zeroForOne,
-        userFillIn: coverPosition.amountInDeltaMax,
-        userFillOut: coverPosition.amountOutDeltaMax,
-        epochLast: coverPosition.epochLast,
-        latestTick: coverPosition.pool.latestTick,
-        liquidity: coverPosition.liquidity,
-        feeTier: coverPosition.pool.volatilityTier.feeAmount,
-        tickSpacing: coverPosition.pool.volatilityTier.tickSpread,
-        userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
-      }
-      mappedCoverPositions.push(coverPositionData)
-    })
-    mappedCoverPositions.map(async (coverPosition) => {
-      coverPosition.claim = await getClaimTick(
-        coverPosition.poolId,
-        coverPosition.min,
-        coverPosition.max,
-        coverPosition.zeroForOne,
-        coverPosition.epochLast,
-      )
-    })
-    console.log('mapped positions', mappedCoverPositions)
-    setAllCoverPositions(mappedCoverPositions)
   }
 
   function mapRangePools() {
@@ -271,40 +224,6 @@ export default function Pool() {
         </div>
       </Listbox>
     )
-  }
-
-  const getClaimTick = async (
-    coverPoolAddress: string,
-    minLimit: number,
-    maxLimit: number,
-    zeroForOne: boolean,
-    epochLast: number,
-  ) => {
-    let claimTick = zeroForOne ? maxLimit : minLimit
-    if (zeroForOne) {
-      const claimTickQuery = await getTickIfZeroForOne(
-        Number(maxLimit),
-        coverPoolAddress,
-        Number(epochLast),
-      )
-      const claimTickDataLength = claimTickQuery['data']['ticks'].length
-      if (claimTickDataLength > 0)
-        claimTick = claimTickQuery['data']['ticks'][0]['index']
-    } else {
-      const claimTickQuery = await getTickIfNotZeroForOne(
-        Number(minLimit),
-        coverPoolAddress,
-        Number(epochLast),
-      )
-      const claimTickDataLength = claimTickQuery['data']['ticks'].length
-      if (claimTickDataLength > 0)
-        claimTick = claimTickQuery['data']['ticks'][0]['index']
-      if (claimTick == undefined) {
-        claimTick = minLimit
-      }
-    }
-    console.log('claim tick found:', claimTick)
-    return claimTick
   }
 
   return (

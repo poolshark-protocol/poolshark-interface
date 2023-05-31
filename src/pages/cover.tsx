@@ -1,186 +1,49 @@
-import Navbar from '../components/Navbar'
+import React, { useState, useEffect } from 'react'
 import {
   InformationCircleIcon,
   MagnifyingGlassIcon,
 } from '@heroicons/react/20/solid'
-import UserCoverPool from '../components/Pools/UserCoverPool'
-import { useState, useEffect } from 'react'
 import { useAccount, useProvider } from 'wagmi'
 import Link from 'next/link'
-import {
-  fetchCoverPositions,
-  getTickIfNotZeroForOne,
-  getTickIfZeroForOne,
-} from '../utils/queries'
-import React from 'react'
+import { useRouter } from 'next/router'
+import Navbar from '../components/Navbar'
 import useTokenList from '../hooks/useTokenList'
+import UserCoverPool from '../components/Pools/UserCoverPool'
 import Initial from '../components/Cover/Initial'
 import CreateCover from '../components/Cover/CreateCover'
-import { useRouter } from 'next/router'
+import { fetchCoverPositions } from '../utils/queries'
+import { mapUserCoverPositions } from '../utils/maps'
 
 export default function Cover() {
+  const {
+    network: { chainId },
+  } = useProvider()
   const router = useRouter()
+  const { address, isDisconnected } = useAccount()
+  const coins = useTokenList()[0]
+  //const [coinsForListing, setCoinsForListing] = useState(coins['listed_tokens'])
 
+  const [state, setState] = useState(router.query.state ?? 'initial')
   const [searchTerm, setSearchTerm] = useState('')
+  const [expanded, setExpanded] = useState()
+  const [allCoverPositions, setAllCoverPositions] = useState([])
+  const [selectedPool, setSelectedPool] = useState(router.query ?? undefined)
+
+  useEffect(() => {
+    getUserCoverPositionData()
+  }, [])
+
+  async function getUserCoverPositionData() {
+    const data = await fetchCoverPositions(address)
+    if (data) {
+      const positions = data['data'].positions
+      setAllCoverPositions(await mapUserCoverPositions(positions))
+    }
+  }
 
   const handleSearchTermChange = (event) => {
     setSearchTerm(event.target.value)
   }
-
-  const {
-    network: { chainId },
-  } = useProvider()
-
-  const { address, isDisconnected } = useAccount()
-
-  const [expanded, setExpanded] = useState()
-  const [selectedPool, setSelectedPool] = useState(router.query ?? undefined)
-
-  const [coverPositions, setCoverPositions] = useState([])
-  const [allCoverPositions, setAllCoverPositions] = useState([])
-  const [userPositionExists, setUserPositionExists] = useState(false)
-
-  const coins = useTokenList()[0]
-  const [coinsForListing, setCoinsForListing] = useState(coins['listed_tokens'])
-
-  useEffect(() => {
-    console.log(coinsForListing)
-  }, [coinsForListing])
-
-  async function getUserPositionData() {
-    try {
-      const data = await fetchCoverPositions(address)
-      const positions = data['data'].positions
-      setCoverPositions(positions)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  function mapUserCoverPositions() {
-    const mappedCoverPositions = []
-    coverPositions.map(async (coverPosition) => {
-      const coverPositionData = {
-        poolId: coverPosition.pool.id,
-        valueTokenZero: coverPosition.inAmount,
-        tokenZero: coverPosition.zeroForOne
-          ? coverPosition.pool.token0
-          : coverPosition.pool.token1,
-        tokenOne: coverPosition.zeroForOne
-          ? coverPosition.pool.token1
-          : coverPosition.pool.token0,
-        valueTokenOne: coverPosition.outAmount,
-        min: coverPosition.lower,
-        max: coverPosition.upper,
-        claim: undefined,
-        zeroForOne: coverPosition.zeroForOne,
-        userFillIn: coverPosition.amountInDeltaMax,
-        userFillOut: coverPosition.amountOutDeltaMax,
-        epochLast: coverPosition.epochLast,
-        latestTick: coverPosition.pool.latestTick,
-        liquidity: coverPosition.liquidity,
-        feeTier: coverPosition.pool.volatilityTier.feeAmount,
-        tickSpacing: coverPosition.pool.volatilityTier.tickSpread,
-        userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
-      }
-      mappedCoverPositions.push(coverPositionData)
-    })
-    mappedCoverPositions.map(async (coverPosition) => {
-      coverPosition.claim = await getClaimTick(
-        coverPosition.poolId,
-        coverPosition.min,
-        coverPosition.max,
-        coverPosition.zeroForOne,
-        coverPosition.epochLast,
-      )
-    })
-    console.log('mapped positions', mappedCoverPositions)
-    setAllCoverPositions(mappedCoverPositions)
-  }
-
-  function checkUserPositionExists() {
-    allCoverPositions.map((allCoverPosition) => {
-      if (allCoverPosition.userOwnerAddress === address?.toLowerCase()) {
-        setUserPositionExists(true)
-      }
-    })
-  }
-
-  useEffect(() => {
-    getUserPositionData()
-  }, [])
-
-  useEffect(() => {
-    mapUserCoverPositions()
-  }, [coverPositions])
-
-  useEffect(() => {
-    checkUserPositionExists()
-  }, [])
-
-  const getClaimTick = async (
-    coverPoolAddress: string,
-    minLimit: number,
-    maxLimit: number,
-    zeroForOne: boolean,
-    epochLast: number,
-  ) => {
-    let claimTick = zeroForOne ? maxLimit : minLimit
-    if (zeroForOne) {
-      const claimTickQuery = await getTickIfZeroForOne(
-        Number(maxLimit),
-        coverPoolAddress,
-        Number(epochLast),
-      )
-      const claimTickDataLength = claimTickQuery['data']['ticks'].length
-      if (claimTickDataLength > 0)
-        claimTick = claimTickQuery['data']['ticks'][0]['index']
-    } else {
-      const claimTickQuery = await getTickIfNotZeroForOne(
-        Number(minLimit),
-        coverPoolAddress,
-        Number(epochLast),
-      )
-      const claimTickDataLength = claimTickQuery['data']['ticks'].length
-      if (claimTickDataLength > 0)
-        claimTick = claimTickQuery['data']['ticks'][0]['index']
-      if (claimTick != undefined) {
-        return claimTick
-      } else {
-        return minLimit
-      }
-    }
-    console.log('claim tick found:', claimTick)
-    return claimTick
-  }
-
-  const Option = () => {
-    if (expanded) {
-      return (
-        <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Expected Output</div>
-            <div className="ml-auto text-xs">300 DAI</div>
-          </div>
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Price Impact</div>
-            <div className="ml-auto text-xs">-0.12%</div>
-          </div>
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">
-              Mininum received after slippage (0.50%)
-            </div>
-            <div className="ml-auto text-xs">299.92 DAI</div>
-          </div>
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Network Fee</div>
-            <div className="ml-auto text-xs">-0.09$</div>
-          </div>
-        </div>
-      )
-    }
-  }
-  const [state, setState] = useState(router.query.state ?? 'initial')
 
   const handleDiselectPool = (state) => {
     setState(state)
@@ -283,7 +146,7 @@ export default function Cover() {
                             //console.log('user fill out', allCoverPosition.userFillOut)
                             return (
                               <UserCoverPool
-                                key={allCoverPosition.id}
+                                key={allCoverPosition.id + 'coverPositions'}
                                 account={address}
                                 poolId={allCoverPosition.poolId}
                                 tokenZero={allCoverPosition.tokenZero}
