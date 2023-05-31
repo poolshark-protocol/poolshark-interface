@@ -338,9 +338,7 @@ export default function CreateCover(props: any) {
       const signer = new ethers.VoidSigner(address, provider)
       const tokenOutBal = new ethers.Contract(tokenIn.address, erc20ABI, signer)
       const balance1 = await tokenOutBal.balanceOf(address)
-      let token2Bal: Contract
-      let bal1: string
-      bal1 = Number(ethers.utils.formatEther(balance1)).toFixed(2)
+      const bal1 = Number(ethers.utils.formatEther(balance1)).toFixed(2)
       //console.log('bal1', bal1)
       setBalance0(bal1)
     } catch (error) {
