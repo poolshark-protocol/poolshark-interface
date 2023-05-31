@@ -20,14 +20,13 @@ export default function Cover() {
   } = useProvider()
   const router = useRouter()
   const { address, isDisconnected } = useAccount()
-  const coins = useTokenList()[0]
+  //const coins = useTokenList()[0]
   //const [coinsForListing, setCoinsForListing] = useState(coins['listed_tokens'])
 
+  const [selectedPool, setSelectedPool] = useState(router.query ?? undefined)
   const [state, setState] = useState(router.query.state ?? 'initial')
   const [searchTerm, setSearchTerm] = useState('')
-  const [expanded, setExpanded] = useState()
   const [allCoverPositions, setAllCoverPositions] = useState([])
-  const [selectedPool, setSelectedPool] = useState(router.query ?? undefined)
 
   useEffect(() => {
     getUserCoverPositionData()
@@ -37,7 +36,7 @@ export default function Cover() {
     const data = await fetchCoverPositions(address)
     if (data) {
       const positions = data['data'].positions
-      setAllCoverPositions(await mapUserCoverPositions(positions))
+      setAllCoverPositions(mapUserCoverPositions(positions))
     }
   }
 
