@@ -7,7 +7,11 @@ import UserCoverPool from '../components/Pools/UserCoverPool'
 import { useState, useEffect } from 'react'
 import { useAccount, useProvider } from 'wagmi'
 import Link from 'next/link'
-import { fetchCoverPositions } from '../utils/queries'
+import {
+  fetchCoverPositions,
+  getTickIfNotZeroForOne,
+  getTickIfZeroForOne,
+} from '../utils/queries'
 import React from 'react'
 import useTokenList from '../hooks/useTokenList'
 import Initial from '../components/Cover/Initial'
@@ -55,27 +59,42 @@ export default function Cover() {
 
   function mapUserCoverPositions() {
     const mappedCoverPositions = []
-    coverPositions.map((coverPosition) => {
+    coverPositions.map(async (coverPosition) => {
       const coverPositionData = {
-        id: coverPosition.id,
         poolId: coverPosition.pool.id,
-        latestTick: coverPosition.pool.latestTick,
-        tokenZero: coverPosition.inToken,
         valueTokenZero: coverPosition.inAmount,
-        tokenOne: coverPosition.outToken,
+        tokenZero: coverPosition.zeroForOne
+          ? coverPosition.pool.token0
+          : coverPosition.pool.token1,
+        tokenOne: coverPosition.zeroForOne
+          ? coverPosition.pool.token1
+          : coverPosition.pool.token0,
         valueTokenOne: coverPosition.outAmount,
         min: coverPosition.lower,
         max: coverPosition.upper,
+        claim: undefined,
+        zeroForOne: coverPosition.zeroForOne,
         userFillIn: coverPosition.amountInDeltaMax,
         userFillOut: coverPosition.amountOutDeltaMax,
-        liquidity: coverPosition.pool.liquidity,
+        epochLast: coverPosition.epochLast,
+        latestTick: coverPosition.pool.latestTick,
+        liquidity: coverPosition.liquidity,
         feeTier: coverPosition.pool.volatilityTier.feeAmount,
         tickSpacing: coverPosition.pool.volatilityTier.tickSpread,
         userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
       }
       mappedCoverPositions.push(coverPositionData)
     })
-
+    mappedCoverPositions.map(async (coverPosition) => {
+      coverPosition.claim = await getClaimTick(
+        coverPosition.poolId,
+        coverPosition.min,
+        coverPosition.max,
+        coverPosition.zeroForOne,
+        coverPosition.epochLast,
+      )
+    })
+    console.log('mapped positions', mappedCoverPositions)
     setAllCoverPositions(mappedCoverPositions)
   }
 
@@ -98,6 +117,42 @@ export default function Cover() {
   useEffect(() => {
     checkUserPositionExists()
   }, [])
+
+  const getClaimTick = async (
+    coverPoolAddress: string,
+    minLimit: number,
+    maxLimit: number,
+    zeroForOne: boolean,
+    epochLast: number,
+  ) => {
+    let claimTick = zeroForOne ? maxLimit : minLimit
+    if (zeroForOne) {
+      const claimTickQuery = await getTickIfZeroForOne(
+        Number(maxLimit),
+        coverPoolAddress,
+        Number(epochLast),
+      )
+      const claimTickDataLength = claimTickQuery['data']['ticks'].length
+      if (claimTickDataLength > 0)
+        claimTick = claimTickQuery['data']['ticks'][0]['index']
+    } else {
+      const claimTickQuery = await getTickIfNotZeroForOne(
+        Number(minLimit),
+        coverPoolAddress,
+        Number(epochLast),
+      )
+      const claimTickDataLength = claimTickQuery['data']['ticks'].length
+      if (claimTickDataLength > 0)
+        claimTick = claimTickQuery['data']['ticks'][0]['index']
+      if (claimTick != undefined) {
+        return claimTick
+      } else {
+        return minLimit
+      }
+    }
+    console.log('claim tick found:', claimTick)
+    return claimTick
+  }
 
   const Option = () => {
     if (expanded) {
