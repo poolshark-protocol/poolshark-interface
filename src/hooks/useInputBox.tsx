@@ -40,7 +40,6 @@ export default function useInputBox() {
         updateSwapAmount(valueToBn)
       }
     }
-
     setInput(
       result == '' ? BigNumber.from('0') : ethers.utils.parseUnits(result, 18),
     )
@@ -97,6 +96,7 @@ export default function useInputBox() {
         <input
           type="text"
           id="input"
+          autoComplete="off"
           onChange={(e) => handleChange(e, updateValue)}
           value={display}
           placeholder={placeholder}
@@ -112,6 +112,7 @@ export default function useInputBox() {
         <input
           type="text"
           id="LimitInput"
+          autoComplete="off"
           onChange={(e) => handleChangeLimit(e, updateValue)}
           value={displayLimit}
           placeholder={placeholder}
