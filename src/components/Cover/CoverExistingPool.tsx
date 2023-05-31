@@ -245,20 +245,18 @@ export default function CoverExistingPool({
 
   function changeCoverAmounts() {
     console.log('prices set:', lowerTick, upperTick, tickSpread)
+    console.log('liquidity check', String(JSBI.BigInt(Math.round(parseFloat(userLiquidity)))))
     if (
       !isNaN(parseFloat(lowerPrice)) &&
       !isNaN(parseFloat(upperPrice)) &&
-      !isNaN(parseFloat(userLiquidity)) &&
+      !isNaN(parseInt(userLiquidity)) &&
       parseFloat(lowerPrice) > 0 &&
       parseFloat(upperPrice) > 0 &&
       parseFloat(lowerPrice) < parseFloat(upperPrice)
     ) {
-      console.log('tick check', lowerTick, upperTick)
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
-      console.log('sqrt prices', String(lowerSqrtPrice), String(upperSqrtPrice))
-      console.log('slider value', sliderValue)
-      const liquidityAmount = JSBI.divide(JSBI.multiply(JSBI.BigInt(userLiquidity), JSBI.BigInt(sliderValue)), JSBI.BigInt(100))
+      const liquidityAmount = JSBI.divide(JSBI.multiply(JSBI.BigInt(Math.round(parseFloat(userLiquidity))), JSBI.BigInt(sliderValue)), JSBI.BigInt(100))
       setCoverAmountIn(
         tokenOrder
           ? DyDxMath.getDx(
