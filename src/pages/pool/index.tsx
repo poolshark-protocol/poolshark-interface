@@ -42,8 +42,8 @@ export default function Pool() {
 
   useEffect(() => {
     getUserRangePositionData()
-    getUserCoverPositionData()
     getRangePoolData()
+    getUserCoverPositionData()
     getCoverPoolData()
   }, [selected])
 
@@ -237,6 +237,7 @@ export default function Pool() {
                       ) : (
                         allRangePositions.map((allRangePosition) => {
                           if (
+                            allRangePosition.id != undefined &&
                             allRangePosition.userOwnerAddress ===
                               address?.toLowerCase() &&
                             (allRangePosition.tokenZero.name.toLowerCase() ===
@@ -299,6 +300,7 @@ export default function Pool() {
                     ) : (
                       allCoverPositions.map((allCoverPosition) => {
                         if (
+                          allCoverPosition.id != undefined &&
                           allCoverPosition.userOwnerAddress ===
                             address?.toLowerCase() &&
                           (allCoverPosition.tokenZero.name.toLowerCase() ===

@@ -96,6 +96,7 @@ export function mapUserCoverPositions(coverPositions) {
   const mappedCoverPositions = []
   coverPositions.map((coverPosition) => {
     const coverPositionData = {
+      id: coverPosition.id,
       poolId: coverPosition.pool.id,
       valueTokenZero: coverPosition.inAmount,
       tokenZero: coverPosition.zeroForOne
