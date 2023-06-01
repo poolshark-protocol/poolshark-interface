@@ -23,7 +23,7 @@ export default function ConcentratedPoolPreview({
   allowanceOut,
   setAllowanceOut,
 }) {
-  const { address } = useAccount()
+  const { address, isConnected } = useAccount()
   const { data: dataIn } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -31,7 +31,7 @@ export default function ConcentratedPoolPreview({
     args: [address, poolAddress],
     chainId: 421613,
     watch: true,
-    enabled: tokenIn.address != '',
+    enabled: isConnected && poolAddress != undefined && tokenIn.address != undefined,
     onSuccess() {
       console.log('Success')
     },
@@ -49,7 +49,7 @@ export default function ConcentratedPoolPreview({
     args: [address, poolAddress],
     chainId: 421613,
     watch: true,
-    enabled: tokenOut.address != '',
+    enabled: isConnected && poolAddress != undefined && tokenOut.address != undefined,
     onSuccess() {
       console.log('Success')
     },
