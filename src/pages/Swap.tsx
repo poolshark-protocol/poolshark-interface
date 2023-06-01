@@ -8,45 +8,46 @@ import { ChevronDownIcon, ArrowPathIcon } from '@heroicons/react/20/solid'
 import SelectToken from '../components/SelectToken'
 import useInputBox from '../hooks/useInputBox'
 import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton'
-import { erc20ABI, useAccount, useSigner } from 'wagmi'
+import {
+  erc20ABI,
+  useAccount,
+  useSigner,
+  useProvider,
+  useContractRead,
+} from 'wagmi'
 import {
   tokenZeroAddress,
   tokenOneAddress,
 } from '../constants/contractAddresses'
-import { useProvider, useContractRead } from 'wagmi'
-import { BigNumber, Contract, ethers } from 'ethers'
+import { BigNumber, Contract, Signer, ethers } from 'ethers'
 import { chainIdsToNamesForGitTokenList } from '../utils/chains'
 import { coverPoolABI } from '../abis/evm/coverPool'
 import {
   fetchCoverPools,
-  fetchPrice,
   fetchRangePools,
   getCoverPoolFromFactory,
   getRangePoolFromFactory,
 } from '../utils/queries'
 import { useSwapStore } from '../hooks/useStore'
 import SwapRangeApproveButton from '../components/Buttons/SwapRangeApproveButton'
-import SelectTokenButton from '../components/Buttons/SelectTokenButtonSwap'
 import SwapRangeButton from '../components/Buttons/SwapRangeButton'
 import SwapCoverApproveButton from '../components/Buttons/SwapCoverApproveButton'
 import SwapCoverButton from '../components/Buttons/SwapCoverButton'
-import useSwapAllowance from '../hooks/useSwapAllowance'
 import { rangePoolABI } from '../abis/evm/rangePool'
 import { TickMath, invertPrice } from '../utils/math/tickMath'
 import { ZERO_ADDRESS } from '../utils/math/constants'
-
-type token = {
-  symbol: string
-  logoURI: string
-  address: string
-}
+import { gasEstimate } from '../utils/gas'
+import { token } from '../utils/types'
 
 export default function Swap() {
+  const { address, isDisconnected, isConnected } = useAccount()
+  const { data: signer } = useSigner()
+  const {
+    network: { chainId },
+  } = useProvider()
   const [updateSwapAmount] = useSwapStore((state: any) => [
     state.updateSwapAmount,
   ])
-  const { address, isDisconnected, isConnected } = useAccount()
-  const allowance = useSwapAllowance(address)
   const {
     bnInput,
     inputBox,
@@ -54,7 +55,8 @@ export default function Swap() {
     bnInputLimit,
     LimitInputBox,
   } = useInputBox()
-  const [gasFee, setGasFee] = useState('')
+
+  const [gasFee, setGasFee] = useState('0')
   const [coverQuote, setCoverQuote] = useState(0)
   const [rangeQuote, setRangeQuote] = useState(0)
   const [coverPrice, setCoverPrice] = useState(0)
@@ -98,13 +100,6 @@ export default function Swap() {
   const [bnSlippage, setBnSlippage] = useState(BigNumber.from(1))
   const [slippageFetched, setSlippageFetched] = useState(false)
 
-  const { data: signer } = useSigner()
-  const provider = useProvider()
-
-  const {
-    network: { chainId },
-  } = useProvider()
-
   const { data: dataRange } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -136,27 +131,6 @@ export default function Swap() {
     },
   })
 
-  const { data: priceCover } = useContractRead({
-    address: coverPoolRoute,
-    abi: coverPoolABI,
-    functionName:
-      tokenIn.address.localeCompare(tokenOut.address) < 0 ? 'pool1' : 'pool0',
-    args: [],
-    chainId: 421613,
-    watch: true,
-    enabled: isConnected && coverPoolRoute != undefined,
-    onSuccess(data) {
-      console.log('Success price Cover', data)
-      console.log('coverPrice', coverPrice)
-    },
-    onError(error) {
-      console.log('Error price Cover', error)
-    },
-    onSettled(data, error) {
-      console.log('Settled price Cover', { data, error })
-    },
-  })
-
   const { data: priceRange } = useContractRead({
     address: rangePoolRoute,
     abi: rangePoolABI,
@@ -177,44 +151,24 @@ export default function Swap() {
     },
   })
 
-  const { data: quoteCover } = useContractRead({
+  const { data: priceCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
-    functionName: 'quote',
-    args: [
-      tokenIn.address.localeCompare(tokenOut.address) < 0,
-      bnInput,
-      tokenIn.address.localeCompare(tokenOut.address) < 0
-        ? BigNumber.from(
-            TickMath.getSqrtPriceAtPriceString(
-              coverBnPrice.sub(coverBnBaseLimit).toString(),
-              18,
-            ).toString(),
-          )
-        : BigNumber.from(
-            TickMath.getSqrtPriceAtPriceString(
-              coverBnPrice.add(coverBnBaseLimit).toString(),
-              18,
-            ).toString(),
-          ),
-    ],
+    functionName:
+      tokenIn.address.localeCompare(tokenOut.address) < 0 ? 'pool1' : 'pool0',
+    args: [],
     chainId: 421613,
     watch: true,
     enabled: isConnected && coverPoolRoute != undefined,
     onSuccess(data) {
-      console.log('Success cover wagmi', data)
-      console.log('coverQuote', coverQuote)
-      console.log('coverPriceAfter', coverPriceAfter)
-      console.log(
-        'zeroForOne',
-        tokenIn.address.localeCompare(tokenOut.address) < 0,
-      )
+      console.log('Success price Cover', data)
+      console.log('coverPrice', coverPrice)
     },
     onError(error) {
-      console.log('Error cover wagmi', error)
+      console.log('Error price Cover', error)
     },
     onSettled(data, error) {
-      console.log('Settled', { data, error })
+      console.log('Settled price Cover', { data, error })
     },
   })
 
@@ -244,14 +198,47 @@ export default function Swap() {
     enabled: isConnected && rangePoolRoute != undefined,
     onSuccess(data) {
       console.log('Success range wagmi', data)
-      console.log('rangeQuote', rangeQuote)
-      console.log('rangePriceAfter', rangePriceAfter)
     },
     onError(error) {
       console.log('Error range wagmi', error)
     },
     onSettled(data, error) {
       console.log('Settled range wagmi', { data, error })
+    },
+  })
+
+  const { data: quoteCover } = useContractRead({
+    address: coverPoolRoute,
+    abi: coverPoolABI,
+    functionName: 'quote',
+    args: [
+      tokenIn.address.localeCompare(tokenOut.address) < 0,
+      bnInput,
+      tokenIn.address.localeCompare(tokenOut.address) < 0
+        ? BigNumber.from(
+            TickMath.getSqrtPriceAtPriceString(
+              coverBnPrice.sub(coverBnBaseLimit).toString(),
+              18,
+            ).toString(),
+          )
+        : BigNumber.from(
+            TickMath.getSqrtPriceAtPriceString(
+              coverBnPrice.add(coverBnBaseLimit).toString(),
+              18,
+            ).toString(),
+          ),
+    ],
+    chainId: 421613,
+    watch: true,
+    enabled: isConnected && coverPoolRoute != undefined,
+    onSuccess(data) {
+      console.log('Success cover wagmi', data)
+    },
+    onError(error) {
+      console.log('Error cover wagmi', error)
+    },
+    onSettled(data, error) {
+      console.log('Settled', { data, error })
     },
   })
 
@@ -335,15 +322,15 @@ export default function Swap() {
     console.log('tokenOut after switch', tokenOut)
   }
 
-  const gasEstimate = async () => {
+  /*   const gasEstimate = async () => {
     try {
       const provider = new ethers.providers.JsonRpcProvider(
         'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
       )
 
-      /* console.log('gas cover route', coverPoolRoute)
+      console.log('gas cover route', coverPoolRoute)
       console.log('gas range route', rangePoolRoute)
-      console.log('gas provider', provider) */
+      console.log('gas provider', provider)
       if (!coverPoolRoute || !provider) {
         setGasFee('0')
         return
@@ -412,7 +399,7 @@ export default function Swap() {
     } catch (error) {
       console.log('gas error', error)
     }
-  }
+  } */
 
   const getFeeTier = async () => {
     const coverData = await fetchCoverPools()
@@ -588,19 +575,11 @@ export default function Swap() {
 
   useEffect(() => {
     if (bnInput !== BigNumber.from(0)) {
-      if (rangeQuote > coverQuote) {
-        if (bnInput < ethers.utils.parseUnits(allowanceRange, 18)) {
-          gasEstimate()
-        }
-      } else {
-        if (bnInput < ethers.utils.parseUnits(allowanceCover, 18)) {
-          gasEstimate()
-        }
-      }
+      updateGasFee()
     }
-    /*setTimeout(() => {
-      gasEstimate()
-    }, 10000)*/
+    setTimeout(() => {
+      updateGasFee()
+    }, 10000)
   }, [
     bnInput,
     tokenIn.address,
@@ -608,6 +587,23 @@ export default function Swap() {
     coverPoolRoute,
     rangePoolRoute,
   ])
+
+  async function updateGasFee() {
+    const newGasFee = await gasEstimate(
+      rangePoolRoute,
+      coverPoolRoute,
+      rangeQuote,
+      coverQuote,
+      rangeBnPrice,
+      rangeBnBaseLimit,
+      tokenIn,
+      tokenOut,
+      bnInput,
+      address,
+      signer,
+    )
+    setGasFee(newGasFee)
+  }
 
   useEffect(() => {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId])
@@ -642,13 +638,17 @@ export default function Swap() {
   useEffect(() => {
     if (rangeBnPrice) {
       if (rangeBnPrice !== BigNumber.from(0)) {
-        setRangeBnBaseLimit(rangeBnPrice.mul(parseFloat(slippage) * 100).div(10000))
+        setRangeBnBaseLimit(
+          rangeBnPrice.mul(parseFloat(slippage) * 100).div(10000),
+        )
       }
     }
 
     if (coverBnPrice) {
       if (coverBnPrice !== BigNumber.from(0)) {
-        setCoverBnBaseLimit(coverBnPrice.mul(parseFloat(slippage) * 100).div(10000))
+        setCoverBnBaseLimit(
+          coverBnPrice.mul(parseFloat(slippage) * 100).div(10000),
+        )
       }
     }
     console.log('rangeBnBaseLimit', rangeBnBaseLimit.toString())
@@ -1044,7 +1044,7 @@ export default function Swap() {
               >
                 Swap
               </button>
-            ) : (rangeQuote > coverQuote) ? (
+            ) : rangeQuote > coverQuote ? (
               Number(allowanceRange) <
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                 <div>
