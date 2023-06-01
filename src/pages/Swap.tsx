@@ -38,6 +38,8 @@ import { TickMath, invertPrice } from '../utils/math/tickMath'
 import { ZERO_ADDRESS } from '../utils/math/constants'
 import { gasEstimate } from '../utils/gas'
 import { token } from '../utils/types'
+import { getCoverPool, getRangePool } from '../utils/pools'
+import { getBalances } from '../utils/balances'
 
 export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount()
@@ -81,8 +83,8 @@ export default function Swap() {
   const [rangeSlippage, setRangeSlippage] = useState('0.5')
   const [auxSlippage, setAuxSlippage] = useState('0.5')
   const [modalOpen, setModalOpen] = useState(false)
-  const [balance0, setBalance0] = useState('')
-  const [balance1, setBalance1] = useState('0.00')
+  const [balanceIn, setBalanceIn] = useState('')
+  const [balanceOut, setBalanceOut] = useState('0.00')
   const [stateChainName, setStateChainName] = useState()
   const [LimitActive, setLimitActive] = useState(false)
   const [tokenOrder, setTokenOrder] = useState(true)
@@ -99,6 +101,8 @@ export default function Swap() {
   const [rangeBnBaseLimit, setRangeBnBaseLimit] = useState(BigNumber.from(0))
   const [bnSlippage, setBnSlippage] = useState(BigNumber.from(1))
   const [slippageFetched, setSlippageFetched] = useState(false)
+
+  /////////////////Start of Contract Hooks//////////////////////
 
   const { data: dataRange } = useContractRead({
     address: tokenIn.address,
@@ -242,32 +246,62 @@ export default function Swap() {
     },
   })
 
-  //@dev put balanc
-  const getBalances = async () => {
-    try {
-      const provider = new ethers.providers.JsonRpcProvider(
-        'https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2',
-        421613,
-      )
-      const signer = new ethers.VoidSigner(address, provider)
-      const tokenOutBal = new ethers.Contract(tokenIn.address, erc20ABI, signer)
-      const balance1 = await tokenOutBal.balanceOf(address)
-      let token2Bal: Contract
-      let bal1: string
-      bal1 = Number(ethers.utils.formatEther(balance1)).toFixed(2)
-      if (hasSelected === true) {
-        token2Bal = new ethers.Contract(tokenOut.address, erc20ABI, signer)
-        const balance2 = await token2Bal.balanceOf(address)
-        let bal2: string
-        bal2 = Number(ethers.utils.formatEther(balance2)).toFixed(2)
+  /////////////////End of Contract Hooks//////////////////////
 
-        setBalance1(bal2)
-      }
+  useEffect(() => {
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
+  }, [chainId])
 
-      setBalance0(bal1)
-    } catch (error) {
-      console.log(error)
+  useEffect(() => {
+    if (hasSelected) {
+      updateBalances()
+      updatePools()
     }
+  }, [tokenOut.address, tokenIn.address, hasSelected])
+
+  async function updateBalances() {
+    const balances = await getBalances(address, hasSelected, tokenIn, tokenOut)
+    setBalanceIn(balances[0])
+    setBalanceOut(balances[1])
+  }
+
+  async function updatePools() {
+    const newRangePool = await getRangePool(tokenIn, tokenOut)
+    const newCoverPool = await getCoverPool(tokenIn, tokenOut)
+    setRangePoolRoute(newRangePool)
+    setCoverPoolRoute(newCoverPool)
+  }
+
+  useEffect(() => {
+    if (bnInput !== BigNumber.from(0)) {
+      updateGasFee()
+    }
+    setTimeout(() => {
+      updateGasFee()
+    }, 10000)
+  }, [
+    bnInput,
+    tokenIn.address,
+    tokenOut.address,
+    coverPoolRoute,
+    rangePoolRoute,
+  ])
+
+  async function updateGasFee() {
+    const newGasFee = await gasEstimate(
+      rangePoolRoute,
+      coverPoolRoute,
+      rangeQuote,
+      coverQuote,
+      rangeBnPrice,
+      rangeBnBaseLimit,
+      tokenIn,
+      tokenOut,
+      bnInput,
+      address,
+      signer,
+    )
+    setGasFee(newGasFee)
   }
 
   function changeDefaultIn(token: token) {
@@ -349,58 +383,6 @@ export default function Swap() {
     } else {
       setSlippage(coverSlippage)
       setAuxSlippage(coverSlippage)
-    }
-  }
-
-  const getRangePool = async () => {
-    try {
-      if (hasSelected === true) {
-        const pool = await getRangePoolFromFactory(
-          tokenIn.address,
-          tokenOut.address,
-        )
-        let id = ZERO_ADDRESS
-        let dataLength = pool['data']['rangePools'].length
-        if (dataLength != 0) {
-          id = pool['data']['rangePools']['0']['id']
-          setRangePoolRoute(id)
-        } else {
-          const fallbackPool = await getRangePoolFromFactory(
-            tokenOut.address,
-            tokenIn.address,
-          )
-          id = fallbackPool['data']['rangePools']['0']['id']
-          setRangePoolRoute(id)
-        }
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const getCoverPool = async () => {
-    try {
-      if (hasSelected === true) {
-        const pool = await getCoverPoolFromFactory(
-          tokenIn.address,
-          tokenOut.address,
-        )
-        let id = ZERO_ADDRESS
-        let dataLength = pool['data']['coverPools'].length
-        if (dataLength != 0) {
-          id = pool['data']['coverPools']['0']['id']
-          setCoverPoolRoute(id)
-        } else {
-          const fallbackPool = await getCoverPoolFromFactory(
-            tokenOut.address,
-            tokenIn.address,
-          )
-          id = fallbackPool['data']['coverPools']['0']['id']
-          setCoverPoolRoute(id)
-        }
-      }
-    } catch (error) {
-      console.log(error)
     }
   }
 
@@ -493,48 +475,6 @@ export default function Swap() {
       }
     }
   }, [quoteCover, quoteRange, bnInput])
-
-  useEffect(() => {
-    if (bnInput !== BigNumber.from(0)) {
-      updateGasFee()
-    }
-    setTimeout(() => {
-      updateGasFee()
-    }, 10000)
-  }, [
-    bnInput,
-    tokenIn.address,
-    tokenOut.address,
-    coverPoolRoute,
-    rangePoolRoute,
-  ])
-
-  async function updateGasFee() {
-    const newGasFee = await gasEstimate(
-      rangePoolRoute,
-      coverPoolRoute,
-      rangeQuote,
-      coverQuote,
-      rangeBnPrice,
-      rangeBnBaseLimit,
-      tokenIn,
-      tokenOut,
-      bnInput,
-      address,
-      signer,
-    )
-    setGasFee(newGasFee)
-  }
-
-  useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
-  }, [chainId])
-
-  useEffect(() => {
-    getBalances()
-    getRangePool()
-    getCoverPool()
-  }, [tokenOut.address, tokenIn.address, hasSelected])
 
   useEffect(() => {
     updateSwapAmount(bnInput)
@@ -767,13 +707,13 @@ export default function Swap() {
                   />
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                  <div className="flex text-xs text-[#4C4C4C]" key={balance0}>
-                    Balance: {balance0 === 'NaN' ? 0 : balance0}
+                  <div className="flex text-xs text-[#4C4C4C]" key={balanceIn}>
+                    Balance: {balanceIn === 'NaN' ? 0 : balanceIn}
                   </div>
                   {isConnected && stateChainName === 'arbitrumGoerli' ? (
                     <button
                       className="flex text-xs uppercase text-[#C9C9C9]"
-                      onClick={() => maxBalance(balance0, '0')}
+                      onClick={() => maxBalance(balanceIn, '0')}
                     >
                       Max
                     </button>
@@ -855,7 +795,7 @@ export default function Swap() {
                 {hasSelected ? (
                   <div className="flex items-center justify-end gap-2 px-1 mt-2">
                     <div className="flex text-xs text-[#4C4C4C]">
-                      Balance: {balance1 === 'NaN' ? 0 : balance1}
+                      Balance: {balanceOut === 'NaN' ? 0 : balanceOut}
                     </div>
                   </div>
                 ) : (
