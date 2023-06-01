@@ -47,8 +47,9 @@ export default function Pool() {
   }, [rangePools])
 
   useEffect(() => {
-    getUserRangePositionData()
-  }, [selected])
+    if (address != undefined)
+      getUserRangePositionData()
+  }, [address, selected])
 
   useEffect(() => {
     mapUserRangePositions()
@@ -63,8 +64,9 @@ export default function Pool() {
   }, [coverPools])
 
   useEffect(() => {
-    getUserCoverPositionData()
-  }, [])
+    if (address != undefined)
+      getUserCoverPositionData()
+  }, [address, selected])
 
   async function getRangePoolData() {
     const data = await fetchRangePools()

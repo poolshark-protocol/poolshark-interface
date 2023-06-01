@@ -30,8 +30,9 @@ export default function Cover() {
   const [selectedPool, setSelectedPool] = useState(router.query ?? undefined)
 
   useEffect(() => {
-    getUserCoverPositionData()
-  }, [])
+    if (address != undefined)
+      getUserCoverPositionData()
+  }, [address])
 
   async function getUserCoverPositionData() {
     const data = await fetchCoverPositions(address)
