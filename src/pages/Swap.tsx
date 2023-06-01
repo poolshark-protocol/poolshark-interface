@@ -65,12 +65,12 @@ export default function Swap() {
   const [tokenIn, setTokenIn] = useState({
     symbol: 'WETH',
     logoURI: '/static/images/eth_icon.png',
-    address: tokenZeroAddress,
+    address: tokenOneAddress,
   })
   const [tokenOut, setTokenOut] = useState({
     symbol: 'Select Token',
     logoURI: '',
-    address: tokenOneAddress,
+    address: tokenZeroAddress,
   })
   const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
@@ -112,6 +112,7 @@ export default function Swap() {
     args: [address, rangePoolRoute],
     chainId: 421613,
     watch: true,
+    enabled: isConnected && rangePoolRoute != undefined,
     onError(error) {
       console.log('Error allowance', error)
     },
@@ -126,6 +127,7 @@ export default function Swap() {
     args: [address, coverPoolRoute],
     chainId: 421613,
     watch: true,
+    enabled: isConnected && coverPoolRoute != undefined,
     onError(error) {
       console.log('Error allowance', error)
     },
@@ -142,6 +144,7 @@ export default function Swap() {
     args: [],
     chainId: 421613,
     watch: true,
+    enabled: isConnected && coverPoolRoute != undefined,
     onSuccess(data) {
       console.log('Success price Cover', data)
       console.log('coverPrice', coverPrice)
@@ -161,6 +164,7 @@ export default function Swap() {
     args: [],
     chainId: 421613,
     watch: true,
+    enabled: isConnected && rangePoolRoute != undefined,
     onSuccess(data) {
       console.log('Success price Range', data)
       console.log('rangePrice if inverted', rangePrice)
@@ -196,6 +200,7 @@ export default function Swap() {
     ],
     chainId: 421613,
     watch: true,
+    enabled: isConnected && coverPoolRoute != undefined,
     onSuccess(data) {
       console.log('Success cover wagmi', data)
       console.log('coverQuote', coverQuote)
@@ -236,6 +241,7 @@ export default function Swap() {
     ],
     chainId: 421613,
     watch: true,
+    enabled: isConnected && rangePoolRoute != undefined,
     onSuccess(data) {
       console.log('Success range wagmi', data)
       console.log('rangeQuote', rangeQuote)
@@ -438,16 +444,6 @@ export default function Swap() {
     }
   }
 
-  const getBnSlippage = () => {
-    if (Number(slippage) >= 0.05 && Number(slippage) < 100) {
-      const convertedSlippage = BigNumber.from(
-        (1 / parseFloat(slippage)).toFixed(0),
-      )
-      setBnSlippage(convertedSlippage)
-      console.log('bnSlippage', bnSlippage.toString())
-    }
-  }
-
   const getRangePool = async () => {
     try {
       if (hasSelected === true) {
@@ -591,10 +587,20 @@ export default function Swap() {
   }, [quoteCover, quoteRange, bnInput])
 
   useEffect(() => {
-    gasEstimate()
-    setTimeout(() => {
+    if (bnInput !== BigNumber.from(0)) {
+      if (rangeQuote > coverQuote) {
+        if (bnInput < ethers.utils.parseUnits(allowanceRange, 18)) {
+          gasEstimate()
+        }
+      } else {
+        if (bnInput < ethers.utils.parseUnits(allowanceCover, 18)) {
+          gasEstimate()
+        }
+      }
+    }
+    /*setTimeout(() => {
       gasEstimate()
-    }, 10000)
+    }, 10000)*/
   }, [
     bnInput,
     tokenIn.address,
@@ -618,16 +624,33 @@ export default function Swap() {
   }, [bnInput])
 
   useEffect(() => {
-    setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
-    setRangeBnPrice(ethers.utils.parseUnits(rangePrice.toString(), 18))
+    if (coverPrice) {
+      if (coverPrice !== 0) {
+        setCoverBnPrice(ethers.utils.parseEther(coverPrice.toString()))
+      }
+    }
+
+    if (rangePrice) {
+      if (rangePrice !== 0) {
+        setRangeBnPrice(ethers.utils.parseEther(rangePrice.toString()))
+      }
+    }
     console.log('coverBnPrice', coverBnPrice.toString())
     console.log('rangeBnPrice', rangeBnPrice.toString())
   }, [coverPrice, rangePrice])
 
   useEffect(() => {
-    getBnSlippage()
-    setRangeBnBaseLimit(rangeBnPrice.div(bnSlippage).div(BigNumber.from(100)))
-    setCoverBnBaseLimit(coverBnPrice.div(bnSlippage).div(BigNumber.from(100)))
+    if (rangeBnPrice) {
+      if (rangeBnPrice !== BigNumber.from(0)) {
+        setRangeBnBaseLimit(rangeBnPrice.mul(parseFloat(slippage) * 100).div(10000))
+      }
+    }
+
+    if (coverBnPrice) {
+      if (coverBnPrice !== BigNumber.from(0)) {
+        setCoverBnBaseLimit(coverBnPrice.mul(parseFloat(slippage) * 100).div(10000))
+      }
+    }
     console.log('rangeBnBaseLimit', rangeBnBaseLimit.toString())
     console.log('coverBnBaseLimit', coverBnBaseLimit.toString())
   }, [slippage, rangeBnPrice, coverBnPrice])
@@ -1021,7 +1044,7 @@ export default function Swap() {
               >
                 Swap
               </button>
-            ) : rangeQuote > coverQuote ? (
+            ) : (rangeQuote > coverQuote) ? (
               Number(allowanceRange) <
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                 <div>

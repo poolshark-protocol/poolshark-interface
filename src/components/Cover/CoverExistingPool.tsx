@@ -109,7 +109,8 @@ export default function CoverExistingPool({
     functionName: 'allowance',
     args: [address, coverPoolRoute],
     chainId: 421613,
-    watch: true
+    watch: true,
+    enabled: isConnected && coverPoolRoute != undefined
   })
 
   const { data: priceCover } = useContractRead({
@@ -122,7 +123,8 @@ export default function CoverExistingPool({
         : 'pool0',
     args: [],
     chainId: 421613,
-    watch: true
+    watch: true,
+    enabled: isConnected && coverPoolRoute != undefined
   })
 
   const getCoverPool = async () => {
@@ -412,7 +414,7 @@ export default function CoverExistingPool({
           <h1 className="mb-3">Selected Pool</h1>
           <span
             className="flex gap-x-1 cursor-pointer"
-            onClick={() => goBack('initial')}
+            onClick={() => goBack("initial")}
           >
             <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />
             <h1 className="mb-3 opacity-50">Back</h1>
@@ -429,7 +431,7 @@ export default function CoverExistingPool({
             className="w-6 cursor-pointer"
             onClick={() => {
               if (hasSelected) {
-                switchDirection()
+                switchDirection();
               }
             }}
           />
@@ -457,7 +459,7 @@ export default function CoverExistingPool({
         />
       </div>
       <div className="mt-3 space-y-2">
-        <div className="flex justify-between text-sm">
+        <div className="flex justify-between items-center text-sm">
           <div className="text-[#646464]">Percentage Covered</div>
           <div className="flex gap-x-2 items-center">
             <input
@@ -468,7 +470,7 @@ export default function CoverExistingPool({
                   Number(
                     e.target.value
                       .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                        match.length > 1 ? '0' : match,
+                        match.length > 1 ? "0" : match
                       )
                       .replace(/^(\.)+/, '0.')
                       .replace(/(?<=\..*)\./g, '')
@@ -485,24 +487,24 @@ export default function CoverExistingPool({
             %
           </div>
         </div>
-        <div className="flex justify-between text-sm">
+        <div className="flex items-center justify-between text-sm">
           <div className="text-[#646464]">Amount Covered</div>
-          <div>
+          <div className='flex items-center justify-end gap-x-3'>
             <input
               type="text"
               id="input"
               onChange={(e) => {
-                console.log('cover amount changed', coverAmountOut)
+                console.log("cover amount changed", coverAmountOut);
                 if (
                   Number(
                     e.target.value
                       .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                        match.length > 1 ? '0' : match,
+                        match.length > 1 ? "0" : match
                       )
-                      .replace(/^(\.)+/, '0')
-                      .replace(/(?<=\..*)\./g, '')
-                      .replace(/^0+(?=\d)/, '')
-                      .replace(/[^\d.]/g, ''),
+                      .replace(/^(\.)+/, "0")
+                      .replace(/(?<=\..*)\./g, "")
+                      .replace(/^0+(?=\d)/, "")
+                      .replace(/[^\d.]/g, "")
                   ) /
                     Number(ethers.utils.formatUnits(coverAmountOut, 18)) <
                   100
@@ -511,42 +513,44 @@ export default function CoverExistingPool({
                     Number(
                       e.target.value
                         .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                          match.length > 1 ? '0' : match,
+                          match.length > 1 ? "0" : match
                         )
-                        .replace(/^(\.)+/, '0')
-                        .replace(/(?<=\..*)\./g, '')
-                        .replace(/^0+(?=\d)/, '')
-                        .replace(/[^\d.]/g, ''),
-                    ) / Number(ethers.utils.formatUnits(coverAmountOut, 18)),
-                  )
+                        .replace(/^(\.)+/, "0")
+                        .replace(/(?<=\..*)\./g, "")
+                        .replace(/^0+(?=\d)/, "")
+                        .replace(/[^\d.]/g, "")
+                    ) / Number(ethers.utils.formatUnits(coverAmountOut, 18))
+                  );
                 } else {
-                  setSliderValue(100)
+                  setSliderValue(100);
                 }
                 setCoverValue(
                   Number(
                     e.target.value
                       .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                        match.length > 1 ? '0' : match,
+                        match.length > 1 ? "0" : match
                       )
-                      .replace(/^(\.)+/, '0')
-                      .replace(/(?<=\..*)\./g, '')
-                      .replace(/^0+(?=\d)/, '')
-                      .replace(/[^\d.]/g, ''),
-                  ),
-                )
+                      .replace(/^(\.)+/, "0")
+                      .replace(/(?<=\..*)\./g, "")
+                      .replace(/^0+(?=\d)/, "")
+                      .replace(/[^\d.]/g, "")
+                  )
+                );
               }}
-              value={Number.parseFloat(ethers.utils.formatUnits(String(coverAmountOut), 18)).toPrecision(3)}
-              className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
+              value={Number.parseFloat(
+                ethers.utils.formatUnits(String(coverAmountOut), 18)
+              ).toPrecision(3)}
+              className="bg-[#0C0C0C] border border-grey2 w-32 px-2 py-1 placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
             />
+            <div>{tokenOut.symbol}</div>
           </div>
-          <div>{tokenOut.symbol}</div>
         </div>
         {mktRate[tokenIn.symbol] ? (
           <div className="flex justify-between text-sm">
             <div className="text-[#646464]">Amount to pay</div>
             <div>
               {Number(
-                ethers.utils.formatUnits(coverAmountIn.toString(), 18),
+                ethers.utils.formatUnits(coverAmountIn.toString(), 18)
               ).toFixed(2)}
               $
             </div>
@@ -561,7 +565,7 @@ export default function CoverExistingPool({
           <span className="text-xs text-grey">Min Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice('minus', 'min')}>
+              <button onClick={() => changePrice("minus", "min")}>
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </button>
             </div>
@@ -571,11 +575,11 @@ export default function CoverExistingPool({
               id="minInput"
               type="text"
               value={
-                lowerPrice.toString().includes('e')
+                lowerPrice.toString().includes("e")
                   ? Number(lowerPrice).toLocaleString(undefined, {
                       maximumFractionDigits: 0,
                     }).length > 6
-                    ? '-∞'
+                    ? "-∞"
                     : Number(lowerPrice).toLocaleString(undefined, {
                         maximumFractionDigits: 0,
                       })
@@ -596,7 +600,7 @@ export default function CoverExistingPool({
               }
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice('plus', 'min')}>
+              <button onClick={() => changePrice("plus", "min")}>
                 <PlusIcon className="w-5 h-5" />
               </button>
             </div>
@@ -606,7 +610,7 @@ export default function CoverExistingPool({
           <span className="text-xs text-grey">Max. Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice('minus', 'max')}>
+              <button onClick={() => changePrice("minus", "max")}>
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </button>
             </div>
@@ -617,11 +621,11 @@ export default function CoverExistingPool({
               type="text"
               //TODO find alternative for scientific notation
               value={
-                upperPrice.toString().includes('e')
+                upperPrice.toString().includes("e")
                   ? Number(upperPrice).toLocaleString(undefined, {
                       maximumFractionDigits: 0,
                     }).length > 6
-                    ? '∞'
+                    ? "∞"
                     : Number(upperPrice).toLocaleString(undefined, {
                         maximumFractionDigits: 0,
                       })
@@ -642,7 +646,7 @@ export default function CoverExistingPool({
               }
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice('plus', 'max')}>
+              <button onClick={() => changePrice("plus", "max")}>
                 <PlusIcon className="w-5 h-5" />
               </button>
             </div>
@@ -669,8 +673,7 @@ export default function CoverExistingPool({
       </div>
       <div className="space-y-3">
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {isDisconnected ||
-        JSBI.lessThanOrEqual(allowance, coverAmountIn) ? (
+        {isDisconnected || JSBI.lessThanOrEqual(allowance, coverAmountIn) ? (
           <CoverMintApproveButton
             disabled={isDisabled}
             poolAddress={coverPoolRoute}
@@ -684,7 +687,7 @@ export default function CoverExistingPool({
             to={address}
             lower={lowerTick}
             claim={
-              tokenOut.address != '' &&
+              tokenOut.address != "" &&
               tokenIn.address.localeCompare(tokenOut.address) < 0
                 ? upperTick
                 : lowerTick
@@ -692,7 +695,7 @@ export default function CoverExistingPool({
             upper={upperTick}
             amount={String(coverAmountIn)}
             zeroForOne={
-              tokenOut.address != '' &&
+              tokenOut.address != "" &&
               tokenIn.address.localeCompare(tokenOut.address) < 0
             }
             tickSpacing={tickSpread}
@@ -700,5 +703,5 @@ export default function CoverExistingPool({
         )}
       </div>
     </>
-  )
+  );
 }

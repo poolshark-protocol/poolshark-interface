@@ -60,6 +60,8 @@ export default function UserCoverPool({
     getCoverPool()
   }, [tokenOne, tokenZero])
 
+  const { isConnected } = useAccount()
+
   const { refetch: refetchcoverQuote, data: priceCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
@@ -68,6 +70,7 @@ export default function UserCoverPool({
     args: [],
     chainId: 421613,
     watch: true,
+    enabled: isConnected && coverPoolRoute != '',
     onSuccess(data) {
       //console.log('Success price Cover', data)
       setCoverQuote(TickMath.getPriceStringAtSqrtPrice(data[0]))

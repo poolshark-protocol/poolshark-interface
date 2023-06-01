@@ -203,8 +203,6 @@ export default function ConcentratedPool({
     setFeeControler(true)
   }
 
-
-
   function switchDirection() {
     setTokenOrder(!tokenOrder)
     const temp = tokenIn

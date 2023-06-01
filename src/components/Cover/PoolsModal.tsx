@@ -61,8 +61,8 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
 
   //async so needs to be wrapped
   useEffect(() => {
-    // if(address != undefined) 
-    getUserRangePositionData()
+    if(address != undefined) 
+     getUserRangePositionData()
   }, [address])
 
   useEffect(() => {
