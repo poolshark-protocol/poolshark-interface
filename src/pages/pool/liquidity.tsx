@@ -211,6 +211,9 @@ export default function Concentrated() {
             maxLimit={
               router.query.max === undefined ? 0 : router.query.max.toString()
             }
+            tickSpacingParam={
+              router.query.tickSpacing === undefined ? 10 : router.query.tickSpacing.toString()
+            }
           />
         </div>
       </div>

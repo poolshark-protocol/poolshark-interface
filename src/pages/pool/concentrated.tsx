@@ -173,7 +173,7 @@ export default function Concentrated() {
             maxLimit={maxLimit}
             liquidity={liquidity}
             feeTier={feeTier}
-            tickSpacing={tickSpacing}
+            tickSpacingParam={tickSpacing}
             account={undefined}
           />
         </div>
