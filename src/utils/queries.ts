@@ -46,7 +46,6 @@ export const countDecimals = (value: number, tokenDecimals: number) => {
 }
 
 export const getRangePoolFromFactory = (token0: string, token1: string, feeTierId?: number) => {
-  console.log('fee tier passed', feeTierId)
   return new Promise(function (resolve) {
     const getPool = isNaN(feeTierId) ? 
         `
@@ -54,6 +53,7 @@ export const getRangePoolFromFactory = (token0: string, token1: string, feeTierI
           rangePools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
             id
             price
+            tickAtPrice
           }
         }
         `
@@ -62,6 +62,7 @@ export const getRangePoolFromFactory = (token0: string, token1: string, feeTierI
           rangePools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}, feeTier_: {id: "${feeTierId}"}}) {
             id
             price
+            tickAtPrice
             feeTier {
               tickSpacing
             }

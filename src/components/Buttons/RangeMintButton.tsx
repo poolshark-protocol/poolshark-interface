@@ -13,7 +13,7 @@ import React, { useState, useEffect } from 'react'
 
 export default function RangeMintButton({
   disabled,
-  poolId,
+  poolAddress,
   to,
   lower,
   upper,
@@ -48,7 +48,7 @@ export default function RangeMintButton({
   }, [to, lower, upper, amount0, amount1, fungible])*/
 
   const { config } = usePrepareContractWrite({
-    address: poolId,
+    address: poolAddress,
     abi: rangePoolABI,
     functionName: 'mint',
     args: [[
@@ -62,6 +62,13 @@ export default function RangeMintButton({
     chainId: 421613,
     overrides: {
       gasLimit: BigNumber.from('210000000'),
+    },
+    onSuccess() {
+      console.log('params check', to,
+      lower.toString(),
+      upper.toString(),
+      amount0.toString(),
+      amount1.toString())
     },
   })
 
@@ -88,7 +95,7 @@ export default function RangeMintButton({
         }
         onClick={() => (write?.())}
       >
-        Mint Range Position
+        Mint Position
       </button>
       <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
         {errorDisplay && (
