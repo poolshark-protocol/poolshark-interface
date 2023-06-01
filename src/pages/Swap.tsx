@@ -581,10 +581,20 @@ export default function Swap() {
   }, [quoteCover, quoteRange, bnInput])
 
   useEffect(() => {
-    gasEstimate()
-    setTimeout(() => {
+    if (bnInput !== BigNumber.from(0)) {
+      if (rangeQuote > coverQuote) {
+        if (bnInput < ethers.utils.parseUnits(allowanceRange, 18)) {
+          gasEstimate()
+        }
+      } else {
+        if (bnInput < ethers.utils.parseUnits(allowanceCover, 18)) {
+          gasEstimate()
+        }
+      }
+    }
+    /*setTimeout(() => {
       gasEstimate()
-    }, 10000)
+    }, 10000)*/
   }, [
     bnInput,
     tokenIn.address,
