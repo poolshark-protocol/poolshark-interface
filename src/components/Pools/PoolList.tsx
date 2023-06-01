@@ -13,8 +13,8 @@ export default function PoolList({
   href,
 }) {
   const logoMap = {
-    TOKEN20A: '/static/images/eth_icon.png',
-    TOKEN20B: '/static/images/token.png',
+    TOKEN20A: '/static/images/token.png',
+    TOKEN20B: '/static/images/eth_icon.png',
     USDC: '/static/images/token.png',
     WETH: '/static/images/weth.png',
     DAI: '/static/images/dai_icon.png',

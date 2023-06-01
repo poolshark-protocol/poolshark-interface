@@ -22,6 +22,7 @@ export default function ConcentratedPoolPreview({
   setAllowanceIn,
   allowanceOut,
   setAllowanceOut,
+  disabled
 }) {
   const { address } = useAccount()
   const { data: dataIn } = useContractRead({
@@ -270,7 +271,7 @@ export default function ConcentratedPoolPreview({
                         )
                       ) : (
                         <RangeMintButton
-                          disabled={false}
+                          disabled={true}
                           poolId={poolAddress}
                           to={account}
                           lower={minTick}
@@ -287,12 +288,13 @@ export default function ConcentratedPoolPreview({
           </div>
         </Dialog>
       </Transition>
-      <div
+      <button
         onClick={() => setIsOpen(true)}
+        disabled={false}
         className="mt-8 w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
       >
         Preview
-      </div>
+      </button>
     </div>
   )
 }
