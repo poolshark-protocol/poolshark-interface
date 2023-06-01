@@ -51,6 +51,7 @@ export const getRangePoolFromFactory = (token0: string, token1: string) => {
         {
             rangePools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
               id
+              price
             }
           }
          `
