@@ -45,7 +45,7 @@ export const countDecimals = (value: number, tokenDecimals: number) => {
   return false
 }
 
-export const getRangePoolFromFactory = (token0: string, token1: string, feeTierId?: number) => {
+export const getRangePoolFromFactory = (token0?: string, token1?: string, feeTierId?: number) => {
   return new Promise(function (resolve) {
     const getPool = isNaN(feeTierId) ? 
         `

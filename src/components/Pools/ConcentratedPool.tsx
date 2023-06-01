@@ -61,14 +61,14 @@ export default function ConcentratedPool({
   ]
   const { address, isConnected, isDisconnected } = useAccount()
   const [tokenIn, setTokenIn] = useState({
-    symbol: tokenZeroSymbol,
-    logoURI: tokenZeroLogoURI,
-    address: tokenZeroAddress,
+    symbol: tokenZeroSymbol ?? 'TOKEN20B',
+    logoURI: tokenZeroLogoURI ?? '/static/images/eth_icon.png',
+    address: tokenZeroAddress ?? '0x6774be1a283Faed7ED8e40463c40Fb33A8da3461',
   } as token)
   const [tokenOut, setTokenOut] = useState({
-    symbol: tokenOneSymbol,
-    logoURI: tokenOneLogoURI,
-    address: tokenOneAddress,
+    symbol: tokenOneSymbol ?? 'TOKEN20A',
+    logoURI: tokenOneLogoURI ?? '/static/images/token.png',
+    address: tokenOneAddress ?? '0xC26906E10E8BDaDeb2cf297eb56DF59775eE52c4',
   } as token)
   const {
     bnInput,
@@ -91,7 +91,7 @@ export default function ConcentratedPool({
 
   const [feeControler, setFeeControler] = useState(false)
   const [selected, setSelected] = useState(feeTiers[0])
-  const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
+  const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
@@ -259,6 +259,8 @@ export default function ConcentratedPool({
           setRangeSqrtPrice(TickMath.getSqrtRatioAtTick(0))
           console.log('range price set', rangePrice)
         }
+      } else {
+        await getRangePoolFromFactory()
       }
     } catch (error) {
       console.log(error)
