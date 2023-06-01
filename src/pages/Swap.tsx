@@ -438,16 +438,6 @@ export default function Swap() {
     }
   }
 
-  const getBnSlippage = () => {
-    if (Number(slippage) >= 0.05 && Number(slippage) < 100) {
-      const convertedSlippage = BigNumber.from(
-        ((1 / parseFloat(slippage))* 100),
-      )
-      setBnSlippage(convertedSlippage)
-      console.log('bnSlippage', bnSlippage.toString())
-    }
-  }
-
   const getRangePool = async () => {
     try {
       if (hasSelected === true) {
@@ -634,7 +624,6 @@ export default function Swap() {
   }, [coverPrice, rangePrice])
 
   useEffect(() => {
-    //getBnSlippage()
     if (rangeBnPrice) {
       if (rangeBnPrice !== BigNumber.from(0)) {
         setRangeBnBaseLimit(rangeBnPrice.mul(parseFloat(slippage) * 100).div(10000))
