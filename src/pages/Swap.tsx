@@ -65,12 +65,12 @@ export default function Swap() {
   const [tokenIn, setTokenIn] = useState({
     symbol: 'WETH',
     logoURI: '/static/images/eth_icon.png',
-    address: tokenZeroAddress,
+    address: tokenOneAddress,
   })
   const [tokenOut, setTokenOut] = useState({
     symbol: 'Select Token',
     logoURI: '',
-    address: tokenOneAddress,
+    address: tokenZeroAddress,
   })
   const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
