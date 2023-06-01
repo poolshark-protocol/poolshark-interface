@@ -28,8 +28,9 @@ export default function Cover() {
   const [allCoverPositions, setAllCoverPositions] = useState([])
 
   useEffect(() => {
-    getUserCoverPositionData()
-  }, [])
+    if (address != undefined)
+      getUserCoverPositionData()
+  }, [address])
 
   async function getUserCoverPositionData() {
     const data = await fetchCoverPositions(address)

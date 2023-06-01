@@ -438,16 +438,6 @@ export default function Swap() {
     }
   }
 
-  const getBnSlippage = () => {
-    if (Number(slippage) >= 0.05 && Number(slippage) < 100) {
-      const convertedSlippage = BigNumber.from(
-        (1 / parseFloat(slippage)).toFixed(0),
-      )
-      setBnSlippage(convertedSlippage)
-      console.log('bnSlippage', bnSlippage.toString())
-    }
-  }
-
   const getRangePool = async () => {
     try {
       if (hasSelected === true) {
@@ -618,16 +608,33 @@ export default function Swap() {
   }, [bnInput])
 
   useEffect(() => {
-    setCoverBnPrice(ethers.utils.parseUnits(coverPrice.toString(), 18))
-    setRangeBnPrice(ethers.utils.parseUnits(rangePrice.toString(), 18))
+    if (coverPrice) {
+      if (coverPrice !== 0) {
+        setCoverBnPrice(ethers.utils.parseEther(coverPrice.toString()))
+      }
+    }
+
+    if (rangePrice) {
+      if (rangePrice !== 0) {
+        setRangeBnPrice(ethers.utils.parseEther(rangePrice.toString()))
+      }
+    }
     console.log('coverBnPrice', coverBnPrice.toString())
     console.log('rangeBnPrice', rangeBnPrice.toString())
   }, [coverPrice, rangePrice])
 
   useEffect(() => {
-    getBnSlippage()
-    setRangeBnBaseLimit(rangeBnPrice.div(bnSlippage).div(BigNumber.from(100)))
-    setCoverBnBaseLimit(coverBnPrice.div(bnSlippage).div(BigNumber.from(100)))
+    if (rangeBnPrice) {
+      if (rangeBnPrice !== BigNumber.from(0)) {
+        setRangeBnBaseLimit(rangeBnPrice.mul(parseFloat(slippage) * 100).div(10000))
+      }
+    }
+
+    if (coverBnPrice) {
+      if (coverBnPrice !== BigNumber.from(0)) {
+        setCoverBnBaseLimit(coverBnPrice.mul(parseFloat(slippage) * 100).div(10000))
+      }
+    }
     console.log('rangeBnBaseLimit', rangeBnBaseLimit.toString())
     console.log('coverBnBaseLimit', coverBnBaseLimit.toString())
   }, [slippage, rangeBnPrice, coverBnPrice])
@@ -1021,7 +1028,7 @@ export default function Swap() {
               >
                 Swap
               </button>
-            ) : rangeQuote > coverQuote ? (
+            ) : (rangeQuote > coverQuote) ? (
               Number(allowanceRange) <
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                 <div>
