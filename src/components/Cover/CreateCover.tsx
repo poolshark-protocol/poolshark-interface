@@ -144,15 +144,7 @@ export default function CreateCover(props: any) {
   }, [tokenOut, tokenIn])
 
   async function updateBalances() {
-    const balances = await getBalances(
-      address,
-      false,
-      tokenIn,
-      tokenOut,
-      setBalance0,
-      () => {},
-    )
-    setBalance0(balances[0])
+    await getBalances(address, false, tokenIn, tokenOut, setBalance0, () => {})
   }
 
   useEffect(() => {
