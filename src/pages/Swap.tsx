@@ -112,6 +112,7 @@ export default function Swap() {
     args: [address, rangePoolRoute],
     chainId: 421613,
     watch: true,
+    enabled: isConnected && rangePoolRoute != undefined,
     onError(error) {
       console.log('Error allowance', error)
     },
@@ -126,6 +127,7 @@ export default function Swap() {
     args: [address, coverPoolRoute],
     chainId: 421613,
     watch: true,
+    enabled: isConnected && coverPoolRoute != undefined,
     onError(error) {
       console.log('Error allowance', error)
     },
@@ -142,6 +144,7 @@ export default function Swap() {
     args: [],
     chainId: 421613,
     watch: true,
+    enabled: isConnected && coverPoolRoute != undefined,
     onSuccess(data) {
       console.log('Success price Cover', data)
       console.log('coverPrice', coverPrice)
@@ -161,6 +164,7 @@ export default function Swap() {
     args: [],
     chainId: 421613,
     watch: true,
+    enabled: isConnected && rangePoolRoute != undefined,
     onSuccess(data) {
       console.log('Success price Range', data)
       console.log('rangePrice if inverted', rangePrice)
@@ -196,6 +200,7 @@ export default function Swap() {
     ],
     chainId: 421613,
     watch: true,
+    enabled: isConnected && coverPoolRoute != undefined,
     onSuccess(data) {
       console.log('Success cover wagmi', data)
       console.log('coverQuote', coverQuote)
@@ -236,6 +241,7 @@ export default function Swap() {
     ],
     chainId: 421613,
     watch: true,
+    enabled: isConnected && rangePoolRoute != undefined,
     onSuccess(data) {
       console.log('Success range wagmi', data)
       console.log('rangeQuote', rangeQuote)
@@ -581,10 +587,20 @@ export default function Swap() {
   }, [quoteCover, quoteRange, bnInput])
 
   useEffect(() => {
-    gasEstimate()
-    setTimeout(() => {
+    if (bnInput !== BigNumber.from(0)) {
+      if (rangeQuote > coverQuote) {
+        if (bnInput < ethers.utils.parseUnits(allowanceRange, 18)) {
+          gasEstimate()
+        }
+      } else {
+        if (bnInput < ethers.utils.parseUnits(allowanceCover, 18)) {
+          gasEstimate()
+        }
+      }
+    }
+    /*setTimeout(() => {
       gasEstimate()
-    }, 10000)
+    }, 10000)*/
   }, [
     bnInput,
     tokenIn.address,

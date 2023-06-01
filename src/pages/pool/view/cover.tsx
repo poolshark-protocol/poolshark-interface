@@ -171,6 +171,8 @@ export default function Cover() {
   )
   const [claimTick, setClaimTick] = useState(BigNumber.from('887272'))
 
+  const { isConnected } = useAccount()
+
   const { data: filledAmount } = useContractRead({
     address: coverPoolRoute.toString(),
     abi: coverPoolABI,
@@ -180,7 +182,7 @@ export default function Cover() {
     ],
     chainId: 421613,
     watch: true,
-    enabled: claimTick.lt(BigNumber.from('887272')),
+    enabled: claimTick.lt(BigNumber.from('887272')) && isConnected && coverPoolRoute != '',
     onSuccess(data) {
       console.log('Success price filled amount', data)
       setCoverFilledAmount(ethers.utils.formatUnits(data[2], 18))
