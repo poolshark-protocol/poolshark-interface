@@ -10,7 +10,7 @@ import { getRangePoolFromFactory } from '../../utils/queries'
 import { TickMath } from '../../utils/math/tickMath'
 import JSBI from 'jsbi'
 import { ethers } from 'ethers'
-import { useContractRead } from 'wagmi'
+import { useAccount, useContractRead } from 'wagmi'
 import { rangePoolABI } from '../../abis/evm/rangePool'
 import {
   tokenOneAddress,
@@ -57,6 +57,8 @@ export default function UserPool({
   const [rangeTickPrice, setRangeTickPrice] = useState(undefined)
   const [rangePoolRoute, setRangePoolRoute] = useState('')
 
+  const { isConnected } = useAccount()
+
   //console.log('rangePoolRoute', rangePoolRoute)
 
   useEffect(() => {
@@ -87,6 +89,7 @@ export default function UserPool({
     args: [],
     chainId: 421613,
     watch: true,
+    enabled: isConnected && rangePoolRoute != '',
     onSuccess(data) {
       console.log('Success price Range', data)
       setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))

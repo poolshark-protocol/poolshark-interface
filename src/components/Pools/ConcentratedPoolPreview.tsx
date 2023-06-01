@@ -25,7 +25,7 @@ export default function ConcentratedPoolPreview({
   setAllowance1,
   disabled
 }) {
-  const { address } = useAccount()
+  const { address, isConnected } = useAccount()
   const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
   const { data: dataIn } = useContractRead({
     address: tokenIn.address,
@@ -34,7 +34,7 @@ export default function ConcentratedPoolPreview({
     args: [address, poolAddress],
     chainId: 421613,
     watch: true,
-    enabled: tokenIn.address != '',
+    enabled: isConnected && poolAddress != undefined && tokenIn.address != undefined,
     onSuccess() {
       console.log('token allowances', allowance0.sub(amount0).toString(), allowance1.sub(amount1).toString(), amount1.toString(), amount0.toString())
       console.log('Success')

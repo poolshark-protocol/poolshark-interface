@@ -7,7 +7,6 @@ import { useAccount, useProvider } from 'wagmi'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Navbar from '../components/Navbar'
-import useTokenList from '../hooks/useTokenList'
 import UserCoverPool from '../components/Pools/UserCoverPool'
 import Initial from '../components/Cover/Initial'
 import CreateCover from '../components/Cover/CreateCover'
@@ -20,24 +19,24 @@ export default function Cover() {
   } = useProvider()
   const router = useRouter()
   const { address, isDisconnected } = useAccount()
-  const coins = useTokenList()[0]
+  //const coins = useTokenList()[0]
   //const [coinsForListing, setCoinsForListing] = useState(coins['listed_tokens'])
 
+  const [selectedPool, setSelectedPool] = useState(router.query ?? undefined)
   const [state, setState] = useState(router.query.state ?? 'initial')
   const [searchTerm, setSearchTerm] = useState('')
-  const [expanded, setExpanded] = useState()
   const [allCoverPositions, setAllCoverPositions] = useState([])
-  const [selectedPool, setSelectedPool] = useState(router.query ?? undefined)
 
   useEffect(() => {
-    getUserCoverPositionData()
-  }, [])
+    if (address != undefined)
+      getUserCoverPositionData()
+  }, [address])
 
   async function getUserCoverPositionData() {
     const data = await fetchCoverPositions(address)
     if (data) {
       const positions = data['data'].positions
-      setAllCoverPositions(await mapUserCoverPositions(positions))
+      setAllCoverPositions(mapUserCoverPositions(positions))
     }
   }
 

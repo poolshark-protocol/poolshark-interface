@@ -98,6 +98,7 @@ export default function CreateCover(props: any) {
     args: [address, coverPoolRoute],
     chainId: 421613,
     watch: true,
+    enabled: isConnected && coverPoolRoute != undefined && tokenIn.address != undefined,
     onSuccess(data) {
       console.log('Success')
     },

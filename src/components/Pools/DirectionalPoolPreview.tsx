@@ -22,7 +22,7 @@ export default function DirectionalPoolPreview({
   allowance,
   setAllowance,
 }) {
-  const { address } = useAccount()
+  const { address, isConnected } = useAccount()
   const { data } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -30,7 +30,7 @@ export default function DirectionalPoolPreview({
     args: [address, poolId],
     chainId: 421613,
     watch: true,
-    enabled: tokenIn.address != undefined,
+    enabled: isConnected && poolId != undefined && tokenIn.address != undefined,
     onSuccess(data) {
       console.log('Success')
     },
