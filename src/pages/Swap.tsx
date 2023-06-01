@@ -1039,7 +1039,7 @@ export default function Swap() {
               >
                 Swap
               </button>
-            ) : rangeQuote > coverQuote ? (
+            ) : (rangeQuote > coverQuote) ? (
               Number(allowanceRange) <
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                 <div>
