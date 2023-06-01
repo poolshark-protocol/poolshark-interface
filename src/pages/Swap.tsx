@@ -276,9 +276,9 @@ export default function Swap() {
     if (bnInput !== BigNumber.from(0)) {
       updateGasFee()
     }
-    setTimeout(() => {
+    /* setTimeout(() => {
       updateGasFee()
-    }, 10000)
+    }, 10000) */
   }, [
     bnInput,
     tokenIn.address,
