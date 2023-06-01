@@ -102,6 +102,9 @@ export default function Swap() {
   const [bnSlippage, setBnSlippage] = useState(BigNumber.from(1))
   const [slippageFetched, setSlippageFetched] = useState(false)
 
+  console.log('balanceIn', balanceIn)
+  console.log('balanceOut', balanceOut)
+
   /////////////////Start of Contract Hooks//////////////////////
 
   const { data: dataRange } = useContractRead({
@@ -260,16 +263,19 @@ export default function Swap() {
   }, [tokenOut.address, tokenIn.address, hasSelected])
 
   async function updateBalances() {
-    const balances = await getBalances(address, hasSelected, tokenIn, tokenOut)
-    setBalanceIn(balances[0])
-    setBalanceOut(balances[1])
+    await getBalances(
+      address,
+      hasSelected,
+      tokenIn,
+      tokenOut,
+      setBalanceIn,
+      setBalanceOut,
+    )
   }
 
   async function updatePools() {
-    const newRangePool = await getRangePool(tokenIn, tokenOut)
-    const newCoverPool = await getCoverPool(tokenIn, tokenOut)
-    setRangePoolRoute(newRangePool)
-    setCoverPoolRoute(newCoverPool)
+    await getRangePool(tokenIn, tokenOut, setRangePoolRoute)
+    await getCoverPool(tokenIn, tokenOut, setCoverPoolRoute)
   }
 
   useEffect(() => {
@@ -713,7 +719,10 @@ export default function Swap() {
                   {isConnected && stateChainName === 'arbitrumGoerli' ? (
                     <button
                       className="flex text-xs uppercase text-[#C9C9C9]"
-                      onClick={() => maxBalance(balanceIn, '0')}
+                      onClick={() => {
+                        console.log('max', balanceIn)
+                        maxBalance(balanceIn, '0')
+                      }}
                     >
                       Max
                     </button>

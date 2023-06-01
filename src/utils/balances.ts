@@ -8,6 +8,8 @@ export const getBalances = async (
   hasSelected: boolean,
   tokenIn: token,
   tokenOut: token,
+  setBalance0,
+  setBalance1,
 ) => {
   let bal1 = '0'
   let bal2 = '0'
@@ -26,11 +28,11 @@ export const getBalances = async (
       const balance2 = await token2Bal.balanceOf(address)
       bal2 = Number(ethers.utils.formatEther(balance2)).toFixed(2)
 
-      //setBalance1(bal2)
+      setBalance1(bal2)
     }
 
-    return { bal1, bal2 }
-    //setBalance0(bal1)
+    //return { bal1, bal2 }
+    setBalance0(bal1)
   } catch (error) {
     console.log(error)
   }

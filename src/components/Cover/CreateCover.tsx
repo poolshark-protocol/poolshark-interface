@@ -24,6 +24,7 @@ import { coverPoolABI } from '../../abis/evm/coverPool'
 import { useRouter } from 'next/router'
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
+import { getBalances } from '../../utils/balances'
 
 export default function CreateCover(props: any) {
   const router = useRouter()
@@ -77,7 +78,7 @@ export default function CreateCover(props: any) {
   const [coverAmountOut, setCoverAmountOut] = useState(ZERO)
   const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
   const [tokenOrder, setTokenOrder] = useState(
-    tokenIn.address.localeCompare(tokenOut.address) < 0
+    tokenIn.address.localeCompare(tokenOut.address) < 0,
   )
   const [tickSpacing, setTickSpacing] = useState(
     props.query ? props.query.tickSpacing : 20,
@@ -98,7 +99,10 @@ export default function CreateCover(props: any) {
     args: [address, coverPoolRoute],
     chainId: 421613,
     watch: true,
-    enabled: isConnected && coverPoolRoute != undefined && tokenIn.address != undefined,
+    enabled:
+      isConnected &&
+      coverPoolRoute != undefined &&
+      tokenIn.address != undefined,
     onSuccess(data) {
       console.log('Success')
     },
@@ -106,17 +110,25 @@ export default function CreateCover(props: any) {
       console.log('Error', error)
     },
     onSettled(data, error) {
-      console.log('Allowance Settled', { data, error, coverPoolRoute, tokenIn, tokenOut })
+      console.log('Allowance Settled', {
+        data,
+        error,
+        coverPoolRoute,
+        tokenIn,
+        tokenOut,
+      })
     },
   })
 
   useEffect(() => {
     if (allowanceValue)
-      if(address != '0x' && 
+      if (
+        address != '0x' &&
         mktRate != undefined &&
-        coverPoolRoute != ZERO_ADDRESS) {
-      setAllowance(ethers.utils.formatUnits(allowanceValue, 18))
-    }
+        coverPoolRoute != ZERO_ADDRESS
+      ) {
+        setAllowance(ethers.utils.formatUnits(allowanceValue, 18))
+      }
   }, [allowanceValue, tokenIn.address, bnInput])
 
   const {
@@ -128,8 +140,20 @@ export default function CreateCover(props: any) {
   }, [chainId])
 
   useEffect(() => {
-    getBalances()
+    updateBalances()
   }, [tokenOut, tokenIn])
+
+  async function updateBalances() {
+    const balances = await getBalances(
+      address,
+      false,
+      tokenIn,
+      tokenOut,
+      setBalance0,
+      () => {},
+    )
+    setBalance0(balances[0])
+  }
 
   useEffect(() => {
     fetchTokenPrice()
@@ -147,8 +171,8 @@ export default function CreateCover(props: any) {
   useEffect(() => {
     setDisabled(
       isNaN(parseFloat(lowerPrice)) ||
-      isNaN(parseFloat(upperPrice)) ||
-      parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
+        isNaN(parseFloat(upperPrice)) ||
+        parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
         Number(ethers.utils.formatUnits(bnInput)) === 0 ||
         tokenOut.symbol === 'Select Token' ||
         hasSelected == false,
@@ -165,12 +189,8 @@ export default function CreateCover(props: any) {
   // set lower tick
   useEffect(() => {
     try {
-      if (tokenOut.symbol !== 'Select Token' &&
-      hasSelected == true) {
-        if (
-          !isNaN(parseFloat(lowerPrice)) &&
-          parseFloat(lowerPrice) > 0
-        ) {
+      if (tokenOut.symbol !== 'Select Token' && hasSelected == true) {
+        if (!isNaN(parseFloat(lowerPrice)) && parseFloat(lowerPrice) > 0) {
           const lower = TickMath.getTickAtPriceString(lowerPrice, tickSpacing)
           setLowerTick(BigNumber.from(String(lower)))
         }
@@ -183,12 +203,8 @@ export default function CreateCover(props: any) {
   // set upper tick
   useEffect(() => {
     try {
-      if (tokenOut.symbol !== 'Select Token' &&
-      hasSelected == true) {
-        if (
-          !isNaN(parseFloat(upperPrice)) &&
-          parseFloat(upperPrice) > 0
-        ) {
+      if (tokenOut.symbol !== 'Select Token' && hasSelected == true) {
+        if (!isNaN(parseFloat(upperPrice)) && parseFloat(upperPrice) > 0) {
           const upper = TickMath.getTickAtPriceString(upperPrice, tickSpacing)
           setUpperTick(BigNumber.from(String(upper)))
         }
@@ -204,13 +220,15 @@ export default function CreateCover(props: any) {
 
   const getCoverPool = async () => {
     try {
-      const pool = tokenOrder ?
-                        await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
-                      : await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
+      const pool = tokenOrder
+        ? await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
+        : await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
       const dataLength = pool['data']['coverPools'].length
       if (dataLength != 0) {
         setCoverPoolRoute(pool['data']['coverPools']['0']['id'])
-        setTickSpacing(pool['data']['coverPools']['0']['volatilityTier']['tickSpread'])
+        setTickSpacing(
+          pool['data']['coverPools']['0']['volatilityTier']['tickSpread'],
+        )
         const newLatestTick = pool['data']['coverPools']['0']['latestTick']
         setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick))
       } else {
@@ -252,7 +270,10 @@ export default function CreateCover(props: any) {
     setTokenOut(token)
     setHasSelected(true)
     setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0)
-    console.log('set token order', tokenIn.address.localeCompare(tokenOut.address) < 0)
+    console.log(
+      'set token order',
+      tokenIn.address.localeCompare(tokenOut.address) < 0,
+    )
   }
 
   function switchDirection() {
@@ -332,23 +353,6 @@ export default function CreateCover(props: any) {
     }
   }
 
-  const getBalances = async () => {
-    try {
-      const provider = new ethers.providers.JsonRpcProvider(
-        'https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2',
-        421613,
-      )
-      const signer = new ethers.VoidSigner(address, provider)
-      const tokenOutBal = new ethers.Contract(tokenIn.address, erc20ABI, signer)
-      const balance1 = await tokenOutBal.balanceOf(address)
-      const bal1 = Number(ethers.utils.formatEther(balance1)).toFixed(2)
-      //console.log('bal1', bal1)
-      setBalance0(bal1)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
   const fetchTokenPrice = async () => {
     try {
       setMktRate({
@@ -400,7 +404,12 @@ export default function CreateCover(props: any) {
   }
 
   function changeCoverAmounts(amountInChanged: boolean) {
-    console.log('prices set:', lowerTick.toString(), upperTick.toString(), tickSpread)
+    console.log(
+      'prices set:',
+      lowerTick.toString(),
+      upperTick.toString(),
+      tickSpread,
+    )
     console.log('price check', parseFloat(lowerPrice) < parseFloat(upperPrice))
     if (
       !isNaN(parseFloat(lowerPrice)) &&
@@ -421,7 +430,7 @@ export default function CreateCover(props: any) {
           upperSqrtPrice,
           tokenOrder ? lowerSqrtPrice : upperSqrtPrice,
           tokenOrder ? BN_ZERO : BigNumber.from(String(coverAmountIn)),
-          tokenOrder ? BigNumber.from(String(coverAmountIn)) : BN_ZERO
+          tokenOrder ? BigNumber.from(String(coverAmountIn)) : BN_ZERO,
         )
         console.log('liquidity amount', String(liquidityAmount), tokenOrder)
         setCoverAmountOut(
@@ -454,8 +463,9 @@ export default function CreateCover(props: any) {
                 lowerSqrtPrice,
                 upperSqrtPrice,
                 true,
-              )).toString(),
-          liquidityAmount.toString()
+              )
+          ).toString(),
+          liquidityAmount.toString(),
         )
       } else {
         // amountOut changed
@@ -464,7 +474,7 @@ export default function CreateCover(props: any) {
           upperSqrtPrice,
           tokenOrder ? upperSqrtPrice : lowerSqrtPrice,
           tokenOrder ? BigNumber.from(String(coverAmountOut)) : BN_ZERO,
-          tokenOrder ? BN_ZERO: BigNumber.from(String(coverAmountOut))
+          tokenOrder ? BN_ZERO : BigNumber.from(String(coverAmountOut)),
         )
         setCoverAmountIn(
           tokenOrder
@@ -556,7 +566,9 @@ export default function CreateCover(props: any) {
       <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
         <div className="flex-col justify-center w-1/2 p-2 ">
           {inputBox('0', setCoverAmountIn)}
-          <div className="flex text-xs text-[#4C4C4C]">~${Number(ethers.utils.formatUnits(bnInput, 18)).toFixed(2)}</div>
+          <div className="flex text-xs text-[#4C4C4C]">
+            ~${Number(ethers.utils.formatUnits(bnInput, 18)).toFixed(2)}
+          </div>
         </div>
         <div className="flex w-1/2">
           <div className="flex justify-center ml-auto">
@@ -597,10 +609,13 @@ export default function CreateCover(props: any) {
           <div className="text-[#646464]">Amount to receive</div>
           <div>
             {/* {amountToPay} {tokenIn.symbol} */}
-            {hasSelected && mktRate[tokenIn.symbol] && parseFloat(lowerPrice) < parseFloat(upperPrice) ? (
+            {hasSelected &&
+            mktRate[tokenIn.symbol] &&
+            parseFloat(lowerPrice) < parseFloat(upperPrice) ? (
               (
-                parseFloat(ethers.utils.formatUnits(String(coverAmountOut), 18)) *
-                parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''))
+                parseFloat(
+                  ethers.utils.formatUnits(String(coverAmountOut), 18),
+                ) * parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''))
               ).toFixed(2)
             ) : (
               <>?</>
@@ -627,8 +642,9 @@ export default function CreateCover(props: any) {
               value={lowerPrice}
               onChange={() =>
                 setLowerPrice(
-                  (document.getElementById('minInput') as HTMLInputElement)
-                    ?.value
+                  (document.getElementById(
+                    'minInput',
+                  ) as HTMLInputElement)?.value
                     .replace(/^0+(?=[^.0-9]|$)/, (match) =>
                       match.length > 1 ? '0' : match,
                     )
@@ -666,8 +682,9 @@ export default function CreateCover(props: any) {
               value={upperPrice}
               onChange={() =>
                 setUpperPrice(
-                  (document.getElementById('maxInput') as HTMLInputElement)
-                    ?.value
+                  (document.getElementById(
+                    'maxInput',
+                  ) as HTMLInputElement)?.value
                     .replace(/^0+(?=[^.0-9]|$)/, (match) =>
                       match.length > 1 ? '0' : match,
                     )
@@ -699,7 +716,7 @@ export default function CreateCover(props: any) {
             {1} {tokenIn.symbol} ={' '}
             {tokenOut.symbol === 'Select Token' || isNaN(parseFloat(coverPrice))
               ? '?'
-              : (invertPrice(coverPrice, tokenOrder))  + ' ' + tokenOut.symbol}
+              : invertPrice(coverPrice, tokenOrder) + ' ' + tokenOut.symbol}
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
             <button>
@@ -726,11 +743,7 @@ export default function CreateCover(props: any) {
             disabled={isDisabled}
             to={address}
             lower={lowerTick}
-            claim={
-              tokenOrder
-                ? upperTick
-                : lowerTick
-            }
+            claim={tokenOrder ? upperTick : lowerTick}
             upper={upperTick}
             amount={bnInput}
             zeroForOne={tokenOrder}

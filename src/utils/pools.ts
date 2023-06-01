@@ -2,7 +2,11 @@ import { ZERO_ADDRESS } from './math/constants'
 import { getCoverPoolFromFactory, getRangePoolFromFactory } from './queries'
 import { token } from './types'
 
-export const getRangePool = async (tokenIn: token, tokenOut: token) => {
+export const getRangePool = async (
+  tokenIn: token,
+  tokenOut: token,
+  setRangeRoute,
+) => {
   try {
     const pool = await getRangePoolFromFactory(
       tokenIn.address,
@@ -19,13 +23,17 @@ export const getRangePool = async (tokenIn: token, tokenOut: token) => {
       )
       id = fallbackPool['data']['rangePools']['0']['id']
     }
-    return id
+    setRangeRoute(id)
   } catch (error) {
     console.log(error)
   }
 }
 
-export const getCoverPool = async (tokenIn: token, tokenOut: token) => {
+export const getCoverPool = async (
+  tokenIn: token,
+  tokenOut: token,
+  setCoverRoute,
+) => {
   try {
     const pool = await getCoverPoolFromFactory(
       tokenIn.address,
@@ -42,7 +50,7 @@ export const getCoverPool = async (tokenIn: token, tokenOut: token) => {
       )
       id = fallbackPool['data']['coverPools']['0']['id']
     }
-    return id
+    setCoverRoute(id)
   } catch (error) {
     console.log(error)
   }
