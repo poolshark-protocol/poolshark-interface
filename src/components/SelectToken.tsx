@@ -22,15 +22,15 @@ export default function SelectToken(props) {
   // const [coinsForListing, setCoinsForListing] = useState(coins["listed_tokens"]);
   const [coinsForListing, setCoinsForListing] = useState([
     {
-      name: 'Wrapped Ether',
-      address: tokenZeroAddress,
+      name: 'WETH',
+      address: tokenOneAddress,
       symbol: 'WETH',
       logoURI: '/static/images/eth_icon.png',
       decimals: 18,
     },
     {
       name: 'USDC',
-      address: tokenOneAddress,
+      address: tokenZeroAddress,
       symbol: 'USDC',
       logoURI: '/static/images/token.png',
       decimals: 18,

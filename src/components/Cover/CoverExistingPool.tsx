@@ -109,7 +109,8 @@ export default function CoverExistingPool({
     functionName: 'allowance',
     args: [address, coverPoolRoute],
     chainId: 421613,
-    watch: true
+    watch: true,
+    enabled: isConnected && coverPoolRoute != undefined
   })
 
   const { data: priceCover } = useContractRead({
@@ -122,7 +123,8 @@ export default function CoverExistingPool({
         : 'pool0',
     args: [],
     chainId: 421613,
-    watch: true
+    watch: true,
+    enabled: isConnected && coverPoolRoute != undefined
   })
 
   const getCoverPool = async () => {

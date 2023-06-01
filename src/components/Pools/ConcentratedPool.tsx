@@ -147,22 +147,23 @@ export default function ConcentratedPool({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [address, poolId],
+    args: [address, rangePoolRoute],
     chainId: 421613,
     watch: true,
-    enabled: rangePoolRoute != undefined && tokenIn.address != '',
+    enabled: isConnected && rangePoolRoute != undefined,
     onError(error) {
       console.log('Error', error)
     },
   })
 
   const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
-    address: poolId,
+    address: rangePoolRoute,
     abi: rangePoolABI,
     functionName: 'poolState',
     args: [],
     chainId: 421613,
     watch: true,
+    enabled: isConnected && rangePoolRoute != undefined && tokenIn.address != '',
     onSuccess(data) {
       console.log('Success price Range', data)
       setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
