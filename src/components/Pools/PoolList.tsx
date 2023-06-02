@@ -19,7 +19,7 @@ export default function PoolList({
     WETH: '/static/images/weth.png',
     DAI: '/static/images/dai_icon.png',
   }
-
+  console.log('fee tier set', feeTier)
   const feeTierPercentage = feeTier / 10000
 
   return (
@@ -56,7 +56,7 @@ export default function PoolList({
             />
           </div>
           {tokenZero.name}-{tokenOne.name}
-          <div className=" px-2 py-1 rounded-lg text-grey text-sm">1%</div>
+          <div className=" px-2 py-1 rounded-lg text-grey text-sm">{feeTierPercentage}%</div>
         </td>
         <td>${tvlUsd}m</td>
         <td>${volumeUsd}m</td>
