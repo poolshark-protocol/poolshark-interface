@@ -16,6 +16,7 @@ import {
   tokenOneAddress,
   tokenZeroAddress,
 } from '../../constants/contractAddresses'
+import { ZERO_ADDRESS } from '../../utils/math/constants'
 
 export default function UserPool({
   account,
@@ -75,7 +76,10 @@ export default function UserPool({
         tokenZeroAddress,
         tokenOneAddress,
       )
-      const id = pool['data']['rangePools']['0']['id']
+      const dataLength = pool['data']['rangePools'].length
+      const id = dataLength > 0 ?
+                pool['data']['rangePools']['0']['id']
+              : undefined
       setRangePoolRoute(id)
     } catch (error) {
       console.log(error)
@@ -89,7 +93,7 @@ export default function UserPool({
     args: [],
     chainId: 421613,
     watch: true,
-    enabled: isConnected && rangePoolRoute != '',
+    enabled: isConnected && rangePoolRoute != undefined,
     onSuccess(data) {
       console.log('Success price Range', data)
       setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
