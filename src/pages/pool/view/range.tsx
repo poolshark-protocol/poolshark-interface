@@ -29,7 +29,7 @@ export default function Range() {
   useEffect(() => {
     if (router.isReady) {
       const query = router.query
-      setPoolContractAdd(query.poolId)
+      setPoolAddress(query.poolId)
       setTokenIn({
         name: query.tokenZeroName,
         symbol: query.tokenZeroSymbol,
@@ -88,7 +88,7 @@ export default function Range() {
     }
   }, [router.isReady])
 
-  const [poolAdd, setPoolContractAdd] = useState(router.query.poolId ?? '')
+  const [poolAddress, setPoolAddress] = useState(router.query.poolId ?? '')
   const [tokenIn, setTokenIn] = useState({
     name: router.query.tokenZeroAddress ?? '',
     symbol: router.query.tokenZeroSymbol ?? '',
@@ -147,12 +147,12 @@ export default function Range() {
       : undefined,
   )
   const [poolDisplay, setPoolDisplay] = useState(
-    poolAdd != ''
-      ? poolAdd.toString().substring(0, 6) +
+    poolAddress != ''
+      ? poolAddress.toString().substring(0, 6) +
           '...' +
-          poolAdd
+          poolAddress
             .toString()
-            .substring(poolAdd.toString().length - 4, poolAdd.toString().length)
+            .substring(poolAddress.toString().length - 4, poolAddress.toString().length)
       : undefined,
   )
 
@@ -213,10 +213,9 @@ export default function Range() {
   }
 
   function copyPoolAddress() {
-    navigator.clipboard.writeText(poolAdd.toString())
-    setIsPoolCopied
+    navigator.clipboard.writeText(poolAddress.toString())
+    setIsPoolCopied(true)
   }
-  //
 
   useEffect(() => {
     fetchTokenPrice()
@@ -296,7 +295,7 @@ export default function Range() {
             </div>
 
             <a
-              href={'https://goerli.arbiscan.io/address/' + poolAdd}
+              href={'https://goerli.arbiscan.io/address/' + poolAddress}
               target="_blank"
               rel="noreferrer"
               className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80"
@@ -396,7 +395,7 @@ export default function Range() {
                     pathname: '/pool/liquidity',
                     query: {
                       account: '',
-                      poolAdd: poolAdd,
+                      poolAdd: poolAddress,
                       tokenOneName: tokenOut.name,
                       tokenOneSymbol: tokenOut.symbol,
                       tokenOneLogoURI: tokenOut.logoURI,
@@ -445,20 +444,20 @@ export default function Range() {
                 <div className="mt-5 space-y-2">
                   <div className="space-y-3">
                     <RangeBurnButton
-                      poolAddress={poolAdd}
+                      poolAddress={poolAddress}
                       address={address}
                       lower={BigNumber.from(minLimit)}
                       upper={BigNumber.from(maxLimit)}
                       amount={BigNumber.from(liquidity)}
                     />
                     <RangeCollectButton
-                      poolAddress={poolAdd.toString()}
+                      poolAddress={poolAddress.toString()}
                       address={address}
                       lower={BigNumber.from(minLimit)}
                       upper={BigNumber.from(maxLimit)}
                     />
                     <RangeCompoundButton
-                      poolAddress={poolAdd.toString()}
+                      poolAddress={poolAddress.toString()}
                       address={address}
                       lower={BigNumber.from(minLimit)}
                       upper={BigNumber.from(maxLimit)}

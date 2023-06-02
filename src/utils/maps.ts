@@ -39,9 +39,9 @@ export function mapUserRangePositions(rangePositions) {
     const rangePositionData = {
       id: rangePosition.id,
       poolId: rangePosition.token.position.pool.id,
-      tokenZero: rangePosition.token.position.pool.token0.id,
+      tokenZero: rangePosition.token.position.pool.token0,
       valueTokenZero: rangePosition.token.position.pool.token0.usdPrice,
-      tokenOne: rangePosition.token.position.pool.token1.id,
+      tokenOne: rangePosition.token.position.pool.token1,
       valueTokenOne: rangePosition.token.position.pool.token0.usdPrice,
       min: rangePosition.token.position.lower,
       max: rangePosition.token.position.upper,
@@ -76,8 +76,8 @@ export function mapRangePools(rangePools) {
   rangePools.map((rangePool) => {
     const rangePoolData = {
       poolId: rangePool.id,
-      tokenOne: rangePool.token1.id,
-      tokenZero: rangePool.token0.id,
+      tokenOne: rangePool.token1,
+      tokenZero: rangePool.token0,
       price: rangePool.price,
       liquidity: rangePool.liquidity,
       feeTier: rangePool.feeTier.feeAmount,
