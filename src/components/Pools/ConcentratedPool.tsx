@@ -9,16 +9,18 @@ import { Listbox, Transition } from '@headlessui/react'
 import SelectToken from '../SelectToken'
 import ConcentratedPoolPreview from './ConcentratedPoolPreview'
 import { useRangeStore } from '../../hooks/useStore'
-import { TickMath } from '../../utils/math/tickMath'
+import { TickMath, invertPrice } from '../../utils/math/tickMath'
 import JSBI from 'jsbi'
 import { getRangePoolFromFactory } from '../../utils/queries'
 import useInputBox from '../../hooks/useInputBox'
 import { erc20ABI, useAccount } from 'wagmi'
-import { BigNumber, Contract, ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import { useContractRead } from 'wagmi'
 import { rangePoolABI } from '../../abis/evm/rangePool'
 import { getBalances } from '../../utils/balances'
 import { getRangePool } from '../../utils/pools'
+import { BN_ZERO, ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
+import { DyDxMath } from '../../utils/math/dydxMath'
 
 export default function ConcentratedPool({
   account,
@@ -34,6 +36,7 @@ export default function ConcentratedPool({
   minLimit,
   maxLimit,
   liquidity,
+  tickSpacingParam,
   feeTier,
 }) {
   type token = {
@@ -45,28 +48,30 @@ export default function ConcentratedPool({
     {
       id: 1,
       tier: '0.01%',
+      tierId: 100,
       text: 'Best for very stable pairs',
       unavailable: false,
     },
     {
       id: 2,
       tier: '0.05%',
+      tierId: 500,
       text: 'Best for stable pairs',
       unavailable: false,
     },
-    { id: 3, tier: '0.3%', text: 'Best for most pairs', unavailable: false },
-    { id: 4, tier: '1%', text: 'Best for exotic pairs', unavailable: false },
+    { id: 3, tier: '0.3%', tierId: 300, text: 'Best for most pairs', unavailable: false },
+    { id: 4, tier: '1%', tierId: 1000, text: 'Best for exotic pairs', unavailable: false },
   ]
   const { address, isConnected, isDisconnected } = useAccount()
   const [tokenIn, setTokenIn] = useState({
-    symbol: tokenZeroSymbol,
-    logoURI: tokenZeroLogoURI,
-    address: tokenZeroAddress,
+    symbol: tokenZeroSymbol ?? 'TOKEN20B',
+    logoURI: tokenZeroLogoURI ?? '/static/images/eth_icon.png',
+    address: tokenZeroAddress ?? '0x6774be1a283Faed7ED8e40463c40Fb33A8da3461',
   } as token)
   const [tokenOut, setTokenOut] = useState({
-    symbol: tokenOneSymbol,
-    logoURI: tokenOneLogoURI,
-    address: tokenOneAddress,
+    symbol: tokenOneSymbol ?? 'TOKEN20A',
+    logoURI: tokenOneLogoURI ?? '/static/images/token.png',
+    address: tokenOneAddress ?? '0xC26906E10E8BDaDeb2cf297eb56DF59775eE52c4',
   } as token)
   const {
     bnInput,
@@ -87,27 +92,31 @@ export default function ConcentratedPool({
     state.rangeContractParams,
   ])
 
-  const [minPrice, setMinPrice] = useState('0')
-  const [maxPrice, setMaxPrice] = useState('0')
   const [feeControler, setFeeControler] = useState(false)
   const [selected, setSelected] = useState(feeTiers[0])
-  const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
+  const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
-  const [allowanceIn, setAllowanceIn] = useState('0.00')
-  const [allowanceOut, setAllowanceOut] = useState('0.00')
+  const [tokenInAllowance, setTokenInAllowance] = useState(0)
+  const [tokenOutAllowance, setTokenOutAllowance] = useState(0)
+  const [allowance0, setAllowance0] = useState(BN_ZERO)
+  const [allowance1, setAllowance1] = useState(BN_ZERO)
   const [rangePrice, setRangePrice] = useState(undefined)
+  const [rangeSqrtPrice, setRangeSqrtPrice] = useState(undefined)
   const [rangePoolRoute, setRangePoolRoute] = useState(undefined)
 
   const initialBig = BigNumber.from(0)
   const [to, setTo] = useState('')
-  const [min, setMin] = useState(initialBig)
-  const [max, setMax] = useState(initialBig)
+  const [lowerPrice, setLowerPrice] = useState('')
+  const [upperPrice, setUpperPrice] = useState('')
+  const [lowerTick, setLowerTick] = useState(initialBig)
+  const [upperTick, setUpperTick] = useState(initialBig)
   const [amount0, setAmount0] = useState(initialBig)
   const [amount1, setAmount1] = useState(initialBig)
+  const [tickSpacing, setTickSpacing] = useState(tickSpacingParam)
   const [hasSelected, setHasSelected] = useState(true)
-  const [isDisabled, setDisabled] = useState(false)
+  const [isDisabled, setDisabled] = useState(true)
   const [mktRate, setMktRate] = useState({})
 
   useEffect(() => {
@@ -138,7 +147,71 @@ export default function ConcentratedPool({
 
   useEffect(() => {
     setRangeParams()
-  }, [address, minPrice, maxPrice, bnInput, bnInputLimit])
+  }, [address, amount0, amount1])
+
+  useEffect(() => {
+    setAmounts()
+  }, [bnInput, lowerPrice, upperPrice])
+
+  const { data: allowanceIn } = useContractRead({
+    address: tokenIn.address,
+    abi: erc20ABI,
+    functionName: 'allowance',
+    args: [address, rangePoolRoute],
+    chainId: 421613,
+    watch: true,
+    enabled: rangePoolRoute != undefined && tokenIn.address != '',
+    onSuccess(data) {
+      setTokenInAllowance(Number(allowanceIn))
+      // console.log('Success')
+    },
+    onError(error) {
+      console.log('Error', error)
+    },
+  })
+
+  const { data: allowanceOut } = useContractRead({
+    address: tokenOut.address,
+    abi: erc20ABI,
+    functionName: 'allowance',
+    args: [address, rangePoolRoute],
+    chainId: 421613,
+    watch: true,
+    enabled: rangePoolRoute != undefined && tokenIn.address != '',
+    onSuccess(data) {
+      setTokenOutAllowance(Number(allowanceOut))
+      // console.log('Success')
+    },
+    onError(error) {
+      console.log('Error', error)
+    },
+    onSettled(data, error) {
+      // console.log('Allowance Settled', { data, error, rangePoolRoute, tokenIn, tokenOut })
+    },
+  })
+
+  useEffect(() => {
+    if (tokenInAllowance) {
+      //console.log('token in allowance', tokenInAllowance, tokenInAllowance.toString(), allowance0)
+      if(address != '0x' &&
+          tokenInAllowance != Number(tokenOrder ? allowance0 : allowance1))
+        tokenOrder ?
+          setAllowance0(allowanceOut)
+        : setAllowance1(allowanceOut)
+        // console.log('token in allowance set', tokenInAllowance)
+    }
+  }), [tokenInAllowance]
+
+  useEffect(() => {
+    if (tokenOutAllowance) {
+      if (address != '0x' &&
+          tokenInAllowance != Number(tokenOrder ? allowance0 : allowance1))
+        tokenOrder ?
+            setAllowance1(allowanceIn)
+          : setAllowance0(allowanceIn)
+      // console.log('token out allowance set', tokenOutAllowance)
+    }
+  }), [tokenOutAllowance]
 
   if (feeTier != undefined && feeControler == false) {
     if (feeTier == 0.01) {
@@ -151,47 +224,13 @@ export default function ConcentratedPool({
       setSelected(feeTiers[3])
     }
     if (minLimit != undefined) {
-      setMinPrice(minLimit)
+      setLowerPrice(minLimit)
     }
     if (maxLimit != undefined) {
-      setMaxPrice(maxLimit)
+      setUpperPrice(maxLimit)
     }
     setFeeControler(true)
   }
-
-  const { data: dataRange } = useContractRead({
-    address: tokenIn.address,
-    abi: erc20ABI,
-    functionName: 'allowance',
-    args: [address, rangePoolRoute],
-    chainId: 421613,
-    watch: true,
-    enabled: isConnected && rangePoolRoute != undefined,
-    onError(error) {
-      console.log('Error', error)
-    },
-  })
-
-  const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
-    address: rangePoolRoute,
-    abi: rangePoolABI,
-    functionName: 'poolState',
-    args: [],
-    chainId: 421613,
-    watch: true,
-    enabled:
-      isConnected && rangePoolRoute != undefined && tokenIn.address != '',
-    onSuccess(data) {
-      console.log('Success price Range', data)
-      setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
-    },
-    onError(error) {
-      console.log('Error price Range', error)
-    },
-    onSettled(data, error) {
-      console.log('Settled price Range', { data, error })
-    },
-  })
 
   function switchDirection() {
     setTokenOrder(!tokenOrder)
@@ -203,18 +242,117 @@ export default function ConcentratedPool({
     setQueryTokenOut(tempBal)
   }
 
-  const fetchTokenPrice = async () => {
+  const getRangePool = async () => {
     try {
-      const price = rangePrice
+      if (hasSelected === true) {
+        console.log('tier selected', selected.tierId)
+        const pool = tokenOrder ? await getRangePoolFromFactory(tokenIn.address, tokenOut.address, selected.tierId)
+                                : await getRangePoolFromFactory(tokenOut.address, tokenIn.address, selected.tierId)
+        const dataLength = pool['data']['rangePools'].length
+        console.log('data length check', dataLength)
+        if (dataLength != 0 ){
+          const id = pool['data']['rangePools']['0']['id']
+          const price = JSBI.BigInt(pool['data']['rangePools']['0']['price'])
+          const spacing = pool['data']['rangePools']['0']['feeTier']['tickSpacing']
+          const tickAtPrice = pool['data']['rangePools']['0']['tickAtPrice']
+          setRangePoolRoute(id)
+          setRangePrice(TickMath.getPriceStringAtSqrtPrice(price))
+          setRangeSqrtPrice(price)
+          if (isNaN(parseFloat(lowerPrice)) || 
+               parseFloat(lowerPrice) <= 0) {
+            setLowerPrice(TickMath.getPriceStringAtTick(tickAtPrice - 7000))
+            setLowerTick(BigNumber.from(tickAtPrice - 7000))
+          }
+          if (isNaN(parseFloat(upperPrice)) || 
+               parseFloat(upperPrice) <= 0) {
+            setUpperPrice(TickMath.getPriceStringAtTick(tickAtPrice - (-7000)))
+            setUpperTick(BigNumber.from(tickAtPrice - (-7000)))
+          }
+          setTickSpacing(spacing)
+        } else {
+          setRangePoolRoute(ZERO_ADDRESS)
+          setRangePrice('1.00')
+          setRangeSqrtPrice(TickMath.getSqrtRatioAtTick(0))
+          console.log('range price set', rangePrice)
+        }
+      } else {
+        await getRangePoolFromFactory()
+      }
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
+
+  const fetchTokenPrice = async () => {
+    if (isNaN(parseFloat(rangePrice))) return
+    try {
+      console.log('fetchTokenPrice', String(rangePrice))
+      const price0 = rangePrice
+      const price1: any = invertPrice(rangePrice, false)
       setMktRate({
         TOKEN20A:
-          '~' +
-          Number(price).toLocaleString('en-US', {
+          price1.toLocaleString('en-US', {
             style: 'currency',
             currency: 'USD',
           }),
-        TOKEN20B: '~1.00',
+        TOKEN20B: price0.toLocaleString('en-US', {
+          style: 'currency',
+          currency: 'USD',
+        }),
       })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  function setAmounts() {
+    try {
+      if (
+        !isNaN(parseFloat(lowerPrice)) &&
+        !isNaN(parseFloat(upperPrice)) &&
+        !isNaN(parseFloat(rangePrice)) &&
+        Number(ethers.utils.formatUnits(bnInput)) !== 0 &&
+        hasSelected == true &&
+        parseFloat(lowerPrice) < parseFloat(upperPrice)
+      ) {
+        const lower = TickMath.getTickAtPriceString(lowerPrice, tickSpacing)
+        const upper = TickMath.getTickAtPriceString(upperPrice, tickSpacing)
+        setTo(address)
+        setLowerTick(BigNumber.from(lower))
+        setUpperTick(BigNumber.from(upper))
+        const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(lower))
+        const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(upper))
+        const liquidity = parseFloat(rangePrice) >= parseFloat(lowerPrice) &&
+                          parseFloat(rangePrice) <= parseFloat(upperPrice) ?
+                             DyDxMath.getLiquidityForAmounts(
+                              tokenOrder ? rangeSqrtPrice : lowerSqrtPrice,
+                              tokenOrder ? upperSqrtPrice : rangeSqrtPrice,
+                              rangeSqrtPrice,
+                              tokenOrder ? BN_ZERO : bnInput,
+                              tokenOrder ? bnInput : BN_ZERO
+                            )
+                          : DyDxMath.getLiquidityForAmounts(
+                            lowerSqrtPrice,
+                            upperSqrtPrice,
+                            rangeSqrtPrice,
+                            tokenOrder ? BN_ZERO : bnInput,
+                            tokenOrder ? bnInput : BN_ZERO
+                          )
+        const tokenOutAmount = JSBI.greaterThan(liquidity, ZERO) ?
+                                  tokenOrder ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
+                                             : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
+                                : ZERO
+        // set amount based on bnInput
+        tokenOrder ? setAmount0(bnInput) : setAmount1(bnInput)
+        // set amount based on liquidity math
+        tokenOrder ? setAmount1(BigNumber.from(String(tokenOutAmount))) 
+                   : setAmount0(BigNumber.from(String(tokenOutAmount)))
+      } else {
+        tokenOrder ? setAmount1(BN_ZERO) 
+                   : setAmount0(BN_ZERO)
+        setDisabled(true)
+      }
     } catch (error) {
       console.log(error)
     }
@@ -223,30 +361,23 @@ export default function ConcentratedPool({
   function setRangeParams() {
     try {
       if (
-        minPrice !== undefined &&
-        minPrice !== '' &&
-        maxPrice !== undefined &&
-        maxPrice !== '' &&
+        !isNaN(parseFloat(lowerPrice)) &&
+        !isNaN(parseFloat(upperPrice)) &&
         Number(ethers.utils.formatUnits(bnInput)) !== 0 &&
-        hasSelected == true
+        hasSelected == true &&
+        (amount0.gt(BN_ZERO)  || amount1.gt(BN_ZERO))
       ) {
-        const min = TickMath.getTickAtPriceString(minPrice)
-        const max = TickMath.getTickAtPriceString(maxPrice)
-        setTo(address)
-        setMin(ethers.utils.parseUnits(String(min), 0))
-        setMax(ethers.utils.parseUnits(String(max), 0))
-        setAmount0(bnInput)
-        setAmount1(bnInputLimit)
-
         updateRangeContractParams({
           to: address,
-          min: ethers.utils.parseUnits(String(min), 0),
-          max: ethers.utils.parseUnits(String(max), 0),
-          amount0: bnInput,
-          amount1: bnInputLimit,
+          min: lowerTick,
+          max: upperTick,
+          amount0: amount0,
+          amount1: amount1,
           fungible: true,
         })
         setDisabled(false)
+      } else {
+        setDisabled(true)
       }
     } catch (error) {
       console.log(error)
@@ -332,7 +463,7 @@ export default function ConcentratedPool({
     }
   }
 
-  const [tokenOrder, setTokenOrder] = useState(true)
+  const [tokenOrder, setTokenOrder] = useState(tokenIn.address.localeCompare(tokenOut.address) < 0)
 
   const changeDefaultOut = (token: token) => {
     if (token.symbol === tokenIn.symbol) {
@@ -475,7 +606,7 @@ export default function ConcentratedPool({
                 {mktRate[tokenIn.symbol] != '~$NaN' ? (
                   <div className="flex">
                     <div className="flex text-xs text-[#4C4C4C]">
-                      {mktRate[tokenIn.symbol]}
+                      ${mktRate[tokenIn.symbol] * Number(ethers.utils.formatUnits(bnInput, 18))}
                     </div>
                   </div>
                 ) : (
@@ -508,21 +639,8 @@ export default function ConcentratedPool({
             </div>
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 ">
-                {rangePrice ? (
-                  <div>
-                    {(
-                      parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                      (parseFloat(
-                        mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''),
-                      ) /
-                        parseFloat(
-                          mktRate[tokenOut.symbol].replace(/[^\d.-]/g, ''),
-                        ))
-                    ).toFixed(2)}
-                  </div>
-                ) : (
-                  <div>?</div>
-                )}
+                {Number(tokenOrder ? ethers.utils.formatUnits(amount1, 18)
+                            : ethers.utils.formatUnits(amount0, 18))}
               </div>
               <div className="">
                 <div className=" ml-auto">
@@ -554,8 +672,8 @@ export default function ConcentratedPool({
             <button
               className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
               onClick={() => {
-                setMin(BigNumber.from(-887272))
-                setMax(BigNumber.from(887272))
+                setLowerTick(BigNumber.from(-887272))
+                setUpperTick(BigNumber.from(887272))
               }}
             >
               Full Range
@@ -575,19 +693,16 @@ export default function ConcentratedPool({
                   placeholder="0"
                   id="minInput"
                   type="text"
-                  value={minPrice}
+                  value={lowerPrice}
                   onChange={() =>
-                    setMinPrice(
-                      (document.getElementById(
-                        'minInput',
-                      ) as HTMLInputElement)?.value
-                        .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                          match.length > 1 ? '0' : match,
-                        )
-                        .replace(/^(\.)+/, '0')
-                        .replace(/(?<=\..*)\./g, '')
-                        .replace(/^0+(?=\d)/, '')
-                        .replace(/[^\d.]/g, ''),
+                    setLowerPrice(
+                      (document.getElementById('minInput') as HTMLInputElement)
+                        ?.value
+                          .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+                          .replace(/^(\.)+/, '0.')
+                          .replace(/(?<=\..*)\./g, '')
+                          .replace(/^0+(?=\d)/, '')
+                          .replace(/[^\d.]/g, '')
                     )
                   }
                 />
@@ -611,19 +726,16 @@ export default function ConcentratedPool({
                   placeholder="0"
                   id="maxInput"
                   type="text"
-                  value={maxPrice}
+                  value={upperPrice}
                   onChange={() =>
-                    setMaxPrice(
-                      (document.getElementById(
-                        'maxInput',
-                      ) as HTMLInputElement)?.value
-                        .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                          match.length > 1 ? '0' : match,
-                        )
-                        .replace(/^(\.)+/, '0')
-                        .replace(/(?<=\..*)\./g, '')
-                        .replace(/^0+(?=\d)/, '')
-                        .replace(/[^\d.]/g, ''),
+                    setUpperPrice(
+                      (document.getElementById('maxInput') as HTMLInputElement)
+                        ?.value
+                          .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
+                          .replace(/^(\.)+/, '0.')
+                          .replace(/(?<=\..*)\./g, '')
+                          .replace(/^0+(?=\d)/, '')
+                          .replace(/[^\d.]/g, '')
                     )
                   }
                 />
@@ -643,18 +755,18 @@ export default function ConcentratedPool({
           poolAddress={poolId}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
-          amount0={bnInput}
-          /* TODO@retraca amount1 need to change to another var because bnLimit is not used, var need to be calculated considering prices and bnInput */
-          amount1={bnInput}
-          minPrice={minPrice}
-          maxPrice={maxPrice}
-          minTick={BigNumber.from('10')}
-          maxTick={BigNumber.from('40')}
+          amount0={amount0}
+          amount1={amount1}
+          lowerPrice={lowerPrice}
+          upperPrice={upperPrice}
+          lowerTick={lowerTick}
+          upperTick={upperTick}
           fee={selected.tier}
-          allowanceIn={allowanceIn}
-          setAllowanceIn={setAllowanceIn}
-          allowanceOut={allowanceOut}
-          setAllowanceOut={setAllowanceOut}
+          allowance0={allowance0}
+          setAllowance0={setAllowance0}
+          allowance1={allowance1}
+          setAllowance1={setAllowance1}
+          disabled={isDisabled}
         />
       </div>
     </div>

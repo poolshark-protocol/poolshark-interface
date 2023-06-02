@@ -41,10 +41,10 @@ export default function Concentrated() {
 
   const [poolId, setPoolId] = useState(router.query.poolId ?? '')
   const [tokenIn, setTokenIn] = useState({
-    name: router.query.tokenZeroName ?? '',
-    symbol: router.query.tokenZeroSymbol ?? '',
-    logoURI: router.query.tokenZeroLogoURI ?? '',
-    address: router.query.tokenZeroAddress ?? '',
+    name: router.query.tokenZeroName,
+    symbol: router.query.tokenZeroSymbol,
+    logoURI: router.query.tokenZeroLogoURI,
+    address: router.query.tokenZeroAddress,
   } as token)
   const [tokenOut, setTokenOut] = useState({
     name: router.query.tokenOneName,
@@ -173,6 +173,7 @@ export default function Concentrated() {
             maxLimit={maxLimit}
             liquidity={liquidity}
             feeTier={feeTier}
+            tickSpacingParam={tickSpacing}
             account={undefined}
           />
         </div>

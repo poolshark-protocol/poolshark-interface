@@ -12,6 +12,7 @@ import Initial from '../components/Cover/Initial'
 import CreateCover from '../components/Cover/CreateCover'
 import { fetchCoverPositions } from '../utils/queries'
 import { mapUserCoverPositions } from '../utils/maps'
+import { TickMath } from '../utils/math/tickMath'
 
 export default function Cover() {
   const {
@@ -159,6 +160,9 @@ export default function Cover() {
                                 userFillOut={allCoverPosition.userFillOut}
                                 feeTier={allCoverPosition.feeTier}
                                 liquidity={allCoverPosition.liquidity}
+                                lowerPrice={parseFloat(TickMath.getPriceStringAtTick(allCoverPosition.lowerTick))}
+                                upperPrice={parseFloat(TickMath.getPriceStringAtTick(allCoverPosition.upperTick))}
+                                claimTick={allCoverPosition.claimTick}
                                 latestTick={allCoverPosition.latestTick}
                                 tickSpacing={allCoverPosition.tickSpacing}
                                 epochLast={allCoverPosition.epochLast}

@@ -45,15 +45,30 @@ export const countDecimals = (value: number, tokenDecimals: number) => {
   return false
 }
 
-export const getRangePoolFromFactory = (token0: string, token1: string) => {
+export const getRangePoolFromFactory = (token0?: string, token1?: string, feeTierId?: number) => {
   return new Promise(function (resolve) {
-    const getPool = `
+    const getPool = isNaN(feeTierId) ? 
+        `
         {
-            rangePools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
-              id
+          rangePools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
+            id
+            price
+            tickAtPrice
+          }
+        }
+        `
+      : `
+        {
+          rangePools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}, feeTier_: {id: "${feeTierId}"}}) {
+            id
+            price
+            tickAtPrice
+            feeTier {
+              tickSpacing
             }
           }
-         `
+        }
+        `
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-range',
       cache: new InMemoryCache(),
