@@ -10,10 +10,8 @@ import RangeCollectButton from '../../../components/Buttons/RangeCollectButton'
 import RangeBurnButton from '../../../components/Buttons/RangeBurnButton'
 import RangeCompoundButton from '../../../components/Buttons/RangeCompoundButton'
 import Link from 'next/link'
-import { useAccount, useContractRead } from 'wagmi'
+import { useAccount } from 'wagmi'
 import { BigNumber, ethers } from 'ethers'
-import { getRangePoolFromFactory } from '../../../utils/queries'
-import { rangePoolABI } from '../../../abis/evm/rangePool'
 import { TickMath } from '../../../utils/math/tickMath'
 import JSBI from 'jsbi'
 
@@ -276,7 +274,7 @@ export default function Range() {
                 />
               </div>
               <span className="text-3xl">
-                {tokenIn.name}-{router.query.tokenOneName}
+                {tokenIn.name}-{tokenOut.name}
               </span>
               <span className="bg-white text-black rounded-md px-3 py-0.5">
                 {router.query.feeTier}%

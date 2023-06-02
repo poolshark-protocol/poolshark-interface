@@ -76,31 +76,33 @@ export default function UserPool({
         tokenOneAddress,
       )
       const id = pool['data']['rangePools']['0']['id']
+      const price = JSBI.BigInt(pool['data']['rangePools']['0']['price'])
       setRangePoolRoute(id)
+      setRangePrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(price)))
     } catch (error) {
       console.log(error)
     }
   }
 
-  const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
-    address: rangePoolRoute,
-    abi: rangePoolABI,
-    functionName: 'poolState',
-    args: [],
-    chainId: 421613,
-    watch: true,
-    enabled: isConnected && rangePoolRoute != '',
-    onSuccess(data) {
-      console.log('Success price Range', data)
-      setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
-    },
-    onError(error) {
-      console.log('Error price Range', error)
-    },
-    onSettled(data, error) {
-      console.log('Settled price Range', { data, error })
-    },
-  })
+  // const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
+  //   address: rangePoolRoute,
+  //   abi: rangePoolABI,
+  //   functionName: 'snapshot',
+  //   args: [],
+  //   chainId: 421613,
+  //   watch: true,
+  //   enabled: isConnected && rangePoolRoute != '',
+  //   onSuccess(data) {
+  //     console.log('Success price Range', data)
+  //     setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
+  //   },
+  //   onError(error) {
+  //     console.log('Error price Range', error)
+  //   },
+  //   onSettled(data, error) {
+  //     console.log('Settled price Range', { data, error })
+  //   },
+  // })
 
   function setRangeParams() {
     try {
@@ -122,7 +124,7 @@ export default function UserPool({
             account: account,
             poolId: poolId,
             tokenZeroName: tokenZero.name,
-            tokenZeroSymbol: tokenZero.symbol,
+            tokenZeroSymbol: tokenOne.symbol,
             tokenZeroLogoURI: logoMap[tokenZero.symbol],
             tokenZeroAddress: tokenZero.id,
             tokenZeroValue: valueTokenZero,
