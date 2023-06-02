@@ -84,6 +84,7 @@ export default function Range() {
             ),
       )
       setRangePoolRoute(query.rangePoolRoute)
+      console.log('range tick price', query.rangeTickPrice)
       setRangeTickPrice(query.rangeTickPrice)
     }
   }, [router.isReady])
