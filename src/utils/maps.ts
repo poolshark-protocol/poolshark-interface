@@ -113,6 +113,8 @@ export function mapUserCoverPositions(coverPositions) {
       userFillIn: coverPosition.amountInDeltaMax,
       userFillOut: coverPosition.amountOutDeltaMax,
       epochLast: coverPosition.epochLast,
+      lowerTick: coverPosition.lower,
+      upperTick: coverPosition.upper,
       latestTick: coverPosition.pool.latestTick,
       liquidity: coverPosition.liquidity,
       feeTier: coverPosition.pool.volatilityTier.feeAmount,

@@ -24,6 +24,7 @@ import {
   mapUserCoverPositions,
   mapUserRangePositions,
 } from '../../utils/maps'
+import { TickMath } from '../../utils/math/tickMath'
 
 export default function Pool() {
   const poolTypes = [
@@ -333,6 +334,9 @@ export default function Pool() {
                               userFillOut={allCoverPosition.userFillOut}
                               epochLast={allCoverPosition.epochLast}
                               liquidity={allCoverPosition.liquidity}
+                              lowerPrice={parseFloat(TickMath.getPriceStringAtTick(allCoverPosition.lowerTick))}
+                              upperPrice={parseFloat(TickMath.getPriceStringAtTick(allCoverPosition.upperTick))}
+                              claimTick={allCoverPosition.claimTick}
                               latestTick={allCoverPosition.latestTick}
                               tickSpacing={allCoverPosition.tickSpacing}
                               feeTier={allCoverPosition.feeTier}
