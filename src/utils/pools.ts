@@ -1,5 +1,10 @@
 import { ZERO_ADDRESS } from './math/constants'
-import { getCoverPoolFromFactory, getRangePoolFromFactory } from './queries'
+import {
+  fetchCoverPools,
+  fetchRangePools,
+  getCoverPoolFromFactory,
+  getRangePoolFromFactory,
+} from './queries'
 import { token } from './types'
 
 export const getRangePool = async (
@@ -53,5 +58,30 @@ export const getCoverPool = async (
     setCoverRoute(id)
   } catch (error) {
     console.log(error)
+  }
+}
+
+export const getFeeTier = async (
+  rangePoolRoute: string,
+  coverPoolRoute: string,
+  setRangeSlippage,
+  setCoverSlippage,
+) => {
+  const coverData = await fetchCoverPools()
+  const coverPoolAddress = coverData['data']['coverPools']['0']['id']
+
+  if (coverPoolAddress === coverPoolRoute) {
+    const feeTier =
+      coverData['data']['coverPools']['0']['volatilityTier']['feeAmount']
+    console.log(feeTier, 'fee cover')
+    setCoverSlippage((parseFloat(feeTier) / 10000).toString())
+  }
+  const data = await fetchRangePools()
+  const rangePoolAddress = data['data']['rangePools']['0']['id']
+
+  if (rangePoolAddress === rangePoolRoute) {
+    const feeTier = data['data']['rangePools']['0']['feeTier']['feeAmount']
+    console.log(feeTier, 'fee range')
+    setRangeSlippage((parseFloat(feeTier) / 10000).toString())
   }
 }

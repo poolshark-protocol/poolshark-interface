@@ -105,6 +105,7 @@ export default function ConcentratedPool({
   const [rangePrice, setRangePrice] = useState(undefined)
   const [rangeSqrtPrice, setRangeSqrtPrice] = useState(undefined)
   const [rangePoolRoute, setRangePoolRoute] = useState(undefined)
+  const [tokenOrder, setTokenOrder] = useState(true)
 
   const initialBig = BigNumber.from(0)
   const [to, setTo] = useState('')
@@ -442,48 +443,6 @@ export default function ConcentratedPool({
     }
   }
 
-  function changeDefaultIn(token: token) {
-    if (token.symbol === tokenOut.symbol) {
-      return
-    }
-    setTokenIn(token)
-    if (token.address.localeCompare(tokenOut.address) < 0) {
-      setTokenIn(token)
-      if (hasSelected === true) {
-        setTokenOut(tokenOut)
-      }
-      return
-    }
-    if (token.address.localeCompare(tokenOut.address) >= 0) {
-      if (hasSelected === true) {
-        setTokenIn(tokenOut)
-      }
-      setTokenOut(token)
-      return
-    }
-  }
-
-  const [tokenOrder, setTokenOrder] = useState(tokenIn.address.localeCompare(tokenOut.address) < 0)
-
-  const changeDefaultOut = (token: token) => {
-    if (token.symbol === tokenIn.symbol) {
-      return
-    }
-    setTokenOut(token)
-    setHasSelected(true)
-    if (token.address.localeCompare(tokenIn.address) < 0) {
-      setTokenIn(token)
-      setTokenOut(tokenIn)
-      return
-    }
-
-    if (token.address.localeCompare(tokenIn.address) >= 0) {
-      setTokenIn(tokenIn)
-      setTokenOut(token)
-      return
-    }
-  }
-
   function SelectFee() {
     return (
       <Listbox value={selected} onChange={setSelected}>
@@ -551,8 +510,13 @@ export default function ConcentratedPool({
           <div className="flex items-center gap-x-5 mt-3">
             <SelectToken
               index="0"
+              type="in"
               selected={hasSelected}
-              tokenChosen={changeDefaultIn}
+              setHasSelected={setHasSelected}
+              tokenIn={tokenIn}
+              setTokenIn={setTokenIn}
+              tokenOut={tokenOut}
+              setTokenOut={setTokenOut}
               displayToken={tokenIn}
               balance={setQueryTokenIn}
               key={queryTokenIn}
@@ -565,26 +529,18 @@ export default function ConcentratedPool({
                 }
               }}
             />
-            {hasSelected ? (
-              <SelectToken
-                index="1"
-                selected={hasSelected}
-                tokenChosen={changeDefaultOut}
-                displayToken={tokenOut}
-                balance={setQueryTokenOut}
-                key={queryTokenOut + 'selected'}
-              />
-            ) : (
-              //@dev add skeletons on load when switching sides/ initial selection
-              <SelectToken
-                index="1"
-                selected={hasSelected}
-                tokenChosen={changeDefaultOut}
-                displayToken={tokenOut}
-                balance={setQueryTokenOut}
-                key={queryTokenOut + 'notselected'}
-              />
-            )}
+            <SelectToken
+              type="out"
+              selected={hasSelected}
+              setHasSelected={setHasSelected}
+              tokenIn={tokenIn}
+              setTokenIn={setTokenIn}
+              tokenOut={tokenOut}
+              setTokenOut={setTokenOut}
+              displayToken={tokenOut}
+              balance={setQueryTokenOut}
+              key={queryTokenOut}
+            />
           </div>
         </div>
         <div>

@@ -22,12 +22,7 @@ import {
 import { BigNumber, Contract, Signer, ethers } from 'ethers'
 import { chainIdsToNamesForGitTokenList } from '../utils/chains'
 import { coverPoolABI } from '../abis/evm/coverPool'
-import {
-  fetchCoverPools,
-  fetchRangePools,
-  getCoverPoolFromFactory,
-  getRangePoolFromFactory,
-} from '../utils/queries'
+import { fetchCoverPools, fetchRangePools } from '../utils/queries'
 import { useSwapStore } from '../hooks/useStore'
 import SwapRangeApproveButton from '../components/Buttons/SwapRangeApproveButton'
 import SwapRangeButton from '../components/Buttons/SwapRangeButton'
@@ -294,7 +289,7 @@ export default function Swap() {
   ])
 
   async function updateGasFee() {
-    const newGasFee = await gasEstimate(
+    await gasEstimate(
       rangePoolRoute,
       coverPoolRoute,
       rangeQuote,
@@ -306,48 +301,8 @@ export default function Swap() {
       bnInput,
       address,
       signer,
+      setGasFee,
     )
-    setGasFee(newGasFee)
-  }
-
-  function changeDefaultIn(token: token) {
-    if (token.symbol === tokenOut.symbol) {
-      return
-    }
-    setTokenIn(token)
-    if (token.address.localeCompare(tokenOut.address) < 0) {
-      setTokenIn(token)
-      if (hasSelected === true) {
-        setTokenOut(tokenOut)
-      }
-      return
-    }
-    if (token.address.localeCompare(tokenOut.address) >= 0) {
-      if (hasSelected === true) {
-        setTokenIn(tokenOut)
-      }
-      setTokenOut(token)
-      return
-    }
-  }
-
-  const changeDefaultOut = (token: token) => {
-    if (token.symbol === tokenIn.symbol) {
-      return
-    }
-    setTokenOut(token)
-    setHasSelected(true)
-    if (token.address.localeCompare(tokenIn.address) < 0) {
-      setTokenIn(token)
-      setTokenOut(tokenIn)
-      return
-    }
-
-    if (token.address.localeCompare(tokenIn.address) >= 0) {
-      setTokenIn(tokenIn)
-      setTokenOut(token)
-      return
-    }
   }
 
   function switchDirection() {
@@ -705,8 +660,13 @@ export default function Swap() {
                 <div className="flex justify-end">
                   <SelectToken
                     index="0"
+                    type="in"
                     selected={hasSelected}
-                    tokenChosen={changeDefaultIn}
+                    setHasSelected={setHasSelected}
+                    tokenIn={tokenIn}
+                    setTokenIn={setTokenIn}
+                    tokenOut={tokenOut}
+                    setTokenOut={setTokenOut}
                     displayToken={tokenIn}
                     balance={setQueryTokenIn}
                     key={queryTokenIn}
@@ -780,26 +740,18 @@ export default function Swap() {
             <div className="flex justify-center ml-auto">
               <div className="flex-col">
                 <div className="flex justify-end">
-                  {hasSelected ? (
-                    <SelectToken
-                      index="1"
-                      selected={hasSelected}
-                      tokenChosen={changeDefaultOut}
-                      displayToken={tokenOut}
-                      balance={setQueryTokenOut}
-                      key={queryTokenOut}
-                    />
-                  ) : (
-                    //@dev add skeletons on load when switching sides/ initial selection
-                    <SelectToken
-                      index="2"
-                      selected={hasSelected}
-                      tokenChosen={changeDefaultOut}
-                      displayToken={tokenOut}
-                      balance={setQueryTokenOut}
-                      key={queryTokenOut}
-                    />
-                  )}
+                  <SelectToken
+                    type="out"
+                    selected={hasSelected}
+                    setHasSelected={setHasSelected}
+                    tokenIn={tokenIn}
+                    setTokenIn={setTokenIn}
+                    tokenOut={tokenOut}
+                    setTokenOut={setTokenOut}
+                    displayToken={tokenOut}
+                    balance={setQueryTokenOut}
+                    key={queryTokenOut}
+                  />
                 </div>
                 {hasSelected ? (
                   <div className="flex items-center justify-end gap-2 px-1 mt-2">

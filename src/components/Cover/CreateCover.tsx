@@ -13,14 +13,12 @@ import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 import { useState, useEffect } from 'react'
 import useInputBox from '../../hooks/useInputBox'
 import { tokenOneAddress } from '../../constants/contractAddresses'
-import { coverPoolAddress } from '../../constants/contractAddresses'
 import { TickMath, invertPrice } from '../../utils/math/tickMath'
 import { BigNumber, Contract, ethers } from 'ethers'
 import { useCoverStore } from '../../hooks/useStore'
 import { getCoverPoolFromFactory } from '../../utils/queries'
 import JSBI from 'jsbi'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
-import { coverPoolABI } from '../../abis/evm/coverPool'
 import { useRouter } from 'next/router'
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
@@ -518,7 +516,13 @@ export default function CreateCover(props: any) {
         <div className="flex gap-x-4 items-center">
           <SelectToken
             index="0"
-            tokenChosen={changeDefault0}
+            type="in"
+            selected={hasSelected}
+            setHasSelected={setHasSelected}
+            tokenIn={tokenIn}
+            setTokenIn={setTokenIn}
+            tokenOut={tokenOut}
+            setTokenOut={setTokenOut}
             displayToken={tokenIn}
             balance={setQueryTokenIn}
             key={queryTokenIn}
@@ -533,25 +537,18 @@ export default function CreateCover(props: any) {
               }}
             />
           </div>
-          {hasSelected ? (
-            <SelectToken
-              index="1"
-              selected={hasSelected}
-              tokenChosen={changeDefault1}
-              displayToken={tokenOut}
-              balance={setQueryTokenOut}
-              key={queryTokenOut + 'selected'}
-            />
-          ) : (
-            <SelectToken
-              index="1"
-              selected={hasSelected}
-              tokenChosen={changeDefault1}
-              displayToken={tokenOut}
-              balance={setQueryTokenOut}
-              key={queryTokenOut + 'unselected'}
-            />
-          )}
+          <SelectToken
+            type="out"
+            selected={hasSelected}
+            setHasSelected={setHasSelected}
+            tokenIn={tokenIn}
+            setTokenIn={setTokenIn}
+            tokenOut={tokenOut}
+            setTokenOut={setTokenOut}
+            displayToken={tokenOut}
+            balance={setQueryTokenOut}
+            key={queryTokenOut}
+          />
         </div>
       </div>
       <h1 className="mb-3">How much do you want to Cover?</h1>
