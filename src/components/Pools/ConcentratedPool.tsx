@@ -138,7 +138,7 @@ export default function ConcentratedPool({
   }
 
   async function updatePool() {
-    await getRangePool(tokenIn, tokenOut, setRangePoolRoute)
+    await getRangePoolData()
   }
 
   useEffect(() => {
@@ -242,7 +242,7 @@ export default function ConcentratedPool({
     setQueryTokenOut(tempBal)
   }
 
-  const getRangePool = async () => {
+  const getRangePoolData = async () => {
     try {
       if (hasSelected === true) {
         console.log('tier selected', selected.tierId)
