@@ -157,9 +157,9 @@ export default function UserPool({
                   src={logoMap[tokenOne.symbol]}
                 />
               </div>
-              <div className="flex gap-x-2">
+              <div className="flex items-center gap-x-1.5">
                 {tokenZero.name}
-                <ArrowLongRightIcon className="w-5" />
+                <div>-</div>
                 {tokenOne.name}
               </div>
               <div className="bg-black px-2 py-1 rounded-lg text-grey">

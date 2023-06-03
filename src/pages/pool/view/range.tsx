@@ -364,7 +364,7 @@ export default function Range() {
                       {tokenIn.name}
                     </div>
                     <div className="flex items-center gap-x-4">
-                      {tokenIn.value}
+                      {Number(tokenIn.value).toFixed(2)}
                       <span className="bg-grey1 text-grey rounded-md px-3 py-0.5">
                         47%
                       </span>
@@ -381,7 +381,7 @@ export default function Range() {
                       {tokenOut.name}
                     </div>
                     <div className="flex items-center gap-x-4">
-                      {tokenOut.value}
+                      {Number(tokenOut.value).toFixed(2)}
                       <span className="bg-grey1 text-grey rounded-md px-3 py-0.5">
                         53%
                       </span>
@@ -424,9 +424,12 @@ export default function Range() {
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Unclaimed Fees</h1>
                 <span className="text-4xl">
-                  {router.query.unclaimedFees === undefined
+                    {Number(
+                      router.query.unclaimedFees === undefined
                     ? '?'
-                    : router.query.unclaimedFees.toString()}
+                    : router.query.unclaimedFees.toString()
+                    ).toFixed(2)}
+                  
                 </span>
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">

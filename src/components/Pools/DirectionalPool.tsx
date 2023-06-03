@@ -401,7 +401,7 @@ export default function DirectionalPool({
               className="w-6 cursor-pointer"
               onClick={() => {
                 if (hasSelected) {
-                  switchDirection()
+                  switchDirection();
                 }
               }}
             />
@@ -440,7 +440,7 @@ export default function DirectionalPool({
           </div>
           <div className="mt-3 space-y-3">
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-              <div className=" p-2 ">{inputBox('0')}</div>
+              <div className=" p-2 ">{inputBox("0")}</div>
               <div className="">
                 <div className=" ml-auto">
                   <div>
@@ -454,12 +454,12 @@ export default function DirectionalPool({
                     </div>
                     <div className="flex items-center justify-end gap-x-2 px-1 mt-2">
                       <div className="flex text-xs text-[#4C4C4C]">
-                        Balance: {balance0 === 'NaN' ? 0 : balance0}
+                        Balance: {balance0 === "NaN" ? 0 : balance0}
                       </div>
                       {isConnected ? (
                         <button
                           className="flex text-xs uppercase text-[#C9C9C9]"
-                          onClick={() => maxBalance(balance0, '0')}
+                          onClick={() => maxBalance(balance0, "0")}
                         >
                           Max
                         </button>
@@ -479,8 +479,8 @@ export default function DirectionalPool({
             <button
               className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
               onClick={() => {
-                setMin(BigNumber.from(-887272))
-                setMax(BigNumber.from(887272))
+                setMin(BigNumber.from(-887272));
+                setMax(BigNumber.from(887272));
               }}
             >
               Full cover
@@ -491,11 +491,12 @@ export default function DirectionalPool({
               <span className="text-xs text-grey">Min Price</span>
               <div className="flex justify-center items-center">
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  <button onClick={() => changePrice('minus', 'min')}>
+                  <button onClick={() => changePrice("minus", "min")}>
                     <MinusIcon className="w-5 h-5 ml-[2.5px]" />
                   </button>
                 </div>
                 <input
+                  autoComplete="off"
                   className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
                   placeholder="0"
                   id="minInput"
@@ -503,18 +504,21 @@ export default function DirectionalPool({
                   value={minPrice}
                   onChange={() =>
                     setMinPrice(
-                      (document.getElementById('minInput') as HTMLInputElement)
-                        ?.value
-                          .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
-                          .replace(/^(\.)+/, '0')
-                          .replace(/(?<=\..*)\./g, '')
-                          .replace(/^0+(?=\d)/, '')
-                          .replace(/[^\d.]/g, '')
+                      (
+                        document.getElementById("minInput") as HTMLInputElement
+                      )?.value
+                        .replace(/^0+(?=[^.0-9]|$)/, (match) =>
+                          match.length > 1 ? "0" : match
+                        )
+                        .replace(/^(\.)+/, "0")
+                        .replace(/(?<=\..*)\./g, "")
+                        .replace(/^0+(?=\d)/, "")
+                        .replace(/[^\d.]/g, "")
                     )
                   }
                 />
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  <button onClick={() => changePrice('plus', 'min')}>
+                  <button onClick={() => changePrice("plus", "min")}>
                     <PlusIcon className="w-5 h-5" />
                   </button>
                 </div>
@@ -524,11 +528,12 @@ export default function DirectionalPool({
               <span className="text-xs text-grey">Max. Price</span>
               <div className="flex justify-center items-center">
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  <button onClick={() => changePrice('minus', 'max')}>
+                  <button onClick={() => changePrice("minus", "max")}>
                     <MinusIcon className="w-5 h-5 ml-[2.5px]" />
                   </button>
                 </div>
                 <input
+                  autoComplete="off"
                   className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
                   placeholder="0"
                   id="maxInput"
@@ -536,18 +541,21 @@ export default function DirectionalPool({
                   value={maxPrice}
                   onChange={() =>
                     setMaxPrice(
-                      (document.getElementById('maxInput') as HTMLInputElement)
-                        ?.value
-                          .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
-                          .replace(/^(\.)+/, '0')
-                          .replace(/(?<=\..*)\./g, '')
-                          .replace(/^0+(?=\d)/, '')
-                          .replace(/[^\d.]/g, '')
+                      (
+                        document.getElementById("maxInput") as HTMLInputElement
+                      )?.value
+                        .replace(/^0+(?=[^.0-9]|$)/, (match) =>
+                          match.length > 1 ? "0" : match
+                        )
+                        .replace(/^(\.)+/, "0")
+                        .replace(/(?<=\..*)\./g, "")
+                        .replace(/^0+(?=\d)/, "")
+                        .replace(/[^\d.]/g, "")
                     )
                   }
                 />
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  <button onClick={() => changePrice('plus', 'max')}>
+                  <button onClick={() => changePrice("plus", "max")}>
                     <PlusIcon className="w-5 h-5" />
                   </button>
                 </div>
@@ -573,5 +581,5 @@ export default function DirectionalPool({
         />
       </div>
     </div>
-  )
+  );
 }

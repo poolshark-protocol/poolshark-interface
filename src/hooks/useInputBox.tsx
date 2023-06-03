@@ -94,22 +94,23 @@ export default function useInputBox() {
     return (
       <div className="flex gap-x-2">
         <input
+          autoComplete="off"
           type="text"
           id="input"
-          autoComplete="off"
           onChange={(e) => handleChange(e, updateValue)}
           value={display}
           placeholder={placeholder}
           className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
         />
       </div>
-    )
+    );
   }
 
   const LimitInputBox = (placeholder: string, updateValue?: any) => {
     return (
       <div className="flex gap-x-2">
         <input
+          autoComplete="off"
           type="text"
           id="LimitInput"
           autoComplete="off"
@@ -119,7 +120,7 @@ export default function useInputBox() {
           className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
         />
       </div>
-    )
+    );
   }
 
   return { bnInput, bnInputLimit, LimitInputBox, inputBox, maxBalance, setBnInput }

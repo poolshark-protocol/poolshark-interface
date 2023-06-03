@@ -450,6 +450,7 @@ export default function CoverExistingPool({
       </div>
       <div className="w-full flex items-center mt-2">
         <input
+          autoComplete="off"
           type="range"
           min="0"
           max="100"
@@ -463,6 +464,7 @@ export default function CoverExistingPool({
           <div className="text-[#646464]">Percentage Covered</div>
           <div className="flex gap-x-2 items-center">
             <input
+              autoComplete="off"
               type="text"
               id="input"
               onChange={(e) => {
@@ -472,14 +474,13 @@ export default function CoverExistingPool({
                       .replace(/^0+(?=[^.0-9]|$)/, (match) =>
                         match.length > 1 ? "0" : match
                       )
-                      .replace(/^(\.)+/, '0.')
-                      .replace(/(?<=\..*)\./g, '')
-                      .replace(/^0+(?=\d)/, '')
-                      .replace(/[^\d.]/g, '')
- 
-                  ),
-                )
-                console.log('slider value', sliderValue)
+                      .replace(/^(\.)+/, "0.")
+                      .replace(/(?<=\..*)\./g, "")
+                      .replace(/^0+(?=\d)/, "")
+                      .replace(/[^\d.]/g, "")
+                  )
+                );
+                console.log("slider value", sliderValue);
               }}
               value={sliderValue}
               className="text-right placeholder:text-grey1 text-white text-2xl w-20 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
@@ -489,8 +490,9 @@ export default function CoverExistingPool({
         </div>
         <div className="flex items-center justify-between text-sm">
           <div className="text-[#646464]">Amount Covered</div>
-          <div className='flex items-center justify-end gap-x-3'>
+          <div className="flex items-center justify-end gap-x-3">
             <input
+              autoComplete="off"
               type="text"
               id="input"
               onChange={(e) => {
@@ -570,6 +572,7 @@ export default function CoverExistingPool({
               </button>
             </div>
             <input
+              autoComplete="off"
               className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
               placeholder="0"
               id="minInput"
@@ -587,15 +590,16 @@ export default function CoverExistingPool({
               }
               onChange={() =>
                 setLowerPrice(
-                  (document.getElementById('minInput') as HTMLInputElement)
-                    ?.value
+                  (
+                    document.getElementById("minInput") as HTMLInputElement
+                  )?.value
                     .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                      match.length > 1 ? '0' : match,
+                      match.length > 1 ? "0" : match
                     )
-                    .replace(/^(\.)+/, '0.')
-                    .replace(/(?<=\..*)\./g, '')
-                    .replace(/^0+(?=\d)/, '')
-                    .replace(/[^\d.]/g, ''),
+                    .replace(/^(\.)+/, "0.")
+                    .replace(/(?<=\..*)\./g, "")
+                    .replace(/^0+(?=\d)/, "")
+                    .replace(/[^\d.]/g, "")
                 )
               }
             />
@@ -615,6 +619,7 @@ export default function CoverExistingPool({
               </button>
             </div>
             <input
+              autoComplete="off"
               className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
               placeholder="0"
               id="maxInput"
@@ -633,15 +638,16 @@ export default function CoverExistingPool({
               }
               onChange={() =>
                 setUpperPrice(
-                  (document.getElementById('maxInput') as HTMLInputElement)
-                    ?.value
+                  (
+                    document.getElementById("maxInput") as HTMLInputElement
+                  )?.value
                     .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                      match.length > 1 ? '0' : match,
+                      match.length > 1 ? "0" : match
                     )
-                    .replace(/^(\.)+/, '0.')
-                    .replace(/(?<=\..*)\./g, '')
-                    .replace(/^0+(?=\d)/, '')
-                    .replace(/[^\d.]/g, ''),
+                    .replace(/^(\.)+/, "0.")
+                    .replace(/(?<=\..*)\./g, "")
+                    .replace(/^0+(?=\d)/, "")
+                    .replace(/[^\d.]/g, "")
                 )
               }
             />

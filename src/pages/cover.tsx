@@ -66,7 +66,7 @@ export default function Cover() {
           </div>
           <div className="flex space-x-8">
             <div className="bg-black w-2/3 border border-grey2 w-full rounded-t-xl p-6 gap-y-4">
-              {selectedPool != undefined && state != 'initial' ? (
+              {selectedPool != undefined && state != "initial" ? (
                 <CreateCover query={router.query} goBack={handleDiselectPool} />
               ) : (
                 <Initial query={router.query} />
@@ -98,6 +98,7 @@ export default function Cover() {
                 <div className="relative">
                   <MagnifyingGlassIcon className="w-5 text-grey absolute ml-[14px] mt-[13px]" />
                   <input
+                    autoComplete="off"
                     className="border border-grey2 bg-dark rounded-xl py-2.5 w-full placeholder:text-grey outline-none pl-12"
                     placeholder="Search name, symbol or address"
                     value={searchTerm}
@@ -141,12 +142,12 @@ export default function Cover() {
                                 searchTerm.toLowerCase() ||
                               allCoverPosition.tokenOne.id.toLowerCase() ===
                                 searchTerm.toLowerCase() ||
-                              searchTerm === '')
+                              searchTerm === "")
                           ) {
                             //console.log('user fill out', allCoverPosition.userFillOut)
                             return (
                               <UserCoverPool
-                                key={allCoverPosition.id + 'coverPositions'}
+                                key={allCoverPosition.id + "coverPositions"}
                                 account={address}
                                 poolId={allCoverPosition.poolId}
                                 tokenZero={allCoverPosition.tokenZero}
@@ -160,17 +161,25 @@ export default function Cover() {
                                 userFillOut={allCoverPosition.userFillOut}
                                 feeTier={allCoverPosition.feeTier}
                                 liquidity={allCoverPosition.liquidity}
-                                lowerPrice={parseFloat(TickMath.getPriceStringAtTick(allCoverPosition.lowerTick))}
-                                upperPrice={parseFloat(TickMath.getPriceStringAtTick(allCoverPosition.upperTick))}
+                                lowerPrice={parseFloat(
+                                  TickMath.getPriceStringAtTick(
+                                    allCoverPosition.lowerTick
+                                  )
+                                )}
+                                upperPrice={parseFloat(
+                                  TickMath.getPriceStringAtTick(
+                                    allCoverPosition.upperTick
+                                  )
+                                )}
                                 claimTick={allCoverPosition.claimTick}
                                 latestTick={allCoverPosition.latestTick}
                                 tickSpacing={allCoverPosition.tickSpacing}
                                 epochLast={allCoverPosition.epochLast}
                                 prefill={undefined}
                                 close={undefined}
-                                href={'/pool/view/cover'}
+                                href={"/pool/view/cover"}
                               />
-                            )
+                            );
                           }
                         })}
                       </div>
@@ -184,5 +193,5 @@ export default function Cover() {
         </div>
       </div>
     </div>
-  )
+  );
 }
