@@ -138,7 +138,6 @@ export default function Range() {
       setRangePoolRoute(query.rangePoolRoute)
       setRangeTickPrice(query.rangeTickPrice)
       setUserLiquidity(query.userLiquidity)
-      console.log('user liquidity', query.userLiquidity)
     }
   }, [router.isReady])
 
@@ -247,7 +246,6 @@ export default function Range() {
         const token0Price = pool['data']['rangePools']['0']['token0']['usdPrice']
         const token1Price = pool['data']['rangePools']['0']['token1']['usdPrice']
         const tickAtPrice = pool['data']['rangePools']['0']['tickAtPrice']
-        console.log('token prices', token0Price, token1Price)
         setRangePoolRoute(id)
         setAmount0Usd(parseFloat((amount0 * parseFloat(token0Price)).toPrecision(6)))
         setAmount1Usd(parseFloat((amount1 * parseFloat(token1Price)).toPrecision(6)))
@@ -255,7 +253,6 @@ export default function Range() {
         setAmount1FeesUsd(parseFloat((amount1Fees* parseFloat(token1Price)).toPrecision(3)))
         setRangePrice(price)
         setRangeTickPrice(tickAtPrice)
-        console.log('token usd amounts', parseFloat((amount0 * parseFloat(token0Price)).toPrecision(6)), amount1 * parseFloat(token1Price))
       }
     } catch (error) {
       console.log(error)
@@ -263,9 +260,6 @@ export default function Range() {
   }
 
   function setAmounts() {
-    console.log('amounts set', !isNaN(parseFloat(lowerPrice)) &&
-    !isNaN(parseFloat(upperPrice)) &&
-    !isNaN(parseFloat(String(rangePrice))) && Number(userLiquidity) > 0)
     try {
       if (
         !isNaN(parseFloat(lowerPrice)) &&
@@ -290,8 +284,6 @@ export default function Range() {
         const amount1Bn = BigNumber.from(String(token1Amount))
         setAmount0(parseFloat(ethers.utils.formatUnits(amount0Bn, 18)))
         setAmount1(parseFloat(ethers.utils.formatUnits(amount1Bn, 18)))
-        // set amount based on liquidity math
-        console.log('amounts set')
       }
     } catch (error) {
       console.log(error)
@@ -327,7 +319,6 @@ export default function Range() {
 
     try {
       if (snapshot) {
-            console.log('snapshot set', snapshot[3].toString())
         const fees0 = parseFloat(ethers.utils.formatUnits(snapshot[3], 18))
         const fees1 = parseFloat(ethers.utils.formatUnits(snapshot[4], 18))
         setAmount0Fees(fees0)
