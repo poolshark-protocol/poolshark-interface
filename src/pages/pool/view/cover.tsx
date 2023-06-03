@@ -6,7 +6,6 @@ import {
   ExclamationTriangleIcon,
 } from '@heroicons/react/20/solid'
 import { useState, useEffect } from 'react'
-import CoverBurnButton from '../../../components/Buttons/CoverBurnButton'
 import CoverCollectButton from '../../../components/Buttons/CoverCollectButton'
 import { useRouter } from 'next/router'
 import { useAccount, useContractRead } from 'wagmi'
@@ -456,17 +455,6 @@ export default function Cover() {
                 <div className="mt-6 space-y-2">
                   <div className="space-y-3">
                     {/**TO-DO: PASS PROPS */}
-                    {/**
-                    <CoverBurnButton
-                      poolAddress={poolAdd}
-                      address={address}
-                      lower={minLimit}
-                      claim={claimTick}
-                      upper={maxLimit}
-                      zeroForOne={zeroForOne}
-                      amount={liquidity}
-                    />
-                    */}
                     <CoverCollectButton
                       poolAddress={poolAdd}
                       address={address}
