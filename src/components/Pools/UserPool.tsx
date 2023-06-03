@@ -125,7 +125,7 @@ export default function UserPool({
             account: account,
             poolId: poolId,
             tokenZeroName: tokenZero.name,
-            tokenZeroSymbol: tokenOne.symbol,
+            tokenZeroSymbol: tokenZero.symbol,
             tokenZeroLogoURI: logoMap[tokenZero.symbol],
             tokenZeroAddress: tokenZero.id,
             tokenZeroValue: valueTokenZero,

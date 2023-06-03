@@ -475,7 +475,7 @@ export default function Range() {
                     pathname: '/pool/concentrated',
                     query: {
                       account: address,
-                      poolAdd: poolAddress,
+                      poolId: poolAddress,
                       tokenOneName: tokenOut.name,
                       tokenOneSymbol: tokenOut.symbol,
                       tokenOneLogoURI: tokenOut.logoURI,
