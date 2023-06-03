@@ -6,7 +6,7 @@ import {
   ExclamationTriangleIcon,
 } from '@heroicons/react/20/solid'
 import { useState, useEffect } from 'react'
-import CoverCollectButton from '../../../components/Buttons/CoverCollectButton'
+import CoverCollectButton fro../../../components/Buttons/RemoveLiqButtonButton'
 import { useRouter } from 'next/router'
 import { useAccount, useContractRead } from 'wagmi'
 import Link from 'next/link'
@@ -552,7 +552,8 @@ export default function Cover() {
           </div>
         </div>
       </div>
-      <RemoveLiquidity isOpen={isOpen} setIsOpen={setIsOpen} tokenIn={tokenIn} poolAddress={poolAdd}
+      <RemoveLiquidity isOpen={isOpen} setIsOpen={setIsOpen} tokenIn={tokenIn} 
+                      poolAdd={poolAdd}
                       address={address}
                       minLimit={minLimit}
                       claimTick={claimTick}
