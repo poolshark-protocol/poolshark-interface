@@ -8,6 +8,7 @@ import {
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useAccount, useContractRead } from 'wagmi'
+import CoverCollectButton from "../../../components/Buttons/CoverCollectButton";
 import Link from 'next/link'
 import { BigNumber, ethers } from 'ethers'
 import {
