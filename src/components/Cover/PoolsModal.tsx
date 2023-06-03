@@ -41,8 +41,6 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
         price: rangePosition.token.position.pool.price,
         tickSpacing: rangePosition.token.position.pool.feeTier.tickSpacing,
         feeTier: rangePosition.token.position.pool.feeTier.feeAmount,
-        unclaimedFees: rangePosition.token.position.pool.feesUsd,
-        liquidity: rangePosition.token.position.pool.liquidity,
         userLiquidity: Math.round(rangePosition.amount / rangePosition.token.totalSupply 
                                   * rangePosition.token.position.liquidity),
         tvlUsd: (

@@ -27,10 +27,9 @@ export default function UserPool({
   min,
   max,
   price,
-  liquidity,
+  userLiquidity,
   feeTier,
   tickSpacing,
-  unclaimedFees,
   href,
   tvlUsd,
   volumeUsd,
@@ -142,10 +141,8 @@ export default function UserPool({
             min: min,
             max: max,
             price: price,
-            liquidity: liquidity,
             feeTier: feeTierPercentage,
             tickSpacing: tickSpacing,
-            unclaimedFees: unclaimedFees,
           },
         }}
       >
