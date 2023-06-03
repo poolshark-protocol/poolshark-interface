@@ -10,13 +10,14 @@ import RangeCollectButton from '../../../components/Buttons/RangeCollectButton'
 import RangeBurnButton from '../../../components/Buttons/RangeBurnButton'
 import RangeCompoundButton from '../../../components/Buttons/RangeCompoundButton'
 import Link from 'next/link'
-import { useAccount } from 'wagmi'
+import { useAccount, useContractRead } from 'wagmi'
 import { BigNumber, ethers } from 'ethers'
 import { TickMath } from '../../../utils/math/tickMath'
 import JSBI from 'jsbi'
 import { getRangePoolFromFactory } from '../../../utils/queries'
 import { BN_ZERO, ZERO } from '../../../utils/math/constants'
 import { DyDxMath } from '../../../utils/math/dydxMath'
+import { rangePoolABI } from '../../../abis/evm/rangePool'
 
 export default function Range() {
   type token = {
@@ -26,7 +27,7 @@ export default function Range() {
     address: string
     value: string
   }
-  const { address } = useAccount()
+  const { address, isConnected } = useAccount()
   const router = useRouter()
 
   const [poolAddress, setPoolAddress] = useState(router.query.poolId ?? '')
@@ -62,13 +63,17 @@ export default function Range() {
   const [amount1, setAmount1] = useState(0)
   const [amount0Usd, setAmount0Usd] = useState(0)
   const [amount1Usd, setAmount1Usd] = useState(0)
+  const [amount0Fees, setAmount0Fees] = useState(0.00)
+  const [amount1Fees, setAmount1Fees] = useState(0.00)
+  const [amount0FeesUsd, setAmount0FeesUsd] = useState(0.00)
+  const [amount1FeesUsd, setAmount1FeesUsd] = useState(0.00)
   const [rangePoolRoute, setRangePoolRoute] = useState(
-    router.query.rangePoolRoute ?? '0',
+    undefined
   )
   const [rangeTickPrice, setRangeTickPrice] = useState(
     router.query.rangeTickPrice ?? 0,
   )
-  const [mktRate, setMktRate] = useState({})
+  const [snapshot, setSnapshot] = useState(undefined)
 
   useEffect(() => {
     if (router.isReady) {
@@ -139,7 +144,7 @@ export default function Range() {
 
   useEffect(() => {
     setAmounts()
-  }, [userLiquidity, lowerPrice, upperPrice])
+  }, [userLiquidity, lowerPrice, upperPrice, rangePrice])
 
   useEffect(() => {
     setUserLiquidityUsd(amount0Usd + amount1Usd)
@@ -226,16 +231,8 @@ export default function Range() {
   }
 
   useEffect(() => {
-    fetchTokenPrice()
-  }, [rangeTickPrice])
-
-  useEffect(() => {
-    changeTokenAmounts()
-  }), [rangePrice]
-
-  useEffect(() => {
     getRangePool()
-  }, [tokenIn.address, tokenOut.address, amount0, amount1])
+  }, [tokenIn.address, tokenOut.address, amount0, amount1, amount0Fees, amount1Fees])
 
   const getRangePool = async () => {
     try {
@@ -254,6 +251,8 @@ export default function Range() {
         setRangePoolRoute(id)
         setAmount0Usd(parseFloat((amount0 * parseFloat(token0Price)).toPrecision(6)))
         setAmount1Usd(parseFloat((amount1 * parseFloat(token1Price)).toPrecision(6)))
+        setAmount0FeesUsd(parseFloat((amount0Fees* parseFloat(token0Price)).toPrecision(3)))
+        setAmount1FeesUsd(parseFloat((amount1Fees* parseFloat(token1Price)).toPrecision(3)))
         setRangePrice(price)
         setRangeTickPrice(tickAtPrice)
         console.log('token usd amounts', parseFloat((amount0 * parseFloat(token0Price)).toPrecision(6)), amount1 * parseFloat(token1Price))
@@ -299,24 +298,45 @@ export default function Range() {
     }
   }
 
-  const fetchTokenPrice = async () => {
+  const { refetch: refetchSnapshot, data } = useContractRead({
+    address: rangePoolRoute,
+    abi: rangePoolABI,
+    functionName: 'snapshot',
+    args: [[
+      address,
+      lowerTick,
+      upperTick
+    ]],
+    chainId: 421613,
+    watch: true,
+    enabled: isConnected && rangePoolRoute != '',
+    onSuccess(data) {
+      setSnapshot(data)
+      console.log('Success snapshot Range', data)
+    },
+    onError(error) {
+      console.log('Error snapshot Range', error)
+    },
+  })
+
+  useEffect(() => {
+    setFeesOwed()
+  }, [snapshot])
+
+  function setFeesOwed() {
+
     try {
-      setMktRate({
-        TOKEN20A:
-          '~' +
-          Number(rangeTickPrice).toLocaleString('en-US', {
-            style: 'currency',
-            currency: 'USD',
-          }),
-        TOKEN20B: '~1.00',
-      })
+      if (snapshot) {
+            console.log('snapshot set', snapshot[3].toString())
+        const fees0 = parseFloat(ethers.utils.formatUnits(snapshot[3], 18))
+        const fees1 = parseFloat(ethers.utils.formatUnits(snapshot[4], 18))
+        setAmount0Fees(fees0)
+        setAmount1Fees(fees1)
+      }
+
     } catch (error) {
       console.log(error)
     }
-  }
-
-  const changeTokenAmounts = () => {
-
   }
 
   return (
@@ -452,9 +472,9 @@ export default function Range() {
                 </div>
                 <Link
                   href={{
-                    pathname: '/pool/liquidity',
+                    pathname: '/pool/concentrated',
                     query: {
-                      account: '',
+                      account: address,
                       poolAdd: poolAddress,
                       tokenOneName: tokenOut.name,
                       tokenOneSymbol: tokenOut.symbol,
@@ -466,8 +486,8 @@ export default function Range() {
                       tokenZeroAddress: tokenIn.address,
                       feeTier: feeTier,
                       tickSpacing: tickSpacing,
-                      min: lowerTick,
-                      max: upperTick,
+                      min: lowerPrice,
+                      max: upperPrice
                     },
                   }}
                 >
@@ -481,9 +501,9 @@ export default function Range() {
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Unclaimed Fees</h1>
                 <span className="text-4xl"> $
-                  {router.query.unclaimedFees === undefined
+                  {amount0Fees == undefined || amount1Fees == undefined
                     ? '?'
-                    : Number(router.query.unclaimedFees.toString()).toPrecision(5)}
+                    : (amount0FeesUsd + amount1FeesUsd).toFixed(2) }
                 </span>
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
@@ -491,14 +511,14 @@ export default function Range() {
                       <img height="30" width="30" src={tokenIn.logoURI} />
                       {tokenIn.name}
                     </div>
-                    <span>2.25</span>
+                    <span>{amount0FeesUsd.toFixed(2)}</span>
                   </div>
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
                       <img height="30" width="30" src={tokenOut.logoURI} />
                       {tokenOut.name}
                     </div>
-                    <span>2.25</span>
+                    <span>{amount1FeesUsd.toFixed(2)}</span>
                   </div>
                 </div>
                 <div className="mt-5 space-y-2">
@@ -585,3 +605,7 @@ export default function Range() {
     </div>
   )
 }
+function setFeesOwed() {
+  throw new Error('Function not implemented.')
+}
+
