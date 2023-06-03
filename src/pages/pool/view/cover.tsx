@@ -197,7 +197,7 @@ export default function Cover() {
   })
 
     useEffect(() => {
-    setFillPercent((coverFilledAmount /  ethers.utils.formatUnits(userFillIn.toString(), 18)) * 100)
+    setFillPercent( (Number(coverFilledAmount) /  Number(ethers.utils.formatUnits(userFillIn.toString(), 18))) * 100)
   })
     
 
