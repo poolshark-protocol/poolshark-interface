@@ -113,7 +113,6 @@ export default function useInputBox() {
           autoComplete="off"
           type="text"
           id="LimitInput"
-          autoComplete="off"
           onChange={(e) => handleChangeLimit(e, updateValue)}
           value={displayLimit}
           placeholder={placeholder}

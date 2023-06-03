@@ -6,7 +6,7 @@ import useInputBox from '../../hooks/useInputBox'
 import RemoveLiqButton from '../Buttons/RemoveLiqButton'
 
 
-export default function Network({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, maxLimit, zeroForOne, liquidity, minLimit }) {
+export default function RemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, maxLimit, zeroForOne, liquidity, minLimit }) {
 
     const {
     bnInput,

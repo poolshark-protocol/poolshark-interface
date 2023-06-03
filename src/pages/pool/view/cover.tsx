@@ -18,7 +18,7 @@ import {
 } from '../../../utils/queries'
 import { TickMath } from '../../../utils/math/tickMath'
 import { coverPoolABI } from '../../../abis/evm/coverPool'
-import CollectPercentage from '../../../components/Modals/CollectPercentage'
+import RemoveLiquidity from '../../../components/Modals/RemoveLiquidity'
 
 export default function Cover() {
   type token = {
@@ -564,7 +564,7 @@ export default function Cover() {
           </div>
         </div>
       </div>
-      <CollectPercentage isOpen={isOpen} setIsOpen={setIsOpen} tokenIn={tokenIn} poolAddress={poolAdd}
+      <RemoveLiquidity isOpen={isOpen} setIsOpen={setIsOpen} tokenIn={tokenIn} poolAddress={poolAdd}
                       address={address}
                       minLimit={minLimit}
                       claimTick={claimTick}
