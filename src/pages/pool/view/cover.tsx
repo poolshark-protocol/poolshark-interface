@@ -114,6 +114,7 @@ export default function Cover() {
 
   const [liquidity, setLiquidity] = useState(router.query.liquidity ?? '0')
   const [feeTier, setFeeTier] = useState(router.query.feeTier ?? '')
+  const [fillPercent, setFillPercent] = useState(0)
   const [minLimit, setMinLimit] = useState(router.query.min ?? '0')
   const [maxLimit, setMaxLimit] = useState(router.query.max ?? '0')
   const [userFillIn, setUserFillIn] = useState(router.query.userFillIn ?? '0')
@@ -194,6 +195,11 @@ export default function Cover() {
       //console.log('Settled price Cover', { data, error })
     },
   })
+
+    useEffect(() => {
+    setFillPercent((coverFilledAmount /  ethers.utils.formatUnits(userFillIn.toString(), 18)) * 100)
+  })
+    
 
   useEffect(() => {
     if (copyAddress0) {
@@ -290,29 +296,15 @@ export default function Cover() {
                 />
               </div>
               <span className="text-3xl flex items-center gap-x-3">
-                {tokenIn.name} <ArrowLongRightIcon className="w-5 " />{' '}
+                {tokenIn.name} <ArrowLongRightIcon className="w-5 " />{" "}
                 {tokenOut.name}
               </span>
               <span className="bg-white text-black rounded-md px-3 py-0.5">
                 {feeTier}%
               </span>
-              {Number(coverTickPrice) < Number(minLimit) ||
-              Number(coverTickPrice) > Number(maxLimit) ? (
-                <div className="pr-5">
-                  <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-                    <ExclamationTriangleIcon className="w-4 text-yellow-600" />
-                    Out of Range
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
-                  <div className="w-2 h-2 bg-green-500 rounded-full" />
-                  In Range
-                </div>
-              )}
             </div>
             <a
-              href={'https://goerli.arbiscan.io/address/' + poolAdd}
+              href={"https://goerli.arbiscan.io/address/" + poolAdd}
               target="_blank"
               rel="noreferrer"
               className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80"
@@ -367,7 +359,7 @@ export default function Cover() {
                 <span className="text-4xl">
                   $
                   {Number(
-                    ethers.utils.formatUnits(userFillOut.toString(), 18),
+                    ethers.utils.formatUnits(userFillOut.toString(), 18)
                   ).toFixed(2)}
                 </span>
 
@@ -378,7 +370,7 @@ export default function Cover() {
                       {tokenIn.name}
                     </div>
                     {Number(
-                      ethers.utils.formatUnits(userFillOut.toString(), 18),
+                      ethers.utils.formatUnits(userFillOut.toString(), 18)
                     ).toFixed(2)}
                   </div>
                 </div>
@@ -389,7 +381,7 @@ export default function Cover() {
                 </div>
                 <Link
                   href={{
-                    pathname: '/cover',
+                    pathname: "/cover",
                     query: {
                       account: router.query.account,
                       poolId: poolAdd,
@@ -404,7 +396,7 @@ export default function Cover() {
                       feeTier: Number(feeTier) / 10000,
                       tickSpacing: tickSpacing,
                       liquidity: liquidity,
-                      state: 'existing',
+                      state: "existing",
                     },
                   }}
                 >
@@ -422,13 +414,15 @@ export default function Cover() {
                   <span className="text-grey">
                     /$
                     {Number(
-                      ethers.utils.formatUnits(userFillIn.toString(), 18),
+                      ethers.utils.formatUnits(userFillIn.toString(), 18)
                     ).toFixed(2)}
                   </span>
                 </span>
                 <div className="text-grey mt-3">
                   <div className="flex items-center relative justify-between border border-grey1 py-3 px-4 rounded-xl">
-                    <div className="absolute left-0 h-full w-[30%] bg-white rounded-l-xl opacity-10" />
+                    <div
+                      className={`absolute left-0 h-full w-[${fillPercent}%] bg-white rounded-l-xl opacity-10`}
+                    />
                     <div className="flex items-center gap-x-4 z-20">
                       <img height="30" width="30" src={tokenOut.logoURI} />
                       {tokenOut.name}
@@ -438,7 +432,7 @@ export default function Cover() {
                       <span className="text-grey">
                         /
                         {Number(
-                          ethers.utils.formatUnits(userFillIn.toString(), 18),
+                          ethers.utils.formatUnits(userFillIn.toString(), 18)
                         ).toFixed(2)}
                       </span>
                     </span>
@@ -475,7 +469,7 @@ export default function Cover() {
                 <div className="text-grey text-xs w-full">Min Price</div>
                 <div className="text-white text-2xl my-2 w-full">
                   {minLimit === undefined
-                    ? ''
+                    ? ""
                     : TickMath.getPriceStringAtTick(Number(minLimit))}
                 </div>
                 <div className="text-grey text-xs w-full">
@@ -490,7 +484,7 @@ export default function Cover() {
                 <div className="text-grey text-xs w-full">Max Price</div>
                 <div className="text-white text-2xl my-2 w-full">
                   {maxLimit === undefined
-                    ? ''
+                    ? ""
                     : TickMath.getPriceStringAtTick(Number(maxLimit))}
                 </div>
                 <div className="text-grey text-xs w-full">
@@ -554,5 +548,5 @@ export default function Cover() {
         </div>
       </div>
     </div>
-  )
+  );
 }
