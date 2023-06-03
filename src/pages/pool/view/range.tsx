@@ -15,6 +15,8 @@ import { BigNumber, ethers } from 'ethers'
 import { TickMath } from '../../../utils/math/tickMath'
 import JSBI from 'jsbi'
 import { getRangePoolFromFactory } from '../../../utils/queries'
+import { BN_ZERO, ZERO } from '../../../utils/math/constants'
+import { DyDxMath } from '../../../utils/math/dydxMath'
 
 export default function Range() {
   type token = {
@@ -47,15 +49,15 @@ export default function Range() {
                                                                                   String(router.query.tokenOneAddress)
                                                                                ) < 0
                                                 : true)
-
-                                                price0
   const [feeTier, setFeeTier] = useState(router.query.feeTier ?? '')
   const [tickSpacing, setTickSpacing] = useState(router.query.tickSpacing ?? 10)
   const [userLiquidity, setUserLiquidity] = useState(router.query.userLiquidity ?? 0)
   const [userLiquidityUsd, setUserLiquidityUsd] = useState(0)
-  const [minLimit, setMinLimit] = useState(router.query.min ?? '0')
-  const [maxLimit, setMaxLimit] = useState(router.quern.max ?? '0')
-  const [rangePrice, setPoolPrice] = useState(router.query.price ?? '0')
+  const [lowerTick, setLowerTick] = useState(router.query.min ?? '0')
+  const [upperTick, setUpperTick] = useState(router.query.max ?? '0')
+  const [lowerPrice, setLowerPrice] = useState(undefined)
+  const [upperPrice, setUpperPrice] = useState(undefined)
+  const [rangePrice, setRangePrice] = useState(router.query.price ? String(router.query.price) : '0')
   const [amount0, setAmount0] = useState(0)
   const [amount1, setAmount1] = useState(0)
   const [amount0Usd, setAmount0Usd] = useState(0)
@@ -88,12 +90,13 @@ export default function Range() {
       } as token)
       setTokenOrder(String(query.tokenOneAddress).localeCompare(
                       String(query.tokenOneAddress)) < 0)
-      // setLiquidity(query.userLiquidity)
       setFeeTier(query.feeTier)
       setTickSpacing(query.tickSpacing)
-      setMinLimit(query.min)
-      setMaxLimit(query.max)
-      setPoolPrice(query.price)
+      setLowerTick(query.min)
+      setUpperTick(query.max)
+      setLowerPrice(TickMath.getPriceStringAtTick(Number(query.min)))
+      setUpperPrice(TickMath.getPriceStringAtTick(Number(query.max)))
+      setRangePrice(String(query.price))
       setTokenZeroDisplay(
         query.tokenZeroAddress.toString().substring(0, 6) +
           '...' +
@@ -128,12 +131,19 @@ export default function Range() {
             ),
       )
       setRangePoolRoute(query.rangePoolRoute)
-      console.log('range tick price', query.rangeTickPrice)
       setRangeTickPrice(query.rangeTickPrice)
+      setUserLiquidity(query.userLiquidity)
+      console.log('user liquidity', query.userLiquidity)
     }
   }, [router.isReady])
 
+  useEffect(() => {
+    setAmounts()
+  }, [userLiquidity, lowerPrice, upperPrice])
 
+  useEffect(() => {
+    setUserLiquidityUsd(amount0Usd + amount1Usd)
+  }, [amount0Usd, amount1Usd])
 
   //Pool Addresses
   const [is0Copied, setIs0Copied] = useState(false)
@@ -225,7 +235,7 @@ export default function Range() {
 
   useEffect(() => {
     getRangePool()
-  }, [tokenIn.address, tokenOut.address])
+  }, [tokenIn.address, tokenOut.address, amount0, amount1])
 
   const getRangePool = async () => {
     try {
@@ -236,12 +246,53 @@ export default function Range() {
       const dataLength = pool['data']['rangePools'].length
       if (dataLength > 0) {
         const id = pool['data']['rangePools']['0']['id']
+        const price = pool['data']['rangePools']['0']['price']
         const token0Price = pool['data']['rangePools']['0']['token0']['usdPrice']
         const token1Price = pool['data']['rangePools']['0']['token1']['usdPrice']
+        const tickAtPrice = pool['data']['rangePools']['0']['tickAtPrice']
         console.log('token prices', token0Price, token1Price)
         setRangePoolRoute(id)
-        setAmount0Usd(amount0 * parseFloat(token0Price))
-        setAmount1Usd(amount1 * parseFloat(token1Price))
+        setAmount0Usd(parseFloat((amount0 * parseFloat(token0Price)).toPrecision(6)))
+        setAmount1Usd(parseFloat((amount1 * parseFloat(token1Price)).toPrecision(6)))
+        setRangePrice(price)
+        setRangeTickPrice(tickAtPrice)
+        console.log('token usd amounts', parseFloat((amount0 * parseFloat(token0Price)).toPrecision(6)), amount1 * parseFloat(token1Price))
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  function setAmounts() {
+    console.log('amounts set', !isNaN(parseFloat(lowerPrice)) &&
+    !isNaN(parseFloat(upperPrice)) &&
+    !isNaN(parseFloat(String(rangePrice))) && Number(userLiquidity) > 0)
+    try {
+      if (
+        !isNaN(parseFloat(lowerPrice)) &&
+        !isNaN(parseFloat(upperPrice)) &&
+        !isNaN(parseFloat(String(rangePrice))) &&
+        Number(userLiquidity) > 0 &&
+        parseFloat(lowerPrice) < parseFloat(upperPrice)
+      ) {
+        const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(lowerTick))
+        const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(upperTick))
+        const rangeSqrtPrice = JSBI.BigInt(rangePrice)
+        const liquidity = JSBI.BigInt(userLiquidity)  
+        const token0Amount = JSBI.greaterThan(liquidity, ZERO) ?
+                                  DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
+                                            //  : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
+                                : ZERO
+        const token1Amount = JSBI.greaterThan(liquidity, ZERO) ?
+                                DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
+                              : ZERO
+        // set amount based on bnInput
+        const amount0Bn = BigNumber.from(String(token0Amount))
+        const amount1Bn = BigNumber.from(String(token1Amount))
+        setAmount0(parseFloat(ethers.utils.formatUnits(amount0Bn, 18)))
+        setAmount1(parseFloat(ethers.utils.formatUnits(amount1Bn, 18)))
+        // set amount based on liquidity math
+        console.log('amounts set')
       }
     } catch (error) {
       console.log(error)
@@ -290,8 +341,8 @@ export default function Range() {
               <span className="bg-white text-black rounded-md px-3 py-0.5">
                 {router.query.feeTier}%
               </span>
-              {Number(rangeTickPrice) < Number(minLimit) ||
-              Number(rangeTickPrice) > Number(maxLimit) ? (
+              {Number(rangeTickPrice) < Number(lowerTick) ||
+              Number(rangeTickPrice) > Number(upperTick) ? (
                 <div className="pr-5">
                   <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
                     <ExclamationTriangleIcon className="w-4 text-yellow-600" />
@@ -363,7 +414,6 @@ export default function Range() {
                   $
                   {userLiquidityUsd.toFixed(2)}
                 </span>
-
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
@@ -371,15 +421,15 @@ export default function Range() {
                       {tokenIn.name}
                     </div>
                     <div className="flex items-center gap-x-4">
-                      {tokenIn.value}
+                      {amount0.toFixed(2)}
                       <span className="bg-grey1 text-grey rounded-md px-3 py-0.5">
-                        47%
+                        {(amount0Usd / (amount0Usd + amount1Usd) * 100).toPrecision(4)}%
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="bg-grey1 text-grey rounded-md px-3 py-0.5">
-                      {mktRate[tokenIn.symbol]}
+                      ${amount0Usd}
                     </div>
                   </div>
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
@@ -388,15 +438,15 @@ export default function Range() {
                       {tokenOut.name}
                     </div>
                     <div className="flex items-center gap-x-4">
-                      {tokenOut.value}
+                      {amount1.toFixed(2)}
                       <span className="bg-grey1 text-grey rounded-md px-3 py-0.5">
-                        53%
+                      {(amount1Usd / (amount0Usd + amount1Usd) * 100).toPrecision(4)}%
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="bg-grey1 text-grey rounded-md px-3 py-0.5">
-                      {mktRate[tokenOut.symbol]}
+                      ${amount1Usd}
                     </div>
                   </div>
                 </div>
@@ -416,8 +466,8 @@ export default function Range() {
                       tokenZeroAddress: tokenIn.address,
                       feeTier: feeTier,
                       tickSpacing: tickSpacing,
-                      min: minLimit,
-                      max: maxLimit,
+                      min: lowerTick,
+                      max: upperTick,
                     },
                   }}
                 >
@@ -430,10 +480,10 @@ export default function Range() {
               </div>
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Unclaimed Fees</h1>
-                <span className="text-4xl">
+                <span className="text-4xl"> $
                   {router.query.unclaimedFees === undefined
                     ? '?'
-                    : router.query.unclaimedFees.toString()}
+                    : Number(router.query.unclaimedFees.toString()).toPrecision(5)}
                 </span>
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
@@ -456,21 +506,21 @@ export default function Range() {
                     <RangeBurnButton
                       poolAddress={poolAddress}
                       address={address}
-                      lower={BigNumber.from(minLimit)}
-                      upper={BigNumber.from(maxLimit)}
+                      lower={BigNumber.from(lowerTick)}
+                      upper={BigNumber.from(upperTick)}
                       amount={BigNumber.from(userLiquidity)}
                     />
                     <RangeCollectButton
                       poolAddress={poolAddress.toString()}
                       address={address}
-                      lower={BigNumber.from(minLimit)}
-                      upper={BigNumber.from(maxLimit)}
+                      lower={BigNumber.from(lowerTick)}
+                      upper={BigNumber.from(upperTick)}
                     />
                     <RangeCompoundButton
                       poolAddress={poolAddress.toString()}
                       address={address}
-                      lower={BigNumber.from(minLimit)}
-                      upper={BigNumber.from(maxLimit)}
+                      lower={BigNumber.from(lowerTick)}
+                      upper={BigNumber.from(upperTick)}
                     />
                   </div>
                 </div>
@@ -479,8 +529,8 @@ export default function Range() {
             <div>
               <div className="flex mt-7 gap-x-6 items-center">
                 <h1 className="text-lg">Price Range </h1>
-                {Number(rangeTickPrice) < Number(minLimit) ||
-                Number(rangeTickPrice) > Number(maxLimit) ? (
+                {Number(rangeTickPrice) < Number(lowerTick) ||
+                Number(rangeTickPrice) >= Number(upperTick) ? (
                   <div className="pr-5">
                     <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
                       <ExclamationTriangleIcon className="w-4 text-yellow-600" />
@@ -497,9 +547,9 @@ export default function Range() {
             </div>
             <div className="flex justify-between items-center mt-4 gap-x-6">
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
-                <div className="text-grey text-xs w-full">Min Price.</div>
+                <div className="text-grey text-xs w-full">Min Price</div>
                 <div className="text-white text-2xl my-2 w-full">
-                  {TickMath.getPriceStringAtTick(Number(minLimit), Number(tickSpacing))}
+                  {lowerPrice}
                 </div>
                 <div className="text-grey text-xs w-full">
                   {tokenIn.name} per {tokenOut.name}
@@ -510,9 +560,9 @@ export default function Range() {
               </div>
               <ArrowsRightLeftIcon className="w-12 text-grey" />
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
-                <div className="text-grey text-xs w-full">Max Price.</div>
+                <div className="text-grey text-xs w-full">Max Price</div>
                 <div className="text-white text-2xl my-2 w-full">
-                  {TickMath.getPriceStringAtTick(Number(maxLimit), Number(tickSpacing))}
+                  {upperPrice}
                 </div>
                 <div className="text-grey text-xs w-full">
                   {tokenIn.name} per {tokenOut.name}

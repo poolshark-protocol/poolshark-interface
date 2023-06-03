@@ -236,6 +236,7 @@ export default function Pool() {
                         </div>
                       ) : (
                         allRangePositions.map((allRangePosition) => {
+                          console.log('user liquidity check 2', allRangePosition.userLiquidity)
                           if (
                             allRangePosition.id != undefined &&
                             allRangePosition.userOwnerAddress ===

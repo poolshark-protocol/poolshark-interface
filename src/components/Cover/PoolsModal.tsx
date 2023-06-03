@@ -33,9 +33,9 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
         id: rangePosition.id,
         poolId: rangePosition.token.position.pool.id,
         tokenZero: rangePosition.token.position.pool.token0,
-        valueTokenZero: rangePosition.token.position.pool.totalValueLocked0,
+        valueTokenZero: rangePosition.token.position.pool.token0.usdPrice,
         tokenOne: rangePosition.token.position.pool.token1,
-        valueTokenOne: rangePosition.token.position.pool.totalValueLocked1,
+        valueTokenOne: rangePosition.token.position.pool.token1.usdPrice,
         min: rangePosition.token.position.lower,
         max: rangePosition.token.position.upper,
         price: rangePosition.token.position.pool.price,
@@ -227,11 +227,10 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                                   valueTokenOne={allRangePosition.valueTokenOne}
                                   min={allRangePosition.min}
                                   max={allRangePosition.max}
-                                  liquidity={allRangePosition.liquidity}
+                                  userLiquidity={allRangePosition.liquidity}
                                   price={allRangePosition.price}
                                   feeTier={allRangePosition.feeTier}
                                   tickSpacing={allRangePosition.tickSpacing}
-                                  unclaimedFees={allRangePosition.unclaimedFees}
                                   tvlUsd={allRangePosition.tvlUsd}
                                   volumeUsd={allRangePosition.volumeUsd}
                                   volumeEth={allRangePosition.volumeEth}

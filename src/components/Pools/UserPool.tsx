@@ -143,6 +143,7 @@ export default function UserPool({
             price: price,
             feeTier: feeTierPercentage,
             tickSpacing: tickSpacing,
+            userLiquidity: userLiquidity
           },
         }}
       >
