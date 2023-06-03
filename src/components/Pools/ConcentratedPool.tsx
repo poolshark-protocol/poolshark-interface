@@ -114,10 +114,13 @@ export default function ConcentratedPool({
   const [upperTick, setUpperTick] = useState(initialBig)
   const [amount0, setAmount0] = useState(initialBig)
   const [amount1, setAmount1] = useState(initialBig)
+  const [amount0Usd, setAmount0Usd] = useState(0.00)
+  const [amount1Usd, setAmount1Usd] = useState(0.00)
   const [tickSpacing, setTickSpacing] = useState(tickSpacingParam)
   const [hasSelected, setHasSelected] = useState(true)
   const [isDisabled, setDisabled] = useState(true)
-  const [mktRate, setMktRate] = useState({})
+  const [usdPrice0, setUsdPrice0] = useState(0)
+  const [usdPrice1, setUsdPrice1] = useState(0)
 
   useEffect(() => {
     if (hasSelected) {
@@ -143,7 +146,7 @@ export default function ConcentratedPool({
 
   useEffect(() => {
     fetchTokenPrice()
-  }, [rangePrice, tokenIn, tokenOut])
+  }, [usdPrice0, usdPrice1, amount0, amount1])
 
   useEffect(() => {
     setRangeParams()
@@ -255,6 +258,8 @@ export default function ConcentratedPool({
           const price = JSBI.BigInt(pool['data']['rangePools']['0']['price'])
           const spacing = pool['data']['rangePools']['0']['feeTier']['tickSpacing']
           const tickAtPrice = pool['data']['rangePools']['0']['tickAtPrice']
+          const token0Price = pool['data']['rangePools']['0']['token0']['usdPrice']
+          const token1Price = pool['data']['rangePools']['0']['token1']['usdPrice']
           setRangePoolRoute(id)
           setRangePrice(TickMath.getPriceStringAtSqrtPrice(price))
           setRangeSqrtPrice(price)
@@ -269,6 +274,8 @@ export default function ConcentratedPool({
             setUpperTick(BigNumber.from(tickAtPrice - (-7000)))
           }
           setTickSpacing(spacing)
+          setUsdPrice0(parseFloat(token0Price))
+          setUsdPrice1(parseFloat(token1Price))
         } else {
           setRangePoolRoute(ZERO_ADDRESS)
           setRangePrice('1.00')
@@ -285,22 +292,11 @@ export default function ConcentratedPool({
   }
 
   const fetchTokenPrice = async () => {
-    if (isNaN(parseFloat(rangePrice))) return
     try {
-      console.log('fetchTokenPrice', String(rangePrice))
-      const price0 = rangePrice
-      const price1: any = invertPrice(rangePrice, false)
-      setMktRate({
-        TOKEN20A:
-          price1.toLocaleString('en-US', {
-            style: 'currency',
-            currency: 'USD',
-          }),
-        TOKEN20B: price0.toLocaleString('en-US', {
-          style: 'currency',
-          currency: 'USD',
-        }),
-      })
+      const token0Amount = parseFloat(ethers.utils.formatUnits(amount0, 18))
+      const token1Amount = parseFloat(ethers.utils.formatUnits(amount1, 18))
+      setAmount0Usd(token0Amount * usdPrice0)
+      setAmount1Usd(token1Amount * usdPrice1)
     } catch (error) {
       console.log(error)
     }
@@ -603,15 +599,13 @@ export default function ConcentratedPool({
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 w-20">
                 {inputBox('0')}
-                {mktRate[tokenIn.symbol] != '~$NaN' ? (
+                {
                   <div className="flex">
                     <div className="flex text-xs text-[#4C4C4C]">
-                      ${mktRate[tokenIn.symbol] * Number(ethers.utils.formatUnits(bnInput, 18))}
+                      ${((tokenOrder ? usdPrice0 : usdPrice1) * Number(ethers.utils.formatUnits(bnInput, 18))).toFixed(2)}
                     </div>
                   </div>
-                ) : (
-                  <></>
-                )}
+                }
               </div>
               <div className="">
                 <div className=" ml-auto">
@@ -640,7 +634,7 @@ export default function ConcentratedPool({
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 ">
                 {Number(tokenOrder ? ethers.utils.formatUnits(amount1, 18)
-                            : ethers.utils.formatUnits(amount0, 18))}
+                                   : ethers.utils.formatUnits(amount0, 18))}
               </div>
               <div className="">
                 <div className=" ml-auto">
@@ -757,6 +751,8 @@ export default function ConcentratedPool({
           tokenOut={tokenOut}
           amount0={amount0}
           amount1={amount1}
+          amount0Usd={amount0Usd}
+          amount1Usd={amount1Usd}
           lowerPrice={lowerPrice}
           upperPrice={upperPrice}
           lowerTick={lowerTick}

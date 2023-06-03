@@ -14,6 +14,8 @@ export default function ConcentratedPoolPreview({
   tokenOut,
   amount0,
   amount1,
+  amount0Usd,
+  amount1Usd,
   lowerPrice,
   upperPrice,
   lowerTick,
@@ -127,7 +129,7 @@ export default function ConcentratedPoolPreview({
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                  ~300.53
+                                  ${amount0Usd.toFixed(2)}
                                 </div>
                               </div>
                             </div>
@@ -159,7 +161,7 @@ export default function ConcentratedPoolPreview({
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                  ~300.52
+                                ${amount1Usd.toFixed(2)}
                                 </div>
                               </div>
                             </div>
@@ -203,7 +205,7 @@ export default function ConcentratedPoolPreview({
                               </span>
                             </div>
                             <span className="text-xs text-grey">
-                              {tokenIn.symbol} per {tokenOut.symbol}
+                              {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
                             </span>
                           </div>
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
@@ -216,7 +218,7 @@ export default function ConcentratedPoolPreview({
                               </span>
                             </div>
                             <span className="text-xs text-grey">
-                              {tokenIn.symbol} per {tokenOut.symbol}
+                            {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
                             </span>
                           </div>
                         </div>

@@ -31,16 +31,6 @@ export function roundTick(tick: number, tickSpacing: number): number {
   return tick;
 }
 
-export function roundPrice(sqrtRatioX96: JSBI, tickSpacing: number): JSBI {
-  let spacing = JSBI.BigInt(tickSpacing.toString())
-  let tick = this.getTickAtSqrtRatio(sqrtRatioX96)
-  let roundedTick = this.roundTick(Number(tick), tickSpacing)
-  if (tick != roundedTick) {
-    return this.getSqrtRatioAtTick(roundedTick)
-  }
-  return sqrtRatioX96
-}
-
 export function invertPrice(priceString: string, zeroForOne: boolean): string {
   if(!zeroForOne) {
     let price = JSBD.BigDecimal(priceString)
