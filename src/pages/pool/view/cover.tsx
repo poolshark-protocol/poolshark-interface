@@ -6,7 +6,6 @@ import {
   ExclamationTriangleIcon,
 } from '@heroicons/react/20/solid'
 import { useState, useEffect } from 'react'
-import CoverCollectButton fro../../../components/Buttons/RemoveLiqButtonButton'
 import { useRouter } from 'next/router'
 import { useAccount, useContractRead } from 'wagmi'
 import Link from 'next/link'
