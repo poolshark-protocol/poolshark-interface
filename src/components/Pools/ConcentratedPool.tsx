@@ -192,6 +192,17 @@ export default function ConcentratedPool({
   })
 
   useEffect(() => {
+    if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
+      console.log('setting lower tick')
+      setLowerTick(BigNumber.from(TickMath.getTickAtPriceString(lowerPrice, tickSpacing)))
+    }
+    if (!isNaN(parseFloat(upperPrice))) {
+      console.log('setting upper tick')
+      setUpperTick(BigNumber.from(TickMath.getTickAtPriceString(upperPrice, tickSpacing)))
+    }
+  }, [lowerPrice, upperPrice])
+
+  useEffect(() => {
     if (tokenInAllowance) {
       //console.log('token in allowance', tokenInAllowance, tokenInAllowance.toString(), allowance0)
       if(address != '0x' &&

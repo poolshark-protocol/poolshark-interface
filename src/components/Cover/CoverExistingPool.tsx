@@ -326,10 +326,12 @@ export default function CoverExistingPool({
 
   useEffect(() => {
     if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
+      console.log('setting lower tick')
       setLowerTick(TickMath.getTickAtPriceString(lowerPrice, tickSpread))
+    }
+    if (!isNaN(parseFloat(upperPrice))) {
+      console.log('setting upper tick')
       setUpperTick(TickMath.getTickAtPriceString(upperPrice, tickSpread))
-    } else {
-      console.log('not a number')
     }
   }, [lowerPrice, upperPrice])
 

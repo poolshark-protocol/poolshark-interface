@@ -180,10 +180,12 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
+      console.log('setting lower tick')
       setLowerTick(BigNumber.from(TickMath.getTickAtPriceString(lowerPrice, tickSpread)))
+    }
+    if (!isNaN(parseFloat(upperPrice))) {
+      console.log('setting upper tick')
       setUpperTick(BigNumber.from(TickMath.getTickAtPriceString(upperPrice, tickSpread)))
-    } else {
-      console.log('not a number')
     }
   }, [lowerPrice, upperPrice])
 
