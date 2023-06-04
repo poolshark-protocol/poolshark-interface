@@ -14,7 +14,7 @@ import { useState, useEffect } from 'react'
 import useInputBox from '../../hooks/useInputBox'
 import { tokenOneAddress } from '../../constants/contractAddresses'
 import { coverPoolAddress } from '../../constants/contractAddresses'
-import { TickMath, invertPrice } from '../../utils/math/tickMath'
+import { TickMath, invertPrice, roundTick } from '../../utils/math/tickMath'
 import { BigNumber, Contract, ethers } from 'ethers'
 import { useCoverStore } from '../../hooks/useStore'
 import { getCoverPoolFromFactory } from '../../utils/queries'
@@ -48,7 +48,7 @@ export default function CreateCover(props: any) {
   const [upperPrice, setUpperPrice] = useState('')
   const [lowerTick, setLowerTick] = useState(initialBig)
   const [upperTick, setUpperTick] = useState(initialBig)
-  const [tickSpread, setTickSpread] = useState(10)
+  const [latestTick, setLatestTick] = useState(0)
   const [balance0, setBalance0] = useState('')
   const [allowance, setAllowance] = useState('0')
   const { address, isConnected, isDisconnected } = useAccount()
@@ -80,7 +80,7 @@ export default function CreateCover(props: any) {
   const [tokenOrder, setTokenOrder] = useState(
     tokenIn.address.localeCompare(tokenOut.address) < 0,
   )
-  const [tickSpacing, setTickSpacing] = useState(
+  const [tickSpread, setTickSpread] = useState(
     props.query ? props.query.tickSpacing : 20,
   )
   const poolId =
@@ -178,33 +178,14 @@ export default function CreateCover(props: any) {
     }
   }, [bnInput, lowerTick, upperTick])
 
-  // set lower tick
   useEffect(() => {
-    try {
-      if (tokenOut.symbol !== 'Select Token' && hasSelected == true) {
-        if (!isNaN(parseFloat(lowerPrice)) && parseFloat(lowerPrice) > 0) {
-          const lower = TickMath.getTickAtPriceString(lowerPrice, tickSpacing)
-          setLowerTick(BigNumber.from(String(lower)))
-        }
-      }
-    } catch (error) {
-      console.log(error)
+    if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
+      setLowerTick(BigNumber.from(TickMath.getTickAtPriceString(lowerPrice, tickSpread)))
+      setUpperTick(BigNumber.from(TickMath.getTickAtPriceString(upperPrice, tickSpread)))
+    } else {
+      console.log('not a number')
     }
-  }, [lowerPrice])
-
-  // set upper tick
-  useEffect(() => {
-    try {
-      if (tokenOut.symbol !== 'Select Token' && hasSelected == true) {
-        if (!isNaN(parseFloat(upperPrice)) && parseFloat(upperPrice) > 0) {
-          const upper = TickMath.getTickAtPriceString(upperPrice, tickSpacing)
-          setUpperTick(BigNumber.from(String(upper)))
-        }
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }, [upperPrice])
+  }, [lowerPrice, upperPrice])
 
   useEffect(() => {
     changeCoverAmounts(true)
@@ -218,7 +199,7 @@ export default function CreateCover(props: any) {
       const dataLength = pool['data']['coverPools'].length
       if (dataLength != 0) {
         setCoverPoolRoute(pool['data']['coverPools']['0']['id'])
-        setTickSpacing(
+        setTickSpread(
           pool['data']['coverPools']['0']['volatilityTier']['tickSpread'],
         )
         const newLatestTick = pool['data']['coverPools']['0']['latestTick']
@@ -226,7 +207,7 @@ export default function CreateCover(props: any) {
       } else {
         setCoverPoolRoute(ZERO_ADDRESS)
         setCoverPrice('1.00')
-        setTickSpacing(10)
+        setTickSpread(10)
       }
     } catch (error) {
       console.log(error)
@@ -287,61 +268,23 @@ export default function CreateCover(props: any) {
     const current = document.getElementById('input') as HTMLInputElement
   }
 
-  const changePrice = (direction: string, minMax: string) => {
-    if (direction === 'plus' && minMax === 'min') {
-      if (
-        (document.getElementById('minInput') as HTMLInputElement).value ===
-        undefined
-      ) {
-        const current = document.getElementById('minInput') as HTMLInputElement
-        current.value = '1'
-      }
-      const current = Number(
-        (document.getElementById('minInput') as HTMLInputElement).value,
-      )
-      ;(document.getElementById('minInput') as HTMLInputElement).value = String(
-        (current + 0.01).toFixed(3),
-      )
+  const changePrice = (direction: string, inputId: string) => {
+    if (!tickSpread) return
+    const currentTick = inputId == 'minInput' || inputId == 'maxInput' ?
+                          (inputId == 'minInput' ? Number(lowerTick) : Number(upperTick)) : latestTick;
+    const increment = tickSpread
+    const adjustment = direction == 'plus' || direction == 'minus' ?
+                        (direction == 'plus' ? -increment : increment) : 0;
+    const newTick = roundTick(currentTick - adjustment, increment)
+    const newPriceString = TickMath.getPriceStringAtTick(newTick);
+    (document.getElementById(inputId) as HTMLInputElement).value = Number(newPriceString).toFixed(6)
+    if (inputId === 'maxInput') {
+      setUpperTick(BigNumber.from(newTick))
+      setUpperPrice(newPriceString)
     }
-    if (direction === 'minus' && minMax === 'min') {
-      const current = Number(
-        (document.getElementById('minInput') as HTMLInputElement).value,
-      )
-      if (current === 0 || current - 1 < 0) {
-        ;(document.getElementById('minInput') as HTMLInputElement).value = '0'
-        return
-      }
-      ;(document.getElementById('minInput') as HTMLInputElement).value = (
-        current - 0.01
-      ).toFixed(3)
-    }
-
-    if (direction === 'plus' && minMax === 'max') {
-      if (
-        (document.getElementById('maxInput') as HTMLInputElement).value ===
-        undefined
-      ) {
-        const current = document.getElementById('maxInput') as HTMLInputElement
-        current.value = '1'
-      }
-      const current = Number(
-        (document.getElementById('maxInput') as HTMLInputElement).value,
-      )
-      ;(document.getElementById('maxInput') as HTMLInputElement).value = (
-        current + 0.01
-      ).toFixed(3)
-    }
-    if (direction === 'minus' && minMax === 'max') {
-      const current = Number(
-        (document.getElementById('maxInput') as HTMLInputElement).value,
-      )
-      if (current === 0 || current - 1 < 0) {
-        ;(document.getElementById('maxInput') as HTMLInputElement).value = '0'
-        return
-      }
-      ;(document.getElementById('maxInput') as HTMLInputElement).value = (
-        current - 0.01
-      ).toFixed(3)
+    if (inputId === 'minInput') {
+      setLowerTick(BigNumber.from(newTick))
+      setLowerPrice(newPriceString)
     }
   }
 
@@ -622,7 +565,7 @@ export default function CreateCover(props: any) {
           <span className="text-xs text-grey">Min Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice('minus', 'min')}>
+              <button onClick={() => changePrice('minus', 'minInput')}>
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </button>
             </div>
@@ -648,7 +591,7 @@ export default function CreateCover(props: any) {
               }
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice('plus', 'min')}>
+              <button onClick={() => changePrice('plus', 'minInput')}>
                 <PlusIcon className="w-5 h-5" />
               </button>
             </div>
@@ -662,7 +605,7 @@ export default function CreateCover(props: any) {
           <span className="text-xs text-grey">Max. Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice('minus', 'max')}>
+              <button onClick={() => changePrice('minus', 'maxInput')}>
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </button>
             </div>
@@ -688,7 +631,7 @@ export default function CreateCover(props: any) {
               }
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice('plus', 'max')}>
+              <button onClick={() => changePrice('plus', 'maxInput')}>
                 <PlusIcon className="w-5 h-5" />
               </button>
             </div>
@@ -739,7 +682,7 @@ export default function CreateCover(props: any) {
             upper={upperTick}
             amount={bnInput}
             zeroForOne={tokenOrder}
-            tickSpacing={tickSpacing}
+            tickSpacing={tickSpread}
           />
         ) : null}
       </div>
