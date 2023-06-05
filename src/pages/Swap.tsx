@@ -1095,7 +1095,10 @@ export default function Swap() {
                   lower={roundTick(TickMath.getTickAtPriceString((ethers.utils.formatUnits(rangeBnPrice, 18))), rangeTickSpacing)}
                   upper={roundTick(TickMath.getTickAtPriceString((ethers.utils.formatUnits(rangeBnPrice.add(rangeBnBaseLimit), 18))), rangeTickSpacing)}
                   amount0={bnInput}
-                  amount1={ethers.utils.parseEther(rangeQuote.toString())}
+                  amount1={ethers.utils.parseEther(
+                    (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                      rangeQuote).toString()
+                    )}
                 />
               )
             )}
