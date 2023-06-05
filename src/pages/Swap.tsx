@@ -95,6 +95,7 @@ export default function Swap() {
   const [allowanceCover, setAllowanceCover] = useState('0.00')
   const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
   const [rangePoolRoute, setRangePoolRoute] = useState(undefined)
+  const [rangeTickSpacing, setRangeTickSpacing] = useState(undefined)
   const [coverPriceAfter, setCoverPriceAfter] = useState(undefined)
   const [rangePriceAfter, setRangePriceAfter] = useState(undefined)
   const [coverBnPrice, setCoverBnPrice] = useState(BigNumber.from(0))
@@ -277,7 +278,7 @@ export default function Swap() {
   }
 
   async function updatePools() {
-    await getRangePool(tokenIn, tokenOut, setRangePoolRoute)
+    await getRangePool(tokenIn, tokenOut, setRangePoolRoute, setRangeTickSpacing)
     await getCoverPool(tokenIn, tokenOut, setCoverPoolRoute)
   }
 
@@ -1056,8 +1057,8 @@ export default function Swap() {
                   disabled={false}
                   poolAddress={rangePoolRoute}
                   to={address}
-                  lower={roundTick(TickMath.getTickAtPriceString((ethers.utils.formatUnits(rangeBnPrice, 18))), tickSpread)}
-                  upper={roundTick(TickMath.getTickAtPriceString((ethers.utils.formatUnits(rangeBnPrice.add(rangeBnBaseLimit), 18))), tickSpread)}
+                  lower={roundTick(TickMath.getTickAtPriceString((ethers.utils.formatUnits(rangeBnPrice, 18))), rangeTickSpacing)}
+                  upper={roundTick(TickMath.getTickAtPriceString((ethers.utils.formatUnits(rangeBnPrice.add(rangeBnBaseLimit), 18))), rangeTickSpacing)}
                   amount0={bnInput}
                   amount1={ethers.utils.parseEther(rangeQuote.toString())}
                 />

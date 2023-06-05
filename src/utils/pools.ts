@@ -6,6 +6,7 @@ export const getRangePool = async (
   tokenIn: token,
   tokenOut: token,
   setRangeRoute,
+  setRangeTickSpacing?,
 ) => {
   try {
     const pool = await getRangePoolFromFactory(
@@ -16,12 +17,20 @@ export const getRangePool = async (
     let dataLength = pool['data']['rangePools'].length
     if (dataLength != 0) {
       id = pool['data']['rangePools']['0']['id']
+      
+      if (setRangeTickSpacing) {
+        setRangeTickSpacing(pool['data']['rangePools']['0']['feeTier']['tickSpacing'])
+      }
     } else {
       const fallbackPool = await getRangePoolFromFactory(
         tokenOut.address,
         tokenIn.address,
       )
       id = fallbackPool['data']['rangePools']['0']['id']
+
+      if (setRangeTickSpacing) {
+        setRangeTickSpacing(pool['data']['rangePools']['0']['feeTier']['tickSpacing'])
+      }
     }
     setRangeRoute(id)
   } catch (error) {
