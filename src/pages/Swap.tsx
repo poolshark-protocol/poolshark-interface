@@ -917,7 +917,7 @@ export default function Swap() {
         </div>
         {isDisconnected ? (
           <ConnectWalletButton xl={true} />
-        ) : (
+        ) : !LimitActive ? (
           <>
             {stateChainName !== "arbitrumGoerli" ||
             coverQuote === 0 ||
@@ -1018,7 +1018,110 @@ export default function Swap() {
               />
             )}
           </>
-        )}
+        ) :
+        (
+          <>
+            {stateChainName !== "arbitrumGoerli" ||
+            coverQuote === 0 ||
+            rangeQuote === 0 ||
+            bnInput._hex == "0x00" ? (
+              <button
+                disabled
+                className="w-full py-4 mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
+              >
+                Swap
+              </button>
+            ) : rangeQuote > coverQuote ? (
+              Number(allowanceRange) <
+              Number(ethers.utils.formatUnits(bnInput, 18)) ? (
+                <div>
+                  <div className="flex-none text-xs uppercase text-[#C9C9C9]">
+                    Your {tokenIn.symbol} rangePool allowance is missing{" "}
+                    {(
+                      Number(ethers.utils.formatUnits(bnInput, 18)) -
+                      Number(allowanceRange)
+                    ).toFixed(2)}{" "}
+                    {tokenIn.symbol}
+                  </div>
+
+                  <SwapRangeApproveButton
+                    disabled={false}
+                    poolAddress={rangePoolRoute}
+                    approveToken={tokenIn.address}
+                  />
+                </div>
+              ) : (
+                <SwapRangeButton
+                  poolAddress={rangePoolRoute}
+                  zeroForOne={
+                    tokenOut.address != "" &&
+                    tokenIn.address.localeCompare(tokenOut.address) < 0
+                  }
+                  amount={bnInput}
+                  baseLimit={
+                    tokenOut.address != "" &&
+                    tokenIn.address.localeCompare(tokenOut.address) < 0
+                      ? BigNumber.from(
+                          TickMath.getSqrtPriceAtPriceString(
+                            rangeBnPrice.sub(rangeBnBaseLimit).toString(),
+                            18
+                          ).toString()
+                        )
+                      : BigNumber.from(
+                          TickMath.getSqrtPriceAtPriceString(
+                            rangeBnPrice.add(rangeBnBaseLimit).toString(),
+                            18
+                          ).toString()
+                        )
+                  }
+                />
+              )
+            ) : Number(allowanceCover) <
+              Number(ethers.utils.formatUnits(bnInput, 18)) ? (
+              <div>
+                <div className="flex-none ">
+                  Your {tokenIn.symbol} coverPool allowance is missing{" "}
+                  {(
+                    Number(ethers.utils.formatUnits(bnInput, 18)) -
+                    Number(allowanceCover)
+                  ).toFixed(2)}{" "}
+                  {tokenIn.symbol}
+                </div>
+                <SwapCoverApproveButton
+                  disabled={false}
+                  poolAddress={coverPoolRoute}
+                  approveToken={tokenIn.address}
+                />
+              </div>
+            ) : (
+              <SwapCoverButton
+                poolAddress={coverPoolRoute}
+                zeroForOne={
+                  tokenOut.address != "" &&
+                  tokenIn.address.localeCompare(tokenOut.address) < 0
+                }
+                amount={bnInput}
+                baseLimit={
+                  tokenOut.address != "" &&
+                  tokenIn.address.localeCompare(tokenOut.address) < 0
+                    ? BigNumber.from(
+                        TickMath.getSqrtPriceAtPriceString(
+                          coverBnPrice.sub(coverBnBaseLimit).toString(),
+                          18
+                        ).toString()
+                      )
+                    : BigNumber.from(
+                        TickMath.getSqrtPriceAtPriceString(
+                          coverBnPrice.add(coverBnBaseLimit).toString(),
+                          18
+                        ).toString()
+                      )
+                }
+              />
+            )}
+          </>
+          )
+        }
       </div>
     </div>
   );
