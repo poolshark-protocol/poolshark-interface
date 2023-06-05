@@ -41,7 +41,7 @@ import { token } from '../utils/types'
 import { getCoverPool, getRangePool } from '../utils/pools'
 import { getBalances } from '../utils/balances'
 import inputFilter from '../utils/inputFilter'
-import RangeMintButton from '../components/Buttons/RangeMintButton'
+import RangeLimitSwapButton from '../components/Buttons/RangeLimitSwapButton'
 import SwapRangeDoubleApproveButton from '../components/Buttons/SwapRangeDoubleApproveButton'
 
 export default function Swap() {
@@ -1088,7 +1088,7 @@ export default function Swap() {
                   />
                 )
             ) : (
-                <RangeMintButton
+                <RangeLimitSwapButton
                   disabled={false}
                   poolAddress={rangePoolRoute}
                   to={address}
