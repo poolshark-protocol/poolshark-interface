@@ -816,9 +816,13 @@ export default function Swap() {
             {rangeQuote !== 0 && coverQuote !== 0 ? (
               <div className="flex">
                 <div className="flex text-xs text-[#4C4C4C]">
-                  {rangeQuote > coverQuote
-                    ? (1 / rangeQuote).toFixed(2)
-                    : (1 / coverQuote).toFixed(2)}
+                  {!LimitActive ? (
+                    rangeQuote > coverQuote
+                      ? (1 / rangeQuote).toFixed(2)
+                      : (1 / coverQuote).toFixed(2)
+                    ) : (
+                      (1 / rangePrice).toFixed(2)
+                    )}
                 </div>
               </div>
             ) : (
