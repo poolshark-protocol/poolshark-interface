@@ -23,6 +23,7 @@ import { coverPoolABI } from '../../abis/evm/coverPool'
 import { ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
 import CoverMintApproveButton from '../Buttons/CoverMintApproveButton'
+import inputFilter from '../../utils/inputFilter'
 
 export default function CoverExistingPool({
   account,
@@ -470,14 +471,7 @@ export default function CoverExistingPool({
               onChange={(e) => {
                 setSliderValue(
                   Number(
-                    e.target.value
-                      .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                        match.length > 1 ? "0" : match
-                      )
-                      .replace(/^(\.)+/, "0.")
-                      .replace(/(?<=\..*)\./g, "")
-                      .replace(/^0+(?=\d)/, "")
-                      .replace(/[^\d.]/g, "")
+                    inputFilter(e.target.value)
                   )
                 );
                 console.log("slider value", sliderValue);
@@ -499,28 +493,14 @@ export default function CoverExistingPool({
                 console.log("cover amount changed", coverAmountOut);
                 if (
                   Number(
-                    e.target.value
-                      .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                        match.length > 1 ? "0" : match
-                      )
-                      .replace(/^(\.)+/, "0")
-                      .replace(/(?<=\..*)\./g, "")
-                      .replace(/^0+(?=\d)/, "")
-                      .replace(/[^\d.]/g, "")
+                    inputFilter(e.target.value)    
                   ) /
                     Number(ethers.utils.formatUnits(coverAmountOut, 18)) <
                   100
                 ) {
                   setSliderValue(
                     Number(
-                      e.target.value
-                        .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                          match.length > 1 ? "0" : match
-                        )
-                        .replace(/^(\.)+/, "0")
-                        .replace(/(?<=\..*)\./g, "")
-                        .replace(/^0+(?=\d)/, "")
-                        .replace(/[^\d.]/g, "")
+                      inputFilter(e.target.value)
                     ) / Number(ethers.utils.formatUnits(coverAmountOut, 18))
                   );
                 } else {
@@ -528,14 +508,7 @@ export default function CoverExistingPool({
                 }
                 setCoverValue(
                   Number(
-                    e.target.value
-                      .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                        match.length > 1 ? "0" : match
-                      )
-                      .replace(/^(\.)+/, "0")
-                      .replace(/(?<=\..*)\./g, "")
-                      .replace(/^0+(?=\d)/, "")
-                      .replace(/[^\d.]/g, "")
+                    inputFilter(e.target.value)
                   )
                 );
               }}
@@ -590,16 +563,9 @@ export default function CoverExistingPool({
               }
               onChange={() =>
                 setLowerPrice(
-                  (
+                  inputFilter((
                     document.getElementById("minInput") as HTMLInputElement
-                  )?.value
-                    .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                      match.length > 1 ? "0" : match
-                    )
-                    .replace(/^(\.)+/, "0.")
-                    .replace(/(?<=\..*)\./g, "")
-                    .replace(/^0+(?=\d)/, "")
-                    .replace(/[^\d.]/g, "")
+                  )?.value)
                 )
               }
             />
@@ -638,16 +604,9 @@ export default function CoverExistingPool({
               }
               onChange={() =>
                 setUpperPrice(
-                  (
+                  inputFilter((
                     document.getElementById("maxInput") as HTMLInputElement
-                  )?.value
-                    .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                      match.length > 1 ? "0" : match
-                    )
-                    .replace(/^(\.)+/, "0.")
-                    .replace(/(?<=\..*)\./g, "")
-                    .replace(/^0+(?=\d)/, "")
-                    .replace(/[^\d.]/g, "")
+                  )?.value)
                 )
               }
             />

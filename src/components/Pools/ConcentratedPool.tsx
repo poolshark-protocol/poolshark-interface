@@ -21,6 +21,7 @@ import { getBalances } from '../../utils/balances'
 import { getRangePool } from '../../utils/pools'
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
+import inputFilter from '../../utils/inputFilter'
 
 export default function ConcentratedPool({
   account,
@@ -695,16 +696,9 @@ export default function ConcentratedPool({
                   value={lowerPrice}
                   onChange={() =>
                     setLowerPrice(
-                      (
+                      inputFilter((
                         document.getElementById("minInput") as HTMLInputElement
-                      )?.value
-                        .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                          match.length > 1 ? "0" : match
-                        )
-                        .replace(/^(\.)+/, "0.")
-                        .replace(/(?<=\..*)\./g, "")
-                        .replace(/^0+(?=\d)/, "")
-                        .replace(/[^\d.]/g, "")
+                      )?.value)
                     )
                   }
                 />
@@ -732,16 +726,9 @@ export default function ConcentratedPool({
                   value={upperPrice}
                   onChange={() =>
                     setUpperPrice(
-                      (
+                      inputFilter((
                         document.getElementById("maxInput") as HTMLInputElement
-                      )?.value
-                        .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                          match.length > 1 ? "0" : match
-                        )
-                        .replace(/^(\.)+/, "0.")
-                        .replace(/(?<=\..*)\./g, "")
-                        .replace(/^0+(?=\d)/, "")
-                        .replace(/[^\d.]/g, "")
+                      )?.value)
                     )
                   }
                 />
