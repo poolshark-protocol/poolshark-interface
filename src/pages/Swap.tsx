@@ -42,6 +42,7 @@ import { getCoverPool, getRangePool } from '../utils/pools'
 import { getBalances } from '../utils/balances'
 import inputFilter from '../utils/inputFilter'
 import RangeMintButton from '../components/Buttons/RangeMintButton'
+import SwapRangeDoubleApproveButton from '../components/Buttons/SwapRangeDoubleApproveButton'
 
 export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount()
@@ -1056,24 +1057,37 @@ export default function Swap() {
               </button>
             ) : (//TODO: handle double allowance, check amount0/1
               Number(allowanceRange) <
-              Number(ethers.utils.formatUnits(bnInput, 18)) ? (
-                <div>
-                  <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                    Your {tokenIn.symbol} rangePool allowance is missing{" "}
-                    {(
-                      Number(ethers.utils.formatUnits(bnInput, 18)) -
-                      Number(allowanceRange)
-                    ).toFixed(2)}{" "}
-                    {tokenIn.symbol}
-                  </div>
-
+                Number(ethers.utils.formatUnits(bnInput, 18)) ||
+              Number(allowanceRangeOut) <
+                Number(
+                  parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                  rangeQuote) ? (
+                Number(allowanceRange) <
+                  Number(ethers.utils.formatUnits(bnInput, 18)) &&
+                Number(allowanceRangeOut) <
+                  Number(
+                    parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                    rangeQuote) ? (
+                  <SwapRangeDoubleApproveButton
+                    poolAddress={rangePoolRoute}
+                    tokenIn={tokenIn.address}
+                    tokenOut={tokenOut.address}
+                  />
+                ) : Number(allowanceRange) <
+                  Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                   <SwapRangeApproveButton
                     disabled={false}
                     poolAddress={rangePoolRoute}
                     approveToken={tokenIn.address}
                   />
-                </div>
-              ) : (
+                ) : (
+                  <SwapRangeApproveButton
+                    disabled={false}
+                    poolAddress={rangePoolRoute}
+                    approveToken={tokenOut.address}
+                  />
+                )
+            ) : (
                 <RangeMintButton
                   disabled={false}
                   poolAddress={rangePoolRoute}
