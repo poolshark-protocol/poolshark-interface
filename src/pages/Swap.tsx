@@ -41,6 +41,7 @@ import { token } from '../utils/types'
 import { getCoverPool, getRangePool } from '../utils/pools'
 import { getBalances } from '../utils/balances'
 import inputFilter from '../utils/inputFilter'
+import RangeMintButton from '../components/Buttons/RangeMintButton'
 
 export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount()
@@ -1051,29 +1052,14 @@ export default function Swap() {
                   />
                 </div>
               ) : (
-                <SwapRangeButton
+                <RangeMintButton
+                  disabled={false}
                   poolAddress={rangePoolRoute}
-                  zeroForOne={
-                    tokenOut.address != "" &&
-                    tokenIn.address.localeCompare(tokenOut.address) < 0
-                  }
-                  amount={bnInput}
-                  baseLimit={
-                    tokenOut.address != "" &&
-                    tokenIn.address.localeCompare(tokenOut.address) < 0
-                      ? BigNumber.from(
-                          TickMath.getSqrtPriceAtPriceString(
-                            rangeBnPrice.sub(rangeBnBaseLimit).toString(),
-                            18
-                          ).toString()
-                        )
-                      : BigNumber.from(
-                          TickMath.getSqrtPriceAtPriceString(
-                            rangeBnPrice.add(rangeBnBaseLimit).toString(),
-                            18
-                          ).toString()
-                        )
-                  }
+                  to={address}
+                  lower={}
+                  upper={}
+                  amount0={}
+                  amount1={}
                 />
               )
             )}
