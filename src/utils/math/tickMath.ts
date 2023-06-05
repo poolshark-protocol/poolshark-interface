@@ -41,21 +41,24 @@ export function invertPrice(priceString: string, zeroForOne: boolean): string {
 }
 
 export function getDefaultLowerTick(minLimit, maxLimit, zeroForOne, latestTick = 0): any {
+
   const midTick = Math.round((Number(minLimit) + Number(maxLimit)) / 2)
   if (zeroForOne) {
     if (latestTick < minLimit) return latestTick - 10000
-    return midTick - 10000
+    if (midTick - minLimit > 10000) return midTick - 10000
+    return minLimit
   } else {
-    if (latestTick < midTick) return midTick
+    if (latestTick < minLimit) return minLimit
     return latestTick
   }
 }
 
 export function getDefaultUpperTick(minLimit, maxLimit, zeroForOne, latestTick = 0): any {
-  const midTick = Math.round(Number(minLimit) + Number(maxLimit) / 2)
+  const midTick = Math.round((Number(minLimit) - -Number(maxLimit)) / 2)
   if (!zeroForOne) {
-    if (latestTick > maxLimit) return latestTick + 10000
-    return latestTick + 10000
+    if (latestTick > maxLimit) return latestTick - -10000
+    if (maxLimit - midTick > 10000) return midTick - -10000
+    return maxLimit  
   } else {
     if (latestTick > midTick) return midTick
     return latestTick

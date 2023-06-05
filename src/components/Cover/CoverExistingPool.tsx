@@ -23,6 +23,7 @@ import { coverPoolABI } from '../../abis/evm/coverPool'
 import { ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
 import CoverMintApproveButton from '../Buttons/CoverMintApproveButton'
+import inputFilter from '../../utils/inputFilter'
 
 export default function CoverExistingPool({
   account,
@@ -135,7 +136,7 @@ export default function CoverExistingPool({
       const dataLength = pool['data']['coverPools'].length
       if (dataLength != 0) {
         setCoverPoolRoute(pool['data']['coverPools']['0']['id'])
-        setTickSpread(['data']['coverPools']['0']['volatilityTier']['tickSpread'])
+        setTickSpread(pool['data']['coverPools']['0']['volatilityTier']['tickSpread'])
         setLatestTick(pool['data']['coverPools']['0']['latestTick'])
       } else {
         setCoverPoolRoute(ZERO_ADDRESS)
@@ -450,6 +451,7 @@ export default function CoverExistingPool({
       </div>
       <div className="w-full flex items-center mt-2">
         <input
+          autoComplete="off"
           type="range"
           min="0"
           max="100"
@@ -463,23 +465,16 @@ export default function CoverExistingPool({
           <div className="text-[#646464]">Percentage Covered</div>
           <div className="flex gap-x-2 items-center">
             <input
+              autoComplete="off"
               type="text"
               id="input"
               onChange={(e) => {
                 setSliderValue(
                   Number(
-                    e.target.value
-                      .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                        match.length > 1 ? "0" : match
-                      )
-                      .replace(/^(\.)+/, '0.')
-                      .replace(/(?<=\..*)\./g, '')
-                      .replace(/^0+(?=\d)/, '')
-                      .replace(/[^\d.]/g, '')
- 
-                  ),
-                )
-                console.log('slider value', sliderValue)
+                    inputFilter(e.target.value)
+                  )
+                );
+                console.log("slider value", sliderValue);
               }}
               value={sliderValue}
               className="text-right placeholder:text-grey1 text-white text-2xl w-20 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
@@ -489,36 +484,23 @@ export default function CoverExistingPool({
         </div>
         <div className="flex items-center justify-between text-sm">
           <div className="text-[#646464]">Amount Covered</div>
-          <div className='flex items-center justify-end gap-x-3'>
+          <div className="flex items-center justify-end gap-x-3">
             <input
+              autoComplete="off"
               type="text"
               id="input"
               onChange={(e) => {
                 console.log("cover amount changed", coverAmountOut);
                 if (
                   Number(
-                    e.target.value
-                      .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                        match.length > 1 ? "0" : match
-                      )
-                      .replace(/^(\.)+/, "0")
-                      .replace(/(?<=\..*)\./g, "")
-                      .replace(/^0+(?=\d)/, "")
-                      .replace(/[^\d.]/g, "")
+                    inputFilter(e.target.value)    
                   ) /
                     Number(ethers.utils.formatUnits(coverAmountOut, 18)) <
                   100
                 ) {
                   setSliderValue(
                     Number(
-                      e.target.value
-                        .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                          match.length > 1 ? "0" : match
-                        )
-                        .replace(/^(\.)+/, "0")
-                        .replace(/(?<=\..*)\./g, "")
-                        .replace(/^0+(?=\d)/, "")
-                        .replace(/[^\d.]/g, "")
+                      inputFilter(e.target.value)
                     ) / Number(ethers.utils.formatUnits(coverAmountOut, 18))
                   );
                 } else {
@@ -526,14 +508,7 @@ export default function CoverExistingPool({
                 }
                 setCoverValue(
                   Number(
-                    e.target.value
-                      .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                        match.length > 1 ? "0" : match
-                      )
-                      .replace(/^(\.)+/, "0")
-                      .replace(/(?<=\..*)\./g, "")
-                      .replace(/^0+(?=\d)/, "")
-                      .replace(/[^\d.]/g, "")
+                    inputFilter(e.target.value)
                   )
                 );
               }}
@@ -570,6 +545,7 @@ export default function CoverExistingPool({
               </button>
             </div>
             <input
+              autoComplete="off"
               className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
               placeholder="0"
               id="minInput"
@@ -587,15 +563,9 @@ export default function CoverExistingPool({
               }
               onChange={() =>
                 setLowerPrice(
-                  (document.getElementById('minInput') as HTMLInputElement)
-                    ?.value
-                    .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                      match.length > 1 ? '0' : match,
-                    )
-                    .replace(/^(\.)+/, '0.')
-                    .replace(/(?<=\..*)\./g, '')
-                    .replace(/^0+(?=\d)/, '')
-                    .replace(/[^\d.]/g, ''),
+                  inputFilter((
+                    document.getElementById("minInput") as HTMLInputElement
+                  )?.value)
                 )
               }
             />
@@ -615,6 +585,7 @@ export default function CoverExistingPool({
               </button>
             </div>
             <input
+              autoComplete="off"
               className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
               placeholder="0"
               id="maxInput"
@@ -633,15 +604,9 @@ export default function CoverExistingPool({
               }
               onChange={() =>
                 setUpperPrice(
-                  (document.getElementById('maxInput') as HTMLInputElement)
-                    ?.value
-                    .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                      match.length > 1 ? '0' : match,
-                    )
-                    .replace(/^(\.)+/, '0.')
-                    .replace(/(?<=\..*)\./g, '')
-                    .replace(/^0+(?=\d)/, '')
-                    .replace(/[^\d.]/g, ''),
+                  inputFilter((
+                    document.getElementById("maxInput") as HTMLInputElement
+                  )?.value)
                 )
               }
             />

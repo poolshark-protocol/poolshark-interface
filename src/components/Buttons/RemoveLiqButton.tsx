@@ -11,7 +11,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 
-export default function CoverBurnButton({poolAddress, address, lower, claim, upper, zeroForOne, amount}) {
+export default function RemoveLiq({poolAddress, address, lower, claim, upper, zeroForOne, amount}) {
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -58,7 +58,7 @@ export default function CoverBurnButton({poolAddress, address, lower, claim, upp
               address ?  write?.() : null
             }}
                 >
-                Burn position
+                Remove liquidity
         </div>
         <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
       {errorDisplay && (

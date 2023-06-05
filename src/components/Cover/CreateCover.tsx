@@ -25,6 +25,7 @@ import { useRouter } from 'next/router'
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
 import { getBalances } from '../../utils/balances'
+import inputFilter from '../../utils/inputFilter'
 
 export default function CreateCover(props: any) {
   const router = useRouter()
@@ -507,10 +508,10 @@ export default function CreateCover(props: any) {
           ) : ( */}
           <span
             className="flex gap-x-1 cursor-pointer"
-            onClick={() => props.goBack('initial')}
+            onClick={() => props.goBack("initial")}
           >
-            <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{' '}
-            <h1 className="mb-3 opacity-50">Back</h1>{' '}
+            <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{" "}
+            <h1 className="mb-3 opacity-50">Back</h1>{" "}
           </span>
           {/* )} */}
         </div>
@@ -528,7 +529,7 @@ export default function CreateCover(props: any) {
               className="w-6 cursor-pointer"
               onClick={() => {
                 if (hasSelected) {
-                  switchDirection()
+                  switchDirection();
                 }
               }}
             />
@@ -540,7 +541,7 @@ export default function CreateCover(props: any) {
               tokenChosen={changeDefault1}
               displayToken={tokenOut}
               balance={setQueryTokenOut}
-              key={queryTokenOut + 'selected'}
+              key={queryTokenOut + "selected"}
             />
           ) : (
             <SelectToken
@@ -549,7 +550,7 @@ export default function CreateCover(props: any) {
               tokenChosen={changeDefault1}
               displayToken={tokenOut}
               balance={setQueryTokenOut}
-              key={queryTokenOut + 'unselected'}
+              key={queryTokenOut + "unselected"}
             />
           )}
         </div>
@@ -557,7 +558,7 @@ export default function CreateCover(props: any) {
       <h1 className="mb-3">How much do you want to Cover?</h1>
       <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
         <div className="flex-col justify-center w-1/2 p-2 ">
-          {inputBox('0', setCoverAmountIn)}
+          {inputBox("0", setCoverAmountIn)}
           <div className="flex text-xs text-[#4C4C4C]">
             ~${Number(ethers.utils.formatUnits(bnInput, 18)).toFixed(2)}
           </div>
@@ -575,12 +576,12 @@ export default function CreateCover(props: any) {
               </div>
               <div className="flex items-center justify-end gap-2 px-1 mt-2">
                 <div className="flex text-xs text-[#4C4C4C]">
-                  Balance: {balance0 === 'NaN' ? 0 : balance0}
+                  Balance: {balance0 === "NaN" ? 0 : balance0}
                 </div>
                 {isConnected ? (
                   <button
                     className="flex text-xs uppercase text-[#C9C9C9]"
-                    onClick={() => maxBalance(balance0, '0')}
+                    onClick={() => maxBalance(balance0, "0")}
                   >
                     Max
                   </button>
@@ -606,12 +607,12 @@ export default function CreateCover(props: any) {
             parseFloat(lowerPrice) < parseFloat(upperPrice) ? (
               (
                 parseFloat(
-                  ethers.utils.formatUnits(String(coverAmountOut), 18),
-                ) * parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''))
+                  ethers.utils.formatUnits(String(coverAmountOut), 18)
+                ) * parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ""))
               ).toFixed(2)
             ) : (
               <>?</>
-            )}{' '}
+            )}{" "}
             {tokenOut.symbol}
           </div>
         </div>
@@ -622,11 +623,12 @@ export default function CreateCover(props: any) {
           <span className="text-xs text-grey">Min Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice('minus', 'min')}>
+              <button onClick={() => changePrice("minus", "min")}>
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </button>
             </div>
             <input
+              autoComplete="off"
               className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
               placeholder="0"
               id="minInput"
@@ -634,39 +636,33 @@ export default function CreateCover(props: any) {
               value={lowerPrice}
               onChange={() =>
                 setLowerPrice(
-                  (document.getElementById(
-                    'minInput',
-                  ) as HTMLInputElement)?.value
-                    .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                      match.length > 1 ? '0' : match,
-                    )
-                    .replace(/^(\.)+/, '0.')
-                    .replace(/(?<=\..*)\./g, '')
-                    .replace(/^0+(?=\d)/, '')
-                    .replace(/[^\d.]/g, ''),
+                  inputFilter((
+                    document.getElementById("minInput") as HTMLInputElement
+                  )?.value)
                 )
               }
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice('plus', 'min')}>
+              <button onClick={() => changePrice("plus", "min")}>
                 <PlusIcon className="w-5 h-5" />
               </button>
             </div>
           </div>
           <span className="text-xs text-grey">
-            {tokenIn.symbol} per{' '}
-            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOut.symbol}
+            {tokenIn.symbol} per{" "}
+            {tokenOut.symbol === "SELECT TOKEN" ? "?" : tokenOut.symbol}
           </span>
         </div>
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
           <span className="text-xs text-grey">Max. Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice('minus', 'max')}>
+              <button onClick={() => changePrice("minus", "max")}>
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </button>
             </div>
             <input
+              autoComplete="off"
               className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
               placeholder="0"
               id="maxInput"
@@ -674,28 +670,21 @@ export default function CreateCover(props: any) {
               value={upperPrice}
               onChange={() =>
                 setUpperPrice(
-                  (document.getElementById(
-                    'maxInput',
-                  ) as HTMLInputElement)?.value
-                    .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                      match.length > 1 ? '0' : match,
-                    )
-                    .replace(/^(\.)+/, '0.')
-                    .replace(/(?<=\..*)\./g, '')
-                    .replace(/^0+(?=\d)/, '')
-                    .replace(/[^\d.]/g, ''),
+                  inputFilter((
+                    document.getElementById("maxInput") as HTMLInputElement
+                  )?.value)
                 )
               }
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice('plus', 'max')}>
+              <button onClick={() => changePrice("plus", "max")}>
                 <PlusIcon className="w-5 h-5" />
               </button>
             </div>
           </div>
           <span className="text-xs text-grey">
-            {tokenIn.symbol} per{' '}
-            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOut.symbol}
+            {tokenIn.symbol} per{" "}
+            {tokenOut.symbol === "SELECT TOKEN" ? "?" : tokenOut.symbol}
           </span>
         </div>
       </div>
@@ -705,10 +694,10 @@ export default function CreateCover(props: any) {
           onClick={() => setExpanded(!expanded)}
         >
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-            {1} {tokenIn.symbol} ={' '}
-            {tokenOut.symbol === 'Select Token' || isNaN(parseFloat(coverPrice))
-              ? '?'
-              : invertPrice(coverPrice, tokenOrder) + ' ' + tokenOut.symbol}
+            {1} {tokenIn.symbol} ={" "}
+            {tokenOut.symbol === "Select Token" || isNaN(parseFloat(coverPrice))
+              ? "?"
+              : invertPrice(coverPrice, tokenOrder) + " " + tokenOut.symbol}
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
             <button>
@@ -723,13 +712,13 @@ export default function CreateCover(props: any) {
       <div className="mb-3" key={allowance}>
         {isConnected &&
         Number(allowance) < Number(ethers.utils.formatUnits(bnInput, 18)) &&
-        stateChainName === 'arbitrumGoerli' ? (
+        stateChainName === "arbitrumGoerli" ? (
           <SwapCoverApproveButton
             disabled={isDisabled}
             poolAddress={coverPoolRoute}
             approveToken={tokenIn.address}
           />
-        ) : stateChainName === 'arbitrumGoerli' ? (
+        ) : stateChainName === "arbitrumGoerli" ? (
           <CoverMintButton
             poolAddress={coverPoolRoute}
             disabled={isDisabled}
@@ -744,5 +733,5 @@ export default function CreateCover(props: any) {
         ) : null}
       </div>
     </>
-  )
+  );
 }

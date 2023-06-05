@@ -75,7 +75,7 @@ export default function CoverMintButton({
         zeroForOne,
       ],
     ],
-    enabled: amount.toString() != '0',
+    enabled: amount.toString() != '0' && poolAddress != undefined,
     chainId: 421613,
     overrides: {
       gasLimit: BigNumber.from('3500000'),
