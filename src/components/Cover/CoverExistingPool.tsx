@@ -23,7 +23,7 @@ import { coverPoolABI } from '../../abis/evm/coverPool'
 import { ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
 import CoverMintApproveButton from '../Buttons/CoverMintApproveButton'
-import stringFilter from '../../utils/stringFilter'
+import inputFilter from '../../utils/inputFilter'
 
 export default function CoverExistingPool({
   account,
@@ -471,7 +471,7 @@ export default function CoverExistingPool({
               onChange={(e) => {
                 setSliderValue(
                   Number(
-                    stringFilter(e.target.value)
+                    inputFilter(e.target.value)
                   )
                 );
                 console.log("slider value", sliderValue);
@@ -493,14 +493,14 @@ export default function CoverExistingPool({
                 console.log("cover amount changed", coverAmountOut);
                 if (
                   Number(
-                    stringFilter(e.target.value)    
+                    inputFilter(e.target.value)    
                   ) /
                     Number(ethers.utils.formatUnits(coverAmountOut, 18)) <
                   100
                 ) {
                   setSliderValue(
                     Number(
-                      stringFilter(e.target.value)
+                      inputFilter(e.target.value)
                     ) / Number(ethers.utils.formatUnits(coverAmountOut, 18))
                   );
                 } else {
@@ -508,7 +508,7 @@ export default function CoverExistingPool({
                 }
                 setCoverValue(
                   Number(
-                    stringFilter(e.target.value)
+                    inputFilter(e.target.value)
                   )
                 );
               }}
@@ -563,7 +563,7 @@ export default function CoverExistingPool({
               }
               onChange={() =>
                 setLowerPrice(
-                  stringFilter((
+                  inputFilter((
                     document.getElementById("minInput") as HTMLInputElement
                   )?.value)
                 )
@@ -604,7 +604,7 @@ export default function CoverExistingPool({
               }
               onChange={() =>
                 setUpperPrice(
-                  stringFilter((
+                  inputFilter((
                     document.getElementById("maxInput") as HTMLInputElement
                   )?.value)
                 )

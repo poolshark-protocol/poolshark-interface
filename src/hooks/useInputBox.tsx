@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { BigNumber, ethers } from 'ethers'
 import { useSwapStore } from './useStore'
-import stringFilter from '../utils/stringFilter'
+import inputFilter from '../utils/inputFilter'
 
 export default function useInputBox() {
   const [display, setDisplay] = useState('')
@@ -17,7 +17,7 @@ export default function useInputBox() {
   const [bnInputLimit, setBnInputLimit] = useState(BigNumber.from('0'))
 
   const handleChange = (event, updateValue) => {
-    const result = stringFilter(event.target.value)
+    const result = inputFilter(event.target.value)
     //TODO: do not allow for exceeding max decimals
     setDisplay(result == '' ? '' : result)
     if (result == '') {

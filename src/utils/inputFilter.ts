@@ -1,4 +1,4 @@
-export default function stringFilter(str: string) {
+export default function inputFilter(str: string) {
   return str.replace(/^0+(?=[^.0-9]|$)/, (match) =>
         match.length > 1 ? "0" : match
     )

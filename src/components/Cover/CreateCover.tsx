@@ -25,7 +25,7 @@ import { useRouter } from 'next/router'
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
 import { getBalances } from '../../utils/balances'
-import stringFilter from '../../utils/stringFilter'
+import inputFilter from '../../utils/inputFilter'
 
 export default function CreateCover(props: any) {
   const router = useRouter()
@@ -636,7 +636,7 @@ export default function CreateCover(props: any) {
               value={lowerPrice}
               onChange={() =>
                 setLowerPrice(
-                  stringFilter((
+                  inputFilter((
                     document.getElementById("minInput") as HTMLInputElement
                   )?.value)
                 )
@@ -670,7 +670,7 @@ export default function CreateCover(props: any) {
               value={upperPrice}
               onChange={() =>
                 setUpperPrice(
-                  stringFilter((
+                  inputFilter((
                     document.getElementById("maxInput") as HTMLInputElement
                   )?.value)
                 )
