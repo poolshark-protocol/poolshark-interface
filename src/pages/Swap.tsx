@@ -939,11 +939,17 @@ export default function Swap() {
               {tokenOut.symbol === "Select Token"
                 ? " ?"
                 : " " +
+                  !LimitActive ? 
                   (rangeQuote != 0 && coverQuote != 0
                     ? rangeQuote > coverQuote
                       ? rangeQuote.toFixed(2)
                       : coverQuote.toFixed(2)
-                    : "0")}{" "}
+                    : "0")
+                  : (
+                    rangePrice != 0
+                    ? rangePrice.toFixed(2)
+                    : "0"
+                  )}{" "}
               {tokenOut.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
