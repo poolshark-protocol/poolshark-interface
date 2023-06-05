@@ -834,10 +834,7 @@ export default function Swap() {
                       setRangeBnPrice(ethers.utils.parseEther(inputFilter(e.target.value))) :
                       setCoverBnPrice(ethers.utils.parseEther(inputFilter(e.target.value)))
                       ) :
-                      ((rangeQuote > coverQuote) ?
-                      setRangeBnPrice(ethers.utils.parseEther("1")) :
-                      setCoverBnPrice(ethers.utils.parseEther("1"))
-                      )
+                      (setLimitPrice('0'))
                     }
                   }
                 />
