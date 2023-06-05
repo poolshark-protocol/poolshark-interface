@@ -76,36 +76,19 @@ export default function UserPool({
         tokenOneAddress,
       )
       const dataLength = pool['data']['rangePools'].length
-      const id = dataLength > 0 ?
-                pool['data']['rangePools']['0']['id']
-              : undefined
-      setRangePoolRoute(id)
-      setRangePrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(price)))
-      setRangeTickPrice(Number(tickAtPrice))
+      if (dataLength > 0) {
+        const id = pool['data']['rangePools']['0']['id']
+        const price = pool['data']['rangePools']['0']['price']
+        const tickAtPrice = pool['data']['rangePools']['0']['tickAtPrice']
+        setRangePoolRoute(id)
+        setRangePrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(price)))
+        setRangeTickPrice(Number(tickAtPrice))
+      }
+
     } catch (error) {
       console.log(error)
     }
   }
-
-  const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
-    address: rangePoolRoute,
-    abi: rangePoolABI,
-    functionName: 'poolState',
-    args: [],
-    chainId: 421613,
-    watch: true,
-    enabled: isConnected && rangePoolRoute != undefined,
-    onSuccess(data) {
-      console.log('Success price Range', data)
-      setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
-    },
-    onError(error) {
-      console.log('Error price Range', error)
-    },
-    onSettled(data, error) {
-      console.log('Settled price Range', { data, error })
-    },
-  })
 
   function setRangeParams() {
     try {
