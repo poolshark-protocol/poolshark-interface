@@ -40,6 +40,7 @@ import { gasEstimate } from '../utils/gas'
 import { token } from '../utils/types'
 import { getCoverPool, getRangePool } from '../utils/pools'
 import { getBalances } from '../utils/balances'
+import inputFilter from '../utils/inputFilter'
 
 export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount()
@@ -823,7 +824,10 @@ export default function Swap() {
                   autoComplete="off"
                   className="bg-[#0C0C0C] outline-none"
                   placeholder="0"
-                  type="number"
+                  type="text"
+                  onChange={(e) => (rangeQuote > coverQuote) ?
+                    setRangeBnPrice(ethers.utils.parseUnits(inputFilter(e.target.value.toString()), 18)) :
+                    setCoverBnPrice(ethers.utils.parseUnits(inputFilter(e.target.value.toString()), 18))}
                 />
                 <></>
                 <div className="flex">
