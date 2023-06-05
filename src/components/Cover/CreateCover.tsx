@@ -14,9 +14,7 @@ import { useState, useEffect } from 'react'
 import useInputBox from '../../hooks/useInputBox'
 import { tokenOneAddress } from '../../constants/contractAddresses'
 import { TickMath, invertPrice } from '../../utils/math/tickMath'
-import { BigNumber, Contract, ethers } from 'ethers'
-import { useCoverStore } from '../../hooks/useStore'
-import { getCoverPoolFromFactory } from '../../utils/queries'
+import { BigNumber, ethers } from 'ethers'
 import JSBI from 'jsbi'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import { useRouter } from 'next/router'
@@ -24,7 +22,8 @@ import { BN_ZERO, ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
 import { getBalances } from '../../utils/balances'
 import { token } from '../../utils/types'
-import { getCoverPool, getCoverPoolInfo } from '../../utils/pools'
+import { getCoverPoolInfo } from '../../utils/pools'
+import { fetchTokenPrices } from '../../utils/tokens'
 
 export default function CreateCover(props: any) {
   const router = useRouter()
@@ -87,19 +86,19 @@ export default function CreateCover(props: any) {
       coverPoolRoute != undefined &&
       tokenIn.address != undefined,
     onSuccess(data) {
-      console.log('Success')
+      //console.log('Success')
     },
     onError(error) {
       console.log('Error', error)
     },
     onSettled(data, error) {
-      console.log('Allowance Settled', {
+      /* console.log('Allowance Settled', {
         data,
         error,
         coverPoolRoute,
         tokenIn,
         tokenOut,
-      })
+      }) */
     },
   })
 
@@ -133,7 +132,7 @@ export default function CreateCover(props: any) {
   }
 
   useEffect(() => {
-    fetchTokenPrice()
+    fetchTokenPrices(coverPrice, setMktRate)
   }, [coverPrice])
 
   useEffect(() => {
@@ -259,29 +258,6 @@ export default function CreateCover(props: any) {
       ;(document.getElementById('maxInput') as HTMLInputElement).value = (
         current - 0.01
       ).toFixed(3)
-    }
-  }
-
-  const fetchTokenPrice = async () => {
-    try {
-      setMktRate({
-        TOKEN20A:
-          '~' +
-          Number(coverPrice).toLocaleString('en-US', {
-            style: 'currency',
-            currency: 'USD',
-          }),
-        WETH:
-          '~' +
-          Number(coverPrice).toLocaleString('en-US', {
-            style: 'currency',
-            currency: 'USD',
-          }),
-        TOKEN20B: '~1.00',
-        USDC: '~1.00',
-      })
-    } catch (error) {
-      console.log(error)
     }
   }
 
@@ -430,7 +406,7 @@ export default function CreateCover(props: any) {
             setTokenOut={setTokenOut}
             displayToken={tokenIn}
             balance={setQueryTokenIn}
-            key={queryTokenIn+'in'}
+            key={queryTokenIn + 'in'}
           />
           <div className="items-center px-2 py-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
             <ArrowLongRightIcon
@@ -452,7 +428,7 @@ export default function CreateCover(props: any) {
             setTokenOut={setTokenOut}
             displayToken={tokenOut}
             balance={setQueryTokenOut}
-            key={queryTokenOut+'out'}
+            key={queryTokenOut + 'out'}
           />
         </div>
       </div>

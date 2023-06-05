@@ -20,6 +20,7 @@ import { getBalances } from '../../utils/balances'
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
 import { token } from '../../utils/types'
+import { fetchTokenPriceWithInvert } from '../../utils/tokens'
 
 export default function ConcentratedPool({
   account,
@@ -69,13 +70,7 @@ export default function ConcentratedPool({
     },
   ]
   const { address } = useAccount()
-  const {
-    bnInput,
-    inputBox,
-    maxBalance,
-    bnInputLimit,
-    LimitInputBox,
-  } = useInputBox()
+  const { bnInput, inputBox, maxBalance } = useInputBox()
   const [updateRangeContractParams] = useRangeStore((state: any) => [
     state.updateRangeContractParams,
     state.updateRangeAllowance,
@@ -175,7 +170,7 @@ export default function ConcentratedPool({
   }, [tokenOut.address, tokenIn.address])
 
   useEffect(() => {
-    fetchTokenPrice()
+    fetchTokenPriceWithInvert(rangePrice, setMktRate)
   }, [rangePrice, tokenIn, tokenOut])
 
   useEffect(() => {
@@ -228,7 +223,6 @@ export default function ConcentratedPool({
   const getRangePoolData = async () => {
     try {
       if (hasSelected === true) {
-        console.log('tier selected', selected.tierId)
         const pool = tokenOrder
           ? await getRangePoolFromFactory(
               tokenIn.address,
@@ -267,26 +261,6 @@ export default function ConcentratedPool({
       } else {
         await getRangePoolFromFactory()
       }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const fetchTokenPrice = async () => {
-    if (isNaN(parseFloat(rangePrice))) return
-    try {
-      const price0 = rangePrice
-      const price1: any = invertPrice(rangePrice, false)
-      setMktRate({
-        TOKEN20A: price1.toLocaleString('en-US', {
-          style: 'currency',
-          currency: 'USD',
-        }),
-        TOKEN20B: price0.toLocaleString('en-US', {
-          style: 'currency',
-          currency: 'USD',
-        }),
-      })
     } catch (error) {
       console.log(error)
     }

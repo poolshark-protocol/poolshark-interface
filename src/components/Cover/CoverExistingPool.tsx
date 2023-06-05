@@ -11,7 +11,6 @@ import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 import { useEffect, useState } from 'react'
 import { ethers } from 'ethers'
 import JSBI from 'jsbi'
-import { getCoverPoolFromFactory } from '../../utils/queries'
 import {
   TickMath,
   getDefaultLowerPrice,
@@ -25,6 +24,7 @@ import { DyDxMath } from '../../utils/math/dydxMath'
 import CoverMintApproveButton from '../Buttons/CoverMintApproveButton'
 import { token } from '../../utils/types'
 import { getCoverPoolInfo } from '../../utils/pools'
+import { fetchTokenPrices } from '../../utils/tokens'
 
 export default function CoverExistingPool({
   account,
@@ -203,7 +203,7 @@ export default function CoverExistingPool({
   }, [lowerPrice, upperPrice, coverAmountIn])
 
   useEffect(() => {
-    fetchTokenPrice()
+    fetchTokenPrices(coverTickPrice, setMktRate)
   }, [coverPrice])
 
   useEffect(() => {
@@ -333,20 +333,6 @@ export default function CoverExistingPool({
               true,
             ),
       )
-    }
-  }
-
-  const fetchTokenPrice = async () => {
-    try {
-      setMktRate({
-        TOKEN20A: Number(coverTickPrice).toLocaleString('en-US', {
-          style: 'currency',
-          currency: 'USD',
-        }),
-        TOKEN20B: '1.00',
-      })
-    } catch (error) {
-      console.log(error)
     }
   }
 
