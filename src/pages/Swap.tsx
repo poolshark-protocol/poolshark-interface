@@ -1047,19 +1047,19 @@ export default function Swap() {
               >
                 Swap
               </button>
-            ) : (//TODO: handle double allowance, check amount0/1
+            ) : (
               Number(allowanceRange) <
                 Number(ethers.utils.formatUnits(bnInput, 18)) ||
               Number(allowanceRangeOut) <
                 Number(
                   parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                  rangeQuote) ? (
+                  rangePrice) ? (
                 Number(allowanceRange) <
                   Number(ethers.utils.formatUnits(bnInput, 18)) &&
                 Number(allowanceRangeOut) <
                   Number(
                     parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                    rangeQuote) ? (
+                    rangePrice) ? (
                   <SwapRangeDoubleApproveButton
                     poolAddress={rangePoolRoute}
                     tokenIn={tokenIn.address}
@@ -1089,7 +1089,7 @@ export default function Swap() {
                   amount0={bnInput}
                   amount1={ethers.utils.parseEther(
                     (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                      rangeQuote).toString()
+                      rangePrice).toString()
                     )}
                 />
               )
