@@ -15,6 +15,7 @@ import { fetchPrice } from '../../utils/queries'
 import useInputBox from '../../hooks/useInputBox'
 import { erc20ABI, useAccount } from 'wagmi'
 import { BigNumber, Contract, ethers } from 'ethers'
+import stringFilter from '../../utils/stringFilter'
 
 export default function DirectionalPool({
   account,
@@ -504,16 +505,9 @@ export default function DirectionalPool({
                   value={minPrice}
                   onChange={() =>
                     setMinPrice(
-                      (
+                      stringFilter((
                         document.getElementById("minInput") as HTMLInputElement
-                      )?.value
-                        .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                          match.length > 1 ? "0" : match
-                        )
-                        .replace(/^(\.)+/, "0")
-                        .replace(/(?<=\..*)\./g, "")
-                        .replace(/^0+(?=\d)/, "")
-                        .replace(/[^\d.]/g, "")
+                      )?.value)
                     )
                   }
                 />
@@ -541,16 +535,9 @@ export default function DirectionalPool({
                   value={maxPrice}
                   onChange={() =>
                     setMaxPrice(
-                      (
+                      stringFilter((
                         document.getElementById("maxInput") as HTMLInputElement
-                      )?.value
-                        .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                          match.length > 1 ? "0" : match
-                        )
-                        .replace(/^(\.)+/, "0")
-                        .replace(/(?<=\..*)\./g, "")
-                        .replace(/^0+(?=\d)/, "")
-                        .replace(/[^\d.]/g, "")
+                      )?.value)
                     )
                   }
                 />
