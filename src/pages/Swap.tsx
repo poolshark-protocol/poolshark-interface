@@ -832,9 +832,8 @@ export default function Swap() {
                   onChange={e => {
                     setLimitPrice(inputFilter(e.target.value));
                     (Number(e.target.value) != 0 && e.target.value.toString() != '') ?
-                      ((rangeQuote > coverQuote) ?
-                      setRangeBnPrice(ethers.utils.parseEther(inputFilter(e.target.value))) :
-                      setCoverBnPrice(ethers.utils.parseEther(inputFilter(e.target.value)))
+                      (
+                      setRangeBnPrice(ethers.utils.parseEther(inputFilter(e.target.value)))
                       ) :
                       (setLimitPrice('0'))
                     }
