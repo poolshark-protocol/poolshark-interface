@@ -36,13 +36,17 @@ const getClaimTick = async (
 export function mapUserRangePositions(rangePositions) {
   const mappedRangePositions = []
   rangePositions.map((rangePosition) => {
+    console.log('user liquidity check', Math.round(
+      (rangePosition.amount / rangePosition.token.totalSupply) *
+        rangePosition.token.position.liquidity,
+    ))
     const rangePositionData = {
       id: rangePosition.id,
       poolId: rangePosition.token.position.pool.id,
       tokenZero: rangePosition.token.position.pool.token0,
-      valueTokenZero: rangePosition.token.position.pool.totalValueLocked0,
+      valueTokenZero: rangePosition.token.position.pool.token0.usdPrice,
       tokenOne: rangePosition.token.position.pool.token1,
-      valueTokenOne: rangePosition.token.position.pool.totalValueLocked1,
+      valueTokenOne: rangePosition.token.position.pool.token0.usdPrice,
       min: rangePosition.token.position.lower,
       max: rangePosition.token.position.upper,
       price: rangePosition.token.position.pool.price,
@@ -98,14 +102,14 @@ export function mapUserCoverPositions(coverPositions) {
     const coverPositionData = {
       id: coverPosition.id,
       poolId: coverPosition.pool.id,
-      valueTokenZero: coverPosition.inAmount,
       tokenZero: coverPosition.zeroForOne
         ? coverPosition.pool.token0
         : coverPosition.pool.token1,
       tokenOne: coverPosition.zeroForOne
         ? coverPosition.pool.token1
         : coverPosition.pool.token0,
-      valueTokenOne: coverPosition.outAmount,
+      valueTokenZero: coverPosition.pool.token0.usdPrice,
+      valueTokenOne: coverPosition.pool.token1.usdPrice,
       min: coverPosition.lower,
       max: coverPosition.upper,
       claim: undefined,

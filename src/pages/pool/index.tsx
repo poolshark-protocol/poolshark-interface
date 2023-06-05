@@ -238,6 +238,7 @@ export default function Pool() {
                         </div>
                       ) : (
                         allRangePositions.map((allRangePosition) => {
+                          console.log('user liquidity check 2', allRangePosition.userLiquidity)
                           if (
                             allRangePosition.id != undefined &&
                             allRangePosition.userOwnerAddress ===
@@ -268,10 +269,9 @@ export default function Pool() {
                                 min={allRangePosition.min}
                                 max={allRangePosition.max}
                                 price={allRangePosition.price}
-                                liquidity={allRangePosition.liquidity}
+                                userLiquidity={allRangePosition.userLiquidity}
                                 feeTier={allRangePosition.feeTier}
                                 tickSpacing={allRangePosition.tickSpacing}
-                                unclaimedFees={allRangePosition.unclaimedFees}
                                 tvlUsd={allRangePosition.tvlUsd}
                                 volumeUsd={allRangePosition.volumeUsd}
                                 volumeEth={allRangePosition.volumeEth}

@@ -135,7 +135,7 @@ export default function CoverExistingPool({
       const dataLength = pool['data']['coverPools'].length
       if (dataLength != 0) {
         setCoverPoolRoute(pool['data']['coverPools']['0']['id'])
-        setTickSpread(['data']['coverPools']['0']['volatilityTier']['tickSpread'])
+        setTickSpread(pool['data']['coverPools']['0']['volatilityTier']['tickSpread'])
         setLatestTick(pool['data']['coverPools']['0']['latestTick'])
       } else {
         setCoverPoolRoute(ZERO_ADDRESS)
