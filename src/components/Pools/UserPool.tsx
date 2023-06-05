@@ -27,10 +27,9 @@ export default function UserPool({
   min,
   max,
   price,
-  liquidity,
+  userLiquidity,
   feeTier,
   tickSpacing,
-  unclaimedFees,
   href,
   tvlUsd,
   volumeUsd,
@@ -76,31 +75,35 @@ export default function UserPool({
         tokenOneAddress,
       )
       const id = pool['data']['rangePools']['0']['id']
+      const price = JSBI.BigInt(pool['data']['rangePools']['0']['price'])
+      const tickAtPrice = pool['data']['rangePools']['0']['tickAtPrice']
       setRangePoolRoute(id)
+      setRangePrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(price)))
+      setRangeTickPrice(Number(tickAtPrice))
     } catch (error) {
       console.log(error)
     }
   }
 
-  const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
-    address: rangePoolRoute,
-    abi: rangePoolABI,
-    functionName: 'poolState',
-    args: [],
-    chainId: 421613,
-    watch: true,
-    enabled: isConnected && rangePoolRoute != '',
-    onSuccess(data) {
-      console.log('Success price Range', data)
-      setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
-    },
-    onError(error) {
-      console.log('Error price Range', error)
-    },
-    onSettled(data, error) {
-      console.log('Settled price Range', { data, error })
-    },
-  })
+  // const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
+  //   address: rangePoolRoute,
+  //   abi: rangePoolABI,
+  //   functionName: 'snapshot',
+  //   args: [],
+  //   chainId: 421613,
+  //   watch: true,
+  //   enabled: isConnected && rangePoolRoute != '',
+  //   onSuccess(data) {
+  //     console.log('Success price Range', data)
+  //     setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
+  //   },
+  //   onError(error) {
+  //     console.log('Error price Range', error)
+  //   },
+  //   onSettled(data, error) {
+  //     console.log('Settled price Range', { data, error })
+  //   },
+  // })
 
   function setRangeParams() {
     try {
@@ -133,15 +136,14 @@ export default function UserPool({
             tokenOneValue: valueTokenOne,
             rangePoolRoute: rangePoolRoute,
             rangeTickPrice: rangeTickPrice
-              ? ethers.utils.formatUnits(rangeTickPrice, 18)
+              ? rangeTickPrice
               : 0,
             min: min,
             max: max,
             price: price,
-            liquidity: liquidity,
             feeTier: feeTierPercentage,
             tickSpacing: tickSpacing,
-            unclaimedFees: unclaimedFees,
+            userLiquidity: userLiquidity
           },
         }}
       >
@@ -179,9 +181,9 @@ export default function UserPool({
             </div>
           </div>{' '}
           {rangeTickPrice ? (
-            Number(ethers.utils.formatUnits(rangeTickPrice, 18)) <
+            Number(rangeTickPrice) <
               Number(min) ||
-            Number(ethers.utils.formatUnits(rangeTickPrice, 18)) >
+            Number(rangeTickPrice) >=
               Number(max) ? (
               <div className="pr-5">
                 <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
