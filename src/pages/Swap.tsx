@@ -1064,8 +1064,7 @@ export default function Swap() {
               )
             )}
           </>
-          )
-        }
+          )}
       </div>
     </div>
   );
