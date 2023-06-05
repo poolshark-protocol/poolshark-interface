@@ -626,12 +626,16 @@ export default function Swap() {
                         (parseFloat(slippage) * 0.01)
                     ).toFixed(2)
               ) : (
+                rangePrice === 0
+                ? '0'
+                : (
                 parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                   rangePrice -
                 parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                   rangePrice *
                   (parseFloat(slippage) * 0.01)
-              ).toFixed(2)
+                  ).toFixed(2)
+                )
                 : 'Select Token'}
             </div>
           </div>
