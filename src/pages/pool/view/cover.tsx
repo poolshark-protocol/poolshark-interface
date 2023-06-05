@@ -13,11 +13,13 @@ import { useAccount, useContractRead } from 'wagmi'
 import Link from 'next/link'
 import { BigNumber, ethers } from 'ethers'
 import {
+  getRangePoolFromFactory,
   getTickIfNotZeroForOne,
   getTickIfZeroForOne,
 } from '../../../utils/queries'
 import { TickMath } from '../../../utils/math/tickMath'
 import { coverPoolABI } from '../../../abis/evm/coverPool'
+import { tokenZeroAddress, tokenOneAddress } from '../../../constants/contractAddresses'
 
 export default function Cover() {
   type token = {
@@ -111,7 +113,8 @@ export default function Cover() {
   } as token)
   const [latestTick, setLatestTick] = useState(router.query.latestTick ?? 0)
   const [tickSpacing, setTickSpacing] = useState(router.query.tickSpacing ?? 20)
-
+  const [usdPriceIn, setUsdPriceIn] = useState(0.0)
+  const [usdPriceOut, setUsdPriceOut] = useState(0.0)
   const [liquidity, setLiquidity] = useState(router.query.liquidity ?? '0')
   const [feeTier, setFeeTier] = useState(router.query.feeTier ?? '')
   const [fillPercent, setFillPercent] = useState(0)
@@ -173,6 +176,45 @@ export default function Cover() {
   const [claimTick, setClaimTick] = useState(BigNumber.from('887272'))
 
   const { isConnected } = useAccount()
+  const [fetchDelay, setFetchDelay] = useState(false)
+
+  useEffect(() => {
+    setFetchDelay(false)
+  }, [coverPoolRoute])
+
+  useEffect(() => {
+    if(!fetchDelay) {
+      getRangePool()
+      setFetchDelay(true)
+    } else {
+      const interval = setInterval(() => {
+        getRangePool()
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }), []
+
+  const getRangePool = async () => {
+    try {
+      const pool = await getRangePoolFromFactory(
+        zeroForOne ? tokenZeroAddress : tokenOneAddress,
+        zeroForOne ? tokenOneAddress : tokenZeroAddress,
+      )
+      console.log('setting usd prices')
+      const dataLength = pool['data']['rangePools'].length
+      if (dataLength > 0) {
+        const tokenInUsdPrice = zeroForOne ? pool['data']['rangePools']['0']['token1']['usdPrice']
+                                           : pool['data']['rangePools']['0']['token0']['usdPrice']
+        const tokenOutUsdPrice = zeroForOne ? pool['data']['rangePools']['0']['token0']['usdPrice']
+                                            : pool['data']['rangePools']['0']['token1']['usdPrice']
+        setUsdPriceIn(parseFloat(tokenInUsdPrice))
+        setUsdPriceOut(parseFloat(tokenOutUsdPrice))
+        console.log('setting usd prices 2')
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const { data: filledAmount } = useContractRead({
     address: coverPoolRoute.toString(),
@@ -358,8 +400,8 @@ export default function Cover() {
                 <h1 className="text-lg mb-3">Cover Size</h1>
                 <span className="text-4xl">
                   $
-                  {Number(
-                    ethers.utils.formatUnits(userFillOut.toString(), 18)
+                  {(Number(
+                    ethers.utils.formatUnits(userFillOut.toString(), 18)) * usdPriceOut
                   ).toFixed(2)}
                 </span>
 
@@ -410,12 +452,12 @@ export default function Cover() {
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Filled Position</h1>
                 <span className="text-4xl">
-                  $ {Number(coverFilledAmount).toFixed(2)}
+                  $ {(Number(coverFilledAmount) * usdPriceIn).toFixed(2)}
                   <span className="text-grey">
                     /$
-                    {Number(
-                      ethers.utils.formatUnits(userFillIn.toString(), 18)
-                    ).toFixed(2)}
+                    {(Number(
+                      ethers.utils.formatUnits(userFillIn.toString(), 18),
+                    ) * usdPriceIn).toFixed(2)}
                   </span>
                 </span>
                 <div className="text-grey mt-3">

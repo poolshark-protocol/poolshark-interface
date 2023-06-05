@@ -6,13 +6,14 @@ import {
 import { useEffect, useState } from 'react'
 import { useCoverStore } from '../../hooks/useStore'
 import Link from 'next/link'
-import { getCoverPoolFromFactory } from '../../utils/queries'
+import { getCoverPoolFromFactory, getRangePoolFromFactory } from '../../utils/queries'
 import { useAccount, useContractRead } from 'wagmi'
 import { coverPoolABI } from '../../abis/evm/coverPool'
 import { ethers } from 'ethers'
 import { TickMath } from '../../utils/math/tickMath'
 import JSBI from 'jsbi'
 import { ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
+import { tokenZeroAddress, tokenOneAddress } from '../../constants/contractAddresses'
 
 export default function UserCoverPool({
   account,
