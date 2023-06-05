@@ -102,6 +102,7 @@ export default function Swap() {
   const [rangeBnBaseLimit, setRangeBnBaseLimit] = useState(BigNumber.from(0))
   const [bnSlippage, setBnSlippage] = useState(BigNumber.from(1))
   const [slippageFetched, setSlippageFetched] = useState(false)
+  const [limitPrice, setLimitPrice] = useState('1')
 
   console.log('balanceIn', balanceIn)
   console.log('balanceOut', balanceOut)
@@ -824,10 +825,13 @@ export default function Swap() {
                   autoComplete="off"
                   className="bg-[#0C0C0C] outline-none"
                   placeholder="0"
+                  value={limitPrice}
                   type="text"
-                  onChange={(e) => (rangeQuote > coverQuote) ?
-                    setRangeBnPrice(ethers.utils.parseEther(inputFilter(e.target.value.toString()))) :
-                    setCoverBnPrice(ethers.utils.parseEther(inputFilter(e.target.value.toString())))}
+                  onChange={e => {
+                    setLimitPrice(inputFilter(e.target.value));
+                    (rangeQuote > coverQuote) ?
+                    setRangeBnPrice(ethers.utils.parseEther(inputFilter(e.target.value))) :
+                    setCoverBnPrice(ethers.utils.parseEther(inputFilter(e.target.value)))}}
                 />
                 <></>
                 <div className="flex">
