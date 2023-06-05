@@ -184,9 +184,9 @@ export default function CoverExistingPool({
     if (!tickSpread && !tickSpacing) return
     const increment = tickSpread ?? tickSpacing
     const adjustment = direction == 'plus' || direction == 'minus' ?
-                        (direction == 'plus' ? increment : -increment) : 0;
-    console.log('adjustment', adjustment, currentTick + adjustment)
-    const newTick = roundTick(currentTick + adjustment, increment)
+                        (direction == 'plus' ? -increment : increment) : 0;
+    console.log('adjustment', adjustment, currentTick)
+    const newTick = roundTick(currentTick - adjustment, increment)
     const newPriceString = TickMath.getPriceStringAtTick(newTick);
     (document.getElementById(inputId) as HTMLInputElement).value = Number(newPriceString).toFixed(6)
     if (inputId === 'maxInput') {
