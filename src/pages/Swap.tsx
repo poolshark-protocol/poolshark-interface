@@ -30,7 +30,6 @@ import SwapCoverApproveButton from '../components/Buttons/SwapCoverApproveButton
 import SwapCoverButton from '../components/Buttons/SwapCoverButton'
 import { rangePoolABI } from '../abis/evm/rangePool'
 import { TickMath, invertPrice } from '../utils/math/tickMath'
-import { ZERO_ADDRESS } from '../utils/math/constants'
 import { gasEstimate } from '../utils/gas'
 import { token } from '../utils/types'
 import { getCoverPool, getRangePool } from '../utils/pools'
@@ -65,12 +64,12 @@ export default function Swap() {
     symbol: 'WETH',
     logoURI: '/static/images/eth_icon.png',
     address: tokenOneAddress,
-  })
+  } as token)
   const [tokenOut, setTokenOut] = useState({
     symbol: 'Select Token',
     logoURI: '',
     address: tokenZeroAddress,
-  })
+  } as token)
   const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [slippage, setSlippage] = useState('0.5')
@@ -95,7 +94,7 @@ export default function Swap() {
   const [rangeBnBaseLimit, setRangeBnBaseLimit] = useState(BigNumber.from(0))
   const [slippageFetched, setSlippageFetched] = useState(false)
 
-  /////////////////Start of Contract Hooks//////////////////////
+  ////////////////////////////////
 
   const { data: dataRange } = useContractRead({
     address: tokenIn.address,
@@ -239,7 +238,7 @@ export default function Swap() {
     },
   })
 
-  /////////////////End of Contract Hooks//////////////////////
+  ////////////////////////
 
   useEffect(() => {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId])
@@ -251,22 +250,6 @@ export default function Swap() {
       updatePools()
     }
   }, [tokenOut.address, tokenIn.address, hasSelected])
-
-  async function updateBalances() {
-    await getBalances(
-      address,
-      hasSelected,
-      tokenIn,
-      tokenOut,
-      setBalanceIn,
-      setBalanceOut,
-    )
-  }
-
-  async function updatePools() {
-    await getRangePool(tokenIn, tokenOut, setRangePoolRoute)
-    await getCoverPool(tokenIn, tokenOut, setCoverPoolRoute)
-  }
 
   useEffect(() => {
     if (bnInput !== BigNumber.from(0)) {
@@ -282,23 +265,6 @@ export default function Swap() {
     coverPoolRoute,
     rangePoolRoute,
   ])
-
-  async function updateGasFee() {
-    await gasEstimate(
-      rangePoolRoute,
-      coverPoolRoute,
-      rangeQuote,
-      coverQuote,
-      rangeBnPrice,
-      rangeBnBaseLimit,
-      tokenIn,
-      tokenOut,
-      bnInput,
-      address,
-      signer,
-      setGasFee,
-    )
-  }
 
   useEffect(() => {
     if (dataRange && dataCover) {
@@ -426,14 +392,47 @@ export default function Swap() {
     }
   }, [quoteCover, quoteRange, bnInput])
 
+  ////////////////////////////////
+
+  async function updateBalances() {
+    await getBalances(
+      address,
+      hasSelected,
+      tokenIn,
+      tokenOut,
+      setBalanceIn,
+      setBalanceOut,
+    )
+  }
+
+  async function updatePools() {
+    await getRangePool(tokenIn, tokenOut, setRangePoolRoute)
+    await getCoverPool(tokenIn, tokenOut, setCoverPoolRoute)
+  }
+
+  async function updateGasFee() {
+    await gasEstimate(
+      rangePoolRoute,
+      coverPoolRoute,
+      rangeQuote,
+      coverQuote,
+      rangeBnPrice,
+      rangeBnBaseLimit,
+      tokenIn,
+      tokenOut,
+      bnInput,
+      address,
+      signer,
+      setGasFee,
+    )
+  }
+
   const getFeeTier = async () => {
     const coverData = await fetchCoverPools()
     const coverPoolAddress = coverData['data']['coverPools']['0']['id']
-
     if (coverPoolAddress === coverPoolRoute) {
       const feeTier =
         coverData['data']['coverPools']['0']['volatilityTier']['feeAmount']
-      console.log(feeTier, 'fee cover')
       setCoverSlippage((parseFloat(feeTier) / 10000).toString())
     }
     const data = await fetchRangePools()
@@ -441,7 +440,6 @@ export default function Swap() {
 
     if (rangePoolAddress === rangePoolRoute) {
       const feeTier = data['data']['rangePools']['0']['feeTier']['feeAmount']
-      console.log(feeTier, 'fee range')
       setRangeSlippage((parseFloat(feeTier) / 10000).toString())
     }
   }
@@ -454,8 +452,6 @@ export default function Swap() {
     const tempBal = queryTokenIn
     setQueryTokenIn(queryTokenOut)
     setQueryTokenOut(tempBal)
-    //console.log('tokenIn after switch', tokenIn)
-    //console.log('tokenOut after switch', tokenOut)
   }
 
   const getSlippage = () => {

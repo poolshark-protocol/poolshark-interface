@@ -23,6 +23,8 @@ import { coverPoolABI } from '../../abis/evm/coverPool'
 import { ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
 import CoverMintApproveButton from '../Buttons/CoverMintApproveButton'
+import { token } from '../../utils/types'
+import { getCoverPoolInfo } from '../../utils/pools'
 
 export default function CoverExistingPool({
   account,
@@ -46,14 +48,8 @@ export default function CoverExistingPool({
   feeTier,
   goBack,
 }) {
-  type token = {
-    name: string
-    symbol: string
-    logoURI: string
-    address: string
-    value: string
-  }
   const { address, isConnected, isDisconnected } = useAccount()
+
   const [expanded, setExpanded] = useState(false)
   const [fetchDelay, setFetchDelay] = useState(false)
   const [tickSpread, setTickSpread] = useState(20)
@@ -103,6 +99,8 @@ export default function CoverExistingPool({
   const [allowance, setAllowance] = useState(ZERO)
   const [mktRate, setMktRate] = useState({})
 
+  ////////////////////////////////
+
   const { data } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -110,7 +108,7 @@ export default function CoverExistingPool({
     args: [address, coverPoolRoute],
     chainId: 421613,
     watch: true,
-    enabled: isConnected && coverPoolRoute != undefined
+    enabled: isConnected && coverPoolRoute != undefined,
   })
 
   const { data: priceCover } = useContractRead({
@@ -124,54 +122,100 @@ export default function CoverExistingPool({
     args: [],
     chainId: 421613,
     watch: true,
-    enabled: isConnected && coverPoolRoute != undefined
+    enabled: isConnected && coverPoolRoute != undefined,
   })
 
-  const getCoverPool = async () => {
-    try {
-      const pool = tokenOrder ?
-                        await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
-                      : await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
-      const dataLength = pool['data']['coverPools'].length
-      if (dataLength != 0) {
-        setCoverPoolRoute(pool['data']['coverPools']['0']['id'])
-        setTickSpread(['data']['coverPools']['0']['volatilityTier']['tickSpread'])
-        setLatestTick(pool['data']['coverPools']['0']['latestTick'])
-      } else {
-        setCoverPoolRoute(ZERO_ADDRESS)
-        setTickSpread(10)
-        setLatestTick(0)
+  ////////////////////////////////
+
+  useEffect(() => {
+    if (data) {
+      if (coverPoolRoute != undefined && tokenOut.address != '') {
+        setAllowance(JSBI.BigInt(data.toString()))
       }
-    } catch (error) {
-      console.log(error)
     }
-  }
+  }, [data, tokenIn.address, coverAmountIn])
 
-  const fetchTokenPrice = async () => {
-    try {
-      setMktRate({
-        TOKEN20A: Number(coverTickPrice).toLocaleString('en-US', {
-          style: 'currency',
-          currency: 'USD',
-        }),
-        TOKEN20B: '1.00',
-      })
-      console.log('market rate set', mktRate)
-    } catch (error) {
-      console.log(error)
+  useEffect(() => {
+    if (priceCover) {
+      if (coverPoolRoute != undefined && tokenOut.address != '') {
+        setCoverPrice(priceCover[0])
+        const price = TickMath.getPriceStringAtSqrtPrice(priceCover[0])
+        setCoverTickPrice(price)
+      }
     }
-  }
+  }, [priceCover, tokenIn.address])
 
-  function switchDirection() {
-    setTokenOrder(!tokenOrder)
-    const temp = tokenIn
-    setTokenIn(tokenOut)
-    setTokenOut(temp)
-    const tempBal = queryTokenIn
-    setQueryTokenIn(queryTokenOut)
-    setQueryTokenOut(tempBal)
-    setSliderValue(50)
-  }
+  useEffect(() => {
+    setCoverValue(
+      Number(Number(Number(tokenOut.value)).toFixed(5)) * sliderValue,
+    )
+  }, [sliderValue, tokenOut.value])
+
+  useEffect(() => {
+    setFetchDelay(false)
+  }, [coverPoolRoute])
+
+  useEffect(() => {
+    setFetchDelay(true)
+  }, [])
+
+  // fetches
+  // - coverPoolRoute => pool address
+  // - tickSpread => pool tick spacing
+  // - latestTick => current TWAP tick
+  useEffect(() => {
+    if (!fetchDelay) {
+      getCoverPoolInfo(
+        tokenOrder,
+        tokenIn,
+        tokenOut,
+        setCoverPoolRoute,
+        setLatestTick,
+        setTickSpread,
+      )
+    } else {
+      const interval = setInterval(() => {
+        getCoverPoolInfo(
+          tokenOrder,
+          tokenIn,
+          tokenOut,
+          setCoverPoolRoute,
+          setLatestTick,
+          setTickSpread,
+        )
+      }, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [fetchDelay])
+
+  useEffect(() => {
+    changeCoverAmounts()
+  }, [coverValue, lowerTick, upperTick])
+
+  // check for valid inputs
+  useEffect(() => {
+    setDisabled(
+      isNaN(parseFloat(lowerPrice)) ||
+        isNaN(parseFloat(upperPrice)) ||
+        parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
+        hasSelected == false,
+    )
+  }, [lowerPrice, upperPrice, coverAmountIn])
+
+  useEffect(() => {
+    fetchTokenPrice()
+  }, [coverPrice])
+
+  useEffect(() => {
+    if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
+      setLowerTick(TickMath.getTickAtPriceString(lowerPrice, tickSpread))
+      setUpperTick(TickMath.getTickAtPriceString(upperPrice, tickSpread))
+    } else {
+      console.log('not a number')
+    }
+  }, [lowerPrice, upperPrice])
+
+  ////////////////////////////////
 
   const changePrice = (direction: string, minMax: string) => {
     if (direction === 'plus' && minMax === 'min') {
@@ -229,10 +273,6 @@ export default function CoverExistingPool({
         current - 0.1
       ).toFixed(3)
     }
-    console.log(
-      'docID',
-      Number((document.getElementById('maxInput') as HTMLInputElement).value),
-    )
     if (minMax === 'max') {
       setUpperPrice(
         (document.getElementById('maxInput') as HTMLInputElement).value,
@@ -246,8 +286,6 @@ export default function CoverExistingPool({
   }
 
   function changeCoverAmounts() {
-    console.log('prices set:', lowerTick, upperTick, tickSpread)
-    console.log('liquidity check', String(JSBI.BigInt(Math.round(parseFloat(userLiquidity)))))
     if (
       !isNaN(parseFloat(lowerPrice)) &&
       !isNaN(parseFloat(upperPrice)) &&
@@ -258,7 +296,13 @@ export default function CoverExistingPool({
     ) {
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
-      const liquidityAmount = JSBI.divide(JSBI.multiply(JSBI.BigInt(Math.round(parseFloat(userLiquidity))), JSBI.BigInt(sliderValue)), JSBI.BigInt(100))
+      const liquidityAmount = JSBI.divide(
+        JSBI.multiply(
+          JSBI.BigInt(Math.round(parseFloat(userLiquidity))),
+          JSBI.BigInt(sliderValue),
+        ),
+        JSBI.BigInt(100),
+      )
       setCoverAmountIn(
         tokenOrder
           ? DyDxMath.getDx(
@@ -289,96 +333,37 @@ export default function CoverExistingPool({
               true,
             ),
       )
-      console.log(
-        'amount in set:',
-        coverAmountIn.toString(),
-        coverAmountOut.toString(),
-        String(liquidityAmount),
-      )
     }
+  }
+
+  const fetchTokenPrice = async () => {
+    try {
+      setMktRate({
+        TOKEN20A: Number(coverTickPrice).toLocaleString('en-US', {
+          style: 'currency',
+          currency: 'USD',
+        }),
+        TOKEN20B: '1.00',
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  function switchDirection() {
+    setTokenOrder(!tokenOrder)
+    const temp = tokenIn
+    setTokenIn(tokenOut)
+    setTokenOut(temp)
+    const tempBal = queryTokenIn
+    setQueryTokenIn(queryTokenOut)
+    setQueryTokenOut(tempBal)
+    setSliderValue(50)
   }
 
   const handleChange = (event: any) => {
     setSliderValue(event.target.value)
   }
-
-  useEffect(() => {
-    if (data) {
-      if (coverPoolRoute != undefined && tokenOut.address != '') {
-        console.log('Success allowance', data.toString())
-        setAllowance(JSBI.BigInt(data.toString()))
-        console.log('allowance check', data.toString(), JSBI.toNumber(coverAmountIn))
-      }
-    }
-  }, [data, tokenIn.address, coverAmountIn])
-
-  useEffect(() => {
-    if (priceCover) {
-      if (coverPoolRoute != undefined && tokenOut.address != '') {
-        console.log('price cover:', priceCover[0])
-        setCoverPrice(priceCover[0])
-
-        const price = TickMath.getPriceStringAtSqrtPrice(priceCover[0])
-        setCoverTickPrice(price)
-      }
-    }
-  }, [priceCover, tokenIn.address])
-
-  useEffect(() => {
-    setCoverValue(
-      Number(Number(Number(tokenOut.value)).toFixed(5)) * sliderValue,
-    )
-  }, [sliderValue, tokenOut.value])
-
-  useEffect(() => {
-    setFetchDelay(false)
-  }, [coverPoolRoute])
-
-  useEffect(() => {
-    setFetchDelay(true)
-  }, [])
-
-  // fetches
-  // - coverPoolRoute => pool address
-  // - tickSpread => pool tick spacing
-  // - latestTick => current TWAP tick
-  useEffect(() => {
-    if(!fetchDelay) {
-      getCoverPool()
-    } else {
-      const interval = setInterval(() => {
-        getCoverPool()
-      }, 5000);
-      return () => clearInterval(interval);
-    }
-  }, [fetchDelay])
-
-  useEffect(() => {
-    changeCoverAmounts()
-  }, [coverValue, lowerTick, upperTick])
-
-  // check for valid inputs
-  useEffect(() => {
-    setDisabled(
-      isNaN(parseFloat(lowerPrice)) ||
-      isNaN(parseFloat(upperPrice)) ||
-      parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
-      hasSelected == false
-    )
-  }, [lowerPrice, upperPrice, coverAmountIn])
-
-  useEffect(() => {
-    fetchTokenPrice()
-  }, [coverPrice])
-
-  useEffect(() => {
-    if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
-      setLowerTick(TickMath.getTickAtPriceString(lowerPrice, tickSpread))
-      setUpperTick(TickMath.getTickAtPriceString(upperPrice, tickSpread))
-    } else {
-      console.log('not a number')
-    }
-  }, [lowerPrice, upperPrice])
 
   const Option = () => {
     if (expanded) {
@@ -414,7 +399,7 @@ export default function CoverExistingPool({
           <h1 className="mb-3">Selected Pool</h1>
           <span
             className="flex gap-x-1 cursor-pointer"
-            onClick={() => goBack("initial")}
+            onClick={() => goBack('initial')}
           >
             <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />
             <h1 className="mb-3 opacity-50">Back</h1>
@@ -431,7 +416,7 @@ export default function CoverExistingPool({
             className="w-6 cursor-pointer"
             onClick={() => {
               if (hasSelected) {
-                switchDirection();
+                switchDirection()
               }
             }}
           />
@@ -470,13 +455,12 @@ export default function CoverExistingPool({
                   Number(
                     e.target.value
                       .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                        match.length > 1 ? "0" : match
+                        match.length > 1 ? '0' : match,
                       )
                       .replace(/^(\.)+/, '0.')
                       .replace(/(?<=\..*)\./g, '')
                       .replace(/^0+(?=\d)/, '')
-                      .replace(/[^\d.]/g, '')
- 
+                      .replace(/[^\d.]/g, ''),
                   ),
                 )
                 console.log('slider value', sliderValue)
@@ -489,22 +473,22 @@ export default function CoverExistingPool({
         </div>
         <div className="flex items-center justify-between text-sm">
           <div className="text-[#646464]">Amount Covered</div>
-          <div className='flex items-center justify-end gap-x-3'>
+          <div className="flex items-center justify-end gap-x-3">
             <input
               type="text"
               id="input"
               onChange={(e) => {
-                console.log("cover amount changed", coverAmountOut);
+                console.log('cover amount changed', coverAmountOut)
                 if (
                   Number(
                     e.target.value
                       .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                        match.length > 1 ? "0" : match
+                        match.length > 1 ? '0' : match,
                       )
-                      .replace(/^(\.)+/, "0")
-                      .replace(/(?<=\..*)\./g, "")
-                      .replace(/^0+(?=\d)/, "")
-                      .replace(/[^\d.]/g, "")
+                      .replace(/^(\.)+/, '0')
+                      .replace(/(?<=\..*)\./g, '')
+                      .replace(/^0+(?=\d)/, '')
+                      .replace(/[^\d.]/g, ''),
                   ) /
                     Number(ethers.utils.formatUnits(coverAmountOut, 18)) <
                   100
@@ -513,32 +497,32 @@ export default function CoverExistingPool({
                     Number(
                       e.target.value
                         .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                          match.length > 1 ? "0" : match
+                          match.length > 1 ? '0' : match,
                         )
-                        .replace(/^(\.)+/, "0")
-                        .replace(/(?<=\..*)\./g, "")
-                        .replace(/^0+(?=\d)/, "")
-                        .replace(/[^\d.]/g, "")
-                    ) / Number(ethers.utils.formatUnits(coverAmountOut, 18))
-                  );
+                        .replace(/^(\.)+/, '0')
+                        .replace(/(?<=\..*)\./g, '')
+                        .replace(/^0+(?=\d)/, '')
+                        .replace(/[^\d.]/g, ''),
+                    ) / Number(ethers.utils.formatUnits(coverAmountOut, 18)),
+                  )
                 } else {
-                  setSliderValue(100);
+                  setSliderValue(100)
                 }
                 setCoverValue(
                   Number(
                     e.target.value
                       .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                        match.length > 1 ? "0" : match
+                        match.length > 1 ? '0' : match,
                       )
-                      .replace(/^(\.)+/, "0")
-                      .replace(/(?<=\..*)\./g, "")
-                      .replace(/^0+(?=\d)/, "")
-                      .replace(/[^\d.]/g, "")
-                  )
-                );
+                      .replace(/^(\.)+/, '0')
+                      .replace(/(?<=\..*)\./g, '')
+                      .replace(/^0+(?=\d)/, '')
+                      .replace(/[^\d.]/g, ''),
+                  ),
+                )
               }}
               value={Number.parseFloat(
-                ethers.utils.formatUnits(String(coverAmountOut), 18)
+                ethers.utils.formatUnits(String(coverAmountOut), 18),
               ).toPrecision(3)}
               className="bg-[#0C0C0C] border border-grey2 w-32 px-2 py-1 placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
             />
@@ -550,7 +534,7 @@ export default function CoverExistingPool({
             <div className="text-[#646464]">Amount to pay</div>
             <div>
               {Number(
-                ethers.utils.formatUnits(coverAmountIn.toString(), 18)
+                ethers.utils.formatUnits(coverAmountIn.toString(), 18),
               ).toFixed(2)}
               $
             </div>
@@ -565,7 +549,7 @@ export default function CoverExistingPool({
           <span className="text-xs text-grey">Min Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice("minus", "min")}>
+              <button onClick={() => changePrice('minus', 'min')}>
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </button>
             </div>
@@ -575,11 +559,11 @@ export default function CoverExistingPool({
               id="minInput"
               type="text"
               value={
-                lowerPrice.toString().includes("e")
+                lowerPrice.toString().includes('e')
                   ? Number(lowerPrice).toLocaleString(undefined, {
                       maximumFractionDigits: 0,
                     }).length > 6
-                    ? "-∞"
+                    ? '-∞'
                     : Number(lowerPrice).toLocaleString(undefined, {
                         maximumFractionDigits: 0,
                       })
@@ -587,8 +571,9 @@ export default function CoverExistingPool({
               }
               onChange={() =>
                 setLowerPrice(
-                  (document.getElementById('minInput') as HTMLInputElement)
-                    ?.value
+                  (document.getElementById(
+                    'minInput',
+                  ) as HTMLInputElement)?.value
                     .replace(/^0+(?=[^.0-9]|$)/, (match) =>
                       match.length > 1 ? '0' : match,
                     )
@@ -600,7 +585,7 @@ export default function CoverExistingPool({
               }
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice("plus", "min")}>
+              <button onClick={() => changePrice('plus', 'min')}>
                 <PlusIcon className="w-5 h-5" />
               </button>
             </div>
@@ -610,7 +595,7 @@ export default function CoverExistingPool({
           <span className="text-xs text-grey">Max. Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice("minus", "max")}>
+              <button onClick={() => changePrice('minus', 'max')}>
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </button>
             </div>
@@ -621,11 +606,11 @@ export default function CoverExistingPool({
               type="text"
               //TODO find alternative for scientific notation
               value={
-                upperPrice.toString().includes("e")
+                upperPrice.toString().includes('e')
                   ? Number(upperPrice).toLocaleString(undefined, {
                       maximumFractionDigits: 0,
                     }).length > 6
-                    ? "∞"
+                    ? '∞'
                     : Number(upperPrice).toLocaleString(undefined, {
                         maximumFractionDigits: 0,
                       })
@@ -633,8 +618,9 @@ export default function CoverExistingPool({
               }
               onChange={() =>
                 setUpperPrice(
-                  (document.getElementById('maxInput') as HTMLInputElement)
-                    ?.value
+                  (document.getElementById(
+                    'maxInput',
+                  ) as HTMLInputElement)?.value
                     .replace(/^0+(?=[^.0-9]|$)/, (match) =>
                       match.length > 1 ? '0' : match,
                     )
@@ -646,7 +632,7 @@ export default function CoverExistingPool({
               }
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice("plus", "max")}>
+              <button onClick={() => changePrice('plus', 'max')}>
                 <PlusIcon className="w-5 h-5" />
               </button>
             </div>
@@ -687,7 +673,7 @@ export default function CoverExistingPool({
             to={address}
             lower={lowerTick}
             claim={
-              tokenOut.address != "" &&
+              tokenOut.address != '' &&
               tokenIn.address.localeCompare(tokenOut.address) < 0
                 ? upperTick
                 : lowerTick
@@ -695,7 +681,7 @@ export default function CoverExistingPool({
             upper={upperTick}
             amount={String(coverAmountIn)}
             zeroForOne={
-              tokenOut.address != "" &&
+              tokenOut.address != '' &&
               tokenIn.address.localeCompare(tokenOut.address) < 0
             }
             tickSpacing={tickSpread}
@@ -703,5 +689,5 @@ export default function CoverExistingPool({
         )}
       </div>
     </>
-  );
+  )
 }

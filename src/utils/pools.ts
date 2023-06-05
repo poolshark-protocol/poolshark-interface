@@ -1,4 +1,5 @@
 import { ZERO_ADDRESS } from './math/constants'
+import { TickMath } from './math/tickMath'
 import {
   fetchCoverPools,
   fetchRangePools,
@@ -56,6 +57,36 @@ export const getCoverPool = async (
       id = fallbackPool['data']['coverPools']['0']['id']
     }
     setCoverRoute(id)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const getCoverPoolInfo = async (
+  tokenOrder: boolean,
+  tokenIn: token,
+  tokenOut: token,
+  setCoverPoolRoute,
+  setCoverPrice,
+  setTickSpacing,
+) => {
+  try {
+    const pool = tokenOrder
+      ? await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
+      : await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
+    const dataLength = pool['data']['coverPools'].length
+    if (dataLength != 0) {
+      setCoverPoolRoute(pool['data']['coverPools']['0']['id'])
+      setTickSpacing(
+        pool['data']['coverPools']['0']['volatilityTier']['tickSpread'],
+      )
+      const newLatestTick = pool['data']['coverPools']['0']['latestTick']
+      setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick))
+    } else {
+      setCoverPoolRoute(ZERO_ADDRESS)
+      setCoverPrice('1.00')
+      setTickSpacing(10)
+    }
   } catch (error) {
     console.log(error)
   }

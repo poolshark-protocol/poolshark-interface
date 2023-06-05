@@ -31,22 +31,26 @@ export default function Pool() {
     { id: 1, type: 'Range Pools', unavailable: false },
     { id: 2, type: 'Cover Pools', unavailable: false },
   ]
-  const { address, isConnected, isDisconnected } = useAccount()
+  const { address, isDisconnected } = useAccount()
 
   const [selected, setSelected] = useState(poolTypes[0])
   const [searchTerm, setSearchTerm] = useState('')
-
   const [allRangePositions, setAllRangePositions] = useState([])
   const [allCoverPositions, setAllCoverPositions] = useState([])
   const [allRangePools, setAllRangePools] = useState([])
   const [allCoverPools, setAllCoverPools] = useState([])
+
+  //////////////////////
 
   useEffect(() => {
     getUserRangePositionData()
     getRangePoolData()
     getUserCoverPositionData()
     getCoverPoolData()
-  }, [selected])
+  }, [address])
+
+
+  //////////////////////
 
   async function getUserRangePositionData() {
     try {
