@@ -2,11 +2,11 @@ import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useState } from 'react'
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { useSwitchNetwork } from "wagmi";
-import useInputBox from '../../hooks/useInputBox'
-import RemoveLiqButton from '../Buttons/RemoveLiqButton'
+import useInputBox from '../../../hooks/useInputBox'
+import RangeAddLiqButton from '../../Buttons/RangeAddLiqButton'
 
 
-export default function RemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, maxLimit, zeroForOne, liquidity, minLimit }) {
+export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, maxLimit, zeroForOne, liquidity, minLimit }) {
 
     const {
     bnInput,
@@ -57,6 +57,34 @@ export default function RemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, a
                     className="w-7 cursor-pointer"
                   />
                 </div>
+                <div className="w-full  bg-[#0C0C0C] border border-[#1C1C1C] gap-4 px-4 py-4 rounded-xl mt-6 mb-6">
+                  <div className="flex justify-between items-center">
+                  <div className="text-3xl font-medium">
+                    100%
+                    </div>
+                    <div className="flex items-center gap-x-4">
+                      <div className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
+                        25%
+                      </div>
+                      <div className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
+                        50%
+                      </div>
+                      <div className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
+                        75%
+                      </div>
+                      <div className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
+                        100%
+                      </div>
+                    </div>
+                    </div>
+        <input
+          autoComplete="off"
+          type="range"
+          min="0"
+          max="100"
+          className="w-full styled-slider slider-progress bg-transparent mt-6"
+        />
+                </div>
                 <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-6 mb-6">
                   <div className=" p-2 ">{inputBox("0")}</div>
                   <div className="">
@@ -81,7 +109,7 @@ export default function RemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, a
                     </div>
                   </div>
                 </div>
-                <RemoveLiqButton
+                <RangeRemoveLiqButton
                       poolAddress={poolAdd}
                       address={address}
                       lower={minLimit}
