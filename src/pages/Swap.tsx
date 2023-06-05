@@ -876,28 +876,20 @@ export default function Swap() {
                       {tokenOrder && hasSelected === false ? (
                         <button
                           className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
-                          onClick={() => setTokenOrder(false)}
                         >
                           {tokenIn.symbol} per ?
-                          <ArrowPathIcon className="w-5" />
-                        </button>
-                      ) : tokenOrder && hasSelected === true ? (
-                        <button
-                          className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
-                          onClick={() => setTokenOrder(false)}
-                        >
-                          {tokenIn.symbol} per {tokenOut.symbol}
                           <ArrowPathIcon className="w-5" />
                         </button>
                       ) : (
                         <button
                           className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
-                          onClick={() => setTokenOrder(true)}
+                          onClick={() => switchDirection()}
                         >
                           {tokenOut.symbol} per {tokenIn.symbol}
                           <ArrowPathIcon className="w-5" />
                         </button>
-                      )}
+                      )
+                      }
                     </div>
                     <div className="flex items-center justify-end gap-2 px-1 mt-2">
                       {/* <div className="text-xs text-white">
