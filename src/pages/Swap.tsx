@@ -784,10 +784,11 @@ export default function Swap() {
         <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
             <div className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
-              {hasSelected &&
+              {!LimitActive ? (
+              hasSelected &&
               coverQuote !== 0 &&
               rangeQuote !== 0 &&
-              bnInput._hex != "0x00" ? (
+              bnInput._hex != "0x00") ? (
                 <div>
                   {rangeQuote > coverQuote
                     ? (
@@ -798,6 +799,15 @@ export default function Swap() {
                         parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                         coverQuote
                       ).toFixed(2)}
+                </div>
+              ) : (
+                <div>0</div>
+              ) : (hasSelected &&
+                  rangePrice !== 0 &&
+                  bnInput._hex != "0x00") ? (
+                <div>
+                  {(parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                    rangePrice).toFixed(2)}
                 </div>
               ) : (
                 <div>0</div>
