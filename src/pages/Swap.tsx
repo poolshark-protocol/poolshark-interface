@@ -826,8 +826,8 @@ export default function Swap() {
                   placeholder="0"
                   type="text"
                   onChange={(e) => (rangeQuote > coverQuote) ?
-                    setRangeBnPrice(ethers.utils.parseUnits(inputFilter(e.target.value.toString()), 18)) :
-                    setCoverBnPrice(ethers.utils.parseUnits(inputFilter(e.target.value.toString()), 18))}
+                    setRangeBnPrice(ethers.utils.parseEther(inputFilter(e.target.value.toString()))) :
+                    setCoverBnPrice(ethers.utils.parseEther(inputFilter(e.target.value.toString())))}
                 />
                 <></>
                 <div className="flex">
