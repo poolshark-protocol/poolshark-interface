@@ -16,6 +16,9 @@ import useInputBox from '../../hooks/useInputBox'
 import { erc20ABI, useAccount } from 'wagmi'
 import { BigNumber, ethers } from 'ethers'
 import { useContractRead } from 'wagmi'
+import { rangePoolABI } from '../../abis/evm/rangePool'
+import { getBalances } from '../../utils/balances'
+import { getRangePool } from '../../utils/pools'
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
 
@@ -117,13 +120,26 @@ export default function ConcentratedPool({
   const [mktRate, setMktRate] = useState({})
 
   useEffect(() => {
-    getBalances()
-    // change other side this is changed
-  }, [tokenIn.address, tokenOut.address])
+    if (hasSelected) {
+      updateBalances()
+      updatePool()
+    }
+  }, [tokenOut.address, tokenIn.address, hasSelected])
 
-  useEffect(() => {
-    getRangePool()
-  }, [hasSelected, tokenIn.address, tokenOut.address])
+  async function updateBalances() {
+    await getBalances(
+      address,
+      hasSelected,
+      tokenIn,
+      tokenOut,
+      setBalance0,
+      setBalance1,
+    )
+  }
+
+  async function updatePool() {
+    await getRangePoolData()
+  }
 
   useEffect(() => {
     fetchTokenPrice()
@@ -226,7 +242,7 @@ export default function ConcentratedPool({
     setQueryTokenOut(tempBal)
   }
 
-  const getRangePool = async () => {
+  const getRangePoolData = async () => {
     try {
       if (hasSelected === true) {
         console.log('tier selected', selected.tierId)
@@ -468,28 +484,6 @@ export default function ConcentratedPool({
     }
   }
 
-  const getBalances = async () => {
-    try {
-      const provider = new ethers.providers.JsonRpcProvider(
-        'https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2',
-        421613,
-      )
-      const signer = new ethers.VoidSigner(address, provider)
-      const token1Bal = new ethers.Contract(tokenIn.address, erc20ABI, signer)
-      const balance1 = await token1Bal.balanceOf(address)
-      const bal1: string = Number(ethers.utils.formatEther(balance1)).toFixed(2)
-      if (hasSelected === true) {
-        const token2Bal = new ethers.Contract(tokenOut.address, erc20ABI, signer)
-        const balance2 = await token2Bal.balanceOf(address)
-        const bal2: string = Number(ethers.utils.formatEther(balance2)).toFixed(2)
-        setBalance1(bal2)
-      }
-      setBalance0(bal1)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
   function SelectFee() {
     return (
       <Listbox value={selected} onChange={setSelected}>
@@ -710,7 +704,7 @@ export default function ConcentratedPool({
                           .replace(/^0+(?=\d)/, '')
                           .replace(/[^\d.]/g, '')
                     )
-                  } 
+                  }
                 />
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
                   <button onClick={() => changePrice('plus', 'min')}>
@@ -738,7 +732,7 @@ export default function ConcentratedPool({
                       (document.getElementById('maxInput') as HTMLInputElement)
                         ?.value
                           .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
-                          .replace(/^(\.)+/, '0')
+                          .replace(/^(\.)+/, '0.')
                           .replace(/(?<=\..*)\./g, '')
                           .replace(/^0+(?=\d)/, '')
                           .replace(/[^\d.]/g, '')

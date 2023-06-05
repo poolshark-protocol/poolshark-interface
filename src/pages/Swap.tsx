@@ -8,45 +8,48 @@ import { ChevronDownIcon, ArrowPathIcon } from '@heroicons/react/20/solid'
 import SelectToken from '../components/SelectToken'
 import useInputBox from '../hooks/useInputBox'
 import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton'
-import { erc20ABI, useAccount, useSigner } from 'wagmi'
+import {
+  erc20ABI,
+  useAccount,
+  useSigner,
+  useProvider,
+  useContractRead,
+} from 'wagmi'
 import {
   tokenZeroAddress,
   tokenOneAddress,
 } from '../constants/contractAddresses'
-import { useProvider, useContractRead } from 'wagmi'
-import { BigNumber, Contract, ethers } from 'ethers'
+import { BigNumber, Contract, Signer, ethers } from 'ethers'
 import { chainIdsToNamesForGitTokenList } from '../utils/chains'
 import { coverPoolABI } from '../abis/evm/coverPool'
 import {
   fetchCoverPools,
-  fetchPrice,
   fetchRangePools,
   getCoverPoolFromFactory,
   getRangePoolFromFactory,
 } from '../utils/queries'
 import { useSwapStore } from '../hooks/useStore'
 import SwapRangeApproveButton from '../components/Buttons/SwapRangeApproveButton'
-import SelectTokenButton from '../components/Buttons/SelectTokenButtonSwap'
 import SwapRangeButton from '../components/Buttons/SwapRangeButton'
 import SwapCoverApproveButton from '../components/Buttons/SwapCoverApproveButton'
 import SwapCoverButton from '../components/Buttons/SwapCoverButton'
-import useSwapAllowance from '../hooks/useSwapAllowance'
 import { rangePoolABI } from '../abis/evm/rangePool'
 import { TickMath, invertPrice } from '../utils/math/tickMath'
 import { ZERO_ADDRESS } from '../utils/math/constants'
-
-type token = {
-  symbol: string
-  logoURI: string
-  address: string
-}
+import { gasEstimate } from '../utils/gas'
+import { token } from '../utils/types'
+import { getCoverPool, getRangePool } from '../utils/pools'
+import { getBalances } from '../utils/balances'
 
 export default function Swap() {
+  const { address, isDisconnected, isConnected } = useAccount()
+  const { data: signer } = useSigner()
+  const {
+    network: { chainId },
+  } = useProvider()
   const [updateSwapAmount] = useSwapStore((state: any) => [
     state.updateSwapAmount,
   ])
-  const { address, isDisconnected, isConnected } = useAccount()
-  const allowance = useSwapAllowance(address)
   const {
     bnInput,
     inputBox,
@@ -54,7 +57,8 @@ export default function Swap() {
     bnInputLimit,
     LimitInputBox,
   } = useInputBox()
-  const [gasFee, setGasFee] = useState('')
+
+  const [gasFee, setGasFee] = useState('0')
   const [coverQuote, setCoverQuote] = useState(0)
   const [rangeQuote, setRangeQuote] = useState(0)
   const [coverPrice, setCoverPrice] = useState(0)
@@ -79,8 +83,8 @@ export default function Swap() {
   const [rangeSlippage, setRangeSlippage] = useState('0.5')
   const [auxSlippage, setAuxSlippage] = useState('0.5')
   const [modalOpen, setModalOpen] = useState(false)
-  const [balance0, setBalance0] = useState('')
-  const [balance1, setBalance1] = useState('0.00')
+  const [balanceIn, setBalanceIn] = useState('')
+  const [balanceOut, setBalanceOut] = useState('0.00')
   const [stateChainName, setStateChainName] = useState()
   const [LimitActive, setLimitActive] = useState(false)
   const [tokenOrder, setTokenOrder] = useState(true)
@@ -98,12 +102,10 @@ export default function Swap() {
   const [bnSlippage, setBnSlippage] = useState(BigNumber.from(1))
   const [slippageFetched, setSlippageFetched] = useState(false)
 
-  const { data: signer } = useSigner()
-  const provider = useProvider()
+  console.log('balanceIn', balanceIn)
+  console.log('balanceOut', balanceOut)
 
-  const {
-    network: { chainId },
-  } = useProvider()
+  /////////////////Start of Contract Hooks//////////////////////
 
   const { data: dataRange } = useContractRead({
     address: tokenIn.address,
@@ -136,27 +138,6 @@ export default function Swap() {
     },
   })
 
-  const { data: priceCover } = useContractRead({
-    address: coverPoolRoute,
-    abi: coverPoolABI,
-    functionName:
-      tokenIn.address.localeCompare(tokenOut.address) < 0 ? 'pool1' : 'pool0',
-    args: [],
-    chainId: 421613,
-    watch: true,
-    enabled: isConnected && coverPoolRoute != undefined,
-    onSuccess(data) {
-      console.log('Success price Cover', data)
-      console.log('coverPrice', coverPrice)
-    },
-    onError(error) {
-      console.log('Error price Cover', error)
-    },
-    onSettled(data, error) {
-      console.log('Settled price Cover', { data, error })
-    },
-  })
-
   const { data: priceRange } = useContractRead({
     address: rangePoolRoute,
     abi: rangePoolABI,
@@ -177,44 +158,24 @@ export default function Swap() {
     },
   })
 
-  const { data: quoteCover } = useContractRead({
+  const { data: priceCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
-    functionName: 'quote',
-    args: [
-      tokenIn.address.localeCompare(tokenOut.address) < 0,
-      bnInput,
-      tokenIn.address.localeCompare(tokenOut.address) < 0
-        ? BigNumber.from(
-            TickMath.getSqrtPriceAtPriceString(
-              coverBnPrice.sub(coverBnBaseLimit).toString(),
-              18,
-            ).toString(),
-          )
-        : BigNumber.from(
-            TickMath.getSqrtPriceAtPriceString(
-              coverBnPrice.add(coverBnBaseLimit).toString(),
-              18,
-            ).toString(),
-          ),
-    ],
+    functionName:
+      tokenIn.address.localeCompare(tokenOut.address) < 0 ? 'pool1' : 'pool0',
+    args: [],
     chainId: 421613,
     watch: true,
     enabled: isConnected && coverPoolRoute != undefined,
     onSuccess(data) {
-      console.log('Success cover wagmi', data)
-      console.log('coverQuote', coverQuote)
-      console.log('coverPriceAfter', coverPriceAfter)
-      console.log(
-        'zeroForOne',
-        tokenIn.address.localeCompare(tokenOut.address) < 0,
-      )
+      console.log('Success price Cover', data)
+      console.log('coverPrice', coverPrice)
     },
     onError(error) {
-      console.log('Error cover wagmi', error)
+      console.log('Error price Cover', error)
     },
     onSettled(data, error) {
-      console.log('Settled', { data, error })
+      console.log('Settled price Cover', { data, error })
     },
   })
 
@@ -244,8 +205,6 @@ export default function Swap() {
     enabled: isConnected && rangePoolRoute != undefined,
     onSuccess(data) {
       console.log('Success range wagmi', data)
-      console.log('rangeQuote', rangeQuote)
-      console.log('rangePriceAfter', rangePriceAfter)
     },
     onError(error) {
       console.log('Error range wagmi', error)
@@ -255,32 +214,100 @@ export default function Swap() {
     },
   })
 
-  //@dev put balanc
-  const getBalances = async () => {
-    try {
-      const provider = new ethers.providers.JsonRpcProvider(
-        'https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2',
-        421613,
-      )
-      const signer = new ethers.VoidSigner(address, provider)
-      const tokenOutBal = new ethers.Contract(tokenIn.address, erc20ABI, signer)
-      const balance1 = await tokenOutBal.balanceOf(address)
-      let token2Bal: Contract
-      let bal1: string
-      bal1 = Number(ethers.utils.formatEther(balance1)).toFixed(2)
-      if (hasSelected === true) {
-        token2Bal = new ethers.Contract(tokenOut.address, erc20ABI, signer)
-        const balance2 = await token2Bal.balanceOf(address)
-        let bal2: string
-        bal2 = Number(ethers.utils.formatEther(balance2)).toFixed(2)
+  const { data: quoteCover } = useContractRead({
+    address: coverPoolRoute,
+    abi: coverPoolABI,
+    functionName: 'quote',
+    args: [
+      tokenIn.address.localeCompare(tokenOut.address) < 0,
+      bnInput,
+      tokenIn.address.localeCompare(tokenOut.address) < 0
+        ? BigNumber.from(
+            TickMath.getSqrtPriceAtPriceString(
+              coverBnPrice.sub(coverBnBaseLimit).toString(),
+              18,
+            ).toString(),
+          )
+        : BigNumber.from(
+            TickMath.getSqrtPriceAtPriceString(
+              coverBnPrice.add(coverBnBaseLimit).toString(),
+              18,
+            ).toString(),
+          ),
+    ],
+    chainId: 421613,
+    watch: true,
+    enabled: isConnected && coverPoolRoute != undefined,
+    onSuccess(data) {
+      console.log('Success cover wagmi', data)
+    },
+    onError(error) {
+      console.log('Error cover wagmi', error)
+    },
+    onSettled(data, error) {
+      console.log('Settled', { data, error })
+    },
+  })
 
-        setBalance1(bal2)
-      }
+  /////////////////End of Contract Hooks//////////////////////
 
-      setBalance0(bal1)
-    } catch (error) {
-      console.log(error)
+  useEffect(() => {
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
+  }, [chainId])
+
+  useEffect(() => {
+    if (hasSelected) {
+      updateBalances()
+      updatePools()
     }
+  }, [tokenOut.address, tokenIn.address, hasSelected])
+
+  async function updateBalances() {
+    await getBalances(
+      address,
+      hasSelected,
+      tokenIn,
+      tokenOut,
+      setBalanceIn,
+      setBalanceOut,
+    )
+  }
+
+  async function updatePools() {
+    await getRangePool(tokenIn, tokenOut, setRangePoolRoute)
+    await getCoverPool(tokenIn, tokenOut, setCoverPoolRoute)
+  }
+
+  useEffect(() => {
+    if (bnInput !== BigNumber.from(0)) {
+      updateGasFee()
+    }
+    /* setTimeout(() => {
+      updateGasFee()
+    }, 10000) */
+  }, [
+    bnInput,
+    tokenIn.address,
+    tokenOut.address,
+    coverPoolRoute,
+    rangePoolRoute,
+  ])
+
+  async function updateGasFee() {
+    const newGasFee = await gasEstimate(
+      rangePoolRoute,
+      coverPoolRoute,
+      rangeQuote,
+      coverQuote,
+      rangeBnPrice,
+      rangeBnBaseLimit,
+      tokenIn,
+      tokenOut,
+      bnInput,
+      address,
+      signer,
+    )
+    setGasFee(newGasFee)
   }
 
   function changeDefaultIn(token: token) {
@@ -335,85 +362,6 @@ export default function Swap() {
     console.log('tokenOut after switch', tokenOut)
   }
 
-  const gasEstimate = async () => {
-    try {
-      const provider = new ethers.providers.JsonRpcProvider(
-        'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
-      )
-
-      /* console.log('gas cover route', coverPoolRoute)
-      console.log('gas range route', rangePoolRoute)
-      console.log('gas provider', provider) */
-      if (!coverPoolRoute || !provider) {
-        setGasFee('0')
-        return
-      }
-      var contract: Contract
-      if (rangeQuote > coverQuote) {
-        //console.log('range gas estimate')
-        contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
-      } else {
-        contract = new ethers.Contract(coverPoolRoute, coverPoolABI, provider)
-      }
-
-      //console.log('gas contract', contract)
-      const recipient = address
-      const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0
-
-      const priceLimit =
-        tokenOut.address != '' &&
-        tokenIn.address.localeCompare(tokenOut.address) < 0
-          ? BigNumber.from(
-              TickMath.getSqrtPriceAtPriceString(
-                rangeBnPrice.sub(rangeBnBaseLimit).toString(),
-                18,
-              ).toString(),
-            )
-          : BigNumber.from(
-              TickMath.getSqrtPriceAtPriceString(
-                rangeBnPrice.add(rangeBnBaseLimit).toString(),
-                18,
-              ).toString(),
-            )
-
-      //recipient,
-      //console.log('gas estimation', contract.address, bnInput.toString(), priceLimit.toString(), zeroForOne, recipient)
-
-      let gasUnits: BigNumber
-      if (rangeQuote > coverQuote)
-        gasUnits = await contract
-          .connect(signer)
-          .estimateGas.swap(
-            recipient,
-            recipient,
-            zeroForOne,
-            bnInput,
-            priceLimit,
-          )
-      else
-        gasUnits = await contract
-          .connect(signer)
-          .estimateGas.swap(recipient, zeroForOne, bnInput, priceLimit)
-      const price = await fetchPrice('0x000')
-      const gasPrice = await provider.getGasPrice()
-      const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])
-      const networkFeeWei = gasPrice.mul(gasUnits)
-      const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18))
-      const networkFeeUsd = networkFeeEth * ethUsdPrice
-      console.log('fee price:', networkFeeUsd)
-      const formattedPrice: string =
-        '~' +
-        networkFeeUsd.toLocaleString('en-US', {
-          style: 'currency',
-          currency: 'USD',
-        })
-
-      setGasFee(formattedPrice)
-    } catch (error) {
-      console.log('gas error', error)
-    }
-  }
-
   const getFeeTier = async () => {
     const coverData = await fetchCoverPools()
     const coverPoolAddress = coverData['data']['coverPools']['0']['id']
@@ -441,58 +389,6 @@ export default function Swap() {
     } else {
       setSlippage(coverSlippage)
       setAuxSlippage(coverSlippage)
-    }
-  }
-
-  const getRangePool = async () => {
-    try {
-      if (hasSelected === true) {
-        const pool = await getRangePoolFromFactory(
-          tokenIn.address,
-          tokenOut.address,
-        )
-        let id = ZERO_ADDRESS
-        let dataLength = pool['data']['rangePools'].length
-        if (dataLength != 0) {
-          id = pool['data']['rangePools']['0']['id']
-          setRangePoolRoute(id)
-        } else {
-          const fallbackPool = await getRangePoolFromFactory(
-            tokenOut.address,
-            tokenIn.address,
-          )
-          id = fallbackPool['data']['rangePools']['0']['id']
-          setRangePoolRoute(id)
-        }
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const getCoverPool = async () => {
-    try {
-      if (hasSelected === true) {
-        const pool = await getCoverPoolFromFactory(
-          tokenIn.address,
-          tokenOut.address,
-        )
-        let id = ZERO_ADDRESS
-        let dataLength = pool['data']['coverPools'].length
-        if (dataLength != 0) {
-          id = pool['data']['coverPools']['0']['id']
-          setCoverPoolRoute(id)
-        } else {
-          const fallbackPool = await getCoverPoolFromFactory(
-            tokenOut.address,
-            tokenIn.address,
-          )
-          id = fallbackPool['data']['coverPools']['0']['id']
-          setCoverPoolRoute(id)
-        }
-      }
-    } catch (error) {
-      console.log(error)
     }
   }
 
@@ -587,39 +483,6 @@ export default function Swap() {
   }, [quoteCover, quoteRange, bnInput])
 
   useEffect(() => {
-    if (bnInput !== BigNumber.from(0)) {
-      if (rangeQuote > coverQuote) {
-        if (bnInput < ethers.utils.parseUnits(allowanceRange, 18)) {
-          gasEstimate()
-        }
-      } else {
-        if (bnInput < ethers.utils.parseUnits(allowanceCover, 18)) {
-          gasEstimate()
-        }
-      }
-    }
-    /*setTimeout(() => {
-      gasEstimate()
-    }, 10000)*/
-  }, [
-    bnInput,
-    tokenIn.address,
-    tokenOut.address,
-    coverPoolRoute,
-    rangePoolRoute,
-  ])
-
-  useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
-  }, [chainId])
-
-  useEffect(() => {
-    getBalances()
-    getRangePool()
-    getCoverPool()
-  }, [tokenOut.address, tokenIn.address, hasSelected])
-
-  useEffect(() => {
     updateSwapAmount(bnInput)
   }, [bnInput])
 
@@ -642,13 +505,17 @@ export default function Swap() {
   useEffect(() => {
     if (rangeBnPrice) {
       if (rangeBnPrice !== BigNumber.from(0)) {
-        setRangeBnBaseLimit(rangeBnPrice.mul(parseFloat(slippage) * 100).div(10000))
+        setRangeBnBaseLimit(
+          rangeBnPrice.mul(parseFloat(slippage) * 100).div(10000),
+        )
       }
     }
 
     if (coverBnPrice) {
       if (coverBnPrice !== BigNumber.from(0)) {
-        setCoverBnBaseLimit(coverBnPrice.mul(parseFloat(slippage) * 100).div(10000))
+        setCoverBnBaseLimit(
+          coverBnPrice.mul(parseFloat(slippage) * 100).div(10000),
+        )
       }
     }
     console.log('rangeBnBaseLimit', rangeBnBaseLimit.toString())
@@ -846,13 +713,16 @@ export default function Swap() {
                   />
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                  <div className="flex text-xs text-[#4C4C4C]" key={balance0}>
-                    Balance: {balance0 === 'NaN' ? 0 : balance0}
+                  <div className="flex text-xs text-[#4C4C4C]" key={balanceIn}>
+                    Balance: {balanceIn === 'NaN' ? 0 : balanceIn}
                   </div>
                   {isConnected && stateChainName === 'arbitrumGoerli' ? (
                     <button
                       className="flex text-xs uppercase text-[#C9C9C9]"
-                      onClick={() => maxBalance(balance0, '0')}
+                      onClick={() => {
+                        console.log('max', balanceIn)
+                        maxBalance(balanceIn, '0')
+                      }}
                     >
                       Max
                     </button>
@@ -934,7 +804,7 @@ export default function Swap() {
                 {hasSelected ? (
                   <div className="flex items-center justify-end gap-2 px-1 mt-2">
                     <div className="flex text-xs text-[#4C4C4C]">
-                      Balance: {balance1 === 'NaN' ? 0 : balance1}
+                      Balance: {balanceOut === 'NaN' ? 0 : balanceOut}
                     </div>
                   </div>
                 ) : (
@@ -1044,7 +914,7 @@ export default function Swap() {
               >
                 Swap
               </button>
-            ) : (rangeQuote > coverQuote) ? (
+            ) : rangeQuote > coverQuote ? (
               Number(allowanceRange) <
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                 <div>

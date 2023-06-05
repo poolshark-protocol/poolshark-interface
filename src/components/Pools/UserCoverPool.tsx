@@ -6,13 +6,14 @@ import {
 import { useEffect, useState } from 'react'
 import { useCoverStore } from '../../hooks/useStore'
 import Link from 'next/link'
-import { getCoverPoolFromFactory } from '../../utils/queries'
+import { getCoverPoolFromFactory, getRangePoolFromFactory } from '../../utils/queries'
 import { useAccount, useContractRead } from 'wagmi'
 import { coverPoolABI } from '../../abis/evm/coverPool'
 import { ethers } from 'ethers'
 import { TickMath } from '../../utils/math/tickMath'
 import JSBI from 'jsbi'
 import { ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
+import { tokenZeroAddress, tokenOneAddress } from '../../constants/contractAddresses'
 
 export default function UserCoverPool({
   account,
@@ -28,6 +29,9 @@ export default function UserCoverPool({
   userFillOut,
   epochLast,
   liquidity,
+  lowerPrice,
+  upperPrice,
+  claimTick,
   latestTick,
   tickSpacing,
   feeTier,
@@ -55,10 +59,25 @@ export default function UserCoverPool({
   const [coverQuote, setCoverQuote] = useState(undefined)
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
   const [coverPoolRoute, setCoverPoolRoute] = useState('')
+  const [claimPrice, setClaimPrice] = useState(!isNaN(claimTick) ? parseFloat(TickMath.getPriceStringAtTick(claimTick)) 
+                                                                 : (zeroForOne ? upperPrice : lowerPrice))
+  // fill percent is % of range crossed based on price
+  const [fillPercent, setFillPercent] = useState((Math.abs((zeroForOne ? upperPrice : lowerPrice) - claimPrice)
+                                                          / Math.abs(upperPrice - lowerPrice) * 100).toPrecision(3))
 
   useEffect(() => {
     getCoverPool()
   }, [tokenOne, tokenZero])
+
+  useEffect(() => {
+    setClaimPrice(!isNaN(claimTick) ? parseFloat(TickMath.getPriceStringAtTick(claimTick)) 
+    : (zeroForOne ? upperPrice : lowerPrice))
+  }, [claimTick])
+
+  useEffect(() => {
+    setFillPercent((Math.abs((zeroForOne ? upperPrice : lowerPrice) - claimPrice)
+    / Math.abs(upperPrice - lowerPrice) * 100).toPrecision(3))
+  }, [claimPrice])
 
   const { isConnected } = useAccount()
 
@@ -202,8 +221,8 @@ export default function UserCoverPool({
         </div>
         <div className="pr-5">
           <div className="flex relative bg-transparent items-center justify-center h-8 border-grey1 z-40 border rounded-lg gap-x-2 text-sm w-36">
-            <div className=" bg-white h-full absolute left-0 z-0 rounded-l-[7px] opacity-10 w-[40%]" />
-            <div className="z-20 ">40% Filled</div>
+            <div className=" bg-white h-full absolute left-0 z-0 rounded-l-[7px] opacity-10 w-[{{fillPercent}}%]" />
+            <div className="z-20 ">{fillPercent}% Filled</div>
           </div>
         </div>
       </div>
