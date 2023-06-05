@@ -829,9 +829,17 @@ export default function Swap() {
                   type="text"
                   onChange={e => {
                     setLimitPrice(inputFilter(e.target.value));
-                    (rangeQuote > coverQuote) ?
-                    setRangeBnPrice(ethers.utils.parseEther(inputFilter(e.target.value))) :
-                    setCoverBnPrice(ethers.utils.parseEther(inputFilter(e.target.value)))}}
+                    (Number(e.target.value) != 0 && e.target.value.toString() != '') ?
+                      ((rangeQuote > coverQuote) ?
+                      setRangeBnPrice(ethers.utils.parseEther(inputFilter(e.target.value))) :
+                      setCoverBnPrice(ethers.utils.parseEther(inputFilter(e.target.value)))
+                      ) :
+                      ((rangeQuote > coverQuote) ?
+                      setRangeBnPrice(ethers.utils.parseEther("1")) :
+                      setCoverBnPrice(ethers.utils.parseEther("1"))
+                      )
+                    }
+                  }
                 />
                 <></>
                 <div className="flex">
