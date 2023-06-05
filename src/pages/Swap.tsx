@@ -105,6 +105,7 @@ export default function Swap() {
   const [bnSlippage, setBnSlippage] = useState(BigNumber.from(1))
   const [slippageFetched, setSlippageFetched] = useState(false)
   const [limitPrice, setLimitPrice] = useState('1')
+  const [allowanceRangeOut, setAllowanceRangeOut] = useState('0.00')
 
   console.log('balanceIn', balanceIn)
   console.log('balanceOut', balanceOut)
@@ -126,6 +127,23 @@ export default function Swap() {
       console.log('Success allowance', data)
     },
   })
+
+  const  { data: dataRangeOut } = useContractRead({
+    address: tokenOut.address,
+    abi: erc20ABI,
+    functionName: 'allowance',
+    args: [address, rangePoolRoute],
+    chainId: 421613,
+    watch: true,
+    enabled: isConnected && rangePoolRoute != undefined && LimitActive == true,
+    onError(error) {
+      console.log('Error allowance out', error)
+    },
+    onSuccess(data) {
+      console.log('Success allowance out', data)
+    },
+  })
+
   const { data: dataCover } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -401,7 +419,11 @@ export default function Swap() {
       setAllowanceRange(ethers.utils.formatUnits(dataRange, 18))
       setAllowanceCover(ethers.utils.formatUnits(dataCover, 18))
     }
-  }, [dataRange, dataCover, tokenIn.address])
+
+    if (LimitActive && dataRangeOut) {
+      setAllowanceRangeOut(ethers.utils.formatUnits(dataRangeOut, 18))
+    }
+  }, [dataRange, dataCover, tokenIn.address, LimitActive])
 
   useEffect(() => {
     if (priceCover) {
