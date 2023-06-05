@@ -34,7 +34,7 @@ import SwapRangeButton from '../components/Buttons/SwapRangeButton'
 import SwapCoverApproveButton from '../components/Buttons/SwapCoverApproveButton'
 import SwapCoverButton from '../components/Buttons/SwapCoverButton'
 import { rangePoolABI } from '../abis/evm/rangePool'
-import { TickMath, invertPrice } from '../utils/math/tickMath'
+import { TickMath, invertPrice, roundTick } from '../utils/math/tickMath'
 import { ZERO_ADDRESS } from '../utils/math/constants'
 import { gasEstimate } from '../utils/gas'
 import { token } from '../utils/types'
@@ -1056,8 +1056,8 @@ export default function Swap() {
                   disabled={false}
                   poolAddress={rangePoolRoute}
                   to={address}
-                  lower={}
-                  upper={}
+                  lower={roundTick(TickMath.getTickAtPriceString((ethers.utils.formatUnits(rangeBnPrice, 18))), tickSpread)}
+                  upper={roundTick(TickMath.getTickAtPriceString((ethers.utils.formatUnits(rangeBnPrice.add(rangeBnBaseLimit), 18))), tickSpread)}
                   amount0={bnInput}
                   amount1={ethers.utils.parseEther(rangeQuote.toString())}
                 />
