@@ -597,8 +597,8 @@ export default function Swap() {
               Minimum received after slippage ({slippage}%)
             </div>
             <div className="ml-auto text-xs">
-              {hasSelected
-                ? rangeQuote > coverQuote
+              {hasSelected ? !LimitActive ? (
+                rangeQuote > coverQuote
                   ? rangeQuote === 0
                     ? '0'
                     : (
@@ -617,6 +617,13 @@ export default function Swap() {
                         coverQuote *
                         (parseFloat(slippage) * 0.01)
                     ).toFixed(2)
+              ) : (
+                parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                  rangePrice -
+                parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                  rangePrice *
+                  (parseFloat(slippage) * 0.01)
+              ).toFixed(2)
                 : 'Select Token'}
             </div>
           </div>
