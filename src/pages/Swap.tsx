@@ -1031,7 +1031,7 @@ export default function Swap() {
               >
                 Swap
               </button>
-            ) : rangeQuote > coverQuote ? (
+            ) : (
               Number(allowanceRange) <
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                 <div>
@@ -1076,48 +1076,6 @@ export default function Swap() {
                   }
                 />
               )
-            ) : Number(allowanceCover) <
-              Number(ethers.utils.formatUnits(bnInput, 18)) ? (
-              <div>
-                <div className="flex-none ">
-                  Your {tokenIn.symbol} coverPool allowance is missing{" "}
-                  {(
-                    Number(ethers.utils.formatUnits(bnInput, 18)) -
-                    Number(allowanceCover)
-                  ).toFixed(2)}{" "}
-                  {tokenIn.symbol}
-                </div>
-                <SwapCoverApproveButton
-                  disabled={false}
-                  poolAddress={coverPoolRoute}
-                  approveToken={tokenIn.address}
-                />
-              </div>
-            ) : (
-              <SwapCoverButton
-                poolAddress={coverPoolRoute}
-                zeroForOne={
-                  tokenOut.address != "" &&
-                  tokenIn.address.localeCompare(tokenOut.address) < 0
-                }
-                amount={bnInput}
-                baseLimit={
-                  tokenOut.address != "" &&
-                  tokenIn.address.localeCompare(tokenOut.address) < 0
-                    ? BigNumber.from(
-                        TickMath.getSqrtPriceAtPriceString(
-                          coverBnPrice.sub(coverBnBaseLimit).toString(),
-                          18
-                        ).toString()
-                      )
-                    : BigNumber.from(
-                        TickMath.getSqrtPriceAtPriceString(
-                          coverBnPrice.add(coverBnBaseLimit).toString(),
-                          18
-                        ).toString()
-                      )
-                }
-              />
             )}
           </>
           )
