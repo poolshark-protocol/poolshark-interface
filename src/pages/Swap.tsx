@@ -587,7 +587,7 @@ export default function Swap() {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Price Impact</div>
             <div className="ml-auto text-xs">
-              {hasSelected
+              {hasSelected //TODO: limit order price impact
                 ? rangeQuote !== 0 && coverQuote !== 0
                   ? rangeQuote > coverQuote
                     ? Math.abs(
