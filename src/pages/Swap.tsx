@@ -559,8 +559,8 @@ export default function Swap() {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Expected Output</div>
             <div className="ml-auto text-xs">
-              {hasSelected
-                ? rangeQuote > coverQuote
+              {hasSelected ? !LimitActive ? (
+                rangeQuote > coverQuote
                   ? rangeQuote === 0
                     ? '0'
                     : (
@@ -573,7 +573,15 @@ export default function Swap() {
                       parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                       coverQuote
                     ).toFixed(2)
-                : 'Select Token'}
+              ) : (
+                rangePrice === 0
+                ? '0'
+                : (
+                  parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                  rangePrice
+                ).toFixed(2)
+              )
+              : 'Select Token'}
             </div>
           </div>
           <div className="flex p-1">
