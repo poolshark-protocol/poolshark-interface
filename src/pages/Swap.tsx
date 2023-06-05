@@ -1058,8 +1058,8 @@ export default function Swap() {
                   to={address}
                   lower={}
                   upper={}
-                  amount0={}
-                  amount1={}
+                  amount0={bnInput}
+                  amount1={ethers.utils.parseEther(rangeQuote.toString())}
                 />
               )
             )}
