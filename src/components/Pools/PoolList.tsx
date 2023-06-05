@@ -39,7 +39,6 @@ export default function PoolList({
           tokenZeroAddress: tokenZero.id,
           feeTier: feeTierPercentage,
           tickSpacing: tickSpacing,
-          liquidity: liquidity,
           state: href == '/cover' ? 'existing' : undefined,
         },
       }}
