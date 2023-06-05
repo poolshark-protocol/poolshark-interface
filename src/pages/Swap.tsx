@@ -19,11 +19,10 @@ import {
   tokenZeroAddress,
   tokenOneAddress,
 } from '../constants/contractAddresses'
-import { BigNumber, Contract, Signer, ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import { chainIdsToNamesForGitTokenList } from '../utils/chains'
 import { coverPoolABI } from '../abis/evm/coverPool'
 import { fetchCoverPools, fetchRangePools } from '../utils/queries'
-import { useSwapStore } from '../hooks/useStore'
 import SwapRangeApproveButton from '../components/Buttons/SwapRangeApproveButton'
 import SwapRangeButton from '../components/Buttons/SwapRangeButton'
 import SwapCoverApproveButton from '../components/Buttons/SwapCoverApproveButton'
@@ -41,15 +40,10 @@ export default function Swap() {
   const {
     network: { chainId },
   } = useProvider()
-  const [updateSwapAmount] = useSwapStore((state: any) => [
-    state.updateSwapAmount,
-  ])
   const {
     bnInput,
     inputBox,
     maxBalance,
-    bnInputLimit,
-    LimitInputBox,
   } = useInputBox()
 
   const [gasFee, setGasFee] = useState('0')
@@ -318,8 +312,6 @@ export default function Swap() {
         setRangeBnPrice(ethers.utils.parseEther(rangePrice.toString()))
       }
     }
-    //console.log('coverBnPrice', coverBnPrice.toString())
-    //console.log('rangeBnPrice', rangeBnPrice.toString())
   }, [coverPrice, rangePrice])
 
   useEffect(() => {
@@ -338,8 +330,6 @@ export default function Swap() {
         )
       }
     }
-    //console.log('rangeBnBaseLimit', rangeBnBaseLimit.toString())
-    //console.log('coverBnBaseLimit', coverBnBaseLimit.toString())
   }, [slippage, rangeBnPrice, coverBnPrice])
 
   useEffect(() => {

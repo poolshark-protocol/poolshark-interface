@@ -23,27 +23,18 @@ export const gasEstimate = async (
     const provider = new ethers.providers.JsonRpcProvider(
       'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
     )
-
-    console.log('gas cover route', coverPoolRoute)
-    console.log('gas range route', rangePoolRoute)
-    console.log('gas provider', provider)
     if (!coverPoolRoute || !provider) {
       setGasFee('0')
       return
     }
     var contract: Contract
     if (rangeQuote > coverQuote) {
-      console.log('range gas estimate')
       contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
     } else {
-      console.log('cover gas estimate')
       contract = new ethers.Contract(coverPoolRoute, coverPoolABI, provider)
     }
-
-    //console.log('gas contract', contract)
     const recipient = address
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0
-
     const priceLimit =
       tokenOut.address != '' &&
       tokenIn.address.localeCompare(tokenOut.address) < 0
@@ -59,10 +50,6 @@ export const gasEstimate = async (
               18,
             ).toString(),
           )
-
-    //recipient,
-    //console.log('gas estimation', contract.address, bnInput.toString(), priceLimit.toString(), zeroForOne, recipient)
-
     let gasUnits: BigNumber
     if (rangeQuote > coverQuote)
       gasUnits = await contract
@@ -78,7 +65,6 @@ export const gasEstimate = async (
     const networkFeeWei = gasPrice.mul(gasUnits)
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18))
     const networkFeeUsd = networkFeeEth * ethUsdPrice
-    console.log('fee price:', networkFeeUsd)
     const formattedPrice: string =
       '~' +
       networkFeeUsd.toLocaleString('en-US', {
