@@ -24,6 +24,7 @@ import { BigNumber } from 'ethers'
       abi: erc20ABI,
       functionName: 'approve',
       args: [poolAddress, BigNumber.from('0')],
+      enabled: approveToken != undefined && poolAddress != undefined,
       chainId: 421613,
     })
   
