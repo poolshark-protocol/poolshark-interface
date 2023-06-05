@@ -6,10 +6,9 @@ import {
   ExclamationTriangleIcon,
 } from '@heroicons/react/20/solid'
 import { useState, useEffect } from 'react'
-import CoverBurnButton from '../../../components/Buttons/CoverBurnButton'
-import CoverCollectButton from '../../../components/Buttons/CoverCollectButton'
 import { useRouter } from 'next/router'
 import { useAccount, useContractRead } from 'wagmi'
+import CoverCollectButton from "../../../components/Buttons/CoverCollectButton";
 import Link from 'next/link'
 import { BigNumber, ethers } from 'ethers'
 import {
@@ -19,6 +18,7 @@ import {
 } from '../../../utils/queries'
 import { TickMath } from '../../../utils/math/tickMath'
 import { coverPoolABI } from '../../../abis/evm/coverPool'
+import RemoveLiquidity from '../../../components/Modals/RemoveLiquidity'
 import { tokenZeroAddress, tokenOneAddress } from '../../../constants/contractAddresses'
 
 export default function Cover() {
@@ -31,6 +31,7 @@ export default function Cover() {
   }
   const { address } = useAccount()
   const router = useRouter()
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     if (router.isReady) {
@@ -416,12 +417,16 @@ export default function Cover() {
                     ).toFixed(2)}
                   </div>
                 </div>
+                {/** 
                 <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                   <div className="bg-grey1 text-grey rounded-md px-3 py-0.5">
                     {mktRate[tokenIn.symbol]}
                   </div>
                 </div>
-                <Link
+                */}
+                
+                  <div className="mt-5 space-y-2 cursor-pointer">
+                    <Link
                   href={{
                     pathname: "/cover",
                     query: {
@@ -442,12 +447,15 @@ export default function Cover() {
                     },
                   }}
                 >
-                  <div className="mt-5 space-y-2 cursor-pointer">
                     <div className="bg-[#032851] w-full py-3 px-4 rounded-xl">
                       Add Liquidity
                     </div>
+                    </Link>
+                    <div onClick={() => setIsOpen(true)} className="bg-[#032851] w-full py-3 px-4 rounded-xl">
+                      Remove Liquidity
+                    </div>
                   </div>
-                </Link>
+                
               </div>
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Filled Position</h1>
@@ -483,15 +491,6 @@ export default function Cover() {
                 <div className="mt-6 space-y-2">
                   <div className="space-y-3">
                     {/**TO-DO: PASS PROPS */}
-                    <CoverBurnButton
-                      poolAddress={poolAdd}
-                      address={address}
-                      lower={minLimit}
-                      claim={claimTick}
-                      upper={maxLimit}
-                      zeroForOne={zeroForOne}
-                      amount={liquidity}
-                    />
                     <CoverCollectButton
                       poolAddress={poolAdd}
                       address={address}
@@ -589,6 +588,14 @@ export default function Cover() {
           </div>
         </div>
       </div>
+      <RemoveLiquidity isOpen={isOpen} setIsOpen={setIsOpen} tokenIn={tokenIn} 
+                      poolAdd={poolAdd}
+                      address={address}
+                      minLimit={minLimit}
+                      claimTick={claimTick}
+                      maxLimit={maxLimit}
+                      zeroForOne={zeroForOne}
+                      liquidity={liquidity}/>
     </div>
   );
 }

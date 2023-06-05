@@ -73,6 +73,7 @@ export default function Initial(props: any) {
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </div>
               <input
+                autoComplete="off"
                 className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
                 placeholder="0"
                 disabled
@@ -90,6 +91,7 @@ export default function Initial(props: any) {
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </div>
               <input
+                autoComplete="off"
                 className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
                 placeholder="0"
                 disabled
@@ -135,6 +137,7 @@ export default function Initial(props: any) {
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </div>
               <input
+                autoComplete="off"
                 className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
                 placeholder="0"
                 disabled
@@ -152,6 +155,7 @@ export default function Initial(props: any) {
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </div>
               <input
+                autoComplete="off"
                 className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
                 placeholder="0"
                 disabled
