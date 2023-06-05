@@ -842,7 +842,7 @@ export default function Swap() {
                 />
                 <></>
                 <div className="flex">
-                  {/* <div className="flex text-xs text-[#4C4C4C]"> // Implement later 
+                  {/* <div className="flex text-xs text-[#4C4C4C]"> //TODO
                     98% above Market Price
                   </div> */}
                 </div>
@@ -879,7 +879,7 @@ export default function Swap() {
                     </div>
                     <div className="flex items-center justify-end gap-2 px-1 mt-2">
                       {/* <div className="text-xs text-white">
-                        Set to Market Price // Implement later
+                        Set to Market Price //TODO: check if this is needed
                       </div> */}
                     </div>
                   </div>
@@ -1033,7 +1033,7 @@ export default function Swap() {
               >
                 Swap
               </button>
-            ) : (
+            ) : (//TODO: handle double allowance, check amount0/1
               Number(allowanceRange) <
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                 <div>
