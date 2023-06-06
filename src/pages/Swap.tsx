@@ -1128,7 +1128,10 @@ export default function Swap() {
                   poolAddress={rangePoolRoute}
                   to={address}
                   lower={roundTick(TickMath.getTickAtPriceString((ethers.utils.formatUnits(rangeBnPrice, 18))), rangeTickSpacing)}
-                  upper={roundTick(TickMath.getTickAtPriceString((ethers.utils.formatUnits(rangeBnPrice.add(rangeBnBaseLimit), 18))), rangeTickSpacing)}
+                  upper={tokenOut.address != "" &&
+                  tokenIn.address.localeCompare(tokenOut.address) < 0 ?
+                    roundTick(TickMath.getTickAtPriceString((ethers.utils.formatUnits(rangeBnPrice.add(rangeBnBaseLimit), 18))), rangeTickSpacing) :
+                    roundTick(TickMath.getTickAtPriceString((ethers.utils.formatUnits(rangeBnPrice.sub(rangeBnBaseLimit), 18))), rangeTickSpacing)}
                   amount0={bnInput}
                   amount1={ethers.utils.parseEther(
                     (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
