@@ -6,9 +6,9 @@ import useInputBox from '../../../hooks/useInputBox'
 import RangeAddLiqButton from '../../Buttons/RangeAddLiqButton'
 
 
-export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, maxLimit, zeroForOne, liquidity, minLimit }) {
+export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, upperTick, liquidity, lowerTick }) {
 
-    const {
+  const {
     bnInput,
     inputBox,
     maxBalance,
@@ -93,10 +93,8 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd,
                 <RangeAddLiqButton
                       poolAddress={poolAdd}
                       address={address}
-                      lower={minLimit}
-                      claim={claimTick}
-                      upper={maxLimit}
-                      zeroForOne={zeroForOne}
+                      lower={lowerTick}
+                      upper={upperTick}
                       amount={bnInput}
                     />
               </Dialog.Panel>

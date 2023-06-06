@@ -241,7 +241,7 @@ export default function Cover() {
     },
   })
 
-    useEffect(() => {
+  useEffect(() => {
     setFillPercent( (Number(coverFilledAmount) /  Number(ethers.utils.formatUnits(userFillIn.toString(), 18))) * 100)
   })
     

@@ -4,33 +4,28 @@ import {
     useContractWrite,
     useWaitForTransaction,
 } from 'wagmi';
-import { coverPoolABI } from "../../abis/evm/coverPool";
-import { coverPoolAddress } from "../../constants/contractAddresses";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
+import { rangePoolABI } from '../../abis/evm/rangePool';
 
-export default function RangeRemoveLiqButton({poolAddress, address, lower, claim, upper, zeroForOne, amount}) {
+export default function RangeRemoveLiqButton({poolAddress, address, lower, upper, amount}) {
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
 
     const burnPercent = ethers.utils.parseUnits("5", 34)
-
-    console.log('burn params:', burnPercent.toString(), zeroForOne, claim.toString(), lower.toString(), upper.toString())
   
     const { config } = usePrepareContractWrite({
         address: poolAddress,
-        abi: coverPoolABI,
+        abi: rangePoolABI,
         functionName: "burn",
         args:[[
             address,
             burnPercent, //hardcoded to 100% for testnet
             lower,
-            claim,
             upper,
-            zeroForOne,
             true
         ]],
         chainId: 421613,

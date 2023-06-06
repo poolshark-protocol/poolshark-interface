@@ -34,7 +34,7 @@ export default function Range() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
 
-  const [poolAddress, setPoolAddress] = useState(router.query.poolId ?? '')
+  const [poolAdd, setPoolAddress] = useState(router.query.poolId ?? '')
   const [tokenIn, setTokenIn] = useState({
     name: router.query.tokenZeroAddress ?? '',
     symbol: router.query.tokenZeroSymbol ?? '',
@@ -182,12 +182,12 @@ export default function Range() {
       : undefined,
   )
   const [poolDisplay, setPoolDisplay] = useState(
-    poolAddress != ''
-      ? poolAddress.toString().substring(0, 6) +
+    poolAdd != ''
+      ? poolAdd.toString().substring(0, 6) +
           '...' +
-          poolAddress
+          poolAdd
             .toString()
-            .substring(poolAddress.toString().length - 4, poolAddress.toString().length)
+            .substring(poolAdd.toString().length - 4, poolAdd.toString().length)
       : undefined,
   )
 
@@ -229,7 +229,7 @@ export default function Range() {
   }
 
   function copyPoolAddress() {
-    navigator.clipboard.writeText(poolAddress.toString())
+    navigator.clipboard.writeText(poolAdd.toString())
     setIsPoolCopied(true)
   }
 
@@ -373,7 +373,7 @@ export default function Range() {
             </div>
 
             <a
-              href={'https://goerli.arbiscan.io/address/' + poolAddress}
+              href={'https://goerli.arbiscan.io/address/' + poolAdd}
               target="_blank"
               rel="noreferrer"
               className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80"
@@ -501,13 +501,13 @@ export default function Range() {
                 <div className="mt-5 space-y-2">
                   <div className="space-y-3">
                     <RangeCollectButton
-                      poolAddress={poolAddress.toString()}
+                      poolAddress={poolAdd.toString()}
                       address={address}
                       lower={BigNumber.from(lowerTick)}
                       upper={BigNumber.from(upperTick)}
                     />
                     <RangeCompoundButton
-                      poolAddress={poolAddress.toString()}
+                      poolAddress={poolAdd.toString()}
                       address={address}
                       lower={BigNumber.from(lowerTick)}
                       upper={BigNumber.from(upperTick)}
@@ -572,19 +572,15 @@ export default function Range() {
           </div>
         </div>
       </div>
-     {/** 
-      * MODALS FOR REMOVING AND ADDING LIQUIDITY *
       <RemoveLiquidity
         isOpen={isRemoveOpen}
         setIsOpen={setIsRemoveOpen}
         tokenIn={tokenIn}
         poolAdd={poolAdd}
         address={address}
-        minLimit={minLimit}
-        claimTick={claimTick}
-        maxLimit={maxLimit}
-        zeroForOne={zeroForOne}
-        liquidity={liquidity}
+        lowerTick={lowerTick}
+        upperTick={upperTick}
+        liquidity={userLiquidity}
       />
       <AddLiquidity
         isOpen={isAddOpen}
@@ -592,13 +588,10 @@ export default function Range() {
         tokenIn={tokenIn}
         poolAdd={poolAdd}
         address={address}
-        minLimit={minLimit}
-        claimTick={claimTick}
-        maxLimit={maxLimit}
-        zeroForOne={zeroForOne}
-        liquidity={liquidity}
+        lowerTick={lowerTick}
+        upperTick={upperTick}
+        liquidity={userLiquidity}
       />
-      */} 
     </div>
   )
 }

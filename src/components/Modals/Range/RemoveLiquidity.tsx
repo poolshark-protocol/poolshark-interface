@@ -4,11 +4,12 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import { useSwitchNetwork } from "wagmi";
 import useInputBox from '../../../hooks/useInputBox'
 import RangeAddLiqButton from '../../Buttons/RangeAddLiqButton'
+import RangeRemoveLiqButton from "../../Buttons/RangeRemoveLiqButton";
 
 
-export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, maxLimit, zeroForOne, liquidity, minLimit }) {
+export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, lowerTick, upperTick, liquidity}) {
 
-    const {
+  const {
     bnInput,
     inputBox,
     maxBalance,
@@ -16,7 +17,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
     LimitInputBox,
   } = useInputBox()
 
-    const [balance0, setBalance0] = useState('')
+  const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
 
   return (
@@ -110,14 +111,12 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
                   </div>
                 </div>
                 <RangeRemoveLiqButton
-                      poolAddress={poolAdd}
-                      address={address}
-                      lower={minLimit}
-                      claim={claimTick}
-                      upper={maxLimit}
-                      zeroForOne={zeroForOne}
-                      amount={liquidity}
-                    />
+                    poolAddress={poolAdd}
+                    address={address}
+                    lower={lowerTick}
+                    upper={upperTick}
+                    amount={liquidity}
+                />
               </Dialog.Panel>
             </Transition.Child>
           </div>
