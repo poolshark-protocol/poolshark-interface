@@ -304,7 +304,11 @@ export default function Swap() {
 
   useEffect(() => {
     if (bnInput !== BigNumber.from(0)) {
-      updateGasFee()
+      if (!LimitActive) {
+        updateGasFee()
+      } else {
+        updateMintFee()
+      }
     }
     /* setTimeout(() => {
       updateGasFee()
@@ -315,6 +319,7 @@ export default function Swap() {
     tokenOut.address,
     coverPoolRoute,
     rangePoolRoute,
+    LimitActive
   ])
 
   async function updateGasFee() {
@@ -642,7 +647,9 @@ export default function Swap() {
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
-            <div className="ml-auto text-xs">{gasFee}</div>
+            {!LimitActive ?
+            <div className="ml-auto text-xs">{gasFee}</div> :
+            <div className="ml-auto text-xs">{mintFee}</div>}
           </div>
           {!LimitActive ? (
           <div className="flex p-1">
