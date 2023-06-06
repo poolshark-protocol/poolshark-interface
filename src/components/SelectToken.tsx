@@ -161,6 +161,7 @@ export default function SelectToken(props) {
                     </div>
                     <MagnifyingGlassIcon className="w-5 text-white absolute mt-[13px] ml-[14px] text-grey" />
                     <input
+                      autoComplete="off"
                       className="border border-grey2 bg-dark outline-none py-2.5 pl-12 rounded-lg w-full placeholder:text-grey placeholder:font-regular text-white"
                       placeholder="Search name or paste address"
                       value={inputVal}
@@ -170,11 +171,11 @@ export default function SelectToken(props) {
                       {coinsForListing?.map((coin) => {
                         return (
                           <CoinListButton
-                            key={coin.symbol + 'top'}
+                            key={coin.symbol + "top"}
                             coin={coin}
                             chooseToken={chooseToken}
                           />
-                        )
+                        );
                       })}
                     </div>
                   </div>
@@ -186,7 +187,7 @@ export default function SelectToken(props) {
                           coin={coin}
                           chooseToken={chooseToken}
                         />
-                      )
+                      );
                     })}
                   </div>
                 </Dialog.Panel>
@@ -214,5 +215,5 @@ export default function SelectToken(props) {
         <ChevronDownIcon className="w-5" />
       </button>
     </div>
-  )
+  );
 }

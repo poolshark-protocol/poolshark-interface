@@ -4,6 +4,7 @@ import {
   ArrowLongLeftIcon,
   MinusIcon,
   PlusIcon,
+  InformationCircleIcon
 } from '@heroicons/react/20/solid'
 import { erc20ABI, useAccount, useContractRead } from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
@@ -17,6 +18,7 @@ import {
   getDefaultLowerTick,
   getDefaultUpperPrice,
   getDefaultUpperTick,
+  roundTick,
 } from '../../utils/math/tickMath'
 import { coverPoolABI } from '../../abis/evm/coverPool'
 import { ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
@@ -25,6 +27,9 @@ import CoverMintApproveButton from '../Buttons/CoverMintApproveButton'
 import { token } from '../../utils/types'
 import { getCoverPoolInfo } from '../../utils/pools'
 import { fetchTokenPrices, switchDirection } from '../../utils/tokens'
+import inputFilter from '../../utils/inputFilter'
+import TickSpacing from '../Tooltips/TickSpacing'
+import { getCoverPoolFromFactory } from '../../utils/queries'
 
 export default function CoverExistingPool({
   account,
@@ -98,10 +103,11 @@ export default function CoverExistingPool({
   const [coverAmountOut, setCoverAmountOut] = useState(ZERO)
   const [allowance, setAllowance] = useState(ZERO)
   const [mktRate, setMktRate] = useState({})
+  const [showTooltip, setShowTooltip] = useState(false)
 
   ////////////////////////////////
 
-  const { data } = useContractRead({
+  const { data: allowanceIn } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'allowance',
@@ -124,16 +130,6 @@ export default function CoverExistingPool({
     watch: true,
     enabled: isConnected && coverPoolRoute != undefined,
   })
-
-  ////////////////////////////////
-
-  useEffect(() => {
-    if (data) {
-      if (coverPoolRoute != undefined && tokenOut.address != '') {
-        setAllowance(JSBI.BigInt(data.toString()))
-      }
-    }
-  }, [data, tokenIn.address, coverAmountIn])
 
   useEffect(() => {
     if (priceCover) {
@@ -217,71 +213,27 @@ export default function CoverExistingPool({
 
   ////////////////////////////////
 
-  const changePrice = (direction: string, minMax: string) => {
-    if (direction === 'plus' && minMax === 'min') {
-      if (
-        (document.getElementById('minInput') as HTMLInputElement).value ===
-        undefined
-      ) {
-        const current = document.getElementById('minInput') as HTMLInputElement
-        current.value = '1'
-      }
-      const current = Number(
-        (document.getElementById('minInput') as HTMLInputElement).value,
-      )
-      ;(document.getElementById('minInput') as HTMLInputElement).value = String(
-        (current + 0.1).toFixed(3),
-      )
+  const changePrice = (direction: string, inputId: string) => {
+    console.log('setting price', inputId, direction, inputId == 'minInput' || inputId == 'maxInput' ?
+    (inputId == 'minInput' ? lowerTick : upperTick) : latestTick)
+    const currentTick = inputId == 'minInput' || inputId == 'maxInput' ?
+                          (inputId == 'minInput' ? lowerTick : upperTick) : latestTick;
+    console.log('current tick', currentTick, upperTick)
+    if (!tickSpread && !tickSpacing) return
+    const increment = tickSpread ?? tickSpacing
+    const adjustment = direction == 'plus' || direction == 'minus' ?
+                        (direction == 'plus' ? -increment : increment) : 0;
+    console.log('adjustment', adjustment, currentTick)
+    const newTick = roundTick(currentTick - adjustment, increment)
+    const newPriceString = TickMath.getPriceStringAtTick(newTick);
+    (document.getElementById(inputId) as HTMLInputElement).value = Number(newPriceString).toFixed(6)
+    if (inputId === 'maxInput') {
+      setUpperTick(newTick)
+      setUpperPrice(newPriceString)
     }
-    if (direction === 'minus' && minMax === 'min') {
-      const current = Number(
-        (document.getElementById('minInput') as HTMLInputElement).value,
-      )
-      if (current === 0 || current - 0.1 < 0) {
-        ;(document.getElementById('minInput') as HTMLInputElement).value = '0'
-        return
-      }
-      ;(document.getElementById('minInput') as HTMLInputElement).value = (
-        current - 0.1
-      ).toFixed(3)
-    }
-
-    if (direction === 'plus' && minMax === 'max') {
-      if (
-        (document.getElementById('maxInput') as HTMLInputElement).value ===
-        undefined
-      ) {
-        const current = document.getElementById('maxInput') as HTMLInputElement
-        current.value = '1'
-      }
-      const current = Number(
-        (document.getElementById('maxInput') as HTMLInputElement).value,
-      )
-      ;(document.getElementById('maxInput') as HTMLInputElement).value = (
-        current + 0.1
-      ).toFixed(3)
-    }
-    if (direction === 'minus' && minMax === 'max') {
-      const current = Number(
-        (document.getElementById('maxInput') as HTMLInputElement).value,
-      )
-      if (current === 0 || current - 0.1 < 0) {
-        ;(document.getElementById('maxInput') as HTMLInputElement).value = '0'
-        return
-      }
-      ;(document.getElementById('maxInput') as HTMLInputElement).value = (
-        current - 0.1
-      ).toFixed(3)
-    }
-    if (minMax === 'max') {
-      setUpperPrice(
-        (document.getElementById('maxInput') as HTMLInputElement).value,
-      )
-    }
-    if (minMax === 'min') {
-      setLowerPrice(
-        (document.getElementById('minInput') as HTMLInputElement).value,
-      )
+    if (inputId === 'minInput') {
+      setLowerTick(newTick)
+      setLowerPrice(newPriceString)
     }
   }
 
@@ -339,6 +291,67 @@ export default function CoverExistingPool({
   const handleChange = (event: any) => {
     setSliderValue(event.target.value)
   }
+
+  useEffect(() => {
+    if (allowanceIn) {
+      if (coverPoolRoute != undefined && tokenOut.address != '') {
+        console.log('Success allowance', allowanceIn.toString())
+        setAllowance(JSBI.BigInt(allowanceIn.toString()))
+        console.log('allowance check', allowanceIn.toString(), JSBI.toNumber(coverAmountIn))
+      }
+    }
+  }, [allowanceIn, tokenIn.address, coverAmountIn])
+
+  useEffect(() => {
+    if (priceCover) {
+      if (coverPoolRoute != undefined && tokenOut.address != '') {
+        console.log('price cover:', priceCover[0])
+        setCoverPrice(priceCover[0])
+
+        const price = TickMath.getPriceStringAtSqrtPrice(priceCover[0])
+        setCoverTickPrice(price)
+      }
+    }
+  }, [priceCover, tokenIn.address])
+
+  useEffect(() => {
+    setCoverValue(
+      Number(Number(Number(tokenOut.value)).toFixed(5)) * sliderValue,
+    )
+  }, [sliderValue, tokenOut.value])
+
+  useEffect(() => {
+    setFetchDelay(false)
+  }, [coverPoolRoute])
+
+  useEffect(() => {
+    setFetchDelay(true)
+  }, [])
+
+  useEffect(() => {
+    changeCoverAmounts()
+  }, [coverValue, lowerTick, upperTick])
+
+  // check for valid inputs
+  useEffect(() => {
+    setDisabled(
+      isNaN(parseFloat(lowerPrice)) ||
+      isNaN(parseFloat(upperPrice)) ||
+      parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
+      hasSelected == false
+    )
+  }, [lowerPrice, upperPrice, coverAmountIn])
+
+  useEffect(() => {
+    if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
+      console.log('setting lower tick')
+      setLowerTick(TickMath.getTickAtPriceString(lowerPrice, tickSpread))
+    }
+    if (!isNaN(parseFloat(upperPrice))) {
+      console.log('setting upper tick')
+      setUpperTick(TickMath.getTickAtPriceString(upperPrice, tickSpread))
+    }
+  }, [lowerPrice, upperPrice])
 
   const Option = () => {
     if (expanded) {
@@ -421,6 +434,7 @@ export default function CoverExistingPool({
       </div>
       <div className="w-full flex items-center mt-2">
         <input
+          autoComplete="off"
           type="range"
           min="0"
           max="100"
@@ -432,85 +446,48 @@ export default function CoverExistingPool({
       <div className="mt-3 space-y-2">
         <div className="flex justify-between items-center text-sm">
           <div className="text-[#646464]">Percentage Covered</div>
-          <div className="flex gap-x-2 items-center">
+          <div className="flex gap-x-2 items-center ">
             <input
+              autoComplete="off"
               type="text"
               id="input"
               onChange={(e) => {
-                setSliderValue(
-                  Number(
-                    e.target.value
-                      .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                        match.length > 1 ? '0' : match,
-                      )
-                      .replace(/^(\.)+/, '0.')
-                      .replace(/(?<=\..*)\./g, '')
-                      .replace(/^0+(?=\d)/, '')
-                      .replace(/[^\d.]/g, ''),
-                  ),
-                )
-                console.log('slider value', sliderValue)
+                setSliderValue(Number(inputFilter(e.target.value)));
+                console.log("slider value", sliderValue);
               }}
               value={sliderValue}
-              className="text-right placeholder:text-grey1 text-white text-2xl w-20 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
+              className="text-right placeholder:text-grey1 text-white text-2xl w-20 focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
             />
             %
           </div>
         </div>
         <div className="flex items-center justify-between text-sm">
           <div className="text-[#646464]">Amount Covered</div>
-          <div className="flex items-center justify-end gap-x-3">
+          <div className="flex items-center justify-end gap-x-2">
             <input
+              autoComplete="off"
               type="text"
               id="input"
               onChange={(e) => {
                 console.log('cover amount changed', coverAmountOut)
                 if (
-                  Number(
-                    e.target.value
-                      .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                        match.length > 1 ? '0' : match,
-                      )
-                      .replace(/^(\.)+/, '0')
-                      .replace(/(?<=\..*)\./g, '')
-                      .replace(/^0+(?=\d)/, '')
-                      .replace(/[^\d.]/g, ''),
-                  ) /
+                  Number(inputFilter(e.target.value)) /
                     Number(ethers.utils.formatUnits(coverAmountOut, 18)) <
                   100
                 ) {
                   setSliderValue(
-                    Number(
-                      e.target.value
-                        .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                          match.length > 1 ? '0' : match,
-                        )
-                        .replace(/^(\.)+/, '0')
-                        .replace(/(?<=\..*)\./g, '')
-                        .replace(/^0+(?=\d)/, '')
-                        .replace(/[^\d.]/g, ''),
-                    ) / Number(ethers.utils.formatUnits(coverAmountOut, 18)),
-                  )
+                    Number(inputFilter(e.target.value)) /
+                      Number(ethers.utils.formatUnits(coverAmountOut, 18))
+                  );
                 } else {
                   setSliderValue(100)
                 }
-                setCoverValue(
-                  Number(
-                    e.target.value
-                      .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                        match.length > 1 ? '0' : match,
-                      )
-                      .replace(/^(\.)+/, '0')
-                      .replace(/(?<=\..*)\./g, '')
-                      .replace(/^0+(?=\d)/, '')
-                      .replace(/[^\d.]/g, ''),
-                  ),
-                )
+                setCoverValue(Number(inputFilter(e.target.value)));
               }}
               value={Number.parseFloat(
                 ethers.utils.formatUnits(String(coverAmountOut), 18),
               ).toPrecision(3)}
-              className="bg-[#0C0C0C] border border-grey2 w-32 px-2 py-1 placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
+              className="bg-black text-right w-32 px-2 py-1 placeholder:text-grey1 text-white text-2xl mb-2 focus:ring-0 focus:ring-offset-0 focus:outline-none"
             />
             <div>{tokenOut.symbol}</div>
           </div>
@@ -529,17 +506,32 @@ export default function CoverExistingPool({
           <></>
         )}
       </div>
-      <h1 className="mb-3 mt-4">Set Price Range</h1>
+      <div className="flex items-center w-full mb-3 mt-4 gap-x-2 relative">
+        <h1 className="">Set Price Range</h1>
+        <InformationCircleIcon
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+          className="w-5 h-5 mt-[1px] text-grey cursor-pointer"
+        />
+        <div
+        onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+          className="absolute mt-32 pt-8"
+        >
+        {showTooltip ? <TickSpacing /> : null}
+        </div>
+      </div>
       <div className="flex justify-between w-full gap-x-6">
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
           <span className="text-xs text-grey">Min Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice('minus', 'min')}>
+              <button onClick={() => changePrice("minus", "minInput")}>
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </button>
             </div>
             <input
+              autoComplete="off"
               className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
               placeholder="0"
               id="minInput"
@@ -557,21 +549,15 @@ export default function CoverExistingPool({
               }
               onChange={() =>
                 setLowerPrice(
-                  (document.getElementById(
-                    'minInput',
-                  ) as HTMLInputElement)?.value
-                    .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                      match.length > 1 ? '0' : match,
-                    )
-                    .replace(/^(\.)+/, '0.')
-                    .replace(/(?<=\..*)\./g, '')
-                    .replace(/^0+(?=\d)/, '')
-                    .replace(/[^\d.]/g, ''),
+                  inputFilter(
+                    (document.getElementById("minInput") as HTMLInputElement)
+                      ?.value
+                  )
                 )
               }
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice('plus', 'min')}>
+              <button onClick={() => changePrice("plus", "minInput")}>
                 <PlusIcon className="w-5 h-5" />
               </button>
             </div>
@@ -581,11 +567,12 @@ export default function CoverExistingPool({
           <span className="text-xs text-grey">Max. Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice('minus', 'max')}>
+              <button onClick={() => changePrice("minus", "maxInput")}>
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </button>
             </div>
             <input
+              autoComplete="off"
               className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
               placeholder="0"
               id="maxInput"
@@ -604,21 +591,15 @@ export default function CoverExistingPool({
               }
               onChange={() =>
                 setUpperPrice(
-                  (document.getElementById(
-                    'maxInput',
-                  ) as HTMLInputElement)?.value
-                    .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                      match.length > 1 ? '0' : match,
-                    )
-                    .replace(/^(\.)+/, '0.')
-                    .replace(/(?<=\..*)\./g, '')
-                    .replace(/^0+(?=\d)/, '')
-                    .replace(/[^\d.]/g, ''),
+                  inputFilter(
+                    (document.getElementById("maxInput") as HTMLInputElement)
+                      ?.value
+                  )
                 )
               }
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice('plus', 'max')}>
+              <button onClick={() => changePrice("plus", "maxInput")}>
                 <PlusIcon className="w-5 h-5" />
               </button>
             </div>

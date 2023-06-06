@@ -6,6 +6,7 @@ import { erc20ABI, useAccount, useContractRead } from 'wagmi'
 import SwapRangeApproveButton from '../Buttons/SwapRangeApproveButton'
 import SwapRangeDoubleApproveButton from '../Buttons/SwapRangeDoubleApproveButton'
 import RangeMintApproveButton from '../Buttons/RangeMintApproveButton'
+import { TickMath } from '../../utils/math/tickMath'
 
 export default function ConcentratedPoolPreview({
   account,
@@ -14,6 +15,8 @@ export default function ConcentratedPoolPreview({
   tokenOut,
   amount0,
   amount1,
+  amount0Usd,
+  amount1Usd,
   lowerPrice,
   upperPrice,
   lowerTick,
@@ -127,7 +130,7 @@ export default function ConcentratedPoolPreview({
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                  ~300.53
+                                  ${amount0Usd.toFixed(2)}
                                 </div>
                               </div>
                             </div>
@@ -159,7 +162,7 @@ export default function ConcentratedPoolPreview({
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                  ~300.52
+                                ${amount1Usd.toFixed(2)}
                                 </div>
                               </div>
                             </div>
@@ -199,11 +202,11 @@ export default function ConcentratedPoolPreview({
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {lowerPrice}
+                                {TickMath.getPriceStringAtTick(lowerTick)}
                               </span>
                             </div>
                             <span className="text-xs text-grey">
-                              {tokenIn.symbol} per {tokenOut.symbol}
+                              {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
                             </span>
                           </div>
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
@@ -212,11 +215,11 @@ export default function ConcentratedPoolPreview({
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {upperPrice}
+                                {TickMath.getPriceStringAtTick(upperTick)}
                               </span>
                             </div>
                             <span className="text-xs text-grey">
-                              {tokenIn.symbol} per {tokenOut.symbol}
+                            {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
                             </span>
                           </div>
                         </div>

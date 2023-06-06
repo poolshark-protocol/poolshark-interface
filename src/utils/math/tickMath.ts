@@ -31,16 +31,6 @@ export function roundTick(tick: number, tickSpacing: number): number {
   return tick;
 }
 
-export function roundPrice(sqrtRatioX96: JSBI, tickSpacing: number): JSBI {
-  let spacing = JSBI.BigInt(tickSpacing.toString())
-  let tick = this.getTickAtSqrtRatio(sqrtRatioX96)
-  let roundedTick = this.roundTick(Number(tick), tickSpacing)
-  if (tick != roundedTick) {
-    return this.getSqrtRatioAtTick(roundedTick)
-  }
-  return sqrtRatioX96
-}
-
 export function invertPrice(priceString: string, zeroForOne: boolean): string {
   if(!zeroForOne) {
     let price = JSBD.BigDecimal(priceString)
@@ -50,33 +40,35 @@ export function invertPrice(priceString: string, zeroForOne: boolean): string {
   return priceString
 }
 
-export function getDefaultLowerTick(minLimit, maxLimit, zeroForOne, latestTick = 0): any {
+export function getDefaultLowerTick(minLimit, maxLimit, zeroForOne, latestTick = 0): number {
   const midTick = Math.round((Number(minLimit) + Number(maxLimit)) / 2)
   if (zeroForOne) {
     if (latestTick < minLimit) return latestTick - 10000
-    return midTick - 10000
+    if (midTick - minLimit > 10000) return midTick - 10000
+    return minLimit
   } else {
-    if (latestTick < midTick) return midTick
+    if (latestTick < minLimit) return minLimit
     return latestTick
   }
 }
 
-export function getDefaultUpperTick(minLimit, maxLimit, zeroForOne, latestTick = 0): any {
+export function getDefaultUpperTick(minLimit, maxLimit, zeroForOne, latestTick = 0): number {
   const midTick = Math.round(Number(minLimit) + Number(maxLimit) / 2)
   if (!zeroForOne) {
-    if (latestTick > maxLimit) return latestTick + 10000
-    return latestTick + 10000
+    if (latestTick > maxLimit) return latestTick - -10000
+    if (maxLimit - midTick > 10000) return midTick - -10000
+    return maxLimit  
   } else {
     if (latestTick > midTick) return midTick
     return latestTick
   }
 }
 
-export function getDefaultLowerPrice(minLimit, maxLimit, zeroForOne, latestTick = 0): any {
+export function getDefaultLowerPrice(minLimit, maxLimit, zeroForOne, latestTick = 0): string {
   return TickMath.getPriceStringAtTick(getDefaultLowerTick(minLimit, maxLimit, zeroForOne, latestTick))
 }
 
-export function getDefaultUpperPrice(minLimit, maxLimit, zeroForOne, latestTick = 0): any {
+export function getDefaultUpperPrice(minLimit, maxLimit, zeroForOne, latestTick = 0): string {
   return TickMath.getPriceStringAtTick(getDefaultUpperTick(minLimit, maxLimit, zeroForOne, latestTick))
 }
 

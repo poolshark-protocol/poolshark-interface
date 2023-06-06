@@ -1,8 +1,7 @@
 import JSBD, { Decimal } from "jsbd";
 
-
 export function priceToString(price: Decimal): string {
-    if (scale(price) < 4) return Number.parseFloat(price.toPrecision(3)).toFixed(2).toString()
+    if (scale(price) < 3) return Number.parseFloat(price.toPrecision(5)).toString()
     return Number.parseFloat(price.toPrecision(6)).toString()
 }
 

@@ -4,6 +4,7 @@ import {
   ChevronDownIcon,
   ArrowLongRightIcon,
   ArrowLongLeftIcon,
+  InformationCircleIcon
 } from '@heroicons/react/20/solid'
 import SelectToken from '../SelectToken'
 import { erc20ABI, useAccount, useProvider, useContractRead } from 'wagmi'
@@ -13,8 +14,11 @@ import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 import { useState, useEffect } from 'react'
 import useInputBox from '../../hooks/useInputBox'
 import { tokenOneAddress } from '../../constants/contractAddresses'
-import { TickMath, invertPrice } from '../../utils/math/tickMath'
-import { BigNumber, ethers } from 'ethers'
+import { coverPoolAddress } from '../../constants/contractAddresses'
+import { TickMath, invertPrice, roundTick } from '../../utils/math/tickMath'
+import { BigNumber, Contract, ethers } from 'ethers'
+import { useCoverStore } from '../../hooks/useStore'
+import { getCoverPoolFromFactory } from '../../utils/queries'
 import JSBI from 'jsbi'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import { useRouter } from 'next/router'
@@ -24,6 +28,8 @@ import { getBalances } from '../../utils/balances'
 import { token } from '../../utils/types'
 import { getCoverPoolInfo } from '../../utils/pools'
 import { fetchTokenPrices, switchDirection } from '../../utils/tokens'
+import inputFilter from '../../utils/inputFilter'
+import TickSpacing from '../Tooltips/TickSpacing'
 
 export default function CreateCover(props: any) {
   const router = useRouter()
@@ -36,7 +42,7 @@ export default function CreateCover(props: any) {
   const [upperPrice, setUpperPrice] = useState('')
   const [lowerTick, setLowerTick] = useState(initialBig)
   const [upperTick, setUpperTick] = useState(initialBig)
-  const [tickSpread, setTickSpread] = useState(10)
+  const [latestTick, setLatestTick] = useState(0)
   const [balance0, setBalance0] = useState('')
   const [allowance, setAllowance] = useState('0')
   const { address, isConnected, isDisconnected } = useAccount()
@@ -47,6 +53,7 @@ export default function CreateCover(props: any) {
   )
   const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
+  const [showTooltip, setShowTooltip] = useState(false)
   const [tokenIn, setTokenIn] = useState({
     symbol: props.query ? props.query.tokenZeroSymbol : 'USDC',
     logoURI: props.query
@@ -68,7 +75,7 @@ export default function CreateCover(props: any) {
   const [tokenOrder, setTokenOrder] = useState(
     tokenIn.address.localeCompare(tokenOut.address) < 0,
   )
-  const [tickSpacing, setTickSpacing] = useState(
+  const [tickSpread, setTickSpread] = useState(
     props.query ? props.query.tickSpacing : 20,
   )
 
@@ -146,7 +153,7 @@ export default function CreateCover(props: any) {
       tokenOut,
       setCoverPoolRoute,
       setCoverPrice,
-      setTickSpacing,
+      setTickSpread,
     )
   }, [hasSelected, tokenIn.address, tokenOut.address])
 
@@ -169,33 +176,16 @@ export default function CreateCover(props: any) {
     }
   }, [bnInput, lowerTick, upperTick])
 
-  // set lower tick
   useEffect(() => {
-    try {
-      if (tokenOut.symbol !== 'Select Token' && hasSelected == true) {
-        if (!isNaN(parseFloat(lowerPrice)) && parseFloat(lowerPrice) > 0) {
-          const lower = TickMath.getTickAtPriceString(lowerPrice, tickSpacing)
-          setLowerTick(BigNumber.from(String(lower)))
-        }
-      }
-    } catch (error) {
-      console.log(error)
+    if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
+      console.log('setting lower tick')
+      setLowerTick(BigNumber.from(TickMath.getTickAtPriceString(lowerPrice, tickSpread)))
     }
-  }, [lowerPrice])
-
-  // set upper tick
-  useEffect(() => {
-    try {
-      if (tokenOut.symbol !== 'Select Token' && hasSelected == true) {
-        if (!isNaN(parseFloat(upperPrice)) && parseFloat(upperPrice) > 0) {
-          const upper = TickMath.getTickAtPriceString(upperPrice, tickSpacing)
-          setUpperTick(BigNumber.from(String(upper)))
-        }
-      }
-    } catch (error) {
-      console.log(error)
+    if (!isNaN(parseFloat(upperPrice))) {
+      console.log('setting upper tick')
+      setUpperTick(BigNumber.from(TickMath.getTickAtPriceString(upperPrice, tickSpread)))
     }
-  }, [upperPrice])
+  }, [lowerPrice, upperPrice])
 
   useEffect(() => {
     changeCoverAmounts(true)
@@ -203,61 +193,23 @@ export default function CreateCover(props: any) {
 
   //////////////////////
 
-  const changePrice = (direction: string, minMax: string) => {
-    if (direction === 'plus' && minMax === 'min') {
-      if (
-        (document.getElementById('minInput') as HTMLInputElement).value ===
-        undefined
-      ) {
-        const current = document.getElementById('minInput') as HTMLInputElement
-        current.value = '1'
-      }
-      const current = Number(
-        (document.getElementById('minInput') as HTMLInputElement).value,
-      )
-      ;(document.getElementById('minInput') as HTMLInputElement).value = String(
-        (current + 0.01).toFixed(3),
-      )
+  const changePrice = (direction: string, inputId: string) => {
+    if (!tickSpread) return
+    const currentTick = inputId == 'minInput' || inputId == 'maxInput' ?
+                          (inputId == 'minInput' ? Number(lowerTick) : Number(upperTick)) : latestTick;
+    const increment = tickSpread
+    const adjustment = direction == 'plus' || direction == 'minus' ?
+                        (direction == 'plus' ? -increment : increment) : 0;
+    const newTick = roundTick(currentTick - adjustment, increment)
+    const newPriceString = TickMath.getPriceStringAtTick(newTick);
+    (document.getElementById(inputId) as HTMLInputElement).value = Number(newPriceString).toFixed(6)
+    if (inputId === 'maxInput') {
+      setUpperTick(BigNumber.from(newTick))
+      setUpperPrice(newPriceString)
     }
-    if (direction === 'minus' && minMax === 'min') {
-      const current = Number(
-        (document.getElementById('minInput') as HTMLInputElement).value,
-      )
-      if (current === 0 || current - 1 < 0) {
-        ;(document.getElementById('minInput') as HTMLInputElement).value = '0'
-        return
-      }
-      ;(document.getElementById('minInput') as HTMLInputElement).value = (
-        current - 0.01
-      ).toFixed(3)
-    }
-
-    if (direction === 'plus' && minMax === 'max') {
-      if (
-        (document.getElementById('maxInput') as HTMLInputElement).value ===
-        undefined
-      ) {
-        const current = document.getElementById('maxInput') as HTMLInputElement
-        current.value = '1'
-      }
-      const current = Number(
-        (document.getElementById('maxInput') as HTMLInputElement).value,
-      )
-      ;(document.getElementById('maxInput') as HTMLInputElement).value = (
-        current + 0.01
-      ).toFixed(3)
-    }
-    if (direction === 'minus' && minMax === 'max') {
-      const current = Number(
-        (document.getElementById('maxInput') as HTMLInputElement).value,
-      )
-      if (current === 0 || current - 1 < 0) {
-        ;(document.getElementById('maxInput') as HTMLInputElement).value = '0'
-        return
-      }
-      ;(document.getElementById('maxInput') as HTMLInputElement).value = (
-        current - 0.01
-      ).toFixed(3)
+    if (inputId === 'minInput') {
+      setLowerTick(BigNumber.from(newTick))
+      setLowerPrice(newPriceString)
     }
   }
 
@@ -376,10 +328,10 @@ export default function CreateCover(props: any) {
           ) : ( */}
           <span
             className="flex gap-x-1 cursor-pointer"
-            onClick={() => props.goBack('initial')}
+            onClick={() => props.goBack("initial")}
           >
-            <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{' '}
-            <h1 className="mb-3 opacity-50">Back</h1>{' '}
+            <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{" "}
+            <h1 className="mb-3 opacity-50">Back</h1>{" "}
           </span>
           {/* )} */}
         </div>
@@ -436,7 +388,7 @@ export default function CreateCover(props: any) {
       <h1 className="mb-3">How much do you want to Cover?</h1>
       <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
         <div className="flex-col justify-center w-1/2 p-2 ">
-          {inputBox('0', setCoverAmountIn)}
+          {inputBox("0", setCoverAmountIn)}
           <div className="flex text-xs text-[#4C4C4C]">
             ~${Number(ethers.utils.formatUnits(bnInput, 18)).toFixed(2)}
           </div>
@@ -454,12 +406,12 @@ export default function CreateCover(props: any) {
               </div>
               <div className="flex items-center justify-end gap-2 px-1 mt-2">
                 <div className="flex text-xs text-[#4C4C4C]">
-                  Balance: {balance0 === 'NaN' ? 0 : balance0}
+                  Balance: {balance0 === "NaN" ? 0 : balance0}
                 </div>
                 {isConnected ? (
                   <button
                     className="flex text-xs uppercase text-[#C9C9C9]"
-                    onClick={() => maxBalance(balance0, '0')}
+                    onClick={() => maxBalance(balance0, "0")}
                   >
                     Max
                   </button>
@@ -485,27 +437,42 @@ export default function CreateCover(props: any) {
             parseFloat(lowerPrice) < parseFloat(upperPrice) ? (
               (
                 parseFloat(
-                  ethers.utils.formatUnits(String(coverAmountOut), 18),
-                ) * parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''))
+                  ethers.utils.formatUnits(String(coverAmountOut), 18)
+                ) * parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ""))
               ).toFixed(2)
             ) : (
               <>?</>
-            )}{' '}
+            )}{" "}
             {tokenOut.symbol}
           </div>
         </div>
       </div>
-      <h1 className="mb-3 mt-4">Set Price Range</h1>
+      <div className="flex items-center w-full mb-3 mt-4 gap-x-2 relative">
+        <h1 className="">Set Price Range</h1>
+        <InformationCircleIcon
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+          className="w-5 h-5 mt-[1px] text-grey cursor-pointer"
+        />
+        <div
+        onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+          className="absolute mt-32 pt-8"
+        >
+        {showTooltip ? <TickSpacing /> : null}
+        </div>
+      </div>
       <div className="flex justify-between w-full gap-x-6">
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
           <span className="text-xs text-grey">Min Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice('minus', 'min')}>
+              <button onClick={() => changePrice('minus', 'minInput')}>
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </button>
             </div>
             <input
+              autoComplete="off"
               className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
               placeholder="0"
               id="minInput"
@@ -513,39 +480,33 @@ export default function CreateCover(props: any) {
               value={lowerPrice}
               onChange={() =>
                 setLowerPrice(
-                  (document.getElementById(
-                    'minInput',
-                  ) as HTMLInputElement)?.value
-                    .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                      match.length > 1 ? '0' : match,
-                    )
-                    .replace(/^(\.)+/, '0.')
-                    .replace(/(?<=\..*)\./g, '')
-                    .replace(/^0+(?=\d)/, '')
-                    .replace(/[^\d.]/g, ''),
+                  inputFilter((
+                    document.getElementById("minInput") as HTMLInputElement
+                  )?.value)
                 )
               }
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice('plus', 'min')}>
+              <button onClick={() => changePrice('plus', 'minInput')}>
                 <PlusIcon className="w-5 h-5" />
               </button>
             </div>
           </div>
           <span className="text-xs text-grey">
-            {tokenIn.symbol} per{' '}
-            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOut.symbol}
+            {tokenIn.symbol} per{" "}
+            {tokenOut.symbol === "SELECT TOKEN" ? "?" : tokenOut.symbol}
           </span>
         </div>
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
           <span className="text-xs text-grey">Max. Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice('minus', 'max')}>
+              <button onClick={() => changePrice('minus', 'maxInput')}>
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </button>
             </div>
             <input
+              autoComplete="off"
               className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
               placeholder="0"
               id="maxInput"
@@ -553,28 +514,21 @@ export default function CreateCover(props: any) {
               value={upperPrice}
               onChange={() =>
                 setUpperPrice(
-                  (document.getElementById(
-                    'maxInput',
-                  ) as HTMLInputElement)?.value
-                    .replace(/^0+(?=[^.0-9]|$)/, (match) =>
-                      match.length > 1 ? '0' : match,
-                    )
-                    .replace(/^(\.)+/, '0.')
-                    .replace(/(?<=\..*)\./g, '')
-                    .replace(/^0+(?=\d)/, '')
-                    .replace(/[^\d.]/g, ''),
+                  inputFilter((
+                    document.getElementById("maxInput") as HTMLInputElement
+                  )?.value)
                 )
               }
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice('plus', 'max')}>
+              <button onClick={() => changePrice('plus', 'maxInput')}>
                 <PlusIcon className="w-5 h-5" />
               </button>
             </div>
           </div>
           <span className="text-xs text-grey">
-            {tokenIn.symbol} per{' '}
-            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOut.symbol}
+            {tokenIn.symbol} per{" "}
+            {tokenOut.symbol === "SELECT TOKEN" ? "?" : tokenOut.symbol}
           </span>
         </div>
       </div>
@@ -584,10 +538,10 @@ export default function CreateCover(props: any) {
           onClick={() => setExpanded(!expanded)}
         >
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-            {1} {tokenIn.symbol} ={' '}
-            {tokenOut.symbol === 'Select Token' || isNaN(parseFloat(coverPrice))
-              ? '?'
-              : invertPrice(coverPrice, tokenOrder) + ' ' + tokenOut.symbol}
+            {1} {tokenIn.symbol} ={" "}
+            {tokenOut.symbol === "Select Token" || isNaN(parseFloat(coverPrice))
+              ? "?"
+              : invertPrice(coverPrice, tokenOrder) + " " + tokenOut.symbol}
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
             <button>
@@ -602,13 +556,13 @@ export default function CreateCover(props: any) {
       <div className="mb-3" key={allowance}>
         {isConnected &&
         Number(allowance) < Number(ethers.utils.formatUnits(bnInput, 18)) &&
-        stateChainName === 'arbitrumGoerli' ? (
+        stateChainName === "arbitrumGoerli" ? (
           <SwapCoverApproveButton
             disabled={isDisabled}
             poolAddress={coverPoolRoute}
             approveToken={tokenIn.address}
           />
-        ) : stateChainName === 'arbitrumGoerli' ? (
+        ) : stateChainName === "arbitrumGoerli" ? (
           <CoverMintButton
             poolAddress={coverPoolRoute}
             disabled={isDisabled}
@@ -618,10 +572,10 @@ export default function CreateCover(props: any) {
             upper={upperTick}
             amount={bnInput}
             zeroForOne={tokenOrder}
-            tickSpacing={tickSpacing}
+            tickSpacing={tickSpread}
           />
         ) : null}
       </div>
     </>
-  )
+  );
 }
