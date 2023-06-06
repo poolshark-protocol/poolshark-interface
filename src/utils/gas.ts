@@ -83,4 +83,47 @@ export const gasEstimate = async (
   }
 }
 
+export const gasEstimateLimit = async (
+  rangePoolRoute: string,
+  address: string,
+  lower: BigNumber,
+  upper: BigNumber,
+  amount0: BigNumber,
+  amount1: BigNumber,
+  signer
+) => {
+  try {
+    const provider = new ethers.providers.JsonRpcProvider(
+      'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
+    )
+    if (!rangePoolRoute || !provider) {
+      return '0'
+    }
+    const contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
+    const recipient = address
+
+    let gasUnits: BigNumber
+    gasUnits = await contract
+      .connect(signer)
+      .estimateGas.mint(recipient, lower, upper, amount0, amount1)
+    const price = await fetchPrice('0x000')
+    const gasPrice = await provider.getGasPrice()
+    const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])
+    const networkFeeWei = gasPrice.mul(gasUnits)
+    const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18))
+    const networkFeeUsd = networkFeeEth * ethUsdPrice
+    const formattedPrice: string =
+      '~' +
+      networkFeeUsd.toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      })
+    
+    return formattedPrice
+  }
+  catch (error) {
+    console.log('gas error', error)
+    return 'Increase Allowance'
+  }
+}
 
