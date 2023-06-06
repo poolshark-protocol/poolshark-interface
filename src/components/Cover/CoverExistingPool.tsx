@@ -4,6 +4,7 @@ import {
   ArrowLongLeftIcon,
   MinusIcon,
   PlusIcon,
+  InformationCircleIcon
 } from '@heroicons/react/20/solid'
 import { erc20ABI, useAccount, useContractRead } from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
@@ -25,6 +26,7 @@ import { ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
 import CoverMintApproveButton from '../Buttons/CoverMintApproveButton'
 import inputFilter from '../../utils/inputFilter'
+import TickSpacing from '../Tooltips/TickSpacing'
 
 export default function CoverExistingPool({
   account,
@@ -104,6 +106,7 @@ export default function CoverExistingPool({
   const [coverAmountOut, setCoverAmountOut] = useState(ZERO)
   const [allowance, setAllowance] = useState(ZERO)
   const [mktRate, setMktRate] = useState({})
+  const [showTooltip, setShowTooltip] = useState(false)
 
   const { data } = useContractRead({
     address: tokenIn.address,
@@ -418,28 +421,24 @@ export default function CoverExistingPool({
       <div className="mt-3 space-y-2">
         <div className="flex justify-between items-center text-sm">
           <div className="text-[#646464]">Percentage Covered</div>
-          <div className="flex gap-x-2 items-center">
+          <div className="flex gap-x-2 items-center ">
             <input
               autoComplete="off"
               type="text"
               id="input"
               onChange={(e) => {
-                setSliderValue(
-                  Number(
-                    inputFilter(e.target.value)
-                  )
-                );
+                setSliderValue(Number(inputFilter(e.target.value)));
                 console.log("slider value", sliderValue);
               }}
               value={sliderValue}
-              className="text-right placeholder:text-grey1 text-white text-2xl w-20 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
+              className="text-right placeholder:text-grey1 text-white text-2xl w-20 focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
             />
             %
           </div>
         </div>
         <div className="flex items-center justify-between text-sm">
           <div className="text-[#646464]">Amount Covered</div>
-          <div className="flex items-center justify-end gap-x-3">
+          <div className="flex items-center justify-end gap-x-2">
             <input
               autoComplete="off"
               type="text"
@@ -447,30 +446,23 @@ export default function CoverExistingPool({
               onChange={(e) => {
                 console.log("cover amount changed", coverAmountOut);
                 if (
-                  Number(
-                    inputFilter(e.target.value)    
-                  ) /
+                  Number(inputFilter(e.target.value)) /
                     Number(ethers.utils.formatUnits(coverAmountOut, 18)) <
                   100
                 ) {
                   setSliderValue(
-                    Number(
-                      inputFilter(e.target.value)
-                    ) / Number(ethers.utils.formatUnits(coverAmountOut, 18))
+                    Number(inputFilter(e.target.value)) /
+                      Number(ethers.utils.formatUnits(coverAmountOut, 18))
                   );
                 } else {
                   setSliderValue(100);
                 }
-                setCoverValue(
-                  Number(
-                    inputFilter(e.target.value)
-                  )
-                );
+                setCoverValue(Number(inputFilter(e.target.value)));
               }}
               value={Number.parseFloat(
                 ethers.utils.formatUnits(String(coverAmountOut), 18)
               ).toPrecision(3)}
-              className="bg-[#0C0C0C] border border-grey2 w-32 px-2 py-1 placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
+              className="bg-black text-right w-32 px-2 py-1 placeholder:text-grey1 text-white text-2xl mb-2 focus:ring-0 focus:ring-offset-0 focus:outline-none"
             />
             <div>{tokenOut.symbol}</div>
           </div>
@@ -489,7 +481,21 @@ export default function CoverExistingPool({
           <></>
         )}
       </div>
-      <h1 className="mb-3 mt-4">Set Price Range</h1>
+      <div className="flex items-center w-full mb-3 mt-4 gap-x-2 relative">
+        <h1 className="">Set Price Range</h1>
+        <InformationCircleIcon
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+          className="w-5 h-5 mt-[1px] text-grey cursor-pointer"
+        />
+        <div
+        onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+          className="absolute mt-32 pt-8"
+        >
+        {showTooltip ? <TickSpacing /> : null}
+        </div>
+      </div>
       <div className="flex justify-between w-full gap-x-6">
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
           <span className="text-xs text-grey">Min Price</span>
@@ -518,9 +524,10 @@ export default function CoverExistingPool({
               }
               onChange={() =>
                 setLowerPrice(
-                  inputFilter((
-                    document.getElementById("minInput") as HTMLInputElement
-                  )?.value)
+                  inputFilter(
+                    (document.getElementById("minInput") as HTMLInputElement)
+                      ?.value
+                  )
                 )
               }
             />
@@ -559,9 +566,10 @@ export default function CoverExistingPool({
               }
               onChange={() =>
                 setUpperPrice(
-                  inputFilter((
-                    document.getElementById("maxInput") as HTMLInputElement
-                  )?.value)
+                  inputFilter(
+                    (document.getElementById("maxInput") as HTMLInputElement)
+                      ?.value
+                  )
                 )
               }
             />
