@@ -107,18 +107,18 @@ export const gasEstimateLimit = async (
     const recipient = address
     const zeroForOne = token0.address.localeCompare(token1.address) < 0
 
-    const lower = ethers.utils.parseEther(
+    const lower = BigNumber.from(
       roundTick(
         TickMath.getTickAtPriceString(
           (ethers.utils.formatUnits(rangeBnPrice, 18))), tickSpacing).toString()
       )
     
     const upper = zeroForOne ?
-    ethers.utils.parseEther(
+    BigNumber.from(
       roundTick(
         TickMath.getTickAtPriceString(
           (ethers.utils.formatUnits(rangeBnPrice.add(rangeBnBaseLimit), 18))), tickSpacing).toString()) :
-    ethers.utils.parseEther(
+    BigNumber.from(
       roundTick(
         TickMath.getTickAtPriceString(
           (ethers.utils.formatUnits(rangeBnPrice.sub(rangeBnBaseLimit), 18))), tickSpacing).toString())
@@ -131,7 +131,7 @@ export const gasEstimateLimit = async (
     let gasUnits: BigNumber
     gasUnits = await contract
       .connect(signer)
-      .estimateGas.mint(recipient, lower, upper, bnInput, amount1)
+      .estimateGas.mint([recipient, lower, upper, bnInput, amount1])
     const price = await fetchPrice('0x000')
     const gasPrice = await provider.getGasPrice()
     const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])
