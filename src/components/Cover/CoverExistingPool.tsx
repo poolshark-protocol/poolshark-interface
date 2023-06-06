@@ -107,16 +107,6 @@ export default function CoverExistingPool({
 
   ////////////////////////////////
 
-  const { data: allowanceIn } = useContractRead({
-    address: tokenIn.address,
-    abi: erc20ABI,
-    functionName: 'allowance',
-    args: [address, coverPoolRoute],
-    chainId: 421613,
-    watch: true,
-    enabled: isConnected && coverPoolRoute != undefined,
-  })
-
   const { data: priceCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
@@ -131,10 +121,22 @@ export default function CoverExistingPool({
     enabled: isConnected && coverPoolRoute != undefined,
   })
 
+  const { data: allowanceIn } = useContractRead({
+    address: tokenIn.address,
+    abi: erc20ABI,
+    functionName: 'allowance',
+    args: [address, coverPoolRoute],
+    chainId: 421613,
+    watch: true,
+    enabled: isConnected && coverPoolRoute != undefined,
+  })
+
   useEffect(() => {
     if (priceCover) {
       if (coverPoolRoute != undefined && tokenOut.address != '') {
+        console.log('price cover:', priceCover[0])
         setCoverPrice(priceCover[0])
+
         const price = TickMath.getPriceStringAtSqrtPrice(priceCover[0])
         setCoverTickPrice(price)
       }
@@ -142,10 +144,15 @@ export default function CoverExistingPool({
   }, [priceCover, tokenIn.address])
 
   useEffect(() => {
-    setCoverValue(
-      Number(Number(Number(tokenOut.value)).toFixed(5)) * sliderValue,
-    )
-  }, [sliderValue, tokenOut.value])
+    if (allowanceIn) {
+      if (coverPoolRoute != undefined && tokenOut.address != '') {
+        console.log('Success allowance', allowanceIn.toString())
+        setAllowance(JSBI.BigInt(allowanceIn.toString()))
+        console.log('allowance check', allowanceIn.toString(), JSBI.toNumber(coverAmountIn))
+      }
+    }
+  }, [allowanceIn, tokenIn.address, coverAmountIn])
+
 
   useEffect(() => {
     setFetchDelay(false)
@@ -186,28 +193,30 @@ export default function CoverExistingPool({
 
   useEffect(() => {
     changeCoverAmounts()
-  }, [coverValue, lowerTick, upperTick])
-
-  // check for valid inputs
-  useEffect(() => {
-    setDisabled(
-      isNaN(parseFloat(lowerPrice)) ||
-        isNaN(parseFloat(upperPrice)) ||
-        parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
-        hasSelected == false,
-    )
-  }, [lowerPrice, upperPrice, coverAmountIn])
+  }, [sliderValue, lowerTick, upperTick])
 
   useEffect(() => {
     fetchTokenPrices(coverTickPrice, setMktRate)
   }, [coverPrice])
 
+  // check for valid inputs
+  useEffect(() => {
+    setDisabled(
+      isNaN(parseFloat(lowerPrice)) ||
+      isNaN(parseFloat(upperPrice)) ||
+      parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
+      hasSelected == false
+    )
+  }, [lowerPrice, upperPrice, coverAmountIn])
+
   useEffect(() => {
     if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
+      console.log('setting lower tick')
       setLowerTick(TickMath.getTickAtPriceString(lowerPrice, tickSpread))
+    }
+    if (!isNaN(parseFloat(upperPrice))) {
+      console.log('setting upper tick')
       setUpperTick(TickMath.getTickAtPriceString(upperPrice, tickSpread))
-    } else {
-      console.log('not a number')
     }
   }, [lowerPrice, upperPrice])
 
@@ -291,67 +300,6 @@ export default function CoverExistingPool({
   const handleChange = (event: any) => {
     setSliderValue(event.target.value)
   }
-
-  useEffect(() => {
-    if (allowanceIn) {
-      if (coverPoolRoute != undefined && tokenOut.address != '') {
-        console.log('Success allowance', allowanceIn.toString())
-        setAllowance(JSBI.BigInt(allowanceIn.toString()))
-        console.log('allowance check', allowanceIn.toString(), JSBI.toNumber(coverAmountIn))
-      }
-    }
-  }, [allowanceIn, tokenIn.address, coverAmountIn])
-
-  useEffect(() => {
-    if (priceCover) {
-      if (coverPoolRoute != undefined && tokenOut.address != '') {
-        console.log('price cover:', priceCover[0])
-        setCoverPrice(priceCover[0])
-
-        const price = TickMath.getPriceStringAtSqrtPrice(priceCover[0])
-        setCoverTickPrice(price)
-      }
-    }
-  }, [priceCover, tokenIn.address])
-
-  useEffect(() => {
-    setCoverValue(
-      Number(Number(Number(tokenOut.value)).toFixed(5)) * sliderValue,
-    )
-  }, [sliderValue, tokenOut.value])
-
-  useEffect(() => {
-    setFetchDelay(false)
-  }, [coverPoolRoute])
-
-  useEffect(() => {
-    setFetchDelay(true)
-  }, [])
-
-  useEffect(() => {
-    changeCoverAmounts()
-  }, [coverValue, lowerTick, upperTick])
-
-  // check for valid inputs
-  useEffect(() => {
-    setDisabled(
-      isNaN(parseFloat(lowerPrice)) ||
-      isNaN(parseFloat(upperPrice)) ||
-      parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
-      hasSelected == false
-    )
-  }, [lowerPrice, upperPrice, coverAmountIn])
-
-  useEffect(() => {
-    if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
-      console.log('setting lower tick')
-      setLowerTick(TickMath.getTickAtPriceString(lowerPrice, tickSpread))
-    }
-    if (!isNaN(parseFloat(upperPrice))) {
-      console.log('setting upper tick')
-      setUpperTick(TickMath.getTickAtPriceString(upperPrice, tickSpread))
-    }
-  }, [lowerPrice, upperPrice])
 
   const Option = () => {
     if (expanded) {
