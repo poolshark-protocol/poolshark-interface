@@ -97,7 +97,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd,
                       claim={claimTick}
                       upper={maxLimit}
                       zeroForOne={zeroForOne}
-                      amount={liquidity}
+                      amount={bnInput}
                     />
               </Dialog.Panel>
             </Transition.Child>

@@ -11,14 +11,12 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 
-export default function CoverRemoveLiqButton({poolAddress, address, lower, claim, upper, zeroForOne, amount}) {
+export default function CoverRemoveLiqButton({poolAddress, address, lower, claim, upper, zeroForOne, burnPercent}) {
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
 
-    const burnPercent = ethers.utils.parseUnits("5", 34)
-
-    console.log('burn params:', burnPercent.toString(), zeroForOne, claim.toString(), lower.toString(), upper.toString())
+    console.log('cover burn percent:', ethers.utils.formatUnits(burnPercent, 38))
   
     const { config } = usePrepareContractWrite({
         address: poolAddress,
@@ -26,7 +24,7 @@ export default function CoverRemoveLiqButton({poolAddress, address, lower, claim
         functionName: "burn",
         args:[[
             address,
-            burnPercent, //hardcoded to 100% for testnet
+            burnPercent,
             lower,
             claim,
             upper,

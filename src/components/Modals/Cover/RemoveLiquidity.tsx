@@ -1,12 +1,16 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useState } from 'react'
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useSwitchNetwork } from "wagmi";
+import { erc20ABI } from "wagmi";
 import useInputBox from '../../../hooks/useInputBox'
-import AddLiqButton from '../../Buttons/AddLiqButton'
+import CoverRemoveLiqButton from "../../Buttons/CoverRemoveLiqButton";
+import { BigNumber, ethers } from "ethers";
+import { DyDxMath } from "../../../utils/math/dydxMath";
+import { TickMath } from "../../../utils/math/tickMath";
+import { BN_ZERO, ZERO } from "../../../utils/math/constants";
+import JSBI from "jsbi";
 
-
-export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, maxLimit, zeroForOne, liquidity, minLimit }) {
+export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, lowerTick, zeroForOne, liquidity, upperTick }) {
 
     const {
     bnInput,
@@ -16,8 +20,61 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
     LimitInputBox,
   } = useInputBox()
 
-    const [balance0, setBalance0] = useState('')
-  const [balance1, setBalance1] = useState('0.00')
+  const [balanceIn, setBalanceIn] = useState('')
+  const [fetchDelay, setFetchDelay] = useState(false)
+  const [burnPercent, setBurnPercent] = useState(ethers.utils.parseUnits("5", 37))
+  const [userLiquidity, setUserLiquidity] = useState(JSBI.BigInt(parseInt(liquidity)))
+  const [amountOut, setAmountOut] = useState()
+
+  useEffect(() => {
+    if(!fetchDelay) {
+      getBalances()
+    } else {
+      const interval = setInterval(() => {
+        getBalances()
+      }, 2000);
+      return () => clearInterval(interval);
+    }
+  }, [fetchDelay])
+
+  useEffect(() => {
+    changeOutAmount()
+  }, [bnInput])
+
+  const getBalances = async () => {
+    setFetchDelay(true)
+    try {
+      const provider = new ethers.providers.JsonRpcProvider(
+        'https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2',
+        421613,
+      )
+      const signer = new ethers.VoidSigner(address, provider)
+      const tokenInContract = new ethers.Contract(tokenIn.address, erc20ABI, signer)
+      const tokenInBal = await tokenInContract.balanceOf(address)
+      setBalanceIn(ethers.utils.formatUnits(tokenInBal, 18))
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const changeOutAmount = () => {
+    if (bnInput.eq(BN_ZERO)) return
+    try {
+      const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(zeroForOne ? lowerTick : claimTick)
+      const upperSqrtPrice = TickMath.getSqrtRatioAtTick(zeroForOne ? claimTick : upperTick)
+      const liquidityTakenOut = DyDxMath.getLiquidityForAmounts(
+        lowerSqrtPrice,
+        upperSqrtPrice,
+        zeroForOne ? lowerSqrtPrice : upperSqrtPrice,
+        zeroForOne ? BN_ZERO : bnInput,
+        zeroForOne ? bnInput : BN_ZERO
+      )
+      console.log('liquidity taken out', String(liquidityTakenOut), userLiquidity.toString())
+      setBurnPercent(ethers.utils.parseUnits((parseFloat(String(liquidityTakenOut)) / parseFloat(String(userLiquidity))).toPrecision(6), 38))
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -112,12 +169,12 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
                 <CoverRemoveLiqButton
                       poolAddress={poolAdd}
                       address={address}
-                      lower={minLimit}
+                      lower={lowerTick}
                       claim={claimTick}
-                      upper={maxLimit}
+                      upper={upperTick}
                       zeroForOne={zeroForOne}
-                      amount={liquidity}
-                    />
+                      burnPercent={burnPercent}
+                />
               </Dialog.Panel>
             </Transition.Child>
           </div>

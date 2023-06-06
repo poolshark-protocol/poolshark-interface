@@ -18,7 +18,7 @@ import {
 } from '../../../utils/queries'
 import { TickMath } from '../../../utils/math/tickMath'
 import { coverPoolABI } from '../../../abis/evm/coverPool'
-import RemoveLiquidity from '../../../components/Modals/Range/RemoveLiquidity'
+import RemoveLiquidity from '../../../components/Modals/Cover/RemoveLiquidity'
 import AddLiquidity from '../../../components/Modals/Cover/AddLiquidity'
 import { tokenZeroAddress, tokenOneAddress } from '../../../constants/contractAddresses'
 
@@ -580,9 +580,9 @@ export default function Cover() {
         tokenIn={tokenIn}
         poolAdd={poolAdd}
         address={address}
-        minLimit={minLimit}
-        claimTick={claimTick}
-        maxLimit={maxLimit}
+        lowerTick={Number(minLimit)}
+        claimTick={Number(claimTick)}
+        upperTick={Number(maxLimit)}
         zeroForOne={zeroForOne}
         liquidity={liquidity}
       />

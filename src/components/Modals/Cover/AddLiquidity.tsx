@@ -1,14 +1,14 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useState } from 'react'
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useSwitchNetwork, useAccount  } from "wagmi";
+import { useSwitchNetwork, useAccount, erc20ABI  } from "wagmi";
 import useInputBox from '../../../hooks/useInputBox'
 import CoverAddLiqButton from '../../Buttons/CoverAddLiqButton'
-
+import { ethers, Contract } from "ethers";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, maxLimit, zeroForOne, liquidity, minLimit }) {
 
-    const {
+  const {
     bnInput,
     inputBox,
     maxBalance,
@@ -20,6 +20,34 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd,
   const [balance1, setBalance1] = useState('0.00')
   const [balanceIn, setBalanceIn] = useState('')
   const { isDisconnected, isConnected } = useAccount()
+  const [fetchDelay, setFetchDelay] = useState(false)
+
+  useEffect(() => {
+    if(!fetchDelay) {
+      getBalances()
+    } else {
+      const interval = setInterval(() => {
+        getBalances()
+      }, 2000);
+      return () => clearInterval(interval);
+    }
+  }, [fetchDelay])
+
+  const getBalances = async () => {
+    setFetchDelay(true)
+    try {
+      const provider = new ethers.providers.JsonRpcProvider(
+        'https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2',
+        421613,
+      )
+      const signer = new ethers.VoidSigner(address, provider)
+      const tokenInContract = new ethers.Contract(tokenIn.address, erc20ABI, signer)
+      const tokenInBal = await tokenInContract.balanceOf(address)
+      setBalanceIn(ethers.utils.formatUnits(tokenInBal, 18))
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -74,7 +102,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd,
                         </div>
                         <div className="flex items-center justify-end gap-2 px-1 mt-2">
                   <div className="flex text-xs text-[#4C4C4C]" key={balanceIn}>
-                    Balance: {balanceIn === "NaN" ? 0 : balanceIn}
+                    Balance: {balanceIn === "NaN" ? '0.00' : Number(balanceIn).toPrecision(5)}
                   </div>
                     <button
                       className="flex text-xs uppercase text-[#C9C9C9]"
@@ -91,14 +119,15 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd,
                   </div>
                 </div>
                 <CoverAddLiqButton
+                      toAddress={address}
                       poolAddress={poolAdd}
                       address={address}
                       lower={minLimit}
                       claim={claimTick}
                       upper={maxLimit}
                       zeroForOne={zeroForOne}
-                      amount={liquidity}
-                    />
+                      amount={bnInput}
+                />
               </Dialog.Panel>
             </Transition.Child>
           </div>
