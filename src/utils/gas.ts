@@ -2,7 +2,7 @@ import { BigNumber, Contract, ethers } from 'ethers'
 import { rangePoolABI } from '../abis/evm/rangePool'
 import { coverPoolABI } from '../abis/evm/coverPool'
 import { token } from './types'
-import { TickMath } from './math/tickMath'
+import { TickMath, roundTick } from './math/tickMath'
 import { fetchPrice } from './queries'
 import { useSigner } from 'wagmi'
 
@@ -86,10 +86,13 @@ export const gasEstimate = async (
 export const gasEstimateLimit = async (
   rangePoolRoute: string,
   address: string,
-  lower: BigNumber,
-  upper: BigNumber,
-  amount0: BigNumber,
-  amount1: BigNumber,
+  rangePrice: number,
+  rangeBnPrice: BigNumber,
+  rangeBnBaseLimit: BigNumber,
+  token0: token,
+  token1: token,
+  bnInput: BigNumber,
+  tickSpacing: any,
   signer
 ) => {
   try {
@@ -100,12 +103,35 @@ export const gasEstimateLimit = async (
       return '0'
     }
     const contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
+
     const recipient = address
+    const zeroForOne = token0.address.localeCompare(token1.address) < 0
+
+    const lower = ethers.utils.parseEther(
+      roundTick(
+        TickMath.getTickAtPriceString(
+          (ethers.utils.formatUnits(rangeBnPrice, 18))), tickSpacing).toString()
+      )
+    
+    const upper = zeroForOne ?
+    ethers.utils.parseEther(
+      roundTick(
+        TickMath.getTickAtPriceString(
+          (ethers.utils.formatUnits(rangeBnPrice.add(rangeBnBaseLimit), 18))), tickSpacing).toString()) :
+    ethers.utils.parseEther(
+      roundTick(
+        TickMath.getTickAtPriceString(
+          (ethers.utils.formatUnits(rangeBnPrice.sub(rangeBnBaseLimit), 18))), tickSpacing).toString())
+    
+    const amount1 = ethers.utils.parseEther(
+      (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+        rangePrice).toString()
+      )
 
     let gasUnits: BigNumber
     gasUnits = await contract
       .connect(signer)
-      .estimateGas.mint(recipient, lower, upper, amount0, amount1)
+      .estimateGas.mint(recipient, lower, upper, bnInput, amount1)
     const price = await fetchPrice('0x000')
     const gasPrice = await provider.getGasPrice()
     const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])
