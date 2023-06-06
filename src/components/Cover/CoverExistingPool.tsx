@@ -418,7 +418,7 @@ export default function CoverExistingPool({
       <div className="mt-3 space-y-2">
         <div className="flex justify-between items-center text-sm">
           <div className="text-[#646464]">Percentage Covered</div>
-          <div className="flex gap-x-2 items-center">
+          <div className="flex gap-x-2 items-center ">
             <input
               autoComplete="off"
               type="text"
@@ -432,14 +432,14 @@ export default function CoverExistingPool({
                 console.log("slider value", sliderValue);
               }}
               value={sliderValue}
-              className="text-right placeholder:text-grey1 text-white text-2xl w-20 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
+              className="text-right placeholder:text-grey1 text-white text-2xl w-20 focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
             />
             %
           </div>
         </div>
         <div className="flex items-center justify-between text-sm">
           <div className="text-[#646464]">Amount Covered</div>
-          <div className="flex items-center justify-end gap-x-3">
+          <div className="flex items-center justify-end gap-x-2">
             <input
               autoComplete="off"
               type="text"
@@ -470,7 +470,7 @@ export default function CoverExistingPool({
               value={Number.parseFloat(
                 ethers.utils.formatUnits(String(coverAmountOut), 18)
               ).toPrecision(3)}
-              className="bg-[#0C0C0C] border border-grey2 w-32 px-2 py-1 placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
+              className="bg-black text-right w-32 px-2 py-1 placeholder:text-grey1 text-white text-2xl mb-2 focus:ring-0 focus:ring-offset-0 focus:outline-none"
             />
             <div>{tokenOut.symbol}</div>
           </div>
