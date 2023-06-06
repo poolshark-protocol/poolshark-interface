@@ -64,7 +64,9 @@ export default function Initial(props: any) {
       <h1 className="mb-3">Connect your wallet to Cover Pool</h1>
       <ConnectWalletButton xl={true} />
       <div className="opacity-50 cursor-not-allowed">
-        <h1 className="mb-3 mt-6">Set Price Range</h1>
+        <h1 className="mb-3 mt-6">
+          Set Price Range
+        </h1>
         <div className="flex justify-between w-full gap-x-6">
           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
             <span className="text-xs text-grey">Min Price</span>

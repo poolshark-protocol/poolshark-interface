@@ -4,6 +4,7 @@ import {
   PlusIcon,
   MinusIcon,
   ArrowLongRightIcon,
+  InformationCircleIcon
 } from '@heroicons/react/20/solid'
 import { Listbox, Transition } from '@headlessui/react'
 import SelectToken from '../SelectToken'
@@ -22,6 +23,7 @@ import { getRangePool } from '../../utils/pools'
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
 import inputFilter from '../../utils/inputFilter'
+import TickSpacing from '../Tooltips/TickSpacing'
 
 export default function ConcentratedPool({
   account,
@@ -123,6 +125,7 @@ export default function ConcentratedPool({
   const [isDisabled, setDisabled] = useState(true)
   const [usdPrice0, setUsdPrice0] = useState(0)
   const [usdPrice1, setUsdPrice1] = useState(0)
+  const [showTooltip, setShowTooltip] = useState(false)
 
   useEffect(() => {
     if (hasSelected) {
@@ -634,7 +637,21 @@ export default function ConcentratedPool({
       <div className="w-1/2">
         <div>
           <div className="flex justify-between items-center">
-            <h1>Set price range</h1>
+            <div className="flex items-center w-full mb-3 mt-4 gap-x-2 relative">
+        <h1 className="">Set Price Range</h1>
+        <InformationCircleIcon
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+          className="w-5 h-5 mt-[1px] text-grey cursor-pointer"
+        />
+        <div
+        onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+          className="absolute mt-32 pt-8"
+        >
+        {showTooltip ? <TickSpacing /> : null}
+        </div>
+      </div>
             <button
               className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
               onClick={() => {
