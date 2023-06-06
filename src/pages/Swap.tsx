@@ -31,7 +31,7 @@ import { rangePoolABI } from '../abis/evm/rangePool'
 import { TickMath, invertPrice } from '../utils/math/tickMath'
 import { gasEstimate } from '../utils/gas'
 import { token } from '../utils/types'
-import { getCoverPool, getRangePool } from '../utils/pools'
+import { getCoverPool, getFeeTier, getRangePool } from '../utils/pools'
 import { getBalances } from '../utils/balances'
 import { switchDirection } from '../utils/tokens'
 
@@ -372,7 +372,7 @@ export default function Swap() {
         quoteCover[0].toString() !== BigNumber.from(0).toString() &&
         quoteRange[0].toString() !== BigNumber.from(0).toString()
       ) {
-        getFeeTier()
+        updateTierFee()
         getSlippage()
         setSlippageFetched(true)
       }
@@ -414,21 +414,13 @@ export default function Swap() {
     )
   }
 
-  const getFeeTier = async () => {
-    const coverData = await fetchCoverPools()
-    const coverPoolAddress = coverData['data']['coverPools']['0']['id']
-    if (coverPoolAddress === coverPoolRoute) {
-      const feeTier =
-        coverData['data']['coverPools']['0']['volatilityTier']['feeAmount']
-      setCoverSlippage((parseFloat(feeTier) / 10000).toString())
-    }
-    const data = await fetchRangePools()
-    const rangePoolAddress = data['data']['rangePools']['0']['id']
-
-    if (rangePoolAddress === rangePoolRoute) {
-      const feeTier = data['data']['rangePools']['0']['feeTier']['feeAmount']
-      setRangeSlippage((parseFloat(feeTier) / 10000).toString())
-    }
+  async function updateTierFee() {
+    await getFeeTier(
+      rangePoolRoute,
+      coverPoolRoute,
+      setRangeSlippage,
+      setCoverSlippage,
+    )
   }
 
   const getSlippage = () => {

@@ -20,8 +20,6 @@ export default function Cover() {
   } = useProvider()
   const router = useRouter()
   const { address, isDisconnected } = useAccount()
-  //const coins = useTokenList()[0]
-  //const [coinsForListing, setCoinsForListing] = useState(coins['listed_tokens'])
 
   const [selectedPool, setSelectedPool] = useState(router.query ?? undefined)
   const [state, setState] = useState(router.query.state ?? 'initial')

@@ -104,7 +104,6 @@ export const getFeeTier = async (
   if (coverPoolAddress === coverPoolRoute) {
     const feeTier =
       coverData['data']['coverPools']['0']['volatilityTier']['feeAmount']
-    console.log(feeTier, 'fee cover')
     setCoverSlippage((parseFloat(feeTier) / 10000).toString())
   }
   const data = await fetchRangePools()
@@ -112,7 +111,8 @@ export const getFeeTier = async (
 
   if (rangePoolAddress === rangePoolRoute) {
     const feeTier = data['data']['rangePools']['0']['feeTier']['feeAmount']
-    console.log(feeTier, 'fee range')
     setRangeSlippage((parseFloat(feeTier) / 10000).toString())
   }
 }
+
+
