@@ -42,3 +42,24 @@ export const fetchTokenPriceWithInvert = async (price: string, setMktRate) => {
     console.log(error)
   }
 }
+
+export function switchDirection(
+  tokenOrder,
+  setTokenOrder,
+  tokenIn,
+  setTokenIn,
+  tokenOut,
+  setTokenOut,
+  queryTokenIn,
+  setQueryTokenIn,
+  queryTokenOut,
+  setQueryTokenOut,
+) {
+  setTokenOrder(!tokenOrder)
+  const temp = tokenIn
+  setTokenIn(tokenOut)
+  setTokenOut(temp)
+  const tempBal = queryTokenIn
+  setQueryTokenIn(queryTokenOut)
+  setQueryTokenOut(tempBal)
+}

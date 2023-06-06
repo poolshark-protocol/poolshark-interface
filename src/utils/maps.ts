@@ -1,6 +1,6 @@
 import { getTickIfNotZeroForOne, getTickIfZeroForOne } from './queries'
 
-const getClaimTick = async (
+export const getClaimTick = async (
   coverPoolAddress: string,
   minLimit: number,
   maxLimit: number,
@@ -88,7 +88,6 @@ export function mapRangePools(rangePools) {
     }
     mappedRangePools.push(rangePoolData)
   })
-  //setAllRangePools(mappedRangePools)
   return mappedRangePools
 }
 
@@ -132,7 +131,6 @@ export function mapUserCoverPositions(coverPositions) {
       coverPosition.epochLast,
     )
   })
-  //console.log('mapped positions', mappedCoverPositions)
   return mappedCoverPositions
 }
 

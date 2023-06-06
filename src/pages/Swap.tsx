@@ -33,6 +33,7 @@ import { gasEstimate } from '../utils/gas'
 import { token } from '../utils/types'
 import { getCoverPool, getRangePool } from '../utils/pools'
 import { getBalances } from '../utils/balances'
+import { switchDirection } from '../utils/tokens'
 
 export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount()
@@ -40,11 +41,7 @@ export default function Swap() {
   const {
     network: { chainId },
   } = useProvider()
-  const {
-    bnInput,
-    inputBox,
-    maxBalance,
-  } = useInputBox()
+  const { bnInput, inputBox, maxBalance } = useInputBox()
 
   const [gasFee, setGasFee] = useState('0')
   const [coverQuote, setCoverQuote] = useState(0)
@@ -434,16 +431,6 @@ export default function Swap() {
     }
   }
 
-  function switchDirection() {
-    setTokenOrder(!tokenOrder)
-    const temp = tokenIn
-    setTokenIn(tokenOut)
-    setTokenOut(temp)
-    const tempBal = queryTokenIn
-    setQueryTokenIn(queryTokenOut)
-    setQueryTokenOut(tempBal)
-  }
-
   const getSlippage = () => {
     if (rangeQuote > coverQuote) {
       setSlippage(rangeSlippage)
@@ -674,7 +661,18 @@ export default function Swap() {
             className="w-4 h-4"
             onClick={() => {
               if (hasSelected) {
-                switchDirection()
+                switchDirection(
+                  tokenOrder,
+                  setTokenOrder,
+                  tokenIn,
+                  setTokenIn,
+                  tokenOut,
+                  setTokenOut,
+                  queryTokenIn,
+                  setQueryTokenIn,
+                  queryTokenOut,
+                  setQueryTokenOut,
+                )
               }
             }}
           />

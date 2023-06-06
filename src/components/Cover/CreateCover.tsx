@@ -23,7 +23,7 @@ import { DyDxMath } from '../../utils/math/dydxMath'
 import { getBalances } from '../../utils/balances'
 import { token } from '../../utils/types'
 import { getCoverPoolInfo } from '../../utils/pools'
-import { fetchTokenPrices } from '../../utils/tokens'
+import { fetchTokenPrices, switchDirection } from '../../utils/tokens'
 
 export default function CreateCover(props: any) {
   const router = useRouter()
@@ -261,16 +261,6 @@ export default function CreateCover(props: any) {
     }
   }
 
-  function switchDirection() {
-    setTokenOrder(!tokenOrder)
-    const temp = tokenIn
-    setTokenIn(tokenOut)
-    setTokenOut(temp)
-    const tempBal = queryTokenIn
-    setQueryTokenIn(queryTokenOut)
-    setQueryTokenOut(tempBal)
-  }
-
   function setParams(query: any) {
     setPool({
       poolId: query.poolId,
@@ -413,7 +403,18 @@ export default function CreateCover(props: any) {
               className="w-6 cursor-pointer"
               onClick={() => {
                 if (hasSelected) {
-                  switchDirection()
+                  switchDirection(
+                    tokenOrder,
+                    setTokenOrder,
+                    tokenIn,
+                    setTokenIn,
+                    tokenOut,
+                    setTokenOut,
+                    queryTokenIn,
+                    setQueryTokenIn,
+                    queryTokenOut,
+                    setQueryTokenOut,
+                  )
                 }
               }}
             />

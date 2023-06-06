@@ -20,7 +20,7 @@ import { getBalances } from '../../utils/balances'
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
 import { token } from '../../utils/types'
-import { fetchTokenPriceWithInvert } from '../../utils/tokens'
+import { fetchTokenPriceWithInvert, switchDirection } from '../../utils/tokens'
 
 export default function ConcentratedPool({
   account,
@@ -266,15 +266,7 @@ export default function ConcentratedPool({
     }
   }
 
-  function switchDirection() {
-    setTokenOrder(!tokenOrder)
-    const temp = tokenIn
-    setTokenIn(tokenOut)
-    setTokenOut(temp)
-    const tempBal = queryTokenIn
-    setQueryTokenIn(queryTokenOut)
-    setQueryTokenOut(tempBal)
-  }
+ 
 
   function setAmounts() {
     try {
@@ -496,7 +488,18 @@ export default function ConcentratedPool({
               className="w-6 cursor-pointer"
               onClick={() => {
                 if (hasSelected) {
-                  switchDirection()
+                  switchDirection(
+                    tokenOrder,
+                    setTokenOrder,
+                    tokenIn,
+                    setTokenIn,
+                    tokenOut,
+                    setTokenOut,
+                    queryTokenIn,
+                    setQueryTokenIn,
+                    queryTokenOut,
+                    setQueryTokenOut,
+                  )
                 }
               }}
             />

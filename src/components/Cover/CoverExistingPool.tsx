@@ -24,7 +24,7 @@ import { DyDxMath } from '../../utils/math/dydxMath'
 import CoverMintApproveButton from '../Buttons/CoverMintApproveButton'
 import { token } from '../../utils/types'
 import { getCoverPoolInfo } from '../../utils/pools'
-import { fetchTokenPrices } from '../../utils/tokens'
+import { fetchTokenPrices, switchDirection } from '../../utils/tokens'
 
 export default function CoverExistingPool({
   account,
@@ -336,17 +336,6 @@ export default function CoverExistingPool({
     }
   }
 
-  function switchDirection() {
-    setTokenOrder(!tokenOrder)
-    const temp = tokenIn
-    setTokenIn(tokenOut)
-    setTokenOut(temp)
-    const tempBal = queryTokenIn
-    setQueryTokenIn(queryTokenOut)
-    setQueryTokenOut(tempBal)
-    setSliderValue(50)
-  }
-
   const handleChange = (event: any) => {
     setSliderValue(event.target.value)
   }
@@ -402,7 +391,18 @@ export default function CoverExistingPool({
             className="w-6 cursor-pointer"
             onClick={() => {
               if (hasSelected) {
-                switchDirection()
+                switchDirection(
+                  tokenOrder,
+                  setTokenOrder,
+                  tokenIn,
+                  setTokenIn,
+                  tokenOut,
+                  setTokenOut,
+                  queryTokenIn,
+                  setQueryTokenIn,
+                  queryTokenOut,
+                  setQueryTokenOut,
+                )
               }
             }}
           />

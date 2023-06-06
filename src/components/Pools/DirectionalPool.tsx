@@ -15,6 +15,7 @@ import { fetchPrice } from '../../utils/queries'
 import useInputBox from '../../hooks/useInputBox'
 import { erc20ABI, useAccount } from 'wagmi'
 import { BigNumber, Contract, ethers } from 'ethers'
+import { switchDirection } from '../../utils/tokens'
 
 export default function DirectionalPool({
   account,
@@ -118,16 +119,6 @@ export default function DirectionalPool({
       setSelected(feeTiers[3])
     }
     setFeeControler(true)
-  }
-
-  function switchDirection() {
-    setTokenOrder(!tokenOrder)
-    const temp = tokenIn
-    setTokenIn(tokenOut)
-    setTokenOut(temp)
-    const tempBal = queryTokenIn
-    setQueryTokenIn(queryTokenOut)
-    setQueryTokenOut(tempBal)
   }
 
   useEffect(() => {
@@ -401,7 +392,18 @@ export default function DirectionalPool({
               className="w-6 cursor-pointer"
               onClick={() => {
                 if (hasSelected) {
-                  switchDirection()
+                  switchDirection(
+                    tokenOrder,
+                    setTokenOrder,
+                    tokenIn,
+                    setTokenIn,
+                    tokenOut,
+                    setTokenOut,
+                    queryTokenIn,
+                    setQueryTokenIn,
+                    queryTokenOut,
+                    setQueryTokenOut,
+                  )
                 }
               }}
             />

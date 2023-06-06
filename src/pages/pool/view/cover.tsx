@@ -18,17 +18,118 @@ import {
 } from '../../../utils/queries'
 import { TickMath } from '../../../utils/math/tickMath'
 import { coverPoolABI } from '../../../abis/evm/coverPool'
+import { token } from '../../../utils/types'
+import { copyElementUseEffect } from '../../../utils/misc'
+import { getClaimTick } from '../../../utils/maps'
 
 export default function Cover() {
-  type token = {
-    name: string
-    symbol: string
-    logoURI: string
-    address: string
-    value: string
-  }
-  const { address } = useAccount()
+  const { address, isConnected } = useAccount()
   const router = useRouter()
+
+  const [poolAdd, setPoolContractAdd] = useState(router.query.poolId ?? '')
+  const [tokenIn, setTokenIn] = useState({
+    name: router.query.tokenZeroAddress ?? '',
+    symbol: router.query.tokenZeroSymbol ?? '',
+    logoURI: router.query.tokenZeroLogoURI ?? '',
+    address: router.query.tokenZeroAddress ?? '',
+    value: router.query.tokenZeroValue ?? '',
+  } as token)
+  const [tokenOut, setTokenOut] = useState({
+    name: router.query.tokenOneAddress ?? '',
+    symbol: router.query.tokenOneSymbol ?? '',
+    logoURI: router.query.tokenOneLogoURI ?? '',
+    address: router.query.tokenOneAddress ?? '',
+    value: router.query.tokenOneValue ?? '',
+  } as token)
+  const [latestTick, setLatestTick] = useState(router.query.latestTick ?? 0)
+  const [tickSpacing, setTickSpacing] = useState(router.query.tickSpacing ?? 20)
+  const [liquidity, setLiquidity] = useState(router.query.liquidity ?? '0')
+  const [feeTier, setFeeTier] = useState(router.query.feeTier ?? '')
+  const [minLimit, setMinLimit] = useState(router.query.min ?? '0')
+  const [maxLimit, setMaxLimit] = useState(router.query.max ?? '0')
+  const [userFillIn, setUserFillIn] = useState(router.query.userFillIn ?? '0')
+  const [userFillOut, setUserFillOut] = useState(
+    router.query.userFillOut ?? '0',
+  )
+  const [mktRate, setMktRate] = useState({})
+  const [epochLast, setEpochLast] = useState(router.query.epochLast ?? 0)
+  const [zeroForOne, setZeroForOne] = useState(
+    tokenIn.address.localeCompare(tokenOut.address) < 0,
+  )
+  const [coverFilledAmount, setCoverFilledAmount] = useState('')
+  //Pool Addresses
+  const [is0Copied, setIs0Copied] = useState(false)
+  const [is1Copied, setIs1Copied] = useState(false)
+  const [isPoolCopied, setIsPoolCopied] = useState(false)
+  const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
+    tokenIn.address != ''
+      ? tokenIn.address.toString().substring(0, 6) +
+          '...' +
+          tokenIn.address
+            .toString()
+            .substring(
+              tokenIn.address.toString().length - 4,
+              tokenIn.address.toString().length,
+            )
+      : undefined,
+  )
+  const [tokenOneDisplay, setTokenOneDisplay] = useState(
+    tokenOut.address != ''
+      ? tokenOut.address.toString().substring(0, 6) +
+          '...' +
+          tokenOut.address
+            .toString()
+            .substring(
+              tokenOut.address.toString().length - 4,
+              tokenOut.address.toString().length,
+            )
+      : undefined,
+  )
+  const [poolDisplay, setPoolDisplay] = useState(
+    poolAdd != ''
+      ? poolAdd.toString().substring(0, 6) +
+          '...' +
+          poolAdd
+            .toString()
+            .substring(poolAdd.toString().length - 4, poolAdd.toString().length)
+      : undefined,
+  )
+  const [coverPoolRoute, setCoverPoolRoute] = useState(
+    router.query.coverPoolRoute ?? '',
+  )
+  const [coverTickPrice, setCoverTickPrice] = useState(
+    router.query.coverTickPrice ?? '0',
+  )
+  const [claimTick, setClaimTick] = useState(BigNumber.from('887272'))
+
+  ////////////////////////////////
+
+  const { data: filledAmount } = useContractRead({
+    address: coverPoolRoute.toString(),
+    abi: coverPoolABI,
+    functionName: 'snapshot',
+    args: [
+      [address, BigNumber.from('0'), minLimit, maxLimit, claimTick, zeroForOne],
+    ],
+    chainId: 421613,
+    watch: true,
+    enabled:
+      claimTick.lt(BigNumber.from('887272')) &&
+      isConnected &&
+      coverPoolRoute != '',
+    onSuccess(data) {
+      console.log('Success price filled amount', data)
+      setCoverFilledAmount(ethers.utils.formatUnits(data[2], 18))
+    },
+    onError(error) {
+      console.log('Error price Cover', error)
+    },
+    onSettled(data, error) {
+      //console.log('Settled price Cover', { data, error })
+    },
+  })
+
+  ////////////////////////////////
 
   useEffect(() => {
     if (router.isReady) {
@@ -94,137 +195,28 @@ export default function Cover() {
     }
   }, [router.isReady])
 
-  const [poolAdd, setPoolContractAdd] = useState(router.query.poolId ?? '')
-  const [tokenIn, setTokenIn] = useState({
-    name: router.query.tokenZeroAddress ?? '',
-    symbol: router.query.tokenZeroSymbol ?? '',
-    logoURI: router.query.tokenZeroLogoURI ?? '',
-    address: router.query.tokenZeroAddress ?? '',
-    value: router.query.tokenZeroValue ?? '',
-  } as token)
-  const [tokenOut, setTokenOut] = useState({
-    name: router.query.tokenOneAddress ?? '',
-    symbol: router.query.tokenOneSymbol ?? '',
-    logoURI: router.query.tokenOneLogoURI ?? '',
-    address: router.query.tokenOneAddress ?? '',
-    value: router.query.tokenOneValue ?? '',
-  } as token)
-  const [latestTick, setLatestTick] = useState(router.query.latestTick ?? 0)
-  const [tickSpacing, setTickSpacing] = useState(router.query.tickSpacing ?? 20)
-
-  const [liquidity, setLiquidity] = useState(router.query.liquidity ?? '0')
-  const [feeTier, setFeeTier] = useState(router.query.feeTier ?? '')
-  const [minLimit, setMinLimit] = useState(router.query.min ?? '0')
-  const [maxLimit, setMaxLimit] = useState(router.query.max ?? '0')
-  const [userFillIn, setUserFillIn] = useState(router.query.userFillIn ?? '0')
-  const [userFillOut, setUserFillOut] = useState(
-    router.query.userFillOut ?? '0',
-  )
-  const [mktRate, setMktRate] = useState({})
-  const [epochLast, setEpochLast] = useState(router.query.epochLast ?? 0)
-  const [zeroForOne, setZeroForOne] = useState(
-    tokenIn.address.localeCompare(tokenOut.address) < 0,
-  )
-  const [coverFilledAmount, setCoverFilledAmount] = useState('')
-  //Pool Addresses
-  const [is0Copied, setIs0Copied] = useState(false)
-  const [is1Copied, setIs1Copied] = useState(false)
-  const [isPoolCopied, setIsPoolCopied] = useState(false)
-  const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-    tokenIn.address != ''
-      ? tokenIn.address.toString().substring(0, 6) +
-          '...' +
-          tokenIn.address
-            .toString()
-            .substring(
-              tokenIn.address.toString().length - 4,
-              tokenIn.address.toString().length,
-            )
-      : undefined,
-  )
-  const [tokenOneDisplay, setTokenOneDisplay] = useState(
-    tokenOut.address != ''
-      ? tokenOut.address.toString().substring(0, 6) +
-          '...' +
-          tokenOut.address
-            .toString()
-            .substring(
-              tokenOut.address.toString().length - 4,
-              tokenOut.address.toString().length,
-            )
-      : undefined,
-  )
-  const [poolDisplay, setPoolDisplay] = useState(
-    poolAdd != ''
-      ? poolAdd.toString().substring(0, 6) +
-          '...' +
-          poolAdd
-            .toString()
-            .substring(poolAdd.toString().length - 4, poolAdd.toString().length)
-      : undefined,
-  )
-  const [coverPoolRoute, setCoverPoolRoute] = useState(
-    router.query.coverPoolRoute ?? '',
-  )
-  const [coverTickPrice, setCoverTickPrice] = useState(
-    router.query.coverTickPrice ?? '0',
-  )
-  const [claimTick, setClaimTick] = useState(BigNumber.from('887272'))
-
-  const { isConnected } = useAccount()
-
-  const { data: filledAmount } = useContractRead({
-    address: coverPoolRoute.toString(),
-    abi: coverPoolABI,
-    functionName: 'snapshot',
-    args: [
-      [address, BigNumber.from('0'), minLimit, maxLimit, claimTick, zeroForOne],
-    ],
-    chainId: 421613,
-    watch: true,
-    enabled: claimTick.lt(BigNumber.from('887272')) && isConnected && coverPoolRoute != '',
-    onSuccess(data) {
-      console.log('Success price filled amount', data)
-      setCoverFilledAmount(ethers.utils.formatUnits(data[2], 18))
-    },
-    onError(error) {
-      console.log('Error price Cover', error)
-    },
-    onSettled(data, error) {
-      //console.log('Settled price Cover', { data, error })
-    },
+  useEffect(() => {
+    copyElementUseEffect(copyAddress0, setIs0Copied)
+    copyElementUseEffect(copyAddress1, setIs1Copied)
+    copyElementUseEffect(copyPoolAddress, setIsPoolCopied)
   })
 
   useEffect(() => {
-    if (copyAddress0) {
-      const timer = setTimeout(() => {
-        setIs0Copied(false)
-      }, 1500)
-      return () => clearTimeout(timer)
-    }
-  })
-
-  useEffect(() => {
-    if (copyAddress1) {
-      const timer = setTimeout(() => {
-        setIs1Copied(false)
-      }, 1500)
-      return () => clearTimeout(timer)
-    }
-  })
-
-  useEffect(() => {
-    if (copyPoolAddress) {
-      const timer = setTimeout(() => {
-        setIsPoolCopied(false)
-      }, 1500)
-      return () => clearTimeout(timer)
-    }
-  })
-
-  useEffect(() => {
-    getClaimTick()
+    updateClaimTick()
   }, [])
+
+  ////////////////////////////////
+
+  async function updateClaimTick() {
+    const aux = await getClaimTick(
+      poolAdd.toString(),
+      Number(minLimit),
+      Number(maxLimit),
+      zeroForOne,
+      Number(epochLast),
+    )
+    setClaimTick(BigNumber.from(aux))
+  }
 
   function copyAddress0() {
     navigator.clipboard.writeText(tokenIn.address.toString())
@@ -238,39 +230,7 @@ export default function Cover() {
 
   function copyPoolAddress() {
     navigator.clipboard.writeText(poolAdd.toString())
-    setIsPoolCopied
-  }
-
-  const getClaimTick = async () => {
-    if (tokenOut.address == undefined || tokenIn.address == undefined) return
-    console.log('zfo', zeroForOne, tokenOut.address, tokenIn.address)
-    let claimTick = zeroForOne ? maxLimit : minLimit
-    if (zeroForOne) {
-      const claimTickQuery = await getTickIfZeroForOne(
-        Number(maxLimit),
-        poolAdd.toString(),
-        Number(epochLast),
-      )
-      const claimTickDataLength = claimTickQuery['data']['ticks'].length
-      if (claimTickDataLength > 0)
-        claimTick = claimTickQuery['data']['ticks'][0]['index']
-    } else {
-      const claimTickQuery = await getTickIfNotZeroForOne(
-        Number(minLimit),
-        poolAdd.toString(),
-        Number(epochLast),
-      )
-      const claimTickDataLength = claimTickQuery['data']['ticks'].length
-      if (claimTickDataLength > 0)
-        claimTick = claimTickQuery['data']['ticks'][0]['index']
-      if (claimTick != undefined) {
-        setClaimTick(BigNumber.from(claimTick))
-      } else {
-        setClaimTick(BigNumber.from(minLimit))
-      }
-    }
-    console.log('claim tick:', claimTick)
-    setClaimTick(BigNumber.from(claimTick))
+    setIsPoolCopied(true)
   }
 
   return (
