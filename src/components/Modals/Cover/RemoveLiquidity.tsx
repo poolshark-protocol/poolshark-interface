@@ -12,7 +12,7 @@ import JSBI from "jsbi";
 
 export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, lowerTick, zeroForOne, liquidity, upperTick }) {
 
-    const {
+  const {
     bnInput,
     inputBox,
     maxBalance,

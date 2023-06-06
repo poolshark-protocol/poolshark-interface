@@ -23,7 +23,7 @@ import { BigNumber } from 'ethers'
       address: approveToken,
       abi: erc20ABI,
       functionName: 'approve',
-      args: [poolAddress, BigNumber.from('0')],
+      args: [poolAddress, amount],
       enabled: approveToken != undefined && poolAddress != undefined,
       chainId: 421613,
     })

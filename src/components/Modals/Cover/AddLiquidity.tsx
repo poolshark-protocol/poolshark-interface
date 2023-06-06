@@ -1,10 +1,14 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useState } from 'react'
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useSwitchNetwork, useAccount, erc20ABI  } from "wagmi";
+import { useSwitchNetwork, useAccount, erc20ABI, useProvider  } from "wagmi";
 import useInputBox from '../../../hooks/useInputBox'
 import CoverAddLiqButton from '../../Buttons/CoverAddLiqButton'
 import { ethers, Contract } from "ethers";
+import { useContractRead } from "wagmi";
+import { BN_ZERO } from "../../../utils/math/constants";
+import CoverMintApproveButton from "../../Buttons/CoverMintApproveButton";
+import { chainIdsToNamesForGitTokenList } from "../../../utils/chains";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, maxLimit, zeroForOne, liquidity, minLimit }) {
 
@@ -19,8 +23,45 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd,
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
   const [balanceIn, setBalanceIn] = useState('')
+  const [allowanceIn, setAllowanceIn] = useState(BN_ZERO)
   const { isDisconnected, isConnected } = useAccount()
+  const [stateChainName, setStateChainName] = useState()
   const [fetchDelay, setFetchDelay] = useState(false)
+  const {
+    network: { chainId },
+  } = useProvider()
+
+  const { data: tokenInAllowance } = useContractRead({
+    address: tokenIn.address,
+    abi: erc20ABI,
+    functionName: 'allowance',
+    args: [address, poolAdd],
+    chainId: 421613,
+    watch: true,
+    enabled:
+      isConnected &&
+      poolAdd != undefined &&
+      tokenIn.address != undefined,
+    onSuccess(data) {
+      console.log('Success')
+    },
+    onError(error) {
+      console.log('Error', error)
+    },
+    onSettled(data, error) {
+      console.log('allowance check', allowanceIn.lt(bnInput))
+      console.log('Allowance Settled', {
+        data,
+        error,
+        poolAdd,
+        tokenIn,
+      })
+    },
+  })
+
+  useEffect(() => {
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
+  }, [chainId])
 
   useEffect(() => {
     if(!fetchDelay) {
@@ -32,6 +73,10 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd,
       return () => clearInterval(interval);
     }
   }, [fetchDelay])
+
+  useEffect(() => {
+    if (tokenInAllowance) setAllowanceIn(tokenInAllowance)
+  }, [tokenInAllowance])
 
   const getBalances = async () => {
     setFetchDelay(true)
@@ -118,7 +163,17 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd,
                     </div>
                   </div>
                 </div>
-                <CoverAddLiqButton
+                {isConnected &&
+                  allowanceIn.lt(bnInput) &&
+                  stateChainName === "arbitrumGoerli" ? (
+                    <CoverMintApproveButton
+                      disabled={false}
+                      poolAddress={poolAdd}
+                      approveToken={tokenIn.address}
+                      amount={bnInput}
+                    />
+                  ) : stateChainName === "arbitrumGoerli" ? (
+                    <CoverAddLiqButton
                       toAddress={address}
                       poolAddress={poolAdd}
                       address={address}
@@ -128,6 +183,8 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd,
                       zeroForOne={zeroForOne}
                       amount={bnInput}
                 />
+                  ) : null}
+                
               </Dialog.Panel>
             </Transition.Child>
           </div>
