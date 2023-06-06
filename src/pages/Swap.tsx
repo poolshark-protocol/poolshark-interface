@@ -36,7 +36,7 @@ import SwapCoverButton from '../components/Buttons/SwapCoverButton'
 import { rangePoolABI } from '../abis/evm/rangePool'
 import { TickMath, invertPrice, roundTick } from '../utils/math/tickMath'
 import { ZERO_ADDRESS } from '../utils/math/constants'
-import { gasEstimate } from '../utils/gas'
+import { gasEstimate, gasEstimateLimit } from '../utils/gas'
 import { token } from '../utils/types'
 import { getCoverPool, getRangePool } from '../utils/pools'
 import { getBalances } from '../utils/balances'
@@ -62,6 +62,7 @@ export default function Swap() {
   } = useInputBox()
 
   const [gasFee, setGasFee] = useState('0')
+  const [mintFee, setMintFee] = useState('0')
   const [coverQuote, setCoverQuote] = useState(0)
   const [rangeQuote, setRangeQuote] = useState(0)
   const [coverPrice, setCoverPrice] = useState(0)
@@ -331,6 +332,22 @@ export default function Swap() {
       signer,
     )
     setGasFee(newGasFee)
+  }
+
+  async function updateMintFee() {
+    const newMintFee = await gasEstimateLimit(
+      rangePoolRoute,
+      address,
+      rangePrice,
+      rangeBnPrice,
+      rangeBnBaseLimit,
+      tokenIn,
+      tokenOut,
+      bnInput,
+      rangeTickSpacing,
+      signer
+    )
+    setMintFee(newMintFee)
   }
 
   function changeDefaultIn(token: token) {
