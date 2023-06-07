@@ -584,7 +584,7 @@ export default function Cover() {
         claimTick={Number(claimTick)}
         upperTick={Number(maxLimit)}
         zeroForOne={zeroForOne}
-        liquidity={liquidity}
+        amountInDeltaMax={userFillOut}
       />
       <AddLiquidity
         isOpen={isAddOpen}
