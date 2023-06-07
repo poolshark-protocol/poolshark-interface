@@ -1,7 +1,7 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useState } from 'react'
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useSwitchNetwork, useAccount  } from "wagmi";
+import { useSwitchNetwork, useAccount, erc20ABI, useContractRead, useProvider  } from "wagmi";
 import useInputBox from '../../../hooks/useInputBox'
 import RangeAddLiqButton from '../../Buttons/RangeAddLiqButton'
 import { BN_ZERO, ZERO } from "../../../utils/math/constants";
@@ -10,6 +10,9 @@ import { ethers, BigNumber } from "ethers";
 import JSBI from "jsbi";
 import { DyDxMath } from "../../../utils/math/dydxMath";
 import { getBalances } from "../../../utils/balances";
+import SwapRangeDoubleApproveButton from "../../Buttons/RangeMintDoubleApproveButton";
+import { chainIdsToNamesForGitTokenList } from "../../../utils/chains";
+import RangeMintDoubleApproveButton from "../../Buttons/RangeMintDoubleApproveButton";
 
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut, poolAdd, address, upperTick, liquidity, lowerTick, rangePrice }) {
@@ -28,12 +31,82 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
   const [balanceOut, setBalanceOut] = useState('')
   const [amount0, setAmount0] = useState(BN_ZERO)
   const [amount1, setAmount1] = useState(BN_ZERO)
+  const [allowanceIn, setAllowanceIn] = useState(BN_ZERO)
+  const [allowanceOut, setAllowanceOut] = useState(BN_ZERO)
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
   const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
+  const [stateChainName, setStateChainName] = useState()
   const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
   const { isDisconnected, isConnected } = useAccount()
   const [ disabled, setDisabled ] = useState(true)
   const [ rangeSqrtPrice, setRangeSqrtPrice ] = useState(JSBI.BigInt(rangePrice))
+  const {
+    network: { chainId },
+  } = useProvider()
+
+  const { data: tokenInAllowance } = useContractRead({
+    address: tokenIn.address,
+    abi: erc20ABI,
+    functionName: 'allowance',
+    args: [address, poolAdd],
+    chainId: 421613,
+    watch: true,
+    enabled:
+      isConnected &&
+      poolAdd != undefined &&
+      tokenIn.address != undefined,
+    onSuccess(data) {
+      console.log('Success')
+    },
+    onError(error) {
+      console.log('Error', error)
+    },
+    onSettled(data, error) {
+      console.log('allowance check', allowanceIn.lt(bnInput), allowanceIn.toString())
+      console.log('Allowance Settled', {
+        data,
+        error,
+        poolAdd,
+        tokenIn,
+      })
+    },
+  })
+
+  useEffect(() => {
+    if (tokenInAllowance) setAllowanceIn(tokenInAllowance)
+  }, [tokenInAllowance])
+
+  const { data: tokenOutAllowance } = useContractRead({
+    address: tokenIn.address,
+    abi: erc20ABI,
+    functionName: 'allowance',
+    args: [address, poolAdd],
+    chainId: 421613,
+    watch: true,
+    enabled:
+      isConnected &&
+      poolAdd != undefined &&
+      tokenIn.address != undefined,
+    onSuccess(data) {
+      console.log('Success')
+    },
+    onError(error) {
+      console.log('Error', error)
+    },
+    onSettled(data, error) {
+      console.log('allowance check out', allowanceOut.lt(amount1), allowanceOut.toString())
+      console.log('Allowance Settled', {
+        data,
+        error,
+        poolAdd,
+        tokenIn,
+      })
+    },
+  })
+
+  useEffect(() => {
+    if (tokenOutAllowance) setAllowanceOut(tokenOutAllowance)
+  }, [tokenOutAllowance])
 
   useEffect(() => {
     setAmounts()
@@ -42,6 +115,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
   useEffect(() => {
     updateBalances()
   }, [])
+
+  useEffect(() => {
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
+  }, [chainId])
 
   async function updateBalances() {
     await getBalances(
@@ -199,15 +276,28 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
                     </div>
                   </div>
                 </div>
-                <RangeAddLiqButton
-                  poolAddress={poolAdd}
-                  address={address}
-                  lower={lowerTick}
-                  upper={upperTick}
-                  amount0={amount0}
-                  amount1={amount1}
-                  disabled={disabled}
-                />
+                {isConnected &&
+                  (allowanceIn.lt(bnInput)  || allowanceOut.lt(tokenOrder ? amount1 : amount0)) &&
+                  stateChainName === 'arbitrumGoerli' ? (
+                    <RangeMintDoubleApproveButton
+                      poolAddress={poolAdd}
+                      token0={tokenOrder ? tokenIn : tokenOut}
+                      token1={tokenOrder ? tokenOut : tokenIn}
+                      amount0={amount0}
+                      amount1={amount1}
+                      approveZero={allowanceIn.lt(bnInput)}
+                    />
+                  ) : stateChainName === "arbitrumGoerli" ? (
+                    <RangeAddLiqButton
+                    poolAddress={poolAdd}
+                    address={address}
+                    lower={lowerTick}
+                    upper={upperTick}
+                    amount0={amount0}
+                    amount1={amount1}
+                    disabled={disabled}
+                  />
+                  ) : null}
               </Dialog.Panel>
             </Transition.Child>
           </div>
