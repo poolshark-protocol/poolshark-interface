@@ -37,12 +37,12 @@ export default function Concentrated() {
             <div className="flex items-center gap-x-6">
               <h1 className="text-3xl">Create Range Position</h1>
             </div>
-            {/* <Link href="/pool"> */}
-              <div className="bg-black border border-grey2 rounded-lg text-white px-7 py-[9px] cursor-pointer hover:opacity-80 flex gap-x-3" onClick={router.back}>
+            <Link href="/pool">
+              <div className="bg-black border border-grey2 rounded-lg text-white px-7 py-[9px] cursor-pointer hover:opacity-80 flex gap-x-3">
                 <ArrowLongLeftIcon className="w-4 opacity-50 " />
                 <h1 className="opacity-50">Back</h1>
               </div>
-            {/* </Link> */}
+            </Link>
           </div>
           <ConcentratedPool
             key={poolId + 'pool'}
