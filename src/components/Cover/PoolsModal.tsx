@@ -69,7 +69,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
     mapUserRangePositions()
   }, [rangePositions])
 
-  const [uniV3Positions, setUniV3Positions] = useState([])
+  /*const [uniV3Positions, setUniV3Positions] = useState([])
   const [allUniV3Positions, setAllUniV3Positions] = useState([])
   const [userUniV3PositionExists, setUserUniV3PositionExists] = useState(false)
 
@@ -123,7 +123,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
 
   useEffect(() => {
     checkUserUniV3PositionExists()
-  }, [])
+  }, [])*/
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -247,7 +247,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                     )}
                   </div>
                 </div>
-                <div>
+                {/*<div>
                   <h1 className="mb-3 mt-4">UNI-V3 Positions</h1>
                   <div className="space-y-2">
                     {allUniV3Positions.length === 0 ? (
@@ -324,7 +324,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                       </>
                     )}
                   </div>
-                </div>
+                </div>*/}
               </Dialog.Panel>
             </Transition.Child>
           </div>
