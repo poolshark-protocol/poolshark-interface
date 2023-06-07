@@ -102,7 +102,8 @@ export default function ConcentratedPool({
     state.rangeContractParams,
   ])
   const [tokenOrder, setTokenOrder] = useState(true)
-  const [selected, setSelected] = useState(feeTiers[0])
+  /* const [selected, setSelected] = useState(updateSelected()) */
+  const [selected, setSelected] = useState(updateSelected)
   const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [balance0, setBalance0] = useState('')
@@ -157,7 +158,7 @@ export default function ConcentratedPool({
 
   useEffect(() => {
     fetchTokenPrice()
-  }, [usdPrice0, usdPrice1, amount0, amount1])
+  }, [usdPrice0, usdPrice1])
 
   useEffect(() => {
     setRangeParams()
@@ -165,7 +166,7 @@ export default function ConcentratedPool({
 
   useEffect(() => {
     setAmounts()
-  }, [bnInput, lowerPrice, upperPrice])
+  }, [bnInput])
 
   const { data: allowanceIn } = useContractRead({
     address: tokenIn.address,
@@ -176,13 +177,16 @@ export default function ConcentratedPool({
     watch: true,
     enabled: rangePoolRoute != undefined && tokenIn.address != '',
     onSuccess(data) {
-      setTokenInAllowance(Number(allowanceIn))
       // console.log('Success')
     },
     onError(error) {
       console.log('Error', error)
     },
   })
+
+  useEffect(() => {
+    setTokenInAllowance(Number(allowanceIn))
+  }, [allowanceIn])
 
   const { data: allowanceOut } = useContractRead({
     address: tokenOut.address,
@@ -193,7 +197,7 @@ export default function ConcentratedPool({
     watch: true,
     enabled: rangePoolRoute != undefined && tokenIn.address != '',
     onSuccess(data) {
-      setTokenOutAllowance(Number(allowanceOut))
+      //setTokenOutAllowance(Number(allowanceOut))
       // console.log('Success')
     },
     onError(error) {
@@ -204,33 +208,9 @@ export default function ConcentratedPool({
     },
   })
 
-  /* function updateSelected(): any {
-    const tier = feeTiers[0]
-    if (feeTier == 0.01) {
-      return feeTiers[0]
-    } else if (feeTier == 0.05) {
-      return feeTiers[1]
-    } else if (feeTier == 0.3) {
-      return feeTiers[2]
-    } else if (feeTier == 1) {
-      return feeTiers[3]
-    } else return feeTiers[0]
-  } */
-
   useEffect(() => {
-    if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
-      console.log('setting lower tick')
-      setLowerTick(
-        BigNumber.from(TickMath.getTickAtPriceString(lowerPrice, tickSpacing)),
-      )
-    }
-    if (!isNaN(parseFloat(upperPrice))) {
-      console.log('setting upper tick')
-      setUpperTick(
-        BigNumber.from(TickMath.getTickAtPriceString(upperPrice, tickSpacing)),
-      )
-    }
-  }, [lowerPrice, upperPrice])
+    setTokenOutAllowance(Number(allowanceOut))
+  }, [allowanceOut])
 
   useEffect(() => {
     if (tokenInAllowance) {
@@ -256,6 +236,34 @@ export default function ConcentratedPool({
     }
   }),
     [tokenOutAllowance]
+
+  function updateSelected(): any {
+    const tier = feeTiers[0]
+    if (feeTier == 0.01) {
+      return feeTiers[0]
+    } else if (feeTier == 0.05) {
+      return feeTiers[1]
+    } else if (feeTier == 0.3) {
+      return feeTiers[2]
+    } else if (feeTier == 1) {
+      return feeTiers[3]
+    } else return feeTiers[0]
+  }
+
+  useEffect(() => {
+    if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
+      console.log('setting lower tick')
+      setLowerTick(
+        BigNumber.from(TickMath.getTickAtPriceString(lowerPrice, tickSpacing)),
+      )
+    }
+    if (!isNaN(parseFloat(upperPrice))) {
+      console.log('setting upper tick')
+      setUpperTick(
+        BigNumber.from(TickMath.getTickAtPriceString(upperPrice, tickSpacing)),
+      )
+    }
+  }, [lowerPrice, upperPrice])
 
   const getRangePoolData = async () => {
     try {
@@ -454,7 +462,7 @@ export default function ConcentratedPool({
             leaveTo="opacity-0"
           >
             <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-black border border-grey1 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-              {feeTiers.map((feeTier, feeTierIdx) => (
+              {feeTiers.map((feeTierz, feeTierIdx) => (
                 <Listbox.Option
                   key={feeTierIdx}
                   className={({ active }) =>
@@ -462,7 +470,7 @@ export default function ConcentratedPool({
                       active ? 'opacity-80 bg-dark' : 'opacity-100'
                     }`
                   }
-                  value={feeTier}
+                  value={feeTierz}
                 >
                   {({ selected }) => (
                     <>
@@ -471,14 +479,14 @@ export default function ConcentratedPool({
                           selected ? 'font-medium' : 'font-normal'
                         }`}
                       >
-                        {feeTier.tier}
+                        {feeTierz.tier}
                       </span>
                       <span
                         className={`block truncate text-grey text-xs mt-1 ${
                           selected ? 'font-medium' : 'font-normal'
                         }`}
                       >
-                        {feeTier.text}
+                        {feeTierz.text}
                       </span>
                     </>
                   )}
