@@ -10,8 +10,9 @@ import { ethers, BigNumber } from "ethers";
 import JSBI from "jsbi";
 import { DyDxMath } from "../../../utils/math/dydxMath";
 import { getBalances } from "../../../utils/balances";
-import SwapRangeDoubleApproveButton from "../../Buttons/SwapRangeDoubleApproveButton";
+import SwapRangeDoubleApproveButton from "../../Buttons/RangeMintDoubleApproveButton";
 import { chainIdsToNamesForGitTokenList } from "../../../utils/chains";
+import RangeMintDoubleApproveButton from "../../Buttons/RangeMintDoubleApproveButton";
 
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut, poolAdd, address, upperTick, liquidity, lowerTick, rangePrice }) {
@@ -278,7 +279,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
                 {isConnected &&
                   (allowanceIn.lt(bnInput)  || allowanceOut.lt(tokenOrder ? amount1 : amount0)) &&
                   stateChainName === 'arbitrumGoerli' ? (
-                    <SwapRangeDoubleApproveButton
+                    <RangeMintDoubleApproveButton
                       poolAddress={poolAdd}
                       token0={tokenOrder ? tokenIn : tokenOut}
                       token1={tokenOrder ? tokenOut : tokenIn}
