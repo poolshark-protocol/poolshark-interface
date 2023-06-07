@@ -128,6 +128,30 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
                     </div>
                   </div>
                 </div>
+                <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-6 mb-6">
+                  <div className=" p-2 ">{inputBox("0")}</div>
+                  <div className="">
+                    <div className=" ml-auto">
+                      <div>
+                        <div className="flex justify-end">
+                          <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
+                            <div className="flex items-center gap-x-2 w-full">
+                              <img className="w-7" src={tokenIn.logoURI} />
+                              {tokenIn.symbol}
+                            </div>
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-end gap-x-2 px-1 mt-2">
+                           <button
+              className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
+            >
+              MAX
+            </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <RangeRemoveLiqButton
                     poolAddress={poolAdd}
                     address={address}
