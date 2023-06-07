@@ -198,24 +198,39 @@ export default function ConcentratedPool({
 
   useEffect(() => {
     if (tokenInAllowance) {
-      if (
-        address != '0x' &&
-        tokenInAllowance != Number(tokenOrder ? allowance0 : allowance1)
-      )
-        tokenOrder ? setAllowance0(allowanceOut) : setAllowance1(allowanceOut)
+      //console.log('token in allowance', tokenInAllowance, tokenInAllowance.toString(), allowance0)
+      if(address != '0x' &&
+          tokenInAllowance != Number(tokenOrder ? allowance0 : allowance1))
+        tokenOrder ?
+          setAllowance0(allowanceOut)
+        : setAllowance1(allowanceOut)
+        // console.log('token in allowance set', tokenInAllowance)
     }
-  }),
-    [tokenInAllowance]
+  }), [tokenInAllowance]
 
   useEffect(() => {
     if (tokenOutAllowance) {
-      if (
-        address != '0x' &&
-        tokenInAllowance != Number(tokenOrder ? allowance0 : allowance1)
-      )
-        tokenOrder ? setAllowance1(allowanceIn) : setAllowance0(allowanceIn)
+      if (address != '0x' &&
+          tokenInAllowance != Number(tokenOrder ? allowance0 : allowance1))
+        tokenOrder ?
+            setAllowance1(allowanceIn)
+          : setAllowance0(allowanceIn)
+      // console.log('token out allowance set', tokenOutAllowance)
     }
   }), [tokenOutAllowance]
+
+
+  useEffect(() => {
+    if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
+      console.log('setting lower tick')
+      setLowerTick(BigNumber.from(TickMath.getTickAtPriceString(lowerPrice, tickSpacing)))
+    }
+    if (!isNaN(parseFloat(upperPrice))) {
+      console.log('setting upper tick')
+      setUpperTick(BigNumber.from(TickMath.getTickAtPriceString(upperPrice, tickSpacing)))
+    }
+  }, [lowerPrice, upperPrice])
+
 
   ////////////////////////////////
 
@@ -238,66 +253,6 @@ export default function ConcentratedPool({
     fetchTokenPrice()
   }, [usdPrice0, usdPrice1, amount0, amount1])
 
-  useEffect(() => {
-    setRangeParams()
-  }, [address, amount0, amount1])
-
-  useEffect(() => {
-    setAmounts()
-  }, [bnInput, lowerPrice, upperPrice])
-
-  useEffect(() => {
-    if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
-      console.log('setting lower tick')
-      setLowerTick(BigNumber.from(TickMath.getTickAtPriceString(lowerPrice, tickSpacing)))
-    }
-    if (!isNaN(parseFloat(upperPrice))) {
-      console.log('setting upper tick')
-      setUpperTick(BigNumber.from(TickMath.getTickAtPriceString(upperPrice, tickSpacing)))
-    }
-  }, [lowerPrice, upperPrice])
-
-  useEffect(() => {
-    if (tokenInAllowance) {
-      //console.log('token in allowance', tokenInAllowance, tokenInAllowance.toString(), allowance0)
-      if(address != '0x' &&
-          tokenInAllowance != Number(tokenOrder ? allowance0 : allowance1))
-        tokenOrder ?
-          setAllowance0(allowanceOut)
-        : setAllowance1(allowanceOut)
-        // console.log('token in allowance set', tokenInAllowance)
-    }
-  }), [tokenInAllowance]
-
-  useEffect(() => {
-    if (tokenOutAllowance) {
-      if (address != '0x' &&
-          tokenInAllowance != Number(tokenOrder ? allowance0 : allowance1))
-        tokenOrder ?
-            setAllowance1(allowanceIn)
-          : setAllowance0(allowanceIn)
-      // console.log('token out allowance set', tokenOutAllowance)
-    }
-  }), [tokenOutAllowance]
-
-  if (feeTier != undefined && feeController == false) {
-    if (feeTier == 0.01) {
-      setSelected(feeTiers[0])
-    } else if (feeTier == 0.05) {
-      setSelected(feeTiers[1])
-    } else if (feeTier == 0.3) {
-      setSelected(feeTiers[2])
-    } else if (feeTier == 1) {
-      setSelected(feeTiers[3])
-    }
-    if (minLimit != undefined) {
-      setLowerPrice(minLimit)
-    }
-    if (maxLimit != undefined) {
-      setUpperPrice(maxLimit)
-    }
-    setFeeController(true)
-  }
 
   const getRangePoolData = async () => {
     try {
