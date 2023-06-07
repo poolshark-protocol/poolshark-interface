@@ -10,12 +10,12 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { rangePoolABI } from '../../abis/evm/rangePool';
 
-export default function RangeRemoveLiqButton({poolAddress, address, lower, upper, amount}) {
+export default function RangeRemoveLiqButton({poolAddress, address, lower, upper, liquidity, disabled}) {
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
 
-    const burnPercent = ethers.utils.parseUnits("5", 34)
+    console.log('liquidity check', liquidity)
   
     const { config } = usePrepareContractWrite({
         address: poolAddress,
@@ -23,10 +23,9 @@ export default function RangeRemoveLiqButton({poolAddress, address, lower, upper
         functionName: "burn",
         args:[[
             address,
-            burnPercent, //hardcoded to 100% for testnet
             lower,
             upper,
-            true
+            liquidity,
         ]],
         chainId: 421613,
         overrides:{
@@ -48,13 +47,13 @@ export default function RangeRemoveLiqButton({poolAddress, address, lower, upper
 
     return (
         <>
-        <div className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        <button disabled={disabled} className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
             onClick={() => {
               address ?  write?.() : null
             }}
                 >
                 Remove liquidity
-        </div>
+        </button>
         <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
       {errorDisplay && (
         <ErrorToast

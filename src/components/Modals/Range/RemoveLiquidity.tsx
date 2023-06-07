@@ -5,6 +5,8 @@ import { useSwitchNetwork } from "wagmi";
 import useInputBox from '../../../hooks/useInputBox'
 import RangeAddLiqButton from '../../Buttons/RangeAddLiqButton'
 import RangeRemoveLiqButton from "../../Buttons/RangeRemoveLiqButton";
+import { ethers } from "ethers";
+import { BN_ZERO } from "../../../utils/math/constants";
 
 
 export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, lowerTick, upperTick, liquidity}) {
@@ -19,6 +21,22 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
 
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
+  const [burnLiquidity, setBurnLiquidity] = useState(BN_ZERO)
+  const [disabled, setDisabled] = useState(true)
+
+  useEffect(() => {
+    const percentInput = Number(ethers.utils.formatUnits(bnInput, 18))
+    console.log('percent input', percentInput)
+    if (percentInput <= 0 || percentInput > 100) {
+      setDisabled(true)
+      return
+    } else {
+      setDisabled(false)
+    }
+    const userLiquidity = Number(liquidity)
+    const liquidityToBurn = Math.round(percentInput * userLiquidity / 100)
+    setBurnLiquidity(ethers.utils.parseUnits(String(liquidityToBurn), 0))
+  }, [bnInput])
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -115,7 +133,8 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
                     address={address}
                     lower={lowerTick}
                     upper={upperTick}
-                    amount={liquidity}
+                    liquidity={burnLiquidity}
+                    disabled={disabled}
                 />
               </Dialog.Panel>
             </Transition.Child>
