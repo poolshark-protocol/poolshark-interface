@@ -4,6 +4,7 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import { useSwitchNetwork, useAccount  } from "wagmi";
 import useInputBox from '../../../hooks/useInputBox'
 import RangeAddLiqButton from '../../Buttons/RangeAddLiqButton'
+import { BN_ZERO } from "../../../utils/math/constants";
 
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, upperTick, liquidity, lowerTick }) {
@@ -19,6 +20,9 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd,
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
   const [balanceIn, setBalanceIn] = useState('')
+  const [amount0, setAmount0] = useState(BN_ZERO)
+  const [amount1, setAmount1] = useState(BN_ZERO)
+
   const { isDisconnected, isConnected } = useAccount()
 
   return (
@@ -91,12 +95,13 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd,
                   </div>
                 </div>
                 <RangeAddLiqButton
-                      poolAddress={poolAdd}
-                      address={address}
-                      lower={lowerTick}
-                      upper={upperTick}
-                      amount={bnInput}
-                    />
+                  poolAddress={poolAdd}
+                  address={address}
+                  lower={lowerTick}
+                  upper={upperTick}
+                  amount0={amount0}
+                  amount1={amount1}
+                />
               </Dialog.Panel>
             </Transition.Child>
           </div>

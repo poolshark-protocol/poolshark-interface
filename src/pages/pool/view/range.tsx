@@ -466,9 +466,31 @@ export default function Range() {
                   </div>
                 </div>
                   <div className="mt-5 space-y-2 cursor-pointer">
-                    <div onClick={() => setIsAddOpen(true)} className="bg-[#032851] w-full py-3 px-4 rounded-xl">
-                      Add Liquidity
-                    </div>
+                  <Link
+                      href={{
+                        pathname: '/pool/concentrated',
+                        query: {
+                          account: address,
+                          poolId: poolAdd,
+                          tokenOneName: tokenOut.name,
+                          tokenOneSymbol: tokenOut.symbol,
+                          tokenOneLogoURI: tokenOut.logoURI,
+                          tokenOneAddress: tokenOut.address,
+                          tokenZeroName: tokenIn.name,
+                          tokenZeroSymbol: tokenIn.symbol,
+                          tokenZeroLogoURI: tokenIn.logoURI,
+                          tokenZeroAddress: tokenIn.address,
+                          feeTier: feeTier,
+                          tickSpacing: tickSpacing,
+                          min: lowerPrice,
+                          max: upperPrice
+                        },
+                      }}
+                    >
+                      <div className="bg-[#032851] w-full py-3 px-4 rounded-xl">
+                        Add Liquidity
+                      </div>
+                    </Link>
                     <div onClick={() => setIsRemoveOpen(true)} className="bg-[#032851] w-full py-3 px-4 rounded-xl">
                       Remove Liquidity
                     </div>
