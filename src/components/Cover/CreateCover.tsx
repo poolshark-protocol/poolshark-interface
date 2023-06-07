@@ -14,9 +14,8 @@ import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 import { useState, useEffect } from 'react'
 import useInputBox from '../../hooks/useInputBox'
 import { tokenOneAddress } from '../../constants/contractAddresses'
-import { coverPoolAddress } from '../../constants/contractAddresses'
 import { TickMath, invertPrice, roundTick } from '../../utils/math/tickMath'
-import { BigNumber, Contract, ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import { useCoverStore } from '../../hooks/useStore'
 import { getCoverPoolFromFactory } from '../../utils/queries'
 import JSBI from 'jsbi'
@@ -29,6 +28,7 @@ import { token } from '../../utils/types'
 import { getCoverPoolInfo } from '../../utils/pools'
 import { fetchTokenPrices, switchDirection } from '../../utils/tokens'
 import inputFilter from '../../utils/inputFilter'
+import CoverMintApproveButton from '../Buttons/CoverMintApproveButton'
 import TickSpacing from '../Tooltips/TickSpacing'
 
 export default function CreateCover(props: any) {
@@ -81,7 +81,7 @@ export default function CreateCover(props: any) {
 
   /////////////////
 
-  const { data: allowanceValue } = useContractRead({
+  const { data: allowanceIn } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'allowance',
@@ -112,15 +112,15 @@ export default function CreateCover(props: any) {
   //////////////////
 
   useEffect(() => {
-    if (allowanceValue)
+    if (allowanceIn)
       if (
         address != '0x' &&
         mktRate != undefined &&
         coverPoolRoute != ZERO_ADDRESS
       ) {
-        setAllowance(ethers.utils.formatUnits(allowanceValue, 18))
+        setAllowance(ethers.utils.formatUnits(allowanceIn, 18))
       }
-  }, [allowanceValue, tokenIn.address, bnInput])
+  }, [allowanceIn, tokenIn.address, bnInput])
 
   const {
     network: { chainId },
@@ -557,10 +557,11 @@ export default function CreateCover(props: any) {
         {isConnected &&
         Number(allowance) < Number(ethers.utils.formatUnits(bnInput, 18)) &&
         stateChainName === "arbitrumGoerli" ? (
-          <SwapCoverApproveButton
+          <CoverMintApproveButton
             disabled={isDisabled}
             poolAddress={coverPoolRoute}
             approveToken={tokenIn.address}
+            amount={bnInput}
           />
         ) : stateChainName === "arbitrumGoerli" ? (
           <CoverMintButton

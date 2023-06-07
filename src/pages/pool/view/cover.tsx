@@ -21,7 +21,8 @@ import { coverPoolABI } from '../../../abis/evm/coverPool'
 import { token } from '../../../utils/types'
 import { copyElementUseEffect } from '../../../utils/misc'
 import { getClaimTick } from '../../../utils/maps'
-import RemoveLiquidity from '../../../components/Modals/RemoveLiquidity'
+import RemoveLiquidity from '../../../components/Modals/Cover/RemoveLiquidity'
+import AddLiquidity from '../../../components/Modals/Cover/AddLiquidity'
 import {
   tokenZeroAddress,
   tokenOneAddress,
@@ -30,7 +31,8 @@ import {
 export default function Cover() {
   const { address, isConnected } = useAccount()
   const router = useRouter()
-  const [isOpen, setIsOpen] = useState(false)
+  const [isAddOpen, setIsAddOpen] = useState(false)
+  const [isRemoveOpen, setIsRemoveOpen] = useState(false)
 
   const [poolAdd, setPoolContractAdd] = useState(router.query.poolId ?? '')
   const [tokenIn, setTokenIn] = useState({
@@ -408,33 +410,14 @@ export default function Cover() {
                 */}
 
                 <div className="mt-5 space-y-2 cursor-pointer">
-                  <Link
-                    href={{
-                      pathname: '/cover',
-                      query: {
-                        account: router.query.account,
-                        poolId: poolAdd,
-                        tokenOneName: tokenOut.name,
-                        tokenOneSymbol: tokenOut.symbol,
-                        tokenOneLogoURI: tokenOut.logoURI,
-                        tokenOneAddress: tokenOut.address,
-                        tokenZeroName: tokenIn.name,
-                        tokenZeroSymbol: tokenIn.symbol,
-                        tokenZeroLogoURI: tokenIn.logoURI,
-                        tokenZeroAddress: tokenIn.address,
-                        feeTier: Number(feeTier) / 10000,
-                        tickSpacing: tickSpacing,
-                        liquidity: liquidity,
-                        state: 'existing',
-                      },
-                    }}
-                  >
-                    <div className="bg-[#032851] w-full py-3 px-4 rounded-xl">
-                      Add Liquidity
-                    </div>
-                  </Link>
                   <div
-                    onClick={() => setIsOpen(true)}
+                    onClick={() => setIsAddOpen(true)}
+                    className="bg-[#032851] w-full py-3 px-4 rounded-xl"
+                  >
+                    Add Liquidity
+                  </div>
+                  <div
+                    onClick={() => setIsRemoveOpen(true)}
                     className="bg-[#032851] w-full py-3 px-4 rounded-xl"
                   >
                     Remove Liquidity
@@ -575,8 +558,20 @@ export default function Cover() {
         </div>
       </div>
       <RemoveLiquidity
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
+        isOpen={isRemoveOpen}
+        setIsOpen={setIsRemoveOpen}
+        tokenIn={tokenIn}
+        poolAdd={poolAdd}
+        address={address}
+        lowerTick={Number(minLimit)}
+        claimTick={Number(claimTick)}
+        upperTick={Number(maxLimit)}
+        zeroForOne={zeroForOne}
+        liquidity={liquidity}
+      />
+      <AddLiquidity
+        isOpen={isAddOpen}
+        setIsOpen={setIsAddOpen}
         tokenIn={tokenIn}
         poolAdd={poolAdd}
         address={address}

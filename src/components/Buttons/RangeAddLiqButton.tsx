@@ -10,33 +10,38 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
+import { rangePoolABI } from '../../abis/evm/rangePool';
 
-export default function RemoveLiq({poolAddress, address, lower, claim, upper, zeroForOne, amount}) {
+export default function RangeAddLiqButton({poolAddress, address, lower, upper, amount0, amount1, disabled}) {
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
 
     const burnPercent = ethers.utils.parseUnits("5", 34)
-
-    console.log('burn params:', burnPercent.toString(), zeroForOne, claim.toString(), lower.toString(), upper.toString())
   
     const { config } = usePrepareContractWrite({
-        address: poolAddress,
-        abi: coverPoolABI,
-        functionName: "burn",
-        args:[[
-            address,
-            burnPercent, //hardcoded to 100% for testnet
-            lower,
-            claim,
-            upper,
-            zeroForOne,
-            true
-        ]],
-        chainId: 421613,
-        overrides:{
-            gasLimit: BigNumber.from("350000000")
-        },
+      address: poolAddress,
+      abi: rangePoolABI,
+      functionName: 'mint',
+      args: [[
+        address,
+        lower,
+        upper,
+        amount0,
+        amount1,
+        true //@dev always fungible
+      ]],
+      chainId: 421613,
+      overrides: {
+        gasLimit: BigNumber.from('210000000'),
+      },
+      onSuccess() {
+        console.log('params check', address,
+        lower.toString(),
+        upper.toString(),
+        amount0.toString(),
+        amount1.toString())
+      },
     })
 
     const { data, isSuccess, write } = useContractWrite(config)
@@ -53,13 +58,13 @@ export default function RemoveLiq({poolAddress, address, lower, claim, upper, ze
 
     return (
         <>
-        <div className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        <button disabled={disabled} className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
             onClick={() => {
               address ?  write?.() : null
             }}
                 >
-                Remove liquidity
-        </div>
+                Add liquidity
+        </button>
         <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
       {errorDisplay && (
         <ErrorToast

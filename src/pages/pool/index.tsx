@@ -62,7 +62,7 @@ export default function Pool() {
 
   async function getUserCoverPositionData() {
     const data = await fetchCoverPositions(address)
-    if (data) {
+    if (data['data']) {
       const positions = data['data'].positions
       setAllCoverPositions(mapUserCoverPositions(positions))
     }
@@ -70,7 +70,7 @@ export default function Pool() {
 
   async function getRangePoolData() {
     const data = await fetchRangePools()
-    if (data) {
+    if (data['data']) {
       const pools = data['data'].rangePools
       setAllRangePools(mapRangePools(pools))
     }
@@ -78,7 +78,7 @@ export default function Pool() {
 
   async function getCoverPoolData() {
     const data = await fetchCoverPools()
-    if (data) {
+    if (data['data']) {
       const pools = data['data'].coverPools
       setAllCoverPools(mapCoverPools(pools))
     }

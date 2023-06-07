@@ -73,13 +73,6 @@ export default function ConcentratedPool({
     },
   ]
   const { address } = useAccount()
-  const { bnInput, inputBox, maxBalance } = useInputBox()
-  const [updateRangeContractParams] = useRangeStore((state: any) => [
-    state.updateRangeContractParams,
-    state.updateRangeAllowance,
-    state.RangeAllowance,
-    state.rangeContractParams,
-  ])
   const initialBig = BigNumber.from(0)
 
   const [tokenIn, setTokenIn] = useState({
@@ -92,6 +85,25 @@ export default function ConcentratedPool({
     logoURI: tokenOneLogoURI ?? '/static/images/token.png',
     address: tokenOneAddress ?? '0xC26906E10E8BDaDeb2cf297eb56DF59775eE52c4',
   } as token)
+  const {
+    bnInput,
+    inputBox,
+    maxBalance,
+    bnInputLimit,
+    LimitInputBox,
+  } = useInputBox()
+  const [
+    updateRangeContractParams,
+    updateRangeAllowance,
+    RangeAllowance,
+    rangeContractParams,
+  ] = useRangeStore((state: any) => [
+    state.updateRangeContractParams,
+    state.updateRangeAllowance,
+    state.RangeAllowance,
+    state.rangeContractParams,
+  ])
+
   const [feeController, setFeeController] = useState(false)
   const [selected, setSelected] = useState(feeTiers[0])
   const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)

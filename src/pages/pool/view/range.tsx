@@ -22,12 +22,16 @@ import { BN_ZERO, ZERO } from '../../../utils/math/constants'
 import { DyDxMath } from '../../../utils/math/dydxMath'
 import { rangePoolABI } from '../../../abis/evm/rangePool'
 import { useContractRead } from 'wagmi'
+import RemoveLiquidity from '../../../components/Modals/Range/RemoveLiquidity'
+import AddLiquidity from '../../../components/Modals/Range/AddLiquidity'
 
 export default function Range() {
   const { address, isConnected } = useAccount()
   const router = useRouter()
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isRemoveOpen, setIsRemoveOpen] = useState(false);
 
-  const [poolAdd, setPoolAdd] = useState(router.query.poolId ?? '')
+  const [poolAdd, setPoolAddress] = useState(router.query.poolId ?? '')
   const [tokenIn, setTokenIn] = useState({
     name: router.query.tokenZeroAddress ?? '',
     symbol: router.query.tokenZeroSymbol ?? '',
@@ -118,7 +122,7 @@ export default function Range() {
   useEffect(() => {
     if (router.isReady) {
       const query = router.query
-      setPoolAdd(query.poolId)
+      setPoolAddress(query.poolId)
       setTokenIn({
         name: query.tokenZeroName,
         symbol: query.tokenZeroSymbol,
@@ -191,6 +195,7 @@ export default function Range() {
     copyElementUseEffect(copyAddress1, setIs1Copied)
     copyElementUseEffect(copyPoolAddress, setIsPoolCopied)
   }, [])
+
 
   function copyAddress0() {
     navigator.clipboard.writeText(tokenIn.address.toString())
@@ -476,33 +481,15 @@ export default function Range() {
                     </div>
                   </div>
                 </div>
-                <Link
-                  href={{
-                    pathname: '/pool/concentrated',
-                    query: {
-                      account: address,
-                      poolId: poolAdd,
-                      tokenOneName: tokenOut.name,
-                      tokenOneSymbol: tokenOut.symbol,
-                      tokenOneLogoURI: tokenOut.logoURI,
-                      tokenOneAddress: tokenOut.address,
-                      tokenZeroName: tokenIn.name,
-                      tokenZeroSymbol: tokenIn.symbol,
-                      tokenZeroLogoURI: tokenIn.logoURI,
-                      tokenZeroAddress: tokenIn.address,
-                      feeTier: feeTier,
-                      tickSpacing: tickSpacing,
-                      min: lowerPrice,
-                      max: upperPrice,
-                    },
-                  }}
-                >
                   <div className="mt-5 space-y-2 cursor-pointer">
-                    <div className="bg-[#032851] w-full py-3 px-4 rounded-xl">
-                      Increase Liquidity
+                      <div onClick={() => setIsAddOpen(true)} className="bg-[#032851] w-full py-3 px-4 rounded-xl">
+                        Add Liquidity
+                      </div>
+                    <div onClick={() => setIsRemoveOpen(true)} className="bg-[#032851] w-full py-3 px-4 rounded-xl">
+                      Remove Liquidity
                     </div>
                   </div>
-                </Link>
+                    
               </div>
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Unclaimed Fees</h1>
@@ -531,13 +518,6 @@ export default function Range() {
                 </div>
                 <div className="mt-5 space-y-2">
                   <div className="space-y-3">
-                    <RangeBurnButton
-                      poolAddress={poolAdd}
-                      address={address}
-                      lower={BigNumber.from(lowerTick)}
-                      upper={BigNumber.from(upperTick)}
-                      amount={BigNumber.from(userLiquidity)}
-                    />
                     <RangeCollectButton
                       poolAddress={poolAdd.toString()}
                       address={address}
@@ -613,6 +593,30 @@ export default function Range() {
           </div>
         </div>
       </div>
+      <RemoveLiquidity
+        isOpen={isRemoveOpen}
+        setIsOpen={setIsRemoveOpen}
+        tokenIn={tokenIn}
+        tokenOut={tokenOut}
+        poolAdd={poolAdd}
+        address={address}
+        lowerTick={lowerTick}
+        upperTick={upperTick}
+        liquidity={userLiquidity}
+        rangePrice={rangePrice}
+      />
+      <AddLiquidity
+        isOpen={isAddOpen}
+        setIsOpen={setIsAddOpen}
+        tokenIn={tokenIn}
+        tokenOut={tokenOut}
+        poolAdd={poolAdd}
+        address={address}
+        lowerTick={Number(lowerTick)}
+        upperTick={Number(upperTick)}
+        liquidity={userLiquidity}
+        rangePrice={rangePrice}
+      />
     </div>
   )
 }
