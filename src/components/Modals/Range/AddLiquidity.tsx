@@ -9,6 +9,7 @@ import { TickMath } from "../../../utils/math/tickMath";
 import { ethers, BigNumber } from "ethers";
 import JSBI from "jsbi";
 import { DyDxMath } from "../../../utils/math/dydxMath";
+import { getBalances } from "../../../utils/balances";
 
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut, poolAdd, address, upperTick, liquidity, lowerTick, rangePrice }) {
@@ -21,11 +22,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
     LimitInputBox,
   } = useInputBox()
 
-  console.log('range sqrt price', rangePrice)
-
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
   const [balanceIn, setBalanceIn] = useState('')
+  const [balanceOut, setBalanceOut] = useState('')
   const [amount0, setAmount0] = useState(BN_ZERO)
   const [amount1, setAmount1] = useState(BN_ZERO)
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
@@ -38,6 +38,21 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
   useEffect(() => {
     setAmounts()
   }, [bnInput])
+
+  useEffect(() => {
+    updateBalances()
+  }, [])
+
+  async function updateBalances() {
+    await getBalances(
+      address,
+      true,
+      tokenIn,
+      tokenOut,
+      tokenOrder ? setBalanceIn : setBalanceOut,
+      tokenOrder ? setBalanceOut : setBalanceIn
+    )
+  }
 
   function setAmounts() {
     try {
@@ -69,9 +84,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
         // set amount based on liquidity math
         tokenOrder ? setAmount1(BigNumber.from(String(tokenOutAmount))) 
                    : setAmount0(BigNumber.from(String(tokenOutAmount)))
+        setDisabled(false)
       } else {
-        tokenOrder ? setAmount1(BN_ZERO) 
-                   : setAmount0(BN_ZERO)
+        setAmount1(BN_ZERO) 
+        setAmount0(BN_ZERO)
         setDisabled(true)
       }
     } catch (error) {
@@ -167,7 +183,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
                         </div>
                         <div className="flex items-center justify-end gap-2 px-1 mt-2">
                   <div className="flex text-xs text-[#4C4C4C]" key={balanceIn}>
-                    Balance: {balanceIn === "NaN" ? 0 : balanceIn}
+                    Balance: {balanceOut === "NaN" ? 0 : balanceOut}
                   </div>
                     <button
                       className="flex text-xs uppercase text-[#C9C9C9]"

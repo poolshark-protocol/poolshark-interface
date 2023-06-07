@@ -5,11 +5,14 @@ import { useSwitchNetwork } from "wagmi";
 import useInputBox from '../../../hooks/useInputBox'
 import RangeAddLiqButton from '../../Buttons/RangeAddLiqButton'
 import RangeRemoveLiqButton from "../../Buttons/RangeRemoveLiqButton";
-import { ethers } from "ethers";
-import { BN_ZERO } from "../../../utils/math/constants";
+import { BigNumber, ethers } from "ethers";
+import { BN_ZERO, ZERO } from "../../../utils/math/constants";
+import JSBI from "jsbi";
+import { DyDxMath } from "../../../utils/math/dydxMath";
+import { TickMath } from "../../../utils/math/tickMath";
 
 
-export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, lowerTick, upperTick, liquidity}) {
+export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut, poolAdd, address, lowerTick, upperTick, liquidity, rangePrice}) {
 
   const {
     bnInput,
@@ -17,15 +20,23 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
     maxBalance,
     bnInputLimit,
     LimitInputBox,
+    setDisplay
   } = useInputBox()
 
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
+  const [sliderValue, setSliderValue] = useState(0)
   const [burnLiquidity, setBurnLiquidity] = useState(BN_ZERO)
   const [disabled, setDisabled] = useState(true)
+  const [amount0, setAmount0] = useState(BN_ZERO)
+  const [amount1, setAmount1] = useState(BN_ZERO)
+  const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
+  const [ rangeSqrtPrice, setRangeSqrtPrice ] = useState(JSBI.BigInt(rangePrice))
+  const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
+  const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
 
   useEffect(() => {
-    const percentInput = Number(ethers.utils.formatUnits(bnInput, 18))
+    const percentInput = sliderValue
     console.log('percent input', percentInput)
     if (percentInput <= 0 || percentInput > 100) {
       setDisabled(true)
@@ -36,7 +47,81 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
     const userLiquidity = Number(liquidity)
     const liquidityToBurn = Math.round(percentInput * userLiquidity / 100)
     setBurnLiquidity(ethers.utils.parseUnits(String(liquidityToBurn), 0))
+    setAmounts(JSBI.BigInt(liquidityToBurn), true)
+  }, [sliderValue])
+
+  useEffect(() => {
+    setLiquidity()
   }, [bnInput])
+
+  const handleChange = (event: any) => {
+    setSliderValue(event.target.value)
+  }
+  
+  const handleSliderButton = (percent: number) => {
+    setSliderValue(percent)
+  }
+
+  function setLiquidity() {
+    try {
+      if (
+        Number(ethers.utils.formatUnits(bnInput)) !== 0
+      ) {
+        const liquidity = JSBI.greaterThanOrEqual(rangeSqrtPrice, lowerSqrtPrice) &&
+                          JSBI.lessThanOrEqual(rangeSqrtPrice, upperSqrtPrice) ?
+                             DyDxMath.getLiquidityForAmounts(
+                              tokenOrder ? rangeSqrtPrice : lowerSqrtPrice,
+                              tokenOrder ? upperSqrtPrice : rangeSqrtPrice,
+                              rangeSqrtPrice,
+                              tokenOrder ? BN_ZERO : bnInput,
+                              tokenOrder ? bnInput : BN_ZERO
+                            )
+                          : DyDxMath.getLiquidityForAmounts(
+                            lowerSqrtPrice,
+                            upperSqrtPrice,
+                            rangeSqrtPrice,
+                            tokenOrder ? BN_ZERO : bnInput,
+                            tokenOrder ? bnInput : BN_ZERO
+                          )
+          setAmounts(liquidity)
+        } else {
+          setAmounts(ZERO)
+          setDisabled(true)
+        }
+      } catch (error) {
+        console.log(error)
+      } 
+  }
+
+  function setAmounts(liquidity: JSBI, changeDisplay = false) {
+    try {
+      if (
+        JSBI.greaterThan(liquidity, ZERO)
+      ) {
+        const amounts = DyDxMath.getAmountsForLiquidity(
+          lowerSqrtPrice,
+          upperSqrtPrice,
+          rangeSqrtPrice,
+          liquidity,
+          true
+        )
+        // set amount based on liquidity math
+        const amount0Bn = BigNumber.from(String(amounts.token0amount))
+        console.log('token1 amount', amounts.token1amount)
+        const amount1Bn = BigNumber.from(String(amounts.token1amount))
+        if (changeDisplay) setDisplay(Number(ethers.utils.formatUnits(tokenOrder ? amount0Bn : amount1Bn, 18)).toPrecision(6))
+        setAmount0(amount0Bn) 
+        setAmount1(amount1Bn)
+        setDisabled(false)
+      } else {
+        setAmount1(BN_ZERO) 
+        setAmount0(BN_ZERO)
+        setDisabled(true)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -79,21 +164,21 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
                 <div className="w-full  bg-[#0C0C0C] border border-[#1C1C1C] gap-4 px-4 py-4 rounded-xl mt-6 mb-6">
                   <div className="flex justify-between items-center">
                   <div className="text-3xl font-medium">
-                    100%
+                    {sliderValue}%
                     </div>
                     <div className="flex items-center gap-x-4">
-                      <div className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
+                      <button onClick={() => handleSliderButton(25)} className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
                         25%
-                      </div>
-                      <div className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
+                      </button>
+                      <button onClick={() => handleSliderButton(50)} className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
                         50%
-                      </div>
-                      <div className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
+                      </button>
+                      <button onClick={() => handleSliderButton(75)} className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
                         75%
-                      </div>
-                      <div className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
+                      </button>
+                      <button onClick={() => handleSliderButton(100)} className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
                         100%
-                      </div>
+                      </button>
                     </div>
                     </div>
         <input
@@ -101,6 +186,8 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
           type="range"
           min="0"
           max="100"
+          value={sliderValue}
+          onChange={handleChange}
           className="w-full styled-slider slider-progress bg-transparent mt-6"
         />
                 </div>
@@ -118,7 +205,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
                           </button>
                         </div>
                         <div className="flex items-center justify-end gap-x-2 px-1 mt-2">
-                           <button
+                           <button onClick={() => handleSliderButton(100)}
               className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
             >
               MAX
@@ -129,20 +216,24 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
                   </div>
                 </div>
                 <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-6 mb-6">
-                  <div className=" p-2 ">{inputBox("0")}</div>
+                  <div className=" p-2 ">{Number(
+                  tokenOrder
+                    ? ethers.utils.formatUnits(amount1, 18)
+                    : ethers.utils.formatUnits(amount0, 18)
+                ).toPrecision(6)}</div>
                   <div className="">
                     <div className=" ml-auto">
                       <div>
                         <div className="flex justify-end">
                           <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
                             <div className="flex items-center gap-x-2 w-full">
-                              <img className="w-7" src={tokenIn.logoURI} />
-                              {tokenIn.symbol}
+                              <img className="w-7" src={tokenOut.logoURI} />
+                              {tokenOut.symbol}
                             </div>
                           </button>
                         </div>
                         <div className="flex items-center justify-end gap-x-2 px-1 mt-2">
-                           <button
+                           <button onClick={() => handleSliderButton(100)}
               className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
             >
               MAX

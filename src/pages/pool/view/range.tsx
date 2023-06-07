@@ -576,11 +576,13 @@ export default function Range() {
         isOpen={isRemoveOpen}
         setIsOpen={setIsRemoveOpen}
         tokenIn={tokenIn}
+        tokenOut={tokenOut}
         poolAdd={poolAdd}
         address={address}
         lowerTick={lowerTick}
         upperTick={upperTick}
         liquidity={userLiquidity}
+        rangePrice={rangePrice}
       />
       <AddLiquidity
         isOpen={isAddOpen}
