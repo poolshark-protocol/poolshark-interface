@@ -95,7 +95,7 @@ export default function ConcentratedPool({
     state.rangeContractParams,
   ])
 
-  const [feeControler, setFeeControler] = useState(false)
+  const [feeController, setFeeController] = useState(false)
   const [selected, setSelected] = useState(feeTiers[0])
   const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
@@ -232,7 +232,7 @@ export default function ConcentratedPool({
     }
   }), [tokenOutAllowance]
 
-  if (feeTier != undefined && feeControler == false) {
+  if (feeTier != undefined && feeController == false) {
     if (feeTier == 0.01) {
       setSelected(feeTiers[0])
     } else if (feeTier == 0.05) {
@@ -248,7 +248,7 @@ export default function ConcentratedPool({
     if (maxLimit != undefined) {
       setUpperPrice(maxLimit)
     }
-    setFeeControler(true)
+    setFeeController(true)
   }
 
   function switchDirection() {

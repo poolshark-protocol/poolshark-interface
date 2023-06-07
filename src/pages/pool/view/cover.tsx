@@ -18,7 +18,8 @@ import {
 } from '../../../utils/queries'
 import { TickMath } from '../../../utils/math/tickMath'
 import { coverPoolABI } from '../../../abis/evm/coverPool'
-import RemoveLiquidity from '../../../components/Modals/RemoveLiquidity'
+import RemoveLiquidity from '../../../components/Modals/Cover/RemoveLiquidity'
+import AddLiquidity from '../../../components/Modals/Cover/AddLiquidity'
 import { tokenZeroAddress, tokenOneAddress } from '../../../constants/contractAddresses'
 
 export default function Cover() {
@@ -31,7 +32,8 @@ export default function Cover() {
   }
   const { address } = useAccount()
   const router = useRouter()
-  const [isOpen, setIsOpen] = useState(false);
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isRemoveOpen, setIsRemoveOpen] = useState(false);
 
   useEffect(() => {
     if (router.isReady) {
@@ -239,7 +241,7 @@ export default function Cover() {
     },
   })
 
-    useEffect(() => {
+  useEffect(() => {
     setFillPercent( (Number(coverFilledAmount) /  Number(ethers.utils.formatUnits(userFillIn.toString(), 18))) * 100)
   })
     
@@ -401,8 +403,10 @@ export default function Cover() {
                 <h1 className="text-lg mb-3">Cover Size</h1>
                 <span className="text-4xl">
                   $
-                  {(Number(
-                    ethers.utils.formatUnits(userFillOut.toString(), 18)) * usdPriceOut
+                  {(
+                    Number(
+                      ethers.utils.formatUnits(userFillOut.toString(), 18)
+                    ) * usdPriceOut
                   ).toFixed(2)}
                 </span>
 
@@ -424,38 +428,18 @@ export default function Cover() {
                   </div>
                 </div>
                 */}
-                
-                  <div className="mt-5 space-y-2 cursor-pointer">
-                    <Link
-                  href={{
-                    pathname: "/cover",
-                    query: {
-                      account: router.query.account,
-                      poolId: poolAdd,
-                      tokenOneName: tokenOut.name,
-                      tokenOneSymbol: tokenOut.symbol,
-                      tokenOneLogoURI: tokenOut.logoURI,
-                      tokenOneAddress: tokenOut.address,
-                      tokenZeroName: tokenIn.name,
-                      tokenZeroSymbol: tokenIn.symbol,
-                      tokenZeroLogoURI: tokenIn.logoURI,
-                      tokenZeroAddress: tokenIn.address,
-                      feeTier: Number(feeTier) / 10000,
-                      tickSpacing: tickSpacing,
-                      liquidity: liquidity,
-                      state: "existing",
-                    },
-                  }}
-                >
-                    <div className="bg-[#032851] w-full py-3 px-4 rounded-xl">
+
+                <div className="mt-5 space-y-2 cursor-pointer">
+                    <div onClick={() => setIsAddOpen(true)} className="bg-[#032851] w-full py-3 px-4 rounded-xl">
                       Add Liquidity
                     </div>
-                    </Link>
-                    <div onClick={() => setIsOpen(true)} className="bg-[#032851] w-full py-3 px-4 rounded-xl">
-                      Remove Liquidity
-                    </div>
+                  <div
+                    onClick={() => setIsRemoveOpen(true)}
+                    className="bg-[#032851] w-full py-3 px-4 rounded-xl"
+                  >
+                    Remove Liquidity
                   </div>
-                
+                </div>
               </div>
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Filled Position</h1>
@@ -463,9 +447,11 @@ export default function Cover() {
                   $ {(Number(coverFilledAmount) * usdPriceIn).toFixed(2)}
                   <span className="text-grey">
                     /$
-                    {(Number(
-                      ethers.utils.formatUnits(userFillIn.toString(), 18),
-                    ) * usdPriceIn).toFixed(2)}
+                    {(
+                      Number(
+                        ethers.utils.formatUnits(userFillIn.toString(), 18)
+                      ) * usdPriceIn
+                    ).toFixed(2)}
                   </span>
                 </span>
                 <div className="text-grey mt-3">
@@ -588,14 +574,30 @@ export default function Cover() {
           </div>
         </div>
       </div>
-      <RemoveLiquidity isOpen={isOpen} setIsOpen={setIsOpen} tokenIn={tokenIn} 
-                      poolAdd={poolAdd}
-                      address={address}
-                      minLimit={minLimit}
-                      claimTick={claimTick}
-                      maxLimit={maxLimit}
-                      zeroForOne={zeroForOne}
-                      liquidity={liquidity}/>
+      <RemoveLiquidity
+        isOpen={isRemoveOpen}
+        setIsOpen={setIsRemoveOpen}
+        tokenIn={tokenIn}
+        poolAdd={poolAdd}
+        address={address}
+        lowerTick={Number(minLimit)}
+        claimTick={Number(claimTick)}
+        upperTick={Number(maxLimit)}
+        zeroForOne={zeroForOne}
+        liquidity={liquidity}
+      />
+      <AddLiquidity
+        isOpen={isAddOpen}
+        setIsOpen={setIsAddOpen}
+        tokenIn={tokenIn}
+        poolAdd={poolAdd}
+        address={address}
+        minLimit={minLimit}
+        claimTick={claimTick}
+        maxLimit={maxLimit}
+        zeroForOne={zeroForOne}
+        liquidity={liquidity}
+      />
     </div>
   );
 }

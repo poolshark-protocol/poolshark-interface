@@ -18,6 +18,8 @@ import { getRangePoolFromFactory } from '../../../utils/queries'
 import { BN_ZERO, ZERO } from '../../../utils/math/constants'
 import { DyDxMath } from '../../../utils/math/dydxMath'
 import { rangePoolABI } from '../../../abis/evm/rangePool'
+import RemoveLiquidity from '../../../components/Modals/Range/RemoveLiquidity'
+import AddLiquidity from '../../../components/Modals/Range/AddLiquidity'
 
 export default function Range() {
   type token = {
@@ -29,8 +31,10 @@ export default function Range() {
   }
   const { address, isConnected } = useAccount()
   const router = useRouter()
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isRemoveOpen, setIsRemoveOpen] = useState(false);
 
-  const [poolAddress, setPoolAddress] = useState(router.query.poolId ?? '')
+  const [poolAdd, setPoolAddress] = useState(router.query.poolId ?? '')
   const [tokenIn, setTokenIn] = useState({
     name: router.query.tokenZeroAddress ?? '',
     symbol: router.query.tokenZeroSymbol ?? '',
@@ -178,12 +182,12 @@ export default function Range() {
       : undefined,
   )
   const [poolDisplay, setPoolDisplay] = useState(
-    poolAddress != ''
-      ? poolAddress.toString().substring(0, 6) +
+    poolAdd != ''
+      ? poolAdd.toString().substring(0, 6) +
           '...' +
-          poolAddress
+          poolAdd
             .toString()
-            .substring(poolAddress.toString().length - 4, poolAddress.toString().length)
+            .substring(poolAdd.toString().length - 4, poolAdd.toString().length)
       : undefined,
   )
 
@@ -225,7 +229,7 @@ export default function Range() {
   }
 
   function copyPoolAddress() {
-    navigator.clipboard.writeText(poolAddress.toString())
+    navigator.clipboard.writeText(poolAdd.toString())
     setIsPoolCopied(true)
   }
 
@@ -369,7 +373,7 @@ export default function Range() {
             </div>
 
             <a
-              href={'https://goerli.arbiscan.io/address/' + poolAddress}
+              href={'https://goerli.arbiscan.io/address/' + poolAdd}
               target="_blank"
               rel="noreferrer"
               className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80"
@@ -461,33 +465,15 @@ export default function Range() {
                     </div>
                   </div>
                 </div>
-                <Link
-                  href={{
-                    pathname: '/pool/concentrated',
-                    query: {
-                      account: address,
-                      poolId: poolAddress,
-                      tokenOneName: tokenOut.name,
-                      tokenOneSymbol: tokenOut.symbol,
-                      tokenOneLogoURI: tokenOut.logoURI,
-                      tokenOneAddress: tokenOut.address,
-                      tokenZeroName: tokenIn.name,
-                      tokenZeroSymbol: tokenIn.symbol,
-                      tokenZeroLogoURI: tokenIn.logoURI,
-                      tokenZeroAddress: tokenIn.address,
-                      feeTier: feeTier,
-                      tickSpacing: tickSpacing,
-                      min: lowerPrice,
-                      max: upperPrice
-                    },
-                  }}
-                >
                   <div className="mt-5 space-y-2 cursor-pointer">
-                    <div className="bg-[#032851] w-full py-3 px-4 rounded-xl">
-                      Increase Liquidity
+                      <div onClick={() => setIsAddOpen(true)} className="bg-[#032851] w-full py-3 px-4 rounded-xl">
+                        Add Liquidity
+                      </div>
+                    <div onClick={() => setIsRemoveOpen(true)} className="bg-[#032851] w-full py-3 px-4 rounded-xl">
+                      Remove Liquidity
                     </div>
                   </div>
-                </Link>
+                    
               </div>
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Unclaimed Fees</h1>
@@ -514,21 +500,14 @@ export default function Range() {
                 </div>
                 <div className="mt-5 space-y-2">
                   <div className="space-y-3">
-                    <RangeBurnButton
-                      poolAddress={poolAddress}
-                      address={address}
-                      lower={BigNumber.from(lowerTick)}
-                      upper={BigNumber.from(upperTick)}
-                      amount={BigNumber.from(userLiquidity)}
-                    />
                     <RangeCollectButton
-                      poolAddress={poolAddress.toString()}
+                      poolAddress={poolAdd.toString()}
                       address={address}
                       lower={BigNumber.from(lowerTick)}
                       upper={BigNumber.from(upperTick)}
                     />
                     <RangeCompoundButton
-                      poolAddress={poolAddress.toString()}
+                      poolAddress={poolAdd.toString()}
                       address={address}
                       lower={BigNumber.from(lowerTick)}
                       upper={BigNumber.from(upperTick)}
@@ -593,6 +572,30 @@ export default function Range() {
           </div>
         </div>
       </div>
+      <RemoveLiquidity
+        isOpen={isRemoveOpen}
+        setIsOpen={setIsRemoveOpen}
+        tokenIn={tokenIn}
+        tokenOut={tokenOut}
+        poolAdd={poolAdd}
+        address={address}
+        lowerTick={lowerTick}
+        upperTick={upperTick}
+        liquidity={userLiquidity}
+        rangePrice={rangePrice}
+      />
+      <AddLiquidity
+        isOpen={isAddOpen}
+        setIsOpen={setIsAddOpen}
+        tokenIn={tokenIn}
+        tokenOut={tokenOut}
+        poolAdd={poolAdd}
+        address={address}
+        lowerTick={Number(lowerTick)}
+        upperTick={Number(upperTick)}
+        liquidity={userLiquidity}
+        rangePrice={rangePrice}
+      />
     </div>
   )
 }
