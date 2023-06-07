@@ -40,7 +40,7 @@ export default function Pool() {
   const [allRangePools, setAllRangePools] = useState([])
   const [allCoverPools, setAllCoverPools] = useState([])
 
-  //////////////////////
+  //////////////////////Get Pools Data
 
   useEffect(() => {
     getUserRangePositionData()
@@ -48,9 +48,6 @@ export default function Pool() {
     getUserCoverPositionData()
     getCoverPoolData()
   }, [address])
-
-
-  //////////////////////
 
   async function getUserRangePositionData() {
     try {
@@ -86,6 +83,8 @@ export default function Pool() {
       setAllCoverPools(mapCoverPools(pools))
     }
   }
+
+  //////////////////////
 
   const handleSearchTermChange = (event) => {
     setSearchTerm(event.target.value)

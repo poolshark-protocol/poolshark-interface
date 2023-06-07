@@ -42,31 +42,35 @@ export default function Range() {
     address: router.query.tokenOneAddress ?? '',
     value: router.query.tokenOneValue ?? '',
   } as token)
-  const [tokenOrder, setTokenOrder] = useState(router.query.tokenOneAddress && 
-                                               router.query.tokenZeroAddress ? String(router.query.tokenOneAddress).localeCompare(
-                                                                                  String(router.query.tokenOneAddress)
-                                                                               ) < 0
-                                                : true)
+  const [tokenOrder, setTokenOrder] = useState(
+    router.query.tokenOneAddress && router.query.tokenZeroAddress
+      ? String(router.query.tokenOneAddress).localeCompare(
+          String(router.query.tokenOneAddress),
+        ) < 0
+      : true,
+  )
   const [feeTier, setFeeTier] = useState(router.query.feeTier ?? '')
   const [tickSpacing, setTickSpacing] = useState(router.query.tickSpacing ?? 10)
-  const [userLiquidity, setUserLiquidity] = useState(router.query.userLiquidity ?? 0)
+  const [userLiquidity, setUserLiquidity] = useState(
+    router.query.userLiquidity ?? 0,
+  )
   const [userLiquidityUsd, setUserLiquidityUsd] = useState(0)
   const [lowerTick, setLowerTick] = useState(router.query.min ?? '0')
   const [upperTick, setUpperTick] = useState(router.query.max ?? '0')
   const [lowerPrice, setLowerPrice] = useState(undefined)
   const [upperPrice, setUpperPrice] = useState(undefined)
-  const [rangePrice, setRangePrice] = useState(router.query.price ? String(router.query.price) : '0')
+  const [rangePrice, setRangePrice] = useState(
+    router.query.price ? String(router.query.price) : '0',
+  )
   const [amount0, setAmount0] = useState(0)
   const [amount1, setAmount1] = useState(0)
   const [amount0Usd, setAmount0Usd] = useState(0)
   const [amount1Usd, setAmount1Usd] = useState(0)
-  const [amount0Fees, setAmount0Fees] = useState(0.00)
-  const [amount1Fees, setAmount1Fees] = useState(0.00)
-  const [amount0FeesUsd, setAmount0FeesUsd] = useState(0.00)
-  const [amount1FeesUsd, setAmount1FeesUsd] = useState(0.00)
-  const [rangePoolRoute, setRangePoolRoute] = useState(
-    undefined
-  )
+  const [amount0Fees, setAmount0Fees] = useState(0.0)
+  const [amount1Fees, setAmount1Fees] = useState(0.0)
+  const [amount0FeesUsd, setAmount0FeesUsd] = useState(0.0)
+  const [amount1FeesUsd, setAmount1FeesUsd] = useState(0.0)
+  const [rangePoolRoute, setRangePoolRoute] = useState(undefined)
   const [rangeTickPrice, setRangeTickPrice] = useState(
     router.query.rangeTickPrice ?? 0,
   )
@@ -108,7 +112,7 @@ export default function Range() {
       : undefined,
   )
 
-  ////////////////////////
+  //////////////////////// Router is ready
   const [snapshot, setSnapshot] = useState(undefined)
 
   useEffect(() => {
@@ -129,8 +133,11 @@ export default function Range() {
         address: query.tokenOneAddress,
         value: query.tokenOneValue,
       } as token)
-      setTokenOrder(String(query.tokenOneAddress).localeCompare(
-                      String(query.tokenOneAddress)) < 0)
+      setTokenOrder(
+        String(query.tokenOneAddress).localeCompare(
+          String(query.tokenOneAddress),
+        ) < 0,
+      )
       setFeeTier(query.feeTier)
       setTickSpacing(query.tickSpacing)
       setLowerTick(query.min)
@@ -177,25 +184,13 @@ export default function Range() {
     }
   }, [router.isReady])
 
-  useEffect(() => {
-    setAmounts()
-  }, [userLiquidity, lowerPrice, upperPrice, rangePrice])
-
-  useEffect(() => {
-    setUserLiquidityUsd(amount0Usd + amount1Usd)
-  }, [amount0Usd, amount1Usd])
+  ////////////////////////Addresses
 
   useEffect(() => {
     copyElementUseEffect(copyAddress0, setIs0Copied)
     copyElementUseEffect(copyAddress1, setIs1Copied)
     copyElementUseEffect(copyPoolAddress, setIsPoolCopied)
   }, [])
-
-  useEffect(() => {
-    fetchTokenPrices(String(rangeTickPrice), setMktRate)
-  }, [rangeTickPrice])
-
-  ////////////////////////
 
   function copyAddress0() {
     navigator.clipboard.writeText(tokenIn.address.toString())
@@ -212,9 +207,18 @@ export default function Range() {
     setIsPoolCopied(true)
   }
 
+  ////////////////////////Pool
+
   useEffect(() => {
     getRangePool()
-  }, [tokenIn.address, tokenOut.address, amount0, amount1, amount0Fees, amount1Fees])
+  }, [
+    tokenIn.address,
+    tokenOut.address,
+    amount0,
+    amount1,
+    amount0Fees,
+    amount1Fees,
+  ])
 
   const getRangePool = async () => {
     try {
@@ -226,14 +230,24 @@ export default function Range() {
       if (dataLength > 0) {
         const id = pool['data']['rangePools']['0']['id']
         const price = pool['data']['rangePools']['0']['price']
-        const token0Price = pool['data']['rangePools']['0']['token0']['usdPrice']
-        const token1Price = pool['data']['rangePools']['0']['token1']['usdPrice']
+        const token0Price =
+          pool['data']['rangePools']['0']['token0']['usdPrice']
+        const token1Price =
+          pool['data']['rangePools']['0']['token1']['usdPrice']
         const tickAtPrice = pool['data']['rangePools']['0']['tickAtPrice']
         setRangePoolRoute(id)
-        setAmount0Usd(parseFloat((amount0 * parseFloat(token0Price)).toPrecision(6)))
-        setAmount1Usd(parseFloat((amount1 * parseFloat(token1Price)).toPrecision(6)))
-        setAmount0FeesUsd(parseFloat((amount0Fees* parseFloat(token0Price)).toPrecision(3)))
-        setAmount1FeesUsd(parseFloat((amount1Fees* parseFloat(token1Price)).toPrecision(3)))
+        setAmount0Usd(
+          parseFloat((amount0 * parseFloat(token0Price)).toPrecision(6)),
+        )
+        setAmount1Usd(
+          parseFloat((amount1 * parseFloat(token1Price)).toPrecision(6)),
+        )
+        setAmount0FeesUsd(
+          parseFloat((amount0Fees * parseFloat(token0Price)).toPrecision(3)),
+        )
+        setAmount1FeesUsd(
+          parseFloat((amount1Fees * parseFloat(token1Price)).toPrecision(3)),
+        )
         setRangePrice(price)
         setRangeTickPrice(tickAtPrice)
       }
@@ -241,6 +255,12 @@ export default function Range() {
       console.log(error)
     }
   }
+
+  ////////////////////////Liquidity
+
+  useEffect(() => {
+    setAmounts()
+  }, [userLiquidity, lowerPrice, upperPrice, rangePrice])
 
   function setAmounts() {
     try {
@@ -254,14 +274,14 @@ export default function Range() {
         const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(lowerTick))
         const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(upperTick))
         const rangeSqrtPrice = JSBI.BigInt(rangePrice)
-        const liquidity = JSBI.BigInt(userLiquidity)  
-        const token0Amount = JSBI.greaterThan(liquidity, ZERO) ?
-                                  DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
-                                            //  : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
-                                : ZERO
-        const token1Amount = JSBI.greaterThan(liquidity, ZERO) ?
-                                DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
-                              : ZERO
+        const liquidity = JSBI.BigInt(userLiquidity)
+        const token0Amount = JSBI.greaterThan(liquidity, ZERO)
+          ? DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
+          : //  : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
+            ZERO
+        const token1Amount = JSBI.greaterThan(liquidity, ZERO)
+          ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
+          : ZERO
         // set amount based on bnInput
         const amount0Bn = BigNumber.from(String(token0Amount))
         const amount1Bn = BigNumber.from(String(token1Amount))
@@ -273,15 +293,18 @@ export default function Range() {
     }
   }
 
+  useEffect(() => {
+    setUserLiquidityUsd(amount0Usd + amount1Usd)
+  }, [amount0Usd, amount1Usd])
+
+
+  ////////////////////////Fees
+
   const { refetch: refetchSnapshot, data: feesOwed } = useContractRead({
     address: rangePoolRoute,
     abi: rangePoolABI,
     functionName: 'snapshot',
-    args: [[
-      address,
-      lowerTick,
-      upperTick
-    ]],
+    args: [[address, lowerTick, upperTick]],
     chainId: 421613,
     watch: true,
     enabled: isConnected && rangePoolRoute != '',
@@ -306,11 +329,16 @@ export default function Range() {
         setAmount0Fees(fees0)
         setAmount1Fees(fees1)
       }
-
     } catch (error) {
       console.log(error)
     }
   }
+
+  ////////////////////////Token Prices
+  
+  useEffect(() => {
+    fetchTokenPrices(String(rangeTickPrice), setMktRate)
+  }, [rangeTickPrice])
 
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
@@ -403,10 +431,7 @@ export default function Range() {
             <div className="flex gap-x-20 justify-between">
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Liquidity</h1>
-                <span className="text-4xl">
-                  $
-                  {userLiquidityUsd.toFixed(2)}
-                </span>
+                <span className="text-4xl">${userLiquidityUsd.toFixed(2)}</span>
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
@@ -416,7 +441,11 @@ export default function Range() {
                     <div className="flex items-center gap-x-4">
                       {amount0.toFixed(2)}
                       <span className="bg-grey1 text-grey rounded-md px-3 py-0.5">
-                        {(amount0Usd / (amount0Usd + amount1Usd) * 100).toPrecision(4)}%
+                        {(
+                          (amount0Usd / (amount0Usd + amount1Usd)) *
+                          100
+                        ).toPrecision(4)}
+                        %
                       </span>
                     </div>
                   </div>
@@ -433,7 +462,11 @@ export default function Range() {
                     <div className="flex items-center gap-x-4">
                       {amount1.toFixed(2)}
                       <span className="bg-grey1 text-grey rounded-md px-3 py-0.5">
-                      {(amount1Usd / (amount0Usd + amount1Usd) * 100).toPrecision(4)}%
+                        {(
+                          (amount1Usd / (amount0Usd + amount1Usd)) *
+                          100
+                        ).toPrecision(4)}
+                        %
                       </span>
                     </div>
                   </div>
@@ -460,7 +493,7 @@ export default function Range() {
                       feeTier: feeTier,
                       tickSpacing: tickSpacing,
                       min: lowerPrice,
-                      max: upperPrice
+                      max: upperPrice,
                     },
                   }}
                 >
@@ -473,10 +506,12 @@ export default function Range() {
               </div>
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Unclaimed Fees</h1>
-                <span className="text-4xl"> $
+                <span className="text-4xl">
+                  {' '}
+                  $
                   {amount0Fees == undefined || amount1Fees == undefined
                     ? '?'
-                    : (amount0FeesUsd + amount1FeesUsd).toFixed(2) }
+                    : (amount0FeesUsd + amount1FeesUsd).toFixed(2)}
                 </span>
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
@@ -567,7 +602,10 @@ export default function Range() {
             </div>
             <div className="border border-grey1 rounded-xl py-2 text-center w-full mt-4 bg-dark">
               <div className="text-grey text-xs w-full">Current Price</div>
-              <div className="text-white text-2xl my-2 w-full">{rangePrice != undefined && TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(rangePrice))}</div>
+              <div className="text-white text-2xl my-2 w-full">
+                {rangePrice != undefined &&
+                  TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(rangePrice))}
+              </div>
               <div className="text-grey text-xs w-full">
                 {tokenIn.name} per {tokenOut.name}
               </div>
@@ -578,4 +616,3 @@ export default function Range() {
     </div>
   )
 }
-
