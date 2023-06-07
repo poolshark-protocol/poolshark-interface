@@ -10,11 +10,12 @@ import { TickMath } from "../../../utils/math/tickMath";
 import { BN_ZERO, ZERO } from "../../../utils/math/constants";
 import JSBI from "jsbi";
 
-export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, lowerTick, zeroForOne, liquidity, upperTick }) {
+export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, lowerTick, zeroForOne, amountInDeltaMax, upperTick }) {
 
   const {
     bnInput,
     inputBox,
+    setDisplay,
     maxBalance,
     bnInputLimit,
     LimitInputBox,
@@ -23,8 +24,9 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
   const [balanceIn, setBalanceIn] = useState('')
   const [fetchDelay, setFetchDelay] = useState(false)
   const [burnPercent, setBurnPercent] = useState(ethers.utils.parseUnits("5", 37))
-  const [userLiquidity, setUserLiquidity] = useState(JSBI.BigInt(parseInt(liquidity)))
   const [amountOut, setAmountOut] = useState()
+  const [sliderValue, setSliderValue] = useState(0)
+  const [amountInMax, setAmountInMax] = useState(ethers.utils.formatUnits(amountInDeltaMax, tokenIn.decimals))
 
   useEffect(() => {
     if(!fetchDelay) {
@@ -38,8 +40,29 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
   }, [fetchDelay])
 
   useEffect(() => {
-    changeOutAmount()
+    console.log('setting slider value', parseInt(bnInput.div(amountInDeltaMax).toString()))
+    console.log('setting burn percent', bnInput.toString(), amountInDeltaMax.toString(), bnInput.mul(ethers.utils.parseUnits('1', 38)).div(amountInDeltaMax).toString())
+    setBurnPercent(bnInput.mul(ethers.utils.parseUnits('1', 38)).div(amountInDeltaMax))
   }, [bnInput])
+
+  useEffect(() => {
+    if (sliderValue == 0) {
+      setDisplay('')
+      return
+    } 
+    setBurnPercent(ethers.utils.parseUnits(String(sliderValue), 36))
+    console.log('setting burn percent', ethers.utils.parseUnits(String(sliderValue), 36).toString())
+    console.log('setting display', amountInMax)
+    setDisplay((parseFloat(amountInMax) * sliderValue / 100).toPrecision(6))
+  }, [sliderValue])
+
+  const handleChange = (event: any) => {
+    setSliderValue(event.target.value)
+  }
+  
+  const handleSliderButton = (percent: number) => {
+    setSliderValue(percent)
+  }
 
   const getBalances = async () => {
     setFetchDelay(true)
@@ -52,25 +75,6 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
       const tokenInContract = new ethers.Contract(tokenIn.address, erc20ABI, signer)
       const tokenInBal = await tokenInContract.balanceOf(address)
       setBalanceIn(ethers.utils.formatUnits(tokenInBal, 18))
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const changeOutAmount = () => {
-    if (bnInput.eq(BN_ZERO)) return
-    try {
-      const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(zeroForOne ? lowerTick : claimTick)
-      const upperSqrtPrice = TickMath.getSqrtRatioAtTick(zeroForOne ? claimTick : upperTick)
-      const liquidityTakenOut = DyDxMath.getLiquidityForAmounts(
-        lowerSqrtPrice,
-        upperSqrtPrice,
-        zeroForOne ? lowerSqrtPrice : upperSqrtPrice,
-        zeroForOne ? BN_ZERO : bnInput,
-        zeroForOne ? bnInput : BN_ZERO
-      )
-      console.log('liquidity taken out', String(liquidityTakenOut), userLiquidity.toString())
-      setBurnPercent(ethers.utils.parseUnits((parseFloat(String(liquidityTakenOut)) / parseFloat(String(userLiquidity))).toPrecision(6), 38))
     } catch (error) {
       console.log(error)
     }
@@ -117,21 +121,21 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
                 <div className="w-full  bg-[#0C0C0C] border border-[#1C1C1C] gap-4 px-4 py-4 rounded-xl mt-6 mb-6">
                   <div className="flex justify-between items-center">
                   <div className="text-3xl font-medium">
-                    100%
+                    {sliderValue}%
                     </div>
                     <div className="flex items-center gap-x-4">
-                      <div className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
+                    <button onClick={() => handleSliderButton(25)} className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
                         25%
-                      </div>
-                      <div className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
+                      </button>
+                      <button onClick={() => handleSliderButton(50)} className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
                         50%
-                      </div>
-                      <div className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
+                      </button>
+                      <button onClick={() => handleSliderButton(75)} className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
                         75%
-                      </div>
-                      <div className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
+                      </button>
+                      <button onClick={() => handleSliderButton(100)} className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
                         100%
-                      </div>
+                      </button>
                     </div>
                     </div>
         <input
@@ -139,6 +143,8 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
           type="range"
           min="0"
           max="100"
+          value={sliderValue}
+          onChange={handleChange}
           className="w-full styled-slider slider-progress bg-transparent mt-6"
         />
                 </div>
@@ -156,7 +162,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
                           </button>
                         </div>
                         <div className="flex items-center justify-end gap-x-2 px-1 mt-2">
-                           <button
+                           <button onClick={() => handleSliderButton(100)}
               className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
             >
               MAX

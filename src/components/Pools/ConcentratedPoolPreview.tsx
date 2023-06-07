@@ -4,9 +4,10 @@ import RangeMintButton from '../Buttons/RangeMintButton'
 import { BigNumber, ethers } from 'ethers'
 import { erc20ABI, useAccount, useContractRead } from 'wagmi'
 import SwapRangeApproveButton from '../Buttons/SwapRangeApproveButton'
-import SwapRangeDoubleApproveButton from '../Buttons/SwapRangeDoubleApproveButton'
+import SwapRangeDoubleApproveButton from '../Buttons/RangeMintDoubleApproveButton'
 import RangeMintApproveButton from '../Buttons/RangeMintApproveButton'
 import { TickMath } from '../../utils/math/tickMath'
+import RangeMintDoubleApproveButton from '../Buttons/RangeMintDoubleApproveButton'
 
 export default function ConcentratedPoolPreview({
   account,
@@ -224,22 +225,16 @@ export default function ConcentratedPoolPreview({
                           </div>
                         </div>
                       </div>
-                      { allowance0.gte(amount0) ? null :
-                        <RangeMintApproveButton
-                            poolAddress={poolAddress}
-                            approveToken={tokenOrder ? tokenIn : tokenOut}
-                            disabled={allowance0.gte(amount0)}
-                            amount={amount0}
-                        />
-                       }
-                       { allowance1.gte(amount1) ? null :
-                        <RangeMintApproveButton
-                            poolAddress={poolAddress}
-                            approveToken={tokenOrder ? tokenOut : tokenIn}
-                            disabled={allowance1.gte(amount1)}
-                            amount={amount1}
-                        />
-                       }
+                      { allowance0.gte(amount0) && allowance1.gte(amount1) ? null :
+                        <RangeMintDoubleApproveButton
+                        poolAddress={poolAddress}
+                        token0={tokenOrder ? tokenIn : tokenOut}
+                        token1={tokenOrder ? tokenOut : tokenIn}
+                        amount0={amount0}
+                        amount1={amount1}
+                        approveZero={allowance0.lt(amount0)}
+                      />
+                      }
                        { allowance0.lt(amount0) || allowance1.lt(amount1) ? null :
                         <RangeMintButton
                             to={address}
