@@ -45,15 +45,44 @@ export const countDecimals = (value: number, tokenDecimals: number) => {
   return false
 }
 
-export const getRangePoolFromFactory = (token0: string, token1: string) => {
+export const getRangePoolFromFactory = (tokenA?: string, tokenB?: string, feeTierId?: number) => {
+  const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB
+  const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA
   return new Promise(function (resolve) {
-    const getPool = `
+    const getPool = isNaN(feeTierId) ? 
+        `
         {
-            rangePools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
-              id
+          rangePools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
+            id
+            price
+            tickAtPrice
+            token0{
+              usdPrice
+            }
+            token1{
+              usdPrice
             }
           }
-         `
+        }
+        `
+      : `
+        {
+          rangePools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}, feeTier_: {id: "${feeTierId}"}}) {
+            id
+            price
+            tickAtPrice
+            feeTier {
+              tickSpacing
+            }
+            token0 {
+              usdPrice
+            }
+            token1 {
+              usdPrice
+            }
+          }
+        }
+        `
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-range',
       cache: new InMemoryCache(),
@@ -84,7 +113,7 @@ export const getCoverPoolFromFactory = (token0: string, token1: string) => {
             }
           }
          `
-    console.log('query:', getPool)
+    //console.log('query:', getPool)
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
       cache: new InMemoryCache(),
@@ -118,7 +147,7 @@ export const getTickIfZeroForOne = (
           }
         }
         `
-    console.log('pool address', poolAddress)
+    //console.log('pool address', poolAddress)
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
       cache: new InMemoryCache(),
@@ -151,8 +180,8 @@ export const getTickIfNotZeroForOne = (
           }
         }
         `
-    console.log(getTicks)
-    console.log('pool address', poolAddress)
+    //console.log(getTicks)
+    //console.log('pool address', poolAddress)
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
       cache: new InMemoryCache(),
@@ -204,12 +233,14 @@ export const fetchCoverPositions = (address: string) => {
                         name
                         symbol
                         decimals
+                        usdPrice
                     }
                     token1{
                         id
                         name
                         symbol
                         decimals
+                        usdPrice
                     }
                     liquidity
                     volatilityTier{
@@ -462,7 +493,7 @@ export const fetchRangePositions = (address: string) => {
       })
       .then((data) => {
         resolve(data)
-        console.log(data)
+        //console.log(data)
       })
       .catch((err) => {
         resolve(err)

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { BigNumber, ethers } from 'ethers'
 import { useSwapStore } from './useStore'
+import inputFilter from '../utils/inputFilter'
 
 export default function useInputBox() {
   const [display, setDisplay] = useState('')
@@ -16,12 +17,7 @@ export default function useInputBox() {
   const [bnInputLimit, setBnInputLimit] = useState(BigNumber.from('0'))
 
   const handleChange = (event, updateValue) => {
-    const result = event.target.value
-      .replace(/^0+(?=[^.0-9]|$)/, match => match.length > 1 ? '0' : match)
-      .replace(/^(\.)+/, '0')
-      .replace(/(?<=\..*)\./g, '')
-      .replace(/^0+(?=\d)/, '')
-      .replace(/[^\d.]/g, '');
+    const result = inputFilter(event.target.value)
     //TODO: do not allow for exceeding max decimals
     setDisplay(result == '' ? '' : result)
     if (result == '') {
@@ -40,7 +36,6 @@ export default function useInputBox() {
         updateSwapAmount(valueToBn)
       }
     }
-
     setInput(
       result == '' ? BigNumber.from('0') : ethers.utils.parseUnits(result, 18),
     )
@@ -95,6 +90,7 @@ export default function useInputBox() {
     return (
       <div className="flex gap-x-2">
         <input
+          autoComplete="off"
           type="text"
           id="input"
           onChange={(e) => handleChange(e, updateValue)}
@@ -103,13 +99,14 @@ export default function useInputBox() {
           className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
         />
       </div>
-    )
+    );
   }
 
   const LimitInputBox = (placeholder: string, updateValue?: any) => {
     return (
       <div className="flex gap-x-2">
         <input
+          autoComplete="off"
           type="text"
           id="LimitInput"
           onChange={(e) => handleChangeLimit(e, updateValue)}
@@ -118,7 +115,7 @@ export default function useInputBox() {
           className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
         />
       </div>
-    )
+    );
   }
 
   return { bnInput, bnInputLimit, LimitInputBox, inputBox, maxBalance, setBnInput }

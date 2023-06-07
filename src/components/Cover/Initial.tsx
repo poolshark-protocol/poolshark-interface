@@ -22,8 +22,8 @@ export default function Initial(props: any) {
   const [shifted, setIsShifted] = useState('initial')
 
   const logoMap = {
-    TOKEN20A: '/static/images/eth_icon.png',
-    TOKEN20B: '/static/images/token.png',
+    TOKEN20A: '/static/images/token.png',
+    TOKEN20B: '/static/images/eth_icon.png',
     USDC: '/static/images/token.png',
     WETH: '/static/images/eth_icon.png',
     DAI: '/static/images/dai_icon.png',
@@ -64,15 +64,18 @@ export default function Initial(props: any) {
       <h1 className="mb-3">Connect your wallet to Cover Pool</h1>
       <ConnectWalletButton xl={true} />
       <div className="opacity-50 cursor-not-allowed">
-        <h1 className="mb-3 mt-6">Set Price Range</h1>
+        <h1 className="mb-3 mt-6">
+          Set Price Range
+        </h1>
         <div className="flex justify-between w-full gap-x-6">
           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-            <span className="text-xs text-grey">Min. Price</span>
+            <span className="text-xs text-grey">Min Price</span>
             <div className="flex justify-center items-center">
               <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white">
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </div>
               <input
+                autoComplete="off"
                 className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
                 placeholder="0"
                 disabled
@@ -90,6 +93,7 @@ export default function Initial(props: any) {
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </div>
               <input
+                autoComplete="off"
                 className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
                 placeholder="0"
                 disabled
@@ -129,12 +133,13 @@ export default function Initial(props: any) {
         <h1 className="mb-3 mt-6">Set Price Range</h1>
         <div className="flex justify-between w-full gap-x-6">
           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-            <span className="text-xs text-grey">Min. Price</span>
+            <span className="text-xs text-grey">Min Price</span>
             <div className="flex justify-center items-center">
               <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white">
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </div>
               <input
+                autoComplete="off"
                 className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
                 placeholder="0"
                 disabled
@@ -152,6 +157,7 @@ export default function Initial(props: any) {
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </div>
               <input
+                autoComplete="off"
                 className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
                 placeholder="0"
                 disabled

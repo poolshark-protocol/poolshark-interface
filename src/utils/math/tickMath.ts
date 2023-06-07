@@ -12,11 +12,11 @@ function mulShift(val: JSBI, mulBy: string): JSBI {
 export function roundTick(tick: number, tickSpacing: number): number {
   let minTick = Math.round(TickMath.MIN_TICK / tickSpacing) * tickSpacing
   let maxTick = Math.round(TickMath.MAX_TICK / tickSpacing) * tickSpacing
-  if (minTick < TickMath.MIN_TICK) minTick += tickSpacing;
+  if (minTick < TickMath.MIN_TICK) minTick -= -tickSpacing;
   if (maxTick > TickMath.MAX_TICK) maxTick -= tickSpacing;
   if (tick % tickSpacing != 0) {
     let roundedDown = Math.round(tick / tickSpacing) * tickSpacing;
-    let roundedUp = Math.round(tick / tickSpacing) * tickSpacing + tickSpacing;
+    let roundedUp = Math.round(tick / tickSpacing) * tickSpacing - (-tickSpacing);
     // check which is closer
     if (tick - roundedDown <= roundedUp - tick) {
       if (roundedDown < minTick) return minTick
@@ -31,47 +31,45 @@ export function roundTick(tick: number, tickSpacing: number): number {
   return tick;
 }
 
-export function roundPrice(sqrtRatioX96: JSBI, tickSpacing: number): JSBI {
-  let spacing = JSBI.BigInt(tickSpacing.toString())
-  let tick = this.getTickAtSqrtRatio(sqrtRatioX96)
-  let roundedTick = this.roundTick(Number(tick), tickSpacing)
-  if (tick != roundedTick) {
-    return this.getSqrtRatioAtTick(roundedTick)
-  }
-  return sqrtRatioX96
-}
-
 export function invertPrice(priceString: string, zeroForOne: boolean): string {
   if(!zeroForOne) {
     let price = JSBD.BigDecimal(priceString)
     price = JSBD.divide(JSBD.BigDecimal('1.00'), price)
-    priceString = price.toExponential(5).toString()
+    priceString = priceToString(price)
   }
   return priceString
 }
 
-export function getDefaultLowerTick(minLimit, maxLimit, zeroForOne): any {
-  if (zeroForOne) return minLimit
+export function getDefaultLowerTick(minLimit, maxLimit, zeroForOne, latestTick = 0): number {
   const midTick = Math.round((Number(minLimit) + Number(maxLimit)) / 2)
-  return midTick
+  if (zeroForOne) {
+    if (latestTick < minLimit) return latestTick - 10000
+    if (midTick - minLimit > 10000) return midTick - 10000
+    return minLimit
+  } else {
+    if (latestTick < minLimit) return minLimit
+    return latestTick
+  }
 }
 
-export function getDefaultUpperTick(minLimit, maxLimit, zeroForOne): any {
-  if (!zeroForOne) return maxLimit
+export function getDefaultUpperTick(minLimit, maxLimit, zeroForOne, latestTick = 0): number {
   const midTick = Math.round(Number(minLimit) + Number(maxLimit) / 2)
-  return midTick
+  if (!zeroForOne) {
+    if (latestTick > maxLimit) return latestTick - -10000
+    if (maxLimit - midTick > 10000) return midTick - -10000
+    return maxLimit  
+  } else {
+    if (latestTick > midTick) return midTick
+    return latestTick
+  }
 }
 
-export function getDefaultLowerPrice(minLimit, maxLimit, zeroForOne): any {
-  if (zeroForOne) return TickMath.getPriceStringAtTick(minLimit)
-  const midTick = Math.round((Number(minLimit) + Number(maxLimit)) / 2)
-  return TickMath.getPriceStringAtTick(midTick)
+export function getDefaultLowerPrice(minLimit, maxLimit, zeroForOne, latestTick = 0): string {
+  return TickMath.getPriceStringAtTick(getDefaultLowerTick(minLimit, maxLimit, zeroForOne, latestTick))
 }
 
-export function getDefaultUpperPrice(minLimit, maxLimit, zeroForOne): any {
-  if (!zeroForOne) return TickMath.getPriceStringAtTick(maxLimit)
-  const midTick = Math.round(Number(minLimit) + Number(maxLimit) / 2)
-  return TickMath.getPriceStringAtTick(midTick)
+export function getDefaultUpperPrice(minLimit, maxLimit, zeroForOne, latestTick = 0): string {
+  return TickMath.getPriceStringAtTick(getDefaultUpperTick(minLimit, maxLimit, zeroForOne, latestTick))
 }
 
 export abstract class TickMath {
@@ -107,7 +105,6 @@ export abstract class TickMath {
   }
 
   public static getSqrtPriceAtPriceString(priceString: string, scaleFactor?: number, tickSpacing?: number): JSBI {
-    console.log('price string found', priceString)
     let price = Number(parseFloat(priceString).toFixed(30))
     if (scaleFactor) {
       price = price / (10 ** scaleFactor)
@@ -153,12 +150,10 @@ export abstract class TickMath {
 
   public static getTickAtPriceString(priceString: string, tickSpacing?: number): number {
     let sqrtPrice = this.getSqrtPriceAtPriceString(priceString)
-    if (JSBI.lessThan(sqrtPrice, this.MIN_SQRT_RATIO)) return this.MIN_TICK
-    // if (sqrtPrice > this.MAX_SQRT_RATIO) return this.MAX_TICK
-    console.log('sqrtPrice', String(sqrtPrice), String(this.MIN_SQRT_RATIO))
+    if (JSBI.lessThan(sqrtPrice, this.MIN_SQRT_RATIO)){ return this.MIN_TICK}
+    if (JSBI.greaterThan(sqrtPrice, this.MAX_SQRT_RATIO)) return this.MAX_TICK
     let tick = this.getTickAtSqrtRatio(sqrtPrice)
     if (tickSpacing){
-      console.log('rounding tick')
       return roundTick(tick, tickSpacing)
     } 
     else return tick

@@ -22,15 +22,15 @@ export default function SelectToken(props) {
   // const [coinsForListing, setCoinsForListing] = useState(coins["listed_tokens"]);
   const [coinsForListing, setCoinsForListing] = useState([
     {
-      name: 'Wrapped Ether',
-      address: tokenZeroAddress,
+      name: 'WETH',
+      address: tokenOneAddress,
       symbol: 'WETH',
       logoURI: '/static/images/eth_icon.png',
       decimals: 18,
     },
     {
       name: 'USDC',
-      address: tokenOneAddress,
+      address: tokenZeroAddress,
       symbol: 'USDC',
       logoURI: '/static/images/token.png',
       decimals: 18,
@@ -128,6 +128,7 @@ export default function SelectToken(props) {
                     </div>
                     <MagnifyingGlassIcon className="w-5 text-white absolute mt-[13px] ml-[14px] text-grey" />
                     <input
+                      autoComplete="off"
                       className="border border-grey2 bg-dark outline-none py-2.5 pl-12 rounded-lg w-full placeholder:text-grey placeholder:font-regular text-white"
                       placeholder="Search name or paste address"
                       value={inputVal}
@@ -137,11 +138,11 @@ export default function SelectToken(props) {
                       {coinsForListing?.map((coin) => {
                         return (
                           <CoinListButton
-                            key={coin.symbol + 'top'}
+                            key={coin.symbol + "top"}
                             coin={coin}
                             chooseToken={chooseToken}
                           />
-                        )
+                        );
                       })}
                     </div>
                   </div>
@@ -153,7 +154,7 @@ export default function SelectToken(props) {
                           coin={coin}
                           chooseToken={chooseToken}
                         />
-                      )
+                      );
                     })}
                   </div>
                 </Dialog.Panel>
@@ -165,15 +166,15 @@ export default function SelectToken(props) {
       <button
         onClick={() => openModal()}
         className={
-          props.index === '0' ||
-          (props.index === '1' && props.selected === true)
-            ? 'flex items-center uppercase gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl'
-            : 'flex items-center bg-background text-main gap-x-3 hover:opacity-80  px-4 py-2 rounded-xl'
+          props.index === "0" ||
+          (props.index === "1" && props.selected === true)
+            ? "flex items-center uppercase gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
+            : "flex items-center bg-background text-main gap-x-3 hover:opacity-80  px-4 py-2 rounded-xl"
         }
       >
         <div className="flex items-center gap-x-2 w-full">
-          {props.index === '0' ||
-          (props.index === '1' && props.selected === true) ? (
+          {props.index === "0" ||
+          (props.index === "1" && props.selected === true) ? (
             <img className="w-7" src={props.displayToken?.logoURI} />
           ) : (
             <></>
@@ -183,5 +184,5 @@ export default function SelectToken(props) {
         <ChevronDownIcon className="w-5" />
       </button>
     </div>
-  )
+  );
 }

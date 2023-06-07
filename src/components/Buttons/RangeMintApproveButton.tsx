@@ -10,7 +10,7 @@ import {
   import React, { useEffect, useState } from 'react'
 import { BigNumber } from 'ethers'
   
-  export default function CoverMintApproveButton({
+  export default function RangeMintApproveButton({
     poolAddress,
     approveToken,
     disabled,
@@ -20,11 +20,10 @@ import { BigNumber } from 'ethers'
     const [successDisplay, setSuccessDisplay] = useState(false)
   
     const { config } = usePrepareContractWrite({
-      address: approveToken,
+      address: approveToken.address,
       abi: erc20ABI,
       functionName: 'approve',
-      args: [poolAddress, BigNumber.from('0')],
-      enabled: approveToken != undefined && poolAddress != undefined,
+      args: [poolAddress, amount],
       chainId: 421613,
     })
   
@@ -50,7 +49,7 @@ import { BigNumber } from 'ethers'
           }
           onClick={(address) => (address && !disabled ? write?.() : null)}
         >
-          Approve
+          Approve {approveToken.symbol}
         </div>
         <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
           {errorDisplay && (

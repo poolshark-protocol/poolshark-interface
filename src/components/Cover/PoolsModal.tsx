@@ -33,16 +33,14 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
         id: rangePosition.id,
         poolId: rangePosition.token.position.pool.id,
         tokenZero: rangePosition.token.position.pool.token0,
-        valueTokenZero: rangePosition.token.position.pool.totalValueLocked0,
+        valueTokenZero: rangePosition.token.position.pool.token0.usdPrice,
         tokenOne: rangePosition.token.position.pool.token1,
-        valueTokenOne: rangePosition.token.position.pool.totalValueLocked1,
+        valueTokenOne: rangePosition.token.position.pool.token1.usdPrice,
         min: rangePosition.token.position.lower,
         max: rangePosition.token.position.upper,
         price: rangePosition.token.position.pool.price,
         tickSpacing: rangePosition.token.position.pool.feeTier.tickSpacing,
         feeTier: rangePosition.token.position.pool.feeTier.feeAmount,
-        unclaimedFees: rangePosition.token.position.pool.feesUsd,
-        liquidity: rangePosition.token.position.pool.liquidity,
         userLiquidity: Math.round(rangePosition.amount / rangePosition.token.totalSupply 
                                   * rangePosition.token.position.liquidity),
         tvlUsd: (
@@ -61,8 +59,8 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
 
   //async so needs to be wrapped
   useEffect(() => {
-    // if(address != undefined) 
-    getUserRangePositionData()
+    if(address != undefined) 
+     getUserRangePositionData()
   }, [address])
 
   useEffect(() => {
@@ -166,6 +164,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                 <div className="relative mb-4">
                   <MagnifyingGlassIcon className="w-5 text-grey absolute ml-[14px] mt-[13px]" />
                   <input
+                    autoComplete="off"
                     className="border border-grey2 bg-dark rounded-xl py-2.5 w-full placeholder:text-grey outline-none pl-12"
                     placeholder="Search name, symbol or address"
                     value={searchTerm}
@@ -229,11 +228,10 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                                   valueTokenOne={allRangePosition.valueTokenOne}
                                   min={allRangePosition.min}
                                   max={allRangePosition.max}
-                                  liquidity={allRangePosition.liquidity}
+                                  userLiquidity={allRangePosition.liquidity}
                                   price={allRangePosition.price}
                                   feeTier={allRangePosition.feeTier}
                                   tickSpacing={allRangePosition.tickSpacing}
-                                  unclaimedFees={allRangePosition.unclaimedFees}
                                   tvlUsd={allRangePosition.tvlUsd}
                                   volumeUsd={allRangePosition.volumeUsd}
                                   volumeEth={allRangePosition.volumeEth}
