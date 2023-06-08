@@ -172,7 +172,6 @@ export default function Swap() {
     enabled: isConnected && rangePoolRoute != undefined,
     onSuccess(data) {
       console.log('Success price Range', data)
-      console.log('rangePrice if inverted', rangePrice)
     },
     onError(error) {
       console.log('Error price Range', error)
@@ -469,6 +468,9 @@ export default function Swap() {
         tokenOut.address != '' &&
         priceRange != undefined
       ) {
+
+        console.log('priceRange', priceRange[5].toString())
+
         setRangePrice(
           parseFloat(
             invertPrice(
@@ -477,6 +479,7 @@ export default function Swap() {
             ),
           ),
         )
+        console.log('rangePrice after setter', rangePrice)
       }
     }
   }, [coverPoolRoute, rangePoolRoute, priceCover, priceRange])
