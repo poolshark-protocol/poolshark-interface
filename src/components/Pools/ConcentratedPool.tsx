@@ -219,7 +219,7 @@ export default function ConcentratedPool({
         address != '0x' &&
         tokenInAllowance != Number(tokenOrder ? allowance0 : allowance1)
       )
-        tokenOrder ? setAllowance0(allowanceOut) : setAllowance1(allowanceOut)
+        tokenOrder ? setAllowance0(allowanceIn) : setAllowance1(allowanceIn)
       // console.log('token in allowance set', tokenInAllowance)
     }
   }),
@@ -231,7 +231,7 @@ export default function ConcentratedPool({
         address != '0x' &&
         tokenInAllowance != Number(tokenOrder ? allowance0 : allowance1)
       )
-        tokenOrder ? setAllowance1(allowanceIn) : setAllowance0(allowanceIn)
+        tokenOrder ? setAllowance1(allowanceOut) : setAllowance0(allowanceOut)
       // console.log('token out allowance set', tokenOutAllowance)
     }
   }),
@@ -748,9 +748,7 @@ export default function ConcentratedPool({
           upperTick={upperTick}
           fee={selected.tier}
           allowance0={allowance0}
-          setAllowance0={setAllowance0}
           allowance1={allowance1}
-          setAllowance1={setAllowance1}
           disabled={isDisabled}
         />
       </div>
