@@ -600,7 +600,7 @@ export default function Swap() {
                 ? '0'
                 : (
                   parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                  rangePrice
+                  parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18))
                 ).toFixed(2)
               )
               : 'Select Token'}
@@ -636,9 +636,9 @@ export default function Swap() {
                 ? '0'
                 : (
                 parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                  rangePrice -
+                  parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) -
                 parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                  rangePrice *
+                parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) *
                   (parseFloat(slippage) * 0.01)
                   ).toFixed(2)
                 )
@@ -846,8 +846,10 @@ export default function Swap() {
                   rangePrice !== 0 &&
                   bnInput._hex != "0x00") ? (
                 <div>
-                  {(parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                    rangePrice).toFixed(2)}
+                  {(
+                    parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                    parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18))
+                  ).toFixed(2)}
                 </div>
               ) : (
                 <div>0</div>
@@ -861,7 +863,7 @@ export default function Swap() {
                       ? (1 / rangeQuote).toFixed(2)
                       : (1 / coverQuote).toFixed(2)
                     ) : (
-                      (1 / rangePrice).toFixed(2)
+                      (1 / parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18))).toFixed(2)
                     )}
                 </div>
               </div>
@@ -979,7 +981,7 @@ export default function Swap() {
               {tokenOut.symbol === "Select Token"
                 ? " ?"
                 : " " +
-                  !LimitActive ? 
+                  (!LimitActive) ? 
                   (rangeQuote != 0 && coverQuote != 0
                     ? rangeQuote > coverQuote
                       ? rangeQuote.toFixed(2)
@@ -987,7 +989,7 @@ export default function Swap() {
                     : "0")
                   : (
                     rangePrice != 0
-                    ? rangePrice.toFixed(2)
+                    ? parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)).toFixed(2)
                     : "0"
                   )}{" "}
               {tokenOut.symbol}
@@ -1174,7 +1176,7 @@ export default function Swap() {
                   amount0={bnInput}
                   amount1={ethers.utils.parseEther(
                     (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                      rangePrice).toString()
+                    parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18))).toString()
                     )}
                 />
               )
