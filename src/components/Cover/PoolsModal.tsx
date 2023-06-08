@@ -41,15 +41,21 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
         price: rangePosition.token.position.pool.price,
         tickSpacing: rangePosition.token.position.pool.feeTier.tickSpacing,
         feeTier: rangePosition.token.position.pool.feeTier.feeAmount,
-        userLiquidity: Math.round(rangePosition.amount / rangePosition.token.totalSupply 
-                                  * rangePosition.token.position.liquidity),
-        tvlUsd: (
-          Number(rangePosition.token.position.pool.totalValueLockedUsd) / 1_000_000
-        ).toFixed(2),
-        volumeUsd: (Number(rangePosition.token.position.pool.volumeUsd) / 1_000_000).toFixed(
-          2,
+        userTokenAmount: rangePosition.amount,
+        userLiquidity: Math.round(
+          (rangePosition.amount / rangePosition.token.totalSupply) *
+            rangePosition.token.position.liquidity,
         ),
-        volumeEth: (Number(rangePosition.token.position.pool.volumeEth) / 1).toFixed(2),
+        tvlUsd: (
+          Number(rangePosition.token.position.pool.totalValueLockedUsd) /
+          1_000_000
+        ).toFixed(2),
+        volumeUsd: (
+          Number(rangePosition.token.position.pool.volumeUsd) / 1_000_000
+        ).toFixed(2),
+        volumeEth: (
+          Number(rangePosition.token.position.pool.volumeEth) / 1
+        ).toFixed(2),
         userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
       }
       mappedRangePositions.push(rangePositionData)
@@ -59,8 +65,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
 
   //async so needs to be wrapped
   useEffect(() => {
-    if(address != undefined) 
-     getUserRangePositionData()
+    if (address != undefined) getUserRangePositionData()
   }, [address])
 
   useEffect(() => {
@@ -236,6 +241,9 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                                   volumeUsd={allRangePosition.volumeUsd}
                                   volumeEth={allRangePosition.volumeEth}
                                   href={'/cover'}
+                                  userTokenAmount={
+                                    allRangePosition.userTokenAmount
+                                  }
                                 />
                               </div>
                             )
