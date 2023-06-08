@@ -931,7 +931,7 @@ export default function Swap() {
                 />
                 <></>
                 <div className="flex">
-                  <div className="flex text-xs text-[#4C4C4C]">
+                  <div className="flex text-xs text-[#4C4C4C]"> {/*TODO - fix market price comparion when switch directions*/}
                     {(((parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) /
                     rangePrice) - 1) * 100) > 0 ?
                     (((parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) /
