@@ -107,7 +107,7 @@ export default function ConcentratedPool({
   const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [balance0, setBalance0] = useState('')
-  const [balance1, setBalance1] = useState('0.00')
+  const [balance1, setBalance1] = useState('')
   const [tokenInAllowance, setTokenInAllowance] = useState(0)
   const [tokenOutAllowance, setTokenOutAllowance] = useState(0)
   const [allowance0, setAllowance0] = useState(BN_ZERO)
@@ -133,13 +133,21 @@ export default function ConcentratedPool({
   const [usdPrice0, setUsdPrice0] = useState(0)
   const [usdPrice1, setUsdPrice1] = useState(0)
   const [showTooltip, setShowTooltip] = useState(false)
+  const [fetchDelay, setFetchDelay] = useState(false)
 
   useEffect(() => {
-    if (hasSelected) {
+    if (!fetchDelay) {
       updateBalances()
       updatePool()
+      setFetchDelay(true)
+    } else {
+      const interval = setInterval(() => {
+        updateBalances()
+        updatePool()
+      }, 5000)
+      return () => clearInterval(interval)
     }
-  }, [tokenOut.address, tokenIn.address, hasSelected])
+  })
 
   async function updateBalances() {
     await getBalances(
@@ -185,6 +193,7 @@ export default function ConcentratedPool({
   })
 
   useEffect(() => {
+    console.log('token in allowance being set', Number(allowanceIn))
     setTokenInAllowance(Number(allowanceIn))
   }, [allowanceIn])
 
@@ -209,6 +218,7 @@ export default function ConcentratedPool({
   })
 
   useEffect(() => {
+    console.log('token out allowance being set', Number(allowanceOut))
     setTokenOutAllowance(Number(allowanceOut))
   }, [allowanceOut])
 
@@ -222,20 +232,18 @@ export default function ConcentratedPool({
         tokenOrder ? setAllowance0(allowanceIn) : setAllowance1(allowanceIn)
       // console.log('token in allowance set', tokenInAllowance)
     }
-  }),
-    [tokenInAllowance]
+  }), [tokenInAllowance]
 
   useEffect(() => {
     if (tokenOutAllowance) {
       if (
         address != '0x' &&
-        tokenInAllowance != Number(tokenOrder ? allowance0 : allowance1)
+        tokenOutAllowance != Number(tokenOrder ? allowance1 : allowance0)
       )
         tokenOrder ? setAllowance1(allowanceOut) : setAllowance0(allowanceOut)
-      // console.log('token out allowance set', tokenOutAllowance)
+      console.log('token out allowance check', tokenOutAllowance, allowance1.toString())
     }
-  }),
-    [tokenOutAllowance]
+  }), [tokenOutAllowance]
 
   function updateSelected(): any {
     const tier = feeTiers[0]
