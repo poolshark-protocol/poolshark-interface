@@ -55,13 +55,13 @@ export default function CreateCover(props: any) {
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [showTooltip, setShowTooltip] = useState(false)
   const [tokenIn, setTokenIn] = useState({
-    symbol: props.query ? props.query.tokenZeroSymbol : 'USDC',
+    symbol: props.query ? props.query.tokenZeroSymbol : 'WETH',
     logoURI: props.query
       ? props.query.tokenZeroLogoURI
-      : '/static/images/token.png',
+      : '/static/images/eth_icon.png',
     address: props.query
       ? props.query.tokenZeroAddress
-      : '0xC26906E10E8BDaDeb2cf297eb56DF59775eE52c4',
+      : '0x6774be1a283Faed7ED8e40463c40Fb33A8da3461',
   } as token)
   const [tokenOut, setTokenOut] = useState({
     symbol: props.query ? props.query.tokenOneSymbol : 'Select Token',
@@ -115,9 +115,9 @@ export default function CreateCover(props: any) {
     if (allowanceIn)
       if (
         address != '0x' &&
-        mktRate != undefined &&
         coverPoolRoute != ZERO_ADDRESS
       ) {
+        console.log('setting allowance', allowanceIn.toString())
         setAllowance(ethers.utils.formatUnits(allowanceIn, 18))
       }
   }, [allowanceIn, tokenIn.address, bnInput])
@@ -132,6 +132,8 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     updateBalances()
+    setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0)
+    console.log('setting token order', tokenIn.address.localeCompare(tokenOut.address) < 0)
   }, [tokenOut, tokenIn])
 
   async function updateBalances() {
@@ -155,7 +157,7 @@ export default function CreateCover(props: any) {
       setCoverPrice,
       setTickSpread,
     )
-  }, [hasSelected, tokenIn.address, tokenOut.address])
+  }, [hasSelected, tokenIn.address, tokenOut.address, tokenOrder])
 
   // set disabled
   useEffect(() => {

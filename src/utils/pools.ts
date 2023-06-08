@@ -71,9 +71,8 @@ export const getCoverPoolInfo = async (
   setTickSpacing,
 ) => {
   try {
-    const pool = tokenOrder
-      ? await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
-      : await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
+    console.log('tokenIn', tokenIn.address.toLocaleLowerCase(), 'tokenOut', tokenOut.address.toLocaleLowerCase())
+    const pool = await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
     const dataLength = pool['data']['coverPools'].length
     if (dataLength != 0) {
       setCoverPoolRoute(pool['data']['coverPools']['0']['id'])
