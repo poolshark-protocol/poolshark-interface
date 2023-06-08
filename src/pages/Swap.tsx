@@ -655,7 +655,7 @@ export default function Swap() {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Price Impact</div>
             <div className="ml-auto text-xs">
-              {hasSelected //TODO: limit order price impact
+              {hasSelected
                 ? rangeQuote !== 0 && coverQuote !== 0
                   ? rangeQuote > coverQuote
                     ? Math.abs(
@@ -770,7 +770,7 @@ export default function Swap() {
                       ? rangeQuote.toFixed(2)
                       : coverQuote.toFixed(2)
                     ) : (
-                      rangePrice.toFixed(2)
+                      parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)).toFixed(2)
                     )}
                 </div>
               </div>
@@ -931,9 +931,14 @@ export default function Swap() {
                 />
                 <></>
                 <div className="flex">
-                  {/* <div className="flex text-xs text-[#4C4C4C]"> //TODO
-                    98% above Market Price
-                  </div> */}
+                  <div className="flex text-xs text-[#4C4C4C]">
+                    {(((parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) /
+                    rangePrice) - 1) * 100) > 0 ?
+                    (((parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) /
+                    rangePrice) - 1) * 100).toFixed(2)+ "% above Market Price" :
+                    Math.abs(((parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) /
+                    rangePrice) - 1) * 100).toFixed(2)+ "% below Market Price" }
+                  </div>
                 </div>
               </div>
               <div className="flex w-1/2">
@@ -960,7 +965,7 @@ export default function Swap() {
                     </div>
                     <div className="flex items-center justify-end gap-2 px-1 mt-2">
                       {/* <div className="text-xs text-white">
-                        Set to Market Price //TODO: check if this is needed
+                        Set to Market Price //@dev doesn't look like it's needed as its redundant
                       </div> */}
                     </div>
                   </div>
