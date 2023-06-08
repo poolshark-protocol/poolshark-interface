@@ -843,7 +843,7 @@ export default function Swap() {
               ) : (
                 <div>0</div>
               ) : (hasSelected &&
-                  rangePrice !== 0 &&
+                  parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) != 0 &&
                   bnInput._hex != "0x00") ? (
                 <div>
                   {(
