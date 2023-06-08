@@ -1119,8 +1119,6 @@ export default function Swap() {
         (
           <>
             {stateChainName !== "arbitrumGoerli" ||
-            coverQuote === 0 ||
-            rangeQuote === 0 ||
             bnInput._hex == "0x00" ? (
               <button
                 disabled
