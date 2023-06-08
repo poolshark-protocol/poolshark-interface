@@ -596,7 +596,7 @@ export default function Swap() {
                       coverQuote
                     ).toFixed(2)
               ) : (
-                rangePrice === 0
+                parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) == 0
                 ? '0'
                 : (
                   parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
@@ -632,7 +632,7 @@ export default function Swap() {
                         (parseFloat(slippage) * 0.01)
                     ).toFixed(2)
               ) : (
-                rangePrice === 0
+                parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) == 0
                 ? '0'
                 : (
                 parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
@@ -1126,13 +1126,13 @@ export default function Swap() {
               Number(allowanceRangeOut) <
                 Number(
                   parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                  rangePrice) ? (
+                  parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18))) ? (
                 Number(allowanceRange) <
                   Number(ethers.utils.formatUnits(bnInput, 18)) &&
                 Number(allowanceRangeOut) <
                   Number(
                     parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                    rangePrice) ? (
+                    parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18))) ? (
                   <SwapRangeDoubleApproveButton
                     poolAddress={rangePoolRoute}
                     tokenIn={tokenIn.address}
