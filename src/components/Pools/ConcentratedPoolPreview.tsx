@@ -24,10 +24,8 @@ export default function ConcentratedPoolPreview({
   upperTick,
   fee,
   allowance0,
-  setAllowance0,
   allowance1,
-  setAllowance1,
-  disabled
+  disabled,
 }) {
   const { address, isConnected } = useAccount()
   const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
@@ -38,9 +36,16 @@ export default function ConcentratedPoolPreview({
     args: [address, poolAddress],
     chainId: 421613,
     watch: true,
-    enabled: isConnected && poolAddress != undefined && tokenIn.address != undefined,
+    enabled:
+      isConnected && poolAddress != undefined && tokenIn.address != undefined,
     onSuccess() {
-      console.log('token allowances', allowance0.sub(amount0).toString(), allowance1.sub(amount1).toString(), amount1.toString(), amount0.toString())
+      console.log(
+        'token allowances',
+        allowance0.sub(amount0).toString(),
+        allowance1.sub(amount1).toString(),
+        amount1.toString(),
+        amount0.toString(),
+      )
       console.log('Success')
     },
     onError(error) {
@@ -163,7 +168,7 @@ export default function ConcentratedPoolPreview({
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                ${amount1Usd.toFixed(2)}
+                                  ${amount1Usd.toFixed(2)}
                                 </div>
                               </div>
                             </div>
@@ -198,54 +203,58 @@ export default function ConcentratedPoolPreview({
                         </div>
                         <div className="mt-3 space-y-3">
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-                            <span className="text-xs text-grey">
-                              Min Price
-                            </span>
+                            <span className="text-xs text-grey">Min Price</span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
                                 {TickMath.getPriceStringAtTick(lowerTick)}
                               </span>
                             </div>
                             <span className="text-xs text-grey">
-                              {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
+                              {tokenOrder ? tokenOut.symbol : tokenIn.symbol}{' '}
+                              per{' '}
+                              {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
                             </span>
                           </div>
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-                            <span className="text-xs text-grey">
-                              Max Price
-                            </span>
+                            <span className="text-xs text-grey">Max Price</span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
                                 {TickMath.getPriceStringAtTick(upperTick)}
                               </span>
                             </div>
                             <span className="text-xs text-grey">
-                            {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
+                              {tokenOrder ? tokenOut.symbol : tokenIn.symbol}{' '}
+                              per{' '}
+                              {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
                             </span>
                           </div>
                         </div>
                       </div>
-                      { allowance0.gte(amount0) && allowance1.gte(amount1) ? null :
+                      {allowance0.gte(amount0) &&
+                      allowance1.gte(amount1) ? null : (
                         <RangeMintDoubleApproveButton
-                        poolAddress={poolAddress}
-                        token0={tokenOrder ? tokenIn : tokenOut}
-                        token1={tokenOrder ? tokenOut : tokenIn}
-                        amount0={amount0}
-                        amount1={amount1}
-                        approveZero={allowance0.lt(amount0)}
-                      />
-                      }
-                       { allowance0.lt(amount0) || allowance1.lt(amount1) ? null :
-                        <RangeMintButton
-                            to={address}
-                            poolAddress={poolAddress}
-                            lower={lowerTick}
-                            upper={upperTick}
-                            disabled={allowance0.lt(amount0) || allowance1.lt(amount1)}
-                            amount0={amount0}
-                            amount1={amount1}
+                          poolAddress={poolAddress}
+                          token0={tokenOrder ? tokenIn : tokenOut}
+                          token1={tokenOrder ? tokenOut : tokenIn}
+                          amount0={amount0}
+                          amount1={amount1}
+                          approveZero={allowance0.lt(amount0)}
                         />
-                       }
+                      )}
+                      {allowance0.lt(amount0) ||
+                      allowance1.lt(amount1) ? null : (
+                        <RangeMintButton
+                          to={address}
+                          poolAddress={poolAddress}
+                          lower={lowerTick}
+                          upper={upperTick}
+                          disabled={
+                            allowance0.lt(amount0) || allowance1.lt(amount1)
+                          }
+                          amount0={amount0}
+                          amount1={amount1}
+                        />
+                      )}
                     </div>
                   </div>
                 </Dialog.Panel>
