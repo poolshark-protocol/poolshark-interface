@@ -211,7 +211,7 @@ export default function Swap() {
       bnInput,
       tokenIn.address.localeCompare(tokenOut.address) < 0
         ? BigNumber.from(
-            TickMath.getSqrtPriceAtPriceString(
+            TickMath.getSqrtPriceAtPriceString(//@dev entering an NaN case
               rangeBnPrice.sub(rangeBnBaseLimit).toString(),
               18,
             ).toString(),
