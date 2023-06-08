@@ -58,6 +58,9 @@ export default function Range() {
   const [userLiquidity, setUserLiquidity] = useState(
     router.query.userLiquidity ?? 0,
   )
+  const [userTokenAmount, setUserTokenAmount] = useState(
+    router.query.userTokenAmount ?? 0,
+  )
   const [userLiquidityUsd, setUserLiquidityUsd] = useState(0)
   const [lowerTick, setLowerTick] = useState(router.query.min ?? '0')
   const [upperTick, setUpperTick] = useState(router.query.max ?? '0')
@@ -603,6 +606,7 @@ export default function Range() {
         lowerTick={lowerTick}
         upperTick={upperTick}
         liquidity={userLiquidity}
+        tokenAmount={userTokenAmount}
         rangePrice={rangePrice}
       />
       <AddLiquidity

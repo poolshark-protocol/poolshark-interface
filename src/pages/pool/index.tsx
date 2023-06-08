@@ -273,6 +273,7 @@ export default function Pool() {
                                 max={allRangePosition.max}
                                 price={allRangePosition.price}
                                 userLiquidity={allRangePosition.userLiquidity}
+                                userTokenAmount={allRangePosition.userTokenAmount}
                                 feeTier={allRangePosition.feeTier}
                                 tickSpacing={allRangePosition.tickSpacing}
                                 tvlUsd={allRangePosition.tvlUsd}

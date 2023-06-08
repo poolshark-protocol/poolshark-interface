@@ -58,6 +58,7 @@ export function mapUserRangePositions(rangePositions) {
         (rangePosition.amount / rangePosition.token.totalSupply) *
           rangePosition.token.position.liquidity,
       ),
+      userTokenAmount: rangePosition.amount,
       tvlUsd: (
         Number(rangePosition.token.position.pool.totalValueLockedUsd) /
         1_000_000

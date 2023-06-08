@@ -12,7 +12,7 @@ import { DyDxMath } from "../../../utils/math/dydxMath";
 import { TickMath } from "../../../utils/math/tickMath";
 
 
-export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut, poolAdd, address, lowerTick, upperTick, liquidity, rangePrice}) {
+export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut, poolAdd, address, lowerTick, upperTick, liquidity, tokenAmount, rangePrice}) {
 
   const {
     bnInput,
@@ -23,10 +23,12 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
     setDisplay
   } = useInputBox()
 
+  console.log('remove user liquidity', liquidity.toString(), tokenAmount.toString())
+
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
   const [sliderValue, setSliderValue] = useState(0)
-  const [burnLiquidity, setBurnLiquidity] = useState(BN_ZERO)
+  const [burnAmount, setBurnAmount] = useState(BN_ZERO)
   const [disabled, setDisabled] = useState(true)
   const [amount0, setAmount0] = useState(BN_ZERO)
   const [amount1, setAmount1] = useState(BN_ZERO)
@@ -37,17 +39,17 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
 
   useEffect(() => {
     const percentInput = sliderValue
-    console.log('percent input', percentInput)
+    console.log('percent input', percentInput, tokenAmount, BigNumber.from(percentInput).mul(BigNumber.from(tokenAmount)).div(BigNumber.from(100)).toString())
     if (percentInput <= 0 || percentInput > 100) {
       setDisabled(true)
       return
     } else {
       setDisabled(false)
     }
-    const userLiquidity = Number(liquidity)
-    const liquidityToBurn = Math.round(percentInput * userLiquidity / 100)
-    setBurnLiquidity(ethers.utils.parseUnits(String(liquidityToBurn), 0))
-    setAmounts(JSBI.BigInt(liquidityToBurn), true)
+    const userTokenAmount = Number(tokenAmount)
+    const tokenAmountToBurn = BigNumber.from(percentInput).mul(BigNumber.from(tokenAmount)).div(BigNumber.from(100))
+    setBurnAmount(tokenAmountToBurn)
+    setAmounts(JSBI.BigInt(tokenAmountToBurn), true)
   }, [sliderValue])
 
   useEffect(() => {
@@ -248,7 +250,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
                     address={address}
                     lower={lowerTick}
                     upper={upperTick}
-                    liquidity={burnLiquidity}
+                    burnAmount={burnAmount}
                     disabled={disabled}
                 />
               </Dialog.Panel>

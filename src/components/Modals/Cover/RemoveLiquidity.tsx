@@ -40,7 +40,8 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
   }, [fetchDelay])
 
   useEffect(() => {
-    console.log('setting slider value', parseInt(bnInput.div(amountInDeltaMax).toString()))
+    console.log()
+    // console.log('setting slider value', parseInt(bnInput.div(amountInDeltaMax).toString()))
     console.log('setting burn percent', bnInput.toString(), amountInDeltaMax.toString(), bnInput.mul(ethers.utils.parseUnits('1', 38)).div(amountInDeltaMax).toString())
     setBurnPercent(bnInput.mul(ethers.utils.parseUnits('1', 38)).div(amountInDeltaMax))
   }, [bnInput])
