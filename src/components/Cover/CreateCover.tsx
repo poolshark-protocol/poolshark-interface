@@ -20,10 +20,14 @@ import { BigNumber, ethers } from 'ethers'
 import { useCoverStore } from '../../hooks/useStore'
 import { getCoverPoolFromFactory } from '../../utils/queries'
 import JSBI from 'jsbi'
+import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import { useRouter } from 'next/router'
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
 import { getBalances } from '../../utils/balances'
+import { token } from '../../utils/types'
+import { getCoverPoolInfo } from '../../utils/pools'
+import { fetchTokenPrices, switchDirection } from '../../utils/tokens'
 import inputFilter from '../../utils/inputFilter'
 import CoverMintApproveButton from '../Buttons/CoverMintApproveButton'
 import TickSpacing from '../Tooltips/TickSpacing'
@@ -33,17 +37,6 @@ export default function CreateCover(props: any) {
   const [pool, setPool] = useState(props.query ?? undefined)
   const initialBig = BigNumber.from(0)
   const { bnInput, inputBox, maxBalance } = useInputBox()
-  const [
-    updateCoverContractParams,
-    updateCoverAllowance,
-    CoverAllowance,
-    coverContractParams,
-  ] = useCoverStore((state: any) => [
-    state.updateCoverContractParams,
-    state.updateCoverAllowance,
-    state.CoverAllowance,
-    state.coverContractParams,
-  ])
   const [expanded, setExpanded] = useState(false)
   const [stateChainName, setStateChainName] = useState()
   const [lowerPrice, setLowerPrice] = useState('')
@@ -63,19 +56,19 @@ export default function CreateCover(props: any) {
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [showTooltip, setShowTooltip] = useState(false)
   const [tokenIn, setTokenIn] = useState({
-    symbol: props.query ? props.query.tokenZeroSymbol : 'USDC',
+    symbol: props.query ? props.query.tokenZeroSymbol : 'WETH',
     logoURI: props.query
       ? props.query.tokenZeroLogoURI
-      : '/static/images/token.png',
+      : '/static/images/eth_icon.png',
     address: props.query
       ? props.query.tokenZeroAddress
-      : '0xC26906E10E8BDaDeb2cf297eb56DF59775eE52c4',
-  })
+      : '0x6774be1a283Faed7ED8e40463c40Fb33A8da3461',
+  } as token)
   const [tokenOut, setTokenOut] = useState({
     symbol: props.query ? props.query.tokenOneSymbol : 'Select Token',
     logoURI: props.query ? props.query.tokenOneLogoURI : '',
     address: props.query ? props.query.tokenOneAddress : '',
-  })
+  } as token)
   const [coverPrice, setCoverPrice] = useState(undefined)
   const [coverAmountIn, setCoverAmountIn] = useState(ZERO)
   const [coverAmountOut, setCoverAmountOut] = useState(ZERO)
@@ -86,14 +79,8 @@ export default function CreateCover(props: any) {
   const [tickSpread, setTickSpread] = useState(
     props.query ? props.query.tickSpacing : 20,
   )
-  const poolId =
-    router.query.poolId === undefined ? '' : router.query.poolId.toString()
 
-  function setParams(query: any) {
-    setPool({
-      poolId: query.poolId,
-    })
-  }
+  /////////////////
 
   const { data: allowanceIn } = useContractRead({
     address: tokenIn.address,
@@ -107,29 +94,31 @@ export default function CreateCover(props: any) {
       coverPoolRoute != undefined &&
       tokenIn.address != undefined,
     onSuccess(data) {
-      console.log('Success')
+      //console.log('Success')
     },
     onError(error) {
       console.log('Error', error)
     },
     onSettled(data, error) {
-      console.log('Allowance Settled', {
+      /* console.log('Allowance Settled', {
         data,
         error,
         coverPoolRoute,
         tokenIn,
         tokenOut,
-      })
+      }) */
     },
   })
+
+  //////////////////
 
   useEffect(() => {
     if (allowanceIn)
       if (
         address != '0x' &&
-        mktRate != undefined &&
         coverPoolRoute != ZERO_ADDRESS
       ) {
+        console.log('setting allowance', allowanceIn.toString())
         setAllowance(ethers.utils.formatUnits(allowanceIn, 18))
       }
   }, [allowanceIn, tokenIn.address, bnInput])
@@ -144,6 +133,8 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     updateBalances()
+    setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0)
+    console.log('setting token order', tokenIn.address.localeCompare(tokenOut.address) < 0)
   }, [tokenOut, tokenIn])
 
   async function updateBalances() {
@@ -151,7 +142,7 @@ export default function CreateCover(props: any) {
   }
 
   useEffect(() => {
-    fetchTokenPrice()
+    fetchTokenPrices(coverPrice, setMktRate)
   }, [coverPrice])
 
   useEffect(() => {
@@ -159,8 +150,15 @@ export default function CreateCover(props: any) {
   }, [router])
 
   useEffect(() => {
-    getCoverPool()
-  }, [hasSelected, tokenIn.address, tokenOut.address])
+    getCoverPoolInfo(
+      tokenOrder,
+      tokenIn,
+      tokenOut,
+      setCoverPoolRoute,
+      setCoverPrice,
+      setTickSpread,
+    )
+  }, [hasSelected, tokenIn.address, tokenOut.address, tokenOrder])
 
   // set disabled
   useEffect(() => {
@@ -196,82 +194,7 @@ export default function CreateCover(props: any) {
     changeCoverAmounts(true)
   }, [coverAmountIn])
 
-  const getCoverPool = async () => {
-    try {
-      const pool = tokenOrder
-        ? await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
-        : await getCoverPoolFromFactory(tokenOut.address, tokenIn.address)
-      const dataLength = pool['data']['coverPools'].length
-      if (dataLength != 0) {
-        setCoverPoolRoute(pool['data']['coverPools']['0']['id'])
-        setTickSpread(
-          pool['data']['coverPools']['0']['volatilityTier']['tickSpread'],
-        )
-        const newLatestTick = pool['data']['coverPools']['0']['latestTick']
-        setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick))
-      } else {
-        setCoverPoolRoute(ZERO_ADDRESS)
-        setCoverPrice('1.00')
-        setTickSpread(10)
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  function changeDefault0(token: {
-    symbol: string
-    logoURI: any
-    address: string
-  }) {
-    if (
-      token.symbol === tokenOut.symbol ||
-      token.address === tokenOut.address
-    ) {
-      return
-    }
-    console.log('default0', token)
-    setTokenIn(token)
-    setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0)
-    console.log('set token order', tokenOrder)
-  }
-
-  const changeDefault1 = (token: {
-    symbol: string
-    logoURI: any
-    address: string
-  }) => {
-    if (token.symbol === tokenIn.symbol || token.address === tokenIn.address) {
-      return
-    }
-    console.log('default1', token)
-    setTokenOut(token)
-    setHasSelected(true)
-    setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0)
-    console.log(
-      'set token order',
-      tokenIn.address.localeCompare(tokenOut.address) < 0,
-    )
-  }
-
-  function switchDirection() {
-    setTokenOrder(!tokenOrder)
-    const temp = tokenIn
-    setTokenIn(tokenOut)
-    setTokenOut(temp)
-    const tempBal = queryTokenIn
-    setQueryTokenIn(queryTokenOut)
-    setQueryTokenOut(tempBal)
-  }
-
-  const handleValueChange = () => {
-    if (
-      (document.getElementById('input') as HTMLInputElement).value === undefined
-    ) {
-      return
-    }
-    const current = document.getElementById('input') as HTMLInputElement
-  }
+  //////////////////////
 
   const changePrice = (direction: string, inputId: string) => {
     if (!tickSpread) return
@@ -293,27 +216,10 @@ export default function CreateCover(props: any) {
     }
   }
 
-  const fetchTokenPrice = async () => {
-    try {
-      setMktRate({
-        TOKEN20A:
-          '~' +
-          Number(coverPrice).toLocaleString('en-US', {
-            style: 'currency',
-            currency: 'USD',
-          }),
-        WETH:
-          '~' +
-          Number(coverPrice).toLocaleString('en-US', {
-            style: 'currency',
-            currency: 'USD',
-          }),
-        TOKEN20B: '~1.00',
-        USDC: '~1.00',
-      })
-    } catch (error) {
-      console.log(error)
-    }
+  function setParams(query: any) {
+    setPool({
+      poolId: query.poolId,
+    })
   }
 
   const Option = () => {
@@ -344,13 +250,6 @@ export default function CreateCover(props: any) {
   }
 
   function changeCoverAmounts(amountInChanged: boolean) {
-    console.log(
-      'prices set:',
-      lowerTick.toString(),
-      upperTick.toString(),
-      tickSpread,
-    )
-    console.log('price check', parseFloat(lowerPrice) < parseFloat(upperPrice))
     if (
       !isNaN(parseFloat(lowerPrice)) &&
       !isNaN(parseFloat(upperPrice)) &&
@@ -358,11 +257,8 @@ export default function CreateCover(props: any) {
       parseFloat(upperPrice) > 0 &&
       parseFloat(lowerPrice) < parseFloat(upperPrice)
     ) {
-      console.log('tick check', lowerTick.toString(), upperTick.toString())
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(lowerTick))
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(upperTick))
-
-      console.log('amount in', coverAmountIn.toString())
       if (amountInChanged) {
         // amountIn changed
         const liquidityAmount = DyDxMath.getLiquidityForAmounts(
@@ -372,7 +268,6 @@ export default function CreateCover(props: any) {
           tokenOrder ? BN_ZERO : BigNumber.from(String(coverAmountIn)),
           tokenOrder ? BigNumber.from(String(coverAmountIn)) : BN_ZERO,
         )
-        console.log('liquidity amount', String(liquidityAmount), tokenOrder)
         setCoverAmountOut(
           tokenOrder
             ? DyDxMath.getDy(
@@ -387,25 +282,6 @@ export default function CreateCover(props: any) {
                 upperSqrtPrice,
                 true,
               ),
-        )
-        console.log(
-          'amount in set:',
-          coverAmountIn.toString(),
-          (tokenOrder
-            ? DyDxMath.getDy(
-                liquidityAmount,
-                lowerSqrtPrice,
-                upperSqrtPrice,
-                true,
-              )
-            : DyDxMath.getDx(
-                liquidityAmount,
-                lowerSqrtPrice,
-                upperSqrtPrice,
-                true,
-              )
-          ).toString(),
-          liquidityAmount.toString(),
         )
       } else {
         // amountOut changed
@@ -549,40 +425,50 @@ export default function CreateCover(props: any) {
         <div className="flex gap-x-4 items-center">
           <SelectToken
             index="0"
-            tokenChosen={changeDefault0}
+            type="in"
+            selected={hasSelected}
+            setHasSelected={setHasSelected}
+            tokenIn={tokenIn}
+            setTokenIn={setTokenIn}
+            tokenOut={tokenOut}
+            setTokenOut={setTokenOut}
             displayToken={tokenIn}
             balance={setQueryTokenIn}
-            key={queryTokenIn}
+            key={queryTokenIn + 'in'}
           />
           <div className="items-center px-2 py-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
             <ArrowLongRightIcon
               className="w-6 cursor-pointer"
               onClick={() => {
                 if (hasSelected) {
-                  switchDirection();
+                  switchDirection(
+                    tokenOrder,
+                    setTokenOrder,
+                    tokenIn,
+                    setTokenIn,
+                    tokenOut,
+                    setTokenOut,
+                    queryTokenIn,
+                    setQueryTokenIn,
+                    queryTokenOut,
+                    setQueryTokenOut,
+                  )
                 }
               }}
             />
           </div>
-          {hasSelected ? (
-            <SelectToken
-              index="1"
-              selected={hasSelected}
-              tokenChosen={changeDefault1}
-              displayToken={tokenOut}
-              balance={setQueryTokenOut}
-              key={queryTokenOut + "selected"}
-            />
-          ) : (
-            <SelectToken
-              index="1"
-              selected={hasSelected}
-              tokenChosen={changeDefault1}
-              displayToken={tokenOut}
-              balance={setQueryTokenOut}
-              key={queryTokenOut + "unselected"}
-            />
-          )}
+          <SelectToken
+            type="out"
+            selected={hasSelected}
+            setHasSelected={setHasSelected}
+            tokenIn={tokenIn}
+            setTokenIn={setTokenIn}
+            tokenOut={tokenOut}
+            setTokenOut={setTokenOut}
+            displayToken={tokenOut}
+            balance={setQueryTokenOut}
+            key={queryTokenOut + 'out'}
+          />
         </div>
       </div>
       <h1 className="mb-3">How much do you want to Cover?</h1>

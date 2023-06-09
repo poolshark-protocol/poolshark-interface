@@ -1,10 +1,9 @@
-import { BigNumber, Contract, ethers } from 'ethers'
+import { BigNumber, Contract, Signer, ethers } from 'ethers'
 import { rangePoolABI } from '../abis/evm/rangePool'
 import { coverPoolABI } from '../abis/evm/coverPool'
 import { token } from './types'
 import { TickMath, roundTick } from './math/tickMath'
 import { fetchPrice } from './queries'
-import { useSigner } from 'wagmi'
 
 export const gasEstimate = async (
   rangePoolRoute: string,
@@ -17,15 +16,14 @@ export const gasEstimate = async (
   tokenOut: token,
   bnInput: BigNumber,
   address: string,
-  signer,
+  signer: Signer
 ) => {
   try {
-    //const { data: signer } = useSigner()
     const provider = new ethers.providers.JsonRpcProvider(
       'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
     )
     if (!coverPoolRoute || !provider) {
-      return '0'
+      return
     }
     var contract: Contract
     if (rangeQuote > coverQuote) {
@@ -33,10 +31,8 @@ export const gasEstimate = async (
     } else {
       contract = new ethers.Contract(coverPoolRoute, coverPoolABI, provider)
     }
-
     const recipient = address
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0
-
     const priceLimit =
       tokenOut.address != '' &&
       tokenIn.address.localeCompare(tokenOut.address) < 0
@@ -67,19 +63,15 @@ export const gasEstimate = async (
     const networkFeeWei = gasPrice.mul(gasUnits)
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18))
     const networkFeeUsd = networkFeeEth * ethUsdPrice
-    //console.log('fee price:', networkFeeUsd)
     const formattedPrice: string =
       '~' +
       networkFeeUsd.toLocaleString('en-US', {
         style: 'currency',
         currency: 'USD',
       })
-
-    //setGasFee(formattedPrice)
     return formattedPrice
   } catch (error) {
     console.log('gas error', error)
-    return 'Increase Allowance'
   }
 }
 

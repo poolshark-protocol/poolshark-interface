@@ -8,7 +8,7 @@ import {
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useAccount, useContractRead } from 'wagmi'
-import CoverCollectButton from "../../../components/Buttons/CoverCollectButton";
+import CoverCollectButton from '../../../components/Buttons/CoverCollectButton'
 import Link from 'next/link'
 import { BigNumber, ethers } from 'ethers'
 import {
@@ -18,86 +18,21 @@ import {
 } from '../../../utils/queries'
 import { TickMath } from '../../../utils/math/tickMath'
 import { coverPoolABI } from '../../../abis/evm/coverPool'
+import { token } from '../../../utils/types'
+import { copyElementUseEffect } from '../../../utils/misc'
+import { getClaimTick } from '../../../utils/maps'
 import RemoveLiquidity from '../../../components/Modals/Cover/RemoveLiquidity'
 import AddLiquidity from '../../../components/Modals/Cover/AddLiquidity'
-import { tokenZeroAddress, tokenOneAddress } from '../../../constants/contractAddresses'
+import {
+  tokenZeroAddress,
+  tokenOneAddress,
+} from '../../../constants/contractAddresses'
 
 export default function Cover() {
-  type token = {
-    name: string
-    symbol: string
-    logoURI: string
-    address: string
-    value: string
-  }
-  const { address } = useAccount()
+  const { address, isConnected } = useAccount()
   const router = useRouter()
-  const [isAddOpen, setIsAddOpen] = useState(false);
-  const [isRemoveOpen, setIsRemoveOpen] = useState(false);
-
-  useEffect(() => {
-    if (router.isReady) {
-      const query = router.query
-      setPoolContractAdd(query.poolId)
-      setTokenIn({
-        name: query.tokenZeroName,
-        symbol: query.tokenZeroSymbol,
-        logoURI: query.tokenZeroLogoURI,
-        address: query.tokenZeroAddress,
-        value: query.tokenZeroValue,
-      } as token)
-      setTokenOut({
-        name: query.tokenOneName,
-        symbol: query.tokenOneSymbol,
-        logoURI: query.tokenOneLogoURI,
-        address: query.tokenOneAddress,
-        value: query.tokenOneValue,
-      } as token)
-      setLatestTick(query.latestTick)
-      setEpochLast(query.epochLast)
-      setLiquidity(query.liquidity)
-      setFeeTier(query.feeTier)
-      setMinLimit(query.min)
-      setMaxLimit(query.max)
-      setUserFillIn(query.userFillIn)
-      setUserFillOut(query.userFillOut)
-      setTokenZeroDisplay(
-        query.tokenZeroAddress.toString().substring(0, 6) +
-          '...' +
-          query.tokenZeroAddress
-
-            .toString()
-            .substring(
-              query.tokenZeroAddress.toString().length - 4,
-              query.tokenZeroAddress.toString().length,
-            ),
-      )
-      setTokenOneDisplay(
-        query.tokenOneAddress.toString().substring(0, 6) +
-          '...' +
-          query.tokenOneAddress
-
-            .toString()
-            .substring(
-              query.tokenOneAddress.toString().length - 4,
-              query.tokenOneAddress.toString().length,
-            ),
-      )
-      setPoolDisplay(
-        query.poolId.toString().substring(0, 6) +
-          '...' +
-          query.poolId
-
-            .toString()
-            .substring(
-              query.poolId.toString().length - 4,
-              query.poolId.toString().length,
-            ),
-      )
-      setCoverPoolRoute(query.coverPoolRoute)
-      setCoverTickPrice(query.coverTickPrice)
-    }
-  }, [router.isReady])
+  const [isAddOpen, setIsAddOpen] = useState(false)
+  const [isRemoveOpen, setIsRemoveOpen] = useState(false)
 
   const [poolAdd, setPoolContractAdd] = useState(router.query.poolId ?? '')
   const [tokenIn, setTokenIn] = useState({
@@ -177,26 +112,94 @@ export default function Cover() {
     router.query.coverTickPrice ?? '0',
   )
   const [claimTick, setClaimTick] = useState(BigNumber.from('887272'))
-
-  const { isConnected } = useAccount()
   const [fetchDelay, setFetchDelay] = useState(false)
 
-  useEffect(() => {
-    setFetchDelay(false)
-  }, [coverPoolRoute])
+  ////////////////////////////////Router is ready
 
   useEffect(() => {
-    if(!fetchDelay) {
+    if (router.isReady) {
+      const query = router.query
+      setPoolContractAdd(query.poolId)
+      setTokenIn({
+        name: query.tokenZeroName,
+        symbol: query.tokenZeroSymbol,
+        logoURI: query.tokenZeroLogoURI,
+        address: query.tokenZeroAddress,
+        value: query.tokenZeroValue,
+      } as token)
+      setTokenOut({
+        name: query.tokenOneName,
+        symbol: query.tokenOneSymbol,
+        logoURI: query.tokenOneLogoURI,
+        address: query.tokenOneAddress,
+        value: query.tokenOneValue,
+      } as token)
+      setLatestTick(query.latestTick)
+      setEpochLast(query.epochLast)
+      setLiquidity(query.liquidity)
+      setFeeTier(query.feeTier)
+      setMinLimit(query.min)
+      setMaxLimit(query.max)
+      setUserFillIn(query.userFillIn)
+      setUserFillOut(query.userFillOut)
+      setTokenZeroDisplay(
+        query.tokenZeroAddress.toString().substring(0, 6) +
+          '...' +
+          query.tokenZeroAddress
+
+            .toString()
+            .substring(
+              query.tokenZeroAddress.toString().length - 4,
+              query.tokenZeroAddress.toString().length,
+            ),
+      )
+      setTokenOneDisplay(
+        query.tokenOneAddress.toString().substring(0, 6) +
+          '...' +
+          query.tokenOneAddress
+
+            .toString()
+            .substring(
+              query.tokenOneAddress.toString().length - 4,
+              query.tokenOneAddress.toString().length,
+            ),
+      )
+      setPoolDisplay(
+        query.poolId.toString().substring(0, 6) +
+          '...' +
+          query.poolId
+
+            .toString()
+            .substring(
+              query.poolId.toString().length - 4,
+              query.poolId.toString().length,
+            ),
+      )
+      setCoverPoolRoute(query.coverPoolRoute)
+      setCoverTickPrice(query.coverTickPrice)
+    }
+  }, [router.isReady])
+
+  ////////////////////////////////Fetch Pool Data
+
+  useEffect(() => {
+    if (!fetchDelay) {
       getRangePool()
       setFetchDelay(true)
     } else {
       const interval = setInterval(() => {
         getRangePool()
-      }, 3000);
-      return () => clearInterval(interval);
+      }, 3000)
+      return () => clearInterval(interval)
     }
-  }), []
+  }),
+    []
 
+  useEffect(() => {
+    setFetchDelay(false)
+  }, [coverPoolRoute])
+
+  //TODO need to be set to utils
   const getRangePool = async () => {
     try {
       const pool = await getRangePoolFromFactory(
@@ -206,18 +209,21 @@ export default function Cover() {
       console.log('setting usd prices')
       const dataLength = pool['data']['rangePools'].length
       if (dataLength > 0) {
-        const tokenInUsdPrice = zeroForOne ? pool['data']['rangePools']['0']['token1']['usdPrice']
-                                           : pool['data']['rangePools']['0']['token0']['usdPrice']
-        const tokenOutUsdPrice = zeroForOne ? pool['data']['rangePools']['0']['token0']['usdPrice']
-                                            : pool['data']['rangePools']['0']['token1']['usdPrice']
+        const tokenInUsdPrice = zeroForOne
+          ? pool['data']['rangePools']['0']['token1']['usdPrice']
+          : pool['data']['rangePools']['0']['token0']['usdPrice']
+        const tokenOutUsdPrice = zeroForOne
+          ? pool['data']['rangePools']['0']['token0']['usdPrice']
+          : pool['data']['rangePools']['0']['token1']['usdPrice']
         setUsdPriceIn(parseFloat(tokenInUsdPrice))
         setUsdPriceOut(parseFloat(tokenOutUsdPrice))
-        console.log('setting usd prices 2')
       }
     } catch (error) {
       console.log(error)
     }
   }
+
+  ////////////////////////////////Filled Amount
 
   const { data: filledAmount } = useContractRead({
     address: coverPoolRoute.toString(),
@@ -228,10 +234,12 @@ export default function Cover() {
     ],
     chainId: 421613,
     watch: true,
-    enabled: claimTick.lt(BigNumber.from('887272')) && isConnected && coverPoolRoute != '',
+    enabled:
+      claimTick.lt(BigNumber.from('887272')) &&
+      isConnected &&
+      coverPoolRoute != '',
     onSuccess(data) {
       console.log('Success price filled amount', data)
-      setCoverFilledAmount(ethers.utils.formatUnits(data[2], 18))
     },
     onError(error) {
       console.log('Error price Cover', error)
@@ -242,40 +250,42 @@ export default function Cover() {
   })
 
   useEffect(() => {
-    setFillPercent( (Number(coverFilledAmount) /  Number(ethers.utils.formatUnits(userFillIn.toString(), 18))) * 100)
-  })
-    
+    if (filledAmount)
+      setCoverFilledAmount(ethers.utils.formatUnits(filledAmount[2], 18))
+  }, [filledAmount])
 
   useEffect(() => {
-    if (copyAddress0) {
-      const timer = setTimeout(() => {
-        setIs0Copied(false)
-      }, 1500)
-      return () => clearTimeout(timer)
-    }
+    setFillPercent(
+      (Number(coverFilledAmount) /
+        Number(ethers.utils.formatUnits(userFillIn.toString(), 18))) *
+        100,
+    )
   })
 
-  useEffect(() => {
-    if (copyAddress1) {
-      const timer = setTimeout(() => {
-        setIs1Copied(false)
-      }, 1500)
-      return () => clearTimeout(timer)
-    }
-  })
+  ////////////////////////////////Claim Tick
 
   useEffect(() => {
-    if (copyPoolAddress) {
-      const timer = setTimeout(() => {
-        setIsPoolCopied(false)
-      }, 1500)
-      return () => clearTimeout(timer)
-    }
-  })
-
-  useEffect(() => {
-    getClaimTick()
+    updateClaimTick()
   }, [])
+
+  async function updateClaimTick() {
+    const aux = await getClaimTick(
+      poolAdd.toString(),
+      Number(minLimit),
+      Number(maxLimit),
+      zeroForOne,
+      Number(epochLast),
+    )
+    setClaimTick(BigNumber.from(aux))
+  }
+
+  ////////////////////////////////Addresses
+
+  useEffect(() => {
+    copyElementUseEffect(copyAddress0, setIs0Copied)
+    copyElementUseEffect(copyAddress1, setIs1Copied)
+    copyElementUseEffect(copyPoolAddress, setIsPoolCopied)
+  })
 
   function copyAddress0() {
     navigator.clipboard.writeText(tokenIn.address.toString())
@@ -289,40 +299,10 @@ export default function Cover() {
 
   function copyPoolAddress() {
     navigator.clipboard.writeText(poolAdd.toString())
-    setIsPoolCopied
+    setIsPoolCopied(true)
   }
 
-  const getClaimTick = async () => {
-    if (tokenOut.address == undefined || tokenIn.address == undefined) return
-    console.log('zfo', zeroForOne, tokenOut.address, tokenIn.address)
-    let claimTick = zeroForOne ? maxLimit : minLimit
-    if (zeroForOne) {
-      const claimTickQuery = await getTickIfZeroForOne(
-        Number(maxLimit),
-        poolAdd.toString(),
-        Number(epochLast),
-      )
-      const claimTickDataLength = claimTickQuery['data']['ticks'].length
-      if (claimTickDataLength > 0)
-        claimTick = claimTickQuery['data']['ticks'][0]['index']
-    } else {
-      const claimTickQuery = await getTickIfNotZeroForOne(
-        Number(minLimit),
-        poolAdd.toString(),
-        Number(epochLast),
-      )
-      const claimTickDataLength = claimTickQuery['data']['ticks'].length
-      if (claimTickDataLength > 0)
-        claimTick = claimTickQuery['data']['ticks'][0]['index']
-      if (claimTick != undefined) {
-        setClaimTick(BigNumber.from(claimTick))
-      } else {
-        setClaimTick(BigNumber.from(minLimit))
-      }
-    }
-    console.log('claim tick:', claimTick)
-    setClaimTick(BigNumber.from(claimTick))
-  }
+  ////////////////////////////////
 
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
@@ -341,7 +321,7 @@ export default function Cover() {
                 />
               </div>
               <span className="text-3xl flex items-center gap-x-3">
-                {tokenIn.name} <ArrowLongRightIcon className="w-5 " />{" "}
+                {tokenIn.name} <ArrowLongRightIcon className="w-5 " />{' '}
                 {tokenOut.name}
               </span>
               <span className="bg-white text-black rounded-md px-3 py-0.5">
@@ -349,7 +329,7 @@ export default function Cover() {
               </span>
             </div>
             <a
-              href={"https://goerli.arbiscan.io/address/" + poolAdd}
+              href={'https://goerli.arbiscan.io/address/' + poolAdd}
               target="_blank"
               rel="noreferrer"
               className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80"
@@ -405,7 +385,7 @@ export default function Cover() {
                   $
                   {(
                     Number(
-                      ethers.utils.formatUnits(userFillOut.toString(), 18)
+                      ethers.utils.formatUnits(userFillOut.toString(), 18),
                     ) * usdPriceOut
                   ).toFixed(2)}
                 </span>
@@ -417,7 +397,7 @@ export default function Cover() {
                       {tokenIn.name}
                     </div>
                     {Number(
-                      ethers.utils.formatUnits(userFillOut.toString(), 18)
+                      ethers.utils.formatUnits(userFillOut.toString(), 18),
                     ).toFixed(2)}
                   </div>
                 </div>
@@ -430,9 +410,12 @@ export default function Cover() {
                 */}
 
                 <div className="mt-5 space-y-2 cursor-pointer">
-                    <div onClick={() => setIsAddOpen(true)} className="bg-[#032851] w-full py-3 px-4 rounded-xl">
-                      Add Liquidity
-                    </div>
+                  <div
+                    onClick={() => setIsAddOpen(true)}
+                    className="bg-[#032851] w-full py-3 px-4 rounded-xl"
+                  >
+                    Add Liquidity
+                  </div>
                   <div
                     onClick={() => setIsRemoveOpen(true)}
                     className="bg-[#032851] w-full py-3 px-4 rounded-xl"
@@ -449,7 +432,7 @@ export default function Cover() {
                     /$
                     {(
                       Number(
-                        ethers.utils.formatUnits(userFillIn.toString(), 18)
+                        ethers.utils.formatUnits(userFillIn.toString(), 18),
                       ) * usdPriceIn
                     ).toFixed(2)}
                   </span>
@@ -468,7 +451,7 @@ export default function Cover() {
                       <span className="text-grey">
                         /
                         {Number(
-                          ethers.utils.formatUnits(userFillIn.toString(), 18)
+                          ethers.utils.formatUnits(userFillIn.toString(), 18),
                         ).toFixed(2)}
                       </span>
                     </span>
@@ -496,7 +479,7 @@ export default function Cover() {
                 <div className="text-grey text-xs w-full">Min Price</div>
                 <div className="text-white text-2xl my-2 w-full">
                   {minLimit === undefined
-                    ? ""
+                    ? ''
                     : TickMath.getPriceStringAtTick(Number(minLimit))}
                 </div>
                 <div className="text-grey text-xs w-full">
@@ -511,7 +494,7 @@ export default function Cover() {
                 <div className="text-grey text-xs w-full">Max Price</div>
                 <div className="text-white text-2xl my-2 w-full">
                   {maxLimit === undefined
-                    ? ""
+                    ? ''
                     : TickMath.getPriceStringAtTick(Number(maxLimit))}
                 </div>
                 <div className="text-grey text-xs w-full">
@@ -599,5 +582,5 @@ export default function Cover() {
         liquidity={liquidity}
       />
     </div>
-  );
+  )
 }
