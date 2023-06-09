@@ -518,7 +518,7 @@ export default function Cover() {
               <div className="flex justify-between items-center mt-10 mb-5">
                 <h1 className="text-lg">Original pool being covered </h1>
                 <h1 className="text-grey">
-                  Type: <span className="text-white">UNI-V3</span>
+                  {/*Type: <span className="text-white">UNI-V3</span>*/}
                 </h1>
               </div>
               <div className="w-full cursor-pointer flex justify-between items-center bg-dark border border-grey2 rounded-xl py-3.5 pl-5 h-24 relative">
