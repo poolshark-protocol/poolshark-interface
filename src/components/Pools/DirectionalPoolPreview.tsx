@@ -1,48 +1,37 @@
 import { Fragment, useEffect, useState } from 'react'
 import { Transition, Dialog } from '@headlessui/react'
-import RangeMintButton from '../Buttons/RangeMintButton'
-import { BigNumber, ethers } from 'ethers'
+import CoverMintButton from '../Buttons/CoverMintButton'
+import { ethers } from 'ethers'
 import { erc20ABI, useAccount, useContractRead } from 'wagmi'
-import { TickMath } from '../../utils/math/tickMath'
-import RangeMintDoubleApproveButton from '../Buttons/RangeMintDoubleApproveButton'
+import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
+import { coverPoolAddress } from '../../constants/contractAddresses'
 
-export default function ConcentratedPoolPreview({
+export default function DirectionalPoolPreview({
   account,
-  poolAddress,
+  poolId,
   tokenIn,
   tokenOut,
   amount0,
   amount1,
-  amount0Usd,
-  amount1Usd,
-  lowerPrice,
-  upperPrice,
-  lowerTick,
-  upperTick,
+  minPrice,
+  maxPrice,
+  minTick,
+  maxTick,
   fee,
-  allowance0,
-  allowance1,
-  disabled,
+  tickSpacing,
+  allowance,
+  setAllowance,
 }) {
   const { address, isConnected } = useAccount()
-  const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
-  const { data: dataIn } = useContractRead({
+  const { data } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [address, poolAddress],
+    args: [address, poolId],
     chainId: 421613,
     watch: true,
-    enabled:
-      isConnected && poolAddress != undefined && tokenIn.address != undefined,
-    onSuccess() {
-      console.log(
-        'token allowances',
-        allowance0.sub(amount0).toString(),
-        allowance1.sub(amount1).toString(),
-        amount1.toString(),
-        amount0.toString(),
-      )
+    enabled: isConnected && poolId != undefined && tokenIn.address != undefined,
+    onSuccess(data) {
       console.log('Success')
     },
     onError(error) {
@@ -52,8 +41,13 @@ export default function ConcentratedPoolPreview({
       console.log('Settled', { data, error })
     },
   })
-
   let [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    if (data) {
+      setAllowance(ethers.utils.formatUnits(data, 18))
+    }
+  }, [data, tokenIn])
 
   function closeModal() {
     setIsOpen(false)
@@ -133,7 +127,7 @@ export default function ConcentratedPoolPreview({
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                  ${amount0Usd.toFixed(2)}
+                                  ~300.53
                                 </div>
                               </div>
                             </div>
@@ -158,102 +152,64 @@ export default function ConcentratedPoolPreview({
                               </div>
                             </div>
                           </div>
-                          <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-                            <div className=" p-2 ">
-                              <div className="w-44 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
-                                {ethers.utils.formatUnits(amount1, 18)}
-                              </div>
-                              <div className="flex">
-                                <div className="flex text-xs text-[#4C4C4C]">
-                                  ${amount1Usd.toFixed(2)}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="">
-                              <div className=" ml-auto">
-                                <div>
-                                  <div className="flex justify-end">
-                                    <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
-                                      <div className="flex items-center gap-x-2 w-full">
-                                        <img
-                                          className="w-7"
-                                          src={tokenOut.logoURI}
-                                        />
-                                        {tokenOut.symbol}
-                                      </div>
-                                    </button>
-                                  </div>
-                                  <div className="flex items-center justify-end gap-x-2 px-1 mt-2">
-                                    <div className="text-xs text-dark">-</div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
                         </div>
                       </div>
                     </div>
                     <div className="w-1/2">
                       <div>
                         <div className="flex justify-between items-center">
-                          <h1>Price range</h1>
+                          <h1>Price Cover</h1>
                         </div>
                         <div className="mt-3 space-y-3">
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-                            <span className="text-xs text-grey">Min Price</span>
+                            <span className="text-xs text-grey">
+                              Min Price
+                            </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {TickMath.getPriceStringAtTick(lowerTick)}
+                                {parseFloat(minPrice).toFixed(2)}
                               </span>
                             </div>
                             <span className="text-xs text-grey">
-                              {tokenOrder ? tokenOut.symbol : tokenIn.symbol}{" "}
-                              per{" "}
-                              {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
+                              {tokenIn.symbol} per {tokenOut.symbol}
                             </span>
                           </div>
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-                            <span className="text-xs text-grey">Max Price</span>
+                            <span className="text-xs text-grey">
+                              Max. Price
+                            </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {TickMath.getPriceStringAtTick(upperTick)}
+                                {parseFloat(maxPrice).toFixed(2)}
                               </span>
                             </div>
                             <span className="text-xs text-grey">
-                              {tokenOrder ? tokenOut.symbol : tokenIn.symbol}{" "}
-                              per{" "}
-                              {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
+                              {tokenIn.symbol} per {tokenOut.symbol}
                             </span>
                           </div>
                         </div>
                       </div>
-                      <div className='mt-4'>
-                        {allowance0.gte(amount0) &&
-                        allowance1.gte(amount1) ? null : (
-                          <RangeMintDoubleApproveButton
-                            poolAddress={poolAddress}
-                            token0={tokenOrder ? tokenIn : tokenOut}
-                            token1={tokenOrder ? tokenOut : tokenIn}
-                            amount0={amount0}
-                            amount1={amount1}
-                            approveZero={allowance0.lt(amount0)}
-                          />
-                        )}
-                        {allowance0.lt(amount0) ||
-                        allowance1.lt(amount1) ? null : (
-                          <RangeMintButton
-                            to={address}
-                            poolAddress={poolAddress}
-                            lower={lowerTick}
-                            upper={upperTick}
-                            disabled={
-                              allowance0.lt(amount0) || allowance1.lt(amount1)
-                            }
-                            amount0={amount0}
-                            amount1={amount1}
-                          />
-                        )}
-                      </div>
+
+                      {Number(allowance) <
+                      Number(ethers.utils.formatUnits(amount0, 18)) ? (
+                        <SwapCoverApproveButton
+                          disabled={true}
+                          poolAddress={poolId}
+                          approveToken={tokenIn.address}
+                        />
+                      ) : (
+                        <CoverMintButton
+                          poolAddress={poolId}
+                          disabled={false}
+                          to={account}
+                          lower={minTick}
+                          claim={minTick}
+                          upper={maxTick}
+                          amount={amount0}
+                          zeroForOne={true}
+                          tickSpacing={tickSpacing}
+                        />
+                      )}
                     </div>
                   </div>
                 </Dialog.Panel>
@@ -262,13 +218,12 @@ export default function ConcentratedPoolPreview({
           </div>
         </Dialog>
       </Transition>
-      <button
+      <div
         onClick={() => setIsOpen(true)}
-        disabled={disabled}
-        className="mt-8 w-full py-4 disabled:opacity-50 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        className="mt-8 w-full py-4 mx-auto disabled:opacity-50 font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
       >
         Preview
-      </button>
+      </div>
     </div>
-  );
+  )
 }

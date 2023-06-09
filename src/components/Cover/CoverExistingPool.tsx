@@ -9,9 +9,10 @@ import {
 import { erc20ABI, useAccount, useContractRead } from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { ethers } from 'ethers'
 import JSBI from 'jsbi'
+import { Listbox, Transition } from "@headlessui/react";
 import {
   TickMath,
   getDefaultLowerPrice,
@@ -301,6 +302,87 @@ export default function CoverExistingPool({
     setSliderValue(event.target.value)
   }
 
+
+
+
+  const feeTiers = [
+    {
+      id: 1,
+      tier: "0.01%",
+      text: "Best for very stable pairs",
+      unavailable: false,
+    },
+    {
+      id: 2,
+      tier: "0.05%",
+      text: "Best for stable pairs",
+      unavailable: false,
+    },
+    { id: 3, tier: "0.3%", text: "Best for most pairs", unavailable: false },
+    { id: 4, tier: "1%", text: "Best for exotic pairs", unavailable: false },
+  ];
+
+    const [selected, setSelected] = useState(feeTiers[0]);
+
+
+
+    function SelectFee() {
+    return (
+      <Listbox value={selected} onChange={setSelected}>
+        <div className="relative mt-1 w-full">
+          <Listbox.Button className="relative cursor-default rounded-lg bg-black text-white cursor-pointer border border-grey1 py-2 pl-3 w-full text-left shadow-md focus:outline-none">
+            <span className="block truncate">{selected.tier}</span>
+            <span className="block truncate text-xs text-grey mt-1">
+              {selected.text}
+            </span>
+            <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+              <ChevronDownIcon className="w-7 text-grey" aria-hidden="true" />
+            </span>
+          </Listbox.Button>
+          <Transition
+            as={Fragment}
+            leave="transition ease-in duration-100"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <Listbox.Options className="absolute mt-1 z-50 max-h-60 w-full overflow-auto rounded-md bg-black border border-grey1 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+              {feeTiers.map((feeTier, feeTierIdx) => (
+                <Listbox.Option
+                  key={feeTierIdx}
+                  className={({ active }) =>
+                    `relative cursor-default select-none py-2 px-4 cursor-pointer ${
+                      active ? 'opacity-80 bg-dark' : 'opacity-100'
+                    }`
+                  }
+                  value={feeTier}
+                >
+                  {({ selected }) => (
+                    <>
+                      <span
+                        className={`block truncate text-white ${
+                          selected ? 'font-medium' : 'font-normal'
+                        }`}
+                      >
+                        {feeTier.tier}
+                      </span>
+                      <span
+                        className={`block truncate text-grey text-xs mt-1 ${
+                          selected ? 'font-medium' : 'font-normal'
+                        }`}
+                      >
+                        {feeTier.text}
+                      </span>
+                    </>
+                  )}
+                </Listbox.Option>
+              ))}
+            </Listbox.Options>
+          </Transition>
+        </div>
+      </Listbox>
+    )
+  }
+
   const Option = () => {
     if (expanded) {
       return (
@@ -391,7 +473,7 @@ export default function CoverExistingPool({
           className="w-full styled-slider slider-progress bg-transparent"
         />
       </div>
-      <div className="mt-3 space-y-2">
+      <div className="mt-3 ">
         <div className="flex justify-between items-center text-sm">
           <div className="text-[#646464]">Percentage Covered</div>
           <div className="flex gap-x-2 items-center ">
@@ -454,6 +536,14 @@ export default function CoverExistingPool({
           <></>
         )}
       </div>
+      <div>
+          <div className="gap-x-4 mt-5">
+            <h1>Volatility tier</h1>
+          </div>
+          <div className="mt-3">
+            <SelectFee />
+          </div>
+        </div>
       <div className="flex items-center w-full mb-3 mt-4 gap-x-2 relative">
         <h1 className="">Set Price Range</h1>
         <InformationCircleIcon

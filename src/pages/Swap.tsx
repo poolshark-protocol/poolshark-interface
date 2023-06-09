@@ -36,7 +36,7 @@ import { getCoverPool, getFeeTier, getRangePool } from '../utils/pools'
 import { getBalances } from '../utils/balances'
 import inputFilter from '../utils/inputFilter'
 import RangeLimitSwapButton from '../components/Buttons/RangeLimitSwapButton'
-import SwapRangeDoubleApproveButton from '../components/Buttons/SwapRangeDoubleApproveButton'
+import SwapRangeDoubleApproveButton from "../components/Buttons/SwapRangeDoubleApproveButton";
 
 export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount()
@@ -1108,20 +1108,18 @@ export default function Swap() {
               Number(allowanceRange) <
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                 <div>
-                  <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                    Your allowance is missing{" "}
-                    {(
-                      Number(ethers.utils.formatUnits(bnInput, 18)) -
-                      Number(allowanceRange)
-                    ).toFixed(2)}{' '}
-                    {tokenIn.symbol}
-                  </div>
-
                   <SwapRangeApproveButton
                     disabled={false}
                     poolAddress={rangePoolRoute}
                     approveToken={tokenIn.address}
                   />
+                  <div className="text-xs mt-4 text-center uppercase text-grey">
+                    Your {tokenIn.symbol} rangePool allowance is missing{(
+                      Number(ethers.utils.formatUnits(bnInput, 18)) -
+                      Number(allowanceRange)
+                    ).toFixed(2)}
+                    {tokenIn.symbol}
+                  </div>
                 </div>
               ) : (
                 <SwapRangeButton
