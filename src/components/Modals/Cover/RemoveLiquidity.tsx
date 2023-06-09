@@ -26,7 +26,8 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
   const [burnPercent, setBurnPercent] = useState(ethers.utils.parseUnits("5", 37))
   const [amountOut, setAmountOut] = useState()
   const [sliderValue, setSliderValue] = useState(0)
-  const [amountInMax, setAmountInMax] = useState(ethers.utils.formatUnits(amountInDeltaMax, tokenIn.decimals))
+  const [amountInMax, setAmountInMax] = useState(ethers.utils.parseUnits(amountInDeltaMax ?? '0', tokenIn.decimals))
+  const [amountInDisplay, setAmountInDisplay] = useState(ethers.utils.formatUnits(BigNumber.from(amountInDeltaMax) ?? BN_ZERO, tokenIn.decimals))
 
   useEffect(() => {
     if(!fetchDelay) {
@@ -40,13 +41,10 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
   }, [fetchDelay])
 
   useEffect(() => {
-    console.log()
-    BN_ZERO.gt
-    // console.log('setting slider value', parseInt(bnInput.div(amountInDeltaMax).toString()))
-    // if (amountInDeltaMax.gt(BN_ZERO)) {
-      // console.log('setting burn percent', bnInput.toString(), amountInDeltaMax.toString(), bnInput.mul(ethers.utils.parseUnits('1', 38)).div(amountInDeltaMax).toString())
-      // setBurnPercent(bnInput.mul(ethers.utils.parseUnits('1', 38)).div(amountInMax))
-    // }
+    if (amountInMax.gt(BN_ZERO)) {
+      console.log('setting burn percent', bnInput.toString(), amountInMax.toString(), bnInput.mul(ethers.utils.parseUnits('1', 38)).div(amountInMax).toString())
+      setBurnPercent(bnInput.mul(ethers.utils.parseUnits('1', 38)).div(amountInMax))
+    }
 
   }, [bnInput])
 
@@ -58,7 +56,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
     setBurnPercent(ethers.utils.parseUnits(String(sliderValue), 36))
     console.log('setting burn percent', ethers.utils.parseUnits(String(sliderValue), 36).toString())
     console.log('setting display', amountInMax)
-    setDisplay((parseFloat(amountInMax) * sliderValue / 100).toPrecision(6))
+    setDisplay((parseFloat(amountInDisplay) * sliderValue / 100).toPrecision(6))
   }, [sliderValue])
 
   const handleChange = (event: any) => {

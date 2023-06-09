@@ -279,11 +279,13 @@ export default function Cover() {
   }, [filledAmount])
 
   useEffect(() => {
-    // setFillPercent(
-    //   (Number(coverFilledAmount) /
-    //     Number(ethers.utils.formatUnits(userFillIn.toString(), 18))) *
-    //     100,
-    // )
+    if (coverFilledAmount && userFillIn) {
+      setFillPercent(
+        (Number(coverFilledAmount) /
+          Number(ethers.utils.formatUnits(userFillIn.toString(), 18))) *
+          100,
+      )
+    }
   })
 
   ////////////////////////////////Claim Tick
@@ -595,7 +597,7 @@ export default function Cover() {
             claimTick={Number(claimTick)}
             upperTick={Number(maxLimit)}
             zeroForOne={zeroForOne}
-            amountInDeltaMax={userFillOut ?? BN_ZERO}
+            amountInDeltaMax={userFillOut ?? '0'}
           />
           <AddLiquidity
             isOpen={isAddOpen}
