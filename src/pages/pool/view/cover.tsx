@@ -121,7 +121,6 @@ export default function Cover() {
 
   useEffect(() => {
     if (router.isReady) {
-     
       const query = router.query
       setPoolContractAdd(query.poolId)
       setTokenIn({
@@ -257,7 +256,16 @@ export default function Cover() {
     },
     onError(error) {
       console.log('Error price Cover', error)
-      console.log('snapshot args', address, BigNumber.from('0').toString(), minLimit.toString(), maxLimit.toString(), claimTick.toString(), zeroForOne, router.isReady)
+      console.log(
+        'snapshot args',
+        address,
+        BigNumber.from('0').toString(),
+        minLimit.toString(),
+        maxLimit.toString(),
+        claimTick.toString(),
+        zeroForOne,
+        router.isReady,
+      )
     },
     onSettled(data, error) {
       //console.log('Settled price Cover', { data, error })
@@ -572,30 +580,36 @@ export default function Cover() {
           </div>
         </div>
       </div>
-      <RemoveLiquidity
-        isOpen={isRemoveOpen}
-        setIsOpen={setIsRemoveOpen}
-        tokenIn={tokenIn}
-        poolAdd={poolAdd}
-        address={address}
-        lowerTick={Number(minLimit)}
-        claimTick={Number(claimTick)}
-        upperTick={Number(maxLimit)}
-        zeroForOne={zeroForOne}
-        amountInDeltaMax={userFillOut ?? BN_ZERO}
-      />
-      <AddLiquidity
-        isOpen={isAddOpen}
-        setIsOpen={setIsAddOpen}
-        tokenIn={tokenIn}
-        poolAdd={poolAdd}
-        address={address}
-        minLimit={minLimit}
-        claimTick={claimTick}
-        maxLimit={maxLimit}
-        zeroForOne={zeroForOne}
-        liquidity={liquidity}
-      />
+      {tokenIn.name == '' ? (
+        <></>
+      ) : (
+        <>
+          <RemoveLiquidity
+            isOpen={isRemoveOpen}
+            setIsOpen={setIsRemoveOpen}
+            tokenIn={tokenIn}
+            poolAdd={poolAdd}
+            address={address}
+            lowerTick={Number(minLimit)}
+            claimTick={Number(claimTick)}
+            upperTick={Number(maxLimit)}
+            zeroForOne={zeroForOne}
+            amountInDeltaMax={userFillOut ?? BN_ZERO}
+          />
+          <AddLiquidity
+            isOpen={isAddOpen}
+            setIsOpen={setIsAddOpen}
+            tokenIn={tokenIn}
+            poolAdd={poolAdd}
+            address={address}
+            minLimit={minLimit}
+            claimTick={claimTick}
+            maxLimit={maxLimit}
+            zeroForOne={zeroForOne}
+            liquidity={liquidity}
+          />
+        </>
+      )}
     </div>
   )
 }
