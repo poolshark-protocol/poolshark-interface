@@ -961,7 +961,7 @@ export default function Swap() {
                   type="text"
                   onChange={e => {
                     setLimitPrice(inputFilter(e.target.value));
-                    (Number(e.target.value) != 0 && e.target.value.toString() != '') ?
+                    (e.target.value.toString() != '') ?
                       (
                       setRangeBnPrice(ethers.utils.parseEther(inputFilter(e.target.value)))
                       ) :
