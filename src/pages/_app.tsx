@@ -47,7 +47,7 @@ function MyApp({ Component, pageProps }) {
        <title>Poolshark</title>
     </Head>
       <WagmiConfig client={wagmiClient}>
-        <RainbowKitProvider chains={chains}>
+        <RainbowKitProvider chains={chains} initialChain={arbitrumGoerli}>
           <ApolloProvider client={apolloClient}>
             <Component {...pageProps} />
           </ApolloProvider>
