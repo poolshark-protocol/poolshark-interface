@@ -1073,10 +1073,10 @@ export default function Swap() {
                     approveToken={tokenIn.address}
                   />
                   <div className="text-xs mt-4 text-center uppercase text-grey">
-                    Your {tokenIn.symbol} rangePool allowance is missing{" "}
+                    Your {tokenIn.symbol} rangePool allowance is missing{(
                       Number(ethers.utils.formatUnits(bnInput, 18)) -
                       Number(allowanceRange)
-                    ).toFixed(2)}{" "}
+                    ).toFixed(2)}
                     {tokenIn.symbol}
                   </div>
                 </div>
