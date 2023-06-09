@@ -248,6 +248,7 @@ export default function Cover() {
     chainId: 421613,
     watch: true,
     enabled:
+      router.isReady &&
       claimTick.lt(BigNumber.from('887272')) &&
       isConnected &&
       coverPoolRoute != '',
@@ -257,7 +258,7 @@ export default function Cover() {
     onError(error) {
       console.log('Error price Cover', error)
       console.log(
-        'snapshot args',
+        'claim tick snapshot args',
         address,
         BigNumber.from('0').toString(),
         minLimit.toString(),
@@ -287,20 +288,20 @@ export default function Cover() {
 
   ////////////////////////////////Claim Tick
 
-  useEffect(() => {
-    updateClaimTick()
-  }, [])
+  // useEffect(() => {
+  //   updateClaimTick()
+  // }, [])
 
-  async function updateClaimTick() {
-    const aux = await getClaimTick(
-      poolAdd.toString(),
-      Number(minLimit),
-      Number(maxLimit),
-      zeroForOne,
-      Number(epochLast),
-    )
-    setClaimTick(BigNumber.from(aux))
-  }
+  // async function updateClaimTick() {
+  //   const aux = await getClaimTick(
+  //     poolAdd.toString(),
+  //     Number(minLimit),
+  //     Number(maxLimit),
+  //     zeroForOne,
+  //     Number(epochLast),
+  //   )
+  //   setClaimTick(BigNumber.from(aux))
+  // }
 
   ////////////////////////////////Addresses
 
