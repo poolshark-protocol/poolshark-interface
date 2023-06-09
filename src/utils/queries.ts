@@ -103,7 +103,9 @@ export const getRangePoolFromFactory = (tokenA?: string, tokenB?: string, feeTie
   })
 }
 
-export const getCoverPoolFromFactory = (token0: string, token1: string) => {
+export const getCoverPoolFromFactory = (tokenA: string, tokenB: string) => {
+  const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB
+  const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA
   return new Promise(function (resolve) {
     const getPool = `
         {
@@ -116,6 +118,7 @@ export const getCoverPoolFromFactory = (token0: string, token1: string) => {
             }
           }
          `
+    console.log('query:', getPool)
     //console.log('query:', getPool)
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',

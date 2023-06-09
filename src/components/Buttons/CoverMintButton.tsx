@@ -60,6 +60,8 @@ export default function CoverMintButton({
     zeroForOne,
   ) */
 
+  console.log('mint amount', amount.toString() )
+
   const { config } = usePrepareContractWrite({
     address: poolAddress,
     abi: coverPoolABI,
@@ -67,8 +69,8 @@ export default function CoverMintButton({
     args: [
       [
         to,
-        // amount,
-        ethers.utils.parseUnits('1000', 18),
+        amount,
+        // ethers.utils.parseUnits('1000', 18),
         roundTick(Number(lower), tickSpacing),
         roundTick(Number(claim), tickSpacing),
         roundTick(Number(upper), tickSpacing),

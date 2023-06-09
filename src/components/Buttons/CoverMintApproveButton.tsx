@@ -18,6 +18,8 @@ import { BigNumber } from 'ethers'
   }) {
     const [errorDisplay, setErrorDisplay] = useState(false)
     const [successDisplay, setSuccessDisplay] = useState(false)
+
+    console.log('approve address', poolAddress)
   
     const { config } = usePrepareContractWrite({
       address: approveToken,
