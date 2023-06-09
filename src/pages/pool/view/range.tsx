@@ -283,16 +283,16 @@ export default function Range() {
         const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(upperTick))
         const rangeSqrtPrice = JSBI.BigInt(rangePrice)
         const liquidity = JSBI.BigInt(userLiquidity)
-        const token0Amount = JSBI.greaterThan(liquidity, ZERO)
-          ? DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
-          : //  : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
-            ZERO
-        const token1Amount = JSBI.greaterThan(liquidity, ZERO)
-          ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
-          : ZERO
+        const amounts = DyDxMath.getAmountsForLiquidity(
+          lowerSqrtPrice,
+          upperSqrtPrice,
+          rangeSqrtPrice,
+          liquidity,
+          true
+        )
         // set amount based on bnInput
-        const amount0Bn = BigNumber.from(String(token0Amount))
-        const amount1Bn = BigNumber.from(String(token1Amount))
+        const amount0Bn = BigNumber.from(String(amounts.token0Amount))
+        const amount1Bn = BigNumber.from(String(amounts.token1Amount))
         setAmount0(parseFloat(ethers.utils.formatUnits(amount0Bn, 18)))
         setAmount1(parseFloat(ethers.utils.formatUnits(amount1Bn, 18)))
       }
@@ -452,7 +452,7 @@ export default function Range() {
                         {(
                           (amount0Usd / (amount0Usd + amount1Usd)) *
                           100
-                        ).toPrecision(4)}
+                        ).toFixed(2)}
                         %
                       </span>
                     </div>
@@ -473,7 +473,7 @@ export default function Range() {
                         {(
                           (amount1Usd / (amount0Usd + amount1Usd)) *
                           100
-                        ).toPrecision(4)}
+                        ).toFixed(2)}
                         %
                       </span>
                     </div>

@@ -79,7 +79,7 @@ export abstract class DyDxMath {
     currentPrice: JSBI,
     liquidityAmount: JSBI,
     roundUp: boolean
-  ): { token0amount: JSBI; token1amount: JSBI } {
+  ): { token0Amount: JSBI; token1Amount: JSBI } {
     let token0amount: JSBI;
     let token1amount: JSBI;
     if (JSBI.lessThanOrEqual(currentPrice, priceLower)) {
@@ -95,6 +95,6 @@ export abstract class DyDxMath {
       token0amount = DyDxMath.getDx(liquidityAmount, currentPrice, priceUpper, roundUp);
       token1amount = DyDxMath.getDy(liquidityAmount, priceLower, currentPrice, roundUp);
     }
-    return { token0amount, token1amount };
+    return { token0Amount: token0amount, token1Amount: token1amount };
   }
 }

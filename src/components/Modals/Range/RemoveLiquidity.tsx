@@ -108,9 +108,9 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
           true
         )
         // set amount based on liquidity math
-        const amount0Bn = BigNumber.from(String(amounts.token0amount))
-        console.log('token1 amount', amounts.token1amount)
-        const amount1Bn = BigNumber.from(String(amounts.token1amount))
+        const amount0Bn = BigNumber.from(String(amounts.token0Amount))
+        console.log('token1 amount', amounts.token1Amount)
+        const amount1Bn = BigNumber.from(String(amounts.token1Amount))
         if (changeDisplay) setDisplay(Number(ethers.utils.formatUnits(tokenOrder ? amount0Bn : amount1Bn, 18)).toPrecision(6))
         setAmount0(amount0Bn) 
         setAmount1(amount1Bn)
