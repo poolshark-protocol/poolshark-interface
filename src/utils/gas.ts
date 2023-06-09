@@ -16,15 +16,13 @@ export const gasEstimate = async (
   tokenOut: token,
   bnInput: BigNumber,
   address: string,
-  signer: Signer,
-  setGasFee,
+  signer: Signer
 ) => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
       'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
     )
     if (!coverPoolRoute || !provider) {
-      setGasFee('0')
       return
     }
     var contract: Contract
@@ -71,8 +69,7 @@ export const gasEstimate = async (
         style: 'currency',
         currency: 'USD',
       })
-
-    setGasFee(formattedPrice)
+    return formattedPrice
   } catch (error) {
     console.log('gas error', error)
   }

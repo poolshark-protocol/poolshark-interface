@@ -28,8 +28,6 @@ import SwapRangeButton from '../components/Buttons/SwapRangeButton'
 import SwapCoverApproveButton from '../components/Buttons/SwapCoverApproveButton'
 import SwapCoverButton from '../components/Buttons/SwapCoverButton'
 import { rangePoolABI } from '../abis/evm/rangePool'
-import { TickMath, invertPrice } from '../utils/math/tickMath'
-import { gasEstimate } from '../utils/gas'
 import { TickMath, invertPrice, roundTick } from '../utils/math/tickMath'
 import { BN_ZERO, ZERO_ADDRESS } from '../utils/math/constants'
 import { gasEstimate, gasEstimateLimit } from '../utils/gas'
@@ -149,13 +147,6 @@ export default function Swap() {
       console.log('Success allowance', data)
     },
   })
-
-  useEffect(() => {
-    if (dataRange && dataCover) {
-      setAllowanceRange(ethers.utils.formatUnits(dataRange, 18))
-      setAllowanceCover(ethers.utils.formatUnits(dataCover, 18))
-    }
-  }, [dataRange, dataCover, tokenIn.address])
 
   ////////////////////////////////Prices & Base Limits
 
@@ -464,16 +455,6 @@ export default function Swap() {
     }
   }
 
-  const getSlippage = () => {
-    if (rangeQuote > coverQuote) {
-      setSlippage(rangeSlippage)
-      setAuxSlippage(rangeSlippage)
-    } else {
-      setSlippage(coverSlippage)
-      setAuxSlippage(coverSlippage)
-    }
-  }
-
   useEffect(() => {
     if (allowanceInRange && allowanceInCover) {
       setAllowanceRange(ethers.utils.formatUnits(allowanceInRange, 18))
@@ -574,12 +555,7 @@ export default function Swap() {
   }, [quoteCover, quoteRange, bnInput])
 
   async function updateTierFee() {
-    await getFeeTier(
-      rangePoolRoute,
-      coverPoolRoute,
-      setRangeSlippage,
-      setCoverSlippage,
-    )
+    await getFeeTier()
   }
 
   const getSlippage = () => {
@@ -597,31 +573,6 @@ export default function Swap() {
   useEffect(() => {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId])
   }, [chainId])
-
-  ////////////////////////Balances & Pools
-
-  useEffect(() => {
-    if (hasSelected) {
-      updateBalances()
-      updatePools()
-    }
-  }, [tokenOut.address, tokenIn.address, hasSelected])
-
-  async function updateBalances() {
-    await getBalances(
-      address,
-      hasSelected,
-      tokenIn,
-      tokenOut,
-      setBalanceIn,
-      setBalanceOut,
-    )
-  }
-
-  async function updatePools() {
-    await getRangePool(tokenIn, tokenOut, setRangePoolRoute)
-    await getCoverPool(tokenIn, tokenOut, setCoverPoolRoute)
-  }
 
   ////////////////////////Gas Fee
 
@@ -955,18 +906,7 @@ export default function Swap() {
             className="w-4 h-4"
             onClick={() => {
               if (hasSelected) {
-                switchDirection(
-                  tokenOrder,
-                  setTokenOrder,
-                  tokenIn,
-                  setTokenIn,
-                  tokenOut,
-                  setTokenOut,
-                  queryTokenIn,
-                  setQueryTokenIn,
-                  queryTokenOut,
-                  setQueryTokenOut,
-                )
+                switchDirection()
               }
             }}
           />
