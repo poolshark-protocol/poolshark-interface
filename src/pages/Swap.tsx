@@ -236,24 +236,6 @@ export default function Swap() {
     }
   }, [coverPrice, rangePrice])
 
-  useEffect(() => {
-    if (rangeBnPrice) {
-      if (rangeBnPrice !== BigNumber.from(0)) {
-        setRangeBnBaseLimit(
-          rangeBnPrice.mul(parseFloat(slippage) * 100).div(10000),
-        )
-      }
-    }
-
-    if (coverBnPrice) {
-      if (coverBnPrice !== BigNumber.from(0)) {
-        setCoverBnBaseLimit(
-          coverBnPrice.mul(parseFloat(slippage) * 100).div(10000),
-        )
-      }
-    }
-  }, [slippage, rangeBnPrice, coverBnPrice])
-
   ////////////////////////////////Quotes
 
   const { data: quoteRange } = useContractRead({
@@ -578,7 +560,7 @@ export default function Swap() {
   useEffect(() => {
     if (rangeBnPrice) {
       if (rangeBnPrice !== BigNumber.from(0)) {
-        const baseLimit = rangeBnPrice.mul(parseFloat(slippage) * 100).div(10000)
+        const baseLimit = rangeBnPrice.mul(parseFloat((parseFloat(slippage) * 100).toFixed(6))).div(10000)
         setRangeBnBaseLimit(baseLimit)
         setRangeBnPriceLimit(
           tokenOrder ? 
@@ -632,10 +614,10 @@ export default function Swap() {
     rangePoolRoute,
   ])
 
-   useEffect(() => {
-    if (coverBnPrice) {
-      if (coverBnPrice !== BigNumber.from(0)) {
-        const baseLimit = coverBnPrice.mul(parseFloat(slippage) * 100).div(10000)
+  useEffect(() => {
+   if (coverBnPrice) {
+     if (coverBnPrice !== BigNumber.from(0)) {
+        const baseLimit = coverBnPrice.mul(parseFloat((parseFloat(slippage) * 100).toFixed(6))).div(10000)
         setCoverBnBaseLimit(baseLimit)
         setCoverBnPriceLimit(
           tokenOrder
@@ -652,10 +634,10 @@ export default function Swap() {
               ).toString(),
             )
         )
-      }
-    }
-    console.log('rangeBnBaseLimit', rangeBnBaseLimit.toString())
-    console.log('coverBnBaseLimit', coverBnBaseLimit.toString())
+     }
+   }
+   console.log('rangeBnBaseLimit', rangeBnBaseLimit.toString())
+   console.log('coverBnBaseLimit', coverBnBaseLimit.toString())
   }, [slippage, rangeBnPrice, coverBnPrice])
 
   const Option = () => {
@@ -829,7 +811,7 @@ export default function Swap() {
                         <button
                           className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
                           onClick={async () => {
-                            setSlippage(auxSlippage)
+                            setSlippage(parseFloat(auxSlippage).toFixed(2))
                             close()
                           }}
                         >
