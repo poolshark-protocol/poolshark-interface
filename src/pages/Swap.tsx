@@ -315,7 +315,7 @@ export default function Swap() {
   }
 
   useEffect(() => {
-    if (bnInput !== BigNumber.from(0)) {
+    if (!bnInput.eq(BN_ZERO)) {
       if (!LimitActive) {
         updateGasFee()
       } else {
@@ -342,6 +342,8 @@ export default function Swap() {
       tokenIn,
       tokenOut,
       bnInput,
+      ethers.utils.parseUnits(allowanceRange, 18),
+      ethers.utils.parseUnits(allowanceCover, 18),
       address,
       signer,
     )

@@ -15,10 +15,13 @@ export const gasEstimate = async (
   tokenIn: token,
   tokenOut: token,
   bnInput: BigNumber,
+  allowanceRange: BigNumber,
+  allowanceCover: BigNumber,
   address: string,
   signer: Signer
 ) => {
   try {
+    if (isNaN(rangeQuote) || isNaN(coverQuote)) return
     const provider = new ethers.providers.JsonRpcProvider(
       'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
     )
@@ -52,11 +55,13 @@ export const gasEstimate = async (
     if (rangeQuote > coverQuote)
       gasUnits = await contract
         .connect(signer)
-        .estimateGas.swap(recipient, recipient, zeroForOne, bnInput, priceLimit)
-    else
+        .estimateGas.swap(recipient, recipient, zeroForOne, bnInput.lte(allowanceRange) ? bnInput : allowanceRange, priceLimit)
+    else {
       gasUnits = await contract
-        .connect(signer)
-        .estimateGas.swap(recipient, zeroForOne, bnInput, priceLimit)
+      .connect(signer)
+      .estimateGas.swap(recipient, zeroForOne, bnInput.lte(allowanceCover) ? bnInput : allowanceCover, priceLimit)
+    }
+
     const price = await fetchPrice('0x000')
     const gasPrice = await provider.getGasPrice()
     const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])
