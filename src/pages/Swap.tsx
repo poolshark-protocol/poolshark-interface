@@ -28,7 +28,7 @@ import SwapRangeButton from '../components/Buttons/SwapRangeButton'
 import SwapCoverApproveButton from '../components/Buttons/SwapCoverApproveButton'
 import SwapCoverButton from '../components/Buttons/SwapCoverButton'
 import { rangePoolABI } from '../abis/evm/rangePool'
-import { TickMath, invertPrice, roundTick } from '../utils/math/tickMath'
+import { TickMath, invertPrice, maxPriceBn, minPriceBn, roundTick } from '../utils/math/tickMath'
 import { BN_ZERO, ZERO_ADDRESS } from '../utils/math/constants'
 import { gasEstimate, gasEstimateLimit } from '../utils/gas'
 import { token } from '../utils/types'
@@ -75,7 +75,7 @@ export default function Swap() {
   const [balanceOut, setBalanceOut] = useState('0.00')
   const [stateChainName, setStateChainName] = useState()
   const [LimitActive, setLimitActive] = useState(false)
-  const [tokenOrder, setTokenOrder] = useState(true)
+  const [tokenOrder, setTokenOrder] = useState(tokenIn.address.localeCompare(tokenOut.address) < 0)
   const [expanded, setExpanded] = useState(false)
   const [allowanceRange, setAllowanceRange] = useState('0.00')
   const [allowanceCover, setAllowanceCover] = useState('0.00')
@@ -172,7 +172,7 @@ export default function Swap() {
     address: coverPoolRoute,
     abi: coverPoolABI,
     functionName:
-      tokenIn.address.localeCompare(tokenOut.address) < 0 ? 'pool1' : 'pool0',
+      tokenOrder ? 'pool1' : 'pool0',
     args: [],
     chainId: 421613,
     watch: true,
@@ -192,7 +192,7 @@ export default function Swap() {
   useEffect(() => {
     if (priceCover) {
       if (
-        priceCover[0].toString() !== BigNumber.from(0).toString() &&
+        priceCover[0].gt(BN_ZERO) &&
         tokenIn.address != '' &&
         tokenOut.address != '' &&
         priceCover != undefined
@@ -205,7 +205,7 @@ export default function Swap() {
 
     if (priceRange) {
       if (
-        priceRange[5].toString() !== BigNumber.from(0).toString() &&
+        priceRange[5].gt(BN_ZERO) &&
         tokenIn.address != '' &&
         tokenOut.address != '' &&
         priceRange != undefined
@@ -243,9 +243,9 @@ export default function Swap() {
     abi: rangePoolABI,
     functionName: 'quote',
     args: [
-      tokenIn.address.localeCompare(tokenOut.address) < 0,
+      tokenOrder,
       bnInput,
-      rangeBnPriceLimit
+      tokenOrder ? minPriceBn : maxPriceBn
     ],
     chainId: 421613,
     watch: true,
@@ -266,7 +266,7 @@ export default function Swap() {
     abi: coverPoolABI,
     functionName: 'quote',
     args: [
-      tokenIn.address.localeCompare(tokenOut.address) < 0,
+      tokenOrder,
       bnInput,
       coverBnPriceLimit
     ],
@@ -364,46 +364,6 @@ export default function Swap() {
     setMintFee(newMintFee)
   }
 
-  function changeDefaultIn(token: token) {
-    if (token.symbol === tokenOut.symbol) {
-      return
-    }
-    setTokenIn(token)
-    if (tokenOrder) {
-      setTokenIn(token)
-      if (hasSelected === true) {
-        setTokenOut(tokenOut)
-      }
-      return
-    }
-    if (!tokenOrder) {
-      if (hasSelected === true) {
-        setTokenIn(tokenOut)
-      }
-      setTokenOut(token)
-      return
-    }
-  }
-
-  const changeDefaultOut = (token: token) => {
-    if (token.symbol === tokenIn.symbol) {
-      return
-    }
-    setTokenOut(token)
-    setHasSelected(true)
-    if (token.address.localeCompare(tokenIn.address) < 0) {
-      setTokenIn(token)
-      setTokenOut(tokenIn)
-      return
-    }
-
-    if (token.address.localeCompare(tokenIn.address) >= 0) {
-      setTokenIn(tokenIn)
-      setTokenOut(token)
-      return
-    }
-  }
-
   function switchDirection() {
     setTokenOrder(!tokenOrder)
     const temp = tokenIn
@@ -450,7 +410,7 @@ export default function Swap() {
   useEffect(() => {
     if (priceCover) {
       if (
-        priceCover[0].toString() !== BigNumber.from(0).toString() &&
+        priceCover[0].gt(BN_ZERO) &&
         tokenIn.address != '' &&
         tokenOut.address != '' &&
         priceCover != undefined
@@ -464,7 +424,7 @@ export default function Swap() {
 
     if (priceRange) {
       if (
-        priceRange[5].toString() !== BigNumber.from(0).toString() &&
+        priceRange[5].gt(BN_ZERO) &&
         tokenIn.address != '' &&
         tokenOut.address != '' &&
         priceRange != undefined
@@ -488,10 +448,10 @@ export default function Swap() {
   useEffect(() => {
     if (quoteRange) {
       if (
-        quoteRange[0].toString() !== BigNumber.from(0).toString() &&
-        quoteRange[1].toString() !== BigNumber.from(0).toString() &&
+        quoteRange[0].gt(BN_ZERO) &&
+        quoteRange[1].gt(BN_ZERO) &&
         bnInput._hex != '0x00' &&
-        rangeBnPrice.toString() !== BigNumber.from(0).toString()
+        rangeBnPrice.gt(BN_ZERO)
       ) {
         setRangeOutput(parseFloat(ethers.utils.formatUnits(quoteRange[1], 18)))
         setRangeQuote(
@@ -506,10 +466,10 @@ export default function Swap() {
 
     if (quoteCover) {
       if (
-        quoteCover[0].toString() !== BigNumber.from(0).toString() &&
-        quoteCover[1].toString() !== BigNumber.from(0).toString() &&
-        bnInput._hex != '0x00' &&
-        coverBnPrice.toString() !== BigNumber.from(0).toString()
+        quoteCover[0].gt(BN_ZERO) &&
+        quoteCover[1].gt(BN_ZERO) &&
+        !bnInput.eq(BN_ZERO) &&
+        coverBnPrice.gt(BN_ZERO)
       ) {
         setCoverOutput(parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)))
         setCoverQuote(
@@ -525,8 +485,8 @@ export default function Swap() {
     if (quoteCover && quoteRange) {
       if (
         slippageFetched === false &&
-        quoteCover[0].toString() !== BigNumber.from(0).toString() &&
-        quoteRange[0].toString() !== BigNumber.from(0).toString()
+        quoteCover[0].gt(BN_ZERO) &&
+        quoteRange[0].gt(BN_ZERO)
       ) {
         updateTierFee()
         getSlippage()
@@ -559,7 +519,7 @@ export default function Swap() {
 
   useEffect(() => {
     if (rangeBnPrice) {
-      if (rangeBnPrice !== BigNumber.from(0)) {
+      if (!rangeBnPrice.eq(BN_ZERO)) {
         const baseLimit = rangeBnPrice.mul(parseFloat((parseFloat(slippage) * 100).toFixed(6))).div(10000)
         setRangeBnBaseLimit(baseLimit)
         setRangeBnPriceLimit(
@@ -616,7 +576,7 @@ export default function Swap() {
 
   useEffect(() => {
    if (coverBnPrice) {
-     if (coverBnPrice !== BigNumber.from(0)) {
+     if (!coverBnPrice.eq(BN_ZERO)) {
         const baseLimit = coverBnPrice.mul(parseFloat((parseFloat(slippage) * 100).toFixed(6))).div(10000)
         setCoverBnBaseLimit(baseLimit)
         setCoverBnPriceLimit(
@@ -1052,8 +1012,8 @@ export default function Swap() {
                   ((!LimitActive) ? 
                   (rangeQuote != 0 && coverQuote != 0
                     ? rangeQuote > coverQuote
-                      ? rangeQuote.toFixed(2)
-                      : coverQuote.toFixed(2)
+                      ? rangeQuote.toPrecision(5)
+                      : coverQuote.toPrecision(5)
                     : "0")
                   : (
                     parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) != 0
