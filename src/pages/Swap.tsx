@@ -920,7 +920,12 @@ export default function Swap() {
               Number(allowanceRange) <
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                 <div>
-                  <div className="flex-none text-xs uppercase text-[#C9C9C9]">
+                  <SwapRangeApproveButton
+                    disabled={false}
+                    poolAddress={rangePoolRoute}
+                    approveToken={tokenIn.address}
+                  />
+                  <div className="text-xs mt-4 text-center uppercase text-grey">
                     Your {tokenIn.symbol} rangePool allowance is missing{" "}
                     {(
                       Number(ethers.utils.formatUnits(bnInput, 18)) -
@@ -928,12 +933,6 @@ export default function Swap() {
                     ).toFixed(2)}{" "}
                     {tokenIn.symbol}
                   </div>
-
-                  <SwapRangeApproveButton
-                    disabled={false}
-                    poolAddress={rangePoolRoute}
-                    approveToken={tokenIn.address}
-                  />
                 </div>
               ) : (
                 <SwapRangeButton

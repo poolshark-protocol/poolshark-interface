@@ -225,6 +225,7 @@ export default function ConcentratedPoolPreview({
                           </div>
                         </div>
                       </div>
+                      <div className="mt-4">
                       { allowance0.gte(amount0) && allowance1.gte(amount1) ? null :
                         <RangeMintDoubleApproveButton
                         poolAddress={poolAddress}
@@ -246,6 +247,7 @@ export default function ConcentratedPoolPreview({
                             amount1={amount1}
                         />
                        }
+                       </div>
                     </div>
                   </div>
                 </Dialog.Panel>
@@ -257,7 +259,7 @@ export default function ConcentratedPoolPreview({
       <button
         onClick={() => setIsOpen(true)}
         disabled={disabled}
-        className="mt-8 w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        className="mt-8 w-full py-4 disabled:opacity-50 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
       >
         Preview
       </button>
