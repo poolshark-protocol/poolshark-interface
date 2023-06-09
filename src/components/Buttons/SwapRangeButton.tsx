@@ -37,7 +37,7 @@ export default function SwapRangeButton({poolAddress, amount, zeroForOne, baseLi
       ],
       chainId: 421613,
       overrides:{
-        gasLimit: BigNumber.from("5000000"),
+        gasLimit: BigNumber.from("500000"),
         //gasPrice: ethers.utils.parseUnits('20', 'gwei')
       }
   })
