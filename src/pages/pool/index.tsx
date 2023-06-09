@@ -349,7 +349,7 @@ export default function Pool() {
                                   allCoverPosition.upperTick
                                 )
                               )}
-                              claimTick={allCoverPosition.claimTick}
+                              claimTick={allCoverPosition.claim}
                               latestTick={allCoverPosition.latestTick}
                               tickSpacing={allCoverPosition.tickSpacing}
                               feeTier={allCoverPosition.feeTier}

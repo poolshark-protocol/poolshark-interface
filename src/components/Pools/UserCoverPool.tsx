@@ -140,6 +140,7 @@ export default function UserCoverPool({
       tokenZero: tokenZero,
     }) */
   }
+  console.log('usercoverpool claim tick', claimTick)
   return (
     <Link
       href={{
@@ -165,6 +166,7 @@ export default function UserCoverPool({
           coverTickPrice: coverTickPrice ? coverTickPrice : 0,
           min: min,
           max: max,
+          claimTick: claimTick,
           userFillIn: userFillIn,
           userFillOut: userFillOut,
           liquidity: liquidity,

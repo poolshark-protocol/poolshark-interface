@@ -41,9 +41,13 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
 
   useEffect(() => {
     console.log()
+    BN_ZERO.gt
     // console.log('setting slider value', parseInt(bnInput.div(amountInDeltaMax).toString()))
-    console.log('setting burn percent', bnInput.toString(), amountInDeltaMax.toString(), bnInput.mul(ethers.utils.parseUnits('1', 38)).div(amountInDeltaMax).toString())
-    setBurnPercent(bnInput.mul(ethers.utils.parseUnits('1', 38)).div(amountInDeltaMax))
+    // if (amountInDeltaMax.gt(BN_ZERO)) {
+      // console.log('setting burn percent', bnInput.toString(), amountInDeltaMax.toString(), bnInput.mul(ethers.utils.parseUnits('1', 38)).div(amountInDeltaMax).toString())
+      // setBurnPercent(bnInput.mul(ethers.utils.parseUnits('1', 38)).div(amountInMax))
+    // }
+
   }, [bnInput])
 
   useEffect(() => {
@@ -67,6 +71,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
 
   const getBalances = async () => {
     setFetchDelay(true)
+    console.log('tokenIn remove liquidity', tokenIn)
     try {
       const provider = new ethers.providers.JsonRpcProvider(
         'https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2',

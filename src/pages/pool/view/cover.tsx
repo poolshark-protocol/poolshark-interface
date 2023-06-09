@@ -27,6 +27,7 @@ import {
   tokenZeroAddress,
   tokenOneAddress,
 } from '../../../constants/contractAddresses'
+import { BN_ZERO } from '../../../utils/math/constants'
 
 export default function Cover() {
   const { address, isConnected } = useAccount()
@@ -42,6 +43,7 @@ export default function Cover() {
     address: router.query.tokenZeroAddress ?? '',
     value: router.query.tokenZeroValue ?? '',
   } as token)
+  console.log('router setting tokens')
   const [tokenOut, setTokenOut] = useState({
     name: router.query.tokenOneAddress ?? '',
     symbol: router.query.tokenOneSymbol ?? '',
@@ -68,6 +70,7 @@ export default function Cover() {
     tokenIn.address.localeCompare(tokenOut.address) < 0,
   )
   const [coverFilledAmount, setCoverFilledAmount] = useState('')
+  console.log('user fill out', userFillOut)
   //Pool Addresses
   const [is0Copied, setIs0Copied] = useState(false)
   const [is1Copied, setIs1Copied] = useState(false)
@@ -118,9 +121,17 @@ export default function Cover() {
 
   useEffect(() => {
     if (router.isReady) {
+     
       const query = router.query
       setPoolContractAdd(query.poolId)
       setTokenIn({
+        name: query.tokenZeroName,
+        symbol: query.tokenZeroSymbol,
+        logoURI: query.tokenZeroLogoURI,
+        address: query.tokenZeroAddress,
+        value: query.tokenZeroValue,
+      } as token)
+      console.log('router is ready', {
         name: query.tokenZeroName,
         symbol: query.tokenZeroSymbol,
         logoURI: query.tokenZeroLogoURI,
@@ -140,6 +151,8 @@ export default function Cover() {
       setFeeTier(query.feeTier)
       setMinLimit(query.min)
       setMaxLimit(query.max)
+      setClaimTick(BigNumber.from(query.claimTick))
+      // console.log('claim tick', query.claimTick)
       setUserFillIn(query.userFillIn)
       setUserFillOut(query.userFillOut)
       setTokenZeroDisplay(
@@ -178,6 +191,7 @@ export default function Cover() {
       setCoverPoolRoute(query.coverPoolRoute)
       setCoverTickPrice(query.coverTickPrice)
     }
+    console.log('claim tick', router.query.claimTick)
   }, [router.isReady])
 
   ////////////////////////////////Fetch Pool Data
@@ -243,6 +257,7 @@ export default function Cover() {
     },
     onError(error) {
       console.log('Error price Cover', error)
+      console.log('snapshot args', address, BigNumber.from('0').toString(), minLimit.toString(), maxLimit.toString(), claimTick.toString(), zeroForOne, router.isReady)
     },
     onSettled(data, error) {
       //console.log('Settled price Cover', { data, error })
@@ -255,11 +270,11 @@ export default function Cover() {
   }, [filledAmount])
 
   useEffect(() => {
-    setFillPercent(
-      (Number(coverFilledAmount) /
-        Number(ethers.utils.formatUnits(userFillIn.toString(), 18))) *
-        100,
-    )
+    // setFillPercent(
+    //   (Number(coverFilledAmount) /
+    //     Number(ethers.utils.formatUnits(userFillIn.toString(), 18))) *
+    //     100,
+    // )
   })
 
   ////////////////////////////////Claim Tick
@@ -567,7 +582,7 @@ export default function Cover() {
         claimTick={Number(claimTick)}
         upperTick={Number(maxLimit)}
         zeroForOne={zeroForOne}
-        amountInDeltaMax={userFillOut}
+        amountInDeltaMax={userFillOut ?? BN_ZERO}
       />
       <AddLiquidity
         isOpen={isAddOpen}

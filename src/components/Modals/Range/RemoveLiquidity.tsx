@@ -39,7 +39,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
 
   useEffect(() => {
     const percentInput = sliderValue
-    console.log('percent input', percentInput, tokenAmount, BigNumber.from(percentInput).mul(BigNumber.from(tokenAmount)).div(BigNumber.from(100)).toString())
+    //console.log('percent input', percentInput, tokenAmount, BigNumber.from(percentInput).mul(BigNumber.from(tokenAmount)).div(BigNumber.from(100)).toString())
     if (percentInput <= 0 || percentInput > 100) {
       setDisabled(true)
       return
