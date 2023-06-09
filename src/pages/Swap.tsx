@@ -245,7 +245,7 @@ export default function Swap() {
     args: [
       tokenOrder,
       bnInput,
-      tokenOrder ? minPriceBn : maxPriceBn
+      LimitActive ? rangeBnPriceLimit : (tokenOrder ? minPriceBn : maxPriceBn)
     ],
     chainId: 421613,
     watch: true,
@@ -268,7 +268,7 @@ export default function Swap() {
     args: [
       tokenOrder,
       bnInput,
-      coverBnPriceLimit
+      LimitActive ? coverBnPriceLimit : (tokenOrder ? minPriceBn : maxPriceBn)
     ],
     chainId: 421613,
     watch: true,
