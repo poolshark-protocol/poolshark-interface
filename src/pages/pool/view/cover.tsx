@@ -27,6 +27,7 @@ import {
   tokenZeroAddress,
   tokenOneAddress,
 } from '../../../constants/contractAddresses'
+import { BN_ZERO } from '../../../utils/math/constants'
 
 export default function Cover() {
   const { address, isConnected } = useAccount()
@@ -42,6 +43,7 @@ export default function Cover() {
     address: router.query.tokenZeroAddress ?? '',
     value: router.query.tokenZeroValue ?? '',
   } as token)
+  console.log('router setting tokens')
   const [tokenOut, setTokenOut] = useState({
     name: router.query.tokenOneAddress ?? '',
     symbol: router.query.tokenOneSymbol ?? '',
@@ -68,6 +70,7 @@ export default function Cover() {
     tokenIn.address.localeCompare(tokenOut.address) < 0,
   )
   const [coverFilledAmount, setCoverFilledAmount] = useState('')
+  console.log('user fill out', userFillOut)
   //Pool Addresses
   const [is0Copied, setIs0Copied] = useState(false)
   const [is1Copied, setIs1Copied] = useState(false)
@@ -127,6 +130,13 @@ export default function Cover() {
         address: query.tokenZeroAddress,
         value: query.tokenZeroValue,
       } as token)
+      console.log('router is ready', {
+        name: query.tokenZeroName,
+        symbol: query.tokenZeroSymbol,
+        logoURI: query.tokenZeroLogoURI,
+        address: query.tokenZeroAddress,
+        value: query.tokenZeroValue,
+      } as token)
       setTokenOut({
         name: query.tokenOneName,
         symbol: query.tokenOneSymbol,
@@ -140,6 +150,8 @@ export default function Cover() {
       setFeeTier(query.feeTier)
       setMinLimit(query.min)
       setMaxLimit(query.max)
+      setClaimTick(BigNumber.from(query.claimTick))
+      // console.log('claim tick', query.claimTick)
       setUserFillIn(query.userFillIn)
       setUserFillOut(query.userFillOut)
       setTokenZeroDisplay(
@@ -178,6 +190,7 @@ export default function Cover() {
       setCoverPoolRoute(query.coverPoolRoute)
       setCoverTickPrice(query.coverTickPrice)
     }
+    console.log('claim tick', router.query.claimTick)
   }, [router.isReady])
 
   ////////////////////////////////Fetch Pool Data
@@ -235,6 +248,7 @@ export default function Cover() {
     chainId: 421613,
     watch: true,
     enabled:
+      router.isReady &&
       claimTick.lt(BigNumber.from('887272')) &&
       isConnected &&
       coverPoolRoute != '',
@@ -243,6 +257,16 @@ export default function Cover() {
     },
     onError(error) {
       console.log('Error price Cover', error)
+      console.log(
+        'claim tick snapshot args',
+        address,
+        BigNumber.from('0').toString(),
+        minLimit.toString(),
+        maxLimit.toString(),
+        claimTick.toString(),
+        zeroForOne,
+        router.isReady,
+      )
     },
     onSettled(data, error) {
       //console.log('Settled price Cover', { data, error })
@@ -255,29 +279,31 @@ export default function Cover() {
   }, [filledAmount])
 
   useEffect(() => {
-    setFillPercent(
-      (Number(coverFilledAmount) /
-        Number(ethers.utils.formatUnits(userFillIn.toString(), 18))) *
-        100,
-    )
+    if (coverFilledAmount && userFillIn) {
+      setFillPercent(
+        (Number(coverFilledAmount) /
+          Number(ethers.utils.formatUnits(userFillIn.toString(), 18))) *
+          100,
+      )
+    }
   })
 
   ////////////////////////////////Claim Tick
 
-  useEffect(() => {
-    updateClaimTick()
-  }, [])
+  // useEffect(() => {
+  //   updateClaimTick()
+  // }, [])
 
-  async function updateClaimTick() {
-    const aux = await getClaimTick(
-      poolAdd.toString(),
-      Number(minLimit),
-      Number(maxLimit),
-      zeroForOne,
-      Number(epochLast),
-    )
-    setClaimTick(BigNumber.from(aux))
-  }
+  // async function updateClaimTick() {
+  //   const aux = await getClaimTick(
+  //     poolAdd.toString(),
+  //     Number(minLimit),
+  //     Number(maxLimit),
+  //     zeroForOne,
+  //     Number(epochLast),
+  //   )
+  //   setClaimTick(BigNumber.from(aux))
+  // }
 
   ////////////////////////////////Addresses
 
@@ -557,30 +583,36 @@ export default function Cover() {
           </div>
         </div>
       </div>
-      <RemoveLiquidity
-        isOpen={isRemoveOpen}
-        setIsOpen={setIsRemoveOpen}
-        tokenIn={tokenIn}
-        poolAdd={poolAdd}
-        address={address}
-        lowerTick={Number(minLimit)}
-        claimTick={Number(claimTick)}
-        upperTick={Number(maxLimit)}
-        zeroForOne={zeroForOne}
-        amountInDeltaMax={userFillOut}
-      />
-      <AddLiquidity
-        isOpen={isAddOpen}
-        setIsOpen={setIsAddOpen}
-        tokenIn={tokenIn}
-        poolAdd={poolAdd}
-        address={address}
-        minLimit={minLimit}
-        claimTick={claimTick}
-        maxLimit={maxLimit}
-        zeroForOne={zeroForOne}
-        liquidity={liquidity}
-      />
+      {tokenIn.name == '' ? (
+        <></>
+      ) : (
+        <>
+          <RemoveLiquidity
+            isOpen={isRemoveOpen}
+            setIsOpen={setIsRemoveOpen}
+            tokenIn={tokenIn}
+            poolAdd={poolAdd}
+            address={address}
+            lowerTick={Number(minLimit)}
+            claimTick={Number(claimTick)}
+            upperTick={Number(maxLimit)}
+            zeroForOne={zeroForOne}
+            amountInDeltaMax={userFillOut ?? '0'}
+          />
+          <AddLiquidity
+            isOpen={isAddOpen}
+            setIsOpen={setIsAddOpen}
+            tokenIn={tokenIn}
+            poolAdd={poolAdd}
+            address={address}
+            minLimit={minLimit}
+            claimTick={claimTick}
+            maxLimit={maxLimit}
+            zeroForOne={zeroForOne}
+            liquidity={liquidity}
+          />
+        </>
+      )}
     </div>
   )
 }
