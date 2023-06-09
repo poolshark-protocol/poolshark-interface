@@ -35,7 +35,7 @@ import SwapCoverApproveButton from '../components/Buttons/SwapCoverApproveButton
 import SwapCoverButton from '../components/Buttons/SwapCoverButton'
 import { rangePoolABI } from '../abis/evm/rangePool'
 import { TickMath, invertPrice, roundTick } from '../utils/math/tickMath'
-import { ZERO_ADDRESS } from '../utils/math/constants'
+import { BN_ZERO, ZERO_ADDRESS } from '../utils/math/constants'
 import { gasEstimate, gasEstimateLimit } from '../utils/gas'
 import { token } from '../utils/types'
 import { getCoverPool, getRangePool } from '../utils/pools'
@@ -104,17 +104,21 @@ export default function Swap() {
   const [rangeBnPrice, setRangeBnPrice] = useState(BigNumber.from(0))
   const [coverBnBaseLimit, setCoverBnBaseLimit] = useState(BigNumber.from(0))
   const [rangeBnBaseLimit, setRangeBnBaseLimit] = useState(BigNumber.from(0))
+  const [rangeBnPriceLimit, setRangeBnPriceLimit] = useState(BN_ZERO)
+  const [coverBnPriceLimit, setCoverBnPriceLimit] = useState(BN_ZERO)
   const [bnSlippage, setBnSlippage] = useState(BigNumber.from(1))
   const [slippageFetched, setSlippageFetched] = useState(false)
   const [limitPrice, setLimitPrice] = useState('1')
   const [allowanceRangeOut, setAllowanceRangeOut] = useState('0.00')
+  const [lowerTick, setLowerTick] = useState(BN_ZERO)
+  const [upperTick, setUpperTick] = useState(BN_ZERO)
 
   console.log('balanceIn', balanceIn)
   console.log('balanceOut', balanceOut)
 
   /////////////////Start of Contract Hooks//////////////////////
 
-  const { data: dataRange } = useContractRead({
+  const { data: allowanceInRange } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'allowance',
@@ -130,7 +134,7 @@ export default function Swap() {
     },
   })
 
-  const  { data: dataRangeOut } = useContractRead({
+  const  { data: allowanceOutRange } = useContractRead({
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: 'allowance',
@@ -146,7 +150,7 @@ export default function Swap() {
     },
   })
 
-  const { data: dataCover } = useContractRead({
+  const { data: allowanceInCover } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'allowance',
@@ -209,19 +213,7 @@ export default function Swap() {
     args: [
       tokenIn.address.localeCompare(tokenOut.address) < 0,
       bnInput,
-      tokenIn.address.localeCompare(tokenOut.address) < 0
-        ? BigNumber.from(
-            TickMath.getSqrtPriceAtPriceString(//@dev entering an NaN case
-              rangeBnPrice.sub(rangeBnBaseLimit).toString(),
-              18,
-            ).toString(),
-          )
-        : BigNumber.from(
-            TickMath.getSqrtPriceAtPriceString(
-              rangeBnPrice.add(rangeBnBaseLimit).toString(),
-              18,
-            ).toString(),
-          ),
+      rangeBnPriceLimit
     ],
     chainId: 421613,
     watch: true,
@@ -244,19 +236,7 @@ export default function Swap() {
     args: [
       tokenIn.address.localeCompare(tokenOut.address) < 0,
       bnInput,
-      tokenIn.address.localeCompare(tokenOut.address) < 0
-        ? BigNumber.from(
-            TickMath.getSqrtPriceAtPriceString(
-              coverBnPrice.sub(coverBnBaseLimit).toString(),
-              18,
-            ).toString(),
-          )
-        : BigNumber.from(
-            TickMath.getSqrtPriceAtPriceString(
-              coverBnPrice.add(coverBnBaseLimit).toString(),
-              18,
-            ).toString(),
-          ),
+      coverBnPriceLimit
     ],
     chainId: 421613,
     watch: true,
@@ -282,6 +262,7 @@ export default function Swap() {
     if (hasSelected) {
       updateBalances()
       updatePools()
+      setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0)
     }
   }, [tokenOut.address, tokenIn.address, hasSelected])
 
@@ -359,14 +340,14 @@ export default function Swap() {
       return
     }
     setTokenIn(token)
-    if (token.address.localeCompare(tokenOut.address) < 0) {
+    if (tokenOrder) {
       setTokenIn(token)
       if (hasSelected === true) {
         setTokenOut(tokenOut)
       }
       return
     }
-    if (token.address.localeCompare(tokenOut.address) >= 0) {
+    if (!tokenOrder) {
       if (hasSelected === true) {
         setTokenIn(tokenOut)
       }
@@ -437,15 +418,15 @@ export default function Swap() {
   }
 
   useEffect(() => {
-    if (dataRange && dataCover) {
-      setAllowanceRange(ethers.utils.formatUnits(dataRange, 18))
-      setAllowanceCover(ethers.utils.formatUnits(dataCover, 18))
+    if (allowanceInRange && allowanceInCover) {
+      setAllowanceRange(ethers.utils.formatUnits(allowanceInRange, 18))
+      setAllowanceCover(ethers.utils.formatUnits(allowanceInCover, 18))
     }
 
-    if (LimitActive && dataRangeOut) {
-      setAllowanceRangeOut(ethers.utils.formatUnits(dataRangeOut, 18))
+    if (LimitActive && allowanceOutRange) {
+      setAllowanceRangeOut(ethers.utils.formatUnits(allowanceOutRange, 18))
     }
-  }, [dataRange, dataCover, tokenIn.address, LimitActive])
+  }, [allowanceInRange, allowanceInCover, tokenIn.address, LimitActive])
 
   useEffect(() => {
     if (priceCover) {
@@ -455,6 +436,7 @@ export default function Swap() {
         tokenOut.address != '' &&
         priceCover != undefined
       ) {
+        console.log('setting cover price')
         setCoverPrice(
           parseFloat(TickMath.getPriceStringAtSqrtPrice(priceCover[0])),
         )
@@ -475,7 +457,7 @@ export default function Swap() {
           parseFloat(
             invertPrice(
               TickMath.getPriceStringAtSqrtPrice(priceRange[5]),
-              tokenIn.address.localeCompare(tokenOut.address) < 0,
+              tokenOrder,
             ),
           ),
         )
@@ -557,16 +539,71 @@ export default function Swap() {
   useEffect(() => {
     if (rangeBnPrice) {
       if (rangeBnPrice !== BigNumber.from(0)) {
-        setRangeBnBaseLimit(
-          rangeBnPrice.mul(parseFloat(slippage) * 100).div(10000),
+        const baseLimit = rangeBnPrice.mul(parseFloat(slippage) * 100).div(10000)
+        setRangeBnBaseLimit(baseLimit)
+        setRangeBnPriceLimit(
+          tokenOrder ? 
+              BigNumber.from(
+                TickMath.getSqrtPriceAtPriceString(//@dev entering an NaN case
+                  rangeBnPrice.sub(baseLimit).toString(),
+                  18,
+                ).toString(),
+              )
+            : BigNumber.from(
+                TickMath.getSqrtPriceAtPriceString(
+                  rangeBnPrice.add(baseLimit).toString(),
+                  18,
+                ).toString(),
+              ),
         )
+        if (rangeTickSpacing) {
+          console.log('range price', rangeBnPrice)
+          setLowerTick(
+            tokenOut.address != "" &&
+                    tokenIn.address.localeCompare(tokenOut.address) < 0 ?
+                      BigNumber.from(
+                        roundTick(
+                          TickMath.getTickAtPriceString(
+                            Number(ethers.utils.formatUnits(rangeBnPrice, 18)).toPrecision(7)), rangeTickSpacing).toString()) :
+                      BigNumber.from(
+                        roundTick(
+                          TickMath.getTickAtPriceString(
+                            Number(ethers.utils.formatUnits(rangeBnPrice.sub(baseLimit), 18)).toPrecision(7)), rangeTickSpacing))
+          )
+          setUpperTick(
+            tokenOut.address != "" &&
+                    tokenIn.address.localeCompare(tokenOut.address) < 0 ?
+                      BigNumber.from(
+                        roundTick(
+                          TickMath.getTickAtPriceString(
+                            Number(ethers.utils.formatUnits(rangeBnPrice.add(baseLimit), 18)).toPrecision(7)), rangeTickSpacing).toString()) :
+                      BigNumber.from(
+                        roundTick(
+                          TickMath.getTickAtPriceString(
+                            Number(ethers.utils.formatUnits(rangeBnPrice, 18)).toPrecision(7)), rangeTickSpacing).toString())
+          )
+        }
       }
     }
 
     if (coverBnPrice) {
       if (coverBnPrice !== BigNumber.from(0)) {
-        setCoverBnBaseLimit(
-          coverBnPrice.mul(parseFloat(slippage) * 100).div(10000),
+        const baseLimit = coverBnPrice.mul(parseFloat(slippage) * 100).div(10000)
+        setCoverBnBaseLimit(baseLimit)
+        setCoverBnPriceLimit(
+          tokenOrder
+          ? BigNumber.from(
+              TickMath.getSqrtPriceAtPriceString(
+                coverBnPrice.sub(baseLimit).toString(),
+                18,
+              ).toString(),
+            )
+          : BigNumber.from(
+              TickMath.getSqrtPriceAtPriceString(
+                coverBnPrice.add(baseLimit).toString(),
+                18,
+              ).toString(),
+            )
         )
       }
     }
@@ -1031,7 +1068,7 @@ export default function Swap() {
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                 <div>
                   <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                    Your {tokenIn.symbol} rangePool allowance is missing{" "}
+                    Your allowance is missing{" "}
                     {(
                       Number(ethers.utils.formatUnits(bnInput, 18)) -
                       Number(allowanceRange)
@@ -1053,29 +1090,14 @@ export default function Swap() {
                     tokenIn.address.localeCompare(tokenOut.address) < 0
                   }
                   amount={bnInput}
-                  baseLimit={
-                    tokenOut.address != "" &&
-                    tokenIn.address.localeCompare(tokenOut.address) < 0
-                      ? BigNumber.from(
-                          TickMath.getSqrtPriceAtPriceString(
-                            rangeBnPrice.sub(rangeBnBaseLimit).toString(),
-                            18
-                          ).toString()
-                        )
-                      : BigNumber.from(
-                          TickMath.getSqrtPriceAtPriceString(
-                            rangeBnPrice.add(rangeBnBaseLimit).toString(),
-                            18
-                          ).toString()
-                        )
-                  }
+                  baseLimit={rangeBnPriceLimit}
                 />
               )
             ) : Number(allowanceCover) <
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
               <div>
                 <div className="flex-none ">
-                  Your {tokenIn.symbol} coverPool allowance is missing{" "}
+                  Your allowance is missing{" "}
                   {(
                     Number(ethers.utils.formatUnits(bnInput, 18)) -
                     Number(allowanceCover)
@@ -1096,22 +1118,7 @@ export default function Swap() {
                   tokenIn.address.localeCompare(tokenOut.address) < 0
                 }
                 amount={bnInput}
-                baseLimit={
-                  tokenOut.address != "" &&
-                  tokenIn.address.localeCompare(tokenOut.address) < 0
-                    ? BigNumber.from(
-                        TickMath.getSqrtPriceAtPriceString(
-                          coverBnPrice.sub(coverBnBaseLimit).toString(),
-                          18
-                        ).toString()
-                      )
-                    : BigNumber.from(
-                        TickMath.getSqrtPriceAtPriceString(
-                          coverBnPrice.add(coverBnBaseLimit).toString(),
-                          18
-                        ).toString()
-                      )
-                }
+                baseLimit={coverBnPriceLimit}
               />
             )}
           </>
@@ -1163,28 +1170,8 @@ export default function Swap() {
                   disabled={false}
                   poolAddress={rangePoolRoute}
                   to={address}
-                  lower={tokenOut.address != "" &&
-                  tokenIn.address.localeCompare(tokenOut.address) < 0 ?
-                    BigNumber.from(
-                      roundTick(
-                        TickMath.getTickAtPriceString(
-                          (ethers.utils.formatUnits(rangeBnPrice, 18))), rangeTickSpacing).toString()) :
-                    BigNumber.from(
-                      roundTick(
-                        TickMath.getTickAtPriceString(
-                          (ethers.utils.formatUnits(rangeBnPrice.sub(rangeBnBaseLimit), 18))), rangeTickSpacing).toString())
-                    }
-                  upper={tokenOut.address != "" &&
-                  tokenIn.address.localeCompare(tokenOut.address) < 0 ?
-                    BigNumber.from(
-                      roundTick(
-                        TickMath.getTickAtPriceString(
-                          (ethers.utils.formatUnits(rangeBnPrice.add(rangeBnBaseLimit), 18))), rangeTickSpacing).toString()) :
-                    BigNumber.from(
-                      roundTick(
-                        TickMath.getTickAtPriceString(
-                          (ethers.utils.formatUnits(rangeBnPrice, 18))), rangeTickSpacing).toString())
-                    }
+                  lower={lowerTick}
+                  upper={upperTick}
                   amount0={bnInput}
                   amount1={ethers.utils.parseEther(
                     (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
@@ -1199,3 +1186,4 @@ export default function Swap() {
     </div>
   );
 }
+                    
