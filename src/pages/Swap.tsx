@@ -36,7 +36,7 @@ import { getCoverPool, getFeeTier, getRangePool } from '../utils/pools'
 import { getBalances } from '../utils/balances'
 import inputFilter from '../utils/inputFilter'
 import RangeLimitSwapButton from '../components/Buttons/RangeLimitSwapButton'
-import RangeMintDoubleApproveButton from '../components/Buttons/RangeMintDoubleApproveButton'
+import SwapRangeDoubleApproveButton from "../components/Buttons/SwapRangeDoubleApproveButton";
 
 export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount()
