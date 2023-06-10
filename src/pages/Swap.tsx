@@ -29,10 +29,10 @@ import SwapCoverApproveButton from '../components/Buttons/SwapCoverApproveButton
 import SwapCoverButton from '../components/Buttons/SwapCoverButton'
 import { rangePoolABI } from '../abis/evm/rangePool'
 import { TickMath, invertPrice, maxPriceBn, minPriceBn, roundTick } from '../utils/math/tickMath'
-import { BN_ZERO, ZERO_ADDRESS } from '../utils/math/constants'
+import { BN_ZERO } from '../utils/math/constants'
 import { gasEstimate, gasEstimateLimit } from '../utils/gas'
 import { token } from '../utils/types'
-import { getCoverPool, getFeeTier, getRangePool } from '../utils/pools'
+import { getCoverPool, getRangePool } from '../utils/pools'
 import { getBalances } from '../utils/balances'
 import inputFilter from '../utils/inputFilter'
 import RangeLimitSwapButton from '../components/Buttons/RangeLimitSwapButton'
@@ -52,18 +52,18 @@ export default function Swap() {
   const [rangeQuote, setRangeQuote] = useState(0)
   const [coverPrice, setCoverPrice] = useState(0)
   const [rangePrice, setRangePrice] = useState(0)
-  const [coverOutput, setCoverOutput] = useState(0)
-  const [rangeOutput, setRangeOutput] = useState(0)
   const [hasSelected, setHasSelected] = useState(false)
   const [tokenIn, setTokenIn] = useState({
     symbol: 'WETH',
     logoURI: '/static/images/eth_icon.png',
     address: tokenOneAddress,
+    usdPrice: 0
   } as token)
   const [tokenOut, setTokenOut] = useState({
     symbol: 'Select Token',
     logoURI: '',
     address: tokenZeroAddress,
+    usdPrice: 0
   } as token)
   const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
@@ -90,7 +90,6 @@ export default function Swap() {
   const [rangeBnBaseLimit, setRangeBnBaseLimit] = useState(BigNumber.from(0))
   const [rangeBnPriceLimit, setRangeBnPriceLimit] = useState(BN_ZERO)
   const [coverBnPriceLimit, setCoverBnPriceLimit] = useState(BN_ZERO)
-  const [bnSlippage, setBnSlippage] = useState(BigNumber.from(1))
   const [slippageFetched, setSlippageFetched] = useState(false)
   const [limitPrice, setLimitPrice] = useState('1')
   const [allowanceRangeOut, setAllowanceRangeOut] = useState('0.00')
@@ -245,7 +244,7 @@ export default function Swap() {
     args: [
       tokenOrder,
       bnInput,
-      LimitActive ? rangeBnPriceLimit : (tokenOrder ? minPriceBn : maxPriceBn)
+      tokenOrder ? minPriceBn : maxPriceBn
     ],
     chainId: 421613,
     watch: true,
@@ -268,7 +267,7 @@ export default function Swap() {
     args: [
       tokenOrder,
       bnInput,
-      LimitActive ? coverBnPriceLimit : (tokenOrder ? minPriceBn : maxPriceBn)
+      coverBnPriceLimit
     ],
     chainId: 421613,
     watch: true,
@@ -310,7 +309,7 @@ export default function Swap() {
   }
 
   async function updatePools() {
-    await getRangePool(tokenIn, tokenOut, setRangePoolRoute, setRangeTickSpacing)
+    await getRangePool(tokenIn, tokenOut, setRangePoolRoute, setRangeTickSpacing, setTokenIn, setTokenOut)
     await getCoverPool(tokenIn, tokenOut, setCoverPoolRoute)
   }
 
@@ -343,7 +342,7 @@ export default function Swap() {
       tokenOut,
       bnInput,
       ethers.utils.parseUnits(allowanceRange, 18),
-      ethers.utils.parseUnits(allowanceCover, 18),
+      ethers.utils.parseUnits(allowanceRange, 18),
       address,
       signer,
     )
@@ -455,7 +454,6 @@ export default function Swap() {
         bnInput._hex != '0x00' &&
         rangeBnPrice.gt(BN_ZERO)
       ) {
-        setRangeOutput(parseFloat(ethers.utils.formatUnits(quoteRange[1], 18)))
         setRangeQuote(
           parseFloat(ethers.utils.formatUnits(quoteRange[1], 18)) /
             parseFloat(ethers.utils.formatUnits(quoteRange[0], 18)),
@@ -473,7 +471,6 @@ export default function Swap() {
         !bnInput.eq(BN_ZERO) &&
         coverBnPrice.gt(BN_ZERO)
       ) {
-        setCoverOutput(parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)))
         setCoverQuote(
           parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)) /
             parseFloat(ethers.utils.formatUnits(quoteCover[0], 18)),
@@ -790,16 +787,10 @@ export default function Swap() {
         <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
             {inputBox('0')}
-            {rangeQuote !== 0 && coverQuote !== 0 ? (
+            {tokenIn.address != '' ? (
               <div className="flex">
-                <div className="flex text-xs text-[#4C4C4C]">
-                  {!LimitActive ? (
-                    rangeQuote > coverQuote
-                      ? rangeQuote.toFixed(2)
-                      : coverQuote.toFixed(2)
-                    ) : (
-                      parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)).toFixed(2)
-                    )}
+                <div className="flex text-xs text-[#4C4C4C]">$
+                  {(Number(ethers.utils.formatUnits(bnInput, 18)) * tokenIn.usdPrice).toFixed(2)}
                 </div>
               </div>
             ) : (
@@ -859,9 +850,7 @@ export default function Swap() {
             <div className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
               {!LimitActive ? (
               hasSelected &&
-              coverQuote !== 0 &&
-              rangeQuote !== 0 &&
-              bnInput._hex != "0x00") ? (
+              !bnInput.eq(BN_ZERO)) ? (
                 <div>
                   {rangeQuote > coverQuote
                     ? (
@@ -888,15 +877,24 @@ export default function Swap() {
                 <div>0</div>
               )}
             </div>
-            {rangeQuote !== 0 && coverQuote !== 0 ? (
+            {hasSelected ? (
               <div className="flex">
-                <div className="flex text-xs text-[#4C4C4C]">
+                <div className="flex text-xs text-[#4C4C4C]">$
                   {!LimitActive ? (
                     rangeQuote > coverQuote
-                      ? (1 / rangeQuote).toFixed(2)
-                      : (1 / coverQuote).toFixed(2)
+                      ? (
+                        parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                        rangeQuote * tokenOut.usdPrice
+                      ).toFixed(2)
+                      : (
+                        parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                        coverQuote * tokenOut.usdPrice
+                      ).toFixed(2)
                     ) : (
-                      (1 / parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18))).toFixed(2)
+                      (
+                        parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                        rangeQuote * tokenOut.usdPrice
+                      ).toFixed(2)
                     )}
                 </div>
               </div>
@@ -1012,7 +1010,7 @@ export default function Swap() {
                 ? " ?"
                 : " " +
                   ((!LimitActive) ? 
-                  (rangeQuote != 0 && coverQuote != 0
+                  (!isNaN(rangeQuote) && !isNaN(coverQuote)
                     ? rangeQuote > coverQuote
                       ? rangeQuote.toPrecision(5)
                       : coverQuote.toPrecision(5)
