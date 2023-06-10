@@ -683,7 +683,6 @@ export default function Swap() {
             <div className="text-xs text-[#4C4C4C]">Price Impact</div>
             <div className="ml-auto text-xs">
               {hasSelected
-                ? rangeQuote !== 0 && coverQuote !== 0
                   ? rangeQuote > coverQuote
                     ? Math.abs(
                         ((rangePriceAfter - rangePrice) * 100) / rangePrice,
@@ -691,7 +690,6 @@ export default function Swap() {
                     : Math.abs(
                         ((coverPriceAfter - coverPrice) * 100) / coverPrice,
                       ).toFixed(2) + '%'
-                  : '0%'
                 : 'Select Token'}
             </div>
           </div>
