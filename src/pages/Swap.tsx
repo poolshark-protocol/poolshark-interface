@@ -291,11 +291,13 @@ export default function Swap() {
 
   useEffect(() => {
     if (hasSelected) {
-      updateBalances()
       updatePools()
       setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0)
     }
-  }, [tokenOut.address, tokenIn.address, hasSelected])
+    if (isConnected) {
+      updateBalances()
+    }
+  }, [tokenOut.address, tokenIn.address, hasSelected, isConnected])
 
   async function updateBalances() {
     await getBalances(
