@@ -524,7 +524,7 @@ export default function Swap() {
         setRangeBnPriceLimit(
           tokenOrder ? 
               BigNumber.from(
-                TickMath.getSqrtPriceAtPriceString(//@dev entering an NaN case
+                TickMath.getSqrtPriceAtPriceString(
                   rangeBnPrice.sub(baseLimit).toString(),
                   18,
                 ).toString(),
@@ -817,7 +817,7 @@ export default function Swap() {
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
                   <div className="flex text-xs text-[#4C4C4C]" key={balanceIn}>
-                    Balance: {balanceIn === 'NaN' ? 0 : balanceIn}
+                    Balance: {balanceIn === '0.00' ? 0 : balanceIn}
                   </div>
                   {isConnected && stateChainName === 'arbitrumGoerli' ? (
                     <button
@@ -922,7 +922,7 @@ export default function Swap() {
                 {hasSelected ? (
                   <div className="flex items-center justify-end gap-2 px-1 mt-2">
                     <div className="flex text-xs text-[#4C4C4C]">
-                      Balance: {balanceOut === 'NaN' ? 0 : balanceOut}
+                      Balance: {balanceOut === '0.00' ? 0 : balanceOut}
                     </div>
                   </div>
                 ) : (
@@ -1037,9 +1037,8 @@ export default function Swap() {
         ) : !LimitActive ? (
           <>
             {stateChainName !== 'arbitrumGoerli' ||
-            coverQuote === 0 ||
-            rangeQuote === 0 ||
-            bnInput._hex == '0x00' ? (
+            (coverQuote == 0 && rangeQuote == 0) ||
+            bnInput.eq(BN_ZERO) ? (
               <button
                 disabled
                 className="w-full py-4 mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
