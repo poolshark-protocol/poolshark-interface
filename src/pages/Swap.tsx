@@ -382,6 +382,9 @@ export default function Swap() {
     } else {
       setCoverQuote(parseFloat(parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5)))
     }
+    const oldBalanceIn = balanceIn
+    setBalanceIn(balanceOut)
+    setBalanceOut(oldBalanceIn)
     if (LimitActive) {
       console.log('lower upper tick', )
     }
