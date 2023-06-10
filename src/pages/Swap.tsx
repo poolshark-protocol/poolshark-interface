@@ -44,7 +44,7 @@ export default function Swap() {
   const {
     network: { chainId },
   } = useProvider()
-  const { bnInput, inputBox, maxBalance } = useInputBox()
+  const { bnInput, inputBox, maxBalance, setBnInput, setDisplay } = useInputBox()
 
   const [gasFee, setGasFee] = useState('0')
   const [mintFee, setMintFee] = useState('0')
@@ -267,7 +267,7 @@ export default function Swap() {
     args: [
       tokenOrder,
       bnInput,
-      coverBnPriceLimit
+      tokenOrder ? minPriceBn : maxPriceBn
     ],
     chainId: 421613,
     watch: true,
@@ -375,8 +375,16 @@ export default function Swap() {
     const tempBal = queryTokenIn
     setQueryTokenIn(queryTokenOut)
     setQueryTokenOut(tempBal)
-    console.log('tokenIn after switch', tokenIn)
-    console.log('tokenOut after switch', tokenOut)
+    setBnInput(ethers.utils.parseUnits((rangeQuote > coverQuote ? rangeQuote : coverQuote).toPrecision(10), 18))
+    setDisplay((rangeQuote > coverQuote ? rangeQuote : coverQuote).toPrecision(7).replace(/0+$/, '').replace(/(\.)(?!\d)/g, ''))
+    if (rangeQuote > 0 && rangeQuote < coverQuote) {
+      setRangeQuote(parseFloat(parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5)))
+    } else {
+      setCoverQuote(parseFloat(parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5)))
+    }
+    if (LimitActive) {
+      console.log('lower upper tick', )
+    }
   }
 
   const getFeeTier = async () => {
@@ -453,7 +461,7 @@ export default function Swap() {
       if (
         quoteRange[0].gt(BN_ZERO) &&
         quoteRange[1].gt(BN_ZERO) &&
-        bnInput._hex != '0x00' &&
+        !bnInput.eq(BN_ZERO) &&
         rangeBnPrice.gt(BN_ZERO)
       ) {
         setRangeQuote(
