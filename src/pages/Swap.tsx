@@ -155,7 +155,7 @@ export default function Swap() {
     args: [],
     chainId: 421613,
     watch: true,
-    enabled: isConnected && rangePoolRoute != undefined,
+    enabled: rangePoolRoute != undefined,
     onSuccess(data) {
       console.log('Success price Range', data)
     },
@@ -175,7 +175,7 @@ export default function Swap() {
     args: [],
     chainId: 421613,
     watch: true,
-    enabled: isConnected && coverPoolRoute != undefined,
+    enabled: coverPoolRoute != undefined,
     onSuccess(data) {
       console.log('Success price Cover', data)
       console.log('coverPrice', coverPrice)
@@ -467,7 +467,6 @@ export default function Swap() {
         quoteRange[1].gt(BN_ZERO) &&
         !bnInput.eq(BN_ZERO)
       ) {
-        console.log('quote update range')
         setRangeQuote(
           parseFloat(ethers.utils.formatUnits(quoteRange[1], 18)) /
             parseFloat(ethers.utils.formatUnits(quoteRange[0], 18)),
