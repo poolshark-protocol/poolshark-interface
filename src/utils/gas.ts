@@ -141,7 +141,7 @@ export const gasEstimateSwapLimit = async (
   }
   catch (error) {
     console.log('gas error', error)
-    return 'Increase Allowance'
+    return '$0.00'
   }
 }
 
@@ -195,7 +195,7 @@ export const gasEstimateCoverMint = async (
   }
   catch (error) {
     console.log('gas error', error)
-    return 'Increase Allowance'
+    return '$0.00'
   }
 }
 
