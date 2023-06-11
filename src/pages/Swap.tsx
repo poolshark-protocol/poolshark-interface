@@ -1096,10 +1096,10 @@ export default function Swap() {
                     approveToken={tokenIn.address}
                   />
                   <div className="text-xs mt-4 text-center uppercase text-grey">
-                    Your {tokenIn.symbol} rangePool allowance is missing{(
+                    Increase allowance by {(
                       Number(ethers.utils.formatUnits(bnInput, 18)) -
                       Number(allowanceRange)
-                    ).toFixed(2)}
+                    ).toFixed(2) + ' '}
                     {tokenIn.symbol}
                   </div>
                 </div>
@@ -1118,12 +1118,11 @@ export default function Swap() {
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
               <div>
                 <div className="flex-none ">
-                  Your allowance is missing{" "}
-                  {(
-                    Number(ethers.utils.formatUnits(bnInput, 18)) -
-                    Number(allowanceCover)
-                  ).toFixed(2)}{' '}
-                  {tokenIn.symbol}
+                Increase allowance by {(
+                  Number(ethers.utils.formatUnits(bnInput, 18)) -
+                  Number(allowanceCover)
+                ).toFixed(2) + ' '}
+                {tokenIn.symbol}
                 </div>
                 <SwapCoverApproveButton
                   disabled={false}
