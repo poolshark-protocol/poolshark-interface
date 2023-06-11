@@ -131,7 +131,6 @@ export const gasEstimateLimit = async (
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18))
     const networkFeeUsd = networkFeeEth * ethUsdPrice
     const formattedPrice: string =
-      '~' +
       networkFeeUsd.toLocaleString('en-US', {
         style: 'currency',
         currency: 'USD',
@@ -141,7 +140,7 @@ export const gasEstimateLimit = async (
   }
   catch (error) {
     console.log('gas error', error)
-    return 'Increase Allowance'
+    return '$0.00'
   }
 }
 

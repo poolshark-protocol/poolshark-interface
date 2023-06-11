@@ -300,6 +300,13 @@ export default function Swap() {
     }
   }, [tokenOut.address, tokenIn.address, hasSelected, isConnected])
 
+  useEffect(() => {
+    if (!isNaN(parseFloat(limitPrice)) &&
+        !isNaN(parseFloat(slippage)) && 
+        !isNaN(parseInt(rangeTickSpacing)))
+    updateLimitTicks()
+  }, [limitPrice, slippage])
+
   async function updateBalances() {
     await getBalances(
       address,
@@ -314,6 +321,35 @@ export default function Swap() {
   async function updatePools() {
     await getRangePool(tokenIn, tokenOut, setRangePoolRoute, setRangeTickSpacing, setTokenIn, setTokenOut, setEthUsdPrice)
     await getCoverPool(tokenIn, tokenOut, setCoverPoolRoute)
+  }
+
+  function updateLimitTicks() {
+    if (parseFloat(slippage) * 100 > rangeTickSpacing) {
+      // if slippage meets or exceeds tick spacing
+      const limitPriceTolerance = parseFloat(limitPrice) * (parseFloat((parseFloat(slippage) * 100).toFixed(6))) / (10000)
+      if (tokenOrder) {
+        const endPrice = parseFloat(limitPrice) - (-limitPriceTolerance)
+        setLowerTick(BigNumber.from(TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing)))
+        setUpperTick(BigNumber.from(TickMath.getTickAtPriceString(String(endPrice), rangeTickSpacing)))
+      } else {
+        const endPrice = parseFloat(limitPrice) - (limitPriceTolerance)
+        setLowerTick(BigNumber.from(TickMath.getTickAtPriceString(String(endPrice), rangeTickSpacing)))
+        setUpperTick(BigNumber.from(TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing)))
+      }
+      console.log('limit price updated', limitPriceTolerance, parseFloat(slippage) * 100, rangeTickSpacing) 
+    } else {
+      if (tokenOrder) {
+        // if slippage is less than tick spacing
+        const endTick = TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing) - (-rangeTickSpacing)
+        setLowerTick(BigNumber.from(TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing)))
+        setUpperTick(BigNumber.from(String(endTick)))
+        console.log('limit price autoupdated', TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing), endTick, parseFloat(slippage) * 100, rangeTickSpacing) 
+      } else {
+        const endTick = TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing) - (rangeTickSpacing)
+        setLowerTick(BigNumber.from(String(endTick)))
+        setUpperTick(BigNumber.from(TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing)))
+      }
+    }
   }
 
   useEffect(() => {
@@ -544,33 +580,6 @@ export default function Swap() {
       if (!rangeBnPrice.eq(BN_ZERO)) {
         const baseLimit = rangeBnPrice.mul(parseFloat((parseFloat(slippage) * 100).toFixed(6))).div(10000)
         setRangeBnBaseLimit(baseLimit)
-        if (rangeTickSpacing) {
-          console.log('range price', rangeBnPrice)
-          setLowerTick(
-            tokenOut.address != "" &&
-                    tokenIn.address.localeCompare(tokenOut.address) < 0 ?
-                      BigNumber.from(
-                        roundTick(
-                          TickMath.getTickAtPriceString(
-                            Number(ethers.utils.formatUnits(rangeBnPrice, 18)).toPrecision(7)), rangeTickSpacing).toString()) :
-                      BigNumber.from(
-                        roundTick(
-                          TickMath.getTickAtPriceString(
-                            Number(ethers.utils.formatUnits(rangeBnPrice.sub(baseLimit), 18)).toPrecision(7)), rangeTickSpacing))
-          )
-          setUpperTick(
-            tokenOut.address != "" &&
-                    tokenIn.address.localeCompare(tokenOut.address) < 0 ?
-                      BigNumber.from(
-                        roundTick(
-                          TickMath.getTickAtPriceString(
-                            Number(ethers.utils.formatUnits(rangeBnPrice.add(baseLimit), 18)).toPrecision(7)), rangeTickSpacing).toString()) :
-                      BigNumber.from(
-                        roundTick(
-                          TickMath.getTickAtPriceString(
-                            Number(ethers.utils.formatUnits(rangeBnPrice, 18)).toPrecision(7)), rangeTickSpacing).toString())
-          )
-        }
       }
     }
   }, [
@@ -586,21 +595,6 @@ export default function Swap() {
      if (!coverBnPrice.eq(BN_ZERO)) {
         const baseLimit = coverBnPrice.mul(parseFloat((parseFloat(slippage) * 100).toFixed(6))).div(10000)
         setCoverBnBaseLimit(baseLimit)
-        // setCoverBnPriceLimit(
-        //   tokenOrder
-        //   ? BigNumber.from(
-        //       TickMath.getSqrtPriceAtPriceString(
-        //         coverBnPrice.sub(baseLimit).toString(),
-        //         18,
-        //       ).toString(),
-        //     )
-        //   : BigNumber.from(
-        //       TickMath.getSqrtPriceAtPriceString(
-        //         coverBnPrice.add(baseLimit).toString(),
-        //         18,
-        //       ).toString(),
-        //     )
-        // )
      }
    }
    console.log('rangeBnBaseLimit', rangeBnBaseLimit.toString())
@@ -950,22 +944,17 @@ export default function Swap() {
                   type="text"
                   onChange={e => {
                     setLimitPrice(inputFilter(e.target.value));
-                    (e.target.value.toString() != '') ?
-                      (
-                      setRangeBnPrice(ethers.utils.parseEther(inputFilter(e.target.value)))
-                      ) :
-                      (setLimitPrice('0'))
                     }
                   }
                 />
                 <></>
                 <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]"> {/*TODO - fix market price comparion when switch directions*/}
-                    {(((parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) /
+                    {(((parseFloat(limitPrice) /
                     rangePrice) - 1) * 100) > 0 ?
-                    (((parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) /
+                    (((parseFloat(limitPrice) /
                     rangePrice) - 1) * 100).toFixed(2)+ "% above Market Price" :
-                    Math.abs(((parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) /
+                    Math.abs(((parseFloat(limitPrice) /
                     rangePrice) - 1) * 100).toFixed(2)+ "% below Market Price" }
                   </div>
                 </div>
@@ -1158,11 +1147,8 @@ export default function Swap() {
                   to={address}
                   lower={lowerTick}
                   upper={upperTick}
-                  amount0={bnInput}
-                  amount1={ethers.utils.parseEther(
-                    (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                    parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18))).toString()
-                    )}
+                  amount0={tokenOrder ? bnInput : BN_ZERO}
+                  amount1={tokenOrder ? BN_ZERO : bnInput}
                 />
               )
             )}
