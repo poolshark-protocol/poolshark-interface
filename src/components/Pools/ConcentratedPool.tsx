@@ -166,7 +166,7 @@ export default function ConcentratedPool({
 
   useEffect(() => {
     fetchTokenPrice()
-  }, [usdPrice0, usdPrice1])
+  }, [usdPrice0, usdPrice1, amount0, amount1])
 
   useEffect(() => {
     setRangeParams()
@@ -259,7 +259,7 @@ export default function ConcentratedPool({
   }
 
   useEffect(() => {
-    if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
+    if (!isNaN(parseFloat(lowerPrice))) {
       console.log('setting lower tick')
       setLowerTick(
         BigNumber.from(TickMath.getTickAtPriceString(lowerPrice, tickSpacing)),
@@ -271,6 +271,7 @@ export default function ConcentratedPool({
         BigNumber.from(TickMath.getTickAtPriceString(upperPrice, tickSpacing)),
       )
     }
+    setAmounts()
   }, [lowerPrice, upperPrice])
 
   const getRangePoolData = async () => {
@@ -334,6 +335,7 @@ export default function ConcentratedPool({
       const token1Amount = parseFloat(ethers.utils.formatUnits(amount1, 18))
       setAmount0Usd(token0Amount * usdPrice0)
       setAmount1Usd(token1Amount * usdPrice1)
+      console.log('setting usd prices for amounts', token0Amount * usdPrice0, token1Amount * usdPrice1)
     } catch (error) {
       console.log(error)
     }
@@ -739,7 +741,6 @@ export default function ConcentratedPool({
             </div>
           </div>
         </div>
-
         <ConcentratedPoolPreview
           account={to}
           key={poolId}
