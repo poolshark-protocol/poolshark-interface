@@ -26,13 +26,19 @@ import { token } from '../../utils/types'
 import { switchDirection } from '../../utils/tokens'
 
 export default function ConcentratedPool({
+  account,
   poolId,
+  tokenOneName,
   tokenOneSymbol,
   tokenOneLogoURI,
   tokenOneAddress,
+  tokenZeroName,
   tokenZeroSymbol,
   tokenZeroLogoURI,
   tokenZeroAddress,
+  minLimit,
+  maxLimit,
+  liquidity,
   tickSpacingParam,
   feeTier,
 }) {
@@ -66,7 +72,7 @@ export default function ConcentratedPool({
       unavailable: false,
     },
   ]
-  const { address } = useAccount()
+  const { address, isConnected, isDisconnected } = useAccount()
   const [tokenIn, setTokenIn] = useState({
     symbol: tokenZeroSymbol ?? 'TOKEN20B',
     logoURI: tokenZeroLogoURI ?? '/static/images/eth_icon.png',
@@ -81,6 +87,8 @@ export default function ConcentratedPool({
     bnInput,
     inputBox,
     maxBalance,
+    bnInputLimit,
+    LimitInputBox,
   } = useInputBox()
   const [
     updateRangeContractParams,
@@ -174,7 +182,7 @@ export default function ConcentratedPool({
     chainId: 421613,
     watch: true,
     enabled: rangePoolRoute != undefined && tokenIn.address != '',
-    onSuccess() {
+    onSuccess(data) {
       console.log('Success allowance in', allowanceIn.toString())
     },
     onError(error) {
@@ -190,13 +198,13 @@ export default function ConcentratedPool({
     chainId: 421613,
     watch: true,
     enabled: rangePoolRoute != undefined && tokenIn.address != '',
-    onSuccess() {
+    onSuccess(data) {
       console.log('Success allowance out', allowanceOut.toString())
     },
     onError(error) {
       console.log('Error', error)
     },
-    onSettled() {
+    onSettled(data, error) {
       // console.log('Allowance Settled', { data, error, rangePoolRoute, tokenIn, tokenOut })
     },
   })
@@ -223,6 +231,7 @@ export default function ConcentratedPool({
   }), [allowanceOut]
 
   function updateSelected(): any {
+    const tier = feeTiers[0]
     if (feeTier == 0.01) {
       return feeTiers[0]
     } else if (feeTier == 0.05) {
