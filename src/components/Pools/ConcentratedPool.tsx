@@ -26,19 +26,13 @@ import { token } from '../../utils/types'
 import { switchDirection } from '../../utils/tokens'
 
 export default function ConcentratedPool({
-  account,
   poolId,
-  tokenOneName,
   tokenOneSymbol,
   tokenOneLogoURI,
   tokenOneAddress,
-  tokenZeroName,
   tokenZeroSymbol,
   tokenZeroLogoURI,
   tokenZeroAddress,
-  minLimit,
-  maxLimit,
-  liquidity,
   tickSpacingParam,
   feeTier,
 }) {
@@ -72,7 +66,7 @@ export default function ConcentratedPool({
       unavailable: false,
     },
   ]
-  const { address, isConnected, isDisconnected } = useAccount()
+  const { address } = useAccount()
   const [tokenIn, setTokenIn] = useState({
     symbol: tokenZeroSymbol ?? 'TOKEN20B',
     logoURI: tokenZeroLogoURI ?? '/static/images/eth_icon.png',
@@ -87,8 +81,6 @@ export default function ConcentratedPool({
     bnInput,
     inputBox,
     maxBalance,
-    bnInputLimit,
-    LimitInputBox,
   } = useInputBox()
   const [
     updateRangeContractParams,
@@ -108,8 +100,6 @@ export default function ConcentratedPool({
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('')
-  const [tokenInAllowance, setTokenInAllowance] = useState(0)
-  const [tokenOutAllowance, setTokenOutAllowance] = useState(0)
   const [allowance0, setAllowance0] = useState(BN_ZERO)
   const [allowance1, setAllowance1] = useState(BN_ZERO)
   const [rangePrice, setRangePrice] = useState(undefined)
@@ -184,18 +174,13 @@ export default function ConcentratedPool({
     chainId: 421613,
     watch: true,
     enabled: rangePoolRoute != undefined && tokenIn.address != '',
-    onSuccess(data) {
+    onSuccess() {
       console.log('Success allowance in', allowanceIn.toString())
     },
     onError(error) {
       console.log('Error', error)
     },
   })
-
-  useEffect(() => {
-    console.log('token in allowance being set', Number(allowanceIn))
-    setTokenInAllowance(Number(allowanceIn))
-  }, [allowanceIn])
 
   const { data: allowanceOut } = useContractRead({
     address: tokenOut.address,
@@ -205,13 +190,13 @@ export default function ConcentratedPool({
     chainId: 421613,
     watch: true,
     enabled: rangePoolRoute != undefined && tokenIn.address != '',
-    onSuccess(data) {
+    onSuccess() {
       console.log('Success allowance out', allowanceOut.toString())
     },
     onError(error) {
       console.log('Error', error)
     },
-    onSettled(data, error) {
+    onSettled() {
       // console.log('Allowance Settled', { data, error, rangePoolRoute, tokenIn, tokenOut })
     },
   })
@@ -224,7 +209,6 @@ export default function ConcentratedPool({
         !allowanceIn.eq(tokenOrder ? allowance0 : allowance1)
       )
         tokenOrder ? setAllowance0(allowanceIn) : setAllowance1(allowanceIn)
-      console.log('token in allowance set', tokenInAllowance)
     }
   }), [allowanceIn]
 
@@ -235,12 +219,10 @@ export default function ConcentratedPool({
         !allowanceOut.eq(tokenOrder ? allowance1 : allowance0)
       )
         tokenOrder ? setAllowance1(allowanceOut) : setAllowance0(allowanceOut)
-      console.log('token out allowance check', tokenOutAllowance, allowance1.toString())
     }
   }), [allowanceOut]
 
   function updateSelected(): any {
-    const tier = feeTiers[0]
     if (feeTier == 0.01) {
       return feeTiers[0]
     } else if (feeTier == 0.05) {
@@ -309,6 +291,7 @@ export default function ConcentratedPool({
           setTickSpacing(spacing)
           setUsdPrice0(parseFloat(token0Price))
           setUsdPrice1(parseFloat(token1Price))
+          setRangeTickPrice(tickAtPrice)
         } else {
           setRangePoolRoute(ZERO_ADDRESS)
           setRangePrice('1.00')
