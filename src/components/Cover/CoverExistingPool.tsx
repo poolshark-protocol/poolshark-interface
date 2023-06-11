@@ -6,7 +6,7 @@ import {
   PlusIcon,
   InformationCircleIcon
 } from '@heroicons/react/20/solid'
-import { erc20ABI, useAccount, useContractRead } from 'wagmi'
+import { erc20ABI, useAccount, useContractRead, useSigner } from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 import { Fragment, useEffect, useState } from 'react'
@@ -31,6 +31,7 @@ import { fetchTokenPrices, switchDirection } from '../../utils/tokens'
 import inputFilter from '../../utils/inputFilter'
 import TickSpacing from '../Tooltips/TickSpacing'
 import { getCoverPoolFromFactory } from '../../utils/queries'
+import { gasEstimateCoverMint } from '../../utils/gas'
 
 export default function CoverExistingPool({
   account,
@@ -55,7 +56,7 @@ export default function CoverExistingPool({
   goBack,
 }) {
   const { address, isConnected, isDisconnected } = useAccount()
-
+  const { data: signer } = useSigner()
   const [expanded, setExpanded] = useState(false)
   const [fetchDelay, setFetchDelay] = useState(false)
   const [tickSpread, setTickSpread] = useState(20)
@@ -102,6 +103,7 @@ export default function CoverExistingPool({
   const [allowance, setAllowance] = useState(ZERO)
   const [mktRate, setMktRate] = useState({})
   const [showTooltip, setShowTooltip] = useState(false)
+  const [mintGasFee, setMintGasFee] = useState('$0.00')
 
   ////////////////////////////////
 
@@ -174,6 +176,7 @@ export default function CoverExistingPool({
         setLatestTick,
         setTickSpread,
       )
+      updateGasFee()
     } else {
       const interval = setInterval(() => {
         getCoverPoolInfo(
@@ -200,14 +203,16 @@ export default function CoverExistingPool({
 
   // check for valid inputs
   useEffect(() => {
-    setDisabled(
-      JSBI.equal(coverAmountIn, ZERO) ||
-      isNaN(parseFloat(lowerPrice)) ||
-      isNaN(parseFloat(upperPrice)) ||
-      parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
-      !validBounds ||
-      hasSelected == false
-    )
+    const disabledFlag = JSBI.equal(coverAmountIn, ZERO) ||
+                          isNaN(parseFloat(lowerPrice)) ||
+                          isNaN(parseFloat(upperPrice)) ||
+                          parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
+                          !validBounds ||
+                          hasSelected == false
+    setDisabled(disabledFlag)
+    if (!disabledFlag) {
+      updateGasFee()
+    }
     console.log('latest price', latestTick)
   }, [lowerPrice, upperPrice, coverAmountIn, validBounds])
 
@@ -304,12 +309,24 @@ export default function CoverExistingPool({
     }
   }
 
+  async function updateGasFee() {
+    const newMintGasFee = await gasEstimateCoverMint(
+      coverPoolRoute,
+      address,
+      upperTick,
+      lowerTick,
+      tokenIn,
+      tokenOut,
+      coverAmountIn,
+      tickSpread,
+      signer
+    )
+    setMintGasFee(newMintGasFee)
+  }
+
   const handleChange = (event: any) => {
     setSliderValue(event.target.value)
   }
-
-
-
 
   const feeTiers = [
     {
@@ -397,11 +414,11 @@ export default function CoverExistingPool({
             <div className="text-xs text-[#4C4C4C]">
               Mininum filled
             </div>
-            <div className="ml-auto text-xs">{(parseFloat(ethers.utils.formatUnits(String(coverAmountOut), 18)) * (1 - tickSpread / 10000)).toPrecision(5)}</div>
+            <div className="ml-auto text-xs">{(parseFloat(ethers.utils.formatUnits(String(coverAmountOut), 18)) * (1 - tickSpread / 10000)).toPrecision(5) + ' ' + tokenOut.symbol}</div>
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
-            <div className="ml-auto text-xs">-0.09$</div>
+            <div className="ml-auto text-xs">{mintGasFee}</div>
           </div>
         </div>
       )
