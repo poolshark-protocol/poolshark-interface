@@ -185,7 +185,7 @@ export default function ConcentratedPool({
     watch: true,
     enabled: rangePoolRoute != undefined && tokenIn.address != '',
     onSuccess(data) {
-      // console.log('Success')
+      console.log('Success allowance in', allowanceIn.toString())
     },
     onError(error) {
       console.log('Error', error)
@@ -206,8 +206,7 @@ export default function ConcentratedPool({
     watch: true,
     enabled: rangePoolRoute != undefined && tokenIn.address != '',
     onSuccess(data) {
-      //setTokenOutAllowance(Number(allowanceOut))
-      // console.log('Success')
+      console.log('Success allowance out', allowanceOut.toString())
     },
     onError(error) {
       console.log('Error', error)
@@ -218,32 +217,27 @@ export default function ConcentratedPool({
   })
 
   useEffect(() => {
-    console.log('token out allowance being set', Number(allowanceOut))
-    setTokenOutAllowance(Number(allowanceOut))
-  }, [allowanceOut])
-
-  useEffect(() => {
-    if (tokenInAllowance) {
-      //console.log('token in allowance', tokenInAllowance, tokenInAllowance.toString(), allowance0)
+    if (allowanceIn) {
+      console.log('token in allowance', allowanceIn.toString(), !allowanceIn.eq(tokenOrder ? allowance0 : allowance1))
       if (
         address != '0x' &&
-        tokenInAllowance != Number(tokenOrder ? allowance0 : allowance1)
+        !allowanceIn.eq(tokenOrder ? allowance0 : allowance1)
       )
         tokenOrder ? setAllowance0(allowanceIn) : setAllowance1(allowanceIn)
-      // console.log('token in allowance set', tokenInAllowance)
+      console.log('token in allowance set', tokenInAllowance)
     }
-  }), [tokenInAllowance]
+  }), [allowanceIn]
 
   useEffect(() => {
-    if (tokenOutAllowance) {
+    if (allowanceOut) {
       if (
         address != '0x' &&
-        tokenOutAllowance != Number(tokenOrder ? allowance1 : allowance0)
+        !allowanceOut.eq(tokenOrder ? allowance1 : allowance0)
       )
         tokenOrder ? setAllowance1(allowanceOut) : setAllowance0(allowanceOut)
       console.log('token out allowance check', tokenOutAllowance, allowance1.toString())
     }
-  }), [tokenOutAllowance]
+  }), [allowanceOut]
 
   function updateSelected(): any {
     const tier = feeTiers[0]

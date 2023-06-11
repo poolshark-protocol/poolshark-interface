@@ -37,6 +37,7 @@ export default function RangeMintDoubleApproveButton({
     functionName: 'approve',
     args: [poolAddress, amount0],
     chainId: 421613,
+    gas: 1_000_000_000n,
   })
 
   const { config: t1 } = usePrepareContractWrite({
@@ -45,6 +46,7 @@ export default function RangeMintDoubleApproveButton({
     functionName: 'approve',
     args: [poolAddress, amount1],
     chainId: 421613,
+    gas: 1_000_000_000n,
   })
 
   const {

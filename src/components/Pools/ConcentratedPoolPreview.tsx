@@ -26,60 +26,7 @@ export default function ConcentratedPoolPreview({
 }) {
   const { address, isConnected } = useAccount()
   const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
-  console.log('amounts usd', amount0Usd, amount1Usd)
-  const { data: tokenInAllowance } = useContractRead({
-    address: tokenIn.address,
-    abi: erc20ABI,
-    functionName: 'allowance',
-    args: [address, poolAddress],
-    chainId: 421613,
-    watch: true,
-    enabled:
-      isConnected && poolAddress != undefined && tokenIn.address != undefined,
-    onSuccess() {
-      console.log(
-        'token allowances',
-        allowance0.sub(amount0).toString(),
-        allowance1.sub(amount1).toString(),
-        amount1.toString(),
-        amount0.toString(),
-      )
-      console.log('Success')
-    },
-    onError(error) {
-      console.log('Error', error)
-    },
-    onSettled(data, error) {
-      console.log('Settled', { data, error })
-    },
-  })
-
-  const { data: tokenOuAllowance } = useContractRead({
-    address: tokenOut.address,
-    abi: erc20ABI,
-    functionName: 'allowance',
-    args: [address, poolAddress],
-    chainId: 421613,
-    watch: true,
-    enabled:
-      isConnected && poolAddress != undefined && tokenOut.address != undefined,
-    onSuccess() {
-      console.log(
-        'token allowances',
-        allowance0.sub(amount0).toString(),
-        allowance1.sub(amount1).toString(),
-        amount1.toString(),
-        amount0.toString(),
-      )
-      console.log('Success')
-    },
-    onError(error) {
-      console.log('Error', error)
-    },
-    onSettled(data, error) {
-      console.log('Settled', { data, error })
-    },
-  })
+  console.log('allowances', allowance0.toString(), allowance1.toString())
 
   let [isOpen, setIsOpen] = useState(false)
 
