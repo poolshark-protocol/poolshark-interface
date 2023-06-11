@@ -77,7 +77,7 @@ export default function CoverExistingPool({
   const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [isDisabled, setDisabled] = useState(true)
-  const [amountToPay, setAmountToPay] = useState(0)
+  const [validBounds, setValidBounds] = useState(false)
   const [tokenIn, setTokenIn] = useState({
     name: zeroForOne ? tokenZeroName : tokenOneName,
     symbol: zeroForOne ? tokenZeroSymbol : tokenOneSymbol,
@@ -94,9 +94,6 @@ export default function CoverExistingPool({
   } as token)
 
   const [sliderValue, setSliderValue] = useState(50)
-  const [coverValue, setCoverValue] = useState(
-    Number(Number(Number(tokenOut.value) / 2).toFixed(5)),
-  )
   const [coverPrice, setCoverPrice] = useState(undefined)
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
   const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
@@ -194,6 +191,7 @@ export default function CoverExistingPool({
 
   useEffect(() => {
     changeCoverAmounts()
+    changeValidBounds()
   }, [sliderValue, lowerTick, upperTick])
 
   useEffect(() => {
@@ -203,12 +201,15 @@ export default function CoverExistingPool({
   // check for valid inputs
   useEffect(() => {
     setDisabled(
+      JSBI.equal(coverAmountIn, ZERO) ||
       isNaN(parseFloat(lowerPrice)) ||
       isNaN(parseFloat(upperPrice)) ||
       parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
+      !validBounds ||
       hasSelected == false
     )
-  }, [lowerPrice, upperPrice, coverAmountIn])
+    console.log('latest price', latestTick)
+  }, [lowerPrice, upperPrice, coverAmountIn, validBounds])
 
   useEffect(() => {
     if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
@@ -222,6 +223,11 @@ export default function CoverExistingPool({
   }, [lowerPrice, upperPrice])
 
   ////////////////////////////////
+
+  const changeValidBounds = () => {
+    setValidBounds(zeroForOne ? lowerTick < latestTick
+                              : upperTick > latestTick)
+  }
 
   const changePrice = (direction: string, inputId: string) => {
     console.log('setting price', inputId, direction, inputId == 'minInput' || inputId == 'maxInput' ?
@@ -388,18 +394,10 @@ export default function CoverExistingPool({
       return (
         <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
           <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Expected Output</div>
-            <div className="ml-auto text-xs">300 DAI</div>
-          </div>
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Price Impact</div>
-            <div className="ml-auto text-xs">-0.12%</div>
-          </div>
-          <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">
-              Mininum recieved after slippage (0.50%)
+              Mininum filled
             </div>
-            <div className="ml-auto text-xs">299.92 DAI</div>
+            <div className="ml-auto text-xs">{(parseFloat(ethers.utils.formatUnits(String(coverAmountOut), 18)) * (1 - tickSpread / 10000)).toPrecision(5)}</div>
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
@@ -427,7 +425,7 @@ export default function CoverExistingPool({
           <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
             <div className="flex items-center gap-x-2 w-full">
               <img className="w-7" src={tokenIn.logoURI} />
-              {tokenIn.name}
+              {tokenIn.symbol}
             </div>
           </button>
           <ArrowLongRightIcon
@@ -452,7 +450,7 @@ export default function CoverExistingPool({
           <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
             <div className="flex items-center gap-x-2 w-full">
               <img className="w-7" src={tokenOut.logoURI} />
-              {tokenOut.name}
+              {tokenOut.symbol}
             </div>
           </button>
         </div>
@@ -512,7 +510,6 @@ export default function CoverExistingPool({
                 } else {
                   setSliderValue(100)
                 }
-                setCoverValue(Number(inputFilter(e.target.value)));
               }}
               value={Number.parseFloat(
                 ethers.utils.formatUnits(String(coverAmountOut), 18),
