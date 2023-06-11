@@ -251,7 +251,7 @@ export default function Swap() {
     watch: true,
     enabled: rangePoolRoute != undefined,
     onSuccess(data) {
-      console.log('Success range quote wagmi', data)
+      // console.log('Success range quote wagmi', data)
     },
     onError(error) {
       console.log('Error range wagmi', error)
@@ -274,7 +274,7 @@ export default function Swap() {
     watch: true,
     enabled: coverPoolRoute != undefined,
     onSuccess(data) {
-      console.log('Success cover quote wagmi', data)
+      // console.log('Success cover quote wagmi', data)
     },
     onError(error) {
       console.log('Error cover wagmi', error)
@@ -474,9 +474,13 @@ export default function Swap() {
           parseFloat(ethers.utils.formatUnits(quoteRange[1], 18)) /
             parseFloat(ethers.utils.formatUnits(quoteRange[0], 18)),
         )
-        setRangePriceAfter(
-          parseFloat(TickMath.getPriceStringAtSqrtPrice(quoteRange[2])),
-        )
+        const priceAfter = parseFloat(TickMath.getPriceStringAtSqrtPrice(quoteRange[2]))
+        setRangePriceAfter(priceAfter)
+        const priceSlippage = parseFloat((priceAfter * parseFloat(slippage) * 100 / (10000)).toFixed(6))
+        const priceAfterSlippage = String(priceAfter - (tokenOrder ? priceSlippage : -priceSlippage))
+        const rangePriceLimit = TickMath.getSqrtPriceAtPriceString(priceAfterSlippage)
+        setRangeBnPriceLimit(BigNumber.from(String(rangePriceLimit)))
+        console.log('price after range', priceAfter, priceAfterSlippage, priceSlippage, String(rangePriceLimit))
       }
     }
 
@@ -490,9 +494,13 @@ export default function Swap() {
           parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)) /
             parseFloat(ethers.utils.formatUnits(quoteCover[0], 18)),
         )
-        setCoverPriceAfter(
-          parseFloat(TickMath.getPriceStringAtSqrtPrice(quoteCover[2])),
-        )
+        const priceAfter = parseFloat(TickMath.getPriceStringAtSqrtPrice(quoteCover[2]))
+        const priceSlippage = parseFloat((priceAfter * parseFloat(slippage) * 100 / (10000)).toFixed(6))
+        const priceAfterSlippage = String(priceAfter - (tokenOrder ? priceSlippage : -priceSlippage))
+        setCoverPriceAfter(priceAfter)
+        const coverPriceLimit = TickMath.getSqrtPriceAtPriceString(priceAfterSlippage)
+        setCoverBnPriceLimit(BigNumber.from(String(coverPriceLimit)))
+        console.log('price after cover', priceAfter, priceAfterSlippage, priceSlippage, tokenOrder, String(coverPriceLimit))
       }
     }
 
@@ -507,7 +515,7 @@ export default function Swap() {
         setSlippageFetched(true)
       }
     }
-  }, [quoteCover, quoteRange, bnInput])
+  }, [quoteCover, quoteRange, bnInput, slippage])
 
   async function updateTierFee() {
     await getFeeTier()
@@ -536,21 +544,6 @@ export default function Swap() {
       if (!rangeBnPrice.eq(BN_ZERO)) {
         const baseLimit = rangeBnPrice.mul(parseFloat((parseFloat(slippage) * 100).toFixed(6))).div(10000)
         setRangeBnBaseLimit(baseLimit)
-        setRangeBnPriceLimit(
-          tokenOrder ? 
-              BigNumber.from(
-                TickMath.getSqrtPriceAtPriceString(
-                  rangeBnPrice.sub(baseLimit).toString(),
-                  18,
-                ).toString(),
-              )
-            : BigNumber.from(
-                TickMath.getSqrtPriceAtPriceString(
-                  rangeBnPrice.add(baseLimit).toString(),
-                  18,
-                ).toString(),
-              ),
-        )
         if (rangeTickSpacing) {
           console.log('range price', rangeBnPrice)
           setLowerTick(
@@ -593,21 +586,21 @@ export default function Swap() {
      if (!coverBnPrice.eq(BN_ZERO)) {
         const baseLimit = coverBnPrice.mul(parseFloat((parseFloat(slippage) * 100).toFixed(6))).div(10000)
         setCoverBnBaseLimit(baseLimit)
-        setCoverBnPriceLimit(
-          tokenOrder
-          ? BigNumber.from(
-              TickMath.getSqrtPriceAtPriceString(
-                coverBnPrice.sub(baseLimit).toString(),
-                18,
-              ).toString(),
-            )
-          : BigNumber.from(
-              TickMath.getSqrtPriceAtPriceString(
-                coverBnPrice.add(baseLimit).toString(),
-                18,
-              ).toString(),
-            )
-        )
+        // setCoverBnPriceLimit(
+        //   tokenOrder
+        //   ? BigNumber.from(
+        //       TickMath.getSqrtPriceAtPriceString(
+        //         coverBnPrice.sub(baseLimit).toString(),
+        //         18,
+        //       ).toString(),
+        //     )
+        //   : BigNumber.from(
+        //       TickMath.getSqrtPriceAtPriceString(
+        //         coverBnPrice.add(baseLimit).toString(),
+        //         18,
+        //       ).toString(),
+        //     )
+        // )
      }
    }
    console.log('rangeBnBaseLimit', rangeBnBaseLimit.toString())
@@ -1083,7 +1076,7 @@ export default function Swap() {
                     tokenIn.address.localeCompare(tokenOut.address) < 0
                   }
                   amount={bnInput}
-                  baseLimit={rangeBnPriceLimit}
+                  priceLimit={rangeBnPriceLimit}
                 />
               )
             ) : Number(allowanceCover) <
@@ -1111,7 +1104,7 @@ export default function Swap() {
                   tokenIn.address.localeCompare(tokenOut.address) < 0
                 }
                 amount={bnInput}
-                baseLimit={coverBnPriceLimit}
+                priceLimit={coverBnPriceLimit}
               />
             )}
           </>

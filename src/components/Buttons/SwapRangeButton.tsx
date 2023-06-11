@@ -12,7 +12,7 @@ import React, { useState } from "react";
 import { rangePoolABI } from "../../abis/evm/rangePool";
 import { useSwapStore } from "../../hooks/useStore"
 
-export default function SwapRangeButton({poolAddress, amount, zeroForOne, baseLimit}) {
+export default function SwapRangeButton({poolAddress, amount, zeroForOne, priceLimit}) {
 
   /*const [Limit] = useSwapStore((state: any) => [
     state.Limit
@@ -33,7 +33,7 @@ export default function SwapRangeButton({poolAddress, amount, zeroForOne, baseLi
           userAddress,
           zeroForOne,
           amount,
-          baseLimit,
+          priceLimit,
       ],
       chainId: 421613,
       overrides:{
