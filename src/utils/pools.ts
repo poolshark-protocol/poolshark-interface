@@ -14,7 +14,8 @@ export const getRangePool = async (
   setRangeRoute,
   setRangeTickSpacing?,
   setTokenIn?,
-  setTokenOut?
+  setTokenOut?,
+  setEthUsdPrice?
 ) => {
   try {
     const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
@@ -54,6 +55,13 @@ export const getRangePool = async (
           usdPrice: !isNaN(parseFloat(tokenOutUsdPrice)) ? tokenOutUsdPrice : 0
         } as token)
         console.log('token out usd price:', tokenOutUsdPrice)
+      }
+      if (setEthUsdPrice) {
+        const pricesLength = pool['data']['basePrices'].length
+        if (pricesLength != 0){
+          const ethUsdPrice = pool['data']['basePrices']['0']['USD']
+          setEthUsdPrice(parseFloat(ethUsdPrice))
+        }
       }
     } else {
       const fallbackPool = await getRangePoolFromFactory(

@@ -65,6 +65,7 @@ export default function Swap() {
     address: tokenZeroAddress,
     usdPrice: 0
   } as token)
+  const [ethUsdPrice, setEthUsdPrice] = useState(0)
   const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [slippage, setSlippage] = useState('0.5')
@@ -311,7 +312,7 @@ export default function Swap() {
   }
 
   async function updatePools() {
-    await getRangePool(tokenIn, tokenOut, setRangePoolRoute, setRangeTickSpacing, setTokenIn, setTokenOut)
+    await getRangePool(tokenIn, tokenOut, setRangePoolRoute, setRangeTickSpacing, setTokenIn, setTokenOut, setEthUsdPrice)
     await getCoverPool(tokenIn, tokenOut, setCoverPoolRoute)
   }
 
@@ -345,8 +346,10 @@ export default function Swap() {
       bnInput,
       ethers.utils.parseUnits(allowanceRange, 18),
       ethers.utils.parseUnits(allowanceRange, 18),
+      ethUsdPrice,
       address,
       signer,
+      isConnected
     )
     setGasFee(newGasFee)
   }
