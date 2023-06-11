@@ -71,7 +71,7 @@ export default function Swap() {
   const [coverSlippage, setCoverSlippage] = useState('0.5')
   const [rangeSlippage, setRangeSlippage] = useState('0.5')
   const [auxSlippage, setAuxSlippage] = useState('0.5')
-  const [balanceIn, setBalanceIn] = useState('')
+  const [balanceIn, setBalanceIn] = useState('0.00')
   const [balanceOut, setBalanceOut] = useState('0.00')
   const [stateChainName, setStateChainName] = useState()
   const [LimitActive, setLimitActive] = useState(false)
@@ -248,9 +248,9 @@ export default function Swap() {
     ],
     chainId: 421613,
     watch: true,
-    enabled: isConnected && rangePoolRoute != undefined,
+    enabled: rangePoolRoute != undefined,
     onSuccess(data) {
-      console.log('Success range wagmi', data)
+      console.log('Success range quote wagmi', data)
     },
     onError(error) {
       console.log('Error range wagmi', error)
@@ -271,9 +271,9 @@ export default function Swap() {
     ],
     chainId: 421613,
     watch: true,
-    enabled: isConnected && coverPoolRoute != undefined,
+    enabled: coverPoolRoute != undefined,
     onSuccess(data) {
-      console.log('Success cover wagmi', data)
+      console.log('Success cover quote wagmi', data)
     },
     onError(error) {
       console.log('Error cover wagmi', error)
@@ -368,6 +368,7 @@ export default function Swap() {
   }
 
   function switchDirection() {
+    console.log('switching directions')
     setTokenOrder(!tokenOrder)
     const temp = tokenIn
     setTokenIn(tokenOut)
@@ -377,7 +378,7 @@ export default function Swap() {
     setQueryTokenOut(tempBal)
     setBnInput(ethers.utils.parseUnits((rangeQuote > coverQuote ? rangeQuote : coverQuote).toPrecision(10), 18))
     setDisplay((rangeQuote > coverQuote ? rangeQuote : coverQuote).toPrecision(7).replace(/0+$/, '').replace(/(\.)(?!\d)/g, ''))
-    if (rangeQuote > 0 && rangeQuote < coverQuote) {
+    if (rangeQuote > 0 && rangeQuote > coverQuote) {
       setRangeQuote(parseFloat(parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5)))
     } else {
       setCoverQuote(parseFloat(parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5)))
@@ -385,7 +386,7 @@ export default function Swap() {
     const oldBalanceIn = balanceIn
     setBalanceIn(balanceOut)
     setBalanceOut(oldBalanceIn)
-    if (LimitActive) {
+    if (!LimitActive) {
       console.log('lower upper tick', )
     }
   }
@@ -464,9 +465,9 @@ export default function Swap() {
       if (
         quoteRange[0].gt(BN_ZERO) &&
         quoteRange[1].gt(BN_ZERO) &&
-        !bnInput.eq(BN_ZERO) &&
-        rangeBnPrice.gt(BN_ZERO)
+        !bnInput.eq(BN_ZERO)
       ) {
+        console.log('quote update range')
         setRangeQuote(
           parseFloat(ethers.utils.formatUnits(quoteRange[1], 18)) /
             parseFloat(ethers.utils.formatUnits(quoteRange[0], 18)),
@@ -481,8 +482,7 @@ export default function Swap() {
       if (
         quoteCover[0].gt(BN_ZERO) &&
         quoteCover[1].gt(BN_ZERO) &&
-        !bnInput.eq(BN_ZERO) &&
-        coverBnPrice.gt(BN_ZERO)
+        !bnInput.eq(BN_ZERO)
       ) {
         setCoverQuote(
           parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)) /
