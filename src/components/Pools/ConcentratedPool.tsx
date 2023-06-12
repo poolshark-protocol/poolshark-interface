@@ -24,6 +24,7 @@ import inputFilter from '../../utils/inputFilter'
 import TickSpacing from '../Tooltips/TickSpacing'
 import { token } from '../../utils/types'
 import { switchDirection } from '../../utils/tokens'
+import { feeTiers } from '../../utils/pools'
 
 export default function ConcentratedPool({
   account,
@@ -42,36 +43,6 @@ export default function ConcentratedPool({
   tickSpacingParam,
   feeTier,
 }) {
-  const feeTiers = [
-    {
-      id: 1,
-      tier: '0.01%',
-      tierId: 100,
-      text: 'Best for very stable pairs',
-      unavailable: false,
-    },
-    {
-      id: 2,
-      tier: '0.05%',
-      tierId: 500,
-      text: 'Best for stable pairs',
-      unavailable: false,
-    },
-    {
-      id: 3,
-      tier: '0.3%',
-      tierId: 300,
-      text: 'Best for most pairs',
-      unavailable: false,
-    },
-    {
-      id: 4,
-      tier: '1%',
-      tierId: 1000,
-      text: 'Best for exotic pairs',
-      unavailable: false,
-    },
-  ]
   const { address, isConnected, isDisconnected } = useAccount()
   const [tokenIn, setTokenIn] = useState({
     symbol: tokenZeroSymbol ?? 'TOKEN20B',
@@ -103,7 +74,7 @@ export default function ConcentratedPool({
   ])
   const [tokenOrder, setTokenOrder] = useState(true)
   /* const [selected, setSelected] = useState(updateSelected()) */
-  const [selected, setSelected] = useState(updateSelected)
+  const [selected, setSelected] = useState(updateSelectedFeeTier)
   const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [balance0, setBalance0] = useState('')
@@ -232,7 +203,8 @@ export default function ConcentratedPool({
         tokenOrder ? setAllowance0(allowanceIn) : setAllowance1(allowanceIn)
       // console.log('token in allowance set', tokenInAllowance)
     }
-  }), [tokenInAllowance]
+  }),
+    [tokenInAllowance]
 
   useEffect(() => {
     if (tokenOutAllowance) {
@@ -241,12 +213,16 @@ export default function ConcentratedPool({
         tokenOutAllowance != Number(tokenOrder ? allowance1 : allowance0)
       )
         tokenOrder ? setAllowance1(allowanceOut) : setAllowance0(allowanceOut)
-      console.log('token out allowance check', tokenOutAllowance, allowance1.toString())
+      console.log(
+        'token out allowance check',
+        tokenOutAllowance,
+        allowance1.toString(),
+      )
     }
-  }), [tokenOutAllowance]
+  }),
+    [tokenOutAllowance]
 
-  function updateSelected(): any {
-    const tier = feeTiers[0]
+  function updateSelectedFeeTier(): any {
     if (feeTier == 0.01) {
       return feeTiers[0]
     } else if (feeTier == 0.05) {

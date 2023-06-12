@@ -150,8 +150,10 @@ export default function Cover() {
       setFeeTier(query.feeTier)
       setMinLimit(query.min)
       setMaxLimit(query.max)
-      setClaimTick(BigNumber.from(query.claimTick))
-      // console.log('claim tick', query.claimTick)
+      console.log('claim tick', query.claimTick)
+      setClaimTick(
+        query.claimTick ? BigNumber.from(query.claimTick) : BigNumber.from('0'),
+      )
       setUserFillIn(query.userFillIn)
       setUserFillOut(query.userFillOut)
       setTokenZeroDisplay(

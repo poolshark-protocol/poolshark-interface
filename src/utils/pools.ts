@@ -25,7 +25,8 @@ export const getRangePool = async (
       id = pool['data']['rangePools']['0']['id']
 
       if (setRangeTickSpacing) {
-        const tickSpacing = pool['data']['rangePools']['0']['feeTier']['tickSpacing']
+        const tickSpacing =
+          pool['data']['rangePools']['0']['feeTier']['tickSpacing']
         setRangeTickSpacing(tickSpacing)
       }
     } else {
@@ -36,7 +37,8 @@ export const getRangePool = async (
       id = fallbackPool['data']['rangePools']['0']['id']
 
       if (setRangeTickSpacing) {
-        const tickSpacing = fallbackPool['data']['rangePools']['0']['feeTier']['tickSpacing']
+        const tickSpacing =
+          fallbackPool['data']['rangePools']['0']['feeTier']['tickSpacing']
         setRangeTickSpacing(tickSpacing)
       }
     }
@@ -82,8 +84,16 @@ export const getCoverPoolInfo = async (
   setTickSpacing,
 ) => {
   try {
-    console.log('tokenIn', tokenIn.address.toLocaleLowerCase(), 'tokenOut', tokenOut.address.toLocaleLowerCase())
-    const pool = await getCoverPoolFromFactory(tokenIn.address, tokenOut.address)
+    console.log(
+      'tokenIn',
+      tokenIn.address.toLocaleLowerCase(),
+      'tokenOut',
+      tokenOut.address.toLocaleLowerCase(),
+    )
+    const pool = await getCoverPoolFromFactory(
+      tokenIn.address,
+      tokenOut.address,
+    )
     const dataLength = pool['data']['coverPools'].length
     if (dataLength != 0) {
       setCoverPoolRoute(pool['data']['coverPools']['0']['id'])
@@ -125,4 +135,34 @@ export const getFeeTier = async (
   }
 }
 
+export const feeTiers = [
+  {
+    id: 1,
+    tier: '0.01%',
+    tierId: 100,
+    text: 'Best for very stable pairs',
+    unavailable: false,
+  },
+  {
+    id: 2,
+    tier: '0.05%',
+    tierId: 500,
+    text: 'Best for stable pairs',
+    unavailable: false,
+  },
+  {
+    id: 3,
+    tier: '0.3%',
+    tierId: 300,
+    text: 'Best for most pairs',
+    unavailable: false,
+  },
+  {
+    id: 4,
+    tier: '1%',
+    tierId: 1000,
+    text: 'Best for exotic pairs',
+    unavailable: false,
+  },
+]
 
