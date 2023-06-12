@@ -36,10 +36,13 @@ export const getClaimTick = async (
 export function mapUserRangePositions(rangePositions) {
   const mappedRangePositions = []
   rangePositions.map((rangePosition) => {
-    console.log('user liquidity check', Math.round(
-      (rangePosition.amount / rangePosition.token.totalSupply) *
-        rangePosition.token.position.liquidity,
-    ))
+    console.log(
+      'user liquidity check',
+      Math.round(
+        (rangePosition.amount / rangePosition.token.totalSupply) *
+          rangePosition.token.position.liquidity,
+      ),
+    )
     const rangePositionData = {
       id: rangePosition.id,
       poolId: rangePosition.token.position.pool.id,
@@ -148,6 +151,7 @@ export function mapCoverPools(coverPools) {
       tokenOne: coverPool.token1,
       tokenZero: coverPool.token0,
       liquidity: coverPool.liquidity,
+      auctionLenght: coverPool.volatilityTier.auctionLength,
       feeTier: coverPool.volatilityTier.feeAmount,
       tickSpacing: coverPool.volatilityTier.tickSpread,
       //TODO: grab usdPrice of token from range subgraph

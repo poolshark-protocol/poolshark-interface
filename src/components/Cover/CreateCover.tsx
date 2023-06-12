@@ -83,7 +83,10 @@ export default function CreateCover(props: any) {
   const [auctionLenght, setAuctionLenght] = useState(
     props.query?.auctionLenght ?? 0,
   )
-  const [selected, setSelected] = useState(updateSelectedFeeTier)
+
+  const [volatility, setVolatility] = useState(
+    (feeTier * (60 / auctionLenght)).toFixed(2),
+  )
 
   function updateSelectedFeeTier(): any {
     if (feeTier == 0.01) {
@@ -342,63 +345,6 @@ export default function CreateCover(props: any) {
     }
   }
 
-  function SelectFee() {
-    return (
-      <Listbox value={selected} onChange={setSelected}>
-        <div className="relative mt-1 w-full">
-          <Listbox.Button className="relative cursor-default rounded-lg bg-black text-white cursor-pointer border border-grey1 py-2 pl-3 w-full text-left shadow-md focus:outline-none">
-            <span className="block truncate">{selected.tier}</span>
-            <span className="block truncate text-xs text-grey mt-1">
-              {selected.text}
-            </span>
-            <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-              <ChevronDownIcon className="w-7 text-grey" aria-hidden="true" />
-            </span>
-          </Listbox.Button>
-          <Transition
-            as={Fragment}
-            leave="transition ease-in duration-100"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <Listbox.Options className="absolute mt-1 z-50 max-h-60 w-full overflow-auto rounded-md bg-black border border-grey1 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-              {feeTiers.map((feeTier, feeTierIdx) => (
-                <Listbox.Option
-                  key={feeTierIdx}
-                  className={({ active }) =>
-                    `relative cursor-default select-none py-2 px-4 cursor-pointer ${
-                      active ? 'opacity-80 bg-dark' : 'opacity-100'
-                    }`
-                  }
-                  value={feeTier}
-                >
-                  {({ selected }) => (
-                    <>
-                      <span
-                        className={`block truncate text-white ${
-                          selected ? 'font-medium' : 'font-normal'
-                        }`}
-                      >
-                        {feeTier.tier}
-                      </span>
-                      <span
-                        className={`block truncate text-grey text-xs mt-1 ${
-                          selected ? 'font-medium' : 'font-normal'
-                        }`}
-                      >
-                        {feeTier.text}
-                      </span>
-                    </>
-                  )}
-                </Listbox.Option>
-              ))}
-            </Listbox.Options>
-          </Transition>
-        </div>
-      </Listbox>
-    )
-  }
-
   return isDisconnected ? (
     <>
       <h1 className="mb-5">Connect a Wallet</h1>
@@ -542,9 +488,7 @@ export default function CreateCover(props: any) {
         <div>
           <h1>Volatility tier</h1>
         </div>
-        <div className="mt-3">
-          <SelectFee />
-        </div>
+        <div className="mt-3">{volatility}% per min</div>
       </div>
       <div className="flex items-center w-full mb-3 mt-4 gap-x-2 relative">
         <h1 className="">Set Price Range</h1>
