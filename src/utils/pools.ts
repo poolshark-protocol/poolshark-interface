@@ -13,20 +13,55 @@ export const getRangePool = async (
   tokenOut: token,
   setRangeRoute,
   setRangeTickSpacing?,
+  setTokenIn?,
+  setTokenOut?,
+  setEthUsdPrice?
 ) => {
   try {
+    const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
     const pool = await getRangePoolFromFactory(
       tokenIn.address,
       tokenOut.address,
     )
     let id = ZERO_ADDRESS
-    let dataLength = pool['data']['rangePools'].length
+    const dataLength = pool['data']['rangePools'].length
     if (dataLength != 0) {
       id = pool['data']['rangePools']['0']['id']
 
       if (setRangeTickSpacing) {
         const tickSpacing = pool['data']['rangePools']['0']['feeTier']['tickSpacing']
         setRangeTickSpacing(tickSpacing)
+      }
+      if (setTokenIn) {
+        const tokenInUsdPrice = tokenOrder ? pool['data']['rangePools']['0']['token0']['usdPrice']
+                                           : pool['data']['rangePools']['0']['token1']['usdPrice']
+        setTokenIn({
+          symbol: tokenIn.symbol,
+          logoURI: tokenIn.logoURI,
+          address: tokenIn.address,
+          value: tokenIn.value,
+          usdPrice: !isNaN(parseFloat(tokenInUsdPrice)) ? tokenInUsdPrice : 0
+        } as token)
+        console.log('token in usd price:', tokenInUsdPrice)
+      }
+      if (setTokenOut) {
+        const tokenOutUsdPrice = tokenOrder ? pool['data']['rangePools']['0']['token1']['usdPrice']
+                                            : pool['data']['rangePools']['0']['token0']['usdPrice']
+        setTokenOut({
+          symbol: tokenOut.symbol,
+          logoURI: tokenOut.logoURI,
+          address: tokenOut.address,
+          value: tokenOut.value,
+          usdPrice: !isNaN(parseFloat(tokenOutUsdPrice)) ? tokenOutUsdPrice : 0
+        } as token)
+        console.log('token out usd price:', tokenOutUsdPrice)
+      }
+      if (setEthUsdPrice) {
+        const pricesLength = pool['data']['basePrices'].length
+        if (pricesLength != 0){
+          const ethUsdPrice = pool['data']['basePrices']['0']['USD']
+          setEthUsdPrice(parseFloat(ethUsdPrice))
+        }
       }
     } else {
       const fallbackPool = await getRangePoolFromFactory(
