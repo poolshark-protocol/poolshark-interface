@@ -759,8 +759,6 @@ export default function ConcentratedPool({
           amount1={amount1}
           amount0Usd={amount0Usd}
           amount1Usd={amount1Usd}
-          lowerPrice={lowerPrice}
-          upperPrice={upperPrice}
           lowerTick={lowerTick}
           upperTick={upperTick}
           fee={selected.tier}
