@@ -108,8 +108,6 @@ export default function ConcentratedPool({
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('')
-  const [tokenInAllowance, setTokenInAllowance] = useState(0)
-  const [tokenOutAllowance, setTokenOutAllowance] = useState(0)
   const [allowance0, setAllowance0] = useState(BN_ZERO)
   const [allowance1, setAllowance1] = useState(BN_ZERO)
   const [rangePrice, setRangePrice] = useState(undefined)
@@ -166,7 +164,7 @@ export default function ConcentratedPool({
 
   useEffect(() => {
     fetchTokenPrice()
-  }, [usdPrice0, usdPrice1])
+  }, [usdPrice0, usdPrice1, amount0, amount1])
 
   useEffect(() => {
     setRangeParams()
@@ -185,17 +183,12 @@ export default function ConcentratedPool({
     watch: true,
     enabled: rangePoolRoute != undefined && tokenIn.address != '',
     onSuccess(data) {
-      // console.log('Success')
+      // console.log('Success allowance in', allowanceIn.toString())
     },
     onError(error) {
       console.log('Error', error)
     },
   })
-
-  useEffect(() => {
-    console.log('token in allowance being set', Number(allowanceIn))
-    setTokenInAllowance(Number(allowanceIn))
-  }, [allowanceIn])
 
   const { data: allowanceOut } = useContractRead({
     address: tokenOut.address,
@@ -206,8 +199,7 @@ export default function ConcentratedPool({
     watch: true,
     enabled: rangePoolRoute != undefined && tokenIn.address != '',
     onSuccess(data) {
-      //setTokenOutAllowance(Number(allowanceOut))
-      // console.log('Success')
+      // console.log('Success allowance out', allowanceOut.toString())
     },
     onError(error) {
       console.log('Error', error)
@@ -218,32 +210,25 @@ export default function ConcentratedPool({
   })
 
   useEffect(() => {
-    console.log('token out allowance being set', Number(allowanceOut))
-    setTokenOutAllowance(Number(allowanceOut))
-  }, [allowanceOut])
-
-  useEffect(() => {
-    if (tokenInAllowance) {
-      //console.log('token in allowance', tokenInAllowance, tokenInAllowance.toString(), allowance0)
+    if (allowanceIn) {
+      console.log('token in allowance', allowanceIn.toString(), !allowanceIn.eq(tokenOrder ? allowance0 : allowance1))
       if (
         address != '0x' &&
-        tokenInAllowance != Number(tokenOrder ? allowance0 : allowance1)
+        !allowanceIn.eq(tokenOrder ? allowance0 : allowance1)
       )
         tokenOrder ? setAllowance0(allowanceIn) : setAllowance1(allowanceIn)
-      // console.log('token in allowance set', tokenInAllowance)
     }
-  }), [tokenInAllowance]
+  }), [allowanceIn]
 
   useEffect(() => {
-    if (tokenOutAllowance) {
+    if (allowanceOut) {
       if (
         address != '0x' &&
-        tokenOutAllowance != Number(tokenOrder ? allowance1 : allowance0)
+        !allowanceOut.eq(tokenOrder ? allowance1 : allowance0)
       )
         tokenOrder ? setAllowance1(allowanceOut) : setAllowance0(allowanceOut)
-      console.log('token out allowance check', tokenOutAllowance, allowance1.toString())
     }
-  }), [tokenOutAllowance]
+  }), [allowanceOut]
 
   function updateSelected(): any {
     const tier = feeTiers[0]
@@ -259,7 +244,7 @@ export default function ConcentratedPool({
   }
 
   useEffect(() => {
-    if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
+    if (!isNaN(parseFloat(lowerPrice))) {
       console.log('setting lower tick')
       setLowerTick(
         BigNumber.from(TickMath.getTickAtPriceString(lowerPrice, tickSpacing)),
@@ -271,6 +256,7 @@ export default function ConcentratedPool({
         BigNumber.from(TickMath.getTickAtPriceString(upperPrice, tickSpacing)),
       )
     }
+    setAmounts()
   }, [lowerPrice, upperPrice])
 
   const getRangePoolData = async () => {
@@ -314,6 +300,7 @@ export default function ConcentratedPool({
           setTickSpacing(spacing)
           setUsdPrice0(parseFloat(token0Price))
           setUsdPrice1(parseFloat(token1Price))
+          setRangeTickPrice(tickAtPrice)
         } else {
           setRangePoolRoute(ZERO_ADDRESS)
           setRangePrice('1.00')
@@ -334,6 +321,7 @@ export default function ConcentratedPool({
       const token1Amount = parseFloat(ethers.utils.formatUnits(amount1, 18))
       setAmount0Usd(token0Amount * usdPrice0)
       setAmount1Usd(token1Amount * usdPrice1)
+      console.log('setting usd prices for amounts', token0Amount * usdPrice0, token1Amount * usdPrice1)
     } catch (error) {
       console.log(error)
     }
@@ -665,8 +653,10 @@ export default function ConcentratedPool({
             <button
               className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
               onClick={() => {
-                setLowerTick(BigNumber.from(-887272))
-                setUpperTick(BigNumber.from(887272))
+                setLowerTick(BigNumber.from(roundTick(-887272, tickSpacing)))
+                setUpperTick(BigNumber.from(roundTick(887272, tickSpacing)))
+                setLowerPrice(TickMath.getPriceStringAtTick(roundTick(-887272, tickSpacing)))
+                setUpperPrice(TickMath.getPriceStringAtTick(roundTick(887272, tickSpacing)))
               }}
             >
               Full Range
@@ -687,7 +677,17 @@ export default function ConcentratedPool({
                   placeholder="0"
                   id="minInput"
                   type="text"
-                  value={lowerPrice}
+                  value={
+                    lowerPrice.toString().includes('e')
+                      ? parseFloat(lowerPrice).toLocaleString(undefined, {
+                          maximumFractionDigits: 0,
+                        }).length > 6
+                        ? '0'
+                        : parseFloat(lowerPrice).toLocaleString(undefined, {
+                            maximumFractionDigits: 0,
+                          })
+                      : lowerPrice
+                  }
                   onChange={() =>
                     setLowerPrice(
                       inputFilter(
@@ -719,7 +719,17 @@ export default function ConcentratedPool({
                   placeholder="0"
                   id="maxInput"
                   type="text"
-                  value={upperPrice}
+                  value={
+                    upperPrice.toString().includes('e')
+                      ? Number(upperPrice).toLocaleString(undefined, {
+                          maximumFractionDigits: 0,
+                        }).length > 6
+                        ? '∞'
+                        : Number(upperPrice).toLocaleString(undefined, {
+                            maximumFractionDigits: 0,
+                          })
+                      : upperPrice
+                  }
                   onChange={() =>
                     setUpperPrice(
                       inputFilter(
@@ -739,7 +749,6 @@ export default function ConcentratedPool({
             </div>
           </div>
         </div>
-
         <ConcentratedPoolPreview
           account={to}
           key={poolId}
@@ -750,8 +759,6 @@ export default function ConcentratedPool({
           amount1={amount1}
           amount0Usd={amount0Usd}
           amount1Usd={amount1Usd}
-          lowerPrice={lowerPrice}
-          upperPrice={upperPrice}
           lowerTick={lowerTick}
           upperTick={upperTick}
           fee={selected.tier}
