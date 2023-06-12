@@ -80,6 +80,9 @@ export default function CreateCover(props: any) {
     props.query ? props.query.tickSpacing : 20,
   )
   const [feeTier, setFeeTier] = useState(props.query?.feeTier ?? 0.01)
+  const [auctionLenght, setAuctionLenght] = useState(
+    props.query?.auctionLenght ?? 0,
+  )
   const [selected, setSelected] = useState(updateSelectedFeeTier)
 
   function updateSelectedFeeTier(): any {

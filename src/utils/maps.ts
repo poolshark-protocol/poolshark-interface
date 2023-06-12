@@ -121,6 +121,7 @@ export function mapUserCoverPositions(coverPositions) {
       upperTick: coverPosition.upper,
       latestTick: coverPosition.pool.latestTick,
       liquidity: coverPosition.liquidity,
+      auctionLenght: coverPosition.pool.auctionLength,
       feeTier: coverPosition.pool.volatilityTier.feeAmount,
       tickSpacing: coverPosition.pool.volatilityTier.tickSpread,
       userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
