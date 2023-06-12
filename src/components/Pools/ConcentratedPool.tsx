@@ -183,7 +183,7 @@ export default function ConcentratedPool({
     watch: true,
     enabled: rangePoolRoute != undefined && tokenIn.address != '',
     onSuccess(data) {
-      console.log('Success allowance in', allowanceIn.toString())
+      // console.log('Success allowance in', allowanceIn.toString())
     },
     onError(error) {
       console.log('Error', error)
@@ -199,7 +199,7 @@ export default function ConcentratedPool({
     watch: true,
     enabled: rangePoolRoute != undefined && tokenIn.address != '',
     onSuccess(data) {
-      console.log('Success allowance out', allowanceOut.toString())
+      // console.log('Success allowance out', allowanceOut.toString())
     },
     onError(error) {
       console.log('Error', error)
@@ -653,8 +653,10 @@ export default function ConcentratedPool({
             <button
               className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
               onClick={() => {
-                setLowerTick(BigNumber.from(-887272))
-                setUpperTick(BigNumber.from(887272))
+                setLowerTick(BigNumber.from(roundTick(-887272, tickSpacing)))
+                setUpperTick(BigNumber.from(roundTick(887272, tickSpacing)))
+                setLowerPrice(TickMath.getPriceStringAtTick(roundTick(-887272, tickSpacing)))
+                setUpperPrice(TickMath.getPriceStringAtTick(roundTick(887272, tickSpacing)))
               }}
             >
               Full Range
@@ -675,7 +677,17 @@ export default function ConcentratedPool({
                   placeholder="0"
                   id="minInput"
                   type="text"
-                  value={lowerPrice}
+                  value={
+                    lowerPrice.toString().includes('e')
+                      ? parseFloat(lowerPrice).toLocaleString(undefined, {
+                          maximumFractionDigits: 0,
+                        }).length > 6
+                        ? '0'
+                        : parseFloat(lowerPrice).toLocaleString(undefined, {
+                            maximumFractionDigits: 0,
+                          })
+                      : lowerPrice
+                  }
                   onChange={() =>
                     setLowerPrice(
                       inputFilter(
@@ -707,7 +719,17 @@ export default function ConcentratedPool({
                   placeholder="0"
                   id="maxInput"
                   type="text"
-                  value={upperPrice}
+                  value={
+                    upperPrice.toString().includes('e')
+                      ? Number(upperPrice).toLocaleString(undefined, {
+                          maximumFractionDigits: 0,
+                        }).length > 6
+                        ? '∞'
+                        : Number(upperPrice).toLocaleString(undefined, {
+                            maximumFractionDigits: 0,
+                          })
+                      : upperPrice
+                  }
                   onChange={() =>
                     setUpperPrice(
                       inputFilter(
