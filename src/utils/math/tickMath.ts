@@ -4,6 +4,7 @@ import { Q32, ONE, ZERO, MAX_UINT256, Q96_BD  } from './constants'
 import { mostSignificantBit } from "./mostSignificantBit"
 import JSBD from 'jsbd'
 import { priceToString, scale } from './priceMath'
+import { BigNumber } from 'ethers'
 
 function mulShift(val: JSBI, mulBy: string): JSBI {
   return JSBI.signedRightShift(JSBI.multiply(val, JSBI.BigInt(mulBy)), JSBI.BigInt(128))
@@ -71,6 +72,9 @@ export function getDefaultLowerPrice(minLimit, maxLimit, zeroForOne, latestTick 
 export function getDefaultUpperPrice(minLimit, maxLimit, zeroForOne, latestTick = 0): string {
   return TickMath.getPriceStringAtTick(getDefaultUpperTick(minLimit, maxLimit, zeroForOne, latestTick))
 }
+
+export const minPriceBn: BigNumber = BigNumber.from('4295128739')
+export const maxPriceBn: BigNumber = BigNumber.from('1461446703485210103287273052203988822378723970342')
 
 export abstract class TickMath {
   /**
