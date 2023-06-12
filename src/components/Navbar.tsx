@@ -6,7 +6,7 @@ import { ConnectWalletButton } from "./Buttons/ConnectWalletButton";
 export default function Navbar() {
 
   const router = useRouter();
-  const homeHref = 'http://localhost:3000/'; 
+  const homeHref = 'https://poolshark.fi/'; 
   
   return (
     <div className="md:px-10 px-4 pt-3 mx-auto w-full">

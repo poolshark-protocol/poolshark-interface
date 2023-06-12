@@ -4,4 +4,5 @@ export type token = {
   logoURI: string
   address: string
   value: string
+  usdPrice: number
 }

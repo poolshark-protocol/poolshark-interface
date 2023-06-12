@@ -15,8 +15,6 @@ export default function ConcentratedPoolPreview({
   amount1,
   amount0Usd,
   amount1Usd,
-  lowerPrice,
-  upperPrice,
   lowerTick,
   upperTick,
   fee,
@@ -26,32 +24,9 @@ export default function ConcentratedPoolPreview({
 }) {
   const { address, isConnected } = useAccount()
   const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
-  const { data: dataIn } = useContractRead({
-    address: tokenIn.address,
-    abi: erc20ABI,
-    functionName: 'allowance',
-    args: [address, poolAddress],
-    chainId: 421613,
-    watch: true,
-    enabled:
-      isConnected && poolAddress != undefined && tokenIn.address != undefined,
-    onSuccess() {
-      console.log(
-        'token allowances',
-        allowance0.sub(amount0).toString(),
-        allowance1.sub(amount1).toString(),
-        amount1.toString(),
-        amount0.toString(),
-      )
-      console.log('Success')
-    },
-    onError(error) {
-      console.log('Error', error)
-    },
-    onSettled(data, error) {
-      console.log('Settled', { data, error })
-    },
-  })
+  const lowerPrice = TickMath.getPriceStringAtTick(lowerTick)
+  const upperPrice = TickMath.getPriceStringAtTick(upperTick) 
+  console.log('allowances', allowance0.toString(), allowance1.toString())
 
   let [isOpen, setIsOpen] = useState(false)
 
@@ -203,7 +178,15 @@ export default function ConcentratedPoolPreview({
                             <span className="text-xs text-grey">Min Price</span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {TickMath.getPriceStringAtTick(lowerTick)}
+                                {lowerPrice.toString().includes('e')
+                                  ? parseFloat(lowerPrice).toLocaleString(undefined, {
+                                      maximumFractionDigits: 0,
+                                    }).length > 6
+                                    ? '0'
+                                    : parseFloat(lowerPrice).toLocaleString(undefined, {
+                                        maximumFractionDigits: 0,
+                                      })
+                                  : lowerPrice}
                               </span>
                             </div>
                             <span className="text-xs text-grey">
@@ -216,7 +199,15 @@ export default function ConcentratedPoolPreview({
                             <span className="text-xs text-grey">Max Price</span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {TickMath.getPriceStringAtTick(upperTick)}
+                                {upperPrice.toString().includes('e')
+                                  ? Number(upperPrice).toLocaleString(undefined, {
+                                      maximumFractionDigits: 0,
+                                    }).length > 6
+                                    ? '∞'
+                                    : Number(upperPrice).toLocaleString(undefined, {
+                                        maximumFractionDigits: 0,
+                                      })
+                                  : upperPrice}
                               </span>
                             </div>
                             <span className="text-xs text-grey">
