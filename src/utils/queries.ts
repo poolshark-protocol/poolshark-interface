@@ -52,6 +52,9 @@ export const getRangePoolFromFactory = (tokenA?: string, tokenB?: string, feeTie
     const getPool = isNaN(feeTierId) ? 
         `
         {
+          basePrices(where:{id: "eth"}){
+            USD
+          }
           rangePools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
             id
             price
