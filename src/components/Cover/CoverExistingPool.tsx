@@ -4,7 +4,7 @@ import {
   ArrowLongLeftIcon,
   MinusIcon,
   PlusIcon,
-  InformationCircleIcon
+  InformationCircleIcon,
 } from '@heroicons/react/20/solid'
 import { erc20ABI, useAccount, useContractRead } from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
@@ -12,7 +12,7 @@ import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 import { Fragment, useEffect, useState } from 'react'
 import { ethers } from 'ethers'
 import JSBI from 'jsbi'
-import { Listbox, Transition } from "@headlessui/react";
+import { Listbox, Transition } from '@headlessui/react'
 import {
   TickMath,
   getDefaultLowerPrice,
@@ -26,7 +26,7 @@ import { ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
 import CoverMintApproveButton from '../Buttons/CoverMintApproveButton'
 import { token } from '../../utils/types'
-import { getCoverPoolInfo } from '../../utils/pools'
+import { feeTiers, getCoverPoolInfo } from '../../utils/pools'
 import { fetchTokenPrices, switchDirection } from '../../utils/tokens'
 import inputFilter from '../../utils/inputFilter'
 import TickSpacing from '../Tooltips/TickSpacing'
@@ -105,6 +105,22 @@ export default function CoverExistingPool({
   const [allowance, setAllowance] = useState(ZERO)
   const [mktRate, setMktRate] = useState({})
   const [showTooltip, setShowTooltip] = useState(false)
+  const [selected, setSelected] = useState(updateSelectedFeeTier)
+
+  function updateSelectedFeeTier(): any {
+    if (feeTier == 0.01) {
+      return feeTiers[0]
+    } else if (feeTier == 0.05) {
+      return feeTiers[1]
+    } else if (feeTier == 0.3) {
+      return feeTiers[2]
+    } else if (feeTier == 1) {
+      return feeTiers[3]
+    } else return feeTiers[0]
+  }
+
+  console.log('selected fee tier', feeTier)
+  console.log('selected', selected)
 
   ////////////////////////////////
 
@@ -149,11 +165,14 @@ export default function CoverExistingPool({
       if (coverPoolRoute != undefined && tokenOut.address != '') {
         console.log('Success allowance', allowanceIn.toString())
         setAllowance(JSBI.BigInt(allowanceIn.toString()))
-        console.log('allowance check', allowanceIn.toString(), JSBI.toNumber(coverAmountIn))
+        console.log(
+          'allowance check',
+          allowanceIn.toString(),
+          JSBI.toNumber(coverAmountIn),
+        )
       }
     }
   }, [allowanceIn, tokenIn.address, coverAmountIn])
-
 
   useEffect(() => {
     setFetchDelay(false)
@@ -204,9 +223,9 @@ export default function CoverExistingPool({
   useEffect(() => {
     setDisabled(
       isNaN(parseFloat(lowerPrice)) ||
-      isNaN(parseFloat(upperPrice)) ||
-      parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
-      hasSelected == false
+        isNaN(parseFloat(upperPrice)) ||
+        parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
+        hasSelected == false,
     )
   }, [lowerPrice, upperPrice, coverAmountIn])
 
@@ -224,19 +243,37 @@ export default function CoverExistingPool({
   ////////////////////////////////
 
   const changePrice = (direction: string, inputId: string) => {
-    console.log('setting price', inputId, direction, inputId == 'minInput' || inputId == 'maxInput' ?
-    (inputId == 'minInput' ? lowerTick : upperTick) : latestTick)
-    const currentTick = inputId == 'minInput' || inputId == 'maxInput' ?
-                          (inputId == 'minInput' ? lowerTick : upperTick) : latestTick;
+    console.log(
+      'setting price',
+      inputId,
+      direction,
+      inputId == 'minInput' || inputId == 'maxInput'
+        ? inputId == 'minInput'
+          ? lowerTick
+          : upperTick
+        : latestTick,
+    )
+    const currentTick =
+      inputId == 'minInput' || inputId == 'maxInput'
+        ? inputId == 'minInput'
+          ? lowerTick
+          : upperTick
+        : latestTick
     console.log('current tick', currentTick, upperTick)
     if (!tickSpread && !tickSpacing) return
     const increment = tickSpread ?? tickSpacing
-    const adjustment = direction == 'plus' || direction == 'minus' ?
-                        (direction == 'plus' ? -increment : increment) : 0;
+    const adjustment =
+      direction == 'plus' || direction == 'minus'
+        ? direction == 'plus'
+          ? -increment
+          : increment
+        : 0
     console.log('adjustment', adjustment, currentTick)
     const newTick = roundTick(currentTick - adjustment, increment)
-    const newPriceString = TickMath.getPriceStringAtTick(newTick);
-    (document.getElementById(inputId) as HTMLInputElement).value = Number(newPriceString).toFixed(6)
+    const newPriceString = TickMath.getPriceStringAtTick(newTick)
+    ;(document.getElementById(inputId) as HTMLInputElement).value = Number(
+      newPriceString,
+    ).toFixed(6)
     if (inputId === 'maxInput') {
       setUpperTick(newTick)
       setUpperPrice(newPriceString)
@@ -302,31 +339,7 @@ export default function CoverExistingPool({
     setSliderValue(event.target.value)
   }
 
-
-
-
-  const feeTiers = [
-    {
-      id: 1,
-      tier: "0.01%",
-      text: "Best for very stable pairs",
-      unavailable: false,
-    },
-    {
-      id: 2,
-      tier: "0.05%",
-      text: "Best for stable pairs",
-      unavailable: false,
-    },
-    { id: 3, tier: "0.3%", text: "Best for most pairs", unavailable: false },
-    { id: 4, tier: "1%", text: "Best for exotic pairs", unavailable: false },
-  ];
-
-    const [selected, setSelected] = useState(feeTiers[0]);
-
-
-
-    function SelectFee() {
+  function SelectFee() {
     return (
       <Listbox value={selected} onChange={setSelected}>
         <div className="relative mt-1 w-full">
@@ -482,8 +495,8 @@ export default function CoverExistingPool({
               type="text"
               id="input"
               onChange={(e) => {
-                setSliderValue(Number(inputFilter(e.target.value)));
-                console.log("slider value", sliderValue);
+                setSliderValue(Number(inputFilter(e.target.value)))
+                console.log('slider value', sliderValue)
               }}
               value={sliderValue}
               className="text-right placeholder:text-grey1 text-white text-2xl w-20 focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
@@ -507,12 +520,12 @@ export default function CoverExistingPool({
                 ) {
                   setSliderValue(
                     Number(inputFilter(e.target.value)) /
-                      Number(ethers.utils.formatUnits(coverAmountOut, 18))
-                  );
+                      Number(ethers.utils.formatUnits(coverAmountOut, 18)),
+                  )
                 } else {
                   setSliderValue(100)
                 }
-                setCoverValue(Number(inputFilter(e.target.value)));
+                setCoverValue(Number(inputFilter(e.target.value)))
               }}
               value={Number.parseFloat(
                 ethers.utils.formatUnits(String(coverAmountOut), 18),
@@ -537,13 +550,13 @@ export default function CoverExistingPool({
         )}
       </div>
       <div>
-          <div className="gap-x-4 mt-5">
-            <h1>Volatility tier</h1>
-          </div>
-          <div className="mt-3">
-            <SelectFee />
-          </div>
+        <div className="gap-x-4 mt-5">
+          <h1>Volatility tier</h1>
         </div>
+        <div className="mt-3">
+          <SelectFee />
+        </div>
+      </div>
       <div className="flex items-center w-full mb-3 mt-4 gap-x-2 relative">
         <h1 className="">Set Price Range</h1>
         <InformationCircleIcon
@@ -552,11 +565,11 @@ export default function CoverExistingPool({
           className="w-5 h-5 mt-[1px] text-grey cursor-pointer"
         />
         <div
-        onMouseEnter={() => setShowTooltip(true)}
+          onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
           className="absolute mt-32 pt-8"
         >
-        {showTooltip ? <TickSpacing /> : null}
+          {showTooltip ? <TickSpacing /> : null}
         </div>
       </div>
       <div className="flex justify-between w-full gap-x-6">
@@ -564,7 +577,7 @@ export default function CoverExistingPool({
           <span className="text-xs text-grey">Min Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice("minus", "minInput")}>
+              <button onClick={() => changePrice('minus', 'minInput')}>
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </button>
             </div>
@@ -588,14 +601,14 @@ export default function CoverExistingPool({
               onChange={() =>
                 setLowerPrice(
                   inputFilter(
-                    (document.getElementById("minInput") as HTMLInputElement)
-                      ?.value
-                  )
+                    (document.getElementById('minInput') as HTMLInputElement)
+                      ?.value,
+                  ),
                 )
               }
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice("plus", "minInput")}>
+              <button onClick={() => changePrice('plus', 'minInput')}>
                 <PlusIcon className="w-5 h-5" />
               </button>
             </div>
@@ -605,7 +618,7 @@ export default function CoverExistingPool({
           <span className="text-xs text-grey">Max. Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice("minus", "maxInput")}>
+              <button onClick={() => changePrice('minus', 'maxInput')}>
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </button>
             </div>
@@ -630,14 +643,14 @@ export default function CoverExistingPool({
               onChange={() =>
                 setUpperPrice(
                   inputFilter(
-                    (document.getElementById("maxInput") as HTMLInputElement)
-                      ?.value
-                  )
+                    (document.getElementById('maxInput') as HTMLInputElement)
+                      ?.value,
+                  ),
                 )
               }
             />
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-              <button onClick={() => changePrice("plus", "maxInput")}>
+              <button onClick={() => changePrice('plus', 'maxInput')}>
                 <PlusIcon className="w-5 h-5" />
               </button>
             </div>
