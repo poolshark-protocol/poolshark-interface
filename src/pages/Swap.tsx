@@ -634,6 +634,13 @@ export default function Swap() {
             </div>
           </div>
           <div className="flex p-1">
+            <div className="text-xs text-[#4C4C4C]">Network Fee</div>
+            {!LimitActive ?
+            <div className="ml-auto text-xs">{gasFee}</div> :
+            <div className="ml-auto text-xs">{mintFee}</div>}
+          </div>
+          {!LimitActive ? (
+          <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">
               Minimum received after slippage ({slippage}%)
             </div>
@@ -671,13 +678,9 @@ export default function Swap() {
                 )
                 : 'Select Token'}
             </div>
-          </div>
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Network Fee</div>
-            {!LimitActive ?
-            <div className="ml-auto text-xs">{gasFee}</div> :
-            <div className="ml-auto text-xs">{mintFee}</div>}
-          </div>
+          </div>) : (
+            <></>
+          )}
           {!LimitActive ? (
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Price Impact</div>
