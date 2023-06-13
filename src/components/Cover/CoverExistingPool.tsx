@@ -60,6 +60,7 @@ export default function CoverExistingPool({
   const [expanded, setExpanded] = useState(false)
   const [fetchDelay, setFetchDelay] = useState(false)
   const [tickSpread, setTickSpread] = useState(20)
+  const [auctionLength, setAuctionLength] = useState(5)
   const [tokenOrder, setTokenOrder] = useState(zeroForOne)
   const [latestTick, setLatestTick] = useState(0)
   const [lowerTick, setLowerTick] = useState(
@@ -178,6 +179,7 @@ export default function CoverExistingPool({
         setCoverPoolRoute,
         setLatestTick,
         setTickSpread,
+        setAuctionLength
       )
       updateGasFee()
     } else {
@@ -189,6 +191,7 @@ export default function CoverExistingPool({
           setCoverPoolRoute,
           setLatestTick,
           setTickSpread,
+          setAuctionLength
         )
       }, 5000)
       return () => clearInterval(interval)

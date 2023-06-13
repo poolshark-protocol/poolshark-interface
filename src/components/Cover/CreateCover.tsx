@@ -181,6 +181,7 @@ export default function CreateCover(props: any) {
       setCoverPoolRoute,
       setCoverPrice,
       setTickSpread,
+      setAuctionLength
     )
   }, [hasSelected, tokenIn.address, tokenOut.address, tokenOrder])
 

@@ -117,6 +117,7 @@ export const getCoverPoolInfo = async (
   setCoverPoolRoute,
   setCoverPrice,
   setTickSpacing,
+  setAuctionLength
 ) => {
   try {
     console.log(
@@ -136,7 +137,11 @@ export const getCoverPoolInfo = async (
         pool['data']['coverPools']['0']['volatilityTier']['tickSpread'],
       )
       const newLatestTick = pool['data']['coverPools']['0']['latestTick']
+      const auctionLength = pool['data']['coverPools']['0']['volatilityTier']['auctionLength']
+      const tickSpread = pool['data']['coverPools']['0']['volatilityTier']['tickSpread']
       setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick))
+      setAuctionLength(auctionLength)
+      setTickSpacing(tickSpread)
     } else {
       setCoverPoolRoute(ZERO_ADDRESS)
       setCoverPrice('1.00')
