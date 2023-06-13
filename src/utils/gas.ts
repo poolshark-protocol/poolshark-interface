@@ -4,8 +4,9 @@ import { coverPoolABI } from '../abis/evm/coverPool'
 import { token } from './types'
 import { TickMath, roundTick } from './math/tickMath'
 import { fetchPrice } from './queries'
+import JSBI from 'jsbi'
 
-export const gasEstimate = async (
+export const gasEstimateSwap = async (
   rangePoolRoute: string,
   coverPoolRoute: string,
   rangeQuote: number,
@@ -75,7 +76,7 @@ export const gasEstimate = async (
   }
 }
 
-export const gasEstimateLimit = async (
+export const gasEstimateSwapLimit = async (
   rangePoolRoute: string,
   address: string,
   rangePrice: number,
@@ -124,6 +125,60 @@ export const gasEstimateLimit = async (
     gasUnits = await contract
       .connect(signer)
       .estimateGas.mint([recipient, lower, upper, bnInput, amount1])
+    const price = await fetchPrice('0x000')
+    const gasPrice = await provider.getGasPrice()
+    const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])
+    const networkFeeWei = gasPrice.mul(gasUnits)
+    const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18))
+    const networkFeeUsd = networkFeeEth * ethUsdPrice
+    const formattedPrice: string =
+      networkFeeUsd.toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      })
+    
+    return formattedPrice
+  }
+  catch (error) {
+    console.log('gas error', error)
+    return '$0.00'
+  }
+}
+
+export const gasEstimateCoverMint = async (
+  coverPoolRoute: string,
+  address: string,
+  upperTick: number,
+  lowerTick: number,
+  tokenIn: token,
+  tokenOut: token,
+  inAmount: JSBI,
+  tickSpacing: any,
+  signer
+) => {
+  try {
+    const provider = new ethers.providers.JsonRpcProvider(
+      'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
+    )
+    if (!coverPoolRoute || !provider || !signer) {
+      return Number(0).toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      })
+    }
+    const contract = new ethers.Contract(coverPoolRoute, coverPoolABI, provider)
+
+    const recipient = address
+    const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0
+
+    const lower = BigNumber.from(lowerTick)
+    const upper = BigNumber.from(upperTick)
+    const claim = zeroForOne ? upper : lower
+    const amountIn = BigNumber.from(String(inAmount))
+
+    const gasUnits: BigNumber = await contract
+      .connect(signer)
+      .estimateGas.mint([recipient, amountIn, lower, claim, upper, zeroForOne])
     const price = await fetchPrice('0x000')
     const gasPrice = await provider.getGasPrice()
     const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])

@@ -45,7 +45,6 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
       console.log('setting burn percent', bnInput.toString(), amountInMax.toString(), bnInput.mul(ethers.utils.parseUnits('1', 38)).div(amountInMax).toString())
       setBurnPercent(bnInput.mul(ethers.utils.parseUnits('1', 38)).div(amountInMax))
     }
-
   }, [bnInput])
 
   useEffect(() => {

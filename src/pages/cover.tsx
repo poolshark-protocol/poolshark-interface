@@ -27,15 +27,16 @@ export default function Cover() {
   const [allCoverPositions, setAllCoverPositions] = useState([])
 
   useEffect(() => {
-    if (address != undefined)
+    if (address)
       getUserCoverPositionData()
   }, [address])
 
   async function getUserCoverPositionData() {
     const data = await fetchCoverPositions(address)
-    if (data) {
+    if (data['data']) {
       const positions = data['data'].positions
-      setAllCoverPositions(mapUserCoverPositions(positions))
+      const positionData = mapUserCoverPositions(positions)
+      setAllCoverPositions(positionData)
     }
   }
 
@@ -120,12 +121,13 @@ export default function Cover() {
                             clipRule="evenodd"
                           />
                         </svg>
-                        Your cover pools will appear here
+                        Your cover positions will appear here.
                       </div>
                     ) : (
                       <div className="space-y-3">
                         {allCoverPositions.map((allCoverPosition) => {
                           if (
+                            allCoverPosition.id != undefined &&
                             allCoverPosition.userOwnerAddress ===
                               address?.toLowerCase() &&
                             (allCoverPosition.tokenZero.name.toLowerCase() ===
@@ -142,7 +144,6 @@ export default function Cover() {
                                 searchTerm.toLowerCase() ||
                               searchTerm === "")
                           ) {
-                            //console.log('user fill out', allCoverPosition.userFillOut)
                             return (
                               <UserCoverPool
                                 key={allCoverPosition.id + "coverPositions"}
@@ -169,7 +170,6 @@ export default function Cover() {
                                     allCoverPosition.upperTick
                                   )
                                 )}
-                                claimTick={allCoverPosition.claimTick}
                                 latestTick={allCoverPosition.latestTick}
                                 tickSpacing={allCoverPosition.tickSpacing}
                                 epochLast={allCoverPosition.epochLast}
