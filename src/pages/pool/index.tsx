@@ -44,11 +44,11 @@ export default function Pool() {
 
   useEffect(() => {
     if (address) {
-      getUserRangePositionData()
-      getRangePoolData()
       getUserCoverPositionData()
-      getCoverPoolData()
+      getUserRangePositionData()
     }
+    getRangePoolData()
+    getCoverPoolData()
   }, [address])
 
   async function getUserRangePositionData() {
