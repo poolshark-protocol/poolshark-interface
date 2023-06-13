@@ -171,6 +171,8 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd,
                       poolAddress={poolAdd}
                       approveToken={tokenIn.address}
                       amount={bnInput}
+                      tokenSymbol={tokenIn.symbol}
+                      allowance={allowanceIn}
                     />
                   ) : stateChainName === "arbitrumGoerli" ? (
                     <CoverAddLiqButton

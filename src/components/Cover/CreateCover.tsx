@@ -673,6 +673,8 @@ export default function CreateCover(props: any) {
             poolAddress={coverPoolRoute}
             approveToken={tokenIn.address}
             amount={bnInput}
+            tokenSymbol={tokenIn.symbol}
+            allowance={allowance}
           />
         ) : stateChainName === "arbitrumGoerli" ? (
           <CoverMintButton

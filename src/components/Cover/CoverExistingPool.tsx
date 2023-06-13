@@ -684,6 +684,8 @@ export default function CoverExistingPool({
             poolAddress={coverPoolRoute}
             approveToken={tokenIn.address}
             amount={String(coverAmountIn)}
+            tokenSymbol={tokenIn.symbol}
+            allowance={allowance}
           />
         ) : (
           <CoverMintButton

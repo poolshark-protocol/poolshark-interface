@@ -196,6 +196,9 @@ export default function DirectionalPoolPreview({
                           disabled={true}
                           poolAddress={poolId}
                           approveToken={tokenIn.address}
+                          bnInput={amount0}
+                          tokenSymbol={tokenIn.symbol}
+                          allowanceCover={allowance}
                         />
                       ) : (
                         <CoverMintButton
