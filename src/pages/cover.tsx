@@ -27,9 +27,14 @@ export default function Cover() {
   const [allCoverPositions, setAllCoverPositions] = useState([])
 
   useEffect(() => {
-    if (address)
-      getUserCoverPositionData()
+    if (address) getUserCoverPositionData()
   }, [address])
+
+  useEffect(() => {
+    if (state === 'existing' && router.query.state === 'nav') {
+      setState('initial')
+    }
+  }, [router.query.state])
 
   async function getUserCoverPositionData() {
     const data = await fetchCoverPositions(address)
@@ -65,7 +70,7 @@ export default function Cover() {
           </div>
           <div className="flex space-x-8">
             <div className="bg-black w-2/3 border border-grey2 w-full rounded-t-xl p-6 gap-y-4">
-              {selectedPool != undefined && state != "initial" ? (
+              {selectedPool != undefined && state == 'existing' ? (
                 <CreateCover query={router.query} goBack={handleDiselectPool} />
               ) : (
                 <Initial query={router.query} />
@@ -142,11 +147,11 @@ export default function Cover() {
                                 searchTerm.toLowerCase() ||
                               allCoverPosition.tokenOne.id.toLowerCase() ===
                                 searchTerm.toLowerCase() ||
-                              searchTerm === "")
+                              searchTerm === '')
                           ) {
                             return (
                               <UserCoverPool
-                                key={allCoverPosition.id + "coverPositions"}
+                                key={allCoverPosition.id + 'coverPositions'}
                                 account={address}
                                 poolId={allCoverPosition.poolId}
                                 tokenZero={allCoverPosition.tokenZero}
@@ -162,22 +167,22 @@ export default function Cover() {
                                 liquidity={allCoverPosition.liquidity}
                                 lowerPrice={parseFloat(
                                   TickMath.getPriceStringAtTick(
-                                    allCoverPosition.lowerTick
-                                  )
+                                    allCoverPosition.lowerTick,
+                                  ),
                                 )}
                                 upperPrice={parseFloat(
                                   TickMath.getPriceStringAtTick(
-                                    allCoverPosition.upperTick
-                                  )
+                                    allCoverPosition.upperTick,
+                                  ),
                                 )}
                                 latestTick={allCoverPosition.latestTick}
                                 tickSpacing={allCoverPosition.tickSpacing}
                                 epochLast={allCoverPosition.epochLast}
                                 prefill={undefined}
                                 close={undefined}
-                                href={"/pool/view/cover"}
+                                href={'/pool/view/cover'}
                               />
-                            );
+                            )
                           }
                         })}
                       </div>
@@ -191,5 +196,5 @@ export default function Cover() {
         </div>
       </div>
     </div>
-  );
+  )
 }

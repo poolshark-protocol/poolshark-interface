@@ -5,16 +5,8 @@ import CreateCover from './CreateCover'
 import PoolsModal from './PoolsModal'
 import { useAccount } from 'wagmi'
 import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
-import { ethers } from 'ethers'
 
 export default function Initial(props: any) {
-  type token = {
-    name: string
-    symbol: string
-    logoURI: string
-    address: string
-    value: string
-  }
   const { address, isConnected, isDisconnected } = useAccount()
 
   const [isOpen, setIsOpen] = useState(false)
@@ -32,7 +24,11 @@ export default function Initial(props: any) {
     pStake: '/static/images/eth_icon.png',
   }
 
-  console.log('shifted', shifted)
+  useEffect(() => {
+    if (props.query.state === 'nav') {
+      setIsShifted('initial')
+    }
+  }, [props.query])
 
   function setParams(query: any) {
     //console.log('query', query)
