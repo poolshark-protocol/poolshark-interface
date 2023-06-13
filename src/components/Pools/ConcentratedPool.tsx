@@ -684,9 +684,9 @@ export default function ConcentratedPool({
                         }).length > 6
                         ? '0'
                         : parseFloat(lowerPrice).toLocaleString(undefined, {
-                            maximumFractionDigits: 0,
+                            maximumFractionDigits: 2,
                           })
-                      : lowerPrice
+                      : parseFloat(lowerPrice).toFixed(2)
                   }
                   onChange={() =>
                     setLowerPrice(
@@ -726,9 +726,9 @@ export default function ConcentratedPool({
                         }).length > 6
                         ? '∞'
                         : Number(upperPrice).toLocaleString(undefined, {
-                            maximumFractionDigits: 0,
+                            maximumFractionDigits: 2,
                           })
-                      : upperPrice
+                      : parseFloat(upperPrice).toFixed(2)
                   }
                   onChange={() =>
                     setUpperPrice(
