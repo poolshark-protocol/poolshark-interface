@@ -68,12 +68,14 @@ function MyApp({ Component, pageProps }) {
       <WagmiConfig client={wagmiClient}>
         <RainbowKitProvider chains={chains} initialChain={arbitrumGoerli}>
           <ApolloProvider client={apolloClient}>
-            { _isConnected ? (whitelist.includes(address) ? <Component {...pageProps} /> : 
+            { _isConnected ? (whitelist.includes(address) ? 
+            <Component {...pageProps} />
+            : 
             <div className="min-h-screen">
             <div className="max-w-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <img src="/static/images/logo.png" className="mx-auto mb-10 w-60" />
+                <img src="/static/images/logo.png" className="mx-auto mb-10 w-56" />
                 <div className="text-white text-center text-lg mb-10 ">
-                Poolshark is currently under a closed beta. You must be whitelisted in order to access the platform
+                Poolshark is currently under a closed testnet beta. You must be whitelisted in order to access the platform
                 </div>
                 <div className="mx-auto text-white text-center">
                 <ConnectWalletButton center={true}/>
@@ -89,7 +91,7 @@ function MyApp({ Component, pageProps }) {
               <div className="max-w-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <img src="/static/images/logo.png" className="mx-auto mb-10 w-60" />
                 <div className="text-white text-center text-lg mb-10 ">
-                Poolshark is currently under a closed beta. You must be whitelisted in order to access the platform
+                Poolshark is currently under a closed testnet beta. You must be whitelisted in order to access the platform
                 </div>
                 <div className="mx-32">
                 <ConnectWalletButton/>
