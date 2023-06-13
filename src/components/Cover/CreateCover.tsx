@@ -588,8 +588,7 @@ export default function CreateCover(props: any) {
               placeholder="0"
               id="minInput"
               type="text"
-              value={isNaN(parseFloat(lowerPrice)) ? 0 :
-                parseFloat(lowerPrice).toFixed(2)}
+              value={lowerPrice}
               onChange={() =>
                 setLowerPrice(
                   inputFilter((
@@ -623,8 +622,7 @@ export default function CreateCover(props: any) {
               placeholder="0"
               id="maxInput"
               type="text"
-              value={isNaN(parseFloat(upperPrice)) ? 0 :
-                parseFloat(upperPrice).toFixed(2)}
+              value={upperPrice}
               onChange={() =>
                 setUpperPrice(
                   inputFilter((
