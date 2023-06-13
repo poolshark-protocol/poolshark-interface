@@ -10,7 +10,7 @@ import { erc20ABI, useAccount, useContractRead, useSigner } from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 import { Fragment, useEffect, useState } from 'react'
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import JSBI from 'jsbi'
 import { Listbox, Transition } from '@headlessui/react'
 import {
@@ -32,6 +32,7 @@ import inputFilter from '../../utils/inputFilter'
 import TickSpacing from '../Tooltips/TickSpacing'
 import { getCoverPoolFromFactory } from '../../utils/queries'
 import { gasEstimateCoverMint } from '../../utils/gas'
+import JSBD from 'jsbd'
 
 export default function CoverExistingPool({
   account,
@@ -232,6 +233,10 @@ export default function CoverExistingPool({
       setUpperTick(TickMath.getTickAtPriceString(upperPrice, tickSpread))
     }
   }, [lowerPrice, upperPrice])
+
+  useEffect(() => {
+
+  }, [coverAmountOut])
 
   ////////////////////////////////
 
@@ -523,19 +528,8 @@ export default function CoverExistingPool({
               type="text"
               id="input"
               onChange={(e) => {
-                console.log('cover amount changed', coverAmountOut)
-                if (
-                  Number(inputFilter(e.target.value)) /
-                    Number(ethers.utils.formatUnits(coverAmountOut, 18)) <
-                  100
-                ) {
-                  setSliderValue(
-                    Number(inputFilter(e.target.value)) /
-                      Number(ethers.utils.formatUnits(coverAmountOut, 18)),
-                  )
-                } else {
-                  setSliderValue(100)
-                }
+                //const newTokenAmount = Math.round(parseFloat(e.target.value) * 10**18)
+                //setCoverAmountOut(JSBI.BigInt(newTokenAmount))
               }}
               value={Number.parseFloat(
                 ethers.utils.formatUnits(String(coverAmountOut), 18),
