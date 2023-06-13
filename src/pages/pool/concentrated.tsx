@@ -28,6 +28,27 @@ export default function Concentrated() {
   const [minLimit, setMinLimit] = useState(router.query.min ?? '0')
   const [maxLimit, setMaxLimit] = useState(router.query.max ?? '0')
 
+  useEffect(() => {
+    setPoolId(router.query.poolId ?? '')
+    setTokenIn({
+      name: router.query.tokenZeroName,
+      symbol: router.query.tokenZeroSymbol,
+      logoURI: router.query.tokenZeroLogoURI,
+      address: router.query.tokenZeroAddress,
+    } as token)
+    setTokenOut({
+      name: router.query.tokenOneName,
+      symbol: router.query.tokenOneSymbol,
+      logoURI: router.query.tokenOneLogoURI,
+      address: router.query.tokenOneAddress,
+    } as token)
+    setLiquidity(router.query.liquidity ?? '0')
+    setTickSpacing(router.query.tickSpacing ?? 10)
+    setFeeTier(router.query.feeTier ?? '')
+    setMinLimit(router.query.min ?? '0')
+    setMaxLimit(router.query.max ?? '0')
+  }, [router.isReady])
+
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
