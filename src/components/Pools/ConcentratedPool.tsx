@@ -605,8 +605,8 @@ export default function ConcentratedPool({
               <div className=" p-2 ">
                 {Number(
                   tokenOrder
-                    ? ethers.utils.formatUnits(amount1, 18)
-                    : ethers.utils.formatUnits(amount0, 18),
+                    ? parseFloat(ethers.utils.formatUnits(amount1, 18)).toFixed(2)
+                    : parseFloat(ethers.utils.formatUnits(amount0, 18)).toFixed(2),
                 )}
               </div>
               <div className="">
