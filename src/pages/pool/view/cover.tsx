@@ -502,7 +502,7 @@ export default function Cover() {
 
             <div className="flex justify-between items-center mt-4 gap-x-6">
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
-                <div className="text-grey text-xs w-full">Min Price</div>
+                <div className="text-grey text-xs w-full">Min. Price</div>
                 <div className="text-white text-2xl my-2 w-full">
                   {minLimit === undefined
                     ? ''
