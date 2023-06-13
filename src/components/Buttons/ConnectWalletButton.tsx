@@ -6,10 +6,11 @@ import React from "react";
 
 interface Props {
     xl?: boolean;
+    center?: boolean;
 }
 
 
-export const ConnectWalletButton = ({xl= false}: Props) => {
+export const ConnectWalletButton = ({xl= false, center= false}: Props) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -70,7 +71,8 @@ export const ConnectWalletButton = ({xl= false}: Props) => {
                 }
                 return (
                   <>
-                    <div className="flex flex-col items-end mt-14 xl:flex-row xl:mt-0 justify-end gap-y-4 text-white gap-x-4">
+                    <div className={`flex flex-row items-end mt-14  xl:mt-0 justify-end gap-y-4 text-white gap-x-4 ${center ? `justify-center` : ``}`}
+                    >
                       <button
                         onClick={() => setIsOpen(true)}
                         style={{ display: "flex", alignItems: "center" }}
