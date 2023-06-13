@@ -103,22 +103,6 @@ export default function CoverExistingPool({
   const [allowance, setAllowance] = useState(ZERO)
   const [mktRate, setMktRate] = useState({})
   const [showTooltip, setShowTooltip] = useState(false)
-  const [selected, setSelected] = useState(updateSelectedFeeTier)
-
-  function updateSelectedFeeTier(): any {
-    if (feeTier == 0.01) {
-      return feeTiers[0]
-    } else if (feeTier == 0.05) {
-      return feeTiers[1]
-    } else if (feeTier == 0.3) {
-      return feeTiers[2]
-    } else if (feeTier == 1) {
-      return feeTiers[3]
-    } else return feeTiers[0]
-  }
-
-  console.log('selected fee tier', feeTier)
-  console.log('selected', selected)
   const [mintGasFee, setMintGasFee] = useState('$0.00')
 
   ////////////////////////////////
@@ -365,7 +349,13 @@ export default function CoverExistingPool({
     setSliderValue(event.target.value)
   }
 
-  function SelectFee() {
+  const volatilityTiers = [
+    { id: 0, tier: "2.4% per min", text: "Best for most pairs", unavailable: false },
+  ];
+
+    const [selected, setSelected] = useState(volatilityTiers[0]);
+
+  function SelectVolatility() {
     return (
       <Listbox value={selected} onChange={setSelected}>
         <div className="relative mt-1 w-full">
@@ -385,15 +375,15 @@ export default function CoverExistingPool({
             leaveTo="opacity-0"
           >
             <Listbox.Options className="absolute mt-1 z-50 max-h-60 w-full overflow-auto rounded-md bg-black border border-grey1 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-              {feeTiers.map((feeTier, feeTierIdx) => (
+              {volatilityTiers.map((volatilityTier, volatilityTierIdx) => (
                 <Listbox.Option
-                  key={feeTierIdx}
+                  key={volatilityTierIdx}
                   className={({ active }) =>
                     `relative cursor-default select-none py-2 px-4 cursor-pointer ${
                       active ? 'opacity-80 bg-dark' : 'opacity-100'
                     }`
                   }
-                  value={feeTier}
+                  value={volatilityTier}
                 >
                   {({ selected }) => (
                     <>
@@ -402,14 +392,14 @@ export default function CoverExistingPool({
                           selected ? 'font-medium' : 'font-normal'
                         }`}
                       >
-                        {feeTier.tier}
+                        {volatilityTier.tier}
                       </span>
                       <span
                         className={`block truncate text-grey text-xs mt-1 ${
                           selected ? 'font-medium' : 'font-normal'
                         }`}
                       >
-                        {feeTier.text}
+                        {volatilityTier.text}
                       </span>
                     </>
                   )}
@@ -571,7 +561,7 @@ export default function CoverExistingPool({
           <h1>Volatility tier</h1>
         </div>
         <div className="mt-3">
-          <SelectFee />
+          <SelectVolatility />
         </div>
       </div>
       <div className="flex items-center w-full mb-3 mt-4 gap-x-2 relative">
