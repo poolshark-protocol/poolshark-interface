@@ -196,7 +196,7 @@ export default function ConcentratedPoolPreview({
                             </span>
                           </div>
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-                            <span className="text-xs text-grey">Max Price</span>
+                            <span className="text-xs text-grey">Max. Price</span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
                                 {upperPrice.toString().includes('e')
