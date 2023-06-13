@@ -96,7 +96,7 @@ export function mapRangePools(rangePools) {
   return mappedRangePools
 }
 
-export async function mapUserCoverPositions(coverPositions) {
+export function mapUserCoverPositions(coverPositions) {
   const mappedCoverPositions = []
   coverPositions.map((coverPosition) => {
     const coverPositionData = {

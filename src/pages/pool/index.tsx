@@ -67,7 +67,7 @@ export default function Pool() {
     if (data['data']) {
       const positions = data['data'].positions
       console.log('positions length', positions.length)
-      const positionData = await mapUserCoverPositions(positions)
+      const positionData = mapUserCoverPositions(positions)
       setAllCoverPositions(positionData)
     }
   }
