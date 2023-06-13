@@ -83,12 +83,12 @@ export default function CreateCover(props: any) {
     props.query ? props.query.tickSpacing : 20,
   )
   const [feeTier, setFeeTier] = useState(props.query?.feeTier ?? 0.01)
-  const [auctionLenght, setAuctionLenght] = useState(
-    props.query?.auctionLenght ?? 0,
+  const [auctionLength, setAuctionLength] = useState(
+    props.query?.auctionLength ?? 0,
   )
 
   const [volatility, setVolatility] = useState(
-    (feeTier * (60 / auctionLenght)).toFixed(2),
+    (feeTier * (60 / auctionLength)).toFixed(2),
   )
 
   function updateSelectedFeeTier(): any {
@@ -501,7 +501,7 @@ export default function CreateCover(props: any) {
         <div>
           <h1>Volatility tier</h1>
         </div>
-        <div className="mt-3">{volatility}% per min</div>
+        <div className="mt-3">2.4% per min</div>
       </div>
       <div className="flex items-center w-full mb-3 mt-4 gap-x-2 relative">
         <h1 className="">Set Price Range</h1>
