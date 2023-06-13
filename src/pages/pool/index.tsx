@@ -43,10 +43,12 @@ export default function Pool() {
   //////////////////////Get Pools Data
 
   useEffect(() => {
-    getUserRangePositionData()
-    getRangePoolData()
-    getUserCoverPositionData()
-    getCoverPoolData()
+    if (address) {
+      getUserRangePositionData()
+      getRangePoolData()
+      getUserCoverPositionData()
+      getCoverPoolData()
+    }
   }, [address])
 
   async function getUserRangePositionData() {
@@ -64,7 +66,9 @@ export default function Pool() {
     const data = await fetchCoverPositions(address)
     if (data['data']) {
       const positions = data['data'].positions
-      setAllCoverPositions(mapUserCoverPositions(positions))
+      console.log('positions length', positions.length)
+      const positionData = mapUserCoverPositions(positions)
+      setAllCoverPositions(positionData)
     }
   }
 
@@ -323,6 +327,7 @@ export default function Pool() {
                               searchTerm.toLowerCase() ||
                             searchTerm === "")
                         ) {
+                          console.log('claimTick', allCoverPosition.claim)
                           return (
                             <UserCoverPool
                               key={allCoverPosition.id + "coverPosition"}
@@ -349,7 +354,6 @@ export default function Pool() {
                                   allCoverPosition.upperTick
                                 )
                               )}
-                              claimTick={allCoverPosition.claim}
                               latestTick={allCoverPosition.latestTick}
                               tickSpacing={allCoverPosition.tickSpacing}
                               feeTier={allCoverPosition.feeTier}
@@ -403,6 +407,7 @@ export default function Pool() {
                                 tokenZero={allRangePool.tokenZero}
                                 tokenOne={allRangePool.tokenOne}
                                 liquidity={allRangePool.liquidity}
+                                auctionLenght={undefined}
                                 feeTier={allRangePool.feeTier}
                                 tickSpacing={allRangePool.tickSpacing}
                                 tvlUsd={allRangePool.tvlUsd}
@@ -436,6 +441,7 @@ export default function Pool() {
                                 tokenZero={allCoverPool.tokenZero}
                                 tokenOne={allCoverPool.tokenOne}
                                 liquidity={allCoverPool.liquidity}
+                                auctionLenght={allCoverPool.auctionLenght}
                                 feeTier={allCoverPool.feeTier}
                                 tickSpacing={allCoverPool.tickSpacing}
                                 tvlUsd={allCoverPool.tvlUsd}

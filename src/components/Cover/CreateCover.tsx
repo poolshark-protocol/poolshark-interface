@@ -7,7 +7,7 @@ import {
   InformationCircleIcon,
 } from '@heroicons/react/20/solid'
 import SelectToken from '../SelectToken'
-import { erc20ABI, useAccount, useProvider, useContractRead } from 'wagmi'
+import { erc20ABI, useAccount, useProvider, useContractRead, useSigner } from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import { chainIdsToNamesForGitTokenList } from '../../utils/chains'
 import { Listbox, Transition } from '@headlessui/react'
@@ -31,12 +31,15 @@ import { fetchTokenPrices, switchDirection } from '../../utils/tokens'
 import inputFilter from '../../utils/inputFilter'
 import CoverMintApproveButton from '../Buttons/CoverMintApproveButton'
 import TickSpacing from '../Tooltips/TickSpacing'
+import { gasEstimateCoverMint } from '../../utils/gas'
 
 export default function CreateCover(props: any) {
   const router = useRouter()
+  const { data: signer } = useSigner()
   const [pool, setPool] = useState(props.query ?? undefined)
   const initialBig = BigNumber.from(0)
   const { bnInput, inputBox, maxBalance } = useInputBox()
+  const [validBounds, setValidBounds] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const [stateChainName, setStateChainName] = useState()
   const [lowerPrice, setLowerPrice] = useState('')
@@ -80,7 +83,13 @@ export default function CreateCover(props: any) {
     props.query ? props.query.tickSpacing : 20,
   )
   const [feeTier, setFeeTier] = useState(props.query?.feeTier ?? 0.01)
-  const [selected, setSelected] = useState(updateSelectedFeeTier)
+  const [auctionLenght, setAuctionLenght] = useState(
+    props.query?.auctionLenght ?? 0,
+  )
+
+  const [volatility, setVolatility] = useState(
+    (feeTier * (60 / auctionLenght)).toFixed(2),
+  )
 
   function updateSelectedFeeTier(): any {
     if (feeTier == 0.01) {
@@ -93,6 +102,7 @@ export default function CreateCover(props: any) {
       return feeTiers[3]
     } else return feeTiers[0]
   }
+  const [mintGasFee, setMintGasFee] = useState('$0.00')
 
   /////////////////
 
@@ -128,8 +138,10 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     if (allowanceIn)
-      if (address != '0x' && coverPoolRoute != ZERO_ADDRESS) {
-        console.log('setting allowance', allowanceIn.toString())
+      if (
+        address != '0x' &&
+        coverPoolRoute != ZERO_ADDRESS
+      ) {
         setAllowance(ethers.utils.formatUnits(allowanceIn, 18))
       }
   }, [allowanceIn, tokenIn.address, bnInput])
@@ -145,10 +157,6 @@ export default function CreateCover(props: any) {
   useEffect(() => {
     updateBalances()
     setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0)
-    console.log(
-      'setting token order',
-      tokenIn.address.localeCompare(tokenOut.address) < 0,
-    )
   }, [tokenOut, tokenIn])
 
   async function updateBalances() {
@@ -176,35 +184,34 @@ export default function CreateCover(props: any) {
 
   // set disabled
   useEffect(() => {
-    setDisabled(
-      isNaN(parseFloat(lowerPrice)) ||
-        isNaN(parseFloat(upperPrice)) ||
-        parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
-        Number(ethers.utils.formatUnits(bnInput)) === 0 ||
-        tokenOut.symbol === 'Select Token' ||
-        hasSelected == false,
-    )
+    const disabledFlag = isNaN(parseFloat(lowerPrice)) ||
+                          isNaN(parseFloat(upperPrice)) ||
+                          parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
+                          Number(ethers.utils.formatUnits(bnInput)) === 0 ||
+                          tokenOut.symbol === 'Select Token' ||
+                          hasSelected == false ||
+                          !validBounds ||
+                          allowanceIn.lt(bnInput)
+    setDisabled(disabledFlag)
+    if (!disabledFlag) {
+      updateGasFee()
+    }
   }, [lowerPrice, upperPrice, bnInput, tokenOut, hasSelected])
 
   // set amount in
   useEffect(() => {
-    if (Number(ethers.utils.formatUnits(bnInput)) !== 0) {
+    if (!bnInput.eq(BN_ZERO)) {
       setCoverAmountIn(JSBI.BigInt(bnInput.toString()))
     }
+    changeValidBounds()
   }, [bnInput, lowerTick, upperTick])
 
   useEffect(() => {
-    if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
-      console.log('setting lower tick')
-      setLowerTick(
-        BigNumber.from(TickMath.getTickAtPriceString(lowerPrice, tickSpread)),
-      )
+    if (!isNaN(parseFloat(lowerPrice))) {
+      setLowerTick(BigNumber.from(TickMath.getTickAtPriceString(lowerPrice, tickSpread)))
     }
     if (!isNaN(parseFloat(upperPrice))) {
-      console.log('setting upper tick')
-      setUpperTick(
-        BigNumber.from(TickMath.getTickAtPriceString(upperPrice, tickSpread)),
-      )
+      setUpperTick(BigNumber.from(TickMath.getTickAtPriceString(upperPrice, tickSpread)))
     }
   }, [lowerPrice, upperPrice])
 
@@ -244,6 +251,26 @@ export default function CreateCover(props: any) {
     }
   }
 
+  const changeValidBounds = () => {
+    setValidBounds(tokenOrder ? lowerTick.lt(latestTick)
+                              : upperTick.gt(latestTick))
+  }
+
+  async function updateGasFee() {
+    const newMintGasFee = await gasEstimateCoverMint(
+      coverPoolRoute,
+      address,
+      Number(upperTick.toString()),
+      Number(lowerTick.toString()),
+      tokenIn,
+      tokenOut,
+      coverAmountIn,
+      tickSpread,
+      signer
+    )
+    setMintGasFee(newMintGasFee)
+  }
+
   function setParams(query: any) {
     setPool({
       poolId: query.poolId,
@@ -255,22 +282,14 @@ export default function CreateCover(props: any) {
       return (
         <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
           <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Expected Output</div>
-            <div className="ml-auto text-xs">300 DAI</div>
-          </div>
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Price Impact</div>
-            <div className="ml-auto text-xs">-0.12%</div>
-          </div>
-          <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">
-              Mininum recieved after slippage (0.50%)
+              Mininum filled
             </div>
-            <div className="ml-auto text-xs">299.92 DAI</div>
+            <div className="ml-auto text-xs">{(parseFloat(ethers.utils.formatUnits(String(coverAmountOut), 18)) * (1 - tickSpread / 10000)).toPrecision(5) + ' ' + tokenOut.symbol}</div>
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
-            <div className="ml-auto text-xs">-0.09$</div>
+            <div className="ml-auto text-xs">{mintGasFee}</div>
           </div>
         </div>
       )
@@ -337,63 +356,6 @@ export default function CreateCover(props: any) {
         )
       }
     }
-  }
-
-  function SelectFee() {
-    return (
-      <Listbox value={selected} onChange={setSelected}>
-        <div className="relative mt-1 w-full">
-          <Listbox.Button className="relative cursor-default rounded-lg bg-black text-white cursor-pointer border border-grey1 py-2 pl-3 w-full text-left shadow-md focus:outline-none">
-            <span className="block truncate">{selected.tier}</span>
-            <span className="block truncate text-xs text-grey mt-1">
-              {selected.text}
-            </span>
-            <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-              <ChevronDownIcon className="w-7 text-grey" aria-hidden="true" />
-            </span>
-          </Listbox.Button>
-          <Transition
-            as={Fragment}
-            leave="transition ease-in duration-100"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <Listbox.Options className="absolute mt-1 z-50 max-h-60 w-full overflow-auto rounded-md bg-black border border-grey1 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-              {feeTiers.map((feeTier, feeTierIdx) => (
-                <Listbox.Option
-                  key={feeTierIdx}
-                  className={({ active }) =>
-                    `relative cursor-default select-none py-2 px-4 cursor-pointer ${
-                      active ? 'opacity-80 bg-dark' : 'opacity-100'
-                    }`
-                  }
-                  value={feeTier}
-                >
-                  {({ selected }) => (
-                    <>
-                      <span
-                        className={`block truncate text-white ${
-                          selected ? 'font-medium' : 'font-normal'
-                        }`}
-                      >
-                        {feeTier.tier}
-                      </span>
-                      <span
-                        className={`block truncate text-grey text-xs mt-1 ${
-                          selected ? 'font-medium' : 'font-normal'
-                        }`}
-                      >
-                        {feeTier.text}
-                      </span>
-                    </>
-                  )}
-                </Listbox.Option>
-              ))}
-            </Listbox.Options>
-          </Transition>
-        </div>
-      </Listbox>
-    )
   }
 
   return isDisconnected ? (
@@ -539,9 +501,7 @@ export default function CreateCover(props: any) {
         <div>
           <h1>Volatility tier</h1>
         </div>
-        <div className="mt-3">
-          <SelectFee />
-        </div>
+        <div className="mt-3">{volatility}% per min</div>
       </div>
       <div className="flex items-center w-full mb-3 mt-4 gap-x-2 relative">
         <h1 className="">Set Price Range</h1>
@@ -656,7 +616,7 @@ export default function CreateCover(props: any) {
         Number(allowance) < Number(ethers.utils.formatUnits(bnInput, 18)) &&
         stateChainName === 'arbitrumGoerli' ? (
           <CoverMintApproveButton
-            disabled={isDisabled}
+            disabled={false}
             poolAddress={coverPoolRoute}
             approveToken={tokenIn.address}
             amount={bnInput}
