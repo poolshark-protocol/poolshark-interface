@@ -407,6 +407,7 @@ export default function Pool() {
                                 tokenZero={allRangePool.tokenZero}
                                 tokenOne={allRangePool.tokenOne}
                                 liquidity={allRangePool.liquidity}
+                                auctionLenght={undefined}
                                 feeTier={allRangePool.feeTier}
                                 tickSpacing={allRangePool.tickSpacing}
                                 tvlUsd={allRangePool.tvlUsd}
@@ -440,6 +441,7 @@ export default function Pool() {
                                 tokenZero={allCoverPool.tokenZero}
                                 tokenOne={allCoverPool.tokenOne}
                                 liquidity={allCoverPool.liquidity}
+                                auctionLenght={allCoverPool.auctionLenght}
                                 feeTier={allCoverPool.feeTier}
                                 tickSpacing={allCoverPool.tickSpacing}
                                 tvlUsd={allCoverPool.tvlUsd}

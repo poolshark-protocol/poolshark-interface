@@ -36,10 +36,13 @@ export const getClaimTick = async (
 export function mapUserRangePositions(rangePositions) {
   const mappedRangePositions = []
   rangePositions.map((rangePosition) => {
-    console.log('user liquidity check', Math.round(
-      (rangePosition.amount / rangePosition.token.totalSupply) *
-        rangePosition.token.position.liquidity,
-    ))
+    console.log(
+      'user liquidity check',
+      Math.round(
+        (rangePosition.amount / rangePosition.token.totalSupply) *
+          rangePosition.token.position.liquidity,
+      ),
+    )
     const rangePositionData = {
       id: rangePosition.id,
       poolId: rangePosition.token.position.pool.id,
@@ -121,6 +124,7 @@ export function mapUserCoverPositions(coverPositions) {
       upperTick: coverPosition.upper,
       latestTick: coverPosition.pool.latestTick,
       liquidity: coverPosition.liquidity,
+      auctionLength: coverPosition.pool.auctionLength,
       feeTier: coverPosition.pool.volatilityTier.feeAmount,
       tickSpacing: coverPosition.pool.volatilityTier.tickSpread,
       userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
@@ -148,6 +152,7 @@ export function mapCoverPools(coverPools) {
       tokenOne: coverPool.token1,
       tokenZero: coverPool.token0,
       liquidity: coverPool.liquidity,
+      auctionLenght: coverPool.volatilityTier.auctionLength,
       feeTier: coverPool.volatilityTier.feeAmount,
       tickSpacing: coverPool.volatilityTier.tickSpread,
       tvlUsd: (Number(coverPool.totalValueLockedUsd) / 1_000_000).toFixed(2),
