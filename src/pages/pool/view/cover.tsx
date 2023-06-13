@@ -144,6 +144,7 @@ export default function Cover() {
         address: query.tokenOneAddress,
         value: query.tokenOneValue,
       } as token)
+      setZeroForOne(tokenIn.address.localeCompare(tokenOut.address) < 0)
       setLatestTick(query.latestTick)
       setEpochLast(query.epochLast)
       setLiquidity(query.liquidity)
@@ -151,7 +152,6 @@ export default function Cover() {
       setMinLimit(query.min)
       setMaxLimit(query.max)
       setClaimTick(BigNumber.from(query.claimTick))
-      // console.log('claim tick', query.claimTick)
       setUserFillIn(query.userFillIn)
       setUserFillOut(query.userFillOut)
       setTokenZeroDisplay(
