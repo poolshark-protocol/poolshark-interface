@@ -88,8 +88,10 @@ export default function CreateCover(props: any) {
   )
 
   const [volatility, setVolatility] = useState(
-    (feeTier * (60 / auctionLength)).toFixed(2),
+    (parseFloat(tickSpread) * (60 / parseFloat(auctionLength))).toFixed(2),
   )
+
+  console.log('volatility check', tickSpread, auctionLength, tickSpread * (60 / auctionLength))
 
   function updateSelectedFeeTier(): any {
     if (feeTier == 0.01) {
@@ -179,6 +181,7 @@ export default function CreateCover(props: any) {
       setCoverPoolRoute,
       setCoverPrice,
       setTickSpread,
+      setAuctionLength
     )
   }, [hasSelected, tokenIn.address, tokenOut.address, tokenOrder])
 
