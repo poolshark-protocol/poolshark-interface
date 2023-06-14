@@ -9,7 +9,9 @@ import { arbitrumGoerli } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import Head from 'next/head'
-
+import { useState, useEffect, Fragment } from 'react'
+import { useAccount } from 'wagmi'
+import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton';
 
 
 const { chains, provider } = configureChains(
@@ -39,7 +41,24 @@ const apolloClient = new ApolloClient({
   uri: "https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover",
 })
 
+
+const whitelist = [
+  '0xCda329d290B6E7Cf8B9B1e4faAA48Da80B6Fa2F2',
+]
+
+
+
+
 function MyApp({ Component, pageProps }) {
+
+  const [whitelisted, setWhitelisted] = useState(false)
+  const { address, isDisconnected, isConnected } = useAccount()
+
+  const [_isConnected, _setIsConnected] = useState(false);
+
+  useEffect(() => {
+    _setIsConnected(isConnected);
+  }, [isConnected]);
 
   return (
     <>
@@ -49,7 +68,36 @@ function MyApp({ Component, pageProps }) {
       <WagmiConfig client={wagmiClient}>
         <RainbowKitProvider chains={chains} initialChain={arbitrumGoerli}>
           <ApolloProvider client={apolloClient}>
+            { _isConnected ? (whitelist.includes(address) ? 
             <Component {...pageProps} />
+            : 
+            <div className="min-h-screen">
+            <div className="max-w-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <img src="/static/images/logo.png" className="mx-auto mb-10 w-56" />
+                <div className="text-white text-center text-lg mb-10 ">
+                Poolshark is currently under a closed testnet beta. You must be whitelisted in order to access the platform
+                </div>
+                <div className="mx-auto text-white text-center">
+                <ConnectWalletButton center={true}/>
+                <div className="mt-5 text-grey">
+                This wallet is not whitelisted
+                </div>
+                </div>
+                </div>
+            </div>
+          ) 
+            : 
+            (<div className="min-h-screen">
+              <div className="max-w-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <img src="/static/images/logo.png" className="mx-auto mb-10 w-60" />
+                <div className="text-white text-center text-lg mb-10 ">
+                Poolshark is currently under a closed testnet beta. You must be whitelisted in order to access the platform
+                </div>
+                <div className="mx-32">
+                <ConnectWalletButton/>
+                </div>
+                </div>
+            </div>) }
           </ApolloProvider>
         </RainbowKitProvider>
       </WagmiConfig>
