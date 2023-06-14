@@ -601,9 +601,9 @@ export default function ConcentratedPool({
             </div>
             <div className="flex-none text-xs uppercase text-[#C9C9C9]">
             1 {tokenIn.symbol} = {
-              (!isNaN(parseFloat(rangePrice))) ?
-              ((parseFloat(invertPrice(rangePrice, tokenOrder)).toFixed(2)) + ' ' + tokenOut.symbol) :
-              ('?' + ' ' + tokenOut.symbol)
+             ((!isNaN(parseFloat(rangePrice))) ?
+              ((parseFloat(invertPrice(rangePrice, tokenOrder)).toFixed(3)) + ' ' + tokenOut.symbol) :
+              ('?' + ' ' + tokenOut.symbol))
             }
           </div>
           </div>
