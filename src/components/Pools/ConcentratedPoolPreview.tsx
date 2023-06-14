@@ -184,9 +184,9 @@ export default function ConcentratedPoolPreview({
                                     }).length > 6
                                     ? '0'
                                     : parseFloat(lowerPrice).toLocaleString(undefined, {
-                                        maximumFractionDigits: 0,
+                                        maximumFractionDigits: 2,
                                       })
-                                  : lowerPrice}
+                                  : parseFloat(lowerPrice).toFixed(2)}
                               </span>
                             </div>
                             <span className="text-xs text-grey">
@@ -205,9 +205,9 @@ export default function ConcentratedPoolPreview({
                                     }).length > 6
                                     ? '∞'
                                     : Number(upperPrice).toLocaleString(undefined, {
-                                        maximumFractionDigits: 0,
+                                        maximumFractionDigits: 2,
                                       })
-                                  : upperPrice}
+                                  : parseFloat(upperPrice).toFixed(2)}
                               </span>
                             </div>
                             <span className="text-xs text-grey">
