@@ -21,8 +21,10 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
 
   async function getUserRangePositionData() {
     const data = await fetchRangePositions(address)
-    const positions = data['data'].positionFractions
-    setRangePositions(positions)
+    if (data['data']) {
+      const positions = data['data'].positionFractions
+      setRangePositions(positions)
+    }
   }
 
   function mapUserRangePositions() {
