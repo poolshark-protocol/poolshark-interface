@@ -15,11 +15,16 @@ import {
   fetchRangePositions,
   fetchCoverPools,
   fetchCoverPositions,
-  getTickIfNotZeroForOne,
-  getTickIfZeroForOne,
 } from '../../utils/queries'
 import { Fragment, useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
+import {
+  mapCoverPools,
+  mapRangePools,
+  mapUserCoverPositions,
+  mapUserRangePositions,
+} from '../../utils/maps'
+import { TickMath } from '../../utils/math/tickMath'
 
 export default function Pool() {
   const poolTypes = [
@@ -27,72 +32,30 @@ export default function Pool() {
     { id: 2, type: 'Cover Pools', unavailable: false },
   ]
   const { address, isConnected, isDisconnected } = useAccount()
+
   const [selected, setSelected] = useState(poolTypes[0])
   const [searchTerm, setSearchTerm] = useState('')
 
-  const [rangePools, setRangePools] = useState([])
-  const [allRangePools, setAllRangePools] = useState([])
-  const [rangePositions, setRangePositions] = useState([])
   const [allRangePositions, setAllRangePositions] = useState([])
-  const [coverPools, setCoverPools] = useState([])
-  const [allCoverPools, setAllCoverPools] = useState([])
-  const [coverPositions, setCoverPositions] = useState([])
   const [allCoverPositions, setAllCoverPositions] = useState([])
-
-  //async so needs to be wrapped
-  useEffect(() => {
-    getRangePoolData()
-  }, [])
-
-  useEffect(() => {
-    mapRangePools()
-  }, [rangePools])
+  const [allRangePools, setAllRangePools] = useState([])
+  const [allCoverPools, setAllCoverPools] = useState([])
 
   useEffect(() => {
     getUserRangePositionData()
-  }, [selected])
-
-  useEffect(() => {
-    mapUserRangePositions()
-  }, [rangePositions])
-
-  useEffect(() => {
+    getRangePoolData()
+    getUserCoverPositionData()
     getCoverPoolData()
   }, [selected])
 
-  useEffect(() => {
-    mapCoverPools()
-  }, [coverPools])
-
-  useEffect(() => {
-    getUserCoverPositionData()
-  }, [])
-
-  useEffect(() => {
-    mapUserCoverPositions()
-  }, [coverPositions])
-
-  async function getRangePoolData() {
-    const data = await fetchRangePools()
-    if (data) {
-      const pools = data['data'].rangePools
-      setRangePools(pools)
-    }
-  }
-
   async function getUserRangePositionData() {
-    const data = await fetchRangePositions(address)
-    if (data) {
-      const positions = data['data'].positionFractions
-      setRangePositions(positions)
-    }
-  }
-
-  async function getCoverPoolData() {
-    const data = await fetchCoverPools()
-    if (data) {
-      const pools = data['data'].coverPools
-      setCoverPools(pools)
+    try {
+      const dataRangePositions = await fetchRangePositions(address)
+      setAllRangePositions(
+        mapUserRangePositions(dataRangePositions['data'].positionFractions),
+      )
+    } catch (error) {
+      console.log(error)
     }
   }
 
@@ -100,123 +63,24 @@ export default function Pool() {
     const data = await fetchCoverPositions(address)
     if (data) {
       const positions = data['data'].positions
-      setCoverPositions(positions)
+      setAllCoverPositions(mapUserCoverPositions(positions))
     }
   }
 
-  function mapUserRangePositions() {
-    const mappedRangePositions = []
-    rangePositions.map((rangePosition) => {
-      const rangePositionData = {
-        id: rangePosition.id,
-        poolId: rangePosition.token.position.pool.id,
-        tokenZero: rangePosition.token.position.pool.token0,
-        valueTokenZero: rangePosition.token.position.pool.totalValueLocked0,
-        tokenOne: rangePosition.token.position.pool.token1,
-        valueTokenOne: rangePosition.token.position.pool.totalValueLocked1,
-        min: rangePosition.token.position.lower,
-        max: rangePosition.token.position.upper,
-        price: rangePosition.token.position.pool.price,
-        tickSpacing: rangePosition.token.position.pool.feeTier.tickSpacing,
-        feeTier: rangePosition.token.position.pool.feeTier.feeAmount,
-        unclaimedFees: rangePosition.token.position.pool.feesUsd,
-        liquidity: rangePosition.token.position.pool.liquidity,
-        userLiquidity: Math.round(rangePosition.amount / rangePosition.token.totalSupply 
-                                  * rangePosition.token.position.liquidity),
-        tvlUsd: (
-          Number(rangePosition.token.position.pool.totalValueLockedUsd) / 1_000_000
-        ).toFixed(2),
-        volumeUsd: (Number(rangePosition.token.position.pool.volumeUsd) / 1_000_000).toFixed(
-          2,
-        ),
-        volumeEth: (Number(rangePosition.token.position.pool.volumeEth) / 1).toFixed(2),
-        userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
-      }
-      mappedRangePositions.push(rangePositionData)
-    })
-    setAllRangePositions(mappedRangePositions)
+  async function getRangePoolData() {
+    const data = await fetchRangePools()
+    if (data) {
+      const pools = data['data'].rangePools
+      setAllRangePools(mapRangePools(pools))
+    }
   }
 
-  async function mapUserCoverPositions() {
-    const mappedCoverPositions = []
-    coverPositions.map((coverPosition) => {
-      console.log('coverPosition', coverPosition)
-      // console.log('mapped positions', mappedCoverPositions)
-      const claimTick = getClaimTick(
-        coverPosition.pool.id,
-        coverPosition.lower,
-        coverPosition.upper,
-        coverPosition.zeroForOne,
-        coverPosition.epochLast,
-      )
-      const coverPositionData = {
-        poolId: coverPosition.pool.id,
-        valueTokenZero: coverPosition.inAmount,
-        tokenZero: coverPosition.zeroForOne
-        ? coverPosition.pool.token0
-        : coverPosition.pool.token1,
-        tokenOne: coverPosition.zeroForOne
-          ? coverPosition.pool.token1
-          : coverPosition.pool.token0,
-        valueTokenOne: coverPosition.outAmount,
-        min: coverPosition.lower,
-        max: coverPosition.upper,
-        claim: claimTick,
-        zeroForOne: coverPosition.zeroForOne,
-        userFillIn: coverPosition.amountInDeltaMax,
-        userFillOut: coverPosition.amountOutDeltaMax,
-        epochLast: coverPosition.epochLast,
-        latestTick: coverPosition.pool.latestTick,
-        liquidity: coverPosition.liquidity,
-        feeTier: coverPosition.pool.volatilityTier.feeAmount,
-        tickSpacing: coverPosition.pool.volatilityTier.tickSpread,
-        userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
-      }
-      mappedCoverPositions.push(coverPositionData)
-    })
-    console.log('mapped positions', mappedCoverPositions)
-    setAllCoverPositions(mappedCoverPositions)
-    
-  }
-
-  function mapRangePools() {
-    const mappedRangePools = []
-    rangePools.map((rangePool) => {
-      const rangePoolData = {
-        poolId: rangePool.id,
-        tokenOne: rangePool.token1,
-        tokenZero: rangePool.token0,
-        price: rangePool.price,
-        liquidity: rangePool.liquidity,
-        feeTier: rangePool.feeTier.feeAmount,
-        tickSpacing: rangePool.feeTier.tickSpacing,
-        tvlUsd: (Number(rangePool.totalValueLockedUsd) / 1_000_000).toFixed(2),
-        volumeUsd: (Number(rangePool.volumeUsd) / 1_000_000).toFixed(2),
-        volumeEth: (Number(rangePool.volumeEth) / 1).toFixed(2),
-      }
-      mappedRangePools.push(rangePoolData)
-    })
-    setAllRangePools(mappedRangePools)
-  }
-
-  function mapCoverPools() {
-    const mappedCoverPools = []
-    coverPools.map((coverPool) => {
-      const coverPoolData = {
-        poolId: coverPool.id,
-        tokenOne: coverPool.token1,
-        tokenZero: coverPool.token0,
-        liquidity: coverPool.liquidity,
-        feeTier: coverPool.volatilityTier.feeAmount,
-        tickSpacing: coverPool.volatilityTier.tickSpread,
-        tvlUsd: (Number(coverPool.totalValueLockedUsd) / 1_000_000).toFixed(2),
-        volumeUsd: (Number(coverPool.volumeUsd) / 1_000_000).toFixed(2),
-        volumeEth: (Number(coverPool.volumeEth) / 1).toFixed(2),
-      }
-      mappedCoverPools.push(coverPoolData)
-    })
-
-    setAllCoverPools(mappedCoverPools)
+  async function getCoverPoolData() {
+    const data = await fetchCoverPools()
+    if (data) {
+      const pools = data['data'].coverPools
+      setAllCoverPools(mapCoverPools(pools))
+    }
   }
 
   const handleSearchTermChange = (event) => {
@@ -267,42 +131,6 @@ export default function Pool() {
     )
   }
 
-  const getClaimTick = async (
-    coverPoolAddress: string,
-    minLimit: number,
-    maxLimit: number,
-    zeroForOne: boolean,
-    epochLast: number,
-  ) => {
-    let claimTick = zeroForOne ? maxLimit : minLimit
-    if (zeroForOne) {
-      const claimTickQuery = await getTickIfZeroForOne(
-        Number(maxLimit),
-        coverPoolAddress,
-        Number(epochLast),
-      )
-      const claimTickDataLength = claimTickQuery['data']['ticks'].length
-      if (claimTickDataLength > 0)
-        claimTick = claimTickQuery['data']['ticks'][0]['index']
-    } else {
-      const claimTickQuery = await getTickIfNotZeroForOne(
-        Number(minLimit),
-        coverPoolAddress,
-        Number(epochLast),
-      )
-      const claimTickDataLength = claimTickQuery['data']['ticks'].length
-      if (claimTickDataLength > 0)
-        claimTick = claimTickQuery['data']['ticks'][0]['index']
-      if (claimTick != undefined) {
-        return claimTick
-      } else {
-        return minLimit
-      }
-    }
-    console.log('claim tick found:', claimTick)
-    return claimTick
-  }
-
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
@@ -320,8 +148,8 @@ export default function Pool() {
               <Link
                 href={
                   selected.id == 1
-                    ? 'https://docs.poolsharks.io/overview/range-pools/'
-                    : 'https://docs.poolsharks.io/overview/cover-pools/'
+                    ? "https://docs.poolsharks.io/overview/range-pools/"
+                    : "https://docs.poolsharks.io/overview/cover-pools/"
                 }
               >
                 <a target="_blank">How it works?</a>
@@ -355,6 +183,7 @@ export default function Pool() {
             <div className="relative">
               <MagnifyingGlassIcon className="w-5 text-grey absolute ml-[14px] mt-[13px]" />
               <input
+                autoComplete="off"
                 className="border border-grey2 bg-dark rounded-xl py-2.5 w-full placeholder:text-grey outline-none pl-12"
                 placeholder="Search name, symbol or address"
                 value={searchTerm}
@@ -409,7 +238,9 @@ export default function Pool() {
                         </div>
                       ) : (
                         allRangePositions.map((allRangePosition) => {
+                          console.log('user liquidity check 2', allRangePosition.userLiquidity)
                           if (
+                            allRangePosition.id != undefined &&
                             allRangePosition.userOwnerAddress ===
                               address?.toLowerCase() &&
                             (allRangePosition.tokenZero.name.toLowerCase() ===
@@ -424,11 +255,11 @@ export default function Pool() {
                                 searchTerm.toLowerCase() ||
                               allRangePosition.tokenOne.id.toLowerCase() ===
                                 searchTerm.toLowerCase() ||
-                              searchTerm === '')
+                              searchTerm === "")
                           ) {
                             return (
                               <UserPool
-                                key={allRangePosition.id}
+                                key={allRangePosition.id + "rangePosition"}
                                 account={address}
                                 poolId={allRangePosition.poolId}
                                 tokenZero={allRangePosition.tokenZero}
@@ -438,16 +269,15 @@ export default function Pool() {
                                 min={allRangePosition.min}
                                 max={allRangePosition.max}
                                 price={allRangePosition.price}
-                                liquidity={allRangePosition.liquidity}
+                                userLiquidity={allRangePosition.userLiquidity}
                                 feeTier={allRangePosition.feeTier}
                                 tickSpacing={allRangePosition.tickSpacing}
-                                unclaimedFees={allRangePosition.unclaimedFees}
                                 tvlUsd={allRangePosition.tvlUsd}
                                 volumeUsd={allRangePosition.volumeUsd}
                                 volumeEth={allRangePosition.volumeEth}
-                                href={'/pool/view/range'}
+                                href={"/pool/view/range"}
                               />
-                            )
+                            );
                           }
                         })
                       )
@@ -472,6 +302,7 @@ export default function Pool() {
                     ) : (
                       allCoverPositions.map((allCoverPosition) => {
                         if (
+                          allCoverPosition.id != undefined &&
                           allCoverPosition.userOwnerAddress ===
                             address?.toLowerCase() &&
                           (allCoverPosition.tokenZero.name.toLowerCase() ===
@@ -486,11 +317,11 @@ export default function Pool() {
                               searchTerm.toLowerCase() ||
                             allCoverPosition.tokenOne.id.toLowerCase() ===
                               searchTerm.toLowerCase() ||
-                            searchTerm === '')
+                            searchTerm === "")
                         ) {
                           return (
                             <UserCoverPool
-                              key={allCoverPosition.id}
+                              key={allCoverPosition.id + "coverPosition"}
                               account={address}
                               poolId={allCoverPosition.poolId}
                               tokenZero={allCoverPosition.tokenZero}
@@ -504,14 +335,25 @@ export default function Pool() {
                               userFillOut={allCoverPosition.userFillOut}
                               epochLast={allCoverPosition.epochLast}
                               liquidity={allCoverPosition.liquidity}
+                              lowerPrice={parseFloat(
+                                TickMath.getPriceStringAtTick(
+                                  allCoverPosition.lowerTick
+                                )
+                              )}
+                              upperPrice={parseFloat(
+                                TickMath.getPriceStringAtTick(
+                                  allCoverPosition.upperTick
+                                )
+                              )}
+                              claimTick={allCoverPosition.claimTick}
                               latestTick={allCoverPosition.latestTick}
                               tickSpacing={allCoverPosition.tickSpacing}
                               feeTier={allCoverPosition.feeTier}
                               prefill={undefined}
                               close={undefined}
-                              href={'/pool/view/cover'}
+                              href={"/pool/view/cover"}
                             />
-                          )
+                          );
                         }
                       })
                     )}
@@ -547,7 +389,7 @@ export default function Pool() {
                               searchTerm.toLowerCase() ||
                             allRangePool.tokenOne.id.toLowerCase() ===
                               searchTerm.toLowerCase() ||
-                            searchTerm === ''
+                            searchTerm === ""
                           )
                             return (
                               <PoolList
@@ -564,7 +406,7 @@ export default function Pool() {
                                 volumeEth={allRangePool.volumeEth}
                                 href="/pool/concentrated"
                               />
-                            )
+                            );
                         })
                       : allCoverPools.map((allCoverPool) => {
                           if (
@@ -580,7 +422,7 @@ export default function Pool() {
                               searchTerm.toLowerCase() ||
                             allCoverPool.tokenOne.id.toLowerCase() ===
                               searchTerm.toLowerCase() ||
-                            searchTerm === ''
+                            searchTerm === ""
                           )
                             return (
                               <PoolList
@@ -597,7 +439,7 @@ export default function Pool() {
                                 volumeEth={allCoverPool.volumeEth}
                                 href="/cover"
                               />
-                            )
+                            );
                         })}
                   </tbody>
                 </table>
@@ -607,5 +449,5 @@ export default function Pool() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -6,13 +6,14 @@ import {
 import { useEffect, useState } from 'react'
 import { useCoverStore } from '../../hooks/useStore'
 import Link from 'next/link'
-import { getCoverPoolFromFactory } from '../../utils/queries'
+import { getCoverPoolFromFactory, getRangePoolFromFactory } from '../../utils/queries'
 import { useAccount, useContractRead } from 'wagmi'
 import { coverPoolABI } from '../../abis/evm/coverPool'
 import { ethers } from 'ethers'
 import { TickMath } from '../../utils/math/tickMath'
 import JSBI from 'jsbi'
-import { ZERO_ADDRESS } from '../../utils/math/constants'
+import { ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
+import { tokenZeroAddress, tokenOneAddress } from '../../constants/contractAddresses'
 
 export default function UserCoverPool({
   account,
@@ -28,6 +29,9 @@ export default function UserCoverPool({
   userFillOut,
   epochLast,
   liquidity,
+  lowerPrice,
+  upperPrice,
+  claimTick,
   latestTick,
   tickSpacing,
   feeTier,
@@ -55,10 +59,27 @@ export default function UserCoverPool({
   const [coverQuote, setCoverQuote] = useState(undefined)
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
   const [coverPoolRoute, setCoverPoolRoute] = useState('')
+  const [claimPrice, setClaimPrice] = useState(!isNaN(claimTick) ? parseFloat(TickMath.getPriceStringAtTick(claimTick)) 
+                                                                 : (zeroForOne ? upperPrice : lowerPrice))
+  // fill percent is % of range crossed based on price
+  const [fillPercent, setFillPercent] = useState((Math.abs((zeroForOne ? upperPrice : lowerPrice) - claimPrice)
+                                                          / Math.abs(upperPrice - lowerPrice) * 100).toPrecision(3))
 
   useEffect(() => {
     getCoverPool()
   }, [tokenOne, tokenZero])
+
+  useEffect(() => {
+    setClaimPrice(!isNaN(claimTick) ? parseFloat(TickMath.getPriceStringAtTick(claimTick)) 
+    : (zeroForOne ? upperPrice : lowerPrice))
+  }, [claimTick])
+
+  useEffect(() => {
+    setFillPercent((Math.abs((zeroForOne ? upperPrice : lowerPrice) - claimPrice)
+    / Math.abs(upperPrice - lowerPrice) * 100).toPrecision(3))
+  }, [claimPrice])
+
+  const { isConnected } = useAccount()
 
   const { refetch: refetchcoverQuote, data: priceCover } = useContractRead({
     address: coverPoolRoute,
@@ -68,6 +89,7 @@ export default function UserCoverPool({
     args: [],
     chainId: 421613,
     watch: true,
+    enabled: isConnected && coverPoolRoute != '',
     onSuccess(data) {
       //console.log('Success price Cover', data)
       setCoverQuote(TickMath.getPriceStringAtSqrtPrice(data[0]))
@@ -86,16 +108,12 @@ export default function UserCoverPool({
 
   const getCoverPool = async () => {
     try {
-      var pool = undefined
-      if (tokenZero.id < tokenOne.id) {
-        pool = await getCoverPoolFromFactory(tokenZero.id, tokenOne.id)
-      } else {
-        pool = await getCoverPoolFromFactory(tokenOne.id, tokenZero.id)
-      }
-      let id = ZERO_ADDRESS
+      var pool = tokenZero.id < tokenOne.id ?
+                    await getCoverPoolFromFactory(tokenZero.id, tokenOne.id)
+                  : await getCoverPoolFromFactory(tokenOne.id, tokenZero.id)
       let dataLength = pool['data']['coverPools'].length
-      if(dataLength != 0) id = pool['data']['coverPools']['0']['id']
-      setCoverPoolRoute(id)
+      if(dataLength != 0) setCoverPoolRoute(pool['data']['coverPools']['0']['id'])
+      else setCoverPoolRoute(ZERO_ADDRESS)
     } catch (error) {
       console.log(error)
     }
@@ -131,12 +149,16 @@ export default function UserCoverPool({
           poolId: poolId,
           tokenZeroName: tokenZero.name,
           tokenZeroSymbol: tokenZero.symbol,
-          tokenZeroLogoURI: zeroForOne ? logoMap[tokenOne.symbol] : logoMap[tokenZero.symbol],
+          tokenZeroLogoURI: zeroForOne
+            ? logoMap[tokenOne.symbol]
+            : logoMap[tokenZero.symbol],
           tokenZeroAddress: tokenZero.id,
           tokenZeroValue: valueTokenZero,
           tokenOneName: tokenOne.name,
           tokenOneSymbol: tokenOne.symbol,
-          tokenOneLogoURI: zeroForOne ? logoMap[tokenZero.symbol] : logoMap[tokenOne.symbol],
+          tokenOneLogoURI: zeroForOne
+            ? logoMap[tokenZero.symbol]
+            : logoMap[tokenOne.symbol],
           tokenOneAddress: tokenOne.id,
           tokenOneValue: valueTokenOne,
           coverPoolRoute: coverPoolRoute,
@@ -156,10 +178,10 @@ export default function UserCoverPool({
       <div
         onClick={() => setPool()}
         onMouseEnter={(e) => {
-          setShow(true);
+          setShow(true)
         }}
         onMouseLeave={(e) => {
-          setShow(false);
+          setShow(false)
         }}
         className="w-full cursor-pointer flex justify-between items-center bg-dark border border-grey2 rounded-xl py-3.5 pl-5 h-24 relative"
       >
@@ -185,25 +207,25 @@ export default function UserCoverPool({
           </div>
           <div className="text-sm flex items-center gap-x-3">
             <span>
-              <span className="text-grey">Min:</span> {TickMath.getPriceStringAtTick(min)} {tokenZero.symbol}{" "}
-              per {tokenOne.symbol}
+              <span className="text-grey">Min:</span>{' '}
+              {TickMath.getPriceStringAtTick(min)} {tokenZero.symbol} per{' '}
+              {tokenOne.symbol}
             </span>
             <ArrowsRightLeftIcon className="w-4 text-grey" />
             <span>
-              <span className="text-grey">Max:</span> {TickMath.getPriceStringAtTick(max)} {tokenOne.symbol}{" "}
-              per {tokenZero.symbol}
+              <span className="text-grey">Max:</span>{' '}
+              {TickMath.getPriceStringAtTick(max)} {tokenOne.symbol} per{' '}
+              {tokenZero.symbol}
             </span>
           </div>
         </div>
         <div className="pr-5">
-              <div className="flex relative bg-transparent items-center justify-center h-8 border-grey1 z-40 border rounded-lg gap-x-2 text-sm w-36">
-                <div className=" bg-white h-full absolute left-0 z-0 rounded-l-[7px] opacity-10 w-[40%]"/>
-                <div className="z-20 ">
-                40% Filled
-                </div>
-              </div>
-            </div>
+          <div className="flex relative bg-transparent items-center justify-center h-8 border-grey1 z-40 border rounded-lg gap-x-2 text-sm w-36">
+            <div className={`bg-white h-full absolute left-0 z-0 rounded-l-[7px] opacity-10 w-[${fillPercent}%]`} />
+            <div className="z-20 ">{fillPercent}% Filled</div>
+          </div>
+        </div>
       </div>
     </Link>
-  );
+  )
 }

@@ -22,7 +22,7 @@ export default function DirectionalPoolPreview({
   allowance,
   setAllowance,
 }) {
-  const { address } = useAccount()
+  const { address, isConnected } = useAccount()
   const { data } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -30,7 +30,7 @@ export default function DirectionalPoolPreview({
     args: [address, poolId],
     chainId: 421613,
     watch: true,
-    enabled: tokenIn.address != undefined,
+    enabled: isConnected && poolId != undefined && tokenIn.address != undefined,
     onSuccess(data) {
       console.log('Success')
     },
@@ -163,7 +163,7 @@ export default function DirectionalPoolPreview({
                         <div className="mt-3 space-y-3">
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
                             <span className="text-xs text-grey">
-                              Min. Price
+                              Min Price
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">

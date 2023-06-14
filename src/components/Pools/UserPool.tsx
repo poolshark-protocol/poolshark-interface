@@ -10,12 +10,13 @@ import { getRangePoolFromFactory } from '../../utils/queries'
 import { TickMath } from '../../utils/math/tickMath'
 import JSBI from 'jsbi'
 import { ethers } from 'ethers'
-import { useContractRead } from 'wagmi'
+import { useAccount, useContractRead } from 'wagmi'
 import { rangePoolABI } from '../../abis/evm/rangePool'
 import {
   tokenOneAddress,
   tokenZeroAddress,
 } from '../../constants/contractAddresses'
+import { ZERO_ADDRESS } from '../../utils/math/constants'
 
 export default function UserPool({
   account,
@@ -27,18 +28,17 @@ export default function UserPool({
   min,
   max,
   price,
-  liquidity,
+  userLiquidity,
   feeTier,
   tickSpacing,
-  unclaimedFees,
   href,
   tvlUsd,
   volumeUsd,
   volumeEth,
 }) {
   const logoMap = {
-    TOKEN20A: '/static/images/eth_icon.png',
-    TOKEN20B: '/static/images/token.png',
+    TOKEN20A: '/static/images/token.png',
+    TOKEN20B: '/static/images/eth_icon.png',
     USDC: '/static/images/token.png',
     WETH: '/static/images/eth_icon.png',
     DAI: '/static/images/dai_icon.png',
@@ -57,6 +57,8 @@ export default function UserPool({
   const [rangeTickPrice, setRangeTickPrice] = useState(undefined)
   const [rangePoolRoute, setRangePoolRoute] = useState('')
 
+  const { isConnected } = useAccount()
+
   //console.log('rangePoolRoute', rangePoolRoute)
 
   useEffect(() => {
@@ -73,31 +75,20 @@ export default function UserPool({
         tokenZeroAddress,
         tokenOneAddress,
       )
-      const id = pool['data']['rangePools']['0']['id']
-      setRangePoolRoute(id)
+      const dataLength = pool['data']['rangePools'].length
+      if (dataLength > 0) {
+        const id = pool['data']['rangePools']['0']['id']
+        const price = pool['data']['rangePools']['0']['price']
+        const tickAtPrice = pool['data']['rangePools']['0']['tickAtPrice']
+        setRangePoolRoute(id)
+        setRangePrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(price)))
+        setRangeTickPrice(Number(tickAtPrice))
+      }
+
     } catch (error) {
       console.log(error)
     }
   }
-
-  const { refetch: refetchRangePrice, data: priceRange } = useContractRead({
-    address: rangePoolRoute,
-    abi: rangePoolABI,
-    functionName: 'poolState',
-    args: [],
-    chainId: 421613,
-    watch: true,
-    onSuccess(data) {
-      console.log('Success price Range', data)
-      setRangePrice(parseFloat(ethers.utils.formatUnits(data[5], 18)))
-    },
-    onError(error) {
-      console.log('Error price Range', error)
-    },
-    onSettled(data, error) {
-      console.log('Settled price Range', { data, error })
-    },
-  })
 
   function setRangeParams() {
     try {
@@ -130,15 +121,14 @@ export default function UserPool({
             tokenOneValue: valueTokenOne,
             rangePoolRoute: rangePoolRoute,
             rangeTickPrice: rangeTickPrice
-              ? ethers.utils.formatUnits(rangeTickPrice, 18)
+              ? rangeTickPrice
               : 0,
             min: min,
             max: max,
             price: price,
-            liquidity: liquidity,
             feeTier: feeTierPercentage,
             tickSpacing: tickSpacing,
-            unclaimedFees: unclaimedFees,
+            userLiquidity: userLiquidity
           },
         }}
       >
@@ -154,9 +144,9 @@ export default function UserPool({
                   src={logoMap[tokenOne.symbol]}
                 />
               </div>
-              <div className="flex gap-x-2">
+              <div className="flex items-center gap-x-1.5">
                 {tokenZero.name}
-                <ArrowLongRightIcon className="w-5" />
+                <div>-</div>
                 {tokenOne.name}
               </div>
               <div className="bg-black px-2 py-1 rounded-lg text-grey">
@@ -176,9 +166,9 @@ export default function UserPool({
             </div>
           </div>{' '}
           {rangeTickPrice ? (
-            Number(ethers.utils.formatUnits(rangeTickPrice, 18)) <
+            Number(rangeTickPrice) <
               Number(min) ||
-            Number(ethers.utils.formatUnits(rangeTickPrice, 18)) >
+            Number(rangeTickPrice) >=
               Number(max) ? (
               <div className="pr-5">
                 <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">

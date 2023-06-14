@@ -1,10 +1,12 @@
 import { Fragment, useEffect, useState } from 'react'
 import { Transition, Dialog } from '@headlessui/react'
 import RangeMintButton from '../Buttons/RangeMintButton'
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import { erc20ABI, useAccount, useContractRead } from 'wagmi'
 import SwapRangeApproveButton from '../Buttons/SwapRangeApproveButton'
 import SwapRangeDoubleApproveButton from '../Buttons/SwapRangeDoubleApproveButton'
+import RangeMintApproveButton from '../Buttons/RangeMintApproveButton'
+import { TickMath } from '../../utils/math/tickMath'
 
 export default function ConcentratedPoolPreview({
   account,
@@ -13,17 +15,21 @@ export default function ConcentratedPoolPreview({
   tokenOut,
   amount0,
   amount1,
-  minPrice,
-  maxPrice,
-  minTick,
-  maxTick,
+  amount0Usd,
+  amount1Usd,
+  lowerPrice,
+  upperPrice,
+  lowerTick,
+  upperTick,
   fee,
-  allowanceIn,
-  setAllowanceIn,
-  allowanceOut,
-  setAllowanceOut,
+  allowance0,
+  setAllowance0,
+  allowance1,
+  setAllowance1,
+  disabled
 }) {
-  const { address } = useAccount()
+  const { address, isConnected } = useAccount()
+  const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
   const { data: dataIn } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -31,8 +37,9 @@ export default function ConcentratedPoolPreview({
     args: [address, poolAddress],
     chainId: 421613,
     watch: true,
-    enabled: tokenIn.address != '',
+    enabled: isConnected && poolAddress != undefined && tokenIn.address != undefined,
     onSuccess() {
+      console.log('token allowances', allowance0.sub(amount0).toString(), allowance1.sub(amount1).toString(), amount1.toString(), amount0.toString())
       console.log('Success')
     },
     onError(error) {
@@ -42,32 +49,8 @@ export default function ConcentratedPoolPreview({
       console.log('Settled', { data, error })
     },
   })
-  const { data: dataOut } = useContractRead({
-    address: tokenOut.address,
-    abi: erc20ABI,
-    functionName: 'allowance',
-    args: [address, poolAddress],
-    chainId: 421613,
-    watch: true,
-    enabled: tokenOut.address != '',
-    onSuccess() {
-      console.log('Success')
-    },
-    onError(error) {
-      console.log('Error', error)
-    },
-    onSettled(data, error) {
-      console.log('Settled', { data, error })
-    },
-  })
-  let [isOpen, setIsOpen] = useState(false)
 
-  useEffect(() => {
-    if (dataIn && dataOut) {
-      setAllowanceIn(ethers.utils.formatUnits(dataIn, 18))
-      setAllowanceOut(ethers.utils.formatUnits(dataOut, 18))
-    }
-  }, [dataIn, dataOut, tokenIn, tokenOut])
+  let [isOpen, setIsOpen] = useState(false)
 
   function closeModal() {
     setIsOpen(false)
@@ -147,7 +130,7 @@ export default function ConcentratedPoolPreview({
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                  ~300.53
+                                  ${amount0Usd.toFixed(2)}
                                 </div>
                               </div>
                             </div>
@@ -179,7 +162,7 @@ export default function ConcentratedPoolPreview({
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                  ~300.52
+                                ${amount1Usd.toFixed(2)}
                                 </div>
                               </div>
                             </div>
@@ -215,70 +198,59 @@ export default function ConcentratedPoolPreview({
                         <div className="mt-3 space-y-3">
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
                             <span className="text-xs text-grey">
-                              Min. Price
+                              Min Price
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {parseFloat(minPrice).toFixed(2)}
+                                {TickMath.getPriceStringAtTick(lowerTick)}
                               </span>
                             </div>
                             <span className="text-xs text-grey">
-                              {tokenIn.symbol} per {tokenOut.symbol}
+                              {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
                             </span>
                           </div>
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
                             <span className="text-xs text-grey">
-                              Max. Price
+                              Max Price
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {parseFloat(maxPrice).toFixed(2)}
+                                {TickMath.getPriceStringAtTick(upperTick)}
                               </span>
                             </div>
                             <span className="text-xs text-grey">
-                              {tokenIn.symbol} per {tokenOut.symbol}
+                            {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
                             </span>
                           </div>
                         </div>
                       </div>
-                      {Number(allowanceIn) <
-                        Number(ethers.utils.formatUnits(amount0, 18)) ||
-                      Number(allowanceOut) <
-                        Number(ethers.utils.formatUnits(amount1, 18)) ? (
-                        Number(allowanceIn) <
-                          Number(ethers.utils.formatUnits(amount0, 18)) &&
-                        Number(allowanceOut) <
-                          Number(ethers.utils.formatUnits(amount1, 18)) ? (
-                          <SwapRangeDoubleApproveButton
+                      { allowance0.gte(amount0) ? null :
+                        <RangeMintApproveButton
                             poolAddress={poolAddress}
-                            tokenIn={tokenIn.address}
-                            tokenOut={tokenOut.address}
-                          />
-                        ) : Number(allowanceIn) <
-                          Number(ethers.utils.formatUnits(amount0, 18)) ? (
-                          <SwapRangeApproveButton
-                            disabled={false}
-                            poolAddress={poolAddress}
-                            approveToken={tokenIn.address}
-                          />
-                        ) : (
-                          <SwapRangeApproveButton
-                            disabled={false}
-                            poolAddress={poolAddress}
-                            approveToken={tokenOut.address}
-                          />
-                        )
-                      ) : (
-                        <RangeMintButton
-                          disabled={false}
-                          poolId={poolAddress}
-                          to={account}
-                          lower={minTick}
-                          upper={maxTick}
-                          amount0={amount0}
-                          amount1={amount1}
+                            approveToken={tokenOrder ? tokenIn : tokenOut}
+                            disabled={allowance0.gte(amount0)}
+                            amount={amount0}
                         />
-                      )}
+                       }
+                       { allowance1.gte(amount1) ? null :
+                        <RangeMintApproveButton
+                            poolAddress={poolAddress}
+                            approveToken={tokenOrder ? tokenOut : tokenIn}
+                            disabled={allowance1.gte(amount1)}
+                            amount={amount1}
+                        />
+                       }
+                       { allowance0.lt(amount0) || allowance1.lt(amount1) ? null :
+                        <RangeMintButton
+                            to={address}
+                            poolAddress={poolAddress}
+                            lower={lowerTick}
+                            upper={upperTick}
+                            disabled={allowance0.lt(amount0) || allowance1.lt(amount1)}
+                            amount0={amount0}
+                            amount1={amount1}
+                        />
+                       }
                     </div>
                   </div>
                 </Dialog.Panel>
@@ -287,12 +259,13 @@ export default function ConcentratedPoolPreview({
           </div>
         </Dialog>
       </Transition>
-      <div
+      <button
         onClick={() => setIsOpen(true)}
+        disabled={disabled}
         className="mt-8 w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
       >
         Preview
-      </div>
+      </button>
     </div>
   )
 }

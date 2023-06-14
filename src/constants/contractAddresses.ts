@@ -2,8 +2,8 @@
 // CHAINID: 421613
 
 // tokens
-export const tokenZeroAddress   = "0x6774be1a283Faed7ED8e40463c40Fb33A8da3461" // WETH
-export const tokenOneAddress    = "0xC26906E10E8BDaDeb2cf297eb56DF59775eE52c4" // DAI
+export const tokenZeroAddress   = "0xC26906E10E8BDaDeb2cf297eb56DF59775eE52c4" // WETH
+export const tokenOneAddress    = "0x6774be1a283Faed7ED8e40463c40Fb33A8da3461"  // USDC
 
 // cover pools
 export const coverPoolAddress   = "0xC0c4E0AA5a413373CACBC39AE5e6597D78d26325"

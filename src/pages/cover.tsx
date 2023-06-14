@@ -1,131 +1,49 @@
-import Navbar from '../components/Navbar'
+import React, { useState, useEffect } from 'react'
 import {
   InformationCircleIcon,
   MagnifyingGlassIcon,
 } from '@heroicons/react/20/solid'
-import UserCoverPool from '../components/Pools/UserCoverPool'
-import { useState, useEffect } from 'react'
 import { useAccount, useProvider } from 'wagmi'
 import Link from 'next/link'
-import { fetchCoverPositions } from '../utils/queries'
-import React from 'react'
-import useTokenList from '../hooks/useTokenList'
+import { useRouter } from 'next/router'
+import Navbar from '../components/Navbar'
+import UserCoverPool from '../components/Pools/UserCoverPool'
 import Initial from '../components/Cover/Initial'
 import CreateCover from '../components/Cover/CreateCover'
-import { useRouter } from 'next/router'
+import { fetchCoverPositions } from '../utils/queries'
+import { mapUserCoverPositions } from '../utils/maps'
+import { TickMath } from '../utils/math/tickMath'
 
 export default function Cover() {
+  const {
+    network: { chainId },
+  } = useProvider()
   const router = useRouter()
+  const { address, isDisconnected } = useAccount()
+  //const coins = useTokenList()[0]
+  //const [coinsForListing, setCoinsForListing] = useState(coins['listed_tokens'])
 
+  const [selectedPool, setSelectedPool] = useState(router.query ?? undefined)
+  const [state, setState] = useState(router.query.state ?? 'initial')
   const [searchTerm, setSearchTerm] = useState('')
+  const [allCoverPositions, setAllCoverPositions] = useState([])
+
+  useEffect(() => {
+    if (address != undefined)
+      getUserCoverPositionData()
+  }, [address])
+
+  async function getUserCoverPositionData() {
+    const data = await fetchCoverPositions(address)
+    if (data) {
+      const positions = data['data'].positions
+      setAllCoverPositions(mapUserCoverPositions(positions))
+    }
+  }
 
   const handleSearchTermChange = (event) => {
     setSearchTerm(event.target.value)
   }
-
-  const {
-    network: { chainId },
-  } = useProvider()
-
-  const { address, isDisconnected } = useAccount()
-
-  const [expanded, setExpanded] = useState()
-  const [selectedPool, setSelectedPool] = useState(router.query ?? undefined)
-
-  const [coverPositions, setCoverPositions] = useState([])
-  const [allCoverPositions, setAllCoverPositions] = useState([])
-  const [userPositionExists, setUserPositionExists] = useState(false)
-
-  const coins = useTokenList()[0]
-  const [coinsForListing, setCoinsForListing] = useState(coins['listed_tokens'])
-
-  useEffect(() => {
-    console.log(coinsForListing)
-  }, [coinsForListing])
-
-  async function getUserPositionData() {
-    try {
-      const data = await fetchCoverPositions(address)
-      const positions = data['data'].positions
-      setCoverPositions(positions)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  function mapUserCoverPositions() {
-    const mappedCoverPositions = []
-    coverPositions.map((coverPosition) => {
-      const coverPositionData = {
-        id: coverPosition.id,
-        poolId: coverPosition.pool.id,
-        latestTick: coverPosition.pool.latestTick,
-        tokenZero: coverPosition.inToken,
-        valueTokenZero: coverPosition.inAmount,
-        tokenOne: coverPosition.outToken,
-        valueTokenOne: coverPosition.outAmount,
-        min: coverPosition.lower,
-        max: coverPosition.upper,
-        userFillIn: coverPosition.amountInDeltaMax,
-        userFillOut: coverPosition.amountOutDeltaMax,
-        liquidity: coverPosition.pool.liquidity,
-        feeTier: coverPosition.pool.volatilityTier.feeAmount,
-        tickSpacing: coverPosition.pool.volatilityTier.tickSpread,
-        userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
-      }
-      mappedCoverPositions.push(coverPositionData)
-    })
-
-    setAllCoverPositions(mappedCoverPositions)
-  }
-
-  function checkUserPositionExists() {
-    allCoverPositions.map((allCoverPosition) => {
-      if (allCoverPosition.userOwnerAddress === address?.toLowerCase()) {
-        setUserPositionExists(true)
-      }
-    })
-  }
-
-  useEffect(() => {
-    getUserPositionData()
-  }, [])
-
-  useEffect(() => {
-    mapUserCoverPositions()
-  }, [coverPositions])
-
-  useEffect(() => {
-    checkUserPositionExists()
-  }, [])
-
-  const Option = () => {
-    if (expanded) {
-      return (
-        <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Expected Output</div>
-            <div className="ml-auto text-xs">300 DAI</div>
-          </div>
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Price Impact</div>
-            <div className="ml-auto text-xs">-0.12%</div>
-          </div>
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">
-              Mininum received after slippage (0.50%)
-            </div>
-            <div className="ml-auto text-xs">299.92 DAI</div>
-          </div>
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Network Fee</div>
-            <div className="ml-auto text-xs">-0.09$</div>
-          </div>
-        </div>
-      )
-    }
-  }
-  const [state, setState] = useState(router.query.state ?? 'initial')
 
   const handleDiselectPool = (state) => {
     setState(state)
@@ -148,7 +66,7 @@ export default function Cover() {
           </div>
           <div className="flex space-x-8">
             <div className="bg-black w-2/3 border border-grey2 w-full rounded-t-xl p-6 gap-y-4">
-              {selectedPool != undefined && state != 'initial' ? (
+              {selectedPool != undefined && state != "initial" ? (
                 <CreateCover query={router.query} goBack={handleDiselectPool} />
               ) : (
                 <Initial query={router.query} />
@@ -180,6 +98,7 @@ export default function Cover() {
                 <div className="relative">
                   <MagnifyingGlassIcon className="w-5 text-grey absolute ml-[14px] mt-[13px]" />
                   <input
+                    autoComplete="off"
                     className="border border-grey2 bg-dark rounded-xl py-2.5 w-full placeholder:text-grey outline-none pl-12"
                     placeholder="Search name, symbol or address"
                     value={searchTerm}
@@ -223,12 +142,12 @@ export default function Cover() {
                                 searchTerm.toLowerCase() ||
                               allCoverPosition.tokenOne.id.toLowerCase() ===
                                 searchTerm.toLowerCase() ||
-                              searchTerm === '')
+                              searchTerm === "")
                           ) {
                             //console.log('user fill out', allCoverPosition.userFillOut)
                             return (
                               <UserCoverPool
-                                key={allCoverPosition.id}
+                                key={allCoverPosition.id + "coverPositions"}
                                 account={address}
                                 poolId={allCoverPosition.poolId}
                                 tokenZero={allCoverPosition.tokenZero}
@@ -242,14 +161,25 @@ export default function Cover() {
                                 userFillOut={allCoverPosition.userFillOut}
                                 feeTier={allCoverPosition.feeTier}
                                 liquidity={allCoverPosition.liquidity}
+                                lowerPrice={parseFloat(
+                                  TickMath.getPriceStringAtTick(
+                                    allCoverPosition.lowerTick
+                                  )
+                                )}
+                                upperPrice={parseFloat(
+                                  TickMath.getPriceStringAtTick(
+                                    allCoverPosition.upperTick
+                                  )
+                                )}
+                                claimTick={allCoverPosition.claimTick}
                                 latestTick={allCoverPosition.latestTick}
                                 tickSpacing={allCoverPosition.tickSpacing}
                                 epochLast={allCoverPosition.epochLast}
                                 prefill={undefined}
                                 close={undefined}
-                                href={'/pool/view/cover'}
+                                href={"/pool/view/cover"}
                               />
-                            )
+                            );
                           }
                         })}
                       </div>
@@ -263,5 +193,5 @@ export default function Cover() {
         </div>
       </div>
     </div>
-  )
+  );
 }
