@@ -667,7 +667,11 @@ export default function CoverExistingPool({
           onClick={() => setExpanded(!expanded)}
         >
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-            1 {tokenIn.name} = 1 {tokenOut.name}
+            1 {tokenIn.symbol} = {
+            (!isNaN(parseFloat(coverTickPrice))) ?
+            ((parseFloat(coverTickPrice).toFixed(2)) + tokenOut.symbol) :
+            ("0")
+            }
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
             <button>
