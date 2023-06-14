@@ -572,12 +572,22 @@ export default function ConcentratedPool({
               </div>
             </div>
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-              <div className=" p-2 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
+              <div className=" p-2 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl  rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
                 {Number(
                   tokenOrder
                     ? parseFloat(ethers.utils.formatUnits(amount1, 18)).toFixed(3)
                     : parseFloat(ethers.utils.formatUnits(amount0, 18)).toFixed(3),
                 )}
+                {
+                    <div className="flex mt-2 text-xs text-[#4C4C4C]">
+                      $
+                      {(
+                        (tokenOrder ? usdPrice1 : usdPrice0) *
+                        Number(ethers.utils.formatUnits(bnInput, 18))
+                      ).toFixed(2)}
+                    </div>
+                }
+                
               </div>
               <div className="">
                 <div className=" ml-auto">
@@ -599,12 +609,15 @@ export default function ConcentratedPool({
                 </div>
               </div>
             </div>
-            <div className="flex-none text-xs uppercase text-[#C9C9C9]">
+            <div className="flex items-center justify-between w-full text-xs  text-[#C9C9C9]">
+              <div className="text-xs text-[#4C4C4C]">Market Price</div>
+              <div className="uppercase">
             1 {tokenIn.symbol} = {
              ((!isNaN(parseFloat(rangePrice))) ?
               ((parseFloat(invertPrice(rangePrice, tokenOrder)).toFixed(3)) + ' ' + tokenOut.symbol) :
               ('?' + ' ' + tokenOut.symbol))
             }
+            </div>
           </div>
           </div>
         </div>
