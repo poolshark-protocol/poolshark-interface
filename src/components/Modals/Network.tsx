@@ -55,7 +55,7 @@ export default function Network({ isOpen, setIsOpen, chainUnsupported, chainId }
                 </h2>
                 : ''}
                 <div className="mt-4 space-y-1">
-                  <div
+                  {/*<div
                   onClick={() => switchNetwork(1)}
                    className={`${ chainId === 1 ? ' bg-background' :'hover:bg-[#0C0C0C] hover:border-[#1C1C1C]'} flex justify-between items-center w-full p-2 rounded-xl  border border-black cursor-pointer`}>
                     <div className="flex gap-x-2 items-center">
@@ -66,7 +66,7 @@ export default function Network({ isOpen, setIsOpen, chainUnsupported, chainId }
                         Connected
                         <div className="h-1.5 w-1.5 bg-green-500 rounded-full"/>
                     </div>
-                  </div>
+                  </div>*/}
                   <div
                   onClick={() => switchNetwork(421613)}
                    className={`${ chainId === 421613 ? ' bg-background' :'hover:bg-[#0C0C0C] hover:border-[#1C1C1C]'} flex justify-between items-center w-full p-2 rounded-xl  border border-black cursor-pointer`}>

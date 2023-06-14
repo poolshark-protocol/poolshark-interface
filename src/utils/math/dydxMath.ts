@@ -1,5 +1,5 @@
 import JSBI from 'jsbi';
-import { Q96_BI } from './constants'
+import { Q96_BI, ZERO } from './constants'
 import { PrecisionMath } from './precisionMath';
 import { BigNumber } from 'ethers';
 
@@ -79,20 +79,22 @@ export abstract class DyDxMath {
     currentPrice: JSBI,
     liquidityAmount: JSBI,
     roundUp: boolean
-  ): { token0amount: JSBI; token1amount: JSBI } {
+  ): { token0Amount: JSBI; token1Amount: JSBI } {
     let token0amount: JSBI;
     let token1amount: JSBI;
     if (JSBI.lessThanOrEqual(currentPrice, priceLower)) {
       // token0 (X) is supplied
       token0amount = DyDxMath.getDx(liquidityAmount, priceLower, priceUpper, roundUp);
+      token1amount = ZERO
     } else if (JSBI.lessThanOrEqual(priceUpper, currentPrice)) {
       // token1 (y) is supplied
+      token0amount = ZERO
       token1amount = DyDxMath.getDy(liquidityAmount, priceLower, priceUpper, roundUp);
     } else {
       // Both token0 (x) and token1 (y) are supplied
       token0amount = DyDxMath.getDx(liquidityAmount, currentPrice, priceUpper, roundUp);
       token1amount = DyDxMath.getDy(liquidityAmount, priceLower, currentPrice, roundUp);
     }
-    return { token0amount, token1amount };
+    return { token0Amount: token0amount, token1Amount: token1amount };
   }
 }

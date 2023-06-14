@@ -8,22 +8,26 @@ import {
   import { ErrorToast } from '../Toasts/Error'
   import { ConfirmingToast } from '../Toasts/Confirming'
   import React, { useEffect, useState } from 'react'
-import { BigNumber } from 'ethers'
+  import { ethers } from 'ethers'
   
   export default function CoverMintApproveButton({
     poolAddress,
     approveToken,
     disabled,
-    amount
+    amount,
+    allowance,
+    tokenSymbol,
   }) {
     const [errorDisplay, setErrorDisplay] = useState(false)
     const [successDisplay, setSuccessDisplay] = useState(false)
+
+    console.log('approve address', poolAddress)
   
     const { config } = usePrepareContractWrite({
       address: approveToken,
       abi: erc20ABI,
       functionName: 'approve',
-      args: [poolAddress, BigNumber.from('0')],
+      args: [poolAddress, amount],
       enabled: approveToken != undefined && poolAddress != undefined,
       chainId: 421613,
     })
@@ -50,7 +54,11 @@ import { BigNumber } from 'ethers'
           }
           onClick={(address) => (address && !disabled ? write?.() : null)}
         >
-          Approve
+          Approve {(
+                  parseFloat(ethers.utils.formatUnits(amount, 18)) -
+                  parseFloat(allowance)
+                ).toFixed(2) + ' '}
+                {tokenSymbol}
         </div>
         <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
           {errorDisplay && (

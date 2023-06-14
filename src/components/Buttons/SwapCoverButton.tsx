@@ -11,7 +11,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 
-export default function SwapCoverButton({poolAddress, amount, zeroForOne, baseLimit}) {
+export default function SwapCoverButton({poolAddress, amount, zeroForOne, priceLimit}) {
 
   /*const [Limit] = useSwapStore((state: any) => [
     state.Limit
@@ -31,11 +31,11 @@ export default function SwapCoverButton({poolAddress, amount, zeroForOne, baseLi
           userAddress,
           zeroForOne,
           amount,
-          baseLimit
+          priceLimit
       ],
       chainId: 421613,
       overrides:{
-        gasLimit: BigNumber.from("5000000"),
+        gasLimit: BigNumber.from("500000"),
         //gasPrice: ethers.utils.parseUnits('20', 'gwei')
       }
   })

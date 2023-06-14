@@ -14,6 +14,7 @@ import { TickMath } from '../../utils/math/tickMath'
 import JSBI from 'jsbi'
 import { ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { tokenZeroAddress, tokenOneAddress } from '../../constants/contractAddresses'
+import { getClaimTick } from '../../utils/maps'
 
 export default function UserCoverPool({
   account,
@@ -31,7 +32,6 @@ export default function UserCoverPool({
   liquidity,
   lowerPrice,
   upperPrice,
-  claimTick,
   latestTick,
   tickSpacing,
   feeTier,
@@ -59,15 +59,20 @@ export default function UserCoverPool({
   const [coverQuote, setCoverQuote] = useState(undefined)
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
   const [coverPoolRoute, setCoverPoolRoute] = useState('')
-  const [claimPrice, setClaimPrice] = useState(!isNaN(claimTick) ? parseFloat(TickMath.getPriceStringAtTick(claimTick)) 
-                                                                 : (zeroForOne ? upperPrice : lowerPrice))
+  const [claimPrice, setClaimPrice] = useState((zeroForOne ? upperPrice : lowerPrice))
   // fill percent is % of range crossed based on price
   const [fillPercent, setFillPercent] = useState((Math.abs((zeroForOne ? upperPrice : lowerPrice) - claimPrice)
                                                           / Math.abs(upperPrice - lowerPrice) * 100).toPrecision(3))
 
+  const [claimTick, setClaimTick] = useState(zeroForOne ? max : min)
+
   useEffect(() => {
     getCoverPool()
   }, [tokenOne, tokenZero])
+
+  useEffect(() => {
+    updateClaimTick()
+  }, [latestTick])
 
   useEffect(() => {
     setClaimPrice(!isNaN(claimTick) ? parseFloat(TickMath.getPriceStringAtTick(claimTick)) 
@@ -119,6 +124,17 @@ export default function UserCoverPool({
     }
   }
 
+  const updateClaimTick = async () => {
+    const tick = await getClaimTick(
+      poolId,
+      min,
+      max,
+      zeroForOne,
+      epochLast,
+    )
+    setClaimTick(tick)
+  }
+
   async function setCoverParams() {
     try {
       if (coverQuote != undefined) {
@@ -165,6 +181,7 @@ export default function UserCoverPool({
           coverTickPrice: coverTickPrice ? coverTickPrice : 0,
           min: min,
           max: max,
+          claimTick: claimTick,
           userFillIn: userFillIn,
           userFillOut: userFillOut,
           liquidity: liquidity,

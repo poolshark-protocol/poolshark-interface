@@ -9,11 +9,15 @@ import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useEffect, useState } from 'react'
 import { useSwapStore } from '../../hooks/useStore'
+import { ethers } from 'ethers'
 
 export default function SwapCoverApproveButton({
   poolAddress,
   approveToken,
   disabled,
+  bnInput,
+  allowanceCover,
+  tokenSymbol
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
@@ -60,7 +64,11 @@ export default function SwapCoverApproveButton({
         }
         onClick={(address) => (address && !disabled ? write?.() : null)}
       >
-        Approve
+        Approve {(
+                  Number(ethers.utils.formatUnits(bnInput, 18)) -
+                  Number(allowanceCover)
+                ).toFixed(2) + ' '}
+                {tokenSymbol}
       </div>
       <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
         {errorDisplay && (

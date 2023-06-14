@@ -62,14 +62,47 @@ export default function SelectToken(props) {
   //     }
   //   }
   // };
+
   const chooseToken = (coin) => {
-    props.tokenChosen({
+    coin = {
       name: coin?.name,
       address: coin?.address, //@dev use id for address in production like so address: coin?.id because thats what coin [] will have instead of address
       symbol: coin?.symbol,
       logoURI: coin?.logoURI,
       decimals: coin?.decimals,
-    })
+    }
+    if (props.type === 'in') {
+      /* if (token.symbol === tokenOut.symbol) {
+        return 
+      } */
+      props.setTokenIn(coin)
+      if (coin.address.localeCompare(props.tokenOut.address) < 0) {
+        props.setTokenIn(coin)
+        if (props.selected === true) {
+          props.setTokenOut(props.tokenOut)
+        }
+      }
+      if (coin.address.localeCompare(props.tokenOut.address) >= 0) {
+        if (props.selected === true) {
+          props.setTokenIn(props.tokenOut)
+        }
+        props.setTokenOut(coin)
+      }
+    } else {
+      if (coin.symbol === props.tokenIn.symbol) {
+      }
+      props.setTokenOut(coin)
+      props.setHasSelected(true)
+      if (coin.address.localeCompare(props.tokenIn.address) < 0) {
+        props.setTokenIn(coin)
+        props.setTokenOut(props.tokenIn)
+      }
+
+      if (coin.address.localeCompare(props.tokenIn.address) >= 0) {
+        props.setTokenIn(props.tokenIn)
+        props.setTokenOut(coin)
+      }
+    }
     props.balance(coin?.id)
     closeModal()
   }
@@ -166,15 +199,13 @@ export default function SelectToken(props) {
       <button
         onClick={() => openModal()}
         className={
-          props.index === "0" ||
-          (props.index === "1" && props.selected === true)
-            ? "flex items-center uppercase gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
-            : "flex items-center bg-background text-main gap-x-3 hover:opacity-80  px-4 py-2 rounded-xl"
+          props.index === '0' || props.selected === true
+            ? 'flex items-center uppercase gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl'
+            : 'flex items-center bg-background text-main gap-x-3 hover:opacity-80  px-4 py-2 rounded-xl'
         }
       >
         <div className="flex items-center gap-x-2 w-full">
-          {props.index === "0" ||
-          (props.index === "1" && props.selected === true) ? (
+          {props.index === '0' || props.selected === true ? (
             <img className="w-7" src={props.displayToken?.logoURI} />
           ) : (
             <></>
