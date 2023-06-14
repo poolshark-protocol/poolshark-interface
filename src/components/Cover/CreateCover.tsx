@@ -586,7 +586,7 @@ export default function CreateCover(props: any) {
       </div>
       <div className="flex justify-between w-full gap-x-6">
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-          <span className="text-xs text-grey">Min Price</span>
+          <span className="text-xs text-grey">Min. Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice('minus', 'minInput')}>
@@ -686,6 +686,8 @@ export default function CreateCover(props: any) {
             poolAddress={coverPoolRoute}
             approveToken={tokenIn.address}
             amount={bnInput}
+            tokenSymbol={tokenIn.symbol}
+            allowance={allowance}
           />
         ) : stateChainName === 'arbitrumGoerli' ? (
           <CoverMintButton

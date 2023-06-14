@@ -575,9 +575,9 @@ export default function ConcentratedPool({
               <div className=" p-2 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
                 {Number(
                   tokenOrder
-                    ? ethers.utils.formatUnits(amount1, 18)
-                    : ethers.utils.formatUnits(amount0, 18),
-                ).toFixed(2)}
+                    ? parseFloat(ethers.utils.formatUnits(amount1, 18)).toFixed(3)
+                    : parseFloat(ethers.utils.formatUnits(amount0, 18)).toFixed(3),
+                )}
               </div>
               <div className="">
                 <div className=" ml-auto">
@@ -634,7 +634,7 @@ export default function ConcentratedPool({
           </div>
           <div className="flex flex-col mt-6 gap-y-5 w-full">
             <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-              <span className="text-xs text-grey">Min Price</span>
+              <span className="text-xs text-grey">Min. Price</span>
               <div className="flex justify-center items-center">
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
                   <button onClick={() => changePrice('minus', 'minInput')}>
@@ -654,9 +654,9 @@ export default function ConcentratedPool({
                         }).length > 6
                         ? '0'
                         : parseFloat(lowerPrice).toLocaleString(undefined, {
-                            maximumFractionDigits: 0,
+                            maximumFractionDigits: 2,
                           })
-                      : lowerPrice
+                      : parseFloat(lowerPrice).toFixed(2)
                   }
                   onChange={() =>
                     setLowerPrice(
@@ -696,9 +696,9 @@ export default function ConcentratedPool({
                         }).length > 6
                         ? '∞'
                         : Number(upperPrice).toLocaleString(undefined, {
-                            maximumFractionDigits: 0,
+                            maximumFractionDigits: 2,
                           })
-                      : upperPrice
+                      : parseFloat(upperPrice).toFixed(2)
                   }
                   onChange={() =>
                     setUpperPrice(

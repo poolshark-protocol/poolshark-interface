@@ -9,11 +9,16 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { useSwapStore } from "../../hooks/useStore";
+import { ethers } from "ethers";
 
 export default function SwapRangeDoubleApproveButton({
   poolAddress,
   tokenIn,
   tokenOut,
+  bnInput,
+  allowanceRange,
+  tokenSymbol
+
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
@@ -83,7 +88,11 @@ export default function SwapRangeDoubleApproveButton({
         className="w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
         onClick={(address) => (address ? approve() : null)}
       >
-        Approve
+        Approve  {(
+                      Number(ethers.utils.formatUnits(bnInput, 18)) -
+                      Number(allowanceRange)
+                    ).toFixed(2) + ' '}
+                    {tokenSymbol}
       </div>
       <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
         {errorDisplay && (

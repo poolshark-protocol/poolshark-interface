@@ -634,6 +634,13 @@ export default function Swap() {
             </div>
           </div>
           <div className="flex p-1">
+            <div className="text-xs text-[#4C4C4C]">Network Fee</div>
+            {!LimitActive ?
+            <div className="ml-auto text-xs">{gasFee}</div> :
+            <div className="ml-auto text-xs">{mintFee}</div>}
+          </div>
+          {!LimitActive ? (
+          <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">
               Minimum received after slippage ({slippage}%)
             </div>
@@ -671,13 +678,9 @@ export default function Swap() {
                 )
                 : 'Select Token'}
             </div>
-          </div>
-          <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Network Fee</div>
-            {!LimitActive ?
-            <div className="ml-auto text-xs">{gasFee}</div> :
-            <div className="ml-auto text-xs">{mintFee}</div>}
-          </div>
+          </div>) : (
+            <></>
+          )}
           {!LimitActive ? (
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Price Impact</div>
@@ -790,7 +793,7 @@ export default function Swap() {
             {tokenIn.address != '' ? (
               <div className="flex">
                 <div className="flex text-xs text-[#4C4C4C]">$
-                  {(Number(ethers.utils.formatUnits(bnInput, 18)) * tokenIn.usdPrice).toFixed(2)}
+                  {(Number(ethers.utils.formatUnits(bnInput, 18)) * tokenIn.usdPrice).toFixed(3)}
                 </div>
               </div>
             ) : (
@@ -1007,12 +1010,12 @@ export default function Swap() {
                   ((!LimitActive) ? 
                   (!isNaN(rangeQuote) && !isNaN(coverQuote)
                     ? rangeQuote > coverQuote
-                      ? rangeQuote.toPrecision(5)
-                      : coverQuote.toPrecision(5)
+                      ? rangeQuote.toFixed(3)
+                      : coverQuote.toFixed(3)
                     : "0")
                   : (
                     parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) != 0
-                    ? parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)).toFixed(2)
+                    ? parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)).toFixed(3)
                     : "0"
                   ))}{" "}
               {tokenOut.symbol}
@@ -1048,14 +1051,10 @@ export default function Swap() {
                     disabled={false}
                     poolAddress={rangePoolRoute}
                     approveToken={tokenIn.address}
+                    tokenSymbol={tokenIn.symbol}
+                    bnInput={bnInput}
+                    allowanceRange={allowanceRange}
                   />
-                  <div className="text-xs mt-4 text-center uppercase text-grey">
-                    Increase allowance by {(
-                      Number(ethers.utils.formatUnits(bnInput, 18)) -
-                      Number(allowanceRange)
-                    ).toFixed(2) + ' '}
-                    {tokenIn.symbol}
-                  </div>
                 </div>
               ) : (
                 <SwapRangeButton
@@ -1071,17 +1070,13 @@ export default function Swap() {
             ) : Number(allowanceCover) <
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
               <div>
-                <div className="flex-none ">
-                Increase allowance by {(
-                  Number(ethers.utils.formatUnits(bnInput, 18)) -
-                  Number(allowanceCover)
-                ).toFixed(2) + ' '}
-                {tokenIn.symbol}
-                </div>
                 <SwapCoverApproveButton
                   disabled={false}
                   poolAddress={coverPoolRoute}
                   approveToken={tokenIn.address}
+                  tokenSymbol={tokenIn.symbol}
+                  allowanceCover={allowanceCover}
+                  bnInput={bnInput}
                 />
               </div>
             ) : (
@@ -1124,6 +1119,9 @@ export default function Swap() {
                     poolAddress={rangePoolRoute}
                     tokenIn={tokenIn.address}
                     tokenOut={tokenOut.address}
+                    tokenSymbol={tokenIn.symbol}
+                    allowanceRange={allowanceRange}
+                    bnInput={bnInput}
                   />
                 ) : Number(allowanceRange) <
                   Number(ethers.utils.formatUnits(bnInput, 18)) ? (
@@ -1131,12 +1129,18 @@ export default function Swap() {
                     disabled={false}
                     poolAddress={rangePoolRoute}
                     approveToken={tokenIn.address}
-                  />
+                    tokenSymbol={tokenIn.symbol}
+                    allowanceRange={allowanceRange}
+                    bnInput={bnInput}
+                      />
                 ) : (
                   <SwapRangeApproveButton
                     disabled={false}
                     poolAddress={rangePoolRoute}
                     approveToken={tokenOut.address}
+                    tokenSymbol={tokenIn.symbol}
+                    allowanceRange={allowanceRange}
+                    bnInput={bnInput}
                   />
                 )
             ) : (

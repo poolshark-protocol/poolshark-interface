@@ -502,39 +502,39 @@ export default function Cover() {
 
             <div className="flex justify-between items-center mt-4 gap-x-6">
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
-                <div className="text-grey text-xs w-full">Min Price</div>
+                <div className="text-grey text-xs w-full">Min. Price</div>
                 <div className="text-white text-2xl my-2 w-full">
                   {minLimit === undefined
                     ? ''
-                    : TickMath.getPriceStringAtTick(Number(minLimit))}
+                    : parseFloat(TickMath.getPriceStringAtTick(Number(minLimit))).toFixed(2)}
                 </div>
                 <div className="text-grey text-xs w-full">
                   {tokenIn.name} per {tokenOut.name}
                 </div>
                 <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100%{tokenIn.name} at this price.
+                  Your position will be 100% {tokenIn.name} at this price.
                 </div>
               </div>
               <ArrowsRightLeftIcon className="w-12 text-grey" />
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
-                <div className="text-grey text-xs w-full">Max Price</div>
+                <div className="text-grey text-xs w-full">Max. Price</div>
                 <div className="text-white text-2xl my-2 w-full">
                   {maxLimit === undefined
                     ? ''
-                    : TickMath.getPriceStringAtTick(Number(maxLimit))}
+                    : parseFloat(TickMath.getPriceStringAtTick(Number(maxLimit))).toFixed(2)}
                 </div>
                 <div className="text-grey text-xs w-full">
                   {tokenIn.name} per {tokenOut.name}
                 </div>
                 <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100%{tokenIn.name} at this price.
+                  Your position will be 100% {tokenIn.name} at this price.
                 </div>
               </div>
             </div>
             <div className="border border-grey1 rounded-xl py-2 text-center w-full mt-4 bg-dark">
               <div className="text-grey text-xs w-full">Current Price</div>
               <div className="text-white text-2xl my-2 w-full">
-                {TickMath.getPriceStringAtTick(Number(latestTick))}
+                {parseFloat(TickMath.getPriceStringAtTick(Number(latestTick))).toFixed(2)}
               </div>
               <div className="text-grey text-xs w-full">
                 {tokenIn.name} per {tokenOut.name}

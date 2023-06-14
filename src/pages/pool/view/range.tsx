@@ -557,9 +557,9 @@ export default function Range() {
             </div>
             <div className="flex justify-between items-center mt-4 gap-x-6">
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
-                <div className="text-grey text-xs w-full">Min Price</div>
+                <div className="text-grey text-xs w-full">Min. Price</div>
                 <div className="text-white text-2xl my-2 w-full">
-                  {lowerPrice}
+                  {parseFloat(lowerPrice).toFixed(2)}
                 </div>
                 <div className="text-grey text-xs w-full">
                   {tokenIn.name} per {tokenOut.name}
@@ -570,9 +570,9 @@ export default function Range() {
               </div>
               <ArrowsRightLeftIcon className="w-12 text-grey" />
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
-                <div className="text-grey text-xs w-full">Max Price</div>
+                <div className="text-grey text-xs w-full">Max. Price</div>
                 <div className="text-white text-2xl my-2 w-full">
-                  {upperPrice}
+                  {parseFloat(upperPrice).toFixed(2)}
                 </div>
                 <div className="text-grey text-xs w-full">
                   {tokenIn.name} per {tokenOut.name}
@@ -586,7 +586,7 @@ export default function Range() {
               <div className="text-grey text-xs w-full">Current Price</div>
               <div className="text-white text-2xl my-2 w-full">
                 {rangePrice != undefined &&
-                  TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(rangePrice))}
+                  parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(rangePrice))).toFixed(2)}
               </div>
               <div className="text-grey text-xs w-full">
                 {tokenIn.name} per {tokenOut.name}
