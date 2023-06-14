@@ -665,7 +665,7 @@ export default function CreateCover(props: any) {
             {1} {tokenIn.symbol} ={' '}
             {tokenOut.symbol === 'Select Token' || isNaN(parseFloat(coverPrice))
               ? '?' + ' ' + tokenOut.symbol
-              : invertPrice(coverPrice, tokenOrder) + ' ' + tokenOut.symbol}
+              : parseFloat(invertPrice(coverPrice, tokenOrder)).toFixed(3) + ' ' + tokenOut.symbol}
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
             <button>
