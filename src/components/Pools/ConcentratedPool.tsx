@@ -575,8 +575,8 @@ export default function ConcentratedPool({
               <div className=" p-2 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
                 {Number(
                   tokenOrder
-                    ? parseFloat(ethers.utils.formatUnits(amount1, 18)).toFixed(2)
-                    : parseFloat(ethers.utils.formatUnits(amount0, 18)).toFixed(2),
+                    ? parseFloat(ethers.utils.formatUnits(amount1, 18)).toFixed(3)
+                    : parseFloat(ethers.utils.formatUnits(amount0, 18)).toFixed(3),
                 )}
               </div>
               <div className="">
