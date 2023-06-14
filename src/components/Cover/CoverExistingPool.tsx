@@ -669,8 +669,8 @@ export default function CoverExistingPool({
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
             1 {tokenIn.symbol} = {
             (!isNaN(parseFloat(coverTickPrice))) ?
-            ((parseFloat(coverTickPrice).toFixed(2)) + tokenOut.symbol) :
-            ("0")
+            ((parseFloat(coverTickPrice).toFixed(2)) + ' ' + tokenOut.symbol) :
+            ('?')
             }
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
