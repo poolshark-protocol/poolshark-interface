@@ -55,8 +55,8 @@ import {
           onClick={(address) => (address && !disabled ? write?.() : null)}
         >
           Approve {(
-                  Number(ethers.utils.formatUnits(amount, 18)) -
-                  Number(allowance)
+                  parseFloat(ethers.utils.formatUnits(amount, 18)) -
+                  parseFloat(allowance)
                 ).toFixed(2) + ' '}
                 {tokenSymbol}
         </div>
