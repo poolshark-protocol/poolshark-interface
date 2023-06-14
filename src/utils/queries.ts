@@ -52,6 +52,9 @@ export const getRangePoolFromFactory = (tokenA?: string, tokenB?: string, feeTie
     const getPool = isNaN(feeTierId) ? 
         `
         {
+          basePrices(where:{id: "eth"}){
+            USD
+          }
           rangePools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
             id
             price
@@ -61,6 +64,9 @@ export const getRangePoolFromFactory = (tokenA?: string, tokenB?: string, feeTie
             }
             token1{
               usdPrice
+            }
+            feeTier {
+              tickSpacing
             }
           }
         }
@@ -100,7 +106,9 @@ export const getRangePoolFromFactory = (tokenA?: string, tokenB?: string, feeTie
   })
 }
 
-export const getCoverPoolFromFactory = (token0: string, token1: string) => {
+export const getCoverPoolFromFactory = (tokenA: string, tokenB: string) => {
+  const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB
+  const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA
   return new Promise(function (resolve) {
     const getPool = `
         {
@@ -109,10 +117,12 @@ export const getCoverPoolFromFactory = (token0: string, token1: string) => {
               latestTick
               volatilityTier {
                 tickSpread
+                auctionLength
               }
             }
           }
          `
+    console.log('query:', getPool)
     //console.log('query:', getPool)
     const client = new ApolloClient({
       uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
@@ -246,6 +256,7 @@ export const fetchCoverPositions = (address: string) => {
                     volatilityTier{
                         feeAmount
                         tickSpread
+                        auctionLength
                     }
                     latestTick
                 }
@@ -294,6 +305,7 @@ export const fetchCoverPools = () => {
                     }
                     liquidity
                     volatilityTier{
+                        auctionLength
                         feeAmount
                         tickSpread
                     }

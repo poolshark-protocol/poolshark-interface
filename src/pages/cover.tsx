@@ -20,8 +20,6 @@ export default function Cover() {
   } = useProvider()
   const router = useRouter()
   const { address, isDisconnected } = useAccount()
-  //const coins = useTokenList()[0]
-  //const [coinsForListing, setCoinsForListing] = useState(coins['listed_tokens'])
 
   const [selectedPool, setSelectedPool] = useState(router.query ?? undefined)
   const [state, setState] = useState(router.query.state ?? 'initial')
@@ -29,15 +27,21 @@ export default function Cover() {
   const [allCoverPositions, setAllCoverPositions] = useState([])
 
   useEffect(() => {
-    if (address != undefined)
-      getUserCoverPositionData()
+    if (address) getUserCoverPositionData()
   }, [address])
+
+  useEffect(() => {
+    if (state === 'existing' && router.query.state === 'nav') {
+      setState('initial')
+    }
+  }, [router.query.state])
 
   async function getUserCoverPositionData() {
     const data = await fetchCoverPositions(address)
-    if (data) {
+    if (data['data']) {
       const positions = data['data'].positions
-      setAllCoverPositions(mapUserCoverPositions(positions))
+      const positionData = mapUserCoverPositions(positions)
+      setAllCoverPositions(positionData)
     }
   }
 
@@ -66,7 +70,7 @@ export default function Cover() {
           </div>
           <div className="flex space-x-8">
             <div className="bg-black w-2/3 border border-grey2 w-full rounded-t-xl p-6 gap-y-4">
-              {selectedPool != undefined && state != "initial" ? (
+              {selectedPool != undefined && state == 'existing' ? (
                 <CreateCover query={router.query} goBack={handleDiselectPool} />
               ) : (
                 <Initial query={router.query} />
@@ -122,12 +126,13 @@ export default function Cover() {
                             clipRule="evenodd"
                           />
                         </svg>
-                        Your cover pools will appear here
+                        Your cover positions will appear here.
                       </div>
                     ) : (
                       <div className="space-y-3">
                         {allCoverPositions.map((allCoverPosition) => {
                           if (
+                            allCoverPosition.id != undefined &&
                             allCoverPosition.userOwnerAddress ===
                               address?.toLowerCase() &&
                             (allCoverPosition.tokenZero.name.toLowerCase() ===
@@ -142,12 +147,11 @@ export default function Cover() {
                                 searchTerm.toLowerCase() ||
                               allCoverPosition.tokenOne.id.toLowerCase() ===
                                 searchTerm.toLowerCase() ||
-                              searchTerm === "")
+                              searchTerm === '')
                           ) {
-                            //console.log('user fill out', allCoverPosition.userFillOut)
                             return (
                               <UserCoverPool
-                                key={allCoverPosition.id + "coverPositions"}
+                                key={allCoverPosition.id + 'coverPositions'}
                                 account={address}
                                 poolId={allCoverPosition.poolId}
                                 tokenZero={allCoverPosition.tokenZero}
@@ -163,23 +167,22 @@ export default function Cover() {
                                 liquidity={allCoverPosition.liquidity}
                                 lowerPrice={parseFloat(
                                   TickMath.getPriceStringAtTick(
-                                    allCoverPosition.lowerTick
-                                  )
+                                    allCoverPosition.lowerTick,
+                                  ),
                                 )}
                                 upperPrice={parseFloat(
                                   TickMath.getPriceStringAtTick(
-                                    allCoverPosition.upperTick
-                                  )
+                                    allCoverPosition.upperTick,
+                                  ),
                                 )}
-                                claimTick={allCoverPosition.claimTick}
                                 latestTick={allCoverPosition.latestTick}
                                 tickSpacing={allCoverPosition.tickSpacing}
                                 epochLast={allCoverPosition.epochLast}
                                 prefill={undefined}
                                 close={undefined}
-                                href={"/pool/view/cover"}
+                                href={'/pool/view/cover'}
                               />
-                            );
+                            )
                           }
                         })}
                       </div>
@@ -193,5 +196,5 @@ export default function Cover() {
         </div>
       </div>
     </div>
-  );
+  )
 }

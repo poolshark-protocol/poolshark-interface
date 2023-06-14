@@ -1,6 +1,6 @@
 import { getTickIfNotZeroForOne, getTickIfZeroForOne } from './queries'
 
-const getClaimTick = async (
+export const getClaimTick = async (
   coverPoolAddress: string,
   minLimit: number,
   maxLimit: number,
@@ -36,10 +36,13 @@ const getClaimTick = async (
 export function mapUserRangePositions(rangePositions) {
   const mappedRangePositions = []
   rangePositions.map((rangePosition) => {
-    console.log('user liquidity check', Math.round(
-      (rangePosition.amount / rangePosition.token.totalSupply) *
-        rangePosition.token.position.liquidity,
-    ))
+    console.log(
+      'user liquidity check',
+      Math.round(
+        (rangePosition.amount / rangePosition.token.totalSupply) *
+          rangePosition.token.position.liquidity,
+      ),
+    )
     const rangePositionData = {
       id: rangePosition.id,
       poolId: rangePosition.token.position.pool.id,
@@ -58,6 +61,7 @@ export function mapUserRangePositions(rangePositions) {
         (rangePosition.amount / rangePosition.token.totalSupply) *
           rangePosition.token.position.liquidity,
       ),
+      userTokenAmount: rangePosition.amount,
       tvlUsd: (
         Number(rangePosition.token.position.pool.totalValueLockedUsd) /
         1_000_000
@@ -92,7 +96,6 @@ export function mapRangePools(rangePools) {
     }
     mappedRangePools.push(rangePoolData)
   })
-  //setAllRangePools(mappedRangePools)
   return mappedRangePools
 }
 
@@ -121,6 +124,7 @@ export function mapUserCoverPositions(coverPositions) {
       upperTick: coverPosition.upper,
       latestTick: coverPosition.pool.latestTick,
       liquidity: coverPosition.liquidity,
+      auctionLength: coverPosition.pool.auctionLength,
       feeTier: coverPosition.pool.volatilityTier.feeAmount,
       tickSpacing: coverPosition.pool.volatilityTier.tickSpread,
       userOwnerAddress: coverPosition.owner.replace(/"|'/g, ''),
@@ -135,8 +139,8 @@ export function mapUserCoverPositions(coverPositions) {
       coverPosition.zeroForOne,
       coverPosition.epochLast,
     )
+    console.log('claim tick queried', coverPosition.claim)
   })
-  //console.log('mapped positions', mappedCoverPositions)
   return mappedCoverPositions
 }
 
@@ -148,10 +152,9 @@ export function mapCoverPools(coverPools) {
       tokenOne: coverPool.token1,
       tokenZero: coverPool.token0,
       liquidity: coverPool.liquidity,
+      auctionLenght: coverPool.volatilityTier.auctionLength,
       feeTier: coverPool.volatilityTier.feeAmount,
       tickSpacing: coverPool.volatilityTier.tickSpread,
-      //TODO: grab usdPrice of token from range subgraph
-      //totalValueLocked0 * token0.usdPrice + totalValueLocked1 * token1.usdPrice
       tvlUsd: (Number(coverPool.totalValueLockedUsd) / 1_000_000).toFixed(2),
       volumeUsd: (Number(coverPool.volumeUsd) / 1_000_000).toFixed(2),
       volumeEth: (Number(coverPool.volumeEth) / 1).toFixed(2),

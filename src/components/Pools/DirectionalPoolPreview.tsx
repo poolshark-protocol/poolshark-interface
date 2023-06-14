@@ -163,7 +163,7 @@ export default function DirectionalPoolPreview({
                         <div className="mt-3 space-y-3">
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
                             <span className="text-xs text-grey">
-                              Min Price
+                              Min. Price
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
@@ -196,6 +196,9 @@ export default function DirectionalPoolPreview({
                           disabled={true}
                           poolAddress={poolId}
                           approveToken={tokenIn.address}
+                          bnInput={amount0}
+                          tokenSymbol={tokenIn.symbol}
+                          allowanceCover={allowance}
                         />
                       ) : (
                         <CoverMintButton
@@ -220,7 +223,7 @@ export default function DirectionalPoolPreview({
       </Transition>
       <div
         onClick={() => setIsOpen(true)}
-        className="mt-8 w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        className="mt-8 w-full py-4 mx-auto disabled:opacity-50 font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
       >
         Preview
       </div>

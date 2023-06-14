@@ -29,6 +29,7 @@ export default function UserPool({
   max,
   price,
   userLiquidity,
+  userTokenAmount,
   feeTier,
   tickSpacing,
   href,
@@ -128,7 +129,8 @@ export default function UserPool({
             price: price,
             feeTier: feeTierPercentage,
             tickSpacing: tickSpacing,
-            userLiquidity: userLiquidity
+            userLiquidity: userLiquidity,
+            userTokenAmount: userTokenAmount
           },
         }}
       >

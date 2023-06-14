@@ -7,30 +7,30 @@ import {
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import RangeCollectButton from '../../../components/Buttons/RangeCollectButton'
-import RangeBurnButton from '../../../components/Buttons/RangeBurnButton'
 import RangeCompoundButton from '../../../components/Buttons/RangeCompoundButton'
 import Link from 'next/link'
-import { useAccount, useContractRead } from 'wagmi'
+import { useAccount } from 'wagmi'
 import { BigNumber, ethers } from 'ethers'
 import { TickMath } from '../../../utils/math/tickMath'
 import JSBI from 'jsbi'
+import { fetchTokenPrices } from '../../../utils/tokens'
+import { token } from '../../../utils/types'
+import { copyElementUseEffect } from '../../../utils/misc'
 import { getRangePoolFromFactory } from '../../../utils/queries'
 import { BN_ZERO, ZERO } from '../../../utils/math/constants'
 import { DyDxMath } from '../../../utils/math/dydxMath'
 import { rangePoolABI } from '../../../abis/evm/rangePool'
+import { useContractRead } from 'wagmi'
+import RemoveLiquidity from '../../../components/Modals/Range/RemoveLiquidity'
+import AddLiquidity from '../../../components/Modals/Range/AddLiquidity'
 
 export default function Range() {
-  type token = {
-    name: string
-    symbol: string
-    logoURI: string
-    address: string
-    value: string
-  }
   const { address, isConnected } = useAccount()
   const router = useRouter()
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isRemoveOpen, setIsRemoveOpen] = useState(false);
 
-  const [poolAddress, setPoolAddress] = useState(router.query.poolId ?? '')
+  const [poolAdd, setPoolAddress] = useState(router.query.poolId ?? '')
   const [tokenIn, setTokenIn] = useState({
     name: router.query.tokenZeroAddress ?? '',
     symbol: router.query.tokenZeroSymbol ?? '',
@@ -45,34 +45,80 @@ export default function Range() {
     address: router.query.tokenOneAddress ?? '',
     value: router.query.tokenOneValue ?? '',
   } as token)
-  const [tokenOrder, setTokenOrder] = useState(router.query.tokenOneAddress && 
-                                               router.query.tokenZeroAddress ? String(router.query.tokenOneAddress).localeCompare(
-                                                                                  String(router.query.tokenOneAddress)
-                                                                               ) < 0
-                                                : true)
+  const [tokenOrder, setTokenOrder] = useState(
+    router.query.tokenOneAddress && router.query.tokenZeroAddress
+      ? String(router.query.tokenOneAddress).localeCompare(
+          String(router.query.tokenOneAddress),
+        ) < 0
+      : true,
+  )
   const [feeTier, setFeeTier] = useState(router.query.feeTier ?? '')
   const [tickSpacing, setTickSpacing] = useState(router.query.tickSpacing ?? 10)
-  const [userLiquidity, setUserLiquidity] = useState(router.query.userLiquidity ?? 0)
+  const [userLiquidity, setUserLiquidity] = useState(
+    router.query.userLiquidity ?? 0,
+  )
+  const [userTokenAmount, setUserTokenAmount] = useState(
+    router.query.userTokenAmount ?? 0,
+  )
   const [userLiquidityUsd, setUserLiquidityUsd] = useState(0)
   const [lowerTick, setLowerTick] = useState(router.query.min ?? '0')
   const [upperTick, setUpperTick] = useState(router.query.max ?? '0')
   const [lowerPrice, setLowerPrice] = useState(undefined)
   const [upperPrice, setUpperPrice] = useState(undefined)
-  const [rangePrice, setRangePrice] = useState(router.query.price ? String(router.query.price) : '0')
+  const [rangePrice, setRangePrice] = useState(
+    router.query.price ? String(router.query.price) : '0',
+  )
   const [amount0, setAmount0] = useState(0)
   const [amount1, setAmount1] = useState(0)
   const [amount0Usd, setAmount0Usd] = useState(0)
   const [amount1Usd, setAmount1Usd] = useState(0)
-  const [amount0Fees, setAmount0Fees] = useState(0.00)
-  const [amount1Fees, setAmount1Fees] = useState(0.00)
-  const [amount0FeesUsd, setAmount0FeesUsd] = useState(0.00)
-  const [amount1FeesUsd, setAmount1FeesUsd] = useState(0.00)
-  const [rangePoolRoute, setRangePoolRoute] = useState(
-    undefined
-  )
+  const [amount0Fees, setAmount0Fees] = useState(0.0)
+  const [amount1Fees, setAmount1Fees] = useState(0.0)
+  const [amount0FeesUsd, setAmount0FeesUsd] = useState(0.0)
+  const [amount1FeesUsd, setAmount1FeesUsd] = useState(0.0)
+  const [rangePoolRoute, setRangePoolRoute] = useState(undefined)
   const [rangeTickPrice, setRangeTickPrice] = useState(
     router.query.rangeTickPrice ?? 0,
   )
+  const [mktRate, setMktRate] = useState({})
+  const [is0Copied, setIs0Copied] = useState(false)
+  const [is1Copied, setIs1Copied] = useState(false)
+  const [isPoolCopied, setIsPoolCopied] = useState(false)
+  const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
+    tokenIn.address != ''
+      ? tokenIn.address.toString().substring(0, 6) +
+          '...' +
+          tokenIn.address
+            .toString()
+            .substring(
+              tokenIn.address.toString().length - 4,
+              tokenIn.address.toString().length,
+            )
+      : undefined,
+  )
+  const [tokenOneDisplay, setTokenOneDisplay] = useState(
+    tokenOut.address != ''
+      ? tokenOut.address.toString().substring(0, 6) +
+          '...' +
+          tokenOut.address
+            .toString()
+            .substring(
+              tokenOut.address.toString().length - 4,
+              tokenOut.address.toString().length,
+            )
+      : undefined,
+  )
+  const [poolDisplay, setPoolDisplay] = useState(
+    poolAdd != ''
+      ? poolAdd.toString().substring(0, 6) +
+          '...' +
+          poolAdd
+            .toString()
+            .substring(poolAdd.toString().length - 4, poolAdd.toString().length)
+      : undefined,
+  )
+
+  //////////////////////// Router is ready
   const [snapshot, setSnapshot] = useState(undefined)
 
   useEffect(() => {
@@ -93,8 +139,11 @@ export default function Range() {
         address: query.tokenOneAddress,
         value: query.tokenOneValue,
       } as token)
-      setTokenOrder(String(query.tokenOneAddress).localeCompare(
-                      String(query.tokenOneAddress)) < 0)
+      setTokenOrder(
+        String(query.tokenOneAddress).localeCompare(
+          String(query.tokenOneAddress),
+        ) < 0,
+      )
       setFeeTier(query.feeTier)
       setTickSpacing(query.tickSpacing)
       setLowerTick(query.min)
@@ -141,78 +190,14 @@ export default function Range() {
     }
   }, [router.isReady])
 
-  useEffect(() => {
-    setAmounts()
-  }, [userLiquidity, lowerPrice, upperPrice, rangePrice])
+  ////////////////////////Addresses
 
   useEffect(() => {
-    setUserLiquidityUsd(amount0Usd + amount1Usd)
-  }, [amount0Usd, amount1Usd])
+    copyElementUseEffect(copyAddress0, setIs0Copied)
+    copyElementUseEffect(copyAddress1, setIs1Copied)
+    copyElementUseEffect(copyPoolAddress, setIsPoolCopied)
+  }, [])
 
-  //Pool Addresses
-  const [is0Copied, setIs0Copied] = useState(false)
-  const [is1Copied, setIs1Copied] = useState(false)
-  const [isPoolCopied, setIsPoolCopied] = useState(false)
-  const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-    tokenIn.address != ''
-      ? tokenIn.address.toString().substring(0, 6) +
-          '...' +
-          tokenIn.address
-            .toString()
-            .substring(
-              tokenIn.address.toString().length - 4,
-              tokenIn.address.toString().length,
-            )
-      : undefined,
-  )
-  const [tokenOneDisplay, setTokenOneDisplay] = useState(
-    tokenOut.address != ''
-      ? tokenOut.address.toString().substring(0, 6) +
-          '...' +
-          tokenOut.address
-            .toString()
-            .substring(
-              tokenOut.address.toString().length - 4,
-              tokenOut.address.toString().length,
-            )
-      : undefined,
-  )
-  const [poolDisplay, setPoolDisplay] = useState(
-    poolAddress != ''
-      ? poolAddress.toString().substring(0, 6) +
-          '...' +
-          poolAddress
-            .toString()
-            .substring(poolAddress.toString().length - 4, poolAddress.toString().length)
-      : undefined,
-  )
-
-  useEffect(() => {
-    if (copyAddress0) {
-      const timer = setTimeout(() => {
-        setIs0Copied(false)
-      }, 1500)
-      return () => clearTimeout(timer)
-    }
-  })
-
-  useEffect(() => {
-    if (copyAddress1) {
-      const timer = setTimeout(() => {
-        setIs1Copied(false)
-      }, 1500)
-      return () => clearTimeout(timer)
-    }
-  })
-
-  useEffect(() => {
-    if (copyPoolAddress) {
-      const timer = setTimeout(() => {
-        setIsPoolCopied(false)
-      }, 1500)
-      return () => clearTimeout(timer)
-    }
-  })
 
   function copyAddress0() {
     navigator.clipboard.writeText(tokenIn.address.toString())
@@ -225,13 +210,22 @@ export default function Range() {
   }
 
   function copyPoolAddress() {
-    navigator.clipboard.writeText(poolAddress.toString())
+    navigator.clipboard.writeText(poolAdd.toString())
     setIsPoolCopied(true)
   }
 
+  ////////////////////////Pool
+
   useEffect(() => {
     getRangePool()
-  }, [tokenIn.address, tokenOut.address, amount0, amount1, amount0Fees, amount1Fees])
+  }, [
+    tokenIn.address,
+    tokenOut.address,
+    amount0,
+    amount1,
+    amount0Fees,
+    amount1Fees,
+  ])
 
   const getRangePool = async () => {
     try {
@@ -243,14 +237,24 @@ export default function Range() {
       if (dataLength > 0) {
         const id = pool['data']['rangePools']['0']['id']
         const price = pool['data']['rangePools']['0']['price']
-        const token0Price = pool['data']['rangePools']['0']['token0']['usdPrice']
-        const token1Price = pool['data']['rangePools']['0']['token1']['usdPrice']
+        const token0Price =
+          pool['data']['rangePools']['0']['token0']['usdPrice']
+        const token1Price =
+          pool['data']['rangePools']['0']['token1']['usdPrice']
         const tickAtPrice = pool['data']['rangePools']['0']['tickAtPrice']
         setRangePoolRoute(id)
-        setAmount0Usd(parseFloat((amount0 * parseFloat(token0Price)).toPrecision(6)))
-        setAmount1Usd(parseFloat((amount1 * parseFloat(token1Price)).toPrecision(6)))
-        setAmount0FeesUsd(parseFloat((amount0Fees* parseFloat(token0Price)).toPrecision(3)))
-        setAmount1FeesUsd(parseFloat((amount1Fees* parseFloat(token1Price)).toPrecision(3)))
+        setAmount0Usd(
+          parseFloat((amount0 * parseFloat(token0Price)).toPrecision(6)),
+        )
+        setAmount1Usd(
+          parseFloat((amount1 * parseFloat(token1Price)).toPrecision(6)),
+        )
+        setAmount0FeesUsd(
+          parseFloat((amount0Fees * parseFloat(token0Price)).toPrecision(3)),
+        )
+        setAmount1FeesUsd(
+          parseFloat((amount1Fees * parseFloat(token1Price)).toPrecision(3)),
+        )
         setRangePrice(price)
         setRangeTickPrice(tickAtPrice)
       }
@@ -258,6 +262,12 @@ export default function Range() {
       console.log(error)
     }
   }
+
+  ////////////////////////Liquidity
+
+  useEffect(() => {
+    setAmounts()
+  }, [userLiquidity, lowerPrice, upperPrice, rangePrice])
 
   function setAmounts() {
     try {
@@ -271,17 +281,17 @@ export default function Range() {
         const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(lowerTick))
         const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(upperTick))
         const rangeSqrtPrice = JSBI.BigInt(rangePrice)
-        const liquidity = JSBI.BigInt(userLiquidity)  
-        const token0Amount = JSBI.greaterThan(liquidity, ZERO) ?
-                                  DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
-                                            //  : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
-                                : ZERO
-        const token1Amount = JSBI.greaterThan(liquidity, ZERO) ?
-                                DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
-                              : ZERO
+        const liquidity = JSBI.BigInt(userLiquidity)
+        const amounts = DyDxMath.getAmountsForLiquidity(
+          lowerSqrtPrice,
+          upperSqrtPrice,
+          rangeSqrtPrice,
+          liquidity,
+          true
+        )
         // set amount based on bnInput
-        const amount0Bn = BigNumber.from(String(token0Amount))
-        const amount1Bn = BigNumber.from(String(token1Amount))
+        const amount0Bn = BigNumber.from(String(amounts.token0Amount))
+        const amount1Bn = BigNumber.from(String(amounts.token1Amount))
         setAmount0(parseFloat(ethers.utils.formatUnits(amount0Bn, 18)))
         setAmount1(parseFloat(ethers.utils.formatUnits(amount1Bn, 18)))
       }
@@ -290,15 +300,18 @@ export default function Range() {
     }
   }
 
-  const { refetch: refetchSnapshot, data } = useContractRead({
+  useEffect(() => {
+    setUserLiquidityUsd(amount0Usd + amount1Usd)
+  }, [amount0Usd, amount1Usd])
+
+
+  ////////////////////////Fees
+
+  const { refetch: refetchSnapshot, data: feesOwed } = useContractRead({
     address: rangePoolRoute,
     abi: rangePoolABI,
     functionName: 'snapshot',
-    args: [[
-      address,
-      lowerTick,
-      upperTick
-    ]],
+    args: [[address, lowerTick, upperTick]],
     chainId: 421613,
     watch: true,
     enabled: isConnected && rangePoolRoute != '',
@@ -316,7 +329,6 @@ export default function Range() {
   }, [snapshot])
 
   function setFeesOwed() {
-
     try {
       if (snapshot) {
         const fees0 = parseFloat(ethers.utils.formatUnits(snapshot[3], 18))
@@ -324,11 +336,16 @@ export default function Range() {
         setAmount0Fees(fees0)
         setAmount1Fees(fees1)
       }
-
     } catch (error) {
       console.log(error)
     }
   }
+
+  ////////////////////////Token Prices
+  
+  useEffect(() => {
+    fetchTokenPrices(String(rangeTickPrice), setMktRate)
+  }, [rangeTickPrice])
 
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
@@ -369,7 +386,7 @@ export default function Range() {
             </div>
 
             <a
-              href={'https://goerli.arbiscan.io/address/' + poolAddress}
+              href={'https://goerli.arbiscan.io/address/' + poolAdd}
               target="_blank"
               rel="noreferrer"
               className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80"
@@ -421,10 +438,7 @@ export default function Range() {
             <div className="flex gap-x-20 justify-between">
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Liquidity</h1>
-                <span className="text-4xl">
-                  $
-                  {userLiquidityUsd.toFixed(2)}
-                </span>
+                <span className="text-4xl">${userLiquidityUsd.toFixed(2)}</span>
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
@@ -434,7 +448,11 @@ export default function Range() {
                     <div className="flex items-center gap-x-4">
                       {amount0.toFixed(2)}
                       <span className="bg-grey1 text-grey rounded-md px-3 py-0.5">
-                        {(amount0Usd / (amount0Usd + amount1Usd) * 100).toPrecision(4)}%
+                        {(
+                          (amount0Usd / (amount0Usd + amount1Usd)) *
+                          100
+                        ).toFixed(2)}
+                        %
                       </span>
                     </div>
                   </div>
@@ -451,7 +469,11 @@ export default function Range() {
                     <div className="flex items-center gap-x-4">
                       {amount1.toFixed(2)}
                       <span className="bg-grey1 text-grey rounded-md px-3 py-0.5">
-                      {(amount1Usd / (amount0Usd + amount1Usd) * 100).toPrecision(4)}%
+                        {(
+                          (amount1Usd / (amount0Usd + amount1Usd)) *
+                          100
+                        ).toFixed(2)}
+                        %
                       </span>
                     </div>
                   </div>
@@ -461,40 +483,24 @@ export default function Range() {
                     </div>
                   </div>
                 </div>
-                <Link
-                  href={{
-                    pathname: '/pool/concentrated',
-                    query: {
-                      account: address,
-                      poolId: poolAddress,
-                      tokenOneName: tokenOut.name,
-                      tokenOneSymbol: tokenOut.symbol,
-                      tokenOneLogoURI: tokenOut.logoURI,
-                      tokenOneAddress: tokenOut.address,
-                      tokenZeroName: tokenIn.name,
-                      tokenZeroSymbol: tokenIn.symbol,
-                      tokenZeroLogoURI: tokenIn.logoURI,
-                      tokenZeroAddress: tokenIn.address,
-                      feeTier: feeTier,
-                      tickSpacing: tickSpacing,
-                      min: lowerPrice,
-                      max: upperPrice
-                    },
-                  }}
-                >
                   <div className="mt-5 space-y-2 cursor-pointer">
-                    <div className="bg-[#032851] w-full py-3 px-4 rounded-xl">
-                      Increase Liquidity
+                      <div onClick={() => setIsAddOpen(true)} className="bg-[#032851] w-full py-3 px-4 rounded-xl">
+                        Add Liquidity
+                      </div>
+                    <div onClick={() => setIsRemoveOpen(true)} className="bg-[#032851] w-full py-3 px-4 rounded-xl">
+                      Remove Liquidity
                     </div>
                   </div>
-                </Link>
+                    
               </div>
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Unclaimed Fees</h1>
-                <span className="text-4xl"> $
+                <span className="text-4xl">
+                  {' '}
+                  $
                   {amount0Fees == undefined || amount1Fees == undefined
                     ? '?'
-                    : (amount0FeesUsd + amount1FeesUsd).toFixed(2) }
+                    : (amount0FeesUsd + amount1FeesUsd).toFixed(2)}
                 </span>
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
@@ -514,21 +520,14 @@ export default function Range() {
                 </div>
                 <div className="mt-5 space-y-2">
                   <div className="space-y-3">
-                    <RangeBurnButton
-                      poolAddress={poolAddress}
-                      address={address}
-                      lower={BigNumber.from(lowerTick)}
-                      upper={BigNumber.from(upperTick)}
-                      amount={BigNumber.from(userLiquidity)}
-                    />
                     <RangeCollectButton
-                      poolAddress={poolAddress.toString()}
+                      poolAddress={poolAdd.toString()}
                       address={address}
                       lower={BigNumber.from(lowerTick)}
                       upper={BigNumber.from(upperTick)}
                     />
                     <RangeCompoundButton
-                      poolAddress={poolAddress.toString()}
+                      poolAddress={poolAdd.toString()}
                       address={address}
                       lower={BigNumber.from(lowerTick)}
                       upper={BigNumber.from(upperTick)}
@@ -558,9 +557,9 @@ export default function Range() {
             </div>
             <div className="flex justify-between items-center mt-4 gap-x-6">
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
-                <div className="text-grey text-xs w-full">Min Price</div>
+                <div className="text-grey text-xs w-full">Min. Price</div>
                 <div className="text-white text-2xl my-2 w-full">
-                  {lowerPrice}
+                  {parseFloat(lowerPrice).toFixed(2)}
                 </div>
                 <div className="text-grey text-xs w-full">
                   {tokenIn.name} per {tokenOut.name}
@@ -571,9 +570,9 @@ export default function Range() {
               </div>
               <ArrowsRightLeftIcon className="w-12 text-grey" />
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
-                <div className="text-grey text-xs w-full">Max Price</div>
+                <div className="text-grey text-xs w-full">Max. Price</div>
                 <div className="text-white text-2xl my-2 w-full">
-                  {upperPrice}
+                  {parseFloat(upperPrice).toFixed(2)}
                 </div>
                 <div className="text-grey text-xs w-full">
                   {tokenIn.name} per {tokenOut.name}
@@ -585,7 +584,10 @@ export default function Range() {
             </div>
             <div className="border border-grey1 rounded-xl py-2 text-center w-full mt-4 bg-dark">
               <div className="text-grey text-xs w-full">Current Price</div>
-              <div className="text-white text-2xl my-2 w-full">{rangePrice != undefined && TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(rangePrice))}</div>
+              <div className="text-white text-2xl my-2 w-full">
+                {rangePrice != undefined &&
+                  parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(rangePrice))).toFixed(2)}
+              </div>
               <div className="text-grey text-xs w-full">
                 {tokenIn.name} per {tokenOut.name}
               </div>
@@ -593,10 +595,31 @@ export default function Range() {
           </div>
         </div>
       </div>
+      <RemoveLiquidity
+        isOpen={isRemoveOpen}
+        setIsOpen={setIsRemoveOpen}
+        tokenIn={tokenIn}
+        tokenOut={tokenOut}
+        poolAdd={poolAdd}
+        address={address}
+        lowerTick={lowerTick}
+        upperTick={upperTick}
+        liquidity={userLiquidity}
+        tokenAmount={userTokenAmount}
+        rangePrice={rangePrice}
+      />
+      <AddLiquidity
+        isOpen={isAddOpen}
+        setIsOpen={setIsAddOpen}
+        tokenIn={tokenIn}
+        tokenOut={tokenOut}
+        poolAdd={poolAdd}
+        address={address}
+        lowerTick={Number(lowerTick)}
+        upperTick={Number(upperTick)}
+        liquidity={userLiquidity}
+        rangePrice={rangePrice}
+      />
     </div>
   )
 }
-function setFeesOwed() {
-  throw new Error('Function not implemented.')
-}
-

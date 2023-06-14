@@ -61,7 +61,7 @@ export default function RangeMintButton({
     ]],
     chainId: 421613,
     overrides: {
-      gasLimit: BigNumber.from('21000000'),
+      gasLimit: BigNumber.from('2100000'),
     },
     onSuccess() {
       console.log('params check', to,
@@ -91,11 +91,11 @@ export default function RangeMintButton({
         className={
           disabled
             ? 'w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50'
-            : 'w-full py-4 mx-auto text-center font-medium transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80'
+            : 'w-full py-4 mx-auto text-center transition font-medium rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80'
         }
         onClick={() => (write?.())}
       >
-        Mint Position
+        Limit Swap
       </button>
       <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
         {errorDisplay && (
