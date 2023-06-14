@@ -664,7 +664,7 @@ export default function CreateCover(props: any) {
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
             {1} {tokenIn.symbol} ={' '}
             {tokenOut.symbol === 'Select Token' || isNaN(parseFloat(coverPrice))
-              ? '?'
+              ? '?' + ' ' + tokenOut.symbol
               : invertPrice(coverPrice, tokenOrder) + ' ' + tokenOut.symbol}
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
