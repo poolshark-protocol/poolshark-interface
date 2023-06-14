@@ -5,16 +5,8 @@ import CreateCover from './CreateCover'
 import PoolsModal from './PoolsModal'
 import { useAccount } from 'wagmi'
 import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
-import { ethers } from 'ethers'
 
 export default function Initial(props: any) {
-  type token = {
-    name: string
-    symbol: string
-    logoURI: string
-    address: string
-    value: string
-  }
   const { address, isConnected, isDisconnected } = useAccount()
 
   const [isOpen, setIsOpen] = useState(false)
@@ -32,11 +24,16 @@ export default function Initial(props: any) {
     pStake: '/static/images/eth_icon.png',
   }
 
-  console.log('shifted', shifted)
+  useEffect(() => {
+    if (props.query.state === 'nav') {
+      setIsShifted('initial')
+    }
+  }, [props.query])
 
   function setParams(query: any) {
     //console.log('query', query)
     setIsShifted('coverExistingPool')
+    const feeTierPercentage = query.feeTier / 10000
     setPool({
       poolId: query.poolId,
       liquidity: query.liquidity,
@@ -54,7 +51,7 @@ export default function Initial(props: any) {
       minLimit: query.min,
       maxLimit: query.max,
       tickSpacing: query.tickSpacing,
-      feeTier: query.feeTier,
+      feeTier: feeTierPercentage,
     })
     console.log('pool', pool)
   }
@@ -64,9 +61,7 @@ export default function Initial(props: any) {
       <h1 className="mb-3">Connect your wallet to Cover Pool</h1>
       <ConnectWalletButton xl={true} />
       <div className="opacity-50 cursor-not-allowed">
-        <h1 className="mb-3 mt-6">
-          Set Price Range
-        </h1>
+        <h1 className="mb-3 mt-6">Set Price Range</h1>
         <div className="flex justify-between w-full gap-x-6">
           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
             <span className="text-xs text-grey">Min. Price</span>
@@ -112,7 +107,7 @@ export default function Initial(props: any) {
         </div>
       </div>
     </>
-  ) : shifted === "initial" ? (
+  ) : shifted === 'initial' ? (
     <>
       <h1 className="mb-3">How much do you want to Cover?</h1>
       <div className="space-y-2">
@@ -124,7 +119,7 @@ export default function Initial(props: any) {
         </div>
         <div
           className="w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer border border-[#3174E0] from-[#344DBF] to-[#3098FF] hover:opacity-80"
-          onClick={() => setIsShifted("createCover")}
+          onClick={() => setIsShifted('createCover')}
         >
           Create my own Cover
         </div>
@@ -182,11 +177,11 @@ export default function Initial(props: any) {
         setParams={setParams}
       />
     </>
-  ) : shifted === "createCover" ? (
+  ) : shifted === 'createCover' ? (
     <CreateCover goBack={setIsShifted} />
   ) : (
     <CoverExistingPool
-      account={"account"}
+      account={'account'}
       key={pool.poolId}
       poolId={pool.poolId}
       tokenOneName={pool.tokenOneName}
@@ -208,5 +203,5 @@ export default function Initial(props: any) {
       tickSpacing={pool.tickSpacing}
       feeTier={pool.feeTier}
     />
-  );
+  )
 }

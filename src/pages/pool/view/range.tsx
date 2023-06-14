@@ -7,7 +7,6 @@ import {
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import RangeCollectButton from '../../../components/Buttons/RangeCollectButton'
-import RangeBurnButton from '../../../components/Buttons/RangeBurnButton'
 import RangeCompoundButton from '../../../components/Buttons/RangeCompoundButton'
 import Link from 'next/link'
 import { useAccount } from 'wagmi'

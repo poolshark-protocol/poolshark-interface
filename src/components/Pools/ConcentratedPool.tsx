@@ -24,6 +24,7 @@ import inputFilter from '../../utils/inputFilter'
 import TickSpacing from '../Tooltips/TickSpacing'
 import { token } from '../../utils/types'
 import { switchDirection } from '../../utils/tokens'
+import { feeTiers } from '../../utils/pools'
 
 export default function ConcentratedPool({
   account,
@@ -42,36 +43,6 @@ export default function ConcentratedPool({
   tickSpacingParam,
   feeTier,
 }) {
-  const feeTiers = [
-    {
-      id: 1,
-      tier: '0.01%',
-      tierId: 100,
-      text: 'Best for very stable pairs',
-      unavailable: false,
-    },
-    {
-      id: 2,
-      tier: '0.05%',
-      tierId: 500,
-      text: 'Best for stable pairs',
-      unavailable: false,
-    },
-    {
-      id: 3,
-      tier: '0.3%',
-      tierId: 300,
-      text: 'Best for most pairs',
-      unavailable: false,
-    },
-    {
-      id: 4,
-      tier: '1%',
-      tierId: 1000,
-      text: 'Best for exotic pairs',
-      unavailable: false,
-    },
-  ]
   const { address, isConnected, isDisconnected } = useAccount()
   const [tokenIn, setTokenIn] = useState({
     symbol: tokenZeroSymbol ?? 'TOKEN20B',
@@ -103,7 +74,7 @@ export default function ConcentratedPool({
   ])
   const [tokenOrder, setTokenOrder] = useState(true)
   /* const [selected, setSelected] = useState(updateSelected()) */
-  const [selected, setSelected] = useState(updateSelected)
+  const [selected, setSelected] = useState(updateSelectedFeeTier)
   const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [balance0, setBalance0] = useState('')
@@ -230,8 +201,7 @@ export default function ConcentratedPool({
     }
   }), [allowanceOut]
 
-  function updateSelected(): any {
-    const tier = feeTiers[0]
+  function updateSelectedFeeTier(): any {
     if (feeTier == 0.01) {
       return feeTiers[0]
     } else if (feeTier == 0.05) {
@@ -602,7 +572,7 @@ export default function ConcentratedPool({
               </div>
             </div>
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-              <div className=" p-2 ">
+              <div className=" p-2 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
                 {Number(
                   tokenOrder
                     ? parseFloat(ethers.utils.formatUnits(amount1, 18)).toFixed(2)

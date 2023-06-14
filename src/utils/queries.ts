@@ -117,6 +117,7 @@ export const getCoverPoolFromFactory = (tokenA: string, tokenB: string) => {
               latestTick
               volatilityTier {
                 tickSpread
+                auctionLength
               }
             }
           }
@@ -255,6 +256,7 @@ export const fetchCoverPositions = (address: string) => {
                     volatilityTier{
                         feeAmount
                         tickSpread
+                        auctionLength
                     }
                     latestTick
                 }
@@ -303,6 +305,7 @@ export const fetchCoverPools = () => {
                     }
                     liquidity
                     volatilityTier{
+                        auctionLength
                         feeAmount
                         tickSpread
                     }
