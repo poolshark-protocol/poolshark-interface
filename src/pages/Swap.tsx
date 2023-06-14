@@ -1010,12 +1010,12 @@ export default function Swap() {
                   ((!LimitActive) ? 
                   (!isNaN(rangeQuote) && !isNaN(coverQuote)
                     ? rangeQuote > coverQuote
-                      ? rangeQuote.toPrecision(5)
-                      : coverQuote.toPrecision(5)
+                      ? rangeQuote.toFixed(3)
+                      : coverQuote.toFixed(3)
                     : "0")
                   : (
                     parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) != 0
-                    ? parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)).toFixed(2)
+                    ? parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)).toFixed(3)
                     : "0"
                   ))}{" "}
               {tokenOut.symbol}
