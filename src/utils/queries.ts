@@ -125,7 +125,7 @@ export const getCoverPoolFromFactory = (tokenA: string, tokenB: string) => {
     console.log('query:', getPool)
     //console.log('query:', getPool)
     const client = new ApolloClient({
-      uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
+      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/api',
       cache: new InMemoryCache(),
     })
     client
@@ -159,7 +159,7 @@ export const getTickIfZeroForOne = (
         `
     //console.log('pool address', poolAddress)
     const client = new ApolloClient({
-      uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
+      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/api',
       cache: new InMemoryCache(),
     })
     client
@@ -193,7 +193,7 @@ export const getTickIfNotZeroForOne = (
     //console.log(getTicks)
     //console.log('pool address', poolAddress)
     const client = new ApolloClient({
-      uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
+      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/api',
       cache: new InMemoryCache(),
     })
     client
@@ -265,7 +265,7 @@ export const fetchCoverPositions = (address: string) => {
         }
     `
     const client = new ApolloClient({
-      uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
+      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/api',
       cache: new InMemoryCache(),
     })
     client
@@ -325,7 +325,7 @@ export const fetchCoverPools = () => {
             }
         `
     const client = new ApolloClient({
-      uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
+      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/api',
       cache: new InMemoryCache(),
     })
     client
@@ -351,7 +351,7 @@ export const fetchCoverPoolMetrics = () => {
             }
         `
     const client = new ApolloClient({
-      uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-cover',
+      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/api',
       cache: new InMemoryCache(),
     })
     client
