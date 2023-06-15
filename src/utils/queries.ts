@@ -90,7 +90,7 @@ export const getRangePoolFromFactory = (tokenA?: string, tokenB?: string, feeTie
         }
         `
     const client = new ApolloClient({
-      uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-range',
+      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/range-old-arbitrumGoerli/api',
       cache: new InMemoryCache(),
     })
     client
@@ -418,7 +418,7 @@ export const fetchRangePools = () => {
             }
         `
     const client = new ApolloClient({
-      uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-range',
+      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/range-old-arbitrumGoerli/api',
       cache: new InMemoryCache(),
     })
     client
@@ -493,7 +493,7 @@ export const fetchRangePositions = (address: string) => {
   }
     `
     const client = new ApolloClient({
-      uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-range',
+      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/range-old-arbitrumGoerli/api',
       cache: new InMemoryCache(),
     })
     client
@@ -531,7 +531,7 @@ export const fetchRangeMetrics = () => {
         }
     `
     const client = new ApolloClient({
-      uri: 'https://api.thegraph.com/subgraphs/name/alphak3y/poolshark-range',
+      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/range-old-arbitrumGoerli/api',
       cache: new InMemoryCache(),
     })
     client
