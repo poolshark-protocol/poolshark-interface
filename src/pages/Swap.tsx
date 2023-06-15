@@ -1065,6 +1065,7 @@ export default function Swap() {
             onClick={() => setExpanded(!expanded)}
           >
             <div className="flex-none text-xs uppercase text-[#C9C9C9]">
+            
               1 {tokenIn.symbol} ={" "}
               {tokenOut.symbol === "Select Token"
                 ? " ?"
