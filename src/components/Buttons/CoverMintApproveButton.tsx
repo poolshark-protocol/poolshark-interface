@@ -21,13 +21,13 @@ import {
     const [errorDisplay, setErrorDisplay] = useState(false)
     const [successDisplay, setSuccessDisplay] = useState(false)
 
-    console.log('approve address', poolAddress)
+    console.log('approve check', amount, String(allowance))
   
     const { config } = usePrepareContractWrite({
       address: approveToken,
       abi: erc20ABI,
       functionName: 'approve',
-      args: [poolAddress, amount],
+      args: [poolAddress, ethers.utils.parseUnits('1', 18)],
       enabled: approveToken != undefined && poolAddress != undefined,
       chainId: 421613,
     })
@@ -54,11 +54,7 @@ import {
           }
           onClick={(address) => (address && !disabled ? write?.() : null)}
         >
-          Approve {(
-                  parseFloat(ethers.utils.formatUnits(amount, 18)) -
-                  parseFloat(allowance)
-                ).toFixed(2) + ' '}
-                {tokenSymbol}
+          Approve {tokenSymbol}
         </div>
         <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
           {errorDisplay && (
