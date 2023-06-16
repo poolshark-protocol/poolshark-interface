@@ -1034,22 +1034,22 @@ export default function Swap() {
             onClick={() => setExpanded(!expanded)}
           >
             <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-            
-              1 {tokenIn.symbol} ={" "}
-              {tokenOut.symbol === "Select Token"
-                ? " ?"
-                : " " +
-                  ((!LimitActive) ? 
-                  (!isNaN(rangeQuote) && !isNaN(coverQuote)
-                    ? rangeQuote > coverQuote
-                      ? rangeQuote.toFixed(3)
-                      : coverQuote.toFixed(3)
-                    : "0")
-                  : (
-                    parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) != 0
-                    ? parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)).toFixed(3)
-                    : "0"
-                  ))}{" "}
+              1 {tokenIn.symbol} ={' '}
+              {tokenOut.symbol === 'Select Token'
+                ? ' ?'
+                : ' ' +
+                  (!LimitActive
+                    ? !isNaN(rangeQuote) && !isNaN(coverQuote)
+                      ? rangeQuote > coverQuote
+                        ? rangeQuote.toFixed(3)
+                        : coverQuote.toFixed(3)
+                      : '0'
+                    : parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) !=
+                      0
+                    ? parseFloat(
+                        ethers.utils.formatUnits(rangeBnPrice, 18),
+                      ).toFixed(3)
+                    : '0')}{' '}
               {tokenOut.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
