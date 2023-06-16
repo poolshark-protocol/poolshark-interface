@@ -506,7 +506,7 @@ export default function Cover() {
                 <div className="text-white text-2xl my-2 w-full">
                   {minLimit === undefined
                     ? ''
-                    : parseFloat(TickMath.getPriceStringAtTick(Number(minLimit))).toFixed(2)}
+                    : TickMath.getPriceStringAtTick(Number(minLimit))}
                 </div>
                 <div className="text-grey text-xs w-full">
                   {tokenIn.name} per {tokenOut.name}
@@ -521,7 +521,7 @@ export default function Cover() {
                 <div className="text-white text-2xl my-2 w-full">
                   {maxLimit === undefined
                     ? ''
-                    : parseFloat(TickMath.getPriceStringAtTick(Number(maxLimit))).toFixed(2)}
+                    : TickMath.getPriceStringAtTick(Number(maxLimit))}
                 </div>
                 <div className="text-grey text-xs w-full">
                   {tokenIn.name} per {tokenOut.name}
@@ -534,7 +534,7 @@ export default function Cover() {
             <div className="border border-grey1 rounded-xl py-2 text-center w-full mt-4 bg-dark">
               <div className="text-grey text-xs w-full">Current Price</div>
               <div className="text-white text-2xl my-2 w-full">
-                {parseFloat(TickMath.getPriceStringAtTick(Number(latestTick))).toFixed(2)}
+                {TickMath.getPriceStringAtTick(Number(latestTick))}
               </div>
               <div className="text-grey text-xs w-full">
                 {tokenIn.name} per {tokenOut.name}

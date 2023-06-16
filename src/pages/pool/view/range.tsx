@@ -559,7 +559,7 @@ export default function Range() {
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Min. Price</div>
                 <div className="text-white text-2xl my-2 w-full">
-                  {parseFloat(lowerPrice).toFixed(2)}
+                  {lowerPrice}
                 </div>
                 <div className="text-grey text-xs w-full">
                   {tokenIn.name} per {tokenOut.name}
@@ -572,7 +572,7 @@ export default function Range() {
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Max. Price</div>
                 <div className="text-white text-2xl my-2 w-full">
-                  {parseFloat(upperPrice).toFixed(2)}
+                  {upperPrice}
                 </div>
                 <div className="text-grey text-xs w-full">
                   {tokenIn.name} per {tokenOut.name}
@@ -586,7 +586,7 @@ export default function Range() {
               <div className="text-grey text-xs w-full">Current Price</div>
               <div className="text-white text-2xl my-2 w-full">
                 {rangePrice != undefined &&
-                  parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(rangePrice))).toFixed(2)}
+                  TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(rangePrice))}
               </div>
               <div className="text-grey text-xs w-full">
                 {tokenIn.name} per {tokenOut.name}

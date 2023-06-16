@@ -575,16 +575,13 @@ export default function ConcentratedPool({
               <div className=" p-2 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl  rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
                 {Number(
                   tokenOrder
-                    ? parseFloat(ethers.utils.formatUnits(amount1, 18)).toFixed(3)
-                    : parseFloat(ethers.utils.formatUnits(amount0, 18)).toFixed(3),
+                  ? parseFloat(ethers.utils.formatUnits(amount1, 18)).toPrecision(5)
+                  : parseFloat(ethers.utils.formatUnits(amount0, 18)).toPrecision(5),
                 )}
                 {
                     <div className="flex mt-2 text-xs text-[#4C4C4C]">
                       $
-                      {(
-                        (tokenOrder ? usdPrice1 : usdPrice0) *
-                        Number(ethers.utils.formatUnits(bnInput, 18))
-                      ).toFixed(2)}
+                      {(tokenOrder ? amount1Usd : amount0Usd).toFixed(2)}
                     </div>
                 }
                 
@@ -614,7 +611,7 @@ export default function ConcentratedPool({
               <div className="uppercase">
             1 {tokenIn.symbol} = {
              ((!isNaN(parseFloat(rangePrice))) ?
-              ((parseFloat(invertPrice(rangePrice, tokenOrder)).toFixed(3)) + ' ' + tokenOut.symbol) :
+              ((parseFloat(invertPrice(rangePrice, tokenOrder)).toPrecision(5)) + ' ' + tokenOut.symbol) :
               ('?' + ' ' + tokenOut.symbol))
             }
             </div>
@@ -674,9 +671,9 @@ export default function ConcentratedPool({
                         }).length > 6
                         ? '0'
                         : parseFloat(lowerPrice).toLocaleString(undefined, {
-                            maximumFractionDigits: 2,
+                            maximumFractionDigits: 0,
                           })
-                      : parseFloat(lowerPrice).toFixed(2)
+                      : lowerPrice
                   }
                   onChange={() =>
                     setLowerPrice(
@@ -718,7 +715,7 @@ export default function ConcentratedPool({
                         : Number(upperPrice).toLocaleString(undefined, {
                             maximumFractionDigits: 2,
                           })
-                      : parseFloat(upperPrice).toFixed(2)
+                      : upperPrice
                   }
                   onChange={() =>
                     setUpperPrice(

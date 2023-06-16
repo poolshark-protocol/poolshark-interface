@@ -274,7 +274,8 @@ export default function CoverExistingPool({
     console.log('adjustment', adjustment, currentTick)
     const newTick = roundTick(currentTick - adjustment, increment)
     const newPriceString = TickMath.getPriceStringAtTick(newTick)
-    ;(document.getElementById(inputId) as HTMLInputElement).value = Number(
+    ;
+    (document.getElementById(inputId) as HTMLInputElement).value = Number(
       newPriceString,
     ).toFixed(6)
     if (inputId === 'maxInput') {
@@ -533,7 +534,7 @@ export default function CoverExistingPool({
               }}
               value={Number.parseFloat(
                 ethers.utils.formatUnits(String(coverAmountOut), 18),
-              ).toPrecision(3)}
+              ).toPrecision(5)}
               className="bg-black text-right w-32 px-2 py-1 placeholder:text-grey1 text-white text-2xl mb-2 focus:ring-0 focus:ring-offset-0 focus:outline-none"
             />
             <div>{tokenOut.symbol}</div>
@@ -545,8 +546,7 @@ export default function CoverExistingPool({
             <div>
               {Number(
                 ethers.utils.formatUnits(coverAmountIn.toString(), 18),
-              ).toFixed(2)}
-              $
+              ).toPrecision(5)} {tokenIn.symbol}
             </div>
           </div>
         ) : (
@@ -591,17 +591,7 @@ export default function CoverExistingPool({
               placeholder="0"
               id="minInput"
               type="text"
-              value={
-                lowerPrice.toString().includes('e')
-                  ? Number(lowerPrice).toLocaleString(undefined, {
-                      maximumFractionDigits: 0,
-                    }).length > 6
-                    ? '-∞'
-                    : Number(lowerPrice).toLocaleString(undefined, {
-                        maximumFractionDigits: 2,
-                      })
-                  : parseFloat(lowerPrice).toFixed(2)
-              }
+              value={lowerPrice}
               onChange={() =>
                 setLowerPrice(
                   inputFilter(
@@ -632,18 +622,7 @@ export default function CoverExistingPool({
               placeholder="0"
               id="maxInput"
               type="text"
-              //TODO find alternative for scientific notation
-              value={
-                upperPrice.toString().includes('e')
-                  ? Number(upperPrice).toLocaleString(undefined, {
-                      maximumFractionDigits: 0,
-                    }).length > 6
-                    ? '∞'
-                    : Number(upperPrice).toLocaleString(undefined, {
-                        maximumFractionDigits: 2,
-                      })
-                  : parseFloat(upperPrice).toFixed(2)
-              }
+              value={upperPrice}
               onChange={() =>
                 setUpperPrice(
                   inputFilter(

@@ -87,22 +87,32 @@ export const getCoverPool = async (
   tokenIn: token,
   tokenOut: token,
   setCoverRoute,
+  setTokenInUsdPrice?
 ) => {
   try {
+    const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
     const pool = await getCoverPoolFromFactory(
       tokenIn.address,
       tokenOut.address,
     )
     let id = ZERO_ADDRESS
-    let dataLength = pool['data']['coverPools'].length
+    const dataLength = pool['data']['coverPools'].length
     if (dataLength != 0) {
-      id = pool['data']['coverPools']['0']['id']
+      setCoverRoute(pool['data']['coverPools']['0']['id'])
+      if (setTokenInUsdPrice) {
+        setTokenInUsdPrice(tokenOrder ? pool['data']['coverPools']['0']['token0']['usdPrice']
+                                      : pool['data']['coverPools']['0']['token1']['usdPrice'])
+      }
     } else {
       const fallbackPool = await getCoverPoolFromFactory(
         tokenOut.address,
         tokenIn.address,
       )
-      id = fallbackPool['data']['coverPools']['0']['id']
+      setCoverRoute(fallbackPool['data']['coverPools']['0']['id'])
+      if (setTokenInUsdPrice) {
+        setTokenInUsdPrice(tokenOrder ? pool['data']['coverPools']['0']['token1']['usdPrice']
+                                      : pool['data']['coverPools']['0']['token0']['usdPrice'])
+      }
     }
     setCoverRoute(id)
   } catch (error) {
@@ -117,7 +127,8 @@ export const getCoverPoolInfo = async (
   setCoverPoolRoute,
   setCoverPrice,
   setTickSpacing,
-  setAuctionLength
+  setAuctionLength,
+  setTokenInUsdPrice?
 ) => {
   try {
     console.log(
@@ -142,10 +153,16 @@ export const getCoverPoolInfo = async (
       setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick))
       setAuctionLength(auctionLength)
       setTickSpacing(tickSpread)
+      if (setTokenInUsdPrice) {
+        console.log('setting tokenIn price usd', pool['data']['coverPools']['0']['token0']['usdPrice'])
+        setTokenInUsdPrice(parseFloat(tokenOrder ? pool['data']['coverPools']['0']['token0']['usdPrice']
+                                                 : pool['data']['coverPools']['0']['token1']['usdPrice']))
+      }
     } else {
       setCoverPoolRoute(ZERO_ADDRESS)
       setCoverPrice('1.00')
       setTickSpacing(10)
+      setTokenInUsdPrice('1.00')
     }
   } catch (error) {
     console.log(error)

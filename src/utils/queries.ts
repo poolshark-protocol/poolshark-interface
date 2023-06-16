@@ -119,6 +119,12 @@ export const getCoverPoolFromFactory = (tokenA: string, tokenB: string) => {
                 tickSpread
                 auctionLength
               }
+              token0 {
+                usdPrice
+              }
+              token1 {
+                usdPrice
+              }
             }
           }
          `
