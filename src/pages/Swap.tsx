@@ -428,14 +428,6 @@ export default function Swap() {
           priceAfterSlippage,
         )
         setCoverBnPriceLimit(BigNumber.from(String(coverPriceLimit)))
-        console.log(
-          'price after cover',
-          priceAfter,
-          priceAfterSlippage,
-          priceSlippage,
-          tokenOrder,
-          String(coverPriceLimit),
-        )
       }
     }
     if (quoteCover && quoteRange) {
@@ -462,7 +454,6 @@ export default function Swap() {
     if (coverPoolAddress === coverPoolRoute) {
       const feeTier =
         coverData['data']['coverPools']['0']['volatilityTier']['feeAmount']
-      console.log(feeTier, 'fee cover')
       setCoverSlippage((parseFloat(feeTier) / 10000).toString())
     }
     const data = await fetchRangePools()
