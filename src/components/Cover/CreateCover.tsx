@@ -79,6 +79,7 @@ export default function CreateCover(props: any) {
   const [tokenOrder, setTokenOrder] = useState(
     tokenIn.address.localeCompare(tokenOut.address) < 0,
   )
+  const [tokenInUsdPrice, setTokenInUsdPrice] = useState(1)
   const [tickSpread, setTickSpread] = useState(
     props.query ? props.query.tickSpacing : 20,
   )
@@ -181,7 +182,8 @@ export default function CreateCover(props: any) {
       setCoverPoolRoute,
       setCoverPrice,
       setTickSpread,
-      setAuctionLength
+      setAuctionLength,
+      setTokenInUsdPrice
     )
   }, [hasSelected, tokenIn.address, tokenOut.address, tokenOrder])
 
@@ -240,8 +242,8 @@ export default function CreateCover(props: any) {
           : increment
         : 0
     const newTick = roundTick(currentTick - adjustment, increment)
-    const newPriceString = TickMath.getPriceStringAtTick(newTick)
-    ;(document.getElementById(inputId) as HTMLInputElement).value = Number(
+    const newPriceString = TickMath.getPriceStringAtTick(newTick);
+    (document.getElementById(inputId) as HTMLInputElement).value = Number(
       newPriceString,
     ).toFixed(6)
     if (inputId === 'maxInput') {
@@ -506,7 +508,7 @@ export default function CreateCover(props: any) {
         <div className="flex-col justify-center w-1/2 p-2 ">
           {inputBox('0', setCoverAmountIn)}
           <div className="flex text-xs text-[#4C4C4C]">
-            ~${Number(ethers.utils.formatUnits(bnInput, 18)).toFixed(2)}
+            ${(parseFloat(ethers.utils.formatUnits(bnInput, 18)) * tokenInUsdPrice).toFixed(2)}
           </div>
         </div>
         <div className="flex w-1/2">
