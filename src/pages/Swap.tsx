@@ -240,9 +240,6 @@ export default function Swap() {
     chainId: 421613,
     watch: true,
     enabled: rangePoolRoute != undefined,
-    onSuccess(data) {
-      console.log('Success price Range', data)
-    },
     onError(error) {
       console.log('Error price Range', error)
     },
@@ -259,10 +256,6 @@ export default function Swap() {
     chainId: 421613,
     watch: true,
     enabled: coverPoolRoute != undefined,
-    onSuccess(data) {
-      console.log('Success price Cover', data)
-      console.log('coverPrice', coverPrice)
-    },
     onError(error) {
       console.log('Error price Cover', error)
     },
@@ -339,9 +332,6 @@ export default function Swap() {
     chainId: 421613,
     watch: true,
     enabled: rangePoolRoute != undefined,
-    onSuccess(data) {
-      // console.log('Success range quote wagmi', data)
-    },
     onError(error) {
       console.log('Error range wagmi', error)
     },
@@ -358,9 +348,6 @@ export default function Swap() {
     chainId: 421613,
     watch: true,
     enabled: coverPoolRoute != undefined,
-    onSuccess(data) {
-      // console.log('Success cover quote wagmi', data)
-    },
     onError(error) {
       console.log('Error cover wagmi', error)
     },
@@ -394,13 +381,6 @@ export default function Swap() {
           priceAfterSlippage,
         )
         setRangeBnPriceLimit(BigNumber.from(String(rangePriceLimit)))
-        console.log(
-          'price after range',
-          priceAfter,
-          priceAfterSlippage,
-          priceSlippage,
-          String(rangePriceLimit),
-        )
       }
     }
 
@@ -461,7 +441,6 @@ export default function Swap() {
 
     if (rangePoolAddress === rangePoolRoute) {
       const feeTier = data['data']['rangePools']['0']['feeTier']['feeAmount']
-      console.log(feeTier, 'fee range')
       setRangeSlippage((parseFloat(feeTier) / 10000).toString())
     }
   }
@@ -877,7 +856,6 @@ export default function Swap() {
                     <button
                       className="flex text-xs uppercase text-[#C9C9C9]"
                       onClick={() => {
-                        console.log('max', balanceIn)
                         maxBalance(balanceIn, '0')
                       }}
                     >
