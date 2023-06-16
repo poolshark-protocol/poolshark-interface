@@ -42,6 +42,7 @@ const apolloClient = new ApolloClient({
 })
 
 const whitelist = [
+  '0xA1a26c50382f10e112328D793f76B2D84Ba87D4A',
   '0xCda329d290B6E7Cf8B9B1e4faAA48Da80B6Fa2F2',
   '0x465d8F5dB6aBfdAE82FE95Af82CbeC538ec5337b',
   '0xBd5db4c7D55C086107f4e9D17c4c34395D1B1E1E',
@@ -345,8 +346,16 @@ function MyApp({ Component, pageProps }) {
       <WagmiConfig client={wagmiClient}>
         <RainbowKitProvider chains={chains} initialChain={arbitrumGoerli}>
           <ApolloProvider client={apolloClient}>
-            { _isConnected ? (whitelist.includes(address) ? 
+            { _isConnected ? (whitelist.includes(address) ? (
+            <div>
+              <div className="h-screen w-full bottom-0  md:hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black z-50">
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center">
+                Poolshark testnet is not available on mobile, please use a bigger screen
+                </div>
+              </div>
             <Component {...pageProps} />
+            </div>
+            )
             : 
             <div className="min-h-screen">
             <div className="max-w-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
