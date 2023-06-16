@@ -27,7 +27,7 @@ import {
       address: approveToken,
       abi: erc20ABI,
       functionName: 'approve',
-      args: [poolAddress, ethers.utils.parseUnits('1', 18)],
+      args: [poolAddress, amount],
       enabled: approveToken != undefined && poolAddress != undefined,
       chainId: 421613,
     })
