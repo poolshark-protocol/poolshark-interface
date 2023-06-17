@@ -221,14 +221,14 @@ export default function UserCoverPool({
           <div className="text-sm flex items-center gap-x-3">
             <span>
               <span className="text-grey">Min:</span>{' '}
-              {TickMath.getPriceStringAtTick(min)} {tokenOne.symbol} per{' '}
-              {tokenZero.symbol}
+              {TickMath.getPriceStringAtTick(min)} {zeroForOne ? tokenOne.symbol : tokenZero.symbol} per{' '}
+              {zeroForOne ? tokenZero.symbol : tokenOne.symbol}
             </span>
             <ArrowsRightLeftIcon className="w-4 text-grey" />
             <span>
               <span className="text-grey">Max:</span>{' '}
-              {TickMath.getPriceStringAtTick(max)} {tokenOne.symbol} per{' '}
-              {tokenZero.symbol}
+              {TickMath.getPriceStringAtTick(max)} {zeroForOne ? tokenOne.symbol : tokenZero.symbol} per{' '}
+              {zeroForOne ? tokenZero.symbol : tokenOne.symbol}
             </span>
           </div>
         </div>
