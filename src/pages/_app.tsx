@@ -323,9 +323,6 @@ const whitelist = [
   '0x32e01149f656f6062168Ea437a3E3192fd669c8c',
 ]
 
-
-
-
 function MyApp({ Component, pageProps }) {
 
   const [whitelisted, setWhitelisted] = useState(false)

@@ -1,3 +1,4 @@
+import { BigNumber } from 'ethers'
 import { getTickIfNotZeroForOne, getTickIfZeroForOne } from './queries'
 
 export const getClaimTick = async (
@@ -10,18 +11,18 @@ export const getClaimTick = async (
   let claimTick = zeroForOne ? maxLimit : minLimit
   if (zeroForOne) {
     const claimTickQuery = await getTickIfZeroForOne(
-      Number(maxLimit),
+      maxLimit,
       coverPoolAddress,
-      Number(epochLast),
+      epochLast,
     )
     const claimTickDataLength = claimTickQuery['data']['ticks'].length
     if (claimTickDataLength > 0)
       claimTick = claimTickQuery['data']['ticks'][0]['index']
   } else {
     const claimTickQuery = await getTickIfNotZeroForOne(
-      Number(minLimit),
+      minLimit,
       coverPoolAddress,
-      Number(epochLast),
+      epochLast,
     )
     const claimTickDataLength = claimTickQuery['data']['ticks'].length
     if (claimTickDataLength > 0)
@@ -36,13 +37,6 @@ export const getClaimTick = async (
 export function mapUserRangePositions(rangePositions) {
   const mappedRangePositions = []
   rangePositions.map((rangePosition) => {
-    console.log(
-      'user liquidity check',
-      Math.round(
-        (rangePosition.amount / rangePosition.token.totalSupply) *
-          rangePosition.token.position.liquidity,
-      ),
-    )
     const rangePositionData = {
       id: rangePosition.id,
       poolId: rangePosition.token.position.pool.id,
@@ -57,20 +51,21 @@ export function mapUserRangePositions(rangePositions) {
       feeTier: rangePosition.token.position.pool.feeTier.feeAmount,
       unclaimedFees: rangePosition.token.position.pool.feesUsd,
       liquidity: rangePosition.token.position.pool.liquidity,
-      userLiquidity: Math.round(
-        (rangePosition.amount / rangePosition.token.totalSupply) *
-          rangePosition.token.position.liquidity,
-      ),
+      userLiquidity: BigNumber.from(rangePosition.amount).mul(
+        BigNumber.from(rangePosition.token.position.liquidity)       
+      ).div(
+        BigNumber.from(rangePosition.token.totalSupply)
+      ).toString(),
       userTokenAmount: rangePosition.amount,
       tvlUsd: (
-        Number(rangePosition.token.position.pool.totalValueLockedUsd) /
+        parseFloat(rangePosition.token.position.pool.totalValueLockedUsd) /
         1_000_000
       ).toFixed(2),
       volumeUsd: (
-        Number(rangePosition.token.position.pool.volumeUsd) / 1_000_000
+        parseFloat(rangePosition.token.position.pool.volumeUsd) / 1_000_000
       ).toFixed(2),
       volumeEth: (
-        Number(rangePosition.token.position.pool.volumeEth) / 1
+        parseFloat(rangePosition.token.position.pool.volumeEth) / 1
       ).toFixed(2),
       userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
     }
@@ -90,9 +85,9 @@ export function mapRangePools(rangePools) {
       liquidity: rangePool.liquidity,
       feeTier: rangePool.feeTier.feeAmount,
       tickSpacing: rangePool.feeTier.tickSpacing,
-      tvlUsd: (Number(rangePool.totalValueLockedUsd) / 1_000_000).toFixed(2),
-      volumeUsd: (Number(rangePool.volumeUsd) / 1_000_000).toFixed(2),
-      volumeEth: (Number(rangePool.volumeEth) / 1).toFixed(2),
+      tvlUsd: (parseFloat(rangePool.totalValueLockedUsd) / 1_000_000).toFixed(2),
+      volumeUsd: (parseFloat(rangePool.volumeUsd) / 1_000_000).toFixed(2),
+      volumeEth: (parseFloat(rangePool.volumeEth) / 1).toFixed(2),
     }
     mappedRangePools.push(rangePoolData)
   })
@@ -155,9 +150,9 @@ export function mapCoverPools(coverPools) {
       auctionLenght: coverPool.volatilityTier.auctionLength,
       feeTier: coverPool.volatilityTier.feeAmount,
       tickSpacing: coverPool.volatilityTier.tickSpread,
-      tvlUsd: (Number(coverPool.totalValueLockedUsd) / 1_000_000).toFixed(2),
-      volumeUsd: (Number(coverPool.volumeUsd) / 1_000_000).toFixed(2),
-      volumeEth: (Number(coverPool.volumeEth) / 1).toFixed(2),
+      tvlUsd: (parseFloat(coverPool.totalValueLockedUsd) / 1_000_000).toFixed(2),
+      volumeUsd: (parseFloat(coverPool.volumeUsd) / 1_000_000).toFixed(2),
+      volumeEth: (parseFloat(coverPool.volumeEth) / 1).toFixed(2),
     }
     mappedCoverPools.push(coverPoolData)
   })
