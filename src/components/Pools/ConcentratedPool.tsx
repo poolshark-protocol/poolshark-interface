@@ -56,6 +56,8 @@ export default function ConcentratedPool({
   } as token)
   const {
     bnInput,
+    setBnInput,
+    setDisplay,
     inputBox,
     maxBalance,
     bnInputLimit,
@@ -490,6 +492,7 @@ export default function ConcentratedPool({
               className="w-6 cursor-pointer"
               onClick={() => {
                 if (hasSelected) {
+                  const newInput = tokenOrder ? amount1 : amount0;
                   switchDirection(
                     tokenOrder,
                     setTokenOrder,
@@ -502,6 +505,10 @@ export default function ConcentratedPool({
                     queryTokenOut,
                     setQueryTokenOut,
                   )
+                  setBnInput(newInput)
+                  setDisplay(parseFloat(ethers.utils.formatUnits(newInput, 18)
+                        .toString()).toPrecision(5)
+                        .replace(/0+$/, '').replace(/(\.)(?!\d)/g, ''))
                 }
               }}
             />
