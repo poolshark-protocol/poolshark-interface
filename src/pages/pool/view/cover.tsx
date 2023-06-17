@@ -130,7 +130,7 @@ export default function Cover() {
         address: query.tokenZeroAddress,
         value: query.tokenZeroValue,
       } as token)
-      console.log('router is ready', {
+      console.log('router is ready tokenIn', {
         name: query.tokenZeroName,
         symbol: query.tokenZeroSymbol,
         logoURI: query.tokenZeroLogoURI,
@@ -347,8 +347,8 @@ export default function Cover() {
                 />
               </div>
               <span className="text-3xl flex items-center gap-x-3">
-                {tokenIn.name} <ArrowLongRightIcon className="w-5 " />{' '}
-                {tokenOut.name}
+                {tokenIn.symbol} <ArrowLongRightIcon className="w-5 " />{' '}
+                {tokenOut.symbol}
               </span>
               <span className="bg-white text-black rounded-md px-3 py-0.5">
                 {feeTier}%

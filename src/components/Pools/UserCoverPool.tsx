@@ -165,16 +165,12 @@ export default function UserCoverPool({
           poolId: poolId,
           tokenZeroName: tokenZero.name,
           tokenZeroSymbol: tokenZero.symbol,
-          tokenZeroLogoURI: zeroForOne
-            ? logoMap[tokenOne.symbol]
-            : logoMap[tokenZero.symbol],
+          tokenZeroLogoURI: logoMap[tokenZero.symbol],
           tokenZeroAddress: tokenZero.id,
           tokenZeroValue: valueTokenZero,
           tokenOneName: tokenOne.name,
           tokenOneSymbol: tokenOne.symbol,
-          tokenOneLogoURI: zeroForOne
-            ? logoMap[tokenZero.symbol]
-            : logoMap[tokenOne.symbol],
+          tokenOneLogoURI: logoMap[tokenOne.symbol],
           tokenOneAddress: tokenOne.id,
           tokenOneValue: valueTokenOne,
           coverPoolRoute: coverPoolRoute,
