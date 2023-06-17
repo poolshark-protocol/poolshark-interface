@@ -33,7 +33,7 @@ export default function RangeAddLiqButton({poolAddress, address, lower, upper, a
       ]],
       chainId: 421613,
       overrides: {
-        gasLimit: BigNumber.from('210000000'),
+        gasLimit: BigNumber.from('5100000'),
       },
       onSuccess() {
         console.log('params check', address,
