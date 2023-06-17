@@ -214,9 +214,9 @@ export default function UserCoverPool({
               />
             </div>
             <div className="flex gap-x-2">
-              {tokenZero.name}
+              {tokenZero.symbol}
               <ArrowLongRightIcon className="w-5" />
-              {tokenOne.name}
+              {tokenOne.symbol}
             </div>
             <div className="bg-black px-2 py-1 rounded-lg text-grey">
               {feeTierPercentage}%
@@ -225,8 +225,8 @@ export default function UserCoverPool({
           <div className="text-sm flex items-center gap-x-3">
             <span>
               <span className="text-grey">Min:</span>{' '}
-              {TickMath.getPriceStringAtTick(min)} {tokenZero.symbol} per{' '}
-              {tokenOne.symbol}
+              {TickMath.getPriceStringAtTick(min)} {tokenOne.symbol} per{' '}
+              {tokenZero.symbol}
             </span>
             <ArrowsRightLeftIcon className="w-4 text-grey" />
             <span>

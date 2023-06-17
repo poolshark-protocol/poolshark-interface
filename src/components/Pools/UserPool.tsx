@@ -147,9 +147,9 @@ export default function UserPool({
                 />
               </div>
               <div className="flex items-center gap-x-1.5">
-                {tokenZero.name}
+                {tokenZero.symbol}
                 <div>-</div>
-                {tokenOne.name}
+                {tokenOne.symbol}
               </div>
               <div className="bg-black px-2 py-1 rounded-lg text-grey">
                 {feeTierPercentage}%
@@ -157,8 +157,8 @@ export default function UserPool({
             </div>
             <div className="text-sm flex items-center gap-x-3">
               <span>
-                <span className="text-grey">Min:</span> {TickMath.getPriceStringAtTick(min)} {tokenZero.symbol}{' '}
-                per {tokenOne.symbol}
+                <span className="text-grey">Min:</span> {TickMath.getPriceStringAtTick(min)} {tokenOne.symbol}{' '}
+                per {tokenZero.symbol}
               </span>
               <ArrowsRightLeftIcon className="w-4 text-grey" />
               <span>
