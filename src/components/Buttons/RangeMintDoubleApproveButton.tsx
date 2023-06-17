@@ -21,6 +21,8 @@ export default function RangeMintDoubleApproveButton({
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
 
+  console.log('mint allowance check', approveZero)
+
   const [
     Amount,
     SwapParams,
