@@ -12,6 +12,7 @@ import Head from 'next/head'
 import { useState, useEffect, Fragment } from 'react'
 import { useAccount } from 'wagmi'
 import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton';
+import { Analytics } from '@vercel/analytics/react'
 
 
 const { chains, provider } = configureChains(
@@ -372,6 +373,7 @@ function MyApp({ Component, pageProps }) {
                 </div>
                 </div>
             </div>) }
+            <Analytics />
           </ApolloProvider>
         </RainbowKitProvider>
       </WagmiConfig>
