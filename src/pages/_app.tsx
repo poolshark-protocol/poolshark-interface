@@ -12,6 +12,7 @@ import Head from 'next/head'
 import { useState, useEffect, Fragment } from 'react'
 import { useAccount } from 'wagmi'
 import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton';
+import { isMobile } from "react-device-detect";
 
 
 const { chains, provider } = configureChains(
@@ -322,6 +323,7 @@ const whitelist = [
   '0x2e403B969a64BdD1CA18fE10BABA4546957bc31e',
   '0x7D0B968AC57ccB18DC481535601308De506ffeFD',
   '0x32e01149f656f6062168Ea437a3E3192fd669c8c',
+  '0x9dA9409D17DeA285B078af06206941C049F692Dc',
 ]
 
 
@@ -333,10 +335,14 @@ function MyApp({ Component, pageProps }) {
   const { address, isDisconnected, isConnected } = useAccount()
 
   const [_isConnected, _setIsConnected] = useState(false);
+  const [_isMobile, _setIsMobile] = useState(false);
 
   useEffect(() => {
     _setIsConnected(isConnected);
   }, [isConnected]);
+  useEffect(() => {
+    _setIsMobile(isMobile);
+  }, [isMobile]);
 
   return (
     <>
@@ -346,15 +352,15 @@ function MyApp({ Component, pageProps }) {
       <WagmiConfig client={wagmiClient}>
         <RainbowKitProvider chains={chains} initialChain={arbitrumGoerli}>
           <ApolloProvider client={apolloClient}>
-            { _isConnected ? (whitelist.includes(address) ? (
-            <div>
+          {_isMobile ? (<div>
               <div className="h-screen w-full bottom-0  md:hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black z-50">
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center">
                 Poolshark testnet is not available on mobile, please use a bigger screen
                 </div>
               </div>
+              </div>) : (<>
+            { _isConnected ? (whitelist.includes(address) ? (
             <Component {...pageProps} />
-            </div>
             )
             : 
             <div className="min-h-screen">
@@ -384,6 +390,7 @@ function MyApp({ Component, pageProps }) {
                 </div>
                 </div>
             </div>) }
+            </>)}
           </ApolloProvider>
         </RainbowKitProvider>
       </WagmiConfig>

@@ -173,14 +173,14 @@ export default function UserPool({
             Number(rangeTickPrice) >=
               Number(max) ? (
               <div className="pr-5">
-                <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
+                <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm whitspace-nowrap">
                   <ExclamationTriangleIcon className="w-4 text-yellow-600" />
                   Out of Range
                 </div>
               </div>
             ) : (
               <div className="pr-5">
-                <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
+                <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm whitespace-nowrap">
                   <div className="w-2 h-2 bg-green-500 rounded-full" />
                   In Range
                 </div>
