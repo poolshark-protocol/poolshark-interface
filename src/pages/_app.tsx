@@ -12,6 +12,7 @@ import Head from 'next/head'
 import { useState, useEffect, Fragment } from 'react'
 import { useAccount } from 'wagmi'
 import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton';
+import { isMobile } from "react-device-detect";
 import { Analytics } from '@vercel/analytics/react'
 
 
@@ -43,6 +44,7 @@ const apolloClient = new ApolloClient({
 })
 
 const whitelist = [
+  '0xA1a26c50382f10e112328D793f76B2D84Ba87D4A',
   '0xCda329d290B6E7Cf8B9B1e4faAA48Da80B6Fa2F2',
   '0x465d8F5dB6aBfdAE82FE95Af82CbeC538ec5337b',
   '0xBd5db4c7D55C086107f4e9D17c4c34395D1B1E1E',
@@ -322,6 +324,7 @@ const whitelist = [
   '0x2e403B969a64BdD1CA18fE10BABA4546957bc31e',
   '0x7D0B968AC57ccB18DC481535601308De506ffeFD',
   '0x32e01149f656f6062168Ea437a3E3192fd669c8c',
+  '0x9dA9409D17DeA285B078af06206941C049F692Dc',
 ]
 
 function MyApp({ Component, pageProps }) {
@@ -330,10 +333,14 @@ function MyApp({ Component, pageProps }) {
   const { address, isDisconnected, isConnected } = useAccount()
 
   const [_isConnected, _setIsConnected] = useState(false);
+  const [_isMobile, _setIsMobile] = useState(false);
 
   useEffect(() => {
     _setIsConnected(isConnected);
   }, [isConnected]);
+  useEffect(() => {
+    _setIsMobile(isMobile);
+  }, [isMobile]);
 
   return (
     <>
@@ -343,8 +350,16 @@ function MyApp({ Component, pageProps }) {
       <WagmiConfig client={wagmiClient}>
         <RainbowKitProvider chains={chains} initialChain={arbitrumGoerli}>
           <ApolloProvider client={apolloClient}>
-            { _isConnected ? (whitelist.includes(address) ? 
+          {_isMobile ? (<div>
+              <div className="h-screen w-full bottom-0  md:hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black z-50">
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center">
+                Poolshark testnet is not available on mobile, please use a bigger screen
+                </div>
+              </div>
+              </div>) : (<>
+            { _isConnected ? (whitelist.includes(address) ? (
             <Component {...pageProps} />
+            )
             : 
             <div className="min-h-screen">
             <div className="max-w-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
@@ -373,6 +388,7 @@ function MyApp({ Component, pageProps }) {
                 </div>
                 </div>
             </div>) }
+            </>)}
             <Analytics />
           </ApolloProvider>
         </RainbowKitProvider>
