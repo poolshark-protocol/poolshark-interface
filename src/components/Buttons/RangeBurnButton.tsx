@@ -28,9 +28,9 @@ export default function RangeBurnButton({poolAddress, address, lower, upper, amo
           true
       ]],
       chainId: 421613,
-      /*overrides:{
-          gasLimit: BigNumber.from("350000000")
-      },*/
+      overrides:{
+          gasLimit: BigNumber.from("300000")
+      },
   })
 
   const { data, isSuccess, write } = useContractWrite(config)

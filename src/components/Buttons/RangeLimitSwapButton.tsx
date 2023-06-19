@@ -60,9 +60,9 @@ export default function RangeMintButton({
       true //@dev always fungible
     ]],
     chainId: 421613,
-    /*overrides: {
-      gasLimit: BigNumber.from('2100000'),
-    },*/
+    overrides: {
+      gasLimit: BigNumber.from('500000'),
+    },
     onSuccess() {
       console.log('params check', to,
       lower.toString(),
