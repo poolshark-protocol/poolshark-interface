@@ -135,7 +135,7 @@ export default function UserPool({
         }}
       >
         <div className="w-full cursor-pointer flex justify-between items-center bg-dark border border-grey2 rounded-xl py-3.5 pl-5 h-24 relative">
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex items-center gap-x-5">
               <div className="flex items-center ">
                 <img height="30" width="30" src={logoMap[tokenZero.symbol]} />
@@ -155,13 +155,15 @@ export default function UserPool({
                 {feeTierPercentage}%
               </div>
             </div>
-            <div className="text-sm flex items-center gap-x-3">
-              <span>
+            <div className="text-xs grid grid-cols-5 items-center gap-x-3">
+              <span className='col-span-2'>
                 <span className="text-grey">Min:</span> {TickMath.getPriceStringAtTick(min)} {tokenZero.symbol}{' '}
                 per {tokenOne.symbol}
               </span>
+              <div className='flex items-center justify-center col-span-1'>
               <ArrowsRightLeftIcon className="w-4 text-grey" />
-              <span>
+              </div>
+              <span className='col-span-2'>
                 <span className="text-grey">Max:</span> {TickMath.getPriceStringAtTick(max)} {tokenOne.symbol}{' '}
                 per {tokenZero.symbol}
               </span>
@@ -173,14 +175,14 @@ export default function UserPool({
             Number(rangeTickPrice) >=
               Number(max) ? (
               <div className="pr-5">
-                <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm whitspace-nowrap">
+                <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
                   <ExclamationTriangleIcon className="w-4 text-yellow-600" />
                   Out of Range
                 </div>
               </div>
             ) : (
               <div className="pr-5">
-                <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm whitespace-nowrap">
+                <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm">
                   <div className="w-2 h-2 bg-green-500 rounded-full" />
                   In Range
                 </div>
