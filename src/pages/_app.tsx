@@ -13,6 +13,7 @@ import { useState, useEffect, Fragment } from 'react'
 import { useAccount } from 'wagmi'
 import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton';
 import { isMobile } from "react-device-detect";
+import { Analytics } from '@vercel/analytics/react'
 
 
 const { chains, provider } = configureChains(
@@ -326,9 +327,6 @@ const whitelist = [
   '0x9dA9409D17DeA285B078af06206941C049F692Dc',
 ]
 
-
-
-
 function MyApp({ Component, pageProps }) {
 
   const [whitelisted, setWhitelisted] = useState(false)
@@ -391,6 +389,7 @@ function MyApp({ Component, pageProps }) {
                 </div>
             </div>) }
             </>)}
+            <Analytics />
           </ApolloProvider>
         </RainbowKitProvider>
       </WagmiConfig>

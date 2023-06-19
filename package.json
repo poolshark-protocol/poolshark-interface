@@ -14,6 +14,7 @@
     "@heroicons/react": "^2.0.12",
     "@rainbow-me/rainbowkit": "^0.8.1",
     "@usedapp/core": "^1.2.2",
+    "@vercel/analytics": "^1.0.1",
     "axios": "^1.2.2",
     "ethers": "^5.7.2",
     "fuels": "^0.17.0",

@@ -30,7 +30,10 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
   function mapUserRangePositions() {
     const mappedRangePositions = []
     rangePositions.map((rangePosition) => {
-      //console.log('rangePosition', rangePosition)
+      console.log('rangePosition userLiquidity', Math.round(
+        (rangePosition.amount / rangePosition.token.totalSupply) *
+          rangePosition.token.position.liquidity,
+      ))
       const rangePositionData = {
         id: rangePosition.id,
         poolId: rangePosition.token.position.pool.id,

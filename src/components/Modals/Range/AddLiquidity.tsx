@@ -77,7 +77,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
   }, [tokenInAllowance])
 
   const { data: tokenOutAllowance } = useContractRead({
-    address: tokenIn.address,
+    address: tokenOut.address,
     abi: erc20ABI,
     functionName: 'allowance',
     args: [address, poolAdd],
@@ -86,7 +86,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
     enabled:
       isConnected &&
       poolAdd != undefined &&
-      tokenIn.address != undefined,
+      tokenOut.address != undefined,
     onSuccess(data) {
       console.log('Success')
     },
@@ -105,7 +105,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
   })
 
   useEffect(() => {
-    if (tokenOutAllowance) setAllowanceOut(tokenOutAllowance)
+    if (tokenOutAllowance) {
+      console.log('token out allowance check', tokenOutAllowance.toString())
+      setAllowanceOut(tokenOutAllowance)
+    } 
   }, [tokenOutAllowance])
 
   useEffect(() => {

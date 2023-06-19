@@ -165,16 +165,12 @@ export default function UserCoverPool({
           poolId: poolId,
           tokenZeroName: tokenZero.name,
           tokenZeroSymbol: tokenZero.symbol,
-          tokenZeroLogoURI: zeroForOne
-            ? logoMap[tokenOne.symbol]
-            : logoMap[tokenZero.symbol],
+          tokenZeroLogoURI: logoMap[tokenZero.symbol],
           tokenZeroAddress: tokenZero.id,
           tokenZeroValue: valueTokenZero,
           tokenOneName: tokenOne.name,
           tokenOneSymbol: tokenOne.symbol,
-          tokenOneLogoURI: zeroForOne
-            ? logoMap[tokenZero.symbol]
-            : logoMap[tokenOne.symbol],
+          tokenOneLogoURI: logoMap[tokenOne.symbol],
           tokenOneAddress: tokenOne.id,
           tokenOneValue: valueTokenOne,
           coverPoolRoute: coverPoolRoute,
@@ -214,9 +210,9 @@ export default function UserCoverPool({
               />
             </div>
             <div className="flex gap-x-2">
-              {tokenZero.name}
+              {tokenZero.symbol}
               <ArrowLongRightIcon className="w-5" />
-              {tokenOne.name}
+              {tokenOne.symbol}
             </div>
             <div className="bg-black px-2 py-1 rounded-lg text-grey">
               {feeTierPercentage}%
@@ -225,16 +221,16 @@ export default function UserCoverPool({
           <div className="text-xs grid grid-cols-5 items-center gap-x-3">
             <span className="col-span-2">
               <span className="text-grey">Min:</span>{' '}
-              {TickMath.getPriceStringAtTick(min)} {tokenZero.symbol} per{' '}
-              {tokenOne.symbol}
+              {TickMath.getPriceStringAtTick(min)} {zeroForOne ? tokenOne.symbol : tokenZero.symbol} per{' '}
+              {zeroForOne ? tokenZero.symbol : tokenOne.symbol}
             </span>
             <div className='flex items-center justify-center col-span-1'>
             <ArrowsRightLeftIcon className="w-4 text-grey" />
             </div>
             <span className="col-span-2">
               <span className="text-grey">Max:</span>{' '}
-              {TickMath.getPriceStringAtTick(max)} {tokenOne.symbol} per{' '}
-              {tokenZero.symbol}
+              {TickMath.getPriceStringAtTick(max)} {zeroForOne ? tokenOne.symbol : tokenZero.symbol} per{' '}
+              {zeroForOne ? tokenZero.symbol : tokenOne.symbol}
             </span>
           </div>
         </div>

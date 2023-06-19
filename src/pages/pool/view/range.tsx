@@ -186,6 +186,7 @@ export default function Range() {
       )
       setRangePoolRoute(query.rangePoolRoute)
       setRangeTickPrice(query.rangeTickPrice)
+      console.log('user liquidity', query.userLiquidity)
       setUserLiquidity(query.userLiquidity)
     }
   }, [router.isReady])
