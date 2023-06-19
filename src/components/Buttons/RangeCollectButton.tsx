@@ -29,9 +29,9 @@ export default function RangeCollectButton({ poolAddress, address, lower, upper 
           true
         ]],
       chainId: 421613,
-      overrides:{
+      /*overrides:{
           gasLimit: BigNumber.from("350000000")
-      },
+      },*/
   })
 
   const { data, isSuccess, write } = useContractWrite(config)

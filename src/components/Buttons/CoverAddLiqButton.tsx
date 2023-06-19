@@ -37,9 +37,9 @@ export default function CoverAddLiqButton({poolAddress, address, lower, claim, u
       ],
       enabled: amount.toString() != '0' && poolAddress != undefined,
       chainId: 421613,
-      overrides: {
+      /*overrides: {
         gasLimit: BigNumber.from('3500000'),
-      },
+      },*/
     })
 
     const { data, isSuccess, write } = useContractWrite(config)

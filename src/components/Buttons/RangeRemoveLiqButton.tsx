@@ -30,9 +30,9 @@ export default function RangeRemoveLiqButton({poolAddress, address, lower, upper
             true
         ]],
         chainId: 421613,
-        overrides:{
+        /*overrides:{
             gasLimit: BigNumber.from("3500000")
-        },
+        },*/
     })
 
     const { data, isSuccess, write } = useContractWrite(config)

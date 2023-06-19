@@ -78,9 +78,9 @@ export default function CoverMintButton({
     ],
     enabled: amount.toString() != '0' && poolAddress != undefined,
     chainId: 421613,
-    overrides: {
+    /*overrides: {
       gasLimit: BigNumber.from('3500000'),
-    },
+    },*/
   })
 
   const { data, write } = useContractWrite(config)

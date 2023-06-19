@@ -34,10 +34,10 @@ export default function SwapCoverButton({poolAddress, amount, zeroForOne, priceL
           priceLimit
       ],
       chainId: 421613,
-      overrides:{
-        gasLimit: BigNumber.from("500000"),
+      /*overrides:{
+        gasLimit: BigNumber.from("5000000"),
         //gasPrice: ethers.utils.parseUnits('20', 'gwei')
-      }
+      }*/
   })
 
   const { data, write } = useContractWrite(config)

@@ -32,9 +32,9 @@ export default function CoverRemoveLiqButton({poolAddress, address, lower, claim
             true
         ]],
         chainId: 421613,
-        overrides:{
+        /*overrides:{
             gasLimit: BigNumber.from("350000000")
-        },
+        },*/
     })
 
     const { data, isSuccess, write } = useContractWrite(config)
