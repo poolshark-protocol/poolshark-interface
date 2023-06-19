@@ -109,6 +109,9 @@ export default function Swap() {
   const [allowanceRangeOut, setAllowanceRangeOut] = useState('0.00')
   const [lowerTick, setLowerTick] = useState(BN_ZERO)
   const [upperTick, setUpperTick] = useState(BN_ZERO)
+  const [limitOrder, setLimitOrder] = useState(false)
+
+  console.log('limitOrder', limitOrder)
 
   ////////////////////////////////ChainId
 
@@ -1008,9 +1011,13 @@ export default function Swap() {
                       ) : (
                         <button
                           className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
-                          onClick={() => switchDirection()}
+                          onClick={() => setLimitOrder(!limitOrder)}
                         >
-                          {tokenOut.symbol} per {tokenIn.symbol}
+                       
+                          {limitOrder
+                            ? tokenOut.symbol + ' per ' + tokenIn.symbol
+                            : tokenIn.symbol + ' per ' + tokenOut.symbol}
+
                           <ArrowPathIcon className="w-5" />
                         </button>
                       )}
