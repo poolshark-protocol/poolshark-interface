@@ -12,6 +12,7 @@ import Head from 'next/head'
 import { useState, useEffect, Fragment } from 'react'
 import { useAccount } from 'wagmi'
 import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton';
+import { Analytics } from '@vercel/analytics/react'
 
 
 const { chains, provider } = configureChains(
@@ -323,9 +324,6 @@ const whitelist = [
   '0x32e01149f656f6062168Ea437a3E3192fd669c8c',
 ]
 
-
-
-
 function MyApp({ Component, pageProps }) {
 
   const [whitelisted, setWhitelisted] = useState(false)
@@ -375,6 +373,7 @@ function MyApp({ Component, pageProps }) {
                 </div>
                 </div>
             </div>) }
+            <Analytics />
           </ApolloProvider>
         </RainbowKitProvider>
       </WagmiConfig>
