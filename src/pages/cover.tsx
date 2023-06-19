@@ -58,7 +58,7 @@ export default function Cover() {
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
       <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full">
-        <div className="w-[70rem] absolute bottom-0">
+        <div className="w-[70rem] mt-[10vh] mb-[10vh]">
           <div className="flex justify-between mb-6 items-end">
             <h1 className="text-3xl">Cover</h1>
             <span className="bg-black flex items-center gap-x-2 border border-grey2 rounded-lg text-white px-6 py-[9px] cursor-pointer hover:opacity-80">
@@ -69,7 +69,7 @@ export default function Cover() {
             </span>
           </div>
           <div className="flex space-x-8">
-            <div className="bg-black w-2/3 border border-grey2 w-full rounded-t-xl p-6 gap-y-4">
+            <div className="bg-black w-2/3 border border-grey2 w-full rounded-xl p-6 gap-y-4">
               {selectedPool != undefined && state == 'existing' ? (
                 <CreateCover query={router.query} goBack={handleDiselectPool} />
               ) : (
@@ -77,7 +77,7 @@ export default function Cover() {
               )}
             </div>
             {isDisconnected ? (
-              <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">
+              <div className="bg-black w-full border border-grey2 w-full rounded-xl p-6 space-y-4 overflow-auto h-[44rem]">
                 <h1 className="mb-3">Cover Positions</h1>
                 <div className="space-y-2">
                   <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
@@ -98,7 +98,7 @@ export default function Cover() {
                 </div>
               </div>
             ) : (
-              <div className="bg-black w-full border border-grey2 w-full rounded-t-xl p-6 space-y-4 overflow-auto h-[44rem]">
+              <div className="bg-black w-full border border-grey2 w-full rounded-xl p-6 space-y-4 overflow-auto h-[44rem]">
                 <div className="relative">
                   <MagnifyingGlassIcon className="w-5 text-grey absolute ml-[14px] mt-[13px]" />
                   <input

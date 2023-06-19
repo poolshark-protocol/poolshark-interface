@@ -71,7 +71,7 @@ export const ConnectWalletButton = ({xl= false, center= false}: Props) => {
                 }
                 return (
                   <>
-                    <div className={`flex flex-row items-end mt-14  xl:mt-0 justify-end gap-y-4 text-white gap-x-4 ${center ? `justify-center` : ``}`}
+                    <div className={`flex flex-col-reverse  xl:flex-row items-end mt-14  xl:mt-0 justify-end gap-y-4 text-white gap-x-4 ${center ? `justify-center` : ``}`}
                     >
                       <button
                         onClick={() => setIsOpen(true)}
@@ -108,14 +108,14 @@ export const ConnectWalletButton = ({xl= false, center= false}: Props) => {
                         className="flex bg-dark rounded-lg border-grey1 border hover:opacity-80"
                       >
                         {account.displayBalance ? (
-                          <div className="bg-dark py-2 px-4 rounded-l-lg">
+                          <div className="bg-dark py-2 px-4 rounded-l-lg whitespace-nowrap">
                             {account.displayBalance}
                           </div>
                         ) : (
                           ""
                         )}
                         <div className="bg-black flex gap-x-2 rounded-lg border-grey1 border mt-[-1px] mr-[-1px] mb-[-1px] ">
-                          <div className="py-2 pl-5 pr-3">
+                          <div className="py-2 pl-5 pr-3 whitespace-nowrap">
                             {account.displayName}
                           </div>
                           <div className="border-l border-grey1 py-2.5 px-3">
