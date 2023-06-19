@@ -823,7 +823,7 @@ export default function Swap() {
                   {(
                     Number(ethers.utils.formatUnits(bnInput, 18)) *
                     tokenIn.usdPrice
-                  ).toFixed(3)}
+                  ).toFixed(2)}
                 </div>
               </div>
             ) : (
