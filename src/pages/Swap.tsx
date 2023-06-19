@@ -977,7 +977,11 @@ export default function Swap() {
                   autoComplete="off"
                   className="bg-[#0C0C0C] outline-none"
                   placeholder="0"
-                  value={limitPrice}
+                  value={
+                    limitOrder
+                      ? (tokenIn.usdPrice / tokenOut.usdPrice).toFixed(10)
+                      :( tokenOut.usdPrice / tokenIn.usdPrice).toFixed(10)
+                  }
                   type="text"
                   onChange={(e) => {
                     setLimitPrice(inputFilter(e.target.value))
@@ -1013,7 +1017,6 @@ export default function Swap() {
                           className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
                           onClick={() => setLimitOrder(!limitOrder)}
                         >
-                       
                           {limitOrder
                             ? tokenOut.symbol + ' per ' + tokenIn.symbol
                             : tokenIn.symbol + ' per ' + tokenOut.symbol}
