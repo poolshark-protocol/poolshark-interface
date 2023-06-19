@@ -56,7 +56,7 @@ export default function PoolList({
               src={logoMap[tokenOne.symbol]}
             />
           </div>
-          {tokenZero.name}-{tokenOne.name}
+          {tokenZero.symbol}-{tokenOne.symbol}
           <div className=" px-2 py-1 rounded-lg text-grey text-sm">{feeTierPercentage}%</div>
         </td>
         <td>${tvlUsd}m</td>
