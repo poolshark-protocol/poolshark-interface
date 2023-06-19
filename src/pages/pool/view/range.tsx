@@ -31,14 +31,14 @@ export default function Range() {
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
 
   const [poolAdd, setPoolAddress] = useState(router.query.poolId ?? '')
-  const [tokenIn, setTokenIn] = useState({
+  const [token0, setToken0] = useState({
     name: router.query.tokenZeroAddress ?? '',
     symbol: router.query.tokenZeroSymbol ?? '',
     logoURI: router.query.tokenZeroLogoURI ?? '',
     address: router.query.tokenZeroAddress ?? '',
     value: router.query.tokenZeroValue ?? '',
   } as token)
-  const [tokenOut, setTokenOut] = useState({
+  const [token1, setToken1] = useState({
     name: router.query.tokenOneName ?? '',
     symbol: router.query.tokenOneSymbol ?? '',
     logoURI: router.query.tokenOneLogoURI ?? '',
@@ -85,26 +85,26 @@ export default function Range() {
   const [is1Copied, setIs1Copied] = useState(false)
   const [isPoolCopied, setIsPoolCopied] = useState(false)
   const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-    tokenIn.address != ''
-      ? tokenIn.address.toString().substring(0, 6) +
+    token0.address != ''
+      ? token0.address.toString().substring(0, 6) +
           '...' +
-          tokenIn.address
+          token0.address
             .toString()
             .substring(
-              tokenIn.address.toString().length - 4,
-              tokenIn.address.toString().length,
+              token0.address.toString().length - 4,
+              token0.address.toString().length,
             )
       : undefined,
   )
   const [tokenOneDisplay, setTokenOneDisplay] = useState(
-    tokenOut.address != ''
-      ? tokenOut.address.toString().substring(0, 6) +
+    token1.address != ''
+      ? token1.address.toString().substring(0, 6) +
           '...' +
-          tokenOut.address
+          token1.address
             .toString()
             .substring(
-              tokenOut.address.toString().length - 4,
-              tokenOut.address.toString().length,
+              token1.address.toString().length - 4,
+              token1.address.toString().length,
             )
       : undefined,
   )
@@ -125,14 +125,14 @@ export default function Range() {
     if (router.isReady) {
       const query = router.query
       setPoolAddress(query.poolId)
-      setTokenIn({
+      setToken0({
         name: query.tokenZeroName,
         symbol: query.tokenZeroSymbol,
         logoURI: query.tokenZeroLogoURI,
         address: query.tokenZeroAddress,
         value: query.tokenZeroValue,
       } as token)
-      setTokenOut({
+      setToken1({
         name: query.tokenOneName,
         symbol: query.tokenOneSymbol,
         logoURI: query.tokenOneLogoURI,
@@ -201,12 +201,12 @@ export default function Range() {
 
 
   function copyAddress0() {
-    navigator.clipboard.writeText(tokenIn.address.toString())
+    navigator.clipboard.writeText(token0.address.toString())
     setIs0Copied(true)
   }
 
   function copyAddress1() {
-    navigator.clipboard.writeText(tokenOut.address.toString())
+    navigator.clipboard.writeText(token1.address.toString())
     setIs1Copied(true)
   }
 
@@ -220,8 +220,8 @@ export default function Range() {
   useEffect(() => {
     getRangePool()
   }, [
-    tokenIn.address,
-    tokenOut.address,
+    token0.address,
+    token1.address,
     amount0,
     amount1,
     amount0Fees,
@@ -231,8 +231,8 @@ export default function Range() {
   const getRangePool = async () => {
     try {
       const pool = await getRangePoolFromFactory(
-        tokenIn.address,
-        tokenOut.address,
+        token0.address,
+        token1.address,
       )
       const dataLength = pool['data']['rangePools'].length
       if (dataLength > 0) {
@@ -356,16 +356,16 @@ export default function Range() {
           <div className="flex justify-between items-center mb-2">
             <div className="text-left flex items-center gap-x-5 py-2.5">
               <div className="flex items-center">
-                <img height="50" width="50" src={tokenIn.logoURI} />
+                <img height="50" width="50" src={token0.logoURI} />
                 <img
                   height="50"
                   width="50"
                   className="ml-[-12px]"
-                  src={tokenOut.logoURI}
+                  src={token1.logoURI}
                 />
               </div>
               <span className="text-3xl">
-                {tokenIn.name}-{tokenOut.name}
+                {token0.symbol}-{token1.symbol}
               </span>
               <span className="bg-white text-black rounded-md px-3 py-0.5">
                 {router.query.feeTier}%
@@ -403,7 +403,7 @@ export default function Range() {
                   onClick={() => copyAddress0()}
                   className="text-xs cursor-pointer w-32"
                 >
-                  {tokenIn.name}:
+                  {token0.symbol}:
                   {is0Copied ? (
                     <span className="ml-1">Copied</span>
                   ) : (
@@ -414,7 +414,7 @@ export default function Range() {
                   onClick={() => copyAddress1()}
                   className="text-xs cursor-pointer"
                 >
-                  {tokenOut.name}:
+                  {token1.symbol}:
                   {is1Copied ? (
                     <span className="ml-1">Copied</span>
                   ) : (
@@ -443,8 +443,8 @@ export default function Range() {
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
-                      <img height="30" width="30" src={tokenIn.logoURI} />
-                      {tokenIn.name}
+                      <img height="30" width="30" src={token0.logoURI} />
+                      {token0.symbol}
                     </div>
                     <div className="flex items-center gap-x-4">
                       {amount0.toFixed(2)}
@@ -464,8 +464,8 @@ export default function Range() {
                   </div>
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
-                      <img height="30" width="30" src={tokenOut.logoURI} />
-                      {tokenOut.name}
+                      <img height="30" width="30" src={token1.logoURI} />
+                      {token1.symbol}
                     </div>
                     <div className="flex items-center gap-x-4">
                       {amount1.toFixed(2)}
@@ -506,15 +506,15 @@ export default function Range() {
                 <div className="text-grey mt-3 space-y-2">
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
-                      <img height="30" width="30" src={tokenIn.logoURI} />
-                      {tokenIn.name}
+                      <img height="30" width="30" src={token0.logoURI} />
+                      {token0.symbol}
                     </div>
                     <span>{amount0FeesUsd.toFixed(2)}</span>
                   </div>
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
-                      <img height="30" width="30" src={tokenOut.logoURI} />
-                      {tokenOut.name}
+                      <img height="30" width="30" src={token1.logoURI} />
+                      {token1.symbol}
                     </div>
                     <span>{amount1FeesUsd.toFixed(2)}</span>
                   </div>
@@ -563,10 +563,10 @@ export default function Range() {
                   {lowerPrice}
                 </div>
                 <div className="text-grey text-xs w-full">
-                  {tokenIn.name} per {tokenOut.name}
+                  {token1.symbol} per {token0.symbol}
                 </div>
                 <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100% {tokenIn.name} at this price.
+                  Your position will be 100% {token0.symbol} at this price.
                 </div>
               </div>
               <ArrowsRightLeftIcon className="w-12 text-grey" />
@@ -576,10 +576,10 @@ export default function Range() {
                   {upperPrice}
                 </div>
                 <div className="text-grey text-xs w-full">
-                  {tokenIn.name} per {tokenOut.name}
+                  {token1.symbol} per {token0.symbol}
                 </div>
                 <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100% {tokenOut.name} at this price.
+                  Your position will be 100% {token1.symbol} at this price.
                 </div>
               </div>
             </div>
@@ -590,7 +590,7 @@ export default function Range() {
                   TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(rangePrice))}
               </div>
               <div className="text-grey text-xs w-full">
-                {tokenIn.name} per {tokenOut.name}
+                {token1.symbol} per {token0.symbol}
               </div>
             </div>
           </div>
@@ -599,8 +599,8 @@ export default function Range() {
       <RemoveLiquidity
         isOpen={isRemoveOpen}
         setIsOpen={setIsRemoveOpen}
-        tokenIn={tokenIn}
-        tokenOut={tokenOut}
+        tokenIn={token0}
+        tokenOut={token1}
         poolAdd={poolAdd}
         address={address}
         lowerTick={lowerTick}
@@ -612,8 +612,8 @@ export default function Range() {
       <AddLiquidity
         isOpen={isAddOpen}
         setIsOpen={setIsAddOpen}
-        tokenIn={tokenIn}
-        tokenOut={tokenOut}
+        tokenIn={token0}
+        tokenOut={token1}
         poolAdd={poolAdd}
         address={address}
         lowerTick={Number(lowerTick)}
