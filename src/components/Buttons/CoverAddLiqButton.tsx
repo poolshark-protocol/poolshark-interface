@@ -38,7 +38,7 @@ export default function CoverAddLiqButton({poolAddress, address, lower, claim, u
       enabled: amount.toString() != '0' && poolAddress != undefined,
       chainId: 421613,
       overrides: {
-        gasLimit: BigNumber.from('500000'),
+        gasLimit: BigNumber.from('1000000'),
       },
     })
 
