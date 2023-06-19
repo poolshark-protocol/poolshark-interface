@@ -371,7 +371,7 @@ export default function Cover() {
                   onClick={() => copyAddress0()}
                   className="text-xs cursor-pointer w-32"
                 >
-                  {tokenIn.name}:
+                  {tokenIn.symbol}:
                   {is0Copied ? (
                     <span className="ml-1">Copied</span>
                   ) : (
@@ -382,7 +382,7 @@ export default function Cover() {
                   onClick={() => copyAddress1()}
                   className="text-xs cursor-pointer"
                 >
-                  {tokenOut.name}:
+                  {tokenOut.symbol}:
                   {is1Copied ? (
                     <span className="ml-1">Copied</span>
                   ) : (
@@ -420,7 +420,7 @@ export default function Cover() {
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
                       <img height="30" width="30" src={tokenIn.logoURI} />
-                      {tokenIn.name}
+                      {tokenIn.symbol}
                     </div>
                     {Number(
                       ethers.utils.formatUnits(userFillOut.toString(), 18),
@@ -470,7 +470,7 @@ export default function Cover() {
                     />
                     <div className="flex items-center gap-x-4 z-20">
                       <img height="30" width="30" src={tokenOut.logoURI} />
-                      {tokenOut.name}
+                      {tokenOut.symbol}
                     </div>
                     <span className="text-white z-20">
                       {Number(coverFilledAmount).toFixed(2)}
@@ -509,10 +509,10 @@ export default function Cover() {
                     : TickMath.getPriceStringAtTick(Number(minLimit))}
                 </div>
                 <div className="text-grey text-xs w-full">
-                  {tokenIn.name} per {tokenOut.name}
+                  {tokenIn.symbol} per {tokenOut.symbol}
                 </div>
                 <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100% {tokenIn.name} at this price.
+                  Your position will be 100% {tokenIn.symbol} at this price.
                 </div>
               </div>
               <ArrowsRightLeftIcon className="w-12 text-grey" />
@@ -524,10 +524,10 @@ export default function Cover() {
                     : TickMath.getPriceStringAtTick(Number(maxLimit))}
                 </div>
                 <div className="text-grey text-xs w-full">
-                  {tokenIn.name} per {tokenOut.name}
+                  {tokenIn.symbol} per {tokenOut.symbol}
                 </div>
                 <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100% {tokenIn.name} at this price.
+                  Your position will be 100% {tokenOut.symbol} at this price.
                 </div>
               </div>
             </div>
@@ -537,7 +537,7 @@ export default function Cover() {
                 {TickMath.getPriceStringAtTick(Number(latestTick))}
               </div>
               <div className="text-grey text-xs w-full">
-                {tokenIn.name} per {tokenOut.name}
+                {tokenIn.symbol} per {tokenOut.symbol}
               </div>
             </div>
             <div>
@@ -560,7 +560,7 @@ export default function Cover() {
                       />
                     </div>
                     <div className="flex gap-x-2">
-                      {tokenIn.name} -{tokenOut.name}
+                      {tokenIn.symbol} -{tokenOut.symbol}
                     </div>
                     <div className="bg-black px-2 py-1 rounded-lg text-grey">
                       0.5%
@@ -568,13 +568,13 @@ export default function Cover() {
                   </div>
                   <div className="text-sm flex items-center gap-x-3">
                     <span>
-                      <span className="text-grey">Min:</span> 1203
-                      {tokenIn.name} per {tokenOut.name}
+                      <span className="text-grey">Min: </span> 1203
+                      {' ' + tokenIn.symbol} per {tokenOut.symbol}
                     </span>
                     <ArrowsRightLeftIcon className="w-4 text-grey" />
                     <span>
                       <span className="text-grey">Max:</span> 1643
-                      {tokenIn.name} per {tokenOut.name}
+                      {' ' + tokenIn.symbol} per {tokenOut.symbol}
                     </span>
                   </div>
                 </div>
