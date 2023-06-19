@@ -418,10 +418,8 @@ export default function Swap() {
     setBnInput(ethers.utils.parseUnits((rangeQuote > coverQuote ? rangeQuote : coverQuote).toPrecision(10), 18))
     setDisplay((rangeQuote > coverQuote ? rangeQuote : coverQuote).toPrecision(7).replace(/0+$/, '').replace(/(\.)(?!\d)/g, ''))
     if (rangeQuote > 0 && rangeQuote > coverQuote) {
-      console.log('flip with range quote')
       setRangeQuote(parseFloat(parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5)))
     } else {
-      console.log('flip with cover quote')
       setCoverQuote(parseFloat(parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5)))
     }
     const oldBalanceIn = balanceIn
@@ -795,7 +793,7 @@ export default function Swap() {
             {tokenIn.address != '' ? (
               <div className="flex">
                 <div className="flex text-xs text-[#4C4C4C]">$
-                  {(Number(ethers.utils.formatUnits(bnInput, 18)) * tokenIn.usdPrice).toFixed(2)}
+                  {(Number(ethers.utils.formatUnits(bnInput, 18)) * tokenIn.usdPrice).toFixed(3)}
                 </div>
               </div>
             ) : (
