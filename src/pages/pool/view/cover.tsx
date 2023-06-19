@@ -290,20 +290,22 @@ export default function Cover() {
 
   ////////////////////////////////Claim Tick
 
-  // useEffect(() => {
-  //   updateClaimTick()
-  // }, [])
+  useEffect(() => {
+    setTimeout(() => {
+      updateClaimTick()
+    }, 3000)
+  }, [])
 
-  // async function updateClaimTick() {
-  //   const aux = await getClaimTick(
-  //     poolAdd.toString(),
-  //     Number(minLimit),
-  //     Number(maxLimit),
-  //     zeroForOne,
-  //     Number(epochLast),
-  //   )
-  //   setClaimTick(BigNumber.from(aux))
-  // }
+  async function updateClaimTick() {
+    const aux = await getClaimTick(
+      poolAdd.toString(),
+      Number(minLimit),
+      Number(maxLimit),
+      zeroForOne,
+      Number(epochLast),
+    )
+    setClaimTick(BigNumber.from(aux))
+  }
 
   ////////////////////////////////Addresses
 
