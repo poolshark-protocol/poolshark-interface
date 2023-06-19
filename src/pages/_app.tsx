@@ -12,6 +12,7 @@ import Head from 'next/head'
 import { useState, useEffect, Fragment } from 'react'
 import { useAccount } from 'wagmi'
 import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton';
+import { isMobile } from "react-device-detect";
 import { Analytics } from '@vercel/analytics/react'
 
 
@@ -43,6 +44,7 @@ const apolloClient = new ApolloClient({
 })
 
 const whitelist = [
+  '0xA1a26c50382f10e112328D793f76B2D84Ba87D4A',
   '0xCda329d290B6E7Cf8B9B1e4faAA48Da80B6Fa2F2',
   '0x465d8F5dB6aBfdAE82FE95Af82CbeC538ec5337b',
   '0xBd5db4c7D55C086107f4e9D17c4c34395D1B1E1E',
@@ -322,6 +324,40 @@ const whitelist = [
   '0x2e403B969a64BdD1CA18fE10BABA4546957bc31e',
   '0x7D0B968AC57ccB18DC481535601308De506ffeFD',
   '0x32e01149f656f6062168Ea437a3E3192fd669c8c',
+  '0xb8141b34075E55F3fc2cb8De9733acD7177E8829',
+  '0x6cAf2385F08114DC8948C26580B2041Bd5bb50c0',
+  '0xd6D1d688f613CfAa20E450482268963cd90D32C5',
+  '0x7770855BE3D5d0222897cc6c38749C74671b7777',
+  '0x96E94908840048a6DbfBDD5E8251402f62b54181',
+  '0x5156b0072568905afd2f57fc1f4c0de48fa86bf3',
+  '0x3b6D1D9c16c840d25867104B99633775154B4E20',
+  '0xef7224540cf2ff45d5050ccf1313ec48a621dba3',
+  '0x7e3200ed99da69c59d10106d51c8AeFF38D2bFF1',
+  '0x984cB291D6EF7943e90887c0Ef3Abe3a90E70E59',
+  '0xFD619A3682f7eA2Aa9087a5d481b2E5dB850386c',
+  '0xb71dC8cc3Fd411C2fe9ACcF4360d41E7cF558623',
+  '0x35F4905E00c1E3f4F3b61Bb23d503833c2b77D3E',
+  '0xd0ec56993ad27fa70088bb7714c3b35421b65ef5',
+  '0xa9d2Ea5e931B55B6F11c7838459559EAfb9f61E0',
+  '0x915b872Ed942B5265349E15CFAe566341C1e39dE',
+  '0x93F3F612A525a59523e91CC5552F718DF9fc0746',
+  '0xc27FD9D5113dE19EA89D0265Be9FD93F35f052c8',
+  '0x6DdaC48386fB8b1F9D6aFD75eFE5E5c9FE9b0766',
+  '0x4dDd8F7371Bb05CCa7eEdfF260931586F0c6A0F3',
+  '0x3c247e9CDF291824790a920Fc0202E94d8A813E6',
+  '0x1A904453aa765756b811Bf2bFd2fC6D3B8196262',
+  '0x861a2b7d36F21B8873AdAE86AeB5A02C03f6C022',
+  '0xC49e1a16CA32Fed6a25151c972A08f08289dB38C',
+  '0xe0ec6652337b38057ea655bf87c0c2c370255e3f',
+  '0x8Aaea5c1F3FFA2287E375F4A0d45157F47A48829',
+  '0xE8357593Cf589ed0ba927a0cc5A63a58Aa15AfB9',
+  '0xEc80a932353DCdd2554c6DB03E7Eeda21168568E',
+  '0x15CcC57F0cD53eF16efBCEb097A44a97A88d5740',
+  '0xC8e8188010CF2d634Dd3d79fAEDBad12140EfC11',
+  '0x35C3Ec4203f12F206Dbc63f48aaD7B223BEa924C',
+  '0xFaF58c162eBE1E7f64DcfBC57fDB238Fd0613b20',
+  '0x8E666bd6dD4AdC978350802D11558aAfE9f290f0',
+  '0x9dA9409D17DeA285B078af06206941C049F692Dc',
 ]
 
 function MyApp({ Component, pageProps }) {
@@ -330,10 +366,14 @@ function MyApp({ Component, pageProps }) {
   const { address, isDisconnected, isConnected } = useAccount()
 
   const [_isConnected, _setIsConnected] = useState(false);
+  const [_isMobile, _setIsMobile] = useState(false);
 
   useEffect(() => {
     _setIsConnected(isConnected);
   }, [isConnected]);
+  useEffect(() => {
+    _setIsMobile(isMobile);
+  }, [isMobile]);
 
   return (
     <>
@@ -343,8 +383,16 @@ function MyApp({ Component, pageProps }) {
       <WagmiConfig client={wagmiClient}>
         <RainbowKitProvider chains={chains} initialChain={arbitrumGoerli}>
           <ApolloProvider client={apolloClient}>
-            { _isConnected ? (whitelist.includes(address) ? 
+          {_isMobile ? (<div>
+              <div className="h-screen w-full bottom-0  md:hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black z-50">
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center">
+                Poolshark testnet is not available on mobile, please use a bigger screen
+                </div>
+              </div>
+              </div>) : (<>
+            { _isConnected ? (whitelist.includes(address) ? (
             <Component {...pageProps} />
+            )
             : 
             <div className="min-h-screen">
             <div className="max-w-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
@@ -373,6 +421,7 @@ function MyApp({ Component, pageProps }) {
                 </div>
                 </div>
             </div>) }
+            </>)}
             <Analytics />
           </ApolloProvider>
         </RainbowKitProvider>

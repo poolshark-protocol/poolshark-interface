@@ -135,7 +135,7 @@ export default function UserPool({
         }}
       >
         <div className="w-full cursor-pointer flex justify-between items-center bg-dark border border-grey2 rounded-xl py-3.5 pl-5 h-24 relative">
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex items-center gap-x-5">
               <div className="flex items-center ">
                 <img height="30" width="30" src={logoMap[tokenZero.symbol]} />
@@ -147,21 +147,23 @@ export default function UserPool({
                 />
               </div>
               <div className="flex items-center gap-x-1.5">
-                {tokenZero.name}
+                {tokenZero.symbol}
                 <div>-</div>
-                {tokenOne.name}
+                {tokenOne.symbol}
               </div>
               <div className="bg-black px-2 py-1 rounded-lg text-grey">
                 {feeTierPercentage}%
               </div>
             </div>
-            <div className="text-sm flex items-center gap-x-3">
-              <span>
-                <span className="text-grey">Min:</span> {TickMath.getPriceStringAtTick(min)} {tokenZero.symbol}{' '}
-                per {tokenOne.symbol}
+            <div className="text-xs grid grid-cols-5 items-center gap-x-3">
+              <span className='col-span-2'>
+                <span className="text-grey">Min:</span> {TickMath.getPriceStringAtTick(min)} {tokenOne.symbol}{' '}
+                per {tokenZero.symbol}
               </span>
+              <div className='flex items-center justify-center col-span-1'>
               <ArrowsRightLeftIcon className="w-4 text-grey" />
-              <span>
+              </div>
+              <span className='col-span-2'>
                 <span className="text-grey">Max:</span> {TickMath.getPriceStringAtTick(max)} {tokenOne.symbol}{' '}
                 per {tokenZero.symbol}
               </span>
