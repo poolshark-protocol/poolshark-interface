@@ -294,7 +294,7 @@ export default function Cover() {
     setTimeout(() => {
       updateClaimTick()
     }, 3000)
-  }, [])
+  }, [claimTick])
 
   async function updateClaimTick() {
     const aux = await getClaimTick(
