@@ -111,6 +111,7 @@ export default function Swap() {
   const [upperTick, setUpperTick] = useState(BN_ZERO)
   const [limitPriceSwitch, setLimitPriceSwitch] = useState(true)
   const [limitOrderPrice, setLimitOrderPrice] = useState('0')
+  const [limitPriceInput, setLimitPriceInput] = useState('0')
 
   ////////////////////////////////ChainId
 
@@ -327,18 +328,25 @@ export default function Swap() {
 
   //limit price for limit Tab
   useEffect(() => {
-    setLimitOrderPrice(
+    setLimitPriceInput(
       limitPriceSwitch
         ? (tokenIn.usdPrice / tokenOut.usdPrice).toPrecision(6)
         : (tokenOut.usdPrice / tokenIn.usdPrice).toPrecision(6),
+    )
+    // console
+    setLimitPrice(
+      (tokenIn.usdPrice / tokenOut.usdPrice).toPrecision(6)
     )
   }, [tokenIn, tokenOut, limitPriceSwitch])
 
   useEffect(() => {
     if (limitPriceSwitch) {
-      setLimitPrice(limitOrderPrice)
+      setLimitPrice(limitPriceInput)
+    } else {
+      setLimitPrice((1/parseFloat(limitPriceInput)).toPrecision(6))
     }
-  }, [limitOrderPrice])
+    console.log('percent diff', )
+  }, [limitPriceInput])
 
   ////////////////////////////////Quotes
 
@@ -485,57 +493,61 @@ export default function Swap() {
   }, [limitPrice, slippage])
 
   function updateLimitTicks() {
-    if (parseFloat(slippage) * 100 > rangeTickSpacing) {
-      const limitPriceTolerance =
-        (parseFloat(limitPrice) *
-          parseFloat((parseFloat(slippage) * 100).toFixed(6))) /
-        10000
-      if (tokenOrder) {
-        const endPrice = parseFloat(limitPrice) - -limitPriceTolerance
-        setLowerTick(
-          BigNumber.from(
-            TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing),
-          ),
-        )
-        setUpperTick(
-          BigNumber.from(
-            TickMath.getTickAtPriceString(String(endPrice), rangeTickSpacing),
-          ),
-        )
+    if (isFinite(parseFloat(limitPrice)) && parseFloat(limitPrice) > 0) {
+      console.log('limit price check', parseFloat(limitPrice))
+      if (parseFloat(slippage) * 100 > rangeTickSpacing && 
+          parseFloat(limitPrice) > 0) {
+        const limitPriceTolerance =
+          (parseFloat(limitPrice) *
+            parseFloat((parseFloat(slippage) * 100).toFixed(6))) /
+          10000
+        if (tokenOrder) {
+          const endPrice = parseFloat(limitPrice) - -limitPriceTolerance
+          setLowerTick(
+            BigNumber.from(
+              TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing),
+            ),
+          )
+          setUpperTick(
+            BigNumber.from(
+              TickMath.getTickAtPriceString(String(endPrice), rangeTickSpacing),
+            ),
+          )
+        } else {
+          const endPrice = parseFloat(limitPrice) - limitPriceTolerance
+          setLowerTick(
+            BigNumber.from(
+              TickMath.getTickAtPriceString(String(endPrice), rangeTickSpacing),
+            ),
+          )
+          setUpperTick(
+            BigNumber.from(
+              TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing),
+            ),
+          )
+        }
       } else {
-        const endPrice = parseFloat(limitPrice) - limitPriceTolerance
-        setLowerTick(
-          BigNumber.from(
-            TickMath.getTickAtPriceString(String(endPrice), rangeTickSpacing),
-          ),
-        )
-        setUpperTick(
-          BigNumber.from(
-            TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing),
-          ),
-        )
-      }
-    } else {
-      if (tokenOrder) {
-        const endTick =
-          TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing) -
-          -rangeTickSpacing
-        setLowerTick(
-          BigNumber.from(
-            TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing),
-          ),
-        )
-        setUpperTick(BigNumber.from(String(endTick)))
-      } else {
-        const endTick =
-          TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing) -
-          rangeTickSpacing
-        setLowerTick(BigNumber.from(String(endTick)))
-        setUpperTick(
-          BigNumber.from(
-            TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing),
-          ),
-        )
+        if (tokenOrder) {
+          const endTick =
+            TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing) -
+            -rangeTickSpacing
+          setLowerTick(
+            BigNumber.from(
+              TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing),
+            ),
+          )
+          setUpperTick(BigNumber.from(String(endTick)))
+        } else {
+          const endTick =
+            TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing) -
+            rangeTickSpacing
+          setLowerTick(BigNumber.from(String(endTick)))
+          setUpperTick(
+            BigNumber.from(
+              TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing),
+            ),
+          )
+        }
       }
     }
   }
@@ -665,7 +677,7 @@ export default function Swap() {
                   ? '0'
                   : (
                       parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                      parseFloat(limitOrderPrice)
+                      parseFloat(limitPrice)
                     ).toFixed(2)
                 : 'Select Token'}
             </div>
@@ -994,30 +1006,28 @@ export default function Swap() {
                   autoComplete="off"
                   className="bg-[#0C0C0C] outline-none"
                   placeholder="0"
-                  value={hasSelected ? limitOrderPrice : 0}
+                  value={limitPriceInput > 0 ? limitPriceInput : 0}
                   type="text"
                   onChange={(e) => {
-                    if (limitPriceSwitch) {
-                      setLimitOrderPrice(inputFilter(e.target.value))
-                    }
+                    setLimitPriceInput(e.target.value)
                   }}
                 />
                 <></>
                 {/*TODO - fix market price comparion when switch directions*/}
                 <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]">
-                    {hasSelected ? (
-                      (parseFloat(limitOrderPrice) / rangePrice - 1) * 100 > 0 ? (
+                    {hasSelected ? (isFinite(parseFloat(limitPrice)) ? (
+                      (parseFloat(limitPrice) / rangePrice - 1) * 100 > 0 ? (
                         (
-                          (parseFloat(limitOrderPrice) / rangePrice - 1) *
+                          (parseFloat(limitPrice) / rangePrice - 1) *
                           100
                         ).toFixed(2) + '% above Market Price'
                       ) : (
                         Math.abs(
-                          (parseFloat(limitOrderPrice) / rangePrice - 1) * 100,
+                          (parseFloat(limitPrice) / rangePrice - 1) * 100,
                         ).toFixed(2) + '% below Market Price'
                       )
-                    ) : (
+                    ) : '0% above Market Price') : (
                       <></>
                     )}
                   </div>
