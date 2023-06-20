@@ -218,7 +218,7 @@ export default function UserCoverPool({
               {feeTierPercentage}%
             </div>
           </div>
-          <div className="text-xs grid grid-cols-5 items-center gap-x-3">
+          <div className="text-xs grid grid-cols-5 items-center gap-x-3 pr-5">
             <span className="col-span-2">
               <span className="text-grey">Min:</span>{' '}
               {TickMath.getPriceStringAtTick(min)} {zeroForOne ? tokenOne.symbol : tokenZero.symbol} per{' '}
@@ -234,7 +234,7 @@ export default function UserCoverPool({
             </span>
           </div>
         </div>
-        <div className="pr-5">
+        <div className="ml-5 pr-5">
           <div className="flex relative bg-transparent items-center justify-center h-8 border-grey1 z-40 border rounded-lg gap-x-2 text-sm w-36">
             <div className={`bg-white h-full absolute left-0 z-0 rounded-l-[7px] opacity-10 w-[${fillPercent}%]`} />
             <div className="z-20 ">{fillPercent}% Filled</div>
