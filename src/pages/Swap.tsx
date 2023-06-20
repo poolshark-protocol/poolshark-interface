@@ -335,7 +335,15 @@ export default function Swap() {
     setLimitPrice(
       (tokenIn.usdPrice / tokenOut.usdPrice).toPrecision(6)
     )
-  }, [tokenIn, tokenOut, limitPriceSwitch])
+  }, [tokenIn, tokenOut])
+
+  useEffect(() => {
+    if (parseFloat(limitPriceInput) > 0)  
+      setLimitPriceInput(
+        (1 / parseFloat(limitPriceInput)).toPrecision(6)
+        .replace(/0+$/, '').replace(/(\.)(?!\d)/g, '')
+      )
+  }, [limitPriceSwitch])
 
   useEffect(() => {
     if (limitPriceSwitch) {
@@ -345,7 +353,6 @@ export default function Swap() {
         setLimitPrice((1/parseFloat(limitPriceInput)).toPrecision(6))
       else setLimitPrice('0')
     }
-    console.log('percent diff', )
   }, [limitPriceInput])
 
   ////////////////////////////////Quotes
@@ -1005,7 +1012,7 @@ export default function Swap() {
                   autoComplete="off"
                   className="bg-[#0C0C0C] outline-none"
                   placeholder="0"
-                  value={limitPriceInput}
+                  value={!isNaN(parseFloat(limitPriceInput)) ? limitPriceInput : 0}
                   type="text"
                   onChange={(e) => {
                     setLimitPriceInput(inputFilter(e.target.value))
@@ -1015,7 +1022,7 @@ export default function Swap() {
                 {/*TODO - fix market price comparion when switch directions*/}
                 <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]">
-                    {hasSelected ? (
+                    {hasSelected && rangePrice > 0 ? (
                       (parseFloat(limitPrice) / rangePrice - 1) * 100 > 0 ? (
                         (
                           (parseFloat(limitPrice) / rangePrice - 1) *
@@ -1027,7 +1034,7 @@ export default function Swap() {
                         ).toFixed(2) + '% below Market Price'
                       )
                     ) : (
-                      <></>
+                      '% above Market Price'
                     )}
                   </div>
                 </div>
