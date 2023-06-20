@@ -105,11 +105,11 @@ export default function Swap() {
   const [rangeBnPriceLimit, setRangeBnPriceLimit] = useState(BN_ZERO)
   const [coverBnPriceLimit, setCoverBnPriceLimit] = useState(BN_ZERO)
   const [slippageFetched, setSlippageFetched] = useState(false)
-  const [limitPrice, setLimitPrice] = useState('1')
+  const [limitPrice, setLimitPrice] = useState('0')
   const [allowanceRangeOut, setAllowanceRangeOut] = useState('0.00')
   const [lowerTick, setLowerTick] = useState(BN_ZERO)
   const [upperTick, setUpperTick] = useState(BN_ZERO)
-  const [limitOrder, setLimitOrder] = useState(true)
+  const [limitPriceSwitch, setLimitPriceSwitch] = useState(true)
   const [limitOrderPrice, setLimitOrderPrice] = useState('0')
 
   ////////////////////////////////ChainId
@@ -289,11 +289,14 @@ export default function Swap() {
       ) {
         setRangePrice(
           parseFloat(
-            invertPrice(
-              TickMath.getPriceStringAtSqrtPrice(priceRange[5]),
-              tokenIn.address.localeCompare(tokenOut.address) < 0,
-            ),
+            TickMath.getPriceStringAtSqrtPrice(priceRange[5])
           ),
+        )
+        if (parseFloat(limitPrice) == 0)
+        setLimitPrice(
+          parseFloat(
+            TickMath.getPriceStringAtSqrtPrice(priceRange[5])
+          ).toPrecision(5)
         )
       }
     }
@@ -327,11 +330,11 @@ export default function Swap() {
   //limit price for limit Tab
   useEffect(() => {
     setLimitOrderPrice(
-      limitOrder
-        ? (tokenIn.usdPrice / tokenOut.usdPrice).toFixed(10)
-        : (tokenOut.usdPrice / tokenIn.usdPrice).toFixed(10),
+      limitPriceSwitch
+        ? (tokenIn.usdPrice / tokenOut.usdPrice).toPrecision(6)
+        : (tokenOut.usdPrice / tokenIn.usdPrice).toPrecision(6),
     )
-  }, [tokenIn, tokenOut, limitOrder])
+  }, [tokenIn, tokenOut, limitPriceSwitch])
 
   useEffect(() => {
     setLimitPrice(limitOrderPrice)
@@ -1030,9 +1033,9 @@ export default function Swap() {
                       ) : (
                         <button
                           className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
-                          onClick={() => setLimitOrder(!limitOrder)}
+                          onClick={() => setLimitPriceSwitch(!limitPriceSwitch)}
                         >
-                          {limitOrder
+                          {limitPriceSwitch
                             ? tokenOut.symbol + ' per ' + tokenIn.symbol
                             : tokenIn.symbol + ' per ' + tokenOut.symbol}
 
