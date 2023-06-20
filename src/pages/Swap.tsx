@@ -110,6 +110,7 @@ export default function Swap() {
   const [lowerTick, setLowerTick] = useState(BN_ZERO)
   const [upperTick, setUpperTick] = useState(BN_ZERO)
   const [limitOrder, setLimitOrder] = useState(false)
+  const [limitOrderPrice, setLimitOrderPrice] = useState('0')
 
   ////////////////////////////////ChainId
 
@@ -325,7 +326,7 @@ export default function Swap() {
 
   //limit price for limit Tab
   useEffect(() => {
-    setLimitPrice(
+    setLimitOrderPrice(
       limitOrder
         ? (tokenIn.usdPrice / tokenOut.usdPrice).toFixed(10)
         : (tokenOut.usdPrice / tokenIn.usdPrice).toFixed(10),
@@ -986,7 +987,7 @@ export default function Swap() {
                   autoComplete="off"
                   className="bg-[#0C0C0C] outline-none"
                   placeholder="0"
-                  value={hasSelected ? limitPrice : 0}
+                  value={hasSelected ? limitOrderPrice : 0}
                   type="text"
                   onChange={(e) => {
                     setLimitPrice(inputFilter(e.target.value))
