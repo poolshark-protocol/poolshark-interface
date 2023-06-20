@@ -282,8 +282,7 @@ export default function Cover() {
     if (coverFilledAmount && userFillIn) {
       setFillPercent(
         (Number(coverFilledAmount) /
-          Number(ethers.utils.formatUnits(userFillIn.toString(), 18))) *
-          100,
+          Number(ethers.utils.formatUnits(userFillIn.toString(), 18)))
       )
     }
   })
