@@ -143,7 +143,7 @@ export default function Pool() {
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
       <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full">
-        <div className="w-[55rem] absolute bottom-0">
+        <div className="w-[60rem] mt-[10vh] mb-[10vh]">
           <div className="flex justify-between mb-6 items-end">
             <div className="flex items-center gap-x-4">
               <h1 className="text-3xl">Pools</h1>
@@ -187,7 +187,7 @@ export default function Pool() {
             </button>*/}
             {/* </Link> */}
           </div>
-          <div className="bg-black  border border-grey2 w-full rounded-t-xl p-6 space-y-4 h-[70vh] overflow-auto">
+          <div className="bg-black  border border-grey2 w-full rounded-xl p-6 space-y-4 min-h-[70vh]">
             <div className="relative">
               <MagnifyingGlassIcon className="w-5 text-grey absolute ml-[14px] mt-[13px]" />
               <input
