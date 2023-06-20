@@ -109,7 +109,7 @@ export default function Swap() {
   const [allowanceRangeOut, setAllowanceRangeOut] = useState('0.00')
   const [lowerTick, setLowerTick] = useState(BN_ZERO)
   const [upperTick, setUpperTick] = useState(BN_ZERO)
-  const [limitPriceSwitch, setLimitPriceSwitch] = useState(false)
+  const [limitPriceSwitch, setLimitPriceSwitch] = useState(true)
   const [limitOrderPrice, setLimitOrderPrice] = useState('0')
 
   ////////////////////////////////ChainId
@@ -331,8 +331,8 @@ export default function Swap() {
   useEffect(() => {
     setLimitOrderPrice(
       limitPriceSwitch
-        ? (tokenIn.usdPrice / tokenOut.usdPrice).toFixed(10)
-        : (tokenOut.usdPrice / tokenIn.usdPrice).toFixed(10),
+        ? (tokenIn.usdPrice / tokenOut.usdPrice).toPrecision(6)
+        : (tokenOut.usdPrice / tokenIn.usdPrice).toPrecision(6),
     )
   }, [tokenIn, tokenOut, limitPriceSwitch])
 
