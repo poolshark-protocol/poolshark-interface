@@ -1006,7 +1006,7 @@ export default function Swap() {
                   autoComplete="off"
                   className="bg-[#0C0C0C] outline-none"
                   placeholder="0"
-                  value={limitPriceInput > 0 ? limitPriceInput : 0}
+                  value={parseFloat(limitPriceInput) > 0 ? limitPriceInput : 0}
                   type="text"
                   onChange={(e) => {
                     setLimitPriceInput(e.target.value)
