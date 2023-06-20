@@ -111,8 +111,6 @@ export default function Swap() {
   const [upperTick, setUpperTick] = useState(BN_ZERO)
   const [limitOrder, setLimitOrder] = useState(false)
 
-  console.log('limitOrder', limitOrder)
-
   ////////////////////////////////ChainId
 
   useEffect(() => {
