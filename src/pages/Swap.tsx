@@ -333,7 +333,6 @@ export default function Swap() {
         ? (tokenIn.usdPrice / tokenOut.usdPrice).toPrecision(6)
         : (tokenOut.usdPrice / tokenIn.usdPrice).toPrecision(6),
     )
-    // console
     setLimitPrice(
       (tokenIn.usdPrice / tokenOut.usdPrice).toPrecision(6)
     )
@@ -343,7 +342,9 @@ export default function Swap() {
     if (limitPriceSwitch) {
       setLimitPrice(limitPriceInput)
     } else {
-      setLimitPrice((1/parseFloat(limitPriceInput)).toPrecision(6))
+      if (parseFloat(limitPriceInput) > 0)
+        setLimitPrice((1/parseFloat(limitPriceInput)).toPrecision(6))
+      else setLimitPrice('0')
     }
     console.log('percent diff', )
   }, [limitPriceInput])
@@ -494,7 +495,6 @@ export default function Swap() {
 
   function updateLimitTicks() {
     if (isFinite(parseFloat(limitPrice)) && parseFloat(limitPrice) > 0) {
-      console.log('limit price check', parseFloat(limitPrice))
       if (parseFloat(slippage) * 100 > rangeTickSpacing && 
           parseFloat(limitPrice) > 0) {
         const limitPriceTolerance =
