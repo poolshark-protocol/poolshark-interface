@@ -951,7 +951,7 @@ export default function Swap() {
               <div className="flex">
                 <div className="flex text-xs text-[#4C4C4C]">
                   $
-                  {!LimitActive
+                  {!isNaN(tokenOut.usdPrice) ? !LimitActive
                     ? rangeQuote > coverQuote
                       ? (
                           parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
@@ -967,7 +967,7 @@ export default function Swap() {
                         parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                         parseFloat(limitPrice) *
                         tokenOut.usdPrice
-                      ).toFixed(2)}
+                      ).toFixed(2) : (0).toFixed(2)}
                 </div>
               </div>
             ) : (
@@ -1034,7 +1034,7 @@ export default function Swap() {
                         ).toFixed(2) + '% below Market Price'
                       )
                     ) : (
-                      '% above Market Price'
+                      '0.00% above Market Price'
                     )}
                   </div>
                 </div>
