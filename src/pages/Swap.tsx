@@ -716,13 +716,15 @@ export default function Swap() {
               <div className="ml-auto text-xs">
                 {hasSelected
                   ? rangeQuote > coverQuote
-                    ? (Math.abs(
-                      (rangePrice - rangePriceAfter) * 100) / rangePrice
-                    ).toFixed(2) + '%'
-                  : (Math.abs(
-                      (coverPrice - coverPriceAfter) * 100) / coverPrice
-                    ).toFixed(2) + '%'
-                : 'Select Token'}
+                    ? (
+                        Math.abs((rangePrice - rangePriceAfter) * 100) /
+                        rangePrice
+                      ).toFixed(2) + '%'
+                    : (
+                        Math.abs((coverPrice - coverPriceAfter) * 100) /
+                        coverPrice
+                      ).toFixed(2) + '%'
+                  : 'Select Token'}
               </div>
             </div>
           ) : (
@@ -978,9 +980,11 @@ export default function Swap() {
                   className="bg-[#0C0C0C] outline-none"
                   placeholder="0"
                   value={
-                    limitOrder
-                      ? (tokenIn.usdPrice / tokenOut.usdPrice).toFixed(10)
-                      :( tokenOut.usdPrice / tokenIn.usdPrice).toFixed(10)
+                    hasSelected
+                      ? limitOrder
+                        ? (tokenIn.usdPrice / tokenOut.usdPrice).toFixed(10)
+                        : (tokenOut.usdPrice / tokenIn.usdPrice).toFixed(10)
+                      : 0
                   }
                   type="text"
                   onChange={(e) => {
@@ -988,18 +992,23 @@ export default function Swap() {
                   }}
                 />
                 <></>
+                {/*TODO - fix market price comparion when switch directions*/}
                 <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]">
-                    {' '}
-                    {/*TODO - fix market price comparion when switch directions*/}
-                    {(parseFloat(limitPrice) / rangePrice - 1) * 100 > 0
-                      ? (
+                    {hasSelected ? (
+                      (parseFloat(limitPrice) / rangePrice - 1) * 100 > 0 ? (
+                        (
                           (parseFloat(limitPrice) / rangePrice - 1) *
                           100
                         ).toFixed(2) + '% above Market Price'
-                      : Math.abs(
+                      ) : (
+                        Math.abs(
                           (parseFloat(limitPrice) / rangePrice - 1) * 100,
-                        ).toFixed(2) + '% below Market Price'}
+                        ).toFixed(2) + '% below Market Price'
+                      )
+                    ) : (
+                      <></>
+                    )}
                   </div>
                 </div>
               </div>
