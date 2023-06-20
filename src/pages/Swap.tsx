@@ -110,7 +110,6 @@ export default function Swap() {
   const [lowerTick, setLowerTick] = useState(BN_ZERO)
   const [upperTick, setUpperTick] = useState(BN_ZERO)
   const [limitPriceSwitch, setLimitPriceSwitch] = useState(true)
-  const [limitOrderPrice, setLimitOrderPrice] = useState('0')
   const [limitPriceInput, setLimitPriceInput] = useState('0')
 
   ////////////////////////////////ChainId
@@ -1016,7 +1015,7 @@ export default function Swap() {
                 {/*TODO - fix market price comparion when switch directions*/}
                 <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]">
-                    {hasSelected ? (isFinite(parseFloat(limitPrice)) ? (
+                    {hasSelected ? (
                       (parseFloat(limitPrice) / rangePrice - 1) * 100 > 0 ? (
                         (
                           (parseFloat(limitPrice) / rangePrice - 1) *
@@ -1027,7 +1026,7 @@ export default function Swap() {
                           (parseFloat(limitPrice) / rangePrice - 1) * 100,
                         ).toFixed(2) + '% below Market Price'
                       )
-                    ) : '0% above Market Price') : (
+                    ) : (
                       <></>
                     )}
                   </div>
