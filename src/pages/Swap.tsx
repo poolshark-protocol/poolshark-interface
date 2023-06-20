@@ -287,10 +287,7 @@ export default function Swap() {
       ) {
         setRangePrice(
           parseFloat(
-            invertPrice(
-              TickMath.getPriceStringAtSqrtPrice(priceRange[5]),
-              tokenIn.address.localeCompare(tokenOut.address) < 0,
-            ),
+            TickMath.getPriceStringAtSqrtPrice(priceRange[5])
           ),
         )
       }
