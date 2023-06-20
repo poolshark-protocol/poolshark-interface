@@ -109,7 +109,7 @@ export default function Swap() {
   const [allowanceRangeOut, setAllowanceRangeOut] = useState('0.00')
   const [lowerTick, setLowerTick] = useState(BN_ZERO)
   const [upperTick, setUpperTick] = useState(BN_ZERO)
-  const [limitOrder, setLimitOrder] = useState(false)
+  const [limitPriceSwitch, setLimitPriceSwitch] = useState(false)
 
   ////////////////////////////////ChainId
 
@@ -978,11 +978,7 @@ export default function Swap() {
                   className="bg-[#0C0C0C] outline-none"
                   placeholder="0"
                   value={
-                    hasSelected
-                      ? limitOrder
-                        ? (tokenIn.usdPrice / tokenOut.usdPrice).toFixed(10)
-                        : (tokenOut.usdPrice / tokenIn.usdPrice).toFixed(10)
-                      : 0
+                    limitPrice
                   }
                   type="text"
                   onChange={(e) => {
@@ -1022,9 +1018,9 @@ export default function Swap() {
                       ) : (
                         <button
                           className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
-                          onClick={() => setLimitOrder(!limitOrder)}
+                          onClick={() => setLimitPriceSwitch(!limitPriceSwitch)}
                         >
-                          {limitOrder
+                          {limitPriceSwitch
                             ? tokenOut.symbol + ' per ' + tokenIn.symbol
                             : tokenIn.symbol + ' per ' + tokenOut.symbol}
 
