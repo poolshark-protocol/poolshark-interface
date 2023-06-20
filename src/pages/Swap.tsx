@@ -287,10 +287,7 @@ export default function Swap() {
       ) {
         setRangePrice(
           parseFloat(
-            invertPrice(
-              TickMath.getPriceStringAtSqrtPrice(priceRange[5]),
-              tokenIn.address.localeCompare(tokenOut.address) < 0,
-            ),
+            TickMath.getPriceStringAtSqrtPrice(priceRange[5])
           ),
         )
       }
@@ -370,6 +367,9 @@ export default function Swap() {
         const priceAfter = parseFloat(
           TickMath.getPriceStringAtSqrtPrice(quoteRange[2]),
         )
+        console.log('new range price after', (Math.abs(
+          (rangePrice - rangePriceAfter) * 100) / rangePrice
+        ).toFixed(2) + '%', rangePrice, rangePriceAfter)
         setRangePriceAfter(priceAfter)
         const priceSlippage = parseFloat(
           ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6),
