@@ -993,7 +993,7 @@ export default function Swap() {
                   value={hasSelected ? limitOrderPrice : 0}
                   type="text"
                   onChange={(e) => {
-                    setLimitPrice(inputFilter(e.target.value))
+                    setLimitOrderPrice(inputFilter(e.target.value))
                   }}
                 />
                 <></>
