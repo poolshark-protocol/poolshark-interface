@@ -31,7 +31,7 @@ export default function RangeRemoveLiqButton({poolAddress, address, lower, upper
         ]],
         chainId: 421613,
         overrides:{
-            gasLimit: BigNumber.from("3500000")
+            gasLimit: BigNumber.from("500000")
         },
     })
 

@@ -716,13 +716,13 @@ export default function Swap() {
               <div className="ml-auto text-xs">
                 {hasSelected
                   ? rangeQuote > coverQuote
-                    ? Math.abs(
-                        ((rangePriceAfter - rangePrice) * 100) / rangePrice,
-                      ).toFixed(2) + '%'
-                    : Math.abs(
-                        ((coverPriceAfter - coverPrice) * 100) / coverPrice,
-                      ).toFixed(2) + '%'
-                  : 'Select Token'}
+                    ? (Math.abs(
+                      (rangePrice - rangePriceAfter) * 100) / rangePrice
+                    ).toFixed(2) + '%'
+                  : (Math.abs(
+                      (coverPrice - coverPriceAfter) * 100) / coverPrice
+                    ).toFixed(2) + '%'
+                : 'Select Token'}
               </div>
             </div>
           ) : (
@@ -826,7 +826,7 @@ export default function Swap() {
                   {(
                     Number(ethers.utils.formatUnits(bnInput, 18)) *
                     tokenIn.usdPrice
-                  ).toFixed(3)}
+                  ).toFixed(2)}
                 </div>
               </div>
             ) : (
