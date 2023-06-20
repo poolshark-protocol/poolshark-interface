@@ -288,16 +288,14 @@ export default function Swap() {
         priceRange != undefined
       ) {
         setRangePrice(
-          parseFloat(
-            TickMath.getPriceStringAtSqrtPrice(priceRange[5])
-          ),
+          parseFloat(TickMath.getPriceStringAtSqrtPrice(priceRange[5])),
         )
         if (parseFloat(limitPrice) == 0)
-        setLimitPrice(
-          parseFloat(
-            TickMath.getPriceStringAtSqrtPrice(priceRange[5])
-          ).toPrecision(5)
-        )
+          setLimitPrice(
+            parseFloat(
+              TickMath.getPriceStringAtSqrtPrice(priceRange[5]),
+            ).toPrecision(5),
+          )
       }
     }
   }, [coverPoolRoute, rangePoolRoute, priceCover, priceRange])
@@ -337,7 +335,9 @@ export default function Swap() {
   }, [tokenIn, tokenOut, limitPriceSwitch])
 
   useEffect(() => {
-    setLimitPrice(limitOrderPrice)
+    if (limitPriceSwitch) {
+      setLimitPrice(limitOrderPrice)
+    }
   }, [limitOrderPrice])
 
   ////////////////////////////////Quotes
@@ -997,7 +997,9 @@ export default function Swap() {
                   value={hasSelected ? limitOrderPrice : 0}
                   type="text"
                   onChange={(e) => {
-                    setLimitOrderPrice(inputFilter(e.target.value))
+                    if (limitPriceSwitch) {
+                      setLimitOrderPrice(inputFilter(e.target.value))
+                    }
                   }}
                 />
                 <></>
