@@ -323,6 +323,15 @@ export default function Swap() {
     }
   }, [slippage, rangeBnPrice, coverBnPrice])
 
+  //limit price for limit Tab
+  useEffect(() => {
+    setLimitPrice(
+      limitOrder
+        ? (tokenIn.usdPrice / tokenOut.usdPrice).toFixed(10)
+        : (tokenOut.usdPrice / tokenIn.usdPrice).toFixed(10),
+    )
+  }, [tokenIn, tokenOut, limitOrder])
+
   ////////////////////////////////Quotes
 
   const { data: quoteRange } = useContractRead({
@@ -977,13 +986,7 @@ export default function Swap() {
                   autoComplete="off"
                   className="bg-[#0C0C0C] outline-none"
                   placeholder="0"
-                  value={
-                    hasSelected
-                      ? limitOrder
-                        ? (tokenIn.usdPrice / tokenOut.usdPrice).toFixed(10)
-                        : (tokenOut.usdPrice / tokenIn.usdPrice).toFixed(10)
-                      : 0
-                  }
+                  value={hasSelected ? limitPrice : 0}
                   type="text"
                   onChange={(e) => {
                     setLimitPrice(inputFilter(e.target.value))
