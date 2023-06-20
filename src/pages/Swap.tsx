@@ -289,13 +289,15 @@ export default function Swap() {
       ) {
         setRangePrice(
           parseFloat(
-            invertPrice(
-              TickMath.getPriceStringAtSqrtPrice(priceRange[5]),
-              tokenIn.address.localeCompare(tokenOut.address) < 0,
-            ),
+            TickMath.getPriceStringAtSqrtPrice(priceRange[5])
           ),
         )
-        
+        if (parseFloat(limitPrice) == 0)
+        setLimitPrice(
+          parseFloat(
+            TickMath.getPriceStringAtSqrtPrice(priceRange[5])
+          ).toPrecision(5)
+        )
       }
     }
   }, [coverPoolRoute, rangePoolRoute, priceCover, priceRange])
