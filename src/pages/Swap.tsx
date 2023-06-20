@@ -665,7 +665,7 @@ export default function Swap() {
                   ? '0'
                   : (
                       parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                      parseFloat(limitPrice)
+                      parseFloat(limitOrderPrice)
                     ).toFixed(2)
                 : 'Select Token'}
             </div>
@@ -1007,14 +1007,14 @@ export default function Swap() {
                 <div className="flex">
                   <div className="flex text-xs text-[#4C4C4C]">
                     {hasSelected ? (
-                      (parseFloat(limitPrice) / rangePrice - 1) * 100 > 0 ? (
+                      (parseFloat(limitOrderPrice) / rangePrice - 1) * 100 > 0 ? (
                         (
-                          (parseFloat(limitPrice) / rangePrice - 1) *
+                          (parseFloat(limitOrderPrice) / rangePrice - 1) *
                           100
                         ).toFixed(2) + '% above Market Price'
                       ) : (
                         Math.abs(
-                          (parseFloat(limitPrice) / rangePrice - 1) * 100,
+                          (parseFloat(limitOrderPrice) / rangePrice - 1) * 100,
                         ).toFixed(2) + '% below Market Price'
                       )
                     ) : (
