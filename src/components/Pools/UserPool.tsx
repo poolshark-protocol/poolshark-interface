@@ -146,7 +146,7 @@ export default function UserPool({
                   src={logoMap[tokenOne.symbol]}
                 />
               </div>
-              <div className="flex items-center gap-x-1.5">
+              <div className="flex items-center gap-x-2">
                 {tokenZero.symbol}
                 <div>-</div>
                 {tokenOne.symbol}
@@ -155,7 +155,7 @@ export default function UserPool({
                 {feeTierPercentage}%
               </div>
             </div>
-            <div className="text-xs grid grid-cols-5 items-center gap-x-3">
+            <div className="text-xs grid grid-cols-5 items-center gap-x-3 pr-5">
               <span className='col-span-2'>
                 <span className="text-grey">Min:</span> {TickMath.getPriceStringAtTick(min)} {tokenOne.symbol}{' '}
                 per {tokenZero.symbol}

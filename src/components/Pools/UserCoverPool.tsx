@@ -81,7 +81,7 @@ export default function UserCoverPool({
 
   useEffect(() => {
     setFillPercent((Math.abs((zeroForOne ? upperPrice : lowerPrice) - claimPrice)
-    / Math.abs(upperPrice - lowerPrice) * 100).toPrecision(3))
+    / Math.abs(upperPrice - lowerPrice)).toPrecision(3))
   }, [claimPrice])
 
   const { isConnected } = useAccount()
@@ -196,9 +196,9 @@ export default function UserCoverPool({
         onMouseLeave={(e) => {
           setShow(false)
         }}
-        className="w-full cursor-pointer flex justify-between items-center bg-dark border border-grey2 rounded-xl py-3.5 pl-5 h-24 relative"
+        className="w-full cursor-pointer grid grid-cols-7 items-center w-full bg-dark border border-grey2 rounded-xl py-3.5 pl-5 min-h-24 relative"
       >
-        <div className="space-y-2">
+        <div className="space-y-3 col-span-5">
           <div className="flex items-center gap-x-5">
             <div className="flex items-center ">
               <img height="30" width="30" src={logoMap[tokenZero.symbol]} />
@@ -209,7 +209,7 @@ export default function UserCoverPool({
                 src={logoMap[tokenOne.symbol]}
               />
             </div>
-            <div className="flex gap-x-2">
+            <div className="flex items-center gap-x-2">
               {tokenZero.symbol}
               <ArrowLongRightIcon className="w-5" />
               {tokenOne.symbol}
@@ -234,9 +234,9 @@ export default function UserCoverPool({
             </span>
           </div>
         </div>
-        <div className="ml-5 pr-5">
-          <div className="flex relative bg-transparent items-center justify-center h-8 border-grey1 z-40 border rounded-lg gap-x-2 text-sm w-36">
-            <div className={`bg-white h-full absolute left-0 z-0 rounded-l-[7px] opacity-10 w-[${fillPercent}%]`} />
+        <div className="col-span-2 mx-5">
+          <div className="flex relative bg-transparent items-center justify-center h-8 border-grey1 z-40 border rounded-lg gap-x-2 text-sm w-full">
+            <div className={`bg-white h-full absolute left-0 z-0 rounded-l-[7px] opacity-10 w-[${parseInt(fillPercent)}%]`} />
             <div className="z-20 ">{fillPercent}% Filled</div>
           </div>
         </div>
