@@ -105,11 +105,12 @@ export default function Swap() {
   const [rangeBnPriceLimit, setRangeBnPriceLimit] = useState(BN_ZERO)
   const [coverBnPriceLimit, setCoverBnPriceLimit] = useState(BN_ZERO)
   const [slippageFetched, setSlippageFetched] = useState(false)
-  const [limitPrice, setLimitPrice] = useState('1')
+  const [limitPrice, setLimitPrice] = useState('0')
   const [allowanceRangeOut, setAllowanceRangeOut] = useState('0.00')
   const [lowerTick, setLowerTick] = useState(BN_ZERO)
   const [upperTick, setUpperTick] = useState(BN_ZERO)
   const [limitPriceSwitch, setLimitPriceSwitch] = useState(false)
+  const [limitOrderPrice, setLimitOrderPrice] = useState('0')
 
   ////////////////////////////////ChainId
 
@@ -294,6 +295,7 @@ export default function Swap() {
             ),
           ),
         )
+        
       }
     }
   }, [coverPoolRoute, rangePoolRoute, priceCover, priceRange])
@@ -322,6 +324,15 @@ export default function Swap() {
       }
     }
   }, [slippage, rangeBnPrice, coverBnPrice])
+
+  //limit price for limit Tab
+  useEffect(() => {
+    setLimitOrderPrice(
+      limitPriceSwitch
+        ? (tokenIn.usdPrice / tokenOut.usdPrice).toFixed(10)
+        : (tokenOut.usdPrice / tokenIn.usdPrice).toFixed(10),
+    )
+  }, [tokenIn, tokenOut, limitPriceSwitch])
 
   ////////////////////////////////Quotes
 
@@ -977,9 +988,7 @@ export default function Swap() {
                   autoComplete="off"
                   className="bg-[#0C0C0C] outline-none"
                   placeholder="0"
-                  value={
-                    limitPrice
-                  }
+                  value={hasSelected ? limitOrderPrice : 0}
                   type="text"
                   onChange={(e) => {
                     setLimitPrice(inputFilter(e.target.value))
