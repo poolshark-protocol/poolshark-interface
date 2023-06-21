@@ -664,7 +664,7 @@ export default function CoverExistingPool({
       </div>
       <div className="space-y-3">
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {isDisconnected || JSBI.lessThanOrEqual(allowance, coverAmountIn) ? (
+        {isDisconnected || JSBI.lessThan(allowance, coverAmountIn) ? (
           <CoverMintApproveButton
             disabled={isDisabled}
             poolAddress={coverPoolRoute}
