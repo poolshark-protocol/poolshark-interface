@@ -17,7 +17,7 @@ export default function SwapCoverApproveButton({
   disabled,
   bnInput,
   allowanceCover,
-  tokenSymbol
+  tokenSymbol,
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
@@ -31,7 +31,6 @@ export default function SwapCoverApproveButton({
     state.SwapParams,
     state.updateSwapAllowance,
   ])
-
 
   const { config } = usePrepareContractWrite({
     address: approveToken,
@@ -64,11 +63,7 @@ export default function SwapCoverApproveButton({
         }
         onClick={(address) => (address && !disabled ? write?.() : null)}
       >
-        Approve {(
-                  Number(ethers.utils.formatUnits(bnInput, 18)) -
-                  Number(allowanceCover)
-                ).toFixed(2) + ' '}
-                {tokenSymbol}
+        Approve {tokenSymbol}
       </div>
       <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
         {errorDisplay && (
