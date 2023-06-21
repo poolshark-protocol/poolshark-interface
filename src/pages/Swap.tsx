@@ -42,6 +42,7 @@ import { getBalances } from '../utils/balances'
 import inputFilter from '../utils/inputFilter'
 import RangeLimitSwapButton from '../components/Buttons/RangeLimitSwapButton'
 import SwapRangeDoubleApproveButton from '../components/Buttons/SwapRangeDoubleApproveButton'
+import { debounce } from 'lodash';
 
 export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount()
@@ -614,7 +615,7 @@ export default function Swap() {
   }
   ////////////////////////////////
 
-  function switchDirection() {
+  const switchDirection = debounce(() => {
     setTokenOrder(!tokenOrder)
     const temp = tokenIn
     setTokenIn(tokenOut)
@@ -650,10 +651,7 @@ export default function Swap() {
     const oldBalanceIn = balanceIn
     setBalanceIn(balanceOut)
     setBalanceOut(oldBalanceIn)
-    if (!LimitActive) {
-      console.log('lower upper tick')
-    }
-  }
+  }, 200)
 
   ////////////////////////////////
 
