@@ -747,6 +747,7 @@ export default function ConcentratedPool({
           account={to}
           key={poolId}
           poolAddress={poolId}
+          poolRoute={rangePoolRoute}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
           amount0={amount0}
