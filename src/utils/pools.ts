@@ -78,6 +78,7 @@ export const getRangePool = async (
       }
     }
     setRangeRoute(id)
+    console.log('range route', id)
   } catch (error) {
     console.log(error)
   }
@@ -95,7 +96,7 @@ export const getCoverPool = async (
       tokenIn.address,
       tokenOut.address,
     )
-    let id = ZERO_ADDRESS
+    //let id = ZERO_ADDRESS
     const dataLength = pool['data']['coverPools'].length
     if (dataLength != 0) {
       setCoverRoute(pool['data']['coverPools']['0']['id'])
@@ -114,7 +115,7 @@ export const getCoverPool = async (
                                       : pool['data']['coverPools']['0']['token0']['usdPrice'])
       }
     }
-    setCoverRoute(id)
+    console.log('cover route', pool['data']['coverPools']['0']['id'])
   } catch (error) {
     console.log(error)
   }

@@ -5,10 +5,12 @@ import { BigNumber, ethers } from 'ethers'
 import { erc20ABI, useAccount, useContractRead } from 'wagmi'
 import { TickMath } from '../../utils/math/tickMath'
 import RangeMintDoubleApproveButton from '../Buttons/RangeMintDoubleApproveButton'
+import { useRouter } from 'next/router'
 
 export default function ConcentratedPoolPreview({
   account,
   poolAddress,
+  poolRoute,
   tokenIn,
   tokenOut,
   amount0,
@@ -23,12 +25,46 @@ export default function ConcentratedPoolPreview({
   disabled,
 }) {
   const { address, isConnected } = useAccount()
+  const router = useRouter()
   const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
   const lowerPrice = TickMath.getPriceStringAtTick(lowerTick)
-  const upperPrice = TickMath.getPriceStringAtTick(upperTick) 
-  console.log('allowances', allowance0.toString(), allowance1.toString())
+  const upperPrice = TickMath.getPriceStringAtTick(upperTick)
 
-  let [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+
+
+
+  const { data: allowanceIn } = useContractRead({
+    address: tokenIn.address,
+    abi: erc20ABI,
+    functionName: 'allowance',
+    args: [address, poolRoute],
+    chainId: 421613,
+    watch: true,
+    enabled: poolRoute != undefined && tokenIn.address != '',
+    onSuccess(data) {
+      allowance0 = data
+    },
+    onError(error) {
+      console.log('Error', error)
+    },
+  })
+
+  const { data: allowanceOut } = useContractRead({
+    address: tokenOut.address,
+    abi: erc20ABI,
+    functionName: 'allowance',
+    args: [address, poolRoute],
+    chainId: 421613,
+    watch: true,
+    enabled: poolRoute != undefined && tokenIn.address != '',
+    onSuccess(data) {
+      allowance1 = data
+    },
+    onError(error) {
+      console.log('Error', error)
+    },
+  })
 
   function closeModal() {
     setIsOpen(false)
@@ -104,11 +140,19 @@ export default function ConcentratedPoolPreview({
                           <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
                             <div className=" p-2 ">
                               <div className="w-44 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
-                                {parseFloat(ethers.utils.formatUnits(tokenOrder ? amount0 : amount1, 18)).toFixed(3)}
+                                {parseFloat(
+                                  ethers.utils.formatUnits(
+                                    tokenOrder ? amount0 : amount1,
+                                    18,
+                                  ),
+                                ).toFixed(3)}
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                  ${tokenOrder ? amount0Usd.toFixed(2) : amount1Usd.toFixed(2)}
+                                  $
+                                  {tokenOrder
+                                    ? amount0Usd.toFixed(2)
+                                    : amount1Usd.toFixed(2)}
                                 </div>
                               </div>
                             </div>
@@ -136,11 +180,19 @@ export default function ConcentratedPoolPreview({
                           <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
                             <div className=" p-2 ">
                               <div className="w-44 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
-                                {parseFloat(ethers.utils.formatUnits(tokenOrder ? amount1: amount0, 18)).toFixed(3)}
+                                {parseFloat(
+                                  ethers.utils.formatUnits(
+                                    tokenOrder ? amount1 : amount0,
+                                    18,
+                                  ),
+                                ).toFixed(3)}
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                ${tokenOrder ? amount1Usd.toFixed(2) : amount0Usd.toFixed(2)}
+                                  $
+                                  {tokenOrder
+                                    ? amount1Usd.toFixed(2)
+                                    : amount0Usd.toFixed(2)}
                                 </div>
                               </div>
                             </div>
@@ -175,50 +227,66 @@ export default function ConcentratedPoolPreview({
                         </div>
                         <div className="mt-3 space-y-3">
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-                            <span className="text-xs text-grey">Min. Price</span>
+                            <span className="text-xs text-grey">
+                              Min. Price
+                            </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
                                 {lowerPrice.toString().includes('e')
-                                  ? parseFloat(lowerPrice).toLocaleString(undefined, {
-                                      maximumFractionDigits: 0,
-                                    }).length > 6
+                                  ? parseFloat(lowerPrice).toLocaleString(
+                                      undefined,
+                                      {
+                                        maximumFractionDigits: 0,
+                                      },
+                                    ).length > 6
                                     ? '0'
-                                    : parseFloat(lowerPrice).toLocaleString(undefined, {
-                                        maximumFractionDigits: 2,
-                                      })
+                                    : parseFloat(lowerPrice).toLocaleString(
+                                        undefined,
+                                        {
+                                          maximumFractionDigits: 2,
+                                        },
+                                      )
                                   : parseFloat(lowerPrice).toFixed(2)}
                               </span>
                             </div>
                             <span className="text-xs text-grey">
-                              {tokenOrder ? tokenOut.symbol : tokenIn.symbol}{" "}
-                              per{" "}
+                              {tokenOrder ? tokenOut.symbol : tokenIn.symbol}{' '}
+                              per{' '}
                               {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
                             </span>
                           </div>
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-                            <span className="text-xs text-grey">Max. Price</span>
+                            <span className="text-xs text-grey">
+                              Max. Price
+                            </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
                                 {upperPrice.toString().includes('e')
-                                  ? Number(upperPrice).toLocaleString(undefined, {
-                                      maximumFractionDigits: 0,
-                                    }).length > 6
+                                  ? Number(upperPrice).toLocaleString(
+                                      undefined,
+                                      {
+                                        maximumFractionDigits: 0,
+                                      },
+                                    ).length > 6
                                     ? '∞'
-                                    : Number(upperPrice).toLocaleString(undefined, {
-                                        maximumFractionDigits: 2,
-                                      })
+                                    : Number(upperPrice).toLocaleString(
+                                        undefined,
+                                        {
+                                          maximumFractionDigits: 2,
+                                        },
+                                      )
                                   : parseFloat(upperPrice).toFixed(2)}
                               </span>
                             </div>
                             <span className="text-xs text-grey">
-                              {tokenOrder ? tokenOut.symbol : tokenIn.symbol}{" "}
-                              per{" "}
+                              {tokenOrder ? tokenOut.symbol : tokenIn.symbol}{' '}
+                              per{' '}
                               {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
                             </span>
                           </div>
                         </div>
                       </div>
-                      <div className='mt-4'>
+                      <div className="mt-4">
                         {allowance0.gte(amount0) &&
                         allowance1.gte(amount1) ? null : (
                           <RangeMintDoubleApproveButton
@@ -238,10 +306,14 @@ export default function ConcentratedPoolPreview({
                             lower={lowerTick}
                             upper={upperTick}
                             disabled={
-                              allowance0.lt(amount0) || allowance1.lt(amount1)
+                              allowance0.lt(amount0) ||
+                              allowance1.lt(amount1)
                             }
                             amount0={amount0}
                             amount1={amount1}
+                            closeModal={
+                              () => router.push('/pool')
+                            }
                           />
                         )}
                       </div>
@@ -261,5 +333,5 @@ export default function ConcentratedPoolPreview({
         Preview
       </button>
     </div>
-  );
+  )
 }
