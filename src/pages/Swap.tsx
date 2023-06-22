@@ -224,14 +224,16 @@ export default function Swap() {
   })
 
   useEffect(() => {
-    if (allowanceInRange && allowanceInCover) {
-      setAllowanceRange(ethers.utils.formatUnits(allowanceInRange, 18))
-      setAllowanceCover(ethers.utils.formatUnits(allowanceInCover, 18))
-    }
+    setTimeout(() => {
+      if (allowanceInRange && allowanceInCover) {
+        setAllowanceRange(ethers.utils.formatUnits(allowanceInRange, 18))
+        setAllowanceCover(ethers.utils.formatUnits(allowanceInCover, 18))
+      }
 
-    if (LimitActive && allowanceOutRange) {
-      setAllowanceRangeOut(ethers.utils.formatUnits(allowanceOutRange, 18))
-    }
+      if (LimitActive && allowanceOutRange) {
+        setAllowanceRangeOut(ethers.utils.formatUnits(allowanceOutRange, 18))
+      }
+    }, 50)
   }, [allowanceInRange, allowanceInCover, tokenIn.address, LimitActive])
 
   ////////////////////////////////Prices

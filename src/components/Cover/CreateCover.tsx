@@ -140,13 +140,15 @@ export default function CreateCover(props: any) {
   //////////////////
 
   useEffect(() => {
-    if (allowanceIn)
-      if (
-        address != '0x' &&
-        coverPoolRoute != ZERO_ADDRESS
-      ) {
-        setAllowance(ethers.utils.formatUnits(allowanceIn, 18))
-      }
+    setTimeout(() => {
+      if (allowanceIn)
+        if (
+          address != '0x' &&
+          coverPoolRoute != ZERO_ADDRESS
+        ) {
+          setAllowance(ethers.utils.formatUnits(allowanceIn, 18))
+        }
+    }, 50)
   }, [allowanceIn, tokenIn.address, bnInput])
 
   const {
