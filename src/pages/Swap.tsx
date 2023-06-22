@@ -626,14 +626,14 @@ export default function Swap() {
     setQueryTokenIn(queryTokenOut)
     setQueryTokenOut(tempBal)
     setInverseDisplay(display)
-    /*setBnInput(
-      tokenOrder == false ?
+    if (tokenOrder == false) {
+      setBnInput(
         ethers.utils.parseUnits(
-          (rangeQuote > coverQuote ? rangeQuote : coverQuote).toPrecision(10),
+          (parseFloat(inverseDisplay)).toPrecision(10),
           18,
-        ) :
-        bnInput
-    )*/
+        )
+      )
+    }
     setDisplay(
       tokenOrder == false ?
         inverseDisplay :
