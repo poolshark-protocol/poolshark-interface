@@ -620,10 +620,6 @@ export default function Swap() {
   ////////////////////////////////
 
   const switchDirection = debounce(() => {
-    console.log(rangeQuote, 'quote before range')
-    console.log(coverQuote, 'quote before cover')
-    setInverseCoverQuote((1 / coverQuote))
-    setInverseRangeQuote((1 / rangeQuote))
     setTokenOrder(!tokenOrder)
     const temp = tokenIn
     setTokenIn(tokenOut)
@@ -631,22 +627,17 @@ export default function Swap() {
     const tempBal = queryTokenIn
     setQueryTokenIn(queryTokenOut)
     setQueryTokenOut(tempBal)
-    setInverseDisplay(display)
-    if (tokenOrder == false) {
-      setBnInput(
-        ethers.utils.parseUnits(
-          (parseFloat(inverseDisplay)).toPrecision(10),
-          18,
-        )
-      )
-    }
+    setBnInput(
+      ethers.utils.parseUnits(
+        (rangeQuote > coverQuote ? rangeQuote : coverQuote).toPrecision(10),
+        18,
+      ),
+    )
     setDisplay(
-      tokenOrder == false ?
-        inverseDisplay :
-        (rangeQuote > coverQuote ? parseFloat(ethers.utils.formatUnits(bnInput, 18)) * rangeQuote : parseFloat(ethers.utils.formatUnits(bnInput, 18)) * coverQuote)
-          .toPrecision(7)
-          .replace(/0+$/, '')
-          .replace(/(\.)(?!\d)/g, ''),
+      (rangeQuote > coverQuote ? rangeQuote : coverQuote)
+        .toPrecision(7)
+        .replace(/0+$/, '')
+        .replace(/(\.)(?!\d)/g, ''),
     )
     if (rangeQuote > 0 && rangeQuote > coverQuote) {
       setRangeQuote(
