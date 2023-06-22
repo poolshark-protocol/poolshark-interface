@@ -932,7 +932,7 @@ export default function Swap() {
               {!LimitActive ? (
                 hasSelected && !bnInput.eq(BN_ZERO) ? (
                   <div>
-                    {tokenOrder ?
+                    {
                       rangeQuote > coverQuote
                         ? (
                             parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
@@ -941,15 +941,6 @@ export default function Swap() {
                         : (
                             parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                             coverQuote
-                          ).toFixed(2) :
-                      rangeQuote < coverQuote
-                        ? (
-                            parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                            inverseRangeQuote
-                          ).toFixed(2)
-                        : (
-                            parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                            inverseCoverQuote
                           ).toFixed(2)
                       }
                   </div>
