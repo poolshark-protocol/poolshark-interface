@@ -5,6 +5,7 @@ import { BigNumber, ethers } from 'ethers'
 import { erc20ABI, useAccount, useContractRead } from 'wagmi'
 import { TickMath } from '../../utils/math/tickMath'
 import RangeMintDoubleApproveButton from '../Buttons/RangeMintDoubleApproveButton'
+import { useRouter } from 'next/router'
 
 export default function ConcentratedPoolPreview({
   account,
@@ -24,6 +25,7 @@ export default function ConcentratedPoolPreview({
   disabled,
 }) {
   const { address, isConnected } = useAccount()
+  const router = useRouter()
   const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
   const lowerPrice = TickMath.getPriceStringAtTick(lowerTick)
   const upperPrice = TickMath.getPriceStringAtTick(upperTick)
@@ -309,6 +311,9 @@ export default function ConcentratedPoolPreview({
                             }
                             amount0={amount0}
                             amount1={amount1}
+                            closeModal={
+                              () => router.push('/pool')
+                            }
                           />
                         )}
                       </div>
