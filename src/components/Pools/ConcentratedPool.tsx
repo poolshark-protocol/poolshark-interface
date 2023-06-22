@@ -183,24 +183,28 @@ export default function ConcentratedPool({
   })
 
   useEffect(() => {
-    if (allowanceIn) {
-      console.log('token in allowance', allowanceIn.toString(), !allowanceIn.eq(tokenOrder ? allowance0 : allowance1))
-      if (
-        address != '0x' &&
-        !allowanceIn.eq(tokenOrder ? allowance0 : allowance1)
-      )
-        tokenOrder ? setAllowance0(allowanceIn) : setAllowance1(allowanceIn)
-    }
+    setTimeout(() => {
+      if (allowanceIn) {
+        console.log('token in allowance', allowanceIn.toString(), !allowanceIn.eq(tokenOrder ? allowance0 : allowance1))
+        if (
+          address != '0x' &&
+          !allowanceIn.eq(tokenOrder ? allowance0 : allowance1)
+        )
+          tokenOrder ? setAllowance0(allowanceIn) : setAllowance1(allowanceIn)
+      }
+    }, 200)
   }), [allowanceIn]
 
   useEffect(() => {
-    if (allowanceOut) {
-      if (
-        address != '0x' &&
-        !allowanceOut.eq(tokenOrder ? allowance1 : allowance0)
-      )
-        tokenOrder ? setAllowance1(allowanceOut) : setAllowance0(allowanceOut)
-    }
+    setTimeout(() => {
+      if (allowanceOut) {
+        if (
+          address != '0x' &&
+          !allowanceOut.eq(tokenOrder ? allowance1 : allowance0)
+        )
+          tokenOrder ? setAllowance1(allowanceOut) : setAllowance0(allowanceOut)
+      }
+    }, 200)
   }), [allowanceOut]
 
   function updateSelectedFeeTier(): any {
