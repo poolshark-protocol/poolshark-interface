@@ -113,9 +113,6 @@ export default function Swap() {
   const [upperTick, setUpperTick] = useState(BN_ZERO)
   const [limitPriceSwitch, setLimitPriceSwitch] = useState(true)
   const [limitPriceInput, setLimitPriceInput] = useState('0')
-  const [inverseDisplay, setInverseDisplay] = useState('0')
-  const [inverseRangeQuote, setInverseRangeQuote] = useState(0)
-  const [inverseCoverQuote, setInverseCoverQuote] = useState(0)
 
   ////////////////////////////////ChainId
 
