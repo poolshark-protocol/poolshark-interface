@@ -52,6 +52,7 @@ export default function Swap() {
   } = useProvider()
   const {
     bnInput,
+    display,
     inputBox,
     maxBalance,
     setBnInput,
@@ -921,15 +922,17 @@ export default function Swap() {
               {!LimitActive ? (
                 hasSelected && !bnInput.eq(BN_ZERO) ? (
                   <div>
-                    {rangeQuote > coverQuote
-                      ? (
-                          parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                          rangeQuote
-                        ).toFixed(2)
-                      : (
-                          parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                          coverQuote
-                        ).toFixed(2)}
+                    {
+                      rangeQuote > coverQuote
+                        ? (
+                            parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                            rangeQuote
+                          ).toFixed(2)
+                        : (
+                            parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                            coverQuote
+                          ).toFixed(2)
+                      }
                   </div>
                 ) : (
                   <div>0</div>

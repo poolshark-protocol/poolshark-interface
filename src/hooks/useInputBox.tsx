@@ -118,5 +118,5 @@ export default function useInputBox() {
     );
   }
 
-  return { bnInput, bnInputLimit, LimitInputBox, inputBox, maxBalance, setBnInput, setDisplay }
+  return { bnInput, bnInputLimit, display, LimitInputBox, inputBox, maxBalance, setBnInput, setDisplay }
 }
