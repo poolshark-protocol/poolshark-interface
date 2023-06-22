@@ -52,6 +52,7 @@ export default function Swap() {
   } = useProvider()
   const {
     bnInput,
+    display,
     inputBox,
     maxBalance,
     setBnInput,
@@ -223,14 +224,16 @@ export default function Swap() {
   })
 
   useEffect(() => {
-    if (allowanceInRange && allowanceInCover) {
-      setAllowanceRange(ethers.utils.formatUnits(allowanceInRange, 18))
-      setAllowanceCover(ethers.utils.formatUnits(allowanceInCover, 18))
-    }
+    setTimeout(() => {
+      if (allowanceInRange && allowanceInCover) {
+        setAllowanceRange(ethers.utils.formatUnits(allowanceInRange, 18))
+        setAllowanceCover(ethers.utils.formatUnits(allowanceInCover, 18))
+      }
 
-    if (LimitActive && allowanceOutRange) {
-      setAllowanceRangeOut(ethers.utils.formatUnits(allowanceOutRange, 18))
-    }
+      if (LimitActive && allowanceOutRange) {
+        setAllowanceRangeOut(ethers.utils.formatUnits(allowanceOutRange, 18))
+      }
+    }, 50)
   }, [allowanceInRange, allowanceInCover, tokenIn.address, LimitActive])
 
   ////////////////////////////////Prices
@@ -391,70 +394,72 @@ export default function Swap() {
   })
 
   useEffect(() => {
-    if (quoteRange) {
-      if (
-        quoteRange[0].gt(BN_ZERO) &&
-        quoteRange[1].gt(BN_ZERO) &&
-        !bnInput.eq(BN_ZERO)
-      ) {
-        setRangeQuote(
-          parseFloat(ethers.utils.formatUnits(quoteRange[1], 18)) /
-            parseFloat(ethers.utils.formatUnits(quoteRange[0], 18)),
-        )
-        const priceAfter = parseFloat(
-          TickMath.getPriceStringAtSqrtPrice(quoteRange[2]),
-        )
-        setRangePriceAfter(priceAfter)
-        const priceSlippage = parseFloat(
-          ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6),
-        )
-        const priceAfterSlippage = String(
-          priceAfter - (tokenOrder ? priceSlippage : -priceSlippage),
-        )
-        const rangePriceLimit = TickMath.getSqrtPriceAtPriceString(
-          priceAfterSlippage,
-        )
-        setRangeBnPriceLimit(BigNumber.from(String(rangePriceLimit)))
+    setTimeout(() => {
+      if (quoteRange) {
+        if (
+          quoteRange[0].gt(BN_ZERO) &&
+          quoteRange[1].gt(BN_ZERO) &&
+          !bnInput.eq(BN_ZERO)
+        ) {
+          setRangeQuote(
+            parseFloat(ethers.utils.formatUnits(quoteRange[1], 18)) /
+              parseFloat(ethers.utils.formatUnits(quoteRange[0], 18)),
+          )
+          const priceAfter = parseFloat(
+            TickMath.getPriceStringAtSqrtPrice(quoteRange[2]),
+          )
+          setRangePriceAfter(priceAfter)
+          const priceSlippage = parseFloat(
+            ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6),
+          )
+          const priceAfterSlippage = String(
+            priceAfter - (tokenOrder ? priceSlippage : -priceSlippage),
+          )
+          const rangePriceLimit = TickMath.getSqrtPriceAtPriceString(
+            priceAfterSlippage,
+          )
+          setRangeBnPriceLimit(BigNumber.from(String(rangePriceLimit)))
+        }
       }
-    }
 
-    if (quoteCover) {
-      if (
-        quoteCover[0].gt(BN_ZERO) &&
-        quoteCover[1].gt(BN_ZERO) &&
-        !bnInput.eq(BN_ZERO)
-      ) {
-        setCoverQuote(
-          parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)) /
-            parseFloat(ethers.utils.formatUnits(quoteCover[0], 18)),
-        )
-        const priceAfter = parseFloat(
-          TickMath.getPriceStringAtSqrtPrice(quoteCover[2]),
-        )
-        const priceSlippage = parseFloat(
-          ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6),
-        )
-        const priceAfterSlippage = String(
-          priceAfter - (tokenOrder ? priceSlippage : -priceSlippage),
-        )
-        setCoverPriceAfter(priceAfter)
-        const coverPriceLimit = TickMath.getSqrtPriceAtPriceString(
-          priceAfterSlippage,
-        )
-        setCoverBnPriceLimit(BigNumber.from(String(coverPriceLimit)))
+      if (quoteCover) {
+        if (
+          quoteCover[0].gt(BN_ZERO) &&
+          quoteCover[1].gt(BN_ZERO) &&
+          !bnInput.eq(BN_ZERO)
+        ) {
+          setCoverQuote(
+            parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)) /
+              parseFloat(ethers.utils.formatUnits(quoteCover[0], 18)),
+          )
+          const priceAfter = parseFloat(
+            TickMath.getPriceStringAtSqrtPrice(quoteCover[2]),
+          )
+          const priceSlippage = parseFloat(
+            ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6),
+          )
+          const priceAfterSlippage = String(
+            priceAfter - (tokenOrder ? priceSlippage : -priceSlippage),
+          )
+          setCoverPriceAfter(priceAfter)
+          const coverPriceLimit = TickMath.getSqrtPriceAtPriceString(
+            priceAfterSlippage,
+          )
+          setCoverBnPriceLimit(BigNumber.from(String(coverPriceLimit)))
+        }
       }
-    }
-    if (quoteCover && quoteRange) {
-      if (
-        slippageFetched === false &&
-        quoteCover[0].gt(BN_ZERO) &&
-        quoteRange[0].gt(BN_ZERO)
-      ) {
-        updateTierFee()
-        getSlippage()
-        setSlippageFetched(true)
+      if (quoteCover && quoteRange) {
+        if (
+          slippageFetched === false &&
+          quoteCover[0].gt(BN_ZERO) &&
+          quoteRange[0].gt(BN_ZERO)
+        ) {
+          updateTierFee()
+          getSlippage()
+          setSlippageFetched(true)
+        }
       }
-    }
+    }, 200)
   }, [quoteCover, quoteRange, bnInput, slippage])
 
   async function updateTierFee() {
@@ -919,15 +924,17 @@ export default function Swap() {
               {!LimitActive ? (
                 hasSelected && !bnInput.eq(BN_ZERO) ? (
                   <div>
-                    {rangeQuote > coverQuote
-                      ? (
-                          parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                          rangeQuote
-                        ).toFixed(2)
-                      : (
-                          parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                          coverQuote
-                        ).toFixed(2)}
+                    {
+                      rangeQuote > coverQuote
+                        ? (
+                            parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                            rangeQuote
+                          ).toFixed(2)
+                        : (
+                            parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                            coverQuote
+                          ).toFixed(2)
+                      }
                   </div>
                 ) : (
                   <div>0</div>

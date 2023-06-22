@@ -146,17 +146,19 @@ export default function CoverExistingPool({
   }, [priceCover, tokenIn.address])
 
   useEffect(() => {
-    if (allowanceIn) {
-      if (coverPoolRoute != undefined && tokenOut.address != '') {
-        console.log('Success allowance', allowanceIn.toString())
-        setAllowance(JSBI.BigInt(allowanceIn.toString()))
-        console.log(
-          'allowance check',
-          allowanceIn.toString(),
-          JSBI.toNumber(coverAmountIn),
-        )
+    setTimeout(() => {
+      if (allowanceIn) {
+        if (coverPoolRoute != undefined && tokenOut.address != '') {
+          console.log('Success allowance', allowanceIn.toString())
+          setAllowance(JSBI.BigInt(allowanceIn.toString()))
+          console.log(
+            'allowance check',
+            allowanceIn.toString(),
+            JSBI.toNumber(coverAmountIn),
+          )
+        }
       }
-    }
+    }, 50)
   }, [allowanceIn, tokenIn.address, coverAmountIn])
 
   useEffect(() => {
