@@ -114,6 +114,8 @@ export default function Swap() {
   const [limitPriceSwitch, setLimitPriceSwitch] = useState(true)
   const [limitPriceInput, setLimitPriceInput] = useState('0')
   const [inverseDisplay, setInverseDisplay] = useState('0')
+  const [inverseRangeQuote, setInverseRangeQuote] = useState(0)
+  const [inverseCoverQuote, setInverseCoverQuote] = useState(0)
 
   ////////////////////////////////ChainId
 
@@ -618,6 +620,10 @@ export default function Swap() {
   ////////////////////////////////
 
   const switchDirection = debounce(() => {
+    console.log(rangeQuote, 'quote before range')
+    console.log(coverQuote, 'quote before cover')
+    setInverseCoverQuote((1 / coverQuote))
+    setInverseRangeQuote((1 / rangeQuote))
     setTokenOrder(!tokenOrder)
     const temp = tokenIn
     setTokenIn(tokenOut)
@@ -936,7 +942,15 @@ export default function Swap() {
                             parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                             coverQuote
                           ).toFixed(2) :
-                      inverseDisplay
+                      rangeQuote < coverQuote
+                        ? (
+                            parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                            inverseRangeQuote
+                          ).toFixed(2)
+                        : (
+                            parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                            inverseCoverQuote
+                          ).toFixed(2)
                       }
                   </div>
                 ) : (
