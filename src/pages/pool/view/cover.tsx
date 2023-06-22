@@ -335,7 +335,7 @@ export default function Cover() {
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
       <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full">
-        <div className="w-[55rem] absolute bottom-0">
+      <div className="w-[60rem] mt-[10vh] mb-[10vh]">
           <div className="flex justify-between items-center mb-2">
             <div className="text-left flex items-center gap-x-5 py-2.5">
               <div className="flex items-center">
@@ -404,7 +404,7 @@ export default function Cover() {
               </h1>
             </div>
           </div>
-          <div className="bg-black  border border-grey2 border-b-none w-full rounded-t-xl py-6 px-7 h-[70vh] overflow-y-auto">
+          <div className="bg-black  border border-grey2 border-b-none w-full rounded-xl py-6 px-7 overflow-y-auto">
             <div className="flex gap-x-20 justify-between">
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Cover Size</h1>
@@ -500,7 +500,9 @@ export default function Cover() {
                 </div>
               </div>
             </div>
-
+            <div className="flex mt-7 gap-x-6 items-center">
+                <h1 className="text-lg">Price Range </h1>
+              </div>
             <div className="flex justify-between items-center mt-4 gap-x-6">
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Min. Price</div>

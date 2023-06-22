@@ -472,7 +472,7 @@ export default function ConcentratedPool({
   }
 
   return (
-    <div className="bg-black flex gap-x-20 justify-between border border-grey2 w-full rounded-t-xl py-6 px-7 h-[70vh]">
+    <div className="bg-black flex gap-x-20 justify-between border border-grey2 w-full rounded-xl pt-10 pb-20 px-7">
       <div className="w-1/2">
         <div>
           <div className="flex items-center gap-x-4">
