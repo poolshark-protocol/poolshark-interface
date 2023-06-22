@@ -10,7 +10,6 @@ import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useState, useEffect } from 'react'
 
-
 export default function RangeMintButton({
   disabled,
   poolAddress,
@@ -19,7 +18,7 @@ export default function RangeMintButton({
   upper,
   amount0,
   amount1,
-  closeModal
+  closeModal,
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
@@ -52,24 +51,29 @@ export default function RangeMintButton({
     address: poolAddress,
     abi: rangePoolABI,
     functionName: 'mint',
-    args: [[
-      to,
-      lower,
-      upper,
-      amount0,
-      amount1,
-      true //@dev always fungible
-    ]],
+    args: [
+      [
+        to,
+        lower,
+        upper,
+        amount0,
+        amount1,
+        true, //@dev always fungible
+      ],
+    ],
     chainId: 421613,
     overrides: {
       gasLimit: BigNumber.from('600000'),
     },
     onSuccess() {
-      console.log('params check', to,
-      lower.toString(),
-      upper.toString(),
-      amount0.toString(),
-      amount1.toString())
+      console.log(
+        'params check',
+        to,
+        lower.toString(),
+        upper.toString(),
+        amount0.toString(),
+        amount1.toString(),
+      )
     },
   })
 
@@ -95,7 +99,7 @@ export default function RangeMintButton({
             ? 'w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50'
             : 'w-full py-4 mx-auto text-center font-medium transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80'
         }
-        onClick={() => (write?.())}
+        onClick={() => write?.()}
       >
         Mint Position
       </button>
