@@ -148,7 +148,7 @@ export default function CreateCover(props: any) {
         ) {
           setAllowance(ethers.utils.formatUnits(allowanceIn, 18))
         }
-    }, 200)
+    }, 50)
   }, [allowanceIn, tokenIn.address, bnInput])
 
   const {

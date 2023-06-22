@@ -77,7 +77,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd,
   useEffect(() => {
     setTimeout(() => {
       if (tokenInAllowance) setAllowanceIn(tokenInAllowance)
-    }, 200)
+    }, 50)
   }, [tokenInAllowance])
 
   const getBalances = async () => {

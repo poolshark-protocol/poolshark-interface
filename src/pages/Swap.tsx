@@ -232,7 +232,7 @@ export default function Swap() {
       if (LimitActive && allowanceOutRange) {
         setAllowanceRangeOut(ethers.utils.formatUnits(allowanceOutRange, 18))
       }
-    }, 200)
+    }, 50)
   }, [allowanceInRange, allowanceInCover, tokenIn.address, LimitActive])
 
   ////////////////////////////////Prices

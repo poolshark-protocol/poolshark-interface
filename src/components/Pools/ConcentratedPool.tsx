@@ -192,7 +192,7 @@ export default function ConcentratedPool({
         )
           tokenOrder ? setAllowance0(allowanceIn) : setAllowance1(allowanceIn)
       }
-    }, 200)
+    }, 50)
   }), [allowanceIn]
 
   useEffect(() => {
@@ -204,7 +204,7 @@ export default function ConcentratedPool({
         )
           tokenOrder ? setAllowance1(allowanceOut) : setAllowance0(allowanceOut)
       }
-    }, 200)
+    }, 50)
   }), [allowanceOut]
 
   function updateSelectedFeeTier(): any {

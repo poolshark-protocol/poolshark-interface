@@ -158,7 +158,7 @@ export default function CoverExistingPool({
           )
         }
       }
-    }, 200)
+    }, 50)
   }, [allowanceIn, tokenIn.address, coverAmountIn])
 
   useEffect(() => {
