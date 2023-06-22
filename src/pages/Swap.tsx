@@ -52,6 +52,7 @@ export default function Swap() {
   } = useProvider()
   const {
     bnInput,
+    display,
     inputBox,
     maxBalance,
     setBnInput,
@@ -112,6 +113,7 @@ export default function Swap() {
   const [upperTick, setUpperTick] = useState(BN_ZERO)
   const [limitPriceSwitch, setLimitPriceSwitch] = useState(true)
   const [limitPriceInput, setLimitPriceInput] = useState('0')
+  const [inverseDisplay, setInverseDisplay] = useState('0')
 
   ////////////////////////////////ChainId
 
@@ -623,17 +625,22 @@ export default function Swap() {
     const tempBal = queryTokenIn
     setQueryTokenIn(queryTokenOut)
     setQueryTokenOut(tempBal)
-    setBnInput(
-      ethers.utils.parseUnits(
-        (rangeQuote > coverQuote ? rangeQuote : coverQuote).toPrecision(10),
-        18,
-      ),
-    )
+    setInverseDisplay(display)
+    /*setBnInput(
+      tokenOrder == false ?
+        ethers.utils.parseUnits(
+          (rangeQuote > coverQuote ? rangeQuote : coverQuote).toPrecision(10),
+          18,
+        ) :
+        bnInput
+    )*/
     setDisplay(
-      (rangeQuote > coverQuote ? rangeQuote : coverQuote)
-        .toPrecision(7)
-        .replace(/0+$/, '')
-        .replace(/(\.)(?!\d)/g, ''),
+      tokenOrder == false ?
+        inverseDisplay :
+        (rangeQuote > coverQuote ? parseFloat(ethers.utils.formatUnits(bnInput, 18)) * rangeQuote : parseFloat(ethers.utils.formatUnits(bnInput, 18)) * coverQuote)
+          .toPrecision(7)
+          .replace(/0+$/, '')
+          .replace(/(\.)(?!\d)/g, ''),
     )
     if (rangeQuote > 0 && rangeQuote > coverQuote) {
       setRangeQuote(
@@ -919,15 +926,18 @@ export default function Swap() {
               {!LimitActive ? (
                 hasSelected && !bnInput.eq(BN_ZERO) ? (
                   <div>
-                    {rangeQuote > coverQuote
-                      ? (
-                          parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                          rangeQuote
-                        ).toFixed(2)
-                      : (
-                          parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                          coverQuote
-                        ).toFixed(2)}
+                    {tokenOrder ?
+                      rangeQuote > coverQuote
+                        ? (
+                            parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                            rangeQuote
+                          ).toFixed(2)
+                        : (
+                            parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                            coverQuote
+                          ).toFixed(2) :
+                      inverseDisplay
+                      }
                   </div>
                 ) : (
                   <div>0</div>
