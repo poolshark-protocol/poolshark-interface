@@ -309,6 +309,7 @@ export default function ConcentratedPoolPreview({
                             }
                             amount0={amount0}
                             amount1={amount1}
+                            closeModal={closeModal}
                           />
                         )}
                       </div>

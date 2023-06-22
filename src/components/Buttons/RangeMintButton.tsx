@@ -18,7 +18,8 @@ export default function RangeMintButton({
   lower,
   upper,
   amount0,
-  amount1
+  amount1,
+  closeModal
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
@@ -78,6 +79,7 @@ export default function RangeMintButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true)
+      closeModal()
     },
     onError() {
       setErrorDisplay(true)
