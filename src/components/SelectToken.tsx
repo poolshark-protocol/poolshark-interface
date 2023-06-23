@@ -73,50 +73,64 @@ export default function SelectToken(props) {
     }
     if (props.type === 'in') {
       if (coin.symbol === props.tokenOut.symbol) {
-        props.setTokenOut({
-          symbol: 'Select Token',
-          logoURI: '',
-          address: tokenOneAddress,
-          usdPrice: 0,
-        })
-        props.setHasSelected(false)
+        if (props.selected === true) {
+          props.setTokenOut(props.tokenIn)
+          props.setQueryTokenOut(props.queryTokenIn)
+          props.setHasSelected(true)
+        } else {
+          props.setTokenOut({
+            symbol: 'Select Token',
+            logoURI: '',
+            address: tokenOneAddress,
+            usdPrice: 0,
+          })
+          props.setHasSelected(false)
+        }
+        props.setQueryTokenIn(props.queryTokenOut)
+      } else {
+        if (coin.address.localeCompare(props.tokenOut.address) < 0) {
+          props.setTokenIn(coin)
+          if (props.selected === true) {
+            props.setTokenOut(props.tokenOut)
+          }
+        }
+        if (coin.address.localeCompare(props.tokenOut.address) >= 0) {
+          if (props.selected === true) {
+            props.setTokenIn(props.tokenOut)
+          }
+        }
+        props.setHasSelected(true)
       }
       props.setTokenIn(coin)
-      /* if (coin.address.localeCompare(props.tokenOut.address) < 0) {
-        props.setTokenIn(coin)
-        if (props.selected === true) {
-          props.setTokenOut(props.tokenOut)
-        }
-      }
-      if (coin.address.localeCompare(props.tokenOut.address) >= 0) {
-        if (props.selected === true) {
-          props.setTokenIn(props.tokenOut)
-        }
-        props.setTokenOut(coin)
-      } */
     } else {
       if (coin.symbol === props.tokenIn.symbol) {
-        props.setTokenIn({
-          symbol: 'Select Token',
-          logoURI: '',
-          address: tokenZeroAddress,
-          usdPrice: 0,
-        })
-        props.setHasSelected(false)
+        if (props.selected === true) {
+          props.setTokenIn(props.tokenOut)
+          props.setQueryTokenIn(props.queryTokenOut)
+          props.setHasSelected(true)
+        } else {
+          props.setTokenIn({
+            symbol: 'Select Token',
+            logoURI: '',
+            address: tokenZeroAddress,
+            usdPrice: 0,
+          })
+          props.setHasSelected(false)
+        }
+        props.setQueryTokenOut(props.queryTokenIn)
       } else {
+        if (coin.address.localeCompare(props.tokenIn.address) < 0) {
+          props.setTokenIn(coin)
+          props.setTokenOut(props.tokenIn)
+        }
+
+        if (coin.address.localeCompare(props.tokenIn.address) >= 0) {
+          props.setTokenIn(props.tokenIn)
+          props.setTokenOut(coin)
+        }
         props.setHasSelected(true)
       }
       props.setTokenOut(coin)
-
-      /* if (coin.address.localeCompare(props.tokenIn.address) < 0) {
-        props.setTokenIn(coin)
-        props.setTokenOut(props.tokenIn)
-      }
-
-      if (coin.address.localeCompare(props.tokenIn.address) >= 0) {
-        props.setTokenIn(props.tokenIn)
-        props.setTokenOut(coin)
-      } */
     }
     props.balance(coin?.id)
     closeModal()
