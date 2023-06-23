@@ -30,7 +30,6 @@ export default function CoverAddLiqButton({poolAddress, address, lower, claim, u
           toAddress,
           amount,
           Number(lower),
-          Number(claim),
           Number(upper),
           zeroForOne,
         ],

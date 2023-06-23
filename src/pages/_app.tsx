@@ -40,7 +40,7 @@ const wagmiClient = createClient({
 
 const apolloClient = new ApolloClient({
   cache: new InMemoryCache(),
-  uri: "https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/api",
+  uri: "https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/version/v0.0.3/api",
 })
 
 const whitelist = [
