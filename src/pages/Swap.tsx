@@ -886,6 +886,10 @@ export default function Swap() {
                     setTokenOut={setTokenOut}
                     displayToken={tokenIn}
                     balance={setQueryTokenIn}
+                    queryTokenIn={queryTokenIn}
+                    queryTokenOut={queryTokenOut}
+                    setQueryTokenIn={setQueryTokenIn}
+                    setQueryTokenOut={setQueryTokenOut}
                     key={queryTokenIn}
                   />
                 </div>
@@ -993,6 +997,10 @@ export default function Swap() {
                     setTokenOut={setTokenOut}
                     displayToken={tokenOut}
                     balance={setQueryTokenOut}
+                    queryTokenIn={queryTokenIn}
+                    queryTokenOut={queryTokenOut}
+                    setQueryTokenIn={setQueryTokenIn}
+                    setQueryTokenOut={setQueryTokenOut}
                     key={queryTokenOut}
                   />
                 </div>
