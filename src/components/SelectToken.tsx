@@ -76,7 +76,7 @@ export default function SelectToken(props) {
         props.setTokenOut({
           symbol: 'Select Token',
           logoURI: '',
-          address: tokenZeroAddress,
+          address: tokenOneAddress,
           usdPrice: 0,
         })
         props.setHasSelected(false)
