@@ -72,11 +72,17 @@ export default function SelectToken(props) {
       decimals: coin?.decimals,
     }
     if (props.type === 'in') {
-      /* if (token.symbol === tokenOut.symbol) {
-        return 
-      } */
+      if (coin.symbol === props.tokenOut.symbol) {
+        props.setTokenOut({
+          symbol: 'Select Token',
+          logoURI: '',
+          address: tokenZeroAddress,
+          usdPrice: 0,
+        })
+        props.setHasSelected(false)
+      }
       props.setTokenIn(coin)
-      if (coin.address.localeCompare(props.tokenOut.address) < 0) {
+      /* if (coin.address.localeCompare(props.tokenOut.address) < 0) {
         props.setTokenIn(coin)
         if (props.selected === true) {
           props.setTokenOut(props.tokenOut)
@@ -87,13 +93,22 @@ export default function SelectToken(props) {
           props.setTokenIn(props.tokenOut)
         }
         props.setTokenOut(coin)
-      }
+      } */
     } else {
       if (coin.symbol === props.tokenIn.symbol) {
+        props.setTokenIn({
+          symbol: 'Select Token',
+          logoURI: '',
+          address: tokenZeroAddress,
+          usdPrice: 0,
+        })
+        props.setHasSelected(false)
+      } else {
+        props.setHasSelected(true)
       }
       props.setTokenOut(coin)
-      props.setHasSelected(true)
-      if (coin.address.localeCompare(props.tokenIn.address) < 0) {
+
+      /* if (coin.address.localeCompare(props.tokenIn.address) < 0) {
         props.setTokenIn(coin)
         props.setTokenOut(props.tokenIn)
       }
@@ -101,7 +116,7 @@ export default function SelectToken(props) {
       if (coin.address.localeCompare(props.tokenIn.address) >= 0) {
         props.setTokenIn(props.tokenIn)
         props.setTokenOut(coin)
-      }
+      } */
     }
     props.balance(coin?.id)
     closeModal()
@@ -171,11 +186,11 @@ export default function SelectToken(props) {
                       {coinsForListing?.map((coin) => {
                         return (
                           <CoinListButton
-                            key={coin.symbol + "top"}
+                            key={coin.symbol + 'top'}
                             coin={coin}
                             chooseToken={chooseToken}
                           />
-                        );
+                        )
                       })}
                     </div>
                   </div>
@@ -187,7 +202,7 @@ export default function SelectToken(props) {
                           coin={coin}
                           chooseToken={chooseToken}
                         />
-                      );
+                      )
                     })}
                   </div>
                 </Dialog.Panel>
@@ -199,13 +214,15 @@ export default function SelectToken(props) {
       <button
         onClick={() => openModal()}
         className={
-          props.index === '0' || props.selected === true
+          (props.tokenIn.symbol != 'Select Token' && props.type == 'in') ||
+          (props.tokenOut.symbol != 'Select Token' && props.type == 'out')
             ? 'flex items-center uppercase gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl'
             : 'flex items-center bg-background text-main gap-x-3 hover:opacity-80  px-4 py-2 rounded-xl'
         }
       >
         <div className="flex items-center gap-x-2 w-full">
-          {props.index === '0' || props.selected === true ? (
+          {(props.tokenIn.symbol != 'Select Token' && props.type == 'in') ||
+          (props.tokenOut.symbol != 'Select Token' && props.type == 'out') ? (
             <img className="w-7" src={props.displayToken?.logoURI} />
           ) : (
             <></>
@@ -215,5 +232,5 @@ export default function SelectToken(props) {
         <ChevronDownIcon className="w-5" />
       </button>
     </div>
-  );
+  )
 }
