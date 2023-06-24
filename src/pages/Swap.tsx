@@ -381,7 +381,11 @@ export default function Swap() {
     address: coverPoolRoute,
     abi: coverPoolABI,
     functionName: 'quote',
-    args: [tokenOrder, bnInput, tokenOrder ? minPriceBn : maxPriceBn],
+    args: [[
+      tokenOrder ? minPriceBn : maxPriceBn,
+      bnInput,
+      tokenOrder 
+    ]],
     chainId: 421613,
     watch: true,
     enabled: coverPoolRoute != undefined,

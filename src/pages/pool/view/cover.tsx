@@ -3,18 +3,14 @@ import {
   ArrowTopRightOnSquareIcon,
   ArrowsRightLeftIcon,
   ArrowLongRightIcon,
-  ExclamationTriangleIcon,
 } from '@heroicons/react/20/solid'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useAccount, useContractRead } from 'wagmi'
 import CoverCollectButton from '../../../components/Buttons/CoverCollectButton'
-import Link from 'next/link'
 import { BigNumber, ethers } from 'ethers'
 import {
   getRangePoolFromFactory,
-  getTickIfNotZeroForOne,
-  getTickIfZeroForOne,
 } from '../../../utils/queries'
 import { TickMath } from '../../../utils/math/tickMath'
 import { coverPoolABI } from '../../../abis/evm/coverPool'
@@ -27,7 +23,6 @@ import {
   tokenZeroAddress,
   tokenOneAddress,
 } from '../../../constants/contractAddresses'
-import { BN_ZERO } from '../../../utils/math/constants'
 
 export default function Cover() {
   const { address, isConnected } = useAccount()
@@ -111,9 +106,6 @@ export default function Cover() {
   const [coverPoolRoute, setCoverPoolRoute] = useState(
     router.query.coverPoolRoute ?? '',
   )
-  const [coverTickPrice, setCoverTickPrice] = useState(
-    router.query.coverTickPrice ?? '0',
-  )
   const [claimTick, setClaimTick] = useState(BigNumber.from('887272'))
   const [fetchDelay, setFetchDelay] = useState(false)
 
@@ -188,7 +180,6 @@ export default function Cover() {
             ),
       )
       setCoverPoolRoute(query.coverPoolRoute)
-      setCoverTickPrice(query.coverTickPrice)
     }
     console.log('claim tick', router.query.claimTick)
   }, [router.isReady])

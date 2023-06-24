@@ -71,7 +71,6 @@ export default function CoverMintButton({
         to,
         amount,
         roundTick(Number(lower), tickSpacing),
-        roundTick(Number(claim), tickSpacing),
         roundTick(Number(upper), tickSpacing),
         zeroForOne,
       ],

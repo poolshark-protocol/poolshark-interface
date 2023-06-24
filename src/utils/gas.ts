@@ -173,12 +173,10 @@ export const gasEstimateCoverMint = async (
 
     const lower = BigNumber.from(lowerTick)
     const upper = BigNumber.from(upperTick)
-    const claim = zeroForOne ? upper : lower
     const amountIn = BigNumber.from(String(inAmount))
-
     const gasUnits: BigNumber = await contract
       .connect(signer)
-      .estimateGas.mint([recipient, amountIn, lower, claim, upper, zeroForOne])
+      .estimateGas.mint([recipient, amountIn, lower, upper, zeroForOne])
     const price = await fetchPrice('0x000')
     const gasPrice = await provider.getGasPrice()
     const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])

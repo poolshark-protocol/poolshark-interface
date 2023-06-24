@@ -114,7 +114,7 @@ export default function CoverExistingPool({
     abi: coverPoolABI,
     functionName:
       tokenOut.address != '' &&
-      tokenIn.address.localeCompare(tokenOut.address) < 0
+      tokenOrder
         ? 'pool1'
         : 'pool0',
     args: [],
@@ -184,7 +184,9 @@ export default function CoverExistingPool({
         setTickSpread,
         setAuctionLength
       )
-      updateGasFee()
+      console.log('tick bounds', lowerTick, upperTick)
+      if (!isNaN(lowerTick) && !isNaN(upperTick))
+        updateGasFee()
     } else {
       const interval = setInterval(() => {
         getCoverPoolInfo(
