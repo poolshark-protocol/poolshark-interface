@@ -44,6 +44,8 @@ const apolloClient = new ApolloClient({
 })
 
 const whitelist = [
+  '0x5FBce71b1b74d0d8511dC708ceED3250a1aBDacA', // Daniel Hill from Pshark Community
+  '0x03AC7CaA058026BaaA09a1285F2a9990892b64F0', // Nick from Arbi team
   '0x7bEeba96a6EaBfbc9ceF5C8a5CF4E28fD4223fcF',
   '0xdC1ab035004Fe9D88a308eBaf6417509accb37c2',
   '0x1E66DfC2FC49Ba3A323812AeCEbcf50C7b2D64A9',
