@@ -57,7 +57,6 @@ export default function UserCoverPool({
   ])
   const [show, setShow] = useState(false)
   const [coverQuote, setCoverQuote] = useState(undefined)
-  const [coverTickPrice, setCoverTickPrice] = useState(undefined)
   const [coverPoolRoute, setCoverPoolRoute] = useState('')
   const [claimPrice, setClaimPrice] = useState((zeroForOne ? upperPrice : lowerPrice))
   // fill percent is % of range crossed based on price
@@ -84,33 +83,6 @@ export default function UserCoverPool({
     / Math.abs(upperPrice - lowerPrice)).toPrecision(3))
   }, [claimPrice])
 
-  const { isConnected } = useAccount()
-
-  const { refetch: refetchcoverQuote, data: priceCover } = useContractRead({
-    address: coverPoolRoute,
-    abi: coverPoolABI,
-    functionName:
-      tokenOne.id != '' && tokenZero.id < tokenOne.id ? 'pool1' : 'pool0',
-    args: [],
-    chainId: 421613,
-    watch: true,
-    enabled: isConnected && coverPoolRoute != '',
-    onSuccess(data) {
-      //console.log('Success price Cover', data)
-      setCoverQuote(TickMath.getPriceStringAtSqrtPrice(data[0]))
-    },
-    onError(error) {
-      console.log('Error price Cover', error)
-    },
-    onSettled(data, error) {
-      //console.log('Settled price Cover', { data, error })
-    },
-  })
-
-  useEffect(() => {
-    setCoverParams()
-  }, [coverQuote])
-
   const getCoverPool = async () => {
     try {
       var pool = tokenZero.id < tokenOne.id ?
@@ -133,19 +105,6 @@ export default function UserCoverPool({
       epochLast,
     )
     setClaimTick(tick)
-  }
-
-  async function setCoverParams() {
-    try {
-      if (coverQuote != undefined) {
-        console.log('cover quote check', coverQuote)
-        const price = TickMath.getTickAtPriceString(coverQuote)
-        setCoverTickPrice(ethers.utils.parseUnits(String(price), 0))
-      }
-    } catch (error) {
-      setCoverTickPrice(ethers.utils.parseUnits(String(coverQuote), 0))
-      console.log(error)
-    }
   }
 
   const setPool = () => {
@@ -174,7 +133,6 @@ export default function UserCoverPool({
           tokenOneAddress: tokenOne.id,
           tokenOneValue: valueTokenOne,
           coverPoolRoute: coverPoolRoute,
-          coverTickPrice: coverTickPrice ? coverTickPrice : 0,
           min: min,
           max: max,
           claimTick: claimTick,

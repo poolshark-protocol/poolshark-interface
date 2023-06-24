@@ -5,10 +5,7 @@ import { erc20ABI } from "wagmi";
 import useInputBox from '../../../hooks/useInputBox'
 import CoverRemoveLiqButton from "../../Buttons/CoverRemoveLiqButton";
 import { BigNumber, ethers } from "ethers";
-import { DyDxMath } from "../../../utils/math/dydxMath";
-import { TickMath } from "../../../utils/math/tickMath";
-import { BN_ZERO, ZERO } from "../../../utils/math/constants";
-import JSBI from "jsbi";
+import { BN_ZERO } from "../../../utils/math/constants";
 
 export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, lowerTick, zeroForOne, amountInDeltaMax, upperTick }) {
 
@@ -16,15 +13,11 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
     bnInput,
     inputBox,
     setDisplay,
-    maxBalance,
-    bnInputLimit,
-    LimitInputBox,
   } = useInputBox()
 
   const [balanceIn, setBalanceIn] = useState('')
   const [fetchDelay, setFetchDelay] = useState(false)
   const [burnPercent, setBurnPercent] = useState(ethers.utils.parseUnits("5", 37))
-  const [amountOut, setAmountOut] = useState()
   const [sliderValue, setSliderValue] = useState(0)
   const [amountInMax, setAmountInMax] = useState(ethers.utils.parseUnits(amountInDeltaMax ?? '0', tokenIn.decimals))
   const [amountInDisplay, setAmountInDisplay] = useState(ethers.utils.formatUnits(BigNumber.from(amountInDeltaMax) ?? BN_ZERO, tokenIn.decimals))
