@@ -27,12 +27,13 @@ export default function SwapCoverButton({poolAddress, amount, zeroForOne, priceL
       address: poolAddress,
       abi: coverPoolABI,
       functionName: "swap",
-      args:[
+      args:[[
           userAddress,
-          zeroForOne,
+          userAddress,
+          priceLimit,
           amount,
-          priceLimit
-      ],
+          zeroForOne
+      ]],
       chainId: 421613,
       overrides:{
         gasLimit: BigNumber.from("1000000"),

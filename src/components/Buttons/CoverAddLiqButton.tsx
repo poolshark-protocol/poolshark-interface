@@ -11,6 +11,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { roundTick } from '../../utils/math/tickMath';
+import { BN_ZERO } from '../../utils/math/constants';
 
 export default function CoverAddLiqButton({poolAddress, address, lower, claim, upper, zeroForOne, amount, toAddress}) {
 
@@ -30,15 +31,14 @@ export default function CoverAddLiqButton({poolAddress, address, lower, claim, u
           toAddress,
           amount,
           Number(lower),
-          Number(claim),
           Number(upper),
           zeroForOne,
         ],
       ],
-      enabled: amount.toString() != '0' && poolAddress != undefined,
+      enabled: amount.gt(BN_ZERO) && poolAddress != undefined,
       chainId: 421613,
       overrides: {
-        gasLimit: BigNumber.from('1000000'),
+        gasLimit: BigNumber.from('600000'),
       },
     })
 
