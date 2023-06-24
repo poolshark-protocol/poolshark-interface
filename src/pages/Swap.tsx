@@ -961,12 +961,10 @@ export default function Swap() {
                   {!isNaN(tokenOut.usdPrice) ? !LimitActive
                     ? rangeQuote > coverQuote
                       ? (
-                          parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                           rangeQuote *
                           tokenOut.usdPrice
                         ).toFixed(2)
                       : (
-                          parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                           coverQuote *
                           tokenOut.usdPrice
                         ).toFixed(2)
