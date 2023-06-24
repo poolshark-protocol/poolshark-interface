@@ -25,9 +25,7 @@ export default function RangeRemoveLiqButton({poolAddress, address, lower, upper
             address,
             lower,
             upper,
-            burnAmount,
-            true,
-            true
+            burnAmount
         ]],
         chainId: 421613,
         overrides:{

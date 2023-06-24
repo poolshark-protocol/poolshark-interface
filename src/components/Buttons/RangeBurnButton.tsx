@@ -23,9 +23,7 @@ export default function RangeBurnButton({poolAddress, address, lower, upper, amo
           address,
           lower,
           upper,
-          amount,
-          false,
-          true
+          amount
       ]],
       chainId: 421613,
       overrides:{

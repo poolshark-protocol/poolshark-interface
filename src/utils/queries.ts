@@ -1,13 +1,11 @@
-import { ApolloClient, InMemoryCache, gql, HttpLink } from '@apollo/client'
-import { BigNumber, ethers } from 'ethers'
-import { rangePoolABI } from '../abis/evm/rangePool'
-import { coverPoolABI } from '../abis/evm/coverPool'
+import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
+import { BigNumber } from 'ethers'
 
-interface PoolState {
+export interface PoolState {
   unlocked: number
-  nearestTick: number
-  secondsGrowthGlobal: number
-  tickSecondsAccum: number
+  protocolFee: number
+  tickAtPrice: number
+  tickSecondsAccum: BigNumber
   secondsPerLiquidityAccum: BigNumber
   price: BigNumber
   liquidity: BigNumber

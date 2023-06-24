@@ -365,7 +365,11 @@ export default function Swap() {
     address: rangePoolRoute,
     abi: rangePoolABI,
     functionName: 'quote',
-    args: [tokenOrder, bnInput, tokenOrder ? minPriceBn : maxPriceBn],
+    args: [[
+      tokenOrder ? minPriceBn : maxPriceBn,
+      bnInput,
+      tokenOrder
+    ]],
     chainId: 421613,
     watch: true,
     enabled: rangePoolRoute != undefined,
