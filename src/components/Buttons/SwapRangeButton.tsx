@@ -31,9 +31,9 @@ export default function SwapRangeButton({poolAddress, amount, zeroForOne, priceL
       args:[[
           userAddress,
           userAddress,
-          zeroForOne,
-          amount,
           priceLimit,
+          amount,
+          zeroForOne
       ]],
       chainId: 421613,
       overrides:{
