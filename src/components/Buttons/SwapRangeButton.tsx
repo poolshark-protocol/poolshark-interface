@@ -28,13 +28,13 @@ export default function SwapRangeButton({poolAddress, amount, zeroForOne, priceL
       address: poolAddress,
       abi: rangePoolABI,
       functionName: "swap",
-      args:[
+      args:[[
           userAddress,
           userAddress,
           zeroForOne,
           amount,
           priceLimit,
-      ],
+      ]],
       chainId: 421613,
       overrides:{
         gasLimit: BigNumber.from("1000000"),
