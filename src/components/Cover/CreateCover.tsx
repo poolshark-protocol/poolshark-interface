@@ -7,7 +7,13 @@ import {
   InformationCircleIcon,
 } from '@heroicons/react/20/solid'
 import SelectToken from '../SelectToken'
-import { erc20ABI, useAccount, useProvider, useContractRead, useSigner } from 'wagmi'
+import {
+  erc20ABI,
+  useAccount,
+  useProvider,
+  useContractRead,
+  useSigner,
+} from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import { chainIdsToNamesForGitTokenList } from '../../utils/chains'
 import { Listbox, Transition } from '@headlessui/react'
@@ -92,7 +98,12 @@ export default function CreateCover(props: any) {
     (parseFloat(tickSpread) * (60 / parseFloat(auctionLength))).toFixed(2),
   )
 
-  console.log('volatility check', tickSpread, auctionLength, tickSpread * (60 / auctionLength))
+  console.log(
+    'volatility check',
+    tickSpread,
+    auctionLength,
+    tickSpread * (60 / auctionLength),
+  )
 
   function updateSelectedFeeTier(): any {
     if (feeTier == 0.01) {
@@ -142,10 +153,7 @@ export default function CreateCover(props: any) {
   useEffect(() => {
     setTimeout(() => {
       if (allowanceIn)
-        if (
-          address != '0x' &&
-          coverPoolRoute != ZERO_ADDRESS
-        ) {
+        if (address != '0x' && coverPoolRoute != ZERO_ADDRESS) {
           setAllowance(ethers.utils.formatUnits(allowanceIn, 18))
         }
     }, 50)
@@ -185,7 +193,7 @@ export default function CreateCover(props: any) {
       setCoverPrice,
       setTickSpread,
       setAuctionLength,
-      setTokenInUsdPrice
+      setTokenInUsdPrice,
     )
   }, [hasSelected, tokenIn.address, tokenOut.address, tokenOrder])
 
@@ -214,10 +222,14 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     if (!isNaN(parseFloat(lowerPrice))) {
-      setLowerTick(BigNumber.from(TickMath.getTickAtPriceString(lowerPrice, tickSpread)))
+      setLowerTick(
+        BigNumber.from(TickMath.getTickAtPriceString(lowerPrice, tickSpread)),
+      )
     }
     if (!isNaN(parseFloat(upperPrice))) {
-      setUpperTick(BigNumber.from(TickMath.getTickAtPriceString(upperPrice, tickSpread)))
+      setUpperTick(
+        BigNumber.from(TickMath.getTickAtPriceString(upperPrice, tickSpread)),
+      )
     }
   }, [lowerPrice, upperPrice])
 
@@ -243,8 +255,8 @@ export default function CreateCover(props: any) {
           : increment
         : 0
     const newTick = roundTick(currentTick - adjustment, increment)
-    const newPriceString = TickMath.getPriceStringAtTick(newTick);
-    (document.getElementById(inputId) as HTMLInputElement).value = Number(
+    const newPriceString = TickMath.getPriceStringAtTick(newTick)
+    ;(document.getElementById(inputId) as HTMLInputElement).value = Number(
       newPriceString,
     ).toFixed(6)
     if (inputId === 'maxInput') {
@@ -258,8 +270,9 @@ export default function CreateCover(props: any) {
   }
 
   const changeValidBounds = () => {
-    setValidBounds(tokenOrder ? lowerTick.lt(latestTick)
-                              : upperTick.gt(latestTick))
+    setValidBounds(
+      tokenOrder ? lowerTick.lt(latestTick) : upperTick.gt(latestTick),
+    )
   }
 
   async function updateGasFee() {
@@ -272,7 +285,7 @@ export default function CreateCover(props: any) {
       tokenOut,
       coverAmountIn,
       tickSpread,
-      signer
+      signer,
     )
     setMintGasFee(newMintGasFee)
   }
@@ -288,10 +301,17 @@ export default function CreateCover(props: any) {
       return (
         <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
           <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">
-              Mininum filled
+            <div className="text-xs text-[#4C4C4C]">Mininum filled</div>
+            <div className="ml-auto text-xs">
+              {(
+                parseFloat(
+                  ethers.utils.formatUnits(String(coverAmountOut), 18),
+                ) *
+                (1 - tickSpread / 10000)
+              ).toPrecision(5) +
+                ' ' +
+                tokenOut.symbol}
             </div>
-            <div className="ml-auto text-xs">{(parseFloat(ethers.utils.formatUnits(String(coverAmountOut), 18)) * (1 - tickSpread / 10000)).toPrecision(5) + ' ' + tokenOut.symbol}</div>
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
@@ -365,10 +385,15 @@ export default function CreateCover(props: any) {
   }
 
   const volatilityTiers = [
-    { id: 0, tier: "2.4% per min", text: "Best for most pairs", unavailable: false },
-  ];
+    {
+      id: 0,
+      tier: '2.4% per min',
+      text: 'Best for most pairs',
+      unavailable: false,
+    },
+  ]
 
-    const [selected, setSelected] = useState(volatilityTiers[0]);
+  const [selected, setSelected] = useState(volatilityTiers[0])
 
   function SelectVolatility() {
     return (
@@ -467,7 +492,11 @@ export default function CreateCover(props: any) {
             setTokenOut={setTokenOut}
             displayToken={tokenIn}
             balance={setQueryTokenIn}
-            key={queryTokenIn + 'in'}
+            queryTokenIn={queryTokenIn}
+            queryTokenOut={queryTokenOut}
+            setQueryTokenIn={setQueryTokenIn}
+            setQueryTokenOut={setQueryTokenOut}
+            key={queryTokenIn+'in'}
           />
           <div className="items-center px-2 py-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
             <ArrowLongRightIcon
@@ -500,7 +529,11 @@ export default function CreateCover(props: any) {
             setTokenOut={setTokenOut}
             displayToken={tokenOut}
             balance={setQueryTokenOut}
-            key={queryTokenOut + 'out'}
+            queryTokenIn={queryTokenIn}
+            queryTokenOut={queryTokenOut}
+            setQueryTokenIn={setQueryTokenIn}
+            setQueryTokenOut={setQueryTokenOut}
+            key={queryTokenOut+'out'}
           />
         </div>
       </div>
@@ -509,7 +542,11 @@ export default function CreateCover(props: any) {
         <div className="flex-col justify-center w-1/2 p-2 ">
           {inputBox('0', setCoverAmountIn)}
           <div className="flex text-xs text-[#4C4C4C]">
-            ${(parseFloat(ethers.utils.formatUnits(bnInput, 18)) * tokenInUsdPrice).toFixed(2)}
+            $
+            {(
+              parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+              tokenInUsdPrice
+            ).toFixed(2)}
           </div>
         </div>
         <div className="flex w-1/2">
@@ -570,7 +607,9 @@ export default function CreateCover(props: any) {
         <div>
           <h1>Volatility tier</h1>
         </div>
-        <div className="mt-3"><SelectVolatility /></div>
+        <div className="mt-3">
+          <SelectVolatility />
+        </div>
       </div>
       <div className="flex items-center w-full mb-3 mt-4 gap-x-2 relative">
         <h1 className="">Set Price Range</h1>
@@ -668,7 +707,9 @@ export default function CreateCover(props: any) {
             {1} {tokenIn.symbol} ={' '}
             {tokenOut.symbol === 'Select Token' || isNaN(parseFloat(coverPrice))
               ? '?' + ' ' + tokenOut.symbol
-              : parseFloat(invertPrice(coverPrice, tokenOrder)).toFixed(3) + ' ' + tokenOut.symbol}
+              : parseFloat(invertPrice(coverPrice, tokenOrder)).toFixed(3) +
+                ' ' +
+                tokenOut.symbol}
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
             <button>

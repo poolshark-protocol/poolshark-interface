@@ -31,7 +31,6 @@ import SwapCoverButton from '../components/Buttons/SwapCoverButton'
 import { rangePoolABI } from '../abis/evm/rangePool'
 import {
   TickMath,
-  invertPrice,
   maxPriceBn,
   minPriceBn,
 } from '../utils/math/tickMath'
