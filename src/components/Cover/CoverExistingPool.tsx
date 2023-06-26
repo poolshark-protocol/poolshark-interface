@@ -357,7 +357,7 @@ export default function CoverExistingPool({
       signer
     )
     setMintGasFee(newMintGasFee.formattedPrice)
-    setMintGasLimit(newMintGasFee.gasUnits)
+    setMintGasLimit(newMintGasFee.gasUnits.mul(130).div(100))
   }
 
   const handleChange = (event: any) => {
