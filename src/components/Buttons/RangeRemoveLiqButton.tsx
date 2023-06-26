@@ -10,7 +10,7 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { rangePoolABI } from '../../abis/evm/rangePool';
 
-export default function RangeRemoveLiqButton({poolAddress, address, lower, upper, burnAmount, totalAmount, disabled}) {
+export default function RangeRemoveLiqButton({poolAddress, address, lower, upper, burnAmount, totalAmount, disabled, gasLimit}) {
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -31,7 +31,7 @@ export default function RangeRemoveLiqButton({poolAddress, address, lower, upper
         ]],
         chainId: 421613,
         overrides:{
-            gasLimit: BigNumber.from("1000000")
+            gasLimit: gasLimit
         },
     })
 

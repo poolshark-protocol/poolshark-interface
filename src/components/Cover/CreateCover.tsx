@@ -117,6 +117,7 @@ export default function CreateCover(props: any) {
     } else return feeTiers[0]
   }
   const [mintGasFee, setMintGasFee] = useState('$0.00')
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
 
   /////////////////
 
@@ -287,7 +288,8 @@ export default function CreateCover(props: any) {
       tickSpread,
       signer,
     )
-    setMintGasFee(newMintGasFee)
+    setMintGasFee(newMintGasFee.formattedPrice)
+    setMintGasLimit(newMintGasFee.gasUnits)
   }
 
   function setParams(query: any) {
@@ -744,6 +746,7 @@ export default function CreateCover(props: any) {
             amount={bnInput}
             zeroForOne={tokenOrder}
             tickSpacing={tickSpread}
+            gasLimit={mintGasLimit}
           />
         ) : null}
       </div>

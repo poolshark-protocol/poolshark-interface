@@ -10,7 +10,7 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BigNumber, ethers } from "ethers";
 
-export default function RangeBurnButton({poolAddress, address, lower, upper, burnAmount, totalAmount}) {
+export default function RangeBurnButton({poolAddress, address, lower, upper, burnAmount, totalAmount, gasLimit}) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -29,7 +29,7 @@ export default function RangeBurnButton({poolAddress, address, lower, upper, bur
       ]],
       chainId: 421613,
       overrides:{
-          gasLimit: BigNumber.from("1000000")
+          gasLimit: gasLimit
       },
   })
 

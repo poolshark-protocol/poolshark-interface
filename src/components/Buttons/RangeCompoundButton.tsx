@@ -10,7 +10,7 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BigNumber } from "ethers";
 
-export default function RangeCompoundButton({ poolAddress, address, lower, upper }) {
+export default function RangeCompoundButton({ poolAddress, address, lower, upper, gasLimit }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -28,7 +28,7 @@ export default function RangeCompoundButton({ poolAddress, address, lower, upper
         ]],
       chainId: 421613,
       overrides:{
-          gasLimit: BigNumber.from("1000000")
+          gasLimit: gasLimit
       },
   })
 

@@ -176,6 +176,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
                       upper={upperTick}
                       zeroForOne={zeroForOne}
                       burnPercent={burnPercent}
+                      gasLimit={BN_ZERO}
                 />
               </Dialog.Panel>
             </Transition.Child>

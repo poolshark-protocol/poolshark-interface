@@ -597,13 +597,15 @@ export default function Cover() {
             isOpen={isAddOpen}
             setIsOpen={setIsAddOpen}
             tokenIn={tokenIn}
+            tokenOut={tokenOut}
             poolAdd={poolAdd}
             address={address}
-            minLimit={minLimit}
+            lowerTick={minLimit}
             claimTick={claimTick}
-            maxLimit={maxLimit}
+            upperTick={maxLimit}
             zeroForOne={zeroForOne}
             liquidity={liquidity}
+            tickSpacing={tickSpacing}
           />
         </>
       )}
