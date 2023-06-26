@@ -917,6 +917,7 @@ export default function Swap() {
           </div>
         </div>
         <div className="items-center -mb-2 -mt-2 p-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
+          {display.toString() !== '' ? (
           <ArrowSmallDownIcon
             className="w-4 h-4"
             onClick={() => {
@@ -924,7 +925,7 @@ export default function Swap() {
                 switchDirection()
               }
             }}
-          />
+          />) : <></> }
         </div>
         <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
