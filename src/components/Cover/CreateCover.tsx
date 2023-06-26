@@ -195,7 +195,11 @@ export default function CreateCover(props: any) {
       setTickSpread,
       setAuctionLength,
       setTokenInUsdPrice,
-      setLatestTick
+      setLatestTick,
+      lowerPrice,
+      upperPrice,
+      setLowerPrice,
+      setUpperPrice
     )
   }, [hasSelected, tokenIn.address, tokenOut.address, tokenOrder])
 
@@ -222,7 +226,7 @@ export default function CreateCover(props: any) {
       setCoverAmountIn(JSBI.BigInt(bnInput.toString()))
     }
     changeValidBounds()
-  }, [bnInput, lowerTick, upperTick])
+  }, [bnInput, lowerTick, upperTick, tokenOrder])
 
   useEffect(() => {
     if (!isNaN(parseFloat(lowerPrice))) {
@@ -274,8 +278,9 @@ export default function CreateCover(props: any) {
   }
 
   const changeValidBounds = () => {
+    console.log('changing valid bounds', tokenOrder ? lowerTick.lte(latestTick) : upperTick.gte(latestTick))
     setValidBounds(
-      tokenOrder ? lowerTick.lt(latestTick) : upperTick.gt(latestTick),
+      tokenOrder ? lowerTick.lte(latestTick) : upperTick.gte(latestTick),
     )
   }
 
@@ -599,11 +604,11 @@ export default function CreateCover(props: any) {
             {hasSelected &&
             mktRate[tokenIn.symbol] &&
             parseFloat(lowerPrice) < parseFloat(upperPrice) ? (
-              (
+              parseFloat((
                 parseFloat(
                   ethers.utils.formatUnits(String(coverAmountOut), 18),
                 ) * parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''))
-              ).toFixed(2)
+              ).toPrecision(4))
             ) : (
               <>?</>
             )}{' '}
@@ -715,7 +720,7 @@ export default function CreateCover(props: any) {
             {1} {tokenIn.symbol} ={' '}
             {tokenOut.symbol === 'Select Token' || isNaN(parseFloat(coverPrice))
               ? '?' + ' ' + tokenOut.symbol
-              : parseFloat(invertPrice(coverPrice, tokenOrder)).toFixed(3) +
+              : parseFloat(parseFloat(invertPrice(coverPrice, tokenOrder)).toPrecision(6)) +
                 ' ' +
                 tokenOut.symbol}
           </div>
