@@ -33,7 +33,7 @@ export default function CoverRemoveLiqButton({poolAddress, address, lower, claim
         ]],
         chainId: 421613,
         overrides:{
-            gasLimit: BigNumber.from("500000")
+            gasLimit: BigNumber.from("1000000")
         },
     })
 

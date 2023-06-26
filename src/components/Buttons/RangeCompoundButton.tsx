@@ -28,7 +28,7 @@ export default function RangeCompoundButton({ poolAddress, address, lower, upper
         ]],
       chainId: 421613,
       overrides:{
-          gasLimit: BigNumber.from("500000")
+          gasLimit: BigNumber.from("1000000")
       },
   })
 
