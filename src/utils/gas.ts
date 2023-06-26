@@ -215,7 +215,7 @@ export const gasEstimateRangeBurn = async (
       return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
     }
     const contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
-
+    console.log('new burn percent check', burnPercent.toString())
     const recipient = address
 
     const gasUnits = await contract
@@ -226,7 +226,7 @@ export const gasEstimateRangeBurn = async (
         upperTick,
         burnPercent
     ])
-    console.log('gas estimate compound', gasUnits.toString(), burnPercent.toString())
+    console.log('new burn percent gas limit', gasUnits.toString(), burnPercent.toString(), lowerTick.toString(), upperTick.toString())
     const price = await fetchPrice('0x000')
     const gasPrice = await provider.getGasPrice()
     const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])

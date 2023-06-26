@@ -602,7 +602,7 @@ export default function Range() {
         address={address}
         lowerTick={lowerTick}
         upperTick={upperTick}
-        liquidity={userLiquidity}
+        userLiquidity={userLiquidity}
         tokenAmount={userTokenAmount}
         rangePrice={rangePrice}
       />

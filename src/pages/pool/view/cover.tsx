@@ -485,6 +485,7 @@ export default function Cover() {
                       claim={claimTick}
                       upper={maxLimit}
                       zeroForOne={zeroForOne}
+                      
                     />
                     {/*TO-DO: add positionOwner ternary again*/}
                   </div>
