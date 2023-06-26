@@ -374,7 +374,7 @@ export default function Swap() {
     functionName: 'quote',
     args: [[
       tokenOrder ? minPriceBn : maxPriceBn,
-      display.toString != '' ? bnInput : ethers.utils.parseEther('1'),
+      display.toString() != '' ? bnInput : ethers.utils.parseEther('1'),
       tokenOrder
     ]],
     chainId: 421613,
