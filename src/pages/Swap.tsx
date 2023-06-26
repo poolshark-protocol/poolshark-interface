@@ -754,16 +754,18 @@ export default function Swap() {
             <div className="flex p-1">
               <div className="text-xs text-[#4C4C4C]">Price Impact</div>
               <div className="ml-auto text-xs">
-                {hasSelected
-                  ? rangeQuote > coverQuote
-                    ? (
-                        Math.abs((rangePrice - rangePriceAfter) * 100) /
-                        rangePrice
-                      ).toFixed(2) + '%'
-                    : (
-                        Math.abs((coverPrice - coverPriceAfter) * 100) /
-                        coverPrice
-                      ).toFixed(2) + '%'
+                {hasSelected 
+                  ? (rangePriceAfter != undefined || coverPriceAfter != undefined)
+                    ? (rangeQuote > coverQuote
+                      ? (
+                          Math.abs((rangePrice - rangePriceAfter) * 100) /
+                          rangePrice
+                        ).toFixed(2) + '%'
+                      : (
+                          Math.abs((coverPrice - coverPriceAfter) * 100) /
+                          coverPrice
+                        ).toFixed(2) + '%')
+                    : "0,00%"
                   : 'Select Token'}
               </div>
             </div>
