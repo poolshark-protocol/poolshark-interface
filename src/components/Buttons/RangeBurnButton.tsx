@@ -29,7 +29,7 @@ export default function RangeBurnButton({poolAddress, address, lower, upper, bur
       ]],
       chainId: 421613,
       overrides:{
-          gasLimit: BigNumber.from("500000")
+          gasLimit: BigNumber.from("1000000")
       },
   })
 
