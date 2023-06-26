@@ -24,9 +24,7 @@ export default function RangeCompoundButton({ poolAddress, address, lower, upper
           address,
           lower,
           upper,
-          BigNumber.from('0'),
-          true,
-          false
+          BigNumber.from('0')
         ]],
       chainId: 421613,
       overrides:{

@@ -46,7 +46,6 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
     } else {
       setDisabled(false)
     }
-    const userTokenAmount = Number(tokenAmount)
     const tokenAmountToBurn = BigNumber.from(percentInput).mul(BigNumber.from(tokenAmount)).div(BigNumber.from(100))
     setBurnAmount(tokenAmountToBurn)
     setAmounts(JSBI.BigInt(tokenAmountToBurn), true)
@@ -251,6 +250,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
                     lower={lowerTick}
                     upper={upperTick}
                     burnAmount={burnAmount}
+                    totalAmount={tokenAmount}
                     disabled={disabled}
                 />
               </Dialog.Panel>

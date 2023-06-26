@@ -1,6 +1,5 @@
 import {
   ArrowsRightLeftIcon,
-  ArrowLongRightIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/react/20/solid'
 import { useEffect, useState } from 'react'
@@ -8,15 +7,12 @@ import Link from 'next/link'
 import { useRangeStore } from '../../hooks/useStore'
 import { getRangePoolFromFactory } from '../../utils/queries'
 import { TickMath } from '../../utils/math/tickMath'
-import JSBI from 'jsbi'
 import { ethers } from 'ethers'
-import { useAccount, useContractRead } from 'wagmi'
-import { rangePoolABI } from '../../abis/evm/rangePool'
+import { useAccount } from 'wagmi'
 import {
   tokenOneAddress,
   tokenZeroAddress,
 } from '../../constants/contractAddresses'
-import { ZERO_ADDRESS } from '../../utils/math/constants'
 
 export default function UserPool({
   account,

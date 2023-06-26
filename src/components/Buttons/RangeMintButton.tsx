@@ -57,8 +57,7 @@ export default function RangeMintButton({
         lower,
         upper,
         amount0,
-        amount1,
-        true, //@dev always fungible
+        amount1
       ],
     ],
     chainId: 421613,

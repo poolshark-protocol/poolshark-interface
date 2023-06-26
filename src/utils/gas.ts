@@ -5,6 +5,7 @@ import { token } from './types'
 import { TickMath, roundTick } from './math/tickMath'
 import { fetchPrice } from './queries'
 import JSBI from 'jsbi'
+import { BN_ZERO } from './math/constants'
 
 export const gasEstimateSwap = async (
   rangePoolRoute: string,
@@ -50,13 +51,25 @@ export const gasEstimateSwap = async (
         const contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
         gasUnits = await contract
         .connect(signer)
-        .estimateGas.swap(recipient, recipient, zeroForOne, bnInput.lte(allowanceRange) ? bnInput : allowanceRange, priceLimit)
+        .estimateGas.swap([
+          recipient,
+          recipient,
+          priceLimit,
+          bnInput.lte(allowanceRange) ? bnInput : allowanceRange,
+          zeroForOne
+        ])
       }
       else {
         const contract = new ethers.Contract(coverPoolRoute, coverPoolABI, provider)
         gasUnits = await contract
         .connect(signer)
-        .estimateGas.swap(recipient, zeroForOne, bnInput.lte(allowanceCover) ? bnInput : allowanceCover, priceLimit)
+        .estimateGas.swap([
+          recipient,
+          recipient,
+          priceLimit,
+          bnInput.lte(allowanceCover) ? bnInput : allowanceCover,
+          zeroForOne
+        ])
       }
     } else {
       gasUnits = BigNumber.from(200000)
@@ -122,9 +135,10 @@ export const gasEstimateSwapLimit = async (
       )
 
     let gasUnits: BigNumber
-    gasUnits = await contract
-      .connect(signer)
-      .estimateGas.mint([recipient, lower, upper, bnInput, amount1])
+    gasUnits = BN_ZERO
+    // await contract
+    //   .connect(signer)
+    //   .estimateGas.mint([recipient, lower, upper, bnInput, amount1])
     const price = await fetchPrice('0x000')
     const gasPrice = await provider.getGasPrice()
     const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])

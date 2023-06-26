@@ -28,8 +28,7 @@ export default function RangeAddLiqButton({poolAddress, address, lower, upper, a
         lower,
         upper,
         amount0,
-        amount1,
-        true //@dev always fungible
+        amount1
       ]],
       chainId: 421613,
       overrides: {

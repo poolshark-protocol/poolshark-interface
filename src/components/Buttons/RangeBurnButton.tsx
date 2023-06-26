@@ -8,12 +8,14 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 
-export default function RangeBurnButton({poolAddress, address, lower, upper, amount}) {
+export default function RangeBurnButton({poolAddress, address, lower, upper, burnAmount, totalAmount}) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
+
+  const burnPercent: BigNumber = burnAmount.mul(ethers.utils.parseUnits('1', 38)).div(totalAmount)
 
   const { config } = usePrepareContractWrite({
       address: poolAddress,
@@ -23,9 +25,7 @@ export default function RangeBurnButton({poolAddress, address, lower, upper, amo
           address,
           lower,
           upper,
-          amount,
-          false,
-          true
+          burnPercent
       ]],
       chainId: 421613,
       overrides:{
