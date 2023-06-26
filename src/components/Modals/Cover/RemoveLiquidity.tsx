@@ -7,7 +7,7 @@ import CoverRemoveLiqButton from "../../Buttons/CoverRemoveLiqButton";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO } from "../../../utils/math/constants";
 
-export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, lowerTick, zeroForOne, amountInDeltaMax, upperTick }) {
+export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, lowerTick, zeroForOne, amountInDeltaMax, upperTick, gasLimit }) {
 
   const {
     bnInput,
@@ -176,7 +176,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
                       upper={upperTick}
                       zeroForOne={zeroForOne}
                       burnPercent={burnPercent}
-                      gasLimit={BN_ZERO}
+                      gasLimit={gasLimit}
                 />
               </Dialog.Panel>
             </Transition.Child>

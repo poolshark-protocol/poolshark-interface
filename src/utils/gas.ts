@@ -295,3 +295,56 @@ export const gasEstimateCoverMint = async (
   }
 }
 
+export const gasEstimateCoverBurn = async (
+  coverPoolRoute: string,
+  address: string,
+  burnPercent: BigNumber,
+  lowerTick: BigNumber,
+  claimTick: BigNumber,
+  upperTick: BigNumber,
+  zeroForOne: boolean,
+  signer
+): Promise<gasEstimateResult> => {
+  try {
+    const provider = new ethers.providers.JsonRpcProvider(
+      'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
+    )
+
+    if (!coverPoolRoute || !provider) {
+      return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
+    }
+    const contract = new ethers.Contract(coverPoolRoute, coverPoolABI, provider)
+    console.log('new burn percent check', burnPercent.toString())
+    const recipient = address
+
+    const gasUnits = await contract
+      .connect(provider)
+      .estimateGas.burn([
+        recipient,
+        burnPercent,
+        lowerTick,
+        claimTick,
+        upperTick,
+        zeroForOne,
+        true
+    ])
+    console.log('new burn percent gas limit', gasUnits.toString(), burnPercent.toString(), lowerTick.toString(), upperTick.toString())
+    const price = await fetchPrice('0x000')
+    const gasPrice = await provider.getGasPrice()
+    const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])
+    const networkFeeWei = gasPrice.mul(gasUnits)
+    const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18))
+    const networkFeeUsd = networkFeeEth * ethUsdPrice
+    const formattedPrice: string =
+      networkFeeUsd.toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      })
+    return { formattedPrice, gasUnits }
+  }
+  catch (error) {
+    console.log('gas error', error)
+    return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
+  }
+}
+

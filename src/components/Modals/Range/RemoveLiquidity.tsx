@@ -61,15 +61,8 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   }, [bnInput])
 
   useEffect(() => {
-    if (!fetchDelay) {
-      updateGasFee()
-    } else {
-      const interval = setInterval(() => {
-        updateGasFee()
-      }, 200)
-      return () => clearInterval(interval)
-    }
-  }, [burnPercent, bnInput])
+    updateGasFee()
+  }, [burnPercent])
 
   const handleChange = (event: any) => {
     setSliderValue(event.target.value)
@@ -80,7 +73,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   }
 
   async function updateGasFee() {
-    //TODO: burnPercent not getting set correctly
+    //TODO: burnPercent value is correct here but still showing as '0' in gasEstimate function
     const newBurnGasFee = await gasEstimateRangeBurn(
       poolAdd,
       address,
@@ -90,7 +83,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
       signer
     )
     if (!fetchDelay && newBurnGasFee.gasUnits.gt(BN_ZERO)) setFetchDelay(true)
-    if (newBurnGasFee.gasUnits.gt(BN_ZERO)) setGasLimit(newBurnGasFee.gasUnits.mul(150).div(100))
+    if (newBurnGasFee.gasUnits.gt(BN_ZERO)) setGasLimit(newBurnGasFee.gasUnits.mul(200).div(100))
   }
 
   function setLiquidity() {
