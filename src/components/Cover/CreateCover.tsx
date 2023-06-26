@@ -498,7 +498,7 @@ export default function CreateCover(props: any) {
             queryTokenOut={queryTokenOut}
             setQueryTokenIn={setQueryTokenIn}
             setQueryTokenOut={setQueryTokenOut}
-            key={queryTokenIn}
+            key={queryTokenIn+'in'}
           />
           <div className="items-center px-2 py-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
             <ArrowLongRightIcon
@@ -535,7 +535,7 @@ export default function CreateCover(props: any) {
             queryTokenOut={queryTokenOut}
             setQueryTokenIn={setQueryTokenIn}
             setQueryTokenOut={setQueryTokenOut}
-            key={queryTokenOut}
+            key={queryTokenOut+'out'}
           />
         </div>
       </div>
