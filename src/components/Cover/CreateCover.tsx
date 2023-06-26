@@ -197,8 +197,7 @@ export default function CreateCover(props: any) {
                           Number(ethers.utils.formatUnits(bnInput)) === 0 ||
                           tokenOut.symbol === 'Select Token' ||
                           hasSelected == false ||
-                          !validBounds ||
-                          allowanceIn.lt(bnInput)
+                          !validBounds
     setDisabled(disabledFlag)
     if (!disabledFlag) {
       updateGasFee()
