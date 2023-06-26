@@ -365,7 +365,7 @@ export default function Swap() {
     address: rangePoolRoute,
     abi: rangePoolABI,
     functionName: 'quote',
-    args: [tokenOrder, bnInput, tokenOrder ? minPriceBn : maxPriceBn],
+    args: [tokenOrder, display.toString() != '' ? bnInput : ethers.utils.parseEther('1'), tokenOrder ? minPriceBn : maxPriceBn],
     chainId: 421613,
     watch: true,
     enabled: rangePoolRoute != undefined,
@@ -383,7 +383,7 @@ export default function Swap() {
     functionName: 'quote',
     args: [[
       tokenOrder ? minPriceBn : maxPriceBn,
-      bnInput,
+      display.toString() != '' ? bnInput : ethers.utils.parseEther('1'),
       tokenOrder 
     ]],
     chainId: 421613,
@@ -402,8 +402,7 @@ export default function Swap() {
       if (quoteRange) {
         if (
           quoteRange[0].gt(BN_ZERO) &&
-          quoteRange[1].gt(BN_ZERO) &&
-          !bnInput.eq(BN_ZERO)
+          quoteRange[1].gt(BN_ZERO)
         ) {
           setRangeQuote(
             parseFloat(ethers.utils.formatUnits(quoteRange[1], 18)) /
@@ -429,8 +428,7 @@ export default function Swap() {
       if (quoteCover) {
         if (
           quoteCover[0].gt(BN_ZERO) &&
-          quoteCover[1].gt(BN_ZERO) &&
-          !bnInput.eq(BN_ZERO)
+          quoteCover[1].gt(BN_ZERO)
         ) {
           setCoverQuote(
             parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)) /
