@@ -243,6 +243,7 @@ export default function Range() {
         const token1Price =
           pool['data']['rangePools']['0']['token1']['usdPrice']
         const tickAtPrice = pool['data']['rangePools']['0']['tickAtPrice']
+        console.log('setting usd token amounts', token0Price, token1Price, amount0Fees, amount1Fees)
         setRangePoolRoute(id)
         setAmount0Usd(
           parseFloat((amount0 * parseFloat(token0Price)).toPrecision(6)),
@@ -332,8 +333,10 @@ export default function Range() {
   function setFeesOwed() {
     try {
       if (snapshot) {
-        const fees0 = parseFloat(ethers.utils.formatUnits(snapshot[3], 18))
-        const fees1 = parseFloat(ethers.utils.formatUnits(snapshot[4], 18))
+        console.log('snapshot', snapshot.toString())
+        const fees0 = parseFloat(ethers.utils.formatUnits(snapshot[2], 18))
+        const fees1 = parseFloat(ethers.utils.formatUnits(snapshot[3], 18))
+        console.log('fees owed 1', ethers.utils.formatUnits(snapshot[3], 18))
         setAmount0Fees(fees0)
         setAmount1Fees(fees1)
       }
@@ -509,24 +512,18 @@ export default function Range() {
                       <img height="30" width="30" src={token0.logoURI} />
                       {token0.symbol}
                     </div>
-                    <span>{amount0FeesUsd.toFixed(2)}</span>
+                    <span>{amount0Fees.toPrecision(4)}</span>
                   </div>
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
                       <img height="30" width="30" src={token1.logoURI} />
                       {token1.symbol}
                     </div>
-                    <span>{amount1FeesUsd.toFixed(2)}</span>
+                    <span>{amount1Fees.toPrecision(4)}</span>
                   </div>
                 </div>
                 <div className="mt-5 space-y-2">
                   <div className="space-y-3">
-                    <RangeCollectButton
-                      poolAddress={poolAdd.toString()}
-                      address={address}
-                      lower={BigNumber.from(lowerTick)}
-                      upper={BigNumber.from(upperTick)}
-                    />
                     <RangeCompoundButton
                       poolAddress={poolAdd.toString()}
                       address={address}

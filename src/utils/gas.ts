@@ -162,7 +162,7 @@ export const gasEstimateRangeMint = async (
     const provider = new ethers.providers.JsonRpcProvider(
       'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
     )
-    if (!rangePoolRoute || !provider) {
+    if (!rangePoolRoute || !provider || (amount0.eq(BN_ZERO) && amount1.eq(BN_ZERO))) {
       return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
     }
     const contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
@@ -189,7 +189,55 @@ export const gasEstimateRangeMint = async (
         style: 'currency',
         currency: 'USD',
       })
-      console.log('mint gas estimate', lowerTick.toString(), upperTick.toString(), gasUnits.toString())
+      console.log('gas estimate mint', lowerTick.toString(), upperTick.toString(), gasUnits.toString())
+    return { formattedPrice, gasUnits }
+  }
+  catch (error) {
+    console.log('gas error', error)
+    return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
+  }
+}
+
+export const gasEstimateRangeBurn = async (
+  rangePoolRoute: string,
+  address: string,
+  lowerTick: BigNumber,
+  upperTick: BigNumber,
+  burnPercent: BigNumber,
+  signer
+): Promise<gasEstimateResult> => {
+  try {
+    const provider = new ethers.providers.JsonRpcProvider(
+      'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
+    )
+
+    if (!rangePoolRoute || !provider) {
+      return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
+    }
+    const contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
+
+    const recipient = address
+
+    const gasUnits = await contract
+      .connect(provider)
+      .estimateGas.burn([
+        recipient,
+        lowerTick,
+        upperTick,
+        burnPercent
+    ])
+    console.log('gas estimate compound', gasUnits.toString(), burnPercent.toString())
+    const price = await fetchPrice('0x000')
+    const gasPrice = await provider.getGasPrice()
+    const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])
+    const networkFeeWei = gasPrice.mul(gasUnits)
+    const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18))
+    const networkFeeUsd = networkFeeEth * ethUsdPrice
+    const formattedPrice: string =
+      networkFeeUsd.toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      })
     return { formattedPrice, gasUnits }
   }
   catch (error) {

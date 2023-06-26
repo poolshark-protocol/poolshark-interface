@@ -2,18 +2,49 @@ import {
     usePrepareContractWrite,
     useContractWrite,
     useWaitForTransaction,
+    useSigner,
 } from 'wagmi';
 import { rangePoolABI } from "../../abis/evm/rangePool";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BigNumber } from "ethers";
+import { gasEstimateCoverMint, gasEstimateRangeBurn } from '../../utils/gas';
+import { BN_ZERO } from '../../utils/math/constants';
 
-export default function RangeCompoundButton({ poolAddress, address, lower, upper, gasLimit }) {
+export default function RangeCompoundButton({ poolAddress, address, lower, upper }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
+  const [ fetchDelay, setFetchDelay ] = useState(false)
+  const [ gasLimit, setGasLimit ] = useState(BN_ZERO)
+
+  const {data: signer} = useSigner()
+
+  useEffect(() => {
+    if (!fetchDelay) {
+      updateGasFee()
+    } else {
+      const interval = setInterval(() => {
+        updateGasFee()
+      }, 3000)
+      return () => clearInterval(interval)
+    }
+  }, [])
+
+  async function updateGasFee() {
+    const newBurnGasFee = await gasEstimateRangeBurn(
+      poolAddress,
+      address,
+      lower,
+      upper,
+      BN_ZERO,
+      signer
+    )
+    if (newBurnGasFee.gasUnits.gt(BN_ZERO)) setFetchDelay(true)
+    setGasLimit(newBurnGasFee.gasUnits.mul(130).div(100))
+  }
 
   //TO-DO: assess if collectFees() or collect true in burn
   const { config } = usePrepareContractWrite({
@@ -24,7 +55,7 @@ export default function RangeCompoundButton({ poolAddress, address, lower, upper
           address,
           lower,
           upper,
-          BigNumber.from('0')
+          BN_ZERO
         ]],
       chainId: 421613,
       overrides:{
