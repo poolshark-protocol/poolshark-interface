@@ -134,7 +134,7 @@ export default function UserPool({
           },
         }}
       >
-        <div className="w-full cursor-pointer grid grid-cols-7 items-center w-full bg-dark border border-grey2 rounded-xl py-3.5 pl-5 min-h-24 relative">
+        <div className="w-full cursor-pointer grid grid-cols-5 md:grid-cols-7 items-center w-full bg-dark border border-grey2 rounded-xl py-3.5 pl-5 md:pr-0 pr-5 min-h-24 relative">
           <div className="space-y-3 col-span-5">
             <div className="flex items-center gap-x-5">
               <div className="flex items-center ">
@@ -151,11 +151,11 @@ export default function UserPool({
                 <div>-</div>
                 {tokenOne.symbol}
               </div>
-              <div className="bg-black px-2 py-1 rounded-lg text-grey">
+              <div className="bg-black px-2 py-1 rounded-lg text-grey text-sm hidden md:block">
                 {feeTierPercentage}%
               </div>
             </div>
-            <div className="text-xs grid grid-cols-5 items-center gap-x-3 pr-5">
+            <div className="text-xs grid grid-cols-5 items-center gap-x-3 md:pr-5">
               <span className='col-span-2'>
                 <span className="text-grey">Min:</span> {TickMath.getPriceStringAtTick(min)} {tokenOne.symbol}{' '}
                 per {tokenZero.symbol}
@@ -169,7 +169,12 @@ export default function UserPool({
               </span>
             </div>
           </div>{' '}
-          <div className="col-span-2 mx-5">
+          <div className="md:col-span-2 flex w-full flex-row-reverse items-center col-span-5 md:mx-5 mt-3 md:mt-0">
+          <div className="bg-black   px-2 py-1 rounded-lg text-grey text-sm md:hidden block">
+                {feeTierPercentage}%
+              </div>
+          
+          <div className="">
           {rangeTickPrice ? (
             Number(rangeTickPrice) <
               Number(min) ||
@@ -188,6 +193,7 @@ export default function UserPool({
           ) : (
             <></>
           )}
+          </div>
           </div>
         </div>
       </Link>

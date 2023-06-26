@@ -154,7 +154,7 @@ export default function UserCoverPool({
         onMouseLeave={(e) => {
           setShow(false)
         }}
-        className="w-full cursor-pointer grid grid-cols-7 items-center w-full bg-dark border border-grey2 rounded-xl py-3.5 pl-5 min-h-24 relative"
+        className="w-full cursor-pointer grid grid-cols-5 md:grid-cols-7 items-center w-full bg-dark border border-grey2 rounded-xl py-3.5 pl-5 min-h-24 relative"
       >
         <div className="space-y-3 col-span-5">
           <div className="flex items-center gap-x-5">
@@ -172,7 +172,7 @@ export default function UserCoverPool({
               <ArrowLongRightIcon className="w-5" />
               {tokenOne.symbol}
             </div>
-            <div className="bg-black px-2 py-1 rounded-lg text-grey">
+            <div className="bg-black px-2 py-1 rounded-lg text-grey sm:block hidden">
               {feeTierPercentage}%
             </div>
           </div>

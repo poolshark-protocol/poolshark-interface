@@ -775,8 +775,8 @@ export default function Swap() {
     }
   }
   return (
-    <div className="pt-[10vh]">
-      <div className="flex flex-col w-full md:max-w-md px-6 pt-5 pb-7 mx-auto bg-black border border-grey2 rounded-xl">
+    <div className="pt-[10vh] px-2 md:px-0">
+      <div className="flex flex-col w-full md:max-w-md px-6  pt-5 pb-7 mx-auto bg-black border border-grey2 rounded-xl">
         <div className="flex items-center">
           <div className="flex gap-4 mb-1.5 text-sm">
             <div
@@ -859,7 +859,7 @@ export default function Swap() {
           </div>
         </div>
         <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-          <div className="flex-col justify-center w-1/2 p-2 ">
+          <div className="flex-col justify-center md:w-1/2 p-2 ">
             {inputBox('0')}
             {tokenIn.address != '' ? (
               <div className="flex">
@@ -875,7 +875,7 @@ export default function Swap() {
               <></>
             )}
           </div>
-          <div className="flex w-1/2">
+          <div className="flex md:w-1/2">
             <div className="flex justify-center ml-auto">
               <div className="flex-col">
                 <div className="flex justify-end">

@@ -383,13 +383,7 @@ function MyApp({ Component, pageProps }) {
       <WagmiConfig client={wagmiClient}>
         <RainbowKitProvider chains={chains} initialChain={arbitrumGoerli}>
           <ApolloProvider client={apolloClient}>
-          {_isMobile ? (<div>
-              <div className="h-screen w-full bottom-0  md:hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black z-50">
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center">
-                Poolshark testnet is not available on mobile, please use a bigger screen
-                </div>
-              </div>
-              </div>) : (<>
+            <>
             { _isConnected ? (whitelist.includes(address) ? (
             <Component {...pageProps} />
             )
@@ -421,7 +415,7 @@ function MyApp({ Component, pageProps }) {
                 </div>
                 </div>
             </div>) }
-            </>)}
+            </>
             <Analytics />
           </ApolloProvider>
         </RainbowKitProvider>

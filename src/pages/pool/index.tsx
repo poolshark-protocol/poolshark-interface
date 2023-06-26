@@ -99,7 +99,7 @@ export default function Pool() {
     return (
       <Listbox value={selected} onChange={setSelected}>
         <div className="relative mt-1 z-50">
-          <Listbox.Button className="relative w-52 cursor-default cursor-pointer rounded-lg bg-black text-white border border-grey1 py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
+          <Listbox.Button className="relative w-40 md:w-52 cursor-default cursor-pointer rounded-lg bg-black text-white border border-grey1 py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
             <span className="block truncate">{selected.type}</span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
               <ChevronDownIcon
@@ -142,12 +142,12 @@ export default function Pool() {
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
-      <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full">
-        <div className="w-[60rem] mt-[10vh] mb-[10vh]">
+      <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full  px-5 md:px-0">
+        <div className="w-[60rem] mt-[10vh] mb-[10vh">
           <div className="flex justify-between mb-6 items-end">
             <div className="flex items-center gap-x-4">
               <h1 className="text-3xl">Pools</h1>
-              <div className="cursor-pointer">
+              <div className="cursor-pointer flex flex-row-reverse md:flex-row gap-x-3">
                 <SelectPool />
               </div>
             </div>
@@ -160,7 +160,10 @@ export default function Pool() {
                     : "https://docs.poolsharks.io/overview/cover-pools/"
                 }
               >
-                <a target="_blank">How it works?</a>
+                <>
+                <a target="_blank" className="md:block hidden">How it works?</a>
+                <a target="_blank" className="md:hidden block">Docs</a>
+                </>
               </Link>
             </span>
             {/* <Link
@@ -370,7 +373,7 @@ export default function Pool() {
                 )}
               </div>
             </div>
-            <div className="">
+            <div className="pb-20">
               <h1 className="mb-3 ">All Pools</h1>
               <div className="space-y-2">
                 <table className="w-full table-auto">
@@ -378,7 +381,7 @@ export default function Pool() {
                     <tr className="text-xs text-grey">
                       <th className="text-left font-light">Name</th>
                       <th className="text-right font-light">TVL</th>
-                      <th className="text-right font-light">Volume(USD)</th>
+                      <th className="text-right font-light md:block hidden">Volume(USD)</th>
                       <th className="text-right font-light">Volume(ETH)</th>
                     </tr>
                   </thead>
