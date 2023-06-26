@@ -46,6 +46,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
     network: { chainId },
   } = useProvider()
 
+  console.log('add liquidity check', liquidity)
+
   const { data: tokenInAllowance } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -120,7 +122,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
   useEffect(() => {
     setAmounts()
     updateMintFee()
-  }, [amount0, amount1])
+  }, [bnInput])
 
   useEffect(() => {
     updateBalances()
@@ -159,6 +161,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
       if (
         Number(ethers.utils.formatUnits(bnInput)) !== 0
       ) {
+
         const liquidity = JSBI.greaterThanOrEqual(rangeSqrtPrice, lowerSqrtPrice) &&
                           JSBI.lessThanOrEqual(rangeSqrtPrice, upperSqrtPrice) ?
                              DyDxMath.getLiquidityForAmounts(
@@ -175,6 +178,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
                             tokenOrder ? BN_ZERO : bnInput,
                             tokenOrder ? bnInput : BN_ZERO
                           )
+          console.log('liquidity check', liquidity)
         const tokenOutAmount = JSBI.greaterThan(liquidity, ZERO) ?
                                   tokenOrder ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
                                              : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)

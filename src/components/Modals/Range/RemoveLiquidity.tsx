@@ -252,6 +252,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
                     burnAmount={burnAmount}
                     totalAmount={tokenAmount}
                     disabled={disabled}
+                    gasLimit={BN_ZERO}
                 />
               </Dialog.Panel>
             </Transition.Child>
