@@ -195,23 +195,26 @@ export default function CreateCover(props: any) {
       setTickSpread,
       setAuctionLength,
       setTokenInUsdPrice,
+      setLatestTick
     )
   }, [hasSelected, tokenIn.address, tokenOut.address, tokenOrder])
 
   // set disabled
   useEffect(() => {
-    const disabledFlag = isNaN(parseFloat(lowerPrice)) ||
+    const disabledFlag =  isNaN(parseFloat(lowerPrice)) ||
                           isNaN(parseFloat(upperPrice)) ||
-                          parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
+                          lowerTick.gte(upperTick) ||
                           Number(ethers.utils.formatUnits(bnInput)) === 0 ||
                           tokenOut.symbol === 'Select Token' ||
                           hasSelected == false ||
-                          !validBounds
+                          !validBounds ||
+                          parseFloat(mintGasFee) == 0
+    console.log('disabled flag check', disabledFlag)
     setDisabled(disabledFlag)
     if (!disabledFlag) {
       updateGasFee()
     }
-  }, [lowerPrice, upperPrice, bnInput, tokenOut, hasSelected])
+  }, [lowerPrice, upperPrice, lowerTick, mintGasFee, upperTick, bnInput, tokenOut, hasSelected, validBounds])
 
   // set amount in
   useEffect(() => {

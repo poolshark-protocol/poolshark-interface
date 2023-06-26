@@ -129,7 +129,8 @@ export const getCoverPoolInfo = async (
   setCoverPrice,
   setTickSpacing,
   setAuctionLength,
-  setTokenInUsdPrice?
+  setTokenInUsdPrice?,
+  setLatestTick?
 ) => {
   try {
     console.log(
@@ -158,6 +159,9 @@ export const getCoverPoolInfo = async (
         console.log('setting tokenIn price usd', pool['data']['coverPools']['0']['token0']['usdPrice'])
         setTokenInUsdPrice(parseFloat(tokenOrder ? pool['data']['coverPools']['0']['token0']['usdPrice']
                                                  : pool['data']['coverPools']['0']['token1']['usdPrice']))
+      }
+      if (setLatestTick) {
+        setLatestTick(newLatestTick)
       }
     } else {
       setCoverPoolRoute(ZERO_ADDRESS)
