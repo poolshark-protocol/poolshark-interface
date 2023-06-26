@@ -199,15 +199,13 @@ export default function CreateCover(props: any) {
 
   // set disabled
   useEffect(() => {
-    const disabledFlag =
-      isNaN(parseFloat(lowerPrice)) ||
-      isNaN(parseFloat(upperPrice)) ||
-      parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
-      Number(ethers.utils.formatUnits(bnInput)) === 0 ||
-      tokenOut.symbol === 'Select Token' ||
-      hasSelected == false ||
-      !validBounds ||
-      allowanceIn.lt(bnInput)
+    const disabledFlag = isNaN(parseFloat(lowerPrice)) ||
+                          isNaN(parseFloat(upperPrice)) ||
+                          parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
+                          Number(ethers.utils.formatUnits(bnInput)) === 0 ||
+                          tokenOut.symbol === 'Select Token' ||
+                          hasSelected == false ||
+                          !validBounds
     setDisabled(disabledFlag)
     if (!disabledFlag) {
       updateGasFee()

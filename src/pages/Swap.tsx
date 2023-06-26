@@ -14,6 +14,7 @@ import {
   useSigner,
   useProvider,
   useContractRead,
+  useBalance,
 } from 'wagmi'
 import {
   tokenZeroAddress,
@@ -37,7 +38,6 @@ import { BN_ZERO } from '../utils/math/constants'
 import { gasEstimateSwap, gasEstimateSwapLimit } from '../utils/gas'
 import { token } from '../utils/types'
 import { getCoverPool, getRangePool } from '../utils/pools'
-import { getBalances } from '../utils/balances'
 import inputFilter from '../utils/inputFilter'
 import RangeLimitSwapButton from '../components/Buttons/RangeLimitSwapButton'
 import SwapRangeDoubleApproveButton from '../components/Buttons/SwapRangeDoubleApproveButton'
@@ -121,13 +121,32 @@ export default function Swap() {
 
   ////////////////////////////////Pools and Balances
 
+  const { data: tokenInBal } = useBalance({
+    address: address,
+    token: tokenIn.address as `0x${string}`,
+    enabled: isConnected,
+    watch: true
+  })
+
+  const { data: tokenOutBal } = useBalance({
+    address: address,
+    token: tokenOut.address as `0x${string}`,
+    enabled: isConnected && hasSelected,
+    watch: true
+  })
+
   useEffect(() => {
     if (hasSelected) {
       updatePools()
       setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0)
     }
+
     if (isConnected) {
-      updateBalances()
+      setBalanceIn(parseFloat(tokenInBal?.formatted.toString()).toFixed(2))
+
+      if (hasSelected) {
+        setBalanceOut(parseFloat(tokenOutBal?.formatted.toString()).toFixed(2))
+      }
     }
   }, [tokenOut.address, tokenIn.address, hasSelected, isConnected])
 
@@ -159,17 +178,6 @@ export default function Swap() {
       setEthUsdPrice,
     )
     await getCoverPool(tokenIn, tokenOut, setCoverPoolRoute)
-  }
-
-  async function updateBalances() {
-    await getBalances(
-      address,
-      hasSelected,
-      tokenIn,
-      tokenOut,
-      setBalanceIn,
-      setBalanceOut,
-    )
   }
 
   ////////////////////////////////Allowances
@@ -364,7 +372,7 @@ export default function Swap() {
     address: rangePoolRoute,
     abi: rangePoolABI,
     functionName: 'quote',
-    args: [tokenOrder, bnInput, tokenOrder ? minPriceBn : maxPriceBn],
+    args: [tokenOrder, display.toString() != '' ? bnInput : ethers.utils.parseEther('1'), tokenOrder ? minPriceBn : maxPriceBn],
     chainId: 421613,
     watch: true,
     enabled: rangePoolRoute != undefined,
@@ -382,7 +390,7 @@ export default function Swap() {
     functionName: 'quote',
     args: [[
       tokenOrder ? minPriceBn : maxPriceBn,
-      bnInput,
+      display.toString() != '' ? bnInput : ethers.utils.parseEther('1'),
       tokenOrder 
     ]],
     chainId: 421613,
@@ -401,8 +409,7 @@ export default function Swap() {
       if (quoteRange) {
         if (
           quoteRange[0].gt(BN_ZERO) &&
-          quoteRange[1].gt(BN_ZERO) &&
-          !bnInput.eq(BN_ZERO)
+          quoteRange[1].gt(BN_ZERO)
         ) {
           setRangeQuote(
             parseFloat(ethers.utils.formatUnits(quoteRange[1], 18)) /
@@ -428,8 +435,7 @@ export default function Swap() {
       if (quoteCover) {
         if (
           quoteCover[0].gt(BN_ZERO) &&
-          quoteCover[1].gt(BN_ZERO) &&
-          !bnInput.eq(BN_ZERO)
+          quoteCover[1].gt(BN_ZERO)
         ) {
           setCoverQuote(
             parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)) /
@@ -656,9 +662,6 @@ export default function Swap() {
         ),
       )
     }
-    const oldBalanceIn = balanceIn
-    setBalanceIn(balanceOut)
-    setBalanceOut(oldBalanceIn)
   }, 200)
 
   ////////////////////////////////
@@ -753,16 +756,18 @@ export default function Swap() {
             <div className="flex p-1">
               <div className="text-xs text-[#4C4C4C]">Price Impact</div>
               <div className="ml-auto text-xs">
-                {hasSelected
-                  ? rangeQuote > coverQuote
-                    ? (
-                        Math.abs((rangePrice - rangePriceAfter) * 100) /
-                        rangePrice
-                      ).toFixed(2) + '%'
-                    : (
-                        Math.abs((coverPrice - coverPriceAfter) * 100) /
-                        coverPrice
-                      ).toFixed(2) + '%'
+                {hasSelected 
+                  ? (rangePriceAfter != undefined || coverPriceAfter != undefined)
+                    ? (rangeQuote > coverQuote
+                      ? (
+                          Math.abs((rangePrice - rangePriceAfter) * 100) /
+                          rangePrice
+                        ).toFixed(2) + '%'
+                      : (
+                          Math.abs((coverPrice - coverPriceAfter) * 100) /
+                          coverPrice
+                        ).toFixed(2) + '%')
+                    : "0,00%"
                   : 'Select Token'}
               </div>
             </div>
@@ -916,6 +921,7 @@ export default function Swap() {
           </div>
         </div>
         <div className="items-center -mb-2 -mt-2 p-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
+          {display.toString() !== '' ? (
           <ArrowSmallDownIcon
             className="w-4 h-4"
             onClick={() => {
@@ -923,7 +929,7 @@ export default function Swap() {
                 switchDirection()
               }
             }}
-          />
+          />) : <></> }
         </div>
         <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
