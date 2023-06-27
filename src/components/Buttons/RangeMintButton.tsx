@@ -82,7 +82,10 @@ export default function RangeMintButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true)
-      closeModal()
+      //set a timeout and then closeModal()
+      setTimeout(() => {
+        closeModal()
+      }, 2000)
     },
     onError() {
       setErrorDisplay(true)
