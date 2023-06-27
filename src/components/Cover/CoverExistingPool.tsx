@@ -22,7 +22,7 @@ import {
   roundTick,
 } from '../../utils/math/tickMath'
 import { coverPoolABI } from '../../abis/evm/coverPool'
-import { ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
+import { BN_ZERO, ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
 import CoverMintApproveButton from '../Buttons/CoverMintApproveButton'
 import { token } from '../../utils/types'
@@ -106,6 +106,7 @@ export default function CoverExistingPool({
   const [mktRate, setMktRate] = useState({})
   const [showTooltip, setShowTooltip] = useState(false)
   const [mintGasFee, setMintGasFee] = useState('$0.00')
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
 
   ////////////////////////////////
 
@@ -114,7 +115,7 @@ export default function CoverExistingPool({
     abi: coverPoolABI,
     functionName:
       tokenOut.address != '' &&
-      tokenIn.address.localeCompare(tokenOut.address) < 0
+      tokenOrder
         ? 'pool1'
         : 'pool0',
     args: [],
@@ -184,7 +185,9 @@ export default function CoverExistingPool({
         setTickSpread,
         setAuctionLength
       )
-      updateGasFee()
+      console.log('tick bounds', lowerTick, upperTick)
+      if (!isNaN(lowerTick) && !isNaN(upperTick))
+        updateGasFee()
     } else {
       const interval = setInterval(() => {
         getCoverPoolInfo(
@@ -353,7 +356,8 @@ export default function CoverExistingPool({
       tickSpread,
       signer
     )
-    setMintGasFee(newMintGasFee)
+    setMintGasFee(newMintGasFee.formattedPrice)
+    setMintGasLimit(newMintGasFee.gasUnits.mul(130).div(100))
   }
 
   const handleChange = (event: any) => {
@@ -694,6 +698,7 @@ export default function CoverExistingPool({
               tokenIn.address.localeCompare(tokenOut.address) < 0
             }
             tickSpacing={tickSpread}
+            gasLimit={mintGasLimit}
           />
         )}
       </div>

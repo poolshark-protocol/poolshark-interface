@@ -12,7 +12,7 @@ import React, { useState } from "react";
 import { rangePoolABI } from "../../abis/evm/rangePool";
 import { useSwapStore } from "../../hooks/useStore"
 
-export default function SwapRangeButton({poolAddress, amount, zeroForOne, priceLimit}) {
+export default function SwapRangeButton({poolAddress, amount, zeroForOne, priceLimit, gasLimit}) {
 
   /*const [Limit] = useSwapStore((state: any) => [
     state.Limit
@@ -21,6 +21,8 @@ export default function SwapRangeButton({poolAddress, amount, zeroForOne, priceL
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
 
+  console.log('gas limit swap range', gasLimit.toString())
+
   const { address } = useAccount()
   const userAddress = address;
 
@@ -28,17 +30,16 @@ export default function SwapRangeButton({poolAddress, amount, zeroForOne, priceL
       address: poolAddress,
       abi: rangePoolABI,
       functionName: "swap",
-      args:[
+      args:[[
           userAddress,
           userAddress,
-          zeroForOne,
-          amount,
           priceLimit,
-      ],
+          amount,
+          zeroForOne
+      ]],
       chainId: 421613,
       overrides:{
-        gasLimit: BigNumber.from("1000000"),
-        //gasPrice: ethers.utils.parseUnits('20', 'gwei')
+        gasLimit: gasLimit,
       }
   })
 

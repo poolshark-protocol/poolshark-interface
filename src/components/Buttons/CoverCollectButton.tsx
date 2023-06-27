@@ -10,7 +10,7 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BigNumber, ethers } from "ethers";
 
-export default function CoverCollectButton({ poolAddress, address, lower, claim, upper, zeroForOne }) {
+export default function CoverCollectButton({ poolAddress, address, lower, claim, upper, zeroForOne, gasLimit }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -30,7 +30,7 @@ export default function CoverCollectButton({ poolAddress, address, lower, claim,
       ]],
       chainId: 421613,
       overrides:{
-          gasLimit: BigNumber.from("500000")
+          gasLimit: gasLimit
       },
   })
 

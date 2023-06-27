@@ -1,7 +1,7 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useState } from 'react'
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useSwitchNetwork } from "wagmi";
+import { useSigner, useSwitchNetwork } from "wagmi";
 import useInputBox from '../../../hooks/useInputBox'
 import RangeAddLiqButton from '../../Buttons/RangeAddLiqButton'
 import RangeRemoveLiqButton from "../../Buttons/RangeRemoveLiqButton";
@@ -10,9 +10,10 @@ import { BN_ZERO, ZERO } from "../../../utils/math/constants";
 import JSBI from "jsbi";
 import { DyDxMath } from "../../../utils/math/dydxMath";
 import { TickMath } from "../../../utils/math/tickMath";
+import { gasEstimateRangeBurn } from "../../../utils/gas";
 
 
-export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut, poolAdd, address, lowerTick, upperTick, liquidity, tokenAmount, rangePrice}) {
+export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut, poolAdd, address, lowerTick, upperTick, userLiquidity, tokenAmount, rangePrice}) {
 
   const {
     bnInput,
@@ -23,19 +24,22 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
     setDisplay
   } = useInputBox()
 
-  console.log('remove user liquidity', liquidity.toString(), tokenAmount.toString())
+  console.log('remove user liquidity', userLiquidity.toString(), tokenAmount.toString())
 
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
   const [sliderValue, setSliderValue] = useState(0)
-  const [burnAmount, setBurnAmount] = useState(BN_ZERO)
+  const [burnPercent, setBurnPercent] = useState(BN_ZERO)
   const [disabled, setDisabled] = useState(true)
   const [amount0, setAmount0] = useState(BN_ZERO)
   const [amount1, setAmount1] = useState(BN_ZERO)
   const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
   const [ rangeSqrtPrice, setRangeSqrtPrice ] = useState(JSBI.BigInt(rangePrice))
+  const [ fetchDelay, setFetchDelay ] = useState(false)
+  const [ gasLimit, setGasLimit ] = useState(BN_ZERO)
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
   const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
+  const {data: signer} = useSigner()
 
   useEffect(() => {
     const percentInput = sliderValue
@@ -46,15 +50,19 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
     } else {
       setDisabled(false)
     }
-    const userTokenAmount = Number(tokenAmount)
     const tokenAmountToBurn = BigNumber.from(percentInput).mul(BigNumber.from(tokenAmount)).div(BigNumber.from(100))
-    setBurnAmount(tokenAmountToBurn)
+    setBurnPercent(ethers.utils.parseUnits(sliderValue.toString(), 36))
+    console.log('new burn percent', ethers.utils.parseUnits(sliderValue.toString(), 36).toString())
     setAmounts(JSBI.BigInt(tokenAmountToBurn), true)
   }, [sliderValue])
 
   useEffect(() => {
     setLiquidity()
   }, [bnInput])
+
+  useEffect(() => {
+    updateGasFee()
+  }, [burnPercent])
 
   const handleChange = (event: any) => {
     setSliderValue(event.target.value)
@@ -64,12 +72,26 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
     setSliderValue(percent)
   }
 
+  async function updateGasFee() {
+    //TODO: burnPercent value is correct here but still showing as '0' in gasEstimate function
+    const newBurnGasFee = await gasEstimateRangeBurn(
+      poolAdd,
+      address,
+      lowerTick,
+      upperTick,
+      burnPercent,
+      signer
+    )
+    if (!fetchDelay && newBurnGasFee.gasUnits.gt(BN_ZERO)) setFetchDelay(true)
+    if (newBurnGasFee.gasUnits.gt(BN_ZERO)) setGasLimit(newBurnGasFee.gasUnits.mul(200).div(100))
+  }
+
   function setLiquidity() {
     try {
       if (
         Number(ethers.utils.formatUnits(bnInput)) !== 0
       ) {
-        const liquidity = JSBI.greaterThanOrEqual(rangeSqrtPrice, lowerSqrtPrice) &&
+        const liquidityRemoved = JSBI.greaterThanOrEqual(rangeSqrtPrice, lowerSqrtPrice) &&
                           JSBI.lessThanOrEqual(rangeSqrtPrice, upperSqrtPrice) ?
                              DyDxMath.getLiquidityForAmounts(
                               tokenOrder ? rangeSqrtPrice : lowerSqrtPrice,
@@ -85,7 +107,9 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
                             tokenOrder ? BN_ZERO : bnInput,
                             tokenOrder ? bnInput : BN_ZERO
                           )
-          setAmounts(liquidity)
+          console.log('new burn percent', BigNumber.from(String(liquidityRemoved)).mul(ethers.utils.parseUnits('1', 38)).div(BigNumber.from(userLiquidity)).toString())
+          setBurnPercent(BigNumber.from(String(liquidityRemoved)).mul(ethers.utils.parseUnits('1', 38)).div(BigNumber.from(userLiquidity)))
+          setAmounts(liquidityRemoved)
         } else {
           setAmounts(ZERO)
           setDisabled(true)
@@ -250,8 +274,9 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
                     address={address}
                     lower={lowerTick}
                     upper={upperTick}
-                    burnAmount={burnAmount}
+                    burnPercent={burnPercent}
                     disabled={disabled}
+                    gasLimit={gasLimit}
                 />
               </Dialog.Panel>
             </Transition.Child>

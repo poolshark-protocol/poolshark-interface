@@ -1,7 +1,7 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useState } from 'react'
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useSwitchNetwork, useAccount, erc20ABI, useProvider  } from "wagmi";
+import { useSwitchNetwork, useAccount, erc20ABI, useProvider, useSigner  } from "wagmi";
 import useInputBox from '../../../hooks/useInputBox'
 import CoverAddLiqButton from '../../Buttons/CoverAddLiqButton'
 import { ethers, Contract } from "ethers";
@@ -9,8 +9,10 @@ import { useContractRead } from "wagmi";
 import { BN_ZERO } from "../../../utils/math/constants";
 import CoverMintApproveButton from "../../Buttons/CoverMintApproveButton";
 import { chainIdsToNamesForGitTokenList } from "../../../utils/chains";
+import { gasEstimateCoverMint } from "../../../utils/gas";
+import JSBI from "jsbi";
 
-export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, maxLimit, zeroForOne, liquidity, minLimit }) {
+export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut, poolAdd, address, claimTick, upperTick, zeroForOne, liquidity, lowerTick, tickSpacing }) {
 
   const {
     bnInput,
@@ -26,10 +28,12 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd,
   const [allowanceIn, setAllowanceIn] = useState(BN_ZERO)
   const { isDisconnected, isConnected } = useAccount()
   const [stateChainName, setStateChainName] = useState()
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
   const [fetchDelay, setFetchDelay] = useState(false)
   const {
     network: { chainId },
   } = useProvider()
+  const { data: signer } = useSigner()
 
   const { data: tokenInAllowance } = useContractRead({
     address: tokenIn.address,
@@ -79,6 +83,25 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd,
       if (tokenInAllowance) setAllowanceIn(tokenInAllowance)
     }, 50)
   }, [tokenInAllowance])
+
+  useEffect(() => {
+    updateMintFee()
+  }, [bnInput])
+
+  async function updateMintFee() {
+    const newMintFee = await gasEstimateCoverMint(
+      poolAdd,
+      address,
+      upperTick,
+      lowerTick,
+      tokenIn,
+      tokenOut,
+      JSBI.BigInt(bnInput.toString()),
+      tickSpacing,
+      signer,
+    )
+    setMintGasLimit(newMintFee.gasUnits.mul(130).div(100))
+  }
 
   const getBalances = async () => {
     setFetchDelay(true)
@@ -181,11 +204,12 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd,
                       toAddress={address}
                       poolAddress={poolAdd}
                       address={address}
-                      lower={minLimit}
+                      lower={lowerTick}
                       claim={claimTick}
-                      upper={maxLimit}
+                      upper={upperTick}
                       zeroForOne={zeroForOne}
                       amount={bnInput}
+                      gasLimit={mintGasLimit}
                 />
                   ) : null}
                 

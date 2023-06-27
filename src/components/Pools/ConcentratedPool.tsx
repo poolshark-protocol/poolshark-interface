@@ -14,7 +14,7 @@ import { TickMath, invertPrice, roundTick } from '../../utils/math/tickMath'
 import JSBI from 'jsbi'
 import { getRangePoolFromFactory } from '../../utils/queries'
 import useInputBox from '../../hooks/useInputBox'
-import { erc20ABI, useAccount } from 'wagmi'
+import { erc20ABI, useAccount, useSigner } from 'wagmi'
 import { BigNumber, ethers } from 'ethers'
 import { useContractRead } from 'wagmi'
 import { getBalances } from '../../utils/balances'
@@ -25,6 +25,7 @@ import TickSpacing from '../Tooltips/TickSpacing'
 import { token } from '../../utils/types'
 import { switchDirection } from '../../utils/tokens'
 import { feeTiers } from '../../utils/pools'
+import { gasEstimateRangeMint } from '../../utils/gas'
 
 export default function ConcentratedPool({
   account,
@@ -44,6 +45,7 @@ export default function ConcentratedPool({
   feeTier,
 }) {
   const { address, isConnected, isDisconnected } = useAccount()
+  const { data: signer } = useSigner()
   const [tokenIn, setTokenIn] = useState({
     symbol: tokenZeroSymbol ?? 'TOKEN20B',
     logoURI: tokenZeroLogoURI ?? '/static/images/eth_icon.png',
@@ -81,6 +83,7 @@ export default function ConcentratedPool({
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('')
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
   const [allowance0, setAllowance0] = useState(BN_ZERO)
   const [allowance1, setAllowance1] = useState(BN_ZERO)
   const [rangePrice, setRangePrice] = useState(undefined)
@@ -136,6 +139,10 @@ export default function ConcentratedPool({
   }
 
   useEffect(() => {
+    updateGasFee()
+  }, [lowerTick, upperTick, amount0, amount1])
+
+  useEffect(() => {
     fetchTokenPrice()
   }, [usdPrice0, usdPrice1, amount0, amount1])
 
@@ -185,7 +192,11 @@ export default function ConcentratedPool({
   useEffect(() => {
     setTimeout(() => {
       if (allowanceIn) {
-        console.log('token in allowance', allowanceIn.toString(), !allowanceIn.eq(tokenOrder ? allowance0 : allowance1))
+        console.log(
+          'token in allowance',
+          allowanceIn.toString(),
+          !allowanceIn.eq(tokenOrder ? allowance0 : allowance1),
+        )
         if (
           address != '0x' &&
           !allowanceIn.eq(tokenOrder ? allowance0 : allowance1)
@@ -193,7 +204,8 @@ export default function ConcentratedPool({
           tokenOrder ? setAllowance0(allowanceIn) : setAllowance1(allowanceIn)
       }
     }, 50)
-  }), [allowanceIn]
+  }),
+    [allowanceIn]
 
   useEffect(() => {
     setTimeout(() => {
@@ -205,7 +217,8 @@ export default function ConcentratedPool({
           tokenOrder ? setAllowance1(allowanceOut) : setAllowance0(allowanceOut)
       }
     }, 50)
-  }), [allowanceOut]
+  }),
+    [allowanceOut]
 
   function updateSelectedFeeTier(): any {
     if (feeTier == 0.01) {
@@ -234,6 +247,19 @@ export default function ConcentratedPool({
     }
     setAmounts()
   }, [lowerPrice, upperPrice])
+
+  async function updateGasFee() {
+    const newGasFee = await gasEstimateRangeMint(
+      rangePoolRoute,
+      address,
+      lowerTick,
+      upperTick,
+      amount0,
+      amount1,
+      signer
+    )
+    setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
+  }
 
   const getRangePoolData = async () => {
     try {
@@ -297,7 +323,11 @@ export default function ConcentratedPool({
       const token1Amount = parseFloat(ethers.utils.formatUnits(amount1, 18))
       setAmount0Usd(token0Amount * usdPrice0)
       setAmount1Usd(token1Amount * usdPrice1)
-      console.log('setting usd prices for amounts', token0Amount * usdPrice0, token1Amount * usdPrice1)
+      console.log(
+        'setting usd prices for amounts',
+        token0Amount * usdPrice0,
+        token1Amount * usdPrice1,
+      )
     } catch (error) {
       console.log(error)
     }
@@ -472,7 +502,7 @@ export default function ConcentratedPool({
   }
 
   return (
-    <div className="bg-black flex gap-x-20 justify-between border border-grey2 w-full rounded-t-xl py-6 px-7 h-[70vh]">
+    <div className="bg-black flex gap-x-20 justify-between border border-grey2 w-full rounded-xl pt-10 pb-20 px-7">
       <div className="w-1/2">
         <div>
           <div className="flex items-center gap-x-4">
@@ -490,13 +520,17 @@ export default function ConcentratedPool({
               setTokenOut={setTokenOut}
               displayToken={tokenIn}
               balance={setQueryTokenIn}
+              queryTokenIn={queryTokenIn}
+              queryTokenOut={queryTokenOut}
+              setQueryTokenIn={setQueryTokenIn}
+              setQueryTokenOut={setQueryTokenOut}
               key={queryTokenIn}
             />
             <ArrowLongRightIcon
               className="w-6 cursor-pointer"
               onClick={() => {
                 if (hasSelected) {
-                  const newInput = tokenOrder ? amount1 : amount0;
+                  const newInput = tokenOrder ? amount1 : amount0
                   switchDirection(
                     tokenOrder,
                     setTokenOrder,
@@ -510,9 +544,14 @@ export default function ConcentratedPool({
                     setQueryTokenOut,
                   )
                   setBnInput(newInput)
-                  setDisplay(parseFloat(ethers.utils.formatUnits(newInput, 18)
-                        .toString()).toPrecision(5)
-                        .replace(/0+$/, '').replace(/(\.)(?!\d)/g, ''))
+                  setDisplay(
+                    parseFloat(
+                      ethers.utils.formatUnits(newInput, 18).toString(),
+                    )
+                      .toPrecision(5)
+                      .replace(/0+$/, '')
+                      .replace(/(\.)(?!\d)/g, ''),
+                  )
                 }
               }}
             />
@@ -526,6 +565,10 @@ export default function ConcentratedPool({
               setTokenOut={setTokenOut}
               displayToken={tokenOut}
               balance={setQueryTokenOut}
+              queryTokenIn={queryTokenIn}
+              queryTokenOut={queryTokenOut}
+              setQueryTokenIn={setQueryTokenIn}
+              setQueryTokenOut={setQueryTokenOut}
               key={queryTokenOut}
             />
           </div>
@@ -586,16 +629,18 @@ export default function ConcentratedPool({
               <div className=" p-2 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl  rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
                 {Number(
                   tokenOrder
-                  ? parseFloat(ethers.utils.formatUnits(amount1, 18)).toPrecision(5)
-                  : parseFloat(ethers.utils.formatUnits(amount0, 18)).toPrecision(5),
+                    ? parseFloat(
+                        ethers.utils.formatUnits(amount1, 18),
+                      ).toPrecision(5)
+                    : parseFloat(
+                        ethers.utils.formatUnits(amount0, 18),
+                      ).toPrecision(5),
                 )}
                 {
-                    <div className="flex mt-2 text-xs text-[#4C4C4C]">
-                      $
-                      {(tokenOrder ? amount1Usd : amount0Usd).toFixed(2)}
-                    </div>
+                  <div className="flex mt-2 text-xs text-[#4C4C4C]">
+                    ${(tokenOrder ? amount1Usd : amount0Usd).toFixed(2)}
+                  </div>
                 }
-                
               </div>
               <div className="">
                 <div className=" ml-auto">
@@ -620,13 +665,16 @@ export default function ConcentratedPool({
             <div className="flex items-center justify-between w-full text-xs  text-[#C9C9C9]">
               <div className="text-xs text-[#4C4C4C]">Market Price</div>
               <div className="uppercase">
-            1 {tokenIn.symbol} = {
-             ((!isNaN(parseFloat(rangePrice))) ?
-              ((parseFloat(invertPrice(rangePrice, tokenOrder)).toPrecision(5)) + ' ' + tokenOut.symbol) :
-              ('?' + ' ' + tokenOut.symbol))
-            }
+                1 {tokenIn.symbol} ={' '}
+                {!isNaN(parseFloat(rangePrice))
+                  ? parseFloat(invertPrice(rangePrice, tokenOrder)).toPrecision(
+                      5,
+                    ) +
+                    ' ' +
+                    tokenOut.symbol
+                  : '?' + ' ' + tokenOut.symbol}
+              </div>
             </div>
-          </div>
           </div>
         </div>
       </div>
@@ -653,8 +701,14 @@ export default function ConcentratedPool({
               onClick={() => {
                 setLowerTick(BigNumber.from(roundTick(-887272, tickSpacing)))
                 setUpperTick(BigNumber.from(roundTick(887272, tickSpacing)))
-                setLowerPrice(TickMath.getPriceStringAtTick(roundTick(-887272, tickSpacing)))
-                setUpperPrice(TickMath.getPriceStringAtTick(roundTick(887272, tickSpacing)))
+                setLowerPrice(
+                  TickMath.getPriceStringAtTick(
+                    roundTick(-887272, tickSpacing),
+                  ),
+                )
+                setUpperPrice(
+                  TickMath.getPriceStringAtTick(roundTick(887272, tickSpacing)),
+                )
               }}
             >
               Full Range
@@ -764,6 +818,7 @@ export default function ConcentratedPool({
           allowance0={allowance0}
           allowance1={allowance1}
           disabled={isDisabled}
+          gasLimit={mintGasLimit}
         />
       </div>
     </div>

@@ -9,13 +9,13 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BigNumber } from "ethers";
+import { BN_ZERO } from '../../utils/math/constants';
 
-export default function RangeCollectButton({ poolAddress, address, lower, upper }) {
+export default function RangeCollectButton({ poolAddress, address, lower, upper, gasLimit }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
 
-  //TO-DO: assess if collectFees() or collect true in burn
   const { config } = usePrepareContractWrite({
       address: poolAddress,
       abi: rangePoolABI,
@@ -24,13 +24,11 @@ export default function RangeCollectButton({ poolAddress, address, lower, upper 
           address,
           lower,
           upper,
-          BigNumber.from('0'),
-          true,
-          true
+          BN_ZERO
         ]],
       chainId: 421613,
       overrides:{
-          gasLimit: BigNumber.from("500000")
+          gasLimit: gasLimit
       },
   })
 
