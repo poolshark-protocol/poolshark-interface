@@ -156,25 +156,28 @@ export const getCoverPoolInfo = async (
       const newLatestTick = pool['data']['coverPools']['0']['latestTick']
       const auctionLength = pool['data']['coverPools']['0']['volatilityTier']['auctionLength']
       const tickSpread = pool['data']['coverPools']['0']['volatilityTier']['tickSpread']
-      setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick))
-      setAuctionLength(auctionLength)
-      setTickSpacing(tickSpread)
+      console.log('test1')
+      if (setCoverPrice) setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick))
+      if (setAuctionLength) setAuctionLength(auctionLength)
+      if (setTickSpacing) setTickSpacing(tickSpread)
       if (setTokenInUsdPrice) {
         console.log('setting tokenIn price usd', pool['data']['coverPools']['0']['token0']['usdPrice'])
         setTokenInUsdPrice(parseFloat(tokenOrder ? pool['data']['coverPools']['0']['token0']['usdPrice']
                                                  : pool['data']['coverPools']['0']['token1']['usdPrice']))
       }
+      console.log('test2')
       if (setLatestTick) {
         setLatestTick(newLatestTick)
         console.log('setting default lower price', lowerPrice, isNaN(parseFloat(lowerPrice)))
-        if (isNaN(parseFloat(lowerPrice))) {
-          console.log('set lower price')
-          setLowerPrice(TickMath.getPriceStringAtTick(tokenOrder ? newLatestTick - tickSpread * 10 : newLatestTick, tickSpread))
+        if (isNaN(parseFloat(lowerPrice)) && setLowerPrice) {
+          console.log('set lower price', TickMath.getPriceStringAtTick(tokenOrder ? newLatestTick - tickSpread * 10 : newLatestTick + tickSpread, tickSpread))
+          setLowerPrice(TickMath.getPriceStringAtTick(tokenOrder ? newLatestTick - tickSpread * 10 : newLatestTick + tickSpread, tickSpread))
         }
-        if (isNaN(parseFloat(upperPrice))) {
-          setUpperPrice(TickMath.getPriceStringAtTick(tokenOrder ? newLatestTick : newLatestTick + tickSpread * 10, tickSpread))
+        if (isNaN(parseFloat(upperPrice)) && setUpperPrice) {
+          setUpperPrice(TickMath.getPriceStringAtTick(tokenOrder ? newLatestTick - tickSpread : newLatestTick + tickSpread * 10, tickSpread))
         }
       }
+      console.log('test3')
     } else {
       setCoverPoolRoute(ZERO_ADDRESS)
       setCoverPrice('1.00')
