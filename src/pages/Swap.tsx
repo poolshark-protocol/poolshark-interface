@@ -656,7 +656,7 @@ export default function Swap() {
           .replace(/0+$/, '')
           .replace(/(\.)(?!\d)/g, ''),
       )
-      if (rangeQuote >= 0 && rangeQuote >= coverQuote) {
+      if (rangeQuote > 0 && rangeQuote >= coverQuote) {
         setRangeQuote(
           parseFloat(
             parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
