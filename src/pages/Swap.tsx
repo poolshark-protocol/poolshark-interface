@@ -925,7 +925,7 @@ export default function Swap() {
             </div>
           </div>
         </div>
-        <div className={`items-center -mb-2 -mt-2 p-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer ${display.toString() !== '' ? 'text-white' : 'text-grey1 border-transparent'}`}>
+        <div className={`items-center -mb-2 -mt-2 p-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg ${display.toString() !== '' ? 'text-white cursor-pointer' : 'text-grey1 border-transparent'}`}>
           <ArrowSmallDownIcon
             className="w-4 h-4"
             onClick={() => {
