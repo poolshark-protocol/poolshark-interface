@@ -500,7 +500,7 @@ export default function Swap() {
   }
 
   const getSlippage = () => {
-    if (rangeQuote > coverQuote) {
+    if (rangeQuote >= coverQuote) {
       setSlippage(rangeSlippage)
       setAuxSlippage(rangeSlippage)
     } else {
@@ -646,17 +646,17 @@ export default function Swap() {
     if (display != '') {
       setBnInput(
         ethers.utils.parseUnits(
-          (rangeQuote > coverQuote ? rangeQuote : coverQuote).toPrecision(10),
+          (rangeQuote >= coverQuote ? rangeQuote : coverQuote).toPrecision(10),
           18,
         ),
       )
       setDisplay(
-        (rangeQuote > coverQuote ? rangeQuote : coverQuote)
+        (rangeQuote >= coverQuote ? rangeQuote : coverQuote)
           .toPrecision(7)
           .replace(/0+$/, '')
           .replace(/(\.)(?!\d)/g, ''),
       )
-      if (rangeQuote > 0 && rangeQuote > coverQuote) {
+      if (rangeQuote >= 0 && rangeQuote >= coverQuote) {
         setRangeQuote(
           parseFloat(
             parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
@@ -677,7 +677,6 @@ export default function Swap() {
       setCoverQuote(0)
       setDisplayQuote(false)
     }
-
   }, 200)
 
   ////////////////////////////////
@@ -691,7 +690,7 @@ export default function Swap() {
             <div className="ml-auto text-xs">
               {hasSelected
                 ? !LimitActive
-                  ? rangeQuote > coverQuote
+                  ? rangeQuote >= coverQuote
                     ? rangeQuote === 0
                       ? '0'
                       : (
@@ -729,7 +728,7 @@ export default function Swap() {
               <div className="ml-auto text-xs">
                 {hasSelected
                   ? !LimitActive
-                    ? rangeQuote > coverQuote
+                    ? rangeQuote >= coverQuote
                       ? rangeQuote === 0
                         ? '0'
                         : (
@@ -774,7 +773,7 @@ export default function Swap() {
               <div className="ml-auto text-xs">
                 {hasSelected 
                   ? (rangePriceAfter != undefined || coverPriceAfter != undefined)
-                    ? (rangeQuote > coverQuote
+                    ? (rangeQuote >= coverQuote
                       ? (
                           Math.abs((rangePrice - rangePriceAfter) * 100) /
                           rangePrice
@@ -954,7 +953,7 @@ export default function Swap() {
                 hasSelected && !bnInput.eq(BN_ZERO) ? (
                   <div>
                     { bnInput.gt(BN_ONE) ?
-                      (rangeQuote > coverQuote
+                      (rangeQuote >= coverQuote
                         ? rangeQuote.toPrecision(6)
                         : coverQuote.toPrecision(6)
                       ) : '0'}
@@ -980,7 +979,7 @@ export default function Swap() {
                 <div className="flex text-xs text-[#4C4C4C]">
                   $
                   {!isNaN(tokenOut.usdPrice) ? !LimitActive
-                    ? rangeQuote > coverQuote
+                    ? rangeQuote >= coverQuote
                       ? (
                           rangeQuote *
                           tokenOut.usdPrice
@@ -1116,7 +1115,7 @@ export default function Swap() {
                 : ' ' +
                   (!LimitActive
                     ? !isNaN(rangeQuote) && !isNaN(coverQuote)
-                      ? (rangeQuote > coverQuote
+                      ? (rangeQuote >= coverQuote
                         ? (tokenOrder ? rangePrice.toPrecision(5) : invertPrice(rangePrice.toPrecision(5), false))
                         : (tokenOrder ? coverPrice.toPrecision(5) : invertPrice(coverPrice.toPrecision(5), false)))
                       : '0'
@@ -1151,7 +1150,7 @@ export default function Swap() {
               >
                 Swap
               </button>
-            ) : rangeQuote > coverQuote ? (
+            ) : rangeQuote >= coverQuote ? (
               Number(allowanceRange) <
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                 <div>
