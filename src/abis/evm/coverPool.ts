@@ -180,22 +180,6 @@ export const coverPoolABI = [
     "type": "error"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "dest",
-        "type": "address"
-      }
-    ],
-    "name": "TransferFailed",
-    "type": "error"
-  },
-  {
     "inputs": [],
     "name": "UpperNotOddTick",
     "type": "error"
@@ -204,435 +188,6 @@ export const coverPoolABI = [
     "inputs": [],
     "name": "WaitUntilEnoughObservations",
     "type": "error"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "int24",
-        "name": "lower",
-        "type": "int24"
-      },
-      {
-        "indexed": false,
-        "internalType": "int24",
-        "name": "upper",
-        "type": "int24"
-      },
-      {
-        "indexed": false,
-        "internalType": "int24",
-        "name": "claim",
-        "type": "int24"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "zeroForOne",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "liquidityBurned",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "tokenInClaimed",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "tokenOutClaimed",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "tokenOutBurned",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "amountInDeltaMaxStashedBurned",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "amountOutDeltaMaxStashedBurned",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "amountInDeltaMaxBurned",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "amountOutDeltaMaxBurned",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint160",
-        "name": "claimPriceLast",
-        "type": "uint160"
-      }
-    ],
-    "name": "Burn",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "amountInDelta",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "amountOutDelta",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint32",
-        "name": "accumEpoch",
-        "type": "uint32"
-      },
-      {
-        "indexed": false,
-        "internalType": "int24",
-        "name": "accumTick",
-        "type": "int24"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "isPool0",
-        "type": "bool"
-      }
-    ],
-    "name": "FinalDeltasAccumulated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "int24",
-        "name": "minTick",
-        "type": "int24"
-      },
-      {
-        "indexed": false,
-        "internalType": "int24",
-        "name": "maxTick",
-        "type": "int24"
-      },
-      {
-        "indexed": false,
-        "internalType": "int24",
-        "name": "latestTick",
-        "type": "int24"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint32",
-        "name": "genesisTime",
-        "type": "uint32"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint32",
-        "name": "auctionStart",
-        "type": "uint32"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint160",
-        "name": "pool0Price",
-        "type": "uint160"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint160",
-        "name": "pool1Price",
-        "type": "uint160"
-      }
-    ],
-    "name": "Initialize",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "int24",
-        "name": "lower",
-        "type": "int24"
-      },
-      {
-        "indexed": false,
-        "internalType": "int24",
-        "name": "upper",
-        "type": "int24"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "zeroForOne",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint32",
-        "name": "epochLast",
-        "type": "uint32"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "amountIn",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "liquidityMinted",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "amountInDeltaMaxMinted",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "amountOutDeltaMaxMinted",
-        "type": "uint128"
-      }
-    ],
-    "name": "Mint",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "amountInDelta",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "amountOutDelta",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "amountInDeltaMaxStashed",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "amountOutDeltaMaxStashed",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint32",
-        "name": "accumEpoch",
-        "type": "uint32"
-      },
-      {
-        "indexed": false,
-        "internalType": "int24",
-        "name": "stashTick",
-        "type": "int24"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "isPool0",
-        "type": "bool"
-      }
-    ],
-    "name": "StashDeltasAccumulated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "int24",
-        "name": "stashTick",
-        "type": "int24"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "isPool0",
-        "type": "bool"
-      }
-    ],
-    "name": "StashDeltasCleared",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "amountIn",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "amountOut",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint160",
-        "name": "priceLimit",
-        "type": "uint160"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint160",
-        "name": "newPrice",
-        "type": "uint160"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "zeroForOne",
-        "type": "bool"
-      }
-    ],
-    "name": "Swap",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint160",
-        "name": "pool0Price",
-        "type": "uint160"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint160",
-        "name": "pool1Price",
-        "type": "uint160"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "pool0Liquidity",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "pool1Liquidity",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint32",
-        "name": "auctionStart",
-        "type": "uint32"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint32",
-        "name": "accumEpoch",
-        "type": "uint32"
-      },
-      {
-        "indexed": false,
-        "internalType": "int24",
-        "name": "oldLatestTick",
-        "type": "int24"
-      },
-      {
-        "indexed": false,
-        "internalType": "int24",
-        "name": "newLatestTick",
-        "type": "int24"
-      }
-    ],
-    "name": "Sync",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "collector",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "token0Amount",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "token1Amount",
-        "type": "uint128"
-      }
-    ],
-    "name": "SyncFeesCollected",
-    "type": "event"
   },
   {
     "inputs": [],
@@ -700,7 +255,7 @@ export const coverPoolABI = [
             "type": "bool"
           }
         ],
-        "internalType": "struct ICoverPoolStructs.BurnParams",
+        "internalType": "struct ICoverPool.BurnParams",
         "name": "params",
         "type": "tuple"
       }
@@ -708,19 +263,6 @@ export const coverPoolABI = [
     "name": "burn",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "curveMath",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -734,6 +276,40 @@ export const coverPoolABI = [
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "syncFee",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "fillFee",
+        "type": "uint16"
+      },
+      {
+        "internalType": "bool",
+        "name": "setFees",
+        "type": "bool"
+      }
+    ],
+    "name": "fees",
+    "outputs": [
+      {
+        "internalType": "uint128",
+        "name": "token0Fees",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "token1Fees",
+        "type": "uint128"
+      }
+    ],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -918,11 +494,6 @@ export const coverPoolABI = [
           },
           {
             "internalType": "int24",
-            "name": "claim",
-            "type": "int24"
-          },
-          {
-            "internalType": "int24",
             "name": "upper",
             "type": "int24"
           },
@@ -932,7 +503,7 @@ export const coverPoolABI = [
             "type": "bool"
           }
         ],
-        "internalType": "struct ICoverPoolStructs.MintParams",
+        "internalType": "struct ICoverPool.MintParams",
         "name": "params",
         "type": "tuple"
       }
@@ -1122,53 +693,26 @@ export const coverPoolABI = [
   {
     "inputs": [
       {
-        "internalType": "uint16",
-        "name": "syncFee",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint16",
-        "name": "fillFee",
-        "type": "uint16"
-      },
-      {
-        "internalType": "bool",
-        "name": "setFees",
-        "type": "bool"
-      }
-    ],
-    "name": "protocolFees",
-    "outputs": [
-      {
-        "internalType": "uint128",
-        "name": "token0Fees",
-        "type": "uint128"
-      },
-      {
-        "internalType": "uint128",
-        "name": "token1Fees",
-        "type": "uint128"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bool",
-        "name": "zeroForOne",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint128",
-        "name": "amountIn",
-        "type": "uint128"
-      },
-      {
-        "internalType": "uint160",
-        "name": "priceLimit",
-        "type": "uint160"
+        "components": [
+          {
+            "internalType": "uint160",
+            "name": "priceLimit",
+            "type": "uint160"
+          },
+          {
+            "internalType": "uint128",
+            "name": "amountIn",
+            "type": "uint128"
+          },
+          {
+            "internalType": "bool",
+            "name": "zeroForOne",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct ICoverPool.QuoteParams",
+        "name": "params",
+        "type": "tuple"
       }
     ],
     "name": "quote",
@@ -1213,12 +757,12 @@ export const coverPoolABI = [
           },
           {
             "internalType": "int24",
-            "name": "upper",
+            "name": "claim",
             "type": "int24"
           },
           {
             "internalType": "int24",
-            "name": "claim",
+            "name": "upper",
             "type": "int24"
           },
           {
@@ -1227,7 +771,7 @@ export const coverPoolABI = [
             "type": "bool"
           }
         ],
-        "internalType": "struct ICoverPoolStructs.SnapshotParams",
+        "internalType": "struct ICoverPool.SnapshotParams",
         "name": "params",
         "type": "tuple"
       }
@@ -1273,24 +817,36 @@ export const coverPoolABI = [
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "zeroForOne",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint128",
-        "name": "amountIn",
-        "type": "uint128"
-      },
-      {
-        "internalType": "uint160",
-        "name": "priceLimit",
-        "type": "uint160"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "refundTo",
+            "type": "address"
+          },
+          {
+            "internalType": "uint160",
+            "name": "priceLimit",
+            "type": "uint160"
+          },
+          {
+            "internalType": "uint128",
+            "name": "amountIn",
+            "type": "uint128"
+          },
+          {
+            "internalType": "bool",
+            "name": "zeroForOne",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct ICoverPool.SwapParams",
+        "name": "params",
+        "type": "tuple"
       }
     ],
     "name": "swap",

@@ -243,6 +243,7 @@ export default function Range() {
         const token1Price =
           pool['data']['rangePools']['0']['token1']['usdPrice']
         const tickAtPrice = pool['data']['rangePools']['0']['tickAtPrice']
+        console.log('setting usd token amounts', token0Price, token1Price, amount0Fees, amount1Fees)
         setRangePoolRoute(id)
         setAmount0Usd(
           parseFloat((amount0 * parseFloat(token0Price)).toPrecision(6)),
@@ -332,8 +333,10 @@ export default function Range() {
   function setFeesOwed() {
     try {
       if (snapshot) {
-        const fees0 = parseFloat(ethers.utils.formatUnits(snapshot[3], 18))
-        const fees1 = parseFloat(ethers.utils.formatUnits(snapshot[4], 18))
+        console.log('snapshot', snapshot.toString())
+        const fees0 = parseFloat(ethers.utils.formatUnits(snapshot[2], 18))
+        const fees1 = parseFloat(ethers.utils.formatUnits(snapshot[3], 18))
+        console.log('fees owed 1', ethers.utils.formatUnits(snapshot[3], 18))
         setAmount0Fees(fees0)
         setAmount1Fees(fees1)
       }
@@ -352,7 +355,7 @@ export default function Range() {
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
       <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full">
-        <div className="w-[55rem] absolute bottom-0">
+      <div className="w-[60rem] mt-[10vh] mb-[10vh]">
           <div className="flex justify-between items-center mb-2">
             <div className="text-left flex items-center gap-x-5 py-2.5">
               <div className="flex items-center">
@@ -435,7 +438,7 @@ export default function Range() {
               </h1>
             </div>
           </div>
-          <div className="bg-black  border border-grey2 border-b-none w-full rounded-t-xl py-6 px-7 h-[70vh] overflow-y-auto">
+          <div className="bg-black  border border-grey2 border-b-none w-full rounded-xl py-6 px-7 overflow-y-auto">
             <div className="flex gap-x-20 justify-between">
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Liquidity</h1>
@@ -509,24 +512,18 @@ export default function Range() {
                       <img height="30" width="30" src={token0.logoURI} />
                       {token0.symbol}
                     </div>
-                    <span>{amount0FeesUsd.toFixed(2)}</span>
+                    <span>{amount0Fees.toPrecision(4)}</span>
                   </div>
                   <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                     <div className="flex items-center gap-x-4">
                       <img height="30" width="30" src={token1.logoURI} />
                       {token1.symbol}
                     </div>
-                    <span>{amount1FeesUsd.toFixed(2)}</span>
+                    <span>{amount1Fees.toPrecision(4)}</span>
                   </div>
                 </div>
                 <div className="mt-5 space-y-2">
                   <div className="space-y-3">
-                    <RangeCollectButton
-                      poolAddress={poolAdd.toString()}
-                      address={address}
-                      lower={BigNumber.from(lowerTick)}
-                      upper={BigNumber.from(upperTick)}
-                    />
                     <RangeCompoundButton
                       poolAddress={poolAdd.toString()}
                       address={address}
@@ -605,7 +602,7 @@ export default function Range() {
         address={address}
         lowerTick={lowerTick}
         upperTick={upperTick}
-        liquidity={userLiquidity}
+        userLiquidity={userLiquidity}
         tokenAmount={userTokenAmount}
         rangePrice={rangePrice}
       />

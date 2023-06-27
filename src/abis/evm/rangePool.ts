@@ -344,18 +344,8 @@ export const rangePoolABI = [
           },
           {
             "internalType": "uint128",
-            "name": "amount",
+            "name": "burnPercent",
             "type": "uint128"
-          },
-          {
-            "internalType": "bool",
-            "name": "fungible",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "collect",
-            "type": "bool"
           }
         ],
         "internalType": "struct IRangePoolStructs.BurnParams",
@@ -388,6 +378,35 @@ export const rangePoolABI = [
     ],
     "name": "burnFungible",
     "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "protocolFee",
+        "type": "uint16"
+      },
+      {
+        "internalType": "bool",
+        "name": "setFee",
+        "type": "bool"
+      }
+    ],
+    "name": "fees",
+    "outputs": [
+      {
+        "internalType": "uint128",
+        "name": "token0Fees",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "token1Fees",
+        "type": "uint128"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -456,11 +475,6 @@ export const rangePoolABI = [
             "internalType": "uint128",
             "name": "amount1",
             "type": "uint128"
-          },
-          {
-            "internalType": "bool",
-            "name": "fungible",
-            "type": "bool"
           }
         ],
         "internalType": "struct IRangePoolStructs.MintParams",
@@ -622,11 +636,6 @@ export const rangePoolABI = [
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
         "internalType": "int24",
         "name": "",
         "type": "int24"
@@ -671,48 +680,26 @@ export const rangePoolABI = [
   {
     "inputs": [
       {
-        "internalType": "uint16",
-        "name": "protocolFee",
-        "type": "uint16"
-      },
-      {
-        "internalType": "bool",
-        "name": "setFee",
-        "type": "bool"
-      }
-    ],
-    "name": "protocolFees",
-    "outputs": [
-      {
-        "internalType": "uint128",
-        "name": "token0Fees",
-        "type": "uint128"
-      },
-      {
-        "internalType": "uint128",
-        "name": "token1Fees",
-        "type": "uint128"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bool",
-        "name": "zeroForOne",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amountIn",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint160",
-        "name": "priceLimit",
-        "type": "uint160"
+        "components": [
+          {
+            "internalType": "uint160",
+            "name": "priceLimit",
+            "type": "uint160"
+          },
+          {
+            "internalType": "uint128",
+            "name": "amountIn",
+            "type": "uint128"
+          },
+          {
+            "internalType": "bool",
+            "name": "zeroForOne",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct IRangePoolStructs.QuoteParams",
+        "name": "params",
+        "type": "tuple"
       }
     ],
     "name": "quote",
@@ -790,6 +777,45 @@ export const rangePoolABI = [
     "name": "safeTransferFrom",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32[]",
+        "name": "secondsAgo",
+        "type": "uint32[]"
+      }
+    ],
+    "name": "sample",
+    "outputs": [
+      {
+        "internalType": "int56[]",
+        "name": "tickSecondsAccum",
+        "type": "int56[]"
+      },
+      {
+        "internalType": "uint160[]",
+        "name": "secondsPerLiquidityAccum",
+        "type": "uint160[]"
+      },
+      {
+        "internalType": "uint160",
+        "name": "averagePrice",
+        "type": "uint160"
+      },
+      {
+        "internalType": "uint128",
+        "name": "averageLiquidity",
+        "type": "uint128"
+      },
+      {
+        "internalType": "int24",
+        "name": "averageTick",
+        "type": "int24"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -877,11 +903,6 @@ export const rangePoolABI = [
         "type": "uint160"
       },
       {
-        "internalType": "uint32",
-        "name": "secondsGrowth",
-        "type": "uint32"
-      },
-      {
         "internalType": "uint128",
         "name": "feesOwed0",
         "type": "uint128"
@@ -899,7 +920,7 @@ export const rangePoolABI = [
     "inputs": [
       {
         "internalType": "bytes4",
-        "name": "_interfaceId",
+        "name": "interfaceID",
         "type": "bytes4"
       }
     ],
@@ -911,35 +932,42 @@ export const rangePoolABI = [
         "type": "bool"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "refundRecipient",
-        "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "zeroForOne",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amountIn",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint160",
-        "name": "priceLimit",
-        "type": "uint160"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "refundTo",
+            "type": "address"
+          },
+          {
+            "internalType": "uint160",
+            "name": "priceLimit",
+            "type": "uint160"
+          },
+          {
+            "internalType": "uint128",
+            "name": "amountIn",
+            "type": "uint128"
+          },
+          {
+            "internalType": "bool",
+            "name": "zeroForOne",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct IRangePoolStructs.SwapParams",
+        "name": "params",
+        "type": "tuple"
       }
     ],
     "name": "swap",

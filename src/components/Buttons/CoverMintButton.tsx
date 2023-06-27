@@ -24,6 +24,7 @@ export default function CoverMintButton({
   amount,
   zeroForOne,
   tickSpacing,
+  gasLimit
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
@@ -71,7 +72,6 @@ export default function CoverMintButton({
         to,
         amount,
         roundTick(Number(lower), tickSpacing),
-        roundTick(Number(claim), tickSpacing),
         roundTick(Number(upper), tickSpacing),
         zeroForOne,
       ],
@@ -79,7 +79,7 @@ export default function CoverMintButton({
     enabled: amount.toString() != '0' && poolAddress != undefined,
     chainId: 421613,
     overrides: {
-      gasLimit: BigNumber.from('600000'),
+      gasLimit: gasLimit,
     },
   })
 

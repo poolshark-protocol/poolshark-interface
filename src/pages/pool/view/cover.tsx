@@ -3,18 +3,14 @@ import {
   ArrowTopRightOnSquareIcon,
   ArrowsRightLeftIcon,
   ArrowLongRightIcon,
-  ExclamationTriangleIcon,
 } from '@heroicons/react/20/solid'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { useAccount, useContractRead } from 'wagmi'
+import { useAccount, useContractRead, useSigner } from 'wagmi'
 import CoverCollectButton from '../../../components/Buttons/CoverCollectButton'
-import Link from 'next/link'
 import { BigNumber, ethers } from 'ethers'
 import {
   getRangePoolFromFactory,
-  getTickIfNotZeroForOne,
-  getTickIfZeroForOne,
 } from '../../../utils/queries'
 import { TickMath } from '../../../utils/math/tickMath'
 import { coverPoolABI } from '../../../abis/evm/coverPool'
@@ -28,13 +24,14 @@ import {
   tokenOneAddress,
 } from '../../../constants/contractAddresses'
 import { BN_ZERO } from '../../../utils/math/constants'
+import { gasEstimateCoverBurn, gasEstimateCoverMint } from '../../../utils/gas'
 
 export default function Cover() {
   const { address, isConnected } = useAccount()
   const router = useRouter()
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [isRemoveOpen, setIsRemoveOpen] = useState(false)
-
+  const {data: signer} = useSigner()
   const [poolAdd, setPoolContractAdd] = useState(router.query.poolId ?? '')
   const [tokenIn, setTokenIn] = useState({
     name: router.query.tokenZeroAddress ?? '',
@@ -111,11 +108,9 @@ export default function Cover() {
   const [coverPoolRoute, setCoverPoolRoute] = useState(
     router.query.coverPoolRoute ?? '',
   )
-  const [coverTickPrice, setCoverTickPrice] = useState(
-    router.query.coverTickPrice ?? '0',
-  )
   const [claimTick, setClaimTick] = useState(BigNumber.from('887272'))
   const [fetchDelay, setFetchDelay] = useState(false)
+  const [burnGasLimit, setBurnGasLimit] = useState(BN_ZERO)
 
   ////////////////////////////////Router is ready
 
@@ -188,7 +183,6 @@ export default function Cover() {
             ),
       )
       setCoverPoolRoute(query.coverPoolRoute)
-      setCoverTickPrice(query.coverTickPrice)
     }
     console.log('claim tick', router.query.claimTick)
   }, [router.isReady])
@@ -304,6 +298,21 @@ export default function Cover() {
       Number(epochLast),
     )
     setClaimTick(BigNumber.from(aux))
+    updateBurnFee(BigNumber.from(claimTick))
+  }
+
+  async function updateBurnFee(claim: BigNumber) {
+    const newGasFee = await gasEstimateCoverBurn(
+      poolAdd.toString(),
+      address,
+      BN_ZERO,
+      BigNumber.from(minLimit),
+      claim,
+      BigNumber.from(maxLimit),
+      zeroForOne,
+      signer
+    )
+    if (newGasFee.gasUnits.gt(BN_ZERO)) setBurnGasLimit(newGasFee.gasUnits)
   }
 
   ////////////////////////////////Addresses
@@ -335,7 +344,7 @@ export default function Cover() {
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
       <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full">
-        <div className="w-[55rem] absolute bottom-0">
+      <div className="w-[60rem] mt-[10vh] mb-[10vh]">
           <div className="flex justify-between items-center mb-2">
             <div className="text-left flex items-center gap-x-5 py-2.5">
               <div className="flex items-center">
@@ -404,7 +413,7 @@ export default function Cover() {
               </h1>
             </div>
           </div>
-          <div className="bg-black  border border-grey2 border-b-none w-full rounded-t-xl py-6 px-7 h-[70vh] overflow-y-auto">
+          <div className="bg-black  border border-grey2 border-b-none w-full rounded-xl py-6 px-7 overflow-y-auto">
             <div className="flex gap-x-20 justify-between">
               <div className="w-1/2">
                 <h1 className="text-lg mb-3">Cover Size</h1>
@@ -494,13 +503,16 @@ export default function Cover() {
                       claim={claimTick}
                       upper={maxLimit}
                       zeroForOne={zeroForOne}
+                      gasLimit={burnGasLimit.mul(150).div(100)}
                     />
                     {/*TO-DO: add positionOwner ternary again*/}
                   </div>
                 </div>
               </div>
             </div>
-
+            <div className="flex mt-7 gap-x-6 items-center">
+                <h1 className="text-lg">Price Range </h1>
+              </div>
             <div className="flex justify-between items-center mt-4 gap-x-6">
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Min. Price</div>
@@ -599,18 +611,21 @@ export default function Cover() {
             upperTick={Number(maxLimit)}
             zeroForOne={zeroForOne}
             amountInDeltaMax={userFillOut ?? '0'}
+            gasLimit={burnGasLimit.mul(250).div(100)}
           />
           <AddLiquidity
             isOpen={isAddOpen}
             setIsOpen={setIsAddOpen}
             tokenIn={tokenIn}
+            tokenOut={tokenOut}
             poolAdd={poolAdd}
             address={address}
-            minLimit={minLimit}
+            lowerTick={minLimit}
             claimTick={claimTick}
-            maxLimit={maxLimit}
+            upperTick={maxLimit}
             zeroForOne={zeroForOne}
             liquidity={liquidity}
+            tickSpacing={tickSpacing}
           />
         </>
       )}

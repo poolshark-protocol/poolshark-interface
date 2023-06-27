@@ -5,6 +5,12 @@ import { token } from './types'
 import { TickMath, roundTick } from './math/tickMath'
 import { fetchPrice } from './queries'
 import JSBI from 'jsbi'
+import { BN_ZERO } from './math/constants'
+
+export interface gasEstimateResult {
+  formattedPrice: string
+  gasUnits: BigNumber
+}
 
 export const gasEstimateSwap = async (
   rangePoolRoute: string,
@@ -22,7 +28,7 @@ export const gasEstimateSwap = async (
   address: string,
   signer: Signer,
   isConnected: boolean
-) => {
+): Promise<gasEstimateResult> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
       'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
@@ -50,16 +56,28 @@ export const gasEstimateSwap = async (
         const contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
         gasUnits = await contract
         .connect(signer)
-        .estimateGas.swap(recipient, recipient, zeroForOne, bnInput.lte(allowanceRange) ? bnInput : allowanceRange, priceLimit)
+        .estimateGas.swap([
+          recipient,
+          recipient,
+          priceLimit,
+          bnInput.lte(allowanceRange) ? bnInput : allowanceRange,
+          zeroForOne
+        ])
       }
       else {
         const contract = new ethers.Contract(coverPoolRoute, coverPoolABI, provider)
         gasUnits = await contract
         .connect(signer)
-        .estimateGas.swap(recipient, zeroForOne, bnInput.lte(allowanceCover) ? bnInput : allowanceCover, priceLimit)
+        .estimateGas.swap([
+          recipient,
+          recipient,
+          priceLimit,
+          bnInput.lte(allowanceCover) ? bnInput : allowanceCover,
+          zeroForOne
+        ])
       }
     } else {
-      gasUnits = BigNumber.from(200000)
+      gasUnits = BigNumber.from(1000000)
     }
     const gasPrice = await provider.getGasPrice()
     const networkFeeWei = gasPrice.mul(gasUnits)
@@ -70,61 +88,47 @@ export const gasEstimateSwap = async (
         style: 'currency',
         currency: 'USD',
       })
-    return formattedPrice
+    return { formattedPrice, gasUnits }
   } catch (error) {
     console.log('gas error', error)
+    return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
   }
 }
 
 export const gasEstimateSwapLimit = async (
   rangePoolRoute: string,
   address: string,
-  rangePrice: number,
-  rangeBnPrice: BigNumber,
-  rangeBnBaseLimit: BigNumber,
+  lowerTick: BigNumber,
+  upperTick: BigNumber,
   token0: token,
   token1: token,
   bnInput: BigNumber,
   tickSpacing: any,
   signer
-) => {
+): Promise<gasEstimateResult> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
       'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
     )
     if (!rangePoolRoute || !provider) {
-      return '0'
+      return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
     }
     const contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
 
     const recipient = address
     const zeroForOne = token0.address.localeCompare(token1.address) < 0
 
-    const lower = BigNumber.from(
-      roundTick(
-        TickMath.getTickAtPriceString(
-          (ethers.utils.formatUnits(rangeBnPrice, 18))), tickSpacing).toString()
-      )
-    
-    const upper = zeroForOne ?
-    BigNumber.from(
-      roundTick(
-        TickMath.getTickAtPriceString(
-          (ethers.utils.formatUnits(rangeBnPrice.add(rangeBnBaseLimit), 18))), tickSpacing).toString()) :
-    BigNumber.from(
-      roundTick(
-        TickMath.getTickAtPriceString(
-          (ethers.utils.formatUnits(rangeBnPrice.sub(rangeBnBaseLimit), 18))), tickSpacing).toString())
-    
-    const amount1 = ethers.utils.parseEther(
-      (parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-        rangePrice).toString()
-      )
-
     let gasUnits: BigNumber
-    gasUnits = await contract
+    gasUnits = BN_ZERO
+    await contract
       .connect(signer)
-      .estimateGas.mint([recipient, lower, upper, bnInput, amount1])
+      .estimateGas.mint([
+        recipient,
+        lowerTick,
+        upperTick,
+        zeroForOne ? bnInput : BN_ZERO,
+        zeroForOne ? BN_ZERO : bnInput
+    ])
     const price = await fetchPrice('0x000')
     const gasPrice = await provider.getGasPrice()
     const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])
@@ -137,11 +141,108 @@ export const gasEstimateSwapLimit = async (
         currency: 'USD',
       })
     
-    return formattedPrice
+    return { formattedPrice, gasUnits }
   }
   catch (error) {
     console.log('gas error', error)
-    return '$0.00'
+    return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
+  }
+}
+
+export const gasEstimateRangeMint = async (
+  rangePoolRoute: string,
+  address: string,
+  lowerTick: BigNumber,
+  upperTick: BigNumber,
+  amount0: BigNumber,
+  amount1: BigNumber,
+  signer
+): Promise<gasEstimateResult> => {
+  try {
+    const provider = new ethers.providers.JsonRpcProvider(
+      'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
+    )
+    if (!rangePoolRoute || !provider || (amount0.eq(BN_ZERO) && amount1.eq(BN_ZERO))) {
+      return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
+    }
+    const contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
+
+    const recipient = address
+
+    const gasUnits = await contract
+      .connect(signer)
+      .estimateGas.mint([
+        recipient,
+        lowerTick,
+        upperTick,
+        amount0,
+        amount1
+    ])
+    const price = await fetchPrice('0x000')
+    const gasPrice = await provider.getGasPrice()
+    const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])
+    const networkFeeWei = gasPrice.mul(gasUnits)
+    const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18))
+    const networkFeeUsd = networkFeeEth * ethUsdPrice
+    const formattedPrice: string =
+      networkFeeUsd.toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      })
+      console.log('gas estimate mint', lowerTick.toString(), upperTick.toString(), gasUnits.toString())
+    return { formattedPrice, gasUnits }
+  }
+  catch (error) {
+    console.log('gas error', error)
+    return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
+  }
+}
+
+export const gasEstimateRangeBurn = async (
+  rangePoolRoute: string,
+  address: string,
+  lowerTick: BigNumber,
+  upperTick: BigNumber,
+  burnPercent: BigNumber,
+  signer
+): Promise<gasEstimateResult> => {
+  try {
+    const provider = new ethers.providers.JsonRpcProvider(
+      'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
+    )
+
+    if (!rangePoolRoute || !provider) {
+      return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
+    }
+    const contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
+    console.log('new burn percent check', burnPercent.toString())
+    const recipient = address
+
+    const gasUnits = await contract
+      .connect(provider)
+      .estimateGas.burn([
+        recipient,
+        lowerTick,
+        upperTick,
+        burnPercent
+    ])
+    console.log('new burn percent gas limit', gasUnits.toString(), burnPercent.toString(), lowerTick.toString(), upperTick.toString())
+    const price = await fetchPrice('0x000')
+    const gasPrice = await provider.getGasPrice()
+    const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])
+    const networkFeeWei = gasPrice.mul(gasUnits)
+    const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18))
+    const networkFeeUsd = networkFeeEth * ethUsdPrice
+    const formattedPrice: string =
+      networkFeeUsd.toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      })
+    return { formattedPrice, gasUnits }
+  }
+  catch (error) {
+    console.log('gas error', error)
+    return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
   }
 }
 
@@ -155,16 +256,13 @@ export const gasEstimateCoverMint = async (
   inAmount: JSBI,
   tickSpacing: any,
   signer
-) => {
+): Promise<gasEstimateResult> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
       'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
     )
     if (!coverPoolRoute || !provider || !signer) {
-      return Number(0).toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      })
+      return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
     }
     const contract = new ethers.Contract(coverPoolRoute, coverPoolABI, provider)
 
@@ -173,12 +271,10 @@ export const gasEstimateCoverMint = async (
 
     const lower = BigNumber.from(lowerTick)
     const upper = BigNumber.from(upperTick)
-    const claim = zeroForOne ? upper : lower
     const amountIn = BigNumber.from(String(inAmount))
-
     const gasUnits: BigNumber = await contract
       .connect(signer)
-      .estimateGas.mint([recipient, amountIn, lower, claim, upper, zeroForOne])
+      .estimateGas.mint([recipient, amountIn, lower, upper, zeroForOne])
     const price = await fetchPrice('0x000')
     const gasPrice = await provider.getGasPrice()
     const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])
@@ -191,11 +287,64 @@ export const gasEstimateCoverMint = async (
         currency: 'USD',
       })
     
-    return formattedPrice
+    return { formattedPrice, gasUnits }
   }
   catch (error) {
     console.log('gas error', error)
-    return '$0.00'
+    return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
+  }
+}
+
+export const gasEstimateCoverBurn = async (
+  coverPoolRoute: string,
+  address: string,
+  burnPercent: BigNumber,
+  lowerTick: BigNumber,
+  claimTick: BigNumber,
+  upperTick: BigNumber,
+  zeroForOne: boolean,
+  signer
+): Promise<gasEstimateResult> => {
+  try {
+    const provider = new ethers.providers.JsonRpcProvider(
+      'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
+    )
+
+    if (!coverPoolRoute || !provider) {
+      return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
+    }
+    const contract = new ethers.Contract(coverPoolRoute, coverPoolABI, provider)
+    console.log('new burn percent check', burnPercent.toString())
+    const recipient = address
+
+    const gasUnits = await contract
+      .connect(provider)
+      .estimateGas.burn([
+        recipient,
+        burnPercent,
+        lowerTick,
+        claimTick,
+        upperTick,
+        zeroForOne,
+        true
+    ])
+    console.log('new burn percent gas limit', gasUnits.toString(), burnPercent.toString(), lowerTick.toString(), upperTick.toString())
+    const price = await fetchPrice('0x000')
+    const gasPrice = await provider.getGasPrice()
+    const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])
+    const networkFeeWei = gasPrice.mul(gasUnits)
+    const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18))
+    const networkFeeUsd = networkFeeEth * ethUsdPrice
+    const formattedPrice: string =
+      networkFeeUsd.toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      })
+    return { formattedPrice, gasUnits }
+  }
+  catch (error) {
+    console.log('gas error', error)
+    return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
   }
 }
 
