@@ -14,7 +14,7 @@ import { TickMath, invertPrice, roundTick } from '../../utils/math/tickMath'
 import JSBI from 'jsbi'
 import { getRangePoolFromFactory } from '../../utils/queries'
 import useInputBox from '../../hooks/useInputBox'
-import { erc20ABI, useAccount } from 'wagmi'
+import { erc20ABI, useAccount, useSigner } from 'wagmi'
 import { BigNumber, ethers } from 'ethers'
 import { useContractRead } from 'wagmi'
 import { getBalances } from '../../utils/balances'
@@ -25,6 +25,7 @@ import TickSpacing from '../Tooltips/TickSpacing'
 import { token } from '../../utils/types'
 import { switchDirection } from '../../utils/tokens'
 import { feeTiers } from '../../utils/pools'
+import { gasEstimateRangeMint } from '../../utils/gas'
 
 export default function ConcentratedPool({
   account,
@@ -44,6 +45,7 @@ export default function ConcentratedPool({
   feeTier,
 }) {
   const { address, isConnected, isDisconnected } = useAccount()
+  const { data: signer } = useSigner()
   const [tokenIn, setTokenIn] = useState({
     symbol: tokenZeroSymbol ?? 'TOKEN20B',
     logoURI: tokenZeroLogoURI ?? '/static/images/eth_icon.png',
@@ -81,6 +83,7 @@ export default function ConcentratedPool({
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('')
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
   const [allowance0, setAllowance0] = useState(BN_ZERO)
   const [allowance1, setAllowance1] = useState(BN_ZERO)
   const [rangePrice, setRangePrice] = useState(undefined)
@@ -134,6 +137,10 @@ export default function ConcentratedPool({
   async function updatePool() {
     await getRangePoolData()
   }
+
+  useEffect(() => {
+    updateGasFee()
+  }, [lowerTick, upperTick, amount0, amount1])
 
   useEffect(() => {
     fetchTokenPrice()
@@ -240,6 +247,19 @@ export default function ConcentratedPool({
     }
     setAmounts()
   }, [lowerPrice, upperPrice])
+
+  async function updateGasFee() {
+    const newGasFee = await gasEstimateRangeMint(
+      rangePoolRoute,
+      address,
+      lowerTick,
+      upperTick,
+      amount0,
+      amount1,
+      signer
+    )
+    setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
+  }
 
   const getRangePoolData = async () => {
     try {
@@ -798,6 +818,7 @@ export default function ConcentratedPool({
           allowance0={allowance0}
           allowance1={allowance1}
           disabled={isDisabled}
+          gasLimit={mintGasLimit}
         />
       </div>
     </div>

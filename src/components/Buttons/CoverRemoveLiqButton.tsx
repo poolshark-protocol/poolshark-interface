@@ -11,7 +11,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 
-export default function CoverRemoveLiqButton({poolAddress, address, lower, claim, upper, zeroForOne, burnPercent}) {
+export default function CoverRemoveLiqButton({poolAddress, address, lower, claim, upper, zeroForOne, burnPercent, gasLimit}) {
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -33,7 +33,7 @@ export default function CoverRemoveLiqButton({poolAddress, address, lower, claim
         ]],
         chainId: 421613,
         overrides:{
-            gasLimit: BigNumber.from("1000000")
+            gasLimit: gasLimit
         },
     })
 

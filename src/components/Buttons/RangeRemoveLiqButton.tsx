@@ -10,14 +10,14 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { rangePoolABI } from '../../abis/evm/rangePool';
 
-export default function RangeRemoveLiqButton({poolAddress, address, lower, upper, burnAmount, totalAmount, disabled}) {
+export default function RangeRemoveLiqButton({poolAddress, address, lower, upper, burnPercent, disabled, gasLimit}) {
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
 
 
-    const burnPercent: BigNumber = burnAmount.mul(ethers.utils.parseUnits('1', 38)).div(totalAmount)
-    console.log('burn percent check', burnPercent.toString())
+    
+    console.log('burn percent check', burnPercent.toString(), gasLimit.toString())
   
     const { config } = usePrepareContractWrite({
         address: poolAddress,
@@ -31,7 +31,7 @@ export default function RangeRemoveLiqButton({poolAddress, address, lower, upper
         ]],
         chainId: 421613,
         overrides:{
-            gasLimit: BigNumber.from("1000000")
+            gasLimit: gasLimit
         },
     })
 

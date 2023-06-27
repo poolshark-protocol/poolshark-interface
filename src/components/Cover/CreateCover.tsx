@@ -117,6 +117,7 @@ export default function CreateCover(props: any) {
     } else return feeTiers[0]
   }
   const [mintGasFee, setMintGasFee] = useState('$0.00')
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
 
   /////////////////
 
@@ -194,23 +195,30 @@ export default function CreateCover(props: any) {
       setTickSpread,
       setAuctionLength,
       setTokenInUsdPrice,
+      setLatestTick,
+      lowerPrice,
+      upperPrice,
+      setLowerPrice,
+      setUpperPrice
     )
   }, [hasSelected, tokenIn.address, tokenOut.address, tokenOrder])
 
   // set disabled
   useEffect(() => {
-    const disabledFlag = isNaN(parseFloat(lowerPrice)) ||
+    const disabledFlag =  isNaN(parseFloat(lowerPrice)) ||
                           isNaN(parseFloat(upperPrice)) ||
-                          parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
+                          lowerTick.gte(upperTick) ||
                           Number(ethers.utils.formatUnits(bnInput)) === 0 ||
                           tokenOut.symbol === 'Select Token' ||
                           hasSelected == false ||
-                          !validBounds
+                          !validBounds ||
+                          parseFloat(mintGasFee) == 0
+    console.log('disabled flag check', disabledFlag)
     setDisabled(disabledFlag)
     if (!disabledFlag) {
       updateGasFee()
     }
-  }, [lowerPrice, upperPrice, bnInput, tokenOut, hasSelected])
+  }, [lowerPrice, upperPrice, lowerTick, mintGasFee, upperTick, bnInput, tokenOut, hasSelected, validBounds])
 
   // set amount in
   useEffect(() => {
@@ -218,7 +226,7 @@ export default function CreateCover(props: any) {
       setCoverAmountIn(JSBI.BigInt(bnInput.toString()))
     }
     changeValidBounds()
-  }, [bnInput, lowerTick, upperTick])
+  }, [bnInput, lowerTick, upperTick, tokenOrder])
 
   useEffect(() => {
     if (!isNaN(parseFloat(lowerPrice))) {
@@ -270,8 +278,9 @@ export default function CreateCover(props: any) {
   }
 
   const changeValidBounds = () => {
+    console.log('changing valid bounds', tokenOrder ? lowerTick.lt(latestTick) : upperTick.gt(latestTick))
     setValidBounds(
-      tokenOrder ? lowerTick.lt(latestTick) : upperTick.gt(latestTick),
+      tokenOrder ? lowerTick.lte(latestTick) : upperTick.gte(latestTick),
     )
   }
 
@@ -287,7 +296,11 @@ export default function CreateCover(props: any) {
       tickSpread,
       signer,
     )
-    setMintGasFee(newMintGasFee)
+    console.log('mint gas estimate', newMintGasFee.gasUnits.toString())
+    setMintGasFee(newMintGasFee.formattedPrice)
+    if (newMintGasFee.gasUnits.gt(BN_ZERO)) {
+      setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100))
+    }
   }
 
   function setParams(query: any) {
@@ -591,11 +604,11 @@ export default function CreateCover(props: any) {
             {hasSelected &&
             mktRate[tokenIn.symbol] &&
             parseFloat(lowerPrice) < parseFloat(upperPrice) ? (
-              (
+              parseFloat((
                 parseFloat(
                   ethers.utils.formatUnits(String(coverAmountOut), 18),
                 ) * parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''))
-              ).toFixed(2)
+              ).toPrecision(4))
             ) : (
               <>?</>
             )}{' '}
@@ -707,7 +720,7 @@ export default function CreateCover(props: any) {
             {1} {tokenIn.symbol} ={' '}
             {tokenOut.symbol === 'Select Token' || isNaN(parseFloat(coverPrice))
               ? '?' + ' ' + tokenOut.symbol
-              : parseFloat(invertPrice(coverPrice, tokenOrder)).toFixed(3) +
+              : parseFloat(parseFloat(invertPrice(coverPrice, tokenOrder)).toPrecision(6)) +
                 ' ' +
                 tokenOut.symbol}
           </div>
@@ -744,6 +757,7 @@ export default function CreateCover(props: any) {
             amount={bnInput}
             zeroForOne={tokenOrder}
             tickSpacing={tickSpread}
+            gasLimit={mintGasLimit}
           />
         ) : null}
       </div>

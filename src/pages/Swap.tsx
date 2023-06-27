@@ -59,8 +59,10 @@ export default function Swap() {
     setDisplay,
   } = useInputBox()
 
-  const [gasFee, setGasFee] = useState('0')
+  const [swapGasFee, setSwapGasFee] = useState('0')
+  const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO)
   const [mintFee, setMintFee] = useState('0')
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
   const [coverQuote, setCoverQuote] = useState(0)
   const [rangeQuote, setRangeQuote] = useState(0)
   const [coverPrice, setCoverPrice] = useState(0)
@@ -615,23 +617,24 @@ export default function Swap() {
       signer,
       isConnected,
     )
-    setGasFee(newGasFee)
+    setSwapGasFee(newGasFee.formattedPrice)
+    setSwapGasLimit(newGasFee.gasUnits.mul(130).div(100))
   }
 
   async function updateMintFee() {
     const newMintFee = await gasEstimateSwapLimit(
       rangePoolRoute,
       address,
-      rangePrice,
-      rangeBnPrice,
-      rangeBnBaseLimit,
+      lowerTick,
+      upperTick,
       tokenIn,
       tokenOut,
       bnInput,
       rangeTickSpacing,
       signer,
     )
-    setMintFee(newMintFee)
+    setMintFee(newMintFee.formattedPrice)
+    setMintGasLimit(newMintFee.gasUnits.mul(130).div(100))
   }
   ////////////////////////////////
 
@@ -715,7 +718,7 @@ export default function Swap() {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
             {!LimitActive ? (
-              <div className="ml-auto text-xs">{gasFee}</div>
+              <div className="ml-auto text-xs">{swapGasFee}</div>
             ) : (
               <div className="ml-auto text-xs">{mintFee}</div>
             )}
@@ -1172,6 +1175,7 @@ export default function Swap() {
                   }
                   amount={bnInput}
                   priceLimit={rangeBnPriceLimit}
+                  gasLimit={swapGasLimit}
                 />
               )
             ) : Number(allowanceCover) <
@@ -1195,6 +1199,7 @@ export default function Swap() {
                 }
                 amount={bnInput}
                 priceLimit={coverBnPriceLimit}
+                gasLimit={swapGasLimit}
               />
             )}
           </>
@@ -1258,6 +1263,7 @@ export default function Swap() {
                 upper={upperTick}
                 amount0={tokenOrder ? bnInput : BN_ZERO}
                 amount1={tokenOrder ? BN_ZERO : bnInput}
+                gasLimit={mintGasLimit}
               />
             )}
           </>
