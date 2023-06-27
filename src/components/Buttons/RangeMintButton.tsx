@@ -51,15 +51,7 @@ export default function RangeMintButton({
     address: poolAddress,
     abi: rangePoolABI,
     functionName: 'mint',
-    args: [
-      [
-        to,
-        lower,
-        upper,
-        amount0,
-        amount1
-      ],
-    ],
+    args: [[to, lower, upper, amount0, amount1]],
     chainId: 421613,
     overrides: {
       gasLimit: BigNumber.from('1000000'),
@@ -82,7 +74,6 @@ export default function RangeMintButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true)
-      //set a timeout and then closeModal()
       setTimeout(() => {
         closeModal()
       }, 2000)
