@@ -26,7 +26,6 @@ import { BigNumber, ethers } from 'ethers'
 import { useCoverStore } from '../../hooks/useStore'
 import { getCoverPoolFromFactory } from '../../utils/queries'
 import JSBI from 'jsbi'
-import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import { useRouter } from 'next/router'
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
@@ -212,7 +211,7 @@ export default function CreateCover(props: any) {
     if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
       setButtonState('price')
     }
-    if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
+    if (parseFloat(ethers.utils.formatEther(bnInput)) == 0) {
       setButtonState('amount')
     }
     if (hasSelected == false) {
@@ -228,8 +227,7 @@ export default function CreateCover(props: any) {
                           Number(ethers.utils.formatUnits(bnInput)) === 0 ||
                           tokenOut.symbol === 'Select Token' ||
                           hasSelected == false ||
-                          !validBounds ||
-                          parseFloat(mintGasFee) == 0
+                          !validBounds
     console.log('disabled flag check', disabledFlag)
     setDisabled(disabledFlag)
     if (!disabledFlag) {
@@ -766,7 +764,7 @@ export default function CreateCover(props: any) {
         ) : stateChainName === 'arbitrumGoerli' ? (
           <CoverMintButton
             poolAddress={coverPoolRoute}
-            disabled={isDisabled}
+            disabled={isDisabled || parseFloat(mintGasFee) == 0}
             to={address}
             lower={lowerTick}
             claim={tokenOrder ? upperTick : lowerTick}
