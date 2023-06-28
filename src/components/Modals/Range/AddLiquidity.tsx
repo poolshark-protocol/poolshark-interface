@@ -59,11 +59,12 @@ export default function RangeAddLiquidity({
   const { isDisconnected, isConnected } = useAccount()
   const [disabled, setDisabled] = useState(true)
   const [rangeSqrtPrice, setRangeSqrtPrice] = useState(JSBI.BigInt(rangePrice))
+  const [doubleApprove, setdoubleApprove] = useState(false)
+
   const {
     network: { chainId },
   } = useProvider()
 
-  console.log('add liquidity check', liquidity)
 
   const { data: tokenInAllowance } = useContractRead({
     address: tokenIn.address,
@@ -343,23 +344,26 @@ export default function RangeAddLiquidity({
                     disabled={disabled}
                     gasLimit={mintGasLimit}
                   />
-                ) : allowanceIn.lt(amount0) && allowanceOut.lt(amount1) ? (
-                  <RangeMintDoubleApproveButton
-                    poolAddress={poolAdd}
-                    tokenIn={tokenIn}
-                    tokenOut={tokenOut}
-                  />
-                ) : allowanceIn.lt(amount0) ? (
-                  <RangeMintApproveButton
-                    poolAddress={poolAdd}
-                    approveToken={tokenIn}
-                  />
-                ) : (
-                  <RangeMintApproveButton
-                    poolAddress={poolAdd}
-                    approveToken={tokenOut}
-                  />
-                )}
+                  ) : (allowanceIn.lt(amount0) &&
+                  allowanceOut.lt(amount1)) ||
+                doubleApprove ? (
+                <RangeMintDoubleApproveButton
+                  poolAddress={poolAdd}
+                  tokenIn={tokenIn}
+                  tokenOut={tokenOut}
+                  setAllowanceController={setdoubleApprove}
+                />
+              ) : !doubleApprove && allowanceIn.lt(amount0) ? (
+                <RangeMintApproveButton
+                  poolAddress={poolAdd}
+                  approveToken={tokenIn}
+                />
+              ) : !doubleApprove && allowanceOut.lt(amount1) ? (
+                <RangeMintApproveButton
+                  poolAddress={poolAdd}
+                  approveToken={tokenOut}
+                />
+              ) : null}
               </Dialog.Panel>
             </Transition.Child>
           </div>
