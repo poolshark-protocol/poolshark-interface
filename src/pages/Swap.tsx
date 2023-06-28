@@ -341,6 +341,8 @@ export default function Swap() {
     }
   }, [slippage, rangeBnPrice, coverBnPrice])
 
+
+
       // disabled messages
       useEffect(() => {
         if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
@@ -349,7 +351,7 @@ export default function Swap() {
         if (hasSelected == false) {
           setButtonState('token')
         }
-      })
+      }, [bnInput, hasSelected])
 
   ////////////////////////////////Limit Price
   useEffect(() => {

@@ -218,7 +218,7 @@ export default function CreateCover(props: any) {
     if (hasSelected == false) {
       setButtonState('token')
     }
-  })
+  }, [bnInput, hasSelected, validBounds, lowerPrice, upperPrice])
 
   // set disabled
   useEffect(() => {

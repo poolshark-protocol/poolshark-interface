@@ -198,7 +198,7 @@ export default function ConcentratedPool({
       if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
         setButtonState('amount')
       }
-    })
+    } , [bnInput, lowerPrice, upperPrice])
 
   useEffect(() => {
     setTimeout(() => {

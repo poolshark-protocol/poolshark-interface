@@ -222,7 +222,7 @@ export default function CoverExistingPool({
       if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
         setButtonState('price')
       }
-    })
+    }, [validBounds, lowerPrice, upperPrice])
 
   // check for valid inputs
   useEffect(() => {
