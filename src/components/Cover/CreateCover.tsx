@@ -297,7 +297,8 @@ export default function CreateCover(props: any) {
   const changeValidBounds = () => {
     console.log('changing valid bounds', tokenOrder ? lowerTick.lt(latestTick) : upperTick.gt(latestTick))
     setValidBounds(
-      tokenOrder ? lowerTick.lte(latestTick) : upperTick.gte(latestTick),
+      tokenOrder ? lowerTick.lt(BigNumber.from(latestTick).sub(BigNumber.from(tickSpread))) 
+                 : upperTick.gt((BigNumber.from(latestTick).add(BigNumber.from(tickSpread))))
     )
   }
 

@@ -19,6 +19,7 @@ import {
   getDefaultLowerTick,
   getDefaultUpperPrice,
   getDefaultUpperTick,
+  invertPrice,
   roundTick,
 } from '../../utils/math/tickMath'
 import { coverPoolABI } from '../../abis/evm/coverPool'
@@ -111,20 +112,6 @@ export default function CoverExistingPool({
 
   ////////////////////////////////
 
-  const { data: priceCover } = useContractRead({
-    address: coverPoolRoute,
-    abi: coverPoolABI,
-    functionName:
-      tokenOut.address != '' &&
-      tokenOrder
-        ? 'pool1'
-        : 'pool0',
-    args: [],
-    chainId: 421613,
-    watch: true,
-    enabled: isConnected && coverPoolRoute != undefined,
-  })
-
   const { data: allowanceIn } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -136,16 +123,14 @@ export default function CoverExistingPool({
   })
 
   useEffect(() => {
-    if (priceCover) {
+    if (latestTick) {
       if (coverPoolRoute != undefined && tokenOut.address != '') {
-        console.log('price cover:', priceCover[0])
-        setCoverPrice(priceCover[0])
-
-        const price = TickMath.getPriceStringAtSqrtPrice(priceCover[0])
-        setCoverTickPrice(price)
+        const price = TickMath.getPriceStringAtTick(latestTick)
+        console.log('tick price', tokenOrder)
+        setCoverTickPrice(invertPrice(price, tokenOrder))
       }
     }
-  }, [priceCover, tokenIn.address])
+  }, [latestTick, tokenIn.address])
 
   useEffect(() => {
     setTimeout(() => {
@@ -182,9 +167,11 @@ export default function CoverExistingPool({
         tokenIn,
         tokenOut,
         setCoverPoolRoute,
-        setLatestTick,
+        null,
         setTickSpread,
-        setAuctionLength
+        setAuctionLength,
+        null,
+        setLatestTick
       )
       console.log('tick bounds', lowerTick, upperTick)
       if (!isNaN(lowerTick) && !isNaN(upperTick))
@@ -196,9 +183,11 @@ export default function CoverExistingPool({
           tokenIn,
           tokenOut,
           setCoverPoolRoute,
-          setLatestTick,
+          null,
           setTickSpread,
-          setAuctionLength
+          setAuctionLength,
+          null,
+          setLatestTick
         )
       }, 5000)
       return () => clearInterval(interval)
@@ -208,11 +197,7 @@ export default function CoverExistingPool({
   useEffect(() => {
     changeCoverAmounts()
     changeValidBounds()
-  }, [sliderValue, lowerTick, upperTick])
-
-  useEffect(() => {
-    fetchTokenPrices(coverTickPrice, setMktRate)
-  }, [coverPrice])
+  }, [sliderValue, lowerTick, upperTick, tokenOrder])
 
     // disabled messages
     useEffect(() => {
@@ -226,10 +211,10 @@ export default function CoverExistingPool({
 
   // check for valid inputs
   useEffect(() => {
-    const disabledFlag = JSBI.equal(coverAmountIn, ZERO) ||
+    const disabledFlag =  JSBI.equal(coverAmountIn, ZERO) ||
                           isNaN(parseFloat(lowerPrice)) ||
                           isNaN(parseFloat(upperPrice)) ||
-                          parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
+                          lowerTick >= upperTick ||
                           !validBounds ||
                           hasSelected == false
     setDisabled(disabledFlag)
@@ -240,7 +225,7 @@ export default function CoverExistingPool({
   }, [lowerPrice, upperPrice, coverAmountIn, validBounds])
 
   useEffect(() => {
-    if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
+    if (!isNaN(parseFloat(lowerPrice))) {
       console.log('setting lower tick')
       setLowerTick(TickMath.getTickAtPriceString(lowerPrice, tickSpread))
     }
@@ -257,8 +242,9 @@ export default function CoverExistingPool({
   ////////////////////////////////
 
   const changeValidBounds = () => {
-    setValidBounds(zeroForOne ? lowerTick < latestTick
-                              : upperTick > latestTick)
+    console.log('setting valid bounds', lowerTick < latestTick - tickSpread, tokenOrder)
+    setValidBounds(tokenOrder ? lowerTick < latestTick - tickSpread
+                              : upperTick > latestTick - (-tickSpread))
   }
 
   const changePrice = (direction: string, inputId: string) => {
@@ -280,6 +266,7 @@ export default function CoverExistingPool({
         : latestTick
     console.log('current tick', currentTick, upperTick)
     if (!tickSpread && !tickSpacing) return
+    console.log('increment check', tickSpread, tickSpacing, tickSpread ?? tickSpacing)
     const increment = tickSpread ?? tickSpacing
     const adjustment =
       direction == 'plus' || direction == 'minus'
@@ -665,7 +652,7 @@ export default function CoverExistingPool({
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
             1 {tokenIn.symbol} = {
               (!isNaN(parseFloat(coverTickPrice))) ?
-              ((parseFloat(coverTickPrice).toFixed(3)) + ' ' + tokenOut.symbol) :
+              (parseFloat(parseFloat(coverTickPrice).toPrecision(6)) + ' ' + tokenOut.symbol) :
               ('?' + ' ' + tokenOut.symbol)
             }
           </div>
