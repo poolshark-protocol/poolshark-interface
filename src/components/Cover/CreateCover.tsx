@@ -625,8 +625,8 @@ export default function CreateCover(props: any) {
               parseFloat((
                 parseFloat(
                   ethers.utils.formatUnits(String(coverAmountOut), 18),
-                ) * parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''))
-              ).toPrecision(4))
+                )
+              ).toPrecision(6))
             ) : (
               <>?</>
             )}{' '}
