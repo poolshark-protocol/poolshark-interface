@@ -617,8 +617,11 @@ export default function Swap() {
       signer,
       isConnected,
     )
-    setSwapGasFee(newGasFee.formattedPrice)
-    setSwapGasLimit(newGasFee.gasUnits.mul(130).div(100))
+
+    if (newGasFee.gasUnits.gt(BN_ZERO)) {
+      setSwapGasFee(newGasFee.formattedPrice)
+      setSwapGasLimit(newGasFee.gasUnits.mul(130).div(100))
+    }
   }
 
   async function updateMintFee() {
@@ -633,8 +636,11 @@ export default function Swap() {
       rangeTickSpacing,
       signer,
     )
-    setMintFee(newMintFee.formattedPrice)
-    setMintGasLimit(newMintFee.gasUnits.mul(130).div(100))
+
+    if (newMintFee.gasUnits.gt(BN_ZERO)) {
+      setMintFee(newMintFee.formattedPrice)
+      setMintGasLimit(newMintFee.gasUnits.mul(130).div(100))
+    }
   }
   ////////////////////////////////
 

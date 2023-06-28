@@ -357,8 +357,11 @@ export default function CoverExistingPool({
       tickSpread,
       signer
     )
-    setMintGasFee(newMintGasFee.formattedPrice)
-    setMintGasLimit(newMintGasFee.gasUnits.mul(130).div(100))
+
+    if (newMintGasFee.gasUnits.gt(BN_ZERO)) {
+      setMintGasFee(newMintGasFee.formattedPrice)
+      setMintGasLimit(newMintGasFee.gasUnits.mul(130).div(100))
+    }
   }
 
   const handleChange = (event: any) => {

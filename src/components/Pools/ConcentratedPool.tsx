@@ -259,8 +259,11 @@ export default function ConcentratedPool({
       amount1,
       signer
     )
-    setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
-    setMintGasFee(newGasFee.formattedPrice)
+    
+    if (newGasFee.gasUnits.gt(BN_ZERO)) {
+      setMintGasFee(newGasFee.formattedPrice)
+      setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
+    }
   }
 
   const getRangePoolData = async () => {

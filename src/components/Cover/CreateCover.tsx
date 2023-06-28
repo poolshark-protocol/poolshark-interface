@@ -297,8 +297,8 @@ export default function CreateCover(props: any) {
       signer,
     )
     console.log('mint gas estimate', newMintGasFee.gasUnits.toString())
-    setMintGasFee(newMintGasFee.formattedPrice)
     if (newMintGasFee.gasUnits.gt(BN_ZERO)) {
+      setMintGasFee(newMintGasFee.formattedPrice)
       setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100))
     }
   }

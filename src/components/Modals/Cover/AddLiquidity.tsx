@@ -102,8 +102,10 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
       signer,
     )
 
-    setMintGasFee(newMintFee.formattedPrice)
-    setMintGasLimit(newMintFee.gasUnits.mul(130).div(100))
+    if (newMintFee.gasUnits.gt(BN_ZERO)) {
+      setMintGasFee(newMintFee.formattedPrice)
+      setMintGasLimit(newMintFee.gasUnits.mul(130).div(100))
+    }
   }
 
   const getBalances = async () => {

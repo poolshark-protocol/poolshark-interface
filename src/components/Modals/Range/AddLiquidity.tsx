@@ -35,6 +35,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
   const [allowanceIn, setAllowanceIn] = useState(BN_ZERO)
   const [allowanceOut, setAllowanceOut] = useState(BN_ZERO)
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
+  const [mintGasFee, setMintGasFee] = useState('0')
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
   const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
   const [stateChainName, setStateChainName] = useState()
@@ -153,13 +154,18 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
       amount1,
       signer
     )
-    setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
+
+    if(newGasFee.gasUnits.gt(BN_ZERO)) {
+      setMintGasFee(newGasFee.formattedPrice)
+      setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
+    }
   }
 
   function setAmounts() {
     try {
       if (
-        Number(ethers.utils.formatUnits(bnInput)) !== 0
+        Number(ethers.utils.formatUnits(bnInput)) !== 0 &&
+        parseFloat(mintGasFee) > 0
       ) {
 
         const liquidity = JSBI.greaterThanOrEqual(rangeSqrtPrice, lowerSqrtPrice) &&
