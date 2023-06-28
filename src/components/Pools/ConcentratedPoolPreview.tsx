@@ -332,7 +332,7 @@ export default function ConcentratedPoolPreview({
       <button
         onClick={() => setIsOpen(true)}
         disabled={disabled}
-        className="mt-8 w-full py-4 disabled:opacity-50 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        className="mt-8 w-full py-4 disabled:opacity-50 disabled:cursor-not-allowed mx-auto font-medium text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
       >
         {disabled ? <>
         {buttonState === 'price' ? <>Min. is greater than Max. Price</> : <></>}
