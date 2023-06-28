@@ -314,7 +314,7 @@ export default function CreateCover(props: any) {
       return (
         <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
           <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Mininum filled</div>
+            <div className="text-xs text-[#4C4C4C]">Min. filled amount</div>
             <div className="ml-auto text-xs">
               {(
                 parseFloat(

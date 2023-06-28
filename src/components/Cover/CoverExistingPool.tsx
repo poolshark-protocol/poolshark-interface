@@ -437,7 +437,7 @@ export default function CoverExistingPool({
         <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">
-              Mininum filled
+              Min. filled amount
             </div>
             <div className="ml-auto text-xs">{(parseFloat(ethers.utils.formatUnits(String(coverAmountOut), 18)) * (1 - tickSpread / 10000)).toPrecision(5) + ' ' + tokenOut.symbol}</div>
           </div>
