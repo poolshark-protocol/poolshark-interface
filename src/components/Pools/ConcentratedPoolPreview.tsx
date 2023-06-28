@@ -7,6 +7,7 @@ import { TickMath } from '../../utils/math/tickMath'
 import RangeMintDoubleApproveButton from '../Buttons/RangeMintDoubleApproveButton'
 import { useRouter } from 'next/router'
 import { gasEstimateRangeMint, gasEstimateSwapLimit } from '../../utils/gas'
+import RangeMintApproveButton from '../Buttons/RangeMintApproveButton'
 
 export default function ConcentratedPoolPreview({
   account,
@@ -35,7 +36,6 @@ export default function ConcentratedPoolPreview({
   const signer = new ethers.VoidSigner(address, provider)
 
   const [isOpen, setIsOpen] = useState(false)
-
 
   const { data: allowanceIn } = useContractRead({
     address: tokenIn.address,
@@ -290,36 +290,37 @@ export default function ConcentratedPoolPreview({
                         </div>
                       </div>
                       <div className="mt-4">
-                        {allowance0.gte(amount0) &&
-                        allowance1.gte(amount1) ? null : (
-                          <RangeMintDoubleApproveButton
-                            poolAddress={poolAddress}
-                            token0={tokenOrder ? tokenIn : tokenOut}
-                            token1={tokenOrder ? tokenOut : tokenIn}
-                            amount0={amount0}
-                            amount1={amount1}
-                            approveZero={allowance0.lt(amount0)}
-                          />
-                        )}
-                        {allowance0.lt(amount0) ||
-                        allowance1.lt(amount1) ? null : (
+                        {allowance0.gte(amount0) && allowance1.gte(amount1) ? (
                           <RangeMintButton
                             to={address}
                             poolAddress={poolAddress}
                             lower={lowerTick}
                             upper={upperTick}
                             disabled={
-                              allowance0.lt(amount0) ||
-                              allowance1.lt(amount1)
+                              allowance0.lt(amount0) || allowance1.lt(amount1)
                             }
                             amount0={amount0}
                             amount1={amount1}
                             gasLimit={gasLimit}
-                            closeModal={
-                              () => router.push('/pool')
-                            }
+                            closeModal={() => router.push('/pool')}
                           />
-                        )}
+                        ) : allowance0.lt(amount0) && allowance1.lt(amount1) ? (
+                          <RangeMintDoubleApproveButton
+                            poolAddress={poolAddress}
+                            tokenIn={tokenIn}
+                            tokenOut={tokenOut}
+                          />
+                        ) : allowance0.lt(amount0) ? (
+                          <RangeMintApproveButton
+                            poolAddress={poolAddress}
+                            approveToken={tokenIn}
+                          />
+                        ) : allowance1.lt(amount1) ? (
+                          <RangeMintApproveButton
+                            poolAddress={poolAddress}
+                            approveToken={tokenOut}
+                          />
+                        ) : null}
                       </div>
                     </div>
                   </div>
