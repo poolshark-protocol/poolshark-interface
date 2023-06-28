@@ -154,9 +154,9 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
       amount1,
       signer
     )
-
+    
+    setMintGasFee(newGasFee.formattedPrice)
     if(newGasFee.gasUnits.gt(BN_ZERO)) {
-      setMintGasFee(newGasFee.formattedPrice)
       setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
     }
   }
@@ -164,8 +164,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
   function setAmounts() {
     try {
       if (
-        Number(ethers.utils.formatUnits(bnInput)) !== 0 &&
-        parseFloat(mintGasFee) > 0
+        Number(ethers.utils.formatUnits(bnInput)) !== 0
       ) {
 
         const liquidity = JSBI.greaterThanOrEqual(rangeSqrtPrice, lowerSqrtPrice) &&
@@ -194,7 +193,9 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
         // set amount based on liquidity math
         tokenOrder ? setAmount1(BigNumber.from(String(tokenOutAmount))) 
                    : setAmount0(BigNumber.from(String(tokenOutAmount)))
-        setDisabled(false)
+        if (parseFloat(mintGasFee) > 0) {
+          setDisabled(false)
+        }
       } else {
         setAmount1(BN_ZERO) 
         setAmount0(BN_ZERO)

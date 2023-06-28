@@ -94,8 +94,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   function setLiquidity() {
     try {
       if (
-        Number(ethers.utils.formatUnits(bnInput)) !== 0 &&
-        parseFloat(gasFee) > 0
+        Number(ethers.utils.formatUnits(bnInput)) !== 0
       ) {
         const liquidityRemoved = JSBI.greaterThanOrEqual(rangeSqrtPrice, lowerSqrtPrice) &&
                           JSBI.lessThanOrEqual(rangeSqrtPrice, upperSqrtPrice) ?
@@ -128,8 +127,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   function setAmounts(liquidity: JSBI, changeDisplay = false) {
     try {
       if (
-        JSBI.greaterThan(liquidity, ZERO) &&
-        parseFloat(gasFee) > 0
+        JSBI.greaterThan(liquidity, ZERO)
       ) {
         const amounts = DyDxMath.getAmountsForLiquidity(
           lowerSqrtPrice,
