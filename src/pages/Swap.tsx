@@ -1256,7 +1256,7 @@ export default function Swap() {
               )
             ) : (
               <RangeLimitSwapButton
-                disabled={false}
+                disabled={parseFloat(mintFee) > 0 ? false : true}
                 poolAddress={rangePoolRoute}
                 to={address}
                 lower={lowerTick}
