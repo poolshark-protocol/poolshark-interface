@@ -20,6 +20,7 @@ export default function ConcentratedPoolPreview({
   amount1Usd,
   lowerTick,
   upperTick,
+  mintGasFee,
   gasLimit,
   fee,
   allowance0,
@@ -310,7 +311,8 @@ export default function ConcentratedPoolPreview({
                             upper={upperTick}
                             disabled={
                               allowance0.lt(amount0) ||
-                              allowance1.lt(amount1)
+                              allowance1.lt(amount1) ||
+                              parseFloat(mintGasFee) == 0
                             }
                             amount0={amount0}
                             amount1={amount1}

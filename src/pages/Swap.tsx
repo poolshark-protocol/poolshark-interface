@@ -630,8 +630,11 @@ export default function Swap() {
       signer,
       isConnected,
     )
-    setSwapGasFee(newGasFee.formattedPrice)
-    setSwapGasLimit(newGasFee.gasUnits.mul(130).div(100))
+
+    if (newGasFee.gasUnits.gt(BN_ZERO)) {
+      setSwapGasFee(newGasFee.formattedPrice)
+      setSwapGasLimit(newGasFee.gasUnits.mul(130).div(100))
+    }
   }
 
   async function updateMintFee() {
@@ -646,8 +649,11 @@ export default function Swap() {
       rangeTickSpacing,
       signer,
     )
-    setMintFee(newMintFee.formattedPrice)
-    setMintGasLimit(newMintFee.gasUnits.mul(130).div(100))
+
+    if (newMintFee.gasUnits.gt(BN_ZERO)) {
+      setMintFee(newMintFee.formattedPrice)
+      setMintGasLimit(newMintFee.gasUnits.mul(130).div(100))
+    }
   }
   ////////////////////////////////
 
@@ -1182,6 +1188,7 @@ export default function Swap() {
                 </div>
               ) : (
                 <SwapRangeButton
+                  disabled={parseFloat(swapGasFee) == 0}
                   poolAddress={rangePoolRoute}
                   zeroForOne={
                     tokenOut.address != '' &&
@@ -1206,6 +1213,7 @@ export default function Swap() {
               </div>
             ) : (
               <SwapCoverButton
+                disabled={parseFloat(swapGasFee) == 0}
                 poolAddress={coverPoolRoute}
                 zeroForOne={
                   tokenOut.address != '' &&
@@ -1271,7 +1279,7 @@ export default function Swap() {
               )
             ) : (
               <RangeLimitSwapButton
-                disabled={false}
+                disabled={parseFloat(mintFee) == 0}
                 poolAddress={rangePoolRoute}
                 to={address}
                 lower={lowerTick}

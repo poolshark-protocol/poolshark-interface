@@ -117,7 +117,7 @@ export default function CreateCover(props: any) {
       return feeTiers[3]
     } else return feeTiers[0]
   }
-  const [mintGasFee, setMintGasFee] = useState('$0.00')
+  const [mintGasFee, setMintGasFee] = useState('0')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
 
   /////////////////
@@ -315,8 +315,8 @@ export default function CreateCover(props: any) {
       signer,
     )
     console.log('mint gas estimate', newMintGasFee.gasUnits.toString())
-    setMintGasFee(newMintGasFee.formattedPrice)
     if (newMintGasFee.gasUnits.gt(BN_ZERO)) {
+      setMintGasFee(newMintGasFee.formattedPrice)
       setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100))
     }
   }
@@ -332,7 +332,7 @@ export default function CreateCover(props: any) {
       return (
         <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
           <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Mininum filled</div>
+            <div className="text-xs text-[#4C4C4C]">Min. filled amount</div>
             <div className="ml-auto text-xs">
               {(
                 parseFloat(
@@ -346,7 +346,7 @@ export default function CreateCover(props: any) {
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
-            <div className="ml-auto text-xs">{mintGasFee}</div>
+            <div className="ml-auto text-xs">{'$' + mintGasFee}</div>
           </div>
         </div>
       )

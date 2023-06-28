@@ -106,8 +106,8 @@ export default function CoverExistingPool({
   const [allowance, setAllowance] = useState(ZERO)
   const [mktRate, setMktRate] = useState({})
   const [showTooltip, setShowTooltip] = useState(false)
-  const [mintGasFee, setMintGasFee] = useState('$0.00')
   const [buttonState, setButtonState] = useState('')
+  const [mintGasFee, setMintGasFee] = useState('0')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
 
   ////////////////////////////////
@@ -216,13 +216,14 @@ export default function CoverExistingPool({
                           isNaN(parseFloat(upperPrice)) ||
                           lowerTick >= upperTick ||
                           !validBounds ||
-                          hasSelected == false
+                          hasSelected == false ||
+                          parseFloat(mintGasFee) == 0
     setDisabled(disabledFlag)
     if (!disabledFlag) {
       updateGasFee()
     }
     console.log('latest price', latestTick)
-  }, [lowerPrice, upperPrice, coverAmountIn, validBounds])
+  }, [lowerPrice, upperPrice, coverAmountIn, validBounds, mintGasFee])
 
   useEffect(() => {
     if (!isNaN(parseFloat(lowerPrice))) {
@@ -354,8 +355,11 @@ export default function CoverExistingPool({
       tickSpread,
       signer
     )
-    setMintGasFee(newMintGasFee.formattedPrice)
-    setMintGasLimit(newMintGasFee.gasUnits.mul(130).div(100))
+
+    if (newMintGasFee.gasUnits.gt(BN_ZERO)) {
+      setMintGasFee(newMintGasFee.formattedPrice)
+      setMintGasLimit(newMintGasFee.gasUnits.mul(130).div(100))
+    }
   }
 
   const handleChange = (event: any) => {
@@ -431,13 +435,13 @@ export default function CoverExistingPool({
         <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">
-              Mininum filled
+              Min. filled amount
             </div>
             <div className="ml-auto text-xs">{(parseFloat(ethers.utils.formatUnits(String(coverAmountOut), 18)) * (1 - tickSpread / 10000)).toPrecision(5) + ' ' + tokenOut.symbol}</div>
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
-            <div className="ml-auto text-xs">{mintGasFee}</div>
+            <div className="ml-auto text-xs">{'$' + mintGasFee}</div>
           </div>
         </div>
       )

@@ -111,6 +111,9 @@ export default function Cover() {
   const [claimTick, setClaimTick] = useState(BigNumber.from('887272'))
   const [fetchDelay, setFetchDelay] = useState(false)
   const [burnGasLimit, setBurnGasLimit] = useState(BN_ZERO)
+  const [burnGasFee, setBurnGasFee] = useState('0')
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
+  const [mintGasFee, setMintGasFee] = useState('0')
 
   ////////////////////////////////Router is ready
 
@@ -312,7 +315,10 @@ export default function Cover() {
       zeroForOne,
       signer
     )
-    if (newGasFee.gasUnits.gt(BN_ZERO)) setBurnGasLimit(newGasFee.gasUnits)
+    if (newGasFee.gasUnits.gt(BN_ZERO)) {
+      setBurnGasLimit(newGasFee.gasUnits)
+      setBurnGasFee(newGasFee.formattedPrice)
+    } 
   }
 
   ////////////////////////////////Addresses
@@ -601,6 +607,7 @@ export default function Cover() {
       ) : (
         <>
           <RemoveLiquidity
+            gasFee={parseFloat(burnGasFee) == 0}
             isOpen={isRemoveOpen}
             setIsOpen={setIsRemoveOpen}
             tokenIn={tokenIn}

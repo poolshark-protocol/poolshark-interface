@@ -29,6 +29,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
   const { isDisconnected, isConnected } = useAccount()
   const [stateChainName, setStateChainName] = useState()
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
+  const [mintGasFee, setMintGasFee] = useState('0')
   const [fetchDelay, setFetchDelay] = useState(false)
   const {
     network: { chainId },
@@ -100,7 +101,11 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
       tickSpacing,
       signer,
     )
-    setMintGasLimit(newMintFee.gasUnits.mul(130).div(100))
+
+    if (newMintFee.gasUnits.gt(BN_ZERO)) {
+      setMintGasFee(newMintFee.formattedPrice)
+      setMintGasLimit(newMintFee.gasUnits.mul(130).div(100))
+    }
   }
 
   const getBalances = async () => {
@@ -201,6 +206,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
                     />
                   ) : stateChainName === "arbitrumGoerli" ? (
                     <CoverAddLiqButton
+                      disabled={parseFloat(mintGasFee) == 0}
                       toAddress={address}
                       poolAddress={poolAdd}
                       address={address}

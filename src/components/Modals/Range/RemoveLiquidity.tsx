@@ -37,6 +37,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   const [ rangeSqrtPrice, setRangeSqrtPrice ] = useState(JSBI.BigInt(rangePrice))
   const [ fetchDelay, setFetchDelay ] = useState(false)
   const [ gasLimit, setGasLimit ] = useState(BN_ZERO)
+  const [ gasFee, setGasFee ] = useState('0')
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
   const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
   const {data: signer} = useSigner()
@@ -44,7 +45,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   useEffect(() => {
     const percentInput = sliderValue
     //console.log('percent input', percentInput, tokenAmount, BigNumber.from(percentInput).mul(BigNumber.from(tokenAmount)).div(BigNumber.from(100)).toString())
-    if (percentInput <= 0 || percentInput > 100) {
+    if (percentInput <= 0 || percentInput > 100 || parseFloat(gasFee) == 0) {
       setDisabled(true)
       return
     } else {
@@ -82,14 +83,19 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
       burnPercent,
       signer
     )
+
     if (!fetchDelay && newBurnGasFee.gasUnits.gt(BN_ZERO)) setFetchDelay(true)
-    if (newBurnGasFee.gasUnits.gt(BN_ZERO)) setGasLimit(newBurnGasFee.gasUnits.mul(200).div(100))
+    if (newBurnGasFee.gasUnits.gt(BN_ZERO)) { 
+      setGasFee(newBurnGasFee.formattedPrice)
+      setGasLimit(newBurnGasFee.gasUnits.mul(200).div(100))
+    }
   }
 
   function setLiquidity() {
     try {
       if (
-        Number(ethers.utils.formatUnits(bnInput)) !== 0
+        Number(ethers.utils.formatUnits(bnInput)) !== 0 &&
+        parseFloat(gasFee) > 0
       ) {
         const liquidityRemoved = JSBI.greaterThanOrEqual(rangeSqrtPrice, lowerSqrtPrice) &&
                           JSBI.lessThanOrEqual(rangeSqrtPrice, upperSqrtPrice) ?
@@ -122,7 +128,8 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   function setAmounts(liquidity: JSBI, changeDisplay = false) {
     try {
       if (
-        JSBI.greaterThan(liquidity, ZERO)
+        JSBI.greaterThan(liquidity, ZERO) &&
+        parseFloat(gasFee) > 0
       ) {
         const amounts = DyDxMath.getAmountsForLiquidity(
           lowerSqrtPrice,
@@ -270,12 +277,12 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
                   </div>
                 </div>
                 <RangeRemoveLiqButton
+                    disabled={disabled}
                     poolAddress={poolAdd}
                     address={address}
                     lower={lowerTick}
                     upper={upperTick}
                     burnPercent={burnPercent}
-                    disabled={disabled}
                     gasLimit={gasLimit}
                 />
               </Dialog.Panel>
