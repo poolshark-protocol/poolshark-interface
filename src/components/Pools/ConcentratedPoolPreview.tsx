@@ -315,12 +315,12 @@ export default function ConcentratedPoolPreview({
                             poolAddress={poolAddress}
                             approveToken={tokenIn}
                           />
-                        ) : allowance1.lt(amount1) ? (
+                        ) : (
                           <RangeMintApproveButton
                             poolAddress={poolAddress}
                             approveToken={tokenOut}
                           />
-                        ) : null}
+                        )}
                       </div>
                     </div>
                   </div>
