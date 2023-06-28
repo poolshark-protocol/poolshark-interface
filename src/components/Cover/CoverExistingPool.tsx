@@ -105,7 +105,7 @@ export default function CoverExistingPool({
   const [allowance, setAllowance] = useState(ZERO)
   const [mktRate, setMktRate] = useState({})
   const [showTooltip, setShowTooltip] = useState(false)
-  const [mintGasFee, setMintGasFee] = useState('$0.00')
+  const [mintGasFee, setMintGasFee] = useState('0')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
 
   ////////////////////////////////
@@ -220,13 +220,14 @@ export default function CoverExistingPool({
                           isNaN(parseFloat(upperPrice)) ||
                           parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
                           !validBounds ||
-                          hasSelected == false
+                          hasSelected == false ||
+                          parseFloat(mintGasFee) == 0
     setDisabled(disabledFlag)
     if (!disabledFlag) {
       updateGasFee()
     }
     console.log('latest price', latestTick)
-  }, [lowerPrice, upperPrice, coverAmountIn, validBounds])
+  }, [lowerPrice, upperPrice, coverAmountIn, validBounds, mintGasFee])
 
   useEffect(() => {
     if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
@@ -439,7 +440,7 @@ export default function CoverExistingPool({
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
-            <div className="ml-auto text-xs">{mintGasFee}</div>
+            <div className="ml-auto text-xs">{'$' + mintGasFee}</div>
           </div>
         </div>
       )

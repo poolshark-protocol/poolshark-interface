@@ -116,7 +116,7 @@ export default function CreateCover(props: any) {
       return feeTiers[3]
     } else return feeTiers[0]
   }
-  const [mintGasFee, setMintGasFee] = useState('$0.00')
+  const [mintGasFee, setMintGasFee] = useState('0')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
 
   /////////////////
@@ -328,7 +328,7 @@ export default function CreateCover(props: any) {
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
-            <div className="ml-auto text-xs">{mintGasFee}</div>
+            <div className="ml-auto text-xs">{'$' + mintGasFee}</div>
           </div>
         </div>
       )
