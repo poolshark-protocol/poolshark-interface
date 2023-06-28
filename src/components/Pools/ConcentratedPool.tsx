@@ -84,6 +84,7 @@ export default function ConcentratedPool({
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
+  const [mintGasFee, setMintGasFee] = useState('0')
   const [allowance0, setAllowance0] = useState(BN_ZERO)
   const [allowance1, setAllowance1] = useState(BN_ZERO)
   const [rangePrice, setRangePrice] = useState(undefined)
@@ -259,6 +260,7 @@ export default function ConcentratedPool({
       signer
     )
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
+    setMintGasFee(newGasFee.formattedPrice)
   }
 
   const getRangePoolData = async () => {
@@ -819,6 +821,7 @@ export default function ConcentratedPool({
           allowance1={allowance1}
           disabled={isDisabled}
           gasLimit={mintGasLimit}
+          mintGasFee={mintGasFee}
         />
       </div>
     </div>

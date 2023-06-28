@@ -7,7 +7,7 @@ import CoverRemoveLiqButton from "../../Buttons/CoverRemoveLiqButton";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO } from "../../../utils/math/constants";
 
-export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, lowerTick, zeroForOne, amountInDeltaMax, upperTick, gasLimit }) {
+export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, lowerTick, zeroForOne, amountInDeltaMax, upperTick, gasLimit, gasFee }) {
 
   const {
     bnInput,
@@ -169,6 +169,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
                   </div>
                 </div>
                 <CoverRemoveLiqButton
+                      disabled={parseFloat(gasFee) == 0}
                       poolAddress={poolAdd}
                       address={address}
                       lower={lowerTick}

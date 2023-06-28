@@ -1168,7 +1168,7 @@ export default function Swap() {
                 </div>
               ) : (
                 <SwapRangeButton
-                  disabled={parseFloat(swapGasFee) > 0 ? false : true}
+                  disabled={parseFloat(swapGasFee) == 0}
                   poolAddress={rangePoolRoute}
                   zeroForOne={
                     tokenOut.address != '' &&
@@ -1193,7 +1193,7 @@ export default function Swap() {
               </div>
             ) : (
               <SwapCoverButton
-                disabled={parseFloat(swapGasFee) > 0 ? false : true}
+                disabled={parseFloat(swapGasFee) == 0}
                 poolAddress={coverPoolRoute}
                 zeroForOne={
                   tokenOut.address != '' &&
@@ -1258,7 +1258,7 @@ export default function Swap() {
               )
             ) : (
               <RangeLimitSwapButton
-                disabled={parseFloat(mintFee) > 0 ? false : true}
+                disabled={parseFloat(mintFee) == 0}
                 poolAddress={rangePoolRoute}
                 to={address}
                 lower={lowerTick}
