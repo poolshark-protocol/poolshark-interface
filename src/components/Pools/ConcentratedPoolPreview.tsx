@@ -23,6 +23,7 @@ export default function ConcentratedPoolPreview({
   allowance0,
   allowance1,
   disabled,
+  buttonState
 }) {
   const { address, isConnected } = useAccount()
   const router = useRouter()
@@ -31,8 +32,6 @@ export default function ConcentratedPoolPreview({
   const upperPrice = TickMath.getPriceStringAtTick(upperTick)
 
   const [isOpen, setIsOpen] = useState(false)
-
-
 
   const { data: allowanceIn } = useContractRead({
     address: tokenIn.address,
@@ -330,7 +329,10 @@ export default function ConcentratedPoolPreview({
         disabled={disabled}
         className="mt-8 w-full py-4 disabled:opacity-50 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
       >
-        Preview
+        {disabled ? <>
+        {buttonState === 'price' ? <>Min. is greater than Max. Price</> : <></>}
+        {buttonState === 'bounds' ? <>Invalid Price Range</> : <></>}
+        </> : <>Preview</>}
       </button>
     </div>
   )

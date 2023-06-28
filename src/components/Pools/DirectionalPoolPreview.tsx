@@ -201,17 +201,7 @@ export default function DirectionalPoolPreview({
                           allowanceCover={allowance}
                         />
                       ) : (
-                        <CoverMintButton
-                          poolAddress={poolId}
-                          disabled={false}
-                          to={account}
-                          lower={minTick}
-                          claim={minTick}
-                          upper={maxTick}
-                          amount={amount0}
-                          zeroForOne={true}
-                          tickSpacing={tickSpacing}
-                        />
+                        <></>
                       )}
                     </div>
                   </div>

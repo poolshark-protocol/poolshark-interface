@@ -113,6 +113,7 @@ export default function Swap() {
   const [upperTick, setUpperTick] = useState(BN_ZERO)
   const [limitPriceSwitch, setLimitPriceSwitch] = useState(true)
   const [limitPriceInput, setLimitPriceInput] = useState('0')
+  const [buttonState, setButtonState] = useState('')
 
   ////////////////////////////////ChainId
 
@@ -336,6 +337,16 @@ export default function Swap() {
       }
     }
   }, [slippage, rangeBnPrice, coverBnPrice])
+
+      // disabled messages
+      useEffect(() => {
+        if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
+          setButtonState('amount')
+        }
+        if (hasSelected == false) {
+          setButtonState('token')
+        }
+      })
 
   ////////////////////////////////Limit Price
   useEffect(() => {
@@ -1138,7 +1149,8 @@ export default function Swap() {
                 disabled
                 className="w-full py-4 mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
               >
-                Swap
+        {buttonState === 'amount' ? <>Input Amount</> : <></>}
+        {buttonState === 'token' ? <>Select Token</> : <></>}
               </button>
             ) : rangeQuote > coverQuote ? (
               Number(allowanceRange) <
@@ -1195,7 +1207,8 @@ export default function Swap() {
                 disabled
                 className="w-full py-4 mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
               >
-                Swap
+                {buttonState === 'amount' ? <>Input Amount</> : <></>}
+                {buttonState === 'token' ? <>Select Token</> : <></>}
               </button>
             ) : Number(allowanceRange) <
                 Number(ethers.utils.formatUnits(bnInput, 18)) ||

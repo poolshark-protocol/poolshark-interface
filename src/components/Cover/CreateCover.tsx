@@ -206,11 +206,11 @@ export default function CreateCover(props: any) {
     if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
       setButtonState('price')
     }
-    if (hasSelected == false) {
-      setButtonState('token')
-    }
     if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
       setButtonState('amount')
+    }
+    if (hasSelected == false) {
+      setButtonState('token')
     }
   })
 

@@ -107,8 +107,8 @@ export default function CoverMintButton({
         onClick={() => (coverPoolAddress && !disabled ? write?.() : null)}
       >
         {disabled ? <>
-        {buttonState === 'price' ? <>Min. Price is greater than Max. Price</> : <></>}
-        {buttonState === 'amount' ? <>Amount to Cover not inputted</> : <></>}
+        {buttonState === 'price' ? <>Min. is greater than Max. Price</> : <></>}
+        {buttonState === 'amount' ? <>Input Amount to Cover</> : <></>}
         {buttonState === 'token' ? <>Output token not selected</> : <></>}
         {buttonState === 'bounds' ? <>Invalid Price Range</> : <></>}
         </> : <>Create Cover</>}
