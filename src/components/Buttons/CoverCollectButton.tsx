@@ -49,7 +49,7 @@ export default function CoverCollectButton({ poolAddress, address, lower, claim,
   return (
       <>
       <button className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
-          disabled={parseFloat(gasFee) == 0}
+          disabled={gasFee == '$0.00'}
           onClick={() => {
             address ?  write?.() : null
           }}

@@ -37,7 +37,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   const [ rangeSqrtPrice, setRangeSqrtPrice ] = useState(JSBI.BigInt(rangePrice))
   const [ fetchDelay, setFetchDelay ] = useState(false)
   const [ gasLimit, setGasLimit ] = useState(BN_ZERO)
-  const [ gasFee, setGasFee ] = useState('0')
+  const [ gasFee, setGasFee ] = useState('$0.00')
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
   const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
   const {data: signer} = useSigner()
@@ -45,7 +45,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   useEffect(() => {
     const percentInput = sliderValue
     //console.log('percent input', percentInput, tokenAmount, BigNumber.from(percentInput).mul(BigNumber.from(tokenAmount)).div(BigNumber.from(100)).toString())
-    if (percentInput <= 0 || percentInput > 100 || parseFloat(gasFee) == 0) {
+    if (percentInput <= 0 || percentInput > 100) {
       setDisabled(true)
       return
     } else {
@@ -85,10 +85,8 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
     )
 
     if (!fetchDelay && newBurnGasFee.gasUnits.gt(BN_ZERO)) setFetchDelay(true)
-    if (newBurnGasFee.gasUnits.gt(BN_ZERO)) { 
-      setGasFee(newBurnGasFee.formattedPrice)
-      setGasLimit(newBurnGasFee.gasUnits.mul(200).div(100))
-    }
+    setGasFee(newBurnGasFee.formattedPrice)
+    setGasLimit(newBurnGasFee.gasUnits.mul(200).div(100))
   }
 
   function setLiquidity() {
@@ -275,7 +273,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
                   </div>
                 </div>
                 <RangeRemoveLiqButton
-                    disabled={disabled}
+                    disabled={disabled || gasFee == '$0.00'}
                     poolAddress={poolAdd}
                     address={address}
                     lower={lowerTick}

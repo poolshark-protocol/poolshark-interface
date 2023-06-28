@@ -107,7 +107,7 @@ export default function CoverExistingPool({
   const [mktRate, setMktRate] = useState({})
   const [showTooltip, setShowTooltip] = useState(false)
   const [buttonState, setButtonState] = useState('')
-  const [mintGasFee, setMintGasFee] = useState('0')
+  const [mintGasFee, setMintGasFee] = useState('$0.00')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
 
   ////////////////////////////////
@@ -216,14 +216,13 @@ export default function CoverExistingPool({
                           isNaN(parseFloat(upperPrice)) ||
                           lowerTick >= upperTick ||
                           !validBounds ||
-                          hasSelected == false ||
-                          parseFloat(mintGasFee) == 0
+                          hasSelected == false
     setDisabled(disabledFlag)
     if (!disabledFlag) {
       updateGasFee()
     }
     console.log('latest price', latestTick)
-  }, [lowerPrice, upperPrice, coverAmountIn, validBounds, mintGasFee])
+  }, [lowerPrice, upperPrice, coverAmountIn, validBounds])
 
   useEffect(() => {
     if (!isNaN(parseFloat(lowerPrice))) {
@@ -439,7 +438,7 @@ export default function CoverExistingPool({
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
-            <div className="ml-auto text-xs">{'$' + mintGasFee}</div>
+            <div className="ml-auto text-xs">{mintGasFee}</div>
           </div>
         </div>
       )
@@ -682,7 +681,7 @@ export default function CoverExistingPool({
         ) : (
           <CoverMintButton
             poolAddress={coverPoolRoute}
-            disabled={isDisabled}
+            disabled={isDisabled || mintGasFee == '$0.00'}
             buttonState={buttonState}
             to={address}
             lower={lowerTick}

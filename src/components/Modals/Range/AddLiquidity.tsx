@@ -35,7 +35,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
   const [allowanceIn, setAllowanceIn] = useState(BN_ZERO)
   const [allowanceOut, setAllowanceOut] = useState(BN_ZERO)
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
-  const [mintGasFee, setMintGasFee] = useState('0')
+  const [mintGasFee, setMintGasFee] = useState('$0.00')
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
   const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
   const [stateChainName, setStateChainName] = useState()
@@ -156,9 +156,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
     )
     
     setMintGasFee(newGasFee.formattedPrice)
-    if(newGasFee.gasUnits.gt(BN_ZERO)) {
-      setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
-    }
+    setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
   }
 
   function setAmounts() {
@@ -193,9 +191,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
         // set amount based on liquidity math
         tokenOrder ? setAmount1(BigNumber.from(String(tokenOutAmount))) 
                    : setAmount0(BigNumber.from(String(tokenOutAmount)))
-        if (parseFloat(mintGasFee) > 0) {
-          setDisabled(false)
-        }
+        setDisabled(false)
       } else {
         setAmount1(BN_ZERO) 
         setAmount0(BN_ZERO)
@@ -329,7 +325,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
                       upper={upperTick}
                       amount0={amount0}
                       amount1={amount1}
-                      disabled={disabled}
+                      disabled={disabled || mintGasFee == '$0.00'}
                       gasLimit={mintGasLimit}
                     />
                   ) : null}

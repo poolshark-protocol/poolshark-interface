@@ -169,7 +169,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
                   </div>
                 </div>
                 <CoverRemoveLiqButton
-                      disabled={parseFloat(gasFee) == 0}
+                      disabled={gasFee == '$0.00'}
                       poolAddress={poolAdd}
                       address={address}
                       lower={lowerTick}

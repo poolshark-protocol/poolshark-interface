@@ -116,7 +116,7 @@ export default function CreateCover(props: any) {
       return feeTiers[3]
     } else return feeTiers[0]
   }
-  const [mintGasFee, setMintGasFee] = useState('0')
+  const [mintGasFee, setMintGasFee] = useState('$0.00')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
 
   /////////////////
@@ -233,7 +233,7 @@ export default function CreateCover(props: any) {
     if (!disabledFlag) {
       updateGasFee()
     }
-  }, [lowerPrice, upperPrice, lowerTick, mintGasFee, upperTick, bnInput, tokenOut, hasSelected, validBounds])
+  }, [lowerPrice, upperPrice, lowerTick, upperTick, bnInput, tokenOut, hasSelected, validBounds])
 
   // set amount in
   useEffect(() => {
@@ -343,7 +343,7 @@ export default function CreateCover(props: any) {
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
-            <div className="ml-auto text-xs">{'$' + mintGasFee}</div>
+            <div className="ml-auto text-xs">{mintGasFee}</div>
           </div>
         </div>
       )
@@ -764,7 +764,7 @@ export default function CreateCover(props: any) {
         ) : stateChainName === 'arbitrumGoerli' ? (
           <CoverMintButton
             poolAddress={coverPoolRoute}
-            disabled={isDisabled || parseFloat(mintGasFee) == 0}
+            disabled={isDisabled || mintGasFee == '$0.00'}
             to={address}
             lower={lowerTick}
             claim={tokenOrder ? upperTick : lowerTick}

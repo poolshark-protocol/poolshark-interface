@@ -19,7 +19,7 @@ export default function RangeCompoundButton({ poolAddress, address, lower, upper
   const [ successDisplay, setSuccessDisplay ] = useState(false);
   const [ fetchDelay, setFetchDelay ] = useState(false)
   const [ gasLimit, setGasLimit ] = useState(BN_ZERO)
-  const [ gasFee, setGasFee ] = useState("0")
+  const [ gasFee, setGasFee ] = useState('$0.00')
 
   const {data: signer} = useSigner()
 
@@ -44,8 +44,9 @@ export default function RangeCompoundButton({ poolAddress, address, lower, upper
       signer
     )
     if (newBurnGasFee.gasUnits.gt(BN_ZERO)) setFetchDelay(true)
-    setGasLimit(newBurnGasFee.gasUnits.mul(130).div(100))
+    
     setGasFee(newBurnGasFee.formattedPrice)
+    setGasLimit(newBurnGasFee.gasUnits.mul(130).div(100))
   }
 
   //TO-DO: assess if collectFees() or collect true in burn
@@ -83,7 +84,7 @@ export default function RangeCompoundButton({ poolAddress, address, lower, upper
           onClick={() => {
             address ?  write?.() : null
           }}
-          disabled={parseFloat(gasFee) == 0}
+          disabled={gasFee == '$0.00'}
               >
               Compound position
       </button>

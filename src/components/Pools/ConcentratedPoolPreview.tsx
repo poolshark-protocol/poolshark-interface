@@ -312,7 +312,7 @@ export default function ConcentratedPoolPreview({
                             disabled={
                               allowance0.lt(amount0) ||
                               allowance1.lt(amount1) ||
-                              parseFloat(mintGasFee) == 0
+                              mintGasFee == '$0.00'
                             }
                             amount0={amount0}
                             amount1={amount1}
