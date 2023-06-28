@@ -202,6 +202,7 @@ export default function DirectionalPoolPreview({
                           allowanceCover={allowance}
                         />
                       ) : (
+                        <></>
                       )}
                     </div>
                   </div>
