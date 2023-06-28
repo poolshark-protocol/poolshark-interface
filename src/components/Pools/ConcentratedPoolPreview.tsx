@@ -37,10 +37,7 @@ export default function ConcentratedPoolPreview({
   const signer = new ethers.VoidSigner(address, provider)
 
   const [isOpen, setIsOpen] = useState(false)
-  console.log('oi allowance0', allowance0.lt(amount0))
-  console.log('oi allowance1', allowance1.lt(amount1))
   const [doubleApprove, setdoubleApprove] = useState(false)
-  console.log('oi doubleApprove', doubleApprove)
 
   const { data: allowanceIn } = useContractRead({
     address: tokenIn.address,
