@@ -365,6 +365,7 @@ export default function CreateCover(props: any) {
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(upperTick))
       if (amountInChanged) {
         // amountIn changed
+        console.log('amount in check', String(coverAmountIn))
         const liquidityAmount = DyDxMath.getLiquidityForAmounts(
           lowerSqrtPrice,
           upperSqrtPrice,
@@ -571,7 +572,7 @@ export default function CreateCover(props: any) {
       <h1 className="mb-3">How much do you want to Cover?</h1>
       <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
         <div className="flex-col justify-center w-1/2 p-2 ">
-          {inputBox('0', setCoverAmountIn)}
+          {inputBox('0')}
           <div className="flex text-xs text-[#4C4C4C]">
             $
             {(
@@ -626,7 +627,7 @@ export default function CreateCover(props: any) {
                 parseFloat(
                   ethers.utils.formatUnits(String(coverAmountOut), 18),
                 )
-              ).toPrecision(6))
+              ).toPrecision(6).replace(/0+$/, '').replace(/(\.)(?!\d)/g, ''))
             ) : (
               <>?</>
             )}{' '}
