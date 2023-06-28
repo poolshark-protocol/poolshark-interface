@@ -106,6 +106,7 @@ export default function CoverExistingPool({
   const [mktRate, setMktRate] = useState({})
   const [showTooltip, setShowTooltip] = useState(false)
   const [mintGasFee, setMintGasFee] = useState('$0.00')
+  const [buttonState, setButtonState] = useState('')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
 
   ////////////////////////////////
@@ -212,6 +213,16 @@ export default function CoverExistingPool({
   useEffect(() => {
     fetchTokenPrices(coverTickPrice, setMktRate)
   }, [coverPrice])
+
+    // disabled messages
+    useEffect(() => {
+      if (!validBounds) {
+        setButtonState('bounds')
+      }
+      if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
+        setButtonState('price')
+      }
+    }, [validBounds, lowerPrice, upperPrice])
 
   // check for valid inputs
   useEffect(() => {
@@ -683,6 +694,7 @@ export default function CoverExistingPool({
           <CoverMintButton
             poolAddress={coverPoolRoute}
             disabled={isDisabled}
+            buttonState={buttonState}
             to={address}
             lower={lowerTick}
             claim={

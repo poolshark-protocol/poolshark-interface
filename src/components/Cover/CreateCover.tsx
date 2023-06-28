@@ -79,6 +79,7 @@ export default function CreateCover(props: any) {
     address: props.query ? props.query.tokenOneAddress : '',
   } as token)
   const [coverPrice, setCoverPrice] = useState(undefined)
+  const [buttonState, setButtonState] = useState('')
   const [coverAmountIn, setCoverAmountIn] = useState(ZERO)
   const [coverAmountOut, setCoverAmountOut] = useState(ZERO)
   const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
@@ -202,6 +203,22 @@ export default function CreateCover(props: any) {
       setUpperPrice
     )
   }, [hasSelected, tokenIn.address, tokenOut.address, tokenOrder])
+
+  // disabled messages
+  useEffect(() => {
+    if (!validBounds) {
+      setButtonState('bounds')
+    }
+    if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
+      setButtonState('price')
+    }
+    if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
+      setButtonState('amount')
+    }
+    if (hasSelected == false) {
+      setButtonState('token')
+    }
+  }, [bnInput, hasSelected, validBounds, lowerPrice, upperPrice])
 
   // set disabled
   useEffect(() => {
@@ -757,6 +774,7 @@ export default function CreateCover(props: any) {
             amount={bnInput}
             zeroForOne={tokenOrder}
             tickSpacing={tickSpread}
+            buttonState={buttonState}
             gasLimit={mintGasLimit}
           />
         ) : null}
