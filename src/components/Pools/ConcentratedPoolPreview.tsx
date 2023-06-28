@@ -26,7 +26,7 @@ export default function ConcentratedPoolPreview({
   allowance0,
   allowance1,
   disabled,
-  buttonState
+  buttonState,
 }) {
   const { address, isConnected } = useAccount()
   const router = useRouter()
@@ -37,7 +37,11 @@ export default function ConcentratedPoolPreview({
   const signer = new ethers.VoidSigner(address, provider)
 
   const [isOpen, setIsOpen] = useState(false)
-  
+  console.log('oi allowance0', allowance0.lt(amount0))
+  console.log('oi allowance1', allowance1.lt(amount1))
+  const [doubleApprove, setdoubleApprove] = useState(false)
+  console.log('oi doubleApprove', doubleApprove)
+
   const { data: allowanceIn } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -305,23 +309,26 @@ export default function ConcentratedPoolPreview({
                             gasLimit={gasLimit}
                             closeModal={() => router.push('/pool')}
                           />
-                        ) : allowance0.lt(amount0) && allowance1.lt(amount1) ? (
+                        ) : (allowance0.lt(amount0) &&
+                            allowance1.lt(amount1)) ||
+                          doubleApprove ? (
                           <RangeMintDoubleApproveButton
                             poolAddress={poolAddress}
                             tokenIn={tokenIn}
                             tokenOut={tokenOut}
+                            setAllowanceController={setdoubleApprove}
                           />
-                        ) : allowance0.lt(amount0) ? (
+                        ) : !doubleApprove && allowance0.lt(amount0) ? (
                           <RangeMintApproveButton
                             poolAddress={poolAddress}
                             approveToken={tokenIn}
                           />
-                        ) : (
+                        ) : !doubleApprove && allowance1.lt(amount1) ? (
                           <RangeMintApproveButton
                             poolAddress={poolAddress}
                             approveToken={tokenOut}
                           />
-                        )}
+                        ) : null}
                       </div>
                     </div>
                   </div>
@@ -336,10 +343,18 @@ export default function ConcentratedPoolPreview({
         disabled={disabled}
         className="mt-8 w-full py-4 disabled:opacity-50 disabled:cursor-not-allowed mx-auto font-medium text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
       >
-        {disabled ? <>
-        {buttonState === 'price' ? <>Min. is greater than Max. Price</> : <></>}
-        {buttonState === 'amount' ? <>Input Deposit Amount</> : <></>}
-        </> : <>Preview</>}
+        {disabled ? (
+          <>
+            {buttonState === 'price' ? (
+              <>Min. is greater than Max. Price</>
+            ) : (
+              <></>
+            )}
+            {buttonState === 'amount' ? <>Input Deposit Amount</> : <></>}
+          </>
+        ) : (
+          <>Preview</>
+        )}
       </button>
     </div>
   )

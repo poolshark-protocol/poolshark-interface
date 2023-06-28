@@ -190,15 +190,15 @@ export default function ConcentratedPool({
     },
   })
 
-    // disabled messages
-    useEffect(() => {
-      if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
-        setButtonState('price')
-      }
-      if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
-        setButtonState('amount')
-      }
-    } , [bnInput, lowerPrice, upperPrice])
+  // disabled messages
+  useEffect(() => {
+    if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
+      setButtonState('price')
+    }
+    if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
+      setButtonState('amount')
+    }
+  }, [bnInput, lowerPrice, upperPrice])
 
   useEffect(() => {
     setTimeout(() => {
@@ -267,7 +267,7 @@ export default function ConcentratedPool({
       upperTick,
       amount0,
       amount1,
-      signer
+      signer,
     )
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
   }
@@ -817,8 +817,8 @@ export default function ConcentratedPool({
           key={poolId}
           poolAddress={poolId}
           poolRoute={rangePoolRoute}
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
+          tokenIn={tokenOrder ? tokenIn : tokenOut}
+          tokenOut={tokenOrder ? tokenOut : tokenIn}
           amount0={amount0}
           amount1={amount1}
           amount0Usd={amount0Usd}
