@@ -79,6 +79,7 @@ export default function CreateCover(props: any) {
     address: props.query ? props.query.tokenOneAddress : '',
   } as token)
   const [coverPrice, setCoverPrice] = useState(undefined)
+  const [buttonState, setButtonState] = useState('')
   const [coverAmountIn, setCoverAmountIn] = useState(ZERO)
   const [coverAmountOut, setCoverAmountOut] = useState(ZERO)
   const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
@@ -203,6 +204,22 @@ export default function CreateCover(props: any) {
     )
   }, [hasSelected, tokenIn.address, tokenOut.address, tokenOrder])
 
+  // disabled messages
+  useEffect(() => {
+    if (!validBounds) {
+      setButtonState('bounds')
+    }
+    if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
+      setButtonState('price')
+    }
+    if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
+      setButtonState('amount')
+    }
+    if (hasSelected == false) {
+      setButtonState('token')
+    }
+  }, [bnInput, hasSelected, validBounds, lowerPrice, upperPrice])
+
   // set disabled
   useEffect(() => {
     const disabledFlag =  isNaN(parseFloat(lowerPrice)) ||
@@ -280,7 +297,8 @@ export default function CreateCover(props: any) {
   const changeValidBounds = () => {
     console.log('changing valid bounds', tokenOrder ? lowerTick.lt(latestTick) : upperTick.gt(latestTick))
     setValidBounds(
-      tokenOrder ? lowerTick.lte(latestTick) : upperTick.gte(latestTick),
+      tokenOrder ? lowerTick.lt(BigNumber.from(latestTick).sub(BigNumber.from(tickSpread))) 
+                 : upperTick.gt((BigNumber.from(latestTick).add(BigNumber.from(tickSpread))))
     )
   }
 
@@ -757,6 +775,7 @@ export default function CreateCover(props: any) {
             amount={bnInput}
             zeroForOne={tokenOrder}
             tickSpacing={tickSpread}
+            buttonState={buttonState}
             gasLimit={mintGasLimit}
           />
         ) : null}

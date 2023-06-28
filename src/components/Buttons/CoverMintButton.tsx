@@ -24,6 +24,7 @@ export default function CoverMintButton({
   amount,
   zeroForOne,
   tickSpacing,
+  buttonState,
   gasLimit
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
@@ -106,7 +107,13 @@ export default function CoverMintButton({
         }
         onClick={() => (coverPoolAddress && !disabled ? write?.() : null)}
       >
-        Create Cover
+        {disabled ? <>
+        {buttonState === 'price' ? <>Min. is greater than Max. Price</> : <></>}
+        {buttonState === 'amount' ? <>Input Amount to Cover</> : <></>}
+        {buttonState === 'token' ? <>Output token not selected</> : <></>}
+        {buttonState === 'bounds' ? <>Invalid Price Range</> : <></>}
+        </> : <>Create Cover</>}
+        
       </button>
       <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
         {errorDisplay && (
