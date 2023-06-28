@@ -1168,6 +1168,7 @@ export default function Swap() {
                 </div>
               ) : (
                 <SwapRangeButton
+                  disabled={parseFloat(swapGasFee) > 0 ? false : true}
                   poolAddress={rangePoolRoute}
                   zeroForOne={
                     tokenOut.address != '' &&
@@ -1192,6 +1193,7 @@ export default function Swap() {
               </div>
             ) : (
               <SwapCoverButton
+                disabled={parseFloat(swapGasFee) > 0 ? false : true}
                 poolAddress={coverPoolRoute}
                 zeroForOne={
                   tokenOut.address != '' &&
