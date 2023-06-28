@@ -510,6 +510,7 @@ export default function Cover() {
                       upper={maxLimit}
                       zeroForOne={zeroForOne}
                       gasLimit={burnGasLimit.mul(150).div(100)}
+                      gasFee={burnGasFee}
                     />
                     {/*TO-DO: add positionOwner ternary again*/}
                   </div>
