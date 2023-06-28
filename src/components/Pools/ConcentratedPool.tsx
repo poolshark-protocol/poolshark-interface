@@ -191,9 +191,6 @@ export default function ConcentratedPool({
       if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
         setButtonState('amount')
       }
-      if (hasSelected == false) {
-        setButtonState('token')
-      }
     })
 
   useEffect(() => {

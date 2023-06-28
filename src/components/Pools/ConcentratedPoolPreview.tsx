@@ -331,7 +331,7 @@ export default function ConcentratedPoolPreview({
       >
         {disabled ? <>
         {buttonState === 'price' ? <>Min. is greater than Max. Price</> : <></>}
-        {buttonState === 'bounds' ? <>Invalid Price Range</> : <></>}
+        {buttonState === 'amount' ? <>Input Deposit Amount</> : <></>}
         </> : <>Preview</>}
       </button>
     </div>
