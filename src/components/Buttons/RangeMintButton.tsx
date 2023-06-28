@@ -19,12 +19,15 @@ export default function RangeMintButton({
   amount0,
   amount1,
   closeModal,
+  gasLimit
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
   const [isDisabled, setDisabled] = useState(disabled)
 
   useEffect(() => {}, [disabled])
+
+  console.log('mint gas limit', gasLimit)
 
   /*const [rangeContractParams, setRangeContractParams] = useState({
     to: to,
@@ -51,18 +54,10 @@ export default function RangeMintButton({
     address: poolAddress,
     abi: rangePoolABI,
     functionName: 'mint',
-    args: [
-      [
-        to,
-        lower,
-        upper,
-        amount0,
-        amount1
-      ],
-    ],
+    args: [[to, lower, upper, amount0, amount1]],
     chainId: 421613,
     overrides: {
-      gasLimit: BigNumber.from('1000000'),
+      gasLimit: gasLimit,
     },
     onSuccess() {
       console.log(
@@ -82,7 +77,9 @@ export default function RangeMintButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true)
-      closeModal()
+      setTimeout(() => {
+        closeModal()
+      }, 2000)
     },
     onError() {
       setErrorDisplay(true)

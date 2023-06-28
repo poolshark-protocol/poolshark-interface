@@ -1,7 +1,7 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useState } from 'react'
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useSwitchNetwork, useAccount, erc20ABI, useContractRead, useProvider  } from "wagmi";
+import { useSwitchNetwork, useAccount, erc20ABI, useContractRead, useProvider, useSigner  } from "wagmi";
 import useInputBox from '../../../hooks/useInputBox'
 import RangeAddLiqButton from '../../Buttons/RangeAddLiqButton'
 import { BN_ZERO, ZERO } from "../../../utils/math/constants";
@@ -13,6 +13,7 @@ import { getBalances } from "../../../utils/balances";
 import SwapRangeDoubleApproveButton from "../../Buttons/RangeMintDoubleApproveButton";
 import { chainIdsToNamesForGitTokenList } from "../../../utils/chains";
 import RangeMintDoubleApproveButton from "../../Buttons/RangeMintDoubleApproveButton";
+import { gasEstimateRangeMint } from "../../../utils/gas";
 
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut, poolAdd, address, upperTick, liquidity, lowerTick, rangePrice }) {
@@ -24,7 +25,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
     bnInputLimit,
     LimitInputBox,
   } = useInputBox()
-
+  const { data: signer } = useSigner()
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
   const [balanceIn, setBalanceIn] = useState('')
@@ -33,6 +34,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
   const [amount1, setAmount1] = useState(BN_ZERO)
   const [allowanceIn, setAllowanceIn] = useState(BN_ZERO)
   const [allowanceOut, setAllowanceOut] = useState(BN_ZERO)
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
   const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
   const [stateChainName, setStateChainName] = useState()
@@ -43,6 +45,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
   const {
     network: { chainId },
   } = useProvider()
+
+  console.log('add liquidity check', liquidity)
 
   const { data: tokenInAllowance } = useContractRead({
     address: tokenIn.address,
@@ -117,6 +121,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
 
   useEffect(() => {
     setAmounts()
+    updateMintFee()
   }, [bnInput])
 
   useEffect(() => {
@@ -138,11 +143,25 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
     )
   }
 
+  async function updateMintFee() {
+    const newGasFee = await gasEstimateRangeMint(
+      poolAdd,
+      address,
+      lowerTick,
+      upperTick,
+      amount0,
+      amount1,
+      signer
+    )
+    setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
+  }
+
   function setAmounts() {
     try {
       if (
         Number(ethers.utils.formatUnits(bnInput)) !== 0
       ) {
+
         const liquidity = JSBI.greaterThanOrEqual(rangeSqrtPrice, lowerSqrtPrice) &&
                           JSBI.lessThanOrEqual(rangeSqrtPrice, upperSqrtPrice) ?
                              DyDxMath.getLiquidityForAmounts(
@@ -159,6 +178,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
                             tokenOrder ? BN_ZERO : bnInput,
                             tokenOrder ? bnInput : BN_ZERO
                           )
+          console.log('liquidity check', liquidity)
         const tokenOutAmount = JSBI.greaterThan(liquidity, ZERO) ?
                                   tokenOrder ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
                                              : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
@@ -296,14 +316,15 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
                     />
                   ) : stateChainName === "arbitrumGoerli" ? (
                     <RangeAddLiqButton
-                    poolAddress={poolAdd}
-                    address={address}
-                    lower={lowerTick}
-                    upper={upperTick}
-                    amount0={amount0}
-                    amount1={amount1}
-                    disabled={disabled}
-                  />
+                      poolAddress={poolAdd}
+                      address={address}
+                      lower={lowerTick}
+                      upper={upperTick}
+                      amount0={amount0}
+                      amount1={amount1}
+                      disabled={disabled}
+                      gasLimit={mintGasLimit}
+                    />
                   ) : null}
               </Dialog.Panel>
             </Transition.Child>

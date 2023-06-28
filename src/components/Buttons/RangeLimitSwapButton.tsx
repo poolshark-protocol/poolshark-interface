@@ -18,7 +18,8 @@ export default function RangeMintButton({
   lower,
   upper,
   amount0,
-  amount1
+  amount1,
+  gasLimit
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
@@ -60,7 +61,7 @@ export default function RangeMintButton({
     ]],
     chainId: 421613,
     overrides: {
-      gasLimit: BigNumber.from('1000000'),
+      gasLimit: gasLimit,
     },
     onSuccess() {
       console.log('params check', to,

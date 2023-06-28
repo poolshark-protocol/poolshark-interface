@@ -5,6 +5,7 @@ import { ethers } from 'ethers'
 import { erc20ABI, useAccount, useContractRead } from 'wagmi'
 import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import { coverPoolAddress } from '../../constants/contractAddresses'
+import { BN_ZERO } from '../../utils/math/constants'
 
 export default function DirectionalPoolPreview({
   account,
@@ -201,7 +202,6 @@ export default function DirectionalPoolPreview({
                           allowanceCover={allowance}
                         />
                       ) : (
-                        <></>
                       )}
                     </div>
                   </div>

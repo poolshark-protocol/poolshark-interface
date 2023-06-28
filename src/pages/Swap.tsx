@@ -35,7 +35,7 @@ import {
   maxPriceBn,
   minPriceBn,
 } from '../utils/math/tickMath'
-import { BN_ZERO } from '../utils/math/constants'
+import { BN_ONE, BN_ZERO } from '../utils/math/constants'
 import { gasEstimateSwap, gasEstimateSwapLimit } from '../utils/gas'
 import { token } from '../utils/types'
 import { getCoverPool, getRangePool } from '../utils/pools'
@@ -59,8 +59,10 @@ export default function Swap() {
     setDisplay,
   } = useInputBox()
 
-  const [gasFee, setGasFee] = useState('0')
+  const [swapGasFee, setSwapGasFee] = useState('0')
+  const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO)
   const [mintFee, setMintFee] = useState('0')
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
   const [coverQuote, setCoverQuote] = useState(0)
   const [rangeQuote, setRangeQuote] = useState(0)
   const [coverPrice, setCoverPrice] = useState(0)
@@ -114,6 +116,7 @@ export default function Swap() {
   const [limitPriceSwitch, setLimitPriceSwitch] = useState(true)
   const [limitPriceInput, setLimitPriceInput] = useState('0')
   const [buttonState, setButtonState] = useState('')
+  const [displayQuote, setDisplayQuote] = useState(false)
 
   ////////////////////////////////ChainId
 
@@ -386,7 +389,7 @@ export default function Swap() {
     functionName: 'quote',
     args: [[
       tokenOrder ? minPriceBn : maxPriceBn,
-      display.toString() != '' ? bnInput : ethers.utils.parseEther('1'),
+      bnInput,
       tokenOrder
     ]],
     chainId: 421613,
@@ -406,7 +409,7 @@ export default function Swap() {
     functionName: 'quote',
     args: [[
       tokenOrder ? minPriceBn : maxPriceBn,
-      display.toString() != '' ? bnInput : ethers.utils.parseEther('1'),
+      bnInput,
       tokenOrder 
     ]],
     chainId: 421613,
@@ -510,7 +513,7 @@ export default function Swap() {
   }
 
   const getSlippage = () => {
-    if (rangeQuote > coverQuote) {
+    if (rangeQuote >= coverQuote) {
       setSlippage(rangeSlippage)
       setAuxSlippage(rangeSlippage)
     } else {
@@ -625,23 +628,24 @@ export default function Swap() {
       signer,
       isConnected,
     )
-    setGasFee(newGasFee)
+    setSwapGasFee(newGasFee.formattedPrice)
+    setSwapGasLimit(newGasFee.gasUnits.mul(130).div(100))
   }
 
   async function updateMintFee() {
     const newMintFee = await gasEstimateSwapLimit(
       rangePoolRoute,
       address,
-      rangePrice,
-      rangeBnPrice,
-      rangeBnBaseLimit,
+      lowerTick,
+      upperTick,
       tokenIn,
       tokenOut,
       bnInput,
       rangeTickSpacing,
       signer,
     )
-    setMintFee(newMintFee)
+    setMintFee(newMintFee.formattedPrice)
+    setMintGasLimit(newMintFee.gasUnits.mul(130).div(100))
   }
   ////////////////////////////////
 
@@ -653,30 +657,39 @@ export default function Swap() {
     const tempBal = queryTokenIn
     setQueryTokenIn(queryTokenOut)
     setQueryTokenOut(tempBal)
-    setBnInput(
-      ethers.utils.parseUnits(
-        (rangeQuote > coverQuote ? rangeQuote : coverQuote).toPrecision(10),
-        18,
-      ),
-    )
-    setDisplay(
-      (rangeQuote > coverQuote ? rangeQuote : coverQuote)
-        .toPrecision(7)
-        .replace(/0+$/, '')
-        .replace(/(\.)(?!\d)/g, ''),
-    )
-    if (rangeQuote > 0 && rangeQuote > coverQuote) {
-      setRangeQuote(
-        parseFloat(
-          parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
+    if (display != '') {
+      setBnInput(
+        ethers.utils.parseUnits(
+          (rangeQuote >= coverQuote ? rangeQuote : coverQuote).toPrecision(10),
+          18,
         ),
       )
+      setDisplay(
+        (rangeQuote >= coverQuote ? rangeQuote : coverQuote)
+          .toPrecision(7)
+          .replace(/0+$/, '')
+          .replace(/(\.)(?!\d)/g, ''),
+      )
+      if (rangeQuote > 0 && rangeQuote >= coverQuote) {
+        setRangeQuote(
+          parseFloat(
+            parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
+          ),
+        )
+      } else {
+        setCoverQuote(
+          parseFloat(
+            parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
+          ),
+        )
+      }
+      setDisplayQuote(true)
     } else {
-      setCoverQuote(
-        parseFloat(
-          parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
-        ),
-      )
+      setBnInput(BN_ONE)
+      setDisplay('')
+      setRangeQuote(0)
+      setCoverQuote(0)
+      setDisplayQuote(false)
     }
   }, 200)
 
@@ -691,7 +704,7 @@ export default function Swap() {
             <div className="ml-auto text-xs">
               {hasSelected
                 ? !LimitActive
-                  ? rangeQuote > coverQuote
+                  ? rangeQuote >= coverQuote
                     ? rangeQuote === 0
                       ? '0'
                       : (
@@ -716,7 +729,7 @@ export default function Swap() {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
             {!LimitActive ? (
-              <div className="ml-auto text-xs">{gasFee}</div>
+              <div className="ml-auto text-xs">{swapGasFee}</div>
             ) : (
               <div className="ml-auto text-xs">{mintFee}</div>
             )}
@@ -729,7 +742,7 @@ export default function Swap() {
               <div className="ml-auto text-xs">
                 {hasSelected
                   ? !LimitActive
-                    ? rangeQuote > coverQuote
+                    ? rangeQuote >= coverQuote
                       ? rangeQuote === 0
                         ? '0'
                         : (
@@ -774,7 +787,7 @@ export default function Swap() {
               <div className="ml-auto text-xs">
                 {hasSelected 
                   ? (rangePriceAfter != undefined || coverPriceAfter != undefined)
-                    ? (rangeQuote > coverQuote
+                    ? (rangeQuote >= coverQuote
                       ? (
                           Math.abs((rangePrice - rangePriceAfter) * 100) /
                           rangePrice
@@ -937,7 +950,7 @@ export default function Swap() {
           </div>
         </div>
         <div className="items-center -mb-2 -mt-2 p-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
-          {display.toString() !== '' ? (
+          {(
           <ArrowSmallDownIcon
             className="w-4 h-4"
             onClick={() => {
@@ -945,7 +958,7 @@ export default function Swap() {
                 switchDirection()
               }
             }}
-          />) : <></> }
+          />)}
         </div>
         <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
@@ -953,11 +966,11 @@ export default function Swap() {
               {!LimitActive ? (
                 hasSelected && !bnInput.eq(BN_ZERO) ? (
                   <div>
-                    {
-                      rangeQuote > coverQuote
+                    { bnInput.gt(BN_ONE) ?
+                      (rangeQuote >= coverQuote
                         ? rangeQuote.toPrecision(6)
                         : coverQuote.toPrecision(6)
-                      }
+                      ) : '0'}
                   </div>
                 ) : (
                   <div>0</div>
@@ -980,7 +993,7 @@ export default function Swap() {
                 <div className="flex text-xs text-[#4C4C4C]">
                   $
                   {!isNaN(tokenOut.usdPrice) ? !LimitActive
-                    ? rangeQuote > coverQuote
+                    ? rangeQuote >= coverQuote
                       ? (
                           rangeQuote *
                           tokenOut.usdPrice
@@ -1116,9 +1129,9 @@ export default function Swap() {
                 : ' ' +
                   (!LimitActive
                     ? !isNaN(rangeQuote) && !isNaN(coverQuote)
-                      ? rangeQuote > coverQuote
+                      ? (rangeQuote >= coverQuote
                         ? (tokenOrder ? rangePrice.toPrecision(5) : invertPrice(rangePrice.toPrecision(5), false))
-                        : (tokenOrder ? coverPrice.toPrecision(5) : invertPrice(coverPrice.toPrecision(5), false))
+                        : (tokenOrder ? coverPrice.toPrecision(5) : invertPrice(coverPrice.toPrecision(5), false)))
                       : '0'
                     : parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) !=
                       0
@@ -1144,7 +1157,7 @@ export default function Swap() {
           <>
             {stateChainName !== 'arbitrumGoerli' ||
             (coverQuote == 0 && rangeQuote == 0) ||
-            bnInput.eq(BN_ZERO) ? (
+            bnInput.lte(BN_ONE) ? (
               <button
                 disabled
                 className="w-full py-4 mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
@@ -1152,7 +1165,7 @@ export default function Swap() {
         {buttonState === 'amount' ? <>Input Amount</> : <></>}
         {buttonState === 'token' ? <>Select Token</> : <></>}
               </button>
-            ) : rangeQuote > coverQuote ? (
+            ) : rangeQuote >= coverQuote ? (
               Number(allowanceRange) <
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                 <div>
@@ -1174,6 +1187,7 @@ export default function Swap() {
                   }
                   amount={bnInput}
                   priceLimit={rangeBnPriceLimit}
+                  gasLimit={swapGasLimit}
                 />
               )
             ) : Number(allowanceCover) <
@@ -1197,6 +1211,7 @@ export default function Swap() {
                 }
                 amount={bnInput}
                 priceLimit={coverBnPriceLimit}
+                gasLimit={swapGasLimit}
               />
             )}
           </>
@@ -1261,6 +1276,7 @@ export default function Swap() {
                 upper={upperTick}
                 amount0={tokenOrder ? bnInput : BN_ZERO}
                 amount1={tokenOrder ? BN_ZERO : bnInput}
+                gasLimit={mintGasLimit}
               />
             )}
           </>

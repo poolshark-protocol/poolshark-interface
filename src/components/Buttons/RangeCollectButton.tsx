@@ -11,7 +11,7 @@ import React, { useState } from "react";
 import { BigNumber } from "ethers";
 import { BN_ZERO } from '../../utils/math/constants';
 
-export default function RangeCollectButton({ poolAddress, address, lower, upper }) {
+export default function RangeCollectButton({ poolAddress, address, lower, upper, gasLimit }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -28,7 +28,7 @@ export default function RangeCollectButton({ poolAddress, address, lower, upper 
         ]],
       chainId: 421613,
       overrides:{
-          gasLimit: BigNumber.from("1000000")
+          gasLimit: gasLimit
       },
   })
 

@@ -2,10 +2,11 @@ import { Fragment, useEffect, useState } from 'react'
 import { Transition, Dialog } from '@headlessui/react'
 import RangeMintButton from '../Buttons/RangeMintButton'
 import { BigNumber, ethers } from 'ethers'
-import { erc20ABI, useAccount, useContractRead } from 'wagmi'
+import { erc20ABI, useAccount, useContractRead, useProvider } from 'wagmi'
 import { TickMath } from '../../utils/math/tickMath'
 import RangeMintDoubleApproveButton from '../Buttons/RangeMintDoubleApproveButton'
 import { useRouter } from 'next/router'
+import { gasEstimateRangeMint, gasEstimateSwapLimit } from '../../utils/gas'
 
 export default function ConcentratedPoolPreview({
   account,
@@ -19,6 +20,7 @@ export default function ConcentratedPoolPreview({
   amount1Usd,
   lowerTick,
   upperTick,
+  gasLimit,
   fee,
   allowance0,
   allowance1,
@@ -30,9 +32,11 @@ export default function ConcentratedPoolPreview({
   const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
   const lowerPrice = TickMath.getPriceStringAtTick(lowerTick)
   const upperPrice = TickMath.getPriceStringAtTick(upperTick)
+  const provider = useProvider()
+  const signer = new ethers.VoidSigner(address, provider)
 
   const [isOpen, setIsOpen] = useState(false)
-
+  
   const { data: allowanceIn } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -310,6 +314,7 @@ export default function ConcentratedPoolPreview({
                             }
                             amount0={amount0}
                             amount1={amount1}
+                            gasLimit={gasLimit}
                             closeModal={
                               () => router.push('/pool')
                             }
