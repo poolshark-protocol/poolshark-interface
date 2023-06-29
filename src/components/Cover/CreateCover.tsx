@@ -79,6 +79,7 @@ export default function CreateCover(props: any) {
     address: props.query ? props.query.tokenOneAddress : '',
   } as token)
   const [coverPrice, setCoverPrice] = useState(undefined)
+  const [buttonState, setButtonState] = useState('')
   const [coverAmountIn, setCoverAmountIn] = useState(ZERO)
   const [coverAmountOut, setCoverAmountOut] = useState(ZERO)
   const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
@@ -203,6 +204,22 @@ export default function CreateCover(props: any) {
     )
   }, [hasSelected, tokenIn.address, tokenOut.address, tokenOrder])
 
+  // disabled messages
+  useEffect(() => {
+    if (!validBounds) {
+      setButtonState('bounds')
+    }
+    if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
+      setButtonState('price')
+    }
+    if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
+      setButtonState('amount')
+    }
+    if (hasSelected == false) {
+      setButtonState('token')
+    }
+  }, [bnInput, hasSelected, validBounds, lowerPrice, upperPrice])
+
   // set disabled
   useEffect(() => {
     const disabledFlag =  isNaN(parseFloat(lowerPrice)) ||
@@ -280,7 +297,8 @@ export default function CreateCover(props: any) {
   const changeValidBounds = () => {
     console.log('changing valid bounds', tokenOrder ? lowerTick.lt(latestTick) : upperTick.gt(latestTick))
     setValidBounds(
-      tokenOrder ? lowerTick.lte(latestTick) : upperTick.gte(latestTick),
+      tokenOrder ? lowerTick.lt(BigNumber.from(latestTick).sub(BigNumber.from(tickSpread))) 
+                 : upperTick.gt((BigNumber.from(latestTick).add(BigNumber.from(tickSpread))))
     )
   }
 
@@ -347,6 +365,7 @@ export default function CreateCover(props: any) {
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(upperTick))
       if (amountInChanged) {
         // amountIn changed
+        console.log('amount in check', String(coverAmountIn))
         const liquidityAmount = DyDxMath.getLiquidityForAmounts(
           lowerSqrtPrice,
           upperSqrtPrice,
@@ -553,7 +572,7 @@ export default function CreateCover(props: any) {
       <h1 className="mb-3">How much do you want to Cover?</h1>
       <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
         <div className="flex-col justify-center w-1/2 p-2 ">
-          {inputBox('0', setCoverAmountIn)}
+          {inputBox('0')}
           <div className="flex text-xs text-[#4C4C4C]">
             $
             {(
@@ -607,8 +626,8 @@ export default function CreateCover(props: any) {
               parseFloat((
                 parseFloat(
                   ethers.utils.formatUnits(String(coverAmountOut), 18),
-                ) * parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''))
-              ).toPrecision(4))
+                )
+              ).toPrecision(6).replace(/0+$/, '').replace(/(\.)(?!\d)/g, ''))
             ) : (
               <>?</>
             )}{' '}
@@ -757,6 +776,7 @@ export default function CreateCover(props: any) {
             amount={bnInput}
             zeroForOne={tokenOrder}
             tickSpacing={tickSpread}
+            buttonState={buttonState}
             gasLimit={mintGasLimit}
           />
         ) : null}

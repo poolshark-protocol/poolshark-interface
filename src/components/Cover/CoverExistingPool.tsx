@@ -19,6 +19,7 @@ import {
   getDefaultLowerTick,
   getDefaultUpperPrice,
   getDefaultUpperTick,
+  invertPrice,
   roundTick,
 } from '../../utils/math/tickMath'
 import { coverPoolABI } from '../../abis/evm/coverPool'
@@ -106,23 +107,10 @@ export default function CoverExistingPool({
   const [mktRate, setMktRate] = useState({})
   const [showTooltip, setShowTooltip] = useState(false)
   const [mintGasFee, setMintGasFee] = useState('$0.00')
+  const [buttonState, setButtonState] = useState('')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
 
   ////////////////////////////////
-
-  const { data: priceCover } = useContractRead({
-    address: coverPoolRoute,
-    abi: coverPoolABI,
-    functionName:
-      tokenOut.address != '' &&
-      tokenOrder
-        ? 'pool1'
-        : 'pool0',
-    args: [],
-    chainId: 421613,
-    watch: true,
-    enabled: isConnected && coverPoolRoute != undefined,
-  })
 
   const { data: allowanceIn } = useContractRead({
     address: tokenIn.address,
@@ -135,16 +123,14 @@ export default function CoverExistingPool({
   })
 
   useEffect(() => {
-    if (priceCover) {
+    if (latestTick) {
       if (coverPoolRoute != undefined && tokenOut.address != '') {
-        console.log('price cover:', priceCover[0])
-        setCoverPrice(priceCover[0])
-
-        const price = TickMath.getPriceStringAtSqrtPrice(priceCover[0])
-        setCoverTickPrice(price)
+        const price = TickMath.getPriceStringAtTick(latestTick)
+        console.log('tick price', tokenOrder)
+        setCoverTickPrice(invertPrice(price, tokenOrder))
       }
     }
-  }, [priceCover, tokenIn.address])
+  }, [latestTick, tokenIn.address])
 
   useEffect(() => {
     setTimeout(() => {
@@ -181,9 +167,11 @@ export default function CoverExistingPool({
         tokenIn,
         tokenOut,
         setCoverPoolRoute,
-        setLatestTick,
+        null,
         setTickSpread,
-        setAuctionLength
+        setAuctionLength,
+        null,
+        setLatestTick
       )
       console.log('tick bounds', lowerTick, upperTick)
       if (!isNaN(lowerTick) && !isNaN(upperTick))
@@ -195,9 +183,11 @@ export default function CoverExistingPool({
           tokenIn,
           tokenOut,
           setCoverPoolRoute,
-          setLatestTick,
+          null,
           setTickSpread,
-          setAuctionLength
+          setAuctionLength,
+          null,
+          setLatestTick
         )
       }, 5000)
       return () => clearInterval(interval)
@@ -207,18 +197,24 @@ export default function CoverExistingPool({
   useEffect(() => {
     changeCoverAmounts()
     changeValidBounds()
-  }, [sliderValue, lowerTick, upperTick])
+  }, [sliderValue, lowerTick, upperTick, tokenOrder])
 
-  useEffect(() => {
-    fetchTokenPrices(coverTickPrice, setMktRate)
-  }, [coverPrice])
+    // disabled messages
+    useEffect(() => {
+      if (!validBounds) {
+        setButtonState('bounds')
+      }
+      if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
+        setButtonState('price')
+      }
+    }, [validBounds, lowerPrice, upperPrice])
 
   // check for valid inputs
   useEffect(() => {
-    const disabledFlag = JSBI.equal(coverAmountIn, ZERO) ||
+    const disabledFlag =  JSBI.equal(coverAmountIn, ZERO) ||
                           isNaN(parseFloat(lowerPrice)) ||
                           isNaN(parseFloat(upperPrice)) ||
-                          parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
+                          lowerTick >= upperTick ||
                           !validBounds ||
                           hasSelected == false
     setDisabled(disabledFlag)
@@ -229,7 +225,7 @@ export default function CoverExistingPool({
   }, [lowerPrice, upperPrice, coverAmountIn, validBounds])
 
   useEffect(() => {
-    if (!isNaN(parseFloat(lowerPrice)) && !isNaN(parseFloat(upperPrice))) {
+    if (!isNaN(parseFloat(lowerPrice))) {
       console.log('setting lower tick')
       setLowerTick(TickMath.getTickAtPriceString(lowerPrice, tickSpread))
     }
@@ -246,8 +242,9 @@ export default function CoverExistingPool({
   ////////////////////////////////
 
   const changeValidBounds = () => {
-    setValidBounds(zeroForOne ? lowerTick < latestTick
-                              : upperTick > latestTick)
+    console.log('setting valid bounds', lowerTick < latestTick - tickSpread, tokenOrder)
+    setValidBounds(tokenOrder ? lowerTick < latestTick - tickSpread
+                              : upperTick > latestTick - (-tickSpread))
   }
 
   const changePrice = (direction: string, inputId: string) => {
@@ -269,6 +266,7 @@ export default function CoverExistingPool({
         : latestTick
     console.log('current tick', currentTick, upperTick)
     if (!tickSpread && !tickSpacing) return
+    console.log('increment check', tickSpread, tickSpacing, tickSpread ?? tickSpacing)
     const increment = tickSpread ?? tickSpacing
     const adjustment =
       direction == 'plus' || direction == 'minus'
@@ -512,7 +510,7 @@ export default function CoverExistingPool({
       <div className="mt-3 ">
         <div className="flex justify-between items-center text-sm">
           <div className="text-[#646464]">Percentage Covered</div>
-          <div className="flex gap-x-2 items-center ">
+          <div className="flex gap-x-1 items-center ">
             <input
               autoComplete="off"
               type="text"
@@ -522,9 +520,9 @@ export default function CoverExistingPool({
                 console.log('slider value', sliderValue)
               }}
               value={sliderValue}
-              className="text-right placeholder:text-grey1 text-white text-2xl w-20 focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
+              className="text-right placeholder:text-grey1 text-white text-xl w-20 focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
             />
-            %
+            <div className="mt-1">%</div>
           </div>
         </div>
         <div className="flex items-center justify-between text-sm">
@@ -541,23 +539,20 @@ export default function CoverExistingPool({
               value={Number.parseFloat(
                 ethers.utils.formatUnits(String(coverAmountOut), 18),
               ).toPrecision(5)}
-              className="bg-black text-right w-32 px-2 py-1 placeholder:text-grey1 text-white text-2xl mb-2 focus:ring-0 focus:ring-offset-0 focus:outline-none"
+              className="bg-black text-right w-32 py-1 placeholder:text-grey1 text-white text-lg mb-2 focus:ring-0 focus:ring-offset-0 focus:outline-none"
             />
-            <div>{tokenOut.symbol}</div>
+            <div className="-mt-1">{tokenOut.symbol}</div>
           </div>
         </div>
-        {mktRate[tokenIn.symbol] ? (
           <div className="flex justify-between text-sm">
             <div className="text-[#646464]">Amount to pay</div>
-            <div>
-              {Number(
+            <div className="gap-x-2 flex items-center justify-end">
+              <span className="text-lg">{Number(
                 ethers.utils.formatUnits(coverAmountIn.toString(), 18),
-              ).toPrecision(5)} {tokenIn.symbol}
+              ).toPrecision(5)}</span> 
+              <span className="mt-1">{tokenIn.symbol}</span>
             </div>
           </div>
-        ) : (
-          <></>
-        )}
       </div>
       <div>
         <div className="gap-x-4 mt-5">
@@ -654,7 +649,7 @@ export default function CoverExistingPool({
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
             1 {tokenIn.symbol} = {
               (!isNaN(parseFloat(coverTickPrice))) ?
-              ((parseFloat(coverTickPrice).toFixed(3)) + ' ' + tokenOut.symbol) :
+              (parseFloat(parseFloat(coverTickPrice).toPrecision(6)) + ' ' + tokenOut.symbol) :
               ('?' + ' ' + tokenOut.symbol)
             }
           </div>
@@ -683,6 +678,7 @@ export default function CoverExistingPool({
           <CoverMintButton
             poolAddress={coverPoolRoute}
             disabled={isDisabled}
+            buttonState={buttonState}
             to={address}
             lower={lowerTick}
             claim={

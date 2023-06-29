@@ -90,6 +90,7 @@ export default function ConcentratedPool({
   const [rangeTickPrice, setRangeTickPrice] = useState(undefined)
   const [rangeSqrtPrice, setRangeSqrtPrice] = useState(undefined)
   const [rangePoolRoute, setRangePoolRoute] = useState(undefined)
+  const [buttonState, setButtonState] = useState('')
 
   const initialBig = BigNumber.from(0)
   const [to, setTo] = useState('')
@@ -189,6 +190,16 @@ export default function ConcentratedPool({
     },
   })
 
+  // disabled messages
+  useEffect(() => {
+    if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
+      setButtonState('price')
+    }
+    if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
+      setButtonState('amount')
+    }
+  }, [bnInput, lowerPrice, upperPrice])
+
   useEffect(() => {
     setTimeout(() => {
       if (allowanceIn) {
@@ -256,7 +267,7 @@ export default function ConcentratedPool({
       upperTick,
       amount0,
       amount1,
-      signer
+      signer,
     )
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
   }
@@ -697,7 +708,7 @@ export default function ConcentratedPool({
               </div>
             </div>
             <button
-              className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
+              className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md whitespace-nowrap"
               onClick={() => {
                 setLowerTick(BigNumber.from(roundTick(-887272, tickSpacing)))
                 setUpperTick(BigNumber.from(roundTick(887272, tickSpacing)))
@@ -714,7 +725,7 @@ export default function ConcentratedPool({
               Full Range
             </button>
           </div>
-          <div className="flex flex-col mt-6 gap-y-5 w-full">
+          <div className="flex flex-col gap-y-3 w-full">
             <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
               <span className="text-xs text-grey">Min. Price</span>
               <div className="flex justify-center items-center">
@@ -806,8 +817,8 @@ export default function ConcentratedPool({
           key={poolId}
           poolAddress={poolId}
           poolRoute={rangePoolRoute}
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
+          tokenIn={tokenOrder ? tokenIn : tokenOut}
+          tokenOut={tokenOrder ? tokenOut : tokenIn}
           amount0={amount0}
           amount1={amount1}
           amount0Usd={amount0Usd}
@@ -818,6 +829,7 @@ export default function ConcentratedPool({
           allowance0={allowance0}
           allowance1={allowance1}
           disabled={isDisabled}
+          buttonState={buttonState}
           gasLimit={mintGasLimit}
         />
       </div>
