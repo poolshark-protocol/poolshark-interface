@@ -629,6 +629,7 @@ export default function Swap() {
     
     console.log(newMintFee.formattedPrice, 'gas price')
     console.log(parseFloat(newMintFee.formattedPrice), 'gas price')
+    
     setMintFee(newMintFee.formattedPrice)
     setMintGasLimit(newMintFee.gasUnits.mul(130).div(100))
   }
