@@ -7,6 +7,7 @@ import { TickMath } from '../../utils/math/tickMath'
 import RangeMintDoubleApproveButton from '../Buttons/RangeMintDoubleApproveButton'
 import { useRouter } from 'next/router'
 import { gasEstimateRangeMint, gasEstimateSwapLimit } from '../../utils/gas'
+import RangeMintApproveButton from '../Buttons/RangeMintApproveButton'
 
 export default function ConcentratedPoolPreview({
   account,
@@ -25,6 +26,7 @@ export default function ConcentratedPoolPreview({
   allowance0,
   allowance1,
   disabled,
+  buttonState,
 }) {
   const { address, isConnected } = useAccount()
   const router = useRouter()
@@ -35,7 +37,7 @@ export default function ConcentratedPoolPreview({
   const signer = new ethers.VoidSigner(address, provider)
 
   const [isOpen, setIsOpen] = useState(false)
-
+  const [doubleApprove, setdoubleApprove] = useState(false)
 
   const { data: allowanceIn } = useContractRead({
     address: tokenIn.address,
@@ -290,36 +292,40 @@ export default function ConcentratedPoolPreview({
                         </div>
                       </div>
                       <div className="mt-4">
-                        {allowance0.gte(amount0) &&
-                        allowance1.gte(amount1) ? null : (
-                          <RangeMintDoubleApproveButton
-                            poolAddress={poolAddress}
-                            token0={tokenOrder ? tokenIn : tokenOut}
-                            token1={tokenOrder ? tokenOut : tokenIn}
-                            amount0={amount0}
-                            amount1={amount1}
-                            approveZero={allowance0.lt(amount0)}
-                          />
-                        )}
-                        {allowance0.lt(amount0) ||
-                        allowance1.lt(amount1) ? null : (
+                        {allowance0.gte(amount0) && allowance1.gte(amount1) ? (
                           <RangeMintButton
                             to={address}
                             poolAddress={poolAddress}
                             lower={lowerTick}
                             upper={upperTick}
                             disabled={
-                              allowance0.lt(amount0) ||
-                              allowance1.lt(amount1)
+                              allowance0.lt(amount0) || allowance1.lt(amount1)
                             }
                             amount0={amount0}
                             amount1={amount1}
                             gasLimit={gasLimit}
-                            closeModal={
-                              () => router.push('/pool')
-                            }
+                            closeModal={() => router.push('/pool')}
                           />
-                        )}
+                        ) : (allowance0.lt(amount0) &&
+                            allowance1.lt(amount1)) ||
+                          doubleApprove ? (
+                          <RangeMintDoubleApproveButton
+                            poolAddress={poolAddress}
+                            tokenIn={tokenIn}
+                            tokenOut={tokenOut}
+                            setAllowanceController={setdoubleApprove}
+                          />
+                        ) : !doubleApprove && allowance0.lt(amount0) ? (
+                          <RangeMintApproveButton
+                            poolAddress={poolAddress}
+                            approveToken={tokenIn}
+                          />
+                        ) : !doubleApprove && allowance1.lt(amount1) ? (
+                          <RangeMintApproveButton
+                            poolAddress={poolAddress}
+                            approveToken={tokenOut}
+                          />
+                        ) : null}
                       </div>
                     </div>
                   </div>
@@ -332,9 +338,20 @@ export default function ConcentratedPoolPreview({
       <button
         onClick={() => setIsOpen(true)}
         disabled={disabled}
-        className="mt-8 w-full py-4 disabled:opacity-50 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        className="mt-8 w-full py-4 disabled:opacity-50 disabled:cursor-not-allowed mx-auto font-medium text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
       >
-        Preview
+        {disabled ? (
+          <>
+            {buttonState === 'price' ? (
+              <>Min. is greater than Max. Price</>
+            ) : (
+              <></>
+            )}
+            {buttonState === 'amount' ? <>Input Deposit Amount</> : <></>}
+          </>
+        ) : (
+          <>Preview</>
+        )}
       </button>
     </div>
   )
