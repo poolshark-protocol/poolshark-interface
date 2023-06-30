@@ -109,7 +109,6 @@ export default function CoverExistingPool({
   const [mintGasFee, setMintGasFee] = useState('$0.00')
   const [buttonState, setButtonState] = useState('')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
-  const [balanceIn, setBalanceIn] = useState('0')
 
   ////////////////////////////////
 
@@ -129,12 +128,7 @@ export default function CoverExistingPool({
     watch: true
   })
 
-  
-  useEffect(() => {
-    setBalanceIn(parseFloat(tokenInBal?.formatted.toString()).toFixed(2))
-  }, [tokenInBal])
 
-  console.log(tokenInBal)
 
   useEffect(() => {
     if (latestTick) {
@@ -219,7 +213,7 @@ export default function CoverExistingPool({
 
     // disabled messages
     useEffect(() => {
-      if (Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18),) > Number(balanceIn)) {
+      if (Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18),) > parseFloat(tokenInBal?.formatted.toString())) {
         setButtonState('balance')
       }
       if (!validBounds) {
@@ -228,14 +222,13 @@ export default function CoverExistingPool({
       if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
         setButtonState('price')
       }
+    }, [validBounds, lowerPrice, upperPrice, tokenInBal, coverAmountIn])
 
-
-    }, [validBounds, lowerPrice, upperPrice, balanceIn])
   // check for valid inputs
   useEffect(() => {
     const disabledFlag =  JSBI.equal(coverAmountIn, ZERO) ||
                           isNaN(parseFloat(lowerPrice)) ||
-                          Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18),) > Number(balanceIn) ||
+                          parseFloat(ethers.utils.formatUnits(coverAmountIn.toString(), 18),) > parseFloat(tokenInBal?.formatted.toString()) ||
                           isNaN(parseFloat(upperPrice)) ||
                           lowerTick >= upperTick ||
                           !validBounds ||
@@ -245,9 +238,7 @@ export default function CoverExistingPool({
       updateGasFee()
     }
     console.log('latest price', latestTick)
-  }, [lowerPrice, upperPrice, coverAmountIn, validBounds, balanceIn])
-
-  console.log(Number(balanceIn) )
+  }, [lowerPrice, upperPrice, coverAmountIn, validBounds, tokenInBal])
 
   useEffect(() => {
     if (!isNaN(parseFloat(lowerPrice))) {
