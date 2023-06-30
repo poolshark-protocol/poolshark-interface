@@ -66,7 +66,11 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   }, [burnPercent])
 
   const handleChange = (event: any) => {
-    setSliderValue(event.target.value)
+    if (Number(event.target.value) != 0) {
+      setSliderValue(event.target.value)
+    } else {
+      setSliderValue(0)
+    }
   }
   
   const handleSliderButton = (percent: number) => {
