@@ -200,7 +200,7 @@ export default function CreateCover(props: any) {
       lowerPrice,
       upperPrice,
       setLowerPrice,
-      setUpperPrice
+      setUpperPrice,
     )
   }, [hasSelected, tokenIn.address, tokenOut.address, tokenOrder])
 
@@ -222,20 +222,31 @@ export default function CreateCover(props: any) {
 
   // set disabled
   useEffect(() => {
-    const disabledFlag =  isNaN(parseFloat(lowerPrice)) ||
-                          isNaN(parseFloat(upperPrice)) ||
-                          lowerTick.gte(upperTick) ||
-                          Number(ethers.utils.formatUnits(bnInput)) === 0 ||
-                          tokenOut.symbol === 'Select Token' ||
-                          hasSelected == false ||
-                          !validBounds ||
-                          parseFloat(mintGasFee) == 0
+    const disabledFlag =
+      isNaN(parseFloat(lowerPrice)) ||
+      isNaN(parseFloat(upperPrice)) ||
+      lowerTick.gte(upperTick) ||
+      Number(ethers.utils.formatUnits(bnInput)) === 0 ||
+      tokenOut.symbol === 'Select Token' ||
+      hasSelected == false ||
+      !validBounds ||
+      parseFloat(mintGasFee) == 0
     console.log('disabled flag check', disabledFlag)
     setDisabled(disabledFlag)
     if (!disabledFlag) {
       updateGasFee()
     }
-  }, [lowerPrice, upperPrice, lowerTick, mintGasFee, upperTick, bnInput, tokenOut, hasSelected, validBounds])
+  }, [
+    lowerPrice,
+    upperPrice,
+    lowerTick,
+    mintGasFee,
+    upperTick,
+    bnInput,
+    tokenOut,
+    hasSelected,
+    validBounds,
+  ])
 
   // set amount in
   useEffect(() => {
@@ -295,10 +306,18 @@ export default function CreateCover(props: any) {
   }
 
   const changeValidBounds = () => {
-    console.log('changing valid bounds', tokenOrder ? lowerTick.lt(latestTick) : upperTick.gt(latestTick))
+    console.log(
+      'changing valid bounds',
+      tokenOrder ? lowerTick.lt(latestTick) : upperTick.gt(latestTick),
+    )
     setValidBounds(
-      tokenOrder ? lowerTick.lt(BigNumber.from(latestTick).sub(BigNumber.from(tickSpread))) 
-                 : upperTick.gt((BigNumber.from(latestTick).add(BigNumber.from(tickSpread))))
+      tokenOrder
+        ? lowerTick.lt(
+            BigNumber.from(latestTick).sub(BigNumber.from(tickSpread)),
+          )
+        : upperTick.gt(
+            BigNumber.from(latestTick).add(BigNumber.from(tickSpread)),
+          ),
     )
   }
 
@@ -419,6 +438,12 @@ export default function CreateCover(props: any) {
   const volatilityTiers = [
     {
       id: 0,
+      tier: '1.7% per min',
+      text: 'Best for most pairs',
+      unavailable: false,
+    },
+    {
+      id: 1,
       tier: '2.4% per min',
       text: 'Best for most pairs',
       unavailable: false,
@@ -528,7 +553,7 @@ export default function CreateCover(props: any) {
             queryTokenOut={queryTokenOut}
             setQueryTokenIn={setQueryTokenIn}
             setQueryTokenOut={setQueryTokenOut}
-            key={queryTokenIn+'in'}
+            key={queryTokenIn + 'in'}
           />
           <div className="items-center px-2 py-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
             <ArrowLongRightIcon
@@ -565,7 +590,7 @@ export default function CreateCover(props: any) {
             queryTokenOut={queryTokenOut}
             setQueryTokenIn={setQueryTokenIn}
             setQueryTokenOut={setQueryTokenOut}
-            key={queryTokenOut+'out'}
+            key={queryTokenOut + 'out'}
           />
         </div>
       </div>
@@ -623,11 +648,12 @@ export default function CreateCover(props: any) {
             {hasSelected &&
             mktRate[tokenIn.symbol] &&
             parseFloat(lowerPrice) < parseFloat(upperPrice) ? (
-              parseFloat((
-                parseFloat(
-                  ethers.utils.formatUnits(String(coverAmountOut), 18),
-                )
-              ).toPrecision(6).replace(/0+$/, '').replace(/(\.)(?!\d)/g, ''))
+              parseFloat(
+                parseFloat(ethers.utils.formatUnits(String(coverAmountOut), 18))
+                  .toPrecision(6)
+                  .replace(/0+$/, '')
+                  .replace(/(\.)(?!\d)/g, ''),
+              )
             ) : (
               <>?</>
             )}{' '}
@@ -739,7 +765,11 @@ export default function CreateCover(props: any) {
             {1} {tokenIn.symbol} ={' '}
             {tokenOut.symbol === 'Select Token' || isNaN(parseFloat(coverPrice))
               ? '?' + ' ' + tokenOut.symbol
-              : parseFloat(parseFloat(invertPrice(coverPrice, tokenOrder)).toPrecision(6)) +
+              : parseFloat(
+                  parseFloat(invertPrice(coverPrice, tokenOrder)).toPrecision(
+                    6,
+                  ),
+                ) +
                 ' ' +
                 tokenOut.symbol}
           </div>
