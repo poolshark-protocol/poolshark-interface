@@ -106,8 +106,8 @@ export default function CoverExistingPool({
   const [allowance, setAllowance] = useState(ZERO)
   const [mktRate, setMktRate] = useState({})
   const [showTooltip, setShowTooltip] = useState(false)
-  const [mintGasFee, setMintGasFee] = useState('$0.00')
   const [buttonState, setButtonState] = useState('')
+  const [mintGasFee, setMintGasFee] = useState('$0.00')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
 
   ////////////////////////////////
@@ -370,6 +370,7 @@ export default function CoverExistingPool({
       tickSpread,
       signer
     )
+    
     setMintGasFee(newMintGasFee.formattedPrice)
     setMintGasLimit(newMintGasFee.gasUnits.mul(130).div(100))
   }
@@ -447,7 +448,7 @@ export default function CoverExistingPool({
         <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">
-              Mininum filled
+              Min. filled amount
             </div>
             <div className="ml-auto text-xs">{(parseFloat(ethers.utils.formatUnits(String(coverAmountOut), 18)) * (1 - tickSpread / 10000)).toPrecision(5) + ' ' + tokenOut.symbol}</div>
           </div>
@@ -694,7 +695,7 @@ export default function CoverExistingPool({
         ) : (
           <CoverMintButton
             poolAddress={coverPoolRoute}
-            disabled={isDisabled}
+            disabled={isDisabled || mintGasFee == '$0.00'}
             buttonState={buttonState}
             to={address}
             lower={lowerTick}

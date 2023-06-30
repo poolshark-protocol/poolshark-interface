@@ -52,6 +52,7 @@ export default function RangeAddLiquidity({
   const [allowanceIn, setAllowanceIn] = useState(BN_ZERO)
   const [allowanceOut, setAllowanceOut] = useState(BN_ZERO)
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
+  const [mintGasFee, setMintGasFee] = useState('$0.00')
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
   const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
   const [stateChainName, setStateChainName] = useState()
@@ -176,6 +177,8 @@ export default function RangeAddLiquidity({
       amount1,
       signer,
     )
+    
+    setMintGasFee(newGasFee.formattedPrice)
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
   }
 

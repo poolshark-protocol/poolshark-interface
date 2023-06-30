@@ -12,7 +12,7 @@ import React, { useState } from "react";
 import { rangePoolABI } from "../../abis/evm/rangePool";
 import { useSwapStore } from "../../hooks/useStore"
 
-export default function SwapRangeButton({poolAddress, amount, zeroForOne, priceLimit, gasLimit}) {
+export default function SwapRangeButton({disabled, poolAddress, amount, zeroForOne, priceLimit, gasLimit}) {
 
   /*const [Limit] = useSwapStore((state: any) => [
     state.Limit
@@ -57,7 +57,12 @@ export default function SwapRangeButton({poolAddress, amount, zeroForOne, priceL
   
   return (
     <>
-      <button className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+      <button className={
+          disabled
+            ? 'w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50'
+            : 'w-full py-4 mx-auto text-center transition font-medium rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80'
+        }
+          disabled={disabled} 
           onClick={() => address ?  write?.() : null}
             >
               Swap

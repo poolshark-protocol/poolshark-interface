@@ -37,6 +37,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   const [ rangeSqrtPrice, setRangeSqrtPrice ] = useState(JSBI.BigInt(rangePrice))
   const [ fetchDelay, setFetchDelay ] = useState(false)
   const [ gasLimit, setGasLimit ] = useState(BN_ZERO)
+  const [ gasFee, setGasFee ] = useState('$0.00')
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
   const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
   const {data: signer} = useSigner()
@@ -65,7 +66,11 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   }, [burnPercent])
 
   const handleChange = (event: any) => {
-    setSliderValue(event.target.value)
+    if (Number(event.target.value) != 0) {
+      setSliderValue(event.target.value)
+    } else {
+      setSliderValue(0)
+    }
   }
   
   const handleSliderButton = (percent: number) => {
@@ -82,8 +87,10 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
       burnPercent,
       signer
     )
+
     if (!fetchDelay && newBurnGasFee.gasUnits.gt(BN_ZERO)) setFetchDelay(true)
-    if (newBurnGasFee.gasUnits.gt(BN_ZERO)) setGasLimit(newBurnGasFee.gasUnits.mul(200).div(100))
+    setGasFee(newBurnGasFee.formattedPrice)
+    setGasLimit(newBurnGasFee.gasUnits.mul(200).div(100))
   }
 
   function setLiquidity() {
@@ -210,7 +217,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
         <input
           autoComplete="off"
           type="range"
-          min="0"
+          min="1"
           max="100"
           value={sliderValue}
           onChange={handleChange}
@@ -270,12 +277,12 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
                   </div>
                 </div>
                 <RangeRemoveLiqButton
+                    disabled={disabled}
                     poolAddress={poolAdd}
                     address={address}
                     lower={lowerTick}
                     upper={upperTick}
                     burnPercent={burnPercent}
-                    disabled={disabled}
                     gasLimit={gasLimit}
                 />
               </Dialog.Panel>
