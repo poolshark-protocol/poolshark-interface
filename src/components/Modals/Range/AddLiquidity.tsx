@@ -325,7 +325,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
                       upper={upperTick}
                       amount0={amount0}
                       amount1={amount1}
-                      disabled={disabled || mintGasFee == '$0.00'}
+                      disabled={disabled}
                       gasLimit={mintGasLimit}
                     />
                   ) : null}

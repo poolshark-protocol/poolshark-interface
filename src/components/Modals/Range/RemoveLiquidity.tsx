@@ -273,7 +273,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
                   </div>
                 </div>
                 <RangeRemoveLiqButton
-                    disabled={disabled || gasFee == '$0.00'}
+                    disabled={disabled}
                     poolAddress={poolAdd}
                     address={address}
                     lower={lowerTick}
