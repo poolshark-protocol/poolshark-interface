@@ -26,7 +26,6 @@ import { BigNumber, ethers } from 'ethers'
 import { useCoverStore } from '../../hooks/useStore'
 import { getCoverPoolFromFactory } from '../../utils/queries'
 import JSBI from 'jsbi'
-import SwapCoverApproveButton from '../Buttons/SwapCoverApproveButton'
 import { useRouter } from 'next/router'
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from '../../utils/math/constants'
 import { DyDxMath } from '../../utils/math/dydxMath'
@@ -206,37 +205,41 @@ export default function CreateCover(props: any) {
 
   // disabled messages
   useEffect(() => {
+    if (Number(ethers.utils.formatUnits(bnInput)) > Number(balance0)) {
+      setButtonState('balance')
+    }
     if (!validBounds) {
       setButtonState('bounds')
     }
     if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
       setButtonState('price')
     }
-    if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
+    if (parseFloat(ethers.utils.formatEther(bnInput)) == 0) {
       setButtonState('amount')
     }
     if (hasSelected == false) {
       setButtonState('token')
     }
-  }, [bnInput, hasSelected, validBounds, lowerPrice, upperPrice])
+  }, [bnInput, hasSelected, validBounds, lowerPrice, upperPrice, balance0])
 
   // set disabled
   useEffect(() => {
-    const disabledFlag =  isNaN(parseFloat(lowerPrice)) ||
+    const disabledFlag =  Number(ethers.utils.formatUnits(bnInput)) > Number(balance0) ||
+                          isNaN(parseFloat(lowerPrice)) ||
                           isNaN(parseFloat(upperPrice)) ||
                           lowerTick.gte(upperTick) ||
                           Number(ethers.utils.formatUnits(bnInput)) === 0 ||
                           tokenOut.symbol === 'Select Token' ||
                           hasSelected == false ||
-                          !validBounds ||
-                          parseFloat(mintGasFee) == 0
+                          !validBounds
     console.log('disabled flag check', disabledFlag)
     setDisabled(disabledFlag)
     if (!disabledFlag) {
       updateGasFee()
     }
-  }, [lowerPrice, upperPrice, lowerTick, mintGasFee, upperTick, bnInput, tokenOut, hasSelected, validBounds])
+  }, [lowerPrice, upperPrice, lowerTick, upperTick, bnInput, tokenOut, hasSelected, validBounds, balance0])
 
+  console.log(Number(ethers.utils.formatUnits(bnInput)) > Number(balance0))
   // set amount in
   useEffect(() => {
     if (!bnInput.eq(BN_ZERO)) {
@@ -315,10 +318,9 @@ export default function CreateCover(props: any) {
       signer,
     )
     console.log('mint gas estimate', newMintGasFee.gasUnits.toString())
+    
     setMintGasFee(newMintGasFee.formattedPrice)
-    if (newMintGasFee.gasUnits.gt(BN_ZERO)) {
-      setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100))
-    }
+    setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100))
   }
 
   function setParams(query: any) {
@@ -332,7 +334,7 @@ export default function CreateCover(props: any) {
       return (
         <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
           <div className="flex p-1">
-            <div className="text-xs text-[#4C4C4C]">Mininum filled</div>
+            <div className="text-xs text-[#4C4C4C]">Min. filled amount</div>
             <div className="ml-auto text-xs">
               {(
                 parseFloat(
@@ -758,17 +760,19 @@ export default function CreateCover(props: any) {
         Number(allowance) < Number(ethers.utils.formatUnits(bnInput, 18)) &&
         stateChainName === 'arbitrumGoerli' ? (
           <CoverMintApproveButton
-            disabled={false}
+            disabled={isDisabled}
             poolAddress={coverPoolRoute}
             approveToken={tokenIn.address}
             amount={bnInput}
             tokenSymbol={tokenIn.symbol}
             allowance={allowance}
+            buttonState={buttonState}
           />
         ) : stateChainName === 'arbitrumGoerli' ? (
           <CoverMintButton
             poolAddress={coverPoolRoute}
-            disabled={isDisabled}
+            tokenSymbol={tokenIn.symbol}
+            disabled={isDisabled || mintGasFee == '$0.00'}
             to={address}
             lower={lowerTick}
             claim={tokenOrder ? upperTick : lowerTick}

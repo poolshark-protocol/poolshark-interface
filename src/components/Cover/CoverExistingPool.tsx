@@ -6,7 +6,7 @@ import {
   PlusIcon,
   InformationCircleIcon,
 } from '@heroicons/react/20/solid'
-import { erc20ABI, useAccount, useContractRead, useSigner } from 'wagmi'
+import { erc20ABI, useAccount, useContractRead, useBalance, useSigner } from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 import { Fragment, useEffect, useState } from 'react'
@@ -106,8 +106,8 @@ export default function CoverExistingPool({
   const [allowance, setAllowance] = useState(ZERO)
   const [mktRate, setMktRate] = useState({})
   const [showTooltip, setShowTooltip] = useState(false)
-  const [mintGasFee, setMintGasFee] = useState('$0.00')
   const [buttonState, setButtonState] = useState('')
+  const [mintGasFee, setMintGasFee] = useState('$0.00')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
 
   ////////////////////////////////
@@ -121,6 +121,14 @@ export default function CoverExistingPool({
     watch: true,
     enabled: isConnected && coverPoolRoute != undefined,
   })
+  const { data: tokenInBal } = useBalance({
+    address: address,
+    token: tokenIn.address as `0x${string}`,
+    enabled: isConnected,
+    watch: true
+  })
+
+
 
   useEffect(() => {
     if (latestTick) {
@@ -199,20 +207,28 @@ export default function CoverExistingPool({
     changeValidBounds()
   }, [sliderValue, lowerTick, upperTick, tokenOrder])
 
+  Number(
+    ethers.utils.formatUnits(coverAmountIn.toString(), 18),
+  ).toPrecision(5)
+
     // disabled messages
     useEffect(() => {
+      if (Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18),) > parseFloat(tokenInBal?.formatted.toString())) {
+        setButtonState('balance')
+      }
       if (!validBounds) {
         setButtonState('bounds')
       }
       if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
         setButtonState('price')
       }
-    }, [validBounds, lowerPrice, upperPrice])
+    }, [validBounds, lowerPrice, upperPrice, tokenInBal, coverAmountIn])
 
   // check for valid inputs
   useEffect(() => {
     const disabledFlag =  JSBI.equal(coverAmountIn, ZERO) ||
                           isNaN(parseFloat(lowerPrice)) ||
+                          parseFloat(ethers.utils.formatUnits(coverAmountIn.toString(), 18),) > parseFloat(tokenInBal?.formatted.toString()) ||
                           isNaN(parseFloat(upperPrice)) ||
                           lowerTick >= upperTick ||
                           !validBounds ||
@@ -222,7 +238,7 @@ export default function CoverExistingPool({
       updateGasFee()
     }
     console.log('latest price', latestTick)
-  }, [lowerPrice, upperPrice, coverAmountIn, validBounds])
+  }, [lowerPrice, upperPrice, coverAmountIn, validBounds, tokenInBal])
 
   useEffect(() => {
     if (!isNaN(parseFloat(lowerPrice))) {
@@ -354,6 +370,7 @@ export default function CoverExistingPool({
       tickSpread,
       signer
     )
+    
     setMintGasFee(newMintGasFee.formattedPrice)
     setMintGasLimit(newMintGasFee.gasUnits.mul(130).div(100))
   }
@@ -431,7 +448,7 @@ export default function CoverExistingPool({
         <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">
-              Mininum filled
+              Min. filled amount
             </div>
             <div className="ml-auto text-xs">{(parseFloat(ethers.utils.formatUnits(String(coverAmountOut), 18)) * (1 - tickSpread / 10000)).toPrecision(5) + ' ' + tokenOut.symbol}</div>
           </div>
@@ -668,6 +685,7 @@ export default function CoverExistingPool({
         {isDisconnected || JSBI.lessThan(allowance, coverAmountIn) ? (
           <CoverMintApproveButton
             disabled={isDisabled}
+            buttonState={buttonState}
             poolAddress={coverPoolRoute}
             approveToken={tokenIn.address}
             amount={String(coverAmountIn)}
@@ -677,7 +695,7 @@ export default function CoverExistingPool({
         ) : (
           <CoverMintButton
             poolAddress={coverPoolRoute}
-            disabled={isDisabled}
+            disabled={isDisabled || mintGasFee == '$0.00'}
             buttonState={buttonState}
             to={address}
             lower={lowerTick}
@@ -688,6 +706,7 @@ export default function CoverExistingPool({
                 : lowerTick
             }
             upper={upperTick}
+            tokenSymbol={tokenIn.symbol}
             amount={String(coverAmountIn)}
             zeroForOne={
               tokenOut.address != '' &&
