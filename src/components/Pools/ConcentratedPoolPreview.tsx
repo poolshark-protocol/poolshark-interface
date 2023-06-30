@@ -21,12 +21,15 @@ export default function ConcentratedPoolPreview({
   amount1Usd,
   lowerTick,
   upperTick,
+  mintGasFee,
   gasLimit,
   fee,
   allowance0,
   allowance1,
   disabled,
   buttonState,
+  tokenOneSymbol,
+  tokenZeroSymbol
 }) {
   const { address, isConnected } = useAccount()
   const router = useRouter()
@@ -299,7 +302,9 @@ export default function ConcentratedPoolPreview({
                             lower={lowerTick}
                             upper={upperTick}
                             disabled={
-                              allowance0.lt(amount0) || allowance1.lt(amount1)
+                              allowance0.lt(amount0) ||
+                              allowance1.lt(amount1) ||
+                              mintGasFee == '$0.00'
                             }
                             amount0={amount0}
                             amount1={amount1}
@@ -342,12 +347,10 @@ export default function ConcentratedPoolPreview({
       >
         {disabled ? (
           <>
-            {buttonState === 'price' ? (
-              <>Min. is greater than Max. Price</>
-            ) : (
-              <></>
-            )}
+            {buttonState === 'price' ? (<>Min. is greater than Max. Price</>) : (<></>)}
             {buttonState === 'amount' ? <>Input Deposit Amount</> : <></>}
+            {buttonState === 'balance0' ? <>Insufficient {tokenZeroSymbol}  Balance</> : <></>}
+            {buttonState === 'balance1' ? <>Insufficient {tokenOneSymbol} Balance</> : <></>}
           </>
         ) : (
           <>Preview</>

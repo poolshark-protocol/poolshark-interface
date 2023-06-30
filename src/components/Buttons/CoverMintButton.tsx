@@ -26,6 +26,7 @@ export default function CoverMintButton({
   tickSpacing,
   buttonState,
   gasLimit,
+  tokenSymbol,
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
@@ -112,9 +113,14 @@ export default function CoverMintButton({
             ) : (
               <></>
             )}
-            {buttonState === 'amount' ? <>Input Amount to Cover</> : <></>}
+            {buttonState === 'amount' ? <>Input Amount</> : <></>}
             {buttonState === 'token' ? <>Output token not selected</> : <></>}
             {buttonState === 'bounds' ? <>Invalid Price Range</> : <></>}
+            {buttonState === 'balance' ? (
+              <>Insufficient {tokenSymbol} Balance</>
+            ) : (
+              <></>
+            )}
           </>
         ) : (
           <>Create Cover</>

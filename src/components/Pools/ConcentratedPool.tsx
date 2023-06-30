@@ -84,6 +84,7 @@ export default function ConcentratedPool({
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
+  const [mintGasFee, setMintGasFee] = useState('$0.00')
   const [allowance0, setAllowance0] = useState(BN_ZERO)
   const [allowance1, setAllowance1] = useState(BN_ZERO)
   const [rangePrice, setRangePrice] = useState(undefined)
@@ -198,7 +199,22 @@ export default function ConcentratedPool({
     if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
       setButtonState('amount')
     }
-  }, [bnInput, lowerPrice, upperPrice])
+    if (Number(ethers.utils.formatUnits(amount0)) > Number(balance0)) {
+      setButtonState('balance0')
+    }
+    if (Number(ethers.utils.formatUnits(amount1)) > Number(balance1)) {
+      setButtonState('balance1')
+    }
+    if (Number(ethers.utils.formatUnits(amount0)) > Number(balance0) ||
+        Number(ethers.utils.formatUnits(bnInput)) === 0 ||
+        parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
+        Number(ethers.utils.formatUnits(amount1)) > Number(balance1)
+        ) {
+          setDisabled(true)
+        } else {
+          setDisabled(false)
+        }
+  }, [bnInput, lowerPrice, upperPrice, amount0, amount1, balance0, balance1])
 
   useEffect(() => {
     setTimeout(() => {
@@ -269,6 +285,8 @@ export default function ConcentratedPool({
       amount1,
       signer,
     )
+    
+    setMintGasFee(newGasFee.formattedPrice)
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
   }
 
@@ -415,7 +433,6 @@ export default function ConcentratedPool({
           amount1: amount1,
           fungible: true,
         })
-        setDisabled(false)
       } else {
         setDisabled(true)
       }
@@ -423,6 +440,8 @@ export default function ConcentratedPool({
       console.log(error)
     }
   }
+
+  
 
   const changePrice = (direction: string, inputId: string) => {
     if (!tickSpacing) return
@@ -828,9 +847,12 @@ export default function ConcentratedPool({
           fee={selected.tier}
           allowance0={allowance0}
           allowance1={allowance1}
-          disabled={isDisabled}
+          disabled={isDisabled || mintGasFee == '$0.00'}
           buttonState={buttonState}
           gasLimit={mintGasLimit}
+          mintGasFee={mintGasFee}
+          tokenOneSymbol={tokenOneSymbol}
+          tokenZeroSymbol={tokenZeroSymbol}
         />
       </div>
     </div>

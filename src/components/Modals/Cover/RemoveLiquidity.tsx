@@ -7,7 +7,7 @@ import CoverRemoveLiqButton from "../../Buttons/CoverRemoveLiqButton";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO } from "../../../utils/math/constants";
 
-export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, lowerTick, zeroForOne, amountInDeltaMax, upperTick, gasLimit }) {
+export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, lowerTick, zeroForOne, amountInDeltaMax, upperTick, gasLimit, gasFee }) {
 
   const {
     bnInput,
@@ -52,7 +52,12 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
   }, [sliderValue])
 
   const handleChange = (event: any) => {
-    setSliderValue(event.target.value)
+    if (Number(event.target.value) != 0) {
+      setSliderValue(event.target.value)
+    }
+    else {
+      setSliderValue(0)
+    }
   }
   
   const handleSliderButton = (percent: number) => {
@@ -137,7 +142,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
         <input
           autoComplete="off"
           type="range"
-          min="0"
+          min="1"
           max="100"
           value={sliderValue}
           onChange={handleChange}
@@ -169,6 +174,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
                   </div>
                 </div>
                 <CoverRemoveLiqButton
+                      disabled={gasFee == '$0.00'}
                       poolAddress={poolAdd}
                       address={address}
                       lower={lowerTick}
