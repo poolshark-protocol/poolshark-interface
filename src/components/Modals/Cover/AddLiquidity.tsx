@@ -223,7 +223,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
                     />
                   ) : stateChainName === "arbitrumGoerli" ? (
                     <CoverAddLiqButton
-                      disabled={mintGasFee == '$0.00'}
+                      disabled={disabled || mintGasFee == '$0.00'}
                       toAddress={address}
                       poolAddress={poolAdd}
                       address={address}
@@ -234,7 +234,6 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
                       amount={bnInput}
                       gasLimit={mintGasLimit}
                       buttonState={buttonState}
-                      disabled={disabled}
                       tokenSymbol={tokenIn.Symbol}
                 />
                   ) : null}
