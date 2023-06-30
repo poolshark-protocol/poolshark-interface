@@ -605,6 +605,8 @@ export default function Range() {
         userLiquidity={userLiquidity}
         tokenAmount={userTokenAmount}
         rangePrice={rangePrice}
+        totalAmount0={amount0}
+        totalAmount1={amount1}
       />
       <AddLiquidity
         isOpen={isAddOpen}
