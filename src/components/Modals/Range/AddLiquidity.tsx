@@ -60,6 +60,7 @@ export default function RangeAddLiquidity({
   const [disabled, setDisabled] = useState(true)
   const [rangeSqrtPrice, setRangeSqrtPrice] = useState(JSBI.BigInt(rangePrice))
   const [doubleApprove, setdoubleApprove] = useState(false)
+  const [buttonState, setButtonState] = useState('')
 
   const {
     network: { chainId },
@@ -178,6 +179,27 @@ export default function RangeAddLiquidity({
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
   }
 
+      // disabled messages
+      useEffect(() => {
+        
+        if (Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn)) {
+          setButtonState('balance0')
+        }
+        if (Number(ethers.utils.formatUnits(amount1)) > Number(balanceOut)) {
+          setButtonState('balance1')
+        }
+        if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
+          setButtonState('amount')
+        }
+        if (Number(ethers.utils.formatUnits(bnInput)) === 0 ||
+            Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn) ||
+            Number(ethers.utils.formatUnits(amount1)) > Number(balanceOut)
+        ) {
+          setDisabled(true)
+        } else { setDisabled(false)}
+      }, [bnInput, balanceIn, balanceOut, disabled])
+
+
   function setAmounts() {
     try {
       if (Number(ethers.utils.formatUnits(bnInput)) !== 0) {
@@ -210,7 +232,7 @@ export default function RangeAddLiquidity({
         tokenOrder
           ? setAmount1(BigNumber.from(String(tokenOutAmount)))
           : setAmount0(BigNumber.from(String(tokenOutAmount)))
-        setDisabled(false)
+          setDisabled(false)
       } else {
         setAmount1(BN_ZERO)
         setAmount0(BN_ZERO)
@@ -220,7 +242,6 @@ export default function RangeAddLiquidity({
       console.log(error)
     }
   }
-
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
@@ -333,6 +354,14 @@ export default function RangeAddLiquidity({
                     </div>
                   </div>
                 </div>
+                {disabled === true ? 
+                <button className="opacity-50 w-full cursor-not-allowed py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF]">
+        {buttonState === 'amount' ? <>Input Amount</> : <></>}
+        {buttonState === 'balance0' ? <>Insufficient {tokenIn.symbol} Balance</> : <></>}
+        {buttonState === 'balance1' ? <>Insufficient {tokenOut.symbol} Balance</> : <></>}
+            </button>
+            :
+            <>
                 {allowanceIn.gte(amount0) && allowanceOut.gte(amount1) ? (
                   <RangeAddLiqButton
                     poolAddress={poolAdd}
@@ -364,6 +393,8 @@ export default function RangeAddLiquidity({
                   approveToken={tokenOut}
                 />
               ) : null}
+              </>
+            }
               </Dialog.Panel>
             </Transition.Child>
           </div>
