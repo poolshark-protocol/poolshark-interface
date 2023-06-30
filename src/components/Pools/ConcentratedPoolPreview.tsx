@@ -27,6 +27,8 @@ export default function ConcentratedPoolPreview({
   allowance1,
   disabled,
   buttonState,
+  tokenOneSymbol,
+  tokenZeroSymbol
 }) {
   const { address, isConnected } = useAccount()
   const router = useRouter()
@@ -344,7 +346,8 @@ export default function ConcentratedPoolPreview({
           <>
             {buttonState === 'price' ? (<>Min. is greater than Max. Price</>) : (<></>)}
             {buttonState === 'amount' ? <>Input Deposit Amount</> : <></>}
-            {buttonState === 'balance' ? <>Insufficient Balance</> : <></>}
+            {buttonState === 'balance0' ? <>Insufficient {tokenZeroSymbol}  Balance</> : <></>}
+            {buttonState === 'balance1' ? <>Insufficient {tokenOneSymbol} Balance</> : <></>}
           </>
         ) : (
           <>Preview</>

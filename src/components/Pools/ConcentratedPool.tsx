@@ -194,17 +194,26 @@ export default function ConcentratedPool({
   useEffect(() => {
     if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
       setButtonState('price')
-      setDisabled(true)
-    } else {setDisabled(false)}
+    }
     if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
       setButtonState('amount')
-      setDisabled(true)
-    } else {setDisabled(false)}
-    if (Number(ethers.utils.formatUnits(bnInput)) > Number(balance0)) {
-      setButtonState('balance')
-      setDisabled(true)
-    } else {setDisabled(false)}
-  }, [bnInput, lowerPrice, upperPrice, balance0])
+    }
+    if (Number(ethers.utils.formatUnits(amount0)) > Number(balance0)) {
+      setButtonState('balance0')
+    }
+    if (Number(ethers.utils.formatUnits(amount1)) > Number(balance1)) {
+      setButtonState('balance1')
+    }
+    if (Number(ethers.utils.formatUnits(amount0)) > Number(balance0) ||
+        Number(ethers.utils.formatUnits(bnInput)) === 0 ||
+        parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
+        Number(ethers.utils.formatUnits(amount1)) > Number(balance1)
+        ) {
+          setDisabled(true)
+        } else {
+          setDisabled(false)
+        }
+  }, [bnInput, lowerPrice, upperPrice, amount0, amount1, balance0, balance1])
 
   useEffect(() => {
     setTimeout(() => {
@@ -838,6 +847,8 @@ export default function ConcentratedPool({
           disabled={isDisabled}
           buttonState={buttonState}
           gasLimit={mintGasLimit}
+          tokenOneSymbol={tokenOneSymbol}
+          tokenZeroSymbol={tokenZeroSymbol}
         />
       </div>
     </div>
