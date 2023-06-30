@@ -164,7 +164,7 @@ export default function CoverExistingPool({
   useEffect(() => {
     if (!fetchDelay) {
       getCoverPoolInfo(
-        poolId,
+        coverPoolRoute,
         tokenOrder,
         tokenIn,
         tokenOut,
@@ -183,7 +183,7 @@ export default function CoverExistingPool({
     } else {
       const interval = setInterval(() => {
         getCoverPoolInfo(
-          poolId,
+          coverPoolRoute,
           tokenOrder,
           tokenIn,
           tokenOut,
@@ -200,7 +200,7 @@ export default function CoverExistingPool({
       }, 5000)
       return () => clearInterval(interval)
     }
-  }, [fetchDelay])
+  }, [fetchDelay, coverPoolRoute])
 
   useEffect(() => {
     changeCoverAmounts()

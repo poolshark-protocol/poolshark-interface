@@ -145,75 +145,59 @@ export const getCoverPoolInfo = async (
   setUpperPrice?,
 ) => {
   try {
-    console.log(
-      'tokenIn',
-      tokenIn.address.toLocaleLowerCase(),
-      'tokenOut',
-      tokenOut.address.toLocaleLowerCase(),
-    )
     const pool = await getCoverPoolFromFactory(
       tokenIn.address,
       tokenOut.address,
     )
     const dataLength = pool['data']['coverPools'].length
     if (dataLength != 0) {
-      setCoverPoolRoute(pool['data']['coverPools']['0']['id'])
-      const tickSpread = pool['data']['coverPools']['0']['tickSpread']
-
-      const newLatestTick = pool['data']['coverPools']['0']['latestTick']
-      if (setCoverPrice)
-        setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick))
-      if (setTokenInUsdPrice) {
-        console.log(
-          'setting tokenIn price usd',
-          pool['data']['coverPools']['0']['token0']['usdPrice'],
-        )
-        setTokenInUsdPrice(
-          parseFloat(
-            tokenOrder
-              ? pool['data']['coverPools']['0']['token0']['usdPrice']
-              : pool['data']['coverPools']['0']['token1']['usdPrice'],
-          ),
-        )
-      }
-      if (setLatestTick) {
-        setLatestTick(newLatestTick)
-        console.log(
-          'setting default lower price',
-          lowerPrice,
-          isNaN(parseFloat(lowerPrice)),
-        )
-        if (isNaN(parseFloat(lowerPrice)) && setLowerPrice) {
-          console.log(
-            'set lower price',
-            TickMath.getPriceStringAtTick(
-              tokenOrder
-                ? newLatestTick - tickSpread * 10
-                : newLatestTick + tickSpread,
-              tickSpread,
-            ),
-          )
-          setLowerPrice(
-            TickMath.getPriceStringAtTick(
-              tokenOrder
-                ? newLatestTick - tickSpread * 10
-                : newLatestTick + tickSpread,
-              tickSpread,
-            ),
-          )
-        }
-        if (isNaN(parseFloat(upperPrice)) && setUpperPrice) {
-          setUpperPrice(
-            TickMath.getPriceStringAtTick(
-              tokenOrder
-                ? newLatestTick - tickSpread
-                : newLatestTick + tickSpread * 10,
-              tickSpread,
-            ),
-          )
+      for (let i = 0; i < dataLength; i++) {
+        if (pool['data']['coverPools'][i]['id'] == poolRoute) {
+          const tickSpread =
+            pool['data']['coverPools'][i]['volatilityTier']['tickSpread']
+          if (tickSpread == '20') {
+            setVolatility(0)
+          } else if (tickSpread == '40') {
+            setVolatility(1)
+          }
+          /* setCoverPoolRoute(pool['data']['coverPools']['0']['id']) */
+          const newLatestTick = pool['data']['coverPools']['0']['latestTick']
+          if (setCoverPrice)
+            setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick))
+          if (setTokenInUsdPrice) {
+            setTokenInUsdPrice(
+              parseFloat(
+                tokenOrder
+                  ? pool['data']['coverPools']['0']['token0']['usdPrice']
+                  : pool['data']['coverPools']['0']['token1']['usdPrice'],
+              ),
+            )
+          }
+          if (setLatestTick) {
+            setLatestTick(newLatestTick)
+            if (isNaN(parseFloat(lowerPrice)) && setLowerPrice) {
+              setLowerPrice(
+                TickMath.getPriceStringAtTick(
+                  tokenOrder
+                    ? newLatestTick - tickSpread * 10
+                    : newLatestTick + tickSpread,
+                  tickSpread,
+                ),
+              )
+            }
+            if (isNaN(parseFloat(upperPrice)) && setUpperPrice) {
+              setUpperPrice(
+                TickMath.getPriceStringAtTick(
+                  tokenOrder
+                    ? newLatestTick - tickSpread
+                    : newLatestTick + tickSpread * 10,
+                  tickSpread,
+                ),
+              )
+            }
+          }
         }
       }
-      console.log('test3')
     } else {
       setCoverPoolRoute(ZERO_ADDRESS)
       setCoverPrice('1.00')
