@@ -19,6 +19,7 @@ export default function RangeCompoundButton({ poolAddress, address, lower, upper
   const [ successDisplay, setSuccessDisplay ] = useState(false);
   const [ fetchDelay, setFetchDelay ] = useState(false)
   const [ gasLimit, setGasLimit ] = useState(BN_ZERO)
+  const [ gasFee, setGasFee ] = useState('$0.00')
 
   const {data: signer} = useSigner()
 
@@ -43,6 +44,8 @@ export default function RangeCompoundButton({ poolAddress, address, lower, upper
       signer
     )
     if (newBurnGasFee.gasUnits.gt(BN_ZERO)) setFetchDelay(true)
+    
+    setGasFee(newBurnGasFee.formattedPrice)
     setGasLimit(newBurnGasFee.gasUnits.mul(130).div(100))
   }
 
@@ -77,13 +80,14 @@ export default function RangeCompoundButton({ poolAddress, address, lower, upper
     
   return (
       <>
-      <div className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+      <button className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
           onClick={() => {
             address ?  write?.() : null
           }}
+          disabled={gasFee == '$0.00'}
               >
               Compound position
-      </div>
+      </button>
       <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
     {errorDisplay && (
       <ErrorToast

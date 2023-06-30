@@ -59,9 +59,9 @@ export default function Swap() {
     setDisplay,
   } = useInputBox()
 
-  const [swapGasFee, setSwapGasFee] = useState('0')
+  const [swapGasFee, setSwapGasFee] = useState('$0.00')
   const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO)
-  const [mintFee, setMintFee] = useState('0')
+  const [mintFee, setMintFee] = useState('$0.00')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
   const [coverQuote, setCoverQuote] = useState(0)
   const [rangeQuote, setRangeQuote] = useState(0)
@@ -110,7 +110,6 @@ export default function Swap() {
   const [coverBnPriceLimit, setCoverBnPriceLimit] = useState(BN_ZERO)
   const [slippageFetched, setSlippageFetched] = useState(false)
   const [limitPrice, setLimitPrice] = useState('0')
-  const [allowanceRangeOut, setAllowanceRangeOut] = useState('0.00')
   const [lowerTick, setLowerTick] = useState(BN_ZERO)
   const [upperTick, setUpperTick] = useState(BN_ZERO)
   const [limitPriceSwitch, setLimitPriceSwitch] = useState(true)
@@ -203,22 +202,6 @@ export default function Swap() {
     },
   })
 
-  const { data: allowanceOutRange } = useContractRead({
-    address: tokenOut.address,
-    abi: erc20ABI,
-    functionName: 'allowance',
-    args: [address, rangePoolRoute],
-    chainId: 421613,
-    watch: true,
-    enabled: isConnected && rangePoolRoute != undefined && LimitActive == true,
-    onError(error) {
-      console.log('Error allowance out', error)
-    },
-    onSuccess(data) {
-      console.log('Success allowance out', data)
-    },
-  })
-
   const { data: allowanceInCover } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -241,12 +224,8 @@ export default function Swap() {
         setAllowanceRange(ethers.utils.formatUnits(allowanceInRange, 18))
         setAllowanceCover(ethers.utils.formatUnits(allowanceInCover, 18))
       }
-
-      if (LimitActive && allowanceOutRange) {
-        setAllowanceRangeOut(ethers.utils.formatUnits(allowanceOutRange, 18))
-      }
     }, 50)
-  }, [allowanceInRange, allowanceInCover, tokenIn.address, LimitActive])
+  }, [allowanceInRange, allowanceInCover, tokenIn.address])
 
   ////////////////////////////////Prices
 
@@ -351,7 +330,10 @@ export default function Swap() {
         if (hasSelected == false) {
           setButtonState('token')
         }
-      }, [bnInput, hasSelected])
+        if (Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput))) {
+          setButtonState('balance')
+        }
+      }, [bnInput, hasSelected, balanceIn, bnInput])
 
   ////////////////////////////////Limit Price
   useEffect(() => {
@@ -630,6 +612,7 @@ export default function Swap() {
       signer,
       isConnected,
     )
+
     setSwapGasFee(newGasFee.formattedPrice)
     setSwapGasLimit(newGasFee.gasUnits.mul(130).div(100))
   }
@@ -646,6 +629,10 @@ export default function Swap() {
       rangeTickSpacing,
       signer,
     )
+    
+    console.log(newMintFee.formattedPrice, 'gas price')
+    console.log(parseFloat(newMintFee.formattedPrice), 'gas price')
+    
     setMintFee(newMintFee.formattedPrice)
     setMintGasLimit(newMintFee.gasUnits.mul(130).div(100))
   }
@@ -1159,6 +1146,7 @@ export default function Swap() {
           <>
             {stateChainName !== 'arbitrumGoerli' ||
             (coverQuote == 0 && rangeQuote == 0) ||
+            Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput)) ||
             bnInput.lte(BN_ONE) ? (
               <button
                 disabled
@@ -1166,6 +1154,7 @@ export default function Swap() {
               >
         {buttonState === 'amount' ? <>Input Amount</> : <></>}
         {buttonState === 'token' ? <>Select Token</> : <></>}
+        {buttonState === 'balance' ? <>Insufficient {tokenIn.symbol} Balance</> : <></>}
               </button>
             ) : rangeQuote >= coverQuote ? (
               Number(allowanceRange) <
@@ -1182,6 +1171,7 @@ export default function Swap() {
                 </div>
               ) : (
                 <SwapRangeButton
+                  disabled={swapGasFee == '$0.00'}
                   poolAddress={rangePoolRoute}
                   zeroForOne={
                     tokenOut.address != '' &&
@@ -1206,6 +1196,7 @@ export default function Swap() {
               </div>
             ) : (
               <SwapCoverButton
+                disabled={swapGasFee == '$0.00'}
                 poolAddress={coverPoolRoute}
                 zeroForOne={
                   tokenOut.address != '' &&
@@ -1219,57 +1210,27 @@ export default function Swap() {
           </>
         ) : (
           <>
-            {stateChainName !== 'arbitrumGoerli' || bnInput._hex == '0x00' ? (
+            {stateChainName !== 'arbitrumGoerli' || Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput)) || bnInput._hex == '0x00' ? (
               <button
                 disabled
                 className="w-full py-4 mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
               >
                 {buttonState === 'amount' ? <>Input Amount</> : <></>}
                 {buttonState === 'token' ? <>Select Token</> : <></>}
+                {buttonState === 'balance' ? <>Insufficient {tokenIn.symbol} Balance</> : <></>}
               </button>
             ) : Number(allowanceRange) <
-                Number(ethers.utils.formatUnits(bnInput, 18)) ||
-              Number(allowanceRangeOut) <
-                Number(
-                  parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                    parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)),
-                ) ? (
-              Number(allowanceRange) <
-                Number(ethers.utils.formatUnits(bnInput, 18)) &&
-              Number(allowanceRangeOut) <
-                Number(
-                  parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                    parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)),
-                ) ? (
-                <SwapRangeDoubleApproveButton
-                  poolAddress={rangePoolRoute}
-                  tokenIn={tokenIn.address}
-                  tokenOut={tokenOut.address}
-                  tokenSymbol={tokenIn.symbol}
-                  allowanceRange={allowanceRange}
-                  bnInput={bnInput}
-                />
-              ) : Number(allowanceRange) <
                 Number(ethers.utils.formatUnits(bnInput, 18)) ? (
-                <SwapRangeApproveButton
-                  disabled={false}
-                  poolAddress={rangePoolRoute}
-                  approveToken={tokenIn.address}
-                  tokenSymbol={tokenIn.symbol}
-                  allowanceRange={allowanceRange}
-                  bnInput={bnInput}
-                />
-              ) : (
-                <SwapRangeApproveButton
-                  disabled={false}
-                  poolAddress={rangePoolRoute}
-                  approveToken={tokenOut.address}
-                  tokenSymbol={tokenIn.symbol}
-                  allowanceRange={allowanceRange}
-                  bnInput={bnInput}
-                />
+                  <SwapRangeApproveButton
+                    disabled={false}
+                    poolAddress={rangePoolRoute}
+                    approveToken={tokenIn.address}
+                    tokenSymbol={tokenIn.symbol}
+                    allowanceRange={allowanceRange}
+                    bnInput={bnInput}
+                  />
               )
-            ) : (
+            : (
               <RangeLimitSwapButton
                 disabled={false}
                 poolAddress={rangePoolRoute}
