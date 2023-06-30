@@ -510,7 +510,7 @@ export default function CoverExistingPool({
       <div className="mt-3 ">
         <div className="flex justify-between items-center text-sm">
           <div className="text-[#646464]">Percentage Covered</div>
-          <div className="flex gap-x-2 items-center ">
+          <div className="flex gap-x-1 items-center ">
             <input
               autoComplete="off"
               type="text"
@@ -520,9 +520,9 @@ export default function CoverExistingPool({
                 console.log('slider value', sliderValue)
               }}
               value={sliderValue}
-              className="text-right placeholder:text-grey1 text-white text-2xl w-20 focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
+              className="text-right placeholder:text-grey1 text-white text-xl w-20 focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
             />
-            %
+            <div className="mt-1">%</div>
           </div>
         </div>
         <div className="flex items-center justify-between text-sm">
@@ -539,23 +539,20 @@ export default function CoverExistingPool({
               value={Number.parseFloat(
                 ethers.utils.formatUnits(String(coverAmountOut), 18),
               ).toPrecision(5)}
-              className="bg-black text-right w-32 px-2 py-1 placeholder:text-grey1 text-white text-2xl mb-2 focus:ring-0 focus:ring-offset-0 focus:outline-none"
+              className="bg-black text-right w-32 py-1 placeholder:text-grey1 text-white text-lg mb-2 focus:ring-0 focus:ring-offset-0 focus:outline-none"
             />
-            <div>{tokenOut.symbol}</div>
+            <div className="-mt-1">{tokenOut.symbol}</div>
           </div>
         </div>
-        {mktRate[tokenIn.symbol] ? (
           <div className="flex justify-between text-sm">
             <div className="text-[#646464]">Amount to pay</div>
-            <div>
-              {Number(
+            <div className="gap-x-2 flex items-center justify-end">
+              <span className="text-lg">{Number(
                 ethers.utils.formatUnits(coverAmountIn.toString(), 18),
-              ).toPrecision(5)} {tokenIn.symbol}
+              ).toPrecision(5)}</span> 
+              <span className="mt-1">{tokenIn.symbol}</span>
             </div>
           </div>
-        ) : (
-          <></>
-        )}
       </div>
       <div>
         <div className="gap-x-4 mt-5">
