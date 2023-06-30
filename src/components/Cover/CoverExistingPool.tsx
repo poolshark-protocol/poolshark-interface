@@ -6,7 +6,7 @@ import {
   PlusIcon,
   InformationCircleIcon,
 } from '@heroicons/react/20/solid'
-import { erc20ABI, useAccount, useContractRead, useSigner } from 'wagmi'
+import { erc20ABI, useAccount, useContractRead, useBalance, useSigner } from 'wagmi'
 import CoverMintButton from '../Buttons/CoverMintButton'
 import { ConnectWalletButton } from '../Buttons/ConnectWalletButton'
 import { Fragment, useEffect, useState } from 'react'
@@ -121,6 +121,14 @@ export default function CoverExistingPool({
     watch: true,
     enabled: isConnected && coverPoolRoute != undefined,
   })
+  const { data: tokenInBal } = useBalance({
+    address: address,
+    token: tokenIn.address as `0x${string}`,
+    enabled: isConnected,
+    watch: true
+  })
+
+
 
   useEffect(() => {
     if (latestTick) {
@@ -199,20 +207,28 @@ export default function CoverExistingPool({
     changeValidBounds()
   }, [sliderValue, lowerTick, upperTick, tokenOrder])
 
+  Number(
+    ethers.utils.formatUnits(coverAmountIn.toString(), 18),
+  ).toPrecision(5)
+
     // disabled messages
     useEffect(() => {
+      if (Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18),) > parseFloat(tokenInBal?.formatted.toString())) {
+        setButtonState('balance')
+      }
       if (!validBounds) {
         setButtonState('bounds')
       }
       if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
         setButtonState('price')
       }
-    }, [validBounds, lowerPrice, upperPrice])
+    }, [validBounds, lowerPrice, upperPrice, tokenInBal, coverAmountIn])
 
   // check for valid inputs
   useEffect(() => {
     const disabledFlag =  JSBI.equal(coverAmountIn, ZERO) ||
                           isNaN(parseFloat(lowerPrice)) ||
+                          parseFloat(ethers.utils.formatUnits(coverAmountIn.toString(), 18),) > parseFloat(tokenInBal?.formatted.toString()) ||
                           isNaN(parseFloat(upperPrice)) ||
                           lowerTick >= upperTick ||
                           !validBounds ||
@@ -222,7 +238,7 @@ export default function CoverExistingPool({
       updateGasFee()
     }
     console.log('latest price', latestTick)
-  }, [lowerPrice, upperPrice, coverAmountIn, validBounds])
+  }, [lowerPrice, upperPrice, coverAmountIn, validBounds, tokenInBal])
 
   useEffect(() => {
     if (!isNaN(parseFloat(lowerPrice))) {
@@ -511,7 +527,7 @@ export default function CoverExistingPool({
       <div className="mt-3 ">
         <div className="flex justify-between items-center text-sm">
           <div className="text-[#646464]">Percentage Covered</div>
-          <div className="flex gap-x-2 items-center ">
+          <div className="flex gap-x-1 items-center ">
             <input
               autoComplete="off"
               type="text"
@@ -521,9 +537,9 @@ export default function CoverExistingPool({
                 console.log('slider value', sliderValue)
               }}
               value={sliderValue}
-              className="text-right placeholder:text-grey1 text-white text-2xl w-20 focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
+              className="text-right placeholder:text-grey1 text-white text-xl w-20 focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
             />
-            %
+            <div className="mt-1">%</div>
           </div>
         </div>
         <div className="flex items-center justify-between text-sm">
@@ -540,23 +556,20 @@ export default function CoverExistingPool({
               value={Number.parseFloat(
                 ethers.utils.formatUnits(String(coverAmountOut), 18),
               ).toPrecision(5)}
-              className="bg-black text-right w-32 px-2 py-1 placeholder:text-grey1 text-white text-2xl mb-2 focus:ring-0 focus:ring-offset-0 focus:outline-none"
+              className="bg-black text-right w-32 py-1 placeholder:text-grey1 text-white text-lg mb-2 focus:ring-0 focus:ring-offset-0 focus:outline-none"
             />
-            <div>{tokenOut.symbol}</div>
+            <div className="-mt-1">{tokenOut.symbol}</div>
           </div>
         </div>
-        {mktRate[tokenIn.symbol] ? (
           <div className="flex justify-between text-sm">
             <div className="text-[#646464]">Amount to pay</div>
-            <div>
-              {Number(
+            <div className="gap-x-2 flex items-center justify-end">
+              <span className="text-lg">{Number(
                 ethers.utils.formatUnits(coverAmountIn.toString(), 18),
-              ).toPrecision(5)} {tokenIn.symbol}
+              ).toPrecision(5)}</span> 
+              <span className="mt-1">{tokenIn.symbol}</span>
             </div>
           </div>
-        ) : (
-          <></>
-        )}
       </div>
       <div>
         <div className="gap-x-4 mt-5">
@@ -672,6 +685,7 @@ export default function CoverExistingPool({
         {isDisconnected || JSBI.lessThan(allowance, coverAmountIn) ? (
           <CoverMintApproveButton
             disabled={isDisabled}
+            buttonState={buttonState}
             poolAddress={coverPoolRoute}
             approveToken={tokenIn.address}
             amount={String(coverAmountIn)}
@@ -692,6 +706,7 @@ export default function CoverExistingPool({
                 : lowerTick
             }
             upper={upperTick}
+            tokenSymbol={tokenIn.symbol}
             amount={String(coverAmountIn)}
             zeroForOne={
               tokenOut.address != '' &&

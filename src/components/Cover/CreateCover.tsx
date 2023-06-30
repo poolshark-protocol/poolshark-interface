@@ -205,6 +205,9 @@ export default function CreateCover(props: any) {
 
   // disabled messages
   useEffect(() => {
+    if (Number(ethers.utils.formatUnits(bnInput)) > Number(balance0)) {
+      setButtonState('balance')
+    }
     if (!validBounds) {
       setButtonState('bounds')
     }
@@ -217,11 +220,12 @@ export default function CreateCover(props: any) {
     if (hasSelected == false) {
       setButtonState('token')
     }
-  }, [bnInput, hasSelected, validBounds, lowerPrice, upperPrice])
+  }, [bnInput, hasSelected, validBounds, lowerPrice, upperPrice, balance0])
 
   // set disabled
   useEffect(() => {
-    const disabledFlag =  isNaN(parseFloat(lowerPrice)) ||
+    const disabledFlag =  Number(ethers.utils.formatUnits(bnInput)) > Number(balance0) ||
+                          isNaN(parseFloat(lowerPrice)) ||
                           isNaN(parseFloat(upperPrice)) ||
                           lowerTick.gte(upperTick) ||
                           Number(ethers.utils.formatUnits(bnInput)) === 0 ||
@@ -233,8 +237,9 @@ export default function CreateCover(props: any) {
     if (!disabledFlag) {
       updateGasFee()
     }
-  }, [lowerPrice, upperPrice, lowerTick, upperTick, bnInput, tokenOut, hasSelected, validBounds])
+  }, [lowerPrice, upperPrice, lowerTick, upperTick, bnInput, tokenOut, hasSelected, validBounds, balance0])
 
+  console.log(Number(ethers.utils.formatUnits(bnInput)) > Number(balance0))
   // set amount in
   useEffect(() => {
     if (!bnInput.eq(BN_ZERO)) {
@@ -362,6 +367,7 @@ export default function CreateCover(props: any) {
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(upperTick))
       if (amountInChanged) {
         // amountIn changed
+        console.log('amount in check', String(coverAmountIn))
         const liquidityAmount = DyDxMath.getLiquidityForAmounts(
           lowerSqrtPrice,
           upperSqrtPrice,
@@ -568,7 +574,7 @@ export default function CreateCover(props: any) {
       <h1 className="mb-3">How much do you want to Cover?</h1>
       <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
         <div className="flex-col justify-center w-1/2 p-2 ">
-          {inputBox('0', setCoverAmountIn)}
+          {inputBox('0')}
           <div className="flex text-xs text-[#4C4C4C]">
             $
             {(
@@ -622,8 +628,8 @@ export default function CreateCover(props: any) {
               parseFloat((
                 parseFloat(
                   ethers.utils.formatUnits(String(coverAmountOut), 18),
-                ) * parseFloat(mktRate[tokenIn.symbol].replace(/[^\d.-]/g, ''))
-              ).toPrecision(4))
+                )
+              ).toPrecision(6).replace(/0+$/, '').replace(/(\.)(?!\d)/g, ''))
             ) : (
               <>?</>
             )}{' '}
@@ -754,16 +760,18 @@ export default function CreateCover(props: any) {
         Number(allowance) < Number(ethers.utils.formatUnits(bnInput, 18)) &&
         stateChainName === 'arbitrumGoerli' ? (
           <CoverMintApproveButton
-            disabled={false}
+            disabled={isDisabled}
             poolAddress={coverPoolRoute}
             approveToken={tokenIn.address}
             amount={bnInput}
             tokenSymbol={tokenIn.symbol}
             allowance={allowance}
+            buttonState={buttonState}
           />
         ) : stateChainName === 'arbitrumGoerli' ? (
           <CoverMintButton
             poolAddress={coverPoolRoute}
+            tokenSymbol={tokenIn.symbol}
             disabled={isDisabled || mintGasFee == '$0.00'}
             to={address}
             lower={lowerTick}

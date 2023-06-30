@@ -17,6 +17,7 @@ import {
     amount,
     allowance,
     tokenSymbol,
+    buttonState
   }) {
     const [errorDisplay, setErrorDisplay] = useState(false)
     const [successDisplay, setSuccessDisplay] = useState(false)
@@ -54,7 +55,13 @@ import {
           }
           onClick={(address) => (address && !disabled ? write?.() : null)}
         >
-          Approve {tokenSymbol}
+        {disabled ? <>
+        {buttonState === 'price' ? <>Min. is greater than Max. Price</> : <></>}
+        {buttonState === 'amount' ? <>Input Amount</> : <></>}
+        {buttonState === 'token' ? <>Output token not selected</> : <></>}
+        {buttonState === 'bounds' ? <>Invalid Price Range</> : <></>}
+        {buttonState === 'balance' ? <>Insufficient {tokenSymbol} Balance</> : <></>}
+        </> : <> Approve {tokenSymbol}</>}
         </div>
         <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
           {errorDisplay && (

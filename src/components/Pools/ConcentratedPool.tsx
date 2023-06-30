@@ -191,15 +191,30 @@ export default function ConcentratedPool({
     },
   })
 
-    // disabled messages
-    useEffect(() => {
-      if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
-        setButtonState('price')
-      }
-      if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
-        setButtonState('amount')
-      }
-    } , [bnInput, lowerPrice, upperPrice])
+  // disabled messages
+  useEffect(() => {
+    if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
+      setButtonState('price')
+    }
+    if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
+      setButtonState('amount')
+    }
+    if (Number(ethers.utils.formatUnits(amount0)) > Number(balance0)) {
+      setButtonState('balance0')
+    }
+    if (Number(ethers.utils.formatUnits(amount1)) > Number(balance1)) {
+      setButtonState('balance1')
+    }
+    if (Number(ethers.utils.formatUnits(amount0)) > Number(balance0) ||
+        Number(ethers.utils.formatUnits(bnInput)) === 0 ||
+        parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
+        Number(ethers.utils.formatUnits(amount1)) > Number(balance1)
+        ) {
+          setDisabled(true)
+        } else {
+          setDisabled(false)
+        }
+  }, [bnInput, lowerPrice, upperPrice, amount0, amount1, balance0, balance1])
 
   useEffect(() => {
     setTimeout(() => {
@@ -268,7 +283,7 @@ export default function ConcentratedPool({
       upperTick,
       amount0,
       amount1,
-      signer
+      signer,
     )
     
     setMintGasFee(newGasFee.formattedPrice)
@@ -418,7 +433,6 @@ export default function ConcentratedPool({
           amount1: amount1,
           fungible: true,
         })
-        setDisabled(false)
       } else {
         setDisabled(true)
       }
@@ -426,6 +440,8 @@ export default function ConcentratedPool({
       console.log(error)
     }
   }
+
+  
 
   const changePrice = (direction: string, inputId: string) => {
     if (!tickSpacing) return
@@ -820,8 +836,8 @@ export default function ConcentratedPool({
           key={poolId}
           poolAddress={poolId}
           poolRoute={rangePoolRoute}
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
+          tokenIn={tokenOrder ? tokenIn : tokenOut}
+          tokenOut={tokenOrder ? tokenOut : tokenIn}
           amount0={amount0}
           amount1={amount1}
           amount0Usd={amount0Usd}
@@ -835,6 +851,8 @@ export default function ConcentratedPool({
           buttonState={buttonState}
           gasLimit={mintGasLimit}
           mintGasFee={mintGasFee}
+          tokenOneSymbol={tokenOneSymbol}
+          tokenZeroSymbol={tokenZeroSymbol}
         />
       </div>
     </div>

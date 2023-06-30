@@ -31,6 +31,8 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
   const [mintGasFee, setMintGasFee] = useState('$0.00')
   const [fetchDelay, setFetchDelay] = useState(false)
+  const [buttonState, setButtonState] = useState('')
+  const [disabled, setDisabled] = useState(true)
   const {
     network: { chainId },
   } = useProvider()
@@ -63,6 +65,22 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
       })
     },
   })
+
+   // disabled messages
+   useEffect(() => {
+        
+    if (Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn)) {
+      setButtonState('balance')
+    }
+    if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
+      setButtonState('amount')
+    }
+    if (Number(ethers.utils.formatUnits(bnInput)) === 0 ||
+        Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn)
+    ) {
+      setDisabled(true)
+    } else { setDisabled(false)}
+  }, [bnInput, balanceIn, disabled])
 
   useEffect(() => {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId])
@@ -195,12 +213,13 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
                   allowanceIn.lt(bnInput) &&
                   stateChainName === "arbitrumGoerli" ? (
                     <CoverMintApproveButton
-                      disabled={false}
+                      disabled={disabled}
                       poolAddress={poolAdd}
                       approveToken={tokenIn.address}
                       amount={bnInput}
                       tokenSymbol={tokenIn.symbol}
                       allowance={allowanceIn}
+                      buttonState={buttonState}
                     />
                   ) : stateChainName === "arbitrumGoerli" ? (
                     <CoverAddLiqButton
@@ -214,6 +233,9 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
                       zeroForOne={zeroForOne}
                       amount={bnInput}
                       gasLimit={mintGasLimit}
+                      buttonState={buttonState}
+                      disabled={disabled}
+                      tokenSymbol={tokenIn.Symbol}
                 />
                   ) : null}
                 
