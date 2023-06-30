@@ -130,13 +130,14 @@ export const getCoverPool = async (
 }
 
 export const getCoverPoolInfo = async (
+  poolRoute: string,
   tokenOrder: boolean,
   tokenIn: token,
   tokenOut: token,
-  tickSpread: number,
   setCoverPoolRoute,
   setCoverPrice,
-  setTokenInUsdPrice?,
+  setTokenInUsdPrice,
+  setVolatility,
   setLatestTick?,
   lowerPrice?,
   upperPrice?,
@@ -157,6 +158,7 @@ export const getCoverPoolInfo = async (
     const dataLength = pool['data']['coverPools'].length
     if (dataLength != 0) {
       setCoverPoolRoute(pool['data']['coverPools']['0']['id'])
+      const tickSpread = pool['data']['coverPools']['0']['tickSpread']
 
       const newLatestTick = pool['data']['coverPools']['0']['latestTick']
       if (setCoverPrice)

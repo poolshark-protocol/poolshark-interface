@@ -61,8 +61,8 @@ export default function CoverExistingPool({
   const { data: signer } = useSigner()
   const [expanded, setExpanded] = useState(false)
   const [fetchDelay, setFetchDelay] = useState(false)
-  const [tickSpread, setTickSpread] = useState(20)
-  const [auctionLength, setAuctionLength] = useState(5)
+  const [tickSpread, setTickSpread] = useState(tickSpacing)
+  const [auctionLength, setAuctionLength] = useState(0)
   const [tokenOrder, setTokenOrder] = useState(zeroForOne)
   const [latestTick, setLatestTick] = useState(0)
   const [lowerTick, setLowerTick] = useState(
@@ -100,7 +100,7 @@ export default function CoverExistingPool({
   const [sliderValue, setSliderValue] = useState(50)
   const [coverPrice, setCoverPrice] = useState(undefined)
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
-  const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
+  const [coverPoolRoute, setCoverPoolRoute] = useState(poolId ?? undefined)
   const [coverAmountIn, setCoverAmountIn] = useState(ZERO)
   const [coverAmountOut, setCoverAmountOut] = useState(ZERO)
   const [allowance, setAllowance] = useState(ZERO)
@@ -109,6 +109,7 @@ export default function CoverExistingPool({
   const [mintGasFee, setMintGasFee] = useState('$0.00')
   const [buttonState, setButtonState] = useState('')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
+  const [volatility, setVolatility] = useState(0)
 
   ////////////////////////////////
 
@@ -163,13 +164,14 @@ export default function CoverExistingPool({
   useEffect(() => {
     if (!fetchDelay) {
       getCoverPoolInfo(
+        poolId,
         tokenOrder,
         tokenIn,
         tokenOut,
-        tickSpread,
         setCoverPoolRoute,
         setCoverPrice,
         null,
+        setVolatility,
         setLatestTick,
         lowerPrice,
         upperPrice,
@@ -181,13 +183,14 @@ export default function CoverExistingPool({
     } else {
       const interval = setInterval(() => {
         getCoverPoolInfo(
+          poolId,
           tokenOrder,
           tokenIn,
           tokenOut,
-          tickSpread,
           setCoverPoolRoute,
           setCoverPrice,
           null,
+          setVolatility,
           setLatestTick,
           lowerPrice,
           upperPrice,

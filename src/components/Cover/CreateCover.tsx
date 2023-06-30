@@ -82,7 +82,7 @@ export default function CreateCover(props: any) {
   const [buttonState, setButtonState] = useState('')
   const [coverAmountIn, setCoverAmountIn] = useState(ZERO)
   const [coverAmountOut, setCoverAmountOut] = useState(ZERO)
-  const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
+  const [coverPoolRoute, setCoverPoolRoute] = useState( props.query ? props.query.poolId : undefined)
   const [tokenOrder, setTokenOrder] = useState(
     tokenIn.address.localeCompare(tokenOut.address) < 0,
   )
@@ -91,20 +91,7 @@ export default function CreateCover(props: any) {
     props.query ? props.query.tickSpacing : 20,
   )
   const [feeTier, setFeeTier] = useState(props.query?.feeTier ?? 0.01)
-  const [auctionLength, setAuctionLength] = useState(
-    props.query?.auctionLength ?? 0,
-  )
-
-  const [volatility, setVolatility] = useState(
-    (parseFloat(tickSpread) * (60 / parseFloat(auctionLength))).toFixed(2),
-  )
-
-  console.log(
-    'volatility check',
-    tickSpread,
-    auctionLength,
-    tickSpread * (60 / auctionLength),
-  )
+  const [volatility, setVolatility] = useState(0)
 
   function updateSelectedFeeTier(): any {
     if (feeTier == 0.01) {
@@ -188,6 +175,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     getCoverPoolInfo(
+      coverPoolRoute,
       tokenOrder,
       tokenIn,
       tokenOut,
