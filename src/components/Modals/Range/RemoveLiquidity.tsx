@@ -217,7 +217,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
         <input
           autoComplete="off"
           type="range"
-          min="0"
+          min="1"
           max="100"
           value={sliderValue}
           onChange={handleChange}

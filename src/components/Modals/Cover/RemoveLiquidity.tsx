@@ -142,7 +142,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
         <input
           autoComplete="off"
           type="range"
-          min="0"
+          min="1"
           max="100"
           value={sliderValue}
           onChange={handleChange}
