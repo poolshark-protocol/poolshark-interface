@@ -194,11 +194,17 @@ export default function ConcentratedPool({
   useEffect(() => {
     if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
       setButtonState('price')
-    }
+      setDisabled(true)
+    } else {setDisabled(false)}
     if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
       setButtonState('amount')
-    }
-  }, [bnInput, lowerPrice, upperPrice])
+      setDisabled(true)
+    } else {setDisabled(false)}
+    if (Number(ethers.utils.formatUnits(bnInput)) > Number(balance0)) {
+      setButtonState('balance')
+      setDisabled(true)
+    } else {setDisabled(false)}
+  }, [bnInput, lowerPrice, upperPrice, balance0])
 
   useEffect(() => {
     setTimeout(() => {
@@ -415,7 +421,6 @@ export default function ConcentratedPool({
           amount1: amount1,
           fungible: true,
         })
-        setDisabled(false)
       } else {
         setDisabled(true)
       }
@@ -423,6 +428,8 @@ export default function ConcentratedPool({
       console.log(error)
     }
   }
+
+  
 
   const changePrice = (direction: string, inputId: string) => {
     if (!tickSpacing) return

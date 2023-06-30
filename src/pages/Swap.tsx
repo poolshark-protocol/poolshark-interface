@@ -351,7 +351,10 @@ export default function Swap() {
         if (hasSelected == false) {
           setButtonState('token')
         }
-      }, [bnInput, hasSelected])
+        if (Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput))) {
+          setButtonState('balance')
+        }
+      }, [bnInput, hasSelected, balanceIn, bnInput])
 
   ////////////////////////////////Limit Price
   useEffect(() => {
@@ -1159,6 +1162,7 @@ export default function Swap() {
           <>
             {stateChainName !== 'arbitrumGoerli' ||
             (coverQuote == 0 && rangeQuote == 0) ||
+            Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput)) ||
             bnInput.lte(BN_ONE) ? (
               <button
                 disabled
@@ -1166,6 +1170,7 @@ export default function Swap() {
               >
         {buttonState === 'amount' ? <>Input Amount</> : <></>}
         {buttonState === 'token' ? <>Select Token</> : <></>}
+        {buttonState === 'balance' ? <>Insufficient {tokenIn.symbol} Balance</> : <></>}
               </button>
             ) : rangeQuote >= coverQuote ? (
               Number(allowanceRange) <
@@ -1219,13 +1224,14 @@ export default function Swap() {
           </>
         ) : (
           <>
-            {stateChainName !== 'arbitrumGoerli' || bnInput._hex == '0x00' ? (
+            {stateChainName !== 'arbitrumGoerli' || Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput)) || bnInput._hex == '0x00' ? (
               <button
                 disabled
                 className="w-full py-4 mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
               >
                 {buttonState === 'amount' ? <>Input Amount</> : <></>}
                 {buttonState === 'token' ? <>Select Token</> : <></>}
+                {buttonState === 'balance' ? <>Insufficient {tokenIn.symbol} Balance</> : <></>}
               </button>
             ) : Number(allowanceRange) <
                 Number(ethers.utils.formatUnits(bnInput, 18)) ||

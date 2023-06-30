@@ -342,12 +342,9 @@ export default function ConcentratedPoolPreview({
       >
         {disabled ? (
           <>
-            {buttonState === 'price' ? (
-              <>Min. is greater than Max. Price</>
-            ) : (
-              <></>
-            )}
+            {buttonState === 'price' ? (<>Min. is greater than Max. Price</>) : (<></>)}
             {buttonState === 'amount' ? <>Input Deposit Amount</> : <></>}
+            {buttonState === 'balance' ? <>Insufficient Balance</> : <></>}
           </>
         ) : (
           <>Preview</>

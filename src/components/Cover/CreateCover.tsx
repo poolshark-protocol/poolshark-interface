@@ -206,6 +206,9 @@ export default function CreateCover(props: any) {
 
   // disabled messages
   useEffect(() => {
+    if (Number(ethers.utils.formatUnits(bnInput)) > Number(balance0)) {
+      setButtonState('balance')
+    }
     if (!validBounds) {
       setButtonState('bounds')
     }
@@ -218,11 +221,12 @@ export default function CreateCover(props: any) {
     if (hasSelected == false) {
       setButtonState('token')
     }
-  }, [bnInput, hasSelected, validBounds, lowerPrice, upperPrice])
+  }, [bnInput, hasSelected, validBounds, lowerPrice, upperPrice, balance0])
 
   // set disabled
   useEffect(() => {
-    const disabledFlag =  isNaN(parseFloat(lowerPrice)) ||
+    const disabledFlag =  Number(ethers.utils.formatUnits(bnInput)) > Number(balance0) ||
+                          isNaN(parseFloat(lowerPrice)) ||
                           isNaN(parseFloat(upperPrice)) ||
                           lowerTick.gte(upperTick) ||
                           Number(ethers.utils.formatUnits(bnInput)) === 0 ||
@@ -235,8 +239,10 @@ export default function CreateCover(props: any) {
     if (!disabledFlag) {
       updateGasFee()
     }
-  }, [lowerPrice, upperPrice, lowerTick, mintGasFee, upperTick, bnInput, tokenOut, hasSelected, validBounds])
+  }, [lowerPrice, upperPrice, lowerTick, mintGasFee, upperTick, bnInput, tokenOut, hasSelected, validBounds, balance0])
 
+
+  console.log(Number(ethers.utils.formatUnits(bnInput)) > Number(balance0))
   // set amount in
   useEffect(() => {
     if (!bnInput.eq(BN_ZERO)) {
@@ -758,16 +764,18 @@ export default function CreateCover(props: any) {
         Number(allowance) < Number(ethers.utils.formatUnits(bnInput, 18)) &&
         stateChainName === 'arbitrumGoerli' ? (
           <CoverMintApproveButton
-            disabled={false}
+            disabled={isDisabled}
             poolAddress={coverPoolRoute}
             approveToken={tokenIn.address}
             amount={bnInput}
             tokenSymbol={tokenIn.symbol}
             allowance={allowance}
+            buttonState={buttonState}
           />
         ) : stateChainName === 'arbitrumGoerli' ? (
           <CoverMintButton
             poolAddress={coverPoolRoute}
+            tokenSymbol={tokenIn.symbol}
             disabled={isDisabled}
             to={address}
             lower={lowerTick}
