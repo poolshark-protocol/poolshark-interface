@@ -230,14 +230,14 @@ export const feeTiers = [
   {
     id: 3,
     tier: '0.3%',
-    tierId: 300,
+    tierId: 3000,
     text: 'Best for most pairs',
     unavailable: false,
   },
   {
     id: 4,
     tier: '1%',
-    tierId: 1000,
+    tierId: 10000,
     text: 'Best for exotic pairs',
     unavailable: false,
   },

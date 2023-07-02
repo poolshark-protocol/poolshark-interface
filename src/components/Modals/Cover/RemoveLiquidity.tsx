@@ -69,7 +69,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
     console.log('tokenIn remove liquidity', tokenIn)
     try {
       const provider = new ethers.providers.JsonRpcProvider(
-        'https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2',
+        'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
         421613,
       )
       const signer = new ethers.VoidSigner(address, provider)

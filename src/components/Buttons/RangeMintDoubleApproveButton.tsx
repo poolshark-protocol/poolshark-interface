@@ -9,6 +9,7 @@ import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useEffect, useState } from 'react'
 import { useSwapStore } from '../../hooks/useStore'
+import { BigNumber } from 'ethers'
 
 export default function RangeMintDoubleApproveButton({
   poolAddress,
@@ -31,12 +32,17 @@ export default function RangeMintDoubleApproveButton({
     state.updateSwapAllowance,
   ])
 
+  const gasLimit = BigNumber.from(100000)
+
   const { config: t0 } = usePrepareContractWrite({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'approve',
     args: [poolAddress, Amount],
     chainId: 421613,
+    overrides: {
+      gasLimit: gasLimit
+    },
   })
 
   const { config: t1 } = usePrepareContractWrite({
@@ -45,6 +51,9 @@ export default function RangeMintDoubleApproveButton({
     functionName: 'approve',
     args: [poolAddress, Amount],
     chainId: 421613,
+    overrides: {
+      gasLimit: gasLimit
+    },
   })
 
   const {

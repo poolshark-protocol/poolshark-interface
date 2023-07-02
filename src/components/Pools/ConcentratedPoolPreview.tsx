@@ -42,6 +42,8 @@ export default function ConcentratedPoolPreview({
   const [isOpen, setIsOpen] = useState(false)
   const [doubleApprove, setdoubleApprove] = useState(false)
 
+  console.log('mint gas fee', mintGasFee)
+
   const { data: allowanceIn } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
