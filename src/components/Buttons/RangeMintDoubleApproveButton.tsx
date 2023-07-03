@@ -7,21 +7,20 @@ import { erc20ABI } from 'wagmi'
 import { SuccessToast } from '../Toasts/Success'
 import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSwapStore } from '../../hooks/useStore'
+import { BigNumber } from 'ethers'
 
 export default function RangeMintDoubleApproveButton({
   poolAddress,
-  token0,
-  token1,
-  amount0,
-  amount1,
-  approveZero
+  tokenIn,
+  tokenOut,
+  setAllowanceController,
 }) {
-  const [errorDisplay, setErrorDisplay] = useState(false)
-  const [successDisplay, setSuccessDisplay] = useState(false)
-
-  console.log('mint allowance check', approveZero)
+  const [errorDisplay0, setErrorDisplay0] = useState(false)
+  const [successDisplay0, setSuccessDisplay0] = useState(false)
+  const [errorDisplay1, setErrorDisplay1] = useState(false)
+  const [successDisplay1, setSuccessDisplay1] = useState(false)
 
   const [
     Amount,
@@ -33,20 +32,28 @@ export default function RangeMintDoubleApproveButton({
     state.updateSwapAllowance,
   ])
 
+  const gasLimit = BigNumber.from(100000)
+
   const { config: t0 } = usePrepareContractWrite({
-    address: token0.address,
+    address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'approve',
-    args: [poolAddress, amount0],
+    args: [poolAddress, Amount],
     chainId: 421613,
+    overrides: {
+      gasLimit: gasLimit
+    },
   })
 
   const { config: t1 } = usePrepareContractWrite({
-    address: token1.address,
+    address: tokenOut.address,
     abi: erc20ABI,
     functionName: 'approve',
-    args: [poolAddress, amount1],
+    args: [poolAddress, Amount],
     chainId: 421613,
+    overrides: {
+      gasLimit: gasLimit
+    },
   })
 
   const {
@@ -65,10 +72,10 @@ export default function RangeMintDoubleApproveButton({
     hash: dataT0?.hash,
     onSuccess() {
       updateSwapAllowance(Amount)
-      setSuccessDisplay(true)
+      setSuccessDisplay0(true)
     },
     onError() {
-      setErrorDisplay(true)
+      setErrorDisplay0(true)
     },
   })
 
@@ -76,17 +83,33 @@ export default function RangeMintDoubleApproveButton({
     hash: dataT1?.hash,
     onSuccess() {
       updateSwapAllowance(Amount)
-      setSuccessDisplay(true)
+      setSuccessDisplay0(true)
     },
     onError() {
-      setErrorDisplay(true)
+      setErrorDisplay0(true)
     },
   })
 
   function approve() {
-    if (approveZero) writeT0()
-    else writeT1()
+    setAllowanceController(true)
+    writeT0()
+    writeT1()
   }
+
+  useEffect(() => {
+    //5seconds for waiting for toaster and resetting state in parent component
+    if (successDisplay0 && successDisplay1)
+      setTimeout(() => {
+        setAllowanceController(false)
+      }, 5000)
+    //30 seconds for second token approval, if not, parent component will render single approval component for unapproved token 
+    if (successDisplay0 || successDisplay1) {
+      setTimeout(() => {
+        setAllowanceController(false)
+      }, 30000)
+    }
+    setAllowanceController(true)
+  }, [successDisplay0, successDisplay1])
 
   return (
     <>
@@ -94,37 +117,40 @@ export default function RangeMintDoubleApproveButton({
         className="w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
         onClick={(address) => (address ? approve() : null)}
       >
-        Approve {approveZero ? token0.symbol : token1.symbol}
+        Approve Both Tokens
       </div>
       <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
-        { approveZero ? errorDisplay && (
+        {errorDisplay0 && (
           <ErrorToast
+            key={dataT0?.hash + 'doubleApprove_error'}
             hash={dataT0?.hash}
-            errorDisplay={errorDisplay}
-            setErrorDisplay={setErrorDisplay}
-          />
-        ) :
-        errorDisplay && (
-          <ErrorToast
-            hash={dataT1?.hash}
-            errorDisplay={errorDisplay}
-            setErrorDisplay={setErrorDisplay}
+            errorDisplay={errorDisplay0}
+            setErrorDisplay={setErrorDisplay0}
           />
         )}
-        {approveZero ? (isLoadingT0 ? <ConfirmingToast hash={dataT0?.hash} /> : <></>)
-                     : (isLoadingT1 ? <ConfirmingToast hash={dataT1?.hash} /> : <></>)}
-        {approveZero ? successDisplay && (
-          <SuccessToast
-            hash={dataT0?.hash}
-            successDisplay={successDisplay}
-            setSuccessDisplay={setSuccessDisplay}
-          />
-        )
-        : successDisplay && (
-          <SuccessToast
+        {errorDisplay1 && (
+          <ErrorToast
             hash={dataT1?.hash}
-            successDisplay={successDisplay}
-            setSuccessDisplay={setSuccessDisplay}
+            errorDisplay={errorDisplay1}
+            setErrorDisplay={setErrorDisplay1}
+          />
+        )}
+        {isLoadingT0 ? <ConfirmingToast hash={dataT0?.hash} /> : <></>}
+        {isLoadingT1 ? <ConfirmingToast hash={dataT1?.hash} /> : <></>}
+        {successDisplay0 && (
+          <SuccessToast
+            key={dataT0?.hash + 'doubleApprove_success'}
+            hash={dataT0?.hash}
+            successDisplay={successDisplay0}
+            setSuccessDisplay={setSuccessDisplay0}
+          />
+        )}
+        {successDisplay1 && (
+          <SuccessToast
+            key={dataT1?.hash + 'doubleApprove_success'}
+            hash={dataT1?.hash}
+            successDisplay={successDisplay1}
+            setSuccessDisplay={setSuccessDisplay1}
           />
         )}
       </div>

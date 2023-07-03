@@ -24,6 +24,9 @@ export default function CoverMintButton({
   amount,
   zeroForOne,
   tickSpacing,
+  buttonState,
+  gasLimit,
+  tokenSymbol,
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
@@ -60,8 +63,6 @@ export default function CoverMintButton({
     zeroForOne,
   ) */
 
-  console.log('mint amount', amount.toString() )
-
   const { config } = usePrepareContractWrite({
     address: poolAddress,
     abi: coverPoolABI,
@@ -78,7 +79,7 @@ export default function CoverMintButton({
     enabled: amount.toString() != '0' && poolAddress != undefined,
     chainId: 421613,
     overrides: {
-      gasLimit: BigNumber.from('600000'),
+      gasLimit: gasLimit,
     },
   })
 
@@ -105,7 +106,25 @@ export default function CoverMintButton({
         }
         onClick={() => (coverPoolAddress && !disabled ? write?.() : null)}
       >
-        Create Cover
+        {disabled ? (
+          <>
+            {buttonState === 'price' ? (
+              <>Min. is greater than Max. Price</>
+            ) : (
+              <></>
+            )}
+            {buttonState === 'amount' ? <>Input Amount</> : <></>}
+            {buttonState === 'token' ? <>Output token not selected</> : <></>}
+            {buttonState === 'bounds' ? <>Invalid Price Range</> : <></>}
+            {buttonState === 'balance' ? (
+              <>Insufficient {tokenSymbol} Balance</>
+            ) : (
+              <></>
+            )}
+          </>
+        ) : (
+          <>Create Cover</>
+        )}
       </button>
       <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
         {errorDisplay && (

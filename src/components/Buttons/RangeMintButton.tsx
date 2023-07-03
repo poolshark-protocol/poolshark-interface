@@ -19,12 +19,15 @@ export default function RangeMintButton({
   amount0,
   amount1,
   closeModal,
+  gasLimit
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
   const [isDisabled, setDisabled] = useState(disabled)
 
   useEffect(() => {}, [disabled])
+
+  console.log('mint gas limit', gasLimit)
 
   /*const [rangeContractParams, setRangeContractParams] = useState({
     to: to,
@@ -51,19 +54,10 @@ export default function RangeMintButton({
     address: poolAddress,
     abi: rangePoolABI,
     functionName: 'mint',
-    args: [
-      [
-        to,
-        lower,
-        upper,
-        amount0,
-        amount1,
-        true, //@dev always fungible
-      ],
-    ],
+    args: [[to, lower, upper, amount0, amount1]],
     chainId: 421613,
     overrides: {
-      gasLimit: BigNumber.from('600000'),
+      gasLimit: gasLimit,
     },
     onSuccess() {
       console.log(
@@ -83,7 +77,9 @@ export default function RangeMintButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true)
-      closeModal()
+      setTimeout(() => {
+        closeModal()
+      }, 2000)
     },
     onError() {
       setErrorDisplay(true)
@@ -94,11 +90,7 @@ export default function RangeMintButton({
     <>
       <button
         disabled={disabled}
-        className={
-          disabled
-            ? 'w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50'
-            : 'w-full py-4 mx-auto text-center font-medium transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80'
-        }
+        className={'w-full py-4 mx-auto text-center font-medium transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80'}
         onClick={() => write?.()}
       >
         Mint Position

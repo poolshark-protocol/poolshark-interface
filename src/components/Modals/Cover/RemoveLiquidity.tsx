@@ -7,7 +7,7 @@ import CoverRemoveLiqButton from "../../Buttons/CoverRemoveLiqButton";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO } from "../../../utils/math/constants";
 
-export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, lowerTick, zeroForOne, amountInDeltaMax, upperTick }) {
+export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, lowerTick, zeroForOne, amountInDeltaMax, upperTick, gasLimit, gasFee }) {
 
   const {
     bnInput,
@@ -19,7 +19,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
   const [fetchDelay, setFetchDelay] = useState(false)
   const [burnPercent, setBurnPercent] = useState(ethers.utils.parseUnits("5", 37))
   const [sliderValue, setSliderValue] = useState(0)
-  const [amountInMax, setAmountInMax] = useState(ethers.utils.parseUnits(amountInDeltaMax ?? '0', tokenIn.decimals))
+  const [amountInMax, setAmountInMax] = useState(ethers.utils.parseUnits(amountInDeltaMax ?? '0', 0))
   const [amountInDisplay, setAmountInDisplay] = useState(ethers.utils.formatUnits(BigNumber.from(amountInDeltaMax) ?? BN_ZERO, tokenIn.decimals))
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
 
   useEffect(() => {
     if (amountInMax.gt(BN_ZERO)) {
-      console.log('setting burn percent', bnInput.toString(), amountInMax.toString(), bnInput.mul(ethers.utils.parseUnits('1', 38)).div(amountInMax).toString())
+      console.log('setting burn percent bn input', bnInput.toString(), amountInMax.toString(), bnInput.mul(ethers.utils.parseUnits('1', 38)).div(amountInMax).toString())
       setBurnPercent(bnInput.mul(ethers.utils.parseUnits('1', 38)).div(amountInMax))
     }
   }, [bnInput])
@@ -52,7 +52,12 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
   }, [sliderValue])
 
   const handleChange = (event: any) => {
-    setSliderValue(event.target.value)
+    if (Number(event.target.value) != 0) {
+      setSliderValue(event.target.value)
+    }
+    else {
+      setSliderValue(0)
+    }
   }
   
   const handleSliderButton = (percent: number) => {
@@ -64,7 +69,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
     console.log('tokenIn remove liquidity', tokenIn)
     try {
       const provider = new ethers.providers.JsonRpcProvider(
-        'https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2',
+        'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
         421613,
       )
       const signer = new ethers.VoidSigner(address, provider)
@@ -137,7 +142,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
         <input
           autoComplete="off"
           type="range"
-          min="0"
+          min="1"
           max="100"
           value={sliderValue}
           onChange={handleChange}
@@ -169,6 +174,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
                   </div>
                 </div>
                 <CoverRemoveLiqButton
+                      disabled={gasFee == '$0.00'}
                       poolAddress={poolAdd}
                       address={address}
                       lower={lowerTick}
@@ -176,6 +182,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
                       upper={upperTick}
                       zeroForOne={zeroForOne}
                       burnPercent={burnPercent}
+                      gasLimit={gasLimit}
                 />
               </Dialog.Panel>
             </Transition.Child>

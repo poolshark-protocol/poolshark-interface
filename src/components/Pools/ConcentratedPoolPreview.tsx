@@ -2,13 +2,15 @@ import { Fragment, useEffect, useState } from 'react'
 import { Transition, Dialog } from '@headlessui/react'
 import RangeMintButton from '../Buttons/RangeMintButton'
 import { BigNumber, ethers } from 'ethers'
-import { erc20ABI, useAccount, useContractRead } from 'wagmi'
+import { erc20ABI, useAccount, useContractRead, useProvider } from 'wagmi'
 import { TickMath } from '../../utils/math/tickMath'
 import RangeMintDoubleApproveButton from '../Buttons/RangeMintDoubleApproveButton'
 import { useRouter } from 'next/router'
 import {
   ArrowLongRightIcon,
 } from '@heroicons/react/20/solid'
+import { gasEstimateRangeMint, gasEstimateSwapLimit } from '../../utils/gas'
+import RangeMintApproveButton from '../Buttons/RangeMintApproveButton'
 
 export default function ConcentratedPoolPreview({
   account,
@@ -22,20 +24,28 @@ export default function ConcentratedPoolPreview({
   amount1Usd,
   lowerTick,
   upperTick,
+  mintGasFee,
+  gasLimit,
   fee,
   allowance0,
   allowance1,
   disabled,
+  buttonState,
+  tokenOneSymbol,
+  tokenZeroSymbol
 }) {
   const { address, isConnected } = useAccount()
   const router = useRouter()
   const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
   const lowerPrice = TickMath.getPriceStringAtTick(lowerTick)
   const upperPrice = TickMath.getPriceStringAtTick(upperTick)
+  const provider = useProvider()
+  const signer = new ethers.VoidSigner(address, provider)
 
   const [isOpen, setIsOpen] = useState(false)
+  const [doubleApprove, setdoubleApprove] = useState(false)
 
-
+  console.log('mint gas fee', mintGasFee)
 
   const { data: allowanceIn } = useContractRead({
     address: tokenIn.address,
@@ -291,19 +301,7 @@ export default function ConcentratedPoolPreview({
                         </div>
                       </div>
                       <div className="mt-4">
-                        {allowance0.gte(amount0) &&
-                        allowance1.gte(amount1) ? null : (
-                          <RangeMintDoubleApproveButton
-                            poolAddress={poolAddress}
-                            token0={tokenOrder ? tokenIn : tokenOut}
-                            token1={tokenOrder ? tokenOut : tokenIn}
-                            amount0={amount0}
-                            amount1={amount1}
-                            approveZero={allowance0.lt(amount0)}
-                          />
-                        )}
-                        {allowance0.lt(amount0) ||
-                        allowance1.lt(amount1) ? null : (
+                        {allowance0.gte(amount0) && allowance1.gte(amount1) ? (
                           <RangeMintButton
                             to={address}
                             poolAddress={poolAddress}
@@ -311,15 +309,34 @@ export default function ConcentratedPoolPreview({
                             upper={upperTick}
                             disabled={
                               allowance0.lt(amount0) ||
-                              allowance1.lt(amount1)
+                              allowance1.lt(amount1) ||
+                              mintGasFee == '$0.00'
                             }
                             amount0={amount0}
                             amount1={amount1}
-                            closeModal={
-                              () => router.push('/pool')
-                            }
+                            gasLimit={gasLimit}
+                            closeModal={() => router.push('/pool')}
                           />
-                        )}
+                        ) : (allowance0.lt(amount0) &&
+                            allowance1.lt(amount1)) ||
+                          doubleApprove ? (
+                          <RangeMintDoubleApproveButton
+                            poolAddress={poolAddress}
+                            tokenIn={tokenIn}
+                            tokenOut={tokenOut}
+                            setAllowanceController={setdoubleApprove}
+                          />
+                        ) : !doubleApprove && allowance0.lt(amount0) ? (
+                          <RangeMintApproveButton
+                            poolAddress={poolAddress}
+                            approveToken={tokenIn}
+                          />
+                        ) : !doubleApprove && allowance1.lt(amount1) ? (
+                          <RangeMintApproveButton
+                            poolAddress={poolAddress}
+                            approveToken={tokenOut}
+                          />
+                        ) : null}
                       </div>
                     </div>
                   </div>
@@ -332,9 +349,18 @@ export default function ConcentratedPoolPreview({
       <button
         onClick={() => setIsOpen(true)}
         disabled={disabled}
-        className="mt-8 w-full py-4 disabled:opacity-50 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        className="mt-8 w-full py-4 disabled:opacity-50 disabled:cursor-not-allowed mx-auto font-medium text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
       >
-        Preview
+        {disabled ? (
+          <>
+            {buttonState === 'price' ? (<>Min. is greater than Max. Price</>) : (<></>)}
+            {buttonState === 'amount' ? <>Input Deposit Amount</> : <></>}
+            {buttonState === 'balance0' ? <>Insufficient {tokenZeroSymbol}  Balance</> : <></>}
+            {buttonState === 'balance1' ? <>Insufficient {tokenOneSymbol} Balance</> : <></>}
+          </>
+        ) : (
+          <>Preview</>
+        )}
       </button>
     </div>
   )

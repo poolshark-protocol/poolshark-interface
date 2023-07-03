@@ -21,7 +21,7 @@ const { chains, provider } = configureChains(
   [
     jsonRpcProvider({
       rpc: (chain) => ({
-        http: `https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2`,
+        http: `https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594`,
       }),
     }),
   ],

@@ -12,7 +12,7 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { rangePoolABI } from '../../abis/evm/rangePool';
 
-export default function RangeAddLiqButton({poolAddress, address, lower, upper, amount0, amount1, disabled}) {
+export default function RangeAddLiqButton({poolAddress, address, lower, upper, amount0, amount1, disabled, gasLimit}) {
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -28,12 +28,11 @@ export default function RangeAddLiqButton({poolAddress, address, lower, upper, a
         lower,
         upper,
         amount0,
-        amount1,
-        true //@dev always fungible
+        amount1
       ]],
       chainId: 421613,
       overrides: {
-        gasLimit: BigNumber.from('600000'),
+        gasLimit: gasLimit,
       },
       onSuccess() {
         console.log('params check', address,
@@ -58,7 +57,9 @@ export default function RangeAddLiqButton({poolAddress, address, lower, upper, a
 
     return (
         <>
-        <button disabled={disabled} className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        <button 
+            disabled={disabled} 
+            className=" w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
             onClick={() => {
               address ?  write?.() : null
             }}

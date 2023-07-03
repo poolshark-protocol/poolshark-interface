@@ -1,7 +1,7 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useState } from 'react'
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useSwitchNetwork, useAccount, erc20ABI, useProvider  } from "wagmi";
+import { useSwitchNetwork, useAccount, erc20ABI, useProvider, useSigner  } from "wagmi";
 import useInputBox from '../../../hooks/useInputBox'
 import CoverAddLiqButton from '../../Buttons/CoverAddLiqButton'
 import { ethers, Contract } from "ethers";
@@ -9,8 +9,10 @@ import { useContractRead } from "wagmi";
 import { BN_ZERO } from "../../../utils/math/constants";
 import CoverMintApproveButton from "../../Buttons/CoverMintApproveButton";
 import { chainIdsToNamesForGitTokenList } from "../../../utils/chains";
+import { gasEstimateCoverMint } from "../../../utils/gas";
+import JSBI from "jsbi";
 
-export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, maxLimit, zeroForOne, liquidity, minLimit }) {
+export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut, poolAdd, address, claimTick, upperTick, zeroForOne, liquidity, lowerTick, tickSpacing }) {
 
   const {
     bnInput,
@@ -26,10 +28,15 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd,
   const [allowanceIn, setAllowanceIn] = useState(BN_ZERO)
   const { isDisconnected, isConnected } = useAccount()
   const [stateChainName, setStateChainName] = useState()
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
+  const [mintGasFee, setMintGasFee] = useState('$0.00')
   const [fetchDelay, setFetchDelay] = useState(false)
+  const [buttonState, setButtonState] = useState('')
+  const [disabled, setDisabled] = useState(true)
   const {
     network: { chainId },
   } = useProvider()
+  const { data: signer } = useSigner()
 
   const { data: tokenInAllowance } = useContractRead({
     address: tokenIn.address,
@@ -59,6 +66,22 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd,
     },
   })
 
+   // disabled messages
+   useEffect(() => {
+        
+    if (Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn)) {
+      setButtonState('balance')
+    }
+    if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
+      setButtonState('amount')
+    }
+    if (Number(ethers.utils.formatUnits(bnInput)) === 0 ||
+        Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn)
+    ) {
+      setDisabled(true)
+    } else { setDisabled(false)}
+  }, [bnInput, balanceIn, disabled])
+
   useEffect(() => {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId])
   }, [chainId])
@@ -80,11 +103,32 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd,
     }, 50)
   }, [tokenInAllowance])
 
+  useEffect(() => {
+    updateMintFee()
+  }, [bnInput])
+
+  async function updateMintFee() {
+    const newMintFee = await gasEstimateCoverMint(
+      poolAdd,
+      address,
+      upperTick,
+      lowerTick,
+      tokenIn,
+      tokenOut,
+      JSBI.BigInt(bnInput.toString()),
+      tickSpacing,
+      signer,
+    )
+    
+    setMintGasFee(newMintFee.formattedPrice)
+    setMintGasLimit(newMintFee.gasUnits.mul(130).div(100))
+  }
+
   const getBalances = async () => {
     setFetchDelay(true)
     try {
       const provider = new ethers.providers.JsonRpcProvider(
-        'https://arb-goerli.g.alchemy.com/v2/M8Dr_KQx46ghJ93XDQe7j778Qa92HRn2',
+        'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
         421613,
       )
       const signer = new ethers.VoidSigner(address, provider)
@@ -169,23 +213,28 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd,
                   allowanceIn.lt(bnInput) &&
                   stateChainName === "arbitrumGoerli" ? (
                     <CoverMintApproveButton
-                      disabled={false}
+                      disabled={disabled}
                       poolAddress={poolAdd}
                       approveToken={tokenIn.address}
                       amount={bnInput}
                       tokenSymbol={tokenIn.symbol}
                       allowance={allowanceIn}
+                      buttonState={buttonState}
                     />
                   ) : stateChainName === "arbitrumGoerli" ? (
                     <CoverAddLiqButton
+                      disabled={disabled || mintGasFee == '$0.00'}
                       toAddress={address}
                       poolAddress={poolAdd}
                       address={address}
-                      lower={minLimit}
+                      lower={lowerTick}
                       claim={claimTick}
-                      upper={maxLimit}
+                      upper={upperTick}
                       zeroForOne={zeroForOne}
                       amount={bnInput}
+                      gasLimit={mintGasLimit}
+                      buttonState={buttonState}
+                      tokenSymbol={tokenIn.Symbol}
                 />
                   ) : null}
                 

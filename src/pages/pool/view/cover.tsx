@@ -6,7 +6,7 @@ import {
 } from '@heroicons/react/20/solid'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { useAccount, useContractRead } from 'wagmi'
+import { useAccount, useContractRead, useSigner } from 'wagmi'
 import CoverCollectButton from '../../../components/Buttons/CoverCollectButton'
 import { BigNumber, ethers } from 'ethers'
 import {
@@ -23,13 +23,15 @@ import {
   tokenZeroAddress,
   tokenOneAddress,
 } from '../../../constants/contractAddresses'
+import { BN_ZERO } from '../../../utils/math/constants'
+import { gasEstimateCoverBurn, gasEstimateCoverMint } from '../../../utils/gas'
 
 export default function Cover() {
   const { address, isConnected } = useAccount()
   const router = useRouter()
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [isRemoveOpen, setIsRemoveOpen] = useState(false)
-
+  const {data: signer} = useSigner()
   const [poolAdd, setPoolContractAdd] = useState(router.query.poolId ?? '')
   const [tokenIn, setTokenIn] = useState({
     name: router.query.tokenZeroAddress ?? '',
@@ -108,6 +110,10 @@ export default function Cover() {
   )
   const [claimTick, setClaimTick] = useState(BigNumber.from('887272'))
   const [fetchDelay, setFetchDelay] = useState(false)
+  const [burnGasLimit, setBurnGasLimit] = useState(BN_ZERO)
+  const [burnGasFee, setBurnGasFee] = useState('$0.00')
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
+  const [mintGasFee, setMintGasFee] = useState('$0.00')
 
   ////////////////////////////////Router is ready
 
@@ -295,6 +301,23 @@ export default function Cover() {
       Number(epochLast),
     )
     setClaimTick(BigNumber.from(aux))
+    updateBurnFee(BigNumber.from(claimTick))
+  }
+
+  async function updateBurnFee(claim: BigNumber) {
+    const newGasFee = await gasEstimateCoverBurn(
+      poolAdd.toString(),
+      address,
+      BN_ZERO,
+      BigNumber.from(minLimit),
+      claim,
+      BigNumber.from(maxLimit),
+      zeroForOne,
+      signer
+    )
+    
+    setBurnGasLimit(newGasFee.gasUnits)
+    setBurnGasFee(newGasFee.formattedPrice)
   }
 
   ////////////////////////////////Addresses
@@ -486,6 +509,8 @@ export default function Cover() {
                       claim={claimTick}
                       upper={maxLimit}
                       zeroForOne={zeroForOne}
+                      gasLimit={burnGasLimit.mul(150).div(100)}
+                      gasFee={burnGasFee}
                     />
                     {/*TO-DO: add positionOwner ternary again*/}
                   </div>
@@ -583,6 +608,7 @@ export default function Cover() {
       ) : (
         <>
           <RemoveLiquidity
+            gasFee={burnGasFee}
             isOpen={isRemoveOpen}
             setIsOpen={setIsRemoveOpen}
             tokenIn={tokenIn}
@@ -593,18 +619,21 @@ export default function Cover() {
             upperTick={Number(maxLimit)}
             zeroForOne={zeroForOne}
             amountInDeltaMax={userFillOut ?? '0'}
+            gasLimit={burnGasLimit.mul(250).div(100)}
           />
           <AddLiquidity
             isOpen={isAddOpen}
             setIsOpen={setIsAddOpen}
             tokenIn={tokenIn}
+            tokenOut={tokenOut}
             poolAdd={poolAdd}
             address={address}
-            minLimit={minLimit}
+            lowerTick={minLimit}
             claimTick={claimTick}
-            maxLimit={maxLimit}
+            upperTick={maxLimit}
             zeroForOne={zeroForOne}
             liquidity={liquidity}
+            tickSpacing={tickSpacing}
           />
         </>
       )}
