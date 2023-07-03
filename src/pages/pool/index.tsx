@@ -43,13 +43,15 @@ export default function Pool() {
   //////////////////////Get Pools Data
 
   useEffect(() => {
-    if (address) {
-      getUserCoverPositionData()
-      getUserRangePositionData()
-    }
-    getRangePoolData()
-    getCoverPoolData()
-  }, [address])
+    setTimeout(() => {
+      if (address) {
+        getUserCoverPositionData()
+        getUserRangePositionData()
+      }
+      getRangePoolData()
+      getCoverPoolData()
+    }, 1000)
+  }, [address, allCoverPositions, allRangePositions])
 
   async function getUserRangePositionData() {
     try {
