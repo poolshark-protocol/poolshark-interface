@@ -226,6 +226,8 @@ export default function Range() {
     amount1,
     amount0Fees,
     amount1Fees,
+    rangePrice,
+    rangeTickPrice,
   ])
 
   const getRangePool = async () => {
@@ -245,20 +247,22 @@ export default function Range() {
         const tickAtPrice = pool['data']['rangePools']['0']['tickAtPrice']
         console.log('setting usd token amounts', token0Price, token1Price, amount0Fees, amount1Fees)
         setRangePoolRoute(id)
-        setAmount0Usd(
-          parseFloat((amount0 * parseFloat(token0Price)).toPrecision(6)),
-        )
-        setAmount1Usd(
-          parseFloat((amount1 * parseFloat(token1Price)).toPrecision(6)),
-        )
-        setAmount0FeesUsd(
-          parseFloat((amount0Fees * parseFloat(token0Price)).toPrecision(3)),
-        )
-        setAmount1FeesUsd(
-          parseFloat((amount1Fees * parseFloat(token1Price)).toPrecision(3)),
-        )
-        setRangePrice(price)
-        setRangeTickPrice(tickAtPrice)
+        setTimeout(() => {
+          setAmount0Usd(
+            parseFloat((amount0 * parseFloat(token0Price)).toPrecision(6)),
+          )
+          setAmount1Usd(
+            parseFloat((amount1 * parseFloat(token1Price)).toPrecision(6)),
+          )
+          setAmount0FeesUsd(
+            parseFloat((amount0Fees * parseFloat(token0Price)).toPrecision(3)),
+          )
+          setAmount1FeesUsd(
+            parseFloat((amount1Fees * parseFloat(token1Price)).toPrecision(3)),
+          )
+          setRangePrice(price)
+          setRangeTickPrice(tickAtPrice)
+        }, 200)
       }
     } catch (error) {
       console.log(error)
@@ -303,8 +307,10 @@ export default function Range() {
   }
 
   useEffect(() => {
-    setUserLiquidityUsd(amount0Usd + amount1Usd)
-  }, [amount0Usd, amount1Usd])
+    setTimeout(() => {
+      setUserLiquidityUsd(amount0Usd + amount1Usd)
+    }, 200)
+  }, [amount0Usd, amount1Usd, userLiquidityUsd])
 
 
   ////////////////////////Fees
@@ -327,8 +333,10 @@ export default function Range() {
   })
 
   useEffect(() => {
-    setFeesOwed()
-  }, [snapshot])
+    setTimeout(() => {
+      setFeesOwed()
+    }, 200)
+  }, [snapshot, amount0Fees, amount1Fees])
 
   function setFeesOwed() {
     try {
