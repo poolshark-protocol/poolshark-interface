@@ -296,6 +296,7 @@ export default function ConcentratedPool({
     }
   }
 
+  //TODO@retraca update the utils functions to do this and add to context in zustand
   const getRangePoolData = async () => {
     try {
       if (hasSelected === true) {

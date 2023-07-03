@@ -8,6 +8,9 @@ import {
 } from './queries'
 import { token } from './types'
 
+
+//TODO@retraca enable this componnent to directly u0pdate zustand states
+
 export const getRangePool = async (
   tokenIn: token,
   tokenOut: token,
@@ -23,6 +26,7 @@ export const getRangePool = async (
       tokenIn.address,
       tokenOut.address,
     )
+    //TODO@retraca create here a for for choosing the righ poll considering feetier
     let id = ZERO_ADDRESS
     const dataLength = pool['data']['rangePools'].length
     if (dataLength != 0) {
