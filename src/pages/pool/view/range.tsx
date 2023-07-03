@@ -225,7 +225,7 @@ export default function Range() {
     amount0,
     amount1,
     amount0Fees,
-    amount1Fees,
+    amount1Fees
   ])
 
   const getRangePool = async () => {
