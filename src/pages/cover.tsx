@@ -27,8 +27,18 @@ export default function Cover() {
   const [allCoverPositions, setAllCoverPositions] = useState([])
 
   useEffect(() => {
-    if (address) getUserCoverPositionData()
+    if (address) {
+      getUserCoverPositionData()
+    }
   }, [address])
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (allCoverPositions) {
+        getUserCoverPositionData()
+      }
+    }, 2000)
+  }, [allCoverPositions])
 
   useEffect(() => {
     if (state === 'existing' && router.query.state === 'nav') {
