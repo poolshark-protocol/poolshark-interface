@@ -83,6 +83,7 @@ export const gasEstimateSwap = async (
     const networkFeeWei = gasPrice.mul(gasUnits)
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18))
     const networkFeeUsd = networkFeeEth * ethUsdPrice
+    console.log('network fee', networkFeeUsd)
     const formattedPrice: string =
       networkFeeUsd.toLocaleString('en-US', {
         style: 'currency',
