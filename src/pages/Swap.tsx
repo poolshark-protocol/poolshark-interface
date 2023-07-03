@@ -589,6 +589,8 @@ export default function Swap() {
     bnInput,
     tokenIn.address,
     tokenOut.address,
+    allowanceRange,
+    allowanceCover,
     coverPoolRoute,
     rangePoolRoute,
     LimitActive,
@@ -612,9 +614,9 @@ export default function Swap() {
       signer,
       isConnected,
     )
-
+    console.log('new swap fee', newGasFee.formattedPrice, newGasFee.gasUnits.toString())
     setSwapGasFee(newGasFee.formattedPrice)
-    setSwapGasLimit(newGasFee.gasUnits.mul(130).div(100))
+    setSwapGasLimit(newGasFee.gasUnits.mul(150).div(100))
   }
 
   async function updateMintFee() {
@@ -1171,7 +1173,7 @@ export default function Swap() {
                 </div>
               ) : (
                 <SwapRangeButton
-                  disabled={swapGasFee == '$0.00'}
+                  disabled={false}
                   poolAddress={rangePoolRoute}
                   zeroForOne={
                     tokenOut.address != '' &&
@@ -1196,7 +1198,7 @@ export default function Swap() {
               </div>
             ) : (
               <SwapCoverButton
-                disabled={swapGasFee == '$0.00'}
+                disabled={swapGasLimit.gt(BN_ZERO)}
                 poolAddress={coverPoolRoute}
                 zeroForOne={
                   tokenOut.address != '' &&
