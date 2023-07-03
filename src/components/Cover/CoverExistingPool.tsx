@@ -61,8 +61,8 @@ export default function CoverExistingPool({
   const { data: signer } = useSigner()
   const [expanded, setExpanded] = useState(false)
   const [fetchDelay, setFetchDelay] = useState(false)
-  const [tickSpread, setTickSpread] = useState(20)
-  const [auctionLength, setAuctionLength] = useState(5)
+  const [tickSpread, setTickSpread] = useState(tickSpacing)
+  const [auctionLength, setAuctionLength] = useState(0)
   const [tokenOrder, setTokenOrder] = useState(zeroForOne)
   const [latestTick, setLatestTick] = useState(0)
   const [lowerTick, setLowerTick] = useState(
@@ -100,7 +100,7 @@ export default function CoverExistingPool({
   const [sliderValue, setSliderValue] = useState(50)
   const [coverPrice, setCoverPrice] = useState(undefined)
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
-  const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
+  const [coverPoolRoute, setCoverPoolRoute] = useState(poolId ?? undefined)
   const [coverAmountIn, setCoverAmountIn] = useState(ZERO)
   const [coverAmountOut, setCoverAmountOut] = useState(ZERO)
   const [allowance, setAllowance] = useState(ZERO)
@@ -109,6 +109,7 @@ export default function CoverExistingPool({
   const [buttonState, setButtonState] = useState('')
   const [mintGasFee, setMintGasFee] = useState('$0.00')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
+  const [volatility, setVolatility] = useState(0)
 
   ////////////////////////////////
 
@@ -171,36 +172,43 @@ export default function CoverExistingPool({
   useEffect(() => {
     if (!fetchDelay) {
       getCoverPoolInfo(
+        coverPoolRoute,
         tokenOrder,
         tokenIn,
         tokenOut,
         setCoverPoolRoute,
+        setCoverPrice,
         null,
-        setTickSpread,
-        setAuctionLength,
-        null,
-        setLatestTick
+        setVolatility,
+        setLatestTick,
+        lowerPrice,
+        upperPrice,
+        setLowerPrice,
+        setUpperPrice,
       )
       console.log('tick bounds', lowerTick, upperTick)
-      if (!isNaN(lowerTick) && !isNaN(upperTick))
-        updateGasFee()
+      if (!isNaN(lowerTick) && !isNaN(upperTick)) updateGasFee()
     } else {
       const interval = setInterval(() => {
         getCoverPoolInfo(
+          coverPoolRoute,
           tokenOrder,
           tokenIn,
           tokenOut,
           setCoverPoolRoute,
+          setCoverPrice,
           null,
-          setTickSpread,
-          setAuctionLength,
-          null,
-          setLatestTick
+          setVolatility,
+          setLatestTick,
+          lowerPrice,
+          upperPrice,
+          setLowerPrice,
+          setUpperPrice,
         )
       }, 5000)
       return () => clearInterval(interval)
     }
-  }, [fetchDelay])
+  }, [fetchDelay, coverPoolRoute])
 
   useEffect(() => {
     changeCoverAmounts()
@@ -251,16 +259,21 @@ export default function CoverExistingPool({
     }
   }, [lowerPrice, upperPrice])
 
-  useEffect(() => {
-
-  }, [coverAmountOut])
+  useEffect(() => {}, [coverAmountOut])
 
   ////////////////////////////////
 
   const changeValidBounds = () => {
-    console.log('setting valid bounds', lowerTick < latestTick - tickSpread, tokenOrder)
-    setValidBounds(tokenOrder ? lowerTick < latestTick - tickSpread
-                              : upperTick > latestTick - (-tickSpread))
+    console.log(
+      'setting valid bounds',
+      lowerTick < latestTick - tickSpread,
+      tokenOrder,
+    )
+    setValidBounds(
+      tokenOrder
+        ? lowerTick < latestTick - tickSpread
+        : upperTick > latestTick - -tickSpread,
+    )
   }
 
   const changePrice = (direction: string, inputId: string) => {
@@ -282,7 +295,12 @@ export default function CoverExistingPool({
         : latestTick
     console.log('current tick', currentTick, upperTick)
     if (!tickSpread && !tickSpacing) return
-    console.log('increment check', tickSpread, tickSpacing, tickSpread ?? tickSpacing)
+    console.log(
+      'increment check',
+      tickSpread,
+      tickSpacing,
+      tickSpread ?? tickSpacing,
+    )
     const increment = tickSpread ?? tickSpacing
     const adjustment =
       direction == 'plus' || direction == 'minus'
@@ -293,8 +311,7 @@ export default function CoverExistingPool({
     console.log('adjustment', adjustment, currentTick)
     const newTick = roundTick(currentTick - adjustment, increment)
     const newPriceString = TickMath.getPriceStringAtTick(newTick)
-    ;
-    (document.getElementById(inputId) as HTMLInputElement).value = Number(
+    ;(document.getElementById(inputId) as HTMLInputElement).value = Number(
       newPriceString,
     ).toFixed(6)
     if (inputId === 'maxInput') {
@@ -368,7 +385,7 @@ export default function CoverExistingPool({
       tokenOut,
       coverAmountIn,
       tickSpread,
-      signer
+      signer,
     )
     
     setMintGasFee(newMintGasFee.formattedPrice)
@@ -380,10 +397,15 @@ export default function CoverExistingPool({
   }
 
   const volatilityTiers = [
-    { id: 0, tier: "2.4% per min", text: "Best for most pairs", unavailable: false },
-  ];
+    {
+      id: 0,
+      tier: '2.4% per min',
+      text: 'Best for most pairs',
+      unavailable: false,
+    },
+  ]
 
-    const [selected, setSelected] = useState(volatilityTiers[0]);
+  const [selected, setSelected] = useState(volatilityTiers[0])
 
   function SelectVolatility() {
     return (
@@ -450,7 +472,6 @@ export default function CoverExistingPool({
             <div className="text-xs text-[#4C4C4C]">
               Min. filled amount
             </div>
-            <div className="ml-auto text-xs">{(parseFloat(ethers.utils.formatUnits(String(coverAmountOut), 18)) * (1 - tickSpread / 10000)).toPrecision(5) + ' ' + tokenOut.symbol}</div>
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
@@ -561,15 +582,17 @@ export default function CoverExistingPool({
             <div className="-mt-1">{tokenOut.symbol}</div>
           </div>
         </div>
-          <div className="flex justify-between text-sm">
-            <div className="text-[#646464]">Amount to pay</div>
-            <div className="gap-x-2 flex items-center justify-end">
-              <span className="text-lg">{Number(
+        <div className="flex justify-between text-sm">
+          <div className="text-[#646464]">Amount to pay</div>
+          <div className="gap-x-2 flex items-center justify-end">
+            <span className="text-lg">
+              {Number(
                 ethers.utils.formatUnits(coverAmountIn.toString(), 18),
-              ).toPrecision(5)}</span> 
-              <span className="mt-1">{tokenIn.symbol}</span>
-            </div>
+              ).toPrecision(5)}
+            </span>
+            <span className="mt-1">{tokenIn.symbol}</span>
           </div>
+        </div>
       </div>
       <div>
         <div className="gap-x-4 mt-5">
@@ -664,11 +687,12 @@ export default function CoverExistingPool({
           onClick={() => setExpanded(!expanded)}
         >
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-            1 {tokenIn.symbol} = {
-              (!isNaN(parseFloat(coverTickPrice))) ?
-              (parseFloat(parseFloat(coverTickPrice).toPrecision(6)) + ' ' + tokenOut.symbol) :
-              ('?' + ' ' + tokenOut.symbol)
-            }
+            1 {tokenIn.symbol} ={' '}
+            {!isNaN(parseFloat(coverTickPrice))
+              ? parseFloat(parseFloat(coverTickPrice).toPrecision(6)) +
+                ' ' +
+                tokenOut.symbol
+              : '?' + ' ' + tokenOut.symbol}
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
             <button>

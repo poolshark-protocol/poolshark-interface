@@ -57,7 +57,9 @@ export default function PoolList({
             />
           </div>
           {tokenZero.symbol}-{tokenOne.symbol}
-          <div className=" px-2 py-1 rounded-lg text-grey text-sm">{feeTierPercentage}%</div>
+          <div className=" px-2 py-1 rounded-lg text-grey text-sm">
+            {feeTierPercentage}%
+          </div>
         </td>
         <td>${tvlUsd}m</td>
         <td>${volumeUsd}m</td>
