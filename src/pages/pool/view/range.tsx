@@ -218,7 +218,9 @@ export default function Range() {
   ////////////////////////Pool
 
   useEffect(() => {
-    getRangePool()
+    setTimeout(() => {
+      getRangePool()
+    }, 1000)
   }, [
     token0.address,
     token1.address,
@@ -247,22 +249,20 @@ export default function Range() {
         const tickAtPrice = pool['data']['rangePools']['0']['tickAtPrice']
         console.log('setting usd token amounts', token0Price, token1Price, amount0Fees, amount1Fees)
         setRangePoolRoute(id)
-        setTimeout(() => {
-          setAmount0Usd(
-            parseFloat((amount0 * parseFloat(token0Price)).toPrecision(6)),
-          )
-          setAmount1Usd(
-            parseFloat((amount1 * parseFloat(token1Price)).toPrecision(6)),
-          )
-          setAmount0FeesUsd(
-            parseFloat((amount0Fees * parseFloat(token0Price)).toPrecision(3)),
-          )
-          setAmount1FeesUsd(
-            parseFloat((amount1Fees * parseFloat(token1Price)).toPrecision(3)),
-          )
-          setRangePrice(price)
-          setRangeTickPrice(tickAtPrice)
-        }, 1000)
+        setAmount0Usd(
+          parseFloat((amount0 * parseFloat(token0Price)).toPrecision(6)),
+        )
+        setAmount1Usd(
+          parseFloat((amount1 * parseFloat(token1Price)).toPrecision(6)),
+        )
+        setAmount0FeesUsd(
+          parseFloat((amount0Fees * parseFloat(token0Price)).toPrecision(3)),
+        )
+        setAmount1FeesUsd(
+          parseFloat((amount1Fees * parseFloat(token1Price)).toPrecision(3)),
+        )
+        setRangePrice(price)
+        setRangeTickPrice(tickAtPrice)
       }
     } catch (error) {
       console.log(error)
