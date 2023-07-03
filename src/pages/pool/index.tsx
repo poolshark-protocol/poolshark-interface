@@ -60,17 +60,17 @@ export default function Pool() {
           getUserRangePositionData()
         }
       }
-    }, 1000)
+    }, 2000)
   }, [allRangePositions])
 
   useEffect(() => {
     setTimeout(() => {
       if (allCoverPositions) {
-        if(selected.id !== 1) {
+        if(selected.id === 2) {
           getUserCoverPositionData()
         }
       }
-    }, 1000)
+    }, 2000)
   }, [allCoverPositions])
 
   async function getUserRangePositionData() {
