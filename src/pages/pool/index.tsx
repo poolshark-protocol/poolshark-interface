@@ -54,25 +54,23 @@ export default function Pool() {
   }, [address])
 
   useEffect(() => {
-    const id = setTimeout(() => {
+    setTimeout(() => {
       if (allRangePositions) {
         if(selected.id === 1) {
           getUserRangePositionData()
         }
       }
     }, 1000)
-    clearTimeout(id)
   }, [allRangePositions])
 
   useEffect(() => {
-    const id = setTimeout(() => {
+    setTimeout(() => {
       if (allCoverPositions) {
         if(selected.id !== 1) {
           getUserCoverPositionData()
         }
       }
     }, 1000)
-    clearTimeout(id)
   }, [allCoverPositions])
 
   async function getUserRangePositionData() {
