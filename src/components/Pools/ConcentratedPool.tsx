@@ -472,13 +472,13 @@ export default function ConcentratedPool({
   }
 
   return (
-    <div className="bg-black flex md:flex-row flex-col gap-x-20 justify-between border border-grey2 w-full rounded-xl pt-10 pb-20 px-7">
+    <div className="bg-black flex md:flex-row flex-col gap-x-20 justify-between border border-grey2 w-full rounded-xl md:pt-10 pt-7 pb-20 md:px-7 px-4">
       <div className="md:w-1/2">
         <div>
           <div className="flex items-center gap-x-4">
             <h1>Select Pair</h1>
           </div>
-          <div className="flex items-center gap-x-5 mt-3">
+          <div className="flex flex-col md:flex-row w-full items-center gap-y-3 gap-x-5 mt-3">
             <SelectToken
               index="0"
               type="in"
@@ -493,7 +493,7 @@ export default function ConcentratedPool({
               key={queryTokenIn}
             />
             <ArrowLongRightIcon
-              className="w-6 cursor-pointer"
+              className="w-6 cursor-pointer rotate-90 md:rotate-0"
               onClick={() => {
                 if (hasSelected) {
                   const newInput = tokenOrder ? amount1 : amount0;

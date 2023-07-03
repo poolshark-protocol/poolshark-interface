@@ -155,7 +155,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-xl bg-black text-white border border-grey2 text-left align-middle shadow-xl px-5 py-5 transition-all">
+              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-xl bg-black text-white border border-grey2 text-left align-middle shadow-xl py-4 px-3 md:p-5 transition-all">
                 <div className="flex items-center justify-between px-2">
                   <h1 className="text-lg">Remove Liquidity</h1>
                   <XMarkIcon
@@ -168,7 +168,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
                   <div className="text-3xl font-medium">
                     {sliderValue}%
                     </div>
-                    <div className="flex items-center gap-x-4">
+                    <div className="md:flex items-center hidden md:text-base text-sm">
                       <button onClick={() => handleSliderButton(25)} className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
                         25%
                       </button>
@@ -194,7 +194,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
         />
                 </div>
                 <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-6 mb-6">
-                  <div className=" p-2 ">{inputBox("0")}</div>
+                  <div className=" p-2 w-32">{inputBox("0")}</div>
                   <div className="">
                     <div className=" ml-auto">
                       <div>

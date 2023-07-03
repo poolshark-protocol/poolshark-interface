@@ -143,15 +143,15 @@ export default function Pool() {
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
       <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full  px-3 md:px-0">
-        <div className="w-[60rem] mt-[10vh] mb-[10vh">
-          <div className="flex justify-between mb-6 items-end">
-            <div className="flex items-center gap-x-4">
+        <div className="w-[60rem] mt-[10vh] mb-[15vh]">
+          <div className="flex w-full justify-between mb-6 items-end">
+            <div className="flex md:flex-row gap-y-4 flex-col w-full justify-start md:items-center items-start gap-x-4">
               <h1 className="text-3xl">Pools</h1>
               <div className="cursor-pointer flex flex-row-reverse md:flex-row gap-x-3">
                 <SelectPool />
               </div>
             </div>
-            <span className="bg-black flex items-center gap-x-2 border border-grey2 rounded-lg text-white px-6 py-[9px] cursor-pointer hover:opacity-80">
+            <span className="bg-black whitespace-nowrap flex items-center gap-x-2 border border-grey2 rounded-lg text-white px-6 py-[9px] cursor-pointer hover:opacity-80">
               <InformationCircleIcon className="w-4 text-grey1" />
               <Link
                 href={

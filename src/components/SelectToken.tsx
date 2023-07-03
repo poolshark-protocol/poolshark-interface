@@ -153,7 +153,7 @@ export default function SelectToken(props) {
   }
 
   return (
-    <div>
+    <div className="w-full">
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-50" onClose={closeModal}>
           <Transition.Child
@@ -230,8 +230,8 @@ export default function SelectToken(props) {
         className={
           (props.tokenIn.symbol != 'Select Token' && props.type == 'in') ||
           (props.tokenOut.symbol != 'Select Token' && props.type == 'out')
-            ? 'flex items-center uppercase gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl'
-            : 'flex items-center bg-background text-main gap-x-3 hover:opacity-80  px-4 py-2 rounded-xl'
+            ? 'w-full flex items-center uppercase gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl'
+            : 'w-full flex items-center bg-background text-main gap-x-3 hover:opacity-80  px-4 py-2 rounded-xl'
         }
       >
         <div className="flex items-center gap-x-2 w-full">
