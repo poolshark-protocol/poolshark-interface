@@ -77,7 +77,6 @@ export default function ConcentratedPool({
     state.rangeContractParams,
   ])
   const [tokenOrder, setTokenOrder] = useState(true)
-  /* const [selected, setSelected] = useState(updateSelected()) */
   const [selected, setSelected] = useState(updateSelectedFeeTier)
   const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)

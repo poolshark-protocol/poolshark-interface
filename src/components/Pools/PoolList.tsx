@@ -1,4 +1,5 @@
 import Link from 'next/link'
+
 export default function PoolList({
   poolId,
   account,
@@ -20,7 +21,6 @@ export default function PoolList({
     WETH: '/static/images/weth.png',
     DAI: '/static/images/dai_icon.png',
   }
-  console.log('fee tier set', feeTier)
   const feeTierPercentage = feeTier / 10000
 
   return (
