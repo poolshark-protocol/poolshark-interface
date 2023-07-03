@@ -165,7 +165,7 @@ export default function ConcentratedPool({
     watch: true,
     enabled: rangePoolRoute != undefined && tokenIn.address != '',
     onSuccess(data) {
-      // console.log('Success allowance in', allowanceIn.toString())
+      console.log('Success allowance in', rangePoolRoute)
     },
     onError(error) {
       console.log('Error', error)
@@ -196,7 +196,8 @@ export default function ConcentratedPool({
     if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
       setButtonState('price')
     }
-    if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
+    console.log('bn input check', bnInput.toString(), Number(ethers.utils.formatUnits(bnInput)) === 0)
+    if (bnInput.eq(BN_ZERO)) {
       setButtonState('amount')
     }
     if (Number(ethers.utils.formatUnits(amount0)) > Number(balance0)) {
@@ -205,15 +206,18 @@ export default function ConcentratedPool({
     if (Number(ethers.utils.formatUnits(amount1)) > Number(balance1)) {
       setButtonState('balance1')
     }
-    if (Number(ethers.utils.formatUnits(amount0)) > Number(balance0) ||
-        Number(ethers.utils.formatUnits(bnInput)) === 0 ||
-        parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
-        Number(ethers.utils.formatUnits(amount1)) > Number(balance1)
-        ) {
-          setDisabled(true)
-        } else {
-          setDisabled(false)
-        }
+    if (
+      Number(ethers.utils.formatUnits(bnInput)) === 0 ||
+      parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
+      Number(ethers.utils.formatUnits(amount0)) > Number(balance0) ||
+      Number(ethers.utils.formatUnits(amount1)) > Number(balance1)
+    ) {
+      console.log('disabled true')
+      setDisabled(true)
+    } else {
+      console.log('disabled false')
+      setDisabled(false)
+    }
   }, [bnInput, lowerPrice, upperPrice, amount0, amount1, balance0, balance1])
 
   useEffect(() => {
@@ -276,18 +280,21 @@ export default function ConcentratedPool({
   }, [lowerPrice, upperPrice])
 
   async function updateGasFee() {
-    const newGasFee = await gasEstimateRangeMint(
-      rangePoolRoute,
-      address,
-      lowerTick,
-      upperTick,
-      amount0,
-      amount1,
-      signer,
-    )
-    
-    setMintGasFee(newGasFee.formattedPrice)
-    setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
+    if ((amount0.gt(BN_ZERO) || amount1.gt(BN_ZERO)) && 
+        allowance0.gte(amount0) && allowance1.gte(amount1)) {
+      const newGasFee = await gasEstimateRangeMint(
+        rangePoolRoute,
+        address,
+        lowerTick,
+        upperTick,
+        amount0,
+        amount1,
+        signer,
+      )
+      
+      setMintGasFee(newGasFee.formattedPrice)
+      setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
+    }
   }
 
   const getRangePoolData = async () => {
@@ -847,7 +854,7 @@ export default function ConcentratedPool({
           fee={selected.tier}
           allowance0={allowance0}
           allowance1={allowance1}
-          disabled={isDisabled || mintGasFee == '$0.00'}
+          disabled={isDisabled}
           buttonState={buttonState}
           gasLimit={mintGasLimit}
           mintGasFee={mintGasFee}
