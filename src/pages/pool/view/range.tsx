@@ -220,7 +220,7 @@ export default function Range() {
   useEffect(() => {
     setTimeout(() => {
       getRangePool()
-    }, 1000)
+    }, 500)
   }, [
     token0.address,
     token1.address,
@@ -228,8 +228,6 @@ export default function Range() {
     amount1,
     amount0Fees,
     amount1Fees,
-    rangePrice,
-    rangeTickPrice,
   ])
 
   const getRangePool = async () => {
@@ -309,7 +307,7 @@ export default function Range() {
   useEffect(() => {
     setTimeout(() => {
       setUserLiquidityUsd(amount0Usd + amount1Usd)
-    }, 1000)
+    }, 500)
   }, [amount0Usd, amount1Usd, userLiquidityUsd])
 
 
@@ -335,7 +333,7 @@ export default function Range() {
   useEffect(() => {
     setTimeout(() => {
       setFeesOwed()
-    }, 1000)
+    }, 500)
   }, [snapshot, amount0Fees, amount1Fees])
 
   function setFeesOwed() {

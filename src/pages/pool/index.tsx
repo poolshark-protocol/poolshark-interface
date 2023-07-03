@@ -41,17 +41,39 @@ export default function Pool() {
   const [allCoverPools, setAllCoverPools] = useState([])
 
   //////////////////////Get Pools Data
+  useEffect(() => {
+    getRangePoolData()
+    getCoverPoolData()
+  }, [])
 
   useEffect(() => {
-    setTimeout(() => {
-      if (address) {
-        getUserCoverPositionData()
-        getUserRangePositionData()
+    if (address) {
+      getUserRangePositionData()
+      getUserCoverPositionData()
+    }
+  }, [address])
+
+  useEffect(() => {
+    const id = setTimeout(() => {
+      if (allRangePositions) {
+        if(selected.id === 1) {
+          getUserRangePositionData()
+        }
       }
-      getRangePoolData()
-      getCoverPoolData()
     }, 1000)
-  }, [address, allCoverPositions, allRangePositions])
+    clearTimeout(id)
+  }, [allRangePositions])
+
+  useEffect(() => {
+    const id = setTimeout(() => {
+      if (allCoverPositions) {
+        if(selected.id !== 1) {
+          getUserCoverPositionData()
+        }
+      }
+    }, 1000)
+    clearTimeout(id)
+  }, [allCoverPositions])
 
   async function getUserRangePositionData() {
     try {
