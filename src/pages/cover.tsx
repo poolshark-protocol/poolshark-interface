@@ -196,7 +196,7 @@ export default function Cover() {
           </div>
           <div className="md:hidden block flex w-full space-x-8 mb-20">
             {create ?
-            <div className="bg-black w-full md:w-2/3 border border-grey2 w-full rounded-xl p-6 gap-y-4 pb-20">
+            <div className="bg-black w-full md:w-2/3 border border-grey2 w-full rounded-xl md:p-6 p-4 gap-y-4 pb-20">
               {selectedPool != undefined && state != 'initial' ? (
                 <CreateCover query={router.query} goBack={handleDiselectPool} />
               ) : (
@@ -227,7 +227,7 @@ export default function Cover() {
                 </div>
               </div>
             ) : (
-              <div className="bg-black w-full border border-grey2 w-full rounded-xl p-6 space-y-4 overflow-auto pb-40">
+              <div className="bg-black w-full border border-grey2 w-full rounded-xl md:p-6 p-3 space-y-4 overflow-auto pb-40">
                 <div className="relative">
                   <MagnifyingGlassIcon className="w-5 text-grey absolute ml-[14px] mt-[13px]" />
                   <input

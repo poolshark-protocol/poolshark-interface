@@ -351,10 +351,10 @@ export default function Range() {
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
-      <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full">
-      <div className="w-[60rem] mt-[10vh] mb-[10vh]">
-          <div className="flex justify-between items-center mb-2">
-            <div className="text-left flex items-center gap-x-5 py-2.5">
+      <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full px-5">
+      <div className="w-full lg:w-[60rem] mt-[10vh] mb-[10vh]">
+          <div className="flex flex-wrap justify-between items-center mb-2">
+            <div className="text-left flex flex-wrap gap-y-5 items-center gap-x-5 py-2.5">
               <div className="flex items-center">
                 <img height="50" width="50" src={token0.logoURI} />
                 <img
@@ -370,6 +370,7 @@ export default function Range() {
               <span className="bg-white text-black rounded-md px-3 py-0.5">
                 {router.query.feeTier}%
               </span>
+              <div className="hidden md:block">
               {Number(rangeTickPrice) < Number(lowerTick) ||
               Number(rangeTickPrice) > Number(upperTick) ? (
                 <div className="pr-5">
@@ -385,20 +386,21 @@ export default function Range() {
                 </div>
               )}
             </div>
+            </div>
 
             <a
               href={'https://goerli.arbiscan.io/address/' + poolAdd}
               target="_blank"
               rel="noreferrer"
-              className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80"
+              className="gap-x-2 flex items-center text-white cursor-pointer hover:opacity-80 whitespace-nowrap"
             >
               View on Arbiscan
               <ArrowTopRightOnSquareIcon className="w-5 " />
             </a>
           </div>
-          <div className="mb-6">
-            <div className="flex justify-between text-[#646464]">
-              <div className="grid grid-cols-2 gap-x-10 pl-2 ">
+          <div className="mb-4">
+            <div className="flex flex-wrap justify-between text-[#646464]">
+              <div className="hidden md:grid grid-rows-2 md:grid-rows-1 grid-cols-1 md:grid-cols-2 gap-x-10 md:pl-2 pl-0 ">
                 <h1
                   onClick={() => copyAddress0()}
                   className="text-xs cursor-pointer w-32"
@@ -436,8 +438,8 @@ export default function Range() {
             </div>
           </div>
           <div className="bg-black  border border-grey2 border-b-none w-full rounded-xl py-6 px-7 overflow-y-auto">
-            <div className="flex gap-x-20 justify-between">
-              <div className="w-1/2">
+            <div className="flex md:flex-row flex-col gap-x-20 justify-between">
+              <div className="md:w-1/2">
                 <h1 className="text-lg mb-3">Liquidity</h1>
                 <span className="text-4xl">${userLiquidityUsd.toFixed(2)}</span>
                 <div className="text-grey mt-3 space-y-2">
@@ -494,7 +496,7 @@ export default function Range() {
                   </div>
                     
               </div>
-              <div className="w-1/2">
+              <div className="md:w-1/2 mt-10 md:mt-0">
                 <h1 className="text-lg mb-3">Unclaimed Fees</h1>
                 <span className="text-4xl">
                   {' '}
@@ -556,7 +558,7 @@ export default function Range() {
                 )}
               </div>
             </div>
-            <div className="flex justify-between items-center mt-4 gap-x-6">
+            <div className="flex justify-between items-center mt-4 md:gap-x-6 gap-x-3">
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey text-xs w-full">Min. Price</div>
                 <div className="text-white text-2xl my-2 w-full">
@@ -565,7 +567,7 @@ export default function Range() {
                 <div className="text-grey text-xs w-full">
                   {token1.symbol} per {token0.symbol}
                 </div>
-                <div className="text-grey text-xs w-full italic mt-1">
+                <div className="text-grey text-[10px] md:text-xs w-full italic mt-1">
                   Your position will be 100% {token0.symbol} at this price.
                 </div>
               </div>
@@ -578,7 +580,7 @@ export default function Range() {
                 <div className="text-grey text-xs w-full">
                   {token1.symbol} per {token0.symbol}
                 </div>
-                <div className="text-grey text-xs w-full italic mt-1">
+                <div className="text-grey text-[10px] md:text-xs w-full italic mt-1">
                   Your position will be 100% {token1.symbol} at this price.
                 </div>
               </div>

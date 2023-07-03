@@ -456,7 +456,7 @@ export default function CreateCover(props: any) {
           {/* )} */}
         </div>
 
-        <div className="flex gap-x-4 items-center">
+        <div className="flex gap-x-2 md:gap-x-4 items-center">
           <SelectToken
             index="0"
             type="in"
@@ -472,7 +472,7 @@ export default function CreateCover(props: any) {
           />
           <div className="items-center px-2 py-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
             <ArrowLongRightIcon
-              className="w-6 cursor-pointer"
+              className="md:w-6 w-4 cursor-pointer"
               onClick={() => {
                 if (hasSelected) {
                   switchDirection(

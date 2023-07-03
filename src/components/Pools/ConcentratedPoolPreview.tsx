@@ -101,9 +101,9 @@ export default function ConcentratedPoolPreview({
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-[55rem] text-white text-left overflow-hidden rounded-xl shadow-xl transition-all">
-                  <div className="bg-black flex gap-x-20 justify-between border border-grey2 w-full rounded-xl py-6 px-7">
-                    <div className="w-1/2">
+                <Dialog.Panel className="max-w-[55rem] text-white text-left overflow-hidden rounded-xl shadow-xl transition-all">
+                  <div className="bg-black flex md:flex-row flex-col gap-x-20 justify-between border border-grey2 w-full rounded-xl py-6 px-7">
+                    <div className="md:w-1/2">
                       <div>
                         <div className="flex items-center gap-x-4">
                           <h1>Pair</h1>
@@ -220,7 +220,7 @@ export default function ConcentratedPoolPreview({
                         </div>
                       </div>
                     </div>
-                    <div className="w-1/2">
+                    <div className="md:w-1/2">
                       <div>
                         <div className="flex justify-between items-center">
                           <h1>Price range</h1>

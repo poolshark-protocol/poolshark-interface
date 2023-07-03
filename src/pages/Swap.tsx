@@ -775,8 +775,8 @@ export default function Swap() {
     }
   }
   return (
-    <div className="pt-[10vh] px-2 md:px-0">
-      <div className="flex flex-col w-full md:max-w-md px-6  pt-5 pb-7 mx-auto bg-black border border-grey2 rounded-xl">
+    <div className="pt-[10vh] px-3 md:px-0">
+      <div className="flex flex-col w-full md:max-w-md px-6 pt-5 pb-7 mx-auto bg-black border border-grey2 rounded-xl">
         <div className="flex items-center">
           <div className="flex gap-4 mb-1.5 text-sm">
             <div

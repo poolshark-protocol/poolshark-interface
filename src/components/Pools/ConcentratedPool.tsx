@@ -472,8 +472,8 @@ export default function ConcentratedPool({
   }
 
   return (
-    <div className="bg-black flex gap-x-20 justify-between border border-grey2 w-full rounded-xl pt-10 pb-20 px-7">
-      <div className="w-1/2">
+    <div className="bg-black flex md:flex-row flex-col gap-x-20 justify-between border border-grey2 w-full rounded-xl pt-10 pb-20 px-7">
+      <div className="md:w-1/2">
         <div>
           <div className="flex items-center gap-x-4">
             <h1>Select Pair</h1>
@@ -630,7 +630,7 @@ export default function ConcentratedPool({
           </div>
         </div>
       </div>
-      <div className="w-1/2">
+      <div className="md:w-1/2 mt-10 md:mt-0">
         <div>
           <div className="flex justify-between items-center">
             <div className="flex items-center w-full mb-3 mt-4 gap-x-2 relative">
@@ -649,7 +649,7 @@ export default function ConcentratedPool({
               </div>
             </div>
             <button
-              className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
+              className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md whitespace-nowrap"
               onClick={() => {
                 setLowerTick(BigNumber.from(roundTick(-887272, tickSpacing)))
                 setUpperTick(BigNumber.from(roundTick(887272, tickSpacing)))

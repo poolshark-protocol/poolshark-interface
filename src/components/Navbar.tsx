@@ -42,7 +42,7 @@ export default function Navbar({create, setCreate}: NavOptions) {
               </div>
             </div>
           </div>
-          <div className="hidden m-auto border flex justify-center border-grey1 rounded-xl p-[2.5px] md:block bg-black">
+          <div className="hidden m-auto border flex justify-start border-grey1 rounded-xl p-[2.5px] md:block bg-black">
             <div className="flex gap-x-2">
               <Link href="/">
                 <div
@@ -86,6 +86,7 @@ export default function Navbar({create, setCreate}: NavOptions) {
               </Link>
             </div>
           </div>
+          
           <div className=" flex justify-end items-center gap-x-4">
             <ConnectWalletButton />
           </div>
