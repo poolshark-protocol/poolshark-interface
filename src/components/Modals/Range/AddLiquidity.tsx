@@ -341,6 +341,8 @@ export default function RangeAddLiquidity({
                     </div>
                   </div>
                 </div>
+                </div>
+                </div>
                 {disabled === true ? 
                 <button className="opacity-50 w-full cursor-not-allowed py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF]">
         {buttonState === 'amount' ? <>Input Amount</> : <></>}
@@ -382,9 +384,11 @@ export default function RangeAddLiquidity({
               ) : null}
               </>
             }
+            </div>
               </Dialog.Panel>
             </Transition.Child>
-          </div>
+          
+        </div>
         </div>
       </Dialog>
     </Transition>
