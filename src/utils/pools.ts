@@ -26,7 +26,7 @@ export const getRangePool = async (
       tokenIn.address,
       tokenOut.address,
     )
-    //TODO@retraca create here a for for choosing the righ poll considering feetier
+    //TODO@retraca create here a for for choosing the right pool considering feetier
     let id = ZERO_ADDRESS
     const dataLength = pool['data']['rangePools'].length
     if (dataLength != 0) {
