@@ -6,6 +6,9 @@ import { erc20ABI, useAccount, useContractRead, useProvider } from 'wagmi'
 import { TickMath } from '../../utils/math/tickMath'
 import RangeMintDoubleApproveButton from '../Buttons/RangeMintDoubleApproveButton'
 import { useRouter } from 'next/router'
+import {
+  ArrowLongRightIcon,
+} from '@heroicons/react/20/solid'
 import { gasEstimateRangeMint, gasEstimateSwapLimit } from '../../utils/gas'
 import RangeMintApproveButton from '../Buttons/RangeMintApproveButton'
 
@@ -111,20 +114,21 @@ export default function ConcentratedPoolPreview({
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-[55rem] text-white text-left overflow-hidden rounded-xl shadow-xl transition-all">
-                  <div className="bg-black flex gap-x-20 justify-between border border-grey2 w-full rounded-xl py-6 px-7">
-                    <div className="w-1/2">
+                <Dialog.Panel className="max-w-[55rem] w-full text-white text-left overflow-hidden rounded-xl shadow-xl transition-all">
+                  <div className="bg-black flex md:flex-row flex-col gap-x-20 justify-between border border-grey2 w-full rounded-xl py-6 px-7">
+                    <div className="md:w-1/2">
                       <div>
                         <div className="flex items-center gap-x-4">
                           <h1>Pair</h1>
                         </div>
-                        <div className="flex items-center gap-x-5 mt-3">
-                          <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
+                        <div className="flex flex-col md:flex-row items-center gap-x-5 gap-y-3 mt-3 w-full">
+                          <button className="flex w-full items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
                             <img className="w-7" src={tokenIn.logoURI} />
                             {tokenIn.symbol}
                           </button>
-                          <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
-                            <img className="w-7" src={tokenOut.logoURI} />
+                          <ArrowLongRightIcon className="w-6 mx-auto cursor-pointer rotate-90 md:rotate-0" />
+                          <button className="flex w-full items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
+                            <img className="w-7 w-full" src={tokenOut.logoURI} />
                             {tokenOut.symbol}
                           </button>
                         </div>
@@ -149,7 +153,7 @@ export default function ConcentratedPoolPreview({
                         <div className="mt-3 space-y-3">
                           <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
                             <div className=" p-2 ">
-                              <div className="w-44 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
+                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
                                 {parseFloat(
                                   ethers.utils.formatUnits(
                                     tokenOrder ? amount0 : amount1,
@@ -189,7 +193,7 @@ export default function ConcentratedPoolPreview({
                           </div>
                           <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
                             <div className=" p-2 ">
-                              <div className="w-44 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
+                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
                                 {parseFloat(
                                   ethers.utils.formatUnits(
                                     tokenOrder ? amount1 : amount0,
@@ -230,7 +234,7 @@ export default function ConcentratedPoolPreview({
                         </div>
                       </div>
                     </div>
-                    <div className="w-1/2">
+                    <div className="md:w-1/2 mt-10">
                       <div>
                         <div className="flex justify-between items-center">
                           <h1>Price range</h1>

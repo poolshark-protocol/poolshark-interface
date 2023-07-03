@@ -45,24 +45,20 @@ export default function PoolList({
         },
       }}
     >
-      <tr className="text-right cursor-pointer">
-        <td className="text-left flex items-center gap-x-5 py-2.5">
+      <tr className="text-right cursor-pointer text-xs md:text-sm">
+        <td className="text-left flex items-center gap-x-2.5 md:gap-x-5 py-2.5">
           <div className="flex items-center ">
-            <img height="30" width="30" src={logoMap[tokenZero.symbol]} />
+            <img className="md:w-[30px] md:h-[30px] w-[20px] h-[20px]" src={logoMap[tokenZero.symbol]} />
             <img
-              height="30"
-              width="30"
-              className="ml-[-8px]"
+              className="md:w-[30px] md:h-[30px] w-[20px] h-[20px] ml-[-8px]"
               src={logoMap[tokenOne.symbol]}
             />
           </div>
           {tokenZero.symbol}-{tokenOne.symbol}
-          <div className=" px-2 py-1 rounded-lg text-grey text-sm">
-            {feeTierPercentage}%
-          </div>
+          <div className="pr-2 md:px-2 py-1 rounded-lg text-grey">{feeTierPercentage}%</div>
         </td>
         <td>${tvlUsd}m</td>
-        <td>${volumeUsd}m</td>
+        <td className="hidden md:block">${volumeUsd}m</td>
         <td>Ξ{volumeEth}</td>
       </tr>
     </Link>

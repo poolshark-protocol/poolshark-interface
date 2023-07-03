@@ -799,7 +799,7 @@ export default function Swap() {
     }
   }
   return (
-    <div className="pt-[10vh]">
+    <div className="pt-[10vh] mb-[10vh] px-3 md:px-0">
       <div className="flex flex-col w-full md:max-w-md px-6 pt-5 pb-7 mx-auto bg-black border border-grey2 rounded-xl">
         <div className="flex items-center">
           <div className="flex gap-4 mb-1.5 text-sm">
@@ -839,21 +839,21 @@ export default function Swap() {
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
               >
-                <Popover.Panel className="absolute z-10 ml-14 -mt-[48px] bg-black border border-grey2 rounded-xl p-5">
+                <Popover.Panel className="absolute z-10 md:ml-14 -ml-48 z-50 mt-[5px] md:-mt-[48px] bg-black border border-grey2 rounded-xl p-5">
                   {({ close }) => (
                     <div className="w-full">
-                      <h1>
+                      <h1 className="">
                         {LimitActive ? (
                           <>Range Tolerance</>
                         ) : (
                           <>Slippage Tolerance</>
                         )}
                       </h1>
-                      <div className="flex mt-3 gap-x-3">
+                      <div className="flex xl:flex-row flex-col gap-y-2 mt-3 gap-x-3">
                         <input
                           autoComplete="off"
                           placeholder="0%"
-                          className="bg-dark rounded-xl outline-none border border-grey1 pl-3 placeholder:text-grey1"
+                          className="bg-dark rounded-xl outline-none border border-grey1 pl-3 py-3 placeholder:text-grey1"
                           value={auxSlippage + '%'}
                           onChange={(e) =>
                             setAuxSlippage(
@@ -883,7 +883,7 @@ export default function Swap() {
           </div>
         </div>
         <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-          <div className="flex-col justify-center w-1/2 p-2 ">
+          <div className="flex-col justify-center md:w-1/2 p-2 ">
             {inputBox('0')}
             {tokenIn.address != '' ? (
               <div className="flex">
@@ -899,7 +899,7 @@ export default function Swap() {
               <></>
             )}
           </div>
-          <div className="flex w-1/2">
+          <div className="flex md:w-1/2">
             <div className="flex justify-center ml-auto">
               <div className="flex-col">
                 <div className="flex justify-end">
@@ -922,7 +922,7 @@ export default function Swap() {
                   />
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                  <div className="flex text-xs text-[#4C4C4C]" key={balanceIn}>
+                  <div className="flex whitespace-nowrap text-xs text-[#4C4C4C]" key={balanceIn}>
                     Balance: {balanceIn === '0.00' ? 0 : balanceIn}
                   </div>
                   {isConnected && stateChainName === 'arbitrumGoerli' ? (
@@ -1027,7 +1027,7 @@ export default function Swap() {
                 </div>
                 {hasSelected ? (
                   <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                    <div className="flex text-xs text-[#4C4C4C]">
+                    <div className="flex whitespace-nowrap text-xs text-[#4C4C4C]">
                       Balance: {balanceOut === '0.00' ? 0 : balanceOut}
                     </div>
                   </div>

@@ -365,6 +365,7 @@ export default function Cover() {
                 {tokenIn.symbol} <ArrowLongRightIcon className="w-5 " />{' '}
                 {tokenOut.symbol}
               </span>
+              <div className="flex items-center mt-3">
               <span className="bg-white text-black rounded-md px-3 py-0.5">
                 {feeTier}%
               </span>
@@ -380,8 +381,8 @@ export default function Cover() {
             </a>
           </div>
           <div className="mb-6">
-            <div className="flex justify-between text-[#646464]">
-              <div className="grid grid-cols-2 gap-x-10 pl-2 ">
+            <div className="flex flex-col md:flex-row gap-y-2 justify-between text-[#646464]">
+              <div className="grid grid-cols-2 gap-x-10 ">
                 <h1
                   onClick={() => copyAddress0()}
                   className="text-xs cursor-pointer w-32"
@@ -465,8 +466,8 @@ export default function Cover() {
                   </div>
                 </div>
               </div>
-              <div className="w-1/2">
-                <h1 className="text-lg mb-3">Filled Position</h1>
+              <div className="md:w-1/2 w-full">
+                <h1 className="text-lg mb-3 mt-10 md:mt-0">Filled Position</h1>
                 <span className="text-4xl">
                   $ {(Number(coverFilledAmount) * usdPriceIn).toFixed(2)}
                   <span className="text-grey">
@@ -559,7 +560,7 @@ export default function Cover() {
                 {tokenIn.symbol} per {tokenOut.symbol}
               </div>
             </div>
-            <div>
+            <div className="mb-20 md:mb-0">
               <div className="flex justify-between items-center mt-10 mb-5">
                 <h1 className="text-lg">Original pool being covered </h1>
                 <h1 className="text-grey">
@@ -636,6 +637,7 @@ export default function Cover() {
           />
         </>
       )}
+    </div>
     </div>
   )
 }

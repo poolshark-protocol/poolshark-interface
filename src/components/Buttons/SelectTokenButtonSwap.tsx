@@ -5,7 +5,7 @@ export default function SelectTokenButton() {
         <div
           className="cursor-not-allowed opacity-50 w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
         >
-          Select Token
+          Select <span className="hidden md:block">Token</span>
         </div>
    
       </>
