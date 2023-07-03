@@ -218,16 +218,14 @@ export default function Range() {
   ////////////////////////Pool
 
   useEffect(() => {
-    setTimeout(() => {
-      getRangePool()
-    }, 500)
+    getRangePool()
   }, [
     token0.address,
     token1.address,
     amount0,
     amount1,
     amount0Fees,
-    amount1Fees,
+    amount1Fees
   ])
 
   const getRangePool = async () => {
@@ -305,10 +303,8 @@ export default function Range() {
   }
 
   useEffect(() => {
-    setTimeout(() => {
-      setUserLiquidityUsd(amount0Usd + amount1Usd)
-    }, 500)
-  }, [amount0Usd, amount1Usd, userLiquidityUsd])
+    setUserLiquidityUsd(amount0Usd + amount1Usd)
+  }, [amount0Usd, amount1Usd])
 
 
   ////////////////////////Fees
@@ -331,10 +327,8 @@ export default function Range() {
   })
 
   useEffect(() => {
-    setTimeout(() => {
-      setFeesOwed()
-    }, 500)
-  }, [snapshot, amount0Fees, amount1Fees])
+    setFeesOwed()
+  }, [snapshot])
 
   function setFeesOwed() {
     try {
