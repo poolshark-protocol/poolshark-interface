@@ -262,7 +262,7 @@ export default function Range() {
           )
           setRangePrice(price)
           setRangeTickPrice(tickAtPrice)
-        }, 200)
+        }, 1000)
       }
     } catch (error) {
       console.log(error)
@@ -309,7 +309,7 @@ export default function Range() {
   useEffect(() => {
     setTimeout(() => {
       setUserLiquidityUsd(amount0Usd + amount1Usd)
-    }, 200)
+    }, 1000)
   }, [amount0Usd, amount1Usd, userLiquidityUsd])
 
 
@@ -335,7 +335,7 @@ export default function Range() {
   useEffect(() => {
     setTimeout(() => {
       setFeesOwed()
-    }, 200)
+    }, 1000)
   }, [snapshot, amount0Fees, amount1Fees])
 
   function setFeesOwed() {
