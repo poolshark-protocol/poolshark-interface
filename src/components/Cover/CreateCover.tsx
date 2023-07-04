@@ -85,9 +85,7 @@ export default function CreateCover(props: any) {
     props.query ? props.query.poolId : undefined,
   )
   const [tokenOrder, setTokenOrder] = useState(
-    tokenIn.address != undefined
-      ? tokenIn.address.localeCompare(tokenOut.address) < 0
-      : true,
+    tokenIn.address.localeCompare(tokenOut.address) < 0,
   )
   const [tokenInUsdPrice, setTokenInUsdPrice] = useState(1)
   const [tickSpread, setTickSpread] = useState(
@@ -542,7 +540,7 @@ export default function CreateCover(props: any) {
           {/* )} */}
         </div>
 
-        <div className="flex gap-x-2 md:gap-x-4 items-center">
+        <div className="flex gap-x-4 items-center">
           <SelectToken
             index="0"
             type="in"
