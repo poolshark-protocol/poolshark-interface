@@ -187,7 +187,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
                       burnPercent={burnPercent}
                       gasLimit={gasLimit}
                       closeModal={() => 
-                        {if (sliderValue == 100) {
+                        {if (burnPercent.eq(ethers.utils.parseUnits('1', 38))) {
                           router.push('/pool')
                         }}}
                 />
