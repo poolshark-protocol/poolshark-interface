@@ -322,6 +322,7 @@ export default function Range() {
       console.log('Success snapshot Range', data)
     },
     onError(error) {
+      console.log('snapshot args', address, lowerTick.toString(), upperTick.toString())
       console.log('Error snapshot Range', error)
     },
   })
