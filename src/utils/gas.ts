@@ -213,6 +213,7 @@ export const gasEstimateRangeBurn = async (
     )
 
     if (!rangePoolRoute || !provider) {
+      console.log('early return', rangePoolRoute, provider)
       return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
     }
     const contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)

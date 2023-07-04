@@ -15,9 +15,7 @@ export default function RangeRemoveLiqButton({poolAddress, address, lower, upper
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
 
-
-    
-    console.log('burn percent check', burnPercent.toString(), gasLimit.toString())
+    console.log('burn percent check', burnPercent.toString(), gasLimit.toString(), disabled)
   
     const { config } = usePrepareContractWrite({
         address: poolAddress,
