@@ -45,7 +45,7 @@ export default function CoverApproveButton({poolAddress, address}) {
   return (
     <>
       <div
-        className="w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        className="w-full py-4 mx-auto font-medium text-center text-sm md:text-base transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
         onClick={(address) => address ?  write?.() : null}
       >
         Approve

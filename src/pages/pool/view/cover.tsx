@@ -522,31 +522,31 @@ export default function Cover() {
               </div>
             <div className="flex justify-between items-center mt-4 gap-x-6">
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
-                <div className="text-grey text-xs w-full">Min. Price</div>
+                <div className="text-grey md:text-xs text-[10px] w-full">Min. Price</div>
                 <div className="text-white text-2xl my-2 w-full">
                   {minLimit === undefined
                     ? ''
                     : TickMath.getPriceStringAtTick(Number(minLimit))}
                 </div>
-                <div className="text-grey text-xs w-full">
+                <div className="text-grey md:text-xs text-[10px] w-full">
                   {tokenIn.symbol} per {tokenOut.symbol}
                 </div>
-                <div className="text-grey text-xs w-full italic mt-1">
+                <div className="text-grey md:text-xs text-[10px] w-full italic mt-1">
                   Your position will be 100% {tokenIn.symbol} at this price.
                 </div>
               </div>
               <ArrowsRightLeftIcon className="w-12 text-grey" />
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
-                <div className="text-grey text-xs w-full">Max. Price</div>
+                <div className="text-grey md:text-xs text-[10px] w-full">Max. Price</div>
                 <div className="text-white text-2xl my-2 w-full">
                   {maxLimit === undefined
                     ? ''
                     : TickMath.getPriceStringAtTick(Number(maxLimit))}
                 </div>
-                <div className="text-grey text-xs w-full">
+                <div className="text-grey md:text-xs text-[10px] w-full">
                   {tokenIn.symbol} per {tokenOut.symbol}
                 </div>
-                <div className="text-grey text-xs w-full italic mt-1">
+                <div className="text-grey md:text-xs text-[10px] w-full italic mt-1">
                   Your position will be 100% {tokenOut.symbol} at this price.
                 </div>
               </div>

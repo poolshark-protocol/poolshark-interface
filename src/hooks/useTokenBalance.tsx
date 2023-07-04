@@ -31,7 +31,7 @@ export default function useTokenBalance(tokenAddress:string) {
 
    const tokenBalanceBox = () => {
         return (
-            <div className="text-xs text-[#4C4C4C]">
+            <div className="md:text-xs text-[10px] whitespace-nowrap text-[#4C4C4C]">
                 Balance: {Number(tokenBalanceInfo?.formatted).toFixed(3)} 
             </div>
         )

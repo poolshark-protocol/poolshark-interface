@@ -72,7 +72,7 @@ export default function Cover() {
         <div className="w-[70rem] mt-[10vh] mb-[10vh] px-5">
           <div className="flex justify-between mb-6 items-end ">
             <h1 className="text-3xl">Cover</h1>
-            <span className="bg-black flex items-center gap-x-2 border border-grey2 rounded-lg text-white px-6 py-[9px] cursor-pointer hover:opacity-80">
+            <span className="bg-black md:text-base text-sm flex items-center gap-x-2 border border-grey2 rounded-lg text-white px-6 py-[9px] cursor-pointer hover:opacity-80">
               <InformationCircleIcon className="w-4 text-grey1" />
               <Link href="https://docs.poolsharks.io/overview/cover-pools/">
                 <a target="_blank">How it works?</a>
@@ -96,7 +96,7 @@ export default function Cover() {
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 20 20"
                       fill="currentColor"
-                      className="w-14 py-4 mx-auto text-grey"
+                      className="md:w-14 w-10 py-4 mx-auto text-grey"
                     >
                       <path
                         fillRule="evenodd"
@@ -114,7 +114,7 @@ export default function Cover() {
                   <MagnifyingGlassIcon className="w-5 text-grey absolute ml-[14px] mt-[13px]" />
                   <input
                     autoComplete="off"
-                    className="border border-grey2 bg-dark rounded-xl py-2.5 w-full placeholder:text-grey outline-none pl-12"
+                    className="border border-grey2 bg-dark rounded-xl py-2.5 w-full placeholder:text-grey outline-none pl-12 md:text-base text-sm"
                     placeholder="Search name, symbol or address"
                     value={searchTerm}
                     onChange={handleSearchTermChange}
@@ -129,7 +129,7 @@ export default function Cover() {
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 20 20"
                           fill="currentColor"
-                          className="w-14 py-4 mx-auto text-grey"
+                          className="md:w-14 w-10 py-4 mx-auto text-grey"
                         >
                           <path
                             fillRule="evenodd"
@@ -224,7 +224,7 @@ export default function Cover() {
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 20 20"
                       fill="currentColor"
-                      className="w-14 py-4 mx-auto text-grey"
+                      className="md:w-14 w-10 py-4 mx-auto text-grey"
                     >
                       <path
                         fillRule="evenodd"
@@ -242,7 +242,7 @@ export default function Cover() {
                   <MagnifyingGlassIcon className="w-5 text-grey absolute ml-[14px] mt-[13px]" />
                   <input
                     autoComplete="off"
-                    className="border border-grey2 bg-dark rounded-xl py-2.5 w-full placeholder:text-grey outline-none pl-12"
+                    className="border border-grey2 bg-dark rounded-xl py-2.5 w-full placeholder:text-grey outline-none pl-12 md:text-base text-sm"
                     placeholder="Search name, symbol or address"
                     value={searchTerm}
                     onChange={handleSearchTermChange}
@@ -257,7 +257,7 @@ export default function Cover() {
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 20 20"
                           fill="currentColor"
-                          className="w-14 py-4 mx-auto text-grey"
+                          className="md:w-14 w-10 py-4 mx-auto text-grey"
                         >
                           <path
                             fillRule="evenodd"

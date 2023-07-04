@@ -529,7 +529,7 @@ export default function CoverExistingPool({
           </button>
         </div>
       </div>
-      <h1 className="mb-3">How much do you want to Cover?</h1>
+      <h1 className="mb-3 md:text-base text-sm">How much do you want to Cover?</h1>
       <div className="w-full flex items-center justify-between text-xs text-[#646464]">
         <div>0</div>
         <div>Full</div>
@@ -595,7 +595,7 @@ export default function CoverExistingPool({
         </div>
       </div>
       <div>
-        <div className="gap-x-4 mt-5">
+        <div className="gap-x-4 mt-5 md:text-base text-sm">
           <h1>Volatility tier</h1>
         </div>
         <div className="mt-3">
@@ -603,7 +603,7 @@ export default function CoverExistingPool({
         </div>
       </div>
       <div className="flex items-center w-full mb-3 mt-4 gap-x-2 relative">
-        <h1 className="">Set Price Range</h1>
+        <h1 className="md:text-base text-sm">Set Price Range</h1>
         <InformationCircleIcon
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
@@ -619,7 +619,7 @@ export default function CoverExistingPool({
       </div>
       <div className="flex justify-between w-full gap-x-6">
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-          <span className="text-xs text-grey">Min. Price</span>
+          <span className="md:text-xs text-[10px] text-grey">Min. Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice('minus', 'minInput')}>
@@ -650,7 +650,7 @@ export default function CoverExistingPool({
           </div>
         </div>
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-          <span className="text-xs text-grey">Max. Price</span>
+          <span className="md:text-xs text-[10px] text-grey">Max. Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice('minus', 'maxInput')}>

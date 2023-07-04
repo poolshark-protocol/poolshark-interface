@@ -557,11 +557,11 @@ export default function Range() {
             </div>
             <div className="flex justify-between items-center mt-4 md:gap-x-6 gap-x-3">
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
-                <div className="text-grey text-xs w-full">Min. Price</div>
+                <div className="text-grey md:text-xs text-[10px] w-full">Min. Price</div>
                 <div className="text-white text-2xl my-2 w-full">
                   {lowerPrice}
                 </div>
-                <div className="text-grey text-xs w-full">
+                <div className="text-grey md:text-xs text-[10px] w-full">
                   {token1.symbol} per {token0.symbol}
                 </div>
                 <div className="text-grey text-[10px] md:text-xs w-full italic mt-1">
@@ -570,11 +570,11 @@ export default function Range() {
               </div>
               <ArrowsRightLeftIcon className="w-12 text-grey" />
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
-                <div className="text-grey text-xs w-full">Max. Price</div>
+                <div className="text-grey md:text-xs text-[10px] w-full">Max. Price</div>
                 <div className="text-white text-2xl my-2 w-full">
                   {upperPrice}
                 </div>
-                <div className="text-grey text-xs w-full">
+                <div className="text-grey md:text-xs text-[10px] w-full">
                   {token1.symbol} per {token0.symbol}
                 </div>
                 <div className="text-grey text-[10px] md:text-xs w-full italic mt-1">
