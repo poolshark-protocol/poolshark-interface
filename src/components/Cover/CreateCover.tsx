@@ -534,8 +534,8 @@ export default function CreateCover(props: any) {
             className="flex gap-x-1 cursor-pointer"
             onClick={() => props.goBack('initial')}
           >
-            <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{' '}
-            <h1 className="mb-3 opacity-50">Back</h1>{' '}
+            <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />
+            <h1 className="mb-3 opacity-50 md:text-base text-sm">Back</h1>
           </span>
           {/* )} */}
         </div>
@@ -614,8 +614,8 @@ export default function CreateCover(props: any) {
             <div className="flex-col">
               <div className="flex justify-end">
                 <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
-                  <div className="flex items-center gap-x-2 w-full">
-                    <img className="w-7" src={tokenIn.logoURI} />
+                  <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
+                    <img className="md:w-7 w-6" src={tokenIn.logoURI} />
                     {tokenIn.symbol}
                   </div>
                 </button>

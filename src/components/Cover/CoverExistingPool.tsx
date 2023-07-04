@@ -486,24 +486,24 @@ export default function CoverExistingPool({
     <>
       <div className="mb-6">
         <div className="flex flex-row justify-between">
-          <h1 className="mb-3">Selected Pool</h1>
+          <h1 className="mb-3 md:text-base text-sm">Selected Pool</h1>
           <span
             className="flex gap-x-1 cursor-pointer"
             onClick={() => goBack('initial')}
           >
             <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />
-            <h1 className="mb-3 opacity-50">Back</h1>
+            <h1 className="mb-3 opacity-50 md:text-base text-sm">Back</h1>
           </span>
         </div>
-        <div className="flex gap-x-4 items-center">
-          <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
-            <div className="flex items-center gap-x-2 w-full">
-              <img className="w-7" src={tokenIn.logoURI} />
+        <div className="flex justify-between md:justify-start gap-x-4 items-center">
+          <button className="flex items-center gap-x-3 bg-black border border-grey1 md:px-4 px-2 py-1.5 rounded-xl">
+            <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
+              <img className="md:w-7 w-6" src={tokenIn.logoURI} />
               {tokenIn.symbol}
             </div>
           </button>
           <ArrowLongRightIcon
-            className="w-6 cursor-pointer"
+            className="md:w-6 w-5 cursor-pointer"
             onClick={() => {
               if (hasSelected) {
                 switchDirection(
@@ -521,9 +521,9 @@ export default function CoverExistingPool({
               }
             }}
           />
-          <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
-            <div className="flex items-center gap-x-2 w-full">
-              <img className="w-7" src={tokenOut.logoURI} />
+          <button className="flex items-center gap-x-3 bg-black border border-grey1 md:px-4 px-2 py-1.5 rounded-xl">
+            <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
+              <img className="md:w-7 w-6" src={tokenOut.logoURI} />
               {tokenOut.symbol}
             </div>
           </button>
@@ -547,7 +547,7 @@ export default function CoverExistingPool({
       </div>
       <div className="mt-3 ">
         <div className="flex justify-between items-center text-sm">
-          <div className="text-[#646464]">Percentage Covered</div>
+          <div className="text-[#646464] md:text-sm text-xs">Percentage Covered</div>
           <div className="flex gap-x-1 items-center ">
             <input
               autoComplete="off"
@@ -564,8 +564,9 @@ export default function CoverExistingPool({
           </div>
         </div>
         <div className="flex items-center justify-between text-sm">
-          <div className="text-[#646464]">Amount Covered</div>
+          <div className="text-[#646464] md:text-sm text-xs">Amount Covered</div>
           <div className="flex items-center justify-end gap-x-2">
+            {/*
             <input
               autoComplete="off"
               type="text"
@@ -579,11 +580,18 @@ export default function CoverExistingPool({
               ).toPrecision(5)}
               className="bg-black text-right w-32 py-1 placeholder:text-grey1 text-white text-lg mb-2 focus:ring-0 focus:ring-offset-0 focus:outline-none"
             />
-            <div className="-mt-1">{tokenOut.symbol}</div>
+              */}
+              <div className="bg-black text-right w-32 py-1 placeholder:text-grey1 text-white text-lg">
+              {Number.parseFloat(
+                ethers.utils.formatUnits(String(coverAmountOut), 18),
+              ).toPrecision(5)}
+              </div>
+              
+            <div className="">{tokenOut.symbol}</div>
           </div>
         </div>
-        <div className="flex justify-between text-sm">
-          <div className="text-[#646464]">Amount to pay</div>
+        <div className="flex justify-between items-center text-sm">
+          <div className="text-[#646464] md:text-sm text-xs">Amount to pay</div>
           <div className="gap-x-2 flex items-center justify-end">
             <span className="text-lg">
               {Number(
