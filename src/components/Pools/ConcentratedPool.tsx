@@ -124,7 +124,7 @@ export default function ConcentratedPool({
       }, 5000)
       return () => clearInterval(interval)
     }
-  }, [address, tokenIn, tokenOut])
+  }, [rangePoolRoute, tokenIn, tokenOut])
 
   async function updateBalances() {
     await getBalances(
@@ -495,26 +495,28 @@ export default function ConcentratedPool({
       ? await getRangePoolFromFactory(tokenIn.address, tokenOut.address)
       : await getRangePoolFromFactory(tokenOut.address, tokenIn.address)
     const data = pool['data']['rangePools']
+    console.log('aux fee ', auxfee)
     for (var i = 0; i < data.length; i++) {
-      if (data[i]['feeTier']['id'] == 3000 && auxfee.tier == '0.03%') {
+      console.log('pool fee', data[i]['feeTier']['id'])
+      if (data[i]['feeTier']['id'] == 3000 && auxfee.tierId == 3000) {
         console.log('fee tier found 3000')
-        setFee(feeTiers[0])
-        setRangePoolRoute(pool['data']['rangePools'][i]['id'])
-      } else if (data[i]['feeTier']['id'] == 500 && auxfee.tier == '0.05%') {
-        console.log('fee tier found 500')
         setFee(feeTiers[2])
         setRangePoolRoute(pool['data']['rangePools'][i]['id'])
-      } else if (data[i]['feeTier']['id'] == 100 && auxfee.tier == '0.1%') {
+      } else if (data[i]['feeTier']['id'] == 500 && auxfee.tierId == 500) {
+        console.log('fee tier found 500')
+        setFee(feeTiers[1])
+        console.log('fee position', feeTiers[1])
+        setRangePoolRoute(pool['data']['rangePools'][i]['id'])
+      } else if (data[i]['feeTier']['id'] == 100 && auxfee.tierId == 100) {
         console.log('fee tier found 100')
         setFee(feeTiers[1])
         setRangePoolRoute(pool['data']['rangePools'][i]['id'])
-      } else if (data[i]['feeTier']['id'] == 10000 && auxfee.tier == '1%') {
+      } else if (data[i]['feeTier']['id'] == 10000 && auxfee.tierId == 10000) {
         console.log('fee tier found 10000')
         setFee(feeTiers[3])
         setRangePoolRoute(pool['data']['rangePools'][i]['id'])
       }
     }
-    console.log('aux fee ', auxfee)
     console.log('fee tier ', fee)
   }
 
