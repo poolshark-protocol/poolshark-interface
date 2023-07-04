@@ -259,7 +259,7 @@ export default function ConcentratedPool({
       )
     }
     setAmounts()
-  }, [lowerPrice, upperPrice])
+  }, [lowerPrice, upperPrice, tickSpacing])
 
   async function updateGasFee() {
     if (
