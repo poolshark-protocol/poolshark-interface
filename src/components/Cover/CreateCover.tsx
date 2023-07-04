@@ -540,7 +540,7 @@ export default function CreateCover(props: any) {
           {/* )} */}
         </div>
 
-        <div className="flex gap-x-2 md:gap-x-4 items-center">
+        <div className="flex gap-x-4 items-center">
           <SelectToken
             index="0"
             type="in"
