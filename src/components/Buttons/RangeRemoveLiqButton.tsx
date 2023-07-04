@@ -15,7 +15,7 @@ export default function RangeRemoveLiqButton({poolAddress, address, lower, upper
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
 
-    console.log('burn percent check', burnPercent.toString(), gasLimit.toString(), disabled)
+    console.log('burn button args', burnPercent.toString(), gasLimit.toString(), lower.toString(), upper.toString())
   
     const { config } = usePrepareContractWrite({
         address: poolAddress,
@@ -29,7 +29,7 @@ export default function RangeRemoveLiqButton({poolAddress, address, lower, upper
         ]],
         chainId: 421613,
         overrides:{
-            gasLimit: gasLimit
+            gasLimit: BigNumber.from('1000000')
         },
     })
 

@@ -240,7 +240,6 @@ export default function RangeAddLiquidity({
         tokenOrder
           ? setAmount1(BigNumber.from(String(tokenOutAmount)))
           : setAmount0(BigNumber.from(String(tokenOutAmount)))
-        setDisabled(false)
         updateMintFee(
           bnInput,
           tokenOutAmount
