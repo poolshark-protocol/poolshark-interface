@@ -90,7 +90,6 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
 
     if (!fetchDelay && newBurnGasFee.gasUnits.gt(BN_ZERO)) setFetchDelay(true)
     setGasFee(newBurnGasFee.formattedPrice)
-    console.log('new gas units', newBurnGasFee.gasUnits.toString())
     setGasLimit(newBurnGasFee.gasUnits.mul(200).div(100))
   }
 
