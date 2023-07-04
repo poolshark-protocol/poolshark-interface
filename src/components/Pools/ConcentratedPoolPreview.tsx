@@ -45,8 +45,6 @@ export default function ConcentratedPoolPreview({
   const [isOpen, setIsOpen] = useState(false)
   const [doubleApprove, setdoubleApprove] = useState(false)
 
-  console.log('mint gas fee', mintGasFee)
-
   const { data: allowanceIn } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -241,7 +239,7 @@ export default function ConcentratedPoolPreview({
                         </div>
                         <div className="mt-3 space-y-3">
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-                            <span className="text-xs text-grey">
+                            <span className="md:text-xs text-[10px] text-grey">
                               Min. Price
                             </span>
                             <div className="flex justify-center items-center">
@@ -263,14 +261,14 @@ export default function ConcentratedPoolPreview({
                                   : parseFloat(lowerPrice).toFixed(2)}
                               </span>
                             </div>
-                            <span className="text-xs text-grey">
+                            <span className="md:text-xs text-[10px] text-grey">
                               {tokenOrder ? tokenOut.symbol : tokenIn.symbol}{' '}
                               per{' '}
                               {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
                             </span>
                           </div>
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-                            <span className="text-xs text-grey">
+                            <span className="md:text-xs text-[10px] text-grey">
                               Max. Price
                             </span>
                             <div className="flex justify-center items-center">
@@ -292,7 +290,7 @@ export default function ConcentratedPoolPreview({
                                   : parseFloat(upperPrice).toFixed(2)}
                               </span>
                             </div>
-                            <span className="text-xs text-grey">
+                            <span className="md:text-xs text-[10px] text-grey">
                               {tokenOrder ? tokenOut.symbol : tokenIn.symbol}{' '}
                               per{' '}
                               {tokenOrder ? tokenIn.symbol : tokenOut.symbol}

@@ -56,8 +56,6 @@ export default function UserPool({
 
   const { isConnected } = useAccount()
 
-  //console.log('rangePoolRoute', rangePoolRoute)
-
   useEffect(() => {
     getRangePool()
   })

@@ -300,11 +300,11 @@ export default function RangeAddLiquidity({
                       </button>
                     </div>
                     <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                      <div className="flex text-xs whitespace-nowrap text-[#4C4C4C]" key={balanceIn}>
+                      <div className="flex whitespace-nowrap md:text-xs text-[10px] whitespace-nowrap text-[#4C4C4C]" key={balanceIn}>
                         Balance: {balanceIn === 'NaN' ? 0 : balanceIn}
                       </div>
                       <button
-                        className="flex text-xs uppercase text-[#C9C9C9]"
+                        className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
                         onClick={() => maxBalance(balanceIn, '0')}
                       >
                         Max
@@ -334,8 +334,8 @@ export default function RangeAddLiquidity({
                         </div>
                       </button>
                     </div>
-                    <div className="flex items-center justify-end gap-x-2 px-1 mt-2">
-                      <div className="flex text-xs text-[#4C4C4C]" key={balanceIn}>
+                    <div className="flex whitespace-nowrap items-center justify-end gap-x-2 px-1 mt-2">
+                      <div className="flex md:text-xs text-[10px] text-[#4C4C4C]" key={balanceIn}>
                         Balance: {balanceOut === 'NaN' ? 0 : balanceOut}
                       </div>
                     </div>
