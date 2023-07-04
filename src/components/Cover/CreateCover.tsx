@@ -85,7 +85,9 @@ export default function CreateCover(props: any) {
     props.query ? props.query.poolId : undefined,
   )
   const [tokenOrder, setTokenOrder] = useState(
-    tokenIn.address.localeCompare(tokenOut.address) < 0,
+    tokenIn.address != undefined
+      ? tokenIn.address.localeCompare(tokenOut.address) < 0
+      : true,
   )
   const [tokenInUsdPrice, setTokenInUsdPrice] = useState(1)
   const [tickSpread, setTickSpread] = useState(
