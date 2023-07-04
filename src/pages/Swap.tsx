@@ -649,40 +649,71 @@ export default function Swap() {
       if (display != '') {
         setSwitched(!switched)
 
-        const tempRange = rangeQuote
-        const tempCover = coverQuote
-
         if (rangeQuote > 0 && rangeQuote >= coverQuote) {
-          setRangeQuote(
-            parseFloat(
-              parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
-            ),
-          )
-          console.log('rangeQuote', rangeQuote)
+          if (switched) {
+            setRangeQuote(
+              parseFloat(
+                parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
+              ),
+            )
+          } else {
+            setRangeQuote(
+              parseFloat(
+                (1 / parseFloat(ethers.utils.formatUnits(bnInput, 18))).toPrecision(5),
+              ),
+            )
+          }
         } else {
-          setCoverQuote(
-            parseFloat(
-              parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
+          if (switched) {
+            setCoverQuote( 
+              parseFloat(
+                parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
+              ),
+            )
+          } else {
+            setCoverQuote(
+              parseFloat(
+                (1 / parseFloat(ethers.utils.formatUnits(bnInput, 18))).toPrecision(5),
+              ),
+            )
+          }
+        }
+
+        if (switched) {
+          setBnInput(
+            ethers.utils.parseUnits(
+              (rangeQuote >= coverQuote && rangeQuote > 0 ? 
+                1 / rangeQuote :
+                1 / coverQuote).toPrecision(10),
+              18,
             ),
           )
-          console.log('coverQuote', coverQuote)
-        }
-        setBnInput(
-          ethers.utils.parseUnits(
+          setDisplay(
             (rangeQuote >= coverQuote && rangeQuote > 0 ? 
-              switched ? 1 / tempRange : tempRange * rangePrice :
-              switched ? 1 / tempCover : tempCover * coverPrice).toPrecision(10),
-            18,
-          ),
-        )
-        setDisplay(
-          (rangeQuote >= coverQuote && rangeQuote > 0 ? 
-            switched ? 1 / tempRange : tempRange * rangePrice :
-            switched ? 1 / tempCover : tempCover * coverPrice)
-            .toPrecision(7)
-            .replace(/0+$/, '')
-            .replace(/(\.)(?!\d)/g, ''),
-        )
+              1 / rangeQuote :
+              1 / coverQuote)
+              .toPrecision(7)
+              .replace(/0+$/, '')
+              .replace(/(\.)(?!\d)/g, ''),
+          )
+        } else {
+          setBnInput(
+            ethers.utils.parseUnits(
+              (rangeQuote >= coverQuote && rangeQuote > 0 ? 
+                rangeQuote :
+                coverQuote).toPrecision(10),
+              18,
+            ),
+          )
+          setDisplay(
+            (rangeQuote >= coverQuote && rangeQuote > 0 ? 
+              rangeQuote :
+              coverQuote)
+              .toPrecision(7)
+              .replace(/0+$/, '')
+              .replace(/(\.)(?!\d)/g, ''),
+          )
+        }
         console.log('switched')
       }
       setDirectionsAreSwitching(true)
