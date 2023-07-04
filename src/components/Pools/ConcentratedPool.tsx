@@ -26,7 +26,6 @@ import { token } from '../../utils/types'
 import { switchDirection } from '../../utils/tokens'
 import { feeTiers } from '../../utils/pools'
 import { gasEstimateRangeMint } from '../../utils/gas'
-import { F } from '@wagmi/core/dist/index-37d6352e'
 
 export default function ConcentratedPool({
   account,
