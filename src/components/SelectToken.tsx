@@ -191,7 +191,7 @@ export default function SelectToken(props) {
                     <MagnifyingGlassIcon className="w-5 text-white absolute mt-[13px] ml-[14px] text-grey" />
                     <input
                       autoComplete="off"
-                      className="border border-grey2 bg-dark outline-none py-2.5 pl-12 rounded-lg w-full placeholder:text-grey placeholder:font-regular text-white"
+                      className="border border-grey2 bg-dark outline-none py-2.5 pl-12 rounded-lg w-full placeholder:text-grey placeholder:font-regular text-white md:text-base text-sm"
                       placeholder="Search name or paste address"
                       value={inputVal}
                       onChange={(e) => setInputVal(e.target.value)}
@@ -230,14 +230,14 @@ export default function SelectToken(props) {
         className={
           (props.tokenIn.symbol != 'Select Token' && props.type == 'in') ||
           (props.tokenOut.symbol != 'Select Token' && props.type == 'out')
-            ? 'w-full flex items-center uppercase gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl'
-            : 'w-full flex items-center bg-background text-main gap-x-3 hover:opacity-80  px-4 py-2 rounded-xl'
+            ? 'w-full md:text-base text-sm whitespace-nowrap flex items-center uppercase gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl'
+            : 'w-full md:text-base text-sm whitespace-nowrap flex items-center bg-background text-main gap-x-1 md:gap-x-3 hover:opacity-80  md:px-4 px-3 py-2 rounded-xl'
         }
       >
         <div className="flex items-center gap-x-2 w-full">
           {(props.tokenIn.symbol != 'Select Token' && props.type == 'in') ||
           (props.tokenOut.symbol != 'Select Token' && props.type == 'out') ? (
-            <img className="w-7" src={props.displayToken?.logoURI} />
+            <img className="md:w-7 w-6" src={props.displayToken?.logoURI} />
           ) : (
             <></>
           )}

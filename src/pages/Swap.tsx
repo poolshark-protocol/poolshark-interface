@@ -922,12 +922,12 @@ export default function Swap() {
                   />
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                  <div className="flex whitespace-nowrap text-xs text-[#4C4C4C]" key={balanceIn}>
+                  <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]" key={balanceIn}>
                     Balance: {balanceIn === '0.00' ? 0 : balanceIn}
                   </div>
                   {isConnected && stateChainName === 'arbitrumGoerli' ? (
                     <button
-                      className="flex text-xs uppercase text-[#C9C9C9]"
+                      className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
                       onClick={() => {
                         maxBalance(balanceIn, '0')
                       }}
@@ -1027,7 +1027,7 @@ export default function Swap() {
                 </div>
                 {hasSelected ? (
                   <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                    <div className="flex whitespace-nowrap text-xs text-[#4C4C4C]">
+                    <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]">
                       Balance: {balanceOut === '0.00' ? 0 : balanceOut}
                     </div>
                   </div>
@@ -1055,7 +1055,7 @@ export default function Swap() {
                 <></>
                 {/*TODO - fix market price comparion when switch directions*/}
                 <div className="flex">
-                  <div className="flex text-xs text-[#4C4C4C]">
+                  <div className="flex text-[10px] md:text-xs text-[#4C4C4C]">
                     {hasSelected && rangePrice > 0 ? (
                       (parseFloat(limitPrice) / rangePrice - 1) * 100 > 0 ? (
                         (
@@ -1078,13 +1078,13 @@ export default function Swap() {
                   <div className="flex-col">
                     <div className="flex justify-end">
                       {tokenOrder && hasSelected === false ? (
-                        <button className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl">
+                        <button className="flex md:text-sm text-xs items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl">
                           {tokenIn.symbol} per ?
                           <ArrowPathIcon className="w-5" />
                         </button>
                       ) : (
                         <button
-                          className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
+                          className="flex md:text-sm text-xs items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
                           onClick={() => setLimitPriceSwitch(!limitPriceSwitch)}
                         >
                           {limitPriceSwitch
@@ -1152,7 +1152,7 @@ export default function Swap() {
             bnInput.lte(BN_ONE) ? (
               <button
                 disabled
-                className="w-full py-4 mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
+                className="w-full py-4 text-sm md:text-base mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
               >
         {buttonState === 'amount' ? <>Input Amount</> : <></>}
         {buttonState === 'token' ? <>Select Token</> : <></>}
@@ -1215,7 +1215,7 @@ export default function Swap() {
             {stateChainName !== 'arbitrumGoerli' || Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput)) || bnInput._hex == '0x00' ? (
               <button
                 disabled
-                className="w-full py-4 mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
+                className="w-full text-sm md:text-base py-4 mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
               >
                 {buttonState === 'amount' ? <>Input Amount</> : <></>}
                 {buttonState === 'token' ? <>Select Token</> : <></>}

@@ -90,7 +90,7 @@ export default function RangeMintButton({
     <>
       <button
         disabled={disabled}
-        className={'w-full py-4 mx-auto text-center font-medium transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80'}
+        className={'w-full py-4 mx-auto text-center text-sm md:text-base font-medium transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80'}
         onClick={() => write?.()}
       >
         Mint Position

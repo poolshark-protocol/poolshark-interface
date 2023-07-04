@@ -521,7 +521,7 @@ export default function CreateCover(props: any) {
     <>
       <div className="mb-6">
         <div className="flex flex-row justify-between">
-          <h1 className="mb-3">Select Pair</h1>
+          <h1 className="mb-3 md:text-base text-sm">Select Pair</h1>
           {/*  {pool != undefined ? (
             <Link href="/cover">
               <span className="flex gap-x-1 cursor-pointer">
@@ -534,13 +534,13 @@ export default function CreateCover(props: any) {
             className="flex gap-x-1 cursor-pointer"
             onClick={() => props.goBack('initial')}
           >
-            <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{' '}
-            <h1 className="mb-3 opacity-50">Back</h1>{' '}
+            <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />
+            <h1 className="mb-3 opacity-50 md:text-base text-sm">Back</h1>
           </span>
           {/* )} */}
         </div>
 
-        <div className="flex gap-x-4 items-center">
+        <div className="flex md:flex-row flex-col gap-y-3 gap-x-2 md:gap-x-4 items-center">
           <SelectToken
             index="0"
             type="in"
@@ -560,7 +560,7 @@ export default function CreateCover(props: any) {
           />
           <div className="items-center px-2 py-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
             <ArrowLongRightIcon
-              className="md:w-6 w-4 cursor-pointer"
+              className="md:w-6 w-4 cursor-pointer md:rotate-0 rotate-90"
               onClick={() => {
                 if (hasSelected) {
                   switchDirection(
@@ -597,11 +597,11 @@ export default function CreateCover(props: any) {
           />
         </div>
       </div>
-      <h1 className="mb-3">How much do you want to Cover?</h1>
+      <h1 className="mb-3 md:text-base text-sm">How much do you want to Cover?</h1>
       <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-        <div className="flex-col justify-center w-1/2 p-2 ">
+        <div className="flex flex-col justify-between gap-y-1 w-1/2 px-2">
           {inputBox('0')}
-          <div className="flex text-xs text-[#4C4C4C]">
+          <div className="flex md:text-xs text-[10px] -mb-1 text-[#4C4C4C]">
             $
             {(
               parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
@@ -614,19 +614,19 @@ export default function CreateCover(props: any) {
             <div className="flex-col">
               <div className="flex justify-end">
                 <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
-                  <div className="flex items-center gap-x-2 w-full">
-                    <img className="w-7" src={tokenIn.logoURI} />
+                  <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
+                    <img className="md:w-7 w-6" src={tokenIn.logoURI} />
                     {tokenIn.symbol}
                   </div>
                 </button>
               </div>
               <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                <div className="flex text-xs text-[#4C4C4C]">
+                <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]">
                   Balance: {balance0 === 'NaN' ? 0 : balance0}
                 </div>
                 {isConnected ? (
                   <button
-                    className="flex text-xs uppercase text-[#C9C9C9]"
+                    className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
                     onClick={() => maxBalance(balance0, '0')}
                   >
                     Max
@@ -664,7 +664,7 @@ export default function CreateCover(props: any) {
           </div>
         </div>
       </div>
-      <div className="gap-x-4 mt-5">
+      <div className="gap-x-4 mt-5 md:text-base text-sm">
         <div>
           <h1>Volatility tier</h1>
         </div>
@@ -673,7 +673,7 @@ export default function CreateCover(props: any) {
         </div>
       </div>
       <div className="flex items-center w-full mb-3 mt-4 gap-x-2 relative">
-        <h1 className="">Set Price Range</h1>
+        <h1 className="md:text-base text-sm">Set Price Range</h1>
         <InformationCircleIcon
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
@@ -689,7 +689,7 @@ export default function CreateCover(props: any) {
       </div>
       <div className="flex justify-between w-full gap-x-6">
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-          <span className="text-xs text-grey">Min. Price</span>
+          <span className="md:text-xs text-[10px] text-grey">Min. Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice('minus', 'minInput')}>
@@ -718,13 +718,13 @@ export default function CreateCover(props: any) {
               </button>
             </div>
           </div>
-          <span className="text-xs text-grey">
+          <span className="md:text-xs text-[10px] text-grey">
             {tokenIn.symbol} per{' '}
             {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOut.symbol}
           </span>
         </div>
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-          <span className="text-xs text-grey">Max. Price</span>
+          <span className="md:text-xs text-[10px] text-grey">Max. Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice('minus', 'maxInput')}>
@@ -753,7 +753,7 @@ export default function CreateCover(props: any) {
               </button>
             </div>
           </div>
-          <span className="text-xs text-grey">
+          <span className="md:text-xs text-[10px] text-grey">
             {tokenIn.symbol} per{' '}
             {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOut.symbol}
           </span>

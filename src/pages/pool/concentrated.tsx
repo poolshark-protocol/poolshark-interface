@@ -61,7 +61,7 @@ export default function Concentrated() {
             <Link href="/pool">
               <div className="bg-black border border-grey2 rounded-lg text-white px-7 py-[9px] cursor-pointer hover:opacity-80 flex gap-x-3">
                 <ArrowLongLeftIcon className="w-4 opacity-50 " />
-                <h1 className="opacity-50">Back</h1>
+                <h1 className="opacity-50 md:text-base text-sm">Back</h1>
               </div>
             </Link>
           </div>

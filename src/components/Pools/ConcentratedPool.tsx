@@ -542,7 +542,7 @@ export default function ConcentratedPool({
     <div className="bg-black flex md:flex-row flex-col gap-x-20 justify-between border border-grey2 w-full rounded-xl md:pt-10 pt-7 pb-20 md:px-7 px-4">
       <div className="md:w-1/2">
         <div>
-          <div className="flex items-center gap-x-4">
+          <div className="flex items-center gap-x-4 md:text-base text-sm">
             <h1>Select Pair</h1>
           </div>
           <div className="flex flex-col md:flex-row w-full items-center gap-y-3 gap-x-5 mt-3">
@@ -620,7 +620,7 @@ export default function ConcentratedPool({
         </div>
         <div>
           <div className="gap-x-4 mt-8">
-            <h1>Deposit amounts</h1>
+            <h1 className="md:text-base text-sm">Deposit amounts</h1>
           </div>
           <div className="mt-3 space-y-3">
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
@@ -642,17 +642,17 @@ export default function ConcentratedPool({
                 <div className=" ml-auto">
                   <div>
                     <div className="flex justify-end">
-                      <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl">
-                        <img className="w-7" src={tokenIn.logoURI} />
+                      <button className="flex md:text-base text-sm items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl">
+                        <img className="md:w-7 w-6" src={tokenIn.logoURI} />
                         {tokenIn.symbol}
                       </button>
                     </div>
-                    <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                      <div className="flex text-xs text-[#4C4C4C]">
+                    <div className="flex whitespace-nowrap items-center justify-end gap-2 px-1 mt-2">
+                      <div className="flex md:text-xs text-[10px] text-[#4C4C4C]">
                         Balance: {balance0 === 'NaN' ? 0 : balance0}
                       </div>
                       <button
-                        className="flex text-xs uppercase text-[#C9C9C9]"
+                        className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
                         onClick={() => maxBalance(balance0, '0')}
                       >
                         Max
@@ -684,14 +684,14 @@ export default function ConcentratedPool({
                   <div>
                     <div className="flex justify-end">
                       <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
-                        <div className="flex items-center gap-x-2 w-full">
-                          <img className="w-7" src={tokenOut.logoURI} />
+                        <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
+                          <img className="md:w-7 w-6" src={tokenOut.logoURI} />
                           {tokenOut.symbol}
                         </div>
                       </button>
                     </div>
-                    <div className="flex items-center justify-end gap-x-2 px-1 mt-2">
-                      <div className="flex text-xs text-[#4C4C4C]">
+                    <div className="flex whitespace-nowrap items-center justify-end gap-x-2 px-1 mt-2">
+                      <div className="flex md:text-xs text-[10px] text-[#4C4C4C]">
                         Balance: {balance1 === 'NaN' ? 0 : balance1}
                       </div>
                     </div>
@@ -719,7 +719,7 @@ export default function ConcentratedPool({
         <div>
           <div className="flex justify-between items-center">
             <div className="flex items-center w-full mb-3 mt-4 gap-x-2 relative">
-              <h1 className="">Set Price Range</h1>
+              <h1 className="md:text-base text-sm">Set Price Range</h1>
               <InformationCircleIcon
                 onMouseEnter={() => setShowTooltip(true)}
                 onMouseLeave={() => setShowTooltip(false)}
@@ -753,7 +753,7 @@ export default function ConcentratedPool({
           </div>
           <div className="flex flex-col gap-y-3 w-full">
             <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-              <span className="text-xs text-grey">Min. Price</span>
+              <span className="md:text-xs text-[10px] text-grey">Min. Price</span>
               <div className="flex justify-center items-center">
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
                   <button onClick={() => changePrice('minus', 'minInput')}>
@@ -795,7 +795,7 @@ export default function ConcentratedPool({
               </div>
             </div>
             <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-              <span className="text-xs text-grey">Max. Price</span>
+              <span className="md:text-xs text-[10px] text-grey">Max. Price</span>
               <div className="flex justify-center items-center">
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
                   <button onClick={() => changePrice('minus', 'maxInput')}>
