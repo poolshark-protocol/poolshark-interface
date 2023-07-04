@@ -53,7 +53,7 @@ export default function Concentrated() {
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
       <div className="flex justify-center w-full text-white">
-        <div className="w-[60rem] mt-[10vh] mb-[10vh]">
+        <div className="max-w-[60rem] w-full mx-4 md:mx-0 mt-[10vh] mb-[10vh]">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-x-6">
               <h1 className="text-3xl">Create Range Position</h1>
@@ -61,7 +61,7 @@ export default function Concentrated() {
             <Link href="/pool">
               <div className="bg-black border border-grey2 rounded-lg text-white px-7 py-[9px] cursor-pointer hover:opacity-80 flex gap-x-3">
                 <ArrowLongLeftIcon className="w-4 opacity-50 " />
-                <h1 className="opacity-50">Back</h1>
+                <h1 className="opacity-50 md:text-base text-sm">Back</h1>
               </div>
             </Link>
           </div>

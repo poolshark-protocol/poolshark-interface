@@ -64,6 +64,8 @@ export const getRangePoolFromFactory = (tokenA?: string, tokenB?: string, feeTie
               usdPrice
             }
             feeTier {
+              id
+              feeAmount
               tickSpacing
             }
           }

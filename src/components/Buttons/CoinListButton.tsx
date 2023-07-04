@@ -9,7 +9,7 @@ function CoinListButton({ chooseToken, coin }) {
       data-symbol={coin.symbol}
       data-address={coin.address}
       key={coin.id}
-      className="flex items-center gap-x-2 text-white border-grey1 border p-1.5 px-3 rounded-xl text-sm"
+      className="flex items-center gap-x-2 text-sm md:text-base text-white border-grey1 border p-1.5 px-3 rounded-xl text-sm"
     >
       <img className="w-6" src={coin.logoURI} />
       {coin.symbol}

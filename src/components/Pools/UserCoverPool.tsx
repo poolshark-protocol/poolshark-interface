@@ -154,31 +154,28 @@ export default function UserCoverPool({
         onMouseLeave={(e) => {
           setShow(false)
         }}
-        className="w-full cursor-pointer grid grid-cols-7 items-center w-full bg-dark border border-grey2 rounded-xl py-3.5 pl-5 min-h-24 relative"
-      >
+        className="w-full cursor-pointer grid grid-cols-5 md:grid-cols-7 items-center w-full bg-dark border border-grey2 rounded-xl py-3.5 sm:pl-5 pl-3 md:pr-0 md:pr-5 pr-3 min-h-24 relative">
         <div className="space-y-3 col-span-5">
           <div className="flex items-center gap-x-5">
             <div className="flex items-center ">
-              <img height="30" width="30" src={logoMap[tokenZero.symbol]} />
+            <img className="md:w-[30px] md:h-[30px] w-[25px] h-[25px]" src={logoMap[tokenZero.symbol]} />
               <img
-                height="30"
-                width="30"
-                className="ml-[-8px]"
+                className="md:w-[30px] md:h-[30px] w-[25px] h-[25px] ml-[-8px]"
                 src={logoMap[tokenOne.symbol]}
               />
             </div>
-            <div className="flex items-center gap-x-2">
-              {tokenZero.symbol}
-              <ArrowLongRightIcon className="w-5" />
-              {tokenOne.symbol}
-            </div>
-            <div className="bg-black px-2 py-1 rounded-lg text-grey">
+            <div className="flex items-center gap-x-2 md:text-base text-sm">
+                {tokenZero.symbol}
+                <ArrowLongRightIcon className="w-5" />
+                {tokenOne.symbol}
+              </div>
+            <div className="bg-black px-2 py-1 rounded-lg text-grey text-sm hidden md:block">
               {feeTierPercentage}%
             </div>
           </div>
-          <div className="text-xs grid grid-cols-5 items-center gap-x-3 pr-5">
+          <div className="text-[10px] sm:text-xs grid grid-cols-5 items-center gap-x-3 md:pr-5">
             <span className="col-span-2">
-              <span className="text-grey">Min:</span>{' '}
+              <span className="text-grey">Min:</span>
               {TickMath.getPriceStringAtTick(min)} {zeroForOne ? tokenOne.symbol : tokenZero.symbol} per{' '}
               {zeroForOne ? tokenZero.symbol : tokenOne.symbol}
             </span>
@@ -186,18 +183,22 @@ export default function UserCoverPool({
             <ArrowsRightLeftIcon className="w-4 text-grey" />
             </div>
             <span className="col-span-2">
-              <span className="text-grey">Max:</span>{' '}
+              <span className="text-grey">Max:</span>
               {TickMath.getPriceStringAtTick(max)} {zeroForOne ? tokenOne.symbol : tokenZero.symbol} per{' '}
               {zeroForOne ? tokenZero.symbol : tokenOne.symbol}
             </span>
           </div>
         </div>
-        <div className="col-span-2 mx-5">
-          <div className="flex relative bg-transparent items-center justify-center h-8 border-grey1 z-40 border rounded-lg gap-x-2 text-sm w-full">
+        <div className="md:col-span-2 flex gap-x-5 w-full flex-row-reverse md:flex-row items-center col-span-5 md:mx-5 mt-3 md:mt-0">
+          <div className="bg-black  px-10 py-2 rounded-lg text-grey text-xs md:hidden block">
+                {feeTierPercentage}%
+              </div>
+          
+              <div className="flex relative bg-transparent items-center justify-center h-8 border-grey1 z-40 border rounded-lg gap-x-2 text-sm w-full">
             <div className={`bg-white h-full absolute left-0 z-0 rounded-l-[7px] opacity-10 w-[${parseInt(fillPercent)}%]`} />
             <div className="z-20 ">{fillPercent}% Filled</div>
           </div>
-        </div>
+          </div>
       </div>
     </Link>
   )
