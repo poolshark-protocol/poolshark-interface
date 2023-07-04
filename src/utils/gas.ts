@@ -164,6 +164,7 @@ export const gasEstimateRangeMint = async (
       'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
     )
     if (!rangePoolRoute || !provider || (amount0.eq(BN_ZERO) && amount1.eq(BN_ZERO))) {
+      console.log('early return', rangePoolRoute, provider)
       return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
     }
     const contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
@@ -179,6 +180,7 @@ export const gasEstimateRangeMint = async (
         amount0,
         amount1
     ])
+    console.log('new mint gas limit', gasUnits.toString(), lowerTick.toString(), upperTick.toString())
     const price = await fetchPrice('0x000')
     const gasPrice = await provider.getGasPrice()
     const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])
@@ -213,21 +215,22 @@ export const gasEstimateRangeBurn = async (
     )
 
     if (!rangePoolRoute || !provider) {
+      console.log('early return', rangePoolRoute, provider)
       return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
     }
     const contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
-    console.log('new burn percent check', burnPercent.toString())
+    console.log('burn args', burnPercent.toString(), lowerTick.toString(), upperTick.toString())
     const recipient = address
 
     const gasUnits = await contract
-      .connect(provider)
+      .connect(signer)
       .estimateGas.burn([
         recipient,
         lowerTick,
         upperTick,
         burnPercent
     ])
-    console.log('new burn percent gas limit', gasUnits.toString(), burnPercent.toString(), lowerTick.toString(), upperTick.toString())
+    console.log('burn estimate args', gasUnits.toString(), burnPercent.toString(), lowerTick.toString(), upperTick.toString(), )
     const price = await fetchPrice('0x000')
     const gasPrice = await provider.getGasPrice()
     const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])

@@ -175,7 +175,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                   <MagnifyingGlassIcon className="w-5 text-grey absolute ml-[14px] mt-[13px]" />
                   <input
                     autoComplete="off"
-                    className="border border-grey2 bg-dark rounded-xl py-2.5 w-full placeholder:text-grey outline-none pl-12"
+                    className="border border-grey2 bg-dark rounded-xl py-2.5 w-full placeholder:text-grey outline-none pl-12 md:text-base text-sm"
                     placeholder="Search name, symbol or address"
                     value={searchTerm}
                     onChange={handleSearchTermChange}
