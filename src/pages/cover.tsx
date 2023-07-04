@@ -26,7 +26,6 @@ export default function Cover() {
   const [searchTerm, setSearchTerm] = useState('')
   const [allCoverPositions, setAllCoverPositions] = useState([])
   const [create, setCreate] = useState(true);
-  
 
   useEffect(() => {
     if (address) {

@@ -620,7 +620,7 @@ export default function ConcentratedPool({
         </div>
         <div>
           <div className="gap-x-4 mt-8">
-            <h1>Deposit amounts</h1>
+            <h1 className="md:text-base text-sm">Deposit amounts</h1>
           </div>
           <div className="mt-3 space-y-3">
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
@@ -642,8 +642,8 @@ export default function ConcentratedPool({
                 <div className=" ml-auto">
                   <div>
                     <div className="flex justify-end">
-                      <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl">
-                        <img className="w-7" src={tokenIn.logoURI} />
+                      <button className="flex md:text-base text-sm items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl">
+                        <img className="md:w-7 w-6" src={tokenIn.logoURI} />
                         {tokenIn.symbol}
                       </button>
                     </div>
@@ -684,8 +684,8 @@ export default function ConcentratedPool({
                   <div>
                     <div className="flex justify-end">
                       <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
-                        <div className="flex items-center gap-x-2 w-full">
-                          <img className="w-7" src={tokenOut.logoURI} />
+                        <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
+                          <img className="md:w-7 w-6" src={tokenOut.logoURI} />
                           {tokenOut.symbol}
                         </div>
                       </button>

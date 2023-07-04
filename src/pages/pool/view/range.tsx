@@ -370,7 +370,7 @@ export default function Range() {
               <span className="text-3xl">
                 {token0.symbol}-{token1.symbol}
               </span>
-              <span className="bg-white text-black rounded-md px-3 py-0.5">
+             <span className="bg-white text-black rounded-md px-3 py-0.5">
                 {router.query.feeTier}%
               </span>
               <div className="hidden md:block">
