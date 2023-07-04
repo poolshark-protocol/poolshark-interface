@@ -25,6 +25,8 @@ export default function Cover() {
   const [state, setState] = useState(router.query.state ?? 'initial')
   const [searchTerm, setSearchTerm] = useState('')
   const [allCoverPositions, setAllCoverPositions] = useState([])
+  const [create, setCreate] = useState(true);
+  
 
   useEffect(() => {
     if (address) {
@@ -63,13 +65,12 @@ export default function Cover() {
     setState(state)
     setSelectedPool(undefined)
   }
-    const [create, setCreate] = useState(true);
 
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar create={create} setCreate={setCreate}/>
       <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full">
-        <div className="w-[70rem] mt-[10vh] mb-[10vh] px-5">
+      <div className="w-[70rem] mt-[10vh] mb-[10vh] px-5">
           <div className="flex justify-between mb-6 items-end ">
             <h1 className="text-3xl">Cover</h1>
             <span className="bg-black md:text-base text-sm flex items-center gap-x-2 border border-grey2 rounded-lg text-white px-6 py-[9px] cursor-pointer hover:opacity-80">
@@ -207,7 +208,7 @@ export default function Cover() {
           <div className="md:hidden block flex w-full space-x-8 mb-20">
             {create ?
             <div className="bg-black w-full md:w-2/3 border border-grey2 w-full rounded-xl md:p-6 p-4 gap-y-4 pb-20">
-              {selectedPool != undefined && state != 'initial' ? (
+              {selectedPool != undefined && state == 'existing' ? (
                 <CreateCover query={router.query} goBack={handleDiselectPool} />
               ) : (
                 <Initial query={router.query} />
