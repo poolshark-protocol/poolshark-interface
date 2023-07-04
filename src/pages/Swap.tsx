@@ -657,12 +657,12 @@ export default function Swap() {
       }
       setBnInput(
         ethers.utils.parseUnits(
-          (rangeQuote >= coverQuote ? 1 / rangeQuote : 1 / coverQuote).toPrecision(5),
+          (rangeQuote >= coverQuote && coverQuote > 0 ? 1 / coverQuote : 1 / rangeQuote).toPrecision(5),
           18,
         ),
       )
       setDisplay(
-        (rangeQuote >= coverQuote ? 1 / rangeQuote : 1 / coverQuote)
+        (rangeQuote >= coverQuote && coverQuote > 0 ? 1 / coverQuote : 1 / rangeQuote)
           .toPrecision(5)
           .replace(/0+$/, '')
           .replace(/(\.)(?!\d)/g, ''),
@@ -950,11 +950,11 @@ export default function Swap() {
               {!LimitActive ? (
                 hasSelected && !bnInput.eq(BN_ZERO) ? (
                   <div>
-                    { bnInput.gt(BN_ONE) ?
+                    {
                       (rangeQuote >= coverQuote
                         ? rangeQuote.toPrecision(6)
                         : coverQuote.toPrecision(6)
-                      ) : '0'}
+                      )}
                   </div>
                 ) : (
                   <div>0</div>
