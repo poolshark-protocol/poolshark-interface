@@ -115,7 +115,6 @@ export default function Swap() {
   const [limitPriceSwitch, setLimitPriceSwitch] = useState(true)
   const [limitPriceInput, setLimitPriceInput] = useState('0')
   const [buttonState, setButtonState] = useState('')
-  const [displayQuote, setDisplayQuote] = useState(false)
 
   ////////////////////////////////ChainId
 
@@ -640,7 +639,7 @@ export default function Swap() {
   }
   ////////////////////////////////
 
-  const switchDirection = debounce(() => {
+  const switchDirection = () => {
     if (display != '') {
       if (rangeQuote > 0 && rangeQuote >= coverQuote) {
         setRangeQuote(
@@ -657,25 +656,23 @@ export default function Swap() {
       }
       setBnInput(
         ethers.utils.parseUnits(
-          (rangeQuote >= coverQuote && coverQuote > 0 ? 1 / coverQuote : 1 / rangeQuote).toPrecision(5),
+          (rangeQuote >= coverQuote && rangeQuote > 0 ? 1 / rangeQuote : 1 / coverQuote).toPrecision(6),
           18,
         ),
       )
       setDisplay(
-        (rangeQuote >= coverQuote && coverQuote > 0 ? 1 / coverQuote : 1 / rangeQuote)
-          .toPrecision(5)
+        (rangeQuote >= coverQuote && rangeQuote > 0 ? 1 / rangeQuote : 1 / coverQuote)
+          .toPrecision(6)
           .replace(/0+$/, '')
           .replace(/(\.)(?!\d)/g, ''),
       )
-      setDisplayQuote(true)
     } else {
       setBnInput(BN_ONE)
       setDisplay('')
       setRangeQuote(0)
       setCoverQuote(0)
-      setDisplayQuote(false)
     }
-  }, 200)
+  }
 
   ////////////////////////////////
 
