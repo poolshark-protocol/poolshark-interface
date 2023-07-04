@@ -77,8 +77,8 @@ export default function ConcentratedPool({
     state.rangeContractParams,
   ])
   const [tokenOrder, setTokenOrder] = useState(true)
-  /* const [selected, setSelected] = useState(updateSelected()) */
-  const [selected, setSelected] = useState(updateSelectedFeeTier)
+  /*   const [selected, setSelected] = useState(updateSelectedFeeTier)
+   */
   const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
   const [balance0, setBalance0] = useState('')
@@ -123,7 +123,7 @@ export default function ConcentratedPool({
       }, 5000)
       return () => clearInterval(interval)
     }
-  })
+  }, [rangePoolRoute, tokenIn, tokenOut])
 
   async function updateBalances() {
     await getBalances(
@@ -165,7 +165,7 @@ export default function ConcentratedPool({
     watch: true,
     enabled: rangePoolRoute != undefined && tokenIn.address != '',
     onSuccess(data) {
-      console.log('Success allowance in', rangePoolRoute)
+      //console.log('Success allowance in', rangePoolRoute)
     },
     onError(error) {
       console.log('Error', error)
@@ -196,7 +196,6 @@ export default function ConcentratedPool({
     if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
       setButtonState('price')
     }
-    console.log('bn input check', bnInput.toString(), Number(ethers.utils.formatUnits(bnInput)) === 0)
     if (bnInput.eq(BN_ZERO)) {
       setButtonState('amount')
     }
@@ -212,10 +211,10 @@ export default function ConcentratedPool({
       Number(ethers.utils.formatUnits(amount0)) > Number(balance0) ||
       Number(ethers.utils.formatUnits(amount1)) > Number(balance1)
     ) {
-      console.log('disabled true')
+      //console.log('disabled true')
       setDisabled(true)
     } else {
-      console.log('disabled false')
+      //console.log('disabled false')
       setDisabled(false)
     }
   }, [bnInput, lowerPrice, upperPrice, amount0, amount1, balance0, balance1])
@@ -223,11 +222,6 @@ export default function ConcentratedPool({
   useEffect(() => {
     setTimeout(() => {
       if (allowanceIn) {
-        console.log(
-          'token in allowance',
-          allowanceIn.toString(),
-          !allowanceIn.eq(tokenOrder ? allowance0 : allowance1),
-        )
         if (
           address != '0x' &&
           !allowanceIn.eq(tokenOrder ? allowance0 : allowance1)
@@ -251,37 +245,28 @@ export default function ConcentratedPool({
   }),
     [allowanceOut]
 
-  function updateSelectedFeeTier(): any {
-    if (feeTier == 0.01) {
-      return feeTiers[0]
-    } else if (feeTier == 0.05) {
-      return feeTiers[1]
-    } else if (feeTier == 0.3) {
-      return feeTiers[2]
-    } else if (feeTier == 1) {
-      return feeTiers[3]
-    } else return feeTiers[0]
-  }
-
   useEffect(() => {
     if (!isNaN(parseFloat(lowerPrice))) {
-      console.log('setting lower tick')
+      //console.log('setting lower tick')
       setLowerTick(
         BigNumber.from(TickMath.getTickAtPriceString(lowerPrice, tickSpacing)),
       )
     }
     if (!isNaN(parseFloat(upperPrice))) {
-      console.log('setting upper tick')
+      //console.log('setting upper tick')
       setUpperTick(
         BigNumber.from(TickMath.getTickAtPriceString(upperPrice, tickSpacing)),
       )
     }
     setAmounts()
-  }, [lowerPrice, upperPrice])
+  }, [lowerPrice, upperPrice, tickSpacing])
 
   async function updateGasFee() {
-    if ((amount0.gt(BN_ZERO) || amount1.gt(BN_ZERO)) && 
-        allowance0.gte(amount0) && allowance1.gte(amount1)) {
+    if (
+      (amount0.gt(BN_ZERO) || amount1.gt(BN_ZERO)) &&
+      allowance0.gte(amount0) &&
+      allowance1.gte(amount1)
+    ) {
       const newGasFee = await gasEstimateRangeMint(
         rangePoolRoute,
         address,
@@ -291,29 +276,29 @@ export default function ConcentratedPool({
         amount1,
         signer,
       )
-      
+
       setMintGasFee(newGasFee.formattedPrice)
       setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
     }
   }
 
+  //TODO@retraca update the utils functions to do this and add to context in zustand
   const getRangePoolData = async () => {
     try {
       if (hasSelected === true) {
-        console.log('tier selected', selected.tierId)
         const pool = tokenOrder
           ? await getRangePoolFromFactory(
               tokenIn.address,
               tokenOut.address,
-              selected.tierId,
+              fee.tierId,
             )
           : await getRangePoolFromFactory(
               tokenOut.address,
               tokenIn.address,
-              selected.tierId,
+              fee.tierId,
             )
         const dataLength = pool['data']['rangePools'].length
-        console.log('data length check', dataLength)
+        //console.log('pool data', pool)
         if (dataLength != 0) {
           const id = pool['data']['rangePools']['0']['id']
           const price = JSBI.BigInt(pool['data']['rangePools']['0']['price'])
@@ -343,7 +328,6 @@ export default function ConcentratedPool({
           setRangePoolRoute(ZERO_ADDRESS)
           setRangePrice('1.00')
           setRangeSqrtPrice(TickMath.getSqrtRatioAtTick(0))
-          console.log('range price set', rangePrice)
         }
       } else {
         await getRangePoolFromFactory()
@@ -359,11 +343,6 @@ export default function ConcentratedPool({
       const token1Amount = parseFloat(ethers.utils.formatUnits(amount1, 18))
       setAmount0Usd(token0Amount * usdPrice0)
       setAmount1Usd(token1Amount * usdPrice1)
-      console.log(
-        'setting usd prices for amounts',
-        token0Amount * usdPrice0,
-        token1Amount * usdPrice1,
-      )
     } catch (error) {
       console.log(error)
     }
@@ -448,8 +427,6 @@ export default function ConcentratedPool({
     }
   }
 
-  
-
   const changePrice = (direction: string, inputId: string) => {
     if (!tickSpacing) return
     const currentTick =
@@ -481,14 +458,50 @@ export default function ConcentratedPool({
     }
   }
 
+  const [fee, setFee] = useState(updateSelectedFeeTier)
+
+  function updateSelectedFeeTier(): any {
+    if (feeTier == 0.01) {
+      return feeTiers[0]
+    } else if (feeTier == 0.05) {
+      return feeTiers[1]
+    } else if (feeTier == 0.3) {
+      return feeTiers[2]
+    } else if (feeTier == 1) {
+      return feeTiers[3]
+    } else return feeTiers[0]
+  }
+
+  const handleManualFeeChange = async (auxfee: any) => {
+    const pool = tokenOrder
+      ? await getRangePoolFromFactory(tokenIn.address, tokenOut.address)
+      : await getRangePoolFromFactory(tokenOut.address, tokenIn.address)
+    const data = pool['data']['rangePools']
+    for (var i = 0; i < data.length; i++) {
+      if (data[i]['feeTier']['id'] == 3000 && auxfee.tierId == 3000) {
+        setFee(feeTiers[2])
+        setRangePoolRoute(pool['data']['rangePools'][i]['id'])
+      } else if (data[i]['feeTier']['id'] == 500 && auxfee.tierId == 500) {
+        setFee(feeTiers[1])
+        setRangePoolRoute(pool['data']['rangePools'][i]['id'])
+      } else if (data[i]['feeTier']['id'] == 100 && auxfee.tierId == 100) {
+        setFee(feeTiers[0])
+        setRangePoolRoute(pool['data']['rangePools'][i]['id'])
+      } else if (data[i]['feeTier']['id'] == 10000 && auxfee.tierId == 10000) {
+        setFee(feeTiers[3])
+        setRangePoolRoute(pool['data']['rangePools'][i]['id'])
+      }
+    }
+  }
+
   function SelectFee() {
     return (
-      <Listbox value={selected} onChange={setSelected}>
+      <Listbox value={fee} onChange={handleManualFeeChange}>
         <div className="relative mt-1 w-full">
           <Listbox.Button className="relative cursor-default rounded-lg bg-black text-white cursor-pointer border border-grey1 py-2 pl-3 w-full text-left shadow-md focus:outline-none">
-            <span className="block truncate">{selected.tier}</span>
+            <span className="block truncate">{fee.tier}</span>
             <span className="block truncate text-xs text-grey mt-1">
-              {selected.text}
+              {fee.text}
             </span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
               <ChevronDownIcon className="w-7 text-grey" aria-hidden="true" />
@@ -851,7 +864,7 @@ export default function ConcentratedPool({
           amount1Usd={amount1Usd}
           lowerTick={lowerTick}
           upperTick={upperTick}
-          fee={selected.tier}
+          fee={fee.tier}
           allowance0={allowance0}
           allowance1={allowance1}
           disabled={isDisabled}
