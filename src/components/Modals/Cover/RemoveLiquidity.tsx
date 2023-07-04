@@ -6,6 +6,7 @@ import useInputBox from '../../../hooks/useInputBox'
 import CoverRemoveLiqButton from "../../Buttons/CoverRemoveLiqButton";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO } from "../../../utils/math/constants";
+import { useRouter } from "next/router";
 
 export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, lowerTick, zeroForOne, amountInDeltaMax, upperTick, gasLimit, gasFee }) {
 
@@ -14,6 +15,8 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
     inputBox,
     setDisplay,
   } = useInputBox()
+
+  const router = useRouter()
 
   const [balanceIn, setBalanceIn] = useState('')
   const [fetchDelay, setFetchDelay] = useState(false)
@@ -183,6 +186,10 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
                       zeroForOne={zeroForOne}
                       burnPercent={burnPercent}
                       gasLimit={gasLimit}
+                      closeModal={() => 
+                        {if (sliderValue == 100) {
+                          router.push('/pool')
+                        }}}
                 />
               </Dialog.Panel>
             </Transition.Child>

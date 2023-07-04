@@ -11,7 +11,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 
-export default function CoverRemoveLiqButton({disabled, poolAddress, address, lower, claim, upper, zeroForOne, burnPercent, gasLimit}) {
+export default function CoverRemoveLiqButton({disabled, poolAddress, address, lower, claim, upper, zeroForOne, burnPercent, gasLimit, closeModal}) {
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -43,6 +43,9 @@ export default function CoverRemoveLiqButton({disabled, poolAddress, address, lo
       hash: data?.hash,
       onSuccess() {
         setSuccessDisplay(true);
+        setTimeout(() => {
+          closeModal()
+        }, 2000);
       },
       onError() {
         setErrorDisplay(true);
