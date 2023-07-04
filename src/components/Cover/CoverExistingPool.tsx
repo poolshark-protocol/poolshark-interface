@@ -61,8 +61,8 @@ export default function CoverExistingPool({
   const { data: signer } = useSigner()
   const [expanded, setExpanded] = useState(false)
   const [fetchDelay, setFetchDelay] = useState(false)
-  const [tickSpread, setTickSpread] = useState(20)
-  const [auctionLength, setAuctionLength] = useState(5)
+  const [tickSpread, setTickSpread] = useState(tickSpacing)
+  const [auctionLength, setAuctionLength] = useState(0)
   const [tokenOrder, setTokenOrder] = useState(zeroForOne)
   const [latestTick, setLatestTick] = useState(0)
   const [lowerTick, setLowerTick] = useState(
@@ -100,7 +100,7 @@ export default function CoverExistingPool({
   const [sliderValue, setSliderValue] = useState(50)
   const [coverPrice, setCoverPrice] = useState(undefined)
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
-  const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
+  const [coverPoolRoute, setCoverPoolRoute] = useState(poolId ?? undefined)
   const [coverAmountIn, setCoverAmountIn] = useState(ZERO)
   const [coverAmountOut, setCoverAmountOut] = useState(ZERO)
   const [allowance, setAllowance] = useState(ZERO)
@@ -109,6 +109,7 @@ export default function CoverExistingPool({
   const [buttonState, setButtonState] = useState('')
   const [mintGasFee, setMintGasFee] = useState('$0.00')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
+  const [volatility, setVolatility] = useState(0)
 
   ////////////////////////////////
 
@@ -171,36 +172,43 @@ export default function CoverExistingPool({
   useEffect(() => {
     if (!fetchDelay) {
       getCoverPoolInfo(
+        coverPoolRoute,
         tokenOrder,
         tokenIn,
         tokenOut,
         setCoverPoolRoute,
+        setCoverPrice,
         null,
-        setTickSpread,
-        setAuctionLength,
-        null,
-        setLatestTick
+        setVolatility,
+        setLatestTick,
+        lowerPrice,
+        upperPrice,
+        setLowerPrice,
+        setUpperPrice,
       )
       console.log('tick bounds', lowerTick, upperTick)
-      if (!isNaN(lowerTick) && !isNaN(upperTick))
-        updateGasFee()
+      if (!isNaN(lowerTick) && !isNaN(upperTick)) updateGasFee()
     } else {
       const interval = setInterval(() => {
         getCoverPoolInfo(
+          coverPoolRoute,
           tokenOrder,
           tokenIn,
           tokenOut,
           setCoverPoolRoute,
+          setCoverPrice,
           null,
-          setTickSpread,
-          setAuctionLength,
-          null,
-          setLatestTick
+          setVolatility,
+          setLatestTick,
+          lowerPrice,
+          upperPrice,
+          setLowerPrice,
+          setUpperPrice,
         )
       }, 5000)
       return () => clearInterval(interval)
     }
-  }, [fetchDelay])
+  }, [fetchDelay, coverPoolRoute])
 
   useEffect(() => {
     changeCoverAmounts()
@@ -251,16 +259,21 @@ export default function CoverExistingPool({
     }
   }, [lowerPrice, upperPrice])
 
-  useEffect(() => {
-
-  }, [coverAmountOut])
+  useEffect(() => {}, [coverAmountOut])
 
   ////////////////////////////////
 
   const changeValidBounds = () => {
-    console.log('setting valid bounds', lowerTick < latestTick - tickSpread, tokenOrder)
-    setValidBounds(tokenOrder ? lowerTick < latestTick - tickSpread
-                              : upperTick > latestTick - (-tickSpread))
+    console.log(
+      'setting valid bounds',
+      lowerTick < latestTick - tickSpread,
+      tokenOrder,
+    )
+    setValidBounds(
+      tokenOrder
+        ? lowerTick < latestTick - tickSpread
+        : upperTick > latestTick - -tickSpread,
+    )
   }
 
   const changePrice = (direction: string, inputId: string) => {
@@ -282,7 +295,12 @@ export default function CoverExistingPool({
         : latestTick
     console.log('current tick', currentTick, upperTick)
     if (!tickSpread && !tickSpacing) return
-    console.log('increment check', tickSpread, tickSpacing, tickSpread ?? tickSpacing)
+    console.log(
+      'increment check',
+      tickSpread,
+      tickSpacing,
+      tickSpread ?? tickSpacing,
+    )
     const increment = tickSpread ?? tickSpacing
     const adjustment =
       direction == 'plus' || direction == 'minus'
@@ -293,8 +311,7 @@ export default function CoverExistingPool({
     console.log('adjustment', adjustment, currentTick)
     const newTick = roundTick(currentTick - adjustment, increment)
     const newPriceString = TickMath.getPriceStringAtTick(newTick)
-    ;
-    (document.getElementById(inputId) as HTMLInputElement).value = Number(
+    ;(document.getElementById(inputId) as HTMLInputElement).value = Number(
       newPriceString,
     ).toFixed(6)
     if (inputId === 'maxInput') {
@@ -368,7 +385,7 @@ export default function CoverExistingPool({
       tokenOut,
       coverAmountIn,
       tickSpread,
-      signer
+      signer,
     )
     
     setMintGasFee(newMintGasFee.formattedPrice)
@@ -380,10 +397,15 @@ export default function CoverExistingPool({
   }
 
   const volatilityTiers = [
-    { id: 0, tier: "2.4% per min", text: "Best for most pairs", unavailable: false },
-  ];
+    {
+      id: 0,
+      tier: '2.4% per min',
+      text: 'Best for most pairs',
+      unavailable: false,
+    },
+  ]
 
-    const [selected, setSelected] = useState(volatilityTiers[0]);
+  const [selected, setSelected] = useState(volatilityTiers[0])
 
   function SelectVolatility() {
     return (
@@ -450,7 +472,6 @@ export default function CoverExistingPool({
             <div className="text-xs text-[#4C4C4C]">
               Min. filled amount
             </div>
-            <div className="ml-auto text-xs">{(parseFloat(ethers.utils.formatUnits(String(coverAmountOut), 18)) * (1 - tickSpread / 10000)).toPrecision(5) + ' ' + tokenOut.symbol}</div>
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
@@ -465,24 +486,24 @@ export default function CoverExistingPool({
     <>
       <div className="mb-6">
         <div className="flex flex-row justify-between">
-          <h1 className="mb-3">Selected Pool</h1>
+          <h1 className="mb-3 md:text-base text-sm">Selected Pool</h1>
           <span
             className="flex gap-x-1 cursor-pointer"
             onClick={() => goBack('initial')}
           >
             <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />
-            <h1 className="mb-3 opacity-50">Back</h1>
+            <h1 className="mb-3 opacity-50 md:text-base text-sm">Back</h1>
           </span>
         </div>
-        <div className="flex gap-x-4 items-center">
-          <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
-            <div className="flex items-center gap-x-2 w-full">
-              <img className="w-7" src={tokenIn.logoURI} />
+        <div className="flex justify-between md:justify-start gap-x-4 items-center">
+          <button className="flex items-center gap-x-3 bg-black border border-grey1 md:px-4 px-2 py-1.5 rounded-xl">
+            <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
+              <img className="md:w-7 w-6" src={tokenIn.logoURI} />
               {tokenIn.symbol}
             </div>
           </button>
           <ArrowLongRightIcon
-            className="w-6 cursor-pointer"
+            className="md:w-6 w-5 cursor-pointer"
             onClick={() => {
               if (hasSelected) {
                 switchDirection(
@@ -500,15 +521,15 @@ export default function CoverExistingPool({
               }
             }}
           />
-          <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
-            <div className="flex items-center gap-x-2 w-full">
-              <img className="w-7" src={tokenOut.logoURI} />
+          <button className="flex items-center gap-x-3 bg-black border border-grey1 md:px-4 px-2 py-1.5 rounded-xl">
+            <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
+              <img className="md:w-7 w-6" src={tokenOut.logoURI} />
               {tokenOut.symbol}
             </div>
           </button>
         </div>
       </div>
-      <h1 className="mb-3">How much do you want to Cover?</h1>
+      <h1 className="mb-3 md:text-base text-sm">How much do you want to Cover?</h1>
       <div className="w-full flex items-center justify-between text-xs text-[#646464]">
         <div>0</div>
         <div>Full</div>
@@ -526,7 +547,7 @@ export default function CoverExistingPool({
       </div>
       <div className="mt-3 ">
         <div className="flex justify-between items-center text-sm">
-          <div className="text-[#646464]">Percentage Covered</div>
+          <div className="text-[#646464] md:text-sm text-xs">Percentage Covered</div>
           <div className="flex gap-x-1 items-center ">
             <input
               autoComplete="off"
@@ -543,8 +564,9 @@ export default function CoverExistingPool({
           </div>
         </div>
         <div className="flex items-center justify-between text-sm">
-          <div className="text-[#646464]">Amount Covered</div>
+          <div className="text-[#646464] md:text-sm text-xs">Amount Covered</div>
           <div className="flex items-center justify-end gap-x-2">
+            {/*
             <input
               autoComplete="off"
               type="text"
@@ -558,21 +580,30 @@ export default function CoverExistingPool({
               ).toPrecision(5)}
               className="bg-black text-right w-32 py-1 placeholder:text-grey1 text-white text-lg mb-2 focus:ring-0 focus:ring-offset-0 focus:outline-none"
             />
-            <div className="-mt-1">{tokenOut.symbol}</div>
+              */}
+              <div className="bg-black text-right w-32 py-1 placeholder:text-grey1 text-white text-lg">
+              {Number.parseFloat(
+                ethers.utils.formatUnits(String(coverAmountOut), 18),
+              ).toPrecision(5)}
+              </div>
+              
+            <div className="">{tokenOut.symbol}</div>
           </div>
         </div>
-          <div className="flex justify-between text-sm">
-            <div className="text-[#646464]">Amount to pay</div>
-            <div className="gap-x-2 flex items-center justify-end">
-              <span className="text-lg">{Number(
+        <div className="flex justify-between items-center text-sm">
+          <div className="text-[#646464] md:text-sm text-xs">Amount to pay</div>
+          <div className="gap-x-2 flex items-center justify-end">
+            <span className="text-lg">
+              {Number(
                 ethers.utils.formatUnits(coverAmountIn.toString(), 18),
-              ).toPrecision(5)}</span> 
-              <span className="mt-1">{tokenIn.symbol}</span>
-            </div>
+              ).toPrecision(5)}
+            </span>
+            <span className="mt-1">{tokenIn.symbol}</span>
           </div>
+        </div>
       </div>
       <div>
-        <div className="gap-x-4 mt-5">
+        <div className="gap-x-4 mt-5 md:text-base text-sm">
           <h1>Volatility tier</h1>
         </div>
         <div className="mt-3">
@@ -580,7 +611,7 @@ export default function CoverExistingPool({
         </div>
       </div>
       <div className="flex items-center w-full mb-3 mt-4 gap-x-2 relative">
-        <h1 className="">Set Price Range</h1>
+        <h1 className="md:text-base text-sm">Set Price Range</h1>
         <InformationCircleIcon
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
@@ -596,7 +627,7 @@ export default function CoverExistingPool({
       </div>
       <div className="flex justify-between w-full gap-x-6">
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-          <span className="text-xs text-grey">Min. Price</span>
+          <span className="md:text-xs text-[10px] text-grey">Min. Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice('minus', 'minInput')}>
@@ -625,9 +656,13 @@ export default function CoverExistingPool({
               </button>
             </div>
           </div>
+          <span className="text-xs text-grey">
+            {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per{' '}
+            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOrder ? tokenIn.symbol : tokenOut.symbol}
+          </span>
         </div>
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-          <span className="text-xs text-grey">Max. Price</span>
+          <span className="md:text-xs text-[10px] text-grey">Max. Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice('minus', 'maxInput')}>
@@ -656,6 +691,10 @@ export default function CoverExistingPool({
               </button>
             </div>
           </div>
+          <span className="text-xs text-grey">
+            {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per{' '}
+            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOrder ? tokenIn.symbol : tokenOut.symbol}
+          </span>
         </div>
       </div>
       <div className="py-4">
@@ -664,11 +703,12 @@ export default function CoverExistingPool({
           onClick={() => setExpanded(!expanded)}
         >
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-            1 {tokenIn.symbol} = {
-              (!isNaN(parseFloat(coverTickPrice))) ?
-              (parseFloat(parseFloat(coverTickPrice).toPrecision(6)) + ' ' + tokenOut.symbol) :
-              ('?' + ' ' + tokenOut.symbol)
-            }
+            1 {tokenIn.symbol} ={' '}
+            {!isNaN(parseFloat(coverTickPrice))
+              ? parseFloat(parseFloat(coverTickPrice).toPrecision(6)) +
+                ' ' +
+                tokenOut.symbol
+              : '?' + ' ' + tokenOut.symbol}
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
             <button>

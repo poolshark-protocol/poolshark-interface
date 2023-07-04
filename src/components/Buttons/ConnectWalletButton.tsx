@@ -71,14 +71,14 @@ export const ConnectWalletButton = ({xl= false, center= false}: Props) => {
                 }
                 return (
                   <>
-                    <div className={`flex flex-col-reverse  xl:flex-row items-end mt-14  xl:mt-0 justify-end gap-y-4 text-white gap-x-4 ${center ? `justify-center` : ``}`}
+                    <div className={`flex flex-row  items-end  justify-end gap-y-4 text-white gap-x-4 ${center ? `justify-center` : ``}`}
                     >
                       <button
                         onClick={() => setIsOpen(true)}
-                        style={{ display: "flex", alignItems: "center" }}
                         type="button"
-                        className="bg-black border-grey1 border rounded-lg w-min py-2 px-4 gap-x-2 hover:opacity-80"
+                        className="bg-black border-grey1 border rounded-lg py-2 w-[42px] flex justify-center items-center md:w-auto h-[42px] md:px-4 px-2 gap-x-2 hover:opacity-80"
                       >
+                        {/*
                         {chain.hasIcon && (
                           <div>
                             {chain.iconUrl && (
@@ -90,6 +90,7 @@ export const ConnectWalletButton = ({xl= false, center= false}: Props) => {
                             )}
                           </div>
                         )}
+                        */}
                         {chain.id === 421613 ? (
                           <img
                             style={{ width: 16, height: 16 }}
@@ -98,17 +99,17 @@ export const ConnectWalletButton = ({xl= false, center= false}: Props) => {
                         ) : (
                           ""
                         )}
-                        <div className="whitespace-nowrap pr-4">
+                        <div className="whitespace-nowrap pr-4 hidden xl:block">
                         {chain.name}
                         </div>
                       </button>
                       <button
                         onClick={openAccountModal}
                         type="button"
-                        className="flex bg-dark rounded-lg border-grey1 border hover:opacity-80"
+                        className="flex bg-dark rounded-lg 2xl:border-grey1 border-transparent border hover:opacity-80 "
                       >
                         {account.displayBalance ? (
-                          <div className="bg-dark py-2 px-4 rounded-l-lg whitespace-nowrap">
+                          <div className="bg-dark py-2 px-4 rounded-l-lg whitespace-nowrap hidden 2xl:block">
                             {account.displayBalance}
                           </div>
                         ) : (

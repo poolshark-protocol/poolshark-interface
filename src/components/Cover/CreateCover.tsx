@@ -81,7 +81,9 @@ export default function CreateCover(props: any) {
   const [buttonState, setButtonState] = useState('')
   const [coverAmountIn, setCoverAmountIn] = useState(ZERO)
   const [coverAmountOut, setCoverAmountOut] = useState(ZERO)
-  const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
+  const [coverPoolRoute, setCoverPoolRoute] = useState(
+    props.query ? props.query.poolId : undefined,
+  )
   const [tokenOrder, setTokenOrder] = useState(
     tokenIn.address.localeCompare(tokenOut.address) < 0,
   )
@@ -89,33 +91,6 @@ export default function CreateCover(props: any) {
   const [tickSpread, setTickSpread] = useState(
     props.query ? props.query.tickSpacing : 20,
   )
-  const [feeTier, setFeeTier] = useState(props.query?.feeTier ?? 0.01)
-  const [auctionLength, setAuctionLength] = useState(
-    props.query?.auctionLength ?? 0,
-  )
-
-  const [volatility, setVolatility] = useState(
-    (parseFloat(tickSpread) * (60 / parseFloat(auctionLength))).toFixed(2),
-  )
-
-  console.log(
-    'volatility check',
-    tickSpread,
-    auctionLength,
-    tickSpread * (60 / auctionLength),
-  )
-
-  function updateSelectedFeeTier(): any {
-    if (feeTier == 0.01) {
-      return feeTiers[0]
-    } else if (feeTier == 0.05) {
-      return feeTiers[1]
-    } else if (feeTier == 0.3) {
-      return feeTiers[2]
-    } else if (feeTier == 1) {
-      return feeTiers[3]
-    } else return feeTiers[0]
-  }
   const [mintGasFee, setMintGasFee] = useState('$0.00')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
 
@@ -138,15 +113,7 @@ export default function CreateCover(props: any) {
     onError(error) {
       console.log('Error', error)
     },
-    onSettled(data, error) {
-      /* console.log('Allowance Settled', {
-        data,
-        error,
-        coverPoolRoute,
-        tokenIn,
-        tokenOut,
-      }) */
-    },
+    onSettled(data, error) {},
   })
 
   //////////////////
@@ -187,21 +154,27 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     getCoverPoolInfo(
+      coverPoolRoute,
       tokenOrder,
       tokenIn,
       tokenOut,
       setCoverPoolRoute,
       setCoverPrice,
-      setTickSpread,
-      setAuctionLength,
       setTokenInUsdPrice,
+      setVolatility,
       setLatestTick,
       lowerPrice,
       upperPrice,
       setLowerPrice,
-      setUpperPrice
+      setUpperPrice,
     )
-  }, [hasSelected, tokenIn.address, tokenOut.address, tokenOrder])
+  }, [
+    hasSelected,
+    tokenIn.address,
+    tokenOut.address,
+    tokenOrder,
+    coverPoolRoute,
+  ])
 
   // disabled messages
   useEffect(() => {
@@ -224,20 +197,31 @@ export default function CreateCover(props: any) {
 
   // set disabled
   useEffect(() => {
-    const disabledFlag =  Number(ethers.utils.formatUnits(bnInput)) > Number(balance0) ||
-                          isNaN(parseFloat(lowerPrice)) ||
-                          isNaN(parseFloat(upperPrice)) ||
-                          lowerTick.gte(upperTick) ||
-                          Number(ethers.utils.formatUnits(bnInput)) === 0 ||
-                          tokenOut.symbol === 'Select Token' ||
-                          hasSelected == false ||
-                          !validBounds
+    const disabledFlag =
+      Number(ethers.utils.formatUnits(bnInput)) > Number(balance0) ||
+      isNaN(parseFloat(lowerPrice)) ||
+      isNaN(parseFloat(upperPrice)) ||
+      lowerTick.gte(upperTick) ||
+      Number(ethers.utils.formatUnits(bnInput)) === 0 ||
+      tokenOut.symbol === 'Select Token' ||
+      hasSelected == false ||
+      !validBounds
     console.log('disabled flag check', disabledFlag)
     setDisabled(disabledFlag)
     if (!disabledFlag) {
       updateGasFee()
     }
-  }, [lowerPrice, upperPrice, lowerTick, upperTick, bnInput, tokenOut, hasSelected, validBounds, balance0])
+  }, [
+    lowerPrice,
+    upperPrice,
+    lowerTick,
+    upperTick,
+    bnInput,
+    tokenOut,
+    hasSelected,
+    validBounds,
+    balance0,
+  ])
 
   console.log(Number(ethers.utils.formatUnits(bnInput)) > Number(balance0))
   // set amount in
@@ -298,10 +282,14 @@ export default function CreateCover(props: any) {
   }
 
   const changeValidBounds = () => {
-    console.log('changing valid bounds', tokenOrder ? lowerTick.lt(latestTick) : upperTick.gt(latestTick))
     setValidBounds(
-      tokenOrder ? lowerTick.lt(BigNumber.from(latestTick).sub(BigNumber.from(tickSpread))) 
-                 : upperTick.gt((BigNumber.from(latestTick).add(BigNumber.from(tickSpread))))
+      tokenOrder
+        ? lowerTick.lt(
+            BigNumber.from(latestTick).sub(BigNumber.from(tickSpread)),
+          )
+        : upperTick.gt(
+            BigNumber.from(latestTick).add(BigNumber.from(tickSpread)),
+          ),
     )
   }
 
@@ -317,8 +305,6 @@ export default function CreateCover(props: any) {
       tickSpread,
       signer,
     )
-    console.log('mint gas estimate', newMintGasFee.gasUnits.toString())
-    
     setMintGasFee(newMintGasFee.formattedPrice)
     setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100))
   }
@@ -367,7 +353,6 @@ export default function CreateCover(props: any) {
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(upperTick))
       if (amountInChanged) {
         // amountIn changed
-        console.log('amount in check', String(coverAmountIn))
         const liquidityAmount = DyDxMath.getLiquidityForAmounts(
           lowerSqrtPrice,
           upperSqrtPrice,
@@ -421,22 +406,63 @@ export default function CreateCover(props: any) {
   const volatilityTiers = [
     {
       id: 0,
+      tier: '1.7% per min',
+      text: 'Less Volatility',
+      unavailable: false,
+    },
+    {
+      id: 1,
       tier: '2.4% per min',
-      text: 'Best for most pairs',
+      text: 'Most Volatility',
       unavailable: false,
     },
   ]
 
-  const [selected, setSelected] = useState(volatilityTiers[0])
+  const [volatility, setVolatility] = useState(0)
+  const [selectedVolatility, setSelectedVolatility] = useState(
+    volatilityTiers[0],
+  )
+
+  useEffect(() => {
+    setSelectedVolatility(volatilityTiers[volatility])
+  }, [volatility])
+
+  //when volatility changes, we find the corresponding pool id and changed it trigerring the poolInfo refetching
+  const handleManualVolatilityChange = async (volatility: any) => {
+    try {
+      const pool = await getCoverPoolFromFactory(
+        tokenIn.address,
+        tokenOut.address,
+      )
+      const volatilityId = volatility.id
+      const dataLength = pool['data']['coverPools'].length
+      for (let i = 0; i < dataLength; i++) {
+        if (
+          (volatilityId == 0 &&
+            pool['data']['coverPools'][i]['volatilityTier']['tickSpread'] ==
+              20) ||
+          (volatilityId == 1 &&
+            pool['data']['coverPools'][i]['volatilityTier']['tickSpread'] == 40)
+        ) {
+          setCoverPoolRoute(pool['data']['coverPools'][i]['id'])
+        }
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   function SelectVolatility() {
     return (
-      <Listbox value={selected} onChange={setSelected}>
+      <Listbox
+        value={selectedVolatility}
+        onChange={handleManualVolatilityChange}
+      >
         <div className="relative mt-1 w-full">
           <Listbox.Button className="relative cursor-default rounded-lg bg-black text-white cursor-pointer border border-grey1 py-2 pl-3 w-full text-left shadow-md focus:outline-none">
-            <span className="block truncate">{selected.tier}</span>
+            <span className="block truncate">{selectedVolatility.tier}</span>
             <span className="block truncate text-xs text-grey mt-1">
-              {selected.text}
+              {selectedVolatility.text}
             </span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
               <ChevronDownIcon className="w-7 text-grey" aria-hidden="true" />
@@ -495,7 +521,7 @@ export default function CreateCover(props: any) {
     <>
       <div className="mb-6">
         <div className="flex flex-row justify-between">
-          <h1 className="mb-3">Select Pair</h1>
+          <h1 className="mb-3 md:text-base text-sm">Select Pair</h1>
           {/*  {pool != undefined ? (
             <Link href="/cover">
               <span className="flex gap-x-1 cursor-pointer">
@@ -508,13 +534,13 @@ export default function CreateCover(props: any) {
             className="flex gap-x-1 cursor-pointer"
             onClick={() => props.goBack('initial')}
           >
-            <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />{' '}
-            <h1 className="mb-3 opacity-50">Back</h1>{' '}
+            <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />
+            <h1 className="mb-3 opacity-50 md:text-base text-sm">Back</h1>
           </span>
           {/* )} */}
         </div>
 
-        <div className="flex gap-x-4 items-center">
+        <div className="flex md:flex-row flex-col gap-y-3 gap-x-2 md:gap-x-4 items-center">
           <SelectToken
             index="0"
             type="in"
@@ -530,11 +556,11 @@ export default function CreateCover(props: any) {
             queryTokenOut={queryTokenOut}
             setQueryTokenIn={setQueryTokenIn}
             setQueryTokenOut={setQueryTokenOut}
-            key={queryTokenIn+'in'}
+            key={queryTokenIn + 'in'}
           />
           <div className="items-center px-2 py-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
             <ArrowLongRightIcon
-              className="w-6 cursor-pointer"
+              className="md:w-6 w-4 cursor-pointer md:rotate-0 rotate-90"
               onClick={() => {
                 if (hasSelected) {
                   switchDirection(
@@ -567,15 +593,15 @@ export default function CreateCover(props: any) {
             queryTokenOut={queryTokenOut}
             setQueryTokenIn={setQueryTokenIn}
             setQueryTokenOut={setQueryTokenOut}
-            key={queryTokenOut+'out'}
+            key={queryTokenOut + 'out'}
           />
         </div>
       </div>
-      <h1 className="mb-3">How much do you want to Cover?</h1>
+      <h1 className="mb-3 md:text-base text-sm">How much do you want to Cover?</h1>
       <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-        <div className="flex-col justify-center w-1/2 p-2 ">
+        <div className="flex flex-col justify-between gap-y-1 w-1/2 px-2">
           {inputBox('0')}
-          <div className="flex text-xs text-[#4C4C4C]">
+          <div className="flex md:text-xs text-[10px] -mb-1 text-[#4C4C4C]">
             $
             {(
               parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
@@ -588,19 +614,19 @@ export default function CreateCover(props: any) {
             <div className="flex-col">
               <div className="flex justify-end">
                 <button className="flex items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
-                  <div className="flex items-center gap-x-2 w-full">
-                    <img className="w-7" src={tokenIn.logoURI} />
+                  <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
+                    <img className="md:w-7 w-6" src={tokenIn.logoURI} />
                     {tokenIn.symbol}
                   </div>
                 </button>
               </div>
               <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                <div className="flex text-xs text-[#4C4C4C]">
+                <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]">
                   Balance: {balance0 === 'NaN' ? 0 : balance0}
                 </div>
                 {isConnected ? (
                   <button
-                    className="flex text-xs uppercase text-[#C9C9C9]"
+                    className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
                     onClick={() => maxBalance(balance0, '0')}
                   >
                     Max
@@ -625,11 +651,12 @@ export default function CreateCover(props: any) {
             {hasSelected &&
             mktRate[tokenIn.symbol] &&
             parseFloat(lowerPrice) < parseFloat(upperPrice) ? (
-              parseFloat((
-                parseFloat(
-                  ethers.utils.formatUnits(String(coverAmountOut), 18),
-                )
-              ).toPrecision(6).replace(/0+$/, '').replace(/(\.)(?!\d)/g, ''))
+              parseFloat(
+                parseFloat(ethers.utils.formatUnits(String(coverAmountOut), 18))
+                  .toPrecision(6)
+                  .replace(/0+$/, '')
+                  .replace(/(\.)(?!\d)/g, ''),
+              )
             ) : (
               <>?</>
             )}{' '}
@@ -637,7 +664,7 @@ export default function CreateCover(props: any) {
           </div>
         </div>
       </div>
-      <div className="gap-x-4 mt-5">
+      <div className="gap-x-4 mt-5 md:text-base text-sm">
         <div>
           <h1>Volatility tier</h1>
         </div>
@@ -646,7 +673,7 @@ export default function CreateCover(props: any) {
         </div>
       </div>
       <div className="flex items-center w-full mb-3 mt-4 gap-x-2 relative">
-        <h1 className="">Set Price Range</h1>
+        <h1 className="md:text-base text-sm">Set Price Range</h1>
         <InformationCircleIcon
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
@@ -662,7 +689,7 @@ export default function CreateCover(props: any) {
       </div>
       <div className="flex justify-between w-full gap-x-6">
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-          <span className="text-xs text-grey">Min. Price</span>
+          <span className="md:text-xs text-[10px] text-grey">Min. Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice('minus', 'minInput')}>
@@ -691,13 +718,13 @@ export default function CreateCover(props: any) {
               </button>
             </div>
           </div>
-          <span className="text-xs text-grey">
-            {tokenIn.symbol} per{' '}
-            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOut.symbol}
+          <span className="md:text-xs text-[10px] text-grey">
+            {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per{' '}
+            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOrder ? tokenIn.symbol : tokenOut.symbol}
           </span>
         </div>
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
-          <span className="text-xs text-grey">Max. Price</span>
+          <span className="md:text-xs text-[10px] text-grey">Max. Price</span>
           <div className="flex justify-center items-center">
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice('minus', 'maxInput')}>
@@ -726,7 +753,7 @@ export default function CreateCover(props: any) {
               </button>
             </div>
           </div>
-          <span className="text-xs text-grey">
+          <span className="md:text-xs text-[10px] text-grey">
             {tokenIn.symbol} per{' '}
             {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOut.symbol}
           </span>
@@ -741,7 +768,11 @@ export default function CreateCover(props: any) {
             {1} {tokenIn.symbol} ={' '}
             {tokenOut.symbol === 'Select Token' || isNaN(parseFloat(coverPrice))
               ? '?' + ' ' + tokenOut.symbol
-              : parseFloat(parseFloat(invertPrice(coverPrice, tokenOrder)).toPrecision(6)) +
+              : parseFloat(
+                  parseFloat(invertPrice(coverPrice, tokenOrder)).toPrecision(
+                    6,
+                  ),
+                ) +
                 ' ' +
                 tokenOut.symbol}
           </div>

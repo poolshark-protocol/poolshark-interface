@@ -799,7 +799,7 @@ export default function Swap() {
     }
   }
   return (
-    <div className="pt-[10vh]">
+    <div className="pt-[10vh] mb-[10vh] px-3 md:px-0">
       <div className="flex flex-col w-full md:max-w-md px-6 pt-5 pb-7 mx-auto bg-black border border-grey2 rounded-xl">
         <div className="flex items-center">
           <div className="flex gap-4 mb-1.5 text-sm">
@@ -839,21 +839,21 @@ export default function Swap() {
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
               >
-                <Popover.Panel className="absolute z-10 ml-14 -mt-[48px] bg-black border border-grey2 rounded-xl p-5">
+                <Popover.Panel className="absolute z-10 md:ml-14 -ml-48 z-50 mt-[5px] md:-mt-[48px] bg-black border border-grey2 rounded-xl p-5">
                   {({ close }) => (
                     <div className="w-full">
-                      <h1>
+                      <h1 className="">
                         {LimitActive ? (
                           <>Range Tolerance</>
                         ) : (
                           <>Slippage Tolerance</>
                         )}
                       </h1>
-                      <div className="flex mt-3 gap-x-3">
+                      <div className="flex xl:flex-row flex-col gap-y-2 mt-3 gap-x-3">
                         <input
                           autoComplete="off"
                           placeholder="0%"
-                          className="bg-dark rounded-xl outline-none border border-grey1 pl-3 placeholder:text-grey1"
+                          className="bg-dark rounded-xl outline-none border border-grey1 pl-3 py-3 placeholder:text-grey1"
                           value={auxSlippage + '%'}
                           onChange={(e) =>
                             setAuxSlippage(
@@ -883,7 +883,7 @@ export default function Swap() {
           </div>
         </div>
         <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-          <div className="flex-col justify-center w-1/2 p-2 ">
+          <div className="flex-col justify-center md:w-1/2 p-2 ">
             {inputBox('0')}
             {tokenIn.address != '' ? (
               <div className="flex">
@@ -899,7 +899,7 @@ export default function Swap() {
               <></>
             )}
           </div>
-          <div className="flex w-1/2">
+          <div className="flex md:w-1/2">
             <div className="flex justify-center ml-auto">
               <div className="flex-col">
                 <div className="flex justify-end">
@@ -922,12 +922,12 @@ export default function Swap() {
                   />
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                  <div className="flex text-xs text-[#4C4C4C]" key={balanceIn}>
+                  <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]" key={balanceIn}>
                     Balance: {balanceIn === '0.00' ? 0 : balanceIn}
                   </div>
                   {isConnected && stateChainName === 'arbitrumGoerli' ? (
                     <button
-                      className="flex text-xs uppercase text-[#C9C9C9]"
+                      className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
                       onClick={() => {
                         maxBalance(balanceIn, '0')
                       }}
@@ -1027,7 +1027,7 @@ export default function Swap() {
                 </div>
                 {hasSelected ? (
                   <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                    <div className="flex text-xs text-[#4C4C4C]">
+                    <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]">
                       Balance: {balanceOut === '0.00' ? 0 : balanceOut}
                     </div>
                   </div>
@@ -1055,7 +1055,7 @@ export default function Swap() {
                 <></>
                 {/*TODO - fix market price comparion when switch directions*/}
                 <div className="flex">
-                  <div className="flex text-xs text-[#4C4C4C]">
+                  <div className="flex text-[10px] md:text-xs text-[#4C4C4C]">
                     {hasSelected && rangePrice > 0 ? (
                       (parseFloat(limitPrice) / rangePrice - 1) * 100 > 0 ? (
                         (
@@ -1078,13 +1078,13 @@ export default function Swap() {
                   <div className="flex-col">
                     <div className="flex justify-end">
                       {tokenOrder && hasSelected === false ? (
-                        <button className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl">
+                        <button className="flex md:text-sm text-xs items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl">
                           {tokenIn.symbol} per ?
                           <ArrowPathIcon className="w-5" />
                         </button>
                       ) : (
                         <button
-                          className="flex items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
+                          className="flex md:text-sm text-xs items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
                           onClick={() => setLimitPriceSwitch(!limitPriceSwitch)}
                         >
                           {limitPriceSwitch
@@ -1152,7 +1152,7 @@ export default function Swap() {
             bnInput.lte(BN_ONE) ? (
               <button
                 disabled
-                className="w-full py-4 mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
+                className="w-full py-4 text-sm md:text-base mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
               >
         {buttonState === 'amount' ? <>Input Amount</> : <></>}
         {buttonState === 'token' ? <>Select Token</> : <></>}
@@ -1215,7 +1215,7 @@ export default function Swap() {
             {stateChainName !== 'arbitrumGoerli' || Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput)) || bnInput._hex == '0x00' ? (
               <button
                 disabled
-                className="w-full py-4 mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
+                className="w-full text-sm md:text-base py-4 mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
               >
                 {buttonState === 'amount' ? <>Input Amount</> : <></>}
                 {buttonState === 'token' ? <>Select Token</> : <></>}

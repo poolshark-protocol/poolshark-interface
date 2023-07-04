@@ -192,11 +192,11 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
                           </button>
                         </div>
                         <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                  <div className="flex text-xs text-[#4C4C4C]" key={balanceIn}>
+                  <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]" key={balanceIn}>
                     Balance: {balanceIn === "NaN" ? '0.00' : Number(balanceIn).toPrecision(5)}
                   </div>
                     <button
-                      className="flex text-xs uppercase text-[#C9C9C9]"
+                      className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
                       onClick={() => {
                         console.log("max", balanceIn);
                         maxBalance(balanceIn, "0");

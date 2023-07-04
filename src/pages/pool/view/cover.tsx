@@ -348,10 +348,10 @@ export default function Cover() {
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
-      <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full">
-      <div className="w-[60rem] mt-[10vh] mb-[10vh]">
-          <div className="flex justify-between items-center mb-2">
-            <div className="text-left flex items-center gap-x-5 py-2.5">
+      <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full px-5">
+      <div className="w-full lg:w-[60rem] mt-[10vh] mb-[10vh]">
+      <div className="flex flex-wrap justify-between items-center mb-2">
+      <div className="text-left flex flex-wrap gap-y-5 items-center gap-x-5 py-2.5">
               <div className="flex items-center">
                 <img height="50" width="50" src={tokenIn.logoURI} />
                 <img
@@ -365,6 +365,7 @@ export default function Cover() {
                 {tokenIn.symbol} <ArrowLongRightIcon className="w-5 " />{' '}
                 {tokenOut.symbol}
               </span>
+              <div className="flex items-center mt-3">
               <span className="bg-white text-black rounded-md px-3 py-0.5">
                 {feeTier}%
               </span>
@@ -379,9 +380,9 @@ export default function Cover() {
               <ArrowTopRightOnSquareIcon className="w-5 " />
             </a>
           </div>
-          <div className="mb-6">
-            <div className="flex justify-between text-[#646464]">
-              <div className="grid grid-cols-2 gap-x-10 pl-2 ">
+          <div className="mb-4 w-full">
+          <div className="flex flex-wrap justify-between text-[#646464] w-full">
+          <div className="hidden md:grid grid-rows-2 md:grid-rows-1 grid-cols-1 md:grid-cols-2 gap-x-10 md:pl-2 pl-0 ">
                 <h1
                   onClick={() => copyAddress0()}
                   className="text-xs cursor-pointer w-32"
@@ -418,9 +419,9 @@ export default function Cover() {
               </h1>
             </div>
           </div>
-          <div className="bg-black  border border-grey2 border-b-none w-full rounded-xl py-6 px-7 overflow-y-auto">
-            <div className="flex gap-x-20 justify-between">
-              <div className="w-1/2">
+          <div className="bg-black  border border-grey2 border-b-none w-full rounded-xl md:py-6 py-4 md:px-7 px-4 overflow-y-auto">
+          <div className="flex md:flex-row flex-col gap-x-20 justify-between">
+              <div className="md:w-1/2">
                 <h1 className="text-lg mb-3">Cover Size</h1>
                 <span className="text-4xl">
                   $
@@ -453,20 +454,20 @@ export default function Cover() {
                 <div className="mt-5 space-y-2 cursor-pointer">
                   <div
                     onClick={() => setIsAddOpen(true)}
-                    className="bg-[#032851] w-full py-3 px-4 rounded-xl"
+                    className="bg-[#032851] w-full md:text-base text-sm py-3 px-4 rounded-xl"
                   >
                     Add Liquidity
                   </div>
                   <div
                     onClick={() => setIsRemoveOpen(true)}
-                    className="bg-[#032851] w-full py-3 px-4 rounded-xl"
+                    className="bg-[#032851] w-full md:text-base text-sm py-3 px-4 rounded-xl"
                   >
                     Remove Liquidity
                   </div>
                 </div>
               </div>
-              <div className="w-1/2">
-                <h1 className="text-lg mb-3">Filled Position</h1>
+              <div className="md:w-1/2 w-full">
+                <h1 className="text-lg mb-3 mt-10 md:mt-0">Filled Position</h1>
                 <span className="text-4xl">
                   $ {(Number(coverFilledAmount) * usdPriceIn).toFixed(2)}
                   <span className="text-grey">
@@ -519,34 +520,34 @@ export default function Cover() {
             <div className="flex mt-7 gap-x-6 items-center">
                 <h1 className="text-lg">Price Range </h1>
               </div>
-            <div className="flex justify-between items-center mt-4 gap-x-6">
+              <div className="flex justify-between items-center mt-4 md:gap-x-6 gap-x-3">
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
-                <div className="text-grey text-xs w-full">Min. Price</div>
+                <div className="text-grey md:text-xs text-[10px] w-full">Min. Price</div>
                 <div className="text-white text-2xl my-2 w-full">
                   {minLimit === undefined
                     ? ''
                     : TickMath.getPriceStringAtTick(Number(minLimit))}
                 </div>
-                <div className="text-grey text-xs w-full">
-                  {tokenIn.symbol} per {tokenOut.symbol}
+                <div className="text-grey md:text-xs text-[10px] w-full">
+                  {zeroForOne ? tokenOut.symbol : tokenIn.symbol} per {zeroForOne ? tokenIn.symbol : tokenOut.symbol}
                 </div>
-                <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100% {tokenIn.symbol} at this price.
+                <div className="text-grey md:text-xs text-[10px] w-full italic mt-1">
+                  Your position will be 100% {zeroForOne ? tokenOut.symbol : tokenIn.symbol} at this price.
                 </div>
               </div>
               <ArrowsRightLeftIcon className="w-12 text-grey" />
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
-                <div className="text-grey text-xs w-full">Max. Price</div>
+                <div className="text-grey md:text-xs text-[10px] w-full">Max. Price</div>
                 <div className="text-white text-2xl my-2 w-full">
                   {maxLimit === undefined
                     ? ''
                     : TickMath.getPriceStringAtTick(Number(maxLimit))}
                 </div>
-                <div className="text-grey text-xs w-full">
-                  {tokenIn.symbol} per {tokenOut.symbol}
+                <div className="text-grey md:text-xs text-[10px] w-full">
+                {zeroForOne ? tokenOut.symbol : tokenIn.symbol} per {zeroForOne ? tokenIn.symbol : tokenOut.symbol}
                 </div>
-                <div className="text-grey text-xs w-full italic mt-1">
-                  Your position will be 100% {tokenOut.symbol} at this price.
+                <div className="text-grey md:text-xs text-[10px] w-full italic mt-1">
+                  Your position will be 100% {zeroForOne ? tokenIn.symbol : tokenOut.symbol} at this price.
                 </div>
               </div>
             </div>
@@ -556,14 +557,15 @@ export default function Cover() {
                 {TickMath.getPriceStringAtTick(Number(latestTick))}
               </div>
               <div className="text-grey text-xs w-full">
-                {tokenIn.symbol} per {tokenOut.symbol}
+              {zeroForOne ? tokenOut.symbol : tokenIn.symbol} per {zeroForOne ? tokenIn.symbol : tokenOut.symbol}
               </div>
             </div>
-            <div>
+            {/* 
+            <div className="mb-20 md:mb-0">
               <div className="flex justify-between items-center mt-10 mb-5">
                 <h1 className="text-lg">Original pool being covered </h1>
                 <h1 className="text-grey">
-                  {/*Type: <span className="text-white">UNI-V3</span>*/}
+                  Type: <span className="text-white">UNI-V3</span>
                 </h1>
               </div>
               <div className="w-full cursor-pointer flex justify-between items-center bg-dark border border-grey2 rounded-xl py-3.5 pl-5 h-24 relative">
@@ -579,26 +581,27 @@ export default function Cover() {
                       />
                     </div>
                     <div className="flex gap-x-2">
-                      {tokenIn.symbol} -{tokenOut.symbol}
+                     {zeroForOne ? tokenIn.symbol : tokenOut.symbol} - {zeroForOne ? tokenOut.symbol : tokenIn.symbol}
                     </div>
                     <div className="bg-black px-2 py-1 rounded-lg text-grey">
-                      0.5%
+                      0.3%
                     </div>
                   </div>
                   <div className="text-sm flex items-center gap-x-3">
                     <span>
                       <span className="text-grey">Min: </span> 1203
-                      {' ' + tokenIn.symbol} per {tokenOut.symbol}
+                      {' ' + (zeroForOne ? tokenOut.symbol : tokenIn.symbol)} per {zeroForOne ? tokenIn.symbol : tokenOut.symbol}
                     </span>
                     <ArrowsRightLeftIcon className="w-4 text-grey" />
                     <span>
-                      <span className="text-grey">Max:</span> 1643
-                      {' ' + tokenIn.symbol} per {tokenOut.symbol}
+                      <span className="text-grey">Max:</span> 1643  
+                      {' ' + (zeroForOne ? tokenOut.symbol : tokenIn.symbol)} per {zeroForOne ? tokenIn.symbol : tokenOut.symbol}
                     </span>
                   </div>
                 </div>
               </div>
             </div>
+            */}
           </div>
         </div>
       </div>
@@ -636,6 +639,7 @@ export default function Cover() {
           />
         </>
       )}
+    </div>
     </div>
   )
 }
