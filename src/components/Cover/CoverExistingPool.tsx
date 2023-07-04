@@ -656,6 +656,10 @@ export default function CoverExistingPool({
               </button>
             </div>
           </div>
+          <span className="text-xs text-grey">
+            {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per{' '}
+            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOrder ? tokenIn.symbol : tokenOut.symbol}
+          </span>
         </div>
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
           <span className="md:text-xs text-[10px] text-grey">Max. Price</span>
@@ -687,6 +691,10 @@ export default function CoverExistingPool({
               </button>
             </div>
           </div>
+          <span className="text-xs text-grey">
+            {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per{' '}
+            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOrder ? tokenIn.symbol : tokenOut.symbol}
+          </span>
         </div>
       </div>
       <div className="py-4">
