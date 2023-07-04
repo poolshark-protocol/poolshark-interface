@@ -166,7 +166,7 @@ export default function ConcentratedPool({
     watch: true,
     enabled: rangePoolRoute != undefined && tokenIn.address != '',
     onSuccess(data) {
-      console.log('Success allowance in', rangePoolRoute)
+      //console.log('Success allowance in', rangePoolRoute)
     },
     onError(error) {
       console.log('Error', error)
@@ -197,11 +197,6 @@ export default function ConcentratedPool({
     if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
       setButtonState('price')
     }
-    console.log(
-      'bn input check',
-      bnInput.toString(),
-      Number(ethers.utils.formatUnits(bnInput)) === 0,
-    )
     if (bnInput.eq(BN_ZERO)) {
       setButtonState('amount')
     }
@@ -217,10 +212,10 @@ export default function ConcentratedPool({
       Number(ethers.utils.formatUnits(amount0)) > Number(balance0) ||
       Number(ethers.utils.formatUnits(amount1)) > Number(balance1)
     ) {
-      console.log('disabled true')
+      //console.log('disabled true')
       setDisabled(true)
     } else {
-      console.log('disabled false')
+      //console.log('disabled false')
       setDisabled(false)
     }
   }, [bnInput, lowerPrice, upperPrice, amount0, amount1, balance0, balance1])
@@ -228,11 +223,6 @@ export default function ConcentratedPool({
   useEffect(() => {
     setTimeout(() => {
       if (allowanceIn) {
-        console.log(
-          'token in allowance',
-          allowanceIn.toString(),
-          !allowanceIn.eq(tokenOrder ? allowance0 : allowance1),
-        )
         if (
           address != '0x' &&
           !allowanceIn.eq(tokenOrder ? allowance0 : allowance1)
@@ -258,13 +248,13 @@ export default function ConcentratedPool({
 
   useEffect(() => {
     if (!isNaN(parseFloat(lowerPrice))) {
-      console.log('setting lower tick')
+      //console.log('setting lower tick')
       setLowerTick(
         BigNumber.from(TickMath.getTickAtPriceString(lowerPrice, tickSpacing)),
       )
     }
     if (!isNaN(parseFloat(upperPrice))) {
-      console.log('setting upper tick')
+      //console.log('setting upper tick')
       setUpperTick(
         BigNumber.from(TickMath.getTickAtPriceString(upperPrice, tickSpacing)),
       )
@@ -309,8 +299,7 @@ export default function ConcentratedPool({
               fee.tierId,
             )
         const dataLength = pool['data']['rangePools'].length
-        console.log('data length check', dataLength)
-        console.log('pool data', pool)
+        //console.log('pool data', pool)
         if (dataLength != 0) {
           const id = pool['data']['rangePools']['0']['id']
           const price = JSBI.BigInt(pool['data']['rangePools']['0']['price'])
@@ -340,7 +329,6 @@ export default function ConcentratedPool({
           setRangePoolRoute(ZERO_ADDRESS)
           setRangePrice('1.00')
           setRangeSqrtPrice(TickMath.getSqrtRatioAtTick(0))
-          console.log('range price set', rangePrice)
         }
       } else {
         await getRangePoolFromFactory()
@@ -356,11 +344,6 @@ export default function ConcentratedPool({
       const token1Amount = parseFloat(ethers.utils.formatUnits(amount1, 18))
       setAmount0Usd(token0Amount * usdPrice0)
       setAmount1Usd(token1Amount * usdPrice1)
-      console.log(
-        'setting usd prices for amounts',
-        token0Amount * usdPrice0,
-        token1Amount * usdPrice1,
-      )
     } catch (error) {
       console.log(error)
     }
@@ -495,29 +478,21 @@ export default function ConcentratedPool({
       ? await getRangePoolFromFactory(tokenIn.address, tokenOut.address)
       : await getRangePoolFromFactory(tokenOut.address, tokenIn.address)
     const data = pool['data']['rangePools']
-    console.log('aux fee ', auxfee)
     for (var i = 0; i < data.length; i++) {
-      console.log('pool fee', data[i]['feeTier']['id'])
       if (data[i]['feeTier']['id'] == 3000 && auxfee.tierId == 3000) {
-        console.log('fee tier found 3000')
         setFee(feeTiers[2])
         setRangePoolRoute(pool['data']['rangePools'][i]['id'])
       } else if (data[i]['feeTier']['id'] == 500 && auxfee.tierId == 500) {
-        console.log('fee tier found 500')
         setFee(feeTiers[1])
-        console.log('fee position', feeTiers[1])
         setRangePoolRoute(pool['data']['rangePools'][i]['id'])
       } else if (data[i]['feeTier']['id'] == 100 && auxfee.tierId == 100) {
-        console.log('fee tier found 100')
-        setFee(feeTiers[1])
+        setFee(feeTiers[0])
         setRangePoolRoute(pool['data']['rangePools'][i]['id'])
       } else if (data[i]['feeTier']['id'] == 10000 && auxfee.tierId == 10000) {
-        console.log('fee tier found 10000')
         setFee(feeTiers[3])
         setRangePoolRoute(pool['data']['rangePools'][i]['id'])
       }
     }
-    console.log('fee tier ', fee)
   }
 
   function SelectFee() {
