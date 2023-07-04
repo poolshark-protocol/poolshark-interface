@@ -647,74 +647,88 @@ export default function Swap() {
   const switchDirection = () => {
     if (hasSelected) {
       if (display != '') {
+        const tempRangeQuote = rangeQuote
+        const tempCoverQuote = coverQuote
+
         setSwitched(!switched)
 
-        if (rangeQuote > 0 && rangeQuote >= coverQuote) {
+        if (tempRangeQuote > 0 && tempRangeQuote >= tempCoverQuote) {
           if (switched) {
-            setRangeQuote(
-              parseFloat(
-                parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
-              ),
-            )
-          } else {
             setRangeQuote(
               parseFloat(
                 (1 / parseFloat(ethers.utils.formatUnits(bnInput, 18))).toPrecision(5),
               ),
+            )
+            setBnInput(
+              ethers.utils.parseUnits(
+                (rangeQuote).toPrecision(10),
+                18,
+              ),
+            )
+            setDisplay(
+              (rangeQuote)
+                .toPrecision(7)
+                .replace(/0+$/, '')
+                .replace(/(\.)(?!\d)/g, ''),
+            )
+          } else {
+            setRangeQuote(
+              parseFloat(
+                (parseFloat(ethers.utils.formatUnits(bnInput, 18))).toPrecision(5),
+              ),
+            )
+            setBnInput(
+              ethers.utils.parseUnits(
+                (1 / rangeQuote).toPrecision(10),
+                18,
+              ),
+            )
+            setDisplay(
+              (1 / rangeQuote)
+                .toPrecision(7)
+                .replace(/0+$/, '')
+                .replace(/(\.)(?!\d)/g, ''),
             )
           }
         } else {
           if (switched) {
             setCoverQuote( 
               parseFloat(
-                parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
+                (1 / parseFloat(ethers.utils.formatUnits(bnInput, 18))).toPrecision(5),
               ),
+            )
+            setBnInput(
+              ethers.utils.parseUnits(
+                (coverQuote).toPrecision(10),
+                18,
+              ),
+            )
+            setDisplay(
+              (coverQuote)
+                .toPrecision(7)
+                .replace(/0+$/, '')
+                .replace(/(\.)(?!\d)/g, ''),
             )
           } else {
             setCoverQuote(
               parseFloat(
-                (1 / parseFloat(ethers.utils.formatUnits(bnInput, 18))).toPrecision(5),
+                (parseFloat(ethers.utils.formatUnits(bnInput, 18))).toPrecision(5),
               ),
+            )
+            setBnInput(
+              ethers.utils.parseUnits(
+                (1 / coverQuote).toPrecision(10),
+                18,
+              ),
+            )
+            setDisplay(
+              (1 / coverQuote)
+                .toPrecision(7)
+                .replace(/0+$/, '')
+                .replace(/(\.)(?!\d)/g, ''),
             )
           }
         }
-
-        if (switched) {
-          setBnInput(
-            ethers.utils.parseUnits(
-              (rangeQuote >= coverQuote && rangeQuote > 0 ? 
-                1 / rangeQuote :
-                1 / coverQuote).toPrecision(10),
-              18,
-            ),
-          )
-          setDisplay(
-            (rangeQuote >= coverQuote && rangeQuote > 0 ? 
-              1 / rangeQuote :
-              1 / coverQuote)
-              .toPrecision(7)
-              .replace(/0+$/, '')
-              .replace(/(\.)(?!\d)/g, ''),
-          )
-        } else {
-          setBnInput(
-            ethers.utils.parseUnits(
-              (rangeQuote >= coverQuote && rangeQuote > 0 ? 
-                rangeQuote :
-                coverQuote).toPrecision(10),
-              18,
-            ),
-          )
-          setDisplay(
-            (rangeQuote >= coverQuote && rangeQuote > 0 ? 
-              rangeQuote :
-              coverQuote)
-              .toPrecision(7)
-              .replace(/0+$/, '')
-              .replace(/(\.)(?!\d)/g, ''),
-          )
-        }
-        console.log('switched')
       }
       setDirectionsAreSwitching(true)
     }
