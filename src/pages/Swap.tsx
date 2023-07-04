@@ -650,6 +650,8 @@ export default function Swap() {
         const tempRangeQuote = rangeQuote
         const tempCoverQuote = coverQuote
 
+        const tempBnInput = bnInput
+
         console.log('tempRangeQuote', tempRangeQuote)
         console.log('tempCoverQuote', tempCoverQuote)
 
@@ -657,11 +659,6 @@ export default function Swap() {
 
         if (tempRangeQuote > 0 && tempRangeQuote >= tempCoverQuote) {
           if (switched) {
-            setRangeQuote(
-              parseFloat(
-                (1 / parseFloat(ethers.utils.formatUnits(bnInput, 18))).toPrecision(5),
-              ),
-            )
             setBnInput(
               ethers.utils.parseUnits(
                 (rangeQuote).toPrecision(10),
@@ -674,12 +671,12 @@ export default function Swap() {
                 .replace(/0+$/, '')
                 .replace(/(\.)(?!\d)/g, ''),
             )
-          } else {
             setRangeQuote(
               parseFloat(
-                (parseFloat(ethers.utils.formatUnits(bnInput, 18))).toPrecision(5),
+                (1 / parseFloat(ethers.utils.formatUnits(tempBnInput, 18))).toPrecision(5),
               ),
             )
+          } else {
             setBnInput(
               ethers.utils.parseUnits(
                 (1 / rangeQuote).toPrecision(10),
@@ -692,14 +689,14 @@ export default function Swap() {
                 .replace(/0+$/, '')
                 .replace(/(\.)(?!\d)/g, ''),
             )
+            setRangeQuote(
+              parseFloat(
+                (parseFloat(ethers.utils.formatUnits(tempBnInput, 18))).toPrecision(5),
+              ),
+            )
           }
         } else {
           if (switched) {
-            setCoverQuote( 
-              parseFloat(
-                (1 / parseFloat(ethers.utils.formatUnits(bnInput, 18))).toPrecision(5),
-              ),
-            )
             setBnInput(
               ethers.utils.parseUnits(
                 (coverQuote).toPrecision(10),
@@ -712,12 +709,12 @@ export default function Swap() {
                 .replace(/0+$/, '')
                 .replace(/(\.)(?!\d)/g, ''),
             )
-          } else {
-            setCoverQuote(
+            setCoverQuote( 
               parseFloat(
-                (parseFloat(ethers.utils.formatUnits(bnInput, 18))).toPrecision(5),
+                (1 / parseFloat(ethers.utils.formatUnits(tempBnInput, 18))).toPrecision(5),
               ),
             )
+          } else {
             setBnInput(
               ethers.utils.parseUnits(
                 (1 / coverQuote).toPrecision(10),
@@ -729,6 +726,11 @@ export default function Swap() {
                 .toPrecision(7)
                 .replace(/0+$/, '')
                 .replace(/(\.)(?!\d)/g, ''),
+            )
+            setCoverQuote(
+              parseFloat(
+                (parseFloat(ethers.utils.formatUnits(tempBnInput, 18))).toPrecision(5),
+              ),
             )
           }
         }
