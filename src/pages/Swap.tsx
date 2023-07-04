@@ -650,6 +650,9 @@ export default function Swap() {
         const tempRangeQuote = rangeQuote
         const tempCoverQuote = coverQuote
 
+        console.log('tempRangeQuote', tempRangeQuote)
+        console.log('tempCoverQuote', tempCoverQuote)
+
         setSwitched(!switched)
 
         if (tempRangeQuote > 0 && tempRangeQuote >= tempCoverQuote) {
