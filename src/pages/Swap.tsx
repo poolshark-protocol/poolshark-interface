@@ -641,33 +641,8 @@ export default function Swap() {
   ////////////////////////////////
 
   const switchDirection = debounce(() => {
-    /*setTokenOrder(!tokenOrder)
-    const temp = tokenIn
-    setTokenIn(tokenOut)
-    setTokenOut(temp)
-    const tempBal = queryTokenIn
-    setQueryTokenIn(queryTokenOut)
-    setQueryTokenOut(tempBal)*/
-    if (rangeQuote != 0) {
-      setRangeQuote(1 / rangeQuote)
-    }
-    if (coverQuote != 0) {
-      setCoverQuote(1 / coverQuote)
-    }
     if (display != '') {
-      setBnInput(
-        ethers.utils.parseUnits(
-          (rangeQuote >= coverQuote ? rangeQuote : coverQuote).toPrecision(10),
-          18,
-        ),
-      )
-      setDisplay(
-        (rangeQuote >= coverQuote ? rangeQuote : coverQuote)
-          .toPrecision(7)
-          .replace(/0+$/, '')
-          .replace(/(\.)(?!\d)/g, ''),
-      )
-      /*if (rangeQuote > 0 && rangeQuote >= coverQuote) {
+      if (rangeQuote > 0 && rangeQuote >= coverQuote) {
         setRangeQuote(
           parseFloat(
             parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
@@ -679,7 +654,19 @@ export default function Swap() {
             parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
           ),
         )
-      }*/
+      }
+      setBnInput(
+        ethers.utils.parseUnits(
+          (rangeQuote >= coverQuote ? 1 / rangeQuote : 1 / coverQuote).toPrecision(5),
+          18,
+        ),
+      )
+      setDisplay(
+        (rangeQuote >= coverQuote ? 1 / rangeQuote : 1 / coverQuote)
+          .toPrecision(5)
+          .replace(/0+$/, '')
+          .replace(/(\.)(?!\d)/g, ''),
+      )
       setDisplayQuote(true)
     } else {
       setBnInput(BN_ONE)
