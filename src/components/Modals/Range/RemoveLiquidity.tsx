@@ -11,10 +11,12 @@ import JSBI from "jsbi";
 import { DyDxMath } from "../../../utils/math/dydxMath";
 import { TickMath } from "../../../utils/math/tickMath";
 import { gasEstimateRangeBurn } from "../../../utils/gas";
+import { useRouter } from "next/router";
 
 
 export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut, poolAdd, address, lowerTick, upperTick, userLiquidity, tokenAmount, rangePrice}) {
-
+  const router = useRouter()
+  
   const {
     bnInput,
     inputBox,
@@ -284,6 +286,10 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
                     upper={upperTick}
                     burnPercent={burnPercent}
                     gasLimit={gasLimit}
+                    closeModal={() => 
+                      {if (burnPercent.eq(ethers.utils.parseUnits('1', 38))) {
+                        router.push('/pool')
+                      }}}
                 />
               </Dialog.Panel>
             </Transition.Child>
