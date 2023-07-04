@@ -529,10 +529,10 @@ export default function Cover() {
                     : TickMath.getPriceStringAtTick(Number(minLimit))}
                 </div>
                 <div className="text-grey md:text-xs text-[10px] w-full">
-                  {tokenIn.symbol} per {tokenOut.symbol}
+                  {zeroForOne ? tokenOut.symbol : tokenIn.symbol} per {zeroForOne ? tokenIn.symbol : tokenOut.symbol}
                 </div>
                 <div className="text-grey md:text-xs text-[10px] w-full italic mt-1">
-                  Your position will be 100% {tokenIn.symbol} at this price.
+                  Your position will be 100% {zeroForOne ? tokenOut.symbol : tokenIn.symbol} at this price.
                 </div>
               </div>
               <ArrowsRightLeftIcon className="w-12 text-grey" />
@@ -544,10 +544,10 @@ export default function Cover() {
                     : TickMath.getPriceStringAtTick(Number(maxLimit))}
                 </div>
                 <div className="text-grey md:text-xs text-[10px] w-full">
-                  {tokenIn.symbol} per {tokenOut.symbol}
+                {zeroForOne ? tokenOut.symbol : tokenIn.symbol} per {zeroForOne ? tokenIn.symbol : tokenOut.symbol}
                 </div>
                 <div className="text-grey md:text-xs text-[10px] w-full italic mt-1">
-                  Your position will be 100% {tokenOut.symbol} at this price.
+                  Your position will be 100% {zeroForOne ? tokenIn.symbol : tokenOut.symbol} at this price.
                 </div>
               </div>
             </div>
@@ -557,7 +557,7 @@ export default function Cover() {
                 {TickMath.getPriceStringAtTick(Number(latestTick))}
               </div>
               <div className="text-grey text-xs w-full">
-                {tokenIn.symbol} per {tokenOut.symbol}
+              {zeroForOne ? tokenOut.symbol : tokenIn.symbol} per {zeroForOne ? tokenIn.symbol : tokenOut.symbol}
               </div>
             </div>
             {/* 
@@ -581,21 +581,21 @@ export default function Cover() {
                       />
                     </div>
                     <div className="flex gap-x-2">
-                      {tokenIn.symbol} -{tokenOut.symbol}
+                     {zeroForOne ? tokenIn.symbol : tokenOut.symbol} - {zeroForOne ? tokenOut.symbol : tokenIn.symbol}
                     </div>
                     <div className="bg-black px-2 py-1 rounded-lg text-grey">
-                      0.5%
+                      0.3%
                     </div>
                   </div>
                   <div className="text-sm flex items-center gap-x-3">
                     <span>
                       <span className="text-grey">Min: </span> 1203
-                      {' ' + tokenIn.symbol} per {tokenOut.symbol}
+                      {' ' + (zeroForOne ? tokenOut.symbol : tokenIn.symbol)} per {zeroForOne ? tokenIn.symbol : tokenOut.symbol}
                     </span>
                     <ArrowsRightLeftIcon className="w-4 text-grey" />
                     <span>
-                      <span className="text-grey">Max:</span> 1643
-                      {' ' + tokenIn.symbol} per {tokenOut.symbol}
+                      <span className="text-grey">Max:</span> 1643  
+                      {' ' + (zeroForOne ? tokenOut.symbol : tokenIn.symbol)} per {zeroForOne ? tokenIn.symbol : tokenOut.symbol}
                     </span>
                   </div>
                 </div>

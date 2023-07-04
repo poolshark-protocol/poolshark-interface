@@ -59,6 +59,7 @@ export default function RangeAddLiquidity({
   const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
   const { isDisconnected, isConnected } = useAccount()
   const [disabled, setDisabled] = useState(true)
+  const [ fetchDelay, setFetchDelay ] = useState(false)
   const [rangeSqrtPrice, setRangeSqrtPrice] = useState(JSBI.BigInt(rangePrice))
   const [doubleApprove, setdoubleApprove] = useState(false)
   const [buttonState, setButtonState] = useState('')
@@ -146,8 +147,8 @@ export default function RangeAddLiquidity({
   }, [tokenOutAllowance])
 
   useEffect(() => {
+    console.log('mint gas updating')
     setAmounts()
-    updateMintFee()
   }, [bnInput])
 
   useEffect(() => {
@@ -169,19 +170,21 @@ export default function RangeAddLiquidity({
     )
   }
 
-  async function updateMintFee() {
+  async function updateMintFee(tokenInAmount: BigNumber, tokenOutAmount: JSBI) {
     const newGasFee = await gasEstimateRangeMint(
       poolAdd,
       address,
       lowerTick,
       upperTick,
-      amount0,
-      amount1,
+      tokenOrder ? tokenInAmount : BigNumber.from(String(tokenOutAmount)),
+      tokenOrder ? BigNumber.from(String(tokenOutAmount)) : tokenInAmount,
       signer,
     )
-    
+    if (!fetchDelay && newGasFee.gasUnits.gt(BN_ZERO)) setFetchDelay(true)
     setMintGasFee(newGasFee.formattedPrice)
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
+    if (newGasFee.gasUnits.gt(0)) setDisabled(false)
+    else setDisabled(true)
   }
 
       // disabled messages
@@ -201,7 +204,7 @@ export default function RangeAddLiquidity({
             Number(ethers.utils.formatUnits(amount1)) > Number(balanceOut)
         ) {
           setDisabled(true)
-        } else { setDisabled(false)}
+        } else if (mintGasLimit.gt(BN_ZERO)) { setDisabled(false)}
       }, [bnInput, balanceIn, balanceOut, disabled])
 
 
@@ -237,7 +240,10 @@ export default function RangeAddLiquidity({
         tokenOrder
           ? setAmount1(BigNumber.from(String(tokenOutAmount)))
           : setAmount0(BigNumber.from(String(tokenOutAmount)))
-          setDisabled(false)
+        updateMintFee(
+          bnInput,
+          tokenOutAmount
+        )
       } else {
         setAmount1(BN_ZERO)
         setAmount0(BN_ZERO)

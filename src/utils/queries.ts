@@ -90,7 +90,7 @@ export const getRangePoolFromFactory = (tokenA?: string, tokenB?: string, feeTie
         }
         `
     const client = new ApolloClient({
-      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/range-arbitrumGoerli/version/v0.0.4/api',
+      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/range-arbitrumGoerli/version/v0.0.5/api',
       cache: new InMemoryCache(),
     })
     client
@@ -423,7 +423,7 @@ export const fetchRangePools = () => {
             }
         `
     const client = new ApolloClient({
-      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/range-arbitrumGoerli/version/v0.0.4/api',
+      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/range-arbitrumGoerli/version/v0.0.5/api',
       cache: new InMemoryCache(),
     })
     client
@@ -498,7 +498,7 @@ export const fetchRangePositions = (address: string) => {
   }
     `
     const client = new ApolloClient({
-      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/range-arbitrumGoerli/version/v0.0.4/api',
+      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/range-arbitrumGoerli/version/v0.0.5/api',
       cache: new InMemoryCache(),
     })
     client
@@ -536,7 +536,7 @@ export const fetchRangeMetrics = () => {
         }
     `
     const client = new ApolloClient({
-      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/range-arbitrumGoerli/version/v0.0.4/api',
+      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/range-arbitrumGoerli/version/v0.0.5/api',
       cache: new InMemoryCache(),
     })
     client
