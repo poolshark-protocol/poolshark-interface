@@ -115,6 +115,7 @@ export default function Swap() {
   const [limitPriceSwitch, setLimitPriceSwitch] = useState(true)
   const [limitPriceInput, setLimitPriceInput] = useState('0')
   const [buttonState, setButtonState] = useState('')
+  const [directionsAreSwitching, setDirectionsAreSwitching] = useState(false)
 
   ////////////////////////////////ChainId
 
@@ -408,68 +409,71 @@ export default function Swap() {
 
   useEffect(() => {
     setTimeout(() => {
-      if (quoteRange) {
-        if (
-          quoteRange[0].gt(BN_ZERO) &&
-          quoteRange[1].gt(BN_ZERO)
-        ) {
-          console.log('setting range quote', ethers.utils.formatUnits(quoteRange[1], 18))
-          setRangeQuote(
-              parseFloat(ethers.utils.formatUnits(quoteRange[1], 18))
-          )
-          const priceAfter = parseFloat(
-            TickMath.getPriceStringAtSqrtPrice(quoteRange[2]),
-          )
-          setRangePriceAfter(priceAfter)
-          const priceSlippage = parseFloat(
-            ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6),
-          )
-          const priceAfterSlippage = String(
-            priceAfter - (tokenOrder ? priceSlippage : -priceSlippage),
-          )
-          const rangePriceLimit = TickMath.getSqrtPriceAtPriceString(
-            priceAfterSlippage,
-          )
-          setRangeBnPriceLimit(BigNumber.from(String(rangePriceLimit)))
+      if (!directionsAreSwitching) {
+        if (quoteRange) {
+          if (
+            quoteRange[0].gt(BN_ZERO) &&
+            quoteRange[1].gt(BN_ZERO)
+          ) {
+            console.log('setting range quote', ethers.utils.formatUnits(quoteRange[1], 18))
+            setRangeQuote(
+                parseFloat(ethers.utils.formatUnits(quoteRange[1], 18))
+            )
+            const priceAfter = parseFloat(
+              TickMath.getPriceStringAtSqrtPrice(quoteRange[2]),
+            )
+            setRangePriceAfter(priceAfter)
+            const priceSlippage = parseFloat(
+              ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6),
+            )
+            const priceAfterSlippage = String(
+              priceAfter - (tokenOrder ? priceSlippage : -priceSlippage),
+            )
+            const rangePriceLimit = TickMath.getSqrtPriceAtPriceString(
+              priceAfterSlippage,
+            )
+            setRangeBnPriceLimit(BigNumber.from(String(rangePriceLimit)))
+          }
         }
-      }
 
-      if (quoteCover) {
-        if (
-          quoteCover[0].gt(BN_ZERO) &&
-          quoteCover[1].gt(BN_ZERO)
-        ) {
-          console.log('setting cover quote', ethers.utils.formatUnits(quoteCover[1], 18))
-          setCoverQuote(
-            parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)),
-          )
-          const priceAfter = parseFloat(
-            TickMath.getPriceStringAtSqrtPrice(quoteCover[2]),
-          )
-          const priceSlippage = parseFloat(
-            ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6),
-          )
-          const priceAfterSlippage = String(
-            priceAfter - (tokenOrder ? priceSlippage : -priceSlippage),
-          )
-          setCoverPriceAfter(priceAfter)
-          const coverPriceLimit = TickMath.getSqrtPriceAtPriceString(
-            priceAfterSlippage,
-          )
-          setCoverBnPriceLimit(BigNumber.from(String(coverPriceLimit)))
+        if (quoteCover) {
+          if (
+            quoteCover[0].gt(BN_ZERO) &&
+            quoteCover[1].gt(BN_ZERO)
+          ) {
+            console.log('setting cover quote', ethers.utils.formatUnits(quoteCover[1], 18))
+            setCoverQuote(
+              parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)),
+            )
+            const priceAfter = parseFloat(
+              TickMath.getPriceStringAtSqrtPrice(quoteCover[2]),
+            )
+            const priceSlippage = parseFloat(
+              ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6),
+            )
+            const priceAfterSlippage = String(
+              priceAfter - (tokenOrder ? priceSlippage : -priceSlippage),
+            )
+            setCoverPriceAfter(priceAfter)
+            const coverPriceLimit = TickMath.getSqrtPriceAtPriceString(
+              priceAfterSlippage,
+            )
+            setCoverBnPriceLimit(BigNumber.from(String(coverPriceLimit)))
+          }
+        }
+        if (quoteCover && quoteRange) {
+          if (
+            slippageFetched === false &&
+            quoteCover[0].gt(BN_ZERO) &&
+            quoteRange[0].gt(BN_ZERO)
+          ) {
+            updateTierFee()
+            getSlippage()
+            setSlippageFetched(true)
+          }
         }
       }
-      if (quoteCover && quoteRange) {
-        if (
-          slippageFetched === false &&
-          quoteCover[0].gt(BN_ZERO) &&
-          quoteRange[0].gt(BN_ZERO)
-        ) {
-          updateTierFee()
-          getSlippage()
-          setSlippageFetched(true)
-        }
-      }
+      setDirectionsAreSwitching(false)
     }, 200)
   }, [quoteCover, quoteRange, bnInput, slippage])
 
@@ -642,32 +646,39 @@ export default function Swap() {
   const switchDirection = () => {
     if (hasSelected) {
       if (display != '') {
+        const tempRange = rangeQuote
+        const tempCover = coverQuote
+
         if (rangeQuote > 0 && rangeQuote >= coverQuote) {
           setRangeQuote(
             parseFloat(
               parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
             ),
           )
+          console.log('rangeQuote', rangeQuote)
         } else {
           setCoverQuote(
             parseFloat(
               parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
             ),
           )
+          console.log('coverQuote', coverQuote)
         }
         setBnInput(
           ethers.utils.parseUnits(
-            (rangeQuote >= coverQuote && rangeQuote > 0 ? 1 / rangeQuote : 1 / coverQuote).toPrecision(10),
+            (rangeQuote >= coverQuote && rangeQuote > 0 ? tempRange : tempCover).toPrecision(10),
             18,
           ),
         )
         setDisplay(
-          (rangeQuote >= coverQuote && rangeQuote > 0 ? 1 / rangeQuote : 1 / coverQuote)
+          (rangeQuote >= coverQuote && rangeQuote > 0 ? tempRange : tempCover)
             .toPrecision(7)
             .replace(/0+$/, '')
             .replace(/(\.)(?!\d)/g, ''),
         )
+        console.log('switched')
       }
+      setDirectionsAreSwitching(true)
     }
   }
 
