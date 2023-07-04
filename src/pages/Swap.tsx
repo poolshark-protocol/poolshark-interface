@@ -641,13 +641,19 @@ export default function Swap() {
   ////////////////////////////////
 
   const switchDirection = debounce(() => {
-    setTokenOrder(!tokenOrder)
+    /*setTokenOrder(!tokenOrder)
     const temp = tokenIn
     setTokenIn(tokenOut)
     setTokenOut(temp)
     const tempBal = queryTokenIn
     setQueryTokenIn(queryTokenOut)
-    setQueryTokenOut(tempBal)
+    setQueryTokenOut(tempBal)*/
+    if (rangeQuote != 0) {
+      setRangeQuote(1 / rangeQuote)
+    }
+    if (coverQuote != 0) {
+      setCoverQuote(1 / coverQuote)
+    }
     if (display != '') {
       setBnInput(
         ethers.utils.parseUnits(
@@ -661,7 +667,7 @@ export default function Swap() {
           .replace(/0+$/, '')
           .replace(/(\.)(?!\d)/g, ''),
       )
-      if (rangeQuote > 0 && rangeQuote >= coverQuote) {
+      /*if (rangeQuote > 0 && rangeQuote >= coverQuote) {
         setRangeQuote(
           parseFloat(
             parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
@@ -673,7 +679,7 @@ export default function Swap() {
             parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
           ),
         )
-      }
+      }*/
       setDisplayQuote(true)
     } else {
       setBnInput(BN_ONE)
