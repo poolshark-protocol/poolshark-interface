@@ -640,37 +640,34 @@ export default function Swap() {
   ////////////////////////////////
 
   const switchDirection = () => {
-    if (display != '') {
-      if (rangeQuote > 0 && rangeQuote >= coverQuote) {
-        setRangeQuote(
-          parseFloat(
-            parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
+    if (hasSelected) {
+      if (display != '') {
+        if (rangeQuote > 0 && rangeQuote >= coverQuote) {
+          setRangeQuote(
+            parseFloat(
+              parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
+            ),
+          )
+        } else {
+          setCoverQuote(
+            parseFloat(
+              parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
+            ),
+          )
+        }
+        setBnInput(
+          ethers.utils.parseUnits(
+            (rangeQuote >= coverQuote && rangeQuote > 0 ? 1 / rangeQuote : 1 / coverQuote).toPrecision(10),
+            18,
           ),
         )
-      } else {
-        setCoverQuote(
-          parseFloat(
-            parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
-          ),
+        setDisplay(
+          (rangeQuote >= coverQuote && rangeQuote > 0 ? 1 / rangeQuote : 1 / coverQuote)
+            .toPrecision(7)
+            .replace(/0+$/, '')
+            .replace(/(\.)(?!\d)/g, ''),
         )
       }
-      setBnInput(
-        ethers.utils.parseUnits(
-          (rangeQuote >= coverQuote && rangeQuote > 0 ? 1 / rangeQuote : 1 / coverQuote).toPrecision(6),
-          18,
-        ),
-      )
-      setDisplay(
-        (rangeQuote >= coverQuote && rangeQuote > 0 ? 1 / rangeQuote : 1 / coverQuote)
-          .toPrecision(6)
-          .replace(/0+$/, '')
-          .replace(/(\.)(?!\d)/g, ''),
-      )
-    } else {
-      setBnInput(BN_ONE)
-      setDisplay('')
-      setRangeQuote(0)
-      setCoverQuote(0)
     }
   }
 
@@ -935,9 +932,7 @@ export default function Swap() {
           <ArrowSmallDownIcon
             className="w-4 h-4"
             onClick={() => {
-              if (hasSelected) {
                 switchDirection()
-              }
             }}
           />)}
         </div>
