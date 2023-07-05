@@ -20,6 +20,6 @@ jobs:
       - name: Install Modules
         run: npm install --force
       - name: Format
-        run: npm run format --if-present
+        run:  npx prettier . --write
       - name: Lint
         run: npm run lint --if-present
