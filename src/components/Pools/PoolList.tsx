@@ -58,7 +58,7 @@ export default function PoolList({
           <div className="pr-2 md:px-2 py-1 rounded-lg text-grey">{feeTierPercentage}%</div>
         </td>
         <td>${tvlUsd}m</td>
-        <td className="hidden md:block">${volumeUsd}m</td>
+        <td className="hidden md:table-cell">${volumeUsd}m</td>
         <td>Ξ{volumeEth}</td>
       </tr>
     </Link>

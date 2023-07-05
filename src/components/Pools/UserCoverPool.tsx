@@ -189,7 +189,7 @@ export default function UserCoverPool({
             </span>
           </div>
         </div>
-        <div className="md:col-span-2 flex gap-x-5 w-full flex-row-reverse md:flex-row items-center col-span-5 md:mx-5 mt-3 md:mt-0">
+        <div className="md:col-span-2 flex gap-x-5 w-full flex-row-reverse md:flex-row items-center col-span-5 mt-3 md:mt-0 md:mr-10">
           <div className="bg-black  px-10 py-2 rounded-lg text-grey text-xs md:hidden block">
                 {feeTierPercentage}%
               </div>
