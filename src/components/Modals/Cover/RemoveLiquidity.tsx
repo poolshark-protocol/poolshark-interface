@@ -64,8 +64,8 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
     }
   }
 
-  const handleSliderChange = () => {
-    setSliderValue(parseFloat((parseFloat(display) * sliderValue * 0.01).toFixed(0)))
+  const handleSliderChange = (val: number) => {
+    setSliderValue(parseFloat((val * 100 / parseFloat(amountInDisplay)).toFixed(0)))
   }
   
   const handleSliderButton = (percent: number) => {
@@ -160,7 +160,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
         />
                 </div>
                 <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-6 mb-6">
-                  <div className=" p-2 ">{inputBox("0")}</div>
+                  <div className=" p-2 ">{inputBox("0", (val) => handleSliderChange(Number(val)))}</div>
                   <div className="">
                     <div className=" ml-auto">
                       <div>
