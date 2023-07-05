@@ -65,13 +65,16 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
       setSliderValue(event.target.value)
     }
     else {
-      setSliderValue(0)
+      setSliderValue(1)
     }
   }
 
   const handleSliderChange = (val: number) => {
-    if(parseFloat((val * 100 / parseFloat(amountInDisplay)).toFixed(0)) <= 100) {
+    if(parseFloat((val * 100 / parseFloat(amountInDisplay)).toFixed(0)) <= 100 && parseFloat((val * 100 / parseFloat(amountInDisplay)).toFixed(0)) >= 1) {
       setSliderValue(parseFloat((val * 100 / parseFloat(amountInDisplay)).toFixed(0)))
+    }
+    else if(parseFloat((val * 100 / parseFloat(amountInDisplay)).toFixed(0)) < 1) {
+      setSliderValue(1)
     }
     else {
       setSliderValue(100)
@@ -79,8 +82,14 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
   }
   
   const handleSliderButton = (percent: number) => {
-    if (percent !== 0 && percent <= 100) {
+    if (percent >= 1 && percent <= 100) {
       setSliderValue(percent)
+    }
+    else if (percent < 1) {
+      setSliderValue(1)
+    }
+    else {
+      setSliderValue(100)
     }
   }
 

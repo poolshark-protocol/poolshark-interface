@@ -20,8 +20,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   const {
     bnInput,
     inputBox,
-    setDisplay,
-    display,
+    setDisplay, setBnInput
   } = useInputBox()
 
   console.log('remove user liquidity', userLiquidity.toString(), tokenAmount.toString())
@@ -69,17 +68,32 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
     if (Number(event.target.value) != 0) {
       setSliderValue(event.target.value)
     } else {
-      setSliderValue(0)
+      setSliderValue(1)
     }
   }
 
-  const handleSliderChange = () => {
-    setSliderValue(parseFloat((parseFloat(display) * sliderValue * 0.01).toFixed(0)))
+  const handleSliderChange = (val: number) => {
+    const amountDirection = tokenOrder ? parseFloat(ethers.utils.formatUnits(amount0, 18)) : parseFloat(ethers.utils.formatUnits(amount1, 18))
+    if(parseFloat((val * 100 / amountDirection).toFixed(0)) <= 100 && parseFloat((val * 100 / amountDirection).toFixed(0)) >= 1) {
+      setSliderValue(parseFloat((val * 100 / amountDirection).toFixed(0)))
+    }
+    else if (parseFloat((val * 100 / amountDirection).toFixed(0)) < 1) {
+      setSliderValue(1)
+    }
+    else {
+      setSliderValue(100)
+    }
   }
 
   const handleSliderButton = (percent: number) => {
-    if (percent !== 0 && percent <= 100) {
+    if (percent >= 1 && percent <= 100) {
       setSliderValue(percent)
+    }
+    else if (percent < 1) {
+      setSliderValue(1)
+    }
+    else {
+      setSliderValue(100)
     }
   }
 
@@ -148,7 +162,12 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
         const amount0Bn = BigNumber.from(String(amounts.token0Amount))
         console.log('token1 amount', amounts.token1Amount)
         const amount1Bn = BigNumber.from(String(amounts.token1Amount))
-        if (changeDisplay) setDisplay(Number(ethers.utils.formatUnits(tokenOrder ? amount0Bn : amount1Bn, 18)).toPrecision(6))
+        if (changeDisplay) {
+          setTimeout(() => {
+            setBnInput(tokenOrder ? amount0Bn : amount1Bn)
+            setDisplay(Number(ethers.utils.formatUnits(tokenOrder ? amount0Bn : amount1Bn, 18)).toPrecision(6))
+          }, 1000)
+        }
         setAmount0(amount0Bn) 
         setAmount1(amount1Bn)
         setDisabled(false)
@@ -231,7 +250,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
         />
                 </div>
                 <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-6 mb-6">
-                  <div className=" p-2 w-32">{inputBox("0")}</div>
+                  <div className=" p-2 w-32">{inputBox("0", (val) => handleSliderChange(Number(val)))}</div>
                   <div className="">
                     <div className=" ml-auto">
                       <div>
