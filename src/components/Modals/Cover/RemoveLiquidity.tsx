@@ -52,8 +52,13 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
     setBurnPercent(ethers.utils.parseUnits(String(sliderValue), 36))
     console.log('setting burn percent', ethers.utils.parseUnits(String(sliderValue), 36).toString())
     console.log('setting display', amountInMax)
-    setDisplay((parseFloat(amountInDisplay) * sliderValue / 100).toPrecision(6))
   }, [sliderValue])
+
+  useEffect(() => {
+    setTimeout(() => {
+      setDisplay((parseFloat(amountInDisplay) * sliderValue / 100).toPrecision(6))
+    }, 1000);
+  }, [burnPercent])
 
   const handleChange = (event: any) => {
     if (Number(event.target.value) != 0) {
@@ -65,7 +70,12 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
   }
 
   const handleSliderChange = (val: number) => {
-    setSliderValue(parseFloat((val * 100 / parseFloat(amountInDisplay)).toFixed(0)))
+    if(parseFloat((val * 100 / parseFloat(amountInDisplay)).toFixed(0)) <= 100) {
+      setSliderValue(parseFloat((val * 100 / parseFloat(amountInDisplay)).toFixed(0)))
+    }
+    else {
+      setSliderValue(100)
+    }
   }
   
   const handleSliderButton = (percent: number) => {
