@@ -3,6 +3,7 @@ import {
   ArrowTopRightOnSquareIcon,
   ArrowsRightLeftIcon,
   ExclamationTriangleIcon,
+  
 } from '@heroicons/react/20/solid'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
@@ -13,7 +14,7 @@ import { useAccount } from 'wagmi'
 import { BigNumber, ethers } from 'ethers'
 import { TickMath } from '../../../utils/math/tickMath'
 import JSBI from 'jsbi'
-import { fetchTokenPrices } from '../../../utils/tokens'
+import { fetchTokenPrices, switchDirection } from '../../../utils/tokens'
 import { token } from '../../../utils/types'
 import { copyElementUseEffect } from '../../../utils/misc'
 import { getRangePoolFromFactory } from '../../../utils/queries'
@@ -29,6 +30,7 @@ export default function Range() {
   const router = useRouter()
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
+  const [priceDirection, setPriceDirection] = useState(false);
 
   const [poolAdd, setPoolAddress] = useState(router.query.poolId ?? '')
   const [token0, setToken0] = useState({
@@ -84,6 +86,9 @@ export default function Range() {
   const [is0Copied, setIs0Copied] = useState(false)
   const [is1Copied, setIs1Copied] = useState(false)
   const [isPoolCopied, setIsPoolCopied] = useState(false)
+  const [lowerInverse, setLowerInverse] = useState(0);
+  const [upperInverse, setUpperInverse] = useState(0);
+  const [priceInverse, setPriceInverse] = useState(0);
   const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
     token0.address != ''
       ? token0.address.toString().substring(0, 6) +
@@ -199,7 +204,6 @@ export default function Range() {
     copyElementUseEffect(copyPoolAddress, setIsPoolCopied)
   }, [])
 
-
   function copyAddress0() {
     navigator.clipboard.writeText(token0.address.toString())
     setIs0Copied(true)
@@ -257,6 +261,15 @@ export default function Range() {
         setAmount1FeesUsd(
           parseFloat((amount1Fees * parseFloat(token1Price)).toPrecision(3)),
         )
+        setLowerInverse(
+          parseFloat((parseFloat(token1Price) / Number(upperPrice)).toPrecision(6)),
+        )
+        setUpperInverse(
+          parseFloat((parseFloat(token1Price) / Number(lowerPrice)).toPrecision(6)),
+        )
+        setPriceInverse(
+          parseFloat((parseFloat(token1Price) / Number(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(rangePrice)))).toPrecision(6))
+        )
         setRangePrice(price)
         setRangeTickPrice(tickAtPrice)
       }
@@ -264,6 +277,7 @@ export default function Range() {
       console.log(error)
     }
   }
+  console.log()
 
   ////////////////////////Liquidity
 
@@ -537,8 +551,8 @@ export default function Range() {
                 </div>
               </div>
             </div>
-            <div>
-              <div className="flex mt-7 gap-x-6 items-center">
+            <div className="flex justify-between items-center mt-7">
+              <div className="flex gap-x-6 items-center">
                 <h1 className="text-lg">Price Range </h1>
                 {Number(rangeTickPrice) < Number(lowerTick) ||
                 Number(rangeTickPrice) >= Number(upperTick) ? (
@@ -555,31 +569,32 @@ export default function Range() {
                   </div>
                 )}
               </div>
+              <button onClick={() => setPriceDirection(!priceDirection)} className="text-grey text-xs bg-dark border border-grey1 cursor-pointer px-4 py-1 rounded-md whitespace-nowrap text-xs text-grey flex items-center gap-x-2">{priceDirection ? <>{token0.symbol}</> : <>{token1.symbol}</>} per {priceDirection ? <>{token1.symbol}</> : <>{token0.symbol}</>} <ArrowsRightLeftIcon className="w-4 text-white" /></button>
             </div>
             <div className="flex justify-between items-center mt-4 md:gap-x-6 gap-x-3">
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey md:text-xs text-[10px] w-full">Min. Price</div>
                 <div className="text-white text-2xl my-2 w-full">
-                  {lowerPrice}
+                {priceDirection ? <>{lowerInverse}</> : <>{lowerPrice}</>}
                 </div>
                 <div className="text-grey md:text-xs text-[10px] w-full">
-                  {token1.symbol} per {token0.symbol}
+                {priceDirection ? <>{token0.symbol}</> : <>{token1.symbol}</>} per {priceDirection ? <>{token1.symbol}</> : <>{token0.symbol}</>}
                 </div>
                 <div className="text-grey text-[10px] md:text-xs w-full italic mt-1">
-                  Your position will be 100% {token0.symbol} at this price.
+                  Your position will be 100% {priceDirection ? token1.symbol : token0.symbol} at this price.
                 </div>
               </div>
               <ArrowsRightLeftIcon className="w-12 text-grey" />
               <div className="border border-grey1 rounded-xl py-2 text-center w-full">
                 <div className="text-grey md:text-xs text-[10px] w-full">Max. Price</div>
                 <div className="text-white text-2xl my-2 w-full">
-                  {upperPrice}
+                {priceDirection ? <>{upperInverse}</> : <>{upperPrice}</>}
                 </div>
                 <div className="text-grey md:text-xs text-[10px] w-full">
-                  {token1.symbol} per {token0.symbol}
+                {priceDirection ? <>{token0.symbol}</> : <>{token1.symbol}</>} per {priceDirection ? <>{token1.symbol}</> : <>{token0.symbol}</>}
                 </div>
                 <div className="text-grey text-[10px] md:text-xs w-full italic mt-1">
-                  Your position will be 100% {token1.symbol} at this price.
+                  Your position will be 100% {priceDirection ? token0.symbol : token1.symbol} at this price.
                 </div>
               </div>
             </div>
@@ -587,10 +602,12 @@ export default function Range() {
               <div className="text-grey text-xs w-full">Current Price</div>
               <div className="text-white text-2xl my-2 w-full">
                 {rangePrice != undefined &&
-                  TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(rangePrice))}
+                 priceDirection ?
+                 priceInverse : TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(rangePrice))
+                }
               </div>
               <div className="text-grey text-xs w-full">
-                {token1.symbol} per {token0.symbol}
+              {priceDirection ? <>{token0.symbol}</> : <>{token1.symbol}</>} per {priceDirection ? <>{token1.symbol}</> : <>{token0.symbol}</>}
               </div>
             </div>
           </div>
