@@ -20,10 +20,8 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   const {
     bnInput,
     inputBox,
-    maxBalance,
-    bnInputLimit,
-    LimitInputBox,
-    setDisplay
+    setDisplay,
+    display,
   } = useInputBox()
 
   console.log('remove user liquidity', userLiquidity.toString(), tokenAmount.toString())
@@ -74,7 +72,11 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
       setSliderValue(0)
     }
   }
-  
+
+  const handleSliderChange = () => {
+    setSliderValue(parseFloat((parseFloat(display) * sliderValue * 0.01).toFixed(0)))
+  }
+
   const handleSliderButton = (percent: number) => {
     setSliderValue(percent)
   }

@@ -14,6 +14,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
     bnInput,
     inputBox,
     setDisplay,
+    display
   } = useInputBox()
 
   const router = useRouter()
@@ -61,6 +62,10 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
     else {
       setSliderValue(0)
     }
+  }
+
+  const handleSliderChange = () => {
+    setSliderValue(parseFloat((parseFloat(display) * sliderValue * 0.01).toFixed(0)))
   }
   
   const handleSliderButton = (percent: number) => {
