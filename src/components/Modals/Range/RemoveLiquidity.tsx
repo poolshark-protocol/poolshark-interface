@@ -78,7 +78,9 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   }
 
   const handleSliderButton = (percent: number) => {
-    setSliderValue(percent)
+    if (percent !== 0 && percent <= 100) {
+      setSliderValue(percent)
+    }
   }
 
   async function updateGasFee() {

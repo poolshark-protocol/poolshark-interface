@@ -69,7 +69,9 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
   }
   
   const handleSliderButton = (percent: number) => {
-    setSliderValue(percent)
+    if (percent !== 0 && percent <= 100) {
+      setSliderValue(percent)
+    }
   }
 
   const getBalances = async () => {
