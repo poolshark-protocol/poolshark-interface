@@ -110,7 +110,9 @@ export default function CoverExistingPool({
   const [mintGasFee, setMintGasFee] = useState('$0.00')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
   const [volatility, setVolatility] = useState(0)
-
+  const [minInput, setMinInput] = useState("");
+  const [maxInput, setMaxInput] = useState("");
+  const [priceOrder, setPriceOrder] = useState(true);
   ////////////////////////////////
 
   const { data: allowanceIn } = useContractRead({
@@ -260,6 +262,40 @@ export default function CoverExistingPool({
   }, [lowerPrice, upperPrice])
 
   useEffect(() => {}, [coverAmountOut])
+
+  useEffect(() => {
+    setMinInput(
+        invertPrice(
+          lowerPrice.toString().includes("e")
+            ? parseFloat(lowerPrice).toLocaleString(undefined, {
+                maximumFractionDigits: 0,
+              }).length > 6
+              ? "0"
+              : parseFloat(lowerPrice).toLocaleString(undefined, {
+                  maximumFractionDigits: 0,
+                })
+            : lowerPrice,
+          priceOrder
+        )
+    );
+  }, [lowerPrice, minInput, tokenOrder, priceOrder]);
+
+  useEffect(() => {
+    setMaxInput(
+        invertPrice(
+          upperPrice.toString().includes("e")
+            ? Number(upperPrice).toLocaleString(undefined, {
+                maximumFractionDigits: 0,
+              }).length > 6
+              ? "∞"
+              : Number(upperPrice).toLocaleString(undefined, {
+                  maximumFractionDigits: 2,
+                })
+            : upperPrice,
+          priceOrder
+        )
+    );
+  }, [upperPrice, minInput, priceOrder, tokenOrder]);
 
   ////////////////////////////////
 
@@ -463,6 +499,7 @@ export default function CoverExistingPool({
       </Listbox>
     )
   }
+  
 
   const Option = () => {
     if (expanded) {
@@ -610,7 +647,8 @@ export default function CoverExistingPool({
           <SelectVolatility />
         </div>
       </div>
-      <div className="flex items-center w-full mb-3 mt-4 gap-x-2 relative">
+      <div className="flex items-center justify-between w-full mb-3 mt-4 gap-x-2 relative">
+        <div className="flex items-center w-full gap-x-2">
         <h1 className="md:text-base text-sm">Set Price Range</h1>
         <InformationCircleIcon
           onMouseEnter={() => setShowTooltip(true)}
@@ -624,6 +662,26 @@ export default function CoverExistingPool({
         >
           {showTooltip ? <TickSpacing /> : null}
         </div>
+        </div>
+        <div
+        className="flex items-center cursor-pointer bg-dark border-grey1 border text-[10px] px-1 py-1 rounded-lg"
+        onClick={() => setPriceOrder(!priceOrder)}
+              >
+                <div
+                  className={`px-2 py-0.5 ${
+                    priceOrder ? "" : "bg-grey2 rounded-md"
+                  }`}
+                >
+                  {tokenOrder ? tokenOut.symbol : tokenIn.symbol}
+                </div>
+                <div
+                  className={`px-2 py-0.5 ${
+                    priceOrder ? "bg-grey2 rounded-md" : ""
+                  }`}
+                >
+                  {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
+                </div>
+              </div>
       </div>
       <div className="flex justify-between w-full gap-x-6">
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
@@ -640,7 +698,7 @@ export default function CoverExistingPool({
               placeholder="0"
               id="minInput"
               type="text"
-              value={lowerPrice}
+              value={minInput}
               onChange={() =>
                 setLowerPrice(
                   inputFilter(
@@ -657,8 +715,8 @@ export default function CoverExistingPool({
             </div>
           </div>
           <span className="text-xs text-grey">
-            {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per{' '}
-            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOrder ? tokenIn.symbol : tokenOut.symbol}
+          { tokenOrder ? priceOrder ? tokenOut.symbol : tokenIn.symbol : priceOrder ? tokenIn.symbol : tokenOut.symbol} per{' '}
+            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOrder ? priceOrder ? tokenIn.symbol : tokenOut.symbol :priceOrder ? tokenOut.symbol : tokenIn.symbol}
           </span>
         </div>
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
@@ -675,7 +733,7 @@ export default function CoverExistingPool({
               placeholder="0"
               id="maxInput"
               type="text"
-              value={upperPrice}
+              value={maxInput}
               onChange={() =>
                 setUpperPrice(
                   inputFilter(
@@ -692,8 +750,8 @@ export default function CoverExistingPool({
             </div>
           </div>
           <span className="text-xs text-grey">
-            {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per{' '}
-            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOrder ? tokenIn.symbol : tokenOut.symbol}
+            { tokenOrder ? priceOrder ? tokenOut.symbol : tokenIn.symbol : priceOrder ? tokenIn.symbol : tokenOut.symbol} per{' '}
+            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOrder ? priceOrder ? tokenIn.symbol : tokenOut.symbol :priceOrder ? tokenOut.symbol : tokenIn.symbol}
           </span>
         </div>
       </div>

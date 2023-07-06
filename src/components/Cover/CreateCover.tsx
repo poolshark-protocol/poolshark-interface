@@ -93,6 +93,9 @@ export default function CreateCover(props: any) {
   )
   const [mintGasFee, setMintGasFee] = useState('$0.00')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
+  const [minInput, setMinInput] = useState("");
+  const [maxInput, setMaxInput] = useState("");
+  const [priceOrder, setPriceOrder] = useState(true);
 
   /////////////////
 
@@ -248,6 +251,40 @@ export default function CreateCover(props: any) {
   useEffect(() => {
     changeCoverAmounts(true)
   }, [coverAmountIn])
+
+  useEffect(() => {
+    setMinInput(
+        invertPrice(
+          lowerPrice.toString().includes("e")
+            ? parseFloat(lowerPrice).toLocaleString(undefined, {
+                maximumFractionDigits: 0,
+              }).length > 6
+              ? "0"
+              : parseFloat(lowerPrice).toLocaleString(undefined, {
+                  maximumFractionDigits: 0,
+                })
+            : lowerPrice,
+          priceOrder
+        )
+    );
+  }, [lowerPrice, minInput, tokenOrder, priceOrder]);
+
+  useEffect(() => {
+    setMaxInput(
+        invertPrice(
+          upperPrice.toString().includes("e")
+            ? Number(upperPrice).toLocaleString(undefined, {
+                maximumFractionDigits: 0,
+              }).length > 6
+              ? "∞"
+              : Number(upperPrice).toLocaleString(undefined, {
+                  maximumFractionDigits: 2,
+                })
+            : upperPrice,
+          priceOrder
+        )
+    );
+  }, [upperPrice, minInput, priceOrder, tokenOrder]);
 
   //////////////////////
 
@@ -558,25 +595,26 @@ export default function CreateCover(props: any) {
             setQueryTokenOut={setQueryTokenOut}
             key={queryTokenIn + 'in'}
           />
-          <div className="items-center px-2 py-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
+          <div 
+          onClick={() => {
+            if (hasSelected) {
+              switchDirection(
+                tokenOrder,
+                setTokenOrder,
+                tokenIn,
+                setTokenIn,
+                tokenOut,
+                setTokenOut,
+                queryTokenIn,
+                setQueryTokenIn,
+                queryTokenOut,
+                setQueryTokenOut,
+              )
+            }
+          }}
+          className="items-center px-2 py-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
             <ArrowLongRightIcon
               className="md:w-6 w-4 cursor-pointer md:rotate-0 rotate-90"
-              onClick={() => {
-                if (hasSelected) {
-                  switchDirection(
-                    tokenOrder,
-                    setTokenOrder,
-                    tokenIn,
-                    setTokenIn,
-                    tokenOut,
-                    setTokenOut,
-                    queryTokenIn,
-                    setQueryTokenIn,
-                    queryTokenOut,
-                    setQueryTokenOut,
-                  )
-                }
-              }}
             />
           </div>
           <SelectToken
@@ -672,7 +710,8 @@ export default function CreateCover(props: any) {
           <SelectVolatility />
         </div>
       </div>
-      <div className="flex items-center w-full mb-3 mt-4 gap-x-2 relative">
+      <div className="flex items-center justify-between w-full mb-3 mt-4 gap-x-2 relative">
+        <div className="flex items-center w-full gap-x-2">
         <h1 className="md:text-base text-sm">Set Price Range</h1>
         <InformationCircleIcon
           onMouseEnter={() => setShowTooltip(true)}
@@ -686,6 +725,29 @@ export default function CreateCover(props: any) {
         >
           {showTooltip ? <TickSpacing /> : null}
         </div>
+        </div>
+        {hasSelected &&(
+        <button
+        disabled={minInput === "" || maxInput === "" }
+        className="flex items-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-dark border-grey1 border text-[10px] px-1 py-1 rounded-lg"
+        onClick={() => setPriceOrder(!priceOrder)}
+              >
+                <div
+                  className={`px-2 py-0.5 ${
+                    priceOrder ? "" : "bg-grey2 rounded-md"
+                  }`}
+                >
+                  {tokenOrder ? tokenOut.symbol : tokenIn.symbol}
+                </div>
+                <div
+                  className={`px-2 py-0.5 ${
+                    priceOrder ? "bg-grey2 rounded-md" : ""
+                  }`}
+                >
+                  {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
+                </div>
+              </button>
+            )}
       </div>
       <div className="flex justify-between w-full gap-x-6">
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
@@ -696,22 +758,41 @@ export default function CreateCover(props: any) {
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </button>
             </div>
+            {priceOrder ? (
             <input
               autoComplete="off"
               className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
               placeholder="0"
               id="minInput"
               type="text"
-              value={lowerPrice}
+              value={minInput}
               onChange={() =>
-                setLowerPrice(
+                setUpperPrice(
                   inputFilter(
                     (document.getElementById('minInput') as HTMLInputElement)
                       ?.value,
                   ),
                 )
               }
+            /> ) :
+            (
+              <input
+              autoComplete="off"
+              className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
+              placeholder="0"
+              id="maxInput"
+              type="text"
+              value={maxInput}
+              onChange={() =>
+                setUpperPrice(
+                  inputFilter(
+                    (document.getElementById('maxInput') as HTMLInputElement)
+                      ?.value,
+                  ),
+                )
+              }
             />
+            )}
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice('plus', 'minInput')}>
                 <PlusIcon className="w-5 h-5" />
@@ -719,8 +800,8 @@ export default function CreateCover(props: any) {
             </div>
           </div>
           <span className="md:text-xs text-[10px] text-grey">
-            {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per{' '}
-            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOrder ? tokenIn.symbol : tokenOut.symbol}
+          { tokenOrder ? priceOrder ? tokenOut.symbol : tokenIn.symbol : priceOrder ? tokenIn.symbol : tokenOut.symbol} per{' '}
+            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOrder ? priceOrder ? tokenIn.symbol : tokenOut.symbol :priceOrder ? tokenOut.symbol : tokenIn.symbol}
           </span>
         </div>
         <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
@@ -731,13 +812,14 @@ export default function CreateCover(props: any) {
                 <MinusIcon className="w-5 h-5 ml-[2.5px]" />
               </button>
             </div>
+            {priceOrder ? (
             <input
               autoComplete="off"
               className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
               placeholder="0"
               id="maxInput"
               type="text"
-              value={upperPrice}
+              value={maxInput}
               onChange={() =>
                 setUpperPrice(
                   inputFilter(
@@ -746,7 +828,25 @@ export default function CreateCover(props: any) {
                   ),
                 )
               }
+            /> ) :
+            (
+              <input
+              autoComplete="off"
+              className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
+              placeholder="0"
+              id="minInput"
+              type="text"
+              value={minInput}
+              onChange={() =>
+                setUpperPrice(
+                  inputFilter(
+                    (document.getElementById('minInput') as HTMLInputElement)
+                      ?.value,
+                  ),
+                )
+              }
             />
+            )}
             <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
               <button onClick={() => changePrice('plus', 'maxInput')}>
                 <PlusIcon className="w-5 h-5" />
@@ -754,8 +854,8 @@ export default function CreateCover(props: any) {
             </div>
           </div>
           <span className="md:text-xs text-[10px] text-grey">
-            {tokenIn.symbol} per{' '}
-            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOut.symbol}
+          { tokenOrder ? priceOrder ? tokenOut.symbol : tokenIn.symbol : priceOrder ? tokenIn.symbol : tokenOut.symbol} per{' '}
+            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOrder ? priceOrder ? tokenIn.symbol : tokenOut.symbol :priceOrder ? tokenOut.symbol : tokenIn.symbol}
           </span>
         </div>
       </div>
