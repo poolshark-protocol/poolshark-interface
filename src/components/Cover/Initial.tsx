@@ -183,7 +183,7 @@ export default function Initial(props: any) {
     <CoverExistingPool
       account={'account'}
       key={pool.poolId}
-      poolId={pool.poolId}
+      rangePoolRoute={pool.poolId}
       tokenOneName={pool.tokenOneName}
       tokenOneSymbol={pool.tokenOneSymbol}
       tokenOneLogoURI={pool.tokenOneLogoURI}

@@ -34,6 +34,8 @@ export default function RangeAddLiquidity({
   liquidity,
   lowerTick,
   rangePrice,
+  token0Price,
+  token1Price
 }) {
   const {
     bnInput,
@@ -293,9 +295,17 @@ export default function RangeAddLiquidity({
                 </div>
                 <div className="flex flex-col gap-y-3 mb-5">
                 <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-              <div className=" p-2 w-32">
-                {inputBox('0')}
-              </div>
+                <div className=" p-2 w-32">
+                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-1 rounded-xl">
+                              {inputBox("0")}
+                              </div>
+                              <div className="flex">
+                                <div className="flex text-xs text-[#4C4C4C]">
+                                 ${tokenOrder ? (Number(token1Price * parseFloat(ethers.utils.formatUnits(amount1, 18))).toFixed(2)) : (Number(token0Price * parseFloat(ethers.utils.formatUnits(amount0, 18))).toFixed(2))}
+                                
+                                </div>
+                              </div>
+                            </div>
               <div className="">
                 <div className=" ml-auto">
                   <div>
@@ -321,14 +331,20 @@ export default function RangeAddLiquidity({
               </div>
             </div>
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-              <div className=" p-2 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl  rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
-              {Number(
+            <div className=" p-2 ">
+                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
+                              {Number(
                   tokenOrder
                     ? ethers.utils.formatUnits(amount1, 18)
                     : ethers.utils.formatUnits(amount0, 18)
                 ).toFixed(2)}
-                
-              </div>
+                              </div>
+                              <div className="flex">
+                                <div className="flex text-xs text-[#4C4C4C]">
+                                ${tokenOrder ? (Number(token0Price * parseFloat(ethers.utils.formatUnits(amount0, 18))).toFixed(2)) : (Number(token1Price * parseFloat(ethers.utils.formatUnits(amount1, 18))).toFixed(2))}
+                                </div>
+                              </div>
+                            </div>
               <div className="">
                 <div className=" ml-auto">
                   <div>

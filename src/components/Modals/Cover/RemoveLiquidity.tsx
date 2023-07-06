@@ -8,7 +8,7 @@ import { BigNumber, ethers } from "ethers";
 import { BN_ZERO } from "../../../utils/math/constants";
 import { useRouter } from "next/router";
 
-export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolAdd, address, claimTick, lowerTick, zeroForOne, amountInDeltaMax, upperTick, gasLimit, gasFee }) {
+export default function CoverRemoveLiquidity({ isOpen, setIsOpen, usdPriceIn, usdPriceOut, tokenIn, poolAdd, address, claimTick, lowerTick, zeroForOne, amountInDeltaMax, upperTick, gasLimit, gasFee }) {
 
   const {
     bnInput,
@@ -153,7 +153,17 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
         />
                 </div>
                 <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-6 mb-6">
-                  <div className=" p-2 ">{inputBox("0")}</div>
+                <div className=" p-2 w-32">
+                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-1 rounded-xl">
+                              {inputBox("0")}
+                              </div>
+                              <div className="flex">
+                                <div className="flex text-xs text-[#4C4C4C]">
+                                 $ {Number(usdPriceOut * parseFloat(ethers.utils.formatUnits(bnInput, 18))).toFixed(2)}
+                                
+                                </div>
+                              </div>
+                            </div>
                   <div className="">
                     <div className=" ml-auto">
                       <div>

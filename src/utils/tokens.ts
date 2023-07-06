@@ -55,7 +55,7 @@ export function switchDirection(
   queryTokenOut,
   setQueryTokenOut,
 ) {
-  setTokenOrder(!tokenOrder)
+  if (setTokenOrder) setTokenOrder(!tokenOrder)
   const temp = tokenIn
   setTokenIn(tokenOut)
   setTokenOut(temp)

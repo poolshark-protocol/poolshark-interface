@@ -14,7 +14,7 @@ import { gasEstimateRangeBurn } from "../../../utils/gas";
 import { useRouter } from "next/router";
 
 
-export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut, poolAdd, address, lowerTick, upperTick, userLiquidity, tokenAmount, rangePrice}) {
+export default function RangeRemoveLiquidity({ isOpen, token1Price, token0Price, setIsOpen, tokenIn, tokenOut, poolAdd, address, lowerTick, upperTick, userLiquidity, tokenAmount, rangePrice}) {
   const router = useRouter()
   
   const {
@@ -43,6 +43,8 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
   const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
   const {data: signer} = useSigner()
+  const [amount0Usd, setAmount0Usd] = useState(0.0);
+  const [amount1Usd, setAmount1Usd] = useState(0.0);
 
   useEffect(() => {
     const percentInput = sliderValue
@@ -66,6 +68,9 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   useEffect(() => {
     updateGasFee()
   }, [burnPercent])
+  
+
+  
 
   const handleChange = (event: any) => {
     if (Number(event.target.value) != 0) {
@@ -201,7 +206,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
                   <div className="text-3xl font-medium">
                     {sliderValue}%
                     </div>
-                    <div className="md:flex items-center hidden md:text-base text-sm">
+                    <div className="md:flex items-center hidden md:text-base text-sm gap-x-4">
                       <button onClick={() => handleSliderButton(25)} className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
                         25%
                       </button>
@@ -227,7 +232,17 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
         />
                 </div>
                 <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-6 mb-6">
-                  <div className=" p-2 w-32">{inputBox("0")}</div>
+                <div className=" p-2 ">
+                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-1 rounded-xl">
+                              {inputBox("0")}
+                              </div>
+                              <div className="flex">
+                                <div className="flex text-xs text-[#4C4C4C]">
+                                 ${tokenOrder ? (Number(token1Price * parseFloat(ethers.utils.formatUnits(amount1, 18))).toFixed(2)) : (Number(token0Price * parseFloat(ethers.utils.formatUnits(amount0, 18))).toFixed(2))}
+                                
+                                </div>
+                              </div>
+                            </div>
                   <div className="">
                     <div className=" ml-auto">
                       <div>
@@ -251,11 +266,20 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
                   </div>
                 </div>
                 <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-6 mb-6">
-                  <div className=" p-2 ">{Number(
+                <div className=" p-2 ">
+                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
+                              {Number(
                   tokenOrder
                     ? ethers.utils.formatUnits(amount1, 18)
                     : ethers.utils.formatUnits(amount0, 18)
-                ).toPrecision(6)}</div>
+                ).toFixed(2)}
+                              </div>
+                              <div className="flex">
+                                <div className="flex text-xs text-[#4C4C4C]">
+                                ${tokenOrder ? (Number(token0Price * parseFloat(ethers.utils.formatUnits(amount0, 18))).toFixed(2)) : (Number(token1Price * parseFloat(ethers.utils.formatUnits(amount1, 18))).toFixed(2))}
+                                </div>
+                              </div>
+                            </div>
                   <div className="">
                     <div className=" ml-auto">
                       <div>
