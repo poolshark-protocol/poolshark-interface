@@ -31,11 +31,12 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   const [disabled, setDisabled] = useState(true)
   const [amount0, setAmount0] = useState(BN_ZERO)
   const [amount1, setAmount1] = useState(BN_ZERO)
+  const [amount0Bn, setAmount0Bn] = useState(BN_ZERO)
+  const [amount1Bn, setAmount1Bn] = useState(BN_ZERO)
   const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
   const [ rangeSqrtPrice, setRangeSqrtPrice ] = useState(JSBI.BigInt(rangePrice))
   const [ fetchDelay, setFetchDelay ] = useState(false)
   const [ gasLimit, setGasLimit ] = useState(BN_ZERO)
-  const [ liquidityRemoved, setLiquidityRemoved ] = useState(1)
   const [ gasFee, setGasFee ] = useState('$0.00')
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
   const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
@@ -52,7 +53,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
     const tokenAmountToBurn = BigNumber.from(percentInput).mul(BigNumber.from(tokenAmount)).div(BigNumber.from(100))
     setBurnPercent(ethers.utils.parseUnits(sliderValue.toString(), 36))
     console.log('new burn percent', ethers.utils.parseUnits(sliderValue.toString(), 36).toString())
-    setAmounts(JSBI.BigInt(tokenAmountToBurn), true)
+    setAmounts(JSBI.BigInt(tokenAmountToBurn))
   }, [sliderValue])
 
   useEffect(() => {
@@ -62,6 +63,11 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
 
   useEffect(() => {
     updateGasFee()
+    setTimeout(() => {
+      setDisplay(Number(ethers.utils.formatUnits(tokenOrder ? amount0Bn : amount1Bn, 18)).toPrecision(6))
+      setAmount0(amount0Bn) 
+      setAmount1(amount1Bn)
+    }, 1000);
   }, [burnPercent])
 
   const handleChange = (event: any) => {
@@ -138,9 +144,9 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
                           )
           console.log('new burn percent', BigNumber.from(String(liquidityRemoved)).mul(ethers.utils.parseUnits('1', 38)).div(BigNumber.from(userLiquidity)).toString())
           setBurnPercent(BigNumber.from(String(liquidityRemoved)).mul(ethers.utils.parseUnits('1', 38)).div(BigNumber.from(userLiquidity)))
-          //setLiquidityRemoved(parseFloat(String(liquidityRemoved)))
           console.log('liquidity removed', liquidityRemoved.toString())
           console.log('user liquidity', userLiquidity.toString())
+          setDisabled(false)
         } else {
           setAmounts(ZERO)
           setDisabled(true)
@@ -150,7 +156,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
       } 
   }
 
-  function setAmounts(liquidity: JSBI, changeDisplay = false) {
+  function setAmounts(liquidity: JSBI) {
     try {
       if (
         JSBI.greaterThan(liquidity, ZERO)
@@ -166,17 +172,12 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
         const amount0Bn = BigNumber.from(String(amounts.token0Amount))
         console.log('token1 amount', amounts.token1Amount)
         const amount1Bn = BigNumber.from(String(amounts.token1Amount))
-        if (changeDisplay) {
-          setTimeout(() => {
-            setDisplay(Number(ethers.utils.formatUnits(tokenOrder ? amount0Bn : amount1Bn, 18)).toPrecision(6))
-            setAmount0(amount0Bn) 
-            setAmount1(amount1Bn)
-          }, 1000)
-        }
+        setAmount0Bn(amount0Bn)
+        setAmount1Bn(amount1Bn)
         setDisabled(false)
       } else {
-        setAmount1(BN_ZERO) 
-        setAmount0(BN_ZERO)
+        setAmount0Bn(BN_ZERO) 
+        setAmount1Bn(BN_ZERO)
         setDisabled(true)
       }
     } catch (error) {
