@@ -174,11 +174,11 @@ export default function CreateCover(props: any) {
   }, [router])
 
   useEffect(() => {
-    console.log('getting cover pool')
+    console.log('getting cover order', tokenOrder, tokenIn.address.localeCompare(tokenOut.address) < 0)
     if (hasSelected)
       getCoverPoolInfo(
         coverPoolRoute,
-        tokenOrder,
+        tokenIn.address.localeCompare(tokenOut.address) < 0,
         tokenIn,
         tokenOut,
         setCoverPoolRoute,
@@ -192,11 +192,10 @@ export default function CreateCover(props: any) {
         setUpperPrice,
         tickSpread
       )
+      setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0)
   }, [
     tokenIn.address,
     tokenOut.address,
-    tickSpread,
-    coverPoolRoute
   ])
 
   // disabled messages
@@ -219,7 +218,6 @@ export default function CreateCover(props: any) {
 
   // set disabled
   useEffect(() => {
-    console.log('bninput changed', bnInput.toString())
     const disabledFlag =
       Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn) ||
       isNaN(parseFloat(lowerPrice)) ||
@@ -229,7 +227,6 @@ export default function CreateCover(props: any) {
       tokenOut.symbol === 'Select Token' ||
       hasSelected == false ||
       !validBounds
-    console.log('bn disabled flag check', disabledFlag)
     setDisabled(disabledFlag || mintGasLimit.eq(BN_ZERO))
     if (!disabledFlag) {
       updateGasFee()
@@ -579,6 +576,7 @@ export default function CreateCover(props: any) {
               className="md:w-6 w-4 cursor-pointer md:rotate-0 rotate-90"
               onClick={() => {
                 if (hasSelected) {
+                  console.log('getting cover order set')
                   switchDirection(
                     tokenOrder,
                     setTokenOrder,
@@ -770,8 +768,8 @@ export default function CreateCover(props: any) {
             </div>
           </div>
           <span className="md:text-xs text-[10px] text-grey">
-            {tokenIn.symbol} per{' '}
-            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOut.symbol}
+            {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per{' '}
+            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOrder ? tokenIn.symbol : tokenOut.symbol}
           </span>
         </div>
       </div>

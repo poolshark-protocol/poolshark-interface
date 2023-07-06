@@ -159,18 +159,19 @@ export const getCoverPoolInfo = async (
     console.log('getting data length', dataLength)
     if (dataLength) {
       for (let i = 0; i < dataLength; i++) {
+        const newPoolRoute = pool['data']['coverPools'][i]['id']
         const tickSpread =
-        pool['data']['coverPools'][i]['volatilityTier']['tickSpread']
-        if ((poolRoute && pool['data']['coverPools'][i]['id'] == poolRoute) ||
+        parseInt(pool['data']['coverPools'][i]['volatilityTier']['tickSpread'])
+        if ((poolRoute && newPoolRoute == poolRoute) ||
              expectedTickSpread && tickSpread == expectedTickSpread) {
             console.log('getting tick spread', tickSpread, expectedTickSpread)
-            if (!poolRoute) setCoverPoolRoute(pool['data']['coverPools'][i]['id'])
-            if (tickSpread == '20') {
+            if (poolRoute != newPoolRoute) setCoverPoolRoute(pool['data']['coverPools'][i]['id'])
+            if (tickSpread == 20) {
               setVolatility(0)
-            } else if (tickSpread == '40') {
+            } else if (tickSpread == 40) {
               setVolatility(1)
             }
-          const newLatestTick = pool['data']['coverPools'][i]['latestTick']
+          const newLatestTick = parseInt(pool['data']['coverPools'][i]['latestTick'])
           if (setCoverPrice) {
             console.log('getting cover price', TickMath.getPriceStringAtTick(newLatestTick), tickSpread)
             setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick))
@@ -187,17 +188,18 @@ export const getCoverPoolInfo = async (
           }
           if (setLatestTick) {
             setLatestTick(newLatestTick)
-            if (isNaN(parseFloat(lowerPrice)) && setLowerPrice) {
+            console.log('setting latest tick', tokenOrder, newLatestTick, newLatestTick + (-tickSpread) * 10)
+            if (poolRoute != newPoolRoute && setLowerPrice != undefined) {
               setLowerPrice(
                 TickMath.getPriceStringAtTick(
                   tokenOrder
-                    ? newLatestTick - tickSpread * 10
+                    ? newLatestTick + (-tickSpread) * 10
                     : newLatestTick + tickSpread,
                   tickSpread,
                 ),
               )
             }
-            if (isNaN(parseFloat(upperPrice)) && setUpperPrice) {
+            if (poolRoute != newPoolRoute && setUpperPrice) {
               setUpperPrice(
                 TickMath.getPriceStringAtTick(
                   tokenOrder

@@ -65,17 +65,13 @@ export default function CoverExistingPool({
   const [tokenOrder, setTokenOrder] = useState(zeroForOne)
   const [latestTick, setLatestTick] = useState(0)
   const [lowerTick, setLowerTick] = useState(
-    getDefaultLowerTick(minLimit, maxLimit, zeroForOne),
+    0
   )
   const [upperTick, setUpperTick] = useState(
-    getDefaultUpperTick(minLimit, maxLimit, zeroForOne),
+    0
   )
-  const [lowerPrice, setLowerPrice] = useState(
-    getDefaultLowerPrice(minLimit, maxLimit, zeroForOne),
-  )
-  const [upperPrice, setUpperPrice] = useState(
-    getDefaultUpperPrice(minLimit, maxLimit, zeroForOne),
-  )
+  const [lowerPrice, setLowerPrice] = useState('')
+  const [upperPrice, setUpperPrice] = useState('')
   const [hasSelected, setHasSelected] = useState(true)
   const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
@@ -179,7 +175,7 @@ export default function CoverExistingPool({
     console.log('getting cover pool')
     if (hasSelected)
       getCoverPoolInfo(
-        null,
+        coverPoolRoute,
         tokenOrder,
         tokenIn,
         tokenOut,
