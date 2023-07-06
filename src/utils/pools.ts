@@ -148,6 +148,7 @@ export const getCoverPoolInfo = async (
   setLowerPrice?,
   setUpperPrice?,
   expectedTickSpread?,
+  tokenOrderChanged?
 ) => {
   try {
     const pool = await getCoverPoolFromFactory(
@@ -189,7 +190,7 @@ export const getCoverPoolInfo = async (
           if (setLatestTick) {
             setLatestTick(newLatestTick)
             console.log('setting latest tick', tokenOrder, newLatestTick, newLatestTick + (-tickSpread) * 10)
-            if (poolRoute != newPoolRoute && setLowerPrice != undefined) {
+            if ((poolRoute != newPoolRoute && setLowerPrice != undefined) || tokenOrderChanged) {
               setLowerPrice(
                 TickMath.getPriceStringAtTick(
                   tokenOrder
@@ -199,7 +200,7 @@ export const getCoverPoolInfo = async (
                 ),
               )
             }
-            if (poolRoute != newPoolRoute && setUpperPrice) {
+            if ((poolRoute != newPoolRoute && setUpperPrice) || tokenOrderChanged) {
               setUpperPrice(
                 TickMath.getPriceStringAtTick(
                   tokenOrder

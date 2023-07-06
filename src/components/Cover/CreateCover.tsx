@@ -156,11 +156,6 @@ export default function CreateCover(props: any) {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId])
   }, [chainId])
 
-  useEffect(() => {
-    updateBalances()
-    setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0)
-  }, [tokenOut, tokenIn])
-
   async function updateBalances() {
     await getBalances(address, false, tokenIn, tokenOut, setBalanceIn, () => {})
   }
@@ -174,11 +169,13 @@ export default function CreateCover(props: any) {
   }, [router])
 
   useEffect(() => {
-    console.log('getting cover order', tokenOrder, tokenIn.address.localeCompare(tokenOut.address) < 0)
+    updateBalances()
+    const newTokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
+    console.log('getting cover order', tokenOrder, newTokenOrder)
     if (hasSelected)
       getCoverPoolInfo(
         coverPoolRoute,
-        tokenIn.address.localeCompare(tokenOut.address) < 0,
+        newTokenOrder,
         tokenIn,
         tokenOut,
         setCoverPoolRoute,
@@ -190,12 +187,14 @@ export default function CreateCover(props: any) {
         upperPrice,
         setLowerPrice,
         setUpperPrice,
-        tickSpread
+        tickSpread,
+        newTokenOrder != tokenOrder
       )
-      setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0)
+      setTokenOrder(newTokenOrder)
   }, [
     tokenIn.address,
     tokenOut.address,
+    coverPoolRoute
   ])
 
   // disabled messages
@@ -579,7 +578,7 @@ export default function CreateCover(props: any) {
                   console.log('getting cover order set')
                   switchDirection(
                     tokenOrder,
-                    setTokenOrder,
+                    null,
                     tokenIn,
                     setTokenIn,
                     tokenOut,

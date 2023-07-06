@@ -172,11 +172,12 @@ export default function CoverExistingPool({
   // - tickSpread => pool tick spacing
   // - latestTick => current TWAP tick
   useEffect(() => {
+    const newTokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
     console.log('getting cover pool')
     if (hasSelected)
       getCoverPoolInfo(
         coverPoolRoute,
-        tokenOrder,
+        newTokenOrder,
         tokenIn,
         tokenOut,
         setCoverPoolRoute,
@@ -188,12 +189,13 @@ export default function CoverExistingPool({
         upperPrice,
         setLowerPrice,
         setUpperPrice,
-        volatilityTiers[volatility].tickSpread
+        volatilityTiers[volatility].tickSpread,
+        newTokenOrder != tokenOrder
       )
+      setTokenOrder(newTokenOrder)
   }, [
     tokenIn.address,
     tokenOut.address,
-    tickSpread,
     coverPoolRoute
   ])
 
@@ -518,7 +520,7 @@ export default function CoverExistingPool({
               if (hasSelected) {
                 switchDirection(
                   tokenOrder,
-                  setTokenOrder,
+                  null,
                   tokenIn,
                   setTokenIn,
                   tokenOut,
