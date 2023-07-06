@@ -20,7 +20,8 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   const {
     bnInput,
     inputBox,
-    setDisplay, setBnInput
+    setDisplay, setBnInput,
+    display
   } = useInputBox()
 
   console.log('remove user liquidity', userLiquidity.toString(), tokenAmount.toString())
@@ -36,6 +37,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   const [ rangeSqrtPrice, setRangeSqrtPrice ] = useState(JSBI.BigInt(rangePrice))
   const [ fetchDelay, setFetchDelay ] = useState(false)
   const [ gasLimit, setGasLimit ] = useState(BN_ZERO)
+  const [ liquidityRemoved, setLiquidityRemoved ] = useState(1)
   const [ gasFee, setGasFee ] = useState('$0.00')
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
   const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
@@ -43,7 +45,6 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
 
   useEffect(() => {
     const percentInput = sliderValue
-    //console.log('percent input', percentInput, tokenAmount, BigNumber.from(percentInput).mul(BigNumber.from(tokenAmount)).div(BigNumber.from(100)).toString())
     if (percentInput <= 0 || percentInput > 100) {
       setDisabled(true)
       return
@@ -58,6 +59,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
 
   useEffect(() => {
     setLiquidity()
+    handleSliderChange(Number(display))
   }, [bnInput])
 
   useEffect(() => {
@@ -73,8 +75,9 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   }
 
   const handleSliderChange = (val: number) => {
-    const amountDirection = tokenOrder ? parseFloat(ethers.utils.formatUnits(amount0, 18)) : parseFloat(ethers.utils.formatUnits(amount1, 18))
-    const ratioCalc = parseFloat((val * 100 / amountDirection).toFixed(0))
+    //const amountDirection = tokenOrder ? parseFloat(ethers.utils.formatUnits(amount0, 18)) : parseFloat(ethers.utils.formatUnits(amount1, 18))
+    const ratioCalc = parseFloat((liquidityRemoved / userLiquidity).toFixed(2)) * 100
+    console.log('ratio calc', ratioCalc)
     if(ratioCalc <= 100 && ratioCalc >= 1) {
       setSliderValue(ratioCalc)
     }
@@ -138,6 +141,9 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
           console.log('new burn percent', BigNumber.from(String(liquidityRemoved)).mul(ethers.utils.parseUnits('1', 38)).div(BigNumber.from(userLiquidity)).toString())
           setBurnPercent(BigNumber.from(String(liquidityRemoved)).mul(ethers.utils.parseUnits('1', 38)).div(BigNumber.from(userLiquidity)))
           setAmounts(liquidityRemoved)
+          setLiquidityRemoved(parseFloat(String(liquidityRemoved)))
+          console.log('liquidity removed', liquidityRemoved.toString())
+          console.log('user liquidity', userLiquidity.toString())
         } else {
           setAmounts(ZERO)
           setDisabled(true)
@@ -165,7 +171,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
         const amount1Bn = BigNumber.from(String(amounts.token1Amount))
         if (changeDisplay) {
           setTimeout(() => {
-            setBnInput(tokenOrder ? amount0Bn : amount1Bn)
+            //setBnInput(tokenOrder ? amount0Bn : amount1Bn)
             setDisplay(Number(ethers.utils.formatUnits(tokenOrder ? amount0Bn : amount1Bn, 18)).toPrecision(6))
             setAmount0(amount0Bn) 
             setAmount1(amount1Bn)
@@ -251,7 +257,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
         />
                 </div>
                 <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-6 mb-6">
-                  <div className=" p-2 w-32">{inputBox("0", (val) => handleSliderChange(Number(val)))}</div>
+                  <div className=" p-2 w-32">{inputBox("0")}</div>
                   <div className="">
                     <div className=" ml-auto">
                       <div>
