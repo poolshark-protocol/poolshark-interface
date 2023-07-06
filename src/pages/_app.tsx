@@ -43,6 +43,7 @@ const apolloClient = new ApolloClient({
   uri: "https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/version/v0.0.3/api",
 })
 
+
 const whitelist = [
   '0x65f5B282E024e3d6CaAD112e848dEc3317dB0902',
   '0xA1a26c50382f10e112328D793f76B2D84Ba87D4A',
