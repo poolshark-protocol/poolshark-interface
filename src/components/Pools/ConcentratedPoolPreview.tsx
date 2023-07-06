@@ -32,7 +32,9 @@ export default function ConcentratedPoolPreview({
   disabled,
   buttonState,
   tokenOneSymbol,
-  tokenZeroSymbol
+  tokenZeroSymbol,
+  maxInput,
+  minInput
 }) {
   const { address, isConnected } = useAccount()
   const router = useRouter()
@@ -124,7 +126,6 @@ export default function ConcentratedPoolPreview({
                             <img className="w-7" src={tokenIn.logoURI} />
                             {tokenIn.symbol}
                           </button>
-                          <ArrowLongRightIcon className="w-6 mx-auto cursor-pointer rotate-90 md:rotate-0" />
                           <button className="flex w-full items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
                             <img className="w-7 w-full" src={tokenOut.logoURI} />
                             {tokenOut.symbol}
@@ -244,27 +245,12 @@ export default function ConcentratedPoolPreview({
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {lowerPrice.toString().includes('e')
-                                  ? parseFloat(lowerPrice).toLocaleString(
-                                      undefined,
-                                      {
-                                        maximumFractionDigits: 0,
-                                      },
-                                    ).length > 6
-                                    ? '0'
-                                    : parseFloat(lowerPrice).toLocaleString(
-                                        undefined,
-                                        {
-                                          maximumFractionDigits: 2,
-                                        },
-                                      )
-                                  : parseFloat(lowerPrice).toFixed(2)}
+                              { tokenOrder ? minInput : maxInput }
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">
-                              {tokenOrder ? tokenOut.symbol : tokenIn.symbol}{' '}
-                              per{' '}
-                              {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
+                            {tokenOut.symbol} per{" "}
+                            {tokenIn.symbol}
                             </span>
                           </div>
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
@@ -273,27 +259,12 @@ export default function ConcentratedPoolPreview({
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {upperPrice.toString().includes('e')
-                                  ? Number(upperPrice).toLocaleString(
-                                      undefined,
-                                      {
-                                        maximumFractionDigits: 0,
-                                      },
-                                    ).length > 6
-                                    ? '∞'
-                                    : Number(upperPrice).toLocaleString(
-                                        undefined,
-                                        {
-                                          maximumFractionDigits: 2,
-                                        },
-                                      )
-                                  : parseFloat(upperPrice).toFixed(2)}
+                                { tokenOrder ? maxInput : minInput }
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">
-                              {tokenOrder ? tokenOut.symbol : tokenIn.symbol}{' '}
-                              per{' '}
-                              {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
+                            {tokenOut.symbol} per{" "}
+                            {tokenIn.symbol}
                             </span>
                           </div>
                         </div>
