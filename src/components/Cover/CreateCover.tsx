@@ -52,8 +52,7 @@ export default function CreateCover(props: any) {
   const [lowerTick, setLowerTick] = useState(initialBig)
   const [upperTick, setUpperTick] = useState(initialBig)
   const [latestTick, setLatestTick] = useState(0)
-  const [balance0, setBalance0] = useState('')
-  const [balance1, setBalance1] = useState('')
+  const [balanceIn, setBalanceIn] = useState('')
   const [allowance, setAllowance] = useState('0')
   const { address, isConnected, isDisconnected } = useAccount()
   const [isDisabled, setDisabled] = useState(true)
@@ -163,7 +162,7 @@ export default function CreateCover(props: any) {
   }, [tokenOut, tokenIn])
 
   async function updateBalances() {
-    await getBalances(address, false, tokenIn, tokenOut, setBalance0, setBalance1)
+    await getBalances(address, false, tokenIn, tokenOut, setBalanceIn, () => {})
   }
 
   useEffect(() => {
@@ -202,29 +201,27 @@ export default function CreateCover(props: any) {
 
   // disabled messages
   useEffect(() => {
-    console.log('setting button state')
-    if (Number(ethers.utils.formatUnits(bnInput)) > Number(balance0)) {
+    if (Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn)) {
       setButtonState('balance')
-    }else if (!validBounds) {
+    } else if (!validBounds) {
       setButtonState('bounds')
     } else if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
       setButtonState('price')
     } else if (parseFloat(ethers.utils.formatEther(bnInput)) == 0) {
+      console.log('bn button amount')
       setButtonState('amount')
     } else if (hasSelected == false) {
       setButtonState('token')
     } else {
       setDisabled(false)
     }
-  }, [bnInput, hasSelected, validBounds, lowerPrice, upperPrice, balance0, mintGasLimit])
+  }, [bnInput, hasSelected, validBounds, lowerPrice, upperPrice, balanceIn, mintGasLimit])
 
   // set disabled
   useEffect(() => {
     console.log('bninput changed', bnInput.toString())
     const disabledFlag =
-      tokenOrder ? 
-         Number(ethers.utils.formatUnits(bnInput)) > Number(balance0) 
-       : Number(ethers.utils.formatUnits(bnInput)) > Number(balance1) ||
+      Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn) ||
       isNaN(parseFloat(lowerPrice)) ||
       isNaN(parseFloat(upperPrice)) ||
       lowerTick.gte(upperTick) ||
@@ -246,17 +243,17 @@ export default function CreateCover(props: any) {
     tokenOut,
     hasSelected,
     validBounds,
-    balance0,
+    balanceIn,
   ])
 
-    // set disabled
-    useEffect(() => {
-      handleManualVolatilityChange(volatilityTiers[volatility])
-    }, [
-      hasSelected,
-    ])
+  // set disabled
+  useEffect(() => {
+    handleManualVolatilityChange(volatilityTiers[volatility])
+  }, [
+    hasSelected,
+  ])
 
-  console.log(Number(ethers.utils.formatUnits(bnInput)) > Number(balance0))
+  console.log(Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn))
   // set amount in
   useEffect(() => {
     if (!bnInput.eq(BN_ZERO)) {
@@ -639,12 +636,12 @@ export default function CreateCover(props: any) {
               </div>
               <div className="flex items-center justify-end gap-2 px-1 mt-2">
                 <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]">
-                  Balance: {balance0 === 'NaN' ? 0 : balance0}
+                  Balance: {balanceIn === 'NaN' ? 0 : balanceIn}
                 </div>
                 {isConnected ? (
                   <button
                     className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
-                    onClick={() => maxBalance(balance0, '0')}
+                    onClick={() => maxBalance(balanceIn, '0')}
                   >
                     Max
                   </button>
@@ -820,7 +817,7 @@ export default function CreateCover(props: any) {
           <CoverMintButton
             poolAddress={coverPoolRoute}
             tokenSymbol={tokenIn.symbol}
-            disabled={isDisabled || mintGasFee == '$0.00'}
+            disabled={isDisabled}
             to={address}
             lower={lowerTick}
             claim={tokenOrder ? upperTick : lowerTick}

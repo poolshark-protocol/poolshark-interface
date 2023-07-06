@@ -30,7 +30,6 @@ export default function CoverMintButton({
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
-console.log('bn button state', buttonState, disabled)
   /*const [coverContractParams, setCoverContractParams] = useState({
     to: to,
     lower: lower,
@@ -98,7 +97,7 @@ console.log('bn button state', buttonState, disabled)
   return (
     <>
       <button
-        disabled={disabled}
+        disabled={disabled || gasLimit.eq(BN_ZERO)}
         className={
           disabled
             ? 'w-full py-4 mx-auto font-medium text-center text-sm md:text-base transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50'
