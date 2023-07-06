@@ -58,7 +58,7 @@ export default function CreateCover(props: any) {
   const [isDisabled, setDisabled] = useState(true)
   const [mktRate, setMktRate] = useState({})
   const [hasSelected, setHasSelected] = useState(
-    pool != undefined ? true : false,
+    false,
   )
   const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
@@ -93,6 +93,27 @@ export default function CreateCover(props: any) {
   )
   const [mintGasFee, setMintGasFee] = useState('$0.00')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
+  const volatilityTiers = [
+    {
+      id: 0,
+      tier: '1.7% per min',
+      text: 'Less Volatility',
+      unavailable: false,
+      tickSpread: 20
+    },
+    {
+      id: 1,
+      tier: '2.4% per min',
+      text: 'Most Volatility',
+      unavailable: false,
+      tickSpread: 40
+    },
+  ]
+
+  const [volatility, setVolatility] = useState(0)
+  const [selectedVolatility, setSelectedVolatility] = useState(
+    volatilityTiers[0],
+  )
 
   /////////////////
 
@@ -153,27 +174,29 @@ export default function CreateCover(props: any) {
   }, [router])
 
   useEffect(() => {
-    getCoverPoolInfo(
-      coverPoolRoute,
-      tokenOrder,
-      tokenIn,
-      tokenOut,
-      setCoverPoolRoute,
-      setCoverPrice,
-      setTokenInUsdPrice,
-      setVolatility,
-      setLatestTick,
-      lowerPrice,
-      upperPrice,
-      setLowerPrice,
-      setUpperPrice,
-    )
+    console.log('getting cover pool')
+    if (hasSelected)
+      getCoverPoolInfo(
+        coverPoolRoute,
+        tokenOrder,
+        tokenIn,
+        tokenOut,
+        setCoverPoolRoute,
+        setCoverPrice,
+        setTokenInUsdPrice,
+        setVolatility,
+        setLatestTick,
+        lowerPrice,
+        upperPrice,
+        setLowerPrice,
+        setUpperPrice,
+        tickSpread
+      )
   }, [
-    hasSelected,
     tokenIn.address,
     tokenOut.address,
-    tokenOrder,
-    coverPoolRoute,
+    tickSpread,
+    coverPoolRoute
   ])
 
   // disabled messages
@@ -222,6 +245,13 @@ export default function CreateCover(props: any) {
     validBounds,
     balance0,
   ])
+
+    // set disabled
+    useEffect(() => {
+      handleManualVolatilityChange(volatilityTiers[volatility])
+    }, [
+      hasSelected,
+    ])
 
   console.log(Number(ethers.utils.formatUnits(bnInput)) > Number(balance0))
   // set amount in
@@ -403,32 +433,13 @@ export default function CreateCover(props: any) {
     }
   }
 
-  const volatilityTiers = [
-    {
-      id: 0,
-      tier: '1.7% per min',
-      text: 'Less Volatility',
-      unavailable: false,
-    },
-    {
-      id: 1,
-      tier: '2.4% per min',
-      text: 'Most Volatility',
-      unavailable: false,
-    },
-  ]
-
-  const [volatility, setVolatility] = useState(0)
-  const [selectedVolatility, setSelectedVolatility] = useState(
-    volatilityTiers[0],
-  )
-
   useEffect(() => {
     setSelectedVolatility(volatilityTiers[volatility])
   }, [volatility])
 
   //when volatility changes, we find the corresponding pool id and changed it trigerring the poolInfo refetching
   const handleManualVolatilityChange = async (volatility: any) => {
+    console.log('handling change')
     try {
       const pool = await getCoverPoolFromFactory(
         tokenIn.address,
@@ -444,6 +455,10 @@ export default function CreateCover(props: any) {
           (volatilityId == 1 &&
             pool['data']['coverPools'][i]['volatilityTier']['tickSpread'] == 40)
         ) {
+          console.log('setting cover pool route', pool['data']['coverPools'][i]['id'])
+          // setVolatility(volatilityId)
+          console.log('getting new tick spread', volatilityTiers[volatilityId].tickSpread)
+          setTickSpread(volatilityTiers[volatilityId].tickSpread)
           setCoverPoolRoute(pool['data']['coverPools'][i]['id'])
         }
       }
