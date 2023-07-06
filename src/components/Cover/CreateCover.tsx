@@ -52,13 +52,13 @@ export default function CreateCover(props: any) {
   const [lowerTick, setLowerTick] = useState(initialBig)
   const [upperTick, setUpperTick] = useState(initialBig)
   const [latestTick, setLatestTick] = useState(0)
-  const [balance0, setBalance0] = useState('')
+  const [balanceIn, setBalanceIn] = useState('')
   const [allowance, setAllowance] = useState('0')
   const { address, isConnected, isDisconnected } = useAccount()
   const [isDisabled, setDisabled] = useState(true)
   const [mktRate, setMktRate] = useState({})
   const [hasSelected, setHasSelected] = useState(
-    pool != undefined ? true : false,
+    false,
   )
   const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
@@ -93,6 +93,27 @@ export default function CreateCover(props: any) {
   )
   const [mintGasFee, setMintGasFee] = useState('$0.00')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
+  const volatilityTiers = [
+    {
+      id: 0,
+      tier: '1.7% per min',
+      text: 'Less Volatility',
+      unavailable: false,
+      tickSpread: 20
+    },
+    {
+      id: 1,
+      tier: '2.4% per min',
+      text: 'Most Volatility',
+      unavailable: false,
+      tickSpread: 40
+    },
+  ]
+
+  const [volatility, setVolatility] = useState(0)
+  const [selectedVolatility, setSelectedVolatility] = useState(
+    volatilityTiers[0],
+  )
 
   /////////////////
 
@@ -135,13 +156,8 @@ export default function CreateCover(props: any) {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId])
   }, [chainId])
 
-  useEffect(() => {
-    updateBalances()
-    setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0)
-  }, [tokenOut, tokenIn])
-
   async function updateBalances() {
-    await getBalances(address, false, tokenIn, tokenOut, setBalance0, () => {})
+    await getBalances(address, false, tokenIn, tokenOut, setBalanceIn, () => {})
   }
 
   useEffect(() => {
@@ -153,52 +169,57 @@ export default function CreateCover(props: any) {
   }, [router])
 
   useEffect(() => {
-    getCoverPoolInfo(
-      coverPoolRoute,
-      tokenOrder,
-      tokenIn,
-      tokenOut,
-      setCoverPoolRoute,
-      setCoverPrice,
-      setTokenInUsdPrice,
-      setVolatility,
-      setLatestTick,
-      lowerPrice,
-      upperPrice,
-      setLowerPrice,
-      setUpperPrice,
-    )
+    updateBalances()
+    const newTokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
+    console.log('getting cover order', tokenOrder, newTokenOrder, coverPoolRoute)
+    if (hasSelected)
+      getCoverPoolInfo(
+        coverPoolRoute,
+        newTokenOrder,
+        tokenIn,
+        tokenOut,
+        setCoverPoolRoute,
+        setCoverPrice,
+        setTokenInUsdPrice,
+        volatility,
+        setVolatility,
+        setLatestTick,
+        lowerPrice,
+        upperPrice,
+        setLowerPrice,
+        setUpperPrice,
+        tickSpread,
+        true
+      )
+      setTokenOrder(newTokenOrder)
   }, [
-    hasSelected,
     tokenIn.address,
     tokenOut.address,
-    tokenOrder,
-    coverPoolRoute,
+    tickSpread
   ])
 
   // disabled messages
   useEffect(() => {
-    if (Number(ethers.utils.formatUnits(bnInput)) > Number(balance0)) {
+    if (Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn)) {
       setButtonState('balance')
-    }
-    if (!validBounds) {
+    } else if (!validBounds) {
       setButtonState('bounds')
-    }
-    if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
+    } else if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
       setButtonState('price')
-    }
-    if (parseFloat(ethers.utils.formatEther(bnInput)) == 0) {
+    } else if (parseFloat(ethers.utils.formatEther(bnInput)) == 0) {
+      console.log('bn button amount')
       setButtonState('amount')
-    }
-    if (hasSelected == false) {
+    } else if (hasSelected == false) {
       setButtonState('token')
+    } else if (mintGasLimit.gt(BN_ZERO)) {
+      setDisabled(false)
     }
-  }, [bnInput, hasSelected, validBounds, lowerPrice, upperPrice, balance0])
+  }, [bnInput, hasSelected, validBounds, lowerPrice, upperPrice, balanceIn, mintGasLimit])
 
   // set disabled
   useEffect(() => {
     const disabledFlag =
-      Number(ethers.utils.formatUnits(bnInput)) > Number(balance0) ||
+      Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn) ||
       isNaN(parseFloat(lowerPrice)) ||
       isNaN(parseFloat(upperPrice)) ||
       lowerTick.gte(upperTick) ||
@@ -206,8 +227,7 @@ export default function CreateCover(props: any) {
       tokenOut.symbol === 'Select Token' ||
       hasSelected == false ||
       !validBounds
-    console.log('disabled flag check', disabledFlag)
-    setDisabled(disabledFlag)
+    setDisabled(disabledFlag || mintGasLimit.eq(BN_ZERO))
     if (!disabledFlag) {
       updateGasFee()
     }
@@ -220,10 +240,18 @@ export default function CreateCover(props: any) {
     tokenOut,
     hasSelected,
     validBounds,
-    balance0,
+    balanceIn,
+    mintGasLimit
   ])
 
-  console.log(Number(ethers.utils.formatUnits(bnInput)) > Number(balance0))
+  // set disabled
+  useEffect(() => {
+    handleManualVolatilityChange(volatilityTiers[volatility])
+  }, [
+    hasSelected,
+  ])
+
+  console.log(Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn))
   // set amount in
   useEffect(() => {
     if (!bnInput.eq(BN_ZERO)) {
@@ -307,6 +335,7 @@ export default function CreateCover(props: any) {
     )
     setMintGasFee(newMintGasFee.formattedPrice)
     setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100))
+
   }
 
   function setParams(query: any) {
@@ -403,32 +432,13 @@ export default function CreateCover(props: any) {
     }
   }
 
-  const volatilityTiers = [
-    {
-      id: 0,
-      tier: '1.7% per min',
-      text: 'Less Volatility',
-      unavailable: false,
-    },
-    {
-      id: 1,
-      tier: '2.4% per min',
-      text: 'Most Volatility',
-      unavailable: false,
-    },
-  ]
-
-  const [volatility, setVolatility] = useState(0)
-  const [selectedVolatility, setSelectedVolatility] = useState(
-    volatilityTiers[0],
-  )
-
   useEffect(() => {
     setSelectedVolatility(volatilityTiers[volatility])
   }, [volatility])
 
   //when volatility changes, we find the corresponding pool id and changed it trigerring the poolInfo refetching
   const handleManualVolatilityChange = async (volatility: any) => {
+    console.log('handling change')
     try {
       const pool = await getCoverPoolFromFactory(
         tokenIn.address,
@@ -444,6 +454,10 @@ export default function CreateCover(props: any) {
           (volatilityId == 1 &&
             pool['data']['coverPools'][i]['volatilityTier']['tickSpread'] == 40)
         ) {
+          console.log('setting cover pool route', pool['data']['coverPools'][i]['id'])
+          console.log('getting new tick spread', volatilityTiers[volatilityId].tickSpread)
+          setVolatility(volatilityId)
+          setTickSpread(volatilityTiers[volatilityId].tickSpread)
           setCoverPoolRoute(pool['data']['coverPools'][i]['id'])
         }
       }
@@ -563,9 +577,10 @@ export default function CreateCover(props: any) {
               className="md:w-6 w-4 cursor-pointer md:rotate-0 rotate-90"
               onClick={() => {
                 if (hasSelected) {
+                  console.log('getting cover order set')
                   switchDirection(
                     tokenOrder,
-                    setTokenOrder,
+                    null,
                     tokenIn,
                     setTokenIn,
                     tokenOut,
@@ -622,12 +637,12 @@ export default function CreateCover(props: any) {
               </div>
               <div className="flex items-center justify-end gap-2 px-1 mt-2">
                 <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]">
-                  Balance: {balance0 === 'NaN' ? 0 : balance0}
+                  Balance: {balanceIn === 'NaN' ? 0 : balanceIn}
                 </div>
                 {isConnected ? (
                   <button
                     className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
-                    onClick={() => maxBalance(balance0, '0')}
+                    onClick={() => maxBalance(balanceIn, '0')}
                   >
                     Max
                   </button>
@@ -754,8 +769,8 @@ export default function CreateCover(props: any) {
             </div>
           </div>
           <span className="md:text-xs text-[10px] text-grey">
-            {tokenIn.symbol} per{' '}
-            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOut.symbol}
+            {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per{' '}
+            {tokenOut.symbol === 'SELECT TOKEN' ? '?' : tokenOrder ? tokenIn.symbol : tokenOut.symbol}
           </span>
         </div>
       </div>
@@ -803,7 +818,7 @@ export default function CreateCover(props: any) {
           <CoverMintButton
             poolAddress={coverPoolRoute}
             tokenSymbol={tokenIn.symbol}
-            disabled={isDisabled || mintGasFee == '$0.00'}
+            disabled={isDisabled}
             to={address}
             lower={lowerTick}
             claim={tokenOrder ? upperTick : lowerTick}
