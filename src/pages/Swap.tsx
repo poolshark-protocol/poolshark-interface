@@ -1,13 +1,13 @@
 import {
   AdjustmentsHorizontalIcon,
   ArrowSmallDownIcon,
-} from '@heroicons/react/24/outline'
-import { useState, useEffect, Fragment } from 'react'
-import { Popover, Transition } from '@headlessui/react'
-import { ChevronDownIcon, ArrowPathIcon } from '@heroicons/react/20/solid'
-import SelectToken from '../components/SelectToken'
-import useInputBox from '../hooks/useInputBox'
-import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton'
+} from "@heroicons/react/24/outline";
+import { useState, useEffect, Fragment } from "react";
+import { Popover, Transition } from "@headlessui/react";
+import { ChevronDownIcon, ArrowPathIcon } from "@heroicons/react/20/solid";
+import SelectToken from "../components/SelectToken";
+import useInputBox from "../hooks/useInputBox";
+import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import {
   erc20ABI,
   useAccount,
@@ -15,113 +15,115 @@ import {
   useProvider,
   useContractRead,
   useBalance,
-} from 'wagmi'
+} from "wagmi";
 import {
   tokenZeroAddress,
   tokenOneAddress,
-} from '../constants/contractAddresses'
-import { BigNumber, ethers } from 'ethers'
-import { chainIdsToNamesForGitTokenList } from '../utils/chains'
-import { coverPoolABI } from '../abis/evm/coverPool'
-import { fetchCoverPools, fetchRangePools } from '../utils/queries'
-import SwapRangeApproveButton from '../components/Buttons/SwapRangeApproveButton'
-import SwapRangeButton from '../components/Buttons/SwapRangeButton'
-import SwapCoverApproveButton from '../components/Buttons/SwapCoverApproveButton'
-import SwapCoverButton from '../components/Buttons/SwapCoverButton'
-import { rangePoolABI } from '../abis/evm/rangePool'
+} from "../constants/contractAddresses";
+import { BigNumber, ethers } from "ethers";
+import { chainIdsToNamesForGitTokenList } from "../utils/chains";
+import { coverPoolABI } from "../abis/evm/coverPool";
+import { fetchCoverPools, fetchRangePools } from "../utils/queries";
+import SwapRangeApproveButton from "../components/Buttons/SwapRangeApproveButton";
+import SwapRangeButton from "../components/Buttons/SwapRangeButton";
+import SwapCoverApproveButton from "../components/Buttons/SwapCoverApproveButton";
+import SwapCoverButton from "../components/Buttons/SwapCoverButton";
+import { rangePoolABI } from "../abis/evm/rangePool";
 import {
   TickMath,
   invertPrice,
   maxPriceBn,
   minPriceBn,
-} from '../utils/math/tickMath'
-import { BN_ONE, BN_ZERO } from '../utils/math/constants'
-import { gasEstimateSwap, gasEstimateSwapLimit } from '../utils/gas'
-import { token } from '../utils/types'
-import { getCoverPool, getRangePool } from '../utils/pools'
-import inputFilter from '../utils/inputFilter'
-import RangeLimitSwapButton from '../components/Buttons/RangeLimitSwapButton'
-import SwapRangeDoubleApproveButton from '../components/Buttons/SwapRangeDoubleApproveButton'
-import { debounce } from 'lodash';
+} from "../utils/math/tickMath";
+import { BN_ONE, BN_ZERO } from "../utils/math/constants";
+import { gasEstimateSwap, gasEstimateSwapLimit } from "../utils/gas";
+import { token } from "../utils/types";
+import { getCoverPool, getRangePool } from "../utils/pools";
+import inputFilter from "../utils/inputFilter";
+import RangeLimitSwapButton from "../components/Buttons/RangeLimitSwapButton";
+import SwapRangeDoubleApproveButton from "../components/Buttons/SwapRangeDoubleApproveButton";
+import { debounce } from "lodash";
+import { useSwapStore } from "../hooks/useSwapStore";
 
 export default function Swap() {
-  const { address, isDisconnected, isConnected } = useAccount()
-  const { data: signer } = useSigner()
+  const { address, isDisconnected, isConnected } = useAccount();
+  const { data: signer } = useSigner();
   const {
     network: { chainId },
-  } = useProvider()
-  const {
-    bnInput,
-    display,
-    inputBox,
-    maxBalance,
-    setBnInput,
-    setDisplay,
-  } = useInputBox()
+  } = useProvider();
+  const { bnInput, display, inputBox, maxBalance, setBnInput, setDisplay } =
+    useInputBox();
 
-  const [swapGasFee, setSwapGasFee] = useState('$0.00')
-  const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO)
-  const [mintFee, setMintFee] = useState('$0.00')
-  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
-  const [coverQuote, setCoverQuote] = useState(0)
-  const [rangeQuote, setRangeQuote] = useState(0)
-  const [coverPrice, setCoverPrice] = useState(0)
-  const [rangePrice, setRangePrice] = useState(0)
-  const [hasSelected, setHasSelected] = useState(false)
-  const [tokenIn, setTokenIn] = useState({
-    symbol: 'WETH',
-    logoURI: '/static/images/eth_icon.png',
+  const [tokenIn, tokenOut, setTokenIn, setTokenOut] = useSwapStore((state: any) => [
+    state.tokenIn,
+    state.tokenOut,
+    state.setTokenIn,
+    state.setTokenOut,
+  ]);
+
+  const [swapGasFee, setSwapGasFee] = useState("$0.00");
+  const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
+  const [mintFee, setMintFee] = useState("$0.00");
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
+  const [coverQuote, setCoverQuote] = useState(0);
+  const [rangeQuote, setRangeQuote] = useState(0);
+  const [coverPrice, setCoverPrice] = useState(0);
+  const [rangePrice, setRangePrice] = useState(0);
+  const [hasSelected, setHasSelected] = useState(false);
+  /* const [tokenIn, setTokenIn] = useState({
+    symbol: "WETH",
+    logoURI: "/static/images/eth_icon.png",
     address: tokenOneAddress,
     usdPrice: 0,
-  } as token)
+  } as token);
   const [tokenOut, setTokenOut] = useState({
-    symbol: 'Select Token',
-    logoURI: '',
+    symbol: "Select Token",
+    logoURI: "",
     address: tokenZeroAddress,
     usdPrice: 0,
-  } as token)
-  const [ethUsdPrice, setEthUsdPrice] = useState(0)
-  const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress)
-  const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
-  const [slippage, setSlippage] = useState('0.5')
-  const [coverSlippage, setCoverSlippage] = useState('0.5')
-  const [rangeSlippage, setRangeSlippage] = useState('0.5')
-  const [auxSlippage, setAuxSlippage] = useState('0.5')
-  const [balanceIn, setBalanceIn] = useState('0.00')
-  const [balanceOut, setBalanceOut] = useState('0.00')
-  const [stateChainName, setStateChainName] = useState()
-  const [LimitActive, setLimitActive] = useState(false)
+  } as token); */
+  const [ethUsdPrice, setEthUsdPrice] = useState(0);
+  const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress);
+  const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress);
+  const [slippage, setSlippage] = useState("0.5");
+  const [coverSlippage, setCoverSlippage] = useState("0.5");
+  const [rangeSlippage, setRangeSlippage] = useState("0.5");
+  const [auxSlippage, setAuxSlippage] = useState("0.5");
+  const [balanceIn, setBalanceIn] = useState("0.00");
+  const [balanceOut, setBalanceOut] = useState("0.00");
+  const [stateChainName, setStateChainName] = useState();
+  const [LimitActive, setLimitActive] = useState(false);
   const [tokenOrder, setTokenOrder] = useState(
-    tokenIn.address.localeCompare(tokenOut.address) < 0,
-  )
-  const [expanded, setExpanded] = useState(false)
-  const [allowanceRange, setAllowanceRange] = useState('0.00')
-  const [allowanceCover, setAllowanceCover] = useState('0.00')
-  const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
-  const [rangePoolRoute, setRangePoolRoute] = useState(undefined)
-  const [rangeTickSpacing, setRangeTickSpacing] = useState(undefined)
-  const [coverPriceAfter, setCoverPriceAfter] = useState(undefined)
-  const [rangePriceAfter, setRangePriceAfter] = useState(undefined)
-  const [coverBnPrice, setCoverBnPrice] = useState(BigNumber.from(0))
-  const [rangeBnPrice, setRangeBnPrice] = useState(BigNumber.from(0))
-  const [coverBnBaseLimit, setCoverBnBaseLimit] = useState(BigNumber.from(0))
-  const [rangeBnBaseLimit, setRangeBnBaseLimit] = useState(BigNumber.from(0))
-  const [rangeBnPriceLimit, setRangeBnPriceLimit] = useState(BN_ZERO)
-  const [coverBnPriceLimit, setCoverBnPriceLimit] = useState(BN_ZERO)
-  const [slippageFetched, setSlippageFetched] = useState(false)
-  const [limitPrice, setLimitPrice] = useState('0')
-  const [lowerTick, setLowerTick] = useState(BN_ZERO)
-  const [upperTick, setUpperTick] = useState(BN_ZERO)
-  const [limitPriceSwitch, setLimitPriceSwitch] = useState(true)
-  const [limitPriceInput, setLimitPriceInput] = useState('0')
-  const [buttonState, setButtonState] = useState('')
-  const [displayQuote, setDisplayQuote] = useState(false)
+    tokenIn.address.localeCompare(tokenOut.address) < 0
+  );
+  const [expanded, setExpanded] = useState(false);
+  const [allowanceRange, setAllowanceRange] = useState("0.00");
+  const [allowanceCover, setAllowanceCover] = useState("0.00");
+  const [coverPoolRoute, setCoverPoolRoute] = useState(undefined);
+  const [rangePoolRoute, setRangePoolRoute] = useState(undefined);
+  const [rangeTickSpacing, setRangeTickSpacing] = useState(undefined);
+  const [coverPriceAfter, setCoverPriceAfter] = useState(undefined);
+  const [rangePriceAfter, setRangePriceAfter] = useState(undefined);
+  const [coverBnPrice, setCoverBnPrice] = useState(BigNumber.from(0));
+  const [rangeBnPrice, setRangeBnPrice] = useState(BigNumber.from(0));
+  const [coverBnBaseLimit, setCoverBnBaseLimit] = useState(BigNumber.from(0));
+  const [rangeBnBaseLimit, setRangeBnBaseLimit] = useState(BigNumber.from(0));
+  const [rangeBnPriceLimit, setRangeBnPriceLimit] = useState(BN_ZERO);
+  const [coverBnPriceLimit, setCoverBnPriceLimit] = useState(BN_ZERO);
+  const [slippageFetched, setSlippageFetched] = useState(false);
+  const [limitPrice, setLimitPrice] = useState("0");
+  const [lowerTick, setLowerTick] = useState(BN_ZERO);
+  const [upperTick, setUpperTick] = useState(BN_ZERO);
+  const [limitPriceSwitch, setLimitPriceSwitch] = useState(true);
+  const [limitPriceInput, setLimitPriceInput] = useState("0");
+  const [buttonState, setButtonState] = useState("");
+  const [displayQuote, setDisplayQuote] = useState(false);
 
   ////////////////////////////////ChainId
 
   useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
-  }, [chainId])
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
+  }, [chainId]);
 
   ////////////////////////////////Pools and Balances
 
@@ -129,38 +131,38 @@ export default function Swap() {
     address: address,
     token: tokenIn.address as `0x${string}`,
     enabled: isConnected,
-    watch: true
-  })
+    watch: true,
+  });
 
   const { data: tokenOutBal } = useBalance({
     address: address,
     token: tokenOut.address as `0x${string}`,
     enabled: isConnected && hasSelected,
-    watch: true
-  })
+    watch: true,
+  });
 
   useEffect(() => {
     if (hasSelected) {
-      updatePools()
-      setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0)
+      updatePools();
+      setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0);
     }
 
     if (isConnected) {
-      setBalanceIn(parseFloat(tokenInBal?.formatted.toString()).toFixed(2))
+      setBalanceIn(parseFloat(tokenInBal?.formatted.toString()).toFixed(2));
 
       if (hasSelected) {
-        setBalanceOut(parseFloat(tokenOutBal?.formatted.toString()).toFixed(2))
+        setBalanceOut(parseFloat(tokenOutBal?.formatted.toString()).toFixed(2));
       }
     }
-  }, [tokenOut.address, tokenIn.address, hasSelected, isConnected])
+  }, [tokenOut.address, tokenIn.address, hasSelected, isConnected]);
 
   useEffect(() => {
     if (rangeBnPrice) {
       if (!rangeBnPrice.eq(BN_ZERO)) {
         const baseLimit = rangeBnPrice
           .mul(parseFloat((parseFloat(slippage) * 100).toFixed(6)))
-          .div(10000)
-        setRangeBnBaseLimit(baseLimit)
+          .div(10000);
+        setRangeBnBaseLimit(baseLimit);
       }
     }
   }, [
@@ -169,7 +171,7 @@ export default function Swap() {
     tokenOut.address,
     coverPoolRoute,
     rangePoolRoute,
-  ])
+  ]);
 
   async function updatePools() {
     await getRangePool(
@@ -179,9 +181,9 @@ export default function Swap() {
       setRangeTickSpacing,
       setTokenIn,
       setTokenOut,
-      setEthUsdPrice,
-    )
-    await getCoverPool(tokenIn, tokenOut, setCoverPoolRoute)
+      setEthUsdPrice
+    );
+    await getCoverPool(tokenIn, tokenOut, setCoverPoolRoute);
   }
 
   ////////////////////////////////Allowances
@@ -189,275 +191,263 @@ export default function Swap() {
   const { data: allowanceInRange } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
-    functionName: 'allowance',
+    functionName: "allowance",
     args: [address, rangePoolRoute],
     chainId: 421613,
     watch: true,
     enabled: isConnected && rangePoolRoute != undefined,
     onError(error) {
-      console.log('Error allowance', error)
+      console.log("Error allowance", error);
     },
     onSuccess(data) {
-      console.log('Success allowance', data)
+      console.log("Success allowance", data);
     },
-  })
+  });
 
   const { data: allowanceInCover } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
-    functionName: 'allowance',
+    functionName: "allowance",
     args: [address, coverPoolRoute],
     chainId: 421613,
     watch: true,
     enabled: isConnected && coverPoolRoute != undefined,
     onError(error) {
-      console.log('Error allowance', error)
+      console.log("Error allowance", error);
     },
     onSuccess(data) {
-      console.log('Success allowance', data)
+      console.log("Success allowance", data);
     },
-  })
+  });
 
   useEffect(() => {
     setTimeout(() => {
       if (allowanceInRange && allowanceInCover) {
-        setAllowanceRange(ethers.utils.formatUnits(allowanceInRange, 18))
-        setAllowanceCover(ethers.utils.formatUnits(allowanceInCover, 18))
+        setAllowanceRange(ethers.utils.formatUnits(allowanceInRange, 18));
+        setAllowanceCover(ethers.utils.formatUnits(allowanceInCover, 18));
       }
-    }, 50)
-  }, [allowanceInRange, allowanceInCover, tokenIn.address])
+    }, 50);
+  }, [allowanceInRange, allowanceInCover, tokenIn.address]);
 
   ////////////////////////////////Prices
 
   const { data: priceRange } = useContractRead({
     address: rangePoolRoute,
     abi: rangePoolABI,
-    functionName: 'poolState',
+    functionName: "poolState",
     args: [],
     chainId: 421613,
     watch: true,
     enabled: rangePoolRoute != undefined,
     onError(error) {
-      console.log('Error price Range', error)
+      console.log("Error price Range", error);
     },
     onSettled(data, error) {
-      console.log('Settled price Range', { data, error })
+      console.log("Settled price Range", { data, error });
     },
-  })
+  });
 
   const { data: priceCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
-    functionName: tokenOrder ? 'pool1' : 'pool0',
+    functionName: tokenOrder ? "pool1" : "pool0",
     args: [],
     chainId: 421613,
     watch: true,
     enabled: coverPoolRoute != undefined,
     onError(error) {
-      console.log('Error price Cover', error)
+      console.log("Error price Cover", error);
     },
     onSettled(data, error) {
-      console.log('Settled price Cover', { data, error })
+      console.log("Settled price Cover", { data, error });
     },
-  })
+  });
 
   useEffect(() => {
     if (priceCover) {
       if (
         priceCover[0].gt(BN_ZERO) &&
-        tokenIn.address != '' &&
-        tokenOut.address != '' &&
+        tokenIn.address != "" &&
+        tokenOut.address != "" &&
         priceCover != undefined
       ) {
         setCoverPrice(
-          parseFloat(TickMath.getPriceStringAtSqrtPrice(priceCover[0])),
-        )
+          parseFloat(TickMath.getPriceStringAtSqrtPrice(priceCover[0]))
+        );
       }
     }
 
     if (priceRange) {
       if (
         priceRange[5].gt(BN_ZERO) &&
-        tokenIn.address != '' &&
-        tokenOut.address != '' &&
+        tokenIn.address != "" &&
+        tokenOut.address != "" &&
         priceRange != undefined
       ) {
         setRangePrice(
-          parseFloat(TickMath.getPriceStringAtSqrtPrice(priceRange[5])),
-        )
+          parseFloat(TickMath.getPriceStringAtSqrtPrice(priceRange[5]))
+        );
         if (parseFloat(limitPrice) == 0)
           setLimitPrice(
             parseFloat(
-              TickMath.getPriceStringAtSqrtPrice(priceRange[5]),
-            ).toPrecision(5),
-          )
+              TickMath.getPriceStringAtSqrtPrice(priceRange[5])
+            ).toPrecision(5)
+          );
       }
     }
-  }, [coverPoolRoute, rangePoolRoute, priceCover, priceRange])
+  }, [coverPoolRoute, rangePoolRoute, priceCover, priceRange]);
 
   useEffect(() => {
     if (coverPrice) {
       if (coverPrice !== 0) {
-        setCoverBnPrice(ethers.utils.parseEther(coverPrice.toString()))
+        setCoverBnPrice(ethers.utils.parseEther(coverPrice.toString()));
       }
     }
 
     if (rangePrice) {
       if (rangePrice !== 0) {
-        setRangeBnPrice(ethers.utils.parseEther(rangePrice.toString()))
+        setRangeBnPrice(ethers.utils.parseEther(rangePrice.toString()));
       }
     }
-  }, [coverPrice, rangePrice])
+  }, [coverPrice, rangePrice]);
 
   useEffect(() => {
     if (coverBnPrice) {
       if (!coverBnPrice.eq(BN_ZERO)) {
         const baseLimit = coverBnPrice
           .mul(parseFloat((parseFloat(slippage) * 100).toFixed(6)))
-          .div(10000)
-        setCoverBnBaseLimit(baseLimit)
+          .div(10000);
+        setCoverBnBaseLimit(baseLimit);
       }
     }
-  }, [slippage, rangeBnPrice, coverBnPrice])
+  }, [slippage, rangeBnPrice, coverBnPrice]);
 
-
-
-      // disabled messages
-      useEffect(() => {
-        if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
-          setButtonState('amount')
-        }
-        if (hasSelected == false) {
-          setButtonState('token')
-        }
-        if (Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput))) {
-          setButtonState('balance')
-        }
-      }, [bnInput, hasSelected, balanceIn, bnInput])
+  // disabled messages
+  useEffect(() => {
+    if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
+      setButtonState("amount");
+    }
+    if (hasSelected == false) {
+      setButtonState("token");
+    }
+    if (Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput))) {
+      setButtonState("balance");
+    }
+  }, [bnInput, hasSelected, balanceIn, bnInput]);
 
   ////////////////////////////////Limit Price
   useEffect(() => {
     setLimitPriceInput(
       limitPriceSwitch
         ? (tokenIn.usdPrice / tokenOut.usdPrice).toPrecision(6)
-        : (tokenOut.usdPrice / tokenIn.usdPrice).toPrecision(6),
-    )
-    setLimitPrice(
-      (tokenIn.usdPrice / tokenOut.usdPrice).toPrecision(6)
-    )
-  }, [tokenIn, tokenOut])
+        : (tokenOut.usdPrice / tokenIn.usdPrice).toPrecision(6)
+    );
+    setLimitPrice((tokenIn.usdPrice / tokenOut.usdPrice).toPrecision(6));
+  }, [tokenIn, tokenOut]);
 
   useEffect(() => {
-    if (parseFloat(limitPriceInput) > 0)  
+    if (parseFloat(limitPriceInput) > 0)
       setLimitPriceInput(
-        (1 / parseFloat(limitPriceInput)).toPrecision(6)
-        .replace(/0+$/, '').replace(/(\.)(?!\d)/g, '')
-      )
-  }, [limitPriceSwitch])
+        (1 / parseFloat(limitPriceInput))
+          .toPrecision(6)
+          .replace(/0+$/, "")
+          .replace(/(\.)(?!\d)/g, "")
+      );
+  }, [limitPriceSwitch]);
 
   useEffect(() => {
     if (limitPriceSwitch) {
-      setLimitPrice(limitPriceInput)
+      setLimitPrice(limitPriceInput);
     } else {
       if (parseFloat(limitPriceInput) > 0)
-        setLimitPrice((1/parseFloat(limitPriceInput)).toPrecision(6))
-      else setLimitPrice('0')
+        setLimitPrice((1 / parseFloat(limitPriceInput)).toPrecision(6));
+      else setLimitPrice("0");
     }
-  }, [limitPriceInput])
+  }, [limitPriceInput]);
 
   ////////////////////////////////Quotes
 
   const { data: quoteRange } = useContractRead({
     address: rangePoolRoute,
     abi: rangePoolABI,
-    functionName: 'quote',
-    args: [[
-      tokenOrder ? minPriceBn : maxPriceBn,
-      bnInput,
-      tokenOrder
-    ]],
+    functionName: "quote",
+    args: [[tokenOrder ? minPriceBn : maxPriceBn, bnInput, tokenOrder]],
     chainId: 421613,
     watch: true,
     enabled: rangePoolRoute != undefined,
     onError(error) {
-      console.log('Error range wagmi', error)
+      console.log("Error range wagmi", error);
     },
     onSettled(data, error) {
-      console.log('Settled range wagmi', { data, error })
+      console.log("Settled range wagmi", { data, error });
     },
-  })
+  });
 
   const { data: quoteCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
-    functionName: 'quote',
-    args: [[
-      tokenOrder ? minPriceBn : maxPriceBn,
-      bnInput,
-      tokenOrder 
-    ]],
+    functionName: "quote",
+    args: [[tokenOrder ? minPriceBn : maxPriceBn, bnInput, tokenOrder]],
     chainId: 421613,
     watch: true,
     enabled: coverPoolRoute != undefined,
     onError(error) {
-      console.log('Error cover wagmi', error)
+      console.log("Error cover wagmi", error);
     },
     onSettled(data, error) {
-      console.log('Settled', { data, error })
+      console.log("Settled", { data, error });
     },
-  })
+  });
 
   useEffect(() => {
     setTimeout(() => {
       if (quoteRange) {
-        if (
-          quoteRange[0].gt(BN_ZERO) &&
-          quoteRange[1].gt(BN_ZERO)
-        ) {
-          console.log('setting range quote', ethers.utils.formatUnits(quoteRange[1], 18))
+        if (quoteRange[0].gt(BN_ZERO) && quoteRange[1].gt(BN_ZERO)) {
+          console.log(
+            "setting range quote",
+            ethers.utils.formatUnits(quoteRange[1], 18)
+          );
           setRangeQuote(
-              parseFloat(ethers.utils.formatUnits(quoteRange[1], 18))
-          )
+            parseFloat(ethers.utils.formatUnits(quoteRange[1], 18))
+          );
           const priceAfter = parseFloat(
-            TickMath.getPriceStringAtSqrtPrice(quoteRange[2]),
-          )
-          setRangePriceAfter(priceAfter)
+            TickMath.getPriceStringAtSqrtPrice(quoteRange[2])
+          );
+          setRangePriceAfter(priceAfter);
           const priceSlippage = parseFloat(
-            ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6),
-          )
+            ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6)
+          );
           const priceAfterSlippage = String(
-            priceAfter - (tokenOrder ? priceSlippage : -priceSlippage),
-          )
-          const rangePriceLimit = TickMath.getSqrtPriceAtPriceString(
-            priceAfterSlippage,
-          )
-          setRangeBnPriceLimit(BigNumber.from(String(rangePriceLimit)))
+            priceAfter - (tokenOrder ? priceSlippage : -priceSlippage)
+          );
+          const rangePriceLimit =
+            TickMath.getSqrtPriceAtPriceString(priceAfterSlippage);
+          setRangeBnPriceLimit(BigNumber.from(String(rangePriceLimit)));
         }
       }
 
       if (quoteCover) {
-        if (
-          quoteCover[0].gt(BN_ZERO) &&
-          quoteCover[1].gt(BN_ZERO)
-        ) {
-          console.log('setting cover quote', ethers.utils.formatUnits(quoteCover[1], 18))
+        if (quoteCover[0].gt(BN_ZERO) && quoteCover[1].gt(BN_ZERO)) {
+          console.log(
+            "setting cover quote",
+            ethers.utils.formatUnits(quoteCover[1], 18)
+          );
           setCoverQuote(
-            parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)),
-          )
+            parseFloat(ethers.utils.formatUnits(quoteCover[1], 18))
+          );
           const priceAfter = parseFloat(
-            TickMath.getPriceStringAtSqrtPrice(quoteCover[2]),
-          )
+            TickMath.getPriceStringAtSqrtPrice(quoteCover[2])
+          );
           const priceSlippage = parseFloat(
-            ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6),
-          )
+            ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6)
+          );
           const priceAfterSlippage = String(
-            priceAfter - (tokenOrder ? priceSlippage : -priceSlippage),
-          )
-          setCoverPriceAfter(priceAfter)
-          const coverPriceLimit = TickMath.getSqrtPriceAtPriceString(
-            priceAfterSlippage,
-          )
-          setCoverBnPriceLimit(BigNumber.from(String(coverPriceLimit)))
+            priceAfter - (tokenOrder ? priceSlippage : -priceSlippage)
+          );
+          setCoverPriceAfter(priceAfter);
+          const coverPriceLimit =
+            TickMath.getSqrtPriceAtPriceString(priceAfterSlippage);
+          setCoverBnPriceLimit(BigNumber.from(String(coverPriceLimit)));
         }
       }
       if (quoteCover && quoteRange) {
@@ -466,45 +456,45 @@ export default function Swap() {
           quoteCover[0].gt(BN_ZERO) &&
           quoteRange[0].gt(BN_ZERO)
         ) {
-          updateTierFee()
-          getSlippage()
-          setSlippageFetched(true)
+          updateTierFee();
+          getSlippage();
+          setSlippageFetched(true);
         }
       }
-    }, 200)
-  }, [quoteCover, quoteRange, bnInput, slippage])
+    }, 200);
+  }, [quoteCover, quoteRange, bnInput, slippage]);
 
   async function updateTierFee() {
-    await getFeeTier()
+    await getFeeTier();
   }
 
   const getFeeTier = async () => {
-    const coverData = await fetchCoverPools()
-    const coverPoolAddress = coverData['data']['coverPools']['0']['id']
+    const coverData = await fetchCoverPools();
+    const coverPoolAddress = coverData["data"]["coverPools"]["0"]["id"];
 
     if (coverPoolAddress === coverPoolRoute) {
       const feeTier =
-        coverData['data']['coverPools']['0']['volatilityTier']['feeAmount']
-      setCoverSlippage((parseFloat(feeTier) / 10000).toString())
+        coverData["data"]["coverPools"]["0"]["volatilityTier"]["feeAmount"];
+      setCoverSlippage((parseFloat(feeTier) / 10000).toString());
     }
-    const data = await fetchRangePools()
-    const rangePoolAddress = data['data']['rangePools']['0']['id']
+    const data = await fetchRangePools();
+    const rangePoolAddress = data["data"]["rangePools"]["0"]["id"];
 
     if (rangePoolAddress === rangePoolRoute) {
-      const feeTier = data['data']['rangePools']['0']['feeTier']['feeAmount']
-      setRangeSlippage((parseFloat(feeTier) / 10000).toString())
+      const feeTier = data["data"]["rangePools"]["0"]["feeTier"]["feeAmount"];
+      setRangeSlippage((parseFloat(feeTier) / 10000).toString());
     }
-  }
+  };
 
   const getSlippage = () => {
     if (rangeQuote >= coverQuote) {
-      setSlippage(rangeSlippage)
-      setAuxSlippage(rangeSlippage)
+      setSlippage(rangeSlippage);
+      setAuxSlippage(rangeSlippage);
     } else {
-      setSlippage(coverSlippage)
-      setAuxSlippage(coverSlippage)
+      setSlippage(coverSlippage);
+      setAuxSlippage(coverSlippage);
     }
-  }
+  };
 
   ////////////////////////////////Limit Ticks
 
@@ -514,63 +504,65 @@ export default function Swap() {
       !isNaN(parseFloat(slippage)) &&
       !isNaN(parseInt(rangeTickSpacing))
     )
-      updateLimitTicks()
-  }, [limitPrice, slippage])
+      updateLimitTicks();
+  }, [limitPrice, slippage]);
 
   function updateLimitTicks() {
     if (isFinite(parseFloat(limitPrice)) && parseFloat(limitPrice) > 0) {
-      if (parseFloat(slippage) * 100 > rangeTickSpacing && 
-          parseFloat(limitPrice) > 0) {
+      if (
+        parseFloat(slippage) * 100 > rangeTickSpacing &&
+        parseFloat(limitPrice) > 0
+      ) {
         const limitPriceTolerance =
           (parseFloat(limitPrice) *
             parseFloat((parseFloat(slippage) * 100).toFixed(6))) /
-          10000
+          10000;
         if (tokenOrder) {
-          const endPrice = parseFloat(limitPrice) - -limitPriceTolerance
+          const endPrice = parseFloat(limitPrice) - -limitPriceTolerance;
           setLowerTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing),
-            ),
-          )
+              TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing)
+            )
+          );
           setUpperTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(String(endPrice), rangeTickSpacing),
-            ),
-          )
+              TickMath.getTickAtPriceString(String(endPrice), rangeTickSpacing)
+            )
+          );
         } else {
-          const endPrice = parseFloat(limitPrice) - limitPriceTolerance
+          const endPrice = parseFloat(limitPrice) - limitPriceTolerance;
           setLowerTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(String(endPrice), rangeTickSpacing),
-            ),
-          )
+              TickMath.getTickAtPriceString(String(endPrice), rangeTickSpacing)
+            )
+          );
           setUpperTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing),
-            ),
-          )
+              TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing)
+            )
+          );
         }
       } else {
         if (tokenOrder) {
           const endTick =
             TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing) -
-            -rangeTickSpacing
+            -rangeTickSpacing;
           setLowerTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing),
-            ),
-          )
-          setUpperTick(BigNumber.from(String(endTick)))
+              TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing)
+            )
+          );
+          setUpperTick(BigNumber.from(String(endTick)));
         } else {
           const endTick =
             TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing) -
-            rangeTickSpacing
-          setLowerTick(BigNumber.from(String(endTick)))
+            rangeTickSpacing;
+          setLowerTick(BigNumber.from(String(endTick)));
           setUpperTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing),
-            ),
-          )
+              TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing)
+            )
+          );
         }
       }
     }
@@ -580,9 +572,9 @@ export default function Swap() {
   useEffect(() => {
     if (!bnInput.eq(BN_ZERO)) {
       if (!LimitActive) {
-        updateGasFee()
+        updateGasFee();
       } else {
-        updateMintFee()
+        updateMintFee();
       }
     }
   }, [
@@ -594,7 +586,7 @@ export default function Swap() {
     coverPoolRoute,
     rangePoolRoute,
     LimitActive,
-  ])
+  ]);
 
   async function updateGasFee() {
     const newGasFee = await gasEstimateSwap(
@@ -612,11 +604,15 @@ export default function Swap() {
       ethUsdPrice,
       address,
       signer,
-      isConnected,
-    )
-    console.log('new swap fee', newGasFee.formattedPrice, newGasFee.gasUnits.toString())
-    setSwapGasFee(newGasFee.formattedPrice)
-    setSwapGasLimit(newGasFee.gasUnits.mul(150).div(100))
+      isConnected
+    );
+    console.log(
+      "new swap fee",
+      newGasFee.formattedPrice,
+      newGasFee.gasUnits.toString()
+    );
+    setSwapGasFee(newGasFee.formattedPrice);
+    setSwapGasLimit(newGasFee.gasUnits.mul(150).div(100));
   }
 
   async function updateMintFee() {
@@ -629,60 +625,60 @@ export default function Swap() {
       tokenOut,
       bnInput,
       rangeTickSpacing,
-      signer,
-    )
-    
-    console.log(newMintFee.formattedPrice, 'gas price')
-    console.log(parseFloat(newMintFee.formattedPrice), 'gas price')
-    
-    setMintFee(newMintFee.formattedPrice)
-    setMintGasLimit(newMintFee.gasUnits.mul(130).div(100))
+      signer
+    );
+
+    console.log(newMintFee.formattedPrice, "gas price");
+    console.log(parseFloat(newMintFee.formattedPrice), "gas price");
+
+    setMintFee(newMintFee.formattedPrice);
+    setMintGasLimit(newMintFee.gasUnits.mul(130).div(100));
   }
   ////////////////////////////////
 
   const switchDirection = debounce(() => {
-    setTokenOrder(!tokenOrder)
-    const temp = tokenIn
-    setTokenIn(tokenOut)
-    setTokenOut(temp)
-    const tempBal = queryTokenIn
-    setQueryTokenIn(queryTokenOut)
-    setQueryTokenOut(tempBal)
-    if (display != '') {
+    setTokenOrder(!tokenOrder);
+    const temp = tokenIn;
+    setTokenIn(tokenOut);
+    setTokenOut(temp);
+    const tempBal = queryTokenIn;
+    setQueryTokenIn(queryTokenOut);
+    setQueryTokenOut(tempBal);
+    if (display != "") {
       setBnInput(
         ethers.utils.parseUnits(
           (rangeQuote >= coverQuote ? rangeQuote : coverQuote).toPrecision(10),
-          18,
-        ),
-      )
+          18
+        )
+      );
       setDisplay(
         (rangeQuote >= coverQuote ? rangeQuote : coverQuote)
           .toPrecision(7)
-          .replace(/0+$/, '')
-          .replace(/(\.)(?!\d)/g, ''),
-      )
+          .replace(/0+$/, "")
+          .replace(/(\.)(?!\d)/g, "")
+      );
       if (rangeQuote > 0 && rangeQuote >= coverQuote) {
         setRangeQuote(
           parseFloat(
-            parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
-          ),
-        )
+            parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5)
+          )
+        );
       } else {
         setCoverQuote(
           parseFloat(
-            parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5),
-          ),
-        )
+            parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5)
+          )
+        );
       }
-      setDisplayQuote(true)
+      setDisplayQuote(true);
     } else {
-      setBnInput(BN_ONE)
-      setDisplay('')
-      setRangeQuote(0)
-      setCoverQuote(0)
-      setDisplayQuote(false)
+      setBnInput(BN_ONE);
+      setDisplay("");
+      setRangeQuote(0);
+      setCoverQuote(0);
+      setDisplayQuote(false);
     }
-  }, 200)
+  }, 200);
 
   ////////////////////////////////
 
@@ -697,24 +693,24 @@ export default function Swap() {
                 ? !LimitActive
                   ? rangeQuote >= coverQuote
                     ? rangeQuote === 0
-                      ? '0'
+                      ? "0"
                       : (
                           parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                           rangeQuote
                         ).toFixed(2)
                     : coverQuote === 0
-                    ? '0'
+                    ? "0"
                     : (
                         parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                         coverQuote
                       ).toFixed(2)
                   : parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) == 0
-                  ? '0'
+                  ? "0"
                   : (
                       parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                       parseFloat(limitPrice)
                     ).toFixed(2)
-                : 'Select Token'}
+                : "Select Token"}
             </div>
           </div>
           <div className="flex p-1">
@@ -735,7 +731,7 @@ export default function Swap() {
                   ? !LimitActive
                     ? rangeQuote >= coverQuote
                       ? rangeQuote === 0
-                        ? '0'
+                        ? "0"
                         : (
                             parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                               rangeQuote -
@@ -744,7 +740,7 @@ export default function Swap() {
                               (parseFloat(slippage) * 0.01)
                           ).toFixed(2)
                       : coverQuote === 0
-                      ? '0'
+                      ? "0"
                       : (
                           parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                             coverQuote -
@@ -754,19 +750,19 @@ export default function Swap() {
                         ).toFixed(2)
                     : parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) ==
                       0
-                    ? '0'
+                    ? "0"
                     : (
                         parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                           parseFloat(
-                            ethers.utils.formatUnits(rangeBnPrice, 18),
+                            ethers.utils.formatUnits(rangeBnPrice, 18)
                           ) -
                         parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                           parseFloat(
-                            ethers.utils.formatUnits(rangeBnPrice, 18),
+                            ethers.utils.formatUnits(rangeBnPrice, 18)
                           ) *
                           (parseFloat(slippage) * 0.01)
                       ).toFixed(2)
-                  : 'Select Token'}
+                  : "Select Token"}
               </div>
             </div>
           ) : (
@@ -776,28 +772,28 @@ export default function Swap() {
             <div className="flex p-1">
               <div className="text-xs text-[#4C4C4C]">Price Impact</div>
               <div className="ml-auto text-xs">
-                {hasSelected 
-                  ? (rangePriceAfter != undefined || coverPriceAfter != undefined)
-                    ? (rangeQuote >= coverQuote
+                {hasSelected
+                  ? rangePriceAfter != undefined || coverPriceAfter != undefined
+                    ? rangeQuote >= coverQuote
                       ? (
                           Math.abs((rangePrice - rangePriceAfter) * 100) /
                           rangePrice
-                        ).toFixed(2) + '%'
+                        ).toFixed(2) + "%"
                       : (
                           Math.abs((coverPrice - coverPriceAfter) * 100) /
                           coverPrice
-                        ).toFixed(2) + '%')
+                        ).toFixed(2) + "%"
                     : "0,00%"
-                  : 'Select Token'}
+                  : "Select Token"}
               </div>
             </div>
           ) : (
             <></>
           )}
         </div>
-      )
+      );
     }
-  }
+  };
   return (
     <div className="pt-[10vh] mb-[10vh] px-3 md:px-0">
       <div className="flex flex-col w-full md:max-w-md px-6 pt-5 pb-7 mx-auto bg-black border border-grey2 rounded-xl">
@@ -807,8 +803,8 @@ export default function Swap() {
               onClick={() => setLimitActive(false)}
               className={`${
                 LimitActive
-                  ? 'text-grey cursor-pointer'
-                  : 'text-white cursor-pointer'
+                  ? "text-grey cursor-pointer"
+                  : "text-white cursor-pointer"
               }`}
             >
               Market
@@ -818,8 +814,8 @@ export default function Swap() {
               onClick={() => setLimitActive(true)}
               className={`${
                 LimitActive
-                  ? 'text-white cursor-pointer'
-                  : 'text-grey cursor-pointer'
+                  ? "text-white cursor-pointer"
+                  : "text-grey cursor-pointer"
               }`}
             >
               Limit
@@ -854,22 +850,22 @@ export default function Swap() {
                           autoComplete="off"
                           placeholder="0%"
                           className="bg-dark rounded-xl outline-none border border-grey1 pl-3 py-3 placeholder:text-grey1"
-                          value={auxSlippage + '%'}
+                          value={auxSlippage + "%"}
                           onChange={(e) =>
                             setAuxSlippage(
                               parseFloat(
-                                e.target.value.replace(/[^\d.-]/g, ''),
+                                e.target.value.replace(/[^\d.-]/g, "")
                               ) < 100
-                                ? e.target.value.replace(/[^\d.-]/g, '')
-                                : '',
+                                ? e.target.value.replace(/[^\d.-]/g, "")
+                                : ""
                             )
                           }
                         />
                         <button
                           className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
                           onClick={async () => {
-                            setSlippage(parseFloat(auxSlippage).toFixed(2))
-                            close()
+                            setSlippage(parseFloat(auxSlippage).toFixed(2));
+                            close();
                           }}
                         >
                           Set
@@ -884,8 +880,8 @@ export default function Swap() {
         </div>
         <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center md:w-1/2 p-2 ">
-            {inputBox('0')}
-            {tokenIn.address != '' ? (
+            {inputBox("0")}
+            {tokenIn.address != "" ? (
               <div className="flex">
                 <div className="flex text-xs text-[#4C4C4C]">
                   $
@@ -922,14 +918,17 @@ export default function Swap() {
                   />
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                  <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]" key={balanceIn}>
-                    Balance: {balanceIn === '0.00' ? 0 : balanceIn}
+                  <div
+                    className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]"
+                    key={balanceIn}
+                  >
+                    Balance: {balanceIn === "0.00" ? 0 : balanceIn}
                   </div>
-                  {isConnected && stateChainName === 'arbitrumGoerli' ? (
+                  {isConnected && stateChainName === "arbitrumGoerli" ? (
                     <button
                       className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
                       onClick={() => {
-                        maxBalance(balanceIn, '0')
+                        maxBalance(balanceIn, "0");
                       }}
                     >
                       Max
@@ -941,15 +940,16 @@ export default function Swap() {
           </div>
         </div>
         <div className="items-center -mb-2 -mt-2 p-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
-          {(
-          <ArrowSmallDownIcon
-            className="w-4 h-4"
-            onClick={() => {
-              if (hasSelected) {
-                switchDirection()
-              }
-            }}
-          />)}
+          {
+            <ArrowSmallDownIcon
+              className="w-4 h-4"
+              onClick={() => {
+                if (hasSelected) {
+                  switchDirection();
+                }
+              }}
+            />
+          }
         </div>
         <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
@@ -957,18 +957,18 @@ export default function Swap() {
               {!LimitActive ? (
                 hasSelected && !bnInput.eq(BN_ZERO) ? (
                   <div>
-                    { bnInput.gt(BN_ONE) ?
-                      (rangeQuote >= coverQuote
+                    {bnInput.gt(BN_ONE)
+                      ? rangeQuote >= coverQuote
                         ? rangeQuote.toPrecision(6)
                         : coverQuote.toPrecision(6)
-                      ) : '0'}
+                      : "0"}
                   </div>
                 ) : (
                   <div>0</div>
                 )
               ) : hasSelected &&
                 parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) != 0 &&
-                bnInput._hex != '0x00' ? (
+                bnInput._hex != "0x00" ? (
                 <div>
                   {(
                     parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
@@ -983,21 +983,17 @@ export default function Swap() {
               <div className="flex">
                 <div className="flex text-xs text-[#4C4C4C]">
                   $
-                  {!isNaN(tokenOut.usdPrice) ? !LimitActive
-                    ? rangeQuote >= coverQuote
-                      ? (
-                          rangeQuote *
-                          tokenOut.usdPrice
-                        ).toFixed(2)
+                  {!isNaN(tokenOut.usdPrice)
+                    ? !LimitActive
+                      ? rangeQuote >= coverQuote
+                        ? (rangeQuote * tokenOut.usdPrice).toFixed(2)
+                        : (coverQuote * tokenOut.usdPrice).toFixed(2)
                       : (
-                          coverQuote *
+                          parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                          parseFloat(limitPrice) *
                           tokenOut.usdPrice
                         ).toFixed(2)
-                    : (
-                        parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                        parseFloat(limitPrice) *
-                        tokenOut.usdPrice
-                      ).toFixed(2) : (0).toFixed(2)}
+                    : (0).toFixed(2)}
                 </div>
               </div>
             ) : (
@@ -1028,7 +1024,7 @@ export default function Swap() {
                 {hasSelected ? (
                   <div className="flex items-center justify-end gap-2 px-1 mt-2">
                     <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]">
-                      Balance: {balanceOut === '0.00' ? 0 : balanceOut}
+                      Balance: {balanceOut === "0.00" ? 0 : balanceOut}
                     </div>
                   </div>
                 ) : (
@@ -1046,30 +1042,28 @@ export default function Swap() {
                   autoComplete="off"
                   className="bg-[#0C0C0C] outline-none"
                   placeholder="0"
-                  value={!isNaN(parseFloat(limitPriceInput)) ? limitPriceInput : 0}
+                  value={
+                    !isNaN(parseFloat(limitPriceInput)) ? limitPriceInput : 0
+                  }
                   type="text"
                   onChange={(e) => {
-                    setLimitPriceInput(inputFilter(e.target.value))
+                    setLimitPriceInput(inputFilter(e.target.value));
                   }}
                 />
                 <></>
                 {/*TODO - fix market price comparion when switch directions*/}
                 <div className="flex">
                   <div className="flex text-[10px] md:text-xs text-[#4C4C4C]">
-                    {hasSelected && rangePrice > 0 ? (
-                      (parseFloat(limitPrice) / rangePrice - 1) * 100 > 0 ? (
-                        (
-                          (parseFloat(limitPrice) / rangePrice - 1) *
-                          100
-                        ).toFixed(2) + '% above Market Price'
-                      ) : (
-                        Math.abs(
-                          (parseFloat(limitPrice) / rangePrice - 1) * 100,
-                        ).toFixed(2) + '% below Market Price'
-                      )
-                    ) : (
-                      '0.00% above Market Price'
-                    )}
+                    {hasSelected && rangePrice > 0
+                      ? (parseFloat(limitPrice) / rangePrice - 1) * 100 > 0
+                        ? (
+                            (parseFloat(limitPrice) / rangePrice - 1) *
+                            100
+                          ).toFixed(2) + "% above Market Price"
+                        : Math.abs(
+                            (parseFloat(limitPrice) / rangePrice - 1) * 100
+                          ).toFixed(2) + "% below Market Price"
+                      : "0.00% above Market Price"}
                   </div>
                 </div>
               </div>
@@ -1088,8 +1082,8 @@ export default function Swap() {
                           onClick={() => setLimitPriceSwitch(!limitPriceSwitch)}
                         >
                           {limitPriceSwitch
-                            ? tokenOut.symbol + ' per ' + tokenIn.symbol
-                            : tokenIn.symbol + ' per ' + tokenOut.symbol}
+                            ? tokenOut.symbol + " per " + tokenIn.symbol
+                            : tokenIn.symbol + " per " + tokenOut.symbol}
 
                           <ArrowPathIcon className="w-5" />
                         </button>
@@ -1114,22 +1108,26 @@ export default function Swap() {
             onClick={() => setExpanded(!expanded)}
           >
             <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-              1 {tokenIn.symbol} ={' '}
-              {tokenOut.symbol === 'Select Token'
-                ? ' ?'
-                : ' ' +
+              1 {tokenIn.symbol} ={" "}
+              {tokenOut.symbol === "Select Token"
+                ? " ?"
+                : " " +
                   (!LimitActive
                     ? !isNaN(rangeQuote) && !isNaN(coverQuote)
-                      ? (rangeQuote >= coverQuote
-                        ? (tokenOrder ? rangePrice.toPrecision(5) : invertPrice(rangePrice.toPrecision(5), false))
-                        : (tokenOrder ? coverPrice.toPrecision(5) : invertPrice(coverPrice.toPrecision(5), false)))
-                      : '0'
+                      ? rangeQuote >= coverQuote
+                        ? tokenOrder
+                          ? rangePrice.toPrecision(5)
+                          : invertPrice(rangePrice.toPrecision(5), false)
+                        : tokenOrder
+                        ? coverPrice.toPrecision(5)
+                        : invertPrice(coverPrice.toPrecision(5), false)
+                      : "0"
                     : parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) !=
                       0
                     ? parseFloat(
-                        ethers.utils.formatUnits(rangeBnPrice, 18),
+                        ethers.utils.formatUnits(rangeBnPrice, 18)
                       ).toFixed(3)
-                    : '0')}{' '}
+                    : "0")}{" "}
               {tokenOut.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
@@ -1146,7 +1144,7 @@ export default function Swap() {
           <ConnectWalletButton xl={true} />
         ) : !LimitActive ? (
           <>
-            {stateChainName !== 'arbitrumGoerli' ||
+            {stateChainName !== "arbitrumGoerli" ||
             (coverQuote == 0 && rangeQuote == 0) ||
             Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput)) ||
             bnInput.lte(BN_ONE) ? (
@@ -1154,9 +1152,13 @@ export default function Swap() {
                 disabled
                 className="w-full py-4 text-sm md:text-base mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
               >
-        {buttonState === 'amount' ? <>Input Amount</> : <></>}
-        {buttonState === 'token' ? <>Select Token</> : <></>}
-        {buttonState === 'balance' ? <>Insufficient {tokenIn.symbol} Balance</> : <></>}
+                {buttonState === "amount" ? <>Input Amount</> : <></>}
+                {buttonState === "token" ? <>Select Token</> : <></>}
+                {buttonState === "balance" ? (
+                  <>Insufficient {tokenIn.symbol} Balance</>
+                ) : (
+                  <></>
+                )}
               </button>
             ) : rangeQuote >= coverQuote ? (
               Number(allowanceRange) <
@@ -1176,7 +1178,7 @@ export default function Swap() {
                   disabled={false}
                   poolAddress={rangePoolRoute}
                   zeroForOne={
-                    tokenOut.address != '' &&
+                    tokenOut.address != "" &&
                     tokenIn.address.localeCompare(tokenOut.address) < 0
                   }
                   amount={bnInput}
@@ -1201,7 +1203,7 @@ export default function Swap() {
                 disabled={swapGasLimit.gt(BN_ZERO)}
                 poolAddress={coverPoolRoute}
                 zeroForOne={
-                  tokenOut.address != '' &&
+                  tokenOut.address != "" &&
                   tokenIn.address.localeCompare(tokenOut.address) < 0
                 }
                 amount={bnInput}
@@ -1212,27 +1214,32 @@ export default function Swap() {
           </>
         ) : (
           <>
-            {stateChainName !== 'arbitrumGoerli' || Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput)) || bnInput._hex == '0x00' ? (
+            {stateChainName !== "arbitrumGoerli" ||
+            Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput)) ||
+            bnInput._hex == "0x00" ? (
               <button
                 disabled
                 className="w-full text-sm md:text-base py-4 mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
               >
-                {buttonState === 'amount' ? <>Input Amount</> : <></>}
-                {buttonState === 'token' ? <>Select Token</> : <></>}
-                {buttonState === 'balance' ? <>Insufficient {tokenIn.symbol} Balance</> : <></>}
+                {buttonState === "amount" ? <>Input Amount</> : <></>}
+                {buttonState === "token" ? <>Select Token</> : <></>}
+                {buttonState === "balance" ? (
+                  <>Insufficient {tokenIn.symbol} Balance</>
+                ) : (
+                  <></>
+                )}
               </button>
             ) : Number(allowanceRange) <
-                Number(ethers.utils.formatUnits(bnInput, 18)) ? (
-                  <SwapRangeApproveButton
-                    disabled={false}
-                    poolAddress={rangePoolRoute}
-                    approveToken={tokenIn.address}
-                    tokenSymbol={tokenIn.symbol}
-                    allowanceRange={allowanceRange}
-                    bnInput={bnInput}
-                  />
-              )
-            : (
+              Number(ethers.utils.formatUnits(bnInput, 18)) ? (
+              <SwapRangeApproveButton
+                disabled={false}
+                poolAddress={rangePoolRoute}
+                approveToken={tokenIn.address}
+                tokenSymbol={tokenIn.symbol}
+                allowanceRange={allowanceRange}
+                bnInput={bnInput}
+              />
+            ) : (
               <RangeLimitSwapButton
                 disabled={false}
                 poolAddress={rangePoolRoute}
@@ -1248,5 +1255,5 @@ export default function Swap() {
         )}
       </div>
     </div>
-  )
+  );
 }

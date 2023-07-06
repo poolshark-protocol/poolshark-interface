@@ -98,6 +98,58 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   token1: initialSwapState.token1,
   gasFee: initialSwapState.gasFee,
   gasLimit: initialSwapState.gasLimit,
+  setTokenIn: (state, newToken: token) => {
+    //if tokenOut is selected
+    if (state.tokenOut != initialSwapState.tokenOut) {
+      //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to  initialState
+      if (newToken == state.tokenOut) {
+        set(() => ({
+          tokenIn: newToken,
+          token0: newToken,
+          tokenOut: initialSwapState.tokenOut,
+          token1: initialSwapState.token1,
+          pairSelected: false,
+        }));
+      } else {
+        //if tokens are different
+        set(() => ({
+          tokenIn: newToken,
+          token0:
+            newToken.address < state.tokenOut.address
+              ? newToken
+              : state.tokenOut,
+          token1:
+            newToken.address < state.tokenOut.address
+              ? state.tokenOut
+              : newToken,
+        }));
+      }
+    } else {
+      //if tokenOut its not selected
+      set(() => ({
+        tokenIn: newToken,
+        token0: newToken,
+      }));
+    }
+  },
+  setTokenOut: (state, newToken: token) => {
+    if (state.tokenIn != initialSwapState.tokenIn) {
+      //if tokenIn exists
+      set(() => ({
+        tokenOut: newToken,
+        token0:
+          newToken.address < state.tokenIn.address ? newToken : state.tokenIn,
+        token1:
+          newToken.address < state.tokenIn.address ? state.tokenIn : newToken,
+      }));
+    } else {
+      //if tokenIn its not selected
+      set(() => ({
+        tokenOut: newToken,
+        token0: newToken,
+      }));
+    }
+  },
   resetSwapParams: () => {
     set({
       coverPoolAddress: initialSwapState.coverPoolAddress,
