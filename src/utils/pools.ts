@@ -200,7 +200,7 @@ export const getCoverPoolInfo = async (
               setLowerPrice(
                 TickMath.getPriceStringAtTick(
                   tokenOrder
-                    ? newLatestTick + (-tickSpread) * 16
+                    ? newLatestTick + (-tickSpread) * 18
                     : newLatestTick + tickSpread * 8,
                   tickSpread,
                 ),
@@ -210,7 +210,7 @@ export const getCoverPoolInfo = async (
               setUpperPrice(
                 TickMath.getPriceStringAtTick(
                   tokenOrder
-                    ? newLatestTick - tickSpread * 6
+                    ? newLatestTick - tickSpread * 8
                     : newLatestTick + tickSpread * 18,
                   tickSpread,
                 ),
