@@ -26,8 +26,6 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
 
   console.log('remove user liquidity', userLiquidity.toString(), tokenAmount.toString())
 
-  const [balance0, setBalance0] = useState('')
-  const [balance1, setBalance1] = useState('0.00')
   const [sliderValue, setSliderValue] = useState(0)
   const [burnPercent, setBurnPercent] = useState(BN_ZERO)
   const [disabled, setDisabled] = useState(true)
@@ -59,7 +57,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
 
   useEffect(() => {
     setLiquidity()
-    handleSliderChange(Number(display))
+    handleSliderChange()
   }, [bnInput])
 
   useEffect(() => {
@@ -74,9 +72,9 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
     }
   }
 
-  const handleSliderChange = (val: number) => {
+  const handleSliderChange = () => {
     //const amountDirection = tokenOrder ? parseFloat(ethers.utils.formatUnits(amount0, 18)) : parseFloat(ethers.utils.formatUnits(amount1, 18))
-    const ratioCalc = parseFloat((liquidityRemoved / userLiquidity).toFixed(2)) * 100
+    const ratioCalc = parseFloat(parseFloat(ethers.utils.formatUnits(burnPercent, 36)).toFixed(0))
     console.log('ratio calc', ratioCalc)
     if(ratioCalc <= 100 && ratioCalc >= 1) {
       setSliderValue(ratioCalc)
@@ -140,8 +138,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
                           )
           console.log('new burn percent', BigNumber.from(String(liquidityRemoved)).mul(ethers.utils.parseUnits('1', 38)).div(BigNumber.from(userLiquidity)).toString())
           setBurnPercent(BigNumber.from(String(liquidityRemoved)).mul(ethers.utils.parseUnits('1', 38)).div(BigNumber.from(userLiquidity)))
-          setAmounts(liquidityRemoved)
-          setLiquidityRemoved(parseFloat(String(liquidityRemoved)))
+          //setLiquidityRemoved(parseFloat(String(liquidityRemoved)))
           console.log('liquidity removed', liquidityRemoved.toString())
           console.log('user liquidity', userLiquidity.toString())
         } else {
@@ -171,7 +168,6 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
         const amount1Bn = BigNumber.from(String(amounts.token1Amount))
         if (changeDisplay) {
           setTimeout(() => {
-            //setBnInput(tokenOrder ? amount0Bn : amount1Bn)
             setDisplay(Number(ethers.utils.formatUnits(tokenOrder ? amount0Bn : amount1Bn, 18)).toPrecision(6))
             setAmount0(amount0Bn) 
             setAmount1(amount1Bn)
