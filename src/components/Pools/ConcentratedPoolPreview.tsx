@@ -245,7 +245,7 @@ export default function ConcentratedPoolPreview({
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                              {minInput}
+                              { tokenOrder ? minInput : maxInput }
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">
@@ -259,7 +259,7 @@ export default function ConcentratedPoolPreview({
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {maxInput}
+                                { tokenOrder ? maxInput : minInput }
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">
