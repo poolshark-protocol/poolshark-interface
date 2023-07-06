@@ -13,8 +13,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
   const {
     bnInput,
     inputBox,
-    setDisplay,
-    display
+    setDisplay
   } = useInputBox()
 
   const router = useRouter()

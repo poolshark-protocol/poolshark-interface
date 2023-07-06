@@ -1,9 +1,8 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useState } from 'react'
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useSigner, useSwitchNetwork } from "wagmi";
+import { useSigner } from "wagmi";
 import useInputBox from '../../../hooks/useInputBox'
-import RangeAddLiqButton from '../../Buttons/RangeAddLiqButton'
 import RangeRemoveLiqButton from "../../Buttons/RangeRemoveLiqButton";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ZERO } from "../../../utils/math/constants";
@@ -20,8 +19,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   const {
     bnInput,
     inputBox,
-    setDisplay, setBnInput,
-    display
+    setDisplay
   } = useInputBox()
 
   console.log('remove user liquidity', userLiquidity.toString(), tokenAmount.toString())
@@ -79,7 +77,6 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   }
 
   const handleSliderChange = () => {
-    //const amountDirection = tokenOrder ? parseFloat(ethers.utils.formatUnits(amount0, 18)) : parseFloat(ethers.utils.formatUnits(amount1, 18))
     const ratioCalc = parseFloat(parseFloat(ethers.utils.formatUnits(burnPercent, 36)).toFixed(0))
     console.log('ratio calc', ratioCalc)
     if(ratioCalc <= 100 && ratioCalc >= 1) {
@@ -106,7 +103,6 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
   }
 
   async function updateGasFee() {
-    //TODO: burnPercent value is correct here but still showing as '0' in gasEstimate function
     const newBurnGasFee = await gasEstimateRangeBurn(
       poolAdd,
       address,
