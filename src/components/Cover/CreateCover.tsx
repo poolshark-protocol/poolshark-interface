@@ -212,7 +212,7 @@ export default function CreateCover(props: any) {
       setButtonState('amount')
     } else if (hasSelected == false) {
       setButtonState('token')
-    } else {
+    } else if (mintGasLimit.gt(BN_ZERO)) {
       setDisabled(false)
     }
   }, [bnInput, hasSelected, validBounds, lowerPrice, upperPrice, balanceIn, mintGasLimit])
@@ -230,7 +230,7 @@ export default function CreateCover(props: any) {
       hasSelected == false ||
       !validBounds
     console.log('bn disabled flag check', disabledFlag)
-    setDisabled(disabledFlag)
+    setDisabled(disabledFlag || mintGasLimit.eq(BN_ZERO))
     if (!disabledFlag) {
       updateGasFee()
     }
@@ -244,6 +244,7 @@ export default function CreateCover(props: any) {
     hasSelected,
     validBounds,
     balanceIn,
+    mintGasLimit
   ])
 
   // set disabled
@@ -337,6 +338,7 @@ export default function CreateCover(props: any) {
     )
     setMintGasFee(newMintGasFee.formattedPrice)
     setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100))
+
   }
 
   function setParams(query: any) {
