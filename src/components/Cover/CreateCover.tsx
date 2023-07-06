@@ -189,14 +189,13 @@ export default function CreateCover(props: any) {
         setLowerPrice,
         setUpperPrice,
         tickSpread,
-        newTokenOrder != tokenOrder
+        true
       )
       setTokenOrder(newTokenOrder)
   }, [
     tokenIn.address,
     tokenOut.address,
-    coverPoolRoute,
-    volatility
+    tickSpread
   ])
 
   // disabled messages

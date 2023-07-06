@@ -60,7 +60,7 @@ export default function CoverExistingPool({
   const { address, isConnected, isDisconnected } = useAccount()
   const { data: signer } = useSigner()
   const [expanded, setExpanded] = useState(false)
-  const [tickSpread, setTickSpread] = useState(tickSpacing)
+  const [tickSpread, setTickSpread] = useState(20)
   const [auctionLength, setAuctionLength] = useState(0)
   const [tokenOrder, setTokenOrder] = useState(zeroForOne)
   const [latestTick, setLatestTick] = useState(0)
@@ -173,7 +173,7 @@ export default function CoverExistingPool({
   // - latestTick => current TWAP tick
   useEffect(() => {
     const newTokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
-    console.log('getting cover pool')
+    console.log('new vol tier tickspread', tickSpread)
     if (hasSelected)
       getCoverPoolInfo(
         coverPoolRoute,
@@ -190,15 +190,15 @@ export default function CoverExistingPool({
         upperPrice,
         setLowerPrice,
         setUpperPrice,
-        volatilityTiers[volatility].tickSpread,
-        newTokenOrder != tokenOrder
+        tickSpread,
+        true
       )
       setTokenOrder(newTokenOrder)
   }, [
     tokenIn.address,
     tokenOut.address,
-    coverPoolRoute,
-    volatility
+    tickSpread,
+    coverPoolRoute
   ])
 
   useEffect(() => {
@@ -410,9 +410,10 @@ export default function CoverExistingPool({
             pool['data']['coverPools'][i]['volatilityTier']['tickSpread'] == 40)
         ) {
           console.log('setting cover pool route', pool['data']['coverPools'][i]['id'])
-          console.log('getting new tick spread', volatilityTiers[volatilityId].tickSpread)
-          setVolatility(volatilityId)
+          console.log('new vol tier', volatilityTiers[volatilityId].tickSpread, volatilityTiers[volatilityId])
+          setSelectedVolatility(volatilityTiers[volatilityId])
           setTickSpread(volatilityTiers[volatilityId].tickSpread)
+          setCoverPoolRoute(pool['data']['coverPools'][i]['id'])
         }
       }
     } catch (error) {

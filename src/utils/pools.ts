@@ -166,16 +166,22 @@ export const getCoverPoolInfo = async (
         parseInt(pool['data']['coverPools'][i]['volatilityTier']['tickSpread'])
         if ((poolRoute && newPoolRoute == poolRoute) ||
              expectedTickSpread && tickSpread == expectedTickSpread) {
-            console.log('getting tick spread', tickSpread, expectedTickSpread)
-            if (poolRoute != newPoolRoute) {
-              setCoverPoolRoute(pool['data']['coverPools'][i]['id'])
-            } 
+            console.log('vol tier get spread', tickSpread, expectedTickSpread)
+            setCoverPoolRoute(pool['data']['coverPools'][i]['id'])
+            console.log('vol tier pool found', newPoolRoute)
             if (tickSpread == 20) {
-              if (volatility != 0) changeDefaultPrices = true
-              setVolatility(0)
+              if (volatility != 0) {
+                console.log('change to tier 0')
+                changeDefaultPrices = true
+                setVolatility(0)
+              }
             } else if (tickSpread == 40) {
-              if (volatility != 1) changeDefaultPrices = true
-              setVolatility(1)
+              console.log('vol tier 40', volatility, poolRoute == newPoolRoute)
+              if (volatility != 1) {
+                console.log('change to tier 1')
+                changeDefaultPrices = true
+                setVolatility(1)
+              }
             }
           const newLatestTick = parseInt(pool['data']['coverPools'][i]['latestTick'])
           if (setCoverPrice) {
