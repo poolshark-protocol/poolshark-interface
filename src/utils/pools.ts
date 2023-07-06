@@ -141,6 +141,7 @@ export const getCoverPoolInfo = async (
   setCoverPoolRoute,
   setCoverPrice,
   setTokenInUsdPrice,
+  volatility,
   setVolatility,
   setLatestTick?,
   lowerPrice?,
@@ -148,7 +149,7 @@ export const getCoverPoolInfo = async (
   setLowerPrice?,
   setUpperPrice?,
   expectedTickSpread?,
-  tokenOrderChanged?
+  changeDefaultPrices?
 ) => {
   try {
     const pool = await getCoverPoolFromFactory(
@@ -166,10 +167,14 @@ export const getCoverPoolInfo = async (
         if ((poolRoute && newPoolRoute == poolRoute) ||
              expectedTickSpread && tickSpread == expectedTickSpread) {
             console.log('getting tick spread', tickSpread, expectedTickSpread)
-            if (poolRoute != newPoolRoute) setCoverPoolRoute(pool['data']['coverPools'][i]['id'])
+            if (poolRoute != newPoolRoute) {
+              setCoverPoolRoute(pool['data']['coverPools'][i]['id'])
+            } 
             if (tickSpread == 20) {
+              if (volatility != 0) changeDefaultPrices = true
               setVolatility(0)
             } else if (tickSpread == 40) {
+              if (volatility != 1) changeDefaultPrices = true
               setVolatility(1)
             }
           const newLatestTick = parseInt(pool['data']['coverPools'][i]['latestTick'])
@@ -190,22 +195,23 @@ export const getCoverPoolInfo = async (
           if (setLatestTick) {
             setLatestTick(newLatestTick)
             console.log('setting latest tick', tokenOrder, newLatestTick, newLatestTick + (-tickSpread) * 10)
-            if ((poolRoute != newPoolRoute && setLowerPrice != undefined) || tokenOrderChanged) {
+            console.log('setting latest lower price', poolRoute != newPoolRoute)
+            if ((poolRoute != newPoolRoute && setLowerPrice != undefined) || changeDefaultPrices) {
               setLowerPrice(
                 TickMath.getPriceStringAtTick(
                   tokenOrder
-                    ? newLatestTick + (-tickSpread) * 10
-                    : newLatestTick + tickSpread,
+                    ? newLatestTick + (-tickSpread) * 16
+                    : newLatestTick + tickSpread * 6,
                   tickSpread,
                 ),
               )
             }
-            if ((poolRoute != newPoolRoute && setUpperPrice) || tokenOrderChanged) {
+            if ((poolRoute != newPoolRoute && setUpperPrice) || changeDefaultPrices) {
               setUpperPrice(
                 TickMath.getPriceStringAtTick(
                   tokenOrder
-                    ? newLatestTick - tickSpread
-                    : newLatestTick + tickSpread * 10,
+                    ? newLatestTick - tickSpread * 6
+                    : newLatestTick + tickSpread * 16,
                   tickSpread,
                 ),
               )

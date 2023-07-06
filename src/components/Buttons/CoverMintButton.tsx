@@ -30,7 +30,7 @@ export default function CoverMintButton({
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
-console.log('bn button state', buttonState, disabled, gasLimit.toString())
+console.log('bn button state', zeroForOne, disabled, gasLimit.toString())
   /*const [coverContractParams, setCoverContractParams] = useState({
     to: to,
     lower: lower,

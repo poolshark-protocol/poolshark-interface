@@ -171,7 +171,7 @@ export default function CreateCover(props: any) {
   useEffect(() => {
     updateBalances()
     const newTokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
-    console.log('getting cover order', tokenOrder, newTokenOrder)
+    console.log('getting cover order', tokenOrder, newTokenOrder, coverPoolRoute)
     if (hasSelected)
       getCoverPoolInfo(
         coverPoolRoute,
@@ -181,6 +181,7 @@ export default function CreateCover(props: any) {
         setCoverPoolRoute,
         setCoverPrice,
         setTokenInUsdPrice,
+        volatility,
         setVolatility,
         setLatestTick,
         lowerPrice,
@@ -194,7 +195,8 @@ export default function CreateCover(props: any) {
   }, [
     tokenIn.address,
     tokenOut.address,
-    coverPoolRoute
+    coverPoolRoute,
+    volatility
   ])
 
   // disabled messages
