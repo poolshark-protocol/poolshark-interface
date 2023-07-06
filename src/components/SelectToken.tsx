@@ -19,8 +19,8 @@ export default function SelectToken(props) {
   const coins = useTokenList()[0]
 
   //@dev this is temporary for testnet
-  // const [coinsForListing, setCoinsForListing] = useState(coins["listed_tokens"]);
-  const [coinsForListing, setCoinsForListing] = useState([
+  // const [rawCoinList, setRawCoinList] = useState(coins["listed_tokens"]);
+  const [rawCoinList, setRawCoinList] = useState([
     {
       name: 'WETH',
       address: tokenOneAddress,
@@ -37,17 +37,19 @@ export default function SelectToken(props) {
     },
   ])
 
+  const [orderedCoinList, setOrderedCoinList]= useState([])
+
   //@dev this is temporary for testnet
   // const findCoin = () => {
   //   if (inputVal.length === 0) {
-  //     setCoinsForListing(coins["listed_tokens"]);
+  //     setRawCoinList(coins["listed_tokens"]);
   //   } else {
   //     if (inputVal.length === 42 && inputVal.substring(0, 2) === "0x") {
   //       let searchedCoin = coins["search_tokens"].find(
   //         (token) => token.id === inputVal
   //       );
   //       if (searchedCoin != undefined) {
-  //         setCoinsForListing(searchedCoin);
+  //         setRawCoinList(searchedCoin);
   //       }
   //     } else {
   //       let searchedCoins = coins["search_tokens"].filter(
@@ -58,7 +60,7 @@ export default function SelectToken(props) {
   //       if (searchedCoins.length > 20) {
   //         searchedCoins = searchedCoins.slice(0, 20);
   //       }
-  //       setCoinsForListing(searchedCoins);
+  //       setRawCoinList(searchedCoins);
   //     }
   //   }
   // };
@@ -142,7 +144,7 @@ export default function SelectToken(props) {
   }, [inputVal, isOpen])
 
   //   useEffect(() => {
-  // }, [coinsForListing]);
+  // }, [rawCoinList]);
 
   function closeModal() {
     setIsOpen(false)
@@ -197,7 +199,7 @@ export default function SelectToken(props) {
                       onChange={(e) => setInputVal(e.target.value)}
                     ></input>
                     <div className="flex justify-between flex-wrap mt-4 gap-y-2">
-                      {coinsForListing?.map((coin) => {
+                      {rawCoinList?.map((coin) => {
                         return (
                           <CoinListButton
                             key={coin.symbol + 'top'}
@@ -209,7 +211,7 @@ export default function SelectToken(props) {
                     </div>
                   </div>
                   <div>
-                    {coinsForListing?.map((coin) => {
+                    {rawCoinList?.map((coin) => {
                       return (
                         <CoinListItem
                           key={coin.symbol}
