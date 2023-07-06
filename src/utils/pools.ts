@@ -154,15 +154,17 @@ export const getCoverPoolInfo = async (
       tokenIn.address,
       tokenOut.address,
     )
-    console.log('getting pool info')
+    console.log('getting pool info', poolRoute)
     const dataLength = pool['data']['coverPools'].length
     console.log('getting data length', dataLength)
     if (dataLength) {
       for (let i = 0; i < dataLength; i++) {
-        if (pool['data']['coverPools'][i]['id'] == poolRoute) {
-          const tickSpread =
-            pool['data']['coverPools'][i]['volatilityTier']['tickSpread']
+        const tickSpread =
+        pool['data']['coverPools'][i]['volatilityTier']['tickSpread']
+        if ((poolRoute && pool['data']['coverPools'][i]['id'] == poolRoute) ||
+             expectedTickSpread && tickSpread == expectedTickSpread) {
             console.log('getting tick spread', tickSpread, expectedTickSpread)
+            if (!poolRoute) setCoverPoolRoute(pool['data']['coverPools'][i]['id'])
             if (tickSpread == '20') {
               setVolatility(0)
             } else if (tickSpread == '40') {

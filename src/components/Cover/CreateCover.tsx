@@ -53,6 +53,7 @@ export default function CreateCover(props: any) {
   const [upperTick, setUpperTick] = useState(initialBig)
   const [latestTick, setLatestTick] = useState(0)
   const [balance0, setBalance0] = useState('')
+  const [balance1, setBalance1] = useState('')
   const [allowance, setAllowance] = useState('0')
   const { address, isConnected, isDisconnected } = useAccount()
   const [isDisabled, setDisabled] = useState(true)
@@ -162,7 +163,7 @@ export default function CreateCover(props: any) {
   }, [tokenOut, tokenIn])
 
   async function updateBalances() {
-    await getBalances(address, false, tokenIn, tokenOut, setBalance0, () => {})
+    await getBalances(address, false, tokenIn, tokenOut, setBalance0, setBalance1)
   }
 
   useEffect(() => {
@@ -201,27 +202,29 @@ export default function CreateCover(props: any) {
 
   // disabled messages
   useEffect(() => {
+    console.log('setting button state')
     if (Number(ethers.utils.formatUnits(bnInput)) > Number(balance0)) {
       setButtonState('balance')
-    }
-    if (!validBounds) {
+    }else if (!validBounds) {
       setButtonState('bounds')
-    }
-    if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
+    } else if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
       setButtonState('price')
-    }
-    if (parseFloat(ethers.utils.formatEther(bnInput)) == 0) {
+    } else if (parseFloat(ethers.utils.formatEther(bnInput)) == 0) {
       setButtonState('amount')
-    }
-    if (hasSelected == false) {
+    } else if (hasSelected == false) {
       setButtonState('token')
+    } else {
+      setDisabled(false)
     }
-  }, [bnInput, hasSelected, validBounds, lowerPrice, upperPrice, balance0])
+  }, [bnInput, hasSelected, validBounds, lowerPrice, upperPrice, balance0, mintGasLimit])
 
   // set disabled
   useEffect(() => {
+    console.log('bninput changed', bnInput.toString())
     const disabledFlag =
-      Number(ethers.utils.formatUnits(bnInput)) > Number(balance0) ||
+      tokenOrder ? 
+         Number(ethers.utils.formatUnits(bnInput)) > Number(balance0) 
+       : Number(ethers.utils.formatUnits(bnInput)) > Number(balance1) ||
       isNaN(parseFloat(lowerPrice)) ||
       isNaN(parseFloat(upperPrice)) ||
       lowerTick.gte(upperTick) ||
@@ -229,7 +232,7 @@ export default function CreateCover(props: any) {
       tokenOut.symbol === 'Select Token' ||
       hasSelected == false ||
       !validBounds
-    console.log('disabled flag check', disabledFlag)
+    console.log('bn disabled flag check', disabledFlag)
     setDisabled(disabledFlag)
     if (!disabledFlag) {
       updateGasFee()
@@ -456,7 +459,6 @@ export default function CreateCover(props: any) {
             pool['data']['coverPools'][i]['volatilityTier']['tickSpread'] == 40)
         ) {
           console.log('setting cover pool route', pool['data']['coverPools'][i]['id'])
-          // setVolatility(volatilityId)
           console.log('getting new tick spread', volatilityTiers[volatilityId].tickSpread)
           setTickSpread(volatilityTiers[volatilityId].tickSpread)
           setCoverPoolRoute(pool['data']['coverPools'][i]['id'])
