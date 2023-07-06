@@ -133,15 +133,27 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
     }
   },
   setTokenOut: (state, newToken: token) => {
-    if (state.tokenIn != initialSwapState.tokenIn) {
-      //if tokenIn exists
-      set(() => ({
-        tokenOut: newToken,
-        token0:
-          newToken.address < state.tokenIn.address ? newToken : state.tokenIn,
-        token1:
-          newToken.address < state.tokenIn.address ? state.tokenIn : newToken,
-      }));
+    //if tokenIn exists
+    if (state.tokenIn != initialSwapState.tokenOut) {
+      //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
+      if (newToken == state.tokenIn) {
+        set(() => ({
+          tokenOut: newToken,
+          token0: newToken,
+          tokenIn: initialSwapState.tokenOut,
+          token1: initialSwapState.token1,
+          pairSelected: false,
+        }));
+      } else {
+        //if tokens are different
+        set(() => ({
+          tokenOut: newToken,
+          token0:
+            newToken.address < state.tokenIn.address ? newToken : state.tokenIn,
+          token1:
+            newToken.address < state.tokenIn.address ? state.tokenIn : newToken,
+        }));
+      }
     } else {
       //if tokenIn its not selected
       set(() => ({
