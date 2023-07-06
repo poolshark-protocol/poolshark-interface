@@ -457,6 +457,7 @@ export default function CreateCover(props: any) {
         ) {
           console.log('setting cover pool route', pool['data']['coverPools'][i]['id'])
           console.log('getting new tick spread', volatilityTiers[volatilityId].tickSpread)
+          setVolatility(volatilityId)
           setTickSpread(volatilityTiers[volatilityId].tickSpread)
           setCoverPoolRoute(pool['data']['coverPools'][i]['id'])
         }

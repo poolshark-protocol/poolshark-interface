@@ -183,6 +183,7 @@ export default function CoverExistingPool({
         setCoverPoolRoute,
         setCoverPrice,
         null,
+        volatility,
         setVolatility,
         setLatestTick,
         lowerPrice,
@@ -196,7 +197,8 @@ export default function CoverExistingPool({
   }, [
     tokenIn.address,
     tokenOut.address,
-    coverPoolRoute
+    coverPoolRoute,
+    volatility
   ])
 
   useEffect(() => {
@@ -411,7 +413,6 @@ export default function CoverExistingPool({
           console.log('getting new tick spread', volatilityTiers[volatilityId].tickSpread)
           setVolatility(volatilityId)
           setTickSpread(volatilityTiers[volatilityId].tickSpread)
-          setCoverPoolRoute(pool['data']['coverPools'][i]['id'])
         }
       }
     } catch (error) {
