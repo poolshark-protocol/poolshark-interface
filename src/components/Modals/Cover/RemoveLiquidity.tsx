@@ -70,10 +70,11 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, tokenIn, poolA
   }
 
   const handleSliderChange = (val: number) => {
-    if(parseFloat((val * 100 / parseFloat(amountInDisplay)).toFixed(0)) <= 100 && parseFloat((val * 100 / parseFloat(amountInDisplay)).toFixed(0)) >= 1) {
-      setSliderValue(parseFloat((val * 100 / parseFloat(amountInDisplay)).toFixed(0)))
+    const ratioCalc = parseFloat((val * 100 / parseFloat(amountInDisplay)).toFixed(0))
+    if(ratioCalc <= 100 && ratioCalc >= 1) {
+      setSliderValue(ratioCalc)
     }
-    else if(parseFloat((val * 100 / parseFloat(amountInDisplay)).toFixed(0)) < 1) {
+    else if(ratioCalc < 1) {
       setSliderValue(1)
     }
     else {

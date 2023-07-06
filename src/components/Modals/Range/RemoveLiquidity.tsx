@@ -74,10 +74,11 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
 
   const handleSliderChange = (val: number) => {
     const amountDirection = tokenOrder ? parseFloat(ethers.utils.formatUnits(amount0, 18)) : parseFloat(ethers.utils.formatUnits(amount1, 18))
-    if(parseFloat((val * 100 / amountDirection).toFixed(0)) <= 100 && parseFloat((val * 100 / amountDirection).toFixed(0)) >= 1) {
-      setSliderValue(parseFloat((val * 100 / amountDirection).toFixed(0)))
+    const ratioCalc = parseFloat((val * 100 / amountDirection).toFixed(0))
+    if(ratioCalc <= 100 && ratioCalc >= 1) {
+      setSliderValue(ratioCalc)
     }
-    else if (parseFloat((val * 100 / amountDirection).toFixed(0)) < 1) {
+    else if (ratioCalc < 1) {
       setSliderValue(1)
     }
     else {
@@ -166,10 +167,10 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, tokenIn, token
           setTimeout(() => {
             setBnInput(tokenOrder ? amount0Bn : amount1Bn)
             setDisplay(Number(ethers.utils.formatUnits(tokenOrder ? amount0Bn : amount1Bn, 18)).toPrecision(6))
+            setAmount0(amount0Bn) 
+            setAmount1(amount1Bn)
           }, 1000)
         }
-        setAmount0(amount0Bn) 
-        setAmount1(amount1Bn)
         setDisabled(false)
       } else {
         setAmount1(BN_ZERO) 
