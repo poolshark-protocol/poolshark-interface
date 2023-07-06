@@ -667,6 +667,8 @@ export default function Cover() {
               zeroForOne={zeroForOne}
               amountInDeltaMax={userFillOut ?? "0"}
               gasLimit={burnGasLimit.mul(250).div(100)}
+              usdPriceIn={usdPriceIn}
+              usdPriceOut={usdPriceOut}
             />
             <AddLiquidity
               isOpen={isAddOpen}
@@ -681,6 +683,8 @@ export default function Cover() {
               zeroForOne={zeroForOne}
               liquidity={liquidity}
               tickSpacing={tickSpacing}
+              usdPriceIn={usdPriceIn}
+              usdPriceOut={usdPriceOut}
             />
           </>
         )}

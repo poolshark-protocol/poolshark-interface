@@ -12,7 +12,7 @@ import { chainIdsToNamesForGitTokenList } from "../../../utils/chains";
 import { gasEstimateCoverMint } from "../../../utils/gas";
 import JSBI from "jsbi";
 
-export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut, poolAdd, address, claimTick, upperTick, zeroForOne, liquidity, lowerTick, tickSpacing }) {
+export default function CoverAddLiquidity({ isOpen, usdPriceIn, usdPriceOut, setIsOpen, tokenIn, tokenOut, poolAdd, address, claimTick, upperTick, zeroForOne, liquidity, lowerTick, tickSpacing }) {
 
   const {
     bnInput,
@@ -179,7 +179,17 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, tokenIn, tokenOut
                   />
                 </div>
                 <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-6 mb-6">
-                  <div className=" p-2 ">{inputBox("0")}</div>
+                <div className=" p-2 w-32">
+                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-1 rounded-xl">
+                              {inputBox("0")}
+                              </div>
+                              <div className="flex">
+                                <div className="flex text-xs text-[#4C4C4C]">
+                                 $ {Number(usdPriceOut * parseFloat(ethers.utils.formatUnits(bnInput, 18))).toFixed(2)}
+                                
+                                </div>
+                              </div>
+                            </div>
                   <div className="">
                     <div className=" ml-auto">
                       <div>

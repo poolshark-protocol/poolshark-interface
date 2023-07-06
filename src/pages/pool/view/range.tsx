@@ -82,6 +82,8 @@ export default function Range() {
   const [rangeTickPrice, setRangeTickPrice] = useState(
     router.query.rangeTickPrice ?? 0,
   )
+  const [token1Price, setToken1Price] = useState(0.0)
+  const [token0Price, setToken0Price] = useState(0.0)
   const [mktRate, setMktRate] = useState({})
   const [is0Copied, setIs0Copied] = useState(false)
   const [is1Copied, setIs1Copied] = useState(false)
@@ -270,6 +272,8 @@ export default function Range() {
         setPriceInverse(
           parseFloat((parseFloat(token1Price) / Number(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(rangePrice)))).toPrecision(6))
         )
+        setToken0Price(parseFloat(token0Price))
+        setToken1Price(parseFloat(token1Price))
         setRangePrice(price)
         setRangeTickPrice(tickAtPrice)
       }
@@ -625,6 +629,8 @@ export default function Range() {
         userLiquidity={userLiquidity}
         tokenAmount={userTokenAmount}
         rangePrice={rangePrice}
+        token1Price={token1Price}
+        token0Price={token0Price}
       />
       <AddLiquidity
         isOpen={isAddOpen}
@@ -637,6 +643,8 @@ export default function Range() {
         upperTick={Number(upperTick)}
         liquidity={userLiquidity}
         rangePrice={rangePrice}
+        token1Price={token1Price}
+        token0Price={token0Price}
       />
     </div>
   )
