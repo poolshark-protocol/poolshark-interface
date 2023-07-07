@@ -401,12 +401,10 @@ export default function Swap() {
 
   const getFeeTiers = async () => {
     const poolCover = getCoverPoolFromFactory(tokenIn, tokenOut);
-    const feeTierCover =
-      poolCover["data"]["coverPools"]["0"]["volatilityTier"]["feeAmount"];
+    const feeTierCover = poolCover["volatilityTier"]["feeAmount"];
     setCoverSlippage((parseFloat(feeTierCover) / 10000).toString());
     const poolRange = getRangePoolFromFactory(tokenIn, tokenOut);
-    const feeTier =
-      poolRange["data"]["rangePools"]["0"]["feeTier"]["feeAmount"];
+    const feeTier = poolRange["feeTier"]["feeAmount"];
     setRangeSlippage((parseFloat(feeTier) / 10000).toString());
   };
 
@@ -501,16 +499,7 @@ export default function Swap() {
         updateMintFee();
       }
     }
-  }, [
-    bnInput,
-    tokenIn.address,
-    tokenOut.address,
-    allowanceRange,
-    allowanceCover,
-    coverPoolAddress,
-    rangePoolAddress,
-    LimitActive,
-  ]);
+  });
 
   async function updateGasFee() {
     const newGasFee = await gasEstimateSwap(
@@ -530,11 +519,6 @@ export default function Swap() {
       signer,
       isConnected
     );
-    console.log(
-      "new swap fee",
-      newGasFee.formattedPrice,
-      newGasFee.gasUnits.toString()
-    );
     setSwapGasFee(newGasFee.formattedPrice);
     setSwapGasLimit(newGasFee.gasUnits.mul(150).div(100));
   }
@@ -551,10 +535,6 @@ export default function Swap() {
       rangeTickSpacing,
       signer
     );
-
-    console.log(newMintFee.formattedPrice, "gas price");
-    console.log(parseFloat(newMintFee.formattedPrice), "gas price");
-
     setMintFee(newMintFee.formattedPrice);
     setMintGasLimit(newMintFee.gasUnits.mul(130).div(100));
   }
