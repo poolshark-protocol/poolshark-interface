@@ -62,6 +62,10 @@ export default function Swap() {
     token0,
     token1,
     pairSelected,
+    rangePoolAddress,
+    setRangePoolAddress,
+    coverPoolAddress,
+    setCoverPoolAddress,
   ] = useSwapStore((state: any) => [
     state.tokenIn,
     state.tokenOut,
@@ -70,6 +74,10 @@ export default function Swap() {
     state.token0,
     state.token1,
     state.pairSelected,
+    state.rangePoolAddress,
+    state.setRangePoolAddress,
+    state.coverPoolAddress,
+    state.setCoverPoolAddress,
   ]);
 
   const [swapGasFee, setSwapGasFee] = useState("$0.00");
@@ -94,7 +102,7 @@ export default function Swap() {
   const [tokenOrder, setTokenOrder] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const [allowanceRange, setAllowanceRange] = useState("0.00");
-  const [allowanceCover, setAllowanceCover] = useState("0.00"); 
+  const [allowanceCover, setAllowanceCover] = useState("0.00");
   const [coverPoolRoute, setCoverPoolRoute] = useState(undefined);
   const [rangePoolRoute, setRangePoolRoute] = useState(undefined);
   const [rangeTickSpacing, setRangeTickSpacing] = useState(undefined);
@@ -124,12 +132,12 @@ export default function Swap() {
   //////////////////////////////// tokenOrder
 
   useEffect(() => {
-    if (tokenIn && tokenOut) {
-      setTokenOrder(tokenIn == token0);
+    if (tokenIn.address && tokenOut.address) {
+      setTokenOrder(tokenIn.address == token0.address);
     }
-  }, [tokenIn, tokenOut]);
+  }, [tokenIn.address, tokenOut.address]);
 
-  ////////////////////////////////Pools and Balances
+  ////////////////////////////////Balances
 
   const { data: tokenInBal } = useBalance({
     address: address,
@@ -146,19 +154,29 @@ export default function Swap() {
   });
 
   useEffect(() => {
-    if (pairSelected) {
-      updatePools();
-      //setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0);
-    }
-
     if (isConnected) {
       setBalanceIn(parseFloat(tokenInBal?.formatted.toString()).toFixed(2));
-
       if (pairSelected) {
         setBalanceOut(parseFloat(tokenOutBal?.formatted.toString()).toFixed(2));
       }
     }
-  }, [tokenOut.address, tokenIn.address, pairSelected, isConnected]);
+  }, [tokenInBal, tokenOutBal]);
+
+  ////////////////////////////////Pools
+
+  useEffect(() => {
+    if (pairSelected) {
+      updatePools();
+      //setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0);
+    }
+  }, [tokenOut.address, tokenIn.address]);
+
+  async function updatePools() {
+    await getRangePool(tokenIn, tokenOut, setRangePoolRoute);
+    await getCoverPool(tokenIn, tokenOut, setCoverPoolRoute);
+  }
+
+  ////////////////////////////////Prices
 
   useEffect(() => {
     if (rangeBnPrice) {
@@ -176,19 +194,6 @@ export default function Swap() {
     coverPoolRoute,
     rangePoolRoute,
   ]);
-
-  async function updatePools() {
-    await getRangePool(
-      tokenIn,
-      tokenOut,
-      setRangePoolRoute,
-      setRangeTickSpacing,
-      setTokenIn,
-      setTokenOut,
-      setEthUsdPrice
-    );
-    await getCoverPool(tokenIn, tokenOut, setCoverPoolRoute);
-  }
 
   ////////////////////////////////Allowances
 

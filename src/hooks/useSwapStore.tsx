@@ -165,6 +165,16 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       }));
     }
   },
+  setRangePoolAddress: (rangePoolAddress: string) => {
+    set(() => ({
+        rangePoolAddress: rangePoolAddress,
+    }));
+  },
+  setCoverPoolAddress: (coverPoolAddress: string) => {
+    set(() => ({
+        coverPoolAddress: coverPoolAddress,
+    }));
+  },
   resetSwapParams: () => {
     set({
       coverPoolAddress: initialSwapState.coverPoolAddress,

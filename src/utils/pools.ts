@@ -1,43 +1,44 @@
-import { ZERO_ADDRESS } from './math/constants'
-import { TickMath } from './math/tickMath'
+import { ZERO_ADDRESS } from "./math/constants";
+import { TickMath } from "./math/tickMath";
 import {
   fetchCoverPools,
   fetchRangePools,
   getCoverPoolFromFactory,
   getRangePoolFromFactory,
-} from './queries'
-import { token } from './types'
-
+} from "./queries";
+import { token } from "./types";
 
 //TODO@retraca enable this componnent to directly u0pdate zustand states
 
 export const getRangePool = async (
   tokenIn: token,
   tokenOut: token,
-  setRangeRoute,
-  setRangeTickSpacing?,
-  setTokenIn?,
-  setTokenOut?,
-  setEthUsdPrice?,
+  setRangeRoute
+  /* setTokenIn?,
+  setTokenOut?, */
+  /* setRangeTickSpacing?, */
+  //setEthUsdPrice?,
 ) => {
   try {
-    const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
+    /*     const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0;
+     */
     const pool = await getRangePoolFromFactory(
       tokenIn.address,
-      tokenOut.address,
-    )
+      tokenOut.address
+    );
     //TODO@retraca create here a for for choosing the right pool considering feetier
-    let id = ZERO_ADDRESS
-    const dataLength = pool['data']['rangePools'].length
+    let id = ZERO_ADDRESS;
+    const dataLength = pool["data"]["rangePools"].length;
     if (dataLength != 0) {
-      id = pool['data']['rangePools']['0']['id']
+      id = pool["data"]["rangePools"]["0"]["id"];
 
-      if (setRangeTickSpacing) {
+      /* if (setRangeTickSpacing) {
         const tickSpacing =
-          pool['data']['rangePools']['0']['feeTier']['tickSpacing']
-        setRangeTickSpacing(tickSpacing)
-      }
-      if (setTokenIn) {
+          pool["data"]["rangePools"]["0"]["feeTier"]["tickSpacing"];
+        setRangeTickSpacing(tickSpacing);
+      } */
+
+      /* if (setTokenIn) {
         const tokenInUsdPrice = tokenOrder
           ? pool['data']['rangePools']['0']['token0']['usdPrice']
           : pool['data']['rangePools']['0']['token1']['usdPrice']
@@ -49,8 +50,8 @@ export const getRangePool = async (
           usdPrice: !isNaN(parseFloat(tokenInUsdPrice)) ? tokenInUsdPrice : 0,
         } as token)
         console.log('token in usd price:', tokenInUsdPrice)
-      }
-      if (setTokenOut) {
+      } */
+      /* if (setTokenOut) {
         const tokenOutUsdPrice = tokenOrder
           ? pool['data']['rangePools']['0']['token1']['usdPrice']
           : pool['data']['rangePools']['0']['token0']['usdPrice']
@@ -62,76 +63,75 @@ export const getRangePool = async (
           usdPrice: !isNaN(parseFloat(tokenOutUsdPrice)) ? tokenOutUsdPrice : 0,
         } as token)
         console.log('token out usd price:', tokenOutUsdPrice)
-      }
-      if (setEthUsdPrice) {
+      } */
+      /* if (setEthUsdPrice) {
         const pricesLength = pool['data']['basePrices'].length
         if (pricesLength != 0) {
           const ethUsdPrice = pool['data']['basePrices']['0']['USD']
           setEthUsdPrice(parseFloat(ethUsdPrice))
         }
-      }
+      } */
     } else {
       const fallbackPool = await getRangePoolFromFactory(
         tokenOut.address,
-        tokenIn.address,
-      )
-      id = fallbackPool['data']['rangePools']['0']['id']
+        tokenIn.address
+      );
+      id = fallbackPool["data"]["rangePools"]["0"]["id"];
 
-      if (setRangeTickSpacing) {
+      /* if (setRangeTickSpacing) {
         const tickSpacing =
-          fallbackPool['data']['rangePools']['0']['feeTier']['tickSpacing']
-        setRangeTickSpacing(tickSpacing)
-      }
+          fallbackPool["data"]["rangePools"]["0"]["feeTier"]["tickSpacing"];
+        setRangeTickSpacing(tickSpacing);
+      } */
     }
-    setRangeRoute(id)
-    console.log('range route', id)
+    setRangeRoute(id);
+    console.log("range route", id);
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-}
+};
 
 export const getCoverPool = async (
   tokenIn: token,
   tokenOut: token,
   setCoverRoute,
-  setTokenInUsdPrice?,
+  //setTokenInUsdPrice?
 ) => {
   try {
-    const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
+    const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0;
     const pool = await getCoverPoolFromFactory(
       tokenIn.address,
-      tokenOut.address,
-    )
+      tokenOut.address
+    );
     //let id = ZERO_ADDRESS
-    const dataLength = pool['data']['coverPools'].length
+    const dataLength = pool["data"]["coverPools"].length;
     if (dataLength != 0) {
-      setCoverRoute(pool['data']['coverPools']['0']['id'])
-      if (setTokenInUsdPrice) {
+      setCoverRoute(pool["data"]["coverPools"]["0"]["id"]);
+      /* if (setTokenInUsdPrice) {
         setTokenInUsdPrice(
           tokenOrder
-            ? pool['data']['coverPools']['0']['token0']['usdPrice']
-            : pool['data']['coverPools']['0']['token1']['usdPrice'],
-        )
-      }
+            ? pool["data"]["coverPools"]["0"]["token0"]["usdPrice"]
+            : pool["data"]["coverPools"]["0"]["token1"]["usdPrice"]
+        );
+      } */
     } else {
       const fallbackPool = await getCoverPoolFromFactory(
         tokenOut.address,
-        tokenIn.address,
-      )
-      setCoverRoute(fallbackPool['data']['coverPools']['0']['id'])
-      if (setTokenInUsdPrice) {
+        tokenIn.address
+      );
+      setCoverRoute(fallbackPool["data"]["coverPools"]["0"]["id"]);
+      /* if (setTokenInUsdPrice) {
         setTokenInUsdPrice(
           tokenOrder
-            ? pool['data']['coverPools']['0']['token1']['usdPrice']
-            : pool['data']['coverPools']['0']['token0']['usdPrice'],
-        )
-      }
+            ? pool["data"]["coverPools"]["0"]["token1"]["usdPrice"]
+            : pool["data"]["coverPools"]["0"]["token0"]["usdPrice"]
+        );
+      } */
     }
-    console.log('cover route', pool['data']['coverPools']['0']['id'])
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-}
+};
 
 export const getCoverPoolInfo = async (
   poolRoute: string,
@@ -146,48 +146,48 @@ export const getCoverPoolInfo = async (
   lowerPrice?,
   upperPrice?,
   setLowerPrice?,
-  setUpperPrice?,
+  setUpperPrice?
 ) => {
   try {
     const pool = await getCoverPoolFromFactory(
       tokenIn.address,
-      tokenOut.address,
-    )
-    const dataLength = pool['data']['coverPools'].length
+      tokenOut.address
+    );
+    const dataLength = pool["data"]["coverPools"].length;
     if (dataLength != 0) {
       for (let i = 0; i < dataLength; i++) {
-        if (pool['data']['coverPools'][i]['id'] == poolRoute) {
+        if (pool["data"]["coverPools"][i]["id"] == poolRoute) {
           const tickSpread =
-            pool['data']['coverPools'][i]['volatilityTier']['tickSpread']
-          if (tickSpread == '20') {
-            setVolatility(0)
-          } else if (tickSpread == '40') {
-            setVolatility(1)
+            pool["data"]["coverPools"][i]["volatilityTier"]["tickSpread"];
+          if (tickSpread == "20") {
+            setVolatility(0);
+          } else if (tickSpread == "40") {
+            setVolatility(1);
           }
           /* setCoverPoolRoute(pool['data']['coverPools']['0']['id']) */
-          const newLatestTick = pool['data']['coverPools']['0']['latestTick']
+          const newLatestTick = pool["data"]["coverPools"]["0"]["latestTick"];
           if (setCoverPrice)
-            setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick))
+            setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick));
           if (setTokenInUsdPrice) {
             setTokenInUsdPrice(
               parseFloat(
                 tokenOrder
-                  ? pool['data']['coverPools']['0']['token0']['usdPrice']
-                  : pool['data']['coverPools']['0']['token1']['usdPrice'],
-              ),
-            )
+                  ? pool["data"]["coverPools"]["0"]["token0"]["usdPrice"]
+                  : pool["data"]["coverPools"]["0"]["token1"]["usdPrice"]
+              )
+            );
           }
           if (setLatestTick) {
-            setLatestTick(newLatestTick)
+            setLatestTick(newLatestTick);
             if (isNaN(parseFloat(lowerPrice)) && setLowerPrice) {
               setLowerPrice(
                 TickMath.getPriceStringAtTick(
                   tokenOrder
                     ? newLatestTick - tickSpread * 10
                     : newLatestTick + tickSpread,
-                  tickSpread,
-                ),
-              )
+                  tickSpread
+                )
+              );
             }
             if (isNaN(parseFloat(upperPrice)) && setUpperPrice) {
               setUpperPrice(
@@ -195,73 +195,73 @@ export const getCoverPoolInfo = async (
                   tokenOrder
                     ? newLatestTick - tickSpread
                     : newLatestTick + tickSpread * 10,
-                  tickSpread,
-                ),
-              )
+                  tickSpread
+                )
+              );
             }
           }
         }
       }
     } else {
-      setCoverPoolRoute(ZERO_ADDRESS)
-      setCoverPrice('1.00')
-      setTokenInUsdPrice('1.00')
+      setCoverPoolRoute(ZERO_ADDRESS);
+      setCoverPrice("1.00");
+      setTokenInUsdPrice("1.00");
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-}
+};
 
 export const getFeeTier = async (
   rangePoolRoute: string,
   coverPoolRoute: string,
   setRangeSlippage,
-  setCoverSlippage,
+  setCoverSlippage
 ) => {
-  const coverData = await fetchCoverPools()
-  const coverPoolAddress = coverData['data']['coverPools']['0']['id']
+  const coverData = await fetchCoverPools();
+  const coverPoolAddress = coverData["data"]["coverPools"]["0"]["id"];
 
   if (coverPoolAddress === coverPoolRoute) {
     const feeTier =
-      coverData['data']['coverPools']['0']['volatilityTier']['feeAmount']
-    setCoverSlippage((parseFloat(feeTier) / 10000).toString())
+      coverData["data"]["coverPools"]["0"]["volatilityTier"]["feeAmount"];
+    setCoverSlippage((parseFloat(feeTier) / 10000).toString());
   }
-  const data = await fetchRangePools()
-  const rangePoolAddress = data['data']['rangePools']['0']['id']
+  const data = await fetchRangePools();
+  const rangePoolAddress = data["data"]["rangePools"]["0"]["id"];
 
   if (rangePoolAddress === rangePoolRoute) {
-    const feeTier = data['data']['rangePools']['0']['feeTier']['feeAmount']
-    setRangeSlippage((parseFloat(feeTier) / 10000).toString())
+    const feeTier = data["data"]["rangePools"]["0"]["feeTier"]["feeAmount"];
+    setRangeSlippage((parseFloat(feeTier) / 10000).toString());
   }
-}
+};
 
 export const feeTiers = [
   {
     id: 1,
-    tier: '0.01%',
+    tier: "0.01%",
     tierId: 100,
-    text: 'Best for very stable pairs',
+    text: "Best for very stable pairs",
     unavailable: false,
   },
   {
     id: 2,
-    tier: '0.05%',
+    tier: "0.05%",
     tierId: 500,
-    text: 'Best for stable pairs',
+    text: "Best for stable pairs",
     unavailable: false,
   },
   {
     id: 3,
-    tier: '0.3%',
+    tier: "0.3%",
     tierId: 3000,
-    text: 'Best for most pairs',
+    text: "Best for most pairs",
     unavailable: false,
   },
   {
     id: 4,
-    tier: '1%',
+    tier: "1%",
     tierId: 10000,
-    text: 'Best for exotic pairs',
+    text: "Best for exotic pairs",
     unavailable: false,
   },
-]
+];
