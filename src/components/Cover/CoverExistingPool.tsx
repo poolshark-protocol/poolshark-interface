@@ -37,7 +37,7 @@ import JSBD from 'jsbd'
 
 export default function CoverExistingPool({
   account,
-  poolId,
+  rangePoolRoute,
   tokenOneName,
   tokenOneSymbol,
   tokenOneLogoURI,
@@ -60,23 +60,18 @@ export default function CoverExistingPool({
   const { address, isConnected, isDisconnected } = useAccount()
   const { data: signer } = useSigner()
   const [expanded, setExpanded] = useState(false)
-  const [fetchDelay, setFetchDelay] = useState(false)
-  const [tickSpread, setTickSpread] = useState(tickSpacing)
+  const [tickSpread, setTickSpread] = useState(20)
   const [auctionLength, setAuctionLength] = useState(0)
   const [tokenOrder, setTokenOrder] = useState(zeroForOne)
   const [latestTick, setLatestTick] = useState(0)
   const [lowerTick, setLowerTick] = useState(
-    getDefaultLowerTick(minLimit, maxLimit, zeroForOne),
+    0
   )
   const [upperTick, setUpperTick] = useState(
-    getDefaultUpperTick(minLimit, maxLimit, zeroForOne),
+    0
   )
-  const [lowerPrice, setLowerPrice] = useState(
-    getDefaultLowerPrice(minLimit, maxLimit, zeroForOne),
-  )
-  const [upperPrice, setUpperPrice] = useState(
-    getDefaultUpperPrice(minLimit, maxLimit, zeroForOne),
-  )
+  const [lowerPrice, setLowerPrice] = useState('')
+  const [upperPrice, setUpperPrice] = useState('')
   const [hasSelected, setHasSelected] = useState(true)
   const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress)
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress)
@@ -100,7 +95,7 @@ export default function CoverExistingPool({
   const [sliderValue, setSliderValue] = useState(50)
   const [coverPrice, setCoverPrice] = useState(undefined)
   const [coverTickPrice, setCoverTickPrice] = useState(undefined)
-  const [coverPoolRoute, setCoverPoolRoute] = useState(poolId ?? undefined)
+  const [coverPoolRoute, setCoverPoolRoute] = useState(undefined)
   const [coverAmountIn, setCoverAmountIn] = useState(ZERO)
   const [coverAmountOut, setCoverAmountOut] = useState(ZERO)
   const [allowance, setAllowance] = useState(ZERO)
@@ -109,7 +104,24 @@ export default function CoverExistingPool({
   const [buttonState, setButtonState] = useState('')
   const [mintGasFee, setMintGasFee] = useState('$0.00')
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
+  const volatilityTiers = [
+    {
+      id: 0,
+      tier: '1.7% per min',
+      text: 'Most Pairs',
+      unavailable: false,
+      tickSpread: 20
+    },
+    {
+      id: 1,
+      tier: '2.4% per min',
+      text: 'Exotic Pairs',
+      unavailable: false,
+      tickSpread: 40
+    },
+  ]
   const [volatility, setVolatility] = useState(0)
+  const [selectedVolatility, setSelectedVolatility] = useState(volatilityTiers[0])
 
   ////////////////////////////////
 
@@ -128,8 +140,6 @@ export default function CoverExistingPool({
     enabled: isConnected,
     watch: true
   })
-
-
 
   useEffect(() => {
     if (latestTick) {
@@ -157,58 +167,39 @@ export default function CoverExistingPool({
     }, 50)
   }, [allowanceIn, tokenIn.address, coverAmountIn])
 
-  useEffect(() => {
-    setFetchDelay(false)
-  }, [coverPoolRoute])
-
-  useEffect(() => {
-    setFetchDelay(true)
-  }, [])
-
   // fetches
   // - coverPoolRoute => pool address
   // - tickSpread => pool tick spacing
   // - latestTick => current TWAP tick
   useEffect(() => {
-    if (!fetchDelay) {
+    const newTokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
+    console.log('new vol tier tickspread', tickSpread)
+    if (hasSelected)
       getCoverPoolInfo(
         coverPoolRoute,
-        tokenOrder,
+        newTokenOrder,
         tokenIn,
         tokenOut,
         setCoverPoolRoute,
         setCoverPrice,
         null,
+        volatility,
         setVolatility,
         setLatestTick,
         lowerPrice,
         upperPrice,
         setLowerPrice,
         setUpperPrice,
+        tickSpread,
+        true
       )
-      console.log('tick bounds', lowerTick, upperTick)
-      if (!isNaN(lowerTick) && !isNaN(upperTick)) updateGasFee()
-    } else {
-      const interval = setInterval(() => {
-        getCoverPoolInfo(
-          coverPoolRoute,
-          tokenOrder,
-          tokenIn,
-          tokenOut,
-          setCoverPoolRoute,
-          setCoverPrice,
-          null,
-          setVolatility,
-          setLatestTick,
-          lowerPrice,
-          upperPrice,
-          setLowerPrice,
-          setUpperPrice,
-        )
-      }, 5000)
-      return () => clearInterval(interval)
-    }
-  }, [fetchDelay, coverPoolRoute])
+      setTokenOrder(newTokenOrder)
+  }, [
+    tokenIn.address,
+    tokenOut.address,
+    tickSpread,
+    coverPoolRoute
+  ])
 
   useEffect(() => {
     changeCoverAmounts()
@@ -396,25 +387,48 @@ export default function CoverExistingPool({
     setSliderValue(event.target.value)
   }
 
-  const volatilityTiers = [
-    {
-      id: 0,
-      tier: '2.4% per min',
-      text: 'Best for most pairs',
-      unavailable: false,
-    },
-  ]
+  useEffect(() => {
+    setSelectedVolatility(volatilityTiers[volatility])
+  }, [volatility])
 
-  const [selected, setSelected] = useState(volatilityTiers[0])
+  //when volatility changes, we find the corresponding pool id and changed it trigerring the poolInfo refetching
+  const handleManualVolatilityChange = async (volatility: any) => {
+    console.log('handling change')
+    try {
+      const pool = await getCoverPoolFromFactory(
+        tokenIn.address,
+        tokenOut.address,
+      )
+      const volatilityId = volatility.id
+      const dataLength = pool['data']['coverPools'].length
+      for (let i = 0; i < dataLength; i++) {
+        if (
+          (volatilityId == 0 &&
+            pool['data']['coverPools'][i]['volatilityTier']['tickSpread'] ==
+              20) ||
+          (volatilityId == 1 &&
+            pool['data']['coverPools'][i]['volatilityTier']['tickSpread'] == 40)
+        ) {
+          console.log('setting cover pool route', pool['data']['coverPools'][i]['id'])
+          console.log('new vol tier', volatilityTiers[volatilityId].tickSpread, volatilityTiers[volatilityId])
+          setSelectedVolatility(volatilityTiers[volatilityId])
+          setTickSpread(volatilityTiers[volatilityId].tickSpread)
+          setCoverPoolRoute(pool['data']['coverPools'][i]['id'])
+        }
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   function SelectVolatility() {
     return (
-      <Listbox value={selected} onChange={setSelected}>
+      <Listbox value={selectedVolatility} onChange={handleManualVolatilityChange}>
         <div className="relative mt-1 w-full">
           <Listbox.Button className="relative cursor-default rounded-lg bg-black text-white cursor-pointer border border-grey1 py-2 pl-3 w-full text-left shadow-md focus:outline-none">
-            <span className="block truncate">{selected.tier}</span>
+            <span className="block truncate">{selectedVolatility.tier}</span>
             <span className="block truncate text-xs text-grey mt-1">
-              {selected.text}
+              {selectedVolatility.text}
             </span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
               <ChevronDownIcon className="w-7 text-grey" aria-hidden="true" />
@@ -508,7 +522,7 @@ export default function CoverExistingPool({
               if (hasSelected) {
                 switchDirection(
                   tokenOrder,
-                  setTokenOrder,
+                  null,
                   tokenIn,
                   setTokenIn,
                   tokenOut,
