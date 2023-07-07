@@ -80,19 +80,6 @@ export default function Swap() {
   const [rangeQuote, setRangeQuote] = useState(0);
   const [coverPrice, setCoverPrice] = useState(0);
   const [rangePrice, setRangePrice] = useState(0);
-  /* const [pairSelected, setpairSelected] = useState(false); */
-  /* const [tokenIn, setTokenIn] = useState({
-    symbol: "WETH",
-    logoURI: "/static/images/eth_icon.png",
-    address: tokenOneAddress,
-    usdPrice: 0,
-  } as token);
-  const [tokenOut, setTokenOut] = useState({
-    symbol: "Select Token",
-    logoURI: "",
-    address: tokenZeroAddress,
-    usdPrice: 0,
-  } as token); */
   const [ethUsdPrice, setEthUsdPrice] = useState(0);
   const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress);
   const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress);
@@ -107,7 +94,7 @@ export default function Swap() {
   const [tokenOrder, setTokenOrder] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const [allowanceRange, setAllowanceRange] = useState("0.00");
-  const [allowanceCover, setAllowanceCover] = useState("0.00");
+  const [allowanceCover, setAllowanceCover] = useState("0.00"); 
   const [coverPoolRoute, setCoverPoolRoute] = useState(undefined);
   const [rangePoolRoute, setRangePoolRoute] = useState(undefined);
   const [rangeTickSpacing, setRangeTickSpacing] = useState(undefined);
