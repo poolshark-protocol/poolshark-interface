@@ -1,43 +1,44 @@
-import { Fragment, useState, useEffect } from 'react'
+import { Fragment, useState, useEffect } from "react";
 import {
   ChevronDownIcon,
   XMarkIcon,
   MagnifyingGlassIcon,
-} from '@heroicons/react/20/solid'
-import { Transition, Dialog } from '@headlessui/react'
+} from "@heroicons/react/20/solid";
+import { Transition, Dialog } from "@headlessui/react";
 import {
   tokenZeroAddress,
   tokenOneAddress,
-} from '../constants/contractAddresses'
-import useTokenList from '../hooks/useTokenList'
-import CoinListButton from './Buttons/CoinListButton'
-import CoinListItem from './CoinListItem'
+} from "../constants/contractAddresses";
+import useTokenList from "../hooks/useTokenList";
+import CoinListButton from "./Buttons/CoinListButton";
+import CoinListItem from "./CoinListItem";
+import { token } from "../utils/types";
 
 export default function SelectToken(props) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [inputVal, setInputVal] = useState('')
-  const coins = useTokenList()[0]
+  const [isOpen, setIsOpen] = useState(false);
+  const [inputVal, setInputVal] = useState("");
+  const coins = useTokenList()[0];
 
   //@dev this is temporary for testnet
   // const [rawCoinList, setRawCoinList] = useState(coins["listed_tokens"]);
   const [rawCoinList, setRawCoinList] = useState([
     {
-      name: 'WETH',
+      name: "WETH",
       address: tokenOneAddress,
-      symbol: 'WETH',
-      logoURI: '/static/images/eth_icon.png',
+      symbol: "WETH",
+      logoURI: "/static/images/eth_icon.png",
       decimals: 18,
     },
     {
-      name: 'USDC',
+      name: "USDC",
       address: tokenZeroAddress,
-      symbol: 'USDC',
-      logoURI: '/static/images/token.png',
+      symbol: "USDC",
+      logoURI: "/static/images/token.png",
       decimals: 18,
     },
-  ])
+  ]);
 
-  const [orderedCoinList, setOrderedCoinList]= useState([])
+  const [orderedCoinList, setOrderedCoinList] = useState([]);
 
   //@dev this is temporary for testnet
   // const findCoin = () => {
@@ -71,87 +72,38 @@ export default function SelectToken(props) {
       address: coin?.address, //@dev use id for address in production like so address: coin?.id because thats what coin [] will have instead of address
       symbol: coin?.symbol,
       logoURI: coin?.logoURI,
-      decimals: coin?.decimals,
-    }
-    if (props.type === 'in') {
-      if (coin.symbol === props.tokenOut.symbol) {
-        if (props.selected === true) {
-          props.setTokenOut(props.tokenIn)
-          props.setQueryTokenOut(props.queryTokenIn)
-          props.setHasSelected(true)
-        } else {
-          props.setTokenOut({
-            symbol: 'Select Token',
-            logoURI: '',
-            address: tokenOneAddress,
-            usdPrice: 0,
-          })
-          props.setHasSelected(false)
-        }
-        props.setQueryTokenIn(props.queryTokenOut)
-      } else {
-        if (coin.address.localeCompare(props.tokenOut.address) < 0) {
-          props.setTokenIn(coin)
-          if (props.selected === true) {
-            props.setTokenOut(props.tokenOut)
-          }
-        }
-        if (coin.address.localeCompare(props.tokenOut.address) >= 0) {
-          if (props.selected === true) {
-            props.setTokenIn(props.tokenOut)
-          }
-        }
-        props.setHasSelected(true)
-      }
-      props.setTokenIn(coin)
+    };
+    if (props.type === "in") {
+      props.setTokenIn(props.tokenOut, {
+        address: coin?.address,
+        symbol: coin?.symbol,
+        logoURI: coin?.logoURI,
+      } as token);
     } else {
-      if (coin.symbol === props.tokenIn.symbol) {
-        if (props.selected === true) {
-          props.setTokenIn(props.tokenOut)
-          props.setQueryTokenIn(props.queryTokenOut)
-          props.setHasSelected(true)
-        } else {
-          props.setTokenIn({
-            symbol: 'Select Token',
-            logoURI: '',
-            address: tokenZeroAddress,
-            usdPrice: 0,
-          })
-          props.setHasSelected(false)
-        }
-        props.setQueryTokenOut(props.queryTokenIn)
-      } else {
-        if (coin.address.localeCompare(props.tokenIn.address) < 0) {
-          props.setTokenIn(coin)
-          props.setTokenOut(props.tokenIn)
-        }
-
-        if (coin.address.localeCompare(props.tokenIn.address) >= 0) {
-          props.setTokenIn(props.tokenIn)
-          props.setTokenOut(coin)
-        }
-        props.setHasSelected(true)
-      }
-      props.setTokenOut(coin)
+      props.setTokenOut(props.tokenIn, {
+        address: coin?.address,
+        symbol: coin?.symbol,
+        logoURI: coin?.logoURI,
+      } as token);
     }
-    props.balance(coin?.id)
-    closeModal()
-  }
+    props.balance(coin?.id);
+    closeModal();
+  };
 
   useEffect(() => {
     //@dev this is temporary for testnet
     // findCoin();
-  }, [inputVal, isOpen])
+  }, [inputVal, isOpen]);
 
   //   useEffect(() => {
   // }, [rawCoinList]);
 
   function closeModal() {
-    setIsOpen(false)
+    setIsOpen(false);
   }
 
   function openModal() {
-    setIsOpen(true)
+    setIsOpen(true);
   }
 
   return (
@@ -202,11 +154,11 @@ export default function SelectToken(props) {
                       {rawCoinList?.map((coin) => {
                         return (
                           <CoinListButton
-                            key={coin.symbol + 'top'}
+                            key={coin.symbol + "top"}
                             coin={coin}
                             chooseToken={chooseToken}
                           />
-                        )
+                        );
                       })}
                     </div>
                   </div>
@@ -218,7 +170,7 @@ export default function SelectToken(props) {
                           coin={coin}
                           chooseToken={chooseToken}
                         />
-                      )
+                      );
                     })}
                   </div>
                 </Dialog.Panel>
@@ -230,15 +182,15 @@ export default function SelectToken(props) {
       <button
         onClick={() => openModal()}
         className={
-          (props.tokenIn.symbol != 'Select Token' && props.type == 'in') ||
-          (props.tokenOut.symbol != 'Select Token' && props.type == 'out')
-            ? 'w-full md:text-base text-sm whitespace-nowrap flex items-center uppercase gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl'
-            : 'w-full md:text-base text-sm whitespace-nowrap flex items-center bg-background text-main gap-x-1 md:gap-x-3 hover:opacity-80  md:px-4 px-3 py-2 rounded-xl'
+          (props.tokenIn.symbol != "Select Token" && props.type == "in") ||
+          (props.tokenOut.symbol != "Select Token" && props.type == "out")
+            ? "w-full md:text-base text-sm whitespace-nowrap flex items-center uppercase gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
+            : "w-full md:text-base text-sm whitespace-nowrap flex items-center bg-background text-main gap-x-1 md:gap-x-3 hover:opacity-80  md:px-4 px-3 py-2 rounded-xl"
         }
       >
         <div className="flex items-center gap-x-2 w-full">
-          {(props.tokenIn.symbol != 'Select Token' && props.type == 'in') ||
-          (props.tokenOut.symbol != 'Select Token' && props.type == 'out') ? (
+          {(props.tokenIn.symbol != "Select Token" && props.type == "in") ||
+          (props.tokenOut.symbol != "Select Token" && props.type == "out") ? (
             <img className="md:w-7 w-6" src={props.displayToken?.logoURI} />
           ) : (
             <></>
@@ -248,5 +200,5 @@ export default function SelectToken(props) {
         <ChevronDownIcon className="w-5" />
       </button>
     </div>
-  )
+  );
 }

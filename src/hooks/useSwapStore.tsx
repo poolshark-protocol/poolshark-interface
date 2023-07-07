@@ -1,7 +1,10 @@
 import { BigNumber } from "ethers";
 import { token } from "../utils/types";
 import { BN_ZERO } from "../utils/math/constants";
-import { tokenOneAddress } from "../constants/contractAddresses";
+import {
+  tokenOneAddress,
+  tokenZeroAddress,
+} from "../constants/contractAddresses";
 import { create } from "zustand";
 
 type SwapState = {
@@ -47,30 +50,24 @@ const initialSwapState: SwapState = {
   tokenInCoverAllowanceBigNumber: BN_ZERO,
   tokenInAmountToSendBigNumber: BN_ZERO,
   tokenOut: {
-    name: "",
-    symbol: "",
+    symbol: "Select Token",
     logoURI: "",
-    address: "",
-    value: "",
+    address: tokenZeroAddress,
     usdPrice: 0,
   } as token,
   tokenOutRangeAllowanceBigNumber: BN_ZERO,
   tokenOutCoverAllowanceBigNumber: BN_ZERO,
   tokenOutAmountToReceiveBigNumber: BN_ZERO,
   token0: {
-    name: "",
     symbol: "",
     logoURI: "",
-    address: "",
-    value: "",
+    address: tokenZeroAddress,
     usdPrice: 0,
   } as token,
   token1: {
-    name: "",
     symbol: "",
     logoURI: "",
-    address: "",
-    value: "",
+    address: tokenOneAddress,
     usdPrice: 0,
   } as token,
   gasFee: BN_ZERO,
@@ -98,11 +95,14 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   token1: initialSwapState.token1,
   gasFee: initialSwapState.gasFee,
   gasLimit: initialSwapState.gasLimit,
-  setTokenIn: (state, newToken: token) => {
+  setTokenIn: (tokenOut, newToken: token) => {
     //if tokenOut is selected
-    if (state.tokenOut != initialSwapState.tokenOut) {
+    if (
+      tokenOut.address != initialSwapState.tokenOut.address ||
+      tokenOut.symbol != "Select Token"
+    ) {
       //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to  initialState
-      if (newToken == state.tokenOut) {
+      if (newToken.address == tokenOut.address) {
         set(() => ({
           tokenIn: newToken,
           token0: newToken,
@@ -114,14 +114,9 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
         //if tokens are different
         set(() => ({
           tokenIn: newToken,
-          token0:
-            newToken.address < state.tokenOut.address
-              ? newToken
-              : state.tokenOut,
-          token1:
-            newToken.address < state.tokenOut.address
-              ? state.tokenOut
-              : newToken,
+          token0: newToken.address < tokenOut.address ? newToken : tokenOut,
+          token1: newToken.address < tokenOut.address ? tokenOut : newToken,
+          pairSelected: true,
         }));
       }
     } else {
@@ -129,14 +124,18 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       set(() => ({
         tokenIn: newToken,
         token0: newToken,
+        pairSelected: false,
       }));
     }
   },
-  setTokenOut: (state, newToken: token) => {
+  setTokenOut: (tokenIn, newToken: token) => {
     //if tokenIn exists
-    if (state.tokenIn != initialSwapState.tokenOut) {
+    if (
+      tokenIn.address != initialSwapState.tokenOut.address ||
+      tokenIn.symbol != "Select Token"
+    ) {
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
-      if (newToken == state.tokenIn) {
+      if (newToken.address == tokenIn.address) {
         set(() => ({
           tokenOut: newToken,
           token0: newToken,
@@ -148,10 +147,9 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
         //if tokens are different
         set(() => ({
           tokenOut: newToken,
-          token0:
-            newToken.address < state.tokenIn.address ? newToken : state.tokenIn,
-          token1:
-            newToken.address < state.tokenIn.address ? state.tokenIn : newToken,
+          token0: newToken.address < tokenIn.address ? newToken : tokenIn,
+          token1: newToken.address < tokenIn.address ? tokenIn : newToken,
+          pairSelected: true,
         }));
       }
     } else {
@@ -159,6 +157,7 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       set(() => ({
         tokenOut: newToken,
         token0: newToken,
+        pairSelected: false,
       }));
     }
   },

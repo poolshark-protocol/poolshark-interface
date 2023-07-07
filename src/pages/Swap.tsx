@@ -54,11 +54,22 @@ export default function Swap() {
   const { bnInput, display, inputBox, maxBalance, setBnInput, setDisplay } =
     useInputBox();
 
-  const [tokenIn, tokenOut, setTokenIn, setTokenOut] = useSwapStore((state: any) => [
+  const [
+    tokenIn,
+    tokenOut,
+    setTokenIn,
+    setTokenOut,
+    token0,
+    token1,
+    pairSelected,
+  ] = useSwapStore((state: any) => [
     state.tokenIn,
     state.tokenOut,
     state.setTokenIn,
     state.setTokenOut,
+    state.token0,
+    state.token1,
+    state.pairSelected,
   ]);
 
   const [swapGasFee, setSwapGasFee] = useState("$0.00");
@@ -69,7 +80,7 @@ export default function Swap() {
   const [rangeQuote, setRangeQuote] = useState(0);
   const [coverPrice, setCoverPrice] = useState(0);
   const [rangePrice, setRangePrice] = useState(0);
-  const [hasSelected, setHasSelected] = useState(false);
+  /* const [pairSelected, setpairSelected] = useState(false); */
   /* const [tokenIn, setTokenIn] = useState({
     symbol: "WETH",
     logoURI: "/static/images/eth_icon.png",
@@ -93,9 +104,7 @@ export default function Swap() {
   const [balanceOut, setBalanceOut] = useState("0.00");
   const [stateChainName, setStateChainName] = useState();
   const [LimitActive, setLimitActive] = useState(false);
-  const [tokenOrder, setTokenOrder] = useState(
-    tokenIn.address.localeCompare(tokenOut.address) < 0
-  );
+  const [tokenOrder, setTokenOrder] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const [allowanceRange, setAllowanceRange] = useState("0.00");
   const [allowanceCover, setAllowanceCover] = useState("0.00");
@@ -125,7 +134,18 @@ export default function Swap() {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
   }, [chainId]);
 
+  //////////////////////////////// tokenOrder
+
+  useEffect(() => {
+    if (tokenIn && tokenOut) {
+      setTokenOrder(tokenIn == token0);
+    }
+  }, [tokenIn, tokenOut]);
+
   ////////////////////////////////Pools and Balances
+
+  console.log("tokenIn", tokenIn);
+  console.log("tokenOut", tokenOut);
 
   const { data: tokenInBal } = useBalance({
     address: address,
@@ -137,24 +157,24 @@ export default function Swap() {
   const { data: tokenOutBal } = useBalance({
     address: address,
     token: tokenOut.address as `0x${string}`,
-    enabled: isConnected && hasSelected,
+    enabled: isConnected && pairSelected,
     watch: true,
   });
 
   useEffect(() => {
-    if (hasSelected) {
+    if (pairSelected) {
       updatePools();
-      setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0);
+      //setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0);
     }
 
     if (isConnected) {
       setBalanceIn(parseFloat(tokenInBal?.formatted.toString()).toFixed(2));
 
-      if (hasSelected) {
+      if (pairSelected) {
         setBalanceOut(parseFloat(tokenOutBal?.formatted.toString()).toFixed(2));
       }
     }
-  }, [tokenOut.address, tokenIn.address, hasSelected, isConnected]);
+  }, [tokenOut.address, tokenIn.address, pairSelected, isConnected]);
 
   useEffect(() => {
     if (rangeBnPrice) {
@@ -250,7 +270,7 @@ export default function Swap() {
   const { data: priceCover } = useContractRead({
     address: coverPoolRoute,
     abi: coverPoolABI,
-    functionName: tokenOrder ? "pool1" : "pool0",
+    functionName: tokenIn == token0 ? "pool1" : "pool0",
     args: [],
     chainId: 421613,
     watch: true,
@@ -327,13 +347,13 @@ export default function Swap() {
     if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
       setButtonState("amount");
     }
-    if (hasSelected == false) {
+    if (pairSelected == false) {
       setButtonState("token");
     }
     if (Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput))) {
       setButtonState("balance");
     }
-  }, [bnInput, hasSelected, balanceIn, bnInput]);
+  }, [bnInput, pairSelected, balanceIn, bnInput]);
 
   ////////////////////////////////Limit Price
   useEffect(() => {
@@ -689,7 +709,7 @@ export default function Swap() {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Expected Output</div>
             <div className="ml-auto text-xs">
-              {hasSelected
+              {pairSelected
                 ? !LimitActive
                   ? rangeQuote >= coverQuote
                     ? rangeQuote === 0
@@ -727,7 +747,7 @@ export default function Swap() {
                 Minimum received after slippage ({slippage}%)
               </div>
               <div className="ml-auto text-xs">
-                {hasSelected
+                {pairSelected
                   ? !LimitActive
                     ? rangeQuote >= coverQuote
                       ? rangeQuote === 0
@@ -772,7 +792,7 @@ export default function Swap() {
             <div className="flex p-1">
               <div className="text-xs text-[#4C4C4C]">Price Impact</div>
               <div className="ml-auto text-xs">
-                {hasSelected
+                {pairSelected
                   ? rangePriceAfter != undefined || coverPriceAfter != undefined
                     ? rangeQuote >= coverQuote
                       ? (
@@ -902,8 +922,6 @@ export default function Swap() {
                   <SelectToken
                     index="0"
                     type="in"
-                    selected={hasSelected}
-                    setHasSelected={setHasSelected}
                     tokenIn={tokenIn}
                     setTokenIn={setTokenIn}
                     tokenOut={tokenOut}
@@ -944,7 +962,7 @@ export default function Swap() {
             <ArrowSmallDownIcon
               className="w-4 h-4"
               onClick={() => {
-                if (hasSelected) {
+                if (pairSelected) {
                   switchDirection();
                 }
               }}
@@ -955,7 +973,7 @@ export default function Swap() {
           <div className="flex-col justify-center w-1/2 p-2 ">
             <div className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
               {!LimitActive ? (
-                hasSelected && !bnInput.eq(BN_ZERO) ? (
+                pairSelected && !bnInput.eq(BN_ZERO) ? (
                   <div>
                     {bnInput.gt(BN_ONE)
                       ? rangeQuote >= coverQuote
@@ -966,7 +984,7 @@ export default function Swap() {
                 ) : (
                   <div>0</div>
                 )
-              ) : hasSelected &&
+              ) : pairSelected &&
                 parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) != 0 &&
                 bnInput._hex != "0x00" ? (
                 <div>
@@ -979,7 +997,7 @@ export default function Swap() {
                 <div>0</div>
               )}
             </div>
-            {hasSelected ? (
+            {pairSelected ? (
               <div className="flex">
                 <div className="flex text-xs text-[#4C4C4C]">
                   $
@@ -1006,8 +1024,6 @@ export default function Swap() {
                 <div className="flex justify-end">
                   <SelectToken
                     type="out"
-                    selected={hasSelected}
-                    setHasSelected={setHasSelected}
                     tokenIn={tokenIn}
                     setTokenIn={setTokenIn}
                     tokenOut={tokenOut}
@@ -1021,7 +1037,7 @@ export default function Swap() {
                     key={queryTokenOut}
                   />
                 </div>
-                {hasSelected ? (
+                {pairSelected ? (
                   <div className="flex items-center justify-end gap-2 px-1 mt-2">
                     <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]">
                       Balance: {balanceOut === "0.00" ? 0 : balanceOut}
@@ -1054,7 +1070,7 @@ export default function Swap() {
                 {/*TODO - fix market price comparion when switch directions*/}
                 <div className="flex">
                   <div className="flex text-[10px] md:text-xs text-[#4C4C4C]">
-                    {hasSelected && rangePrice > 0
+                    {pairSelected && rangePrice > 0
                       ? (parseFloat(limitPrice) / rangePrice - 1) * 100 > 0
                         ? (
                             (parseFloat(limitPrice) / rangePrice - 1) *
@@ -1071,7 +1087,7 @@ export default function Swap() {
                 <div className="flex justify-center ml-auto">
                   <div className="flex-col">
                     <div className="flex justify-end">
-                      {tokenOrder && hasSelected === false ? (
+                      {tokenOrder && pairSelected === false ? (
                         <button className="flex md:text-sm text-xs items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl">
                           {tokenIn.symbol} per ?
                           <ArrowPathIcon className="w-5" />
@@ -1109,7 +1125,7 @@ export default function Swap() {
           >
             <div className="flex-none text-xs uppercase text-[#C9C9C9]">
               1 {tokenIn.symbol} ={" "}
-              {tokenOut.symbol === "Select Token"
+              {/* {!pairSelected
                 ? " ?"
                 : " " +
                   (!LimitActive
@@ -1127,8 +1143,8 @@ export default function Swap() {
                     ? parseFloat(
                         ethers.utils.formatUnits(rangeBnPrice, 18)
                       ).toFixed(3)
-                    : "0")}{" "}
-              {tokenOut.symbol}
+                    : "0")}{" "} */}
+              1 {tokenOut.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
               <button>
