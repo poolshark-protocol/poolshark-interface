@@ -103,8 +103,8 @@ export default function Swap() {
   const [expanded, setExpanded] = useState(false);
   const [allowanceRange, setAllowanceRange] = useState("0.00");
   const [allowanceCover, setAllowanceCover] = useState("0.00");
-  const [coverPoolRoute, setCoverPoolRoute] = useState(undefined);
-  const [rangePoolRoute, setRangePoolRoute] = useState(undefined);
+  /* const [coverPoolAddress, setCoverPoolAddress] = useState(undefined);
+  const [rangePoolAddress, setRangePoolAddress] = useState(undefined); */
   const [rangeTickSpacing, setRangeTickSpacing] = useState(undefined);
   const [coverPriceAfter, setCoverPriceAfter] = useState(undefined);
   const [rangePriceAfter, setRangePriceAfter] = useState(undefined);
@@ -172,28 +172,9 @@ export default function Swap() {
   }, [tokenOut.address, tokenIn.address]);
 
   async function updatePools() {
-    await getRangePool(tokenIn, tokenOut, setRangePoolRoute);
-    await getCoverPool(tokenIn, tokenOut, setCoverPoolRoute);
+    await getRangePool(tokenIn, tokenOut, setRangePoolAddress);
+    await getCoverPool(tokenIn, tokenOut, setCoverPoolAddress);
   }
-
-  ////////////////////////////////Prices
-
-  useEffect(() => {
-    if (rangeBnPrice) {
-      if (!rangeBnPrice.eq(BN_ZERO)) {
-        const baseLimit = rangeBnPrice
-          .mul(parseFloat((parseFloat(slippage) * 100).toFixed(6)))
-          .div(10000);
-        setRangeBnBaseLimit(baseLimit);
-      }
-    }
-  }, [
-    bnInput,
-    tokenIn.address,
-    tokenOut.address,
-    coverPoolRoute,
-    rangePoolRoute,
-  ]);
 
   ////////////////////////////////Allowances
 
@@ -201,10 +182,10 @@ export default function Swap() {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolRoute],
+    args: [address, rangePoolAddress],
     chainId: 421613,
     watch: true,
-    enabled: isConnected && rangePoolRoute != undefined,
+    enabled: pairSelected && rangePoolAddress,
     onError(error) {
       console.log("Error allowance", error);
     },
@@ -217,10 +198,10 @@ export default function Swap() {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, coverPoolRoute],
+    args: [address, coverPoolAddress],
     chainId: 421613,
     watch: true,
-    enabled: isConnected && coverPoolRoute != undefined,
+    enabled: pairSelected && coverPoolAddress,
     onError(error) {
       console.log("Error allowance", error);
     },
@@ -230,24 +211,22 @@ export default function Swap() {
   });
 
   useEffect(() => {
-    setTimeout(() => {
-      if (allowanceInRange && allowanceInCover) {
-        setAllowanceRange(ethers.utils.formatUnits(allowanceInRange, 18));
-        setAllowanceCover(ethers.utils.formatUnits(allowanceInCover, 18));
-      }
-    }, 50);
-  }, [allowanceInRange, allowanceInCover, tokenIn.address]);
+    if (allowanceInRange && allowanceInCover) {
+      setAllowanceRange(ethers.utils.formatUnits(allowanceInRange, 18));
+      setAllowanceCover(ethers.utils.formatUnits(allowanceInCover, 18));
+    }
+  }, [allowanceInRange, allowanceInCover]);
 
   ////////////////////////////////Prices
 
   const { data: priceRange } = useContractRead({
-    address: rangePoolRoute,
+    address: rangePoolAddress,
     abi: rangePoolABI,
     functionName: "poolState",
     args: [],
     chainId: 421613,
     watch: true,
-    enabled: rangePoolRoute != undefined,
+    enabled: rangePoolAddress,
     onError(error) {
       console.log("Error price Range", error);
     },
@@ -257,13 +236,13 @@ export default function Swap() {
   });
 
   const { data: priceCover } = useContractRead({
-    address: coverPoolRoute,
+    address: coverPoolAddress,
     abi: coverPoolABI,
     functionName: tokenIn == token0 ? "pool1" : "pool0",
     args: [],
     chainId: 421613,
     watch: true,
-    enabled: coverPoolRoute != undefined,
+    enabled: coverPoolAddress,
     onError(error) {
       console.log("Error price Cover", error);
     },
@@ -272,26 +251,26 @@ export default function Swap() {
     },
   });
 
+  //when contract prices change updates price states
   useEffect(() => {
     if (priceCover) {
       if (
         priceCover[0].gt(BN_ZERO) &&
-        tokenIn.address != "" &&
-        tokenOut.address != "" &&
-        priceCover != undefined
+        tokenIn.address &&
+        tokenOut.address &&
+        priceCover
       ) {
         setCoverPrice(
           parseFloat(TickMath.getPriceStringAtSqrtPrice(priceCover[0]))
         );
       }
     }
-
     if (priceRange) {
       if (
         priceRange[5].gt(BN_ZERO) &&
-        tokenIn.address != "" &&
-        tokenOut.address != "" &&
-        priceRange != undefined
+        tokenIn.address &&
+        tokenOut.address &&
+        priceRange
       ) {
         setRangePrice(
           parseFloat(TickMath.getPriceStringAtSqrtPrice(priceRange[5]))
@@ -304,15 +283,15 @@ export default function Swap() {
           );
       }
     }
-  }, [coverPoolRoute, rangePoolRoute, priceCover, priceRange]);
+  }, [priceCover, priceRange]);
 
+  //when price states change updates price bn states
   useEffect(() => {
     if (coverPrice) {
       if (coverPrice !== 0) {
         setCoverBnPrice(ethers.utils.parseEther(coverPrice.toString()));
       }
     }
-
     if (rangePrice) {
       if (rangePrice !== 0) {
         setRangeBnPrice(ethers.utils.parseEther(rangePrice.toString()));
@@ -320,6 +299,8 @@ export default function Swap() {
     }
   }, [coverPrice, rangePrice]);
 
+
+  //when price bn states change updates base limit states
   useEffect(() => {
     if (coverBnPrice) {
       if (!coverBnPrice.eq(BN_ZERO)) {
@@ -329,22 +310,17 @@ export default function Swap() {
         setCoverBnBaseLimit(baseLimit);
       }
     }
+    if (rangeBnPrice) {
+      if (!rangeBnPrice.eq(BN_ZERO)) {
+        const baseLimit = rangeBnPrice
+          .mul(parseFloat((parseFloat(slippage) * 100).toFixed(6)))
+          .div(10000);
+        setRangeBnBaseLimit(baseLimit);
+      }
+    }
   }, [slippage, rangeBnPrice, coverBnPrice]);
 
-  // disabled messages
-  useEffect(() => {
-    if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
-      setButtonState("amount");
-    }
-    if (pairSelected == false) {
-      setButtonState("token");
-    }
-    if (Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput))) {
-      setButtonState("balance");
-    }
-  }, [bnInput, pairSelected, balanceIn, bnInput]);
-
-  ////////////////////////////////Limit Price
+  ////////////////////////////////Limit Price Switch ??
   useEffect(() => {
     setLimitPriceInput(
       limitPriceSwitch
@@ -377,13 +353,13 @@ export default function Swap() {
   ////////////////////////////////Quotes
 
   const { data: quoteRange } = useContractRead({
-    address: rangePoolRoute,
+    address: rangePoolAddress,
     abi: rangePoolABI,
     functionName: "quote",
     args: [[tokenOrder ? minPriceBn : maxPriceBn, bnInput, tokenOrder]],
     chainId: 421613,
     watch: true,
-    enabled: rangePoolRoute != undefined,
+    enabled: rangePoolAddress != undefined,
     onError(error) {
       console.log("Error range wagmi", error);
     },
@@ -393,13 +369,13 @@ export default function Swap() {
   });
 
   const { data: quoteCover } = useContractRead({
-    address: coverPoolRoute,
+    address: coverPoolAddress,
     abi: coverPoolABI,
     functionName: "quote",
     args: [[tokenOrder ? minPriceBn : maxPriceBn, bnInput, tokenOrder]],
     chainId: 421613,
     watch: true,
-    enabled: coverPoolRoute != undefined,
+    enabled: coverPoolAddress != undefined,
     onError(error) {
       console.log("Error cover wagmi", error);
     },
@@ -481,7 +457,7 @@ export default function Swap() {
     const coverData = await fetchCoverPools();
     const coverPoolAddress = coverData["data"]["coverPools"]["0"]["id"];
 
-    if (coverPoolAddress === coverPoolRoute) {
+    if (coverPoolAddress === coverPoolAddress) {
       const feeTier =
         coverData["data"]["coverPools"]["0"]["volatilityTier"]["feeAmount"];
       setCoverSlippage((parseFloat(feeTier) / 10000).toString());
@@ -489,7 +465,7 @@ export default function Swap() {
     const data = await fetchRangePools();
     const rangePoolAddress = data["data"]["rangePools"]["0"]["id"];
 
-    if (rangePoolAddress === rangePoolRoute) {
+    if (rangePoolAddress === rangePoolAddress) {
       const feeTier = data["data"]["rangePools"]["0"]["feeTier"]["feeAmount"];
       setRangeSlippage((parseFloat(feeTier) / 10000).toString());
     }
@@ -592,15 +568,15 @@ export default function Swap() {
     tokenOut.address,
     allowanceRange,
     allowanceCover,
-    coverPoolRoute,
-    rangePoolRoute,
+    coverPoolAddress,
+    rangePoolAddress,
     LimitActive,
   ]);
 
   async function updateGasFee() {
     const newGasFee = await gasEstimateSwap(
-      rangePoolRoute,
-      coverPoolRoute,
+      rangePoolAddress,
+      coverPoolAddress,
       rangeQuote,
       coverQuote,
       rangeBnPrice,
@@ -626,7 +602,7 @@ export default function Swap() {
 
   async function updateMintFee() {
     const newMintFee = await gasEstimateSwapLimit(
-      rangePoolRoute,
+      rangePoolAddress,
       address,
       lowerTick,
       upperTick,
@@ -688,6 +664,22 @@ export default function Swap() {
       setDisplayQuote(false);
     }
   }, 200);
+
+  ////////////////////////////////Button states
+
+  // disabled messages
+  useEffect(() => {
+    if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
+      setButtonState("amount");
+    }
+    if (pairSelected == false) {
+      setButtonState("token");
+    }
+    if (Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput))) {
+      setButtonState("balance");
+    }
+  }, [bnInput, pairSelected, balanceIn, bnInput]);
+
 
   ////////////////////////////////
 
@@ -1171,7 +1163,7 @@ export default function Swap() {
                 <div>
                   <SwapRangeApproveButton
                     disabled={false}
-                    poolAddress={rangePoolRoute}
+                    poolAddress={rangePoolAddress}
                     approveToken={tokenIn.address}
                     tokenSymbol={tokenIn.symbol}
                     bnInput={bnInput}
@@ -1181,7 +1173,7 @@ export default function Swap() {
               ) : (
                 <SwapRangeButton
                   disabled={false}
-                  poolAddress={rangePoolRoute}
+                  poolAddress={rangePoolAddress}
                   zeroForOne={
                     tokenOut.address != "" &&
                     tokenIn.address.localeCompare(tokenOut.address) < 0
@@ -1196,7 +1188,7 @@ export default function Swap() {
               <div>
                 <SwapCoverApproveButton
                   disabled={false}
-                  poolAddress={coverPoolRoute}
+                  poolAddress={coverPoolAddress}
                   approveToken={tokenIn.address}
                   tokenSymbol={tokenIn.symbol}
                   allowanceCover={allowanceCover}
@@ -1206,7 +1198,7 @@ export default function Swap() {
             ) : (
               <SwapCoverButton
                 disabled={swapGasLimit.gt(BN_ZERO)}
-                poolAddress={coverPoolRoute}
+                poolAddress={coverPoolAddress}
                 zeroForOne={
                   tokenOut.address != "" &&
                   tokenIn.address.localeCompare(tokenOut.address) < 0
@@ -1238,7 +1230,7 @@ export default function Swap() {
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
               <SwapRangeApproveButton
                 disabled={false}
-                poolAddress={rangePoolRoute}
+                poolAddress={rangePoolAddress}
                 approveToken={tokenIn.address}
                 tokenSymbol={tokenIn.symbol}
                 allowanceRange={allowanceRange}
@@ -1247,7 +1239,7 @@ export default function Swap() {
             ) : (
               <RangeLimitSwapButton
                 disabled={false}
-                poolAddress={rangePoolRoute}
+                poolAddress={rangePoolAddress}
                 to={address}
                 lower={lowerTick}
                 upper={upperTick}
