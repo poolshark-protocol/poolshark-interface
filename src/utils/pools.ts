@@ -42,10 +42,10 @@ export const getRangePool = async (
           ? pool['data']['rangePools']['0']['token0']['usdPrice']
           : pool['data']['rangePools']['0']['token1']['usdPrice']
         setTokenIn({
+          name: tokenIn.name,
           symbol: tokenIn.symbol,
           logoURI: tokenIn.logoURI,
           address: tokenIn.address,
-          value: tokenIn.value,
           usdPrice: !isNaN(parseFloat(tokenInUsdPrice)) ? tokenInUsdPrice : 0,
         } as token)
         console.log('token in usd price:', tokenInUsdPrice)
@@ -55,10 +55,10 @@ export const getRangePool = async (
           ? pool['data']['rangePools']['0']['token1']['usdPrice']
           : pool['data']['rangePools']['0']['token0']['usdPrice']
         setTokenOut({
+          name: tokenOut.name,
           symbol: tokenOut.symbol,
           logoURI: tokenOut.logoURI,
           address: tokenOut.address,
-          value: tokenOut.value,
           usdPrice: !isNaN(parseFloat(tokenOutUsdPrice)) ? tokenOutUsdPrice : 0,
         } as token)
         console.log('token out usd price:', tokenOutUsdPrice)

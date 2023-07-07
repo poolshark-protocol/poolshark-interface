@@ -75,12 +75,14 @@ export default function SelectToken(props) {
     };
     if (props.type === "in") {
       props.setTokenIn(props.tokenOut, {
+        name: coin?.name,
         address: coin?.address,
         symbol: coin?.symbol,
         logoURI: coin?.logoURI,
       } as token);
     } else {
       props.setTokenOut(props.tokenIn, {
+        name: coin?.name,
         address: coin?.address,
         symbol: coin?.symbol,
         logoURI: coin?.logoURI,

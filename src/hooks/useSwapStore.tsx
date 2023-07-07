@@ -41,6 +41,7 @@ const initialSwapState: SwapState = {
   rangePoolAddress: "",
   pairSelected: false,
   tokenIn: {
+    name: "Wrapped Ether",
     symbol: "WETH",
     logoURI: "/static/images/eth_icon.png",
     address: tokenOneAddress,
@@ -50,6 +51,7 @@ const initialSwapState: SwapState = {
   tokenInCoverAllowanceBigNumber: BN_ZERO,
   tokenInAmountToSendBigNumber: BN_ZERO,
   tokenOut: {
+    name: "Select Token",
     symbol: "Select Token",
     logoURI: "",
     address: tokenZeroAddress,
@@ -59,12 +61,14 @@ const initialSwapState: SwapState = {
   tokenOutCoverAllowanceBigNumber: BN_ZERO,
   tokenOutAmountToReceiveBigNumber: BN_ZERO,
   token0: {
+    name: "",
     symbol: "",
     logoURI: "",
     address: tokenZeroAddress,
     usdPrice: 0,
   } as token,
   token1: {
+    name: "",
     symbol: "",
     logoURI: "",
     address: tokenOneAddress,
