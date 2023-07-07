@@ -131,9 +131,6 @@ export default function Swap() {
 
   ////////////////////////////////Pools and Balances
 
-  console.log("tokenIn", tokenIn);
-  console.log("tokenOut", tokenOut);
-
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.address as `0x${string}`,
