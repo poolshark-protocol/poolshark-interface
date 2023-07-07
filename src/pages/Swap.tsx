@@ -23,7 +23,12 @@ import {
 import { BigNumber, ethers } from "ethers";
 import { chainIdsToNamesForGitTokenList } from "../utils/chains";
 import { coverPoolABI } from "../abis/evm/coverPool";
-import { fetchCoverPools, fetchRangePools } from "../utils/queries";
+import {
+  fetchCoverPools,
+  fetchRangePools,
+  getCoverPoolFromFactory,
+  getRangePoolFromFactory,
+} from "../utils/queries";
 import SwapRangeApproveButton from "../components/Buttons/SwapRangeApproveButton";
 import SwapRangeButton from "../components/Buttons/SwapRangeButton";
 import SwapCoverApproveButton from "../components/Buttons/SwapCoverApproveButton";
@@ -254,24 +259,14 @@ export default function Swap() {
   //when contract prices change updates price states
   useEffect(() => {
     if (priceCover) {
-      if (
-        priceCover[0].gt(BN_ZERO) &&
-        tokenIn.address &&
-        tokenOut.address &&
-        priceCover
-      ) {
+      if (priceCover[0].gt(BN_ZERO)) {
         setCoverPrice(
           parseFloat(TickMath.getPriceStringAtSqrtPrice(priceCover[0]))
         );
       }
     }
     if (priceRange) {
-      if (
-        priceRange[5].gt(BN_ZERO) &&
-        tokenIn.address &&
-        tokenOut.address &&
-        priceRange
-      ) {
+      if (priceRange[5].gt(BN_ZERO)) {
         setRangePrice(
           parseFloat(TickMath.getPriceStringAtSqrtPrice(priceRange[5]))
         );
@@ -288,17 +283,12 @@ export default function Swap() {
   //when price states change updates price bn states
   useEffect(() => {
     if (coverPrice) {
-      if (coverPrice !== 0) {
-        setCoverBnPrice(ethers.utils.parseEther(coverPrice.toString()));
-      }
+      setCoverBnPrice(ethers.utils.parseEther(coverPrice.toString()));
     }
     if (rangePrice) {
-      if (rangePrice !== 0) {
-        setRangeBnPrice(ethers.utils.parseEther(rangePrice.toString()));
-      }
+      setRangeBnPrice(ethers.utils.parseEther(rangePrice.toString()));
     }
   }, [coverPrice, rangePrice]);
-
 
   //when price bn states change updates base limit states
   useEffect(() => {
@@ -320,36 +310,6 @@ export default function Swap() {
     }
   }, [slippage, rangeBnPrice, coverBnPrice]);
 
-  ////////////////////////////////Limit Price Switch ??
-  useEffect(() => {
-    setLimitPriceInput(
-      limitPriceSwitch
-        ? (tokenIn.usdPrice / tokenOut.usdPrice).toPrecision(6)
-        : (tokenOut.usdPrice / tokenIn.usdPrice).toPrecision(6)
-    );
-    setLimitPrice((tokenIn.usdPrice / tokenOut.usdPrice).toPrecision(6));
-  }, [tokenIn, tokenOut]);
-
-  useEffect(() => {
-    if (parseFloat(limitPriceInput) > 0)
-      setLimitPriceInput(
-        (1 / parseFloat(limitPriceInput))
-          .toPrecision(6)
-          .replace(/0+$/, "")
-          .replace(/(\.)(?!\d)/g, "")
-      );
-  }, [limitPriceSwitch]);
-
-  useEffect(() => {
-    if (limitPriceSwitch) {
-      setLimitPrice(limitPriceInput);
-    } else {
-      if (parseFloat(limitPriceInput) > 0)
-        setLimitPrice((1 / parseFloat(limitPriceInput)).toPrecision(6));
-      else setLimitPrice("0");
-    }
-  }, [limitPriceInput]);
-
   ////////////////////////////////Quotes
 
   const { data: quoteRange } = useContractRead({
@@ -359,7 +319,7 @@ export default function Swap() {
     args: [[tokenOrder ? minPriceBn : maxPriceBn, bnInput, tokenOrder]],
     chainId: 421613,
     watch: true,
-    enabled: rangePoolAddress != undefined,
+    enabled: rangePoolAddress,
     onError(error) {
       console.log("Error range wagmi", error);
     },
@@ -375,7 +335,7 @@ export default function Swap() {
     args: [[tokenOrder ? minPriceBn : maxPriceBn, bnInput, tokenOrder]],
     chainId: 421613,
     watch: true,
-    enabled: coverPoolAddress != undefined,
+    enabled: coverPoolAddress,
     onError(error) {
       console.log("Error cover wagmi", error);
     },
@@ -385,93 +345,72 @@ export default function Swap() {
   });
 
   useEffect(() => {
-    setTimeout(() => {
-      if (quoteRange) {
-        if (quoteRange[0].gt(BN_ZERO) && quoteRange[1].gt(BN_ZERO)) {
-          console.log(
-            "setting range quote",
-            ethers.utils.formatUnits(quoteRange[1], 18)
-          );
-          setRangeQuote(
-            parseFloat(ethers.utils.formatUnits(quoteRange[1], 18))
-          );
-          const priceAfter = parseFloat(
-            TickMath.getPriceStringAtSqrtPrice(quoteRange[2])
-          );
-          setRangePriceAfter(priceAfter);
-          const priceSlippage = parseFloat(
-            ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6)
-          );
-          const priceAfterSlippage = String(
-            priceAfter - (tokenOrder ? priceSlippage : -priceSlippage)
-          );
-          const rangePriceLimit =
-            TickMath.getSqrtPriceAtPriceString(priceAfterSlippage);
-          setRangeBnPriceLimit(BigNumber.from(String(rangePriceLimit)));
-        }
+    if (quoteRange) {
+      if (quoteRange[0].gt(BN_ZERO) && quoteRange[1].gt(BN_ZERO)) {
+        setRangeQuote(parseFloat(ethers.utils.formatUnits(quoteRange[1], 18)));
+        const priceAfter = parseFloat(
+          TickMath.getPriceStringAtSqrtPrice(quoteRange[2])
+        );
+        setRangePriceAfter(priceAfter);
+        const priceSlippage = parseFloat(
+          ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6)
+        );
+        const priceAfterSlippage = String(
+          priceAfter - (tokenOrder ? priceSlippage : -priceSlippage)
+        );
+        const rangePriceLimit =
+          TickMath.getSqrtPriceAtPriceString(priceAfterSlippage);
+        setRangeBnPriceLimit(BigNumber.from(String(rangePriceLimit)));
       }
+    }
 
-      if (quoteCover) {
-        if (quoteCover[0].gt(BN_ZERO) && quoteCover[1].gt(BN_ZERO)) {
-          console.log(
-            "setting cover quote",
-            ethers.utils.formatUnits(quoteCover[1], 18)
-          );
-          setCoverQuote(
-            parseFloat(ethers.utils.formatUnits(quoteCover[1], 18))
-          );
-          const priceAfter = parseFloat(
-            TickMath.getPriceStringAtSqrtPrice(quoteCover[2])
-          );
-          const priceSlippage = parseFloat(
-            ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6)
-          );
-          const priceAfterSlippage = String(
-            priceAfter - (tokenOrder ? priceSlippage : -priceSlippage)
-          );
-          setCoverPriceAfter(priceAfter);
-          const coverPriceLimit =
-            TickMath.getSqrtPriceAtPriceString(priceAfterSlippage);
-          setCoverBnPriceLimit(BigNumber.from(String(coverPriceLimit)));
-        }
+    if (quoteCover) {
+      if (quoteCover[0].gt(BN_ZERO) && quoteCover[1].gt(BN_ZERO)) {
+        setCoverQuote(parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)));
+        const priceAfter = parseFloat(
+          TickMath.getPriceStringAtSqrtPrice(quoteCover[2])
+        );
+        const priceSlippage = parseFloat(
+          ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6)
+        );
+        const priceAfterSlippage = String(
+          priceAfter - (tokenOrder ? priceSlippage : -priceSlippage)
+        );
+        setCoverPriceAfter(priceAfter);
+        const coverPriceLimit =
+          TickMath.getSqrtPriceAtPriceString(priceAfterSlippage);
+        setCoverBnPriceLimit(BigNumber.from(String(coverPriceLimit)));
       }
-      if (quoteCover && quoteRange) {
-        if (
-          slippageFetched === false &&
-          quoteCover[0].gt(BN_ZERO) &&
-          quoteRange[0].gt(BN_ZERO)
-        ) {
-          updateTierFee();
-          getSlippage();
-          setSlippageFetched(true);
-        }
-      }
-    }, 200);
-  }, [quoteCover, quoteRange, bnInput, slippage]);
+    }
+  }, [quoteCover, quoteRange]);
 
-  async function updateTierFee() {
-    await getFeeTier();
+  ////////////////////////////////FeeTiers and Slippage
+
+  useEffect(() => {
+    if (quoteCover && quoteRange) {
+      if (quoteCover[0].gt(BN_ZERO) && quoteRange[0].gt(BN_ZERO)) {
+        updateTierFees();
+        chooseSlippage();
+      }
+    }
+  }, [quoteCover, quoteRange]);
+
+  async function updateTierFees() {
+    await getFeeTiers();
   }
 
-  const getFeeTier = async () => {
-    const coverData = await fetchCoverPools();
-    const coverPoolAddress = coverData["data"]["coverPools"]["0"]["id"];
-
-    if (coverPoolAddress === coverPoolAddress) {
-      const feeTier =
-        coverData["data"]["coverPools"]["0"]["volatilityTier"]["feeAmount"];
-      setCoverSlippage((parseFloat(feeTier) / 10000).toString());
-    }
-    const data = await fetchRangePools();
-    const rangePoolAddress = data["data"]["rangePools"]["0"]["id"];
-
-    if (rangePoolAddress === rangePoolAddress) {
-      const feeTier = data["data"]["rangePools"]["0"]["feeTier"]["feeAmount"];
-      setRangeSlippage((parseFloat(feeTier) / 10000).toString());
-    }
+  const getFeeTiers = async () => {
+    const poolCover = getCoverPoolFromFactory(tokenIn, tokenOut);
+    const feeTierCover =
+      poolCover["data"]["coverPools"]["0"]["volatilityTier"]["feeAmount"];
+    setCoverSlippage((parseFloat(feeTierCover) / 10000).toString());
+    const poolRange = getRangePoolFromFactory(tokenIn, tokenOut);
+    const feeTier =
+      poolRange["data"]["rangePools"]["0"]["feeTier"]["feeAmount"];
+    setRangeSlippage((parseFloat(feeTier) / 10000).toString());
   };
 
-  const getSlippage = () => {
+  const chooseSlippage = () => {
     if (rangeQuote >= coverQuote) {
       setSlippage(rangeSlippage);
       setAuxSlippage(rangeSlippage);
@@ -665,6 +604,36 @@ export default function Swap() {
     }
   }, 200);
 
+  ////////////////////////////////Limit Price Switch ??
+  useEffect(() => {
+    setLimitPriceInput(
+      limitPriceSwitch
+        ? (tokenIn.usdPrice / tokenOut.usdPrice).toPrecision(6)
+        : (tokenOut.usdPrice / tokenIn.usdPrice).toPrecision(6)
+    );
+    setLimitPrice((tokenIn.usdPrice / tokenOut.usdPrice).toPrecision(6));
+  }, [tokenIn, tokenOut]);
+
+  useEffect(() => {
+    if (parseFloat(limitPriceInput) > 0)
+      setLimitPriceInput(
+        (1 / parseFloat(limitPriceInput))
+          .toPrecision(6)
+          .replace(/0+$/, "")
+          .replace(/(\.)(?!\d)/g, "")
+      );
+  }, [limitPriceSwitch]);
+
+  useEffect(() => {
+    if (limitPriceSwitch) {
+      setLimitPrice(limitPriceInput);
+    } else {
+      if (parseFloat(limitPriceInput) > 0)
+        setLimitPrice((1 / parseFloat(limitPriceInput)).toPrecision(6));
+      else setLimitPrice("0");
+    }
+  }, [limitPriceInput]);
+
   ////////////////////////////////Button states
 
   // disabled messages
@@ -679,7 +648,6 @@ export default function Swap() {
       setButtonState("balance");
     }
   }, [bnInput, pairSelected, balanceIn, bnInput]);
-
 
   ////////////////////////////////
 
