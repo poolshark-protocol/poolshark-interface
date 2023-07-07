@@ -24,7 +24,6 @@ export const gasEstimateSwap = async (
   bnInput: BigNumber,
   allowanceRange: BigNumber,
   allowanceCover: BigNumber,
-  ethUsdPrice: number,
   address: string,
   signer: Signer,
   isConnected: boolean
@@ -33,6 +32,7 @@ export const gasEstimateSwap = async (
     const provider = new ethers.providers.JsonRpcProvider(
       'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
     )
+    const ethUsdPrice = await fetchPrice('ethereum')
     const recipient = address
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0
     const priceLimit =
@@ -82,7 +82,7 @@ export const gasEstimateSwap = async (
     const gasPrice = await provider.getGasPrice()
     const networkFeeWei = gasPrice.mul(gasUnits)
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18))
-    const networkFeeUsd = networkFeeEth * ethUsdPrice
+    const networkFeeUsd = networkFeeEth * Number(ethUsdPrice)
     console.log('network fee', networkFeeUsd)
     const formattedPrice: string =
       networkFeeUsd.toLocaleString('en-US', {
@@ -104,7 +104,6 @@ export const gasEstimateSwapLimit = async (
   token0: token,
   token1: token,
   bnInput: BigNumber,
-  tickSpacing: any,
   signer
 ): Promise<gasEstimateResult> => {
   try {

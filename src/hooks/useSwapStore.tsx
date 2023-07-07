@@ -8,7 +8,7 @@ import {
 import { create } from "zustand";
 
 type SwapState = {
-  //poolAddresse for current token pairs
+  //poolAddress for current token pairs
   coverPoolAddress: String;
   rangePoolAddress: String;
   //true if both tokens selected, false if only one token selected
@@ -175,7 +175,7 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       coverPoolAddress: coverPoolAddress,
     }));
   },
-  switchDirections: () => {
+  switchDirection: () => {
     set((state) => ({
       tokenIn: state.tokenOut,
       tokenOut: state.tokenIn,

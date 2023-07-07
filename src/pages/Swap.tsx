@@ -65,9 +65,8 @@ export default function Swap() {
     setTokenIn,
     setTokenOut,
     token0,
-    token1,
     pairSelected,
-    switchDirections,
+    switchDirection,
     rangePoolAddress,
     setRangePoolAddress,
     coverPoolAddress,
@@ -79,7 +78,7 @@ export default function Swap() {
     state.setTokenOut,
     state.token0,
     state.token1,
-    state.switchDirections,
+    state.switchDirection,
     state.pairSelected,
     state.rangePoolAddress,
     state.setRangePoolAddress,
@@ -87,32 +86,18 @@ export default function Swap() {
     state.setCoverPoolAddress,
   ]);
 
-  
-  
-  
-  const [ethUsdPrice, setEthUsdPrice] = useState(0);
-  const [balanceIn, setBalanceIn] = useState("0.00");
-  const [balanceOut, setBalanceOut] = useState("0.00");
-  const [stateChainName, setStateChainName] = useState();
-  const [LimitActive, setLimitActive] = useState(false);
-  const [tokenOrder, setTokenOrder] = useState(true);
-  const [expanded, setExpanded] = useState(false);
-  const [rangeTickSpacing, setRangeTickSpacing] = useState(undefined);
-  
-  const [limitPrice, setLimitPrice] = useState("0");
-  const [lowerTick, setLowerTick] = useState(BN_ZERO);
-  const [upperTick, setUpperTick] = useState(BN_ZERO);
-  const [limitPriceSwitch, setLimitPriceSwitch] = useState(true);
-  const [limitPriceInput, setLimitPriceInput] = useState("0");
-  const [displayQuote, setDisplayQuote] = useState(false);
+  //false when user in normal swap, true when user in limit swap
+  const [limitTabSelected, setLimitTabSelected] = useState(false);
 
   ////////////////////////////////ChainId
+  const [stateChainName, setStateChainName] = useState();
 
   useEffect(() => {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
   }, [chainId]);
 
-  //////////////////////////////// tokenOrder
+  ////////////////////////////////tokenOrder
+  const [tokenOrder, setTokenOrder] = useState(true);
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address) {
@@ -121,6 +106,8 @@ export default function Swap() {
   }, [tokenIn.address, tokenOut.address]);
 
   ////////////////////////////////Balances
+  const [balanceIn, setBalanceIn] = useState("0.00");
+  const [balanceOut, setBalanceOut] = useState("0.00");
 
   const { data: tokenInBal } = useBalance({
     address: address,
@@ -282,8 +269,6 @@ export default function Swap() {
     }
   }, [quoteCover, quoteRange]);
 
-  
-
   ////////////////////////////////FeeTiers and Slippage
   const [coverSlippage, setCoverSlippage] = useState("0.5");
   const [rangeSlippage, setRangeSlippage] = useState("0.5");
@@ -291,24 +276,29 @@ export default function Swap() {
   const [auxSlippage, setAuxSlippage] = useState("0.5");
 
   useEffect(() => {
-    if (quoteCover && quoteRange) {
-      if (quoteCover[0].gt(BN_ZERO) && quoteRange[0].gt(BN_ZERO)) {
-        updateTierFees();
-        chooseSlippage();
-      }
+    if (pairSelected) {
+      updateTierFees();
+      chooseSlippage();
     }
-  }, [quoteCover, quoteRange]);
+  }, [pairSelected]);
 
   async function updateTierFees() {
     await getFeeTiers();
   }
 
   const getFeeTiers = async () => {
-    const poolCover = getCoverPoolFromFactory(tokenIn, tokenOut);
-    const feeTierCover = poolCover["volatilityTier"]["feeAmount"];
+    const poolCover = await getCoverPoolFromFactory(
+      tokenIn.address,
+      tokenOut.address
+    );
+    const feeTierCover =
+      poolCover["data"]["coverPools"][0]["volatilityTier"]["feeAmount"];
     setCoverSlippage((parseFloat(feeTierCover) / 10000).toString());
-    const poolRange = getRangePoolFromFactory(tokenIn, tokenOut);
-    const feeTier = poolRange["feeTier"]["feeAmount"];
+    const poolRange = await getRangePoolFromFactory(
+      tokenIn.address,
+      tokenOut.address
+    );
+    const feeTier = poolRange["data"]["rangePools"][0]["feeTier"]["feeAmount"];
     setRangeSlippage((parseFloat(feeTier) / 10000).toString());
   };
 
@@ -323,13 +313,16 @@ export default function Swap() {
   };
 
   ////////////////////////////////Prices
+  const [limitPrice, setLimitPrice] = useState("0");
+
   const [coverPrice, setCoverPrice] = useState(0);
-  const [rangePrice, setRangePrice] = useState(0); 
+  const [rangePrice, setRangePrice] = useState(0);
+
   const [coverBnPrice, setCoverBnPrice] = useState(BigNumber.from(0));
   const [rangeBnPrice, setRangeBnPrice] = useState(BigNumber.from(0));
+
   const [coverBnBaseLimit, setCoverBnBaseLimit] = useState(BigNumber.from(0));
   const [rangeBnBaseLimit, setRangeBnBaseLimit] = useState(BigNumber.from(0));
-  
 
   const { data: priceRange } = useContractRead({
     address: rangePoolAddress,
@@ -417,9 +410,10 @@ export default function Swap() {
     }
   }, [slippage, rangeBnPrice, coverBnPrice]);
 
-  
-
   ////////////////////////////////Limit Ticks
+  const [lowerTick, setLowerTick] = useState(BN_ZERO);
+  const [upperTick, setUpperTick] = useState(BN_ZERO);
+  const [rangeTickSpacing, setRangeTickSpacing] = useState(undefined);
 
   useEffect(() => {
     if (
@@ -498,7 +492,7 @@ export default function Swap() {
 
   useEffect(() => {
     if (!bnInput.eq(BN_ZERO)) {
-      if (!LimitActive) {
+      if (!limitTabSelected) {
         updateGasFee();
       } else {
         updateMintFee();
@@ -519,7 +513,6 @@ export default function Swap() {
       bnInput,
       ethers.utils.parseUnits(allowanceRange, 18),
       ethers.utils.parseUnits(allowanceRange, 18),
-      ethUsdPrice,
       address,
       signer,
       isConnected
@@ -537,7 +530,6 @@ export default function Swap() {
       tokenIn,
       tokenOut,
       bnInput,
-      rangeTickSpacing,
       signer
     );
     setMintFee(newMintFee.formattedPrice);
@@ -545,7 +537,7 @@ export default function Swap() {
   }
   ////////////////////////////////
 
-  const switchDirection = debounce(() => {
+  /* const switchDirection = debounce(() => {
     if (display != "") {
       setBnInput(
         ethers.utils.parseUnits(
@@ -580,9 +572,12 @@ export default function Swap() {
       setCoverQuote(0);
       setDisplayQuote(false);
     }
-  }, 200);
+  }, 200); */
 
   ////////////////////////////////Limit Price Switch ??
+  const [limitPriceSwitch, setLimitPriceSwitch] = useState(true);
+  const [limitPriceInput, setLimitPriceInput] = useState("0");
+
   useEffect(() => {
     setLimitPriceInput(
       limitPriceSwitch
@@ -630,6 +625,7 @@ export default function Swap() {
   }, [bnInput, pairSelected, balanceIn, bnInput]);
 
   ////////////////////////////////
+  const [expanded, setExpanded] = useState(false);
 
   const Option = () => {
     if (expanded) {
@@ -639,7 +635,7 @@ export default function Swap() {
             <div className="text-xs text-[#4C4C4C]">Expected Output</div>
             <div className="ml-auto text-xs">
               {pairSelected
-                ? !LimitActive
+                ? !limitTabSelected
                   ? rangeQuote >= coverQuote
                     ? rangeQuote === 0
                       ? "0"
@@ -664,20 +660,20 @@ export default function Swap() {
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
-            {!LimitActive ? (
+            {!limitTabSelected ? (
               <div className="ml-auto text-xs">{swapGasFee}</div>
             ) : (
               <div className="ml-auto text-xs">{mintFee}</div>
             )}
           </div>
-          {!LimitActive ? (
+          {!limitTabSelected ? (
             <div className="flex p-1">
               <div className="text-xs text-[#4C4C4C]">
                 Minimum received after slippage ({slippage}%)
               </div>
               <div className="ml-auto text-xs">
                 {pairSelected
-                  ? !LimitActive
+                  ? !limitTabSelected
                     ? rangeQuote >= coverQuote
                       ? rangeQuote === 0
                         ? "0"
@@ -717,7 +713,7 @@ export default function Swap() {
           ) : (
             <></>
           )}
-          {!LimitActive ? (
+          {!limitTabSelected ? (
             <div className="flex p-1">
               <div className="text-xs text-[#4C4C4C]">Price Impact</div>
               <div className="ml-auto text-xs">
@@ -749,9 +745,9 @@ export default function Swap() {
         <div className="flex items-center">
           <div className="flex gap-4 mb-1.5 text-sm">
             <div
-              onClick={() => setLimitActive(false)}
+              onClick={() => setLimitTabSelected(false)}
               className={`${
-                LimitActive
+                limitTabSelected
                   ? "text-grey cursor-pointer"
                   : "text-white cursor-pointer"
               }`}
@@ -760,9 +756,9 @@ export default function Swap() {
             </div>
 
             <div
-              onClick={() => setLimitActive(true)}
+              onClick={() => setLimitTabSelected(true)}
               className={`${
-                LimitActive
+                limitTabSelected
                   ? "text-white cursor-pointer"
                   : "text-grey cursor-pointer"
               }`}
@@ -788,7 +784,7 @@ export default function Swap() {
                   {({ close }) => (
                     <div className="w-full">
                       <h1 className="">
-                        {LimitActive ? (
+                        {limitTabSelected ? (
                           <>Range Tolerance</>
                         ) : (
                           <>Slippage Tolerance</>
@@ -896,7 +892,7 @@ export default function Swap() {
         <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
             <div className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
-              {!LimitActive ? (
+              {!limitTabSelected ? (
                 pairSelected && !bnInput.eq(BN_ZERO) ? (
                   <div>
                     {bnInput.gt(BN_ONE)
@@ -926,7 +922,7 @@ export default function Swap() {
                 <div className="flex text-xs text-[#4C4C4C]">
                   $
                   {!isNaN(tokenOut.usdPrice)
-                    ? !LimitActive
+                    ? !limitTabSelected
                       ? rangeQuote >= coverQuote
                         ? (rangeQuote * tokenOut.usdPrice).toFixed(2)
                         : (coverQuote * tokenOut.usdPrice).toFixed(2)
@@ -969,7 +965,7 @@ export default function Swap() {
             </div>
           </div>
         </div>
-        {LimitActive ? (
+        {limitTabSelected ? (
           <div>
             <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-4">
               <div className="flex-col justify-center w-1/2 p-2 ">
@@ -1047,7 +1043,7 @@ export default function Swap() {
               {/* {!pairSelected
                 ? " ?"
                 : " " +
-                  (!LimitActive
+                  (!limitTabSelected
                     ? !isNaN(rangeQuote) && !isNaN(coverQuote)
                       ? rangeQuote >= coverQuote
                         ? tokenOrder
@@ -1077,7 +1073,7 @@ export default function Swap() {
         </div>
         {isDisconnected ? (
           <ConnectWalletButton xl={true} />
-        ) : !LimitActive ? (
+        ) : !limitTabSelected ? (
           <>
             {stateChainName !== "arbitrumGoerli" ||
             (coverQuote == 0 && rangeQuote == 0) ||
