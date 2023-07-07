@@ -67,6 +67,7 @@ export default function Swap() {
     token0,
     token1,
     pairSelected,
+    switchDirections,
     rangePoolAddress,
     setRangePoolAddress,
     coverPoolAddress,
@@ -78,6 +79,7 @@ export default function Swap() {
     state.setTokenOut,
     state.token0,
     state.token1,
+    state.switchDirections,
     state.pairSelected,
     state.rangePoolAddress,
     state.setRangePoolAddress,
@@ -85,47 +87,23 @@ export default function Swap() {
     state.setCoverPoolAddress,
   ]);
 
-  const [swapGasFee, setSwapGasFee] = useState("$0.00");
-  const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
-  const [mintFee, setMintFee] = useState("$0.00");
-  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
-  const [coverQuote, setCoverQuote] = useState(0);
-  const [rangeQuote, setRangeQuote] = useState(0);
-  const [coverPrice, setCoverPrice] = useState(0);
-  const [rangePrice, setRangePrice] = useState(0);
+  
+  
+  
   const [ethUsdPrice, setEthUsdPrice] = useState(0);
-  const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress);
-  const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress);
-  const [slippage, setSlippage] = useState("0.5");
-  const [coverSlippage, setCoverSlippage] = useState("0.5");
-  const [rangeSlippage, setRangeSlippage] = useState("0.5");
-  const [auxSlippage, setAuxSlippage] = useState("0.5");
   const [balanceIn, setBalanceIn] = useState("0.00");
   const [balanceOut, setBalanceOut] = useState("0.00");
   const [stateChainName, setStateChainName] = useState();
   const [LimitActive, setLimitActive] = useState(false);
   const [tokenOrder, setTokenOrder] = useState(true);
   const [expanded, setExpanded] = useState(false);
-  const [allowanceRange, setAllowanceRange] = useState("0.00");
-  const [allowanceCover, setAllowanceCover] = useState("0.00");
-  /* const [coverPoolAddress, setCoverPoolAddress] = useState(undefined);
-  const [rangePoolAddress, setRangePoolAddress] = useState(undefined); */
   const [rangeTickSpacing, setRangeTickSpacing] = useState(undefined);
-  const [coverPriceAfter, setCoverPriceAfter] = useState(undefined);
-  const [rangePriceAfter, setRangePriceAfter] = useState(undefined);
-  const [coverBnPrice, setCoverBnPrice] = useState(BigNumber.from(0));
-  const [rangeBnPrice, setRangeBnPrice] = useState(BigNumber.from(0));
-  const [coverBnBaseLimit, setCoverBnBaseLimit] = useState(BigNumber.from(0));
-  const [rangeBnBaseLimit, setRangeBnBaseLimit] = useState(BigNumber.from(0));
-  const [rangeBnPriceLimit, setRangeBnPriceLimit] = useState(BN_ZERO);
-  const [coverBnPriceLimit, setCoverBnPriceLimit] = useState(BN_ZERO);
-  const [slippageFetched, setSlippageFetched] = useState(false);
+  
   const [limitPrice, setLimitPrice] = useState("0");
   const [lowerTick, setLowerTick] = useState(BN_ZERO);
   const [upperTick, setUpperTick] = useState(BN_ZERO);
   const [limitPriceSwitch, setLimitPriceSwitch] = useState(true);
   const [limitPriceInput, setLimitPriceInput] = useState("0");
-  const [buttonState, setButtonState] = useState("");
   const [displayQuote, setDisplayQuote] = useState(false);
 
   ////////////////////////////////ChainId
@@ -182,6 +160,8 @@ export default function Swap() {
   }
 
   ////////////////////////////////Allowances
+  const [allowanceRange, setAllowanceRange] = useState("0.00");
+  const [allowanceCover, setAllowanceCover] = useState("0.00");
 
   const { data: allowanceInRange } = useContractRead({
     address: tokenIn.address,
@@ -222,7 +202,134 @@ export default function Swap() {
     }
   }, [allowanceInRange, allowanceInCover]);
 
+  ////////////////////////////////Quotes
+  const [coverQuote, setCoverQuote] = useState(0);
+  const [rangeQuote, setRangeQuote] = useState(0);
+  const [coverPriceAfter, setCoverPriceAfter] = useState(undefined);
+  const [rangePriceAfter, setRangePriceAfter] = useState(undefined);
+  const [rangeBnPriceLimit, setRangeBnPriceLimit] = useState(BN_ZERO);
+  const [coverBnPriceLimit, setCoverBnPriceLimit] = useState(BN_ZERO);
+
+  const { data: quoteRange } = useContractRead({
+    address: rangePoolAddress,
+    abi: rangePoolABI,
+    functionName: "quote",
+    args: [[tokenOrder ? minPriceBn : maxPriceBn, bnInput, tokenOrder]],
+    chainId: 421613,
+    watch: true,
+    enabled: rangePoolAddress,
+    onError(error) {
+      console.log("Error range wagmi", error);
+    },
+    onSettled(data, error) {
+      console.log("Settled range wagmi", { data, error });
+    },
+  });
+
+  const { data: quoteCover } = useContractRead({
+    address: coverPoolAddress,
+    abi: coverPoolABI,
+    functionName: "quote",
+    args: [[tokenOrder ? minPriceBn : maxPriceBn, bnInput, tokenOrder]],
+    chainId: 421613,
+    watch: true,
+    enabled: coverPoolAddress,
+    onError(error) {
+      console.log("Error cover wagmi", error);
+    },
+    onSettled(data, error) {
+      console.log("Settled", { data, error });
+    },
+  });
+
+  useEffect(() => {
+    if (quoteRange) {
+      if (quoteRange[0].gt(BN_ZERO) && quoteRange[1].gt(BN_ZERO)) {
+        setRangeQuote(parseFloat(ethers.utils.formatUnits(quoteRange[1], 18)));
+        const priceAfter = parseFloat(
+          TickMath.getPriceStringAtSqrtPrice(quoteRange[2])
+        );
+        setRangePriceAfter(priceAfter);
+        const priceSlippage = parseFloat(
+          ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6)
+        );
+        const priceAfterSlippage = String(
+          priceAfter - (tokenOrder ? priceSlippage : -priceSlippage)
+        );
+        const rangePriceLimit =
+          TickMath.getSqrtPriceAtPriceString(priceAfterSlippage);
+        setRangeBnPriceLimit(BigNumber.from(String(rangePriceLimit)));
+      }
+    }
+
+    if (quoteCover) {
+      if (quoteCover[0].gt(BN_ZERO) && quoteCover[1].gt(BN_ZERO)) {
+        setCoverQuote(parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)));
+        const priceAfter = parseFloat(
+          TickMath.getPriceStringAtSqrtPrice(quoteCover[2])
+        );
+        const priceSlippage = parseFloat(
+          ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6)
+        );
+        const priceAfterSlippage = String(
+          priceAfter - (tokenOrder ? priceSlippage : -priceSlippage)
+        );
+        setCoverPriceAfter(priceAfter);
+        const coverPriceLimit =
+          TickMath.getSqrtPriceAtPriceString(priceAfterSlippage);
+        setCoverBnPriceLimit(BigNumber.from(String(coverPriceLimit)));
+      }
+    }
+  }, [quoteCover, quoteRange]);
+
+  
+
+  ////////////////////////////////FeeTiers and Slippage
+  const [coverSlippage, setCoverSlippage] = useState("0.5");
+  const [rangeSlippage, setRangeSlippage] = useState("0.5");
+  const [slippage, setSlippage] = useState("0.5");
+  const [auxSlippage, setAuxSlippage] = useState("0.5");
+
+  useEffect(() => {
+    if (quoteCover && quoteRange) {
+      if (quoteCover[0].gt(BN_ZERO) && quoteRange[0].gt(BN_ZERO)) {
+        updateTierFees();
+        chooseSlippage();
+      }
+    }
+  }, [quoteCover, quoteRange]);
+
+  async function updateTierFees() {
+    await getFeeTiers();
+  }
+
+  const getFeeTiers = async () => {
+    const poolCover = getCoverPoolFromFactory(tokenIn, tokenOut);
+    const feeTierCover = poolCover["volatilityTier"]["feeAmount"];
+    setCoverSlippage((parseFloat(feeTierCover) / 10000).toString());
+    const poolRange = getRangePoolFromFactory(tokenIn, tokenOut);
+    const feeTier = poolRange["feeTier"]["feeAmount"];
+    setRangeSlippage((parseFloat(feeTier) / 10000).toString());
+  };
+
+  const chooseSlippage = () => {
+    if (rangeQuote >= coverQuote) {
+      setSlippage(rangeSlippage);
+      setAuxSlippage(rangeSlippage);
+    } else {
+      setSlippage(coverSlippage);
+      setAuxSlippage(coverSlippage);
+    }
+  };
+
   ////////////////////////////////Prices
+  const [coverPrice, setCoverPrice] = useState(0);
+  const [rangePrice, setRangePrice] = useState(0); 
+  const [coverBnPrice, setCoverBnPrice] = useState(BigNumber.from(0));
+  const [rangeBnPrice, setRangeBnPrice] = useState(BigNumber.from(0));
+  const [coverBnBaseLimit, setCoverBnBaseLimit] = useState(BigNumber.from(0));
+  const [rangeBnBaseLimit, setRangeBnBaseLimit] = useState(BigNumber.from(0));
+  
 
   const { data: priceRange } = useContractRead({
     address: rangePoolAddress,
@@ -310,113 +417,7 @@ export default function Swap() {
     }
   }, [slippage, rangeBnPrice, coverBnPrice]);
 
-  ////////////////////////////////Quotes
-
-  const { data: quoteRange } = useContractRead({
-    address: rangePoolAddress,
-    abi: rangePoolABI,
-    functionName: "quote",
-    args: [[tokenOrder ? minPriceBn : maxPriceBn, bnInput, tokenOrder]],
-    chainId: 421613,
-    watch: true,
-    enabled: rangePoolAddress,
-    onError(error) {
-      console.log("Error range wagmi", error);
-    },
-    onSettled(data, error) {
-      console.log("Settled range wagmi", { data, error });
-    },
-  });
-
-  const { data: quoteCover } = useContractRead({
-    address: coverPoolAddress,
-    abi: coverPoolABI,
-    functionName: "quote",
-    args: [[tokenOrder ? minPriceBn : maxPriceBn, bnInput, tokenOrder]],
-    chainId: 421613,
-    watch: true,
-    enabled: coverPoolAddress,
-    onError(error) {
-      console.log("Error cover wagmi", error);
-    },
-    onSettled(data, error) {
-      console.log("Settled", { data, error });
-    },
-  });
-
-  useEffect(() => {
-    if (quoteRange) {
-      if (quoteRange[0].gt(BN_ZERO) && quoteRange[1].gt(BN_ZERO)) {
-        setRangeQuote(parseFloat(ethers.utils.formatUnits(quoteRange[1], 18)));
-        const priceAfter = parseFloat(
-          TickMath.getPriceStringAtSqrtPrice(quoteRange[2])
-        );
-        setRangePriceAfter(priceAfter);
-        const priceSlippage = parseFloat(
-          ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6)
-        );
-        const priceAfterSlippage = String(
-          priceAfter - (tokenOrder ? priceSlippage : -priceSlippage)
-        );
-        const rangePriceLimit =
-          TickMath.getSqrtPriceAtPriceString(priceAfterSlippage);
-        setRangeBnPriceLimit(BigNumber.from(String(rangePriceLimit)));
-      }
-    }
-
-    if (quoteCover) {
-      if (quoteCover[0].gt(BN_ZERO) && quoteCover[1].gt(BN_ZERO)) {
-        setCoverQuote(parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)));
-        const priceAfter = parseFloat(
-          TickMath.getPriceStringAtSqrtPrice(quoteCover[2])
-        );
-        const priceSlippage = parseFloat(
-          ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6)
-        );
-        const priceAfterSlippage = String(
-          priceAfter - (tokenOrder ? priceSlippage : -priceSlippage)
-        );
-        setCoverPriceAfter(priceAfter);
-        const coverPriceLimit =
-          TickMath.getSqrtPriceAtPriceString(priceAfterSlippage);
-        setCoverBnPriceLimit(BigNumber.from(String(coverPriceLimit)));
-      }
-    }
-  }, [quoteCover, quoteRange]);
-
-  ////////////////////////////////FeeTiers and Slippage
-
-  useEffect(() => {
-    if (quoteCover && quoteRange) {
-      if (quoteCover[0].gt(BN_ZERO) && quoteRange[0].gt(BN_ZERO)) {
-        updateTierFees();
-        chooseSlippage();
-      }
-    }
-  }, [quoteCover, quoteRange]);
-
-  async function updateTierFees() {
-    await getFeeTiers();
-  }
-
-  const getFeeTiers = async () => {
-    const poolCover = getCoverPoolFromFactory(tokenIn, tokenOut);
-    const feeTierCover = poolCover["volatilityTier"]["feeAmount"];
-    setCoverSlippage((parseFloat(feeTierCover) / 10000).toString());
-    const poolRange = getRangePoolFromFactory(tokenIn, tokenOut);
-    const feeTier = poolRange["feeTier"]["feeAmount"];
-    setRangeSlippage((parseFloat(feeTier) / 10000).toString());
-  };
-
-  const chooseSlippage = () => {
-    if (rangeQuote >= coverQuote) {
-      setSlippage(rangeSlippage);
-      setAuxSlippage(rangeSlippage);
-    } else {
-      setSlippage(coverSlippage);
-      setAuxSlippage(coverSlippage);
-    }
-  };
+  
 
   ////////////////////////////////Limit Ticks
 
@@ -489,7 +490,11 @@ export default function Swap() {
       }
     }
   }
-  ////////////////////////////////Fees
+  ////////////////////////////////Fee Estimations
+  const [swapGasFee, setSwapGasFee] = useState("$0.00");
+  const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
+  const [mintFee, setMintFee] = useState("$0.00");
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
     if (!bnInput.eq(BN_ZERO)) {
@@ -541,13 +546,6 @@ export default function Swap() {
   ////////////////////////////////
 
   const switchDirection = debounce(() => {
-    setTokenOrder(!tokenOrder);
-    const temp = tokenIn;
-    setTokenIn(tokenOut);
-    setTokenOut(temp);
-    const tempBal = queryTokenIn;
-    setQueryTokenIn(queryTokenOut);
-    setQueryTokenOut(tempBal);
     if (display != "") {
       setBnInput(
         ethers.utils.parseUnits(
@@ -615,6 +613,8 @@ export default function Swap() {
   }, [limitPriceInput]);
 
   ////////////////////////////////Button states
+
+  const [buttonState, setButtonState] = useState("");
 
   // disabled messages
   useEffect(() => {
@@ -850,18 +850,13 @@ export default function Swap() {
                 <div className="flex justify-end">
                   <SelectToken
                     index="0"
+                    key="in"
                     type="in"
                     tokenIn={tokenIn}
                     setTokenIn={setTokenIn}
                     tokenOut={tokenOut}
                     setTokenOut={setTokenOut}
                     displayToken={tokenIn}
-                    balance={setQueryTokenIn}
-                    queryTokenIn={queryTokenIn}
-                    queryTokenOut={queryTokenOut}
-                    setQueryTokenIn={setQueryTokenIn}
-                    setQueryTokenOut={setQueryTokenOut}
-                    key={queryTokenIn}
                   />
                 </div>
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
@@ -952,18 +947,13 @@ export default function Swap() {
               <div className="flex-col">
                 <div className="flex justify-end">
                   <SelectToken
+                    key={"out"}
                     type="out"
                     tokenIn={tokenIn}
                     setTokenIn={setTokenIn}
                     tokenOut={tokenOut}
                     setTokenOut={setTokenOut}
                     displayToken={tokenOut}
-                    balance={setQueryTokenOut}
-                    queryTokenIn={queryTokenIn}
-                    queryTokenOut={queryTokenOut}
-                    setQueryTokenIn={setQueryTokenIn}
-                    setQueryTokenOut={setQueryTokenOut}
-                    key={queryTokenOut}
                   />
                 </div>
                 {pairSelected ? (

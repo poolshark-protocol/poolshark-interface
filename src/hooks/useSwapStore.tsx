@@ -167,12 +167,18 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   },
   setRangePoolAddress: (rangePoolAddress: string) => {
     set(() => ({
-        rangePoolAddress: rangePoolAddress,
+      rangePoolAddress: rangePoolAddress,
     }));
   },
   setCoverPoolAddress: (coverPoolAddress: string) => {
     set(() => ({
-        coverPoolAddress: coverPoolAddress,
+      coverPoolAddress: coverPoolAddress,
+    }));
+  },
+  switchDirections: () => {
+    set((state) => ({
+      tokenIn: state.tokenOut,
+      tokenOut: state.tokenIn,
     }));
   },
   resetSwapParams: () => {

@@ -21,6 +21,7 @@ export default function SelectToken(props) {
 
   //@dev this is temporary for testnet
   // const [rawCoinList, setRawCoinList] = useState(coins["listed_tokens"]);
+  const [orderedCoinList, setOrderedCoinList] = useState([]);
   const [rawCoinList, setRawCoinList] = useState([
     {
       name: "WETH",
@@ -38,7 +39,6 @@ export default function SelectToken(props) {
     },
   ]);
 
-  const [orderedCoinList, setOrderedCoinList] = useState([]);
 
   //@dev this is temporary for testnet
   // const findCoin = () => {
@@ -88,7 +88,7 @@ export default function SelectToken(props) {
         logoURI: coin?.logoURI,
       } as token);
     }
-    props.balance(coin?.id);
+    //props.balance(coin?.id);
     closeModal();
   };
 
@@ -96,9 +96,6 @@ export default function SelectToken(props) {
     //@dev this is temporary for testnet
     // findCoin();
   }, [inputVal, isOpen]);
-
-  //   useEffect(() => {
-  // }, [rawCoinList]);
 
   function closeModal() {
     setIsOpen(false);
