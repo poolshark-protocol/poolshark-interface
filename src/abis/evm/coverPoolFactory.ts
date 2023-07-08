@@ -22,6 +22,11 @@ export const coverPoolFactoryABI = [
   },
   {
     "inputs": [],
+    "name": "InvalidPoolTokenAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "InvalidTickSpread",
     "type": "error"
   },
