@@ -1099,7 +1099,7 @@ export default function Swap() {
         </div>
         {isDisconnected ? (
           <ConnectWalletButton xl={true} />
-        ) : !limitTabSelected ? (
+        ) : !limitTabSelected ? ( //swap tab
           <>
             {Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput)) ||
             bnInput.lte(BN_ONE) ? (
@@ -1115,7 +1115,7 @@ export default function Swap() {
                   <></>
                 )}
               </button>
-            ) : rangeQuote >= coverQuote ? (
+            ) : rangeQuote >= coverQuote ? ( //range buttons
               Number(allowanceRange) <
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                 <div>
@@ -1141,7 +1141,8 @@ export default function Swap() {
                   gasLimit={swapGasLimit}
                 />
               )
-            ) : Number(allowanceCover) <
+            ) : //cover buttons
+            Number(allowanceCover) <
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
               <div>
                 <SwapCoverApproveButton
@@ -1168,6 +1169,7 @@ export default function Swap() {
             )}
           </>
         ) : (
+          //limit tab
           <>
             {stateChainName !== "arbitrumGoerli" ||
             Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput)) ||
