@@ -10,18 +10,13 @@ import { useRouter } from "next/router";
 
 export default function CoverRemoveLiquidity({ isOpen, setIsOpen, usdPriceIn, usdPriceOut, tokenIn, poolAdd, address, claimTick, lowerTick, zeroForOne, amountInDeltaMax, upperTick, gasLimit, gasFee }) {
 
-  const {
-    bnInput,
-    inputBox,
-    setDisplay,
-  } = useInputBox()
-
   const router = useRouter()
 
   const [balanceIn, setBalanceIn] = useState('')
   const [fetchDelay, setFetchDelay] = useState(false)
   const [burnPercent, setBurnPercent] = useState(ethers.utils.parseUnits("5", 37))
-  const [sliderValue, setSliderValue] = useState(0)
+  const [sliderValue, setSliderValue] = useState(1)
+  const [sliderOutput, setSliderOutput] = useState('1')
   const [amountInMax, setAmountInMax] = useState(ethers.utils.parseUnits(amountInDeltaMax ?? '0', 0))
   const [amountInDisplay, setAmountInDisplay] = useState(ethers.utils.formatUnits(BigNumber.from(amountInDeltaMax) ?? BN_ZERO, tokenIn.decimals))
 
@@ -37,21 +32,14 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, usdPriceIn, us
   }, [fetchDelay])
 
   useEffect(() => {
-    if (amountInMax.gt(BN_ZERO)) {
-      console.log('setting burn percent bn input', bnInput.toString(), amountInMax.toString(), bnInput.mul(ethers.utils.parseUnits('1', 38)).div(amountInMax).toString())
-      setBurnPercent(bnInput.mul(ethers.utils.parseUnits('1', 38)).div(amountInMax))
-    }
-  }, [bnInput])
-
-  useEffect(() => {
     if (sliderValue == 0) {
-      setDisplay('')
+      setSliderOutput('')
       return
     } 
     setBurnPercent(ethers.utils.parseUnits(String(sliderValue), 36))
     console.log('setting burn percent', ethers.utils.parseUnits(String(sliderValue), 36).toString())
     console.log('setting display', amountInMax)
-    setDisplay((parseFloat(amountInDisplay) * sliderValue / 100).toPrecision(6))
+    setSliderOutput((parseFloat(amountInDisplay) * sliderValue / 100).toPrecision(6))
   }, [sliderValue])
 
   const handleChange = (event: any) => {
@@ -155,12 +143,16 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, usdPriceIn, us
                 <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-6 mb-6">
                 <div className=" p-2 w-32">
                               <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-1 rounded-xl">
-                              {inputBox("0")}
+                                <div
+                                  id="input"
+                                  className="bg-[#0C0C0C] placeholder:text-grey1 w-full text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
+                                >
+                                  {sliderOutput}
+                                </div>
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                 $ {Number(usdPriceOut * parseFloat(ethers.utils.formatUnits(bnInput, 18))).toFixed(2)}
-                                
+                                 ${(Number(usdPriceOut) * parseFloat(sliderOutput)).toFixed(2)}
                                 </div>
                               </div>
                             </div>
