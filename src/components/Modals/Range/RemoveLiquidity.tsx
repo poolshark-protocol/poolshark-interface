@@ -237,7 +237,7 @@ export default function RangeRemoveLiquidity({ isOpen, token1Price, token0Price,
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                 ${tokenOrder ? (Number(token1Price * parseFloat(ethers.utils.formatUnits(amount1, 18))).toFixed(2)) : (Number(token0Price * parseFloat(ethers.utils.formatUnits(amount0, 18))).toFixed(2))}
+                                ${tokenOrder ? (Number(token0Price * parseFloat(ethers.utils.formatUnits(amount0, 18))).toFixed(2)) : (Number(token1Price * parseFloat(ethers.utils.formatUnits(amount1, 18))).toFixed(2))}
                                 
                                 </div>
                               </div>
@@ -275,7 +275,7 @@ export default function RangeRemoveLiquidity({ isOpen, token1Price, token0Price,
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                ${tokenOrder ? (Number(token0Price * parseFloat(ethers.utils.formatUnits(amount0, 18))).toFixed(2)) : (Number(token1Price * parseFloat(ethers.utils.formatUnits(amount1, 18))).toFixed(2))}
+                                ${tokenOrder ? (Number(token1Price * parseFloat(ethers.utils.formatUnits(amount1, 18))).toFixed(2)) : (Number(token0Price * parseFloat(ethers.utils.formatUnits(amount0, 18))).toFixed(2))}
                                 </div>
                               </div>
                             </div>
