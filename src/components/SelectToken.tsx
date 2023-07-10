@@ -39,7 +39,6 @@ export default function SelectToken(props) {
     },
   ]);
 
-
   //@dev this is temporary for testnet
   // const findCoin = () => {
   //   if (inputVal.length === 0) {
@@ -79,14 +78,14 @@ export default function SelectToken(props) {
         address: coin?.address,
         symbol: coin?.symbol,
         logoURI: coin?.logoURI,
-      } as token);
+      });
     } else {
       props.setTokenOut(props.tokenIn, {
         name: coin?.name,
         address: coin?.address,
         symbol: coin?.symbol,
         logoURI: coin?.logoURI,
-      } as token);
+      });
     }
     //props.balance(coin?.id);
     closeModal();

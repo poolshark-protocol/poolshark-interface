@@ -31,10 +31,6 @@ type SwapState = {
   tokenOutRangeAllowanceBigNumber: BigNumber;
   tokenOutCoverAllowanceBigNumber: BigNumber;
   tokenOutAmountToReceiveBigNumber: BigNumber;
-  //Token0 defined the token with smaller address on the swap contract call
-  token0: token;
-  //Token1 defines the token with higher address on the swap contract call
-  token1: token;
   //Gas
   gasFee: BigNumber;
   gasLimit: BigNumber;
@@ -45,25 +41,30 @@ type SwapAction = {
 };
 
 const initialSwapState: SwapState = {
+  //
   coverPoolAddress: "",
   coverPoolData: {},
   rangePoolAddress: "",
   rangePoolData: {},
+  //
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
   pairSelected: true,
+  //
   tokenIn: {
+    callId: 0,
     name: "Wrapped Ether",
     symbol: "WETH",
     logoURI: "/static/images/eth_icon.png",
     address: tokenOneAddress,
-    usdPrice: 0,
   } as token,
   tokenInRangeUSDPrice: 0,
   tokenInCoverUSDPrice: 0,
   tokenInRangeAllowanceBigNumber: BN_ZERO,
   tokenInCoverAllowanceBigNumber: BN_ZERO,
   tokenInAmountToSendBigNumber: BN_ZERO,
+  //
   tokenOut: {
+    callId: 1,
     name: "Select Token",
     symbol: "Select Token",
     logoURI: "",
@@ -74,23 +75,13 @@ const initialSwapState: SwapState = {
   tokenOutRangeAllowanceBigNumber: BN_ZERO,
   tokenOutCoverAllowanceBigNumber: BN_ZERO,
   tokenOutAmountToReceiveBigNumber: BN_ZERO,
-  token0: {
-    name: "",
-    symbol: "",
-    logoURI: "",
-    address: tokenZeroAddress,
-    usdPrice: 0,
-  } as token,
-  token1: {
-    name: "",
-    symbol: "",
-    logoURI: "",
-    address: tokenOneAddress,
-    usdPrice: 0,
-  } as token,
+  //
   gasFee: BN_ZERO,
   gasLimit: BN_ZERO,
 };
+
+console.log('tokenIn', initialSwapState.tokenIn);
+console.log('tokenOut', initialSwapState.tokenOut);
 
 export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   coverPoolAddress: initialSwapState.coverPoolAddress,
@@ -115,11 +106,12 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
     initialSwapState.tokenOutCoverAllowanceBigNumber,
   tokenOutAmountToReceiveBigNumber:
     initialSwapState.tokenOutAmountToReceiveBigNumber,
-  token0: initialSwapState.token0,
-  token1: initialSwapState.token1,
   gasFee: initialSwapState.gasFee,
   gasLimit: initialSwapState.gasLimit,
   setTokenIn: (tokenOut, newToken: token) => {
+    console.log("store setTokenIn");
+    console.log("store tokenIn", newToken);
+
     //if tokenOut is selected
     if (
       tokenOut.address != initialSwapState.tokenOut.address ||
@@ -128,26 +120,30 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to  initialState
       if (newToken.address == tokenOut.address) {
         set(() => ({
-          tokenIn: newToken,
-          token0: newToken,
+          tokenIn: {
+            callId: 0,
+            ...newToken,
+          },
           tokenOut: initialSwapState.tokenOut,
-          token1: initialSwapState.token1,
           pairSelected: false,
         }));
       } else {
         //if tokens are different
         set(() => ({
-          tokenIn: newToken,
-          token0: newToken.address < tokenOut.address ? newToken : tokenOut,
-          token1: newToken.address < tokenOut.address ? tokenOut : newToken,
+          tokenIn: {
+            callId: newToken.address < tokenOut.address ? 0 : 1,
+            ...newToken,
+          },
           pairSelected: true,
         }));
       }
     } else {
       //if tokenOut its not selected
       set(() => ({
-        tokenIn: newToken,
-        token0: newToken,
+        tokenIn: {
+          callId: 0,
+          ...newToken,
+        },
         pairSelected: false,
       }));
     }
@@ -173,6 +169,8 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
     }));
   },
   setTokenOut: (tokenIn, newToken: token) => {
+    console.log("store setTokenOut");
+    console.log("store tokenOut", newToken);
     //if tokenIn exists
     if (
       tokenIn.address != initialSwapState.tokenOut.address ||
@@ -181,26 +179,24 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
       if (newToken.address == tokenIn.address) {
         set(() => ({
-          tokenOut: newToken,
-          token0: newToken,
+          tokenOut: { callId: 0, ...newToken },
           tokenIn: initialSwapState.tokenOut,
-          token1: initialSwapState.token1,
           pairSelected: false,
         }));
       } else {
         //if tokens are different
         set(() => ({
-          tokenOut: newToken,
-          token0: newToken.address < tokenIn.address ? newToken : tokenIn,
-          token1: newToken.address < tokenIn.address ? tokenIn : newToken,
+          tokenOut: {
+            callId: newToken.address < tokenIn.address ? 0 : 1,
+            ...newToken,
+          },
           pairSelected: true,
         }));
       }
     } else {
       //if tokenIn its not selected
       set(() => ({
-        tokenOut: newToken,
-        token0: newToken,
+        tokenOut: { callId: 0, ...newToken },
         pairSelected: false,
       }));
     }
@@ -250,8 +246,6 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
         initialSwapState.tokenOutCoverAllowanceBigNumber,
       tokenOutAmountToReceiveBigNumber:
         initialSwapState.tokenOutAmountToReceiveBigNumber,
-      token0: initialSwapState.token0,
-      token1: initialSwapState.token1,
       gasFee: initialSwapState.gasFee,
       gasLimit: initialSwapState.gasLimit,
     });

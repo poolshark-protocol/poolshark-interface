@@ -79,8 +79,6 @@ export default function Swap() {
     tokenOutCoverUSDPrice,
     setTokenOutCoverUSDPrice,
     //tokenOrder
-    token0,
-    token1,
     switchDirection,
     pairSelected,
     //rangePool
@@ -109,8 +107,6 @@ export default function Swap() {
     state.tokenOutCoverUSDPrice,
     state.setTokenOutCoverUSDPrice,
     //tokenOrder
-    state.token0,
-    state.token1,
     state.switchDirection,
     state.pairSelected,
     //rangePool
@@ -124,6 +120,7 @@ export default function Swap() {
     state.setCoverPoolAddress,
     state.setCoverPoolData,
   ]);
+  console.log("tokenIn", tokenIn);
 
   //false when user in normal swap, true when user in limit swap
   const [limitTabSelected, setLimitTabSelected] = useState(false);
@@ -138,9 +135,8 @@ export default function Swap() {
   ////////////////////////////////Pools
 
   useEffect(() => {
-    if (pairSelected) {
+    if (tokenIn.address && tokenOut.address) {
       updatePools();
-      //setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0);
     }
   }, [tokenOut, tokenIn]);
 
@@ -164,29 +160,46 @@ export default function Swap() {
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address) {
-      setTokenOrder(tokenIn.address == token0.address);
+      setTokenOrder(tokenIn.callId == 0);
     }
   }, [tokenIn, tokenOut]);
 
   ////////////////////////////////TokenUSDPrices
 
   useEffect(() => {
-    if (rangePoolData) {
-      fetchRangeTokenUSDPrice(rangePoolData, tokenIn, setTokenInRangeUSDPrice);
-      fetchCoverTokenUSDPrice(coverPoolData, tokenIn, setTokenInCoverUSDPrice);
+    if (rangePoolData && coverPoolData) {
+      if (tokenIn.address) {
+        fetchRangeTokenUSDPrice(
+          rangePoolData,
+          tokenIn,
+          setTokenInRangeUSDPrice
+        );
+        fetchCoverTokenUSDPrice(
+          coverPoolData,
+          tokenIn,
+          setTokenInCoverUSDPrice
+        );
+      }
+      if (tokenOut.address) {
+        fetchRangeTokenUSDPrice(
+          rangePoolData,
+          tokenOut,
+          setTokenOutRangeUSDPrice
+        );
+        fetchCoverTokenUSDPrice(
+          coverPoolData,
+          tokenOut,
+          setTokenOutCoverUSDPrice
+        );
+      }
     }
-    /*
-    if (tokenOut.address) {
-      fetchRangeTokenUSDPrice(rangePoolData, tokenOut, setTokenOut);
-      fetchCoverTokenUSDPrice(coverPoolData, tokenOut, setTokenOut);
-    } */
-  }, [tokenIn, tokenOut]);
+  }, [rangePoolData, coverPoolData]);
 
   ////////////////////////////////Balances
   const [balanceIn, setBalanceIn] = useState("0.00");
   const [balanceOut, setBalanceOut] = useState("0.00");
 
-  console.log("tokenIn", tokenIn);
+  //console.log("tokenIn", tokenIn);
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.address,
@@ -194,7 +207,7 @@ export default function Swap() {
     watch: true,
   });
 
-  console.log("tokenOut", tokenOut);
+  //console.log("tokenOut", tokenOut);
   const { data: tokenOutBal } = useBalance({
     address: address,
     token: tokenOut.address,
@@ -407,7 +420,7 @@ export default function Swap() {
   const { data: priceCover } = useContractRead({
     address: coverPoolAddress,
     abi: coverPoolABI,
-    functionName: tokenIn == token0 ? "pool1" : "pool0",
+    functionName: tokenOrder ? "pool0" : "pool1",
     args: [],
     chainId: 421613,
     watch: true,
@@ -899,7 +912,7 @@ export default function Swap() {
                   $
                   {(
                     Number(ethers.utils.formatUnits(bnInput, 18)) *
-                    tokenIn.usdPrice
+                    tokenInRangeUSDPrice
                   ).toFixed(2)}
                 </div>
               </div>

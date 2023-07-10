@@ -2,35 +2,31 @@
 
 import { invertPrice } from "./math/tickMath";
 
-export const fetchRangeTokenUSDPrice = async (poolData, token, setToken) => {
-  console.log("fetchRangeTokenUSDPrice");
-  console.log("poolData", poolData);
+export const fetchRangeTokenUSDPrice = async (
+  poolData,
+  token,
+  setTokenUSDPrice
+) => {
   try {
-    const tokenUsdPrice = token.usdPrice;
-    setToken({
-      name: token.name,
-      symbol: token.symbol,
-      logoURI: token.logoURI,
-      address: token.address,
-      usdPrice: !isNaN(parseFloat(tokenUsdPrice)) ? tokenUsdPrice : 0,
-    });
+    console.log("fetchRangeTokenUSDPrice");
+    setTokenUSDPrice(
+      token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice
+    );
   } catch (error) {
     console.log(error);
   }
 };
 
-export const fetchCoverTokenUSDPrice = async (poolData, token, setToken) => {
-  console.log("fetchCoverTokenUSDPrice");
-  console.log("poolData", poolData);
+export const fetchCoverTokenUSDPrice = async (
+  poolData,
+  token,
+  setTokenUSDPrice
+) => {
   try {
-    const tokenUsdPrice = token.usdPrice;
-    setToken({
-      name: token.name,
-      symbol: token.symbol,
-      logoURI: token.logoURI,
-      address: token.address,
-      usdPrice: !isNaN(parseFloat(tokenUsdPrice)) ? tokenUsdPrice : 0,
-    });
+    console.log("fetchCoverTokenUSDPrice");
+    setTokenUSDPrice(
+      token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice
+    );
   } catch (error) {
     console.log(error);
   }

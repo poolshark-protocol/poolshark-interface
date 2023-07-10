@@ -15,24 +15,19 @@ export const getRangePool = async (
   tokenOut: token,
   setRangePoolAddress,
   setRangePoolData
-  /* setTokenIn?,
-  setTokenOut?, */
-  /* setRangeTickSpacing?, */
-  //setEthUsdPrice?,
 ) => {
   try {
-    /*     const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0;
-     */
     const pool = await getRangePoolFromFactory(
       tokenIn.address,
       tokenOut.address
     );
     //TODO@retraca create here a for for choosing the right pool considering feetier
     let id = ZERO_ADDRESS;
+    let rangePoolData = {};
     const dataLength = pool["data"]["rangePools"].length;
     if (dataLength != 0) {
       id = pool["data"]["rangePools"]["0"]["id"];
-      setRangePoolData(pool["data"]["rangePools"]["0"]);
+      rangePoolData = pool["data"]["rangePools"]["0"];
 
       /* if (setRangeTickSpacing) {
         const tickSpacing =
@@ -79,8 +74,7 @@ export const getRangePool = async (
         tokenIn.address
       );
       id = fallbackPool["data"]["rangePools"]["0"]["id"];
-      setRangePoolData(fallbackPool["data"]["rangePools"]["0"]);
-
+      rangePoolData = fallbackPool["data"]["rangePools"]["0"];
       /* if (setRangeTickSpacing) {
         const tickSpacing =
           fallbackPool["data"]["rangePools"]["0"]["feeTier"]["tickSpacing"];
@@ -88,7 +82,7 @@ export const getRangePool = async (
       } */
     }
     setRangePoolAddress(id);
-    console.log("range route", id);
+    setRangePoolData(rangePoolData);
   } catch (error) {
     console.log(error);
   }
@@ -99,18 +93,18 @@ export const getCoverPool = async (
   tokenOut: token,
   setCoverPoolAddress,
   setCoverPoolData
-  //setTokenInUsdPrice?
 ) => {
   try {
-    const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0;
     const pool = await getCoverPoolFromFactory(
       tokenIn.address,
       tokenOut.address
     );
-    //let id = ZERO_ADDRESS
+    let id = ZERO_ADDRESS;
+    let coverPoolData = {};
     const dataLength = pool["data"]["coverPools"].length;
     if (dataLength != 0) {
-      setCoverPoolAddress(pool["data"]["coverPools"]["0"]["id"]);
+      id = pool["data"]["coverPools"]["0"]["id"];
+      coverPoolData = pool["data"]["coverPools"]["0"];
       /* if (setTokenInUsdPrice) {
         setTokenInUsdPrice(
           tokenOrder
@@ -123,7 +117,8 @@ export const getCoverPool = async (
         tokenOut.address,
         tokenIn.address
       );
-      setCoverPoolAddress(fallbackPool["data"]["coverPools"]["0"]["id"]);
+      id = fallbackPool["data"]["coverPools"]["0"]["id"];
+      coverPoolData = fallbackPool["data"]["coverPools"]["0"];
       /* if (setTokenInUsdPrice) {
         setTokenInUsdPrice(
           tokenOrder
@@ -132,6 +127,8 @@ export const getCoverPool = async (
         );
       } */
     }
+    setCoverPoolAddress(id);
+    setCoverPoolData(coverPoolData);
   } catch (error) {
     console.log(error);
   }
