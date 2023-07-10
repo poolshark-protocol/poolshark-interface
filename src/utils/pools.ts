@@ -13,7 +13,8 @@ import { token } from "./types";
 export const getRangePool = async (
   tokenIn: token,
   tokenOut: token,
-  setRangeRoute
+  setRangePoolAddress,
+  setRangePoolData
   /* setTokenIn?,
   setTokenOut?, */
   /* setRangeTickSpacing?, */
@@ -31,6 +32,7 @@ export const getRangePool = async (
     const dataLength = pool["data"]["rangePools"].length;
     if (dataLength != 0) {
       id = pool["data"]["rangePools"]["0"]["id"];
+      setRangePoolData(pool["data"]["rangePools"]["0"]);
 
       /* if (setRangeTickSpacing) {
         const tickSpacing =
@@ -77,6 +79,7 @@ export const getRangePool = async (
         tokenIn.address
       );
       id = fallbackPool["data"]["rangePools"]["0"]["id"];
+      setRangePoolData(fallbackPool["data"]["rangePools"]["0"]);
 
       /* if (setRangeTickSpacing) {
         const tickSpacing =
@@ -84,7 +87,7 @@ export const getRangePool = async (
         setRangeTickSpacing(tickSpacing);
       } */
     }
-    setRangeRoute(id);
+    setRangePoolAddress(id);
     console.log("range route", id);
   } catch (error) {
     console.log(error);
@@ -94,7 +97,8 @@ export const getRangePool = async (
 export const getCoverPool = async (
   tokenIn: token,
   tokenOut: token,
-  setCoverRoute,
+  setCoverPoolAddress,
+  setCoverPoolData
   //setTokenInUsdPrice?
 ) => {
   try {
@@ -106,7 +110,7 @@ export const getCoverPool = async (
     //let id = ZERO_ADDRESS
     const dataLength = pool["data"]["coverPools"].length;
     if (dataLength != 0) {
-      setCoverRoute(pool["data"]["coverPools"]["0"]["id"]);
+      setCoverPoolAddress(pool["data"]["coverPools"]["0"]["id"]);
       /* if (setTokenInUsdPrice) {
         setTokenInUsdPrice(
           tokenOrder
@@ -119,7 +123,7 @@ export const getCoverPool = async (
         tokenOut.address,
         tokenIn.address
       );
-      setCoverRoute(fallbackPool["data"]["coverPools"]["0"]["id"]);
+      setCoverPoolAddress(fallbackPool["data"]["coverPools"]["0"]["id"]);
       /* if (setTokenInUsdPrice) {
         setTokenInUsdPrice(
           tokenOrder
@@ -154,73 +158,98 @@ export const getCoverPoolInfo = async (
   try {
     const pool = await getCoverPoolFromFactory(
       tokenIn.address,
-      tokenOut.address,
-    )
-    console.log('getting pool info', poolRoute)
-    const dataLength = pool['data']['coverPools'].length
-    console.log('getting data length', dataLength)
+      tokenOut.address
+    );
+    console.log("getting pool info", poolRoute);
+    const dataLength = pool["data"]["coverPools"].length;
+    console.log("getting data length", dataLength);
     if (dataLength) {
       for (let i = 0; i < dataLength; i++) {
-        const newPoolRoute = pool['data']['coverPools'][i]['id']
-        const tickSpread =
-        parseInt(pool['data']['coverPools'][i]['volatilityTier']['tickSpread'])
-        if ((poolRoute && newPoolRoute == poolRoute) ||
-             expectedTickSpread && tickSpread == expectedTickSpread) {
-            console.log('vol tier get spread', tickSpread, expectedTickSpread)
-            setCoverPoolRoute(pool['data']['coverPools'][i]['id'])
-            console.log('vol tier pool found', newPoolRoute)
-            if (tickSpread == 20) {
-              if (volatility != 0) {
-                console.log('change to tier 0')
-                changeDefaultPrices = true
-                setVolatility(0)
-              }
-            } else if (tickSpread == 40) {
-              console.log('vol tier 40', volatility, poolRoute == newPoolRoute)
-              if (volatility != 1) {
-                console.log('change to tier 1')
-                changeDefaultPrices = true
-                setVolatility(1)
-              }
+        const newPoolRoute = pool["data"]["coverPools"][i]["id"];
+        const tickSpread = parseInt(
+          pool["data"]["coverPools"][i]["volatilityTier"]["tickSpread"]
+        );
+        if (
+          (poolRoute && newPoolRoute == poolRoute) ||
+          (expectedTickSpread && tickSpread == expectedTickSpread)
+        ) {
+          console.log("vol tier get spread", tickSpread, expectedTickSpread);
+          setCoverPoolRoute(pool["data"]["coverPools"][i]["id"]);
+          console.log("vol tier pool found", newPoolRoute);
+          if (tickSpread == 20) {
+            if (volatility != 0) {
+              console.log("change to tier 0");
+              changeDefaultPrices = true;
+              setVolatility(0);
             }
-          const newLatestTick = parseInt(pool['data']['coverPools'][i]['latestTick'])
+          } else if (tickSpread == 40) {
+            console.log("vol tier 40", volatility, poolRoute == newPoolRoute);
+            if (volatility != 1) {
+              console.log("change to tier 1");
+              changeDefaultPrices = true;
+              setVolatility(1);
+            }
+          }
+          const newLatestTick = parseInt(
+            pool["data"]["coverPools"][i]["latestTick"]
+          );
           if (setCoverPrice) {
-            console.log('getting cover price', TickMath.getPriceStringAtTick(newLatestTick), tickSpread)
-            setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick))
+            console.log(
+              "getting cover price",
+              TickMath.getPriceStringAtTick(newLatestTick),
+              tickSpread
+            );
+            setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick));
           }
 
           if (setTokenInUsdPrice) {
             setTokenInUsdPrice(
               parseFloat(
                 tokenOrder
-                  ? pool['data']['coverPools'][i]['token0']['usdPrice']
-                  : pool['data']['coverPools'][i]['token1']['usdPrice'],
-              ),
-            )
+                  ? pool["data"]["coverPools"][i]["token0"]["usdPrice"]
+                  : pool["data"]["coverPools"][i]["token1"]["usdPrice"]
+              )
+            );
           }
           if (setLatestTick) {
-            setLatestTick(newLatestTick)
-            console.log('setting latest tick', tokenOrder, newLatestTick, tickSpread, newLatestTick + tickSpread * 6)
-            console.log('setting latest lower price', poolRoute != newPoolRoute, changeDefaultPrices)
-            if ((poolRoute != newPoolRoute && setLowerPrice != undefined) || changeDefaultPrices) {
+            setLatestTick(newLatestTick);
+            console.log(
+              "setting latest tick",
+              tokenOrder,
+              newLatestTick,
+              tickSpread,
+              newLatestTick + tickSpread * 6
+            );
+            console.log(
+              "setting latest lower price",
+              poolRoute != newPoolRoute,
+              changeDefaultPrices
+            );
+            if (
+              (poolRoute != newPoolRoute && setLowerPrice != undefined) ||
+              changeDefaultPrices
+            ) {
               setLowerPrice(
                 TickMath.getPriceStringAtTick(
                   tokenOrder
-                    ? newLatestTick + (-tickSpread) * 16
+                    ? newLatestTick + -tickSpread * 16
                     : newLatestTick + tickSpread * 8,
-                  tickSpread,
-                ),
-              )
+                  tickSpread
+                )
+              );
             }
-            if ((poolRoute != newPoolRoute && setUpperPrice) || changeDefaultPrices) {
+            if (
+              (poolRoute != newPoolRoute && setUpperPrice) ||
+              changeDefaultPrices
+            ) {
               setUpperPrice(
                 TickMath.getPriceStringAtTick(
                   tokenOrder
                     ? newLatestTick - tickSpread * 6
                     : newLatestTick + tickSpread * 18,
-                  tickSpread,
-                ),
-              )
+                  tickSpread
+                )
+              );
             }
           }
         }

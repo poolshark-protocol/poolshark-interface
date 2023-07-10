@@ -49,6 +49,10 @@ import RangeLimitSwapButton from "../components/Buttons/RangeLimitSwapButton";
 import SwapRangeDoubleApproveButton from "../components/Buttons/SwapRangeDoubleApproveButton";
 import { debounce } from "lodash";
 import { useSwapStore } from "../hooks/useSwapStore";
+import {
+  fetchCoverTokenUSDPrice,
+  fetchRangeTokenUSDPrice,
+} from "../utils/tokens";
 
 export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -60,30 +64,65 @@ export default function Swap() {
     useInputBox();
 
   const [
+    //tokenIN
     tokenIn,
-    tokenOut,
     setTokenIn,
+    tokenInRangeUSDPrice,
+    setTokenInRangeUSDPrice,
+    tokenInCoverUSDPrice,
+    setTokenInCoverUSDPrice,
+    //tokenOut
+    tokenOut,
     setTokenOut,
+    tokenOutRangeUSDPrice,
+    setTokenOutRangeUSDPrice,
+    tokenOutCoverUSDPrice,
+    setTokenOutCoverUSDPrice,
+    //tokenOrder
     token0,
-    pairSelected,
+    token1,
     switchDirection,
+    pairSelected,
+    //rangePool
     rangePoolAddress,
+    rangePoolData,
     setRangePoolAddress,
+    setRangePoolData,
+    //coverPool
     coverPoolAddress,
+    coverPoolData,
     setCoverPoolAddress,
+    setCoverPoolData,
   ] = useSwapStore((state: any) => [
+    //tokenIN
     state.tokenIn,
-    state.tokenOut,
     state.setTokenIn,
+    state.tokenInRangeUSDPrice,
+    state.setTokenInRangeUSDPrice,
+    state.tokenInCoverUSDPrice,
+    state.setTokenInCoverUSDPrice,
+    //tokenOut
+    state.tokenOut,
     state.setTokenOut,
+    state.tokenOutRangeUSDPrice,
+    state.setTokenOutRangeUSDPrice,
+    state.tokenOutCoverUSDPrice,
+    state.setTokenOutCoverUSDPrice,
+    //tokenOrder
     state.token0,
     state.token1,
     state.switchDirection,
     state.pairSelected,
+    //rangePool
     state.rangePoolAddress,
+    state.rangePoolData,
     state.setRangePoolAddress,
+    state.setRangePoolData,
+    //coverPool
     state.coverPoolAddress,
+    state.coverPoolData,
     state.setCoverPoolAddress,
+    state.setCoverPoolData,
   ]);
 
   //false when user in normal swap, true when user in limit swap
@@ -96,30 +135,70 @@ export default function Swap() {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
   }, [chainId]);
 
-  ////////////////////////////////tokenOrder
+  ////////////////////////////////Pools
+
+  useEffect(() => {
+    if (pairSelected) {
+      updatePools();
+      //setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0);
+    }
+  }, [tokenOut, tokenIn]);
+
+  async function updatePools() {
+    await getRangePool(
+      tokenIn,
+      tokenOut,
+      setRangePoolAddress,
+      setRangePoolData
+    );
+    await getCoverPool(
+      tokenIn,
+      tokenOut,
+      setCoverPoolAddress,
+      setCoverPoolData
+    );
+  }
+
+  ////////////////////////////////TokenOrder
   const [tokenOrder, setTokenOrder] = useState(true);
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address) {
       setTokenOrder(tokenIn.address == token0.address);
     }
-  }, [tokenIn.address, tokenOut.address]);
+  }, [tokenIn, tokenOut]);
+
+  ////////////////////////////////TokenUSDPrices
+
+  useEffect(() => {
+    if (rangePoolData) {
+      fetchRangeTokenUSDPrice(rangePoolData, tokenIn, setTokenInRangeUSDPrice);
+      fetchCoverTokenUSDPrice(coverPoolData, tokenIn, setTokenInCoverUSDPrice);
+    }
+    /*
+    if (tokenOut.address) {
+      fetchRangeTokenUSDPrice(rangePoolData, tokenOut, setTokenOut);
+      fetchCoverTokenUSDPrice(coverPoolData, tokenOut, setTokenOut);
+    } */
+  }, [tokenIn, tokenOut]);
 
   ////////////////////////////////Balances
   const [balanceIn, setBalanceIn] = useState("0.00");
   const [balanceOut, setBalanceOut] = useState("0.00");
 
+  console.log("tokenIn", tokenIn);
   const { data: tokenInBal } = useBalance({
     address: address,
-    token: tokenIn.address as `0x${string}`,
-    enabled: isConnected,
+    token: tokenIn.address,
+    enabled: tokenIn.address != undefined,
     watch: true,
   });
 
+  console.log("tokenOut", tokenOut);
   const { data: tokenOutBal } = useBalance({
     address: address,
-    token: tokenOut.address as `0x${string}`,
-    enabled: isConnected && pairSelected,
+    token: tokenOut.address,
+    enabled: tokenOut.address != undefined,
     watch: true,
   });
 
@@ -131,20 +210,6 @@ export default function Swap() {
       }
     }
   }, [tokenInBal, tokenOutBal]);
-
-  ////////////////////////////////Pools
-
-  useEffect(() => {
-    if (pairSelected) {
-      updatePools();
-      //setTokenOrder(tokenIn.address.localeCompare(tokenOut.address) < 0);
-    }
-  }, [tokenOut.address, tokenIn.address]);
-
-  async function updatePools() {
-    await getRangePool(tokenIn, tokenOut, setRangePoolAddress);
-    await getCoverPool(tokenIn, tokenOut, setCoverPoolAddress);
-  }
 
   ////////////////////////////////Allowances
   const [allowanceRange, setAllowanceRange] = useState("0.00");
@@ -236,7 +301,6 @@ export default function Swap() {
         const priceAfter = parseFloat(
           TickMath.getPriceStringAtSqrtPrice(quoteRange[2])
         );
-        setRangePriceAfter(priceAfter);
         const priceSlippage = parseFloat(
           ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6)
         );

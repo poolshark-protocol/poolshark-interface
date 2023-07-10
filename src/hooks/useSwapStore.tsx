@@ -9,17 +9,25 @@ import { create } from "zustand";
 
 type SwapState = {
   //poolAddress for current token pairs
+  ////cover
   coverPoolAddress: String;
+  coverPoolData: any;
+  ////range
   rangePoolAddress: String;
+  rangePoolData: any;
   //true if both tokens selected, false if only one token selected
   pairSelected: Boolean;
   //TokenIn defines the token on the left/up on a swap page
   tokenIn: token;
+  tokenInRangeUSDPrice: number;
+  tokenInCoverUSDPrice: number;
   tokenInRangeAllowanceBigNumber: BigNumber;
   tokenInCoverAllowanceBigNumber: BigNumber;
   tokenInAmountToSendBigNumber: BigNumber;
   //TokenOut defines the token on the left/up on a swap page
   tokenOut: token;
+  tokenOutRangeUSDPrice: Number;
+  tokenOutCoverUSDPrice: Number;
   tokenOutRangeAllowanceBigNumber: BigNumber;
   tokenOutCoverAllowanceBigNumber: BigNumber;
   tokenOutAmountToReceiveBigNumber: BigNumber;
@@ -38,8 +46,11 @@ type SwapAction = {
 
 const initialSwapState: SwapState = {
   coverPoolAddress: "",
+  coverPoolData: {},
   rangePoolAddress: "",
-  pairSelected: false,
+  rangePoolData: {},
+  //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
+  pairSelected: true,
   tokenIn: {
     name: "Wrapped Ether",
     symbol: "WETH",
@@ -47,6 +58,8 @@ const initialSwapState: SwapState = {
     address: tokenOneAddress,
     usdPrice: 0,
   } as token,
+  tokenInRangeUSDPrice: 0,
+  tokenInCoverUSDPrice: 0,
   tokenInRangeAllowanceBigNumber: BN_ZERO,
   tokenInCoverAllowanceBigNumber: BN_ZERO,
   tokenInAmountToSendBigNumber: BN_ZERO,
@@ -55,8 +68,9 @@ const initialSwapState: SwapState = {
     symbol: "Select Token",
     logoURI: "",
     address: tokenZeroAddress,
-    usdPrice: 0,
   } as token,
+  tokenOutRangeUSDPrice: 0,
+  tokenOutCoverUSDPrice: 0,
   tokenOutRangeAllowanceBigNumber: BN_ZERO,
   tokenOutCoverAllowanceBigNumber: BN_ZERO,
   tokenOutAmountToReceiveBigNumber: BN_ZERO,
@@ -80,15 +94,21 @@ const initialSwapState: SwapState = {
 
 export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   coverPoolAddress: initialSwapState.coverPoolAddress,
+  coverPoolData: initialSwapState.coverPoolData,
   rangePoolAddress: initialSwapState.rangePoolAddress,
+  rangePoolData: initialSwapState.rangePoolData,
   pairSelected: initialSwapState.pairSelected,
   tokenIn: initialSwapState.tokenIn,
+  tokenInRangeUSDPrice: initialSwapState.tokenInRangeUSDPrice,
+  tokenInCoverUSDPrice: initialSwapState.tokenInCoverUSDPrice,
   tokenInRangeAllowanceBigNumber:
     initialSwapState.tokenInRangeAllowanceBigNumber,
   tokenInCoverAllowanceBigNumber:
     initialSwapState.tokenInCoverAllowanceBigNumber,
   tokenInAmountToSendBigNumber: initialSwapState.tokenInAmountToSendBigNumber,
   tokenOut: initialSwapState.tokenOut,
+  tokenOutRangeUSDPrice: initialSwapState.tokenOutRangeUSDPrice,
+  tokenOutCoverUSDPrice: initialSwapState.tokenOutCoverUSDPrice,
   tokenOutRangeAllowanceBigNumber:
     initialSwapState.tokenOutCoverAllowanceBigNumber,
   tokenOutCoverAllowanceBigNumber:
@@ -132,6 +152,26 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       }));
     }
   },
+  setTokenInRangeUSDPrice: (newPrice: number) => {
+    set(() => ({
+      tokenInRangeUSDPrice: newPrice,
+    }));
+  },
+  setTokenInCoverUSDPrice: (newPrice: number) => {
+    set(() => ({
+      tokenInCoverUSDPrice: newPrice,
+    }));
+  },
+  setTokenOutRangeUSDPrice: (newPrice: number) => {
+    set(() => ({
+      tokenOutRangeUSDPrice: newPrice,
+    }));
+  },
+  setTokenOutCoverUSDPrice: (newPrice: number) => {
+    set(() => ({
+      tokenOutCoverUSDPrice: newPrice,
+    }));
+  },
   setTokenOut: (tokenIn, newToken: token) => {
     //if tokenIn exists
     if (
@@ -170,9 +210,19 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       rangePoolAddress: rangePoolAddress,
     }));
   },
+  setRangePoolData: (rangePoolData: any) => {
+    set(() => ({
+      rangePoolData: rangePoolData,
+    }));
+  },
   setCoverPoolAddress: (coverPoolAddress: string) => {
     set(() => ({
       coverPoolAddress: coverPoolAddress,
+    }));
+  },
+  setCoverPoolData: (coverPoolData: any) => {
+    set(() => ({
+      coverPoolData: coverPoolData,
     }));
   },
   switchDirection: () => {
