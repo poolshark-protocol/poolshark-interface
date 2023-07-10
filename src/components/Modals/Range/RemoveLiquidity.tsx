@@ -30,7 +30,8 @@ export default function RangeRemoveLiquidity({ isOpen, token1Price, token0Price,
 
   const [balance0, setBalance0] = useState('')
   const [balance1, setBalance1] = useState('0.00')
-  const [sliderValue, setSliderValue] = useState(0)
+  const [sliderValue, setSliderValue] = useState(1)
+  const [sliderOutput, setSliderOutput] = useState('1')
   const [burnPercent, setBurnPercent] = useState(BN_ZERO)
   const [disabled, setDisabled] = useState(true)
   const [amount0, setAmount0] = useState(BN_ZERO)
@@ -62,15 +63,8 @@ export default function RangeRemoveLiquidity({ isOpen, token1Price, token0Price,
   }, [sliderValue])
 
   useEffect(() => {
-    setLiquidity()
-  }, [bnInput])
-
-  useEffect(() => {
     updateGasFee()
   }, [burnPercent])
-  
-
-  
 
   const handleChange = (event: any) => {
     if (Number(event.target.value) != 0) {
@@ -100,7 +94,7 @@ export default function RangeRemoveLiquidity({ isOpen, token1Price, token0Price,
     setGasLimit(newBurnGasFee.gasUnits.mul(200).div(100))
   }
 
-  function setLiquidity() {
+  /*function setLiquidity() {
     try {
       if (
         Number(ethers.utils.formatUnits(bnInput)) !== 0
@@ -131,7 +125,7 @@ export default function RangeRemoveLiquidity({ isOpen, token1Price, token0Price,
       } catch (error) {
         console.log(error)
       } 
-  }
+  }*/
 
   function setAmounts(liquidity: JSBI, changeDisplay = false) {
     try {
@@ -149,7 +143,7 @@ export default function RangeRemoveLiquidity({ isOpen, token1Price, token0Price,
         const amount0Bn = BigNumber.from(String(amounts.token0Amount))
         console.log('token1 amount', amounts.token1Amount)
         const amount1Bn = BigNumber.from(String(amounts.token1Amount))
-        if (changeDisplay) setDisplay(Number(ethers.utils.formatUnits(tokenOrder ? amount0Bn : amount1Bn, 18)).toPrecision(6))
+        if (changeDisplay) setSliderOutput(Number(ethers.utils.formatUnits(tokenOrder ? amount0Bn : amount1Bn, 18)).toPrecision(6))
         setAmount0(amount0Bn) 
         setAmount1(amount1Bn)
         setDisabled(false)
@@ -234,7 +228,12 @@ export default function RangeRemoveLiquidity({ isOpen, token1Price, token0Price,
                 <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-6 mb-6">
                 <div className=" p-2 ">
                               <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-1 rounded-xl">
-                              {inputBox("0")}
+                                <div
+                                  id="input"
+                                  className="bg-[#0C0C0C] placeholder:text-grey1 w-full text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
+                                >
+                                  {sliderOutput}
+                                </div>
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
