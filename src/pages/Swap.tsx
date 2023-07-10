@@ -16,16 +16,10 @@ import {
   useContractRead,
   useBalance,
 } from "wagmi";
-import {
-  tokenZeroAddress,
-  tokenOneAddress,
-} from "../constants/contractAddresses";
 import { BigNumber, ethers } from "ethers";
 import { chainIdsToNamesForGitTokenList } from "../utils/chains";
 import { coverPoolABI } from "../abis/evm/coverPool";
 import {
-  fetchCoverPools,
-  fetchRangePools,
   getCoverPoolFromFactory,
   getRangePoolFromFactory,
 } from "../utils/queries";
@@ -42,12 +36,9 @@ import {
 } from "../utils/math/tickMath";
 import { BN_ONE, BN_ZERO } from "../utils/math/constants";
 import { gasEstimateSwap, gasEstimateSwapLimit } from "../utils/gas";
-import { token } from "../utils/types";
 import { getCoverPool, getRangePool } from "../utils/pools";
 import inputFilter from "../utils/inputFilter";
 import RangeLimitSwapButton from "../components/Buttons/RangeLimitSwapButton";
-import SwapRangeDoubleApproveButton from "../components/Buttons/SwapRangeDoubleApproveButton";
-import { debounce } from "lodash";
 import { useSwapStore } from "../hooks/useSwapStore";
 import {
   fetchCoverTokenUSDPrice,
@@ -120,7 +111,6 @@ export default function Swap() {
     state.setCoverPoolAddress,
     state.setCoverPoolData,
   ]);
-  console.log("tokenIn", tokenIn);
 
   //false when user in normal swap, true when user in limit swap
   const [limitTabSelected, setLimitTabSelected] = useState(false);
@@ -166,6 +156,13 @@ export default function Swap() {
 
   ////////////////////////////////TokenUSDPrices
 
+  console.log("tokenIn", tokenIn);
+  console.log("tokenInRangeUSDPrice", tokenInRangeUSDPrice);
+  console.log("tokenInCoverUSDPrice", tokenInCoverUSDPrice);
+  console.log("tokenOut", tokenOut);
+  console.log("tokenOutRangeUSDPrice", tokenOutRangeUSDPrice);
+  console.log("tokenOutCoverUSDPrice", tokenOutCoverUSDPrice);
+
   useEffect(() => {
     if (rangePoolData && coverPoolData) {
       if (tokenIn.address) {
@@ -199,7 +196,6 @@ export default function Swap() {
   const [balanceIn, setBalanceIn] = useState("0.00");
   const [balanceOut, setBalanceOut] = useState("0.00");
 
-  //console.log("tokenIn", tokenIn);
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.address,
@@ -207,7 +203,6 @@ export default function Swap() {
     watch: true,
   });
 
-  //console.log("tokenOut", tokenOut);
   const { data: tokenOutBal } = useBalance({
     address: address,
     token: tokenOut.address,
@@ -612,44 +607,6 @@ export default function Swap() {
     setMintFee(newMintFee.formattedPrice);
     setMintGasLimit(newMintFee.gasUnits.mul(130).div(100));
   }
-  ////////////////////////////////
-
-  /* const switchDirection = debounce(() => {
-    if (display != "") {
-      setBnInput(
-        ethers.utils.parseUnits(
-          (rangeQuote >= coverQuote ? rangeQuote : coverQuote).toPrecision(10),
-          18
-        )
-      );
-      setDisplay(
-        (rangeQuote >= coverQuote ? rangeQuote : coverQuote)
-          .toPrecision(7)
-          .replace(/0+$/, "")
-          .replace(/(\.)(?!\d)/g, "")
-      );
-      if (rangeQuote > 0 && rangeQuote >= coverQuote) {
-        setRangeQuote(
-          parseFloat(
-            parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5)
-          )
-        );
-      } else {
-        setCoverQuote(
-          parseFloat(
-            parseFloat(ethers.utils.formatUnits(bnInput, 18)).toPrecision(5)
-          )
-        );
-      }
-      setDisplayQuote(true);
-    } else {
-      setBnInput(BN_ONE);
-      setDisplay("");
-      setRangeQuote(0);
-      setCoverQuote(0);
-      setDisplayQuote(false);
-    }
-  }, 200); */
 
   ////////////////////////////////Limit Price Switch ??
   const [limitPriceSwitch, setLimitPriceSwitch] = useState(true);
@@ -684,7 +641,7 @@ export default function Swap() {
     }
   }, [limitPriceInput]);
 
-  ////////////////////////////////Button states
+  ////////////////////////////////Button states for swap
 
   const [buttonState, setButtonState] = useState("");
 
@@ -909,7 +866,7 @@ export default function Swap() {
             {tokenIn.address ? (
               <div className="flex">
                 <div className="flex text-xs text-[#4C4C4C]">
-                  $
+                  ~$
                   {(
                     Number(ethers.utils.formatUnits(bnInput, 18)) *
                     tokenInRangeUSDPrice
@@ -971,8 +928,8 @@ export default function Swap() {
         <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
           <div className="flex-col justify-center w-1/2 p-2 ">
             <div className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
-              {/* here we display the expected amount of tokenOut*/}
-              {pairSelected || bnInput.eq(BN_ZERO) ? (
+              {/*display the expected amount of tokenOut*/}
+              {pairSelected && !bnInput.eq(BN_ZERO) ? (
                 !limitTabSelected ? (
                   <div>
                     {rangeQuote >= coverQuote
@@ -991,17 +948,19 @@ export default function Swap() {
                 <div>0</div>
               )}
             </div>
-            {/* here is for displaying the USD value for the out amount */}
+            {/*for displaying the USD value for the out amount */}
             {pairSelected ? (
               <div className="flex">
                 <div className="flex text-xs text-[#4C4C4C]">
-                  $
-                  {!isNaN(tokenOut.usdPrice)
+                  ~$
+                  {tokenOutRangeUSDPrice || tokenOutCoverUSDPrice
                     ? !limitTabSelected
-                      ? rangeQuote >= coverQuote
-                        ? (rangeQuote * tokenOut.usdPrice).toFixed(2)
-                        : (coverQuote * tokenOut.usdPrice).toFixed(2)
-                      : (
+                      ? //swap page
+                        rangeQuote >= coverQuote
+                        ? (rangeQuote * tokenOutRangeUSDPrice).toFixed(2)
+                        : (coverQuote * tokenOutCoverUSDPrice).toFixed(2)
+                      : // limit page TODO tokenOutRangeUSDPrice should be changed by tokenOutLimitUSDPrice when implemented
+                        (
                           parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                           parseFloat(limitPrice) *
                           tokenOut.usdPrice
@@ -1010,7 +969,7 @@ export default function Swap() {
                 </div>
               </div>
             ) : (
-              <></>
+              <>{(0).toFixed(2)}</>
             )}
           </div>
           <div className="flex w-1/2">
@@ -1115,26 +1074,18 @@ export default function Swap() {
           >
             <div className="flex-none text-xs uppercase text-[#C9C9C9]">
               1 {tokenIn.symbol} ={" "}
-              {/* {!pairSelected
+              {!pairSelected
                 ? " ?"
-                : " " +
-                  (!limitTabSelected
-                    ? !isNaN(rangeQuote) && !isNaN(coverQuote)
-                      ? rangeQuote >= coverQuote
-                        ? tokenOrder
-                          ? rangePrice.toPrecision(5)
-                          : invertPrice(rangePrice.toPrecision(5), false)
-                        : tokenOrder
-                        ? coverPrice.toPrecision(5)
-                        : invertPrice(coverPrice.toPrecision(5), false)
-                      : "0"
-                    : parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) !=
-                      0
-                    ? parseFloat(
-                        ethers.utils.formatUnits(rangeBnPrice, 18)
-                      ).toFixed(3)
-                    : "0")}{" "} */}
-              1 {tokenOut.symbol}
+                : (rangeQuote >= coverQuote
+                    ? //range price
+                      tokenOrder
+                      ? rangePrice.toPrecision(5)
+                      : invertPrice(rangePrice.toPrecision(5), false)
+                    : //cover price
+                    tokenOrder
+                    ? coverPrice.toPrecision(5)
+                    : invertPrice(coverPrice.toPrecision(5), false)) +
+                  tokenOut.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
               <button>
@@ -1150,9 +1101,7 @@ export default function Swap() {
           <ConnectWalletButton xl={true} />
         ) : !limitTabSelected ? (
           <>
-            {stateChainName !== "arbitrumGoerli" ||
-            (coverQuote == 0 && rangeQuote == 0) ||
-            Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput)) ||
+            {Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput)) ||
             bnInput.lte(BN_ONE) ? (
               <button
                 disabled
