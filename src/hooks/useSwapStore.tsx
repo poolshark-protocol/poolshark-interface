@@ -38,26 +38,26 @@ type SwapState = {
 
 type SwapAction = {
   //pool
-  /* setCoverPoolAddress: (address: String) => void;
-  setCoverPoolData: (data: any) => void;
+  setCoverPoolAddress: (address: String) => void;
+  //setCoverPoolData: (data: any) => void;
   setRangePoolAddress: (address: String) => void;
   setRangePoolData: (data: any) => void;
-  setPairSelected: (pairSelected: Boolean) => void;
+  //setPairSelected: (pairSelected: Boolean) => void;
   //tokenIn
   setTokenIn: (tokenOut: token, newToken: token) => void;
-  setTokenInRangeUSDPrice: (price: number) => void;
-  setTokenInCoverUSDPrice: (price: number) => void;
-  setTokenInRangeAllowance: (allowance: string) => void;
-  setTokenInCoverAllowance: (allowance: string) => void;
-  setTokenInBalance: (balance: string) => void;
+  //setTokenInRangeUSDPrice: (price: number) => void;
+  //setTokenInCoverUSDPrice: (price: number) => void;
+  //setTokenInRangeAllowance: (allowance: string) => void;
+  //setTokenInCoverAllowance: (allowance: string) => void;
+  //setTokenInBalance: (balance: string) => void;
   //tokenOut
   setTokenOut: (tokenOut: token, newToken: token) => void;
-  setTokenOutRangeUSDPrice: (price: number) => void;
-  setTokenOutCoverUSDPrice: (price: number) => void;
-  setTokenOutBalance: (balance: string) => void;
+  //setTokenOutRangeUSDPrice: (price: number) => void;
+  //setTokenOutCoverUSDPrice: (price: number) => void;
+  //setTokenOutBalance: (balance: string) => void;
   //gas
-  setGasFee: (fee: BigNumber) => void;
-  setGasLimit: (limit: BigNumber) => void; */
+  //setGasFee: (fee: BigNumber) => void;
+  //etGasLimit: (limit: BigNumber) => void;
   //reset
   resetSwapParams: () => void;
 };

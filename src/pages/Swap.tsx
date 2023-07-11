@@ -963,28 +963,34 @@ export default function Swap() {
               )}
             </div>
             {/*for displaying the USD value for the out amount */}
-            {pairSelected ? (
-              <div className="flex">
-                <div className="flex text-xs text-[#4C4C4C]">
-                  ~$
-                  {tokenOutRangeUSDPrice || tokenOutCoverUSDPrice
-                    ? !limitTabSelected
-                      ? //swap page
-                        rangeQuote >= coverQuote
-                        ? (rangeQuote * tokenOutRangeUSDPrice).toFixed(2)
-                        : (coverQuote * tokenOutCoverUSDPrice).toFixed(2)
-                      : // limit page TODO tokenOutRangeUSDPrice should be changed by tokenOutLimitUSDPrice when implemented
-                        (
-                          parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                          parseFloat(limitPrice) *
-                          tokenOut.usdPrice
-                        ).toFixed(2)
-                    : (0).toFixed(2)}
-                </div>
+            <div className="flex">
+              <div className="flex text-xs text-[#4C4C4C]">
+                ~$
+                {pairSelected ? (
+                  tokenOutRangeUSDPrice || tokenOutCoverUSDPrice ? (
+                    !limitTabSelected ? (
+                      //swap page
+                      rangeQuote >= coverQuote ? (
+                        (rangeQuote * tokenOutRangeUSDPrice).toFixed(2)
+                      ) : (
+                        (coverQuote * tokenOutCoverUSDPrice).toFixed(2)
+                      )
+                    ) : (
+                      // limit page TODO tokenOutRangeUSDPrice should be changed by tokenOutLimitUSDPrice when implemented
+                      (
+                        parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                        parseFloat(limitPrice) *
+                        tokenOut.usdPrice
+                      ).toFixed(2)
+                    )
+                  ) : (
+                    (0).toFixed(2)
+                  )
+                ) : (
+                  <>{(0).toFixed(2)}</>
+                )}
               </div>
-            ) : (
-              <>{(0).toFixed(2)}</>
-            )}
+            </div>
           </div>
           <div className="flex w-1/2">
             <div className="flex justify-center ml-auto">
@@ -1000,16 +1006,12 @@ export default function Swap() {
                     displayToken={tokenOut}
                   />
                 </div>
-                {pairSelected ? (
-                  <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                    <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]">
-                      Balance:{" "}
-                      {tokenOutBalance === "0.00" ? 0 : tokenOutBalance}
-                    </div>
+
+                <div className="flex items-center justify-end gap-2 px-1 mt-2">
+                  <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]">
+                    Balance: {pairSelected ? tokenOutBalance : 0}
                   </div>
-                ) : (
-                  <></>
-                )}
+                </div>
               </div>
             </div>
           </div>
