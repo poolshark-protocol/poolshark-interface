@@ -627,7 +627,7 @@ export default function Swap() {
   }
 
   async function updateMintFee() {
-    const newMintFee = await gasEstimateSwapLimit(
+    await gasEstimateSwapLimit(
       rangePoolAddress,
       address,
       lowerTick,
