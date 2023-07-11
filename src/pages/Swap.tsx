@@ -62,6 +62,12 @@ export default function Swap() {
     setTokenInRangeUSDPrice,
     tokenInCoverUSDPrice,
     setTokenInCoverUSDPrice,
+    tokenInBalance,
+    setTokenInBalance,
+    tokenInRangeAllowance,
+    setTokenInRangeAllowance,
+    tokenInCoverAllowance,
+    setTokenInCoverAllowance,
     //tokenOut
     tokenOut,
     setTokenOut,
@@ -69,6 +75,8 @@ export default function Swap() {
     setTokenOutRangeUSDPrice,
     tokenOutCoverUSDPrice,
     setTokenOutCoverUSDPrice,
+    tokenOutBalance,
+    setTokenOutBalance,
     //tokenOrder
     switchDirection,
     pairSelected,
@@ -90,6 +98,12 @@ export default function Swap() {
     state.setTokenInRangeUSDPrice,
     state.tokenInCoverUSDPrice,
     state.setTokenInCoverUSDPrice,
+    state.tokenInBalance,
+    state.setTokenInBalance,
+    state.tokenInRangeAllowance,
+    state.setTokenInRangeAllowance,
+    state.tokenInCoverAllowance,
+    state.setTokenInCoverAllowance,
     //tokenOut
     state.tokenOut,
     state.setTokenOut,
@@ -97,6 +111,8 @@ export default function Swap() {
     state.setTokenOutRangeUSDPrice,
     state.tokenOutCoverUSDPrice,
     state.setTokenOutCoverUSDPrice,
+    state.tokenOutBalance,
+    state.setTokenOutBalance,
     //tokenOrder
     state.switchDirection,
     state.pairSelected,
@@ -156,13 +172,6 @@ export default function Swap() {
 
   ////////////////////////////////TokenUSDPrices
 
-  console.log("tokenIn", tokenIn);
-  console.log("tokenInRangeUSDPrice", tokenInRangeUSDPrice);
-  console.log("tokenInCoverUSDPrice", tokenInCoverUSDPrice);
-  console.log("tokenOut", tokenOut);
-  console.log("tokenOutRangeUSDPrice", tokenOutRangeUSDPrice);
-  console.log("tokenOutCoverUSDPrice", tokenOutCoverUSDPrice);
-
   useEffect(() => {
     if (rangePoolData && coverPoolData) {
       if (tokenIn.address) {
@@ -193,8 +202,6 @@ export default function Swap() {
   }, [rangePoolData, coverPoolData]);
 
   ////////////////////////////////Balances
-  const [balanceIn, setBalanceIn] = useState("0.00");
-  const [balanceOut, setBalanceOut] = useState("0.00");
 
   const { data: tokenInBal } = useBalance({
     address: address,
@@ -212,16 +219,18 @@ export default function Swap() {
 
   useEffect(() => {
     if (isConnected) {
-      setBalanceIn(parseFloat(tokenInBal?.formatted.toString()).toFixed(2));
+      setTokenInBalance(
+        parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+      );
       if (pairSelected) {
-        setBalanceOut(parseFloat(tokenOutBal?.formatted.toString()).toFixed(2));
+        setTokenOutBalance(
+          parseFloat(tokenOutBal?.formatted.toString()).toFixed(2)
+        );
       }
     }
   }, [tokenInBal, tokenOutBal]);
 
   ////////////////////////////////Allowances
-  const [allowanceRange, setAllowanceRange] = useState("0.00");
-  const [allowanceCover, setAllowanceCover] = useState("0.00");
 
   const { data: allowanceInRange } = useContractRead({
     address: tokenIn.address,
@@ -257,8 +266,8 @@ export default function Swap() {
 
   useEffect(() => {
     if (allowanceInRange && allowanceInCover) {
-      setAllowanceRange(ethers.utils.formatUnits(allowanceInRange, 18));
-      setAllowanceCover(ethers.utils.formatUnits(allowanceInCover, 18));
+      setTokenInRangeAllowance(ethers.utils.formatUnits(allowanceInRange, 18));
+      setTokenInCoverAllowance(ethers.utils.formatUnits(allowanceInCover, 18));
     }
   }, [allowanceInRange, allowanceInCover]);
 
@@ -570,8 +579,8 @@ export default function Swap() {
         updateMintFee();
       }
     }
-  });
-
+  }, [bnInput]);
+  
   async function updateGasFee() {
     const newGasFee = await gasEstimateSwap(
       rangePoolAddress,
@@ -583,8 +592,8 @@ export default function Swap() {
       tokenIn,
       tokenOut,
       bnInput,
-      ethers.utils.parseUnits(allowanceRange, 18),
-      ethers.utils.parseUnits(allowanceRange, 18),
+      ethers.utils.parseUnits(tokenInRangeAllowance, 18),
+      ethers.utils.parseUnits(tokenInCoverAllowance, 18),
       address,
       signer,
       isConnected
@@ -608,7 +617,7 @@ export default function Swap() {
     setMintGasLimit(newMintFee.gasUnits.mul(130).div(100));
   }
 
-  ////////////////////////////////Limit Price Switch ??
+  ////////////////////////////////Limit Price Switch
   const [limitPriceSwitch, setLimitPriceSwitch] = useState(true);
   const [limitPriceInput, setLimitPriceInput] = useState("0");
 
@@ -642,7 +651,6 @@ export default function Swap() {
   }, [limitPriceInput]);
 
   ////////////////////////////////Button states for swap
-
   const [buttonState, setButtonState] = useState("");
 
   // disabled messages
@@ -653,10 +661,10 @@ export default function Swap() {
     if (pairSelected == false) {
       setButtonState("token");
     }
-    if (Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput))) {
+    if (Number(tokenInBalance) < Number(ethers.utils.formatUnits(bnInput))) {
       setButtonState("balance");
     }
-  }, [bnInput, pairSelected, balanceIn, bnInput]);
+  }, [bnInput, pairSelected, tokenInBalance, bnInput]);
 
   ////////////////////////////////
   const [expanded, setExpanded] = useState(false);
@@ -895,15 +903,15 @@ export default function Swap() {
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
                   <div
                     className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]"
-                    key={balanceIn}
+                    key={tokenInBalance}
                   >
-                    Balance: {balanceIn ?? 0}
+                    Balance: {tokenInBalance ?? 0}
                   </div>
                   {isConnected && stateChainName === "arbitrumGoerli" ? (
                     <button
                       className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
                       onClick={() => {
-                        maxBalance(balanceIn, "0");
+                        maxBalance(tokenInBalance, "0");
                       }}
                     >
                       Max
@@ -989,7 +997,8 @@ export default function Swap() {
                 {pairSelected ? (
                   <div className="flex items-center justify-end gap-2 px-1 mt-2">
                     <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]">
-                      Balance: {balanceOut === "0.00" ? 0 : balanceOut}
+                      Balance:{" "}
+                      {tokenOutBalance === "0.00" ? 0 : tokenOutBalance}
                     </div>
                   </div>
                 ) : (
@@ -1101,7 +1110,8 @@ export default function Swap() {
           <ConnectWalletButton xl={true} />
         ) : !limitTabSelected ? ( //swap tab
           <>
-            {Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput)) ||
+            {Number(tokenInBalance) <
+              Number(ethers.utils.formatUnits(bnInput)) ||
             bnInput.lte(BN_ONE) ? (
               <button
                 disabled
@@ -1116,7 +1126,7 @@ export default function Swap() {
                 )}
               </button>
             ) : rangeQuote >= coverQuote ? ( //range buttons
-              Number(allowanceRange) <
+              Number(tokenInRangeAllowance) <
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                 <div>
                   <SwapRangeApproveButton
@@ -1125,7 +1135,7 @@ export default function Swap() {
                     approveToken={tokenIn.address}
                     tokenSymbol={tokenIn.symbol}
                     bnInput={bnInput}
-                    allowanceRange={allowanceRange}
+                    allowanceRange={tokenInRangeAllowance}
                   />
                 </div>
               ) : (
@@ -1142,7 +1152,7 @@ export default function Swap() {
                 />
               )
             ) : //cover buttons
-            Number(allowanceCover) <
+            Number(tokenInCoverAllowance) <
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
               <div>
                 <SwapCoverApproveButton
@@ -1150,7 +1160,7 @@ export default function Swap() {
                   poolAddress={coverPoolAddress}
                   approveToken={tokenIn.address}
                   tokenSymbol={tokenIn.symbol}
-                  allowanceCover={allowanceCover}
+                  allowanceCover={tokenInCoverAllowance}
                   bnInput={bnInput}
                 />
               </div>
@@ -1172,7 +1182,8 @@ export default function Swap() {
           //limit tab
           <>
             {stateChainName !== "arbitrumGoerli" ||
-            Number(balanceIn) < Number(ethers.utils.formatUnits(bnInput)) ||
+            Number(tokenInBalance) <
+              Number(ethers.utils.formatUnits(bnInput)) ||
             bnInput._hex == "0x00" ? (
               <button
                 disabled
@@ -1186,14 +1197,14 @@ export default function Swap() {
                   <></>
                 )}
               </button>
-            ) : Number(allowanceRange) <
+            ) : Number(tokenInRangeAllowance) <
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
               <SwapRangeApproveButton
                 disabled={false}
                 poolAddress={rangePoolAddress}
                 approveToken={tokenIn.address}
                 tokenSymbol={tokenIn.symbol}
-                allowanceRange={allowanceRange}
+                allowanceRange={tokenInRangeAllowance}
                 bnInput={bnInput}
               />
             ) : (

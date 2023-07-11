@@ -21,16 +21,14 @@ type SwapState = {
   tokenIn: token;
   tokenInRangeUSDPrice: number;
   tokenInCoverUSDPrice: number;
-  tokenInRangeAllowanceBigNumber: BigNumber;
-  tokenInCoverAllowanceBigNumber: BigNumber;
-  tokenInAmountToSendBigNumber: BigNumber;
+  tokenInRangeAllowance: string;
+  tokenInCoverAllowance: string;
+  tokenInBalance: string;
   //TokenOut defines the token on the left/up on a swap page
   tokenOut: token;
   tokenOutRangeUSDPrice: Number;
   tokenOutCoverUSDPrice: Number;
-  tokenOutRangeAllowanceBigNumber: BigNumber;
-  tokenOutCoverAllowanceBigNumber: BigNumber;
-  tokenOutAmountToReceiveBigNumber: BigNumber;
+  tokenOutBalance: string;
   //Gas
   gasFee: BigNumber;
   gasLimit: BigNumber;
@@ -59,9 +57,9 @@ const initialSwapState: SwapState = {
   } as token,
   tokenInRangeUSDPrice: 0,
   tokenInCoverUSDPrice: 0,
-  tokenInRangeAllowanceBigNumber: BN_ZERO,
-  tokenInCoverAllowanceBigNumber: BN_ZERO,
-  tokenInAmountToSendBigNumber: BN_ZERO,
+  tokenInRangeAllowance: "0.00",
+  tokenInCoverAllowance: "0.00",
+  tokenInBalance: "0.00",
   //
   tokenOut: {
     callId: 1,
@@ -72,46 +70,36 @@ const initialSwapState: SwapState = {
   } as token,
   tokenOutRangeUSDPrice: 0,
   tokenOutCoverUSDPrice: 0,
-  tokenOutRangeAllowanceBigNumber: BN_ZERO,
-  tokenOutCoverAllowanceBigNumber: BN_ZERO,
-  tokenOutAmountToReceiveBigNumber: BN_ZERO,
+  tokenOutBalance: "0.00",
   //
   gasFee: BN_ZERO,
   gasLimit: BN_ZERO,
 };
 
-console.log('tokenIn', initialSwapState.tokenIn);
-console.log('tokenOut', initialSwapState.tokenOut);
-
 export const useSwapStore = create<SwapState & SwapAction>((set) => ({
+  //pool
   coverPoolAddress: initialSwapState.coverPoolAddress,
   coverPoolData: initialSwapState.coverPoolData,
   rangePoolAddress: initialSwapState.rangePoolAddress,
   rangePoolData: initialSwapState.rangePoolData,
   pairSelected: initialSwapState.pairSelected,
+  //tokenIn
   tokenIn: initialSwapState.tokenIn,
   tokenInRangeUSDPrice: initialSwapState.tokenInRangeUSDPrice,
   tokenInCoverUSDPrice: initialSwapState.tokenInCoverUSDPrice,
-  tokenInRangeAllowanceBigNumber:
-    initialSwapState.tokenInRangeAllowanceBigNumber,
-  tokenInCoverAllowanceBigNumber:
-    initialSwapState.tokenInCoverAllowanceBigNumber,
-  tokenInAmountToSendBigNumber: initialSwapState.tokenInAmountToSendBigNumber,
+  tokenInRangeAllowance: initialSwapState.tokenInRangeAllowance,
+  tokenInCoverAllowance: initialSwapState.tokenInCoverAllowance,
+  tokenInBalance: initialSwapState.tokenInBalance,
+  //tokenOut
   tokenOut: initialSwapState.tokenOut,
   tokenOutRangeUSDPrice: initialSwapState.tokenOutRangeUSDPrice,
   tokenOutCoverUSDPrice: initialSwapState.tokenOutCoverUSDPrice,
-  tokenOutRangeAllowanceBigNumber:
-    initialSwapState.tokenOutCoverAllowanceBigNumber,
-  tokenOutCoverAllowanceBigNumber:
-    initialSwapState.tokenOutCoverAllowanceBigNumber,
-  tokenOutAmountToReceiveBigNumber:
-    initialSwapState.tokenOutAmountToReceiveBigNumber,
+  
+  tokenOutBalance: initialSwapState.tokenOutBalance,
+  //gas
   gasFee: initialSwapState.gasFee,
   gasLimit: initialSwapState.gasLimit,
   setTokenIn: (tokenOut, newToken: token) => {
-    console.log("store setTokenIn");
-    console.log("store tokenIn", newToken);
-
     //if tokenOut is selected
     if (
       tokenOut.address != initialSwapState.tokenOut.address ||
@@ -158,6 +146,21 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       tokenInCoverUSDPrice: newPrice,
     }));
   },
+  setTokenInRangeAllowance: (newAllowance: string) => {
+    set(() => ({
+      tokenInRangeAllowance: newAllowance,
+    }));
+  },
+  setTokenInCoverAllowance: (newAllowance: string) => {
+    set(() => ({
+      tokenInCoverAllowance: newAllowance,
+    }));
+  },
+  setTokenInBalance: (newBalance: string) => {
+    set(() => ({
+      tokenInBalance: newBalance,
+    }));
+  },
   setTokenOutRangeUSDPrice: (newPrice: number) => {
     set(() => ({
       tokenOutRangeUSDPrice: newPrice,
@@ -169,8 +172,6 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
     }));
   },
   setTokenOut: (tokenIn, newToken: token) => {
-    console.log("store setTokenOut");
-    console.log("store tokenOut", newToken);
     //if tokenIn exists
     if (
       tokenIn.address != initialSwapState.tokenOut.address ||
@@ -201,6 +202,11 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       }));
     }
   },
+  setTokenOutBalance: (newBalance: string) => {
+    set(() => ({
+      tokenOutBalance: newBalance,
+    }));
+  },
   setRangePoolAddress: (rangePoolAddress: string) => {
     set(() => ({
       rangePoolAddress: rangePoolAddress,
@@ -230,22 +236,23 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   resetSwapParams: () => {
     set({
       coverPoolAddress: initialSwapState.coverPoolAddress,
+      coverPoolData: initialSwapState.coverPoolData,
       rangePoolAddress: initialSwapState.rangePoolAddress,
+      rangePoolData: initialSwapState.rangePoolData,
       pairSelected: initialSwapState.pairSelected,
+      //tokenIn
       tokenIn: initialSwapState.tokenIn,
-      tokenInRangeAllowanceBigNumber:
-        initialSwapState.tokenInRangeAllowanceBigNumber,
-      tokenInCoverAllowanceBigNumber:
-        initialSwapState.tokenInCoverAllowanceBigNumber,
-      tokenInAmountToSendBigNumber:
-        initialSwapState.tokenInAmountToSendBigNumber,
+      tokenInRangeUSDPrice: initialSwapState.tokenInRangeUSDPrice,
+      tokenInCoverUSDPrice: initialSwapState.tokenInCoverUSDPrice,
+      tokenInRangeAllowance: initialSwapState.tokenInRangeAllowance,
+      tokenInCoverAllowance: initialSwapState.tokenInCoverAllowance,
+      tokenInBalance: initialSwapState.tokenInBalance,
+      //tokenOut
       tokenOut: initialSwapState.tokenOut,
-      tokenOutRangeAllowanceBigNumber:
-        initialSwapState.tokenOutCoverAllowanceBigNumber,
-      tokenOutCoverAllowanceBigNumber:
-        initialSwapState.tokenOutCoverAllowanceBigNumber,
-      tokenOutAmountToReceiveBigNumber:
-        initialSwapState.tokenOutAmountToReceiveBigNumber,
+      tokenOutRangeUSDPrice: initialSwapState.tokenOutRangeUSDPrice,
+      tokenOutCoverUSDPrice: initialSwapState.tokenOutCoverUSDPrice,
+      tokenOutBalance: initialSwapState.tokenOutBalance,
+      //gas
       gasFee: initialSwapState.gasFee,
       gasLimit: initialSwapState.gasLimit,
     });

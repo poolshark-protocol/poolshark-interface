@@ -35,39 +35,6 @@ export const getRangePool = async (
         setRangeTickSpacing(tickSpacing);
       } */
 
-      /* if (setTokenIn) {
-        const tokenInUsdPrice = tokenOrder
-          ? pool['data']['rangePools']['0']['token0']['usdPrice']
-          : pool['data']['rangePools']['0']['token1']['usdPrice']
-        setTokenIn({
-          name: tokenIn.name,
-          symbol: tokenIn.symbol,
-          logoURI: tokenIn.logoURI,
-          address: tokenIn.address,
-          usdPrice: !isNaN(parseFloat(tokenInUsdPrice)) ? tokenInUsdPrice : 0,
-        } as token)
-        console.log('token in usd price:', tokenInUsdPrice)
-      } */
-      /* if (setTokenOut) {
-        const tokenOutUsdPrice = tokenOrder
-          ? pool['data']['rangePools']['0']['token1']['usdPrice']
-          : pool['data']['rangePools']['0']['token0']['usdPrice']
-        setTokenOut({
-          name: tokenOut.name,
-          symbol: tokenOut.symbol,
-          logoURI: tokenOut.logoURI,
-          address: tokenOut.address,
-          usdPrice: !isNaN(parseFloat(tokenOutUsdPrice)) ? tokenOutUsdPrice : 0,
-        } as token)
-        console.log('token out usd price:', tokenOutUsdPrice)
-      } */
-      /* if (setEthUsdPrice) {
-        const pricesLength = pool['data']['basePrices'].length
-        if (pricesLength != 0) {
-          const ethUsdPrice = pool['data']['basePrices']['0']['USD']
-          setEthUsdPrice(parseFloat(ethUsdPrice))
-        }
-      } */
     } else {
       const fallbackPool = await getRangePoolFromFactory(
         tokenOut.address,
