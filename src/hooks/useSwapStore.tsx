@@ -32,7 +32,7 @@ type SwapState = {
   tokenOutCoverUSDPrice: Number;
   tokenOutBalance: string;
   //Gas
-  gasFee: BigNumber;
+  gasFee: string;
   gasLimit: BigNumber;
 };
 
@@ -56,8 +56,8 @@ type SwapAction = {
   //setTokenOutCoverUSDPrice: (price: number) => void;
   //setTokenOutBalance: (balance: string) => void;
   //gas
-  //setGasFee: (fee: BigNumber) => void;
-  //etGasLimit: (limit: BigNumber) => void;
+  setGasFee: (fee: string) => void;
+  setGasLimit: (limit: BigNumber) => void;
   //reset
   resetSwapParams: () => void;
 };
@@ -98,7 +98,7 @@ const initialSwapState: SwapState = {
   tokenOutCoverUSDPrice: 0,
   tokenOutBalance: "0.00",
   //
-  gasFee: BN_ZERO,
+  gasFee: "$0.00",
   gasLimit: BN_ZERO,
 };
 
@@ -262,6 +262,16 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   setCoverSlippage: (coverSlippage: string) => {
     set(() => ({
       coverSlippage: coverSlippage,
+    }));
+  },
+  setGasFee: (gasFee: string) => {
+    set(() => ({
+      gasFee: gasFee,
+    }));
+  },
+  setGasLimit: (gasLimit: BigNumber) => {
+    set(() => ({
+      gasLimit: gasLimit,
     }));
   },
   switchDirection: () => {

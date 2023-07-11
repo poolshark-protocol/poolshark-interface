@@ -92,8 +92,13 @@ export default function Swap() {
     coverPoolData,
     coverSlippage,
     setCoverPoolAddress,
-    setCoverPoolData,
+    setCoverPoolData, 
     setCoverSlippage,
+    //gas
+    gasFee,
+    gasLimit,
+    setGasFee,
+    setGasLimit
   ] = useSwapStore((state: any) => [
     //tokenIN
     state.tokenIn,
@@ -134,6 +139,11 @@ export default function Swap() {
     state.setCoverPoolAddress,
     state.setCoverPoolData,
     state.setCoverSlippage,
+    //gas
+    state.gasFee,
+    state.gasLimit,
+    state.setGasFee,
+    state.setGasLimit
   ]);
 
   //false when user in normal swap, true when user in limit swap
@@ -572,8 +582,8 @@ export default function Swap() {
     }
   }
   ////////////////////////////////Fee Estimations
-  const [swapGasFee, setSwapGasFee] = useState("$0.00");
-  const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
+  //const [swapGasFee, setSwapGasFee] = useState("$0.00");
+  //const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
   const [mintFee, setMintFee] = useState("$0.00");
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
@@ -604,8 +614,8 @@ export default function Swap() {
       signer,
       isConnected
     );
-    setSwapGasFee(newGasFee.formattedPrice);
-    setSwapGasLimit(newGasFee.gasUnits.mul(150).div(100));
+    setGasFee(newGasFee.formattedPrice);
+    setGasLimit(newGasFee.gasUnits.mul(150).div(100));
   }
 
   async function updateMintFee() {
@@ -709,7 +719,7 @@ export default function Swap() {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
             {!limitTabSelected ? (
-              <div className="ml-auto text-xs">{swapGasFee}</div>
+              <div className="ml-auto text-xs">{gasFee}</div>
             ) : (
               <div className="ml-auto text-xs">{mintFee}</div>
             )}
@@ -1156,7 +1166,7 @@ export default function Swap() {
                   }
                   amount={bnInput}
                   priceLimit={rangeBnPriceLimit}
-                  gasLimit={swapGasLimit}
+                  gasLimit={gasLimit}
                 />
               )
             ) : //cover buttons
@@ -1174,7 +1184,7 @@ export default function Swap() {
               </div>
             ) : (
               <SwapCoverButton
-                disabled={swapGasLimit.gt(BN_ZERO)}
+                disabled={gasLimit.gt(BN_ZERO)}
                 poolAddress={coverPoolAddress}
                 zeroForOne={
                   tokenOut.address != "" &&
@@ -1182,7 +1192,7 @@ export default function Swap() {
                 }
                 amount={bnInput}
                 priceLimit={coverBnPriceLimit}
-                gasLimit={swapGasLimit}
+                gasLimit={gasLimit}
               />
             )}
           </>
