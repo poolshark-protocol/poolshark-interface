@@ -80,6 +80,7 @@ export default function CoverExistingPool({
   const [tokenIn, setTokenIn] = useState({
     name: zeroForOne ? tokenZeroName : tokenOneName,
     symbol: zeroForOne ? tokenZeroSymbol : tokenOneSymbol,
+    callId: tokenZeroAddress.localeCompare(tokenOneAddress) < 0 ? 0 : 1,
     logoURI: zeroForOne ? tokenZeroLogoURI : tokenOneLogoURI,
     address: zeroForOne ? tokenZeroAddress : tokenOneAddress,
     value: zeroForOne ? tokenZeroValue : tokenOneValue,
@@ -87,6 +88,7 @@ export default function CoverExistingPool({
   const [tokenOut, setTokenOut] = useState({
     name: zeroForOne ? tokenOneName : tokenZeroName,
     symbol: zeroForOne ? tokenOneSymbol : tokenZeroSymbol,
+    callId: tokenOneAddress.localeCompare(tokenZeroAddress) < 0 ? 0 : 1,
     logoURI: zeroForOne ? tokenOneLogoURI : tokenZeroLogoURI,
     address: zeroForOne ? tokenOneAddress : tokenZeroAddress,
     value: zeroForOne ? tokenOneValue : tokenZeroValue,
