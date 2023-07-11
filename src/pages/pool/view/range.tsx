@@ -36,6 +36,7 @@ export default function Range() {
   const [token0, setToken0] = useState({
     name: router.query.tokenZeroAddress ?? '',
     symbol: router.query.tokenZeroSymbol ?? '',
+    callId: 0,
     logoURI: router.query.tokenZeroLogoURI ?? '',
     address: router.query.tokenZeroAddress ?? '',
     value: router.query.tokenZeroValue ?? '',
@@ -43,6 +44,7 @@ export default function Range() {
   const [token1, setToken1] = useState({
     name: router.query.tokenOneName ?? '',
     symbol: router.query.tokenOneSymbol ?? '',
+    callId: 1,
     logoURI: router.query.tokenOneLogoURI ?? '',
     address: router.query.tokenOneAddress ?? '',
     value: router.query.tokenOneValue ?? '',
@@ -135,6 +137,7 @@ export default function Range() {
       setToken0({
         name: query.tokenZeroName,
         symbol: query.tokenZeroSymbol,
+        callId: String(query.tokenZeroAddress).localeCompare(String(query.tokenOneAddress)) < 0 ? 0 : 1,
         logoURI: query.tokenZeroLogoURI,
         address: query.tokenZeroAddress,
         value: query.tokenZeroValue,
@@ -142,12 +145,13 @@ export default function Range() {
       setToken1({
         name: query.tokenOneName,
         symbol: query.tokenOneSymbol,
+        callId: String(query.tokenOneAddress).localeCompare(String(query.tokenZeroAddress)) < 0 ? 0 : 1,
         logoURI: query.tokenOneLogoURI,
         address: query.tokenOneAddress,
         value: query.tokenOneValue,
       } as token)
       setTokenOrder(
-        String(query.tokenOneAddress).localeCompare(
+        String(query.tokenZeroAddress).localeCompare(
           String(query.tokenOneAddress),
         ) < 0,
       )
