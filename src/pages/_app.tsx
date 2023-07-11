@@ -44,6 +44,7 @@ const apolloClient = new ApolloClient({
 })
 
 const whitelist = [
+  '0xF7128274D8Ec9D25694E34912beAB3d4B2F50130',
   '0xaaea48d32fa9c930c4a64e343325f3784bbdea05',
   '0xF8C44D4c2BC63AacA7E6EcFd7763effF71A3444C',
   '0x46c754738F78454690C04c6F416858aEF8B46eeE',
