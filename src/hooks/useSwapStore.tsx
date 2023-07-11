@@ -51,12 +51,12 @@ type SwapAction = {
   //setTokenInCoverUSDPrice: (price: number) => void;
   //setTokenInRangeAllowance: (allowance: string) => void;
   //setTokenInCoverAllowance: (allowance: string) => void;
-  //setTokenInBalance: (balance: string) => void;
+  setTokenInBalance: (balance: string) => void;
   //tokenOut
   setTokenOut: (tokenOut: token, newToken: token) => void;
   //setTokenOutRangeUSDPrice: (price: number) => void;
   //setTokenOutCoverUSDPrice: (price: number) => void;
-  //setTokenOutBalance: (balance: string) => void;
+  setTokenOutBalance: (balance: string) => void;
   //gas
   setGasFee: (fee: string) => void;
   setGasLimit: (limit: BigNumber) => void;
