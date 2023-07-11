@@ -2,13 +2,23 @@
 
 import { invertPrice } from "./math/tickMath";
 
+export const logoMap = {
+  TOKEN20A: "/static/images/token.png",
+  TOKEN20B: "/static/images/eth_icon.png",
+  USDC: "/static/images/token.png",
+  WETH: "/static/images/eth_icon.png",
+  DAI: "/static/images/dai_icon.png",
+  stkEth: "/static/images/eth_icon.png",
+  pStake: "/static/images/eth_icon.png",
+  UNI: "/static/images/dai_icon.png",
+};
+
 export const fetchRangeTokenUSDPrice = async (
   poolData,
   token,
   setTokenUSDPrice
 ) => {
   try {
-    console.log("fetchRangeTokenUSDPrice");
     setTokenUSDPrice(
       token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice
     );
@@ -23,7 +33,6 @@ export const fetchCoverTokenUSDPrice = async (
   setTokenUSDPrice
 ) => {
   try {
-    console.log("fetchCoverTokenUSDPrice");
     setTokenUSDPrice(
       token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice
     );

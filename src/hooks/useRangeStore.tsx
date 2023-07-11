@@ -7,7 +7,7 @@ import {
 } from "../constants/contractAddresses";
 import { create } from "zustand";
 
-type SwapState = {
+type RangeState = {
   //poolAddress for current token pairs
   ////range
   rangePoolAddress: String;
@@ -29,7 +29,7 @@ type SwapState = {
   gasLimit: BigNumber;
 };
 
-type SwapAction = {
+type RangeAction = {
   //pool
   /* setCoverPoolAddress: (address: String) => void;
   setCoverPoolData: (data: any) => void;
@@ -52,10 +52,14 @@ type SwapAction = {
   setGasFee: (fee: BigNumber) => void;
   setGasLimit: (limit: BigNumber) => void; */
   //reset
+  setRangePoolAddress: (address: String) => void;
+  setRangePoolData: (data: any) => void;
+  setTokenIn: (tokenOut: any, newToken: any) => void;
+  setTokenOut: (tokenOut: any, newToken: any) => void;
   resetSwapParams: () => void;
 };
 
-const initialSwapState: SwapState = {
+const initialSwapState: RangeState = {
   //pools
   rangePoolAddress: "",
   rangePoolData: {},
@@ -89,9 +93,8 @@ const initialSwapState: SwapState = {
   gasLimit: BN_ZERO,
 };
 
-export const useSwapStore = create<SwapState & SwapAction>((set) => ({
+export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   //pool
-
   rangePoolAddress: initialSwapState.rangePoolAddress,
   rangePoolData: initialSwapState.rangePoolData,
   rangeSlippage: initialSwapState.rangeSlippage,
