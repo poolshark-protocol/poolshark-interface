@@ -83,13 +83,17 @@ export default function Swap() {
     //rangePool
     rangePoolAddress,
     rangePoolData,
+    rangeSlippage,
     setRangePoolAddress,
     setRangePoolData,
+    setRangeSlippage,
     //coverPool
     coverPoolAddress,
     coverPoolData,
+    coverSlippage,
     setCoverPoolAddress,
     setCoverPoolData,
+    setCoverSlippage,
   ] = useSwapStore((state: any) => [
     //tokenIN
     state.tokenIn,
@@ -119,13 +123,17 @@ export default function Swap() {
     //rangePool
     state.rangePoolAddress,
     state.rangePoolData,
+    state.rangeSlippage,
     state.setRangePoolAddress,
     state.setRangePoolData,
+    state.setRangeSlippage,
     //coverPool
     state.coverPoolAddress,
     state.coverPoolData,
+    state.coverSlippage,
     state.setCoverPoolAddress,
     state.setCoverPoolData,
+    state.setCoverSlippage,
   ]);
 
   //false when user in normal swap, true when user in limit swap
@@ -351,8 +359,6 @@ export default function Swap() {
   }, [quoteCover, quoteRange]);
 
   ////////////////////////////////FeeTiers and Slippage
-  const [coverSlippage, setCoverSlippage] = useState("0.5");
-  const [rangeSlippage, setRangeSlippage] = useState("0.5");
   const [slippage, setSlippage] = useState("0.5");
   const [auxSlippage, setAuxSlippage] = useState("0.5");
 
@@ -580,7 +586,7 @@ export default function Swap() {
       }
     }
   }, [bnInput]);
-  
+
   async function updateGasFee() {
     const newGasFee = await gasEstimateSwap(
       rangePoolAddress,
