@@ -606,7 +606,7 @@ export default function Swap() {
   }, [bnInput]);
 
   async function updateGasFee() {
-    const newGasFee = await gasEstimateSwap(
+    await gasEstimateSwap(
       rangePoolAddress,
       coverPoolAddress,
       rangeQuote,
@@ -620,10 +620,10 @@ export default function Swap() {
       ethers.utils.parseUnits(tokenInCoverAllowance, 18),
       address,
       signer,
-      isConnected
+      isConnected,
+      setGasFee,
+      setGasLimit
     );
-    setGasFee(newGasFee.formattedPrice);
-    setGasLimit(newGasFee.gasUnits.mul(150).div(100));
   }
 
   async function updateMintFee() {
@@ -635,10 +635,10 @@ export default function Swap() {
       tokenIn,
       tokenOut,
       bnInput,
-      signer
+      signer,
+      setMintGasFee,
+      setMintGasLimit
     );
-    setMintGasFee(newMintFee.formattedPrice);
-    setMintGasLimit(newMintFee.gasUnits.mul(130).div(100));
   }
 
   ////////////////////////////////Limit Price Switch

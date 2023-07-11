@@ -49,8 +49,8 @@ type SwapAction = {
   setTokenIn: (tokenOut: token, newToken: token) => void;
   //setTokenInRangeUSDPrice: (price: number) => void;
   //setTokenInCoverUSDPrice: (price: number) => void;
-  //setTokenInRangeAllowance: (allowance: string) => void;
-  //setTokenInCoverAllowance: (allowance: string) => void;
+  setTokenInRangeAllowance: (allowance: string) => void;
+  setTokenInCoverAllowance: (allowance: string) => void;
   setTokenInBalance: (balance: string) => void;
   //tokenOut
   setTokenOut: (tokenOut: token, newToken: token) => void;
