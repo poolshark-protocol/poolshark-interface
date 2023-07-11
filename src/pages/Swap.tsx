@@ -98,7 +98,11 @@ export default function Swap() {
     gasFee,
     gasLimit,
     setGasFee,
-    setGasLimit
+    setGasLimit,
+    mintGasFee,
+    mintGasLimit,
+    setMintGasFee,
+    setMintGasLimit,
   ] = useSwapStore((state: any) => [
     //tokenIN
     state.tokenIn,
@@ -143,7 +147,11 @@ export default function Swap() {
     state.gasFee,
     state.gasLimit,
     state.setGasFee,
-    state.setGasLimit
+    state.setGasLimit,
+    state.mintGasFee,
+    state.mintGasLimit,
+    state.setMintGasFee,
+    state.setMintGasLimit,
   ]);
 
   //false when user in normal swap, true when user in limit swap
@@ -584,8 +592,8 @@ export default function Swap() {
   ////////////////////////////////Fee Estimations
   //const [swapGasFee, setSwapGasFee] = useState("$0.00");
   //const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
-  const [mintFee, setMintFee] = useState("$0.00");
-  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
+  //const [mintFee, setMintFee] = useState("$0.00");
+  //const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
     if (!bnInput.eq(BN_ZERO)) {
@@ -629,7 +637,7 @@ export default function Swap() {
       bnInput,
       signer
     );
-    setMintFee(newMintFee.formattedPrice);
+    setMintGasFee(newMintFee.formattedPrice);
     setMintGasLimit(newMintFee.gasUnits.mul(130).div(100));
   }
 
@@ -721,7 +729,7 @@ export default function Swap() {
             {!limitTabSelected ? (
               <div className="ml-auto text-xs">{gasFee}</div>
             ) : (
-              <div className="ml-auto text-xs">{mintFee}</div>
+              <div className="ml-auto text-xs">{mintGasFee}</div>
             )}
           </div>
           {!limitTabSelected ? (
