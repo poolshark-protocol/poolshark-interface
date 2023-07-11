@@ -7,6 +7,12 @@ import { TickMath } from "../../utils/math/tickMath";
 import { logoMap } from "../../utils/tokens";
 import { getRangePool } from "../../utils/pools";
 import { useRangeStore } from "../../hooks/useRangeStore";
+import {
+  tokenOneAddress,
+  tokenZeroAddress,
+} from "../../constants/contractAddresses";
+import { getRangePoolFromFactory } from "../../utils/queries";
+import { ethers } from "ethers";
 
 export default function UserPool({
   account,
@@ -31,44 +37,47 @@ export default function UserPool({
   const [rangeTickPrice, setRangeTickPrice] = useState(undefined);
   const feeTierPercentage = feeTier / 10000;
 
-  const [
-    tokenIn,
-    setTokenIn,
-    tokenOut,
-    setTokenOut,
-    rangePoolAddress,
-    rangePoolData,
-    setRangePoolAddress,
-    setRangePoolData,
-  ] = useRangeStore((state) => [
-    state.tokenIn,
-    state.setTokenIn,
-    state.tokenOut,
-    state.setTokenOut,
-    state.rangePoolAddress,
-    state.rangePoolData,
-    state.setRangePoolAddress,
-    state.setRangePoolData,
-  ]);
+  const [setTokenIn, setTokenOut, setRangePoolAddress, setRangePoolData] =
+    useRangeStore((state) => [
+      state.setTokenIn,
+      state.setTokenOut,
+      state.setRangePoolAddress,
+      state.setRangePoolData,
+    ]);
 
   useEffect(() => {
-    getRangePool(tokenIn, tokenOut, setRangePoolAddress, setRangePoolData);
+    getRangePoolInfo();
   });
 
   useEffect(() => {
     setRangeParams();
-  }, [rangePoolData]);
+  }, [rangePrice]);
+
+  const getRangePoolInfo = async () => {
+    try {
+      const pool = await getRangePoolFromFactory(
+        tokenZeroAddress,
+        tokenOneAddress
+      );
+      const dataLength = pool["data"]["rangePools"].length;
+      if (dataLength > 0) {
+        const id = pool["data"]["rangePools"]["0"]["id"];
+        const price = pool["data"]["rangePools"]["0"]["price"];
+        const tickAtPrice = pool["data"]["rangePools"]["0"]["tickAtPrice"];
+        setRangePrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(price)));
+        setRangeTickPrice(Number(tickAtPrice));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   function setRangeParams() {
     try {
-      const price = rangePoolData["price"];
-      setRangePrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(price)));
-      const tickAtPrice = rangePoolData["tickAtPrice"];
-      setRangeTickPrice(Number(tickAtPrice));
-      /* if (rangePrice) {
+      if (rangePrice) {
         const price = TickMath.getTickAtPriceString(rangePrice);
         setRangeTickPrice(ethers.utils.parseUnits(String(price), 0));
-      } */
+      }
     } catch (error) {
       console.log(error);
     }
@@ -87,6 +96,7 @@ export default function UserPool({
       logoURI: logoMap[tokenOne.symbol],
       address: tokenOne.id,
     };
+    getRangePool(tokenZero, tokenOne, setRangePoolAddress, setRangePoolData);
     setTokenIn(tokenOut, tokenIn);
     setTokenOut(tokenIn, tokenOut);
   }
