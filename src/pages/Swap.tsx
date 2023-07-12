@@ -795,7 +795,7 @@ export default function Swap() {
               <div className="text-xs text-[#4C4C4C]">Price Impact</div>
               <div className="ml-auto text-xs">
                 {pairSelected
-                  ? rangePriceAfter != undefined || coverPriceAfter != undefined
+                  ? rangePriceAfter || coverPriceAfter
                     ? rangeQuote >= coverQuote
                       ? (
                           Math.abs((rangePrice - rangePriceAfter) * 100) /
@@ -1130,8 +1130,9 @@ export default function Swap() {
                     : //cover price
                     tokenOrder
                     ? coverPrice.toPrecision(5)
-                    : invertPrice(coverPrice.toPrecision(5), false))
-                  + " " + tokenOut.symbol}
+                    : invertPrice(coverPrice.toPrecision(5), false)) +
+                  " " +
+                  tokenOut.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
               <button>
