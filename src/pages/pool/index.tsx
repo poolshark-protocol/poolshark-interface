@@ -353,7 +353,6 @@ export default function Pool() {
                               searchTerm.toLowerCase() ||
                             searchTerm === "")
                         ) {
-                          console.log('claimTick', allCoverPosition.claim)
                           return (
                             <UserCoverPool
                               key={allCoverPosition.id + "coverPosition"}
