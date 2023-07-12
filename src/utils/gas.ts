@@ -118,7 +118,6 @@ export const gasEstimateSwapLimit = async (
       'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
     )
     const price = await fetchPrice('ethereum')
-    console.log('price sub limit', price)
     const ethUsdPrice = price['data']['bundles']['0']['ethPriceUSD']
 
     if (!rangePoolRoute || !provider) {
