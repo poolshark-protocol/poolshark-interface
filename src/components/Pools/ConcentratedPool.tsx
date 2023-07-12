@@ -9,7 +9,7 @@ import {
 import { Listbox, Transition } from "@headlessui/react";
 import SelectToken from "../SelectToken";
 import ConcentratedPoolPreview from "./ConcentratedPoolPreview";
-import { useRangeStore } from "../../hooks/useStore";
+import { useRangeStore } from "../../hooks/useRangeStore";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
 import { getRangePoolFromFactory } from "../../utils/queries";
@@ -22,40 +22,37 @@ import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import inputFilter from "../../utils/inputFilter";
 import TickSpacing from "../Tooltips/TickSpacing";
-import { token } from "../../utils/types";
 import { switchDirection } from "../../utils/tokens";
 import { feeTiers } from "../../utils/pools";
 import { gasEstimateRangeMint } from "../../utils/gas";
 
-export default function ConcentratedPool({
-  account,
-  poolId,
-  tokenOneName,
-  tokenOneSymbol,
-  tokenOneLogoURI,
-  tokenOneAddress,
-  tokenZeroName,
-  tokenZeroSymbol,
-  tokenZeroLogoURI,
-  tokenZeroAddress,
-  minLimit,
-  maxLimit,
-  liquidity,
-  tickSpacingParam,
-  feeTier,
-}) {
+export default function ConcentratedPool({}) {
+  const [
+    tokenIn,
+    setTokenIn,
+    tokenOut,
+    setTokenOut,
+    rangePoolAddress,
+    setRangePoolAddress,
+    rangePoolData,
+    setRangePoolData,
+  ] = useRangeStore((state) => [
+    state.tokenIn,
+    state.setTokenIn,
+    state.tokenOut,
+    state.setTokenOut,
+    state.rangePoolAddress,
+    state.setRangePoolAddress,
+    state.rangePoolData,
+    state.setRangePoolData,
+  ]);
+
   const { address, isConnected, isDisconnected } = useAccount();
   const { data: signer } = useSigner();
-  const [tokenIn, setTokenIn] = useState({
-    symbol: tokenZeroSymbol ?? "TOKEN20B",
-    logoURI: tokenZeroLogoURI ?? "/static/images/eth_icon.png",
-    address: tokenZeroAddress ?? "0x6774be1a283Faed7ED8e40463c40Fb33A8da3461",
-  } as token);
-  const [tokenOut, setTokenOut] = useState({
-    symbol: tokenOneSymbol ?? "TOKEN20A",
-    logoURI: tokenOneLogoURI ?? "/static/images/token.png",
-    address: tokenOneAddress ?? "0xC26906E10E8BDaDeb2cf297eb56DF59775eE52c4",
-  } as token);
+
+  console.log("tokenIn", tokenIn);
+  console.log("tokenOut", tokenOut);
+
   const {
     bnInput,
     setBnInput,
@@ -65,22 +62,9 @@ export default function ConcentratedPool({
     bnInputLimit,
     LimitInputBox,
   } = useInputBox();
-  const [
-    updateRangeContractParams,
-    updateRangeAllowance,
-    RangeAllowance,
-    rangeContractParams,
-  ] = useRangeStore((state: any) => [
-    state.updateRangeContractParams,
-    state.updateRangeAllowance,
-    state.RangeAllowance,
-    state.rangeContractParams,
-  ]);
+
   const [tokenOrder, setTokenOrder] = useState(true);
-  /*   const [selected, setSelected] = useState(updateSelectedFeeTier)
-   */
-  const [queryTokenIn, setQueryTokenIn] = useState(tokenZeroAddress);
-  const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress);
+
   const [balance0, setBalance0] = useState("");
   const [balance1, setBalance1] = useState("");
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
@@ -103,7 +87,6 @@ export default function ConcentratedPool({
   const [amount1, setAmount1] = useState(initialBig);
   const [amount0Usd, setAmount0Usd] = useState(0.0);
   const [amount1Usd, setAmount1Usd] = useState(0.0);
-  const [tickSpacing, setTickSpacing] = useState(tickSpacingParam);
   const [hasSelected, setHasSelected] = useState(true);
   const [isDisabled, setDisabled] = useState(true);
   const [usdPrice0, setUsdPrice0] = useState(0);
@@ -253,17 +236,21 @@ export default function ConcentratedPool({
     if (!isNaN(parseFloat(lowerPrice))) {
       //console.log('setting lower tick')
       setLowerTick(
-        BigNumber.from(TickMath.getTickAtPriceString(lowerPrice, tickSpacing))
+        BigNumber.from(
+          TickMath.getTickAtPriceString(lowerPrice, rangePoolData.tickSpacing)
+        )
       );
     }
     if (!isNaN(parseFloat(upperPrice))) {
       //console.log('setting upper tick')
       setUpperTick(
-        BigNumber.from(TickMath.getTickAtPriceString(upperPrice, tickSpacing))
+        BigNumber.from(
+          TickMath.getTickAtPriceString(upperPrice, rangePoolData.tickSpacing)
+        )
       );
     }
     setAmounts();
-  }, [lowerPrice, upperPrice, tickSpacing]);
+  }, [lowerPrice, upperPrice, rangePoolData.tickSpacing]);
 
   async function updateGasFee() {
     if (
@@ -324,7 +311,8 @@ export default function ConcentratedPool({
             setUpperPrice(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
             setUpperTick(BigNumber.from(tickAtPrice - -7000));
           }
-          setTickSpacing(spacing);
+          //here we should update the tick spacing only
+          setRangePoolData(spacing);
           setUsdPrice0(parseFloat(token0Price));
           setUsdPrice1(parseFloat(token1Price));
           setRangeTickPrice(tickAtPrice);
@@ -362,8 +350,14 @@ export default function ConcentratedPool({
         hasSelected == true &&
         parseFloat(lowerPrice) < parseFloat(upperPrice)
       ) {
-        const lower = TickMath.getTickAtPriceString(lowerPrice, tickSpacing);
-        const upper = TickMath.getTickAtPriceString(upperPrice, tickSpacing);
+        const lower = TickMath.getTickAtPriceString(
+          lowerPrice,
+          rangePoolData.tickSpacing
+        );
+        const upper = TickMath.getTickAtPriceString(
+          upperPrice,
+          rangePoolData.tickSpacing
+        );
         setTo(address);
         setLowerTick(BigNumber.from(lower));
         setUpperTick(BigNumber.from(upper));
@@ -415,14 +409,14 @@ export default function ConcentratedPool({
         hasSelected == true &&
         (amount0.gt(BN_ZERO) || amount1.gt(BN_ZERO))
       ) {
-        updateRangeContractParams({
+        /* updateRangeContractParams({
           to: address,
           min: lowerTick,
           max: upperTick,
           amount0: amount0,
           amount1: amount1,
           fungible: true,
-        });
+        }); */
       } else {
         setDisabled(true);
       }
@@ -432,7 +426,7 @@ export default function ConcentratedPool({
   }
 
   const changePrice = (direction: string, inputId: string) => {
-    if (!tickSpacing) return;
+    if (!rangePoolData.tickSpacing) return;
     const currentTick =
       inputId == "minInput" || inputId == "maxInput"
         ? inputId == "minInput"
@@ -440,7 +434,7 @@ export default function ConcentratedPool({
           : Number(upperTick)
         : rangeTickPrice;
     if (!currentTick) return;
-    const increment = tickSpacing;
+    const increment = rangePoolData.tickSpacing;
     const adjustment =
       direction == "plus" || direction == "minus"
         ? direction == "plus"
@@ -464,13 +458,13 @@ export default function ConcentratedPool({
   const [fee, setFee] = useState(updateSelectedFeeTier);
 
   function updateSelectedFeeTier(): any {
-    if (feeTier == 0.01) {
+    if (rangePoolData.feeTier == 0.01) {
       return feeTiers[0];
-    } else if (feeTier == 0.05) {
+    } else if (rangePoolData.feeTier == 0.05) {
       return feeTiers[1];
-    } else if (feeTier == 0.3) {
+    } else if (rangePoolData.feeTier == 0.3) {
       return feeTiers[2];
-    } else if (feeTier == 1) {
+    } else if (rangePoolData.feeTier == 1) {
       return feeTiers[3];
     } else return feeTiers[0];
   }
@@ -619,18 +613,7 @@ export default function ConcentratedPool({
                 onClick={() => {
                   if (hasSelected) {
                     const newInput = tokenOrder ? amount1 : amount0;
-                    switchDirection(
-                      tokenOrder,
-                      setTokenOrder,
-                      tokenIn,
-                      setTokenIn,
-                      tokenOut,
-                      setTokenOut,
-                      queryTokenIn,
-                      setQueryTokenIn,
-                      queryTokenOut,
-                      setQueryTokenOut
-                    );
+                    //switch direction
                     setBnInput(newInput);
                     setDisplay(
                       parseFloat(
@@ -664,36 +647,23 @@ export default function ConcentratedPool({
           <div className="flex flex-col md:flex-row w-full items-center gap-y-3 gap-x-5 mt-3">
             <SelectToken
               index="0"
+              key="in"
               type="in"
-              selected={hasSelected}
-              setHasSelected={setHasSelected}
               tokenIn={tokenIn}
               setTokenIn={setTokenIn}
               tokenOut={tokenOut}
               setTokenOut={setTokenOut}
               displayToken={tokenIn}
-              balance={setQueryTokenIn}
-              queryTokenIn={queryTokenIn}
-              queryTokenOut={queryTokenOut}
-              setQueryTokenIn={setQueryTokenIn}
-              setQueryTokenOut={setQueryTokenOut}
-              key={queryTokenIn}
             />
             <SelectToken
+              index="1"
+              key="out"
               type="out"
-              selected={hasSelected}
-              setHasSelected={setHasSelected}
               tokenIn={tokenIn}
               setTokenIn={setTokenIn}
               tokenOut={tokenOut}
               setTokenOut={setTokenOut}
               displayToken={tokenOut}
-              balance={setQueryTokenOut}
-              queryTokenIn={queryTokenIn}
-              queryTokenOut={queryTokenOut}
-              setQueryTokenIn={setQueryTokenIn}
-              setQueryTokenOut={setQueryTokenOut}
-              key={queryTokenOut}
             />
           </div>
         </div>
@@ -823,13 +793,21 @@ export default function ConcentratedPool({
             <button
               className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md whitespace-nowrap"
               onClick={() => {
-                setLowerTick(BigNumber.from(roundTick(-887272, tickSpacing)));
-                setUpperTick(BigNumber.from(roundTick(887272, tickSpacing)));
+                setLowerTick(
+                  BigNumber.from(roundTick(-887272, rangePoolData.tickSpacing))
+                );
+                setUpperTick(
+                  BigNumber.from(roundTick(887272, rangePoolData.tickSpacing))
+                );
                 setLowerPrice(
-                  TickMath.getPriceStringAtTick(roundTick(-887272, tickSpacing))
+                  TickMath.getPriceStringAtTick(
+                    roundTick(-887272, rangePoolData.tickSpacing)
+                  )
                 );
                 setUpperPrice(
-                  TickMath.getPriceStringAtTick(roundTick(887272, tickSpacing))
+                  TickMath.getPriceStringAtTick(
+                    roundTick(887272, rangePoolData.tickSpacing)
+                  )
                 );
               }}
             >
@@ -968,7 +946,7 @@ export default function ConcentratedPool({
                   />
                 )}
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                {tokenOrder ? (
+                  {tokenOrder ? (
                     <button onClick={() => changePrice("plus", "maxInput")}>
                       <PlusIcon className="w-5 h-5" />
                     </button>
@@ -987,8 +965,8 @@ export default function ConcentratedPool({
         </div>
         <ConcentratedPoolPreview
           account={to}
-          key={poolId}
-          poolAddress={poolId}
+          key={rangePoolAddress.toString()}
+          poolAddress={rangePoolAddress}
           poolRoute={rangePoolRoute}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
@@ -1007,8 +985,8 @@ export default function ConcentratedPool({
           mintGasFee={mintGasFee}
           maxInput={maxInput}
           minInput={minInput}
-          tokenOneSymbol={tokenOneSymbol}
-          tokenZeroSymbol={tokenZeroSymbol}
+          /* tokenOneSymbol={tokenO}
+          tokenZeroSymbol={tokenZeroSymbol} */
         />
       </div>
     </div>

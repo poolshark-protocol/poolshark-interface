@@ -1,16 +1,14 @@
-import { Fragment, useEffect, useState } from 'react'
-import { Transition, Dialog } from '@headlessui/react'
-import RangeMintButton from '../Buttons/RangeMintButton'
-import { BigNumber, ethers } from 'ethers'
-import { erc20ABI, useAccount, useContractRead, useProvider } from 'wagmi'
-import { TickMath } from '../../utils/math/tickMath'
-import RangeMintDoubleApproveButton from '../Buttons/RangeMintDoubleApproveButton'
-import { useRouter } from 'next/router'
-import {
-  ArrowLongRightIcon,
-} from '@heroicons/react/20/solid'
-import { gasEstimateRangeMint, gasEstimateSwapLimit } from '../../utils/gas'
-import RangeMintApproveButton from '../Buttons/RangeMintApproveButton'
+import { Fragment, useEffect, useState } from "react";
+import { Transition, Dialog } from "@headlessui/react";
+import RangeMintButton from "../Buttons/RangeMintButton";
+import { BigNumber, ethers } from "ethers";
+import { erc20ABI, useAccount, useContractRead, useProvider } from "wagmi";
+import { TickMath } from "../../utils/math/tickMath";
+import RangeMintDoubleApproveButton from "../Buttons/RangeMintDoubleApproveButton";
+import { useRouter } from "next/router";
+import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
+import { gasEstimateRangeMint, gasEstimateSwapLimit } from "../../utils/gas";
+import RangeMintApproveButton from "../Buttons/RangeMintApproveButton";
 
 export default function ConcentratedPoolPreview({
   account,
@@ -31,60 +29,58 @@ export default function ConcentratedPoolPreview({
   allowance1,
   disabled,
   buttonState,
-  tokenOneSymbol,
-  tokenZeroSymbol,
   maxInput,
-  minInput
+  minInput,
 }) {
-  const { address, isConnected } = useAccount()
-  const router = useRouter()
-  const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
-  const lowerPrice = TickMath.getPriceStringAtTick(lowerTick)
-  const upperPrice = TickMath.getPriceStringAtTick(upperTick)
-  const provider = useProvider()
-  const signer = new ethers.VoidSigner(address, provider)
+  const { address, isConnected } = useAccount();
+  const router = useRouter();
+  const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0;
+  const lowerPrice = TickMath.getPriceStringAtTick(lowerTick);
+  const upperPrice = TickMath.getPriceStringAtTick(upperTick);
+  const provider = useProvider();
+  const signer = new ethers.VoidSigner(address, provider);
 
-  const [isOpen, setIsOpen] = useState(false)
-  const [doubleApprove, setdoubleApprove] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
+  const [doubleApprove, setdoubleApprove] = useState(false);
 
   const { data: allowanceIn } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
-    functionName: 'allowance',
+    functionName: "allowance",
     args: [address, poolRoute],
     chainId: 421613,
     watch: true,
-    enabled: poolRoute != undefined && tokenIn.address != '',
+    enabled: poolRoute != undefined && tokenIn.address != "",
     onSuccess(data) {
-      allowance0 = data
+      allowance0 = data;
     },
     onError(error) {
-      console.log('Error', error)
+      console.log("Error", error);
     },
-  })
+  });
 
   const { data: allowanceOut } = useContractRead({
     address: tokenOut.address,
     abi: erc20ABI,
-    functionName: 'allowance',
+    functionName: "allowance",
     args: [address, poolRoute],
     chainId: 421613,
     watch: true,
-    enabled: poolRoute != undefined && tokenIn.address != '',
+    enabled: poolRoute != undefined && tokenIn.address != "",
     onSuccess(data) {
-      allowance1 = data
+      allowance1 = data;
     },
     onError(error) {
-      console.log('Error', error)
+      console.log("Error", error);
     },
-  })
+  });
 
   function closeModal() {
-    setIsOpen(false)
+    setIsOpen(false);
   }
 
   function openModal() {
-    setIsOpen(true)
+    setIsOpen(true);
   }
 
   return (
@@ -127,7 +123,10 @@ export default function ConcentratedPoolPreview({
                             {tokenIn.symbol}
                           </button>
                           <button className="flex w-full items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
-                            <img className="w-7 w-full" src={tokenOut.logoURI} />
+                            <img
+                              className="w-7 w-full"
+                              src={tokenOut.logoURI}
+                            />
                             {tokenOut.symbol}
                           </button>
                         </div>
@@ -156,8 +155,8 @@ export default function ConcentratedPoolPreview({
                                 {parseFloat(
                                   ethers.utils.formatUnits(
                                     tokenOrder ? amount0 : amount1,
-                                    18,
-                                  ),
+                                    18
+                                  )
                                 ).toFixed(3)}
                               </div>
                               <div className="flex">
@@ -196,8 +195,8 @@ export default function ConcentratedPoolPreview({
                                 {parseFloat(
                                   ethers.utils.formatUnits(
                                     tokenOrder ? amount1 : amount0,
-                                    18,
-                                  ),
+                                    18
+                                  )
                                 ).toFixed(3)}
                               </div>
                               <div className="flex">
@@ -245,12 +244,11 @@ export default function ConcentratedPoolPreview({
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                              { tokenOrder ? minInput : maxInput }
+                                {tokenOrder ? minInput : maxInput}
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">
-                            {tokenOut.symbol} per{" "}
-                            {tokenIn.symbol}
+                              {tokenOut.symbol} per {tokenIn.symbol}
                             </span>
                           </div>
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
@@ -259,12 +257,11 @@ export default function ConcentratedPoolPreview({
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                { tokenOrder ? maxInput : minInput }
+                                {tokenOrder ? maxInput : minInput}
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">
-                            {tokenOut.symbol} per{" "}
-                            {tokenIn.symbol}
+                              {tokenOut.symbol} per {tokenIn.symbol}
                             </span>
                           </div>
                         </div>
@@ -279,12 +276,12 @@ export default function ConcentratedPoolPreview({
                             disabled={
                               allowance0.lt(amount0) ||
                               allowance1.lt(amount1) ||
-                              mintGasFee == '$0.00'
+                              mintGasFee == "$0.00"
                             }
                             amount0={amount0}
                             amount1={amount1}
                             gasLimit={gasLimit}
-                            closeModal={() => router.push('/pool')}
+                            closeModal={() => router.push("/pool")}
                           />
                         ) : (allowance0.lt(amount0) &&
                             allowance1.lt(amount1)) ||
@@ -322,15 +319,19 @@ export default function ConcentratedPoolPreview({
       >
         {disabled ? (
           <>
-            {buttonState === 'price' ? (<>Min. is greater than Max. Price</>) : (<></>)}
-            {buttonState === 'amount' ? <>Input Deposit Amount</> : <></>}
-            {buttonState === 'balance0' ? <>Insufficient {tokenZeroSymbol}  Balance</> : <></>}
-            {buttonState === 'balance1' ? <>Insufficient {tokenOneSymbol} Balance</> : <></>}
+            {buttonState === "price" ? (
+              <>Min. is greater than Max. Price</>
+            ) : (
+              <></>
+            )}
+            {buttonState === "amount" ? <>Input Deposit Amount</> : <></>}
+            {/* {buttonState === 'balance0' ? <>Insufficient {tokenZeroSymbol}  Balance</> : <></>}
+            {buttonState === 'balance1' ? <>Insufficient {tokenOneSymbol} Balance</> : <></>} */}
           </>
         ) : (
           <>Preview</>
         )}
       </button>
     </div>
-  )
+  );
 }

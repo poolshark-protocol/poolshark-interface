@@ -1,54 +1,9 @@
-import ConcentratedPool from '../../components/Pools/ConcentratedPool'
-import Navbar from '../../components/Navbar'
-import Link from 'next/link'
-import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
-import { ArrowLongLeftIcon } from '@heroicons/react/20/solid'
-import { token } from '../../utils/types'
+import ConcentratedPool from "../../components/Pools/ConcentratedPool";
+import Navbar from "../../components/Navbar";
+import Link from "next/link";
+import { ArrowLongLeftIcon } from "@heroicons/react/20/solid";
 
 export default function Concentrated() {
-  const router = useRouter()
-
-  const [poolId, setPoolId] = useState(router.query.poolId ?? '')
-  const [tokenIn, setTokenIn] = useState({
-    name: router.query.tokenZeroName,
-    symbol: router.query.tokenZeroSymbol,
-    logoURI: router.query.tokenZeroLogoURI,
-    address: router.query.tokenZeroAddress,
-  } as token)
-  const [tokenOut, setTokenOut] = useState({
-    name: router.query.tokenOneName,
-    symbol: router.query.tokenOneSymbol,
-    logoURI: router.query.tokenOneLogoURI,
-    address: router.query.tokenOneAddress,
-  } as token)
-  const [liquidity, setLiquidity] = useState(router.query.liquidity ?? '0')
-  const [tickSpacing, setTickSpacing] = useState(router.query.tickSpacing ?? 10)
-  const [feeTier, setFeeTier] = useState(router.query.feeTier ?? '')
-  const [minLimit, setMinLimit] = useState(router.query.min ?? '0')
-  const [maxLimit, setMaxLimit] = useState(router.query.max ?? '0')
-
-  useEffect(() => {
-    setPoolId(router.query.poolId ?? '')
-    setTokenIn({
-      name: router.query.tokenZeroName,
-      symbol: router.query.tokenZeroSymbol,
-      logoURI: router.query.tokenZeroLogoURI,
-      address: router.query.tokenZeroAddress,
-    } as token)
-    setTokenOut({
-      name: router.query.tokenOneName,
-      symbol: router.query.tokenOneSymbol,
-      logoURI: router.query.tokenOneLogoURI,
-      address: router.query.tokenOneAddress,
-    } as token)
-    setLiquidity(router.query.liquidity ?? '0')
-    setTickSpacing(router.query.tickSpacing ?? 10)
-    setFeeTier(router.query.feeTier ?? '')
-    setMinLimit(router.query.min ?? '0')
-    setMaxLimit(router.query.max ?? '0')
-  }, [router.isReady])
-
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
       <Navbar />
@@ -65,26 +20,9 @@ export default function Concentrated() {
               </div>
             </Link>
           </div>
-          <ConcentratedPool
-            key={poolId + 'pool'}
-            poolId={poolId}
-            tokenOneName={tokenOut.name}
-            tokenOneSymbol={tokenOut.symbol}
-            tokenOneLogoURI={tokenOut.logoURI}
-            tokenOneAddress={tokenOut.address}
-            tokenZeroName={tokenIn.name}
-            tokenZeroSymbol={tokenIn.symbol}
-            tokenZeroLogoURI={tokenIn.logoURI}
-            tokenZeroAddress={tokenIn.address}
-            minLimit={minLimit}
-            maxLimit={maxLimit}
-            liquidity={liquidity}
-            feeTier={feeTier}
-            tickSpacingParam={tickSpacing}
-            account={undefined}
-          />
+          <ConcentratedPool />
         </div>
       </div>
     </div>
-  )
+  );
 }
