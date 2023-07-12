@@ -92,7 +92,7 @@ export const gasEstimateSwap = async (
         currency: 'USD',
       })
     setGasFee(formattedPrice)
-    setGasLimit(gasUnits)
+    setGasLimit(gasUnits.mul(150).div(100))
   } catch (error) {
     console.log('gas error', error)
     setGasFee('$0.00')
@@ -149,7 +149,7 @@ export const gasEstimateSwapLimit = async (
       })
     
     setMintGasFee(formattedPrice)
-    setMintGasLimit(gasUnits)
+    setMintGasLimit(gasUnits.mul(150).div(100))
   }
   catch (error) {
     console.log('gas error', error)
