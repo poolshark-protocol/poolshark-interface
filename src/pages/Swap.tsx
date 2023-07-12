@@ -80,6 +80,7 @@ export default function Swap() {
     //tokenOrder
     switchDirection,
     pairSelected,
+    setPairSelected,
     //rangePool
     rangePoolAddress,
     rangePoolData,
@@ -129,6 +130,7 @@ export default function Swap() {
     //tokenOrder
     state.switchDirection,
     state.pairSelected,
+    state.setPairSelected,
     //rangePool
     state.rangePoolAddress,
     state.rangePoolData,
@@ -940,7 +942,7 @@ export default function Swap() {
                     className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]"
                     key={tokenInBalance}
                   >
-                    Balance: {tokenInBalance ?? 0}
+                    Balance: {tokenInBalance}
                   </div>
                   {isConnected && stateChainName === "arbitrumGoerli" ? (
                     <button
@@ -1032,13 +1034,16 @@ export default function Swap() {
                     setTokenIn={setTokenIn}
                     tokenOut={tokenOut}
                     setTokenOut={setTokenOut}
+                    setPairSelected={setPairSelected}
                     displayToken={tokenOut}
                   />
                 </div>
 
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
                   <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]">
-                    Balance: {pairSelected ? tokenOutBalance : 0}
+                  {pairSelected ? (
+                    "Balance: " + tokenOutBalance) :
+                    <></>}
                   </div>
                 </div>
               </div>
