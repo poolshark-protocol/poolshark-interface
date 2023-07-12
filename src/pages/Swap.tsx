@@ -1131,8 +1131,8 @@ export default function Swap() {
                     : //cover price
                     tokenOrder
                     ? coverPrice.toPrecision(5)
-                    : invertPrice(coverPrice.toPrecision(5), false)) +
-                  tokenOut.symbol}
+                    : invertPrice(coverPrice.toPrecision(5), false))
+                  + " " + tokenOut.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
               <button>
