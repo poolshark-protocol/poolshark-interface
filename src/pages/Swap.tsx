@@ -92,7 +92,7 @@ export default function Swap() {
     coverPoolData,
     coverSlippage,
     setCoverPoolAddress,
-    setCoverPoolData, 
+    setCoverPoolData,
     setCoverSlippage,
     //gas
     gasFee,
@@ -519,23 +519,23 @@ export default function Swap() {
   ////////////////////////////////Limit Ticks
   const [lowerTick, setLowerTick] = useState(BN_ZERO);
   const [upperTick, setUpperTick] = useState(BN_ZERO);
-  const [rangeTickSpacing, setRangeTickSpacing] = useState(undefined);
 
   useEffect(() => {
     if (
       !isNaN(parseFloat(limitPrice)) &&
       !isNaN(parseFloat(slippage)) &&
-      !isNaN(parseInt(rangeTickSpacing))
+      !isNaN(rangePoolData?.feeTier?.toString())
     )
-      console.log('ready to update limit ticks')
-      updateLimitTicks();
+      console.log("ready to update limit ticks");
+    updateLimitTicks();
   }, [limitPrice, slippage]);
 
   function updateLimitTicks() {
-    console.log('limit price on tick', limitPrice)
+    console.log("limit price on tick", limitPrice);
+    const tickSpacing = rangePoolData.feeTier.tickSpacing;
     if (isFinite(parseFloat(limitPrice)) && parseFloat(limitPrice) > 0) {
       if (
-        parseFloat(slippage) * 100 > rangeTickSpacing &&
+        parseFloat(slippage) * 100 > tickSpacing &&
         parseFloat(limitPrice) > 0
       ) {
         const limitPriceTolerance =
@@ -546,57 +546,57 @@ export default function Swap() {
           const endPrice = parseFloat(limitPrice) - -limitPriceTolerance;
           setLowerTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing)
+              TickMath.getTickAtPriceString(limitPrice, tickSpacing)
             )
           );
-          console.log('lower limit tick set', lowerTick)
+          console.log("lower limit tick set", lowerTick);
           setUpperTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(String(endPrice), rangeTickSpacing)
+              TickMath.getTickAtPriceString(String(endPrice), tickSpacing)
             )
           );
-          console.log('upper limit tick set', upperTick)
+          console.log("upper limit tick set", upperTick);
         } else {
           const endPrice = parseFloat(limitPrice) - limitPriceTolerance;
           setLowerTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(String(endPrice), rangeTickSpacing)
+              TickMath.getTickAtPriceString(String(endPrice), tickSpacing)
             )
           );
-          console.log('lower limit tick set', lowerTick)
+          console.log("lower limit tick set", lowerTick);
           setUpperTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing)
+              TickMath.getTickAtPriceString(limitPrice, tickSpacing)
             )
           );
-          console.log('upper limit tick set', upperTick)
+          console.log("upper limit tick set", upperTick);
         }
       } else {
         if (tokenOrder) {
           const endTick =
-            TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing) -
-            -rangeTickSpacing;
-          console.log('end tick', endTick)
+            TickMath.getTickAtPriceString(limitPrice, tickSpacing) -
+            -tickSpacing;
+          console.log("end tick", endTick);
           setLowerTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing)
+              TickMath.getTickAtPriceString(limitPrice, tickSpacing)
             )
           );
-          console.log('lower limit tick set', lowerTick)
+          console.log("lower limit tick set", lowerTick);
           setUpperTick(BigNumber.from(String(endTick)));
-          console.log('upper limit tick set', upperTick)
+          console.log("upper limit tick set", upperTick);
         } else {
           const endTick =
-            TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing) -
-            rangeTickSpacing;
+            TickMath.getTickAtPriceString(limitPrice, tickSpacing) -
+            tickSpacing;
           setLowerTick(BigNumber.from(String(endTick)));
-          console.log('lower limit tick set', lowerTick)
+          console.log("lower limit tick set", lowerTick);
           setUpperTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing)
+              TickMath.getTickAtPriceString(limitPrice, tickSpacing)
             )
           );
-          console.log('upper limit tick set', upperTick)
+          console.log("upper limit tick set", upperTick);
         }
       }
     }
