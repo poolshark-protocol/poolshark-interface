@@ -706,6 +706,7 @@ export default function Swap() {
 
   ////////////////////////////////
   const [expanded, setExpanded] = useState(false);
+  
 
   const Option = () => {
     if (expanded) {
@@ -998,7 +999,7 @@ export default function Swap() {
             <div className="flex">
               <div className="flex text-xs text-[#4C4C4C]">
                 ~$
-                {pairSelected ? (
+                {pairSelected || parseFloat(ethers.utils.formatUnits(bnInput, 18)) !== 0 ? (
                   tokenOutRangeUSDPrice || tokenOutCoverUSDPrice ? (
                     !limitTabSelected ? (
                       //swap page
@@ -1011,15 +1012,14 @@ export default function Swap() {
                       // limit page TODO tokenOutRangeUSDPrice should be changed by tokenOutLimitUSDPrice when implemented
                       (
                         parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                        parseFloat(limitPrice) *
-                        tokenOut.usdPrice
+                        parseFloat(limitPrice) 
                       ).toFixed(2)
                     )
                   ) : (
                     (0).toFixed(2)
                   )
                 ) : (
-                  <>{(0).toFixed(2)}</>
+                  <>{(0).toFixed(2)}h</>
                 )}
               </div>
             </div>
