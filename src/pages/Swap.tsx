@@ -521,13 +521,10 @@ export default function Swap() {
   const [upperTick, setUpperTick] = useState(BN_ZERO);
 
   useEffect(() => {
-    if (
-      !isNaN(parseFloat(limitPrice)) &&
-      !isNaN(parseFloat(slippage)) &&
-      !isNaN(rangePoolData?.feeTier?.toString())
-    )
+    if (slippage && limitPrice && rangePoolData?.feeTier?.tickSpacing) {
       console.log("ready to update limit ticks");
-    updateLimitTicks();
+      updateLimitTicks();
+    }
   }, [limitPrice, slippage]);
 
   function updateLimitTicks() {
@@ -660,10 +657,12 @@ export default function Swap() {
   useEffect(() => {
     setLimitPriceInput(
       limitPriceSwitch
-        ? (tokenIn.usdPrice / tokenOut.usdPrice).toPrecision(6)
-        : (tokenOut.usdPrice / tokenIn.usdPrice).toPrecision(6)
+        ? (tokenInRangeUSDPrice / tokenOutRangeUSDPrice).toPrecision(6)
+        : (tokenOutRangeUSDPrice / tokenInRangeAllowance).toPrecision(6)
     );
-    setLimitPrice((tokenIn.usdPrice / tokenOut.usdPrice).toPrecision(6));
+    setLimitPrice(
+      (tokenInRangeUSDPrice / tokenOutRangeUSDPrice).toPrecision(6)
+    );
   }, [tokenIn, tokenOut]);
 
   useEffect(() => {
