@@ -21,20 +21,13 @@ export const getRangePool = async (
       tokenIn.address,
       tokenOut.address
     );
-    //TODO@retraca create here a for for choosing the right pool considering feetier
+    //TODO@retraca create here or new fucntion for choosing the right pool considering feetier
     let id = ZERO_ADDRESS;
     let rangePoolData = {};
     const dataLength = pool["data"]["rangePools"].length;
     if (dataLength != 0) {
       id = pool["data"]["rangePools"]["0"]["id"];
       rangePoolData = pool["data"]["rangePools"]["0"];
-
-      /* if (setRangeTickSpacing) {
-        const tickSpacing =
-          pool["data"]["rangePools"]["0"]["feeTier"]["tickSpacing"];
-        setRangeTickSpacing(tickSpacing);
-      } */
-
     } else {
       const fallbackPool = await getRangePoolFromFactory(
         tokenOut.address,
@@ -42,14 +35,10 @@ export const getRangePool = async (
       );
       id = fallbackPool["data"]["rangePools"]["0"]["id"];
       rangePoolData = fallbackPool["data"]["rangePools"]["0"];
-      /* if (setRangeTickSpacing) {
-        const tickSpacing =
-          fallbackPool["data"]["rangePools"]["0"]["feeTier"]["tickSpacing"];
-        setRangeTickSpacing(tickSpacing);
-      } */
     }
     setRangePoolAddress(id);
     setRangePoolData(rangePoolData);
+    console.log("range pool data", rangePoolData);
   } catch (error) {
     console.log(error);
   }
@@ -72,13 +61,6 @@ export const getCoverPool = async (
     if (dataLength != 0) {
       id = pool["data"]["coverPools"]["0"]["id"];
       coverPoolData = pool["data"]["coverPools"]["0"];
-      /* if (setTokenInUsdPrice) {
-        setTokenInUsdPrice(
-          tokenOrder
-            ? pool["data"]["coverPools"]["0"]["token0"]["usdPrice"]
-            : pool["data"]["coverPools"]["0"]["token1"]["usdPrice"]
-        );
-      } */
     } else {
       const fallbackPool = await getCoverPoolFromFactory(
         tokenOut.address,
@@ -86,13 +68,6 @@ export const getCoverPool = async (
       );
       id = fallbackPool["data"]["coverPools"]["0"]["id"];
       coverPoolData = fallbackPool["data"]["coverPools"]["0"];
-      /* if (setTokenInUsdPrice) {
-        setTokenInUsdPrice(
-          tokenOrder
-            ? pool["data"]["coverPools"]["0"]["token1"]["usdPrice"]
-            : pool["data"]["coverPools"]["0"]["token0"]["usdPrice"]
-        );
-      } */
     }
     setCoverPoolAddress(id);
     setCoverPoolData(coverPoolData);
