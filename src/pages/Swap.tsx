@@ -350,6 +350,7 @@ export default function Swap() {
         const priceAfterSlippage = String(
           priceAfter - (tokenOrder ? priceSlippage : -priceSlippage)
         );
+        setRangePriceAfter(priceAfter);
         const rangePriceLimit =
           TickMath.getSqrtPriceAtPriceString(priceAfterSlippage);
         setRangeBnPriceLimit(BigNumber.from(String(rangePriceLimit)));
@@ -805,7 +806,7 @@ export default function Swap() {
                           Math.abs((coverPrice - coverPriceAfter) * 100) /
                           coverPrice
                         ).toFixed(2) + "%"
-                    : "0,00%"
+                    : "0.00%"
                   : "Select Token"}
               </div>
             </div>
