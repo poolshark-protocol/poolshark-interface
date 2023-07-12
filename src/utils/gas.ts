@@ -26,13 +26,17 @@ export const gasEstimateSwap = async (
   allowanceCover: BigNumber,
   address: string,
   signer: Signer,
-  isConnected: boolean
-): Promise<gasEstimateResult> => {
+  isConnected: boolean,
+  setGasFee,
+  setGasLimit
+): Promise<void> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
       'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
     )
-    const ethUsdPrice = await fetchPrice('ethereum')
+    const ethUsdQuery = await fetchPrice('ethereum')
+    const ethUsdPrice = ethUsdQuery['data']['bundles']['0']['ethPriceUSD']
+
     const recipient = address
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0
     const priceLimit =
@@ -83,16 +87,17 @@ export const gasEstimateSwap = async (
     const networkFeeWei = gasPrice.mul(gasUnits)
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18))
     const networkFeeUsd = networkFeeEth * Number(ethUsdPrice)
-    console.log('network fee', networkFeeUsd)
     const formattedPrice: string =
       networkFeeUsd.toLocaleString('en-US', {
         style: 'currency',
         currency: 'USD',
       })
-    return { formattedPrice, gasUnits }
+    setGasFee(formattedPrice)
+    setGasLimit(gasUnits.mul(150).div(100))
   } catch (error) {
     console.log('gas error', error)
-    return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
+    setGasFee('$0.00')
+    setGasLimit(BN_ZERO)
   }
 }
 
@@ -104,23 +109,32 @@ export const gasEstimateSwapLimit = async (
   token0: token,
   token1: token,
   bnInput: BigNumber,
-  signer
-): Promise<gasEstimateResult> => {
+  signer,
+  setMintGasFee,
+  setMintGasLimit
+): Promise<void> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
       'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
     )
+    const price = await fetchPrice('ethereum')
+    const ethUsdPrice = price['data']['bundles']['0']['ethPriceUSD']
+
     if (!rangePoolRoute || !provider) {
-      return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
+      setMintGasFee('$0.00')
+      setMintGasLimit(BN_ZERO)
     }
-    const contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
 
     const recipient = address
     const zeroForOne = token0.address.localeCompare(token1.address) < 0
 
+    const contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
+
+    console.log('lower limit tick', lowerTick.toString())
+    console.log('upper limit tick', upperTick.toString())
+
     let gasUnits: BigNumber
-    gasUnits = BN_ZERO
-    await contract
+    gasUnits = await contract
       .connect(signer)
       .estimateGas.mint([
         recipient,
@@ -129,23 +143,25 @@ export const gasEstimateSwapLimit = async (
         zeroForOne ? bnInput : BN_ZERO,
         zeroForOne ? BN_ZERO : bnInput
     ])
-    const price = await fetchPrice('0x000')
+    console.log('limit gas units', gasUnits.toString())
     const gasPrice = await provider.getGasPrice()
-    const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])
     const networkFeeWei = gasPrice.mul(gasUnits)
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18))
-    const networkFeeUsd = networkFeeEth * ethUsdPrice
+    const networkFeeUsd = networkFeeEth * Number(ethUsdPrice)
+    console.log('network fee usd limit', networkFeeUsd)
     const formattedPrice: string =
       networkFeeUsd.toLocaleString('en-US', {
         style: 'currency',
         currency: 'USD',
       })
     
-    return { formattedPrice, gasUnits }
+    setMintGasFee(formattedPrice)
+    setMintGasLimit(gasUnits.mul(150).div(100))
   }
   catch (error) {
-    console.log('gas error', error)
-    return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
+    console.log('gas error limit', error)
+    setMintGasFee('$0.00')
+    setMintGasLimit(BN_ZERO)
   }
 }
 
@@ -230,9 +246,9 @@ export const gasEstimateRangeBurn = async (
         burnPercent
     ])
     console.log('burn estimate args', gasUnits.toString(), burnPercent.toString(), lowerTick.toString(), upperTick.toString(), )
-    const price = await fetchPrice('0x000')
+    const price = await fetchPrice('ethereum')
     const gasPrice = await provider.getGasPrice()
-    const ethUsdPrice = Number(price['data']['bundles']['0']['ethPriceUSD'])
+    const ethUsdPrice = price['data']['bundles']['0']['ethPriceUSD']
     const networkFeeWei = gasPrice.mul(gasUnits)
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18))
     const networkFeeUsd = networkFeeEth * ethUsdPrice
