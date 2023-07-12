@@ -10,7 +10,7 @@ import { create } from "zustand";
 type RangeState = {
   //poolAddress for current token pairs
   ////range
-  rangePoolAddress: String;
+  rangePoolAddress: string;
   rangePoolData: any;
   rangeSlippage: string;
   //true if both tokens selected, false if only one token selected

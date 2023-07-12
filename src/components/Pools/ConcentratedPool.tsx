@@ -50,9 +50,6 @@ export default function ConcentratedPool({}) {
   const { address, isConnected, isDisconnected } = useAccount();
   const { data: signer } = useSigner();
 
-  console.log("tokenIn", tokenIn);
-  console.log("tokenOut", tokenOut);
-
   const {
     bnInput,
     setBnInput,
@@ -74,7 +71,6 @@ export default function ConcentratedPool({}) {
   const [rangePrice, setRangePrice] = useState(undefined);
   const [rangeTickPrice, setRangeTickPrice] = useState(undefined);
   const [rangeSqrtPrice, setRangeSqrtPrice] = useState(undefined);
-  const [rangePoolRoute, setRangePoolRoute] = useState(undefined);
   const [buttonState, setButtonState] = useState("");
 
   const initialBig = BigNumber.from(0);
@@ -108,7 +104,7 @@ export default function ConcentratedPool({}) {
       }, 5000);
       return () => clearInterval(interval);
     }
-  }, [rangePoolRoute, tokenIn, tokenOut]);
+  }, [rangePoolAddress, tokenIn, tokenOut]);
 
   async function updateBalances() {
     await getBalances(
@@ -145,12 +141,12 @@ export default function ConcentratedPool({}) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolRoute],
+    args: [address, rangePoolAddress as `0x${string}`],
     chainId: 421613,
     watch: true,
-    enabled: rangePoolRoute != undefined && tokenIn.address != "",
+    enabled: rangePoolAddress != undefined && tokenIn.address != "",
     onSuccess(data) {
-      //console.log('Success allowance in', rangePoolRoute)
+      //console.log('Success allowance in', rangePoolAddress)
     },
     onError(error) {
       console.log("Error", error);
@@ -161,10 +157,10 @@ export default function ConcentratedPool({}) {
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolRoute],
+    args: [address, rangePoolAddress as `0x${string}`],
     chainId: 421613,
     watch: true,
-    enabled: rangePoolRoute != undefined && tokenIn.address != "",
+    enabled: rangePoolAddress != undefined && tokenIn.address != "",
     onSuccess(data) {
       // console.log('Success allowance out', allowanceOut.toString())
     },
@@ -172,7 +168,7 @@ export default function ConcentratedPool({}) {
       console.log("Error", error);
     },
     onSettled(data, error) {
-      // console.log('Allowance Settled', { data, error, rangePoolRoute, tokenIn, tokenOut })
+      // console.log('Allowance Settled', { data, error, rangePoolAddress, tokenIn, tokenOut })
     },
   });
 
@@ -259,7 +255,7 @@ export default function ConcentratedPool({}) {
       allowance1.gte(amount1)
     ) {
       const newGasFee = await gasEstimateRangeMint(
-        rangePoolRoute,
+        rangePoolAddress,
         address,
         lowerTick,
         upperTick,
@@ -300,7 +296,7 @@ export default function ConcentratedPool({}) {
             pool["data"]["rangePools"]["0"]["token0"]["usdPrice"];
           const token1Price =
             pool["data"]["rangePools"]["0"]["token1"]["usdPrice"];
-          setRangePoolRoute(id);
+          setRangePoolAddress(id);
           setRangePrice(TickMath.getPriceStringAtSqrtPrice(price));
           setRangeSqrtPrice(price);
           if (isNaN(parseFloat(lowerPrice)) || parseFloat(lowerPrice) <= 0) {
@@ -317,7 +313,7 @@ export default function ConcentratedPool({}) {
           setUsdPrice1(parseFloat(token1Price));
           setRangeTickPrice(tickAtPrice);
         } else {
-          setRangePoolRoute(ZERO_ADDRESS);
+          setRangePoolAddress(ZERO_ADDRESS);
           setRangePrice("1.00");
           setRangeSqrtPrice(TickMath.getSqrtRatioAtTick(0));
         }
@@ -477,16 +473,16 @@ export default function ConcentratedPool({}) {
     for (var i = 0; i < data.length; i++) {
       if (data[i]["feeTier"]["id"] == 3000 && auxfee.tierId == 3000) {
         setFee(feeTiers[2]);
-        setRangePoolRoute(pool["data"]["rangePools"][i]["id"]);
+        setRangePoolAddress(pool["data"]["rangePools"][i]["id"]);
       } else if (data[i]["feeTier"]["id"] == 500 && auxfee.tierId == 500) {
         setFee(feeTiers[1]);
-        setRangePoolRoute(pool["data"]["rangePools"][i]["id"]);
+        setRangePoolAddress(pool["data"]["rangePools"][i]["id"]);
       } else if (data[i]["feeTier"]["id"] == 100 && auxfee.tierId == 100) {
         setFee(feeTiers[0]);
-        setRangePoolRoute(pool["data"]["rangePools"][i]["id"]);
+        setRangePoolAddress(pool["data"]["rangePools"][i]["id"]);
       } else if (data[i]["feeTier"]["id"] == 10000 && auxfee.tierId == 10000) {
         setFee(feeTiers[3]);
-        setRangePoolRoute(pool["data"]["rangePools"][i]["id"]);
+        setRangePoolAddress(pool["data"]["rangePools"][i]["id"]);
       }
     }
   };
@@ -967,7 +963,7 @@ export default function ConcentratedPool({}) {
           account={to}
           key={rangePoolAddress.toString()}
           poolAddress={rangePoolAddress}
-          poolRoute={rangePoolRoute}
+          poolRoute={rangePoolAddress}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
           amount0={amount0}
