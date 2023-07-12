@@ -44,7 +44,7 @@ type SwapAction = {
   //setCoverPoolData: (data: any) => void;
   setRangePoolAddress: (address: String) => void;
   setRangePoolData: (data: any) => void;
-  //setPairSelected: (pairSelected: Boolean) => void;
+  setPairSelected: (pairSelected: Boolean) => void;
   //tokenIn
   setTokenIn: (tokenOut: token, newToken: token) => void;
   //setTokenInRangeUSDPrice: (price: number) => void;
@@ -75,8 +75,7 @@ const initialSwapState: SwapState = {
   rangePoolData: {},
   rangeSlippage: "0.5",
   //
-  //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
-  pairSelected: true,
+  pairSelected: false,
   //
   tokenIn: {
     callId: 0,
@@ -255,6 +254,11 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   setRangeSlippage: (rangeSlippage: string) => {
     set(() => ({
       rangeSlippage: rangeSlippage,
+    }));
+  },
+  setPairSelected: (pairSelected: boolean) => {
+    set(() => ({
+      pairSelected: pairSelected,
     }));
   },
   setCoverPoolAddress: (coverPoolAddress: string) => {
