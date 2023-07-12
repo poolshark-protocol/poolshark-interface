@@ -1010,8 +1010,7 @@ export default function Swap() {
                       // limit page TODO tokenOutRangeUSDPrice should be changed by tokenOutLimitUSDPrice when implemented
                       (
                         parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                        parseFloat(limitPrice) *
-                        tokenOut.usdPrice
+                        parseFloat(limitPrice) 
                       ).toFixed(2)
                     )
                   ) : (
