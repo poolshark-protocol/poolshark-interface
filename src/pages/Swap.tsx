@@ -1,13 +1,14 @@
 import {
   AdjustmentsHorizontalIcon,
   ArrowSmallDownIcon,
-} from "@heroicons/react/24/outline";
-import { useState, useEffect, Fragment } from "react";
-import { Popover, Transition } from "@headlessui/react";
-import { ChevronDownIcon, ArrowPathIcon } from "@heroicons/react/20/solid";
-import SelectToken from "../components/SelectToken";
-import useInputBox from "../hooks/useInputBox";
-import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
+  XMarkIcon
+} from '@heroicons/react/24/outline'
+import { useState, useEffect, Fragment } from 'react'
+import { Popover, Transition } from '@headlessui/react'
+import { ChevronDownIcon, ArrowPathIcon } from '@heroicons/react/20/solid'
+import SelectToken from '../components/SelectToken'
+import useInputBox from '../hooks/useInputBox'
+import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton'
 import {
   erc20ABI,
   useAccount,
@@ -80,6 +81,7 @@ export default function Swap() {
     //tokenOrder
     switchDirection,
     pairSelected,
+    setPairSelected,
     //rangePool
     rangePoolAddress,
     rangePoolData,
@@ -94,6 +96,15 @@ export default function Swap() {
     setCoverPoolAddress,
     setCoverPoolData,
     setCoverSlippage,
+    //gas
+    gasFee,
+    gasLimit,
+    setGasFee,
+    setGasLimit,
+    mintGasFee,
+    mintGasLimit,
+    setMintGasFee,
+    setMintGasLimit,
   ] = useSwapStore((state: any) => [
     //tokenIN
     state.tokenIn,
@@ -120,6 +131,7 @@ export default function Swap() {
     //tokenOrder
     state.switchDirection,
     state.pairSelected,
+    state.setPairSelected,
     //rangePool
     state.rangePoolAddress,
     state.rangePoolData,
@@ -134,6 +146,15 @@ export default function Swap() {
     state.setCoverPoolAddress,
     state.setCoverPoolData,
     state.setCoverSlippage,
+    //gas
+    state.gasFee,
+    state.gasLimit,
+    state.setGasFee,
+    state.setGasLimit,
+    state.mintGasFee,
+    state.mintGasLimit,
+    state.setMintGasFee,
+    state.setMintGasLimit,
   ]);
 
   //false when user in normal swap, true when user in limit swap
@@ -332,6 +353,7 @@ export default function Swap() {
         const priceAfterSlippage = String(
           priceAfter - (tokenOrder ? priceSlippage : -priceSlippage)
         );
+        setRangePriceAfter(priceAfter);
         const rangePriceLimit =
           TickMath.getSqrtPriceAtPriceString(priceAfterSlippage);
         setRangeBnPriceLimit(BigNumber.from(String(rangePriceLimit)));
@@ -500,21 +522,20 @@ export default function Swap() {
   ////////////////////////////////Limit Ticks
   const [lowerTick, setLowerTick] = useState(BN_ZERO);
   const [upperTick, setUpperTick] = useState(BN_ZERO);
-  const [rangeTickSpacing, setRangeTickSpacing] = useState(undefined);
 
   useEffect(() => {
-    if (
-      !isNaN(parseFloat(limitPrice)) &&
-      !isNaN(parseFloat(slippage)) &&
-      !isNaN(parseInt(rangeTickSpacing))
-    )
+    if (slippage && limitPrice && rangePoolData?.feeTier?.tickSpacing) {
+      console.log("ready to update limit ticks");
       updateLimitTicks();
+    }
   }, [limitPrice, slippage]);
 
   function updateLimitTicks() {
+    console.log("limit price on tick", limitPrice);
+    const tickSpacing = rangePoolData.feeTier.tickSpacing;
     if (isFinite(parseFloat(limitPrice)) && parseFloat(limitPrice) > 0) {
       if (
-        parseFloat(slippage) * 100 > rangeTickSpacing &&
+        parseFloat(slippage) * 100 > tickSpacing &&
         parseFloat(limitPrice) > 0
       ) {
         const limitPriceTolerance =
@@ -525,57 +546,66 @@ export default function Swap() {
           const endPrice = parseFloat(limitPrice) - -limitPriceTolerance;
           setLowerTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing)
+              TickMath.getTickAtPriceString(limitPrice, tickSpacing)
             )
           );
+          console.log("lower limit tick set", lowerTick);
           setUpperTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(String(endPrice), rangeTickSpacing)
+              TickMath.getTickAtPriceString(String(endPrice), tickSpacing)
             )
           );
+          console.log("upper limit tick set", upperTick);
         } else {
           const endPrice = parseFloat(limitPrice) - limitPriceTolerance;
           setLowerTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(String(endPrice), rangeTickSpacing)
+              TickMath.getTickAtPriceString(String(endPrice), tickSpacing)
             )
           );
+          console.log("lower limit tick set", lowerTick);
           setUpperTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing)
+              TickMath.getTickAtPriceString(limitPrice, tickSpacing)
             )
           );
+          console.log("upper limit tick set", upperTick);
         }
       } else {
         if (tokenOrder) {
           const endTick =
-            TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing) -
-            -rangeTickSpacing;
+            TickMath.getTickAtPriceString(limitPrice, tickSpacing) -
+            -tickSpacing;
+          console.log("end tick", endTick);
           setLowerTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing)
+              TickMath.getTickAtPriceString(limitPrice, tickSpacing)
             )
           );
+          console.log("lower limit tick set", lowerTick);
           setUpperTick(BigNumber.from(String(endTick)));
+          console.log("upper limit tick set", upperTick);
         } else {
           const endTick =
-            TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing) -
-            rangeTickSpacing;
+            TickMath.getTickAtPriceString(limitPrice, tickSpacing) -
+            tickSpacing;
           setLowerTick(BigNumber.from(String(endTick)));
+          console.log("lower limit tick set", lowerTick);
           setUpperTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(limitPrice, rangeTickSpacing)
+              TickMath.getTickAtPriceString(limitPrice, tickSpacing)
             )
           );
+          console.log("upper limit tick set", upperTick);
         }
       }
     }
   }
   ////////////////////////////////Fee Estimations
-  const [swapGasFee, setSwapGasFee] = useState("$0.00");
-  const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
-  const [mintFee, setMintFee] = useState("$0.00");
-  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
+  //const [swapGasFee, setSwapGasFee] = useState("$0.00");
+  //const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
+  //const [mintFee, setMintFee] = useState("$0.00");
+  //const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
     if (!bnInput.eq(BN_ZERO)) {
@@ -588,7 +618,7 @@ export default function Swap() {
   }, [bnInput]);
 
   async function updateGasFee() {
-    const newGasFee = await gasEstimateSwap(
+    await gasEstimateSwap(
       rangePoolAddress,
       coverPoolAddress,
       rangeQuote,
@@ -602,14 +632,14 @@ export default function Swap() {
       ethers.utils.parseUnits(tokenInCoverAllowance, 18),
       address,
       signer,
-      isConnected
+      isConnected,
+      setGasFee,
+      setGasLimit
     );
-    setSwapGasFee(newGasFee.formattedPrice);
-    setSwapGasLimit(newGasFee.gasUnits.mul(150).div(100));
   }
 
   async function updateMintFee() {
-    const newMintFee = await gasEstimateSwapLimit(
+    await gasEstimateSwapLimit(
       rangePoolAddress,
       address,
       lowerTick,
@@ -617,10 +647,10 @@ export default function Swap() {
       tokenIn,
       tokenOut,
       bnInput,
-      signer
+      signer,
+      setMintGasFee,
+      setMintGasLimit
     );
-    setMintFee(newMintFee.formattedPrice);
-    setMintGasLimit(newMintFee.gasUnits.mul(130).div(100));
   }
 
   ////////////////////////////////Limit Price Switch
@@ -630,10 +660,12 @@ export default function Swap() {
   useEffect(() => {
     setLimitPriceInput(
       limitPriceSwitch
-        ? (tokenIn.usdPrice / tokenOut.usdPrice).toPrecision(6)
-        : (tokenOut.usdPrice / tokenIn.usdPrice).toPrecision(6)
+        ? (tokenInRangeUSDPrice / tokenOutRangeUSDPrice).toPrecision(6)
+        : (tokenOutRangeUSDPrice / tokenInRangeAllowance).toPrecision(6)
     );
-    setLimitPrice((tokenIn.usdPrice / tokenOut.usdPrice).toPrecision(6));
+    setLimitPrice(
+      (tokenInRangeUSDPrice / tokenOutRangeUSDPrice).toPrecision(6)
+    );
   }, [tokenIn, tokenOut]);
 
   useEffect(() => {
@@ -674,6 +706,7 @@ export default function Swap() {
 
   ////////////////////////////////
   const [expanded, setExpanded] = useState(false);
+  
 
   const Option = () => {
     if (expanded) {
@@ -709,9 +742,9 @@ export default function Swap() {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
             {!limitTabSelected ? (
-              <div className="ml-auto text-xs">{swapGasFee}</div>
+              <div className="ml-auto text-xs">{gasFee}</div>
             ) : (
-              <div className="ml-auto text-xs">{mintFee}</div>
+              <div className="ml-auto text-xs">{mintGasFee}</div>
             )}
           </div>
           {!limitTabSelected ? (
@@ -766,7 +799,7 @@ export default function Swap() {
               <div className="text-xs text-[#4C4C4C]">Price Impact</div>
               <div className="ml-auto text-xs">
                 {pairSelected
-                  ? rangePriceAfter != undefined || coverPriceAfter != undefined
+                  ? rangePriceAfter || coverPriceAfter
                     ? rangeQuote >= coverQuote
                       ? (
                           Math.abs((rangePrice - rangePriceAfter) * 100) /
@@ -776,7 +809,7 @@ export default function Swap() {
                           Math.abs((coverPrice - coverPriceAfter) * 100) /
                           coverPrice
                         ).toFixed(2) + "%"
-                    : "0,00%"
+                    : "0.00%"
                   : "Select Token"}
               </div>
             </div>
@@ -788,7 +821,7 @@ export default function Swap() {
     }
   };
   return (
-    <div className="pt-[10vh] mb-[10vh] px-3 md:px-0">
+    <div className="pt-[10vh] mb-[10vh] px-3 md:px-0 w-full">
       <div className="flex flex-col w-full md:max-w-md px-6 pt-5 pb-7 mx-auto bg-black border border-grey2 rounded-xl">
         <div className="flex items-center">
           <div className="flex gap-4 mb-1.5 text-sm">
@@ -911,7 +944,7 @@ export default function Swap() {
                     className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]"
                     key={tokenInBalance}
                   >
-                    Balance: {tokenInBalance ?? 0}
+                    Balance: {tokenInBalance}
                   </div>
                   {isConnected && stateChainName === "arbitrumGoerli" ? (
                     <button
@@ -966,7 +999,7 @@ export default function Swap() {
             <div className="flex">
               <div className="flex text-xs text-[#4C4C4C]">
                 ~$
-                {pairSelected ? (
+                {pairSelected || parseFloat(ethers.utils.formatUnits(bnInput, 18)) !== 0 ? (
                   tokenOutRangeUSDPrice || tokenOutCoverUSDPrice ? (
                     !limitTabSelected ? (
                       //swap page
@@ -979,15 +1012,14 @@ export default function Swap() {
                       // limit page TODO tokenOutRangeUSDPrice should be changed by tokenOutLimitUSDPrice when implemented
                       (
                         parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                        parseFloat(limitPrice) *
-                        tokenOut.usdPrice
+                        parseFloat(limitPrice) 
                       ).toFixed(2)
                     )
                   ) : (
                     (0).toFixed(2)
                   )
                 ) : (
-                  <>{(0).toFixed(2)}</>
+                  <>{(0).toFixed(2)}h</>
                 )}
               </div>
             </div>
@@ -1003,13 +1035,16 @@ export default function Swap() {
                     setTokenIn={setTokenIn}
                     tokenOut={tokenOut}
                     setTokenOut={setTokenOut}
+                    setPairSelected={setPairSelected}
                     displayToken={tokenOut}
                   />
                 </div>
 
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
                   <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]">
-                    Balance: {pairSelected ? tokenOutBalance : 0}
+                  {pairSelected ? (
+                    "Balance: " + tokenOutBalance) :
+                    <></>}
                   </div>
                 </div>
               </div>
@@ -1102,6 +1137,7 @@ export default function Swap() {
                     tokenOrder
                     ? coverPrice.toPrecision(5)
                     : invertPrice(coverPrice.toPrecision(5), false)) +
+                  " " +
                   tokenOut.symbol}
             </div>
             <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
@@ -1156,7 +1192,7 @@ export default function Swap() {
                   }
                   amount={bnInput}
                   priceLimit={rangeBnPriceLimit}
-                  gasLimit={swapGasLimit}
+                  gasLimit={gasLimit}
                 />
               )
             ) : //cover buttons
@@ -1174,7 +1210,7 @@ export default function Swap() {
               </div>
             ) : (
               <SwapCoverButton
-                disabled={swapGasLimit.gt(BN_ZERO)}
+                disabled={gasLimit.gt(BN_ZERO)}
                 poolAddress={coverPoolAddress}
                 zeroForOne={
                   tokenOut.address != "" &&
@@ -1182,7 +1218,7 @@ export default function Swap() {
                 }
                 amount={bnInput}
                 priceLimit={coverBnPriceLimit}
-                gasLimit={swapGasLimit}
+                gasLimit={gasLimit}
               />
             )}
           </>

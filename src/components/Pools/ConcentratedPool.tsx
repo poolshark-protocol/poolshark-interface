@@ -14,7 +14,7 @@ import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
 import { getRangePoolFromFactory } from "../../utils/queries";
 import useInputBox from "../../hooks/useInputBox";
-import { erc20ABI, useAccount, useSigner } from "wagmi";
+import { erc20ABI, useAccount, useBalance, useSigner } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { useContractRead } from "wagmi";
 import { getBalances } from "../../utils/balances";
@@ -22,29 +22,55 @@ import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import inputFilter from "../../utils/inputFilter";
 import TickSpacing from "../Tooltips/TickSpacing";
-import { switchDirection } from "../../utils/tokens";
-import { feeTiers } from "../../utils/pools";
+import { fetchRangeTokenUSDPrice, switchDirection } from "../../utils/tokens";
+import { feeTiers, getRangePool } from "../../utils/pools";
 import { gasEstimateRangeMint } from "../../utils/gas";
 
 export default function ConcentratedPool({}) {
   const [
-    tokenIn,
-    setTokenIn,
-    tokenOut,
-    setTokenOut,
     rangePoolAddress,
-    setRangePoolAddress,
     rangePoolData,
+    setRangePoolAddress,
     setRangePoolData,
+    tokenIn,
+    tokenInRangeUSDPrice,
+    tokenInBalance,
+    tokenInAllowance,
+    setTokenIn,
+    setTokenInRangeUSDPrice,
+    setTokenInBalance,
+    setTokenInAllowance,
+    tokenOut,
+    tokenOutRangeUSDPrice,
+    tokenOutBalance,
+    tokenOutAllowance,
+    setTokenOut,
+    setTokenOutRangeUSDPrice,
+    setTokenOutBalance,
+    setTokenOutAllowance,
+    pairSelected,
   ] = useRangeStore((state) => [
-    state.tokenIn,
-    state.setTokenIn,
-    state.tokenOut,
-    state.setTokenOut,
     state.rangePoolAddress,
-    state.setRangePoolAddress,
     state.rangePoolData,
+    state.setRangePoolAddress,
     state.setRangePoolData,
+    state.tokenIn,
+    state.tokenInRangeUSDPrice,
+    state.tokenInBalance,
+    state.tokenInRangeAllowance,
+    state.setTokenIn,
+    state.setTokenInRangeUSDPrice,
+    state.setTokenInBalance,
+    state.setTokenInRangeAllowance,
+    state.tokenOut,
+    state.tokenOutRangeUSDPrice,
+    state.tokenOutBalance,
+    state.tokenOutRangeAllowance,
+    state.setTokenOut,
+    state.setTokenOutRangeUSDPrice,
+    state.setTokenOutBalance,
+    state.setTokenOutRangeAllowance,
+    state.pairSelected,
   ]);
 
   const { address, isConnected, isDisconnected } = useAccount();
@@ -60,217 +86,34 @@ export default function ConcentratedPool({}) {
     LimitInputBox,
   } = useInputBox();
 
-  const [tokenOrder, setTokenOrder] = useState(true);
-
-  const [balance0, setBalance0] = useState("");
-  const [balance1, setBalance1] = useState("");
-  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
-  const [mintGasFee, setMintGasFee] = useState("$0.00");
-  const [allowance0, setAllowance0] = useState(BN_ZERO);
-  const [allowance1, setAllowance1] = useState(BN_ZERO);
-  const [rangePrice, setRangePrice] = useState(undefined);
-  const [rangeTickPrice, setRangeTickPrice] = useState(undefined);
-  const [rangeSqrtPrice, setRangeSqrtPrice] = useState(undefined);
-  const [buttonState, setButtonState] = useState("");
-
   const initialBig = BigNumber.from(0);
   const [to, setTo] = useState("");
-  const [lowerPrice, setLowerPrice] = useState("");
-  const [upperPrice, setUpperPrice] = useState("");
-  const [lowerTick, setLowerTick] = useState(initialBig);
-  const [upperTick, setUpperTick] = useState(initialBig);
-  const [amount0, setAmount0] = useState(initialBig);
-  const [amount1, setAmount1] = useState(initialBig);
-  const [amount0Usd, setAmount0Usd] = useState(0.0);
-  const [amount1Usd, setAmount1Usd] = useState(0.0);
+
   const [hasSelected, setHasSelected] = useState(true);
   const [isDisabled, setDisabled] = useState(true);
-  const [usdPrice0, setUsdPrice0] = useState(0);
-  const [usdPrice1, setUsdPrice1] = useState(0);
   const [showTooltip, setShowTooltip] = useState(false);
-  const [fetchDelay, setFetchDelay] = useState(false);
-  const [minInput, setMinInput] = useState("");
-  const [maxInput, setMaxInput] = useState("");
+  /*   const [fetchDelay, setFetchDelay] = useState(false);
+   */
+
+  ////////////////////////////////Pools
 
   useEffect(() => {
-    if (!fetchDelay) {
-      updateBalances();
-      updatePool();
-      setFetchDelay(true);
-    } else {
-      const interval = setInterval(() => {
-        updateBalances();
-        updatePool();
-      }, 5000);
-      return () => clearInterval(interval);
+    if (tokenIn.address && tokenOut.address) {
+      updatePools();
     }
-  }, [rangePoolAddress, tokenIn, tokenOut]);
+  }, [tokenOut, tokenIn]);
 
-  async function updateBalances() {
-    await getBalances(
-      address,
-      hasSelected,
+  async function updatePools() {
+    await getRangePool(
       tokenIn,
       tokenOut,
-      setBalance0,
-      setBalance1
+      setRangePoolAddress,
+      setRangePoolData
     );
   }
 
-  async function updatePool() {
-    await getRangePoolData();
-  }
-
-  useEffect(() => {
-    updateGasFee();
-  }, [lowerTick, upperTick, amount0, amount1]);
-
-  useEffect(() => {
-    fetchTokenPrice();
-  }, [usdPrice0, usdPrice1, amount0, amount1]);
-
-  useEffect(() => {
-    setRangeParams();
-  }, [address, amount0, amount1]);
-
-  useEffect(() => {
-    setAmounts();
-  }, [bnInput]);
-
-  const { data: allowanceIn } = useContractRead({
-    address: tokenIn.address,
-    abi: erc20ABI,
-    functionName: "allowance",
-    args: [address, rangePoolAddress as `0x${string}`],
-    chainId: 421613,
-    watch: true,
-    enabled: rangePoolAddress != undefined && tokenIn.address != "",
-    onSuccess(data) {
-      //console.log('Success allowance in', rangePoolAddress)
-    },
-    onError(error) {
-      console.log("Error", error);
-    },
-  });
-
-  const { data: allowanceOut } = useContractRead({
-    address: tokenOut.address,
-    abi: erc20ABI,
-    functionName: "allowance",
-    args: [address, rangePoolAddress as `0x${string}`],
-    chainId: 421613,
-    watch: true,
-    enabled: rangePoolAddress != undefined && tokenIn.address != "",
-    onSuccess(data) {
-      // console.log('Success allowance out', allowanceOut.toString())
-    },
-    onError(error) {
-      console.log("Error", error);
-    },
-    onSettled(data, error) {
-      // console.log('Allowance Settled', { data, error, rangePoolAddress, tokenIn, tokenOut })
-    },
-  });
-
-  // disabled messages
-  useEffect(() => {
-    if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
-      setButtonState("price");
-    }
-    if (bnInput.eq(BN_ZERO)) {
-      setButtonState("amount");
-    }
-    if (Number(ethers.utils.formatUnits(amount0)) > Number(balance0)) {
-      setButtonState("balance0");
-    }
-    if (Number(ethers.utils.formatUnits(amount1)) > Number(balance1)) {
-      setButtonState("balance1");
-    }
-    if (
-      Number(ethers.utils.formatUnits(bnInput)) === 0 ||
-      parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
-      Number(ethers.utils.formatUnits(amount0)) > Number(balance0) ||
-      Number(ethers.utils.formatUnits(amount1)) > Number(balance1)
-    ) {
-      //console.log('disabled true')
-      setDisabled(true);
-    } else {
-      //console.log('disabled false')
-      setDisabled(false);
-    }
-  }, [bnInput, lowerPrice, upperPrice, amount0, amount1, balance0, balance1]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      if (allowanceIn) {
-        if (
-          address != "0x" &&
-          !allowanceIn.eq(tokenOrder ? allowance0 : allowance1)
-        )
-          tokenOrder ? setAllowance0(allowanceIn) : setAllowance1(allowanceIn);
-      }
-    }, 50);
-  }),
-    [allowanceIn];
-
-  useEffect(() => {
-    setTimeout(() => {
-      if (allowanceOut) {
-        if (
-          address != "0x" &&
-          !allowanceOut.eq(tokenOrder ? allowance1 : allowance0)
-        )
-          tokenOrder
-            ? setAllowance1(allowanceOut)
-            : setAllowance0(allowanceOut);
-      }
-    }, 50);
-  }),
-    [allowanceOut];
-
-  useEffect(() => {
-    if (!isNaN(parseFloat(lowerPrice))) {
-      //console.log('setting lower tick')
-      setLowerTick(
-        BigNumber.from(
-          TickMath.getTickAtPriceString(lowerPrice, rangePoolData.tickSpacing)
-        )
-      );
-    }
-    if (!isNaN(parseFloat(upperPrice))) {
-      //console.log('setting upper tick')
-      setUpperTick(
-        BigNumber.from(
-          TickMath.getTickAtPriceString(upperPrice, rangePoolData.tickSpacing)
-        )
-      );
-    }
-    setAmounts();
-  }, [lowerPrice, upperPrice, rangePoolData.tickSpacing]);
-
-  async function updateGasFee() {
-    if (
-      (amount0.gt(BN_ZERO) || amount1.gt(BN_ZERO)) &&
-      allowance0.gte(amount0) &&
-      allowance1.gte(amount1)
-    ) {
-      const newGasFee = await gasEstimateRangeMint(
-        rangePoolAddress,
-        address,
-        lowerTick,
-        upperTick,
-        amount0,
-        amount1,
-        signer
-      );
-
-      setMintGasFee(newGasFee.formattedPrice);
-      setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
-    }
-  }
-
   //TODO@retraca update the utils functions to do this and add to context in zustand
-  const getRangePoolData = async () => {
+  /* const getRangePoolData = async () => {
     try {
       if (hasSelected === true) {
         const pool = tokenOrder
@@ -323,18 +166,220 @@ export default function ConcentratedPool({}) {
     } catch (error) {
       console.log(error);
     }
-  };
+  }; */
 
-  const fetchTokenPrice = async () => {
-    try {
-      const token0Amount = parseFloat(ethers.utils.formatUnits(amount0, 18));
-      const token1Amount = parseFloat(ethers.utils.formatUnits(amount1, 18));
-      setAmount0Usd(token0Amount * usdPrice0);
-      setAmount1Usd(token1Amount * usdPrice1);
-    } catch (error) {
-      console.log(error);
+  ////////////////////////////////Pools Fee Tiers
+  const [fee, setFee] = useState(updateSelectedFeeTier);
+
+  function updateSelectedFeeTier(): any {
+    if (rangePoolData.feeTier == 0.01) {
+      return feeTiers[0];
+    } else if (rangePoolData.feeTier == 0.05) {
+      return feeTiers[1];
+    } else if (rangePoolData.feeTier == 0.3) {
+      return feeTiers[2];
+    } else if (rangePoolData.feeTier == 1) {
+      return feeTiers[3];
+    } else return feeTiers[0];
+  }
+
+  const handleManualFeeChange = async (auxfee: any) => {
+    const pool = tokenOrder
+      ? await getRangePoolFromFactory(tokenIn.address, tokenOut.address)
+      : await getRangePoolFromFactory(tokenOut.address, tokenIn.address);
+    const data = pool["data"]["rangePools"];
+    for (var i = 0; i < data.length; i++) {
+      if (data[i]["feeTier"]["id"] == 3000 && auxfee.tierId == 3000) {
+        setFee(feeTiers[2]);
+        setRangePoolAddress(pool["data"]["rangePools"][i]["id"]);
+      } else if (data[i]["feeTier"]["id"] == 500 && auxfee.tierId == 500) {
+        setFee(feeTiers[1]);
+        setRangePoolAddress(pool["data"]["rangePools"][i]["id"]);
+      } else if (data[i]["feeTier"]["id"] == 100 && auxfee.tierId == 100) {
+        setFee(feeTiers[0]);
+        setRangePoolAddress(pool["data"]["rangePools"][i]["id"]);
+      } else if (data[i]["feeTier"]["id"] == 10000 && auxfee.tierId == 10000) {
+        setFee(feeTiers[3]);
+        setRangePoolAddress(pool["data"]["rangePools"][i]["id"]);
+      }
     }
   };
+
+  ////////////////////////////////TokenOrder
+  const [tokenOrder, setTokenOrder] = useState(true);
+
+  useEffect(() => {
+    if (tokenIn.address && tokenOut.address) {
+      setTokenOrder(tokenIn.callId == 0);
+    }
+  }, [tokenIn, tokenOut]);
+
+  ////////////////////////////////Token Balances
+
+  const { data: tokenInBal } = useBalance({
+    address: address,
+    token: tokenIn.address,
+    enabled: tokenIn.address != undefined,
+    watch: true,
+  });
+
+  const { data: tokenOutBal } = useBalance({
+    address: address,
+    token: tokenOut.address,
+    enabled: tokenOut.address != undefined,
+    watch: true,
+  });
+
+  useEffect(() => {
+    if (isConnected) {
+      setTokenInBalance(
+        parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+      );
+      if (pairSelected) {
+        setTokenOutBalance(
+          parseFloat(tokenOutBal?.formatted.toString()).toFixed(2)
+        );
+      }
+    }
+  }, [tokenInBal, tokenOutBal]);
+
+  ////////////////////////////////Token Allowances
+
+  const { data: allowanceInRange } = useContractRead({
+    address: tokenIn.address,
+    abi: erc20ABI,
+    functionName: "allowance",
+    args: [address, rangePoolAddress],
+    chainId: 421613,
+    watch: true,
+    enabled: pairSelected && rangePoolAddress != "0x000",
+    onError(error) {
+      console.log("Error allowance", error);
+    },
+    onSuccess(data) {
+      console.log("Success allowance", data);
+    },
+  });
+
+  useEffect(() => {
+    if (allowanceInRange) {
+      setTokenInAllowance(ethers.utils.formatUnits(allowanceInRange, 18));
+    }
+  }, [allowanceInRange]);
+
+  ////////////////////////////////TokenUSDPrices
+
+  useEffect(() => {
+    if (rangePoolData) {
+      if (tokenIn.address) {
+        fetchRangeTokenUSDPrice(
+          rangePoolData,
+          tokenIn,
+          setTokenInRangeUSDPrice
+        );
+      }
+      if (tokenOut.address) {
+        fetchRangeTokenUSDPrice(
+          rangePoolData,
+          tokenOut,
+          setTokenOutRangeUSDPrice
+        );
+      }
+    }
+  }, [rangePoolData]);
+
+  ////////////////////////////////Prices
+  const [lowerPrice, setLowerPrice] = useState("");
+  const [upperPrice, setUpperPrice] = useState("");
+  const [rangePrice, setRangePrice] = useState(undefined);
+  const [rangeTickPrice, setRangeTickPrice] = useState(undefined);
+  const [rangeSqrtPrice, setRangeSqrtPrice] = useState(undefined);
+  const [lowerTick, setLowerTick] = useState(initialBig);
+  const [upperTick, setUpperTick] = useState(initialBig);
+  const [amount0, setAmount0] = useState(initialBig);
+  const [amount1, setAmount1] = useState(initialBig);
+  const [amount0Usd, setAmount0Usd] = useState(0.0);
+  const [amount1Usd, setAmount1Usd] = useState(0.0);
+  const [minInput, setMinInput] = useState("");
+  const [maxInput, setMaxInput] = useState("");
+
+  useEffect(() => {
+    setMinInput(
+      tokenOrder
+        ? lowerPrice.toString().includes("e")
+          ? parseFloat(lowerPrice).toLocaleString(undefined, {
+              maximumFractionDigits: 0,
+            }).length > 6
+            ? "0"
+            : parseFloat(lowerPrice).toLocaleString(undefined, {
+                maximumFractionDigits: 0,
+              })
+          : lowerPrice
+        : invertPrice(
+            lowerPrice.toString().includes("e")
+              ? parseFloat(lowerPrice).toLocaleString(undefined, {
+                  maximumFractionDigits: 0,
+                }).length > 6
+                ? "0"
+                : parseFloat(lowerPrice).toLocaleString(undefined, {
+                    maximumFractionDigits: 0,
+                  })
+              : lowerPrice,
+            tokenOrder
+          )
+    );
+  }, [lowerPrice, minInput, tokenOrder]);
+
+  useEffect(() => {
+    setMaxInput(
+      tokenOrder
+        ? upperPrice.toString().includes("e")
+          ? Number(upperPrice).toLocaleString(undefined, {
+              maximumFractionDigits: 0,
+            }).length > 6
+            ? "∞"
+            : Number(upperPrice).toLocaleString(undefined, {
+                maximumFractionDigits: 2,
+              })
+          : upperPrice
+        : invertPrice(
+            upperPrice.toString().includes("e")
+              ? Number(upperPrice).toLocaleString(undefined, {
+                  maximumFractionDigits: 0,
+                }).length > 6
+                ? "∞"
+                : Number(upperPrice).toLocaleString(undefined, {
+                    maximumFractionDigits: 2,
+                  })
+              : upperPrice,
+            tokenOrder
+          )
+    );
+  }, [upperPrice, minInput, tokenOrder]);
+
+  useEffect(() => {
+    if (!isNaN(parseFloat(lowerPrice))) {
+      //console.log('setting lower tick')
+      setLowerTick(
+        BigNumber.from(
+          TickMath.getTickAtPriceString(lowerPrice, rangePoolData.tickSpacing)
+        )
+      );
+    }
+    if (!isNaN(parseFloat(upperPrice))) {
+      //console.log('setting upper tick')
+      setUpperTick(
+        BigNumber.from(
+          TickMath.getTickAtPriceString(upperPrice, rangePoolData.tickSpacing)
+        )
+      );
+    }
+    setAmounts();
+  }, [lowerPrice, upperPrice, rangePoolData.tickSpacing]);
+
+  useEffect(() => {
+    setAmounts();
+  }, [bnInput]);
 
   function setAmounts() {
     try {
@@ -396,31 +441,6 @@ export default function ConcentratedPool({}) {
     }
   }
 
-  function setRangeParams() {
-    try {
-      if (
-        !isNaN(parseFloat(lowerPrice)) &&
-        !isNaN(parseFloat(upperPrice)) &&
-        Number(ethers.utils.formatUnits(bnInput)) !== 0 &&
-        hasSelected == true &&
-        (amount0.gt(BN_ZERO) || amount1.gt(BN_ZERO))
-      ) {
-        /* updateRangeContractParams({
-          to: address,
-          min: lowerTick,
-          max: upperTick,
-          amount0: amount0,
-          amount1: amount1,
-          fungible: true,
-        }); */
-      } else {
-        setDisabled(true);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   const changePrice = (direction: string, inputId: string) => {
     if (!rangePoolData.tickSpacing) return;
     const currentTick =
@@ -451,96 +471,78 @@ export default function ConcentratedPool({}) {
     }
   };
 
-  const [fee, setFee] = useState(updateSelectedFeeTier);
+  ////////////////////////////////Gas Fee
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
+  const [mintGasFee, setMintGasFee] = useState("$0.00");
 
-  function updateSelectedFeeTier(): any {
-    if (rangePoolData.feeTier == 0.01) {
-      return feeTiers[0];
-    } else if (rangePoolData.feeTier == 0.05) {
-      return feeTiers[1];
-    } else if (rangePoolData.feeTier == 0.3) {
-      return feeTiers[2];
-    } else if (rangePoolData.feeTier == 1) {
-      return feeTiers[3];
-    } else return feeTiers[0];
+  useEffect(() => {
+    updateGasFee();
+  }, [lowerTick, upperTick, amount0, amount1]);
+
+  async function updateGasFee() {
+    if (
+      true
+      /* (amount0.gt(BN_ZERO) || amount1.gt(BN_ZERO)) &&
+      Number(tokenInAllowance).gte(amount0) &&
+      allowance1.gte(amount1) */
+    ) {
+      const newGasFee = await gasEstimateRangeMint(
+        rangePoolAddress,
+        address,
+        lowerTick,
+        upperTick,
+        amount0,
+        amount1,
+        signer
+      );
+
+      setMintGasFee(newGasFee.formattedPrice);
+      setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
+    }
   }
 
-  const handleManualFeeChange = async (auxfee: any) => {
-    const pool = tokenOrder
-      ? await getRangePoolFromFactory(tokenIn.address, tokenOut.address)
-      : await getRangePoolFromFactory(tokenOut.address, tokenIn.address);
-    const data = pool["data"]["rangePools"];
-    for (var i = 0; i < data.length; i++) {
-      if (data[i]["feeTier"]["id"] == 3000 && auxfee.tierId == 3000) {
-        setFee(feeTiers[2]);
-        setRangePoolAddress(pool["data"]["rangePools"][i]["id"]);
-      } else if (data[i]["feeTier"]["id"] == 500 && auxfee.tierId == 500) {
-        setFee(feeTiers[1]);
-        setRangePoolAddress(pool["data"]["rangePools"][i]["id"]);
-      } else if (data[i]["feeTier"]["id"] == 100 && auxfee.tierId == 100) {
-        setFee(feeTiers[0]);
-        setRangePoolAddress(pool["data"]["rangePools"][i]["id"]);
-      } else if (data[i]["feeTier"]["id"] == 10000 && auxfee.tierId == 10000) {
-        setFee(feeTiers[3]);
-        setRangePoolAddress(pool["data"]["rangePools"][i]["id"]);
-      }
+  ////////////////////////////////Button State
+  const [buttonState, setButtonState] = useState("");
+
+  // disabled messages
+  useEffect(() => {
+    if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
+      setButtonState("price");
     }
-  };
+    if (bnInput.eq(BN_ZERO)) {
+      setButtonState("amount");
+    }
+    if (Number(ethers.utils.formatUnits(amount0)) > Number(tokenInBalance)) {
+      setButtonState("tokenInBalance");
+    }
+    if (Number(ethers.utils.formatUnits(amount1)) > Number(tokenOutBalance)) {
+      setButtonState("tokenOutBalance");
+    }
+    if (
+      Number(ethers.utils.formatUnits(bnInput)) === 0 ||
+      parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
+      Number(ethers.utils.formatUnits(amount0)) > Number(tokenInBalance) ||
+      Number(ethers.utils.formatUnits(amount1)) > Number(tokenOutBalance)
+    ) {
+      //console.log('disabled true')
+      setDisabled(true);
+    } else {
+      //console.log('disabled false')
+      setDisabled(false);
+    }
+  }, [
+    bnInput,
+    lowerPrice,
+    upperPrice,
+    amount0,
+    amount1,
+    tokenInBalance,
+    tokenOutBalance,
+  ]);
 
-  useEffect(() => {
-    setMinInput(
-      tokenOrder
-        ? lowerPrice.toString().includes("e")
-          ? parseFloat(lowerPrice).toLocaleString(undefined, {
-              maximumFractionDigits: 0,
-            }).length > 6
-            ? "0"
-            : parseFloat(lowerPrice).toLocaleString(undefined, {
-                maximumFractionDigits: 0,
-              })
-          : lowerPrice
-        : invertPrice(
-            lowerPrice.toString().includes("e")
-              ? parseFloat(lowerPrice).toLocaleString(undefined, {
-                  maximumFractionDigits: 0,
-                }).length > 6
-                ? "0"
-                : parseFloat(lowerPrice).toLocaleString(undefined, {
-                    maximumFractionDigits: 0,
-                  })
-              : lowerPrice,
-            tokenOrder
-          )
-    );
-  }, [lowerPrice, minInput, tokenOrder]);
+  ////////////////////////////////
 
-  useEffect(() => {
-    setMaxInput(
-      tokenOrder
-        ? upperPrice.toString().includes("e")
-          ? Number(upperPrice).toLocaleString(undefined, {
-              maximumFractionDigits: 0,
-            }).length > 6
-            ? "∞"
-            : Number(upperPrice).toLocaleString(undefined, {
-                maximumFractionDigits: 2,
-              })
-          : upperPrice
-        : invertPrice(
-            upperPrice.toString().includes("e")
-              ? Number(upperPrice).toLocaleString(undefined, {
-                  maximumFractionDigits: 0,
-                }).length > 6
-                ? "∞"
-                : Number(upperPrice).toLocaleString(undefined, {
-                    maximumFractionDigits: 2,
-                  })
-              : upperPrice,
-            tokenOrder
-          )
-    );
-  }, [upperPrice, minInput, tokenOrder]);
-
+  //select fee html
   function SelectFee() {
     return (
       <Listbox value={fee} onChange={handleManualFeeChange}>
@@ -598,6 +600,7 @@ export default function ConcentratedPool({}) {
     );
   }
 
+  //main html
   return (
     <div className="bg-black flex md:flex-row flex-col gap-x-20 justify-between border border-grey2 w-full rounded-xl md:pt-10 pt-7 pb-20 md:px-7 px-4">
       <div className="md:w-1/2">
@@ -684,7 +687,7 @@ export default function ConcentratedPool({}) {
                     <div className="flex text-xs text-[#4C4C4C]">
                       $
                       {(
-                        (tokenOrder ? usdPrice0 : usdPrice1) *
+                        tokenInRangeUSDPrice *
                         Number(ethers.utils.formatUnits(bnInput, 18))
                       ).toFixed(2)}
                     </div>
@@ -702,11 +705,11 @@ export default function ConcentratedPool({}) {
                     </div>
                     <div className="flex whitespace-nowrap items-center justify-end gap-2 px-1 mt-2">
                       <div className="flex md:text-xs text-[10px] text-[#4C4C4C]">
-                        Balance: {balance0 === "NaN" ? 0 : balance0}
+                        Balance: {tokenInBalance === "NaN" ? 0 : tokenInBalance}
                       </div>
                       <button
                         className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
-                        onClick={() => maxBalance(balance0, "0")}
+                        onClick={() => maxBalance(tokenInBalance, "0")}
                       >
                         Max
                       </button>
@@ -745,7 +748,8 @@ export default function ConcentratedPool({}) {
                     </div>
                     <div className="flex whitespace-nowrap items-center justify-end gap-x-2 px-1 mt-2">
                       <div className="flex md:text-xs text-[10px] text-[#4C4C4C]">
-                        Balance: {balance1 === "NaN" ? 0 : balance1}
+                        Balance:{" "}
+                        {tokenOutBalance === "NaN" ? 0 : tokenOutBalance}
                       </div>
                     </div>
                   </div>
@@ -960,6 +964,7 @@ export default function ConcentratedPool({}) {
           </div>
         </div>
         <ConcentratedPoolPreview
+        /*
           account={to}
           key={rangePoolAddress.toString()}
           poolAddress={rangePoolAddress}
@@ -973,7 +978,7 @@ export default function ConcentratedPool({}) {
           lowerTick={lowerTick}
           upperTick={upperTick}
           fee={fee.tier}
-          allowance0={allowance0}
+          tokenInAllowance={tokenInAllowance}
           allowance1={allowance1}
           disabled={isDisabled}
           buttonState={buttonState}
@@ -981,7 +986,7 @@ export default function ConcentratedPool({}) {
           mintGasFee={mintGasFee}
           maxInput={maxInput}
           minInput={minInput}
-          /* tokenOneSymbol={tokenO}
+           tokenOneSymbol={tokenO}
           tokenZeroSymbol={tokenZeroSymbol} */
         />
       </div>

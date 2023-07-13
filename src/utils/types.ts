@@ -3,7 +3,7 @@ export type token = {
   name: string
   symbol: string
   logoURI: string
-  address: string
+  address: `0x${string}`
 }
 
 

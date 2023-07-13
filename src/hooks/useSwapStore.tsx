@@ -32,8 +32,10 @@ type SwapState = {
   tokenOutCoverUSDPrice: Number;
   tokenOutBalance: string;
   //Gas
-  gasFee: BigNumber;
+  gasFee: string;
   gasLimit: BigNumber;
+  mintGasFee: string;
+  mintGasLimit: BigNumber;
 };
 
 type SwapAction = {
@@ -42,22 +44,24 @@ type SwapAction = {
   //setCoverPoolData: (data: any) => void;
   setRangePoolAddress: (address: String) => void;
   setRangePoolData: (data: any) => void;
-  //setPairSelected: (pairSelected: Boolean) => void;
+  setPairSelected: (pairSelected: Boolean) => void;
   //tokenIn
   setTokenIn: (tokenOut: token, newToken: token) => void;
   //setTokenInRangeUSDPrice: (price: number) => void;
   //setTokenInCoverUSDPrice: (price: number) => void;
-  //setTokenInRangeAllowance: (allowance: string) => void;
-  //setTokenInCoverAllowance: (allowance: string) => void;
-  //setTokenInBalance: (balance: string) => void;
+  setTokenInRangeAllowance: (allowance: string) => void;
+  setTokenInCoverAllowance: (allowance: string) => void;
+  setTokenInBalance: (balance: string) => void;
   //tokenOut
   setTokenOut: (tokenOut: token, newToken: token) => void;
   //setTokenOutRangeUSDPrice: (price: number) => void;
   //setTokenOutCoverUSDPrice: (price: number) => void;
-  //setTokenOutBalance: (balance: string) => void;
+  setTokenOutBalance: (balance: string) => void;
   //gas
-  //setGasFee: (fee: BigNumber) => void;
-  //etGasLimit: (limit: BigNumber) => void;
+  setGasFee: (fee: string) => void;
+  setGasLimit: (limit: BigNumber) => void;
+  setMintGasFee: (fee: string) => void;
+  setMintGasLimit: (limit: BigNumber) => void;
   //reset
   resetSwapParams: () => void;
 };
@@ -71,8 +75,7 @@ const initialSwapState: SwapState = {
   rangePoolData: {},
   rangeSlippage: "0.5",
   //
-  //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
-  pairSelected: true,
+  pairSelected: false,
   //
   tokenIn: {
     callId: 0,
@@ -98,8 +101,10 @@ const initialSwapState: SwapState = {
   tokenOutCoverUSDPrice: 0,
   tokenOutBalance: "0.00",
   //
-  gasFee: BN_ZERO,
+  gasFee: "$0.00",
   gasLimit: BN_ZERO,
+  mintGasFee: "$0.00",
+  mintGasLimit: BN_ZERO,
 };
 
 export const useSwapStore = create<SwapState & SwapAction>((set) => ({
@@ -126,6 +131,8 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   //gas
   gasFee: initialSwapState.gasFee,
   gasLimit: initialSwapState.gasLimit,
+  mintGasFee: initialSwapState.mintGasFee,
+  mintGasLimit: initialSwapState.mintGasLimit,
   setTokenIn: (tokenOut, newToken: token) => {
     //if tokenOut is selected
     if (
@@ -249,6 +256,11 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       rangeSlippage: rangeSlippage,
     }));
   },
+  setPairSelected: (pairSelected: boolean) => {
+    set(() => ({
+      pairSelected: pairSelected,
+    }));
+  },
   setCoverPoolAddress: (coverPoolAddress: string) => {
     set(() => ({
       coverPoolAddress: coverPoolAddress,
@@ -262,6 +274,26 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   setCoverSlippage: (coverSlippage: string) => {
     set(() => ({
       coverSlippage: coverSlippage,
+    }));
+  },
+  setGasFee: (gasFee: string) => {
+    set(() => ({
+      gasFee: gasFee,
+    }));
+  },
+  setGasLimit: (gasLimit: BigNumber) => {
+    set(() => ({
+      gasLimit: gasLimit,
+    }));
+  },
+  setMintGasFee: (mintGasFee: string) => {
+    set(() => ({
+      mintGasFee: mintGasFee,
+    }));
+  },
+  setMintGasLimit: (mintGasLimit: BigNumber) => {
+    set(() => ({
+      mintGasLimit: mintGasLimit,
     }));
   },
   switchDirection: () => {
