@@ -10,8 +10,9 @@ import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
 import { gasEstimateRangeMint, gasEstimateSwapLimit } from "../../utils/gas";
 import RangeMintApproveButton from "../Buttons/RangeMintApproveButton";
 
-export default function ConcentratedPoolPreview({
-  account,
+export default function ConcentratedPoolPreview(
+  {
+    /* account,
   poolAddress,
   poolRoute,
   tokenIn,
@@ -30,8 +31,9 @@ export default function ConcentratedPoolPreview({
   disabled,
   buttonState,
   maxInput,
-  minInput,
-}) {
+  minInput, */
+  }
+) {
   const { address, isConnected } = useAccount();
   const router = useRouter();
   const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0;

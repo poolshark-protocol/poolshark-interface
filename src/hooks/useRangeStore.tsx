@@ -10,7 +10,7 @@ import { create } from "zustand";
 type RangeState = {
   //poolAddress for current token pairs
   ////range
-  rangePoolAddress: string;
+  rangePoolAddress: `0x${string}`;
   rangePoolData: any;
   rangeSlippage: string;
   //true if both tokens selected, false if only one token selected
@@ -24,6 +24,7 @@ type RangeState = {
   tokenOut: token;
   tokenOutRangeUSDPrice: Number;
   tokenOutBalance: string;
+  tokenOutRangeAllowance: any;
   //Gas
   gasFee: BigNumber;
   gasLimit: BigNumber;
@@ -52,16 +53,26 @@ type RangeAction = {
   setGasFee: (fee: BigNumber) => void;
   setGasLimit: (limit: BigNumber) => void; */
   //reset
+  //
   setRangePoolAddress: (address: String) => void;
   setRangePoolData: (data: any) => void;
+  //
   setTokenIn: (tokenOut: any, newToken: any) => void;
+  setTokenInRangeUSDPrice: (price: number) => void;
+  setTokenInRangeAllowance: (allowance: string) => void;
+  setTokenInBalance: (balance: string) => void;
+  //
   setTokenOut: (tokenOut: any, newToken: any) => void;
+  setTokenOutRangeUSDPrice: (price: number) => void;
+  setTokenOutRangeAllowance: (allowance: string) => void;
+  setTokenOutBalance: (balance: string) => void;
+  //
   resetSwapParams: () => void;
 };
 
 const initialSwapState: RangeState = {
   //pools
-  rangePoolAddress: "",
+  rangePoolAddress: "0x000",
   rangePoolData: {},
   rangeSlippage: "0.5",
   //
@@ -87,6 +98,7 @@ const initialSwapState: RangeState = {
     address: tokenZeroAddress,
   } as token,
   tokenOutRangeUSDPrice: 0,
+  tokenOutRangeAllowance: "0.00",
   tokenOutBalance: "0.00",
   //
   gasFee: BN_ZERO,
@@ -108,6 +120,7 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   tokenOut: initialSwapState.tokenOut,
   tokenOutRangeUSDPrice: initialSwapState.tokenOutRangeUSDPrice,
   tokenOutBalance: initialSwapState.tokenOutBalance,
+  tokenOutRangeAllowance: initialSwapState.tokenOutRangeAllowance,
   //gas
   gasFee: initialSwapState.gasFee,
   gasLimit: initialSwapState.gasLimit,
@@ -207,7 +220,12 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       tokenOutBalance: newBalance,
     }));
   },
-  setRangePoolAddress: (rangePoolAddress: string) => {
+  setTokenOutRangeAllowance: (newAllowance: string) => {
+    set(() => ({
+      tokenOutRangeAllowance: newAllowance,
+    }));
+  },
+  setRangePoolAddress: (rangePoolAddress: `0x${string}`) => {
     set(() => ({
       rangePoolAddress: rangePoolAddress,
     }));
