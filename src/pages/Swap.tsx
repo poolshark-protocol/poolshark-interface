@@ -1019,7 +1019,7 @@ export default function Swap() {
                     (0).toFixed(2)
                   )
                 ) : (
-                  <>{(0).toFixed(2)}h</>
+                  <>{(0).toFixed(2)}</>
                 )}
               </div>
             </div>
