@@ -11,26 +11,7 @@ import { gasEstimateRangeMint, gasEstimateSwapLimit } from "../../utils/gas";
 import RangeMintApproveButton from "../Buttons/RangeMintApproveButton";
 import { useRangeStore } from "../../hooks/useRangeStore";
 
-export default function ConcentratedPoolPreview(
-  {
-    /*
-   account,
-  poolAddress,
-  poolRoute,
-  amount0,
-  amount1,
-  lowerTick,
-  upperTick,
-  fee,
-  allowance0,
-  allowance1,
-  disabled,
-  buttonState,
-  maxInput,
-  minInput,
-  */
-}) {
-
+export default function ConcentratedPoolPreview() {
   const [
     tokenIn,
     tokenOut,
@@ -39,7 +20,7 @@ export default function ConcentratedPoolPreview(
     tokenInRangeUSDPrice,
     tokenOutRangeUSDPrice,
     gasLimit,
-    gasFee
+    gasFee,
   ] = useRangeStore((state) => [
     state.tokenIn,
     state.tokenOut,
@@ -51,7 +32,7 @@ export default function ConcentratedPoolPreview(
     state.gasFee,
   ]);
 
-  const rangePoolRoute = rangePoolAddress as `0x${string}`
+  const rangePoolRoute = rangePoolAddress as `0x${string}`;
 
   const { address, isConnected } = useAccount();
   const router = useRouter();
@@ -104,7 +85,7 @@ export default function ConcentratedPoolPreview(
     setIsOpen(true);
   }
 
-  console.log(gasFee)
+  console.log(gasFee);
 
   return (
     <div>
