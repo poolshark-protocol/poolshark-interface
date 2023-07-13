@@ -9,21 +9,14 @@ import { useRouter } from "next/router";
 import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
 import { gasEstimateRangeMint, gasEstimateSwapLimit } from "../../utils/gas";
 import RangeMintApproveButton from "../Buttons/RangeMintApproveButton";
+import { useRangeStore } from "../../hooks/useRangeStore";
 
 export default function ConcentratedPoolPreview({
   account,
-  poolAddress,
-  poolRoute,
-  tokenIn,
-  tokenOut,
   amount0,
   amount1,
-  amount0Usd,
-  amount1Usd,
   lowerTick,
   upperTick,
-  mintGasFee,
-  gasLimit,
   fee,
   allowance0,
   allowance1,
@@ -32,6 +25,29 @@ export default function ConcentratedPoolPreview({
   maxInput,
   minInput,
 }) {
+
+  const [
+    tokenIn,
+    tokenOut,
+    rangePoolAddress,
+    rangePoolData,
+    tokenInRangeUSDPrice,
+    tokenOutRangeUSDPrice,
+    gasLimit,
+    gasFee
+  ] = useRangeStore((state) => [
+    state.tokenIn,
+    state.tokenOut,
+    state.rangePoolAddress,
+    state.rangePoolData,
+    state.tokenInRangeUSDPrice,
+    state.tokenOutRangeUSDPrice,
+    state.gasLimit,
+    state.gasFee,
+  ]);
+
+  const rangePoolRoute = rangePoolAddress as `0x${string}`
+
   const { address, isConnected } = useAccount();
   const router = useRouter();
   const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0;
@@ -47,10 +63,10 @@ export default function ConcentratedPoolPreview({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, poolRoute],
+    args: [address, rangePoolRoute],
     chainId: 421613,
     watch: true,
-    enabled: poolRoute != undefined && tokenIn.address != "",
+    enabled: rangePoolRoute != undefined && tokenIn.address != "",
     onSuccess(data) {
       allowance0 = data;
     },
@@ -63,10 +79,10 @@ export default function ConcentratedPoolPreview({
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, poolRoute],
+    args: [address, rangePoolRoute],
     chainId: 421613,
     watch: true,
-    enabled: poolRoute != undefined && tokenIn.address != "",
+    enabled: rangePoolRoute != undefined && tokenIn.address != "",
     onSuccess(data) {
       allowance1 = data;
     },
@@ -82,6 +98,8 @@ export default function ConcentratedPoolPreview({
   function openModal() {
     setIsOpen(true);
   }
+
+  console.log(gasFee)
 
   return (
     <div>
@@ -163,8 +181,8 @@ export default function ConcentratedPoolPreview({
                                 <div className="flex text-xs text-[#4C4C4C]">
                                   $
                                   {tokenOrder
-                                    ? amount0Usd.toFixed(2)
-                                    : amount1Usd.toFixed(2)}
+                                    ? tokenInRangeUSDPrice.toFixed(2)
+                                    : tokenOutRangeUSDPrice.toFixed(2)}
                                 </div>
                               </div>
                             </div>
@@ -203,8 +221,8 @@ export default function ConcentratedPoolPreview({
                                 <div className="flex text-xs text-[#4C4C4C]">
                                   $
                                   {tokenOrder
-                                    ? amount1Usd.toFixed(2)
-                                    : amount0Usd.toFixed(2)}
+                                    ? tokenOutRangeUSDPrice.toFixed(2)
+                                    : tokenInRangeUSDPrice.toFixed(2)}
                                 </div>
                               </div>
                             </div>
@@ -270,13 +288,13 @@ export default function ConcentratedPoolPreview({
                         {allowance0.gte(amount0) && allowance1.gte(amount1) ? (
                           <RangeMintButton
                             to={address}
-                            poolAddress={poolAddress}
+                            poolAddress={rangePoolAddress}
                             lower={lowerTick}
                             upper={upperTick}
                             disabled={
                               allowance0.lt(amount0) ||
                               allowance1.lt(amount1) ||
-                              mintGasFee == "$0.00"
+                              gasFee._hex === "0x00"
                             }
                             amount0={amount0}
                             amount1={amount1}
@@ -287,19 +305,19 @@ export default function ConcentratedPoolPreview({
                             allowance1.lt(amount1)) ||
                           doubleApprove ? (
                           <RangeMintDoubleApproveButton
-                            poolAddress={poolAddress}
+                            poolAddress={rangePoolAddress}
                             tokenIn={tokenIn}
                             tokenOut={tokenOut}
                             setAllowanceController={setdoubleApprove}
                           />
                         ) : !doubleApprove && allowance0.lt(amount0) ? (
                           <RangeMintApproveButton
-                            poolAddress={poolAddress}
+                            poolAddress={rangePoolAddress}
                             approveToken={tokenIn}
                           />
                         ) : !doubleApprove && allowance1.lt(amount1) ? (
                           <RangeMintApproveButton
-                            poolAddress={poolAddress}
+                            poolAddress={rangePoolAddress}
                             approveToken={tokenOut}
                           />
                         ) : null}
