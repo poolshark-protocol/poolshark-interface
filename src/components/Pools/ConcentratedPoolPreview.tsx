@@ -13,11 +13,10 @@ import { useRangeStore } from "../../hooks/useRangeStore";
 
 export default function ConcentratedPoolPreview(
   {
-    /* account,
+    /*
+   account,
   poolAddress,
   poolRoute,
-  tokenIn,
-  tokenOut,
   amount0,
   amount1,
   lowerTick,
@@ -29,6 +28,7 @@ export default function ConcentratedPoolPreview(
   buttonState,
   maxInput,
   minInput,
+  */
 }) {
 
   const [
@@ -52,9 +52,7 @@ export default function ConcentratedPoolPreview(
   ]);
 
   const rangePoolRoute = rangePoolAddress as `0x${string}`
-  minInput, */
-  }
-) {
+
   const { address, isConnected } = useAccount();
   const router = useRouter();
   const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0;
