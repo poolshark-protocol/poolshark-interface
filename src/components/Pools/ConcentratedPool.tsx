@@ -89,8 +89,7 @@ export default function ConcentratedPool({}) {
     state.setMaxTick,
   ]);
 
-  const { address, isConnected, isDisconnected } = useAccount();
-  const { data: signer } = useSigner();
+  const { address, isConnected } = useAccount();
 
   const {
     bnInput,
@@ -108,8 +107,7 @@ export default function ConcentratedPool({}) {
   const [hasSelected, setHasSelected] = useState(true);
   const [isDisabled, setDisabled] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
-  /*   const [fetchDelay, setFetchDelay] = useState(false);
-   */
+
 
   ////////////////////////////////Pools
 
@@ -272,7 +270,7 @@ export default function ConcentratedPool({}) {
   const [rangePrice, setRangePrice] = useState(undefined);
   const [rangeTickPrice, setRangeTickPrice] = useState(undefined);
   const [rangeSqrtPrice, setRangeSqrtPrice] = useState(undefined);
-  
+
   //Prices for calculations
   const [lowerPrice, setLowerPrice] = useState("");
   const [upperPrice, setUpperPrice] = useState("");

@@ -37,25 +37,15 @@ export default function UserPool({
   const [rangeTickPrice, setRangeTickPrice] = useState(undefined);
   const [
     setTokenIn,
-    //setValueTokenIn,
     setTokenOut,
-    //setValueTokenOut,
     setMinTick,
     setMaxTick,
-    setPrice,
     setUserLiquidity,
     setUserTokenAmount,
-    setFeeTier,
-    setTickSpacing,
-    setTvlUsd,
-    setVolumeUsd,
-    setVolumeEth,
     setRangePoolAddress,
   ] = useRangeStore((state) => [
     state.setTokenIn,
-    //state.setValueTokenIn,
     state.setTokenOut,
-    //state.setValueTokenOut,
     state.setMinTick,
     state.setMaxTick,
     state.setPrice,
@@ -129,16 +119,8 @@ export default function UserPool({
     setTokenOut(tokenInNew, tokenOutNew);
     setMinTick(min);
     setMaxTick(max);
-    setFeeTier(feeTier);
-    setPrice(price);
-    //setValueTokenIn(valueTokenZero);
-    //setValueTokenOut(valueTokenOne);
     setUserLiquidity(userLiquidity);
     setUserTokenAmount(userTokenAmount);
-    setTickSpacing(tickSpacing);
-    setTvlUsd(tvlUsd);
-    setVolumeUsd(volumeUsd);
-    setVolumeEth(volumeEth);
     setRangePoolAddress(poolId);
   }
 

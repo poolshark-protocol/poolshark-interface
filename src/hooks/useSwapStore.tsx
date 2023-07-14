@@ -41,7 +41,7 @@ type SwapState = {
 type SwapAction = {
   //pool
   setCoverPoolAddress: (address: String) => void;
-  //setCoverPoolData: (data: any) => void;
+  setCoverPoolData: (data: any) => void;
   setRangePoolAddress: (address: String) => void;
   setRangePoolData: (data: any) => void;
   setPairSelected: (pairSelected: Boolean) => void;
