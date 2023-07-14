@@ -280,7 +280,15 @@ export default function ConcentratedPool({}) {
             })
         : lowerPrice
     );
-  }, [lowerPrice, minInput, tokenOrder]);
+    if (!isNaN(parseFloat(lowerPrice))) {
+      //console.log('setting lower tick')
+      setLowerTick(
+        BigNumber.from(
+          TickMath.getTickAtPriceString(lowerPrice, rangePoolData.tickSpacing)
+        )
+      );
+    }
+  }, [lowerPrice]);
 
   useEffect(() => {
     setMaxInput(
@@ -294,17 +302,6 @@ export default function ConcentratedPool({}) {
             })
         : upperPrice
     );
-  }, [upperPrice, minInput, tokenOrder]);
-
-  useEffect(() => {
-    if (!isNaN(parseFloat(lowerPrice))) {
-      //console.log('setting lower tick')
-      setLowerTick(
-        BigNumber.from(
-          TickMath.getTickAtPriceString(lowerPrice, rangePoolData.tickSpacing)
-        )
-      );
-    }
     if (!isNaN(parseFloat(upperPrice))) {
       //console.log('setting upper tick')
       setUpperTick(
@@ -313,8 +310,7 @@ export default function ConcentratedPool({}) {
         )
       );
     }
-    //setTokenOutAmount();
-  }, [lowerPrice, upperPrice]);
+  }, [upperPrice]);
 
   useEffect(() => {
     setTokenOutAmount();
@@ -361,7 +357,7 @@ export default function ConcentratedPool({}) {
   }
 
   ////////////////////////////////Gas Fee
-  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
+  /* const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
   const [mintGasFee, setMintGasFee] = useState("$0.00");
 
   useEffect(() => {
@@ -370,10 +366,9 @@ export default function ConcentratedPool({}) {
 
   async function updateGasFee() {
     if (
-      true
-      /* (amount0.gt(BN_ZERO) || amount1.gt(BN_ZERO)) &&
+      (amount0.gt(BN_ZERO) || amount1.gt(BN_ZERO)) &&
       Number(tokenInAllowance).gte(amount0) &&
-      allowance1.gte(amount1) */
+      allowance1.gte(amount1)
     ) {
       const newGasFee = await gasEstimateRangeMint(
         rangePoolAddress,
@@ -389,6 +384,7 @@ export default function ConcentratedPool({}) {
       setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
     }
   }
+ */
 
   ////////////////////////////////Change Price Buttons
   //set lower and upper price
@@ -400,7 +396,7 @@ export default function ConcentratedPool({}) {
           : Number(upperTick)
         : rangeTickPrice;
     if (!currentTick) return;
-    const increment = rangePoolData.tickSpacing;
+    const increment = rangePoolData.feeTier.tickSpacing;
     const adjustment =
       direction == "plus" || direction == "minus"
         ? direction == "plus"
@@ -412,11 +408,9 @@ export default function ConcentratedPool({}) {
     (document.getElementById(inputId) as HTMLInputElement).value =
       Number(newPriceString).toFixed(6);
     if (inputId === "maxInput") {
-      //setUpperTick(BigNumber.from(newTick));
       setUpperPrice(newPriceString);
     }
     if (inputId === "minInput") {
-      //setLowerTick(BigNumber.from(newTick));
       setLowerPrice(newPriceString);
     }
   };
