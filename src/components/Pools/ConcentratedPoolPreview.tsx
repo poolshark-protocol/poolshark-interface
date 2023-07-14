@@ -92,7 +92,9 @@ export default function ConcentratedPoolPreview({}) {
   ]);
 
 
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
+  const router = useRouter();
+
   const provider = useProvider();
   const signer = new ethers.VoidSigner(address, provider);
 

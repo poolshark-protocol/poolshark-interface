@@ -115,12 +115,16 @@ export default function UserPool({
       logoURI: logoMap[tokenOne.symbol],
       address: tokenOne.address,
     };
+    const position = {
+      minTick: min,
+      maxTick: max,
+      tickSpacing: tickSpacing,
+      userTokenAmount: userTokenAmount,
+    };
+
     setTokenIn(tokenOutNew, tokenInNew);
     setTokenOut(tokenInNew, tokenOutNew);
-    setMinTick(min);
-    setMaxTick(max);
-    setUserLiquidity(userLiquidity);
-    setUserTokenAmount(userTokenAmount);
+    setRangePositionData(position);
     setRangePoolAddress(poolId);
   }
 
