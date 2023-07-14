@@ -1,3 +1,4 @@
+import { mapRangePools } from "./maps";
 import { ZERO_ADDRESS } from "./math/constants";
 import { TickMath } from "./math/tickMath";
 import {
@@ -27,14 +28,14 @@ export const getRangePool = async (
     const dataLength = pool["data"]["rangePools"].length;
     if (dataLength != 0) {
       id = pool["data"]["rangePools"]["0"]["id"];
-      rangePoolData = pool["data"]["rangePools"]["0"];
+      rangePoolData = mapRangePools(pool["data"]["rangePools"]["0"]);
     } else {
       const fallbackPool = await getRangePoolFromFactory(
         tokenOut.address,
         tokenIn.address
       );
       id = fallbackPool["data"]["rangePools"]["0"]["id"];
-      rangePoolData = fallbackPool["data"]["rangePools"]["0"];
+      rangePoolData = mapRangePools(fallbackPool["data"]["rangePools"]["0"]);
     }
     setRangePoolAddress(id);
     setRangePoolData(rangePoolData);

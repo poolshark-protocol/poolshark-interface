@@ -12,8 +12,9 @@ type RangeState = {
   ////range
   rangePoolAddress: `0x${string}`;
   rangePoolData: any;
-  rangePoolPositionData: any;
   rangeSlippage: string;
+  //Range position data
+  rangePositionData: any;
   //true if both tokens selected, false if only one token selected
   pairSelected: Boolean;
   //TokenIn defines the token on the left/up on a swap page
@@ -28,31 +29,12 @@ type RangeState = {
   tokenOutRangeUSDPrice: Number;
   tokenOutBalance: string;
   tokenOutRangeAllowance: string;
-  //Pool price
-  price: number;
-  //Liquidity
-  userLiquidity: string;
-  //Token amount
-  userTokenAmount: string;
-  //min and max ticks for selected price range
-  minTick: BigNumber;
-  maxTick: BigNumber;
   //min and max price input
   minInput: string;
   maxInput: string;
-  //fee tier & tick spacing
-  feeTier: string;
-  tickSpacing: string;
-  //TVL
-  tvlUsd: string;
-  //Volume
-  volumeUsd: string;
-  volumeEth: string;
   //Gas
   gasFee: BigNumber;
   gasLimit: BigNumber;
-  //Range position data
-  rangePositionData: any;
   //Disabled
   disabled: Boolean;
   buttonMessage: string;
@@ -64,46 +46,27 @@ type RangeAction = {
   setRangePoolData: (data: any) => void;
   setRangeSlippage: (rangeSlippage: string) => void;
   //
+  setRangePositionData: (rangePosition: any) => void;
+  //
   setPairSelected: (pairSelected: Boolean) => void;
   //
   setTokenIn: (tokenOut: any, newToken: any) => void;
   setTokenInAmount: (amount: BigNumber) => void;
-  //setValueTokenIn: (value: string) => void;
   setTokenInRangeUSDPrice: (price: number) => void;
   setTokenInRangeAllowance: (allowance: string) => void;
   setTokenInBalance: (balance: string) => void;
   //
   setTokenOut: (tokenOut: any, newToken: any) => void;
   setTokenOutAmount: (amount: BigNumber) => void;
-  //setValueTokenOut: (value: string) => void;
   setTokenOutRangeUSDPrice: (price: number) => void;
   setTokenOutRangeAllowance: (allowance: string) => void;
   setTokenOutBalance: (balance: string) => void;
   //
-  setPrice: (price: number) => void;
-  //
-  setUserLiquidity: (liquidity: string) => void;
-  //
-  setUserTokenAmount: (amount: string) => void;
-  //
-  setMinTick: (newMinTick: BigNumber) => void;
-  setMaxTick: (newMaxTick: BigNumber) => void;
-  //
   setMinInput: (newMinTick: string) => void;
   setMaxInput: (newMaxTick: string) => void;
   //
-  setFeeTier: (newFeeTier: string) => void;
-  setTickSpacing: (newTickSpacing: string) => void;
-  //
-  setTvlUsd: (newTvlUsd: string) => void;
-  //
-  setVolumeUsd: (newVolumeUsd: string) => void;
-  setVolumeEth: (newVolumeEth: string) => void;
-  //
   setGasFee: (gasFee: BigNumber) => void;
   setGasLimit: (gasLimit: BigNumber) => void;
-  //
-  setRangePositionData: (rangePosition: any) => void;
   //
   resetRangeParams: () => void;
   //
@@ -145,25 +108,8 @@ const initialRangeState: RangeState = {
   tokenOutRangeAllowance: "0",
   tokenOutBalance: "0.00",
   //
-  price: 0,
-  //
-  userLiquidity: "0.00",
-  //
-  userTokenAmount: "0.00",
-  //
-  minTick: BN_ZERO,
-  maxTick: BN_ZERO,
-  //
   minInput: "",
   maxInput: "",
-  //
-  feeTier: "0",
-  tickSpacing: "0",
-  //
-  tvlUsd: "0.00",
-  //
-  volumeUsd: "0.00",
-  volumeEth: "0.00",
   //
   gasFee: BN_ZERO,
   gasLimit: BN_ZERO,
@@ -184,37 +130,18 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   //tokenIn
   tokenIn: initialRangeState.tokenIn,
   tokenInAmount: initialRangeState.tokenInAmount,
-  //valueTokenIn: initialRangeState.valueTokenIn,
   tokenInRangeUSDPrice: initialRangeState.tokenInRangeUSDPrice,
   tokenInRangeAllowance: initialRangeState.tokenInRangeAllowance,
   tokenInBalance: initialRangeState.tokenInBalance,
   //tokenOut
   tokenOut: initialRangeState.tokenOut,
   tokenOutAmount: initialRangeState.tokenOutAmount,
-  //valueTokenOut: initialRangeState.valueTokenOut,
   tokenOutRangeUSDPrice: initialRangeState.tokenOutRangeUSDPrice,
   tokenOutBalance: initialRangeState.tokenOutBalance,
   tokenOutRangeAllowance: initialRangeState.tokenOutRangeAllowance,
-  //price
-  price: initialRangeState.price,
-  //liquidity
-  userLiquidity: initialRangeState.userLiquidity,
-  //token amount
-  userTokenAmount: initialRangeState.userTokenAmount,
-  //ticks
-  minTick: initialRangeState.minTick,
-  maxTick: initialRangeState.maxTick,
-  //ticks
+  //input amounts
   minInput: initialRangeState.minInput,
   maxInput: initialRangeState.maxInput,
-  //fee tier
-  feeTier: initialRangeState.feeTier,
-  tickSpacing: initialRangeState.tickSpacing,
-  //TVL
-  tvlUsd: initialRangeState.tvlUsd,
-  //Volume
-  volumeUsd: initialRangeState.volumeUsd,
-  volumeEth: initialRangeState.volumeEth,
   //gas
   gasFee: initialRangeState.gasFee,
   gasLimit: initialRangeState.gasLimit,
@@ -229,7 +156,6 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       pairSelected: pairSelected,
     }));
   },
-
   setTokenIn: (tokenOut, newToken: token) => {
     //if tokenOut is selected
     if (
@@ -273,11 +199,6 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       tokenInAmount: newAmount,
     }));
   },
-  /* setValueTokenIn: (newValue: string) => {
-    set(() => ({
-      valueTokenIn: newValue,
-    }));
-  }, */
   setTokenInRangeUSDPrice: (newPrice: number) => {
     set(() => ({
       tokenInRangeUSDPrice: newPrice,
@@ -334,11 +255,6 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       tokenOutAmount: newAmount,
     }));
   },
-  /* setValueTokenOut: (newValue: string) => {
-    set(() => ({
-      valueTokenOut: newValue,
-    }));
-  }, */
   setTokenOutBalance: (newBalance: string) => {
     set(() => ({
       tokenOutBalance: newBalance,
@@ -349,31 +265,6 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       tokenOutRangeAllowance: newAllowance,
     }));
   },
-  setPrice: (newPrice: number) => {
-    set(() => ({
-      price: newPrice,
-    }));
-  },
-  setUserLiquidity: (newLiquidity: string) => {
-    set(() => ({
-      userLiquidity: newLiquidity,
-    }));
-  },
-  setUserTokenAmount: (newAmount: string) => {
-    set(() => ({
-      userTokenAmount: newAmount,
-    }));
-  },
-  setMinTick: (newMinTick: BigNumber) => {
-    set(() => ({
-      minTick: newMinTick,
-    }));
-  },
-  setMaxTick: (newMaxTick: BigNumber) => {
-    set(() => ({
-      maxTick: newMaxTick,
-    }));
-  },
   setMinInput: (minInput: string) => {
     set(() => ({
       minInput: minInput,
@@ -382,31 +273,6 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   setMaxInput: (maxInput: string) => {
     set(() => ({
       maxInput: maxInput,
-    }));
-  },
-  setFeeTier: (newFeeTier: string) => {
-    set(() => ({
-      feeTier: newFeeTier,
-    }));
-  },
-  setTickSpacing: (newTickSpacing: string) => {
-    set(() => ({
-      tickSpacing: newTickSpacing,
-    }));
-  },
-  setTvlUsd: (newTvlUsd: string) => {
-    set(() => ({
-      tvlUsd: newTvlUsd,
-    }));
-  },
-  setVolumeUsd: (newVolumeUsd: string) => {
-    set(() => ({
-      volumeUsd: newVolumeUsd,
-    }));
-  },
-  setVolumeEth: (newVolumeEth: string) => {
-    set(() => ({
-      volumeEth: newVolumeEth,
     }));
   },
   setRangePoolAddress: (rangePoolAddress: `0x${string}`) => {
@@ -464,36 +330,19 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       pairSelected: initialRangeState.pairSelected,
       //tokenIn
       tokenIn: initialRangeState.tokenIn,
-      //valueTokenIn: initialRangeState.valueTokenIn,
+      tokenInAmount: initialRangeState.tokenInAmount,
       tokenInRangeUSDPrice: initialRangeState.tokenInRangeUSDPrice,
       tokenInRangeAllowance: initialRangeState.tokenInRangeAllowance,
       tokenInBalance: initialRangeState.tokenInBalance,
       //tokenOut
       tokenOut: initialRangeState.tokenOut,
-      //valueTokenOut: initialRangeState.valueTokenOut,
+      tokenOutAmount: initialRangeState.tokenOutAmount,
       tokenOutRangeUSDPrice: initialRangeState.tokenOutRangeUSDPrice,
       tokenOutBalance: initialRangeState.tokenOutBalance,
       tokenOutRangeAllowance: initialRangeState.tokenOutRangeAllowance,
-      //price
-      price: initialRangeState.price,
-      //liquidity
-      userLiquidity: initialRangeState.userLiquidity,
-      //token amount
-      userTokenAmount: initialRangeState.userTokenAmount,
-      //ticks
-      minTick: initialRangeState.minTick,
-      maxTick: initialRangeState.maxTick,
-      //ticks
+      //input amounts
       minInput: initialRangeState.minInput,
       maxInput: initialRangeState.maxInput,
-      //fee tier
-      feeTier: initialRangeState.feeTier,
-      tickSpacing: initialRangeState.tickSpacing,
-      //TVL
-      tvlUsd: initialRangeState.tvlUsd,
-      //Volume
-      volumeUsd: initialRangeState.volumeUsd,
-      volumeEth: initialRangeState.volumeEth,
       //gas
       gasFee: initialRangeState.gasFee,
       gasLimit: initialRangeState.gasLimit,

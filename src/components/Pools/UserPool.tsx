@@ -13,58 +13,33 @@ import {
 import { getRangePoolFromFactory } from "../../utils/queries";
 import { ethers } from "ethers";
 import Link from "next/link";
+import { getRangePool } from "../../utils/pools";
 
 export default function UserPool({
-  account,
-  poolId,
-  tokenZero,
-  valueTokenZero,
-  tokenOne,
-  valueTokenOne,
-  min,
-  max,
-  price,
-  userLiquidity,
-  userTokenAmount,
-  feeTier,
-  tickSpacing,
-  tvlUsd,
-  volumeUsd,
-  volumeEth,
+  rangePosition,
   href,
 }) {
   const [rangePrice, setRangePrice] = useState(undefined);
   const [rangeTickPrice, setRangeTickPrice] = useState(undefined);
   const [
+    rangePositionData,
     setTokenIn,
     setTokenOut,
-    setMinTick,
-    setMaxTick,
-    setUserLiquidity,
-    setUserTokenAmount,
     setRangePoolAddress,
+    setRangePoolData,
+    setRangePositionData,
   ] = useRangeStore((state) => [
+    state.rangePositionData,
     state.setTokenIn,
     state.setTokenOut,
-    state.setMinTick,
-    state.setMaxTick,
-    state.setPrice,
-    state.setUserLiquidity,
-    state.setUserTokenAmount,
-    state.setFeeTier,
-    state.setTickSpacing,
-    state.setTvlUsd,
-    state.setVolumeUsd,
-    state.setVolumeEth,
     state.setRangePoolAddress,
     state.setRangePoolData,
+    state.setRangePositionData,
   ]);
 
   useEffect(() => {
     getRangePoolInfo();
   });
-
-  const feeTierPercentage = feeTier / 10000;
 
   useEffect(() => {
     setRangeParams();
@@ -101,32 +76,27 @@ export default function UserPool({
   }
 
   function choosePosition() {
+    setRangePositionData(rangePosition);
     const tokenInNew = {
-      callId: tokenZero.id.localeCompare(tokenOne.id) < 0 ? 0 : 1,
-      name: tokenZero.name,
-      symbol: tokenZero.symbol,
-      logoURI: logoMap[tokenZero.symbol],
-      address: tokenZero.address,
+      callId: rangePositionData.tokenZero.id.localeCompare(rangePositionData.tokenZero.id) < 0 ? 0 : 1,
+      name: rangePositionData.tokenZero.name,
+      symbol: rangePositionData.symbol,
+      logoURI: logoMap[rangePositionData.tokenZero.symbol],
+      address: rangePositionData.tokenZero.address,
     };
     const tokenOutNew = {
-      callId: tokenOne.id.localeCompare(tokenZero.id) < 0 ? 0 : 1,
-      name: tokenOne.name,
-      symbol: tokenOne.symbol,
-      logoURI: logoMap[tokenOne.symbol],
-      address: tokenOne.address,
+      callId: rangePositionData.tokenOne.id.localeCompare(rangePositionData.tokenZero.id) < 0 ? 0 : 1,
+      name: rangePositionData.tokenOne.name,
+      symbol: rangePositionData.tokenOne.symbol,
+      logoURI: logoMap[rangePositionData.tokenOne.symbol],
+      address: rangePositionData.tokenOne.address,
     };
-    const position = {
-      minTick: min,
-      maxTick: max,
-      tickSpacing: tickSpacing,
-      userTokenAmount: userTokenAmount,
-    };
-
     setTokenIn(tokenOutNew, tokenInNew);
     setTokenOut(tokenInNew, tokenOutNew);
-    setRangePositionData(position);
-    setRangePoolAddress(poolId);
+    getRangePool(tokenInNew, tokenOutNew, setRangePoolAddress, setRangePoolData);
   }
+
+  const feeTierPercentage = Number(rangePositionData.feeTier) / 10000;
 
   return (
     <>
@@ -138,17 +108,17 @@ export default function UserPool({
                 <div className="flex items-center ">
                   <img
                     className="md:w-[30px] md:h-[30px] w-[25px] h-[25px]"
-                    src={logoMap[tokenZero.symbol]}
+                    src={logoMap[rangePositionData.tokenZero.symbol]}
                   />
                   <img
                     className="md:w-[30px] md:h-[30px] w-[25px] h-[25px] ml-[-8px]"
-                    src={logoMap[tokenOne.symbol]}
+                    src={logoMap[rangePositionData.tokenOne.symbol]}
                   />
                 </div>
                 <div className="flex items-center gap-x-2 md:text-base text-sm">
-                  {tokenZero.symbol}
+                  {rangePositionData.tokenZero.symbol}
                   <div>-</div>
-                  {tokenOne.symbol}
+                  {rangePositionData.tokenOne.symbol}
                 </div>
                 <div className="bg-black px-2 py-1 rounded-lg text-grey text-sm hidden md:block">
                   {feeTierPercentage}%
@@ -157,16 +127,16 @@ export default function UserPool({
               <div className="text-[10px] sm:text-xs grid grid-cols-5 items-center gap-x-3 md:pr-5">
                 <span className="col-span-2">
                   <span className="text-grey">Min:</span>{" "}
-                  {TickMath.getPriceStringAtTick(min)} {tokenOne.symbol} per{" "}
-                  {tokenZero.symbol}
+                  {TickMath.getPriceStringAtTick(Number(rangePositionData.min))} {rangePositionData.tokenOne.symbol} per{" "}
+                  {rangePositionData.tokenZero.symbol}
                 </span>
                 <div className="flex items-center justify-center col-span-1">
                   <ArrowsRightLeftIcon className="w-3 sm:w-4 text-grey" />
                 </div>
                 <span className="col-span-2">
                   <span className="text-grey">Max:</span>{" "}
-                  {TickMath.getPriceStringAtTick(max)} {tokenOne.symbol} per{" "}
-                  {tokenZero.symbol}
+                  {TickMath.getPriceStringAtTick(Number(rangePositionData.max))} {rangePositionData.tokenOne.symbol} per{" "}
+                  {rangePositionData.tokenZero.symbol}
                 </span>
               </div>
             </div>
@@ -177,8 +147,8 @@ export default function UserPool({
 
               <div className="w-full md:mr-10">
                 {rangeTickPrice ? (
-                  Number(rangeTickPrice) < Number(min) ||
-                  Number(rangeTickPrice) >= Number(max) ? (
+                  Number(rangeTickPrice) < Number(rangePositionData.min) ||
+                  Number(rangeTickPrice) >= Number(rangePositionData.max) ? (
                     <div className="flex items-center justify-center w-full bg-black py-2 px-5 rounded-lg gap-x-2 text-xs whitespace-nowrap ">
                       <ExclamationTriangleIcon className="w-4 text-yellow-600" />
                       Out of Range
