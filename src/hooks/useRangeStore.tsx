@@ -19,7 +19,7 @@ type RangeState = {
   tokenIn: token;
   tokenInAmount: BigNumber;
   tokenInRangeUSDPrice: number;
-  tokenInRangeAllowance: string;
+  tokenInRangeAllowance: any;
   tokenInBalance: string;
   //TokenOut defines the token on the left/up on a swap page
   tokenOut: token;
