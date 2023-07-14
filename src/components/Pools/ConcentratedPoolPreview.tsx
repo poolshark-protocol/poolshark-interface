@@ -91,13 +91,13 @@ export default function ConcentratedPoolPreview({}) {
     state.setMaxInput,
   ]);
 
-
   const { address, isConnected } = useAccount();
   const router = useRouter();
 
   const provider = useProvider();
   const signer = new ethers.VoidSigner(address, provider);
 
+  const [doubleApprove, setdoubleApprove] = useState(false);
   ////////////////////////////////Token Allowances
 
   const { data: allowanceInRange } = useContractRead({
@@ -118,9 +118,11 @@ export default function ConcentratedPoolPreview({}) {
 
   useEffect(() => {
     if (allowanceInRange) {
-      setTokenInAllowance(ethers.utils.formatUnits(allowanceInRange, 18));
+      setTokenInAllowance(parseInt(allowanceInRange.toString()).toString());
     }
   }, [allowanceInRange]);
+  console.log("allowance tokenInAllowance", tokenInAllowance);
+  console.log("allowance tokenInamount", tokenInAmount);
 
   ////////////////////////////////Mint Gas Fee
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
@@ -209,7 +211,9 @@ export default function ConcentratedPoolPreview({}) {
                         </div>
                         <div className="mt-3">
                           <button className="relative cursor-default rounded-lg bg-black text-white cursor-pointer border border-grey1 py-2 pl-3 w-full text-left shadow-md focus:outline-none">
-                            <span className="block truncate">{fee}</span>
+                            <span className="block truncate">
+                              {rangePoolData.feeTier}
+                            </span>
                             <span className="block truncate text-xs text-grey mt-1">
                               Best for most pairs
                             </span>
@@ -327,8 +331,10 @@ export default function ConcentratedPoolPreview({}) {
                         </div>
                       </div>
                       <div className="mt-4">
-                        {BigNumber.from(tokenInAllowance).gte(tokenInAmount) &&
-                        BigNumber.from(tokenOutAllowance).gte(
+                        {BigNumber.from(parseInt(tokenInAllowance)).gte(
+                          tokenInAmount
+                        ) &&
+                        BigNumber.from(parseInt(tokenOutAllowance)).gte(
                           tokenOutAmount
                         ) ? (
                           <RangeMintButton
@@ -337,10 +343,10 @@ export default function ConcentratedPoolPreview({}) {
                             lower={minInput}
                             upper={maxInput}
                             disabled={
-                              BigNumber.from(tokenInAllowance).lt(
+                              BigNumber.from(parseInt(tokenInAllowance)).lt(
                                 tokenInAmount
                               ) ||
-                              BigNumber.from(tokenOutAllowance).lt(
+                              BigNumber.from(parseInt(tokenOutAllowance)).lt(
                                 tokenOutAmount
                               ) ||
                               mintGasFee === "$0.00"
@@ -350,10 +356,10 @@ export default function ConcentratedPoolPreview({}) {
                             gasLimit={mintGasLimit}
                             closeModal={() => router.push("/pool")}
                           />
-                        ) : (BigNumber.from(tokenInAllowance).lt(
+                        ) : (BigNumber.from(parseInt(tokenInAllowance)).lt(
                             tokenInAmount
                           ) &&
-                            BigNumber.from(tokenOutAllowance).lt(
+                            BigNumber.from(parseInt(tokenOutAllowance)).lt(
                               tokenOutAmount
                             )) ||
                           doubleApprove ? (
@@ -364,13 +370,15 @@ export default function ConcentratedPoolPreview({}) {
                             setAllowanceController={setdoubleApprove}
                           />
                         ) : !doubleApprove &&
-                          BigNumber.from(tokenInAllowance).lt(tokenInAmount) ? (
+                          BigNumber.from(parseInt(tokenInAllowance)).lt(
+                            tokenInAmount
+                          ) ? (
                           <RangeMintApproveButton
                             poolAddress={rangePoolAddress}
                             approveToken={tokenIn}
                           />
                         ) : !doubleApprove &&
-                          BigNumber.from(tokenOutAllowance).lt(
+                          BigNumber.from(parseInt(tokenOutAllowance)).lt(
                             tokenOutAmount
                           ) ? (
                           <RangeMintApproveButton

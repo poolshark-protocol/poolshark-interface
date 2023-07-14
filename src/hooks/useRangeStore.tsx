@@ -130,7 +130,7 @@ const initialRangeState: RangeState = {
   } as token,
   tokenInAmount: BN_ZERO,
   tokenInRangeUSDPrice: 0,
-  tokenInRangeAllowance: "0.00",
+  tokenInRangeAllowance: "0",
   tokenInBalance: "0.00",
   //
   tokenOut: {
@@ -142,7 +142,7 @@ const initialRangeState: RangeState = {
   } as token,
   tokenOutAmount: BN_ZERO,
   tokenOutRangeUSDPrice: 0,
-  tokenOutRangeAllowance: "0.00",
+  tokenOutRangeAllowance: "0",
   tokenOutBalance: "0.00",
   //
   price: 0,
@@ -169,7 +169,7 @@ const initialRangeState: RangeState = {
   gasLimit: BN_ZERO,
   //
   rangePositionData: {},
-  // 
+  //
   disabled: false,
   buttonMessage: "",
 };
