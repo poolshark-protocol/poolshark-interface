@@ -117,9 +117,6 @@ export default function ConcentratedPool({}) {
     LimitInputBox,
   } = useInputBox();
 
-  const initialBig = BigNumber.from(0);
-  const [to, setTo] = useState("");
-
   const [hasSelected, setHasSelected] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -905,7 +902,7 @@ export default function ConcentratedPool({}) {
             </div>
           </div>
         </div>
-        {/* <ConcentratedPoolPreview /> */}
+        <ConcentratedPoolPreview />
       </div>
     </div>
   );

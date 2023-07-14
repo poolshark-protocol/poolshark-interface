@@ -19,14 +19,14 @@ type RangeState = {
   tokenIn: token;
   tokenInAmount: BigNumber;
   tokenInRangeUSDPrice: number;
-  tokenInRangeAllowance: any;
+  tokenInRangeAllowance: string;
   tokenInBalance: string;
   //TokenOut defines the token on the left/up on a swap page
   tokenOut: token;
   tokenOutAmount: BigNumber;
   tokenOutRangeUSDPrice: Number;
   tokenOutBalance: string;
-  tokenOutRangeAllowance: any;
+  tokenOutRangeAllowance: string;
   //Pool price
   price: number;
   //Liquidity
