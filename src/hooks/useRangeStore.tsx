@@ -50,6 +50,8 @@ type RangeState = {
   //Gas
   gasFee: BigNumber;
   gasLimit: BigNumber;
+  //Range position data
+  rangePositionData: any;
   //Disabled
   disabled: Boolean;
   buttonMessage: string;
@@ -99,6 +101,8 @@ type RangeAction = {
   //
   setGasFee: (gasFee: BigNumber) => void;
   setGasLimit: (gasLimit: BigNumber) => void;
+  //
+  setRangePositionData: (rangePosition: any) => void;
   //
   resetRangeParams: () => void;
   //
@@ -161,6 +165,8 @@ const initialRangeState: RangeState = {
   //
   gasFee: BN_ZERO,
   gasLimit: BN_ZERO,
+  //
+  rangePositionData: {},
   // 
   disabled: false,
   buttonMessage: "",
@@ -210,6 +216,8 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   //gas
   gasFee: initialRangeState.gasFee,
   gasLimit: initialRangeState.gasLimit,
+  //range position data
+  rangePositionData: initialRangeState.rangePositionData,
   //disable
   disabled: initialRangeState.disabled,
   buttonMessage: initialRangeState.buttonMessage,
@@ -424,6 +432,11 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       gasLimit: gasLimit,
     }));
   },
+  setRangePositionData: (rangePositionData: any) => {
+    set(() => ({
+      rangePositionData: rangePositionData,
+    }));
+  },
   setDisabled: (disabled: Boolean) => {
     set(() => ({
       disabled: disabled,
@@ -482,6 +495,8 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       //gas
       gasFee: initialRangeState.gasFee,
       gasLimit: initialRangeState.gasLimit,
+      //position data
+      rangePositionData: initialRangeState.rangePositionData,
       //disable
       disabled: initialRangeState.disabled,
       buttonMessage: initialRangeState.buttonMessage,
