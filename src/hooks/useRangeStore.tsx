@@ -36,6 +36,9 @@ type RangeState = {
   //min and max ticks for selected price range
   minTick: BigNumber;
   maxTick: BigNumber;
+  //min and max price input
+  minInput: string;
+  maxInput: string;
   //fee tier & tick spacing
   feeTier: string;
   tickSpacing: string;
@@ -47,6 +50,9 @@ type RangeState = {
   //Gas
   gasFee: BigNumber;
   gasLimit: BigNumber;
+  //Disabled
+  disabled: Boolean;
+  buttonMessage: string;
 };
 
 type RangeAction = {
@@ -80,6 +86,9 @@ type RangeAction = {
   setMinTick: (newMinTick: BigNumber) => void;
   setMaxTick: (newMaxTick: BigNumber) => void;
   //
+  setMinInput: (newMinTick: string) => void;
+  setMaxInput: (newMaxTick: string) => void;
+  //
   setFeeTier: (newFeeTier: string) => void;
   setTickSpacing: (newTickSpacing: string) => void;
   //
@@ -92,6 +101,9 @@ type RangeAction = {
   setGasLimit: (gasLimit: BigNumber) => void;
   //
   resetRangeParams: () => void;
+  //
+  setDisabled: (disabled: Boolean) => void;
+  setButtonMessage: (balance: string) => void;
 };
 
 const initialRangeState: RangeState = {
@@ -136,6 +148,9 @@ const initialRangeState: RangeState = {
   minTick: BN_ZERO,
   maxTick: BN_ZERO,
   //
+  minInput: "",
+  maxInput: "",
+  //
   feeTier: "0",
   tickSpacing: "0",
   //
@@ -146,6 +161,9 @@ const initialRangeState: RangeState = {
   //
   gasFee: BN_ZERO,
   gasLimit: BN_ZERO,
+  // 
+  disabled: false,
+  buttonMessage: "",
 };
 
 export const useRangeStore = create<RangeState & RangeAction>((set) => ({
@@ -178,6 +196,9 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   //ticks
   minTick: initialRangeState.minTick,
   maxTick: initialRangeState.maxTick,
+  //ticks
+  minInput: initialRangeState.minInput,
+  maxInput: initialRangeState.maxInput,
   //fee tier
   feeTier: initialRangeState.feeTier,
   tickSpacing: initialRangeState.tickSpacing,
@@ -189,6 +210,9 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   //gas
   gasFee: initialRangeState.gasFee,
   gasLimit: initialRangeState.gasLimit,
+  //disable
+  disabled: initialRangeState.disabled,
+  buttonMessage: initialRangeState.buttonMessage,
   //actions
   setPairSelected: (pairSelected: Boolean) => {
     set(() => ({
@@ -340,6 +364,16 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       maxTick: newMaxTick,
     }));
   },
+  setMinInput: (minInput: string) => {
+    set(() => ({
+      minInput: minInput,
+    }));
+  },
+  setMaxInput: (maxInput: string) => {
+    set(() => ({
+      maxInput: maxInput,
+    }));
+  },
   setFeeTier: (newFeeTier: string) => {
     set(() => ({
       feeTier: newFeeTier,
@@ -390,6 +424,16 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       gasLimit: gasLimit,
     }));
   },
+  setDisabled: (disabled: Boolean) => {
+    set(() => ({
+      disabled: disabled,
+    }));
+  },
+  setButtonMessage: (buttonMessage: string) => {
+    set(() => ({
+      buttonMessage: buttonMessage,
+    }));
+  },
   switchDirection: () => {
     set((state) => ({
       tokenIn: state.tokenOut,
@@ -424,6 +468,9 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       //ticks
       minTick: initialRangeState.minTick,
       maxTick: initialRangeState.maxTick,
+      //ticks
+      minInput: initialRangeState.minInput,
+      maxInput: initialRangeState.maxInput,
       //fee tier
       feeTier: initialRangeState.feeTier,
       tickSpacing: initialRangeState.tickSpacing,
@@ -435,6 +482,9 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       //gas
       gasFee: initialRangeState.gasFee,
       gasLimit: initialRangeState.gasLimit,
+      //disable
+      disabled: initialRangeState.disabled,
+      buttonMessage: initialRangeState.buttonMessage,
     });
   },
 }));

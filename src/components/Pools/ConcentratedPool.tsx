@@ -57,6 +57,14 @@ export default function ConcentratedPool({}) {
     setMinTick,
     maxTick,
     setMaxTick,
+    disabled,
+    setDisabled,
+    buttonMessage,
+    setButtonMessage,
+    minInput,
+    maxInput,
+    setMinInput,
+    setMaxInput
   ] = useRangeStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
@@ -87,6 +95,14 @@ export default function ConcentratedPool({}) {
     state.setMinTick,
     state.maxTick,
     state.setMaxTick,
+    state.disabled,
+    state.setDisabled,
+    state.buttonMessage,
+    state.setButtonMessage,
+    state.minInput,
+    state.maxInput,
+    state.setMinInput,
+    state.setMaxInput,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -105,9 +121,7 @@ export default function ConcentratedPool({}) {
   const [to, setTo] = useState("");
 
   const [hasSelected, setHasSelected] = useState(true);
-  const [isDisabled, setDisabled] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
-
 
   ////////////////////////////////Pools
 
@@ -275,10 +289,6 @@ export default function ConcentratedPool({}) {
   const [lowerPrice, setLowerPrice] = useState("");
   const [upperPrice, setUpperPrice] = useState("");
 
-  //showcasing price in html
-  const [minInput, setMinInput] = useState("");
-  const [maxInput, setMaxInput] = useState("");
-
   useEffect(() => {
     setMinInput(
       lowerPrice.toString().includes("e")
@@ -432,26 +442,23 @@ export default function ConcentratedPool({}) {
     }
   };
 
-  ////////////////////////////////Button State
-  const [buttonState, setButtonState] = useState("");
-
   // disabled messages
   useEffect(() => {
     if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
-      setButtonState("price");
+      setButtonMessage("price");
     }
     if (bnInput.eq(BN_ZERO)) {
-      setButtonState("amount");
+      setButtonMessage("amount");
     }
     if (
       Number(ethers.utils.formatUnits(tokenInAmount)) > Number(tokenInBalance)
     ) {
-      setButtonState("tokenInBalance");
+      setButtonMessage("tokenInBalance");
     }
     if (
       Number(ethers.utils.formatUnits(tokenOutAmount)) > Number(tokenOutBalance)
     ) {
-      setButtonState("tokenOutBalance");
+      setButtonMessage("tokenOutBalance");
     }
     if (
       Number(ethers.utils.formatUnits(bnInput)) === 0 ||

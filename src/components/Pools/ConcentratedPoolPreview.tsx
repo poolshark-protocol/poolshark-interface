@@ -10,9 +10,9 @@ import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
 import { gasEstimateRangeMint, gasEstimateSwapLimit } from "../../utils/gas";
 import RangeMintApproveButton from "../Buttons/RangeMintApproveButton";
 import { useRangeStore } from "../../hooks/useRangeStore";
+import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 
 export default function ConcentratedPoolPreview({}) {
-
   const [
     rangePoolAddress,
     rangePoolData,
@@ -43,6 +43,14 @@ export default function ConcentratedPoolPreview({}) {
     setMinTick,
     maxTick,
     setMaxTick,
+    disabled,
+    setDisabled,
+    buttonMessage,
+    setButtonMessage,
+    minInput,
+    maxInput,
+    setMinInput,
+    setMaxInput
   ] = useRangeStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
@@ -73,18 +81,24 @@ export default function ConcentratedPoolPreview({}) {
     state.setMinTick,
     state.maxTick,
     state.setMaxTick,
+    state.disabled,
+    state.setDisabled,
+    state.buttonMessage,
+    state.setButtonMessage,
+    state.minInput,
+    state.maxInput,
+    state.setMinInput,
+    state.setMaxInput,
   ]);
 
   const rangePoolRoute = rangePoolAddress as `0x${string}`
 
   const { address, isConnected } = useAccount();
   const router = useRouter();
-  const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0;
-  const minPrice = TickMath.getPriceStringAtTick(minTick);
-  const maxPrice = TickMath.getPriceStringAtTick(maxTick);
+
+
   const provider = useProvider();
   const signer = new ethers.VoidSigner(address, provider);
-
   const [isOpen, setIsOpen] = useState(false);
   const [doubleApprove, setdoubleApprove] = useState(false);
   const [fee, setFee] = useState(rangePoolData.feeTier.feeAmount);
@@ -120,6 +134,34 @@ export default function ConcentratedPoolPreview({}) {
       console.log("Error", error);
     },
   });
+
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
+  const [mintGasFee, setMintGasFee] = useState("$0.00");
+
+  useEffect(() => {
+    updateGasFee();
+  }, [minTick, maxTick, tokenInAmount, tokenOutAmount]);
+
+  async function updateGasFee() {
+    if (
+      (tokenInAmount.gt(BN_ZERO) || tokenOutAmount.gt(BN_ZERO)) &&
+      tokenOutAllowance.gte(tokenOutAmount) &&
+      tokenInAllowance.gte(tokenInAmount)
+    ) {
+      const newGasFee = await gasEstimateRangeMint(
+        rangePoolAddress,
+        address,
+        minTick,
+        maxTick,
+        tokenInAmount,
+        tokenOutAmount,
+        signer
+      );
+
+      setMintGasFee(newGasFee.formattedPrice);
+      setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
+    }
+  }
 
   function closeModal() {
     setIsOpen(false);
@@ -284,7 +326,7 @@ export default function ConcentratedPoolPreview({}) {
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {minPrice}
+                                {minInput}
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">
@@ -297,7 +339,7 @@ export default function ConcentratedPoolPreview({}) {
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {maxPrice}
+                                {maxInput}
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">
@@ -311,16 +353,16 @@ export default function ConcentratedPoolPreview({}) {
                           <RangeMintButton
                             to={address}
                             poolAddress={rangePoolAddress}
-                            lower={minPrice}
-                            upper={maxPrice}
+                            lower={minInput}
+                            upper={maxInput}
                             disabled={
                               tokenInAllowance.lt(tokenInAmount) ||
                               tokenOutAllowance.lt(tokenOutAmount) ||
-                              gasFee._hex === "0x00"
+                              mintGasFee === "$0.00"
                             }
                             amount0={tokenInAmount}
                             amount1={tokenOutAmount}
-                            gasLimit={gasLimit}
+                            gasLimit={mintGasLimit}
                             closeModal={() => router.push("/pool")}
                           />
                         ) : (tokenInAllowance.lt(tokenInAmount) &&
@@ -354,19 +396,18 @@ export default function ConcentratedPoolPreview({}) {
       </Transition>
       <button
         onClick={() => setIsOpen(true)}
-        disabled={disabled}
-        className="mt-8 w-full py-4 disabled:opacity-50 disabled:cursor-not-allowed mx-auto font-medium text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        className={`mt-8 w-full py-4 mx-auto font-medium text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80 ${disabled && "disabled:opacity-50 disabled:cursor-not-allowed"}`}
       >
         {disabled ? (
           <>
-            {buttonState === "price" ? (
+            {buttonMessage === "price" ? (
               <>Min. is greater than Max. Price</>
             ) : (
               <></>
             )}
-            {buttonState === "amount" ? <>Input Deposit Amount</> : <></>}
-            {/* {buttonState === 'balance0' ? <>Insufficient {tokenZeroSymbol}  Balance</> : <></>}
-            {buttonState === 'balance1' ? <>Insufficient {tokenOneSymbol} Balance</> : <></>} */}
+            {buttonMessage === "amount" ? <>Input Deposit Amount</> : <></>}
+            {buttonMessage === 'balance0' ? <>Insufficient {tokenIn.symbol}  Balance</> : <></>}
+            {buttonMessage === 'balance1' ? <>Insufficient {tokenOut.symbol} Balance</> : <></>}
           </>
         ) : (
           <>Preview</>
