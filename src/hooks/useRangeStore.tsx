@@ -17,13 +17,13 @@ type RangeState = {
   pairSelected: Boolean;
   //TokenIn defines the token on the left/up on a swap page
   tokenIn: token;
-  valueTokenIn: string;
+  tokenInAmount: BigNumber;
   tokenInRangeUSDPrice: number;
   tokenInRangeAllowance: string;
   tokenInBalance: string;
   //TokenOut defines the token on the left/up on a swap page
   tokenOut: token;
-  valueTokenOut: string;
+  tokenOutAmount: BigNumber;
   tokenOutRangeUSDPrice: Number;
   tokenOutBalance: string;
   tokenOutRangeAllowance: any;
@@ -34,8 +34,8 @@ type RangeState = {
   //Token amount
   userTokenAmount: string;
   //min and max ticks for selected price range
-  minTick: number;
-  maxTick: number;
+  minTick: BigNumber;
+  maxTick: BigNumber;
   //fee tier & tick spacing
   feeTier: string;
   tickSpacing: string;
@@ -58,13 +58,15 @@ type RangeAction = {
   setPairSelected: (pairSelected: Boolean) => void;
   //
   setTokenIn: (tokenOut: any, newToken: any) => void;
-  setValueTokenIn: (value: string) => void;
+  setTokenInAmount: (amount: BigNumber) => void;
+  //setValueTokenIn: (value: string) => void;
   setTokenInRangeUSDPrice: (price: number) => void;
   setTokenInRangeAllowance: (allowance: string) => void;
   setTokenInBalance: (balance: string) => void;
   //
   setTokenOut: (tokenOut: any, newToken: any) => void;
-  setValueTokenOut: (value: string) => void;
+  setTokenOutAmount: (amount: BigNumber) => void;
+  //setValueTokenOut: (value: string) => void;
   setTokenOutRangeUSDPrice: (price: number) => void;
   setTokenOutRangeAllowance: (allowance: string) => void;
   setTokenOutBalance: (balance: string) => void;
@@ -75,8 +77,8 @@ type RangeAction = {
   //
   setUserTokenAmount: (amount: string) => void;
   //
-  setMinTick: (newMinTick: number) => void;
-  setMaxTick: (newMaxTick: number) => void;
+  setMinTick: (newMinTick: BigNumber) => void;
+  setMaxTick: (newMaxTick: BigNumber) => void;
   //
   setFeeTier: (newFeeTier: string) => void;
   setTickSpacing: (newTickSpacing: string) => void;
@@ -108,7 +110,8 @@ const initialRangeState: RangeState = {
     logoURI: "/static/images/eth_icon.png",
     address: tokenOneAddress,
   } as token,
-  valueTokenIn: "0.00",
+  //valueTokenIn: "0.00",
+  tokenInAmount: BN_ZERO,
   tokenInRangeUSDPrice: 0,
   tokenInRangeAllowance: "0.00",
   tokenInBalance: "0.00",
@@ -120,7 +123,8 @@ const initialRangeState: RangeState = {
     logoURI: "",
     address: tokenZeroAddress,
   } as token,
-  valueTokenOut: "0.00",
+  //valueTokenOut: "0.00",
+  tokenOutAmount: BN_ZERO,
   tokenOutRangeUSDPrice: 0,
   tokenOutRangeAllowance: "0.00",
   tokenOutBalance: "0.00",
@@ -131,8 +135,8 @@ const initialRangeState: RangeState = {
   //
   userTokenAmount: "0.00",
   //
-  minTick: 0,
-  maxTick: 0,
+  minTick: BN_ZERO,
+  maxTick: BN_ZERO,
   //
   feeTier: "0",
   tickSpacing: "0",
@@ -155,13 +159,15 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   pairSelected: initialRangeState.pairSelected,
   //tokenIn
   tokenIn: initialRangeState.tokenIn,
-  valueTokenIn: initialRangeState.valueTokenIn,
+  tokenInAmount: initialRangeState.tokenInAmount,
+  //valueTokenIn: initialRangeState.valueTokenIn,
   tokenInRangeUSDPrice: initialRangeState.tokenInRangeUSDPrice,
   tokenInRangeAllowance: initialRangeState.tokenInRangeAllowance,
   tokenInBalance: initialRangeState.tokenInBalance,
   //tokenOut
   tokenOut: initialRangeState.tokenOut,
-  valueTokenOut: initialRangeState.valueTokenOut,
+  tokenOutAmount: initialRangeState.tokenOutAmount,
+  //valueTokenOut: initialRangeState.valueTokenOut,
   tokenOutRangeUSDPrice: initialRangeState.tokenOutRangeUSDPrice,
   tokenOutBalance: initialRangeState.tokenOutBalance,
   tokenOutRangeAllowance: initialRangeState.tokenOutRangeAllowance,
@@ -212,7 +218,8 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
         //if tokens are different
         set(() => ({
           tokenIn: {
-            callId: newToken.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
+            callId:
+              newToken.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
             ...newToken,
           },
           pairSelected: true,
@@ -229,11 +236,16 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       }));
     }
   },
-  setValueTokenIn: (newValue: string) => {
+  setTokenInAmount: (newAmount: BigNumber) => {
+    set(() => ({
+      tokenInAmount: newAmount,
+    }));
+  },
+  /* setValueTokenIn: (newValue: string) => {
     set(() => ({
       valueTokenIn: newValue,
     }));
-  },
+  }, */
   setTokenInRangeUSDPrice: (newPrice: number) => {
     set(() => ({
       tokenInRangeUSDPrice: newPrice,
@@ -285,11 +297,16 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       }));
     }
   },
-  setValueTokenOut: (newValue: string) => {
+  setTokenOutAmount: (newAmount: BigNumber) => {
+    set(() => ({
+      tokenOutAmount: newAmount,
+    }));
+  },
+  /* setValueTokenOut: (newValue: string) => {
     set(() => ({
       valueTokenOut: newValue,
     }));
-  },
+  }, */
   setTokenOutBalance: (newBalance: string) => {
     set(() => ({
       tokenOutBalance: newBalance,
@@ -315,12 +332,12 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       userTokenAmount: newAmount,
     }));
   },
-  setMinTick: (newMinTick: number) => {
+  setMinTick: (newMinTick: BigNumber) => {
     set(() => ({
       minTick: newMinTick,
     }));
   },
-  setMaxTick: (newMaxTick: number) => {
+  setMaxTick: (newMaxTick: BigNumber) => {
     set(() => ({
       maxTick: newMaxTick,
     }));
@@ -390,13 +407,13 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       pairSelected: initialRangeState.pairSelected,
       //tokenIn
       tokenIn: initialRangeState.tokenIn,
-      valueTokenIn: initialRangeState.valueTokenIn,
+      //valueTokenIn: initialRangeState.valueTokenIn,
       tokenInRangeUSDPrice: initialRangeState.tokenInRangeUSDPrice,
       tokenInRangeAllowance: initialRangeState.tokenInRangeAllowance,
       tokenInBalance: initialRangeState.tokenInBalance,
       //tokenOut
       tokenOut: initialRangeState.tokenOut,
-      valueTokenOut: initialRangeState.valueTokenOut,
+      //valueTokenOut: initialRangeState.valueTokenOut,
       tokenOutRangeUSDPrice: initialRangeState.tokenOutRangeUSDPrice,
       tokenOutBalance: initialRangeState.tokenOutBalance,
       tokenOutRangeAllowance: initialRangeState.tokenOutRangeAllowance,

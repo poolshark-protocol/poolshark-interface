@@ -33,44 +33,60 @@ export default function ConcentratedPool({}) {
     setRangePoolAddress,
     setRangePoolData,
     tokenIn,
+    tokenInAmount,
     tokenInRangeUSDPrice,
     tokenInBalance,
     tokenInAllowance,
     setTokenIn,
+    setTokenInAmount,
     setTokenInRangeUSDPrice,
     setTokenInBalance,
     setTokenInAllowance,
     tokenOut,
+    tokenOutAmount,
     tokenOutRangeUSDPrice,
     tokenOutBalance,
     tokenOutAllowance,
     setTokenOut,
+    setTokenOutAmount,
     setTokenOutRangeUSDPrice,
     setTokenOutBalance,
     setTokenOutAllowance,
     pairSelected,
+    minTick,
+    setMinTick,
+    maxTick,
+    setMaxTick,
   ] = useRangeStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
     state.setRangePoolAddress,
     state.setRangePoolData,
     state.tokenIn,
+    state.tokenInAmount,
     state.tokenInRangeUSDPrice,
     state.tokenInBalance,
     state.tokenInRangeAllowance,
     state.setTokenIn,
+    state.setTokenInAmount,
     state.setTokenInRangeUSDPrice,
     state.setTokenInBalance,
     state.setTokenInRangeAllowance,
     state.tokenOut,
+    state.tokenOutAmount,
     state.tokenOutRangeUSDPrice,
     state.tokenOutBalance,
     state.tokenOutRangeAllowance,
     state.setTokenOut,
+    state.setTokenOutAmount,
     state.setTokenOutRangeUSDPrice,
     state.setTokenOutBalance,
     state.setTokenOutRangeAllowance,
     state.pairSelected,
+    state.minTick,
+    state.setMinTick,
+    state.maxTick,
+    state.setMaxTick,
   ]);
 
   const { address, isConnected, isDisconnected } = useAccount();
@@ -121,11 +137,11 @@ export default function ConcentratedPool({}) {
       setRangeSqrtPrice(price);
       if (isNaN(parseFloat(lowerPrice)) || parseFloat(lowerPrice) <= 0) {
         setLowerPrice(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
-        setLowerTick(BigNumber.from(tickAtPrice - 7000));
+        setMinTick(BigNumber.from(tickAtPrice - 7000));
       }
       if (isNaN(parseFloat(upperPrice)) || parseFloat(upperPrice) <= 0) {
         setUpperPrice(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
-        setUpperTick(BigNumber.from(tickAtPrice - -7000));
+        setMaxTick(BigNumber.from(tickAtPrice - -7000));
       }
       //here we should update the tick spacing only
       setRangeTickPrice(tickAtPrice);
@@ -256,17 +272,14 @@ export default function ConcentratedPool({}) {
   const [rangePrice, setRangePrice] = useState(undefined);
   const [rangeTickPrice, setRangeTickPrice] = useState(undefined);
   const [rangeSqrtPrice, setRangeSqrtPrice] = useState(undefined);
+  
+  //Prices for calculations
+  const [lowerPrice, setLowerPrice] = useState("");
+  const [upperPrice, setUpperPrice] = useState("");
 
-  const [amountIn, setAmountIn] = useState(initialBig);
-  const [amountOut, setAmountOut] = useState(initialBig);
-
+  //showcasing price in html
   const [minInput, setMinInput] = useState("");
   const [maxInput, setMaxInput] = useState("");
-
-  const [lowerPrice, setLowerPrice] = useState("");
-  const [lowerTick, setLowerTick] = useState(initialBig);
-  const [upperPrice, setUpperPrice] = useState("");
-  const [upperTick, setUpperTick] = useState(initialBig);
 
   useEffect(() => {
     setMinInput(
@@ -282,9 +295,12 @@ export default function ConcentratedPool({}) {
     );
     if (!isNaN(parseFloat(lowerPrice))) {
       //console.log('setting lower tick')
-      setLowerTick(
+      setMinTick(
         BigNumber.from(
-          TickMath.getTickAtPriceString(lowerPrice, rangePoolData.tickSpacing)
+          TickMath.getTickAtPriceString(
+            lowerPrice,
+            rangePoolData.feeTier.tickSpacing
+          )
         )
       );
     }
@@ -304,19 +320,22 @@ export default function ConcentratedPool({}) {
     );
     if (!isNaN(parseFloat(upperPrice))) {
       //console.log('setting upper tick')
-      setUpperTick(
+      setMaxTick(
         BigNumber.from(
-          TickMath.getTickAtPriceString(upperPrice, rangePoolData.tickSpacing)
+          TickMath.getTickAtPriceString(
+            upperPrice,
+            rangePoolData.feeTier.tickSpacing
+          )
         )
       );
     }
   }, [upperPrice]);
 
   useEffect(() => {
-    setTokenOutAmount();
+    tokenOutAmountMath();
   }, [bnInput]);
 
-  function setTokenOutAmount() {
+  function tokenOutAmountMath() {
     try {
       const lower = TickMath.getTickAtPriceString(
         lowerPrice,
@@ -350,7 +369,7 @@ export default function ConcentratedPool({}) {
           ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
           : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
         : ZERO;
-      setAmountOut(BigNumber.from(String(tokenOutAmount)));
+      setTokenOutAmount(BigNumber.from(String(tokenOutAmount)));
     } catch (error) {
       console.log(error);
     }
@@ -362,7 +381,7 @@ export default function ConcentratedPool({}) {
 
   useEffect(() => {
     updateGasFee();
-  }, [lowerTick, upperTick, amountIn, amountOut]);
+  }, [minTick, maxTick, tokenInAmount, amountOut]);
 
   async function updateGasFee() {
     if (
@@ -373,9 +392,9 @@ export default function ConcentratedPool({}) {
       const newGasFee = await gasEstimateRangeMint(
         rangePoolAddress,
         address,
-        lowerTick,
-        upperTick,
-        amountIn,
+        minTick,
+        maxTick,
+        tokenInAmount,
         amountOut,
         signer
       );
@@ -392,8 +411,8 @@ export default function ConcentratedPool({}) {
     const currentTick =
       inputId == "minInput" || inputId == "maxInput"
         ? inputId == "minInput"
-          ? Number(lowerTick)
-          : Number(upperTick)
+          ? Number(minTick)
+          : Number(maxTick)
         : rangeTickPrice;
     if (!currentTick) return;
     const increment = rangePoolData.feeTier.tickSpacing;
@@ -426,17 +445,22 @@ export default function ConcentratedPool({}) {
     if (bnInput.eq(BN_ZERO)) {
       setButtonState("amount");
     }
-    if (Number(ethers.utils.formatUnits(amountIn)) > Number(tokenInBalance)) {
+    if (
+      Number(ethers.utils.formatUnits(tokenInAmount)) > Number(tokenInBalance)
+    ) {
       setButtonState("tokenInBalance");
     }
-    if (Number(ethers.utils.formatUnits(amountOut)) > Number(tokenOutBalance)) {
+    if (
+      Number(ethers.utils.formatUnits(tokenOutAmount)) > Number(tokenOutBalance)
+    ) {
       setButtonState("tokenOutBalance");
     }
     if (
       Number(ethers.utils.formatUnits(bnInput)) === 0 ||
       parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
-      Number(ethers.utils.formatUnits(amountIn)) > Number(tokenInBalance) ||
-      Number(ethers.utils.formatUnits(amountOut)) > Number(tokenOutBalance)
+      Number(ethers.utils.formatUnits(tokenInAmount)) >
+        Number(tokenInBalance) ||
+      Number(ethers.utils.formatUnits(tokenOutAmount)) > Number(tokenOutBalance)
     ) {
       //console.log('disabled true')
       setDisabled(true);
@@ -448,8 +472,8 @@ export default function ConcentratedPool({}) {
     bnInput,
     lowerPrice,
     upperPrice,
-    amountIn,
-    amountOut,
+    tokenInAmount,
+    tokenOutAmount,
     tokenInBalance,
     tokenOutBalance,
   ]);
@@ -525,7 +549,7 @@ export default function ConcentratedPool({}) {
               <div
                 onClick={() => {
                   if (hasSelected) {
-                    const newInput = amountIn;
+                    const newInput = tokenInAmount;
                     //switch direction
                     setBnInput(newInput);
                     setDisplay(
@@ -636,7 +660,7 @@ export default function ConcentratedPool({}) {
               <div className=" p-2 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl  rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
                 {Number(
                   parseFloat(
-                    ethers.utils.formatUnits(amountOut, 18)
+                    ethers.utils.formatUnits(tokenOutAmount, 18)
                   ).toPrecision(5)
                 )}
                 {
@@ -644,7 +668,7 @@ export default function ConcentratedPool({}) {
                     ~$
                     {(
                       Number(tokenOutRangeUSDPrice) *
-                      Number(ethers.utils.formatUnits(amountOut, 18))
+                      Number(ethers.utils.formatUnits(tokenOutAmount, 18))
                     ).toFixed(2)}
                   </div>
                 }
@@ -706,10 +730,10 @@ export default function ConcentratedPool({}) {
             <button
               className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md whitespace-nowrap"
               onClick={() => {
-                setLowerTick(
+                setMinTick(
                   BigNumber.from(roundTick(-887272, rangePoolData.tickSpacing))
                 );
-                setUpperTick(
+                setMaxTick(
                   BigNumber.from(roundTick(887272, rangePoolData.tickSpacing))
                 );
                 setLowerPrice(
