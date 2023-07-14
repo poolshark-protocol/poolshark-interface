@@ -5,7 +5,6 @@ import {
 import { useEffect, useState } from "react";
 import { TickMath } from "../../utils/math/tickMath";
 import { logoMap } from "../../utils/tokens";
-import { getRangePool } from "../../utils/pools";
 import { useRangeStore } from "../../hooks/useRangeStore";
 import {
   tokenOneAddress,
@@ -13,6 +12,7 @@ import {
 } from "../../constants/contractAddresses";
 import { getRangePoolFromFactory } from "../../utils/queries";
 import { ethers } from "ethers";
+import Link from "next/link";
 
 export default function UserPool({
   account,
@@ -28,19 +28,45 @@ export default function UserPool({
   userTokenAmount,
   feeTier,
   tickSpacing,
-  href,
   tvlUsd,
   volumeUsd,
   volumeEth,
+  href
 }) {
   const [rangePrice, setRangePrice] = useState(undefined);
   const [rangeTickPrice, setRangeTickPrice] = useState(undefined);
-  const feeTierPercentage = feeTier / 10000;
-
-  const [setTokenIn, setTokenOut, setRangePoolAddress, setRangePoolData] =
+  const [
+    setTokenIn,
+    setValueTokenIn,
+    setTokenOut,
+    setValueTokenOut,
+    setMinTick,
+    setMaxTick,
+    setPrice,
+    setUserLiquidity,
+    setUserTokenAmount,
+    setFeeTier,
+    setTickSpacing,
+    setTvlUsd,
+    setVolumeUsd,
+    setVolumeEth,
+    setRangePoolAddress
+  ] =
     useRangeStore((state) => [
       state.setTokenIn,
+      state.setValueTokenIn,
       state.setTokenOut,
+      state.setValueTokenOut,
+      state.setMinTick,
+      state.setMaxTick,
+      state.setPrice,
+      state.setUserLiquidity,
+      state.setUserTokenAmount,
+      state.setFeeTier,
+      state.setTickSpacing,
+      state.setTvlUsd,
+      state.setVolumeUsd,
+      state.setVolumeEth,
       state.setRangePoolAddress,
       state.setRangePoolData,
     ]);
@@ -48,6 +74,8 @@ export default function UserPool({
   useEffect(() => {
     getRangePoolInfo();
   });
+
+  const feeTierPercentage = feeTier / 10000;
 
   useEffect(() => {
     setRangeParams();
@@ -84,53 +112,42 @@ export default function UserPool({
   }
 
   function choosePosition() {
-    const tokenIn = {
+    const tokenInNew = {
+      callId: tokenZero.id.localeCompare(tokenOne.id) < 0 ? 0 : 1,
       name: tokenZero.name,
       symbol: tokenZero.symbol,
       logoURI: logoMap[tokenZero.symbol],
-      address: tokenZero.id,
+      address: tokenZero.address,
     };
-    const tokenOut = {
+    const tokenOutNew = {
+      callId: tokenOne.id.localeCompare(tokenZero.id) < 0 ? 0 : 1,
       name: tokenOne.name,
       symbol: tokenOne.symbol,
       logoURI: logoMap[tokenOne.symbol],
-      address: tokenOne.id,
+      address: tokenOne.address,
     };
-    getRangePool(tokenZero, tokenOne, setRangePoolAddress, setRangePoolData);
-    setTokenIn(tokenOut, tokenIn);
-    setTokenOut(tokenIn, tokenOut);
+    setTokenIn(tokenOutNew, tokenInNew);
+    setTokenOut(tokenInNew, tokenOutNew);
+    setMinTick(Number(min));
+    setMaxTick(Number(max));
+    setFeeTier(feeTier);
+    setPrice(price);
+    setValueTokenIn(valueTokenZero);
+    setValueTokenOut(valueTokenOne);
+    setUserLiquidity(userLiquidity);
+    setUserTokenAmount(userTokenAmount);
+    setTickSpacing(tickSpacing);
+    setTvlUsd(tvlUsd);
+    setVolumeUsd(volumeUsd);
+    setVolumeEth(volumeEth);
+    setRangePoolAddress(poolId);
   }
 
   return (
     <>
-      {/* <Link
-        href={{
-          pathname: href,
-          query: {
-            account: account,
-            poolId: poolId,
-            tokenZeroName: tokenZero.name,
-            tokenZeroSymbol: tokenZero.symbol,
-            tokenZeroLogoURI: logoMap[tokenZero.symbol],
-            tokenZeroAddress: tokenZero.id,
-            tokenZeroValue: valueTokenZero,
-            tokenOneName: tokenOne.name,
-            tokenOneSymbol: tokenOne.symbol,
-            tokenOneLogoURI: logoMap[tokenOne.symbol],
-            tokenOneAddress: tokenOne.id,
-            tokenOneValue: valueTokenOne,
-            rangePoolRoute: rangePoolRoute,
-            rangeTickPrice: rangeTickPrice ? rangeTickPrice : 0,
-            min: min,
-            max: max,
-            price: price,
-            feeTier: feeTierPercentage,
-            tickSpacing: tickSpacing,
-            userLiquidity: userLiquidity,
-            userTokenAmount: userTokenAmount,
-          },
-        }}
-      > */}
+      <Link
+        href={href}
+      >
       <div onClick={choosePosition}>
         <div className="w-full cursor-pointer grid grid-cols-5 md:grid-cols-7 items-center w-full bg-dark border border-grey2 rounded-xl py-3.5 sm:pl-5 pl-3 md:pr-0 md:pr-5 pr-3 min-h-24 relative">
           <div className="space-y-3 col-span-5">
@@ -196,6 +213,7 @@ export default function UserPool({
           </div>
         </div>
       </div>
+      </Link>
     </>
   );
 }

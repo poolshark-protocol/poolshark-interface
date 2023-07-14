@@ -24,10 +24,118 @@ import { rangePoolABI } from '../../../abis/evm/rangePool'
 import { useContractRead } from 'wagmi'
 import RemoveLiquidity from '../../../components/Modals/Range/RemoveLiquidity'
 import AddLiquidity from '../../../components/Modals/Range/AddLiquidity'
+import { useRangeStore } from '../../../hooks/useRangeStore'
 
 export default function Range() {
+  const [
+    poolAdd,
+    rangePoolData,
+    rangeSlippage,
+    pairSelected,
+    token0,
+    valueTokenIn,
+    tokenInRangeUSDPrice,
+    tokenInRangeAllowance,
+    tokenInBalance,
+    token1,
+    valueTokenOut,
+    tokenOutRangeUSDPrice,
+    tokenOutBalance,
+    tokenOutRangeAllowance,
+    price,
+    userLiquidity,
+    userTokenAmount,
+    lowerTick,
+    upperTick,
+    feeTier,
+    tickSpacing,
+    tvlUsd,
+    volumeUsd,
+    volumeEth,
+    gasFee,
+    gasLimit,
+    setPoolAdd,
+    setRangePoolData,
+    setRangeSlippage,
+    setPairSelected,
+    setToken0,
+    setValueTokenIn,
+    setTokenInRangeUSDPrice,
+    setTokenInRangeAllowance,
+    setTokenInBalance,
+    setToken1,
+    setValueTokenOut,
+    setTokenOutRangeUSDPrice,
+    setTokenOutBalance,
+    setTokenOutRangeAllowance,
+    setPrice,
+    setUserLiquidity,
+    setUserTokenAmount,
+    setMinTick,
+    setMaxTick,
+    setFeeTier,
+    setTickSpacing,
+    setTvlUsd,
+    setVolumeUsd,
+    setVolumeEth,
+    setGasFee,
+    setGasLimit
+  ] = useRangeStore((state) => [
+    state.rangePoolAddress,
+    state.rangePoolData,
+    state.rangeSlippage,
+    state.pairSelected,
+    state.tokenIn,
+    state.valueTokenIn,
+    state.tokenInRangeUSDPrice,
+    state.tokenInRangeAllowance,
+    state.tokenInBalance,
+    state.tokenOut,
+    state.valueTokenOut,
+    state.tokenOutRangeUSDPrice,
+    state.tokenOutBalance,
+    state.tokenOutRangeAllowance,
+    state.price,
+    state.userLiquidity,
+    state.userTokenAmount,
+    state.minTick,
+    state.maxTick,
+    state.feeTier,
+    state.tickSpacing,
+    state.tvlUsd,
+    state.volumeUsd,
+    state.volumeEth,
+    state.gasFee,
+    state.gasLimit,
+    state.setRangePoolAddress,
+    state.setRangePoolData,
+    state.setRangeSlippage,
+    state.setPairSelected,
+    state.setTokenIn,
+    state.setValueTokenIn,
+    state.setTokenInRangeUSDPrice,
+    state.setTokenInRangeAllowance,
+    state.setTokenInBalance,
+    state.setTokenOut,
+    state.setValueTokenOut,
+    state.setTokenOutRangeUSDPrice,
+    state.setTokenOutBalance,
+    state.setTokenOutRangeAllowance,
+    state.setPrice,
+    state.setUserLiquidity,
+    state.setUserTokenAmount,
+    state.setMinTick,
+    state.setMaxTick,
+    state.setFeeTier,
+    state.setTickSpacing,
+    state.setTvlUsd,
+    state.setVolumeUsd,
+    state.setVolumeEth,
+    state.setGasFee,
+    state.setGasLimit
+  ])
+
   const { address, isConnected } = useAccount()
-  const router = useRouter()
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
   const [priceDirection, setPriceDirection] = useState(false);
@@ -94,7 +202,7 @@ export default function Range() {
   const [upperInverse, setUpperInverse] = useState(0);
   const [priceInverse, setPriceInverse] = useState(0);
   const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-    token0.address != ''
+    token0.address.toString() != ''
       ? token0.address.toString().substring(0, 6) +
           '...' +
           token0.address
@@ -106,7 +214,7 @@ export default function Range() {
       : undefined,
   )
   const [tokenOneDisplay, setTokenOneDisplay] = useState(
-    token1.address != ''
+    token1.address.toString() != ''
       ? token1.address.toString().substring(0, 6) +
           '...' +
           token1.address
@@ -394,7 +502,7 @@ export default function Range() {
                 {token0.symbol}-{token1.symbol}
               </span>
              <span className="bg-white text-black rounded-md px-3 py-0.5">
-                {router.query.feeTier}%
+                {feeTier}%
               </span>
               <div className="hidden md:block">
               {Number(rangeTickPrice) < Number(lowerTick) ||
