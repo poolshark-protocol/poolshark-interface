@@ -28,14 +28,14 @@ export const getRangePool = async (
     const dataLength = pool["data"]["rangePools"].length;
     if (dataLength != 0) {
       id = pool["data"]["rangePools"]["0"]["id"];
-      rangePoolData = mapRangePools(pool["data"]["rangePools"]["0"]);
+      rangePoolData = pool["data"]["rangePools"]["0"];
     } else {
       const fallbackPool = await getRangePoolFromFactory(
         tokenOut.address,
         tokenIn.address
       );
       id = fallbackPool["data"]["rangePools"]["0"]["id"];
-      rangePoolData = mapRangePools(fallbackPool["data"]["rangePools"]["0"]);
+      rangePoolData = fallbackPool["data"]["rangePools"]["0"];
     }
     setRangePoolAddress(id);
     setRangePoolData(rangePoolData);

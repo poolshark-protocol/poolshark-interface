@@ -61,36 +61,33 @@ export default function Range() {
   const [upperInverse, setUpperInverse] = useState(0);
   const [priceInverse, setPriceInverse] = useState(0);
   const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-    tokenIn.address.toString() != ''
-      ? tokenIn.address.toString().substring(0, 6) +
+    tokenIn.address != '' as string
+      ? tokenIn.address.substring(0, 6) +
           '...' +
           tokenIn.address
-            .toString()
             .substring(
-              tokenIn.address.toString().length - 4,
-              tokenIn.address.toString().length,
+              tokenIn.address.length - 4,
+              tokenIn.address.length,
             )
       : undefined,
   )
   const [tokenOneDisplay, setTokenOneDisplay] = useState(
-    tokenOut.address.toString() != ''
-      ? tokenOut.address.toString().substring(0, 6) +
+    tokenOut.address != '' as string
+      ? tokenOut.address.substring(0, 6) +
           '...' +
           tokenOut.address
-            .toString()
             .substring(
-              tokenOut.address.toString().length - 4,
-              tokenOut.address.toString().length,
+              tokenOut.address.length - 4,
+              tokenOut.address.length,
             )
       : undefined,
   )
   const [poolDisplay, setPoolDisplay] = useState(
     rangePoolAddress != '' as string
-      ? rangePoolAddress.toString().substring(0, 6) +
+      ? rangePoolAddress.substring(0, 6) +
           '...' +
           rangePoolAddress
-            .toString()
-            .substring(rangePoolAddress.toString().length - 4, rangePoolAddress.toString().length)
+            .substring(rangePoolAddress.length - 4, rangePoolAddress.length)
       : undefined,
   )
 
