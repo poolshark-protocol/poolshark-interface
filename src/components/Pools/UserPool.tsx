@@ -6,11 +6,6 @@ import { useEffect, useState } from "react";
 import { TickMath } from "../../utils/math/tickMath";
 import { logoMap } from "../../utils/tokens";
 import { useRangeStore } from "../../hooks/useRangeStore";
-import {
-  tokenOneAddress,
-  tokenZeroAddress,
-} from "../../constants/contractAddresses";
-import { getRangePoolFromFactory } from "../../utils/queries";
 import { ethers } from "ethers";
 import Link from "next/link";
 import { getRangePool } from "../../utils/pools";
@@ -49,17 +44,9 @@ export default function UserPool({
 
   const getRangePoolInfo = async () => {
     try {
-      const pool = await getRangePoolFromFactory(
-        tokenZeroAddress,
-        tokenOneAddress
-      );
-      const dataLength = pool["data"]["rangePools"].length;
-      if (dataLength > 0) {
-        const id = pool["data"]["rangePools"]["0"]["id"];
-        const price = pool["data"]["rangePools"]["0"]["price"];
-        const tickAtPrice = pool["data"]["rangePools"]["0"]["tickAtPrice"];
-        setRangePrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(price)));
-        setRangeTickPrice(Number(tickAtPrice));
+      if (rangePosition) {
+        setRangePrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(rangePosition.price)));
+        setRangeTickPrice(Number(rangePosition.tickAtPrice));
       }
     } catch (error) {
       console.log(error);
@@ -79,6 +66,7 @@ export default function UserPool({
 
   function choosePosition() {
     setRangePositionData(rangePosition);
+
     const tokenInNew = {
       name: rangePosition.tokenZero.name,
       symbol: rangePosition.tokenZero.symbol,
@@ -91,6 +79,7 @@ export default function UserPool({
       logoURI: logoMap[rangePosition.tokenOne.symbol],
       address: rangePosition.tokenOne.address,
     };
+    
     setTokenIn(tokenOutNew, tokenInNew);
     setTokenOut(tokenInNew, tokenOutNew);
     getRangePool(tokenIn, tokenOut, setRangePoolAddress, setRangePoolData);

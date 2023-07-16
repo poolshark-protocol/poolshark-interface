@@ -11,11 +11,8 @@ import { useAccount } from 'wagmi'
 import { BigNumber, ethers } from 'ethers'
 import { TickMath } from '../../../utils/math/tickMath'
 import JSBI from 'jsbi'
-import { fetchTokenPrices, switchDirection } from '../../../utils/tokens'
-import { token } from '../../../utils/types'
+import { fetchTokenPrices } from '../../../utils/tokens'
 import { copyElementUseEffect } from '../../../utils/misc'
-import { getRangePoolFromFactory } from '../../../utils/queries'
-import { BN_ZERO, ZERO } from '../../../utils/math/constants'
 import { DyDxMath } from '../../../utils/math/dydxMath'
 import { rangePoolABI } from '../../../abis/evm/rangePool'
 import { useContractRead } from 'wagmi'
@@ -27,66 +24,20 @@ export default function Range() {
   const [
     rangePoolAddress,
     rangePoolData,
-    rangeSlippage,
     rangePositionData,
-    pairSelected,
     tokenIn,
-    tokenInAmount,
-    tokenInRangeUSDPrice,
-    tokenInRangeAllowance,
-    tokenInBalance,
     tokenOut,
-    tokenOutAmount,
-    tokenOutRangeUSDPrice,
-    tokenOutBalance,
-    tokenOutRangeAllowance,
-    minInput,
-    maxInput,
-    gasFee,
-    gasLimit,
-    disabled,
-    buttonMessage,
   ] = useRangeStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
-    state.rangeSlippage,
     state.rangePositionData,
-    state.pairSelected,
     state.tokenIn,
-    state.tokenInAmount,
-    state.tokenInRangeUSDPrice,
-    state.tokenInRangeAllowance,
-    state.tokenInBalance,
     state.tokenOut,
-    state.tokenOutAmount,
-    state.tokenOutRangeUSDPrice,
-    state.tokenOutBalance,
-    state.tokenOutRangeAllowance,
-    state.minInput,
-    state.maxInput,
-    state.gasFee,
-    state.gasLimit,
-    state.disabled,
-    state.buttonMessage,
-    state.setRangePoolAddress,
-    state.setRangePoolData,
-    state.setRangeSlippage,
-    state.setPairSelected,
-    state.setTokenIn,
-    state.setTokenInRangeUSDPrice,
-    state.setTokenInRangeAllowance,
-    state.setTokenInBalance,
-    state.setTokenOut,
-    state.setTokenOutRangeUSDPrice,
-    state.setTokenOutBalance,
-    state.setTokenOutRangeAllowance,
-    state.setMinInput,
-    state.setMaxInput,
-    state.setGasFee,
-    state.setGasLimit
   ])
 
   const { address, isConnected } = useAccount()
+
+  const [snapshot, setSnapshot] = useState(undefined)
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
   const [priceDirection, setPriceDirection] = useState(false);
@@ -170,19 +121,17 @@ export default function Range() {
   ////////////////////////Pool
 
   useEffect(() => {
-    getRangePool()
+    getRangePoolRatios()
   }, [
-    tokenIn.address,
-    tokenOut.address,
     amount0,
     amount1,
     amount0Fees,
     amount1Fees
   ])
 
-  const getRangePool = async () => {
+  const getRangePoolRatios = () => {
     try {
-      if (rangePositionData != undefined) {
+      if (rangePoolData != undefined) {
         setAmount0Usd(
           parseFloat((amount0 * parseFloat(rangePoolData.tokenIn.usdPrice)).toPrecision(6)),
         )
@@ -202,7 +151,7 @@ export default function Range() {
           parseFloat((parseFloat(rangePoolData.tokenOut.usdPrice) / Number(lowerPrice)).toPrecision(6)),
         )
         setPriceInverse(
-          parseFloat((parseFloat(rangePoolData.tokenOut.usdPrice) / Number(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(rangePositionData.price)))).toPrecision(6))
+          parseFloat((parseFloat(rangePoolData.tokenOut.usdPrice) / Number(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(rangePoolData.price)))).toPrecision(6))
         )
       }
     } catch (error) {
@@ -214,21 +163,24 @@ export default function Range() {
   ////////////////////////Liquidity
 
   useEffect(() => {
+    setLowerPrice(TickMath.getPriceStringAtTick(Number(rangePositionData.min)))
+    setUpperPrice(TickMath.getPriceStringAtTick(Number(rangePositionData.max)))
     setAmounts()
-  }, [userLiquidity, lowerPrice, upperPrice, rangePositionData.price])
+    fetchTokenPrices(String(rangePoolData.tickAtPrice), setMktRate)
+  }, [])
 
   function setAmounts() {
     try {
       if (
         !isNaN(parseFloat(lowerPrice)) &&
         !isNaN(parseFloat(upperPrice)) &&
-        !isNaN(parseFloat(String(rangePositionData.price))) &&
+        !isNaN(parseFloat(String(rangePoolData.price))) &&
         Number(rangePositionData.userLiquidity) > 0 &&
         parseFloat(lowerPrice) < parseFloat(upperPrice)
       ) {
         const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(rangePositionData.min))
         const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(rangePositionData.max))
-        const rangeSqrtPrice = JSBI.BigInt(rangePositionData.price)
+        const rangeSqrtPrice = JSBI.BigInt(rangePoolData.price)
         const liquidity = JSBI.BigInt(rangePositionData.userLiquidity)
         const amounts = DyDxMath.getAmountsForLiquidity(
           lowerSqrtPrice,
@@ -238,8 +190,8 @@ export default function Range() {
           true
         )
         // set amount based on bnInput
-        const amount0Bn = BigNumber.from(String(amounts.tokenInAmount))
-        const amount1Bn = BigNumber.from(String(amounts.tokenOutAmount))
+        const amount0Bn = BigNumber.from(String(amounts.token0Amount))
+        const amount1Bn = BigNumber.from(String(amounts.token1Amount))
         setAmount0(parseFloat(ethers.utils.formatUnits(amount0Bn, 18)))
         setAmount1(parseFloat(ethers.utils.formatUnits(amount1Bn, 18)))
       }
@@ -251,7 +203,6 @@ export default function Range() {
   useEffect(() => {
     setUserLiquidityUsd(amount0Usd + amount1Usd)
   }, [amount0Usd, amount1Usd])
-
 
   ////////////////////////Fees
 
@@ -291,12 +242,6 @@ export default function Range() {
       console.log(error)
     }
   }
-
-  ////////////////////////Token Prices
-  
-  useEffect(() => {
-    fetchTokenPrices(String(rangePoolData.tickAtPrice), setMktRate)
-  }, [rangeTickPrice])
 
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
