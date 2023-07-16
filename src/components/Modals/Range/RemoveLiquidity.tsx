@@ -3,7 +3,6 @@ import { Fragment, useEffect, useState } from 'react'
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { useSigner, useSwitchNetwork } from "wagmi";
 import useInputBox from '../../../hooks/useInputBox'
-import RangeAddLiqButton from '../../Buttons/RangeAddLiqButton'
 import RangeRemoveLiqButton from "../../Buttons/RangeRemoveLiqButton";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ZERO } from "../../../utils/math/constants";

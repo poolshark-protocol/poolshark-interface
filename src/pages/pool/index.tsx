@@ -294,11 +294,6 @@ export default function Pool() {
                               <UserPool
                                 key={allRangePosition.id + "rangePosition"}
                                 rangePosition={allRangePosition}
-                                tokenZero={allRangePosition.tokenZero}
-                                tokenOne={allRangePosition.tokenOne}
-                                min={allRangePosition.min}
-                                max={allRangePosition.max}
-                                feeTier={allRangePosition.feeTier}
                                 href={"/pool/view/range"}
                               />
                             );
