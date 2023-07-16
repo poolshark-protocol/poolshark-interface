@@ -87,18 +87,16 @@ export default function UserPool({
   function choosePosition() {
     setRangePositionData(rangePosition);
     const tokenInNew = {
-      //callId: rangePositionData.tokenZero.id.localeCompare(rangePositionData.tokenZero.id) < 0 ? 0 : 1,
-      name: rangePositionData.tokenZero.name,
-      symbol: rangePositionData.symbol,
-      logoURI: logoMap[rangePositionData.tokenZero.symbol],
-      address: rangePositionData.tokenZero.address,
+      name: tokenZero.name,
+      symbol: tokenZero.symbol,
+      logoURI: logoMap[tokenZero.symbol],
+      address: tokenZero.address,
     };
     const tokenOutNew = {
-      //callId: rangePositionData.tokenOne.id.localeCompare(rangePositionData.tokenZero.id) < 0 ? 0 : 1,
-      name: rangePositionData.tokenOne.name,
-      symbol: rangePositionData.tokenOne.symbol,
-      logoURI: logoMap[rangePositionData.tokenOne.symbol],
-      address: rangePositionData.tokenOne.address,
+      name: tokenOne.name,
+      symbol: tokenOne.symbol,
+      logoURI: logoMap[tokenOne.symbol],
+      address: tokenOne.address,
     };
     setTokenIn(tokenOutNew, tokenInNew);
     setTokenOut(tokenInNew, tokenOutNew);
