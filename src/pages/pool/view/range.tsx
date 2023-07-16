@@ -71,6 +71,8 @@ export default function Range() {
             )
       : undefined,
   )
+  console.log(tokenIn.address, 'tokenIn.address')
+  console.log(tokenOut.address, 'tokenOut.address')
   const [tokenOneDisplay, setTokenOneDisplay] = useState(
     tokenOut.address != '' as string
       ? tokenOut.address.substring(0, 6) +

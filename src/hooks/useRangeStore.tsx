@@ -59,7 +59,7 @@ type RangeAction = {
   setTokenInRangeAllowance: (allowance: string) => void;
   setTokenInBalance: (balance: string) => void;
   //
-  setTokenOut: (tokenOut: any, newToken: any) => void;
+  setTokenOut: (tokenIn: any, newToken: any) => void;
   setTokenOutAmount: (amount: BigNumber) => void;
   setTokenOutRangeUSDPrice: (price: number) => void;
   setTokenOutRangeAllowance: (allowance: string) => void;
@@ -81,7 +81,6 @@ const initialRangeState: RangeState = {
   //pools
   rangePoolAddress: "0x000",
   rangePoolData: {},
-  //rangePositionData: {},
   rangeSlippage: "0.5",
   //
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing

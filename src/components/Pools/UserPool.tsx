@@ -9,6 +9,7 @@ import { useRangeStore } from "../../hooks/useRangeStore";
 import { ethers } from "ethers";
 import Link from "next/link";
 import { getRangePool } from "../../utils/pools";
+import { token } from "../../utils/types";
 
 export default function UserPool({
   rangePosition,
@@ -19,6 +20,8 @@ export default function UserPool({
   const [
     tokenIn,
     tokenOut,
+    rangePositionData,
+    rangePoolData,
     setTokenIn,
     setTokenOut,
     setRangePoolAddress,
@@ -27,6 +30,8 @@ export default function UserPool({
   ] = useRangeStore((state) => [
     state.tokenIn,
     state.tokenOut,
+    state.rangePositionData,
+    state.rangePoolData,
     state.setTokenIn,
     state.setTokenOut,
     state.setRangePoolAddress,
@@ -66,23 +71,26 @@ export default function UserPool({
 
   function choosePosition() {
     setRangePositionData(rangePosition);
+    console.log(rangePositionData, 'rangePositionData')
 
     const tokenInNew = {
       name: rangePosition.tokenZero.name,
       symbol: rangePosition.tokenZero.symbol,
       logoURI: logoMap[rangePosition.tokenZero.symbol],
       address: rangePosition.tokenZero.address,
-    };
+    } as token;
     const tokenOutNew = {
       name: rangePosition.tokenOne.name,
       symbol: rangePosition.tokenOne.symbol,
       logoURI: logoMap[rangePosition.tokenOne.symbol],
       address: rangePosition.tokenOne.address,
-    };
+    } as token;
 
     setTokenIn(tokenOutNew, tokenInNew);
     setTokenOut(tokenInNew, tokenOutNew);
+    console.log(tokenOut, 'tokenOutUserPool')
     getRangePool(tokenIn, tokenOut, setRangePoolAddress, setRangePoolData);
+    console.log(rangePoolData, 'rangePoolUserPool')
   }
 
   const feeTierPercentage = Number(rangePosition.feeTier) / 10000;
