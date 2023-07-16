@@ -36,7 +36,7 @@ export default function UserPool({
 
   useEffect(() => {
     getRangePoolInfo();
-  });
+  }, []);
 
   useEffect(() => {
     setRangeParams();
@@ -79,7 +79,7 @@ export default function UserPool({
       logoURI: logoMap[rangePosition.tokenOne.symbol],
       address: rangePosition.tokenOne.address,
     };
-    
+
     setTokenIn(tokenOutNew, tokenInNew);
     setTokenOut(tokenInNew, tokenOutNew);
     getRangePool(tokenIn, tokenOut, setRangePoolAddress, setRangePoolData);
@@ -89,8 +89,10 @@ export default function UserPool({
 
   return (
     <>
-      <Link href={href}>
-        <div onClick={choosePosition}>
+      <div onClick={choosePosition}>
+        <Link href={{
+          pathname:href
+        }}>
           <div className="w-full cursor-pointer grid grid-cols-5 md:grid-cols-7 items-center w-full bg-dark border border-grey2 rounded-xl py-3.5 sm:pl-5 pl-3 md:pr-0 md:pr-5 pr-3 min-h-24 relative">
             <div className="space-y-3 col-span-5">
               <div className="flex items-center md:gap-x-5 gap-x-3">
@@ -154,8 +156,8 @@ export default function UserPool({
               </div>
             </div>
           </div>
-        </div>
-      </Link>
+        </Link>
+      </div>
     </>
   );
 }
