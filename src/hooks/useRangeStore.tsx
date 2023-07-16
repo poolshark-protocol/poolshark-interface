@@ -11,9 +11,10 @@ type RangeState = {
   //poolAddress for current token pairs
   ////range
   rangePoolAddress: `0x${string}`;
+  //rangePoolData contains all the info about the pool
   rangePoolData: any;
   rangeSlippage: string;
-  //Range position data
+  //Range position data containing all the info about the position
   rangePositionData: any;
   //true if both tokens selected, false if only one token selected
   pairSelected: Boolean;
@@ -47,6 +48,8 @@ type RangeAction = {
   setRangeSlippage: (rangeSlippage: string) => void;
   //
   setRangePositionData: (rangePosition: any) => void;
+  setMinTick: (data: any, newMinTick: BigNumber) => void;
+  setMaxTick: (data: any, newMaxTick: BigNumber) => void;
   //
   setPairSelected: (pairSelected: Boolean) => void;
   //
@@ -288,6 +291,20 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   setRangeSlippage: (rangeSlippage: string) => {
     set(() => ({
       rangeSlippage: rangeSlippage,
+    }));
+  },
+  setMinTick: (rangepositionData, minTick: BigNumber) => {
+    const newPositionData = { ...rangepositionData };
+    newPositionData.minTick = minTick;
+    set(() => ({
+      rangePositionData: newPositionData,
+    }));
+  },
+  setMaxTick: (rangepositionData, maxTick: BigNumber) => {
+    const newPositionData = { ...rangepositionData };
+    newPositionData.maxTick = maxTick;
+    set(() => ({
+      rangePositionData: newPositionData,
     }));
   },
   setGasFee: (gasFee: BigNumber) => {

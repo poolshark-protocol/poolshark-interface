@@ -29,6 +29,7 @@ import { gasEstimateRangeMint } from "../../utils/gas";
 export default function ConcentratedPool({}) {
   const [
     rangePoolAddress,
+    rangePositionData,
     rangePoolData,
     setRangePoolAddress,
     setRangePoolData,
@@ -53,9 +54,7 @@ export default function ConcentratedPool({}) {
     setTokenOutBalance,
     setTokenOutAllowance,
     pairSelected,
-    minTick,
     setMinTick,
-    maxTick,
     setMaxTick,
     disabled,
     setDisabled,
@@ -64,10 +63,11 @@ export default function ConcentratedPool({}) {
     minInput,
     maxInput,
     setMinInput,
-    setMaxInput
+    setMaxInput,
   ] = useRangeStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
+    state.rangePositionData,
     state.setRangePoolAddress,
     state.setRangePoolData,
     state.tokenIn,
@@ -91,9 +91,7 @@ export default function ConcentratedPool({}) {
     state.setTokenOutBalance,
     state.setTokenOutRangeAllowance,
     state.pairSelected,
-    state.minTick,
     state.setMinTick,
-    state.maxTick,
     state.setMaxTick,
     state.disabled,
     state.setDisabled,
@@ -146,11 +144,11 @@ export default function ConcentratedPool({}) {
       setRangeSqrtPrice(price);
       if (isNaN(parseFloat(lowerPrice)) || parseFloat(lowerPrice) <= 0) {
         setLowerPrice(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
-        setMinTick(BigNumber.from(tickAtPrice - 7000));
+        setMinTick(rangePositionData, BigNumber.from(tickAtPrice - 7000));
       }
       if (isNaN(parseFloat(upperPrice)) || parseFloat(upperPrice) <= 0) {
         setUpperPrice(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
-        setMaxTick(BigNumber.from(tickAtPrice - -7000));
+        setMaxTick(rangePositionData, BigNumber.from(tickAtPrice - -7000));
       }
       //here we should update the tick spacing only
       setRangeTickPrice(tickAtPrice);
@@ -301,6 +299,7 @@ export default function ConcentratedPool({}) {
     if (!isNaN(parseFloat(lowerPrice))) {
       //console.log('setting lower tick')
       setMinTick(
+        rangePositionData,
         BigNumber.from(
           TickMath.getTickAtPriceString(
             lowerPrice,
@@ -326,6 +325,7 @@ export default function ConcentratedPool({}) {
     if (!isNaN(parseFloat(upperPrice))) {
       //console.log('setting upper tick')
       setMaxTick(
+        rangePositionData,
         BigNumber.from(
           TickMath.getTickAtPriceString(
             upperPrice,
@@ -416,8 +416,8 @@ export default function ConcentratedPool({}) {
     const currentTick =
       inputId == "minInput" || inputId == "maxInput"
         ? inputId == "minInput"
-          ? Number(minTick)
-          : Number(maxTick)
+          ? Number(rangePositionData.minTick)
+          : Number(rangePositionData.maxTick)
         : rangeTickPrice;
     if (!currentTick) return;
     const increment = rangePoolData.feeTier.tickSpacing;
@@ -733,9 +733,11 @@ export default function ConcentratedPool({}) {
               className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md whitespace-nowrap"
               onClick={() => {
                 setMinTick(
+                  rangePositionData,
                   BigNumber.from(roundTick(-887272, rangePoolData.tickSpacing))
                 );
                 setMaxTick(
+                  rangePositionData,
                   BigNumber.from(roundTick(887272, rangePoolData.tickSpacing))
                 );
                 setLowerPrice(

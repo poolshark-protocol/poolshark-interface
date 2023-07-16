@@ -16,6 +16,7 @@ export default function ConcentratedPoolPreview({}) {
   const [
     rangePoolAddress,
     rangePoolData,
+    rangePositionData,
     setRangePoolAddress,
     setRangePoolData,
     tokenIn,
@@ -39,9 +40,7 @@ export default function ConcentratedPoolPreview({}) {
     setTokenOutBalance,
     setTokenOutAllowance,
     pairSelected,
-    minTick,
     setMinTick,
-    maxTick,
     setMaxTick,
     disabled,
     setDisabled,
@@ -54,6 +53,7 @@ export default function ConcentratedPoolPreview({}) {
   ] = useRangeStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
+    state.rangePositionData,
     state.setRangePoolAddress,
     state.setRangePoolData,
     state.tokenIn,
@@ -77,9 +77,9 @@ export default function ConcentratedPoolPreview({}) {
     state.setTokenOutBalance,
     state.setTokenOutRangeAllowance,
     state.pairSelected,
-    state.minTick,
+
     state.setMinTick,
-    state.maxTick,
+
     state.setMaxTick,
     state.disabled,
     state.setDisabled,
@@ -136,8 +136,8 @@ export default function ConcentratedPoolPreview({}) {
     const newGasFee = await gasEstimateRangeMint(
       rangePoolAddress,
       address,
-      minTick,
-      maxTick,
+      rangePositionData.minTick,
+      rangePositionData.maxTick,
       tokenInAmount,
       tokenOutAmount,
       signer
