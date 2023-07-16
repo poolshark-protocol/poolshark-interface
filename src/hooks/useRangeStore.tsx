@@ -293,15 +293,15 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       rangeSlippage: rangeSlippage,
     }));
   },
-  setMinTick: (rangepositionData, minTick: BigNumber) => {
-    const newPositionData = { ...rangepositionData };
+  setMinTick: (rangePositionData, minTick: BigNumber) => {
+    const newPositionData = { ...rangePositionData };
     newPositionData.minTick = minTick;
     set(() => ({
       rangePositionData: newPositionData,
     }));
   },
-  setMaxTick: (rangepositionData, maxTick: BigNumber) => {
-    const newPositionData = { ...rangepositionData };
+  setMaxTick: (rangePositionData, maxTick: BigNumber) => {
+    const newPositionData = { ...rangePositionData };
     newPositionData.maxTick = maxTick;
     set(() => ({
       rangePositionData: newPositionData,
