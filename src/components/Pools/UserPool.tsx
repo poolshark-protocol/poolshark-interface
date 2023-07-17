@@ -47,7 +47,9 @@ export default function UserPool({
   const getRangePoolInfo = async () => {
     try {
       if (rangePosition) {
-        setRangePrice(parseFloat(TickMath.getPriceStringAtSqrtPrice(rangePosition.price)));
+        setRangePrice(
+          parseFloat(TickMath.getPriceStringAtSqrtPrice(rangePosition.price))
+        );
         setRangeTickPrice(Number(rangePosition.tickAtPrice));
       }
     } catch (error) {
@@ -121,7 +123,8 @@ export default function UserPool({
               <div className="text-[10px] sm:text-xs grid grid-cols-5 items-center gap-x-3 md:pr-5">
                 <span className="col-span-2">
                   <span className="text-grey">Min:</span>{" "}
-                  {TickMath.getPriceStringAtTick(Number(rangePosition.min))} {rangePosition.tokenOne.symbol} per{" "}
+                  {TickMath.getPriceStringAtTick(Number(rangePosition.min))}{" "}
+                  {rangePosition.tokenOne.symbol} per{" "}
                   {rangePosition.tokenZero.symbol}
                 </span>
                 <div className="flex items-center justify-center col-span-1">
@@ -129,7 +132,8 @@ export default function UserPool({
                 </div>
                 <span className="col-span-2">
                   <span className="text-grey">Max:</span>{" "}
-                  {TickMath.getPriceStringAtTick(Number(rangePosition.max))} {rangePosition.tokenOne.symbol} per{" "}
+                  {TickMath.getPriceStringAtTick(Number(rangePosition.max))}{" "}
+                  {rangePosition.tokenOne.symbol} per{" "}
                   {rangePosition.tokenZero.symbol}
                 </span>
               </div>

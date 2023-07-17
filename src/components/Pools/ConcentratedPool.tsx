@@ -29,8 +29,8 @@ import { gasEstimateRangeMint } from "../../utils/gas";
 export default function ConcentratedPool({}) {
   const [
     rangePoolAddress,
-    rangePositionData,
     rangePoolData,
+    rangePositionData,
     setRangePoolAddress,
     setRangePoolData,
     tokenIn,
@@ -122,9 +122,10 @@ export default function ConcentratedPool({}) {
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address) {
+      console.log("pool updating");
       updatePools();
     }
-  }, [tokenOut, tokenIn]);
+  }, [tokenIn, tokenOut]);
 
   async function updatePools() {
     await getRangePool(
@@ -137,9 +138,8 @@ export default function ConcentratedPool({}) {
 
   useEffect(() => {
     if (rangePoolData.price) {
-      console.log(rangePoolData);
-      const price = JSBI.BigInt(rangePoolData["price"]);
-      const tickAtPrice = rangePoolData["tickAtPrice"];
+      const price = JSBI.BigInt(rangePoolData.price);
+      const tickAtPrice = rangePoolData.tickAtPrice;
       setRangePrice(TickMath.getPriceStringAtSqrtPrice(price));
       setRangeSqrtPrice(price);
       if (isNaN(parseFloat(lowerPrice)) || parseFloat(lowerPrice) <= 0) {
@@ -150,7 +150,6 @@ export default function ConcentratedPool({}) {
         setUpperPrice(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
         setMaxTick(rangePositionData, BigNumber.from(tickAtPrice - -7000));
       }
-      //here we should update the tick spacing only
       setRangeTickPrice(tickAtPrice);
     }
   }, [rangePoolData]);
@@ -257,7 +256,7 @@ export default function ConcentratedPool({}) {
   ////////////////////////////////TokenUSDPrices
 
   useEffect(() => {
-    if (rangePoolData) {
+    if (rangePoolData.token0 && rangePoolData.token1) {
       if (tokenIn.address) {
         fetchRangeTokenUSDPrice(
           rangePoolData,
@@ -337,7 +336,9 @@ export default function ConcentratedPool({}) {
   }, [upperPrice]);
 
   useEffect(() => {
-    tokenOutAmountMath();
+    if (lowerPrice && upperPrice) {
+      tokenOutAmountMath();
+    }
   }, [bnInput]);
 
   function tokenOutAmountMath() {
@@ -904,7 +905,7 @@ export default function ConcentratedPool({}) {
             </div>
           </div>
         </div>
-        <ConcentratedPoolPreview />
+        {/* <ConcentratedPoolPreview /> */}
       </div>
     </div>
   );

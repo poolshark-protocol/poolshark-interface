@@ -33,7 +33,6 @@ export default function PoolList({
   const feeTierPercentage = feeTier / 10000;
 
   const chooseRangePool = () => {
-    console.log("chooseRangePool");
     const tokenIn = {
       name: tokenZero.symbol,
       address: tokenZero.id,
@@ -49,12 +48,12 @@ export default function PoolList({
     setRangeTokenIn(tokenOut, tokenIn);
     setRangeTokenOut(tokenIn, tokenOut);
     setRangePoolAddress(poolId);
-    setRangePoolData({
+    /* setRangePoolData({
       liquidity: liquidity,
       feeTier: feeTier,
       auctionLenght: auctionLenght,
       tickSpacing: tickSpacing,
-    });
+    }); */
     router.push({
       pathname: href,
     });
