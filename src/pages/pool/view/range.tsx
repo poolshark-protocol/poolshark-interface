@@ -489,17 +489,7 @@ export default function Range() {
       <RemoveLiquidity
         isOpen={isRemoveOpen}
         setIsOpen={setIsRemoveOpen}
-        tokenIn={tokenIn}
-        tokenOut={tokenOut}
-        poolAdd={rangePoolAddress}
         address={address}
-        lowerTick={Number(rangePositionData.min)}
-        upperTick={Number(rangePositionData.max)}
-        userLiquidity={rangePositionData.userLiquidity}
-        tokenAmount={rangePositionData.userTokenAmount}
-        rangePrice={rangePositionData.price}
-        token1Price={tokenOutRangeUSDPrice}
-        token0Price={tokenInRangeUSDPrice}
       />
       <AddLiquidity
         isOpen={isAddOpen}
