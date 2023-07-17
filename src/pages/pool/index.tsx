@@ -1,6 +1,5 @@
 import Navbar from '../../components/Navbar'
 import {
-  PlusSmallIcon,
   MagnifyingGlassIcon,
   ChevronDownIcon,
   InformationCircleIcon,

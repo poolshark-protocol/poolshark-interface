@@ -3,7 +3,6 @@ import {
   ArrowTopRightOnSquareIcon,
   ArrowsRightLeftIcon,
   ExclamationTriangleIcon,
-  
 } from '@heroicons/react/20/solid'
 import { useState, useEffect } from 'react'
 import RangeCompoundButton from '../../../components/Buttons/RangeCompoundButton'
