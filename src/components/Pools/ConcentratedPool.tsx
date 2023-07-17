@@ -905,7 +905,7 @@ export default function ConcentratedPool({}) {
             </div>
           </div>
         </div>
-        {/* <ConcentratedPoolPreview /> */}
+        <ConcentratedPoolPreview />
       </div>
     </div>
   );

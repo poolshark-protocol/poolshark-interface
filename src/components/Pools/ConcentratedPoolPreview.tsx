@@ -232,7 +232,7 @@ export default function ConcentratedPoolPreview({}) {
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                  ${tokenInRangeUSDPrice.toFixed(2)}
+                                  ${Number(tokenInRangeUSDPrice).toFixed(2)}
                                 </div>
                               </div>
                             </div>
@@ -266,7 +266,7 @@ export default function ConcentratedPoolPreview({}) {
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                  ${tokenOutRangeUSDPrice.toFixed(2)}
+                                  ${Number(tokenOutRangeUSDPrice).toFixed(2)}
                                 </div>
                               </div>
                             </div>
