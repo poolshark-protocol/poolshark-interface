@@ -13,17 +13,6 @@ export default function Initial(props: any) {
   const [pool, setPool] = useState(props.query ?? undefined)
   const [shifted, setIsShifted] = useState('initial')
 
-  const logoMap = {
-    TOKEN20A: '/static/images/token.png',
-    TOKEN20B: '/static/images/eth_icon.png',
-    USDC: '/static/images/token.png',
-    WETH: '/static/images/eth_icon.png',
-    DAI: '/static/images/dai_icon.png',
-    UNI: '/static/images/dai_icon.png',
-    stkEth: '/static/images/eth_icon.png',
-    pStake: '/static/images/eth_icon.png',
-  }
-
   useEffect(() => {
     if (props.query.state === 'nav') {
       setIsShifted('initial')
@@ -34,28 +23,8 @@ export default function Initial(props: any) {
     //console.log('query', query)
     setIsShifted('coverExistingPool')
     const feeTierPercentage = query.feeTier / 10000
-    setPool({
-      poolId: query.poolId,
-      liquidity: query.liquidity,
-      userLiquidity: query.userLiquidity,
-      tokenOneName: query.tokenOne.name,
-      tokenOneSymbol: query.tokenOne.symbol,
-      tokenOneLogoURI: logoMap[query.tokenOne.symbol],
-      tokenOneAddress: query.tokenOne.id,
-      tokenOneValue: query.valueTokenOne,
-      tokenZeroName: query.tokenZero.symbol,
-      tokenZeroSymbol: query.tokenZero.symbol,
-      tokenZeroLogoURI: logoMap[query.tokenZero.symbol],
-      tokenZeroAddress: query.tokenZero.id,
-      tokenZeroValue: query.valueTokenZero,
-      minLimit: query.min,
-      maxLimit: query.max,
-      tickSpacing: query.tickSpacing,
-      feeTier: feeTierPercentage,
-    })
-    console.log('pool', pool)
   }
-
+  
   return isDisconnected ? (
     <>
       <h1 className="mb-3">Connect your wallet to Cover Pool</h1>

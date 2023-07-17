@@ -29,28 +29,24 @@ type CoverState = {
   gasLimit: BigNumber;
 };
 
-type SwapAction = {
+type CoverAction = {
   //pool
-  /* setCoverPoolAddress: (address: String) => void;
+  setCoverPoolAddress: (address: String) => void;
   setCoverPoolData: (data: any) => void;
-  setRangePoolAddress: (address: String) => void;
-  setRangePoolData: (data: any) => void;
-  setPairSelected: (pairSelected: Boolean) => void;
+
+  //setPairSelected: (pairSelected: Boolean) => void;
   //tokenIn
   setTokenIn: (tokenOut: token, newToken: token) => void;
-  setTokenInRangeUSDPrice: (price: number) => void;
   setTokenInCoverUSDPrice: (price: number) => void;
-  setTokenInRangeAllowance: (allowance: string) => void;
   setTokenInCoverAllowance: (allowance: string) => void;
   setTokenInBalance: (balance: string) => void;
   //tokenOut
   setTokenOut: (tokenOut: token, newToken: token) => void;
-  setTokenOutRangeUSDPrice: (price: number) => void;
   setTokenOutCoverUSDPrice: (price: number) => void;
   setTokenOutBalance: (balance: string) => void;
   //gas
   setGasFee: (fee: BigNumber) => void;
-  setGasLimit: (limit: BigNumber) => void; */
+  setGasLimit: (limit: BigNumber) => void;
   //reset
   resetSwapParams: () => void;
 };
@@ -88,7 +84,7 @@ const initialCoverState: CoverState = {
   gasLimit: BN_ZERO,
 };
 
-export const useSwapStore = create<CoverState & SwapAction>((set) => ({
+export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   //pool
   coverPoolAddress: initialCoverState.coverPoolAddress,
   coverPoolData: initialCoverState.coverPoolData,
@@ -126,7 +122,8 @@ export const useSwapStore = create<CoverState & SwapAction>((set) => ({
         //if tokens are different
         set(() => ({
           tokenIn: {
-            callId: newToken.address < tokenOut.address ? 0 : 1,
+            callId:
+              newToken.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
             ...newToken,
           },
           pairSelected: true,
@@ -183,7 +180,7 @@ export const useSwapStore = create<CoverState & SwapAction>((set) => ({
         //if tokens are different
         set(() => ({
           tokenOut: {
-            callId: newToken.address < tokenIn.address ? 0 : 1,
+            callId: newToken.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
             ...newToken,
           },
           pairSelected: true,
@@ -216,6 +213,16 @@ export const useSwapStore = create<CoverState & SwapAction>((set) => ({
   setCoverSlippage: (coverSlippage: string) => {
     set(() => ({
       coverSlippage: coverSlippage,
+    }));
+  },
+  setGasFee: (gasFee: BigNumber) => {
+    set(() => ({
+      gasFee: gasFee,
+    }));
+  },
+  setGasLimit: (gasLimit: BigNumber) => {
+    set(() => ({
+      gasLimit: gasLimit,
     }));
   },
   switchDirection: () => {
