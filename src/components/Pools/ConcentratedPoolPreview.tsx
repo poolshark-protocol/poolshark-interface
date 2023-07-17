@@ -155,6 +155,8 @@ export default function ConcentratedPoolPreview({}) {
     setIsOpen(true);
   }
 
+  console.log(rangePoolData.feeTier)
+
   return (
     <div>
       <Transition appear show={isOpen} as={Fragment}>
@@ -209,8 +211,7 @@ export default function ConcentratedPoolPreview({}) {
                         </div>
                         <div className="mt-3">
                           <button className="relative cursor-default rounded-lg bg-black text-white cursor-pointer border border-grey1 py-2 pl-3 w-full text-left shadow-md focus:outline-none">
-                            <span className="block truncate">
-                              {rangePoolData.feeTier}
+                            <span className="block truncate">                      
                             </span>
                             <span className="block truncate text-xs text-grey mt-1">
                               Best for most pairs
@@ -232,7 +233,8 @@ export default function ConcentratedPoolPreview({}) {
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                  ${Number(tokenInRangeUSDPrice).toFixed(2)}
+                                  ${(Number(tokenInRangeUSDPrice) *
+                                  Number(ethers.utils.formatUnits(tokenInAmount, 18))).toFixed(2)}
                                 </div>
                               </div>
                             </div>
@@ -266,7 +268,8 @@ export default function ConcentratedPoolPreview({}) {
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                  ${Number(tokenOutRangeUSDPrice).toFixed(2)}
+                                  ${(Number(tokenOutRangeUSDPrice) *
+                                  Number(ethers.utils.formatUnits(tokenOutAmount, 18))).toFixed(2)}
                                 </div>
                               </div>
                             </div>
@@ -395,27 +398,20 @@ export default function ConcentratedPoolPreview({}) {
       </Transition>
       <button
         onClick={() => setIsOpen(true)}
-        className={`mt-8 w-full py-4 mx-auto font-medium text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80 ${
-          disabled && "disabled:opacity-50 disabled:cursor-not-allowed"
-        }`}
+        disabled={disabled}
+        className={`mt-8 w-full py-4 mx-auto font-medium text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed`}
       >
         {disabled ? (
           <>
-            {buttonMessage === "price" ? (
+            {buttonMessage === "price" && (
               <>Min. is greater than Max. Price</>
-            ) : (
-              <></>
             )}
-            {buttonMessage === "amount" ? <>Input Deposit Amount</> : <></>}
-            {buttonMessage === "balance0" ? (
+            {buttonMessage === "amount" && <>Input Deposit Amount</>}
+            {buttonMessage === "tokenInBalance" && (
               <>Insufficient {tokenIn.symbol} Balance</>
-            ) : (
-              <></>
             )}
-            {buttonMessage === "balance1" ? (
+            {buttonMessage === "tokenOutBalance" && (
               <>Insufficient {tokenOut.symbol} Balance</>
-            ) : (
-              <></>
             )}
           </>
         ) : (

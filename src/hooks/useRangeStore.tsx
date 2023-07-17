@@ -37,7 +37,7 @@ type RangeState = {
   gasFee: BigNumber;
   gasLimit: BigNumber;
   //Disabled
-  disabled: Boolean;
+  disabled: boolean;
   buttonMessage: string;
 };
 
@@ -73,7 +73,7 @@ type RangeAction = {
   //
   resetRangeParams: () => void;
   //
-  setDisabled: (disabled: Boolean) => void;
+  setDisabled: (disabled: boolean) => void;
   setButtonMessage: (balance: string) => void;
 };
 
@@ -321,7 +321,7 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       rangePositionData: rangePositionData,
     }));
   },
-  setDisabled: (disabled: Boolean) => {
+  setDisabled: (disabled: boolean) => {
     set(() => ({
       disabled: disabled,
     }));
