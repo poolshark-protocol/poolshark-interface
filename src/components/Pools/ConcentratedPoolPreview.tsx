@@ -17,8 +17,6 @@ export default function ConcentratedPoolPreview({}) {
     rangePoolAddress,
     rangePoolData,
     rangePositionData,
-    setRangePoolAddress,
-    setRangePoolData,
     tokenIn,
     tokenInAmount,
     tokenInRangeUSDPrice,
@@ -54,8 +52,6 @@ export default function ConcentratedPoolPreview({}) {
     state.rangePoolAddress,
     state.rangePoolData,
     state.rangePositionData,
-    state.setRangePoolAddress,
-    state.setRangePoolData,
     state.tokenIn,
     state.tokenInAmount,
     state.tokenInRangeUSDPrice,
@@ -94,6 +90,8 @@ export default function ConcentratedPoolPreview({}) {
 
   const provider = useProvider();
   const signer = new ethers.VoidSigner(address, provider);
+
+  console.log('tokenInAmount', tokenInAmount)
 
   const [doubleApprove, setdoubleApprove] = useState(false);
   ////////////////////////////////Token Allowances

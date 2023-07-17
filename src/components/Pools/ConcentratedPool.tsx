@@ -122,7 +122,6 @@ export default function ConcentratedPool({}) {
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address) {
-      console.log("pool updating");
       updatePools();
     }
   }, [tokenIn, tokenOut]);
@@ -375,6 +374,7 @@ export default function ConcentratedPool({}) {
           ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
           : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
         : ZERO;
+      setTokenInAmount(bnInput);
       setTokenOutAmount(BigNumber.from(String(tokenOutAmount)));
     } catch (error) {
       console.log(error);
