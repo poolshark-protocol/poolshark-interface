@@ -193,16 +193,6 @@ export default function Range() {
 
   function setAmounts() {
     try {
-      console.log('rangePoolData.price', rangePoolData.price)
-        console.log('rangePositionData.userLiquidity', rangePositionData.userLiquidity)
-        console.log('lowerPrice', lowerPrice)
-        console.log('upperPrice', upperPrice)
-
-        console.log(!isNaN(parseFloat(lowerPrice)), 'nan check 1')
-        console.log(!isNaN(parseFloat(upperPrice)), 'nan check 2')
-        console.log(!isNaN(parseFloat(String(rangePoolData.price))), 'nan check 3')
-        console.log(Number(rangePositionData.userLiquidity) > 0, 'liq check')
-        console.log(parseFloat(lowerPrice) < parseFloat(upperPrice), 'price check')
       if (
         !isNaN(parseFloat(lowerPrice)) &&
         !isNaN(parseFloat(upperPrice)) &&
@@ -210,24 +200,22 @@ export default function Range() {
         Number(rangePositionData.userLiquidity) > 0 &&
         parseFloat(lowerPrice) < parseFloat(upperPrice)
       ) {
-
-
-        const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(rangePositionData.min))
-        const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(rangePositionData.max))
-        const rangeSqrtPrice = JSBI.BigInt(rangePoolData.price)
-        const liquidity = JSBI.BigInt(rangePositionData.userLiquidity)
-        const amounts = DyDxMath.getAmountsForLiquidity(
-          lowerSqrtPrice,
-          upperSqrtPrice,
-          rangeSqrtPrice,
-          liquidity,
-          true
-        )
-        // set amount based on bnInput
-        const amount0Bn = BigNumber.from(String(amounts.token0Amount))
-        const amount1Bn = BigNumber.from(String(amounts.token1Amount))
-        setAmount0(parseFloat(ethers.utils.formatUnits(amount0Bn, 18)))
-        setAmount1(parseFloat(ethers.utils.formatUnits(amount1Bn, 18)))
+          const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(rangePositionData.min))
+          const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(rangePositionData.max))
+          const rangeSqrtPrice = JSBI.BigInt(rangePoolData.price)
+          const liquidity = JSBI.BigInt(rangePositionData.userLiquidity)
+          const amounts = DyDxMath.getAmountsForLiquidity(
+            lowerSqrtPrice,
+            upperSqrtPrice,
+            rangeSqrtPrice,
+            liquidity,
+            true
+          )
+          // set amount based on bnInput
+          const amount0Bn = BigNumber.from(String(amounts.token0Amount))
+          const amount1Bn = BigNumber.from(String(amounts.token1Amount))
+          setAmount0(parseFloat(ethers.utils.formatUnits(amount0Bn, 18)))
+          setAmount1(parseFloat(ethers.utils.formatUnits(amount1Bn, 18)))
       }
     } catch (error) {
       console.log(error)
