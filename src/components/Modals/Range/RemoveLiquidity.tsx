@@ -1,7 +1,7 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useState } from 'react'
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useSigner, useSwitchNetwork } from "wagmi";
+import { useSigner } from "wagmi";
 import RangeRemoveLiqButton from "../../Buttons/RangeRemoveLiqButton";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ZERO } from "../../../utils/math/constants";

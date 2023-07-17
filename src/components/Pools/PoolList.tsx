@@ -1,8 +1,6 @@
-import Link from "next/link";
 import { logoMap } from "../../utils/tokens";
 import { useRangeStore } from "../../hooks/useRangeStore";
 import { useRouter } from "next/router";
-import { TokenKind } from "graphql";
 
 export default function PoolList({
   poolId,
