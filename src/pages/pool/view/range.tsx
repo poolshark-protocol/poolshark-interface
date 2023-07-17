@@ -504,16 +504,7 @@ export default function Range() {
       <AddLiquidity
         isOpen={isAddOpen}
         setIsOpen={setIsAddOpen}
-        tokenIn={tokenIn}
-        tokenOut={tokenOut}
-        poolAdd={rangePoolAddress}
         address={address}
-        lowerTick={Number(rangePositionData.min)}
-        upperTick={Number(rangePositionData.max)}
-        liquidity={rangePositionData.userLiquidity}
-        rangePrice={rangePositionData.price}
-        token1Price={tokenOutRangeUSDPrice}
-        token0Price={tokenInRangeUSDPrice}
       />
     </div>
   )

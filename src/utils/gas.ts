@@ -40,7 +40,7 @@ export const gasEstimateSwap = async (
     const recipient = address
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0
     const priceLimit =
-      tokenOut.address != '' &&
+      tokenOut.address != '' as string &&
       tokenIn.address.localeCompare(tokenOut.address) < 0
         ? BigNumber.from(
             TickMath.getSqrtPriceAtPriceString(
