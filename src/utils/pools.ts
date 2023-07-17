@@ -39,7 +39,6 @@ export const getRangePool = async (
     }
     setRangePoolAddress(id);
     setRangePoolData(rangePoolData);
-    console.log("range pool data", rangePoolData);
   } catch (error) {
     console.log(error);
   }

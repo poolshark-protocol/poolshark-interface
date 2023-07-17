@@ -77,9 +77,7 @@ export default function ConcentratedPoolPreview({}) {
     state.setTokenOutBalance,
     state.setTokenOutRangeAllowance,
     state.pairSelected,
-
     state.setMinTick,
-
     state.setMaxTick,
     state.disabled,
     state.setDisabled,
