@@ -11,7 +11,6 @@ import { useAccount } from 'wagmi'
 import { BigNumber, ethers } from 'ethers'
 import { TickMath } from '../../../utils/math/tickMath'
 import JSBI from 'jsbi'
-import { fetchTokenPrices } from '../../../utils/tokens'
 import { copyElementUseEffect } from '../../../utils/misc'
 import { DyDxMath } from '../../../utils/math/dydxMath'
 import { rangePoolABI } from '../../../abis/evm/rangePool'
@@ -57,7 +56,6 @@ export default function Range() {
   const [amount1Fees, setAmount1Fees] = useState(0.0)
   const [amount0FeesUsd, setAmount0FeesUsd] = useState(0.0)
   const [amount1FeesUsd, setAmount1FeesUsd] = useState(0.0)
-  const [mktRate, setMktRate] = useState({})
   const [is0Copied, setIs0Copied] = useState(false)
   const [is1Copied, setIs1Copied] = useState(false)
   const [isPoolCopied, setIsPoolCopied] = useState(false)
@@ -165,7 +163,6 @@ export default function Range() {
     setLowerPrice(TickMath.getPriceStringAtTick(Number(rangePositionData.min)))
     setUpperPrice(TickMath.getPriceStringAtTick(Number(rangePositionData.max)))
     setAmounts()
-    fetchTokenPrices(String(rangePoolData.tickAtPrice), setMktRate)
   }, [])
 
   function setAmounts() {
