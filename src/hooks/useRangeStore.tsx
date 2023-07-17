@@ -27,7 +27,7 @@ type RangeState = {
   //TokenOut defines the token on the left/up on a swap page
   tokenOut: token;
   tokenOutAmount: BigNumber;
-  tokenOutRangeUSDPrice: Number;
+  tokenOutRangeUSDPrice: number;
   tokenOutBalance: string;
   tokenOutRangeAllowance: string;
   //min and max price input
