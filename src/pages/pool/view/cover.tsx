@@ -3,7 +3,7 @@ import {
   ArrowTopRightOnSquareIcon,
   ArrowsRightLeftIcon,
   ArrowLongRightIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
 } from "@heroicons/react/20/solid";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
@@ -32,7 +32,7 @@ export default function Cover() {
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
   const { data: signer } = useSigner();
   const [poolAdd, setPoolContractAdd] = useState(router.query.poolId ?? "");
-  const [priceDirection, setPriceDirection] = useState(false)
+  const [priceDirection, setPriceDirection] = useState(false);
   const [tokenIn, setTokenIn] = useState({
     name: router.query.tokenZeroAddress ?? "",
     symbol: router.query.tokenZeroSymbol ?? "",
@@ -42,7 +42,7 @@ export default function Cover() {
     value: router.query.tokenZeroValue ?? "",
   } as token);
 
-  console.log(priceDirection)
+  console.log(priceDirection);
   console.log("router setting tokens");
   const [tokenOut, setTokenOut] = useState({
     name: router.query.tokenOneAddress ?? "",
@@ -67,7 +67,7 @@ export default function Cover() {
   const [userFillOut, setUserFillOut] = useState(
     router.query.userFillOut ?? "0"
   );
-  console.log(router.query.coverTickPrice)
+  console.log(router.query.coverTickPrice);
   const [mktRate, setMktRate] = useState({});
   const [epochLast, setEpochLast] = useState(router.query.epochLast ?? 0);
   const [zeroForOne, setZeroForOne] = useState(
@@ -80,7 +80,7 @@ export default function Cover() {
   const [is1Copied, setIs1Copied] = useState(false);
   const [isPoolCopied, setIsPoolCopied] = useState(false);
   const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-    tokenIn.address != ""
+    tokenIn.address
       ? tokenIn.address.toString().substring(0, 6) +
           "..." +
           tokenIn.address
@@ -92,7 +92,7 @@ export default function Cover() {
       : undefined
   );
   const [tokenOneDisplay, setTokenOneDisplay] = useState(
-    tokenOut.address != ""
+    tokenOut.address
       ? tokenOut.address.toString().substring(0, 6) +
           "..." +
           tokenOut.address
@@ -134,7 +134,12 @@ export default function Cover() {
       setTokenIn({
         name: query.tokenZeroName,
         symbol: query.tokenZeroSymbol,
-        callId: String(query.tokenZeroAddress).localeCompare(String(query.tokenOneAddress)) < 0 ? 0 : 1,
+        callId:
+          String(query.tokenZeroAddress).localeCompare(
+            String(query.tokenOneAddress)
+          ) < 0
+            ? 0
+            : 1,
         logoURI: query.tokenZeroLogoURI,
         address: query.tokenZeroAddress,
         value: query.tokenZeroValue,
@@ -142,7 +147,10 @@ export default function Cover() {
       console.log("router is ready tokenIn", {
         name: query.tokenZeroName,
         symbol: query.tokenZeroSymbol,
-        callId: String(query.tokenZeroAddress).localeCompare(tokenOut.address) < 0 ? 0 : 1,
+        callId:
+          String(query.tokenZeroAddress).localeCompare(tokenOut.address) < 0
+            ? 0
+            : 1,
         logoURI: query.tokenZeroLogoURI,
         address: query.tokenZeroAddress,
         value: query.tokenZeroValue,
@@ -150,7 +158,12 @@ export default function Cover() {
       setTokenOut({
         name: query.tokenOneName,
         symbol: query.tokenOneSymbol,
-        callId: String(query.tokenOneAddress).localeCompare(String(query.tokenZeroAddress)) < 0 ? 0 : 1,
+        callId:
+          String(query.tokenOneAddress).localeCompare(
+            String(query.tokenZeroAddress)
+          ) < 0
+            ? 0
+            : 1,
         logoURI: query.tokenOneLogoURI,
         address: query.tokenOneAddress,
         value: query.tokenOneValue,
@@ -241,14 +254,29 @@ export default function Cover() {
         setUsdPriceIn(parseFloat(tokenInUsdPrice));
         setUsdPriceOut(parseFloat(tokenOutUsdPrice));
         setLowerInverse(
-          parseFloat((parseFloat(tokenOutUsdPrice) / Number(TickMath.getPriceStringAtTick(Number(maxLimit)))).toPrecision(6)),
-        )
+          parseFloat(
+            (
+              parseFloat(tokenOutUsdPrice) /
+              Number(TickMath.getPriceStringAtTick(Number(maxLimit)))
+            ).toPrecision(6)
+          )
+        );
         setUpperInverse(
-          parseFloat((parseFloat(tokenOutUsdPrice) / Number(TickMath.getPriceStringAtTick(Number(minLimit)))).toPrecision(6)),
-        )
+          parseFloat(
+            (
+              parseFloat(tokenOutUsdPrice) /
+              Number(TickMath.getPriceStringAtTick(Number(minLimit)))
+            ).toPrecision(6)
+          )
+        );
         setPriceInverse(
-          parseFloat((parseFloat(tokenOutUsdPrice) / Number(TickMath.getPriceStringAtTick(Number(latestTick)))).toPrecision(6))
-        )
+          parseFloat(
+            (
+              parseFloat(tokenOutUsdPrice) /
+              Number(TickMath.getPriceStringAtTick(Number(latestTick)))
+            ).toPrecision(6)
+          )
+        );
       }
     } catch (error) {
       console.log(error);
@@ -393,7 +421,7 @@ export default function Cover() {
                 </span>
               </div>
             </div>
-          
+
             <a
               href={"https://goerli.arbiscan.io/address/" + poolAdd}
               target="_blank"
@@ -404,70 +432,70 @@ export default function Cover() {
               <ArrowTopRightOnSquareIcon className="w-5 " />
             </a>
           </div>
-            <div className="mb-4 w-full">
-              <div className="flex flex-wrap justify-between text-[#646464] w-full">
-                <div className="hidden md:grid grid-rows-2 md:grid-rows-1 grid-cols-1 md:grid-cols-2 gap-x-10 md:pl-2 pl-0 ">
-                  <h1
-                    onClick={() => copyAddress0()}
-                    className="text-xs cursor-pointer w-32"
-                  >
-                    {tokenIn.symbol}:
-                    {is0Copied ? (
-                      <span className="ml-1">Copied</span>
-                    ) : (
-                      <span className="ml-1">{tokenZeroDisplay}</span>
-                    )}
-                  </h1>
-                  <h1
-                    onClick={() => copyAddress1()}
-                    className="text-xs cursor-pointer"
-                  >
-                    {tokenOut.symbol}:
-                    {is1Copied ? (
-                      <span className="ml-1">Copied</span>
-                    ) : (
-                      <span className="ml-1">{tokenOneDisplay}</span>
-                    )}
-                  </h1>
-                </div>
+          <div className="mb-4 w-full">
+            <div className="flex flex-wrap justify-between text-[#646464] w-full">
+              <div className="hidden md:grid grid-rows-2 md:grid-rows-1 grid-cols-1 md:grid-cols-2 gap-x-10 md:pl-2 pl-0 ">
                 <h1
-                  onClick={() => copyPoolAddress()}
-                  className="text-xs cursor-pointer flex items-center"
+                  onClick={() => copyAddress0()}
+                  className="text-xs cursor-pointer w-32"
                 >
-                  Pool:
-                  {isPoolCopied ? (
+                  {tokenIn.symbol}:
+                  {is0Copied ? (
                     <span className="ml-1">Copied</span>
                   ) : (
-                    <span className="ml-1">{poolDisplay}</span>
+                    <span className="ml-1">{tokenZeroDisplay}</span>
+                  )}
+                </h1>
+                <h1
+                  onClick={() => copyAddress1()}
+                  className="text-xs cursor-pointer"
+                >
+                  {tokenOut.symbol}:
+                  {is1Copied ? (
+                    <span className="ml-1">Copied</span>
+                  ) : (
+                    <span className="ml-1">{tokenOneDisplay}</span>
                   )}
                 </h1>
               </div>
+              <h1
+                onClick={() => copyPoolAddress()}
+                className="text-xs cursor-pointer flex items-center"
+              >
+                Pool:
+                {isPoolCopied ? (
+                  <span className="ml-1">Copied</span>
+                ) : (
+                  <span className="ml-1">{poolDisplay}</span>
+                )}
+              </h1>
             </div>
-            <div className="bg-black  border border-grey2 border-b-none w-full rounded-xl md:py-6 py-4 md:px-7 px-4 overflow-y-auto">
-              <div className="flex md:flex-row flex-col gap-x-20 justify-between">
-                <div className="md:w-1/2">
-                  <h1 className="text-lg mb-3">Cover Size</h1>
-                  <span className="text-4xl">
-                    $
-                    {(
-                      Number(
-                        ethers.utils.formatUnits(userFillOut.toString(), 18)
-                      ) * usdPriceOut
-                    ).toFixed(2)}
-                  </span>
+          </div>
+          <div className="bg-black  border border-grey2 border-b-none w-full rounded-xl md:py-6 py-4 md:px-7 px-4 overflow-y-auto">
+            <div className="flex md:flex-row flex-col gap-x-20 justify-between">
+              <div className="md:w-1/2">
+                <h1 className="text-lg mb-3">Cover Size</h1>
+                <span className="text-4xl">
+                  $
+                  {(
+                    Number(
+                      ethers.utils.formatUnits(userFillOut.toString(), 18)
+                    ) * usdPriceOut
+                  ).toFixed(2)}
+                </span>
 
-                  <div className="text-grey mt-3 space-y-2">
-                    <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
-                      <div className="flex items-center gap-x-4">
-                        <img height="30" width="30" src={tokenIn.logoURI} />
-                        {tokenIn.symbol}
-                      </div>
-                      {Number(
-                        ethers.utils.formatUnits(userFillOut.toString(), 18)
-                      ).toFixed(2)}
+                <div className="text-grey mt-3 space-y-2">
+                  <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
+                    <div className="flex items-center gap-x-4">
+                      <img height="30" width="30" src={tokenIn.logoURI} />
+                      {tokenIn.symbol}
                     </div>
+                    {Number(
+                      ethers.utils.formatUnits(userFillOut.toString(), 18)
+                    ).toFixed(2)}
                   </div>
-                  {/** 
+                </div>
+                {/** 
                 <div className="flex items-center justify-between border border-grey1 py-3 px-4 rounded-xl">
                   <div className="bg-grey1 text-grey rounded-md px-3 py-0.5">
                     {mktRate[tokenIn.symbol]}
@@ -475,79 +503,81 @@ export default function Cover() {
                 </div>
                 */}
 
-                  <div className="mt-5 space-y-2 cursor-pointer">
-                    <div
-                      onClick={() => setIsAddOpen(true)}
-                      className="bg-[#032851] w-full md:text-base text-sm py-3 px-4 rounded-xl"
-                    >
-                      Add Liquidity
-                    </div>
-                    <div
-                      onClick={() => setIsRemoveOpen(true)}
-                      className="bg-[#032851] w-full md:text-base text-sm py-3 px-4 rounded-xl"
-                    >
-                      Remove Liquidity
-                    </div>
+                <div className="mt-5 space-y-2 cursor-pointer">
+                  <div
+                    onClick={() => setIsAddOpen(true)}
+                    className="bg-[#032851] w-full md:text-base text-sm py-3 px-4 rounded-xl"
+                  >
+                    Add Liquidity
                   </div>
-                </div>
-                <div className="md:w-1/2 w-full">
-                  <h1 className="text-lg mb-3 mt-10 md:mt-0">
-                    Filled Position
-                  </h1>
-                  <span className="text-4xl">
-                    $ {(Number(coverFilledAmount) * usdPriceIn).toFixed(2)}
-                    <span className="text-grey">
-                      /$
-                      {(
-                        Number(
-                          ethers.utils.formatUnits(userFillIn.toString(), 18)
-                        ) * usdPriceIn
-                      ).toFixed(2)}
-                    </span>
-                  </span>
-                  <div className="text-grey mt-3">
-                    <div className="flex items-center relative justify-between border border-grey1 py-3 px-4 rounded-xl">
-                      <div
-                        className={`absolute left-0 h-full w-[${fillPercent}%] bg-white rounded-l-xl opacity-10`}
-                      />
-                      <div className="flex items-center gap-x-4 z-20">
-                        <img height="30" width="30" src={tokenOut.logoURI} />
-                        {tokenOut.symbol}
-                      </div>
-                      <span className="text-white z-20">
-                        {Number(coverFilledAmount).toFixed(2)}
-                        <span className="text-grey">
-                          /
-                          {Number(
-                            ethers.utils.formatUnits(userFillIn.toString(), 18)
-                          ).toFixed(2)}
-                        </span>
-                      </span>
-                    </div>
-                  </div>
-                  <div className="mt-6 space-y-2">
-                    <div className="space-y-3">
-                      {/**TO-DO: PASS PROPS */}
-                      <CoverCollectButton
-                        poolAddress={poolAdd}
-                        address={address}
-                        lower={minLimit}
-                        claim={claimTick}
-                        upper={maxLimit}
-                        zeroForOne={zeroForOne}
-                        gasLimit={burnGasLimit.mul(150).div(100)}
-                        gasFee={burnGasFee}
-                      />
-                      {/*TO-DO: add positionOwner ternary again*/}
-                    </div>
+                  <div
+                    onClick={() => setIsRemoveOpen(true)}
+                    className="bg-[#032851] w-full md:text-base text-sm py-3 px-4 rounded-xl"
+                  >
+                    Remove Liquidity
                   </div>
                 </div>
               </div>
-              <div className="flex justify-between items-center mt-7">
+              <div className="md:w-1/2 w-full">
+                <h1 className="text-lg mb-3 mt-10 md:mt-0">Filled Position</h1>
+                <span className="text-4xl">
+                  $ {(Number(coverFilledAmount) * usdPriceIn).toFixed(2)}
+                  <span className="text-grey">
+                    /$
+                    {(
+                      Number(
+                        ethers.utils.formatUnits(userFillIn.toString(), 18)
+                      ) * usdPriceIn
+                    ).toFixed(2)}
+                  </span>
+                </span>
+                <div className="text-grey mt-3">
+                  <div className="flex items-center relative justify-between border border-grey1 py-3 px-4 rounded-xl">
+                    <div
+                      className={`absolute left-0 h-full w-[${fillPercent}%] bg-white rounded-l-xl opacity-10`}
+                    />
+                    <div className="flex items-center gap-x-4 z-20">
+                      <img height="30" width="30" src={tokenOut.logoURI} />
+                      {tokenOut.symbol}
+                    </div>
+                    <span className="text-white z-20">
+                      {Number(coverFilledAmount).toFixed(2)}
+                      <span className="text-grey">
+                        /
+                        {Number(
+                          ethers.utils.formatUnits(userFillIn.toString(), 18)
+                        ).toFixed(2)}
+                      </span>
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-6 space-y-2">
+                  <div className="space-y-3">
+                    {/**TO-DO: PASS PROPS */}
+                    <CoverCollectButton
+                      poolAddress={poolAdd}
+                      address={address}
+                      lower={minLimit}
+                      claim={claimTick}
+                      upper={maxLimit}
+                      zeroForOne={zeroForOne}
+                      gasLimit={burnGasLimit.mul(150).div(100)}
+                      gasFee={burnGasFee}
+                    />
+                    {/*TO-DO: add positionOwner ternary again*/}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-between items-center mt-7">
               <div className="flex gap-x-6 items-center">
                 <h1 className="text-lg">Price Range </h1>
-                {parseFloat(TickMath.getPriceStringAtTick(Number(latestTick))) < parseFloat(TickMath.getPriceStringAtTick(Number(minLimit))) ||
-                parseFloat(TickMath.getPriceStringAtTick(Number(latestTick))) >= parseFloat(TickMath.getPriceStringAtTick(Number(maxLimit))) ? (
+                {parseFloat(TickMath.getPriceStringAtTick(Number(latestTick))) <
+                  parseFloat(TickMath.getPriceStringAtTick(Number(minLimit))) ||
+                parseFloat(TickMath.getPriceStringAtTick(Number(latestTick))) >=
+                  parseFloat(
+                    TickMath.getPriceStringAtTick(Number(maxLimit))
+                  ) ? (
                   <div className="pr-5">
                     <div className="flex items-center bg-black py-2 px-5 rounded-lg gap-x-2 text-sm whitespace-nowrap">
                       <ExclamationTriangleIcon className="w-4 text-yellow-600" />
@@ -561,57 +591,137 @@ export default function Cover() {
                   </div>
                 )}
               </div>
-              <button onClick={() => setPriceDirection(!priceDirection)} className="text-grey text-xs bg-dark border border-grey1 cursor-pointer px-4 py-1 rounded-md whitespace-nowrap text-xs text-grey flex items-center gap-x-2">{zeroForOne ? priceDirection ? tokenOut.symbol : tokenIn.symbol : priceDirection ? tokenIn.symbol : tokenOut.symbol} per {zeroForOne ? priceDirection ? tokenIn.symbol : tokenOut.symbol : priceDirection ? tokenOut.symbol : tokenIn.symbol}<ArrowsRightLeftIcon className="w-4 text-white" /></button>
+              <button
+                onClick={() => setPriceDirection(!priceDirection)}
+                className="text-grey text-xs bg-dark border border-grey1 cursor-pointer px-4 py-1 rounded-md whitespace-nowrap text-xs text-grey flex items-center gap-x-2"
+              >
+                {zeroForOne
+                  ? priceDirection
+                    ? tokenOut.symbol
+                    : tokenIn.symbol
+                  : priceDirection
+                  ? tokenIn.symbol
+                  : tokenOut.symbol}{" "}
+                per{" "}
+                {zeroForOne
+                  ? priceDirection
+                    ? tokenIn.symbol
+                    : tokenOut.symbol
+                  : priceDirection
+                  ? tokenOut.symbol
+                  : tokenIn.symbol}
+                <ArrowsRightLeftIcon className="w-4 text-white" />
+              </button>
             </div>
-              <div className="flex justify-between items-center mt-4 md:gap-x-6 gap-x-3">
-                <div className="border border-grey1 rounded-xl py-2 text-center w-full">
-                  <div className="text-grey md:text-xs text-[10px] w-full">
-                    Min. Price
-                  </div>
-                  <div className="text-white text-2xl my-2 w-full">
-                    {minLimit === undefined
-                      ? ""
-                      : priceDirection ? lowerInverse : TickMath.getPriceStringAtTick(Number(minLimit))}
-                  </div>
-                  <div className="text-grey md:text-xs text-[10px] w-full">
-                  {zeroForOne ? priceDirection ? tokenOut.symbol : tokenIn.symbol : priceDirection ? tokenIn.symbol : tokenOut.symbol} per {zeroForOne ? priceDirection ? tokenIn.symbol : tokenOut.symbol : priceDirection ? tokenOut.symbol : tokenIn.symbol}
-                  </div>
-                  <div className="text-grey md:text-xs text-[10px] w-full italic mt-1">
-                    Your position will be 100%{" "}
-                    {zeroForOne ? priceDirection ? tokenIn.symbol : tokenOut.symbol : priceDirection ? tokenOut.symbol : tokenIn.symbol} at this
-                    price.
-                  </div>
+            <div className="flex justify-between items-center mt-4 md:gap-x-6 gap-x-3">
+              <div className="border border-grey1 rounded-xl py-2 text-center w-full">
+                <div className="text-grey md:text-xs text-[10px] w-full">
+                  Min. Price
                 </div>
-                <ArrowsRightLeftIcon className="w-12 text-grey" />
-                <div className="border border-grey1 rounded-xl py-2 text-center w-full">
-                  <div className="text-grey md:text-xs text-[10px] w-full">
-                    Max. Price
-                  </div>
-                  <div className="text-white text-2xl my-2 w-full">
-                    {maxLimit === undefined
-                      ? ""
-                      : priceDirection ? upperInverse : TickMath.getPriceStringAtTick(Number(maxLimit))}
-                  </div>
-                  <div className="text-grey md:text-xs text-[10px] w-full">
-                  {zeroForOne ? priceDirection ? tokenOut.symbol : tokenIn.symbol : priceDirection ? tokenIn.symbol : tokenOut.symbol} per {zeroForOne ? priceDirection ? tokenIn.symbol : tokenOut.symbol : priceDirection ? tokenOut.symbol : tokenIn.symbol}
-                  </div>
-                  <div className="text-grey md:text-xs text-[10px] w-full italic mt-1">
-                    Your position will be 100%{" "}
-                    { zeroForOne ? priceDirection ? tokenOut.symbol : tokenIn.symbol : priceDirection ? tokenIn.symbol : tokenOut.symbol} at this
-                    price.
-                  </div>
-                </div>
-              </div>
-              <div className="border border-grey1 rounded-xl py-2 text-center w-full mt-4 bg-dark">
-                <div className="text-grey text-xs w-full">Current Price</div>
                 <div className="text-white text-2xl my-2 w-full">
-                {priceDirection ? priceInverse : TickMath.getPriceStringAtTick(Number(latestTick))}
+                  {minLimit === undefined
+                    ? ""
+                    : priceDirection
+                    ? lowerInverse
+                    : TickMath.getPriceStringAtTick(Number(minLimit))}
                 </div>
-                <div className="text-grey text-xs w-full">
-                {zeroForOne ? priceDirection ? tokenOut.symbol : tokenIn.symbol : priceDirection ? tokenIn.symbol : tokenOut.symbol} per {zeroForOne ? priceDirection ? tokenIn.symbol : tokenOut.symbol : priceDirection ? tokenOut.symbol : tokenIn.symbol}
+                <div className="text-grey md:text-xs text-[10px] w-full">
+                  {zeroForOne
+                    ? priceDirection
+                      ? tokenOut.symbol
+                      : tokenIn.symbol
+                    : priceDirection
+                    ? tokenIn.symbol
+                    : tokenOut.symbol}{" "}
+                  per{" "}
+                  {zeroForOne
+                    ? priceDirection
+                      ? tokenIn.symbol
+                      : tokenOut.symbol
+                    : priceDirection
+                    ? tokenOut.symbol
+                    : tokenIn.symbol}
+                </div>
+                <div className="text-grey md:text-xs text-[10px] w-full italic mt-1">
+                  Your position will be 100%{" "}
+                  {zeroForOne
+                    ? priceDirection
+                      ? tokenIn.symbol
+                      : tokenOut.symbol
+                    : priceDirection
+                    ? tokenOut.symbol
+                    : tokenIn.symbol}{" "}
+                  at this price.
                 </div>
               </div>
-              {/* 
+              <ArrowsRightLeftIcon className="w-12 text-grey" />
+              <div className="border border-grey1 rounded-xl py-2 text-center w-full">
+                <div className="text-grey md:text-xs text-[10px] w-full">
+                  Max. Price
+                </div>
+                <div className="text-white text-2xl my-2 w-full">
+                  {maxLimit === undefined
+                    ? ""
+                    : priceDirection
+                    ? upperInverse
+                    : TickMath.getPriceStringAtTick(Number(maxLimit))}
+                </div>
+                <div className="text-grey md:text-xs text-[10px] w-full">
+                  {zeroForOne
+                    ? priceDirection
+                      ? tokenOut.symbol
+                      : tokenIn.symbol
+                    : priceDirection
+                    ? tokenIn.symbol
+                    : tokenOut.symbol}{" "}
+                  per{" "}
+                  {zeroForOne
+                    ? priceDirection
+                      ? tokenIn.symbol
+                      : tokenOut.symbol
+                    : priceDirection
+                    ? tokenOut.symbol
+                    : tokenIn.symbol}
+                </div>
+                <div className="text-grey md:text-xs text-[10px] w-full italic mt-1">
+                  Your position will be 100%{" "}
+                  {zeroForOne
+                    ? priceDirection
+                      ? tokenOut.symbol
+                      : tokenIn.symbol
+                    : priceDirection
+                    ? tokenIn.symbol
+                    : tokenOut.symbol}{" "}
+                  at this price.
+                </div>
+              </div>
+            </div>
+            <div className="border border-grey1 rounded-xl py-2 text-center w-full mt-4 bg-dark">
+              <div className="text-grey text-xs w-full">Current Price</div>
+              <div className="text-white text-2xl my-2 w-full">
+                {priceDirection
+                  ? priceInverse
+                  : TickMath.getPriceStringAtTick(Number(latestTick))}
+              </div>
+              <div className="text-grey text-xs w-full">
+                {zeroForOne
+                  ? priceDirection
+                    ? tokenOut.symbol
+                    : tokenIn.symbol
+                  : priceDirection
+                  ? tokenIn.symbol
+                  : tokenOut.symbol}{" "}
+                per{" "}
+                {zeroForOne
+                  ? priceDirection
+                    ? tokenIn.symbol
+                    : tokenOut.symbol
+                  : priceDirection
+                  ? tokenOut.symbol
+                  : tokenIn.symbol}
+              </div>
+            </div>
+            {/* 
             <div className="mb-20 md:mb-0">
               <div className="flex justify-between items-center mt-10 mb-5">
                 <h1 className="text-lg">Original pool being covered </h1>
@@ -653,7 +763,7 @@ export default function Cover() {
               </div>
             </div>
             */}
-            </div>
+          </div>
         </div>
         {tokenIn.name == "" ? (
           <></>

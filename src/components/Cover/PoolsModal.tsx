@@ -228,27 +228,8 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                               >
                                 <UserPool
                                   key={allRangePosition.id}
-                                  account={address}
-                                  poolId={allRangePosition.poolId}
-                                  tokenZero={allRangePosition.tokenZero}
-                                  tokenOne={allRangePosition.tokenOne}
-                                  valueTokenZero={
-                                    allRangePosition.valueTokenZero
-                                  }
-                                  valueTokenOne={allRangePosition.valueTokenOne}
-                                  min={allRangePosition.min}
-                                  max={allRangePosition.max}
-                                  userLiquidity={allRangePosition.liquidity}
-                                  price={allRangePosition.price}
-                                  feeTier={allRangePosition.feeTier}
-                                  tickSpacing={allRangePosition.tickSpacing}
-                                  tvlUsd={allRangePosition.tvlUsd}
-                                  volumeUsd={allRangePosition.volumeUsd}
-                                  volumeEth={allRangePosition.volumeEth}
+                                  rangePosition={allRangePosition}
                                   href={'/cover'}
-                                  userTokenAmount={
-                                    allRangePosition.userTokenAmount
-                                  }
                                 />
                               </div>
                             )

@@ -1,6 +1,5 @@
 import Navbar from '../../components/Navbar'
 import {
-  PlusSmallIcon,
   MagnifyingGlassIcon,
   ChevronDownIcon,
   InformationCircleIcon,
@@ -293,22 +292,7 @@ export default function Pool() {
                             return (
                               <UserPool
                                 key={allRangePosition.id + "rangePosition"}
-                                account={address}
-                                poolId={allRangePosition.poolId}
-                                tokenZero={allRangePosition.tokenZero}
-                                tokenOne={allRangePosition.tokenOne}
-                                valueTokenZero={allRangePosition.valueTokenZero}
-                                valueTokenOne={allRangePosition.valueTokenOne}
-                                min={allRangePosition.min}
-                                max={allRangePosition.max}
-                                price={allRangePosition.price}
-                                userLiquidity={allRangePosition.userLiquidity}
-                                userTokenAmount={allRangePosition.userTokenAmount}
-                                feeTier={allRangePosition.feeTier}
-                                tickSpacing={allRangePosition.tickSpacing}
-                                tvlUsd={allRangePosition.tvlUsd}
-                                volumeUsd={allRangePosition.volumeUsd}
-                                volumeEth={allRangePosition.volumeEth}
+                                rangePosition={allRangePosition}
                                 href={"/pool/view/range"}
                               />
                             );

@@ -1,91 +1,159 @@
-import { Fragment, useEffect, useState } from 'react'
-import { Transition, Dialog } from '@headlessui/react'
-import RangeMintButton from '../Buttons/RangeMintButton'
-import { BigNumber, ethers } from 'ethers'
-import { erc20ABI, useAccount, useContractRead, useProvider } from 'wagmi'
-import { TickMath } from '../../utils/math/tickMath'
-import RangeMintDoubleApproveButton from '../Buttons/RangeMintDoubleApproveButton'
-import { useRouter } from 'next/router'
-import {
-  ArrowLongRightIcon,
-} from '@heroicons/react/20/solid'
-import { gasEstimateRangeMint, gasEstimateSwapLimit } from '../../utils/gas'
-import RangeMintApproveButton from '../Buttons/RangeMintApproveButton'
+import { Fragment, useEffect, useState } from "react";
+import { Transition, Dialog } from "@headlessui/react";
+import RangeMintButton from "../Buttons/RangeMintButton";
+import { BigNumber, ethers } from "ethers";
+import { erc20ABI, useAccount, useContractRead, useProvider } from "wagmi";
+import { TickMath } from "../../utils/math/tickMath";
+import RangeMintDoubleApproveButton from "../Buttons/RangeMintDoubleApproveButton";
+import { useRouter } from "next/router";
+import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
+import { gasEstimateRangeMint, gasEstimateSwapLimit } from "../../utils/gas";
+import RangeMintApproveButton from "../Buttons/RangeMintApproveButton";
+import { useRangeStore } from "../../hooks/useRangeStore";
+import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 
-export default function ConcentratedPoolPreview({
-  account,
-  poolAddress,
-  poolRoute,
-  tokenIn,
-  tokenOut,
-  amount0,
-  amount1,
-  amount0Usd,
-  amount1Usd,
-  lowerTick,
-  upperTick,
-  mintGasFee,
-  gasLimit,
-  fee,
-  allowance0,
-  allowance1,
-  disabled,
-  buttonState,
-  tokenOneSymbol,
-  tokenZeroSymbol,
-  maxInput,
-  minInput
-}) {
-  const { address, isConnected } = useAccount()
-  const router = useRouter()
-  const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
-  const lowerPrice = TickMath.getPriceStringAtTick(lowerTick)
-  const upperPrice = TickMath.getPriceStringAtTick(upperTick)
-  const provider = useProvider()
-  const signer = new ethers.VoidSigner(address, provider)
+export default function ConcentratedPoolPreview({}) {
+  const [
+    rangePoolAddress,
+    rangePoolData,
+    rangePositionData,
+    tokenIn,
+    tokenInAmount,
+    tokenInRangeUSDPrice,
+    tokenInBalance,
+    tokenInAllowance,
+    setTokenIn,
+    setTokenInAmount,
+    setTokenInRangeUSDPrice,
+    setTokenInBalance,
+    setTokenInAllowance,
+    tokenOut,
+    tokenOutAmount,
+    tokenOutRangeUSDPrice,
+    tokenOutBalance,
+    tokenOutAllowance,
+    setTokenOut,
+    setTokenOutAmount,
+    setTokenOutRangeUSDPrice,
+    setTokenOutBalance,
+    setTokenOutAllowance,
+    pairSelected,
+    setMinTick,
+    setMaxTick,
+    disabled,
+    setDisabled,
+    buttonMessage,
+    setButtonMessage,
+    minInput,
+    maxInput,
+    setMinInput,
+    setMaxInput,
+  ] = useRangeStore((state) => [
+    state.rangePoolAddress,
+    state.rangePoolData,
+    state.rangePositionData,
+    state.tokenIn,
+    state.tokenInAmount,
+    state.tokenInRangeUSDPrice,
+    state.tokenInBalance,
+    state.tokenInRangeAllowance,
+    state.setTokenIn,
+    state.setTokenInAmount,
+    state.setTokenInRangeUSDPrice,
+    state.setTokenInBalance,
+    state.setTokenInRangeAllowance,
+    state.tokenOut,
+    state.tokenOutAmount,
+    state.tokenOutRangeUSDPrice,
+    state.tokenOutBalance,
+    state.tokenOutRangeAllowance,
+    state.setTokenOut,
+    state.setTokenOutAmount,
+    state.setTokenOutRangeUSDPrice,
+    state.setTokenOutBalance,
+    state.setTokenOutRangeAllowance,
+    state.pairSelected,
+    state.setMinTick,
+    state.setMaxTick,
+    state.disabled,
+    state.setDisabled,
+    state.buttonMessage,
+    state.setButtonMessage,
+    state.minInput,
+    state.maxInput,
+    state.setMinInput,
+    state.setMaxInput,
+  ]);
 
-  const [isOpen, setIsOpen] = useState(false)
-  const [doubleApprove, setdoubleApprove] = useState(false)
+  const { address, isConnected } = useAccount();
+  const router = useRouter();
 
-  const { data: allowanceIn } = useContractRead({
+  const provider = useProvider();
+  const signer = new ethers.VoidSigner(address, provider);
+
+  console.log('tokenInAmount', tokenInAmount)
+
+  const [doubleApprove, setdoubleApprove] = useState(false);
+  ////////////////////////////////Token Allowances
+
+  const { data: allowanceInRange } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
-    functionName: 'allowance',
-    args: [address, poolRoute],
+    functionName: "allowance",
+    args: [address, rangePoolAddress],
     chainId: 421613,
     watch: true,
-    enabled: poolRoute != undefined && tokenIn.address != '',
-    onSuccess(data) {
-      allowance0 = data
-    },
+    enabled: pairSelected && rangePoolAddress != "0x000",
     onError(error) {
-      console.log('Error', error)
+      console.log("Error allowance", error);
     },
-  })
+    onSuccess(data) {
+      console.log("Success allowance", data);
+    },
+  });
 
-  const { data: allowanceOut } = useContractRead({
-    address: tokenOut.address,
-    abi: erc20ABI,
-    functionName: 'allowance',
-    args: [address, poolRoute],
-    chainId: 421613,
-    watch: true,
-    enabled: poolRoute != undefined && tokenIn.address != '',
-    onSuccess(data) {
-      allowance1 = data
-    },
-    onError(error) {
-      console.log('Error', error)
-    },
-  })
+  useEffect(() => {
+    if (allowanceInRange) {
+      setTokenInAllowance(parseInt(allowanceInRange.toString()).toString());
+    }
+  }, [allowanceInRange]);
+  console.log("allowance tokenInAllowance", tokenInAllowance);
+  console.log("allowance tokenInamount", tokenInAmount);
+
+  ////////////////////////////////Mint Gas Fee
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
+  const [mintGasFee, setMintGasFee] = useState("$0.00");
+
+  useEffect(() => {
+    updateGasFee();
+  }, [tokenInAmount, tokenOut, rangePositionData]);
+
+  async function updateGasFee() {
+    const newGasFee = await gasEstimateRangeMint(
+      rangePoolAddress,
+      address,
+      rangePositionData.minTick,
+      rangePositionData.maxTick,
+      tokenInAmount,
+      tokenOutAmount,
+      signer
+    );
+    setMintGasFee(newGasFee.formattedPrice);
+    setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
+  }
+
+  ///////////////////////////////
+  const [isOpen, setIsOpen] = useState(false);
 
   function closeModal() {
-    setIsOpen(false)
+    setIsOpen(false);
   }
 
   function openModal() {
-    setIsOpen(true)
+    setIsOpen(true);
   }
+
+  console.log(rangePoolData.feeTier)
 
   return (
     <div>
@@ -127,7 +195,10 @@ export default function ConcentratedPoolPreview({
                             {tokenIn.symbol}
                           </button>
                           <button className="flex w-full items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
-                            <img className="w-7 w-full" src={tokenOut.logoURI} />
+                            <img
+                              className="w-7 w-full"
+                              src={tokenOut.logoURI}
+                            />
                             {tokenOut.symbol}
                           </button>
                         </div>
@@ -138,7 +209,8 @@ export default function ConcentratedPoolPreview({
                         </div>
                         <div className="mt-3">
                           <button className="relative cursor-default rounded-lg bg-black text-white cursor-pointer border border-grey1 py-2 pl-3 w-full text-left shadow-md focus:outline-none">
-                            <span className="block truncate">{fee}</span>
+                            <span className="block truncate">                      
+                            </span>
                             <span className="block truncate text-xs text-grey mt-1">
                               Best for most pairs
                             </span>
@@ -154,18 +226,13 @@ export default function ConcentratedPoolPreview({
                             <div className=" p-2 ">
                               <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
                                 {parseFloat(
-                                  ethers.utils.formatUnits(
-                                    tokenOrder ? amount0 : amount1,
-                                    18,
-                                  ),
+                                  ethers.utils.formatUnits(tokenInAmount, 18)
                                 ).toFixed(3)}
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                  $
-                                  {tokenOrder
-                                    ? amount0Usd.toFixed(2)
-                                    : amount1Usd.toFixed(2)}
+                                  ${(Number(tokenInRangeUSDPrice) *
+                                  Number(ethers.utils.formatUnits(tokenInAmount, 18))).toFixed(2)}
                                 </div>
                               </div>
                             </div>
@@ -194,18 +261,13 @@ export default function ConcentratedPoolPreview({
                             <div className=" p-2 ">
                               <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
                                 {parseFloat(
-                                  ethers.utils.formatUnits(
-                                    tokenOrder ? amount1 : amount0,
-                                    18,
-                                  ),
+                                  ethers.utils.formatUnits(tokenOutAmount, 18)
                                 ).toFixed(3)}
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                  $
-                                  {tokenOrder
-                                    ? amount1Usd.toFixed(2)
-                                    : amount0Usd.toFixed(2)}
+                                  ${(Number(tokenOutRangeUSDPrice) *
+                                  Number(ethers.utils.formatUnits(tokenOutAmount, 18))).toFixed(2)}
                                 </div>
                               </div>
                             </div>
@@ -245,12 +307,11 @@ export default function ConcentratedPoolPreview({
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                              { tokenOrder ? minInput : maxInput }
+                                {minInput}
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">
-                            {tokenOut.symbol} per{" "}
-                            {tokenIn.symbol}
+                              {tokenOut.symbol} per {tokenIn.symbol}
                             </span>
                           </div>
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
@@ -259,50 +320,68 @@ export default function ConcentratedPoolPreview({
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                { tokenOrder ? maxInput : minInput }
+                                {maxInput}
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">
-                            {tokenOut.symbol} per{" "}
-                            {tokenIn.symbol}
+                              {tokenOut.symbol} per {tokenIn.symbol}
                             </span>
                           </div>
                         </div>
                       </div>
                       <div className="mt-4">
-                        {allowance0.gte(amount0) && allowance1.gte(amount1) ? (
+                        {BigNumber.from(parseInt(tokenInAllowance)).gte(
+                          tokenInAmount
+                        ) &&
+                        BigNumber.from(parseInt(tokenOutAllowance)).gte(
+                          tokenOutAmount
+                        ) ? (
                           <RangeMintButton
                             to={address}
-                            poolAddress={poolAddress}
-                            lower={lowerTick}
-                            upper={upperTick}
+                            poolAddress={rangePoolAddress}
+                            lower={minInput}
+                            upper={maxInput}
                             disabled={
-                              allowance0.lt(amount0) ||
-                              allowance1.lt(amount1) ||
-                              mintGasFee == '$0.00'
+                              BigNumber.from(parseInt(tokenInAllowance)).lt(
+                                tokenInAmount
+                              ) ||
+                              BigNumber.from(parseInt(tokenOutAllowance)).lt(
+                                tokenOutAmount
+                              ) ||
+                              mintGasFee === "$0.00"
                             }
-                            amount0={amount0}
-                            amount1={amount1}
-                            gasLimit={gasLimit}
-                            closeModal={() => router.push('/pool')}
+                            amount0={tokenInAmount}
+                            amount1={tokenOutAmount}
+                            gasLimit={mintGasLimit}
+                            closeModal={() => router.push("/pool")}
                           />
-                        ) : (allowance0.lt(amount0) &&
-                            allowance1.lt(amount1)) ||
+                        ) : (BigNumber.from(parseInt(tokenInAllowance)).lt(
+                            tokenInAmount
+                          ) &&
+                            BigNumber.from(parseInt(tokenOutAllowance)).lt(
+                              tokenOutAmount
+                            )) ||
                           doubleApprove ? (
                           <RangeMintDoubleApproveButton
-                            poolAddress={poolAddress}
+                            poolAddress={rangePoolAddress}
                             tokenIn={tokenIn}
                             tokenOut={tokenOut}
                             setAllowanceController={setdoubleApprove}
                           />
-                        ) : !doubleApprove && allowance0.lt(amount0) ? (
+                        ) : !doubleApprove &&
+                          BigNumber.from(parseInt(tokenInAllowance)).lt(
+                            tokenInAmount
+                          ) ? (
                           <RangeMintApproveButton
-                            poolAddress={poolAddress}
+                            poolAddress={rangePoolAddress}
                             approveToken={tokenIn}
                           />
-                        ) : !doubleApprove && allowance1.lt(amount1) ? (
+                        ) : !doubleApprove &&
+                          BigNumber.from(parseInt(tokenOutAllowance)).lt(
+                            tokenOutAmount
+                          ) ? (
                           <RangeMintApproveButton
-                            poolAddress={poolAddress}
+                            poolAddress={rangePoolAddress}
                             approveToken={tokenOut}
                           />
                         ) : null}
@@ -318,19 +397,25 @@ export default function ConcentratedPoolPreview({
       <button
         onClick={() => setIsOpen(true)}
         disabled={disabled}
-        className="mt-8 w-full py-4 disabled:opacity-50 disabled:cursor-not-allowed mx-auto font-medium text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        className={`mt-8 w-full py-4 mx-auto font-medium text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed`}
       >
         {disabled ? (
           <>
-            {buttonState === 'price' ? (<>Min. is greater than Max. Price</>) : (<></>)}
-            {buttonState === 'amount' ? <>Input Deposit Amount</> : <></>}
-            {buttonState === 'balance0' ? <>Insufficient {tokenZeroSymbol}  Balance</> : <></>}
-            {buttonState === 'balance1' ? <>Insufficient {tokenOneSymbol} Balance</> : <></>}
+            {buttonMessage === "price" && (
+              <>Min. is greater than Max. Price</>
+            )}
+            {buttonMessage === "amount" && <>Input Deposit Amount</>}
+            {buttonMessage === "tokenInBalance" && (
+              <>Insufficient {tokenIn.symbol} Balance</>
+            )}
+            {buttonMessage === "tokenOutBalance" && (
+              <>Insufficient {tokenOut.symbol} Balance</>
+            )}
           </>
         ) : (
           <>Preview</>
         )}
       </button>
     </div>
-  )
+  );
 }

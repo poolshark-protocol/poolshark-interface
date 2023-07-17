@@ -86,9 +86,7 @@ export default function SelectToken(props) {
         symbol: coin?.symbol,
         logoURI: coin?.logoURI,
       });
-      props.setPairSelected(true)
     }
-    //props.balance(coin?.id);
     closeModal();
   };
 
