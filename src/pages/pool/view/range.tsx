@@ -71,8 +71,6 @@ export default function Range() {
             )
       : undefined,
   )
-  console.log(tokenIn.address, 'tokenIn.address')
-  console.log(tokenOut.address, 'tokenOut.address')
   const [tokenOneDisplay, setTokenOneDisplay] = useState(
     tokenOut.address != '' as string
       ? tokenOut.address.substring(0, 6) +
@@ -92,7 +90,6 @@ export default function Range() {
             .substring(rangePoolAddress.length - 4, rangePoolAddress.length)
       : undefined,
   )
-
 
   ////////////////////////Addresses
 
@@ -132,32 +129,31 @@ export default function Range() {
     try {
       if (rangePoolData != undefined) {
         setAmount0Usd(
-          parseFloat((amount0 * parseFloat(rangePoolData.tokenIn.usdPrice)).toPrecision(6)),
+          parseFloat((amount0 * parseFloat(rangePoolData.token0.usdPrice)).toPrecision(6)),
         )
         setAmount1Usd(
-          parseFloat((amount1 * parseFloat(rangePoolData.tokenOut.usdPrice)).toPrecision(6)),
+          parseFloat((amount1 * parseFloat(rangePoolData.token1.usdPrice)).toPrecision(6)),
         )
         setAmount0FeesUsd(
-          parseFloat((amount0Fees * parseFloat(rangePoolData.tokenIn.usdPrice)).toPrecision(3)),
+          parseFloat((amount0Fees * parseFloat(rangePoolData.token0.usdPrice)).toPrecision(3)),
         )
         setAmount1FeesUsd(
-          parseFloat((amount1Fees * parseFloat(rangePoolData.tokenOut.usdPrice)).toPrecision(3)),
+          parseFloat((amount1Fees * parseFloat(rangePoolData.token1.usdPrice)).toPrecision(3)),
         )
         setLowerInverse(
-          parseFloat((parseFloat(rangePoolData.tokenOut.usdPrice) / Number(upperPrice)).toPrecision(6)),
+          parseFloat((parseFloat(rangePoolData.token1.usdPrice) / Number(upperPrice)).toPrecision(6)),
         )
         setUpperInverse(
-          parseFloat((parseFloat(rangePoolData.tokenOut.usdPrice) / Number(lowerPrice)).toPrecision(6)),
+          parseFloat((parseFloat(rangePoolData.token1.usdPrice) / Number(lowerPrice)).toPrecision(6)),
         )
         setPriceInverse(
-          parseFloat((parseFloat(rangePoolData.tokenOut.usdPrice) / Number(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(rangePoolData.price)))).toPrecision(6))
+          parseFloat((parseFloat(rangePoolData.token1.usdPrice) / Number(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(rangePoolData.price)))).toPrecision(6))
         )
       }
     } catch (error) {
       console.log(error)
     }
   }
-  console.log()
 
   ////////////////////////Liquidity
 
@@ -262,7 +258,7 @@ export default function Range() {
                 {tokenIn.symbol}-{tokenOut.symbol}
               </span>
              <span className="bg-white text-black rounded-md px-3 py-0.5">
-                {rangePositionData.feeTier}%
+                {Number(rangePositionData.feeTier) / 10000}%
               </span>
               <div className="hidden md:block">
               {Number(rangePoolData.tickAtPrice) < Number(rangePositionData.min) ||
@@ -501,8 +497,8 @@ export default function Range() {
         userLiquidity={rangePositionData.userLiquidity}
         tokenAmount={rangePositionData.userTokenAmount}
         rangePrice={rangePositionData.price}
-        token1Price={parseFloat(rangePositionData.tokenOut.usdPrice)}
-        token0Price={parseFloat(rangePositionData.tokenIn.usdPrice)}
+        token1Price={parseFloat(rangePoolData.token1.usdPrice)}
+        token0Price={parseFloat(rangePoolData.token0.usdPrice)}
       />
       <AddLiquidity
         isOpen={isAddOpen}
@@ -515,8 +511,8 @@ export default function Range() {
         upperTick={Number(rangePositionData.max)}
         liquidity={rangePositionData.userLiquidity}
         rangePrice={rangePositionData.price}
-        token1Price={parseFloat(rangePositionData.tokenOut.usdPrice)}
-        token0Price={parseFloat(rangePositionData.tokenIn.usdPrice)}
+        token1Price={parseFloat(rangePoolData.token1.usdPrice)}
+        token0Price={parseFloat(rangePoolData.token0.usdPrice)}
       />
     </div>
   )

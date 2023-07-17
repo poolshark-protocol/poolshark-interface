@@ -15,8 +15,6 @@ export default function UserPool({
   rangePosition,
   href,
 }) {
-  const [rangePrice, setRangePrice] = useState(undefined);
-  const [rangeTickPrice, setRangeTickPrice] = useState(undefined);
   const [
     tokenIn,
     tokenOut,
@@ -27,7 +25,7 @@ export default function UserPool({
     setRangePoolAddress,
     setRangePoolData,
     setRangePositionData,
-  ] = useRangeStore((state) => [
+  ] = useRangeStore((state: any) => [
     state.tokenIn,
     state.tokenOut,
     state.rangePositionData,
@@ -38,6 +36,9 @@ export default function UserPool({
     state.setRangePoolData,
     state.setRangePositionData,
   ]);
+
+  const [rangePrice, setRangePrice] = useState(undefined);
+  const [rangeTickPrice, setRangeTickPrice] = useState(undefined);
 
   useEffect(() => {
     getRangePoolInfo();
@@ -71,26 +72,23 @@ export default function UserPool({
 
   function choosePosition() {
     setRangePositionData(rangePosition);
-    console.log(rangePositionData, 'rangePositionData')
 
     const tokenInNew = {
       name: rangePosition.tokenZero.name,
       symbol: rangePosition.tokenZero.symbol,
       logoURI: logoMap[rangePosition.tokenZero.symbol],
-      address: rangePosition.tokenZero.address,
+      address: rangePosition.tokenZero.id,
     } as token;
     const tokenOutNew = {
       name: rangePosition.tokenOne.name,
       symbol: rangePosition.tokenOne.symbol,
       logoURI: logoMap[rangePosition.tokenOne.symbol],
-      address: rangePosition.tokenOne.address,
+      address: rangePosition.tokenOne.id,
     } as token;
 
     setTokenIn(tokenOutNew, tokenInNew);
     setTokenOut(tokenInNew, tokenOutNew);
-    console.log(tokenOut, 'tokenOutUserPool')
     getRangePool(tokenIn, tokenOut, setRangePoolAddress, setRangePoolData);
-    console.log(rangePoolData, 'rangePoolUserPool')
   }
 
   const feeTierPercentage = Number(rangePosition.feeTier) / 10000;
