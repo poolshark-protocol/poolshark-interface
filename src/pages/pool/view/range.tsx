@@ -17,6 +17,7 @@ import { useContractRead } from 'wagmi'
 import RemoveLiquidity from '../../../components/Modals/Range/RemoveLiquidity'
 import AddLiquidity from '../../../components/Modals/Range/AddLiquidity'
 import { useRangeStore } from '../../../hooks/useRangeStore'
+import { fetchRangeTokenUSDPrice } from '../../../utils/tokens'
 
 export default function Range() {
   const [
@@ -49,8 +50,8 @@ export default function Range() {
   const [priceDirection, setPriceDirection] = useState(false);
 
   const [userLiquidityUsd, setUserLiquidityUsd] = useState(0)
-  const [lowerPrice, setLowerPrice] = useState(undefined)
-  const [upperPrice, setUpperPrice] = useState(undefined)
+  const [lowerPrice, setLowerPrice] = useState("")
+  const [upperPrice, setUpperPrice] = useState("")
   const [amount0, setAmount0] = useState(0)
   const [amount1, setAmount1] = useState(0)
   const [amount0Usd, setAmount0Usd] = useState(0)
@@ -146,13 +147,13 @@ export default function Range() {
           parseFloat((amount1Fees * tokenOutRangeUSDPrice).toPrecision(3)),
         )
         setLowerInverse(
-          parseFloat((tokenOutRangeUSDPrice / Number(upperPrice)).toPrecision(6)),
+          parseFloat((tokenOutRangeUSDPrice / parseFloat(upperPrice)).toPrecision(6)),
         )
         setUpperInverse(
-          parseFloat((tokenOutRangeUSDPrice / Number(lowerPrice)).toPrecision(6)),
+          parseFloat((tokenOutRangeUSDPrice / parseFloat(lowerPrice)).toPrecision(6)),
         )
         setPriceInverse(
-          parseFloat((tokenOutRangeUSDPrice / Number(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(rangePoolData.price)))).toPrecision(6))
+          parseFloat((tokenOutRangeUSDPrice / parseFloat(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(String(rangePoolData.price))))).toPrecision(6))
         )
       }
     } catch (error) {
@@ -163,15 +164,32 @@ export default function Range() {
   ////////////////////////Liquidity
 
   useEffect(() => {
-    setTokenInRangeUSDPrice(parseFloat(rangePoolData.token0.usdPrice));
-    setTokenOutRangeUSDPrice(parseFloat(rangePoolData.token1.usdPrice));
-  }, [])
+    if (rangePoolData.token0 && rangePoolData.token1) {
+      if (tokenIn.address) {
+        fetchRangeTokenUSDPrice(
+          rangePoolData,
+          tokenIn,
+          setTokenInRangeUSDPrice
+        );
+      }
+      if (tokenOut.address) {
+        fetchRangeTokenUSDPrice(
+          rangePoolData,
+          tokenOut,
+          setTokenOutRangeUSDPrice
+        );
+      }
+    }
+  }, []);
 
   useEffect(() => {
     setLowerPrice(TickMath.getPriceStringAtTick(Number(rangePositionData.min)))
     setUpperPrice(TickMath.getPriceStringAtTick(Number(rangePositionData.max)))
-    setAmounts()
   }, [tokenInRangeUSDPrice, tokenOutRangeUSDPrice])
+
+  useEffect(() => {
+    setAmounts()
+  }, [lowerPrice, upperPrice])
 
   function setAmounts() {
     try {
@@ -182,22 +200,22 @@ export default function Range() {
         Number(rangePositionData.userLiquidity) > 0 &&
         parseFloat(lowerPrice) < parseFloat(upperPrice)
       ) {
-        const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(rangePositionData.min))
-        const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(rangePositionData.max))
-        const rangeSqrtPrice = JSBI.BigInt(rangePoolData.price)
-        const liquidity = JSBI.BigInt(rangePositionData.userLiquidity)
-        const amounts = DyDxMath.getAmountsForLiquidity(
-          lowerSqrtPrice,
-          upperSqrtPrice,
-          rangeSqrtPrice,
-          liquidity,
-          true
-        )
-        // set amount based on bnInput
-        const amount0Bn = BigNumber.from(String(amounts.token0Amount))
-        const amount1Bn = BigNumber.from(String(amounts.token1Amount))
-        setAmount0(parseFloat(ethers.utils.formatUnits(amount0Bn, 18)))
-        setAmount1(parseFloat(ethers.utils.formatUnits(amount1Bn, 18)))
+          const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(rangePositionData.min))
+          const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(rangePositionData.max))
+          const rangeSqrtPrice = JSBI.BigInt(rangePoolData.price)
+          const liquidity = JSBI.BigInt(rangePositionData.userLiquidity)
+          const amounts = DyDxMath.getAmountsForLiquidity(
+            lowerSqrtPrice,
+            upperSqrtPrice,
+            rangeSqrtPrice,
+            liquidity,
+            true
+          )
+          // set amount based on bnInput
+          const amount0Bn = BigNumber.from(String(amounts.token0Amount))
+          const amount1Bn = BigNumber.from(String(amounts.token1Amount))
+          setAmount0(parseFloat(ethers.utils.formatUnits(amount0Bn, 18)))
+          setAmount1(parseFloat(ethers.utils.formatUnits(amount1Bn, 18)))
       }
     } catch (error) {
       console.log(error)
