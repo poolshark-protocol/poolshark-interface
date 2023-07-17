@@ -130,7 +130,7 @@ export default function ConcentratedPoolPreview({}) {
 
   useEffect(() => {
     updateGasFee();
-  });
+  }, [tokenInAmount, tokenOut, rangePositionData]);
 
   async function updateGasFee() {
     const newGasFee = await gasEstimateRangeMint(
