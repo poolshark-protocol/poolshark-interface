@@ -27,6 +27,8 @@ export default function Range() {
     tokenOut,
     tokenInRangeUSDPrice,
     tokenOutRangeUSDPrice,
+    setTokenInRangeUSDPrice,
+    setTokenOutRangeUSDPrice,
   ] = useRangeStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
@@ -35,6 +37,8 @@ export default function Range() {
     state.tokenOut,
     state.tokenInRangeUSDPrice,
     state.tokenOutRangeUSDPrice,
+    state.setTokenInRangeUSDPrice,
+    state.setTokenOutRangeUSDPrice,
   ])
 
   const { address, isConnected } = useAccount()
@@ -159,10 +163,15 @@ export default function Range() {
   ////////////////////////Liquidity
 
   useEffect(() => {
+    setTokenInRangeUSDPrice(parseFloat(rangePoolData.token0.usdPrice));
+    setTokenOutRangeUSDPrice(parseFloat(rangePoolData.token1.usdPrice));
+  }, [])
+
+  useEffect(() => {
     setLowerPrice(TickMath.getPriceStringAtTick(Number(rangePositionData.min)))
     setUpperPrice(TickMath.getPriceStringAtTick(Number(rangePositionData.max)))
     setAmounts()
-  }, [])
+  }, [tokenInRangeUSDPrice, tokenOutRangeUSDPrice])
 
   function setAmounts() {
     try {

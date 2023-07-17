@@ -20,7 +20,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
     tokenOut,
     tokenInRangeUSDPrice,
     tokenOutRangeUSDPrice
-  ] = useRangeStore((state: any) => [
+  ] = useRangeStore((state) => [
     state.rangePoolAddress,
     state.rangePositionData,
     state.tokenIn,

@@ -16,26 +16,18 @@ export default function UserPool({
   href,
 }) {
   const [
-    rangePoolData,
     tokenIn,
     tokenOut,
     setTokenIn,
     setTokenOut,
-    setTokenInRangeUSDPrice,
-    setTokenOutRangeUSDPrice,
     setRangePoolAddress,
     setRangePoolData,
     setRangePositionData,
-  ] = useRangeStore((state: any) => [
-    state.rangePoolData,
+  ] = useRangeStore((state) => [
     state.tokenIn,
     state.tokenOut,
-    state.rangePositionData,
-    state.rangePoolData,
     state.setTokenIn,
     state.setTokenOut,
-    state.setTokenInRangeUSDPrice,
-    state.setTokenOutRangeUSDPrice,
     state.setRangePoolAddress,
     state.setRangePoolData,
     state.setRangePositionData,
@@ -92,9 +84,8 @@ export default function UserPool({
 
     setTokenIn(tokenOutNew, tokenInNew);
     setTokenOut(tokenInNew, tokenOutNew);
+
     getRangePool(tokenIn, tokenOut, setRangePoolAddress, setRangePoolData);
-    setTokenInRangeUSDPrice(parseFloat(rangePoolData.token0.usdPrice));
-    setTokenOutRangeUSDPrice(parseFloat(rangePoolData.token1.usdPrice));
   }
 
   const feeTierPercentage = Number(rangePosition.feeTier) / 10000;

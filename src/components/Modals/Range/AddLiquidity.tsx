@@ -34,11 +34,11 @@ export default function RangeAddLiquidity({
     rangePositionData,
     tokenInRangeUSDPrice,
     tokenOutRangeUSDPrice,
-  ] = useRangeStore((state: any) => [
+  ] = useRangeStore((state) => [
     state.rangePoolAddress,
     state.tokenIn,
     state.tokenOut,
-    state.rangePoolData,
+    state.rangePositionData,
     state.tokenInRangeUSDPrice,
     state.tokenOutRangeUSDPrice,
   ])
