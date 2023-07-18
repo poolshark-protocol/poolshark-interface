@@ -22,14 +22,14 @@ type RangeState = {
   tokenIn: token;
   tokenInAmount: BigNumber;
   tokenInRangeUSDPrice: number;
-  tokenInRangeAllowance: string;
+  tokenInRangeAllowance: BigNumber;
   tokenInBalance: string;
   //TokenOut defines the token on the left/up on a swap page
   tokenOut: token;
   tokenOutAmount: BigNumber;
   tokenOutRangeUSDPrice: number;
   tokenOutBalance: string;
-  tokenOutRangeAllowance: string;
+  tokenOutRangeAllowance: BigNumber;
   //min and max price input
   minInput: string;
   maxInput: string;
@@ -56,13 +56,13 @@ type RangeAction = {
   setTokenIn: (tokenOut: any, newToken: any) => void;
   setTokenInAmount: (amount: BigNumber) => void;
   setTokenInRangeUSDPrice: (price: number) => void;
-  setTokenInRangeAllowance: (allowance: string) => void;
+  setTokenInRangeAllowance: (allowance: BigNumber) => void;
   setTokenInBalance: (balance: string) => void;
   //
   setTokenOut: (tokenIn: any, newToken: any) => void;
   setTokenOutAmount: (amount: BigNumber) => void;
   setTokenOutRangeUSDPrice: (price: number) => void;
-  setTokenOutRangeAllowance: (allowance: string) => void;
+  setTokenOutRangeAllowance: (allowance: BigNumber) => void;
   setTokenOutBalance: (balance: string) => void;
   //
   setMinInput: (newMinTick: string) => void;
@@ -95,7 +95,7 @@ const initialRangeState: RangeState = {
   } as token,
   tokenInAmount: BN_ZERO,
   tokenInRangeUSDPrice: 0,
-  tokenInRangeAllowance: "0",
+  tokenInRangeAllowance: BN_ZERO,
   tokenInBalance: "0.00",
   //
   tokenOut: {
@@ -107,7 +107,7 @@ const initialRangeState: RangeState = {
   } as token,
   tokenOutAmount: BN_ZERO,
   tokenOutRangeUSDPrice: 0,
-  tokenOutRangeAllowance: "0",
+  tokenOutRangeAllowance: BN_ZERO,
   tokenOutBalance: "0.00",
   //
   minInput: "",
@@ -206,7 +206,7 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       tokenInRangeUSDPrice: newPrice,
     }));
   },
-  setTokenInRangeAllowance: (newAllowance: string) => {
+  setTokenInRangeAllowance: (newAllowance: BigNumber) => {
     set(() => ({
       tokenInRangeAllowance: newAllowance,
     }));
@@ -262,7 +262,7 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       tokenOutBalance: newBalance,
     }));
   },
-  setTokenOutRangeAllowance: (newAllowance: string) => {
+  setTokenOutRangeAllowance: (newAllowance: BigNumber) => {
     set(() => ({
       tokenOutRangeAllowance: newAllowance,
     }));
