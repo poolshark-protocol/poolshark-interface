@@ -50,6 +50,8 @@ type CoverAction = {
   setTokenOutBalance: (balance: string) => void;
   //Claim tick
   setClaimTick: (tick: number) => void;
+  setMinTick: (coverPositionData, tick: BigNumber) => void;
+  setMaxTick: (coverPositionData, tick: BigNumber) => void;
   //gas
   setGasFee: (fee: BigNumber) => void;
   setGasLimit: (limit: BigNumber) => void;
@@ -242,6 +244,20 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   setClaimTick: (claimTick: number) => {
     set(() => ({
       claimTick: claimTick,
+    }));
+  },
+  setMinTick: (coverPositionData, minTick: BigNumber) => {
+    const newPositionData = { ...coverPositionData };
+    newPositionData.minTick = minTick;
+    set(() => ({
+      coverPositionData: newPositionData,
+    }));
+  },
+  setMaxTick: (coverPositionData, maxTick: BigNumber) => {
+    const newPositionData = { ...coverPositionData };
+    newPositionData.maxTick = maxTick;
+    set(() => ({
+      coverPositionData: newPositionData,
     }));
   },
   setGasFee: (gasFee: BigNumber) => {
