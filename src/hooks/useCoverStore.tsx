@@ -9,14 +9,15 @@ import { create } from "zustand";
 
 type CoverState = {
   //poolAddress for current token pairs
-  ////cover
   coverPoolAddress: String;
   coverPoolData: any;
+  coverPositionData: any;
   coverSlippage: string;
   //true if both tokens selected, false if only one token selected
   pairSelected: Boolean;
   //TokenIn defines the token on the left/up on a swap page
   tokenIn: token;
+  tokenInAmount: string;
   tokenInCoverUSDPrice: number;
   tokenInCoverAllowance: string;
   tokenInBalance: string;
@@ -33,10 +34,10 @@ type CoverAction = {
   //pool
   setCoverPoolAddress: (address: String) => void;
   setCoverPoolData: (data: any) => void;
-
   //setPairSelected: (pairSelected: Boolean) => void;
   //tokenIn
   setTokenIn: (tokenOut: token, newToken: token) => void;
+  setTokenInAmount: (amount: string) => void;
   setTokenInCoverUSDPrice: (price: number) => void;
   setTokenInCoverAllowance: (allowance: string) => void;
   setTokenInBalance: (balance: string) => void;
@@ -55,6 +56,7 @@ const initialCoverState: CoverState = {
   //pools
   coverPoolAddress: "",
   coverPoolData: {},
+  coverPositionData: {},
   coverSlippage: "0.5",
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
   pairSelected: true,
@@ -66,6 +68,7 @@ const initialCoverState: CoverState = {
     logoURI: "/static/images/eth_icon.png",
     address: tokenOneAddress,
   } as token,
+  tokenInAmount: "0.00",
   tokenInCoverUSDPrice: 0,
   tokenInCoverAllowance: "0.00",
   tokenInBalance: "0.00",
@@ -88,10 +91,12 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   //pool
   coverPoolAddress: initialCoverState.coverPoolAddress,
   coverPoolData: initialCoverState.coverPoolData,
+  coverPositionData: initialCoverState.coverPositionData,
   coverSlippage: initialCoverState.coverSlippage,
   pairSelected: initialCoverState.pairSelected,
   //tokenIn
   tokenIn: initialCoverState.tokenIn,
+  tokenInAmount: initialCoverState.tokenInAmount,
   tokenInCoverUSDPrice: initialCoverState.tokenInCoverUSDPrice,
   tokenInCoverAllowance: initialCoverState.tokenInCoverAllowance,
   tokenInBalance: initialCoverState.tokenInBalance,
@@ -139,6 +144,11 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         pairSelected: false,
       }));
     }
+  },
+  setTokenInAmount: (newAmount: string) => {
+    set(() => ({
+      tokenInAmount: newAmount,
+    }));
   },
 
   setTokenInCoverUSDPrice: (newPrice: number) => {
