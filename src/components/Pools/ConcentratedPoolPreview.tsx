@@ -175,7 +175,6 @@ export default function ConcentratedPoolPreview({}) {
   function openModal() {
     setIsOpen(true);
   }
-
   return (
     <div>
       <Transition appear show={isOpen} as={Fragment}>
@@ -371,8 +370,8 @@ export default function ConcentratedPoolPreview({}) {
                           <RangeMintButton
                             to={address}
                             poolAddress={rangePoolAddress}
-                            lower={minInput}
-                            upper={maxInput}
+                            lower={rangePositionData.minTick}
+                            upper={rangePositionData.maxTick}
                             disabled={
                               tokenInAllowance.lt(tokenInAmount) ||
                               tokenOutAllowance.lt(tokenOutAmount) ||
