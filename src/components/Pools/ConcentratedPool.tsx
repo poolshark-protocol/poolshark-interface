@@ -882,7 +882,7 @@ export default function ConcentratedPool({}) {
             </div>
           </div>
         </div>
-        <ConcentratedPoolPreview />
+        <ConcentratedPoolPreview fee={fee}/>
       </div>
     </div>
   );
