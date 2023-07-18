@@ -228,29 +228,6 @@ export default function ConcentratedPool({}) {
     }
   }, [tokenInBal, tokenOutBal]);
 
-  ////////////////////////////////Token Allowances
-
-  const { data: allowanceInRange } = useContractRead({
-    address: tokenIn.address,
-    abi: erc20ABI,
-    functionName: "allowance",
-    args: [address, rangePoolAddress],
-    chainId: 421613,
-    watch: true,
-    enabled: pairSelected && rangePoolAddress != "0x000",
-    onError(error) {
-      console.log("Error allowance", error);
-    },
-    onSuccess(data) {
-      console.log("Success allowance", data);
-    },
-  });
-
-  useEffect(() => {
-    if (allowanceInRange) {
-      setTokenInAllowance(ethers.utils.formatUnits(allowanceInRange, 18));
-    }
-  }, [allowanceInRange]);
 
   ////////////////////////////////TokenUSDPrices
 

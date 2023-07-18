@@ -91,10 +91,9 @@ export default function ConcentratedPoolPreview({}) {
   const provider = useProvider();
   const signer = new ethers.VoidSigner(address, provider);
 
-  console.log('tokenInAmount', tokenInAmount)
-
   const [doubleApprove, setdoubleApprove] = useState(false);
-  ////////////////////////////////Token Allowances
+
+  ////////////////////////////////Allowances
 
   const { data: allowanceInRange } = useContractRead({
     address: tokenIn.address,
@@ -103,22 +102,46 @@ export default function ConcentratedPoolPreview({}) {
     args: [address, rangePoolAddress],
     chainId: 421613,
     watch: true,
-    enabled: pairSelected && rangePoolAddress != "0x000",
+    //enabled: tokenIn.address,
     onError(error) {
       console.log("Error allowance", error);
     },
     onSuccess(data) {
-      console.log("Success allowance", data);
+      //console.log("Success allowance", data);
+    },
+  });
+
+  const { data: allowanceOutRange } = useContractRead({
+    address: tokenOut.address,
+    abi: erc20ABI,
+    functionName: "allowance",
+    args: [address, rangePoolAddress],
+    chainId: 421613,
+    watch: true,
+    //enabled: pairSelected && rangePoolAddress != ZERO_ADDRESS,
+    onError(error) {
+      console.log("Error allowance", error);
+    },
+    onSuccess(data) {
+      //console.log("Success allowance", data);
     },
   });
 
   useEffect(() => {
-    if (allowanceInRange) {
-      setTokenInAllowance(parseInt(allowanceInRange.toString()).toString());
+    if (allowanceInRange && allowanceOutRange) {
+      console.log("allowanceInRange", allowanceInRange);
+      console.log("allowanceOutRange", allowanceOutRange);
+      setTokenInAllowance(allowanceInRange);
+      setTokenOutAllowance(allowanceOutRange);
     }
-  }, [allowanceInRange]);
-  console.log("allowance tokenInAllowance", tokenInAllowance);
-  console.log("allowance tokenInamount", tokenInAmount);
+  }, [allowanceInRange, allowanceOutRange]);
+
+  console.log("tokenInAmount", tokenInAmount);
+  console.log("tokenInAllowance", tokenInAllowance);
+  console.log("tokenOutAmount", tokenOutAmount);
+  console.log("tokenOutAllowance", tokenOutAllowance);
+  console.log("doubleApprove", doubleApprove);
+  console.log("/////////////////////////");
 
   ////////////////////////////////Mint Gas Fee
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
@@ -152,8 +175,6 @@ export default function ConcentratedPoolPreview({}) {
   function openModal() {
     setIsOpen(true);
   }
-
-  console.log(rangePoolData.feeTier)
 
   return (
     <div>
@@ -209,8 +230,7 @@ export default function ConcentratedPoolPreview({}) {
                         </div>
                         <div className="mt-3">
                           <button className="relative cursor-default rounded-lg bg-black text-white cursor-pointer border border-grey1 py-2 pl-3 w-full text-left shadow-md focus:outline-none">
-                            <span className="block truncate">                      
-                            </span>
+                            <span className="block truncate"></span>
                             <span className="block truncate text-xs text-grey mt-1">
                               Best for most pairs
                             </span>
@@ -231,8 +251,16 @@ export default function ConcentratedPoolPreview({}) {
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                  ${(Number(tokenInRangeUSDPrice) *
-                                  Number(ethers.utils.formatUnits(tokenInAmount, 18))).toFixed(2)}
+                                  $
+                                  {(
+                                    Number(tokenInRangeUSDPrice) *
+                                    Number(
+                                      ethers.utils.formatUnits(
+                                        tokenInAmount,
+                                        18
+                                      )
+                                    )
+                                  ).toFixed(2)}
                                 </div>
                               </div>
                             </div>
@@ -266,8 +294,16 @@ export default function ConcentratedPoolPreview({}) {
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                  ${(Number(tokenOutRangeUSDPrice) *
-                                  Number(ethers.utils.formatUnits(tokenOutAmount, 18))).toFixed(2)}
+                                  $
+                                  {(
+                                    Number(tokenOutRangeUSDPrice) *
+                                    Number(
+                                      ethers.utils.formatUnits(
+                                        tokenOutAmount,
+                                        18
+                                      )
+                                    )
+                                  ).toFixed(2)}
                                 </div>
                               </div>
                             </div>
@@ -330,24 +366,16 @@ export default function ConcentratedPoolPreview({}) {
                         </div>
                       </div>
                       <div className="mt-4">
-                        {BigNumber.from(parseInt(tokenInAllowance)).gte(
-                          tokenInAmount
-                        ) &&
-                        BigNumber.from(parseInt(tokenOutAllowance)).gte(
-                          tokenOutAmount
-                        ) ? (
+                        {tokenInAllowance.gte(tokenInAmount) &&
+                        tokenOutAllowance.gte(tokenOutAmount) ? (
                           <RangeMintButton
                             to={address}
                             poolAddress={rangePoolAddress}
                             lower={minInput}
                             upper={maxInput}
                             disabled={
-                              BigNumber.from(parseInt(tokenInAllowance)).lt(
-                                tokenInAmount
-                              ) ||
-                              BigNumber.from(parseInt(tokenOutAllowance)).lt(
-                                tokenOutAmount
-                              ) ||
+                              tokenInAllowance.lt(tokenInAmount) ||
+                              tokenOutAllowance.lt(tokenOutAmount) ||
                               mintGasFee === "$0.00"
                             }
                             amount0={tokenInAmount}
@@ -355,12 +383,8 @@ export default function ConcentratedPoolPreview({}) {
                             gasLimit={mintGasLimit}
                             closeModal={() => router.push("/pool")}
                           />
-                        ) : (BigNumber.from(parseInt(tokenInAllowance)).lt(
-                            tokenInAmount
-                          ) &&
-                            BigNumber.from(parseInt(tokenOutAllowance)).lt(
-                              tokenOutAmount
-                            )) ||
+                        ) : (tokenInAllowance.lt(tokenInAmount) &&
+                            tokenOutAllowance.lt(tokenOutAmount)) ||
                           doubleApprove ? (
                           <RangeMintDoubleApproveButton
                             poolAddress={rangePoolAddress}
@@ -369,17 +393,13 @@ export default function ConcentratedPoolPreview({}) {
                             setAllowanceController={setdoubleApprove}
                           />
                         ) : !doubleApprove &&
-                          BigNumber.from(parseInt(tokenInAllowance)).lt(
-                            tokenInAmount
-                          ) ? (
+                          tokenInAllowance.lt(tokenInAmount) ? (
                           <RangeMintApproveButton
                             poolAddress={rangePoolAddress}
                             approveToken={tokenIn}
                           />
                         ) : !doubleApprove &&
-                          BigNumber.from(parseInt(tokenOutAllowance)).lt(
-                            tokenOutAmount
-                          ) ? (
+                          tokenOutAllowance.lt(tokenOutAmount) ? (
                           <RangeMintApproveButton
                             poolAddress={rangePoolAddress}
                             approveToken={tokenOut}
@@ -401,9 +421,7 @@ export default function ConcentratedPoolPreview({}) {
       >
         {disabled ? (
           <>
-            {buttonMessage === "price" && (
-              <>Min. is greater than Max. Price</>
-            )}
+            {buttonMessage === "price" && <>Min. is greater than Max. Price</>}
             {buttonMessage === "amount" && <>Input Deposit Amount</>}
             {buttonMessage === "tokenInBalance" && (
               <>Insufficient {tokenIn.symbol} Balance</>
