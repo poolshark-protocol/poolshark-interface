@@ -25,6 +25,8 @@ type CoverState = {
   tokenOut: token;
   tokenOutCoverUSDPrice: Number;
   tokenOutBalance: string;
+  //Claim tick
+  claimTick: number;
   //Gas
   gasFee: BigNumber;
   gasLimit: BigNumber;
@@ -34,6 +36,7 @@ type CoverAction = {
   //pool
   setCoverPoolAddress: (address: String) => void;
   setCoverPoolData: (data: any) => void;
+  setCoverPositionData: (data: any) => void;
   //setPairSelected: (pairSelected: Boolean) => void;
   //tokenIn
   setTokenIn: (tokenOut: token, newToken: token) => void;
@@ -45,6 +48,8 @@ type CoverAction = {
   setTokenOut: (tokenOut: token, newToken: token) => void;
   setTokenOutCoverUSDPrice: (price: number) => void;
   setTokenOutBalance: (balance: string) => void;
+  //Claim tick
+  setClaimTick: (tick: number) => void;
   //gas
   setGasFee: (fee: BigNumber) => void;
   setGasLimit: (limit: BigNumber) => void;
@@ -83,6 +88,8 @@ const initialCoverState: CoverState = {
   tokenOutCoverUSDPrice: 0,
   tokenOutBalance: "0.00",
   //
+  claimTick: 0,
+  //
   gasFee: BN_ZERO,
   gasLimit: BN_ZERO,
 };
@@ -104,6 +111,8 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   tokenOut: initialCoverState.tokenOut,
   tokenOutCoverUSDPrice: initialCoverState.tokenOutCoverUSDPrice,
   tokenOutBalance: initialCoverState.tokenOutBalance,
+  //tick
+  claimTick: initialCoverState.claimTick,
   //gas
   gasFee: initialCoverState.gasFee,
   gasLimit: initialCoverState.gasLimit,
@@ -220,9 +229,19 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       coverPoolData: coverPoolData,
     }));
   },
+  setCoverPositionData: (coverPositionData: any) => {
+    set(() => ({
+      coverPositionData: coverPositionData,
+    }));
+  },
   setCoverSlippage: (coverSlippage: string) => {
     set(() => ({
       coverSlippage: coverSlippage,
+    }));
+  },
+  setClaimTick: (claimTick: number) => {
+    set(() => ({
+      claimTick: claimTick,
     }));
   },
   setGasFee: (gasFee: BigNumber) => {
@@ -245,7 +264,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     set({
       coverPoolAddress: initialCoverState.coverPoolAddress,
       coverPoolData: initialCoverState.coverPoolData,
-
+      coverPositionData: initialCoverState.coverPositionData,
       pairSelected: initialCoverState.pairSelected,
       //tokenIn
       tokenIn: initialCoverState.tokenIn,
@@ -256,6 +275,8 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       tokenOut: initialCoverState.tokenOut,
       tokenOutCoverUSDPrice: initialCoverState.tokenOutCoverUSDPrice,
       tokenOutBalance: initialCoverState.tokenOutBalance,
+      //tick
+      claimTick: initialCoverState.claimTick,
       //gas
       gasFee: initialCoverState.gasFee,
       gasLimit: initialCoverState.gasLimit,
