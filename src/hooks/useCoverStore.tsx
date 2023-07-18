@@ -9,7 +9,7 @@ import { create } from "zustand";
 
 type CoverState = {
   //poolAddress for current token pairs
-  coverPoolAddress: String;
+  coverPoolAddress: `0x${string}`;
   coverPoolData: any;
   coverPositionData: any;
   coverSlippage: string;
@@ -54,7 +54,7 @@ type CoverAction = {
 
 const initialCoverState: CoverState = {
   //pools
-  coverPoolAddress: "",
+  coverPoolAddress: "0x00",
   coverPoolData: {},
   coverPositionData: {},
   coverSlippage: "0.5",
@@ -210,7 +210,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     }));
   },
 
-  setCoverPoolAddress: (coverPoolAddress: string) => {
+  setCoverPoolAddress: (coverPoolAddress: `0x${string}`) => {
     set(() => ({
       coverPoolAddress: coverPoolAddress,
     }));

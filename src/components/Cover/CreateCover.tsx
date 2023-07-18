@@ -26,13 +26,14 @@ import { BigNumber, ethers } from "ethers";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { getCoverPoolFromFactory } from "../../utils/queries";
 import JSBI from "jsbi";
-import { useRouter } from "next/router";
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import { getBalances } from "../../utils/balances";
-import { token } from "../../utils/types";
-import { feeTiers, getCoverPoolInfo } from "../../utils/pools";
-import { fetchTokenPrices, switchDirection } from "../../utils/tokens";
+import {
+  fetchCoverTokenUSDPrice,
+  fetchTokenPrices,
+  switchDirection,
+} from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
 import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
 import TickSpacing from "../Tooltips/TickSpacing";
@@ -120,8 +121,6 @@ export default function CreateCover(props: any) {
   const [allowance, setAllowance] = useState("0");
   const [mktRate, setMktRate] = useState({});
   const [hasSelected, setHasSelected] = useState(false);
-  const [queryTokenIn, setQueryTokenIn] = useState(tokenOneAddress);
-  const [queryTokenOut, setQueryTokenOut] = useState(tokenOneAddress);
   const [showTooltip, setShowTooltip] = useState(false);
   /* const [tokenIn, setTokenIn] = useState({
     symbol: props.query ? props.query.tokenZeroSymbol : "WETH",
@@ -141,9 +140,9 @@ export default function CreateCover(props: any) {
   const [buttonState, setButtonState] = useState("");
   const [coverAmountIn, setCoverAmountIn] = useState(ZERO);
   const [coverAmountOut, setCoverAmountOut] = useState(ZERO);
-  const [coverPoolRoute, setCoverPoolRoute] = useState(
+  /* const [coverPoolAddress, setCoverPoolAddress] = useState(
     props.query ? props.query.poolId : undefined
-  );
+  ); */
   /* const [tokenOrder, setTokenOrder] = useState(
     tokenIn.address.localeCompare(tokenOut.address) < 0
   ); */
@@ -167,11 +166,11 @@ export default function CreateCover(props: any) {
   useEffect(() => {
     if (hasSelected) {
       /* getCoverPoolInfo(
-        coverPoolRoute,
+        coverPoolAddress,
         //newTokenOrder,
         tokenIn,
         tokenOut,
-        //setCoverPoolRoute,
+        //setCoverPoolAddress,
         //setCoverPrice,
         //setTokenInUsdPrice,
         volatility,
@@ -247,7 +246,7 @@ export default function CreateCover(props: any) {
           );
           setVolatility(volatilityId);
           setTickSpread(volatilityTiers[volatilityId].tickSpread);
-          setCoverPoolRoute(pool["data"]["coverPools"][i]["id"]);
+          setCoverPoolAddress(pool["data"]["coverPools"][i]["id"]);
         }
       }
     } catch (error) {
@@ -266,17 +265,14 @@ export default function CreateCover(props: any) {
 
   ////////////////////////////////Allowances
 
-  const { data: allowanceIn } = useContractRead({
+  const { data: allowanceInCover } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, coverPoolRoute],
+    args: [address, coverPoolAddress],
     chainId: 421613,
     watch: true,
-    enabled:
-      isConnected &&
-      coverPoolRoute != undefined &&
-      tokenIn.address != undefined,
+    enabled: isConnected && coverPoolAddress && tokenIn.address != "0x00",
     onSuccess(data) {
       //console.log('Success')
     },
@@ -287,13 +283,10 @@ export default function CreateCover(props: any) {
   });
 
   useEffect(() => {
-    setTimeout(() => {
-      if (allowanceIn)
-        if (address != "0x" && coverPoolRoute != ZERO_ADDRESS) {
-          setAllowance(ethers.utils.formatUnits(allowanceIn, 18));
-        }
-    }, 50);
-  }, [allowanceIn, tokenIn.address, bnInput]);
+    if (allowanceInCover) {
+      setTokenInAllowance(ethers.utils.formatUnits(allowanceInCover, 18));
+    }
+  }, [allowanceInCover]);
 
   ////////////////////////////////Balances
 
@@ -315,7 +308,7 @@ export default function CreateCover(props: any) {
       "getting cover order",
       tokenOrder,
       newTokenOrder,
-      coverPoolRoute
+      coverPoolAddress
     );
 
     //setTokenOrder(newTokenOrder);
@@ -324,8 +317,23 @@ export default function CreateCover(props: any) {
   ////////////////////////////////Token Prices
 
   useEffect(() => {
-    fetchTokenPrices(coverPrice, setMktRate);
-  }, [coverPrice]);
+    if (coverPoolData.token0 && coverPoolData.token1) {
+      if (tokenIn.address) {
+        fetchCoverTokenUSDPrice(
+          coverPoolData,
+          tokenIn,
+          setTokenInCoverUSDPrice
+        );
+      }
+      if (tokenOut.address) {
+        fetchCoverTokenUSDPrice(
+          coverPoolData,
+          tokenOut,
+          setTokenOutCoverUSDPrice
+        );
+      }
+    }
+  }, [coverPoolData]);
 
   ////////////////////////////////Prices
 
@@ -467,7 +475,7 @@ export default function CreateCover(props: any) {
 
   async function updateGasFee() {
     const newMintGasFee = await gasEstimateCoverMint(
-      coverPoolRoute,
+      coverPoolAddress,
       address,
       Number(upperTick.toString()),
       Number(lowerTick.toString()),
@@ -898,7 +906,7 @@ export default function CreateCover(props: any) {
         stateChainName === "arbitrumGoerli" ? (
           <CoverMintApproveButton
             disabled={disabled}
-            poolAddress={coverPoolRoute}
+            poolAddress={coverPoolAddress}
             approveToken={tokenIn.address}
             amount={bnInput}
             tokenSymbol={tokenIn.symbol}
@@ -907,7 +915,7 @@ export default function CreateCover(props: any) {
           />
         ) : stateChainName === "arbitrumGoerli" ? (
           <CoverMintButton
-            poolAddress={coverPoolRoute}
+            poolAddress={coverPoolAddress}
             tokenSymbol={tokenIn.symbol}
             disabled={disabled}
             to={address}
