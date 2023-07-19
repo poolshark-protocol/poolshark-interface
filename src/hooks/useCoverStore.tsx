@@ -23,7 +23,7 @@ type CoverState = {
   tokenInBalance: string;
   //TokenOut defines the token on the left/up on a swap page
   tokenOut: token;
-  tokenOutCoverUSDPrice: Number;
+  tokenOutCoverUSDPrice: number;
   tokenOutBalance: string;
   //Claim tick
   claimTick: number;
