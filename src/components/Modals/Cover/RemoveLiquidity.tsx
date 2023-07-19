@@ -14,7 +14,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
     coverPositionData,
     tokenIn,
     claimTick,
-    tokenOutCoverUSDPrice,
+    tokenInCoverUSDPrice,
     gasLimit,
     gasFee,
   ] = useCoverStore((state) => [
@@ -22,7 +22,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
     state.coverPositionData,
     state.tokenIn,
     state.claimTick,
-    state.tokenOutCoverUSDPrice,
+    state.tokenInCoverUSDPrice,
     state.gasLimit,
     state.gasFee,
   ]);
@@ -137,7 +137,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                 ${(tokenOutCoverUSDPrice * parseFloat(sliderOutput)).toFixed(2)}
+                                 ${(tokenInCoverUSDPrice * parseFloat(sliderOutput)).toFixed(2)}
                                 </div>
                               </div>
                             </div>

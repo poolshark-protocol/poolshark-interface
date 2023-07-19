@@ -39,18 +39,18 @@ export default function UserCoverPool({
     state.setClaimTick,
   ]);
 
-  const [claimPrice, setClaimPrice] = useState((coverPosition.zeroForOne ? upperPrice : lowerPrice))
+  const [claimPrice, setClaimPrice] = useState(0)
   // fill percent is % of range crossed based on price
-  const [fillPercent, setFillPercent] = useState((Math.abs((coverPosition.zeroForOne ? upperPrice : lowerPrice) - claimPrice)
-                                                          / Math.abs(upperPrice - lowerPrice) * 100).toPrecision(3))
+  const [fillPercent, setFillPercent] = useState("0")
 
   useEffect(() => {
     updateClaimTick()
   }, [])
 
   useEffect(() => {
-    setClaimPrice(!isNaN(claimTick) ? parseFloat(TickMath.getPriceStringAtTick(claimTick)) 
-    : (coverPosition.zeroForOne ? upperPrice : lowerPrice))
+    setClaimPrice(!isNaN(claimTick) 
+      ? parseFloat(TickMath.getPriceStringAtTick(claimTick)) 
+      : (coverPosition.zeroForOne ? upperPrice : lowerPrice))
   }, [claimTick])
 
   useEffect(() => {
@@ -63,7 +63,7 @@ export default function UserCoverPool({
       coverPosition.poolId,
       Number(coverPosition.min),
       Number(coverPosition.max),
-      coverPosition.zeroForOne,
+      Boolean(coverPosition.zeroForOne),
       Number(coverPosition.epochLast),
     )
     setClaimTick(tick)

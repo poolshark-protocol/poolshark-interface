@@ -19,13 +19,13 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     coverPositionData,
     tokenIn,
     tokenOut,
-    tokenOutCoverUSDPrice,
+    tokenInCoverUSDPrice,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPositionData,
     state.tokenIn,
     state.tokenOut,
-    state.tokenOutCoverUSDPrice,
+    state.tokenInCoverUSDPrice,
   ]);
   
   const {
@@ -194,7 +194,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                 $ {Number(tokenOutCoverUSDPrice * parseFloat(ethers.utils.formatUnits(bnInput, 18))).toFixed(2)}
+                                 $ {Number(tokenInCoverUSDPrice * parseFloat(ethers.utils.formatUnits(bnInput, 18))).toFixed(2)}
                                 
                                 </div>
                               </div>
