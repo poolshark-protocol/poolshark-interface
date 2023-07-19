@@ -72,6 +72,7 @@ export default function Cover() {
   const [is0Copied, setIs0Copied] = useState(false);
   const [is1Copied, setIs1Copied] = useState(false);
   const [isPoolCopied, setIsPoolCopied] = useState(false);
+
   const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
     tokenIn.address
       ? tokenIn.address.toString().substring(0, 6) +
@@ -97,12 +98,14 @@ export default function Cover() {
       : undefined
   );
   const [poolDisplay, setPoolDisplay] = useState(
-    coverPoolAddress.toString() != ""
+    coverPoolAddress
       ? coverPoolAddress.toString().substring(0, 6) +
           "..." +
           coverPoolAddress
             .toString()
-            .substring(coverPoolAddress.toString().length - 4, coverPoolAddress.toString().length)
+            .substring(coverPoolAddress.toString().length - 4, 
+            coverPoolAddress.toString().length
+          )
       : undefined
   );
 
@@ -135,7 +138,7 @@ export default function Cover() {
   }, [tokenInCoverUSDPrice, tokenOutCoverUSDPrice]);
 
   //TODO need to be set to utils
-  const getCoverPoolRatios = async () => {
+  const getCoverPoolRatios = () => {
     try {
       if (coverPoolData != undefined) {
         setLowerInverse(
@@ -182,7 +185,7 @@ export default function Cover() {
     enabled:
       BigNumber.from(claimTick).lt(BigNumber.from("887272")) &&
       isConnected &&
-      coverPoolAddress != "" as string,
+      coverPoolAddress.toString() != "",
     onSuccess(data) {
       console.log("Success price filled amount", data);
     },
@@ -205,8 +208,9 @@ export default function Cover() {
   });
 
   useEffect(() => {
-    if (filledAmount)
-      setCoverFilledAmount(ethers.utils.formatUnits(filledAmount[2], 18));
+    if (filledAmount){
+      setCoverFilledAmount(ethers.utils.formatUnits(filledAmount[2], 18))
+    };
   }, [filledAmount]);
 
   useEffect(() => {
@@ -216,7 +220,7 @@ export default function Cover() {
           Number(ethers.utils.formatUnits(coverPositionData.userFillIn.toString(), 18))
       );
     }
-  });
+  }, [coverFilledAmount]);
 
   ////////////////////////////////Claim Tick
 
