@@ -106,22 +106,13 @@ export default function CreateCover(props: any) {
   const { address, isConnected, isDisconnected } = useAccount();
   const { bnInput, inputBox, maxBalance } = useInputBox();
 
-  const [validBounds, setValidBounds] = useState(false);
-  const [expanded, setExpanded] = useState(false);
-  const [stateChainName, setStateChainName] = useState();
-  const [lowerPrice, setLowerPrice] = useState("");
-  const [upperPrice, setUpperPrice] = useState("");
-  const [latestTick, setLatestTick] = useState(0);
-  const [showTooltip, setShowTooltip] = useState(false);
+  
 
-  const [buttonState, setButtonState] = useState("");
-  const [coverAmountIn, setCoverAmountIn] = useState(ZERO);
-  const [coverAmountOut, setCoverAmountOut] = useState(ZERO);
-  const [tickSpread, setTickSpread] = useState(
-    props.query ? props.query.tickSpacing : 20
-  );
+  
+  
 
   ////////////////////////////////Chain
+  const [stateChainName, setStateChainName] = useState();
 
   const {
     network: { chainId },
@@ -178,7 +169,6 @@ export default function CreateCover(props: any) {
 
   //when volatility changes, we find the corresponding pool id and changed it trigerring the poolInfo refetching
   const handleManualVolatilityChange = async (volatility: any) => {
-    console.log("handling change");
     try {
       const pool = await getCoverPoolFromFactory(
         tokenIn.address,
@@ -253,7 +243,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     updateBalances();
-  }, [tokenIn.address, tokenOut.address, tickSpread]);
+  }, [tokenIn.address, tokenOut.address]);
 
   ////////////////////////////////Token Prices
 
@@ -277,6 +267,15 @@ export default function CreateCover(props: any) {
   }, [coverPoolData]);
 
   ////////////////////////////////Prices
+  const [lowerPrice, setLowerPrice] = useState("");
+  const [upperPrice, setUpperPrice] = useState("");
+  const [latestTick, setLatestTick] = useState(0);
+  const [tickSpread, setTickSpread] = useState(
+    props.query ? props.query.tickSpacing : 20
+  );
+
+  const [coverAmountIn, setCoverAmountIn] = useState(ZERO);
+  const [coverAmountOut, setCoverAmountOut] = useState(ZERO);
 
   // set amount in
   useEffect(() => {
@@ -375,6 +374,8 @@ export default function CreateCover(props: any) {
       }
     }
   }
+  const [validBounds, setValidBounds] = useState(false);
+
 
   const changeValidBounds = () => {
     setValidBounds(
@@ -442,6 +443,7 @@ export default function CreateCover(props: any) {
   }
 
   ////////////////////////////////Button States
+  const [buttonState, setButtonState] = useState("");
   const [disabled, setDisabled] = useState(false);
 
   // disabled messages
@@ -494,6 +496,8 @@ export default function CreateCover(props: any) {
   ]);
 
   //////////////////////
+  const [expanded, setExpanded] = useState(false);
+
 
   const Option = () => {
     if (expanded) {
@@ -580,6 +584,9 @@ export default function CreateCover(props: any) {
       </Listbox>
     );
   }
+
+  const [showTooltip, setShowTooltip] = useState(false);
+
 
   return isDisconnected ? (
     <>
