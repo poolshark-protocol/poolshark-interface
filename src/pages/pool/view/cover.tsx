@@ -158,7 +158,7 @@ export default function Cover() {
           parseFloat(
             (
               tokenOutCoverUSDPrice /
-              Number(TickMath.getPriceStringAtTick(Number(coverPositionData.pool.latestTick)))
+              Number(TickMath.getPriceStringAtTick(Number(coverPositionData.latestTick)))
             ).toPrecision(6)
           )
         );
