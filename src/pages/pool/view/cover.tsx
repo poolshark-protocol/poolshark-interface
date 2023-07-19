@@ -231,7 +231,7 @@ export default function Cover() {
       coverPoolAddress.toString(),
       Number(coverPositionData.min),
       Number(coverPositionData.max),
-      Boolean(coverPositionData.Boolean(coverPositionData.zeroForOne)),
+      Boolean(coverPositionData.zeroForOne),
       Number(coverPositionData.epochLast)
     );
 
@@ -302,7 +302,7 @@ export default function Cover() {
               </span>
               <div className="flex items-center">
                 <span className="bg-white text-black rounded-md px-3 py-0.5">
-                  {coverPositionData.feeTier}%
+                  {coverPositionData.feeTier / 10000}%
                 </span>
               </div>
             </div>
@@ -365,7 +365,7 @@ export default function Cover() {
                   {(
                     Number(
                       ethers.utils.formatUnits(coverPositionData.userFillOut.toString(), 18)
-                    ) * tokenOutCoverUSDPrice
+                    ) * tokenInCoverUSDPrice
                   ).toFixed(2)}
                 </span>
 
@@ -449,9 +449,9 @@ export default function Cover() {
             <div className="flex justify-between items-center mt-7">
               <div className="flex gap-x-6 items-center">
                 <h1 className="text-lg">Price Range </h1>
-                {parseFloat(TickMath.getPriceStringAtTick(Number(coverPositionData.pool.latestTick))) <
+                {parseFloat(TickMath.getPriceStringAtTick(Number(coverPositionData.latestTick))) <
                   parseFloat(TickMath.getPriceStringAtTick(Number(coverPositionData.min))) ||
-                parseFloat(TickMath.getPriceStringAtTick(Number(coverPositionData.pool.latestTick))) >=
+                parseFloat(TickMath.getPriceStringAtTick(Number(coverPositionData.latestTick))) >=
                   parseFloat(
                     TickMath.getPriceStringAtTick(Number(coverPositionData.max))
                   ) ? (
@@ -578,7 +578,7 @@ export default function Cover() {
               <div className="text-white text-2xl my-2 w-full">
                 {priceDirection
                   ? priceInverse
-                  : TickMath.getPriceStringAtTick(Number(coverPositionData.pool.latestTick))}
+                  : TickMath.getPriceStringAtTick(Number(coverPositionData.latestTick))}
               </div>
               <div className="text-grey text-xs w-full">
                 {Boolean(coverPositionData.zeroForOne)
