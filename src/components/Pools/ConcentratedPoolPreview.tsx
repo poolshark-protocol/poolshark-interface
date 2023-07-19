@@ -12,7 +12,7 @@ import RangeMintApproveButton from "../Buttons/RangeMintApproveButton";
 import { useRangeStore } from "../../hooks/useRangeStore";
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 
-export default function ConcentratedPoolPreview({}) {
+export default function ConcentratedPoolPreview({fee}) {
   const [
     rangePoolAddress,
     rangePoolData,
@@ -230,9 +230,9 @@ export default function ConcentratedPoolPreview({}) {
                         </div>
                         <div className="mt-3">
                           <button className="relative cursor-default rounded-lg bg-black text-white cursor-pointer border border-grey1 py-2 pl-3 w-full text-left shadow-md focus:outline-none">
-                            <span className="block truncate"></span>
+                            <span className="block truncate">{fee.tier}</span>
                             <span className="block truncate text-xs text-grey mt-1">
-                              Best for most pairs
+                              {fee.text}
                             </span>
                           </button>
                         </div>
@@ -371,8 +371,8 @@ export default function ConcentratedPoolPreview({}) {
                           <RangeMintButton
                             to={address}
                             poolAddress={rangePoolAddress}
-                            lower={minInput}
-                            upper={maxInput}
+                            lower={rangePositionData.minTick}
+                            upper={rangePositionData.maxTick}
                             disabled={
                               tokenInAllowance.lt(tokenInAmount) ||
                               tokenOutAllowance.lt(tokenOutAmount) ||

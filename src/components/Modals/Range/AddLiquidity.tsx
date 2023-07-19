@@ -194,18 +194,18 @@ export default function RangeAddLiquidity({
       // disabled messages
       useEffect(() => {
         
-        if (Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn)) {
+        if (Number(ethers.utils.formatUnits(bnInput, 18)) > Number(balanceIn)) {
           setButtonState('balance0')
         }
-        if (Number(ethers.utils.formatUnits(amount1)) > Number(balanceOut)) {
+        if (Number(ethers.utils.formatUnits(amount1, 18)) > Number(balanceOut)) {
           setButtonState('balance1')
         }
-        if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
+        if (Number(ethers.utils.formatUnits(bnInput, 18)) === 0) {
           setButtonState('amount')
         }
-        if (Number(ethers.utils.formatUnits(bnInput)) === 0 ||
-            Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn) ||
-            Number(ethers.utils.formatUnits(amount1)) > Number(balanceOut)
+        if (Number(ethers.utils.formatUnits(bnInput, 18)) === 0 ||
+            Number(ethers.utils.formatUnits(bnInput, 18)) > Number(balanceIn) ||
+            Number(ethers.utils.formatUnits(amount1, 18)) > Number(balanceOut)
         ) {
           setDisabled(true)
         } else if (mintGasLimit.gt(BN_ZERO)) { setDisabled(false)}
