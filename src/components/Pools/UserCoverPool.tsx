@@ -10,6 +10,7 @@ import { TickMath } from '../../utils/math/tickMath'
 import { getClaimTick } from '../../utils/maps'
 import { token } from '../../utils/types'
 import { getCoverPool } from '../../utils/pools';
+import { BigNumber } from 'ethers';
 
 export default function UserCoverPool({
   coverPosition,
@@ -62,10 +63,10 @@ export default function UserCoverPool({
   const updateClaimTick = async () => {
     const tick = await getClaimTick(
       coverPosition.poolId,
-      coverPosition.min,
-      coverPosition.max,
+      Number(coverPosition.min),
+      Number(coverPosition.max),
       coverPosition.zeroForOne,
-      coverPosition.epochLast,
+      Number(coverPosition.epochLast),
     )
     setClaimTick(tick)
   }
