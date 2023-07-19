@@ -236,7 +236,7 @@ export default function CoverExistingPool({
                           hasSelected == false
     setDisabled(disabledFlag)
     if (!disabledFlag) {
-      updateGasFee()
+      //updateGasFee()
     }
     console.log('latest price', latestTick)
   }, [lowerPrice, upperPrice, coverAmountIn, validBounds, tokenInBal])
@@ -368,7 +368,7 @@ export default function CoverExistingPool({
     }
   }
 
-  async function updateGasFee() {
+  /* async function updateGasFee() {
     const newMintGasFee = await gasEstimateCoverMint(
       coverPoolRoute,
       address,
@@ -383,7 +383,7 @@ export default function CoverExistingPool({
     
     setMintGasFee(newMintGasFee.formattedPrice)
     setMintGasLimit(newMintGasFee.gasUnits.mul(130).div(100))
-  }
+  } */
 
   const handleChange = (event: any) => {
     setSliderValue(event.target.value)

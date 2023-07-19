@@ -136,12 +136,6 @@ export default function ConcentratedPoolPreview({fee}) {
     }
   }, [allowanceInRange, allowanceOutRange]);
 
-  console.log("tokenInAmount", tokenInAmount);
-  console.log("tokenInAllowance", tokenInAllowance);
-  console.log("tokenOutAmount", tokenOutAmount);
-  console.log("tokenOutAllowance", tokenOutAllowance);
-  console.log("doubleApprove", doubleApprove);
-  console.log("/////////////////////////");
 
   ////////////////////////////////Mint Gas Fee
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);

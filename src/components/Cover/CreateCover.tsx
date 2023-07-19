@@ -106,11 +106,6 @@ export default function CreateCover(props: any) {
   const { address, isConnected, isDisconnected } = useAccount();
   const { bnInput, inputBox, maxBalance } = useInputBox();
 
-  
-
-  
-  
-
   ////////////////////////////////Chain
   const [stateChainName, setStateChainName] = useState();
 
@@ -376,7 +371,6 @@ export default function CreateCover(props: any) {
   }
   const [validBounds, setValidBounds] = useState(false);
 
-
   const changeValidBounds = () => {
     setValidBounds(
       tokenOrder
@@ -435,7 +429,6 @@ export default function CreateCover(props: any) {
       tokenIn,
       tokenOut,
       coverAmountIn,
-      tickSpread,
       signer
     );
     setMintGasFee(newMintGasFee.formattedPrice);
@@ -497,7 +490,6 @@ export default function CreateCover(props: any) {
 
   //////////////////////
   const [expanded, setExpanded] = useState(false);
-
 
   const Option = () => {
     if (expanded) {
@@ -586,7 +578,6 @@ export default function CreateCover(props: any) {
   }
 
   const [showTooltip, setShowTooltip] = useState(false);
-
 
   return isDisconnected ? (
     <>
