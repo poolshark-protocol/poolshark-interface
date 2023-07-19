@@ -29,15 +29,12 @@ import JSBI from "jsbi";
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import { getBalances } from "../../utils/balances";
-import {
-  fetchCoverTokenUSDPrice,
-  fetchTokenPrices,
-  switchDirection,
-} from "../../utils/tokens";
+import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
 import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
 import TickSpacing from "../Tooltips/TickSpacing";
 import { gasEstimateCoverMint } from "../../utils/gas";
+import { getCoverPool } from "../../utils/pools";
 
 export default function CreateCover(props: any) {
   const [
@@ -108,45 +105,18 @@ export default function CreateCover(props: any) {
   const { data: signer } = useSigner();
   const { address, isConnected, isDisconnected } = useAccount();
   const { bnInput, inputBox, maxBalance } = useInputBox();
-  const [pool, setPool] = useState(props.query ?? undefined);
+
   const [validBounds, setValidBounds] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [stateChainName, setStateChainName] = useState();
   const [lowerPrice, setLowerPrice] = useState("");
   const [upperPrice, setUpperPrice] = useState("");
-  /* const [coverPositionData.lowerPrice, setMinTick] = useState(initialBig);
-  const [coverPositionData.upperPrice, setMaxTick] = useState(initialBig); */
   const [latestTick, setLatestTick] = useState(0);
-  const [balanceIn, setBalanceIn] = useState("");
-  const [allowance, setAllowance] = useState("0");
-  const [mktRate, setMktRate] = useState({});
-  const [hasSelected, setHasSelected] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
-  /* const [tokenIn, setTokenIn] = useState({
-    symbol: props.query ? props.query.tokenZeroSymbol : "WETH",
-    logoURI: props.query
-      ? props.query.tokenZeroLogoURI
-      : "/static/images/eth_icon.png",
-    address: props.query
-      ? props.query.tokenZeroAddress
-      : "0x6774be1a283Faed7ED8e40463c40Fb33A8da3461",
-  } as token);
-  const [tokenOut, setTokenOut] = useState({
-    symbol: props.query ? props.query.tokenOneSymbol : "Select Token",
-    logoURI: props.query ? props.query.tokenOneLogoURI : "",
-    address: props.query ? props.query.tokenOneAddress : "",
-  } as token); */
-  const [coverPrice, setCoverPrice] = useState(undefined);
+
   const [buttonState, setButtonState] = useState("");
   const [coverAmountIn, setCoverAmountIn] = useState(ZERO);
   const [coverAmountOut, setCoverAmountOut] = useState(ZERO);
-  /* const [coverPoolAddress, setCoverPoolAddress] = useState(
-    props.query ? props.query.poolId : undefined
-  ); */
-  /* const [tokenOrder, setTokenOrder] = useState(
-    tokenIn.address.localeCompare(tokenOut.address) < 0
-  ); */
-  /* const [tokenInUsdPrice, setTokenInUsdPrice] = useState(1); */
   const [tickSpread, setTickSpread] = useState(
     props.query ? props.query.tickSpacing : 20
   );
@@ -164,27 +134,19 @@ export default function CreateCover(props: any) {
   //////////////////////////////Pools
 
   useEffect(() => {
-    if (hasSelected) {
-      /* getCoverPoo(
-        coverPoolAddress,
-        //newTokenOrder,
-        tokenIn,
-        tokenOut,
-        //setCoverPoolAddress,
-        //setCoverPrice,
-        //setTokenInUsdPrice,
-        volatility,
-        setVolatility,
-        setLatestTick,
-        lowerPrice,
-        upperPrice,
-        setLowerPrice,
-        setUpperPrice,
-        tickSpread,
-        true
-      ); */
+    if (tokenIn.address && tokenOut.address) {
+      updatePools();
     }
   }, [tokenIn, tokenOut]);
+
+  async function updatePools() {
+    await getCoverPool(
+      tokenIn,
+      tokenOut,
+      setCoverPoolAddress,
+      setCoverPoolData
+    );
+  }
 
   //////////////////////////////Pools Volatility Tiers
 
@@ -209,10 +171,6 @@ export default function CreateCover(props: any) {
   const [selectedVolatility, setSelectedVolatility] = useState(
     volatilityTiers[0]
   );
-
-  useEffect(() => {
-    handleManualVolatilityChange(volatilityTiers[volatility]);
-  }, [hasSelected]);
 
   useEffect(() => {
     setSelectedVolatility(volatilityTiers[volatility]);
@@ -288,7 +246,7 @@ export default function CreateCover(props: any) {
       false,
       tokenIn,
       tokenOut,
-      setBalanceIn,
+      setTokenInBalance,
       () => {}
     );
   }
@@ -488,7 +446,7 @@ export default function CreateCover(props: any) {
 
   // disabled messages
   useEffect(() => {
-    if (Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn)) {
+    if (Number(ethers.utils.formatUnits(bnInput)) > Number(tokenInBalance)) {
       setButtonState("balance");
     } else if (!validBounds) {
       setButtonState("bounds");
@@ -497,31 +455,30 @@ export default function CreateCover(props: any) {
     } else if (parseFloat(ethers.utils.formatEther(bnInput)) == 0) {
       console.log("bn button amount");
       setButtonState("amount");
-    } else if (hasSelected == false) {
+    } else if (pairSelected == false) {
       setButtonState("token");
     } else if (mintGasLimit.gt(BN_ZERO)) {
       setDisabled(false);
     }
   }, [
     bnInput,
-    hasSelected,
+    pairSelected,
     validBounds,
     lowerPrice,
     upperPrice,
-    balanceIn,
+    tokenInBalance,
     mintGasLimit,
   ]);
 
   // set disabled
   useEffect(() => {
     const disabledFlag =
-      Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn) ||
+      Number(ethers.utils.formatUnits(bnInput)) > Number(tokenInBalance) ||
       isNaN(parseFloat(lowerPrice)) ||
       isNaN(parseFloat(upperPrice)) ||
       coverPositionData.lowerPrice.gte(coverPositionData.upperPrice) ||
       Number(ethers.utils.formatUnits(bnInput)) === 0 ||
       tokenOut.symbol === "Select Token" ||
-      hasSelected == false ||
       !validBounds;
     setDisabled(disabledFlag || mintGasLimit.eq(BN_ZERO));
   }, [
@@ -531,9 +488,8 @@ export default function CreateCover(props: any) {
     coverPositionData.upperPrice,
     bnInput,
     tokenOut,
-    hasSelected,
     validBounds,
-    balanceIn,
+    tokenInBalance,
     mintGasLimit,
   ]);
 
@@ -724,12 +680,12 @@ export default function CreateCover(props: any) {
               </div>
               <div className="flex items-center justify-end gap-2 px-1 mt-2">
                 <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]">
-                  Balance: {balanceIn === "NaN" ? 0 : balanceIn}
+                  Balance: {tokenInBalance === "NaN" ? 0 : tokenInBalance}
                 </div>
                 {isConnected ? (
                   <button
                     className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
-                    onClick={() => maxBalance(balanceIn, "0")}
+                    onClick={() => maxBalance(tokenInBalance, "0")}
                   >
                     Max
                   </button>
@@ -750,9 +706,7 @@ export default function CreateCover(props: any) {
           <div className="text-[#646464]">Amount to receive</div>
           <div>
             {/* {amountToPay} {tokenIn.symbol} */}
-            {hasSelected &&
-            mktRate[tokenIn.symbol] &&
-            parseFloat(lowerPrice) < parseFloat(upperPrice) ? (
+            {parseFloat(lowerPrice) < parseFloat(upperPrice) ? (
               parseFloat(
                 parseFloat(ethers.utils.formatUnits(String(coverAmountOut), 18))
                   .toPrecision(6)
@@ -876,10 +830,12 @@ export default function CreateCover(props: any) {
         >
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
             {1} {tokenIn.symbol} ={" "}
-            {tokenOut.symbol === "Select Token" || isNaN(parseFloat(coverPrice))
+            {tokenOut.symbol === "Select Token" || tokenOutCoverUSDPrice
               ? "?" + " " + tokenOut.symbol
               : parseFloat(
-                  parseFloat(invertPrice(coverPrice, tokenOrder)).toPrecision(6)
+                  parseFloat(
+                    invertPrice(tokenOutCoverUSDPrice.toString(), tokenOrder)
+                  ).toPrecision(6)
                 ) +
                 " " +
                 tokenOut.symbol}
@@ -894,9 +850,9 @@ export default function CreateCover(props: any) {
           <Option />
         </div>
       </div>
-      <div className="mb-3" key={allowance}>
+      <div className="mb-3">
         {isConnected &&
-        Number(allowance) < Number(ethers.utils.formatUnits(bnInput, 18)) &&
+        allowanceInCover < bnInput &&
         stateChainName === "arbitrumGoerli" ? (
           <CoverMintApproveButton
             disabled={disabled}
@@ -904,7 +860,7 @@ export default function CreateCover(props: any) {
             approveToken={tokenIn.address}
             amount={bnInput}
             tokenSymbol={tokenIn.symbol}
-            allowance={allowance}
+            allowance={allowanceInCover}
             buttonState={buttonState}
           />
         ) : stateChainName === "arbitrumGoerli" ? (
