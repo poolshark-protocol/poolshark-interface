@@ -28,7 +28,7 @@ type CoverState = {
   //Claim tick
   claimTick: number;
   //Gas
-  gasFee: BigNumber;
+  gasFee: string;
   gasLimit: BigNumber;
 };
 
@@ -53,7 +53,7 @@ type CoverAction = {
   setMinTick: (coverPositionData, tick: BigNumber) => void;
   setMaxTick: (coverPositionData, tick: BigNumber) => void;
   //gas
-  setGasFee: (fee: BigNumber) => void;
+  setGasFee: (fee: string) => void;
   setGasLimit: (limit: BigNumber) => void;
   //reset
   resetSwapParams: () => void;
@@ -92,7 +92,7 @@ const initialCoverState: CoverState = {
   //
   claimTick: 0,
   //
-  gasFee: BN_ZERO,
+  gasFee: "$0.00",
   gasLimit: BN_ZERO,
 };
 
@@ -260,7 +260,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       coverPositionData: newPositionData,
     }));
   },
-  setGasFee: (gasFee: BigNumber) => {
+  setGasFee: (gasFee: string) => {
     set(() => ({
       gasFee: gasFee,
     }));
