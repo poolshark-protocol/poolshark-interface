@@ -10,20 +10,16 @@ import { useRouter } from "next/router";
 import { useAccount, useContractRead, useSigner } from "wagmi";
 import CoverCollectButton from "../../../components/Buttons/CoverCollectButton";
 import { BigNumber, ethers } from "ethers";
-import { getRangePoolFromFactory } from "../../../utils/queries";
 import { TickMath } from "../../../utils/math/tickMath";
 import { coverPoolABI } from "../../../abis/evm/coverPool";
 import { copyElementUseEffect } from "../../../utils/misc";
 import { getClaimTick } from "../../../utils/maps";
 import RemoveLiquidity from "../../../components/Modals/Cover/RemoveLiquidity";
 import AddLiquidity from "../../../components/Modals/Cover/AddLiquidity";
-import {
-  tokenZeroAddress,
-  tokenOneAddress,
-} from "../../../constants/contractAddresses";
 import { BN_ZERO } from "../../../utils/math/constants";
-import { gasEstimateCoverBurn, gasEstimateCoverMint } from "../../../utils/gas";
+import { gasEstimateCoverBurn } from "../../../utils/gas";
 import { useCoverStore } from "../../../hooks/useCoverStore";
+import { fetchCoverTokenUSDPrice } from "../../../utils/tokens";
 
 export default function Cover() {
   const [
@@ -67,8 +63,6 @@ export default function Cover() {
 
   //cover aux
   const [priceDirection, setPriceDirection] = useState(false);
-  const [usdPriceIn, setUsdPriceIn] = useState(0.0);
-  const [usdPriceOut, setUsdPriceOut] = useState(0.0);
   const [fillPercent, setFillPercent] = useState(0);
   const [coverFilledAmount, setCoverFilledAmount] = useState("");
 
@@ -78,6 +72,7 @@ export default function Cover() {
   const [is0Copied, setIs0Copied] = useState(false);
   const [is1Copied, setIs1Copied] = useState(false);
   const [isPoolCopied, setIsPoolCopied] = useState(false);
+
   const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
     tokenIn.address
       ? tokenIn.address.toString().substring(0, 6) +
@@ -103,59 +98,53 @@ export default function Cover() {
       : undefined
   );
   const [poolDisplay, setPoolDisplay] = useState(
-    coverPoolAddress != "" as string
+    coverPoolAddress
       ? coverPoolAddress.toString().substring(0, 6) +
           "..." +
           coverPoolAddress
             .toString()
-            .substring(coverPoolAddress.toString().length - 4, coverPoolAddress.toString().length)
+            .substring(coverPoolAddress.toString().length - 4, 
+            coverPoolAddress.toString().length
+          )
       : undefined
   );
 
-  const [fetchDelay, setFetchDelay] = useState(false);
   const [lowerInverse, setLowerInverse] = useState(0);
   const [upperInverse, setUpperInverse] = useState(0);
   const [priceInverse, setPriceInverse] = useState(0);
 
   ////////////////////////////////Fetch Pool Data
   useEffect(() => {
-    if (!fetchDelay) {
-      getRangePool();
-      setFetchDelay(true);
-    } else {
-      const interval = setInterval(() => {
-        getRangePool();
-      }, 3000);
-      return () => clearInterval(interval);
+    if (coverPoolData.token0 && coverPoolData.token1) {
+      if (tokenIn.address) {
+        fetchCoverTokenUSDPrice(
+          coverPoolData,
+          tokenIn,
+          setTokenInCoverUSDPrice
+        );
+      }
+      if (tokenOut.address) {
+        fetchCoverTokenUSDPrice(
+          coverPoolData,
+          tokenOut,
+          setTokenOutCoverUSDPrice
+        );
+      }
     }
   }, []);
 
   useEffect(() => {
-    setFetchDelay(false);
-  }, [coverPoolAddress]);
+    getCoverPoolRatios()
+  }, [tokenInCoverUSDPrice, tokenOutCoverUSDPrice]);
 
   //TODO need to be set to utils
-  const getRangePool = async () => {
+  const getCoverPoolRatios = () => {
     try {
-      const pool = await getRangePoolFromFactory(
-        Boolean(coverPositionData.zeroForOne) ? tokenZeroAddress : tokenOneAddress,
-        Boolean(coverPositionData.zeroForOne) ? tokenOneAddress : tokenZeroAddress
-      );
-      console.log("setting usd prices");
-      const dataLength = pool["data"]["rangePools"].length;
-      if (dataLength > 0) {
-        const tokenInUsdPrice = Boolean(coverPositionData.zeroForOne)
-          ? pool["data"]["rangePools"]["0"]["token1"]["usdPrice"]
-          : pool["data"]["rangePools"]["0"]["token0"]["usdPrice"];
-        const tokenOutUsdPrice = Boolean(coverPositionData.zeroForOne)
-          ? pool["data"]["rangePools"]["0"]["token0"]["usdPrice"]
-          : pool["data"]["rangePools"]["0"]["token1"]["usdPrice"];
-        setUsdPriceIn(parseFloat(tokenInUsdPrice));
-        setUsdPriceOut(parseFloat(tokenOutUsdPrice));
+      if (coverPoolData != undefined) {
         setLowerInverse(
           parseFloat(
             (
-              parseFloat(tokenOutUsdPrice) /
+              tokenOutCoverUSDPrice /
               Number(TickMath.getPriceStringAtTick(Number(coverPositionData.max)))
             ).toPrecision(6)
           )
@@ -163,7 +152,7 @@ export default function Cover() {
         setUpperInverse(
           parseFloat(
             (
-              parseFloat(tokenOutUsdPrice) /
+              tokenOutCoverUSDPrice /
               Number(TickMath.getPriceStringAtTick(Number(coverPositionData.min)))
             ).toPrecision(6)
           )
@@ -171,8 +160,8 @@ export default function Cover() {
         setPriceInverse(
           parseFloat(
             (
-              parseFloat(tokenOutUsdPrice) /
-              Number(TickMath.getPriceStringAtTick(Number(coverPositionData.pool.latestTick)))
+              tokenOutCoverUSDPrice /
+              Number(TickMath.getPriceStringAtTick(Number(coverPositionData.latestTick)))
             ).toPrecision(6)
           )
         );
@@ -194,10 +183,9 @@ export default function Cover() {
     chainId: 421613,
     watch: true,
     enabled:
-      router.isReady &&
       BigNumber.from(claimTick).lt(BigNumber.from("887272")) &&
       isConnected &&
-      coverPoolAddress != "" as string,
+      coverPoolAddress.toString() != "",
     onSuccess(data) {
       console.log("Success price filled amount", data);
     },
@@ -220,8 +208,9 @@ export default function Cover() {
   });
 
   useEffect(() => {
-    if (filledAmount)
-      setCoverFilledAmount(ethers.utils.formatUnits(filledAmount[2], 18));
+    if (filledAmount){
+      setCoverFilledAmount(ethers.utils.formatUnits(filledAmount[2], 18))
+    };
   }, [filledAmount]);
 
   useEffect(() => {
@@ -231,7 +220,7 @@ export default function Cover() {
           Number(ethers.utils.formatUnits(coverPositionData.userFillIn.toString(), 18))
       );
     }
-  });
+  }, [coverFilledAmount]);
 
   ////////////////////////////////Claim Tick
 
@@ -246,7 +235,7 @@ export default function Cover() {
       coverPoolAddress.toString(),
       Number(coverPositionData.min),
       Number(coverPositionData.max),
-      Boolean(coverPositionData.Boolean(coverPositionData.zeroForOne)),
+      Boolean(coverPositionData.zeroForOne),
       Number(coverPositionData.epochLast)
     );
 
@@ -317,7 +306,7 @@ export default function Cover() {
               </span>
               <div className="flex items-center">
                 <span className="bg-white text-black rounded-md px-3 py-0.5">
-                  {coverPositionData.feeTier}%
+                  {coverPositionData.feeTier / 10000}%
                 </span>
               </div>
             </div>
@@ -380,7 +369,7 @@ export default function Cover() {
                   {(
                     Number(
                       ethers.utils.formatUnits(coverPositionData.userFillOut.toString(), 18)
-                    ) * usdPriceOut
+                    ) * tokenInCoverUSDPrice
                   ).toFixed(2)}
                 </span>
 
@@ -413,13 +402,13 @@ export default function Cover() {
               <div className="md:w-1/2 w-full">
                 <h1 className="text-lg mb-3 mt-10 md:mt-0">Filled Position</h1>
                 <span className="text-4xl">
-                  $ {(Number(coverFilledAmount) * usdPriceIn).toFixed(2)}
+                  $ {(Number(coverFilledAmount) * tokenInCoverUSDPrice).toFixed(2)}
                   <span className="text-grey">
                     /$
                     {(
                       Number(
                         ethers.utils.formatUnits(coverPositionData.userFillIn.toString(), 18)
-                      ) * usdPriceIn
+                      ) * tokenInCoverUSDPrice
                     ).toFixed(2)}
                   </span>
                 </span>
@@ -464,9 +453,9 @@ export default function Cover() {
             <div className="flex justify-between items-center mt-7">
               <div className="flex gap-x-6 items-center">
                 <h1 className="text-lg">Price Range </h1>
-                {parseFloat(TickMath.getPriceStringAtTick(Number(coverPositionData.pool.latestTick))) <
+                {parseFloat(TickMath.getPriceStringAtTick(Number(coverPositionData.latestTick))) <
                   parseFloat(TickMath.getPriceStringAtTick(Number(coverPositionData.min))) ||
-                parseFloat(TickMath.getPriceStringAtTick(Number(coverPositionData.pool.latestTick))) >=
+                parseFloat(TickMath.getPriceStringAtTick(Number(coverPositionData.latestTick))) >=
                   parseFloat(
                     TickMath.getPriceStringAtTick(Number(coverPositionData.max))
                   ) ? (
@@ -593,7 +582,7 @@ export default function Cover() {
               <div className="text-white text-2xl my-2 w-full">
                 {priceDirection
                   ? priceInverse
-                  : TickMath.getPriceStringAtTick(Number(coverPositionData.pool.latestTick))}
+                  : TickMath.getPriceStringAtTick(Number(coverPositionData.latestTick))}
               </div>
               <div className="text-grey text-xs w-full">
                 {Boolean(coverPositionData.zeroForOne)
@@ -623,24 +612,11 @@ export default function Cover() {
               isOpen={isRemoveOpen}
               setIsOpen={setIsRemoveOpen}
               address={address}
-              usdPriceIn={usdPriceIn}
-              usdPriceOut={usdPriceOut}
             />
             <AddLiquidity
               isOpen={isAddOpen}
               setIsOpen={setIsAddOpen}
-              tokenIn={tokenIn}
-              tokenOut={tokenOut}
-              poolAdd={coverPoolAddress}
               address={address}
-              lowerTick={coverPositionData.min}
-              claimTick={claimTick}
-              upperTick={coverPositionData.max}
-              zeroForOne={Boolean(coverPositionData.zeroForOne)}
-              liquidity={coverPositionData.liquidity}
-              tickSpacing={coverPositionData.tickSpacing}
-              usdPriceIn={usdPriceIn}
-              usdPriceOut={usdPriceOut}
             />
           </>
         )}
