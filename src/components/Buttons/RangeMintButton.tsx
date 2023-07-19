@@ -1,14 +1,14 @@
-import { BigNumber } from 'ethers'
+import { BigNumber } from "ethers";
 import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
-} from 'wagmi'
-import { rangePoolABI } from '../../abis/evm/rangePool'
-import { SuccessToast } from '../Toasts/Success'
-import { ErrorToast } from '../Toasts/Error'
-import { ConfirmingToast } from '../Toasts/Confirming'
-import React, { useState, useEffect } from 'react'
+} from "wagmi";
+import { rangePoolABI } from "../../abis/evm/rangePool";
+import { SuccessToast } from "../Toasts/Success";
+import { ErrorToast } from "../Toasts/Error";
+import { ConfirmingToast } from "../Toasts/Confirming";
+import React, { useState, useEffect } from "react";
 
 export default function RangeMintButton({
   disabled,
@@ -19,78 +19,51 @@ export default function RangeMintButton({
   amount0,
   amount1,
   closeModal,
-  gasLimit
+  gasLimit,
 }) {
-  const [errorDisplay, setErrorDisplay] = useState(false)
-  const [successDisplay, setSuccessDisplay] = useState(false)
-  const [isDisabled, setDisabled] = useState(disabled)
+  const [errorDisplay, setErrorDisplay] = useState(false);
+  const [successDisplay, setSuccessDisplay] = useState(false);
+  const [isDisabled, setDisabled] = useState(disabled);
 
-  useEffect(() => {}, [disabled])
-
-  console.log('mint gas limit', gasLimit)
-
-  /*const [rangeContractParams, setRangeContractParams] = useState({
-    to: to,
-    min: lower,
-    max: upper,
-    amount0: amount0,
-    amount1: amount1,
-    fungible: fungible,
-  })
-  console.log('range contract', rangeContractParams)
-
-  useEffect(() => {
-    setRangeContractParams({
-      to: to,
-      min: lower,
-      max: upper,
-      amount0: amount0,
-      amount1: amount1,
-      fungible: fungible,
-    })
-  }, [to, lower, upper, amount0, amount1, fungible])*/
+  useEffect(() => {}, [disabled]);
 
   const { config } = usePrepareContractWrite({
     address: poolAddress,
     abi: rangePoolABI,
-    functionName: 'mint',
+    functionName: "mint",
     args: [[to, lower, upper, amount0, amount1]],
     chainId: 421613,
     overrides: {
-      gasLimit: gasLimit,
+      gasLimit: BigNumber.from("1000000"),
     },
-    onSuccess() {
-      console.log(
-        'params check',
-        to,
-        lower.toString(),
-        upper.toString(),
-        amount0.toString(),
-        amount1.toString(),
-      )
+    onSuccess() {},
+    onError() {
+      setErrorDisplay(true);
     },
-  })
+  });
 
-  const { data, write } = useContractWrite(config)
+  const { data, write } = useContractWrite(config);
 
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      setSuccessDisplay(true)
+      setSuccessDisplay(true);
       setTimeout(() => {
-        closeModal()
-      }, 2000)
+        closeModal();
+      }, 2000);
     },
     onError() {
-      setErrorDisplay(true)
+      setErrorDisplay(true);
     },
-  })
+  });
 
   return (
     <>
       <button
         disabled={disabled}
-        className={'w-full py-4 mx-auto text-center text-sm md:text-base font-medium transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80'}
+        className={
+          "w-full py-4 mx-auto text-center text-sm md:text-base font-medium transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        }
         onClick={() => write?.()}
       >
         Mint Position
@@ -113,5 +86,5 @@ export default function RangeMintButton({
         )}
       </div>
     </>
-  )
+  );
 }
