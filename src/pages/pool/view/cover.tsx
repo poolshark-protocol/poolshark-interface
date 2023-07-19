@@ -97,7 +97,7 @@ export default function Cover() {
       : undefined
   );
   const [poolDisplay, setPoolDisplay] = useState(
-    coverPoolAddress != "" as string
+    coverPoolAddress.toString() != ""
       ? coverPoolAddress.toString().substring(0, 6) +
           "..." +
           coverPoolAddress
