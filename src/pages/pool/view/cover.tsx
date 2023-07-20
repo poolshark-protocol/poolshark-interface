@@ -178,7 +178,7 @@ export default function Cover() {
     abi: coverPoolABI,
     functionName: "snapshot",
     args: [
-      [address, BigNumber.from("0"), coverPositionData.min, coverPositionData.max, claimTick, Boolean(coverPositionData.zeroForOne)],
+      [address, BigNumber.from("0"), BigNumber.from(coverPositionData.min), BigNumber.from(coverPositionData.max), BigNumber.from(claimTick), Boolean(coverPositionData.zeroForOne)],
     ],
     chainId: 421613,
     watch: true,
@@ -438,9 +438,9 @@ export default function Cover() {
                     <CoverCollectButton
                       poolAddress={coverPoolAddress}
                       address={address}
-                      lower={coverPositionData.min}
-                      claim={claimTick}
-                      upper={coverPositionData.max}
+                      lower={BigNumber.from(coverPositionData.min)}
+                      claim={BigNumber.from(claimTick)}
+                      upper={BigNumber.from(coverPositionData.max)}
                       zeroForOne={Boolean(coverPositionData.zeroForOne)}
                       gasLimit={gasLimit.mul(150).div(100)}
                       gasFee={gasFee}
