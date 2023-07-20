@@ -135,20 +135,24 @@ export default function CreateCover(props: any) {
   }
 
   useEffect(() => {
-    if (coverPoolData.price) {
-      const price = JSBI.BigInt(coverPoolData.price);
-      const tickAtPrice = coverPoolData.tickAtPrice;
-      const lowerPrice = TickMath.getPriceStringAtTick(tickAtPrice - 7000);
-      const upperPrice = TickMath.getPriceStringAtTick(tickAtPrice - -7000);
-      setCoverPositionData({
-        ...coverPositionData,
-        price: price,
-        tickAtPrice: tickAtPrice,
-        lowerPrice: lowerPrice,
-        upperPrice: upperPrice,
-      });
+    console.log("nao entrou", coverPoolData);
+    if (coverPoolData.latestTick) {
+      console.log("entrou", coverPoolData);
+      updatePositionData();
     }
   }, [coverPoolData]);
+
+  async function updatePositionData() {
+    const tickAtPrice = Number(coverPoolData.latestTick);
+    const lowerPrice = TickMath.getPriceStringAtTick(tickAtPrice - 7000);
+    const upperPrice = TickMath.getPriceStringAtTick(tickAtPrice - -7000);
+    setCoverPositionData({
+      ...coverPositionData,
+      tickAtPrice: tickAtPrice,
+      lowerPrice: lowerPrice,
+      upperPrice: upperPrice,
+    });
+  }
 
   console.log("coverPoolData", coverPoolData);
   console.log("coverPositionData", coverPositionData);
@@ -326,7 +330,7 @@ export default function CreateCover(props: any) {
         ? inputId == "minInput"
           ? Number(coverPositionData.lowerPrice)
           : Number(coverPositionData.upperPrice)
-        : coverPoolData.latesTick;
+        : coverPoolData.latestTick;
     const increment = coverPoolData.volatilityTier.tickSpread;
     const adjustment =
       direction == "plus" || direction == "minus"
@@ -366,7 +370,6 @@ export default function CreateCover(props: any) {
     if (!bnInput.eq(BN_ZERO)) {
       setCoverAmountIn(JSBI.BigInt(bnInput.toString()));
     }
-    changeValidBounds();
   }, [
     bnInput,
     coverPositionData.lowerPrice,
@@ -375,13 +378,13 @@ export default function CreateCover(props: any) {
   ]);
 
   useEffect(() => {
-    changeCoverAmounts(true);
+    //changeCoverAmounts();
   }, [coverAmountIn]);
 
-  function changeCoverAmounts(amountInChanged: boolean) {
+  function changeCoverAmounts() {
     if (
-      coverPositionData.lowerPrice &&
-      coverPositionData.upperPrice &&
+      Number(coverPositionData.lowerPrice) &&
+      Number(coverPositionData.upperPrice) &&
       parseFloat(coverPositionData.lowerPrice) > 0 &&
       parseFloat(coverPositionData.upperPrice) > 0 &&
       parseFloat(coverPositionData.lowerPrice) <
@@ -393,31 +396,19 @@ export default function CreateCover(props: any) {
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(
         Number(coverPositionData.upperPrice)
       );
-      if (amountInChanged) {
-        // amountIn changed
-        const liquidityAmount = DyDxMath.getLiquidityForAmounts(
-          lowerSqrtPrice,
-          upperSqrtPrice,
-          tokenOrder ? lowerSqrtPrice : upperSqrtPrice,
-          tokenOrder ? BN_ZERO : BigNumber.from(String(coverAmountIn)),
-          tokenOrder ? BigNumber.from(String(coverAmountIn)) : BN_ZERO
-        );
-        setCoverAmountOut(
-          tokenOrder
-            ? DyDxMath.getDy(
-                liquidityAmount,
-                lowerSqrtPrice,
-                upperSqrtPrice,
-                true
-              )
-            : DyDxMath.getDx(
-                liquidityAmount,
-                lowerSqrtPrice,
-                upperSqrtPrice,
-                true
-              )
-        );
-      } else {
+      /* if (amountInChanged) { */
+      // amountIn changed
+      const liquidityAmount = DyDxMath.getLiquidityForAmounts(
+        lowerSqrtPrice,
+        upperSqrtPrice,
+        lowerSqrtPrice,
+        BN_ZERO,
+        BigNumber.from(String(coverAmountIn))
+      );
+      setCoverAmountOut(
+        DyDxMath.getDy(liquidityAmount, lowerSqrtPrice, upperSqrtPrice, true)
+      );
+      /* } else {
         // amountOut changed
         const liquidityAmount = DyDxMath.getLiquidityForAmounts(
           lowerSqrtPrice,
@@ -441,19 +432,23 @@ export default function CreateCover(props: any) {
                 true
               )
         );
-      }
+      } */
     }
   }
 
   ////////////////////////////////Valid Bounds Flag
   const [validBounds, setValidBounds] = useState(false);
 
+  useEffect(() => {
+    changeValidBounds();
+  }, [coverPositionData.lowerPrice, coverPositionData.upperPrice]);
+
   const changeValidBounds = () => {
     if (coverPositionData.lowerPrice && coverPositionData.upperPrice) {
       setValidBounds(
         BigNumber.from(parseInt(coverPositionData.lowerPrice)).lt(
-          BigNumber.from(coverPoolData.latesTick).sub(
-            BigNumber.from(coverPoolData.volatilityTier.tickSpread)
+          BigNumber.from(parseInt(coverPoolData.latestTick)).sub(
+            BigNumber.from(parseInt(coverPoolData.volatilityTier.tickSpread))
           )
         )
       );
