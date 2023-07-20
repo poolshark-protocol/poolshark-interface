@@ -85,6 +85,7 @@ export default function PoolList({
     setCoverPoolAddress(poolId);
     router.push({
       pathname: href,
+      query: { state: 'existing' },
     });
   };
 

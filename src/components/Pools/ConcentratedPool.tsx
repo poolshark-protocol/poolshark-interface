@@ -135,6 +135,7 @@ export default function ConcentratedPool({}) {
     );
   }
 
+  //this sets the default position price delta
   useEffect(() => {
     if (rangePoolData.price) {
       const price = JSBI.BigInt(rangePoolData.price);
