@@ -135,9 +135,7 @@ export default function CreateCover(props: any) {
   }
 
   useEffect(() => {
-    console.log("nao entrou", coverPoolData);
     if (coverPoolData.latestTick) {
-      console.log("entrou", coverPoolData);
       updatePositionData();
     }
   }, [coverPoolData]);
@@ -146,6 +144,8 @@ export default function CreateCover(props: any) {
     const tickAtPrice = Number(coverPoolData.latestTick);
     const lowerPrice = TickMath.getPriceStringAtTick(tickAtPrice - 7000);
     const upperPrice = TickMath.getPriceStringAtTick(tickAtPrice - -7000);
+    setLowerPrice(lowerPrice);
+    setUpperPrice(upperPrice);
     setCoverPositionData({
       ...coverPositionData,
       tickAtPrice: tickAtPrice,
@@ -153,10 +153,6 @@ export default function CreateCover(props: any) {
       upperPrice: upperPrice,
     });
   }
-
-  console.log("coverPoolData", coverPoolData);
-  console.log("coverPositionData", coverPositionData);
-  console.log("//////////////////////////////");
 
   //////////////////////////////Pools Change Volatility Tiers
 
@@ -290,15 +286,15 @@ export default function CreateCover(props: any) {
   const [lowerPrice, setLowerPrice] = useState("0");
   const [upperPrice, setUpperPrice] = useState("0");
 
-  /* useEffect(() => {
+  useEffect(() => {
     setCoverPositionData({
       ...coverPositionData,
       lowerPrice: lowerPrice,
       upperPrice: upperPrice,
     });
-  }, [lowerPrice, upperPrice]); */
+  }, [lowerPrice, upperPrice]);
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (!isNaN(parseFloat(coverPositionData.lowerPrice))) {
       setMinTick(
         coverPositionData,
@@ -321,17 +317,17 @@ export default function CreateCover(props: any) {
         )
       );
     }
-  }, [coverPositionData.lowerPrice, coverPositionData.upperPrice]);
+  }, [coverPositionData.lowerPrice, coverPositionData.upperPrice]); */
 
   const changePrice = (direction: string, inputId: string) => {
     if (!coverPoolData.volatilityTier.tickSpread) return;
     const currentTick =
       inputId == "minInput" || inputId == "maxInput"
         ? inputId == "minInput"
-          ? Number(coverPositionData.lowerPrice)
-          : Number(coverPositionData.upperPrice)
-        : coverPoolData.latestTick;
-    const increment = coverPoolData.volatilityTier.tickSpread;
+          ? parseInt(coverPositionData.lowerPrice)
+          : parseInt(coverPositionData.upperPrice)
+        : parseInt(coverPoolData.latestTick);
+    const increment = parseInt(coverPoolData.volatilityTier.tickSpread);
     const adjustment =
       direction == "plus" || direction == "minus"
         ? direction == "plus"
@@ -339,24 +335,28 @@ export default function CreateCover(props: any) {
           : increment
         : 0;
     const newTick = roundTick(currentTick - adjustment, increment);
-    const newPriceString = TickMath.getPriceStringAtTick(newTick);
+    const newPriceString = TickMath.getPriceStringAtTick(
+      parseFloat(newTick.toString())
+    );
     (document.getElementById(inputId) as HTMLInputElement).value =
-      Number(newPriceString).toFixed(6);
-    if (inputId === "maxInput") {
-      setMaxTick(coverPositionData, BigNumber.from(newTick));
-      const newPositionData = {
+      parseFloat(newPriceString).toFixed(6);
+    if (inputId === "minInput") {
+      setLowerPrice(newPriceString);
+      //setMaxTick(coverPositionData, BigNumber.from(newTick));
+      /*  const newPositionData = {
         ...coverPositionData,
         upperPrice: newPriceString,
       };
-      setCoverPositionData(newPositionData);
+      setCoverPositionData(newPositionData); */
     }
-    if (inputId === "minInput") {
-      setMinTick(coverPositionData, BigNumber.from(newTick));
-      const newPositionData = {
+    if (inputId === "maxInput") {
+      setUpperPrice(newPriceString);
+      //setMinTick(coverPositionData, BigNumber.from(newTick));
+      /* const newPositionData = {
         ...coverPositionData,
         lowerPrice: newPriceString,
       };
-      setCoverPositionData(newPositionData);
+      setCoverPositionData(newPositionData); */
       //setLowerPrice(newPriceString);
     }
   };
@@ -378,11 +378,12 @@ export default function CreateCover(props: any) {
   ]);
 
   useEffect(() => {
-    //changeCoverAmounts();
+    changeCoverAmounts();
   }, [coverAmountIn]);
 
   function changeCoverAmounts() {
     if (
+      bnInput != BN_ZERO &&
       Number(coverPositionData.lowerPrice) &&
       Number(coverPositionData.upperPrice) &&
       parseFloat(coverPositionData.lowerPrice) > 0 &&
@@ -390,11 +391,19 @@ export default function CreateCover(props: any) {
       parseFloat(coverPositionData.lowerPrice) <
         parseFloat(coverPositionData.upperPrice)
     ) {
+      console.log("//////////////////////");
+      console.log("changeCoverAmounts");
+      console.log("coverPositionData", coverPositionData);
+      console.log("lowerPrice", coverPositionData.lowerPrice);
+      console.log("lowerPricBigInt", parseInt(coverPositionData.lowerPrice));
+      console.log("upperPrice", coverPositionData.upperPrice);
+      console.log("upperPricBigInt", parseInt(coverPositionData.upperPrice));
+
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
-        Number(coverPositionData.lowerPrice)
+        parseInt(coverPositionData.lowerPrice)
       );
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(
-        Number(coverPositionData.upperPrice)
+        parseInt(coverPositionData.upperPrice)
       );
       /* if (amountInChanged) { */
       // amountIn changed
@@ -440,7 +449,13 @@ export default function CreateCover(props: any) {
   const [validBounds, setValidBounds] = useState(false);
 
   useEffect(() => {
-    changeValidBounds();
+    if (
+      coverPositionData.lowerPrice &&
+      coverPositionData.upperPrice &&
+      coverPoolData.latestTick &&
+      coverPoolData.volatilityTier.tickSpread
+    )
+      changeValidBounds();
   }, [coverPositionData.lowerPrice, coverPositionData.upperPrice]);
 
   const changeValidBounds = () => {
@@ -753,7 +768,6 @@ export default function CreateCover(props: any) {
         <div className="flex justify-between text-sm">
           <div className="text-[#646464]">Amount to receive</div>
           <div>
-            {/* {amountToPay} {tokenIn.symbol} */}
             {parseFloat(coverPositionData.lowerPrice) <
             parseFloat(coverPositionData.upperPrice) ? (
               parseFloat(
@@ -807,7 +821,7 @@ export default function CreateCover(props: any) {
               placeholder="0"
               id="minInput"
               type="text"
-              value={coverPositionData.lowerPrice}
+              value={lowerPrice}
               onChange={() =>
                 setLowerPrice(
                   inputFilter(
@@ -846,7 +860,7 @@ export default function CreateCover(props: any) {
               placeholder="0"
               id="maxInput"
               type="text"
-              value={coverPositionData.upperPrice}
+              value={upperPrice}
               onChange={() =>
                 setUpperPrice(
                   inputFilter(
