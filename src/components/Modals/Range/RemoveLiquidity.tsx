@@ -271,8 +271,8 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                     disabled={disabled}
                     poolAddress={rangePoolAddress}
                     address={address}
-                    lower={Number(rangePositionData.min)}
-                    upper={Number(rangePositionData.max)}
+                    lower={BigNumber.from(rangePositionData.min)}
+                    upper={BigNumber.from(rangePositionData.max)}
                     burnPercent={burnPercent}
                     gasLimit={gasLimit}
                     closeModal={() => 
