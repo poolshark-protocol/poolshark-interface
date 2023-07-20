@@ -47,16 +47,17 @@ export default function UserCoverPool({
     updateClaimTick()
   }, [])
 
-  useEffect(() => {
-    setClaimPrice(!isNaN(claimTick) 
-      ? parseFloat(TickMath.getPriceStringAtTick(claimTick)) 
-      : (coverPosition.zeroForOne ? upperPrice : lowerPrice))
+  /*useEffect(() => {
+    setClaimPrice(parseFloat(TickMath.getPriceStringAtTick(claimTick)))
   }, [claimTick])
 
   useEffect(() => {
-    setFillPercent((Math.abs((coverPosition.zeroForOne ? upperPrice : lowerPrice) - claimPrice)
+    setFillPercent((Math.abs((Boolean(coverPosition.zeroForOne) ? upperPrice : lowerPrice) - claimPrice)
     / Math.abs(upperPrice - lowerPrice)).toPrecision(3))
-  }, [claimPrice])
+
+    console.log('fill percent', fillPercent)
+    console.log('claim price', claimPrice)
+  }, [claimPrice])*/
 
   const updateClaimTick = async () => {
     const tick = await getClaimTick(
@@ -67,6 +68,9 @@ export default function UserCoverPool({
       Number(coverPosition.epochLast),
     )
     setClaimTick(tick)
+    setClaimPrice(parseFloat(TickMath.getPriceStringAtTick(tick)))
+    setFillPercent((Math.abs((Boolean(coverPosition.zeroForOne) ? upperPrice : lowerPrice) - claimPrice)
+    / Math.abs(upperPrice - lowerPrice)).toPrecision(3))
   }
 
   function choosePosition() {
@@ -140,7 +144,7 @@ export default function UserCoverPool({
                   </div>
 
                     <div className="flex relative bg-transparent items-center justify-center h-8 border-grey1 z-40 border rounded-lg gap-x-2 text-sm w-full">
-                  <div className={`bg-white h-full absolute left-0 z-0 rounded-l-[7px] opacity-10 w-[${parseInt(fillPercent)}%]`} />
+                  <div className={`bg-white h-full absolute left-0 z-0 rounded-l-[7px] opacity-10 w-[${fillPercent}%]`} />
                   <div className="z-20 ">{fillPercent}% Filled</div>
                 </div>
               </div>

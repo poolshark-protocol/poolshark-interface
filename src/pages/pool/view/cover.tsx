@@ -178,7 +178,7 @@ export default function Cover() {
     abi: coverPoolABI,
     functionName: "snapshot",
     args: [
-      [address, BigNumber.from("0"), coverPositionData.min, coverPositionData.max, claimTick, Boolean(coverPositionData.zeroForOne)],
+      [address, BigNumber.from("0"), BigNumber.from(coverPositionData.min), BigNumber.from(coverPositionData.max), BigNumber.from(claimTick), Boolean(coverPositionData.zeroForOne)],
     ],
     chainId: 421613,
     watch: true,
