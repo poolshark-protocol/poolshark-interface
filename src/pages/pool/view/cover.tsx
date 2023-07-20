@@ -438,9 +438,9 @@ export default function Cover() {
                     <CoverCollectButton
                       poolAddress={coverPoolAddress}
                       address={address}
-                      lower={coverPositionData.min}
-                      claim={claimTick}
-                      upper={coverPositionData.max}
+                      lower={BigNumber.from(coverPositionData.min)}
+                      claim={BigNumber.from(claimTick)}
+                      upper={BigNumber.from(coverPositionData.max)}
                       zeroForOne={Boolean(coverPositionData.zeroForOne)}
                       gasLimit={gasLimit.mul(150).div(100)}
                       gasFee={gasFee}
