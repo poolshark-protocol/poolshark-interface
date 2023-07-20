@@ -928,7 +928,11 @@ export default function CreateCover(props: any) {
             upper={coverPositionData.upperPrice}
             amount={bnInput}
             zeroForOne={tokenOrder}
-            tickSpacing={coverPoolData.volatilityTier.tickSpread}
+            tickSpacing={
+              coverPoolData.volatilityTier
+                ? coverPoolData.volatilityTier.tickSpread
+                : 20
+            }
             buttonState={buttonState}
             gasLimit={mintGasLimit}
           />
