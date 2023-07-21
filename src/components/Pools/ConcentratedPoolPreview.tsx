@@ -361,8 +361,20 @@ export default function ConcentratedPoolPreview({ fee }) {
                           <RangeMintButton
                             to={address}
                             poolAddress={rangePoolAddress}
-                            lower={rangePositionData.lowerPrice}
-                            upper={rangePositionData.upperPrice}
+                            lower={
+                              rangePositionData.lowerPrice
+                                ? BigNumber.from(
+                                    parseInt(rangePositionData.lowerPrice)
+                                  )
+                                : BN_ZERO
+                            }
+                            upper={
+                              rangePositionData.upperPrice
+                                ? BigNumber.from(
+                                    parseInt(rangePositionData.upperPrice)
+                                  )
+                                : BN_ZERO
+                            }
                             disabled={
                               tokenInAllowance.lt(tokenInAmount) ||
                               tokenOutAllowance.lt(tokenOutAmount)
