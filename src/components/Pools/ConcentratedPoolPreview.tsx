@@ -12,7 +12,7 @@ import RangeMintApproveButton from "../Buttons/RangeMintApproveButton";
 import { useRangeStore } from "../../hooks/useRangeStore";
 import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 
-export default function ConcentratedPoolPreview({fee}) {
+export default function ConcentratedPoolPreview({ fee }) {
   const [
     rangePoolAddress,
     rangePoolData,
@@ -38,8 +38,6 @@ export default function ConcentratedPoolPreview({fee}) {
     setTokenOutBalance,
     setTokenOutAllowance,
     pairSelected,
-    setMinTick,
-    setMaxTick,
     disabled,
     setDisabled,
     buttonMessage,
@@ -73,8 +71,6 @@ export default function ConcentratedPoolPreview({fee}) {
     state.setTokenOutBalance,
     state.setTokenOutRangeAllowance,
     state.pairSelected,
-    state.setMinTick,
-    state.setMaxTick,
     state.disabled,
     state.setDisabled,
     state.buttonMessage,
@@ -129,8 +125,6 @@ export default function ConcentratedPoolPreview({fee}) {
 
   useEffect(() => {
     if (allowanceInRange && allowanceOutRange) {
-      console.log("allowanceInRange", allowanceInRange);
-      console.log("allowanceOutRange", allowanceOutRange);
       setTokenInAllowance(allowanceInRange);
       setTokenOutAllowance(allowanceOutRange);
     }
@@ -139,7 +133,7 @@ export default function ConcentratedPoolPreview({fee}) {
 
   ////////////////////////////////Mint Gas Fee
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
-  const [mintGasFee, setMintGasFee] = useState("$0.00");
+  //const [mintGasFee, setMintGasFee] = useState("$0.00");
 
   useEffect(() => {
     updateGasFee();
@@ -149,13 +143,13 @@ export default function ConcentratedPoolPreview({fee}) {
     const newGasFee = await gasEstimateRangeMint(
       rangePoolAddress,
       address,
-      rangePositionData.minTick,
-      rangePositionData.maxTick,
+      rangePositionData.lowerPrice,
+      rangePositionData.upperPrice,
       tokenInAmount,
       tokenOutAmount,
       signer
     );
-    setMintGasFee(newGasFee.formattedPrice);
+    //setMintGasFee(newGasFee.formattedPrice);
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
   }
 
@@ -365,15 +359,22 @@ export default function ConcentratedPoolPreview({fee}) {
                           <RangeMintButton
                             to={address}
                             poolAddress={rangePoolAddress}
-                            lower={rangePositionData.minTick}
-                            upper={rangePositionData.maxTick}
+                            lower={rangePositionData.lowerPrice}
+                            upper={rangePositionData.upperPrice}
                             disabled={
                               tokenInAllowance.lt(tokenInAmount) ||
-                              tokenOutAllowance.lt(tokenOutAmount) ||
-                              mintGasFee === "$0.00"
+                              tokenOutAllowance.lt(tokenOutAmount)
                             }
-                            amount0={tokenInAmount}
-                            amount1={tokenOutAmount}
+                            amount0={
+                              tokenIn.callId === 0
+                                ? tokenInAmount
+                                : tokenOutAmount
+                            }
+                            amount1={
+                              tokenIn.callId === 0
+                                ? tokenOutAmount
+                                : tokenInAmount
+                            }
                             gasLimit={mintGasLimit}
                             closeModal={() => router.push("/pool")}
                           />

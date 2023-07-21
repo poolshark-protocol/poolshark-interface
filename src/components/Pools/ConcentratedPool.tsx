@@ -33,32 +33,25 @@ export default function ConcentratedPool({}) {
     rangePositionData,
     setRangePoolAddress,
     setRangePoolData,
+    setRangePositionData,
     tokenIn,
     tokenInAmount,
     tokenInRangeUSDPrice,
     tokenInBalance,
-    tokenInAllowance,
     setTokenIn,
     setTokenInAmount,
     setTokenInRangeUSDPrice,
     setTokenInBalance,
-    setTokenInAllowance,
     tokenOut,
     tokenOutAmount,
     tokenOutRangeUSDPrice,
     tokenOutBalance,
-    tokenOutAllowance,
     setTokenOut,
     setTokenOutAmount,
     setTokenOutRangeUSDPrice,
     setTokenOutBalance,
-    setTokenOutAllowance,
     pairSelected,
-    setMinTick,
-    setMaxTick,
-    disabled,
     setDisabled,
-    buttonMessage,
     setButtonMessage,
     minInput,
     maxInput,
@@ -70,38 +63,35 @@ export default function ConcentratedPool({}) {
     state.rangePositionData,
     state.setRangePoolAddress,
     state.setRangePoolData,
+    state.setRangePositionData,
     state.tokenIn,
     state.tokenInAmount,
     state.tokenInRangeUSDPrice,
     state.tokenInBalance,
-    state.tokenInRangeAllowance,
     state.setTokenIn,
     state.setTokenInAmount,
     state.setTokenInRangeUSDPrice,
     state.setTokenInBalance,
-    state.setTokenInRangeAllowance,
     state.tokenOut,
     state.tokenOutAmount,
     state.tokenOutRangeUSDPrice,
     state.tokenOutBalance,
-    state.tokenOutRangeAllowance,
     state.setTokenOut,
     state.setTokenOutAmount,
     state.setTokenOutRangeUSDPrice,
     state.setTokenOutBalance,
-    state.setTokenOutRangeAllowance,
     state.pairSelected,
-    state.setMinTick,
-    state.setMaxTick,
-    state.disabled,
     state.setDisabled,
-    state.buttonMessage,
     state.setButtonMessage,
     state.minInput,
     state.maxInput,
     state.setMinInput,
     state.setMaxInput,
   ]);
+
+  //console.log("rangePoolData", rangePoolData);
+  console.log("rangePositionData", rangePositionData);
+  console.log("/////////////////////////");
 
   const { address, isConnected } = useAccount();
 
@@ -142,15 +132,22 @@ export default function ConcentratedPool({}) {
       const tickAtPrice = rangePoolData.tickAtPrice;
       setRangePrice(TickMath.getPriceStringAtSqrtPrice(price));
       setRangeSqrtPrice(price);
+      const positionData = rangePositionData;
+      console.log("set lower e upper price", lowerPrice, upperPrice);
       if (isNaN(parseFloat(lowerPrice)) || parseFloat(lowerPrice) <= 0) {
+        console.log("set lower price");
         setLowerPrice(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
-        setMinTick(rangePositionData, BigNumber.from(tickAtPrice - 7000));
+        positionData.lowerPrice = BigNumber.from(tickAtPrice - 7000);
+        //setMinTick(rangePositionData, BigNumber.from(tickAtPrice - 7000));
       }
       if (isNaN(parseFloat(upperPrice)) || parseFloat(upperPrice) <= 0) {
+        console.log("set upper price");
         setUpperPrice(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
-        setMaxTick(rangePositionData, BigNumber.from(tickAtPrice - -7000));
+        positionData.upperPrice = BigNumber.from(tickAtPrice - -7000);
+        //setMaxTick(rangePositionData, BigNumber.from(tickAtPrice - -7000));
       }
       setRangeTickPrice(tickAtPrice);
+      setRangePositionData(positionData);
     }
   }, [rangePoolData]);
 
@@ -229,7 +226,6 @@ export default function ConcentratedPool({}) {
     }
   }, [tokenInBal, tokenOutBal]);
 
-
   ////////////////////////////////TokenUSDPrices
 
   useEffect(() => {
@@ -261,53 +257,35 @@ export default function ConcentratedPool({}) {
   const [upperPrice, setUpperPrice] = useState("");
 
   useEffect(() => {
-    setMinInput(
-      lowerPrice.toString().includes("e")
-        ? parseFloat(lowerPrice).toLocaleString(undefined, {
-            maximumFractionDigits: 0,
-          }).length > 6
-          ? "0"
-          : parseFloat(lowerPrice).toLocaleString(undefined, {
-              maximumFractionDigits: 0,
-            })
-        : lowerPrice
-    );
     if (!isNaN(parseFloat(lowerPrice))) {
-      //console.log('setting lower tick')
-      setMinTick(
-        rangePositionData,
-        BigNumber.from(
-          TickMath.getTickAtPriceString(
-            lowerPrice,
-            rangePoolData.feeTier.tickSpacing
-          )
-        )
+      console.log("lowerPrice", lowerPrice);
+      setMinInput(
+        lowerPrice.toString().includes("e")
+          ? parseFloat(lowerPrice).toLocaleString(undefined, {
+              maximumFractionDigits: 0,
+            }).length > 6
+            ? "0"
+            : parseFloat(lowerPrice).toLocaleString(undefined, {
+                maximumFractionDigits: 0,
+              })
+          : lowerPrice
       );
     }
   }, [lowerPrice]);
 
   useEffect(() => {
-    setMaxInput(
-      upperPrice.toString().includes("e")
-        ? Number(upperPrice).toLocaleString(undefined, {
-            maximumFractionDigits: 0,
-          }).length > 6
-          ? "∞"
-          : Number(upperPrice).toLocaleString(undefined, {
-              maximumFractionDigits: 2,
-            })
-        : upperPrice
-    );
     if (!isNaN(parseFloat(upperPrice))) {
-      //console.log('setting upper tick')
-      setMaxTick(
-        rangePositionData,
-        BigNumber.from(
-          TickMath.getTickAtPriceString(
-            upperPrice,
-            rangePoolData.feeTier.tickSpacing
-          )
-        )
+      console.log("upperPrice", upperPrice);
+      setMaxInput(
+        upperPrice.toString().includes("e")
+          ? Number(upperPrice).toLocaleString(undefined, {
+              maximumFractionDigits: 0,
+            }).length > 6
+            ? "∞"
+            : Number(upperPrice).toLocaleString(undefined, {
+                maximumFractionDigits: 2,
+              })
+          : upperPrice
       );
     }
   }, [upperPrice]);
@@ -393,8 +371,8 @@ export default function ConcentratedPool({}) {
   //set lower and upper price
   const changePrice = (direction: string, inputId: string) => {
     const currentTick =
-      inputId == "minInput" || inputId == "maxInput"
-        ? inputId == "minInput"
+      inputId == "lower" || inputId == "upper"
+        ? inputId == "lower"
           ? Number(rangePositionData.minTick)
           : Number(rangePositionData.maxTick)
         : rangeTickPrice;
@@ -408,12 +386,11 @@ export default function ConcentratedPool({}) {
         : 0;
     const newTick = roundTick(currentTick - adjustment, increment);
     const newPriceString = TickMath.getPriceStringAtTick(newTick);
-    (document.getElementById(inputId) as HTMLInputElement).value =
-      Number(newPriceString).toFixed(6);
-    if (inputId === "maxInput") {
+    //(document.getElementById(inputId) as HTMLInputElement).value=Number(newPriceString).toFixed(6);
+    if (inputId === "upper") {
       setUpperPrice(newPriceString);
     }
-    if (inputId === "minInput") {
+    if (inputId === "lower") {
       setLowerPrice(newPriceString);
     }
   };
@@ -711,14 +688,6 @@ export default function ConcentratedPool({}) {
             <button
               className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md whitespace-nowrap"
               onClick={() => {
-                setMinTick(
-                  rangePositionData,
-                  BigNumber.from(roundTick(-887272, rangePoolData.tickSpacing))
-                );
-                setMaxTick(
-                  rangePositionData,
-                  BigNumber.from(roundTick(887272, rangePoolData.tickSpacing))
-                );
                 setLowerPrice(
                   TickMath.getPriceStringAtTick(
                     roundTick(-887272, rangePoolData.tickSpacing)
@@ -741,67 +710,33 @@ export default function ConcentratedPool({}) {
               </span>
               <div className="flex justify-center items-center">
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  {tokenOrder ? (
-                    <button onClick={() => changePrice("minus", "minInput")}>
-                      <MinusIcon className="w-5 h-5" />
-                    </button>
-                  ) : (
-                    <button onClick={() => changePrice("plus", "maxInput")}>
-                      <MinusIcon className="w-5 h-5" />
-                    </button>
-                  )}
+                  <button onClick={() => changePrice("minus", "lower")}>
+                    <MinusIcon className="w-5 h-5" />
+                  </button>
                 </div>
-                {tokenOrder ? (
-                  <input
-                    autoComplete="off"
-                    className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
-                    placeholder="0"
-                    id="minInput"
-                    type="text"
-                    value={minInput}
-                    onChange={() =>
-                      setLowerPrice(
-                        inputFilter(
-                          (
-                            document.getElementById(
-                              "minInput"
-                            ) as HTMLInputElement
-                          )?.value
-                        )
+                <input
+                  autoComplete="off"
+                  className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
+                  placeholder="0"
+                  id="minInput"
+                  type="text"
+                  value={minInput}
+                  onChange={() =>
+                    setLowerPrice(
+                      inputFilter(
+                        (
+                          document.getElementById(
+                            "minInput"
+                          ) as HTMLInputElement
+                        )?.value
                       )
-                    }
-                  />
-                ) : (
-                  <input
-                    autoComplete="off"
-                    className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
-                    placeholder="0"
-                    id="maxInput"
-                    type="text"
-                    value={maxInput}
-                    onChange={() =>
-                      setUpperPrice(
-                        inputFilter(
-                          (
-                            document.getElementById(
-                              "maxInput"
-                            ) as HTMLInputElement
-                          )?.value
-                        )
-                      )
-                    }
-                  />
-                )}
+                    )
+                  }
+                />
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  {tokenOrder ? (
-                    <button onClick={() => changePrice("plus", "minInput")}>
-                      <PlusIcon className="w-5 h-5" />
-                    </button>
-                  ) : (
-                    <button onClick={() => changePrice("minus", "maxInput")}>
-                      <PlusIcon className="w-5 h-5" />
-                    </button>
-                  )}
+                  <button onClick={() => changePrice("plus", "lower")}>
+                    <PlusIcon className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
               <span className="md:text-xs text-[10px] text-grey">
@@ -814,15 +749,9 @@ export default function ConcentratedPool({}) {
               </span>
               <div className="flex justify-center items-center">
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  {tokenOrder ? (
-                    <button onClick={() => changePrice("minus", "maxInput")}>
-                      <MinusIcon className="w-5 h-5" />
-                    </button>
-                  ) : (
-                    <button onClick={() => changePrice("plus", "minInput")}>
-                      <MinusIcon className="w-5 h-5" />
-                    </button>
-                  )}
+                  <button onClick={() => changePrice("minus", "upper")}>
+                    <MinusIcon className="w-5 h-5" />
+                  </button>
                 </div>
                 {tokenOrder ? (
                   <input
@@ -866,15 +795,9 @@ export default function ConcentratedPool({}) {
                   />
                 )}
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  {tokenOrder ? (
-                    <button onClick={() => changePrice("plus", "maxInput")}>
-                      <PlusIcon className="w-5 h-5" />
-                    </button>
-                  ) : (
-                    <button onClick={() => changePrice("minus", "minInput")}>
-                      <PlusIcon className="w-5 h-5" />
-                    </button>
-                  )}
+                  <button onClick={() => changePrice("plus", "upper")}>
+                    <PlusIcon className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
               <span className="md:text-xs text-[10px] text-grey">
@@ -883,7 +806,7 @@ export default function ConcentratedPool({}) {
             </div>
           </div>
         </div>
-        <ConcentratedPoolPreview fee={fee}/>
+        <ConcentratedPoolPreview fee={fee} />
       </div>
     </div>
   );
