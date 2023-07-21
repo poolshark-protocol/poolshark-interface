@@ -46,10 +46,7 @@ type RangeAction = {
   setRangePoolAddress: (address: String) => void;
   setRangePoolData: (data: any) => void;
   setRangeSlippage: (rangeSlippage: string) => void;
-  //
   setRangePositionData: (rangePosition: any) => void;
-  setMinTick: (data: any, newMinTick: BigNumber) => void;
-  setMaxTick: (data: any, newMaxTick: BigNumber) => void;
   //
   setPairSelected: (pairSelected: Boolean) => void;
   //
@@ -290,20 +287,6 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   setRangeSlippage: (rangeSlippage: string) => {
     set(() => ({
       rangeSlippage: rangeSlippage,
-    }));
-  },
-  setMinTick: (rangePositionData, minTick: BigNumber) => {
-    const newPositionData = { ...rangePositionData };
-    newPositionData.minTick = minTick;
-    set(() => ({
-      rangePositionData: newPositionData,
-    }));
-  },
-  setMaxTick: (rangePositionData, maxTick: BigNumber) => {
-    const newPositionData = { ...rangePositionData };
-    newPositionData.maxTick = maxTick;
-    set(() => ({
-      rangePositionData: newPositionData,
     }));
   },
   setGasFee: (gasFee: BigNumber) => {
