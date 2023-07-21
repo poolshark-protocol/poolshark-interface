@@ -1,18 +1,18 @@
-import { ethers, BigNumber } from 'ethers'
+import { ethers, BigNumber } from "ethers";
 import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
-} from 'wagmi'
-import { coverPoolABI } from '../../abis/evm/coverPool'
-import { SuccessToast } from '../Toasts/Success'
-import { ErrorToast } from '../Toasts/Error'
-import { ConfirmingToast } from '../Toasts/Confirming'
-import React, { useState, useEffect } from 'react'
-import { coverPoolAddress } from '../../constants/contractAddresses'
-import { useCoverStore } from '../../hooks/useStore'
-import { roundTick } from '../../utils/math/tickMath'
-import { BN_ZERO } from '../../utils/math/constants'
+} from "wagmi";
+import { coverPoolABI } from "../../abis/evm/coverPool";
+import { SuccessToast } from "../Toasts/Success";
+import { ErrorToast } from "../Toasts/Error";
+import { ConfirmingToast } from "../Toasts/Confirming";
+import React, { useState, useEffect } from "react";
+import { coverPoolAddress } from "../../constants/contractAddresses";
+import { useCoverStore } from "../../hooks/useStore";
+import { roundTick } from "../../utils/math/tickMath";
+import { BN_ZERO } from "../../utils/math/constants";
 
 export default function CoverMintButton({
   poolAddress,
@@ -28,13 +28,13 @@ export default function CoverMintButton({
   gasLimit,
   tokenSymbol,
 }) {
-  const [errorDisplay, setErrorDisplay] = useState(false)
-  const [successDisplay, setSuccessDisplay] = useState(false)
+  const [errorDisplay, setErrorDisplay] = useState(false);
+  const [successDisplay, setSuccessDisplay] = useState(false);
 
   const { config } = usePrepareContractWrite({
     address: poolAddress,
     abi: coverPoolABI,
-    functionName: 'mint',
+    functionName: "mint",
     args: [
       [
         to,
@@ -44,24 +44,24 @@ export default function CoverMintButton({
         zeroForOne,
       ],
     ],
-    enabled: amount.toString() != '0' && poolAddress != undefined,
+    enabled: amount.toString() != "0" && poolAddress != undefined,
     chainId: 421613,
     overrides: {
-      gasLimit: gasLimit,
+      gasLimit: BigNumber.from("1000000"),
     },
-  })
+  });
 
-  const { data, write } = useContractWrite(config)
+  const { data, write } = useContractWrite(config);
 
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      setSuccessDisplay(true)
+      setSuccessDisplay(true);
     },
     onError() {
-      setErrorDisplay(true)
+      setErrorDisplay(true);
     },
-  })
+  });
 
   return (
     <>
@@ -69,22 +69,22 @@ export default function CoverMintButton({
         disabled={disabled}
         className={
           disabled
-            ? 'w-full py-4 mx-auto font-medium text-center text-sm md:text-base transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50'
-            : 'w-full py-4 mx-auto font-medium text-center text-sm md:text-base transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80'
+            ? "w-full py-4 mx-auto font-medium text-center text-sm md:text-base transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50"
+            : "w-full py-4 mx-auto font-medium text-center text-sm md:text-base transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
         }
         onClick={() => (coverPoolAddress && !disabled ? write?.() : null)}
       >
         {disabled ? (
           <>
-            {buttonState === 'price' ? (
+            {buttonState === "price" ? (
               <>Min. is greater than Max. Price</>
             ) : (
               <></>
             )}
-            {buttonState === 'amount' ? <>Input Amount</> : <></>}
-            {buttonState === 'token' ? <>Output token not selected</> : <></>}
-            {buttonState === 'bounds' ? <>Invalid Price Range</> : <></>}
-            {buttonState === 'balance' ? (
+            {buttonState === "amount" ? <>Input Amount</> : <></>}
+            {buttonState === "token" ? <>Output token not selected</> : <></>}
+            {buttonState === "bounds" ? <>Invalid Price Range</> : <></>}
+            {buttonState === "balance" ? (
               <>Insufficient {tokenSymbol} Balance</>
             ) : (
               <></>
@@ -112,5 +112,5 @@ export default function CoverMintButton({
         )}
       </div>
     </>
-  )
+  );
 }

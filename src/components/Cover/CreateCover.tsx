@@ -818,9 +818,15 @@ export default function CreateCover(props: any) {
             tokenSymbol={tokenIn.symbol}
             disabled={disabled}
             to={address}
-            lower={TickMath.getTickAtPriceString(coverPositionData.lowerPrice)}
-            claim={TickMath.getTickAtPriceString(coverPositionData.upperPrice)}
-            upper={TickMath.getTickAtPriceString(coverPositionData.upperPrice)}
+            lower={TickMath.getTickAtPriceString(
+              coverPositionData.lowerPrice ?? "0"
+            )}
+            claim={TickMath.getTickAtPriceString(
+              coverPositionData.upperPrice ?? "0"
+            )}
+            upper={TickMath.getTickAtPriceString(
+              coverPositionData.upperPrice ?? "0"
+            )}
             amount={bnInput}
             zeroForOne={tokenOrder}
             tickSpacing={
