@@ -30,38 +30,6 @@ export default function CoverMintButton({
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
-console.log('bn button state', zeroForOne, disabled, gasLimit.toString())
-  /*const [coverContractParams, setCoverContractParams] = useState({
-    to: to,
-    lower: lower,
-    claim: claim,
-    upper: upper,
-    amount: amount,
-    zeroForOne: zeroForOne,
-  })
-  console.log('cover contract', coverContractParams)
-
- 
-  useEffect(() => {
-    setCoverContractParams({
-    to: to,
-    lower: lower,
-    claim: claim,
-    upper: upper,
-    amount: amount,
-    zeroForOne: zeroForOne,
-    })
-  }, [disabled, to, lower, claim, upper, amount, zeroForOne])*/
-
-  /* console.log(
-    'mint params',
-    to,
-    amount.toString(),
-    roundTick(Number(lower), 40).toString(),
-    roundTick(Number(claim), 40),
-    roundTick(Number(upper), 40),
-    zeroForOne,
-  ) */
 
   const { config } = usePrepareContractWrite({
     address: poolAddress,

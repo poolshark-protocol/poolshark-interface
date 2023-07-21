@@ -440,24 +440,8 @@ export default function CreateCover(props: any) {
     const disabledFlag =
       bnInput.eq(BN_ZERO) &&
       coverPositionData.lowerPrice < coverPositionData.upperPrice;
-    /*  Number(ethers.utils.formatUnits(bnInput)) > Number(tokenInBalance) ||
-      isNaN(parseFloat(coverPositionData.lowerPrice)) ||
-      isNaN(parseFloat(coverPositionData.upperPrice)) ||
-      parseInt(coverPositionData.lowerPrice) <
-        parseInt(coverPositionData.upperPrice) ||
-      bnInput.eq(BN_ZERO) ||
-      tokenOut.symbol === "Select Token" ||
-      !validBounds */
     setDisabled(disabledFlag);
-  }, [
-    coverPositionData.lowerPrice,
-    coverPositionData.upperPrice,
-    bnInput,
-    /* tokenOut,
-    validBounds,
-    tokenInBalance,
-    mintGasLimit, */
-  ]);
+  }, [coverPositionData.lowerPrice, coverPositionData.upperPrice, bnInput]);
 
   ////////////////////// Expanded Option
   const [expanded, setExpanded] = useState(false);
@@ -834,13 +818,9 @@ export default function CreateCover(props: any) {
             tokenSymbol={tokenIn.symbol}
             disabled={disabled}
             to={address}
-            lower={coverPositionData.lowerPrice}
-            claim={
-              tokenOrder
-                ? coverPositionData.upperPrice
-                : coverPositionData.lowerPrice
-            }
-            upper={coverPositionData.upperPrice}
+            lower={TickMath.getTickAtPriceString(coverPositionData.lowerPrice)}
+            claim={TickMath.getTickAtPriceString(coverPositionData.upperPrice)}
+            upper={TickMath.getTickAtPriceString(coverPositionData.upperPrice)}
             amount={bnInput}
             zeroForOne={tokenOrder}
             tickSpacing={
