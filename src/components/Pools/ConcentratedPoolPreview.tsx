@@ -333,7 +333,7 @@ export default function ConcentratedPoolPreview({ fee }) {
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {minInput}
+                                {rangePositionData.lowerPrice}
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">
@@ -346,7 +346,7 @@ export default function ConcentratedPoolPreview({ fee }) {
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {maxInput}
+                                {rangePositionData.upperPrice}
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">

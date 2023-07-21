@@ -81,10 +81,6 @@ export default function ConcentratedPool({}) {
     state.setButtonMessage,
   ]);
 
-  //console.log("rangePoolData", rangePoolData);
-  console.log("rangePositionData", rangePositionData);
-  console.log("/////////////////////////");
-
   const { address, isConnected } = useAccount();
 
   const {
@@ -118,7 +114,10 @@ export default function ConcentratedPool({}) {
   }
 
   useEffect(() => {
+    console.log("rangePoolData", rangePoolData)
     if (rangePoolData.price) {
+      console.log("rangePoolData.price", rangePoolData.price);
+      console.log("rangePoolData.tickAtPrice", rangePoolData.tickAtPrice);
       const price = JSBI.BigInt(rangePoolData.price);
       const tickAtPrice = rangePoolData.tickAtPrice;
       setRangePrice(TickMath.getPriceStringAtSqrtPrice(price));
@@ -256,26 +255,26 @@ export default function ConcentratedPool({}) {
   }, [lowerPrice, upperPrice]);
 
   useEffect(() => {
-    if (lowerPrice && upperPrice) {
+    if (rangePositionData.lowerPrice && rangePositionData.upperPrice) {
       tokenOutAmountMath();
     }
-  }, [bnInput]);
+  }, [bnInput, rangePositionData.lowerPrice, rangePositionData.upperPrice]);
 
   function tokenOutAmountMath() {
     try {
       const lower = TickMath.getTickAtPriceString(
-        lowerPrice,
+        rangePositionData.lowerPrice,
         rangePoolData.feeTier.tickSpacing
       );
       const upper = TickMath.getTickAtPriceString(
-        upperPrice,
+        rangePositionData.upperPrice,
         rangePoolData.feeTier.tickSpacing
       );
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(lower));
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(upper));
       const liquidity =
-        parseFloat(rangePrice) >= parseFloat(lowerPrice) &&
-        parseFloat(rangePrice) <= parseFloat(upperPrice)
+        parseFloat(rangePrice) >= parseFloat(rangePositionData.lowerPrice) &&
+        parseFloat(rangePrice) <= parseFloat(rangePositionData.upperPrice)
           ? DyDxMath.getLiquidityForAmounts(
               tokenOrder ? rangeSqrtPrice : lowerSqrtPrice,
               tokenOrder ? upperSqrtPrice : rangeSqrtPrice,
@@ -290,13 +289,16 @@ export default function ConcentratedPool({}) {
               tokenOrder ? BN_ZERO : bnInput,
               tokenOrder ? bnInput : BN_ZERO
             );
+      console.log("liquidity", liquidity.toString());
       const tokenOutAmount = JSBI.greaterThan(liquidity, ZERO)
         ? tokenOrder
           ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
           : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
         : ZERO;
       setTokenInAmount(bnInput);
-      setTokenOutAmount(BigNumber.from(String(tokenOutAmount)));
+      //console.log("tokenInAmount", bnInput);
+      console.log("tokenOutAmount", Number(tokenOutAmount.toString()));
+      setTokenOutAmount(BigNumber.from(tokenOutAmount.toString()));
     } catch (error) {
       console.log(error);
     }
@@ -582,11 +584,7 @@ export default function ConcentratedPool({}) {
             </div>
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl  rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
-                {Number(
-                  parseFloat(
-                    ethers.utils.formatUnits(tokenOutAmount, 18)
-                  ).toPrecision(5)
-                )}
+                {Number(ethers.utils.formatUnits(tokenOutAmount, 18))}
                 {
                   <div className="flex mt-2 text-xs text-[#4C4C4C]">
                     ~$
