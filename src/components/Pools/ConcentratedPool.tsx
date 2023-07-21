@@ -53,10 +53,6 @@ export default function ConcentratedPool({}) {
     pairSelected,
     setDisabled,
     setButtonMessage,
-    minInput,
-    maxInput,
-    setMinInput,
-    setMaxInput,
   ] = useRangeStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
@@ -83,15 +79,7 @@ export default function ConcentratedPool({}) {
     state.pairSelected,
     state.setDisabled,
     state.setButtonMessage,
-    state.minInput,
-    state.maxInput,
-    state.setMinInput,
-    state.setMaxInput,
   ]);
-
-  //console.log("rangePoolData", rangePoolData);
-  console.log("rangePositionData", rangePositionData);
-  console.log("/////////////////////////");
 
   const { address, isConnected } = useAccount();
 
@@ -127,7 +115,10 @@ export default function ConcentratedPool({}) {
 
   //this sets the default position price delta
   useEffect(() => {
+    console.log("rangePoolData", rangePoolData)
     if (rangePoolData.price) {
+      console.log("rangePoolData.price", rangePoolData.price);
+      console.log("rangePoolData.tickAtPrice", rangePoolData.tickAtPrice);
       const price = JSBI.BigInt(rangePoolData.price);
       const tickAtPrice = rangePoolData.tickAtPrice;
       setRangePrice(TickMath.getPriceStringAtSqrtPrice(price));
@@ -253,64 +244,38 @@ export default function ConcentratedPool({}) {
   const [rangeSqrtPrice, setRangeSqrtPrice] = useState(undefined);
 
   //Prices for calculations
-  const [lowerPrice, setLowerPrice] = useState("");
-  const [upperPrice, setUpperPrice] = useState("");
+  const [lowerPrice, setLowerPrice] = useState("0");
+  const [upperPrice, setUpperPrice] = useState("0");
 
   useEffect(() => {
-    if (!isNaN(parseFloat(lowerPrice))) {
-      console.log("lowerPrice", lowerPrice);
-      setMinInput(
-        lowerPrice.toString().includes("e")
-          ? parseFloat(lowerPrice).toLocaleString(undefined, {
-              maximumFractionDigits: 0,
-            }).length > 6
-            ? "0"
-            : parseFloat(lowerPrice).toLocaleString(undefined, {
-                maximumFractionDigits: 0,
-              })
-          : lowerPrice
-      );
-    }
-  }, [lowerPrice]);
+    setRangePositionData({
+      ...rangePositionData,
+      lowerPrice: lowerPrice,
+      upperPrice: upperPrice,
+    });
+  }, [lowerPrice, upperPrice]);
 
   useEffect(() => {
-    if (!isNaN(parseFloat(upperPrice))) {
-      console.log("upperPrice", upperPrice);
-      setMaxInput(
-        upperPrice.toString().includes("e")
-          ? Number(upperPrice).toLocaleString(undefined, {
-              maximumFractionDigits: 0,
-            }).length > 6
-            ? "∞"
-            : Number(upperPrice).toLocaleString(undefined, {
-                maximumFractionDigits: 2,
-              })
-          : upperPrice
-      );
-    }
-  }, [upperPrice]);
-
-  useEffect(() => {
-    if (lowerPrice && upperPrice) {
+    if (rangePositionData.lowerPrice && rangePositionData.upperPrice) {
       tokenOutAmountMath();
     }
-  }, [bnInput]);
+  }, [bnInput, rangePositionData.lowerPrice, rangePositionData.upperPrice]);
 
   function tokenOutAmountMath() {
     try {
       const lower = TickMath.getTickAtPriceString(
-        lowerPrice,
+        rangePositionData.lowerPrice,
         rangePoolData.feeTier.tickSpacing
       );
       const upper = TickMath.getTickAtPriceString(
-        upperPrice,
+        rangePositionData.upperPrice,
         rangePoolData.feeTier.tickSpacing
       );
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(lower));
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(upper));
       const liquidity =
-        parseFloat(rangePrice) >= parseFloat(lowerPrice) &&
-        parseFloat(rangePrice) <= parseFloat(upperPrice)
+        parseFloat(rangePrice) >= parseFloat(rangePositionData.lowerPrice) &&
+        parseFloat(rangePrice) <= parseFloat(rangePositionData.upperPrice)
           ? DyDxMath.getLiquidityForAmounts(
               tokenOrder ? rangeSqrtPrice : lowerSqrtPrice,
               tokenOrder ? upperSqrtPrice : rangeSqrtPrice,
@@ -325,13 +290,16 @@ export default function ConcentratedPool({}) {
               tokenOrder ? BN_ZERO : bnInput,
               tokenOrder ? bnInput : BN_ZERO
             );
+      console.log("liquidity", liquidity.toString());
       const tokenOutAmount = JSBI.greaterThan(liquidity, ZERO)
         ? tokenOrder
           ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
           : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
         : ZERO;
       setTokenInAmount(bnInput);
-      setTokenOutAmount(BigNumber.from(String(tokenOutAmount)));
+      //console.log("tokenInAmount", bnInput);
+      console.log("tokenOutAmount", Number(tokenOutAmount.toString()));
+      setTokenOutAmount(BigNumber.from(tokenOutAmount.toString()));
     } catch (error) {
       console.log(error);
     }
@@ -370,14 +338,12 @@ export default function ConcentratedPool({}) {
   ////////////////////////////////Change Price Buttons
   //set lower and upper price
   const changePrice = (direction: string, inputId: string) => {
+    if (!rangePoolData.feeTier.tickSpacing) return;
     const currentTick =
-      inputId == "lower" || inputId == "upper"
-        ? inputId == "lower"
-          ? Number(rangePositionData.minTick)
-          : Number(rangePositionData.maxTick)
-        : rangeTickPrice;
-    if (!currentTick) return;
-    const increment = rangePoolData.feeTier.tickSpacing;
+      inputId == "minInput"
+        ? TickMath.getTickAtPriceString(rangePositionData.lowerPrice)
+        : TickMath.getTickAtPriceString(rangePositionData.upperPrice);
+    const increment = parseInt(rangePoolData.feeTier.tickSpacing);
     const adjustment =
       direction == "plus" || direction == "minus"
         ? direction == "plus"
@@ -385,13 +351,16 @@ export default function ConcentratedPool({}) {
           : increment
         : 0;
     const newTick = roundTick(currentTick - adjustment, increment);
-    const newPriceString = TickMath.getPriceStringAtTick(newTick);
-    //(document.getElementById(inputId) as HTMLInputElement).value=Number(newPriceString).toFixed(6);
-    if (inputId === "upper") {
-      setUpperPrice(newPriceString);
-    }
-    if (inputId === "lower") {
+    const newPriceString = TickMath.getPriceStringAtTick(
+      parseFloat(newTick.toString())
+    );
+    (document.getElementById(inputId) as HTMLInputElement).value =
+      parseFloat(newPriceString).toFixed(6);
+    if (inputId === "minInput") {
       setLowerPrice(newPriceString);
+    }
+    if (inputId === "maxInput") {
+      setUpperPrice(newPriceString);
     }
   };
 
@@ -616,11 +585,7 @@ export default function ConcentratedPool({}) {
             </div>
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl  rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
-                {Number(
-                  parseFloat(
-                    ethers.utils.formatUnits(tokenOutAmount, 18)
-                  ).toPrecision(5)
-                )}
+                {Number(ethers.utils.formatUnits(tokenOutAmount, 18))}
                 {
                   <div className="flex mt-2 text-xs text-[#4C4C4C]">
                     ~$
@@ -710,7 +675,7 @@ export default function ConcentratedPool({}) {
               </span>
               <div className="flex justify-center items-center">
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  <button onClick={() => changePrice("minus", "lower")}>
+                  <button onClick={() => changePrice("minus", "minInput")}>
                     <MinusIcon className="w-5 h-5" />
                   </button>
                 </div>
@@ -720,7 +685,7 @@ export default function ConcentratedPool({}) {
                   placeholder="0"
                   id="minInput"
                   type="text"
-                  value={minInput}
+                  value={lowerPrice}
                   onChange={() =>
                     setLowerPrice(
                       inputFilter(
@@ -734,7 +699,7 @@ export default function ConcentratedPool({}) {
                   }
                 />
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  <button onClick={() => changePrice("plus", "lower")}>
+                  <button onClick={() => changePrice("plus", "minInput")}>
                     <PlusIcon className="w-5 h-5" />
                   </button>
                 </div>
@@ -749,53 +714,31 @@ export default function ConcentratedPool({}) {
               </span>
               <div className="flex justify-center items-center">
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  <button onClick={() => changePrice("minus", "upper")}>
+                  <button onClick={() => changePrice("minus", "maxInput")}>
                     <MinusIcon className="w-5 h-5" />
                   </button>
                 </div>
-                {tokenOrder ? (
-                  <input
-                    autoComplete="off"
-                    className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
-                    placeholder="0"
-                    id="maxInput"
-                    type="text"
-                    value={maxInput}
-                    onChange={() =>
-                      setUpperPrice(
-                        inputFilter(
-                          (
-                            document.getElementById(
-                              "maxInput"
-                            ) as HTMLInputElement
-                          )?.value
-                        )
+                <input
+                  autoComplete="off"
+                  className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
+                  placeholder="0"
+                  id="maxInput"
+                  type="text"
+                  value={upperPrice}
+                  onChange={() =>
+                    setUpperPrice(
+                      inputFilter(
+                        (
+                          document.getElementById(
+                            "maxInput"
+                          ) as HTMLInputElement
+                        )?.value
                       )
-                    }
-                  />
-                ) : (
-                  <input
-                    autoComplete="off"
-                    className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
-                    placeholder="0"
-                    id="minInput"
-                    type="text"
-                    value={minInput}
-                    onChange={() =>
-                      setLowerPrice(
-                        inputFilter(
-                          (
-                            document.getElementById(
-                              "minInput"
-                            ) as HTMLInputElement
-                          )?.value
-                        )
-                      )
-                    }
-                  />
-                )}
+                    )
+                  }
+                />
                 <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
-                  <button onClick={() => changePrice("plus", "upper")}>
+                  <button onClick={() => changePrice("plus", "maxInput")}>
                     <PlusIcon className="w-5 h-5" />
                   </button>
                 </div>

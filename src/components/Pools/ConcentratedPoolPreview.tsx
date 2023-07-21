@@ -331,7 +331,7 @@ export default function ConcentratedPoolPreview({ fee }) {
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {minInput}
+                                {rangePositionData.lowerPrice}
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">
@@ -344,7 +344,7 @@ export default function ConcentratedPoolPreview({ fee }) {
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {maxInput}
+                                {rangePositionData.upperPrice}
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">
@@ -359,8 +359,20 @@ export default function ConcentratedPoolPreview({ fee }) {
                           <RangeMintButton
                             to={address}
                             poolAddress={rangePoolAddress}
-                            lower={rangePositionData.lowerPrice}
-                            upper={rangePositionData.upperPrice}
+                            lower={
+                              rangePositionData.lowerPrice
+                                ? BigNumber.from(
+                                    parseInt(rangePositionData.lowerPrice)
+                                  )
+                                : BN_ZERO
+                            }
+                            upper={
+                              rangePositionData.upperPrice
+                                ? BigNumber.from(
+                                    parseInt(rangePositionData.upperPrice)
+                                  )
+                                : BN_ZERO
+                            }
                             disabled={
                               tokenInAllowance.lt(tokenInAmount) ||
                               tokenOutAllowance.lt(tokenOutAmount)

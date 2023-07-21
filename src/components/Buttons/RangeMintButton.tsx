@@ -23,7 +23,16 @@ export default function RangeMintButton({
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
-  const [isDisabled, setDisabled] = useState(disabled);
+
+  console.log(
+    "mint params",
+    to,
+    amount0.toString(),
+    amount1.toString(),
+    lower.toString(),
+    upper.toString(),
+    gasLimit.toString()
+  );
 
   useEffect(() => {}, [disabled]);
 
