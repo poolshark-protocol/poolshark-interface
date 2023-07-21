@@ -84,7 +84,7 @@ export default function RangeCompoundButton({ poolAddress, address, lower, upper
           onClick={() => {
             address ?  write?.() : null
           }}
-          disabled={gasFee == '$0.00'}
+          disabled={gasLimit.gt(BN_ZERO) ? false : true}
               >
               Compound position
       </button>

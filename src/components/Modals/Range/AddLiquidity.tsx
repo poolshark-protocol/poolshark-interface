@@ -379,8 +379,8 @@ export default function RangeAddLiquidity({
                   <RangeAddLiqButton
                     poolAddress={rangePoolAddress}
                     address={address}
-                    lower={Number(rangePositionData.min)}
-                    upper={Number(rangePositionData.max)}
+                    lower={BigNumber.from(rangePositionData.min)}
+                    upper={BigNumber.from(rangePositionData.max)}
                     amount0={amount0}
                     amount1={amount1}
                     disabled={disabled}
