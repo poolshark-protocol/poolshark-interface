@@ -270,8 +270,8 @@ export default function ConcentratedPool({}) {
         rangePositionData.upperPrice,
         parseInt(rangePoolData.feeTier.tickSpacing)
       );
-      const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(lower));
-      const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(upper));
+      const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lower);
+      const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upper);
       const liquidity =
         parseFloat(rangePrice) >= parseFloat(rangePositionData.lowerPrice) &&
         parseFloat(rangePrice) <= parseFloat(rangePositionData.upperPrice)
