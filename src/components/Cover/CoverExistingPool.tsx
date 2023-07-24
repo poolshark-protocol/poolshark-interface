@@ -707,7 +707,7 @@ export default function CoverExistingPool({ goBack }) {
               id="input"
               onChange={(e) => {
                 setSliderValue(Number(inputFilter(e.target.value)));
-                console.log("slider value", sliderValue);
+                //console.log("slider value", sliderValue);
               }}
               value={sliderValue}
               className="text-right placeholder:text-grey1 text-white text-xl w-20 focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
