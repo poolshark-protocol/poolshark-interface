@@ -145,7 +145,7 @@ export default function CoverExistingPool({
 
   useEffect(() => {
     if (latestTick) {
-      if (coverPoolRoute != undefined && tokenOut.address != '') {
+      if (coverPoolRoute != undefined && tokenOut.address.toString() != '') {
         const price = TickMath.getPriceStringAtTick(latestTick)
         console.log('tick price', tokenOrder)
         setCoverTickPrice(invertPrice(price, tokenOrder))
@@ -156,7 +156,7 @@ export default function CoverExistingPool({
   useEffect(() => {
     setTimeout(() => {
       if (allowanceIn) {
-        if (coverPoolRoute != undefined && tokenOut.address != '') {
+        if (coverPoolRoute != undefined && tokenOut.address.toString() != '') {
           console.log('Success allowance', allowanceIn.toString())
           setAllowance(JSBI.BigInt(allowanceIn.toString()))
           console.log(
@@ -756,7 +756,7 @@ export default function CoverExistingPool({
             to={address}
             lower={lowerTick}
             claim={
-              tokenOut.address != '' &&
+              tokenOut.address.toString() != '' &&
               tokenIn.address.localeCompare(tokenOut.address) < 0
                 ? upperTick
                 : lowerTick
@@ -765,7 +765,7 @@ export default function CoverExistingPool({
             tokenSymbol={tokenIn.symbol}
             amount={String(coverAmountIn)}
             zeroForOne={
-              tokenOut.address != '' &&
+              tokenOut.address.toString() != '' &&
               tokenIn.address.localeCompare(tokenOut.address) < 0
             }
             tickSpacing={tickSpread}

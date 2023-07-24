@@ -1,3 +1,4 @@
+import { mapRangePools } from "./maps";
 import { ZERO_ADDRESS } from "./math/constants";
 import { TickMath } from "./math/tickMath";
 import {
@@ -38,7 +39,6 @@ export const getRangePool = async (
     }
     setRangePoolAddress(id);
     setRangePoolData(rangePoolData);
-    console.log("range pool data", rangePoolData);
   } catch (error) {
     console.log(error);
   }

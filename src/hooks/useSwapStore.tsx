@@ -41,7 +41,7 @@ type SwapState = {
 type SwapAction = {
   //pool
   setCoverPoolAddress: (address: String) => void;
-  //setCoverPoolData: (data: any) => void;
+  setCoverPoolData: (data: any) => void;
   setRangePoolAddress: (address: String) => void;
   setRangePoolData: (data: any) => void;
   setPairSelected: (pairSelected: Boolean) => void;
@@ -153,7 +153,7 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
         //if tokens are different
         set(() => ({
           tokenIn: {
-            callId: newToken.address < tokenOut.address ? 0 : 1,
+            callId: newToken.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
             ...newToken,
           },
           pairSelected: true,
@@ -222,7 +222,7 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
         //if tokens are different
         set(() => ({
           tokenOut: {
-            callId: newToken.address < tokenIn.address ? 0 : 1,
+            callId: newToken.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
             ...newToken,
           },
           pairSelected: true,
@@ -324,6 +324,8 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       //gas
       gasFee: initialSwapState.gasFee,
       gasLimit: initialSwapState.gasLimit,
+      mintGasFee: initialSwapState.mintGasFee,
+      mintGasLimit: initialSwapState.mintGasLimit,
     });
   },
 }));

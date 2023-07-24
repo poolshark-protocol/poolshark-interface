@@ -2,7 +2,6 @@ import { Transition, Dialog } from '@headlessui/react'
 import { Fragment, useEffect, useState } from 'react'
 import { XMarkIcon } from '@heroicons/react/20/solid'
 import {
-  useSwitchNetwork,
   useAccount,
   erc20ABI,
   useContractRead,
@@ -17,26 +16,33 @@ import { ethers, BigNumber } from 'ethers'
 import JSBI from 'jsbi'
 import { DyDxMath } from '../../../utils/math/dydxMath'
 import { getBalances } from '../../../utils/balances'
-import SwapRangeDoubleApproveButton from '../../Buttons/RangeMintDoubleApproveButton'
 import { chainIdsToNamesForGitTokenList } from '../../../utils/chains'
 import RangeMintDoubleApproveButton from '../../Buttons/RangeMintDoubleApproveButton'
 import { gasEstimateRangeMint } from '../../../utils/gas'
 import RangeMintApproveButton from '../../Buttons/RangeMintApproveButton'
+import { useRangeStore } from '../../../hooks/useRangeStore'
 
 export default function RangeAddLiquidity({
   isOpen,
   setIsOpen,
-  tokenIn,
-  tokenOut,
-  poolAdd,
   address,
-  upperTick,
-  liquidity,
-  lowerTick,
-  rangePrice,
-  token0Price,
-  token1Price
 }) {
+  const [
+    rangePoolAddress,
+    tokenIn,
+    tokenOut,
+    rangePositionData,
+    tokenInRangeUSDPrice,
+    tokenOutRangeUSDPrice,
+  ] = useRangeStore((state) => [
+    state.rangePoolAddress,
+    state.tokenIn,
+    state.tokenOut,
+    state.rangePositionData,
+    state.tokenInRangeUSDPrice,
+    state.tokenOutRangeUSDPrice,
+  ])
+
   const {
     bnInput,
     inputBox,
@@ -45,8 +51,6 @@ export default function RangeAddLiquidity({
     LimitInputBox,
   } = useInputBox()
   const { data: signer } = useSigner()
-  const [balance0, setBalance0] = useState('')
-  const [balance1, setBalance1] = useState('0.00')
   const [balanceIn, setBalanceIn] = useState('')
   const [balanceOut, setBalanceOut] = useState('')
   const [amount0, setAmount0] = useState(BN_ZERO)
@@ -55,18 +59,16 @@ export default function RangeAddLiquidity({
   const [allowanceOut, setAllowanceOut] = useState(BN_ZERO)
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
   const [mintGasFee, setMintGasFee] = useState('$0.00')
-  const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
-  const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
+  const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(rangePositionData.min))
+  const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(rangePositionData.max))
   const [stateChainName, setStateChainName] = useState()
   const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
   const { isDisconnected, isConnected } = useAccount()
   const [disabled, setDisabled] = useState(true)
   const [ fetchDelay, setFetchDelay ] = useState(false)
-  const [rangeSqrtPrice, setRangeSqrtPrice] = useState(JSBI.BigInt(rangePrice))
+  const [rangeSqrtPrice, setRangeSqrtPrice] = useState(JSBI.BigInt(rangePositionData.price))
   const [doubleApprove, setdoubleApprove] = useState(false)
   const [buttonState, setButtonState] = useState('')
-  const [amount0Usd, setAmount0Usd] = useState(0.0)
-  const [amount1Usd, setAmount1Usd] = useState(0.0)
   const {
     network: { chainId },
   } = useProvider()
@@ -76,11 +78,11 @@ export default function RangeAddLiquidity({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [address, poolAdd],
+    args: [address, rangePoolAddress],
     chainId: 421613,
     watch: true,
     enabled:
-      isConnected && poolAdd != undefined && tokenIn.address != undefined,
+      isConnected && rangePoolAddress != undefined && tokenIn.address != undefined,
     onSuccess(data) {
       console.log('Success')
     },
@@ -96,7 +98,7 @@ export default function RangeAddLiquidity({
       console.log('Allowance Settled', {
         data,
         error,
-        poolAdd,
+        rangePoolAddress,
         tokenIn,
       })
     },
@@ -113,11 +115,11 @@ export default function RangeAddLiquidity({
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [address, poolAdd],
+    args: [address, rangePoolAddress],
     chainId: 421613,
     watch: true,
     enabled:
-      isConnected && poolAdd != undefined && tokenOut.address != undefined,
+      isConnected && rangePoolAddress != undefined && tokenOut.address != undefined,
     onSuccess(data) {
       console.log('Success')
     },
@@ -133,7 +135,7 @@ export default function RangeAddLiquidity({
       console.log('Allowance Settled', {
         data,
         error,
-        poolAdd,
+        rangePoolAddress,
         tokenIn,
       })
     },
@@ -174,10 +176,10 @@ export default function RangeAddLiquidity({
 
   async function updateMintFee(tokenInAmount: BigNumber, tokenOutAmount: JSBI) {
     const newGasFee = await gasEstimateRangeMint(
-      poolAdd,
+      rangePoolAddress,
       address,
-      lowerTick,
-      upperTick,
+      BigNumber.from(rangePositionData.min),
+      BigNumber.from(rangePositionData.max),
       tokenOrder ? tokenInAmount : BigNumber.from(String(tokenOutAmount)),
       tokenOrder ? BigNumber.from(String(tokenOutAmount)) : tokenInAmount,
       signer,
@@ -192,18 +194,18 @@ export default function RangeAddLiquidity({
       // disabled messages
       useEffect(() => {
         
-        if (Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn)) {
+        if (Number(ethers.utils.formatUnits(bnInput, 18)) > Number(balanceIn)) {
           setButtonState('balance0')
         }
-        if (Number(ethers.utils.formatUnits(amount1)) > Number(balanceOut)) {
+        if (Number(ethers.utils.formatUnits(amount1, 18)) > Number(balanceOut)) {
           setButtonState('balance1')
         }
-        if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
+        if (Number(ethers.utils.formatUnits(bnInput, 18)) === 0) {
           setButtonState('amount')
         }
-        if (Number(ethers.utils.formatUnits(bnInput)) === 0 ||
-            Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn) ||
-            Number(ethers.utils.formatUnits(amount1)) > Number(balanceOut)
+        if (Number(ethers.utils.formatUnits(bnInput, 18)) === 0 ||
+            Number(ethers.utils.formatUnits(bnInput, 18)) > Number(balanceIn) ||
+            Number(ethers.utils.formatUnits(amount1, 18)) > Number(balanceOut)
         ) {
           setDisabled(true)
         } else if (mintGasLimit.gt(BN_ZERO)) { setDisabled(false)}
@@ -301,7 +303,7 @@ export default function RangeAddLiquidity({
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                 ${tokenOrder ? (Number(token1Price * parseFloat(ethers.utils.formatUnits(amount1, 18))).toFixed(2)) : (Number(token0Price * parseFloat(ethers.utils.formatUnits(amount0, 18))).toFixed(2))}
+                                 ${tokenOrder ? (Number(tokenOutRangeUSDPrice * parseFloat(ethers.utils.formatUnits(amount1, 18))).toFixed(2)) : (Number(tokenInRangeUSDPrice * parseFloat(ethers.utils.formatUnits(amount0, 18))).toFixed(2))}
                                 
                                 </div>
                               </div>
@@ -341,7 +343,7 @@ export default function RangeAddLiquidity({
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                ${tokenOrder ? (Number(token0Price * parseFloat(ethers.utils.formatUnits(amount0, 18))).toFixed(2)) : (Number(token1Price * parseFloat(ethers.utils.formatUnits(amount1, 18))).toFixed(2))}
+                                ${tokenOrder ? (Number(tokenInRangeUSDPrice * parseFloat(ethers.utils.formatUnits(amount0, 18))).toFixed(2)) : (Number(tokenOutRangeUSDPrice * parseFloat(ethers.utils.formatUnits(amount1, 18))).toFixed(2))}
                                 </div>
                               </div>
                             </div>
@@ -375,10 +377,10 @@ export default function RangeAddLiquidity({
             <>
                 {allowanceIn.gte(amount0) && allowanceOut.gte(amount1) ? (
                   <RangeAddLiqButton
-                    poolAddress={poolAdd}
+                    poolAddress={rangePoolAddress}
                     address={address}
-                    lower={lowerTick}
-                    upper={upperTick}
+                    lower={BigNumber.from(rangePositionData.min)}
+                    upper={BigNumber.from(rangePositionData.max)}
                     amount0={amount0}
                     amount1={amount1}
                     disabled={disabled}
@@ -388,19 +390,19 @@ export default function RangeAddLiquidity({
                   allowanceOut.lt(amount1)) ||
                 doubleApprove ? (
                 <RangeMintDoubleApproveButton
-                  poolAddress={poolAdd}
+                  poolAddress={rangePoolAddress}
                   tokenIn={tokenIn}
                   tokenOut={tokenOut}
                   setAllowanceController={setdoubleApprove}
                 />
               ) : !doubleApprove && allowanceIn.lt(amount0) ? (
                 <RangeMintApproveButton
-                  poolAddress={poolAdd}
+                  poolAddress={rangePoolAddress}
                   approveToken={tokenIn}
                 />
               ) : !doubleApprove && allowanceOut.lt(amount1) ? (
                 <RangeMintApproveButton
-                  poolAddress={poolAdd}
+                  poolAddress={rangePoolAddress}
                   approveToken={tokenOut}
                 />
               ) : null}

@@ -10,63 +10,78 @@ import { create } from "zustand";
 type RangeState = {
   //poolAddress for current token pairs
   ////range
-  rangePoolAddress: String;
+  rangePoolAddress: `0x${string}`;
+  //rangePoolData contains all the info about the pool
   rangePoolData: any;
   rangeSlippage: string;
+  //Range position data containing all the info about the position
+  rangePositionData: any;
   //true if both tokens selected, false if only one token selected
   pairSelected: Boolean;
   //TokenIn defines the token on the left/up on a swap page
   tokenIn: token;
+  tokenInAmount: BigNumber;
   tokenInRangeUSDPrice: number;
-  tokenInRangeAllowance: string;
+  tokenInRangeAllowance: BigNumber;
   tokenInBalance: string;
   //TokenOut defines the token on the left/up on a swap page
   tokenOut: token;
-  tokenOutRangeUSDPrice: Number;
+  tokenOutAmount: BigNumber;
+  tokenOutRangeUSDPrice: number;
   tokenOutBalance: string;
+  tokenOutRangeAllowance: BigNumber;
+  //min and max price input
+  minInput: string;
+  maxInput: string;
   //Gas
   gasFee: BigNumber;
   gasLimit: BigNumber;
+  //Disabled
+  disabled: boolean;
+  buttonMessage: string;
 };
 
 type RangeAction = {
-  //pool
-  /* setCoverPoolAddress: (address: String) => void;
-  setCoverPoolData: (data: any) => void;
+  //
   setRangePoolAddress: (address: String) => void;
   setRangePoolData: (data: any) => void;
+  setRangeSlippage: (rangeSlippage: string) => void;
+  setRangePositionData: (rangePosition: any) => void;
+  //
   setPairSelected: (pairSelected: Boolean) => void;
-  //tokenIn
-  setTokenIn: (tokenOut: token, newToken: token) => void;
-  setTokenInRangeUSDPrice: (price: number) => void;
-  setTokenInCoverUSDPrice: (price: number) => void;
-  setTokenInRangeAllowance: (allowance: string) => void;
-  setTokenInCoverAllowance: (allowance: string) => void;
-  setTokenInBalance: (balance: string) => void;
-  //tokenOut
-  setTokenOut: (tokenOut: token, newToken: token) => void;
-  setTokenOutRangeUSDPrice: (price: number) => void;
-  setTokenOutCoverUSDPrice: (price: number) => void;
-  setTokenOutBalance: (balance: string) => void;
-  //gas
-  setGasFee: (fee: BigNumber) => void;
-  setGasLimit: (limit: BigNumber) => void; */
-  //reset
-  setRangePoolAddress: (address: String) => void;
-  setRangePoolData: (data: any) => void;
+  //
   setTokenIn: (tokenOut: any, newToken: any) => void;
-  setTokenOut: (tokenOut: any, newToken: any) => void;
-  resetSwapParams: () => void;
+  setTokenInAmount: (amount: BigNumber) => void;
+  setTokenInRangeUSDPrice: (price: number) => void;
+  setTokenInRangeAllowance: (allowance: BigNumber) => void;
+  setTokenInBalance: (balance: string) => void;
+  //
+  setTokenOut: (tokenIn: any, newToken: any) => void;
+  setTokenOutAmount: (amount: BigNumber) => void;
+  setTokenOutRangeUSDPrice: (price: number) => void;
+  setTokenOutRangeAllowance: (allowance: BigNumber) => void;
+  setTokenOutBalance: (balance: string) => void;
+  //
+  setMinInput: (newMinTick: string) => void;
+  setMaxInput: (newMaxTick: string) => void;
+  //
+  setGasFee: (gasFee: BigNumber) => void;
+  setGasLimit: (gasLimit: BigNumber) => void;
+  //
+  resetRangeParams: () => void;
+  //
+  setDisabled: (disabled: boolean) => void;
+  setButtonMessage: (balance: string) => void;
 };
 
-const initialSwapState: RangeState = {
+const initialRangeState: RangeState = {
   //pools
-  rangePoolAddress: "",
+  rangePoolAddress: "0x000",
   rangePoolData: {},
   rangeSlippage: "0.5",
   //
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
-  pairSelected: true,
+  pairSelected: false,
   //
   tokenIn: {
     callId: 0,
@@ -75,8 +90,9 @@ const initialSwapState: RangeState = {
     logoURI: "/static/images/eth_icon.png",
     address: tokenOneAddress,
   } as token,
+  tokenInAmount: BN_ZERO,
   tokenInRangeUSDPrice: 0,
-  tokenInRangeAllowance: "0.00",
+  tokenInRangeAllowance: BN_ZERO,
   tokenInBalance: "0.00",
   //
   tokenOut: {
@@ -86,35 +102,63 @@ const initialSwapState: RangeState = {
     logoURI: "",
     address: tokenZeroAddress,
   } as token,
+  tokenOutAmount: BN_ZERO,
   tokenOutRangeUSDPrice: 0,
+  tokenOutRangeAllowance: BN_ZERO,
   tokenOutBalance: "0.00",
+  //
+  minInput: "",
+  maxInput: "",
   //
   gasFee: BN_ZERO,
   gasLimit: BN_ZERO,
+  //
+  rangePositionData: {},
+  //
+  disabled: false,
+  buttonMessage: "",
 };
 
 export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   //pool
-  rangePoolAddress: initialSwapState.rangePoolAddress,
-  rangePoolData: initialSwapState.rangePoolData,
-  rangeSlippage: initialSwapState.rangeSlippage,
-  pairSelected: initialSwapState.pairSelected,
+  rangePoolAddress: initialRangeState.rangePoolAddress,
+  rangePoolData: initialRangeState.rangePoolData,
+  rangeSlippage: initialRangeState.rangeSlippage,
+  //true if both tokens selected, false if only one token selected
+  pairSelected: initialRangeState.pairSelected,
   //tokenIn
-  tokenIn: initialSwapState.tokenIn,
-  tokenInRangeUSDPrice: initialSwapState.tokenInRangeUSDPrice,
-  tokenInRangeAllowance: initialSwapState.tokenInRangeAllowance,
-  tokenInBalance: initialSwapState.tokenInBalance,
+  tokenIn: initialRangeState.tokenIn,
+  tokenInAmount: initialRangeState.tokenInAmount,
+  tokenInRangeUSDPrice: initialRangeState.tokenInRangeUSDPrice,
+  tokenInRangeAllowance: initialRangeState.tokenInRangeAllowance,
+  tokenInBalance: initialRangeState.tokenInBalance,
   //tokenOut
-  tokenOut: initialSwapState.tokenOut,
-  tokenOutRangeUSDPrice: initialSwapState.tokenOutRangeUSDPrice,
-  tokenOutBalance: initialSwapState.tokenOutBalance,
+  tokenOut: initialRangeState.tokenOut,
+  tokenOutAmount: initialRangeState.tokenOutAmount,
+  tokenOutRangeUSDPrice: initialRangeState.tokenOutRangeUSDPrice,
+  tokenOutBalance: initialRangeState.tokenOutBalance,
+  tokenOutRangeAllowance: initialRangeState.tokenOutRangeAllowance,
+  //input amounts
+  minInput: initialRangeState.minInput,
+  maxInput: initialRangeState.maxInput,
   //gas
-  gasFee: initialSwapState.gasFee,
-  gasLimit: initialSwapState.gasLimit,
+  gasFee: initialRangeState.gasFee,
+  gasLimit: initialRangeState.gasLimit,
+  //range position data
+  rangePositionData: initialRangeState.rangePositionData,
+  //disable
+  disabled: initialRangeState.disabled,
+  buttonMessage: initialRangeState.buttonMessage,
+  //actions
+  setPairSelected: (pairSelected: Boolean) => {
+    set(() => ({
+      pairSelected: pairSelected,
+    }));
+  },
   setTokenIn: (tokenOut, newToken: token) => {
     //if tokenOut is selected
     if (
-      tokenOut.address != initialSwapState.tokenOut.address ||
+      tokenOut.address != initialRangeState.tokenOut.address ||
       tokenOut.symbol != "Select Token"
     ) {
       //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to  initialState
@@ -124,14 +168,15 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
             callId: 0,
             ...newToken,
           },
-          tokenOut: initialSwapState.tokenOut,
+          tokenOut: initialRangeState.tokenOut,
           pairSelected: false,
         }));
       } else {
         //if tokens are different
         set(() => ({
           tokenIn: {
-            callId: newToken.address < tokenOut.address ? 0 : 1,
+            callId:
+              newToken.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
             ...newToken,
           },
           pairSelected: true,
@@ -148,18 +193,21 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       }));
     }
   },
+  setTokenInAmount: (newAmount: BigNumber) => {
+    set(() => ({
+      tokenInAmount: newAmount,
+    }));
+  },
   setTokenInRangeUSDPrice: (newPrice: number) => {
     set(() => ({
       tokenInRangeUSDPrice: newPrice,
     }));
   },
-
-  setTokenInRangeAllowance: (newAllowance: string) => {
+  setTokenInRangeAllowance: (newAllowance: BigNumber) => {
     set(() => ({
       tokenInRangeAllowance: newAllowance,
     }));
   },
-
   setTokenInBalance: (newBalance: string) => {
     set(() => ({
       tokenInBalance: newBalance,
@@ -170,25 +218,24 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       tokenOutRangeUSDPrice: newPrice,
     }));
   },
-
   setTokenOut: (tokenIn, newToken: token) => {
     //if tokenIn exists
     if (
-      tokenIn.address != initialSwapState.tokenOut.address ||
+      tokenIn.address != initialRangeState.tokenOut.address ||
       tokenIn.symbol != "Select Token"
     ) {
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
       if (newToken.address == tokenIn.address) {
         set(() => ({
           tokenOut: { callId: 0, ...newToken },
-          tokenIn: initialSwapState.tokenOut,
+          tokenIn: initialRangeState.tokenOut,
           pairSelected: false,
         }));
       } else {
         //if tokens are different
         set(() => ({
           tokenOut: {
-            callId: newToken.address < tokenIn.address ? 0 : 1,
+            callId: newToken.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
             ...newToken,
           },
           pairSelected: true,
@@ -202,12 +249,32 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       }));
     }
   },
+  setTokenOutAmount: (newAmount: BigNumber) => {
+    set(() => ({
+      tokenOutAmount: newAmount,
+    }));
+  },
   setTokenOutBalance: (newBalance: string) => {
     set(() => ({
       tokenOutBalance: newBalance,
     }));
   },
-  setRangePoolAddress: (rangePoolAddress: string) => {
+  setTokenOutRangeAllowance: (newAllowance: BigNumber) => {
+    set(() => ({
+      tokenOutRangeAllowance: newAllowance,
+    }));
+  },
+  setMinInput: (minInput: string) => {
+    set(() => ({
+      minInput: minInput,
+    }));
+  },
+  setMaxInput: (maxInput: string) => {
+    set(() => ({
+      maxInput: maxInput,
+    }));
+  },
+  setRangePoolAddress: (rangePoolAddress: `0x${string}`) => {
     set(() => ({
       rangePoolAddress: rangePoolAddress,
     }));
@@ -222,30 +289,67 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       rangeSlippage: rangeSlippage,
     }));
   },
-
+  setGasFee: (gasFee: BigNumber) => {
+    set(() => ({
+      gasFee: gasFee,
+    }));
+  },
+  setGasLimit: (gasLimit: BigNumber) => {
+    set(() => ({
+      gasLimit: gasLimit,
+    }));
+  },
+  setRangePositionData: (rangePositionData: any) => {
+    set(() => ({
+      rangePositionData: rangePositionData,
+    }));
+  },
+  setDisabled: (disabled: boolean) => {
+    set(() => ({
+      disabled: disabled,
+    }));
+  },
+  setButtonMessage: (buttonMessage: string) => {
+    set(() => ({
+      buttonMessage: buttonMessage,
+    }));
+  },
   switchDirection: () => {
     set((state) => ({
       tokenIn: state.tokenOut,
       tokenOut: state.tokenIn,
     }));
   },
-  resetSwapParams: () => {
+  resetRangeParams: () => {
     set({
-      rangePoolAddress: initialSwapState.rangePoolAddress,
-      rangePoolData: initialSwapState.rangePoolData,
-      pairSelected: initialSwapState.pairSelected,
+      //pool & pair
+      rangePoolAddress: initialRangeState.rangePoolAddress,
+      rangePoolData: initialRangeState.rangePoolData,
+      rangeSlippage: initialRangeState.rangeSlippage,
+      pairSelected: initialRangeState.pairSelected,
       //tokenIn
-      tokenIn: initialSwapState.tokenIn,
-      tokenInRangeUSDPrice: initialSwapState.tokenInRangeUSDPrice,
-      tokenInRangeAllowance: initialSwapState.tokenInRangeAllowance,
-      tokenInBalance: initialSwapState.tokenInBalance,
+      tokenIn: initialRangeState.tokenIn,
+      tokenInAmount: initialRangeState.tokenInAmount,
+      tokenInRangeUSDPrice: initialRangeState.tokenInRangeUSDPrice,
+      tokenInRangeAllowance: initialRangeState.tokenInRangeAllowance,
+      tokenInBalance: initialRangeState.tokenInBalance,
       //tokenOut
-      tokenOut: initialSwapState.tokenOut,
-      tokenOutRangeUSDPrice: initialSwapState.tokenOutRangeUSDPrice,
-      tokenOutBalance: initialSwapState.tokenOutBalance,
+      tokenOut: initialRangeState.tokenOut,
+      tokenOutAmount: initialRangeState.tokenOutAmount,
+      tokenOutRangeUSDPrice: initialRangeState.tokenOutRangeUSDPrice,
+      tokenOutBalance: initialRangeState.tokenOutBalance,
+      tokenOutRangeAllowance: initialRangeState.tokenOutRangeAllowance,
+      //input amounts
+      minInput: initialRangeState.minInput,
+      maxInput: initialRangeState.maxInput,
       //gas
-      gasFee: initialSwapState.gasFee,
-      gasLimit: initialSwapState.gasLimit,
+      gasFee: initialRangeState.gasFee,
+      gasLimit: initialRangeState.gasLimit,
+      //position data
+      rangePositionData: initialRangeState.rangePositionData,
+      //disable
+      disabled: initialRangeState.disabled,
+      buttonMessage: initialRangeState.buttonMessage,
     });
   },
 }));
