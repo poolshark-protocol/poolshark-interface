@@ -150,27 +150,7 @@ export default function Initial(props: any) {
     <CreateCover goBack={setIsShifted} />
   ) : (
     <CoverExistingPool
-      account={'account'}
-      key={pool.poolId}
-      rangePoolRoute={pool.poolId}
-      tokenOneName={pool.tokenOneName}
-      tokenOneSymbol={pool.tokenOneSymbol}
-      tokenOneLogoURI={pool.tokenOneLogoURI}
-      tokenOneAddress={pool.tokenOneAddress}
-      tokenZeroName={pool.tokenZeroName}
-      tokenZeroSymbol={pool.tokenZeroSymbol}
-      tokenZeroLogoURI={pool.tokenZeroLogoURI}
-      tokenZeroAddress={pool.tokenZeroAddress}
-      tokenOneValue={pool.tokenOneValue}
-      tokenZeroValue={pool.tokenZeroValue}
-      zeroForOne={false}
-      liquidity={String(pool.liquidity)}
-      userLiquidity={String(pool.userLiquidity)}
       goBack={setIsShifted}
-      minLimit={pool.minLimit}
-      maxLimit={pool.maxLimit}
-      tickSpacing={pool.tickSpacing}
-      feeTier={pool.feeTier}
     />
   )
 }
