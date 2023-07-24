@@ -134,6 +134,9 @@ export default function CoverExistingPool({ goBack }) {
   useEffect(() => {
     if (coverPoolData.latestTick) {
       updatePositionData();
+      console.log("coverPoolData", coverPoolData);
+      //setTokenIn(coverPoolData.token0);
+      //setTokenOut(coverPoolData.token1);
     }
   }, [coverPoolData]);
 

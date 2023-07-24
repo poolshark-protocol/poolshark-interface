@@ -10,16 +10,14 @@ import { ethers } from "ethers";
 import Link from "next/link";
 import { getRangePool } from "../../utils/pools";
 import { token } from "../../utils/types";
+import { useCoverStore } from "../../hooks/useCoverStore";
 
-export default function UserPool({
-  rangePosition,
-  href,
-}) {
+export default function UserPool({ rangePosition, href }) {
   const [
-    tokenIn,
-    tokenOut,
-    setTokenIn,
-    setTokenOut,
+    rangeTokenIn,
+    rangeTokenOut,
+    setRangeTokenIn,
+    setRangeTokenOut,
     setRangePoolAddress,
     setRangePoolData,
     setRangePositionData,
@@ -31,6 +29,24 @@ export default function UserPool({
     state.setRangePoolAddress,
     state.setRangePoolData,
     state.setRangePositionData,
+  ]);
+
+  const [
+    coverTokenIn,
+    coverTokenOut,
+    setCoverTokenIn,
+    setCoverTokenOut,
+    setCoverPoolAddress,
+    setCoverPoolData,
+    setCoverPositionData,
+  ] = useCoverStore((state) => [
+    state.tokenIn,
+    state.tokenOut,
+    state.setTokenIn,
+    state.setTokenOut,
+    state.setCoverPoolAddress,
+    state.setCoverPoolData,
+    state.setCoverPositionData,
   ]);
 
   const [rangePrice, setRangePrice] = useState(undefined);
@@ -69,8 +85,6 @@ export default function UserPool({
   }
 
   function choosePosition() {
-    setRangePositionData(rangePosition);
-
     const tokenInNew = {
       name: rangePosition.tokenZero.name,
       symbol: rangePosition.tokenZero.symbol,
@@ -83,11 +97,20 @@ export default function UserPool({
       logoURI: logoMap[rangePosition.tokenOne.symbol],
       address: rangePosition.tokenOne.id,
     } as token;
-
-    setTokenIn(tokenOutNew, tokenInNew);
-    setTokenOut(tokenInNew, tokenOutNew);
-
-    getRangePool(tokenIn, tokenOut, setRangePoolAddress, setRangePoolData);
+    if (href.includes("cover")) {
+      setCoverTokenIn(tokenOutNew, tokenInNew);
+      setCoverTokenOut(tokenInNew, tokenOutNew);
+    } else {
+      setRangeTokenIn(tokenOutNew, tokenInNew);
+      setRangeTokenOut(tokenInNew, tokenOutNew);
+      getRangePool(
+        rangeTokenIn,
+        rangeTokenOut,
+        setRangePoolAddress,
+        setRangePoolData
+      );
+      setRangePositionData(rangePosition);
+    }
   }
 
   const feeTierPercentage = Number(rangePosition.feeTier) / 10000;
@@ -95,9 +118,11 @@ export default function UserPool({
   return (
     <>
       <div onClick={choosePosition}>
-        <Link href={{
-          pathname:href
-        }}>
+        <Link
+          href={{
+            pathname: href,
+          }}
+        >
           <div className="w-full cursor-pointer grid grid-cols-5 md:grid-cols-7 items-center w-full bg-dark border border-grey2 rounded-xl py-3.5 sm:pl-5 pl-3 md:pr-0 md:pr-5 pr-3 min-h-24 relative">
             <div className="space-y-3 col-span-5">
               <div className="flex items-center md:gap-x-5 gap-x-3">
