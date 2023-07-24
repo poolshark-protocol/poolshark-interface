@@ -265,14 +265,14 @@ export default function ConcentratedPool({}) {
     try {
       const lower = TickMath.getTickAtPriceString(
         rangePositionData.lowerPrice,
-        rangePoolData.feeTier.tickSpacing
+        parseInt(rangePoolData.feeTier.tickSpacing)
       );
       const upper = TickMath.getTickAtPriceString(
         rangePositionData.upperPrice,
-        rangePoolData.feeTier.tickSpacing
+        parseInt(rangePoolData.feeTier.tickSpacing)
       );
-      const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(lower));
-      const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(upper));
+      const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lower);
+      const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upper);
       const liquidity =
         parseFloat(rangePrice) >= parseFloat(rangePositionData.lowerPrice) &&
         parseFloat(rangePrice) <= parseFloat(rangePositionData.upperPrice)
@@ -655,12 +655,12 @@ export default function ConcentratedPool({}) {
               onClick={() => {
                 setLowerPrice(
                   TickMath.getPriceStringAtTick(
-                    roundTick(-887272, rangePoolData.tickSpacing)
+                    roundTick(-887272, parseInt(rangePoolData.feeTier.tickSpacing))
                   )
                 );
                 setUpperPrice(
                   TickMath.getPriceStringAtTick(
-                    roundTick(887272, rangePoolData.tickSpacing)
+                    roundTick(887272, parseInt(rangePoolData.feeTier.tickSpacing))
                   )
                 );
               }}
