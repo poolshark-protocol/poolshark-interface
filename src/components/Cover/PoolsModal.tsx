@@ -1,39 +1,35 @@
-import { Transition, Dialog } from '@headlessui/react'
-import { Fragment, useState, useEffect } from 'react'
-import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/20/solid'
-import UserCoverPool from '../Pools/UserCoverPool'
-import { fetchRangePositions, fetchUniV3Positions } from '../../utils/queries'
-import { useAccount } from 'wagmi'
-import UserPool from '../Pools/UserPool'
-import { BigNumber } from 'ethers'
+import { Transition, Dialog } from "@headlessui/react";
+import { Fragment, useState, useEffect } from "react";
+import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import UserCoverPool from "../Pools/UserCoverPool";
+import { fetchRangePositions, fetchUniV3Positions } from "../../utils/queries";
+import { useAccount } from "wagmi";
+import UserPool from "../Pools/UserPool";
+import { BigNumber } from "ethers";
 
 export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
-  const { address } = useAccount()
+  const { address } = useAccount();
 
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearchTermChange = (event) => {
-    setSearchTerm(event.target.value)
-  }
+    setSearchTerm(event.target.value);
+  };
 
-  const [rangePositions, setRangePositions] = useState([])
-  const [allRangePositions, setAllRangePositions] = useState([])
+  const [rangePositions, setRangePositions] = useState([]);
+  const [allRangePositions, setAllRangePositions] = useState([]);
 
   async function getUserRangePositionData() {
-    const data = await fetchRangePositions(address)
-    if (data['data']) {
-      const positions = data['data'].positionFractions
-      setRangePositions(positions)
+    const data = await fetchRangePositions(address);
+    if (data["data"]) {
+      const positions = data["data"].positionFractions;
+      setRangePositions(positions);
     }
   }
 
   function mapUserRangePositions() {
-    const mappedRangePositions = []
+    const mappedRangePositions = [];
     rangePositions.map((rangePosition) => {
-      console.log('rangePosition userLiquidity', Math.round(
-        (rangePosition.amount / rangePosition.token.totalSupply) *
-          rangePosition.token.position.liquidity,
-      ))
       const rangePositionData = {
         id: rangePosition.id,
         poolId: rangePosition.token.position.pool.id,
@@ -49,7 +45,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
         userTokenAmount: rangePosition.amount,
         userLiquidity: Math.round(
           (rangePosition.amount / rangePosition.token.totalSupply) *
-            rangePosition.token.position.liquidity,
+            rangePosition.token.position.liquidity
         ),
         tvlUsd: (
           Number(rangePosition.token.position.pool.totalValueLockedUsd) /
@@ -61,21 +57,21 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
         volumeEth: (
           Number(rangePosition.token.position.pool.volumeEth) / 1
         ).toFixed(2),
-        userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
-      }
-      mappedRangePositions.push(rangePositionData)
-    })
-    setAllRangePositions(mappedRangePositions)
+        userOwnerAddress: rangePosition.owner.replace(/"|'/g, ""),
+      };
+      mappedRangePositions.push(rangePositionData);
+    });
+    setAllRangePositions(mappedRangePositions);
   }
 
   //async so needs to be wrapped
   useEffect(() => {
-    if (address != undefined) getUserRangePositionData()
-  }, [address])
+    if (address != undefined) getUserRangePositionData();
+  }, [address]);
 
   useEffect(() => {
-    mapUserRangePositions()
-  }, [rangePositions])
+    mapUserRangePositions();
+  }, [rangePositions]);
 
   /*const [uniV3Positions, setUniV3Positions] = useState([])
   const [allUniV3Positions, setAllUniV3Positions] = useState([])
@@ -215,24 +211,24 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                               allRangePosition.tokenOne.symbol === searchTerm ||
                               allRangePosition.tokenZero.id === searchTerm ||
                               allRangePosition.tokenOne.id === searchTerm ||
-                              searchTerm === '')
+                              searchTerm === "")
                           ) {
                             return (
                               <div
                                 onClick={() => {
-                                  setIsOpen(false)
+                                  setIsOpen(false);
                                   //prefill('exisingPool')
-                                  setParams(allRangePosition)
+                                  setParams(allRangePosition);
                                 }}
-                                key={allRangePosition.id + 'click'}
+                                key={allRangePosition.id + "click"}
                               >
                                 <UserPool
                                   key={allRangePosition.id}
                                   rangePosition={allRangePosition}
-                                  href={'/cover'}
+                                  href={"/cover"}
                                 />
                               </div>
-                            )
+                            );
                           }
                         })}
                       </>
@@ -323,5 +319,5 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
         </div>
       </Dialog>
     </Transition>
-  )
+  );
 }

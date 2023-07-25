@@ -51,6 +51,7 @@ import { getBalances } from "../../utils/balances";
 import { useRangeStore } from "../../hooks/useRangeStore";
 import { CoinStatus } from "fuels";
 import { invertPrice } from "../../utils/math/tickMath";
+import { parse } from "graphql";
 
 export default function CoverExistingPool({ goBack }) {
   const [
@@ -455,19 +456,27 @@ export default function CoverExistingPool({ goBack }) {
   useEffect(() => {
     if (coverPositionData.lowerPrice && coverPositionData.upperPrice)
       updateGasFee();
-  }, [tokenIn]);
+  }, [
+    coverPositionData.lowerPrice,
+    coverPositionData.upperPrice,
+    coverAmountIn,
+    coverAmountOut,
+    tokenIn,
+    tokenOut,
+  ]);
 
   async function updateGasFee() {
     const newMintGasFee = await gasEstimateCoverMint(
       coverPoolAddress,
       address,
-      Number(coverPositionData.upperPrice.toString()),
-      Number(coverPositionData.lowerPrice.toString()),
+      parseInt(coverPositionData.upperPrice),
+      parseInt(coverPositionData.lowerPrice),
       tokenIn,
       tokenOut,
       coverAmountIn,
       signer
     );
+    console.log("new mint gas fee", newMintGasFee);
     setMintGasFee(newMintGasFee.formattedPrice);
     setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
   }
@@ -478,12 +487,6 @@ export default function CoverExistingPool({ goBack }) {
 
   // disabled messages
   useEffect(() => {
-    console.log(
-      "coverAmountIn",
-      Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18))
-    );
-    console.log("tokenInCoverUSDPrice", tokenInCoverUSDPrice);
-    console.log("tokenInBalance", tokenInBalance);
     if (
       Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) *
         tokenInCoverUSDPrice >

@@ -31,16 +31,6 @@ export default function CoverMintButton({
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
 
-  console.log(
-    "contract info",
-    to,
-    lower,
-    upper,
-    amount,
-    zeroForOne,
-    tickSpacing
-  );
-
   const { config } = usePrepareContractWrite({
     address: poolAddress,
     abi: coverPoolABI,
