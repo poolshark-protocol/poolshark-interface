@@ -957,11 +957,8 @@ export default function CoverExistingPool({ goBack }) {
       </div>
       <div className="space-y-3">
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {isDisconnected ||
-        Number(allowanceInCover) <
-          Number(ethers.utils.formatUnits(String(coverAmountIn), 18)) ||
-        Number(allowanceOutCover) <
-          Number(ethers.utils.formatUnits(String(coverAmountOut), 18)) ? (
+        {Number(allowanceInCover) <
+        Number(ethers.utils.formatUnits(String(bnInput), 18)) ? (
           <CoverMintApproveButton
             disabled={disabled}
             buttonState={buttonState}

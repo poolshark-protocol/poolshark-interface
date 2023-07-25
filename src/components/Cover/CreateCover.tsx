@@ -222,7 +222,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     if (allowanceInCover) {
-      setTokenInAllowance(ethers.utils.formatUnits(allowanceInCover, 18));
+      setTokenInAllowance(allowanceInCover.toString());
     }
   }, [allowanceInCover]);
 
@@ -802,7 +802,9 @@ export default function CreateCover(props: any) {
         </div>
       </div>
       <div className="mb-3">
-        {isConnected && allowanceInCover < bnInput ? (
+        {isConnected &&
+        Number(allowanceInCover) <
+          Number(ethers.utils.formatUnits(String(coverAmountIn), 18)) ? (
           <CoverMintApproveButton
             disabled={disabled}
             poolAddress={coverPoolAddress}
