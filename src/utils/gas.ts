@@ -273,7 +273,6 @@ export const gasEstimateCoverMint = async (
   tokenIn: token,
   tokenOut: token,
   inAmount: JSBI,
-  tickSpacing: any,
   signer
 ): Promise<gasEstimateResult> => {
   try {

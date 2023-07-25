@@ -162,35 +162,18 @@ export default function Cover() {
                           ) {
                             return (
                               <UserCoverPool
-                                key={allCoverPosition.id + 'coverPositions'}
-                                account={address}
-                                poolId={allCoverPosition.poolId}
-                                tokenZero={allCoverPosition.tokenZero}
-                                valueTokenZero={allCoverPosition.valueTokenZero}
-                                tokenOne={allCoverPosition.tokenOne}
-                                valueTokenOne={allCoverPosition.valueTokenOne}
-                                min={allCoverPosition.min}
-                                max={allCoverPosition.max}
-                                zeroForOne={allCoverPosition.zeroForOne}
-                                userFillIn={allCoverPosition.userFillIn}
-                                userFillOut={allCoverPosition.userFillOut}
-                                feeTier={allCoverPosition.feeTier}
-                                liquidity={allCoverPosition.liquidity}
-                                lowerPrice={parseFloat(
-                                  TickMath.getPriceStringAtTick(
-                                    allCoverPosition.lowerTick,
-                                  ),
-                                )}
-                                upperPrice={parseFloat(
-                                  TickMath.getPriceStringAtTick(
-                                    allCoverPosition.upperTick,
-                                  ),
-                                )}
-                                latestTick={allCoverPosition.latestTick}
-                                tickSpacing={allCoverPosition.tickSpacing}
-                                epochLast={allCoverPosition.epochLast}
-                                prefill={undefined}
-                                close={undefined}
+                              key={allCoverPosition.id + "coverPosition"}
+                              coverPosition={allCoverPosition}
+                              lowerPrice={parseFloat(
+                                TickMath.getPriceStringAtTick(
+                                  allCoverPosition.lowerTick
+                                )
+                              )}
+                              upperPrice={parseFloat(
+                                TickMath.getPriceStringAtTick(
+                                  allCoverPosition.upperTick
+                                )
+                              )}
                                 href={'/pool/view/cover'}
                               />
                             )
@@ -290,35 +273,18 @@ export default function Cover() {
                           ) {
                             return (
                               <UserCoverPool
-                                key={allCoverPosition.id + 'coverPositions'}
-                                account={address}
-                                poolId={allCoverPosition.poolId}
-                                tokenZero={allCoverPosition.tokenZero}
-                                valueTokenZero={allCoverPosition.valueTokenZero}
-                                tokenOne={allCoverPosition.tokenOne}
-                                valueTokenOne={allCoverPosition.valueTokenOne}
-                                min={allCoverPosition.min}
-                                max={allCoverPosition.max}
-                                zeroForOne={allCoverPosition.zeroForOne}
-                                userFillIn={allCoverPosition.userFillIn}
-                                userFillOut={allCoverPosition.userFillOut}
-                                feeTier={allCoverPosition.feeTier}
-                                liquidity={allCoverPosition.liquidity}
-                                lowerPrice={parseFloat(
-                                  TickMath.getPriceStringAtTick(
-                                    allCoverPosition.lowerTick,
-                                  ),
-                                )}
-                                upperPrice={parseFloat(
-                                  TickMath.getPriceStringAtTick(
-                                    allCoverPosition.upperTick,
-                                  ),
-                                )}
-                                latestTick={allCoverPosition.latestTick}
-                                tickSpacing={allCoverPosition.tickSpacing}
-                                epochLast={allCoverPosition.epochLast}
-                                prefill={undefined}
-                                close={undefined}
+                              key={allCoverPosition.id + "coverPosition"}
+                              coverPosition={allCoverPosition}
+                              lowerPrice={parseFloat(
+                                TickMath.getPriceStringAtTick(
+                                  allCoverPosition.lowerTick
+                                )
+                              )}
+                              upperPrice={parseFloat(
+                                TickMath.getPriceStringAtTick(
+                                  allCoverPosition.upperTick
+                                )
+                              )}
                                 href={'/pool/view/cover'}
                               />
                             )

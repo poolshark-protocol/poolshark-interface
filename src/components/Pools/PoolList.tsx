@@ -1,6 +1,8 @@
 import { logoMap } from "../../utils/tokens";
 import { useRangeStore } from "../../hooks/useRangeStore";
+import { useCoverStore } from "../../hooks/useCoverStore";
 import { useRouter } from "next/router";
+import { token } from "../../utils/types";
 
 export default function PoolList({
   poolId,
@@ -28,6 +30,18 @@ export default function PoolList({
     state.setRangePoolData,
   ]);
 
+  const [
+    setCoverTokenIn,
+    setCoverTokenOut,
+    setCoverPoolAddress,
+    setCoverPoolData,
+  ] = useCoverStore((state) => [
+    state.setTokenIn,
+    state.setTokenOut,
+    state.setCoverPoolAddress,
+    state.setCoverPoolData,
+  ]);
+
   const router = useRouter();
 
   const feeTierPercentage = feeTier / 10000;
@@ -48,22 +62,30 @@ export default function PoolList({
     setRangeTokenIn(tokenOut, tokenIn);
     setRangeTokenOut(tokenIn, tokenOut);
     setRangePoolAddress(poolId);
-    /* setRangePoolData({
-      liquidity: liquidity,
-      feeTier: feeTier,
-      auctionLenght: auctionLenght,
-      tickSpacing: tickSpacing,
-    }); */
     router.push({
       pathname: href,
     });
   };
 
   const chooseCoverPool = () => {
-    //TODO@retraca
-    console.log("chooseCoverPool");
+    const tokenIn = {
+      name: tokenZero.symbol,
+      address: tokenZero.id,
+      logoURI: logoMap[tokenZero.symbol],
+      symbol: tokenZero.symbol,
+    } as token;
+    const tokenOut = {
+      name: tokenOne.symbol,
+      address: tokenOne.id,
+      logoURI: logoMap[tokenOne.symbol],
+      symbol: tokenOne.symbol,
+    } as token;
+    setCoverTokenIn(tokenOut, tokenIn);
+    setCoverTokenOut(tokenIn, tokenOut);
+    setCoverPoolAddress(poolId);
     router.push({
       pathname: href,
+      query: { state: 'existing' },
     });
   };
 

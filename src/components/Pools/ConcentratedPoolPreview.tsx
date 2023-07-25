@@ -130,8 +130,6 @@ export default function ConcentratedPoolPreview({ fee }) {
     }
   }, [allowanceInRange, allowanceOutRange]);
 
-  //console.log("positionData", rangePositionData);
-  //console.log("/////////////////////////");
 
   ////////////////////////////////Mint Gas Fee
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);

@@ -13,7 +13,7 @@ import React, { useState } from "react";
 import { roundTick } from '../../utils/math/tickMath';
 import { BN_ZERO } from '../../utils/math/constants';
 
-export default function CoverAddLiqButton({poolAddress, address, lower, claim, upper, zeroForOne, amount, toAddress, gasLimit, buttonState, disabled, tokenSymbol}) {
+export default function CoverAddLiqButton({poolAddress, address, lower, upper, zeroForOne, amount, toAddress, gasLimit, buttonState, disabled, tokenSymbol}) {
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);

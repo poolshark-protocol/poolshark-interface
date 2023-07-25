@@ -113,6 +113,7 @@ export default function ConcentratedPool({}) {
     );
   }
 
+  //this sets the default position price delta
   useEffect(() => {
     console.log("rangePoolData", rangePoolData)
     if (rangePoolData.price) {

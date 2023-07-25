@@ -1,11 +1,10 @@
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import {
     usePrepareContractWrite,
     useContractWrite,
     useWaitForTransaction,
 } from 'wagmi';
 import { coverPoolABI } from "../../abis/evm/coverPool";
-import { coverPoolAddress } from "../../constants/contractAddresses";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";

@@ -2,34 +2,37 @@ import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useState } from 'react'
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { erc20ABI } from "wagmi";
-import useInputBox from '../../../hooks/useInputBox'
 import CoverRemoveLiqButton from "../../Buttons/CoverRemoveLiqButton";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO } from "../../../utils/math/constants";
 import { useRouter } from "next/router";
+import { useCoverStore } from "../../../hooks/useCoverStore";
 
-export default function CoverRemoveLiquidity({ isOpen, setIsOpen, usdPriceIn, usdPriceOut, tokenIn, poolAdd, address, claimTick, lowerTick, zeroForOne, amountInDeltaMax, upperTick, gasLimit, gasFee }) {
-
+export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
+  const [
+    coverPoolAddress,
+    coverPositionData,
+    tokenIn,
+    claimTick,
+    tokenInCoverUSDPrice,
+    gasLimit,
+    gasFee,
+  ] = useCoverStore((state) => [
+    state.coverPoolAddress,
+    state.coverPositionData,
+    state.tokenIn,
+    state.claimTick,
+    state.tokenInCoverUSDPrice,
+    state.gasLimit,
+    state.gasFee,
+  ]);
+  
   const router = useRouter()
 
-  const [balanceIn, setBalanceIn] = useState('')
-  const [fetchDelay, setFetchDelay] = useState(false)
   const [burnPercent, setBurnPercent] = useState(ethers.utils.parseUnits("5", 37))
   const [sliderValue, setSliderValue] = useState(1)
   const [sliderOutput, setSliderOutput] = useState('1')
-  const [amountInMax, setAmountInMax] = useState(ethers.utils.parseUnits(amountInDeltaMax ?? '0', 0))
-  const [amountInDisplay, setAmountInDisplay] = useState(ethers.utils.formatUnits(BigNumber.from(amountInDeltaMax) ?? BN_ZERO, tokenIn.decimals))
-
-  useEffect(() => {
-    if(!fetchDelay) {
-      getBalances()
-    } else {
-      const interval = setInterval(() => {
-        getBalances()
-      }, 2000);
-      return () => clearInterval(interval);
-    }
-  }, [fetchDelay])
+  const [amountInDisplay, setAmountInDisplay] = useState(ethers.utils.formatUnits(BigNumber.from(coverPositionData.userFillOut) ?? BN_ZERO, 18))
 
   useEffect(() => {
     if (sliderValue == 0) {
@@ -38,7 +41,6 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, usdPriceIn, us
     } 
     setBurnPercent(ethers.utils.parseUnits(String(sliderValue), 36))
     console.log('setting burn percent', ethers.utils.parseUnits(String(sliderValue), 36).toString())
-    console.log('setting display', amountInMax)
     setSliderOutput((parseFloat(amountInDisplay) * sliderValue / 100).toPrecision(6))
   }, [sliderValue])
 
@@ -55,27 +57,10 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, usdPriceIn, us
     setSliderValue(percent)
   }
 
-  const getBalances = async () => {
-    setFetchDelay(true)
-    console.log('tokenIn remove liquidity', tokenIn)
-    try {
-      const provider = new ethers.providers.JsonRpcProvider(
-        'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
-        421613,
-      )
-      const signer = new ethers.VoidSigner(address, provider)
-      const tokenInContract = new ethers.Contract(tokenIn.address, erc20ABI, signer)
-      const tokenInBal = await tokenInContract.balanceOf(address)
-      setBalanceIn(ethers.utils.formatUnits(tokenInBal, 18))
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
-        as="div"
+        as="div" 
         className="relative z-50"
         onClose={() => setIsOpen(false)}
       >
@@ -152,7 +137,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, usdPriceIn, us
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
-                                 ${(Number(usdPriceOut) * parseFloat(sliderOutput)).toFixed(2)}
+                                 ${(tokenInCoverUSDPrice * parseFloat(sliderOutput)).toFixed(2)}
                                 </div>
                               </div>
                             </div>
@@ -180,14 +165,14 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, usdPriceIn, us
                 </div>
                 <CoverRemoveLiqButton
                       disabled={gasFee == '$0.00'}
-                      poolAddress={poolAdd}
+                      poolAddress={coverPoolAddress}
                       address={address}
-                      lower={lowerTick}
-                      claim={claimTick}
-                      upper={upperTick}
-                      zeroForOne={zeroForOne}
+                      lower={BigNumber.from(coverPositionData.min)}
+                      claim={BigNumber.from(claimTick)}
+                      upper={BigNumber.from(coverPositionData.max)}
+                      zeroForOne={Boolean(coverPositionData.zeroForOne)}
                       burnPercent={burnPercent}
-                      gasLimit={gasLimit}
+                      gasLimit={gasLimit.mul(250).div(100)}
                       closeModal={() => 
                         {if (burnPercent.eq(ethers.utils.parseUnits('1', 38))) {
                           router.push('/pool')

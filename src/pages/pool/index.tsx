@@ -340,19 +340,7 @@ export default function Pool() {
                           return (
                             <UserCoverPool
                               key={allCoverPosition.id + "coverPosition"}
-                              account={address}
-                              poolId={allCoverPosition.poolId}
-                              tokenZero={allCoverPosition.tokenZero}
-                              valueTokenZero={allCoverPosition.valueTokenZero}
-                              tokenOne={allCoverPosition.tokenOne}
-                              valueTokenOne={allCoverPosition.valueTokenOne}
-                              min={allCoverPosition.min}
-                              max={allCoverPosition.max}
-                              zeroForOne={allCoverPosition.zeroForOne}
-                              userFillIn={allCoverPosition.userFillIn}
-                              userFillOut={allCoverPosition.userFillOut}
-                              epochLast={allCoverPosition.epochLast}
-                              liquidity={allCoverPosition.liquidity}
+                              coverPosition={allCoverPosition}
                               lowerPrice={parseFloat(
                                 TickMath.getPriceStringAtTick(
                                   allCoverPosition.lowerTick
@@ -363,11 +351,6 @@ export default function Pool() {
                                   allCoverPosition.upperTick
                                 )
                               )}
-                              latestTick={allCoverPosition.latestTick}
-                              tickSpacing={allCoverPosition.tickSpacing}
-                              feeTier={allCoverPosition.feeTier}
-                              prefill={undefined}
-                              close={undefined}
                               href={"/pool/view/cover"}
                             />
                           );

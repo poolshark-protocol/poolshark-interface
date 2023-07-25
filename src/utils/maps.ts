@@ -134,7 +134,6 @@ export function mapUserCoverPositions(coverPositions) {
       coverPosition.zeroForOne,
       coverPosition.epochLast,
     )
-    console.log('claim tick queried', coverPosition.claim)
   })
   return mappedCoverPositions
 }

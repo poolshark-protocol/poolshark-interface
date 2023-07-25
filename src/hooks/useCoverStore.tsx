@@ -9,56 +9,63 @@ import { create } from "zustand";
 
 type CoverState = {
   //poolAddress for current token pairs
-  ////cover
-  coverPoolAddress: String;
+  coverPoolAddress: `0x${string}`;
   coverPoolData: any;
+  coverPositionData: any;
   coverSlippage: string;
   //true if both tokens selected, false if only one token selected
   pairSelected: Boolean;
   //TokenIn defines the token on the left/up on a swap page
   tokenIn: token;
+  tokenInAmount: string;
   tokenInCoverUSDPrice: number;
   tokenInCoverAllowance: string;
   tokenInBalance: string;
   //TokenOut defines the token on the left/up on a swap page
   tokenOut: token;
-  tokenOutCoverUSDPrice: Number;
+  tokenOutCoverUSDPrice: number;
   tokenOutBalance: string;
+  tokenOutCoverAllowance: string;
+  //Claim tick
+  claimTick: number;
   //Gas
-  gasFee: BigNumber;
+  gasFee: string;
   gasLimit: BigNumber;
 };
 
-type SwapAction = {
+type CoverAction = {
   //pool
-  /* setCoverPoolAddress: (address: String) => void;
+  setCoverPoolAddress: (address: String) => void;
   setCoverPoolData: (data: any) => void;
-  setRangePoolAddress: (address: String) => void;
-  setRangePoolData: (data: any) => void;
-  setPairSelected: (pairSelected: Boolean) => void;
+  setCoverPositionData: (data: any) => void;
+  //setPairSelected: (pairSelected: Boolean) => void;
   //tokenIn
   setTokenIn: (tokenOut: token, newToken: token) => void;
-  setTokenInRangeUSDPrice: (price: number) => void;
+  setTokenInAmount: (amount: string) => void;
   setTokenInCoverUSDPrice: (price: number) => void;
-  setTokenInRangeAllowance: (allowance: string) => void;
   setTokenInCoverAllowance: (allowance: string) => void;
   setTokenInBalance: (balance: string) => void;
   //tokenOut
   setTokenOut: (tokenOut: token, newToken: token) => void;
-  setTokenOutRangeUSDPrice: (price: number) => void;
   setTokenOutCoverUSDPrice: (price: number) => void;
   setTokenOutBalance: (balance: string) => void;
+  setTokenOutCoverAllowance: (allowance: string) => void;
+  //Claim tick
+  setClaimTick: (tick: number) => void;
+  setMinTick: (coverPositionData, tick: BigNumber) => void;
+  setMaxTick: (coverPositionData, tick: BigNumber) => void;
   //gas
-  setGasFee: (fee: BigNumber) => void;
-  setGasLimit: (limit: BigNumber) => void; */
+  setGasFee: (fee: string) => void;
+  setGasLimit: (limit: BigNumber) => void;
   //reset
   resetSwapParams: () => void;
 };
 
 const initialCoverState: CoverState = {
   //pools
-  coverPoolAddress: "",
+  coverPoolAddress: "0x00",
   coverPoolData: {},
+  coverPositionData: {},
   coverSlippage: "0.5",
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
   pairSelected: true,
@@ -70,6 +77,7 @@ const initialCoverState: CoverState = {
     logoURI: "/static/images/eth_icon.png",
     address: tokenOneAddress,
   } as token,
+  tokenInAmount: "0.00",
   tokenInCoverUSDPrice: 0,
   tokenInCoverAllowance: "0.00",
   tokenInBalance: "0.00",
@@ -83,19 +91,24 @@ const initialCoverState: CoverState = {
   } as token,
   tokenOutCoverUSDPrice: 0,
   tokenOutBalance: "0.00",
+  tokenOutCoverAllowance: "0.00",
   //
-  gasFee: BN_ZERO,
+  claimTick: 0,
+  //
+  gasFee: "$0.00",
   gasLimit: BN_ZERO,
 };
 
-export const useSwapStore = create<CoverState & SwapAction>((set) => ({
+export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   //pool
   coverPoolAddress: initialCoverState.coverPoolAddress,
   coverPoolData: initialCoverState.coverPoolData,
+  coverPositionData: initialCoverState.coverPositionData,
   coverSlippage: initialCoverState.coverSlippage,
   pairSelected: initialCoverState.pairSelected,
   //tokenIn
   tokenIn: initialCoverState.tokenIn,
+  tokenInAmount: initialCoverState.tokenInAmount,
   tokenInCoverUSDPrice: initialCoverState.tokenInCoverUSDPrice,
   tokenInCoverAllowance: initialCoverState.tokenInCoverAllowance,
   tokenInBalance: initialCoverState.tokenInBalance,
@@ -103,6 +116,9 @@ export const useSwapStore = create<CoverState & SwapAction>((set) => ({
   tokenOut: initialCoverState.tokenOut,
   tokenOutCoverUSDPrice: initialCoverState.tokenOutCoverUSDPrice,
   tokenOutBalance: initialCoverState.tokenOutBalance,
+  tokenOutCoverAllowance: initialCoverState.tokenOutCoverAllowance,
+  //tick
+  claimTick: initialCoverState.claimTick,
   //gas
   gasFee: initialCoverState.gasFee,
   gasLimit: initialCoverState.gasLimit,
@@ -126,7 +142,8 @@ export const useSwapStore = create<CoverState & SwapAction>((set) => ({
         //if tokens are different
         set(() => ({
           tokenIn: {
-            callId: newToken.address < tokenOut.address ? 0 : 1,
+            callId:
+              newToken.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
             ...newToken,
           },
           pairSelected: true,
@@ -142,6 +159,11 @@ export const useSwapStore = create<CoverState & SwapAction>((set) => ({
         pairSelected: false,
       }));
     }
+  },
+  setTokenInAmount: (newAmount: string) => {
+    set(() => ({
+      tokenInAmount: newAmount,
+    }));
   },
 
   setTokenInCoverUSDPrice: (newPrice: number) => {
@@ -183,7 +205,7 @@ export const useSwapStore = create<CoverState & SwapAction>((set) => ({
         //if tokens are different
         set(() => ({
           tokenOut: {
-            callId: newToken.address < tokenIn.address ? 0 : 1,
+            callId: newToken.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
             ...newToken,
           },
           pairSelected: true,
@@ -202,8 +224,12 @@ export const useSwapStore = create<CoverState & SwapAction>((set) => ({
       tokenOutBalance: newBalance,
     }));
   },
-
-  setCoverPoolAddress: (coverPoolAddress: string) => {
+  setTokenOutCoverAllowance: (newAllowance: string) => {
+    set(() => ({
+      tokenOutCoverAllowance: newAllowance,
+    }));
+  },
+  setCoverPoolAddress: (coverPoolAddress: `0x${string}`) => {
     set(() => ({
       coverPoolAddress: coverPoolAddress,
     }));
@@ -213,9 +239,43 @@ export const useSwapStore = create<CoverState & SwapAction>((set) => ({
       coverPoolData: coverPoolData,
     }));
   },
+  setCoverPositionData: (coverPositionData: any) => {
+    set(() => ({
+      coverPositionData: coverPositionData,
+    }));
+  },
   setCoverSlippage: (coverSlippage: string) => {
     set(() => ({
       coverSlippage: coverSlippage,
+    }));
+  },
+  setClaimTick: (claimTick: number) => {
+    set(() => ({
+      claimTick: claimTick,
+    }));
+  },
+  setMinTick: (coverPositionData, minTick: BigNumber) => {
+    const newPositionData = { ...coverPositionData };
+    newPositionData.minTick = minTick;
+    set(() => ({
+      coverPositionData: newPositionData,
+    }));
+  },
+  setMaxTick: (coverPositionData, maxTick: BigNumber) => {
+    const newPositionData = { ...coverPositionData };
+    newPositionData.maxTick = maxTick;
+    set(() => ({
+      coverPositionData: newPositionData,
+    }));
+  },
+  setGasFee: (gasFee: string) => {
+    set(() => ({
+      gasFee: gasFee,
+    }));
+  },
+  setGasLimit: (gasLimit: BigNumber) => {
+    set(() => ({
+      gasLimit: gasLimit,
     }));
   },
   switchDirection: () => {
@@ -228,7 +288,7 @@ export const useSwapStore = create<CoverState & SwapAction>((set) => ({
     set({
       coverPoolAddress: initialCoverState.coverPoolAddress,
       coverPoolData: initialCoverState.coverPoolData,
-
+      coverPositionData: initialCoverState.coverPositionData,
       pairSelected: initialCoverState.pairSelected,
       //tokenIn
       tokenIn: initialCoverState.tokenIn,
@@ -239,6 +299,8 @@ export const useSwapStore = create<CoverState & SwapAction>((set) => ({
       tokenOut: initialCoverState.tokenOut,
       tokenOutCoverUSDPrice: initialCoverState.tokenOutCoverUSDPrice,
       tokenOutBalance: initialCoverState.tokenOutBalance,
+      //tick
+      claimTick: initialCoverState.claimTick,
       //gas
       gasFee: initialCoverState.gasFee,
       gasLimit: initialCoverState.gasLimit,
