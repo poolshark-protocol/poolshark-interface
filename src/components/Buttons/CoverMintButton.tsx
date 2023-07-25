@@ -31,6 +31,16 @@ export default function CoverMintButton({
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
 
+  console.log(
+    "contract info",
+    to,
+    lower,
+    upper,
+    amount,
+    zeroForOne,
+    tickSpacing
+  );
+
   const { config } = usePrepareContractWrite({
     address: poolAddress,
     abi: coverPoolABI,
@@ -44,10 +54,10 @@ export default function CoverMintButton({
         zeroForOne,
       ],
     ],
-    enabled: amount.toString() != "0" && poolAddress != undefined,
+    enabled: !disabled,
     chainId: 421613,
     overrides: {
-      gasLimit: BigNumber.from("1000000"),
+      gasLimit: BigNumber.from("3000000"),
     },
   });
 
@@ -72,7 +82,7 @@ export default function CoverMintButton({
             ? "w-full py-4 mx-auto font-medium text-center text-sm md:text-base transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50"
             : "w-full py-4 mx-auto font-medium text-center text-sm md:text-base transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
         }
-        onClick={() => (coverPoolAddress && !disabled ? write?.() : null)}
+        onClick={() => (!disabled ? write?.() : null)}
       >
         {disabled ? (
           <>

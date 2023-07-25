@@ -100,6 +100,7 @@ export default function UserPool({ rangePosition, href }) {
     if (href.includes("cover")) {
       setCoverTokenIn(tokenOutNew, tokenInNew);
       setCoverTokenOut(tokenInNew, tokenOutNew);
+      setRangePositionData(rangePosition);
     } else {
       setRangeTokenIn(tokenOutNew, tokenInNew);
       setRangeTokenOut(tokenInNew, tokenOutNew);

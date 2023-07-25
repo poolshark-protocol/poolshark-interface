@@ -26,7 +26,6 @@ import {
   getDefaultLowerTick,
   getDefaultUpperPrice,
   getDefaultUpperTick,
-  invertPrice,
   roundTick,
 } from "../../utils/math/tickMath";
 import { coverPoolABI } from "../../abis/evm/coverPool";
@@ -49,6 +48,9 @@ import { useCoverStore } from "../../hooks/useCoverStore";
 import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
 import useInputBox from "../../hooks/useInputBox";
 import { getBalances } from "../../utils/balances";
+import { useRangeStore } from "../../hooks/useRangeStore";
+import { CoinStatus } from "fuels";
+import { invertPrice } from "../../utils/math/tickMath";
 
 export default function CoverExistingPool({ goBack }) {
   const [
@@ -71,9 +73,11 @@ export default function CoverExistingPool({ goBack }) {
     tokenOut,
     tokenOutCoverUSDPrice,
     tokenOutBalance,
+    tokenOutAllowance,
     setTokenOut,
     setTokenOutCoverUSDPrice,
     setTokenOutBalance,
+    setTokenOutAllowance,
     pairSelected,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
@@ -95,10 +99,16 @@ export default function CoverExistingPool({ goBack }) {
     state.tokenOut,
     state.tokenOutCoverUSDPrice,
     state.tokenOutBalance,
+    state.tokenOutCoverAllowance,
     state.setTokenOut,
     state.setTokenOutCoverUSDPrice,
     state.setTokenOutBalance,
+    state.setTokenOutCoverAllowance,
     state.pairSelected,
+  ]);
+
+  const [rangePositionData] = useRangeStore((state) => [
+    state.rangePositionData,
   ]);
 
   const { data: signer } = useSigner();
@@ -134,9 +144,6 @@ export default function CoverExistingPool({ goBack }) {
   useEffect(() => {
     if (coverPoolData.latestTick) {
       updatePositionData();
-      console.log("coverPoolData", coverPoolData);
-      //setTokenIn(coverPoolData.token0);
-      //setTokenOut(coverPoolData.token1);
     }
   }, [coverPoolData]);
 
@@ -237,9 +244,27 @@ export default function CoverExistingPool({ goBack }) {
     onSettled(data, error) {},
   });
 
+  const { data: allowanceOutCover } = useContractRead({
+    address: tokenIn.address,
+    abi: erc20ABI,
+    functionName: "allowance",
+    args: [address, coverPoolAddress],
+    chainId: 421613,
+    watch: true,
+    enabled: isConnected && coverPoolAddress && tokenIn.address != "0x00",
+    onSuccess(data) {
+      //console.log('Success')
+    },
+    onError(error) {
+      console.log("Error", error);
+    },
+    onSettled(data, error) {},
+  });
+
   useEffect(() => {
     if (allowanceInCover) {
       setTokenInAllowance(ethers.utils.formatUnits(allowanceInCover, 18));
+      setTokenOutAllowance(ethers.utils.formatUnits(allowanceOutCover, 18));
     }
   }, [allowanceInCover]);
 
@@ -323,6 +348,7 @@ export default function CoverExistingPool({ goBack }) {
   ////////////////////////////////Position Amount Calculations
   const [coverAmountIn, setCoverAmountIn] = useState(ZERO);
   const [coverAmountOut, setCoverAmountOut] = useState(ZERO);
+  const [sliderValue, setSliderValue] = useState(50);
 
   // set amount in
   useEffect(() => {
@@ -337,34 +363,60 @@ export default function CoverExistingPool({ goBack }) {
   ]);
 
   useEffect(() => {
-    changeCoverAmounts();
-  }, [coverAmountIn]);
+    changeCoverOutAmount();
+  }, [sliderValue, lowerPrice, upperPrice]);
 
-  function changeCoverAmounts() {
+  function changeCoverOutAmount() {
     if (
-      bnInput != BN_ZERO &&
-      Number(coverPositionData.lowerPrice) &&
-      Number(coverPositionData.upperPrice) &&
+      coverPositionData.lowerPrice &&
+      coverPositionData.upperPrice &&
       parseFloat(coverPositionData.lowerPrice) > 0 &&
       parseFloat(coverPositionData.upperPrice) > 0 &&
       parseFloat(coverPositionData.lowerPrice) <
         parseFloat(coverPositionData.upperPrice)
     ) {
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
-        parseInt(coverPositionData.lowerPrice)
+        TickMath.getTickAtPriceString(coverPositionData.lowerPrice)
       );
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(
-        parseInt(coverPositionData.upperPrice)
+        TickMath.getTickAtPriceString(coverPositionData.upperPrice)
       );
-      const liquidityAmount = DyDxMath.getLiquidityForAmounts(
-        lowerSqrtPrice,
-        upperSqrtPrice,
-        lowerSqrtPrice,
-        BN_ZERO,
-        BigNumber.from(String(coverAmountIn))
+      const liquidityAmount = JSBI.divide(
+        JSBI.multiply(
+          JSBI.BigInt(Math.round(rangePositionData.userLiquidity)),
+          JSBI.BigInt(parseFloat(sliderValue.toString()))
+        ),
+        JSBI.BigInt(100)
+      );
+      setCoverAmountIn(
+        tokenOrder
+          ? DyDxMath.getDx(
+              liquidityAmount,
+              lowerSqrtPrice,
+              upperSqrtPrice,
+              true
+            )
+          : DyDxMath.getDy(
+              liquidityAmount,
+              lowerSqrtPrice,
+              upperSqrtPrice,
+              true
+            )
       );
       setCoverAmountOut(
-        DyDxMath.getDy(liquidityAmount, lowerSqrtPrice, upperSqrtPrice, true)
+        tokenOrder
+          ? DyDxMath.getDy(
+              liquidityAmount,
+              lowerSqrtPrice,
+              upperSqrtPrice,
+              true
+            )
+          : DyDxMath.getDx(
+              liquidityAmount,
+              lowerSqrtPrice,
+              upperSqrtPrice,
+              true
+            )
       );
     }
   }
@@ -426,28 +478,40 @@ export default function CoverExistingPool({ goBack }) {
 
   // disabled messages
   useEffect(() => {
-    if (Number(ethers.utils.formatUnits(bnInput)) > Number(tokenInBalance)) {
+    console.log(
+      "coverAmountIn",
+      Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18))
+    );
+    console.log("tokenInCoverUSDPrice", tokenInCoverUSDPrice);
+    console.log("tokenInBalance", tokenInBalance);
+    if (
+      Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) *
+        tokenInCoverUSDPrice >
+      Number(tokenInBalance)
+    ) {
       setButtonState("balance");
     } else if (!validBounds) {
       setButtonState("bounds");
     } else if (
-      parseFloat(coverPositionData.lowerPrice) >=
-      parseFloat(coverPositionData.upperPrice)
+      parseInt(coverPositionData.lowerPrice) >
+      parseInt(coverPositionData.upperPrice)
     ) {
       setButtonState("price");
-    } else if (bnInput.eq(BN_ZERO)) {
+    } else if (BigNumber.from(coverAmountIn.toString()).eq(BN_ZERO)) {
       setButtonState("amount");
     } else if (pairSelected == false) {
       setButtonState("token");
     } else if (mintGasLimit.gt(BN_ZERO)) {
+      setDisabled(true);
+    } else {
       setDisabled(false);
     }
   }, [
-    bnInput,
+    coverAmountIn,
+    coverAmountOut,
     pairSelected,
     validBounds,
-    coverPositionData.lowerPrice,
-    coverPositionData.upperPrice,
+    coverPositionData,
     tokenInBalance,
     mintGasLimit,
   ]);
@@ -544,7 +608,6 @@ export default function CoverExistingPool({ goBack }) {
     setMintGasFee(newMintGasFee.formattedPrice)
     setMintGasLimit(newMintGasFee.gasUnits.mul(130).div(100))
   } */
-  const [sliderValue, setSliderValue] = useState(50);
 
   const handleChange = (event: any) => {
     setSliderValue(event.target.value);
@@ -892,7 +955,10 @@ export default function CoverExistingPool({ goBack }) {
       <div className="space-y-3">
         {isDisconnected ? <ConnectWalletButton /> : null}
         {isDisconnected ||
-        allowanceInCover < BigNumber.from(coverAmountIn.toString()) ? (
+        Number(allowanceInCover) <
+          Number(ethers.utils.formatUnits(String(coverAmountIn), 18)) ||
+        Number(allowanceOutCover) <
+          Number(ethers.utils.formatUnits(String(coverAmountOut), 18)) ? (
           <CoverMintApproveButton
             disabled={disabled}
             buttonState={buttonState}
@@ -905,23 +971,19 @@ export default function CoverExistingPool({ goBack }) {
         ) : (
           <CoverMintButton
             poolAddress={coverPoolAddress}
-            disabled={disabled || mintGasFee == "$0.00"}
+            disabled={disabled}
             buttonState={buttonState}
             to={address}
-            lower={lowerPrice}
+            lower={TickMath.getTickAtPriceString(coverPositionData.lowerPrice)}
             claim={
-              tokenOut.address.toString() != "" &&
-              tokenIn.address.localeCompare(tokenOut.address) < 0
-                ? upperPrice
-                : lowerPrice
+              tokenOrder
+                ? TickMath.getTickAtPriceString(coverPositionData.upperPrice)
+                : TickMath.getTickAtPriceString(coverPositionData.lowerPrice)
             }
-            upper={upperPrice}
+            upper={TickMath.getTickAtPriceString(coverPositionData.upperPrice)}
             tokenSymbol={tokenIn.symbol}
             amount={String(coverAmountIn)}
-            zeroForOne={
-              tokenOut.address.toString() != "" &&
-              tokenIn.address.localeCompare(tokenOut.address) < 0
-            }
+            zeroForOne={tokenOrder}
             tickSpacing={coverPositionData.tickSpacing}
             gasLimit={mintGasLimit}
           />

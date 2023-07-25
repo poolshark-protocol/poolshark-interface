@@ -25,6 +25,7 @@ type CoverState = {
   tokenOut: token;
   tokenOutCoverUSDPrice: number;
   tokenOutBalance: string;
+  tokenOutCoverAllowance: string;
   //Claim tick
   claimTick: number;
   //Gas
@@ -48,6 +49,7 @@ type CoverAction = {
   setTokenOut: (tokenOut: token, newToken: token) => void;
   setTokenOutCoverUSDPrice: (price: number) => void;
   setTokenOutBalance: (balance: string) => void;
+  setTokenOutCoverAllowance: (allowance: string) => void;
   //Claim tick
   setClaimTick: (tick: number) => void;
   setMinTick: (coverPositionData, tick: BigNumber) => void;
@@ -89,6 +91,7 @@ const initialCoverState: CoverState = {
   } as token,
   tokenOutCoverUSDPrice: 0,
   tokenOutBalance: "0.00",
+  tokenOutCoverAllowance: "0.00",
   //
   claimTick: 0,
   //
@@ -113,6 +116,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   tokenOut: initialCoverState.tokenOut,
   tokenOutCoverUSDPrice: initialCoverState.tokenOutCoverUSDPrice,
   tokenOutBalance: initialCoverState.tokenOutBalance,
+  tokenOutCoverAllowance: initialCoverState.tokenOutCoverAllowance,
   //tick
   claimTick: initialCoverState.claimTick,
   //gas
@@ -220,7 +224,11 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       tokenOutBalance: newBalance,
     }));
   },
-
+  setTokenOutCoverAllowance: (newAllowance: string) => {
+    set(() => ({
+      tokenOutCoverAllowance: newAllowance,
+    }));
+  },
   setCoverPoolAddress: (coverPoolAddress: `0x${string}`) => {
     set(() => ({
       coverPoolAddress: coverPoolAddress,
