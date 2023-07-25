@@ -974,17 +974,31 @@ export default function CoverExistingPool({ goBack }) {
             disabled={disabled}
             buttonState={buttonState}
             to={address}
-            lower={TickMath.getTickAtPriceString(coverPositionData.lowerPrice)}
-            claim={
-              tokenOrder
-                ? TickMath.getTickAtPriceString(coverPositionData.upperPrice)
-                : TickMath.getTickAtPriceString(coverPositionData.lowerPrice)
+            lower={
+              coverPositionData.lowerPrice
+                ? TickMath.getTickAtPriceString(coverPositionData.lowerPrice)
+                : 0
             }
-            upper={TickMath.getTickAtPriceString(coverPositionData.upperPrice)}
+            claim={
+              coverPositionData.lowerPrice && coverPositionData.upperPrice
+                ? tokenOrder
+                  ? TickMath.getTickAtPriceString(coverPositionData.upperPrice)
+                  : TickMath.getTickAtPriceString(coverPositionData.lowerPrice)
+                : 0
+            }
+            upper={
+              coverPositionData.upperPrice
+                ? TickMath.getTickAtPriceString(coverPositionData.upperPrice)
+                : 0
+            }
             tokenSymbol={tokenIn.symbol}
             amount={String(coverAmountIn)}
             zeroForOne={tokenOrder}
-            tickSpacing={coverPositionData.tickSpacing}
+            tickSpacing={
+              coverPoolData.volatilityTier
+                ? coverPoolData.volatilityTier.tickSpread
+                : 20
+            }
             gasLimit={mintGasLimit}
           />
         )}
