@@ -381,13 +381,15 @@ export default function CreateCover(props: any) {
     const newMintGasFee = await gasEstimateCoverMint(
       coverPoolAddress,
       address,
-      TickMath.getTickAtPriceString(coverPositionData.upperPrice, parseInt(coverPositionData.tickSpacing)),
-      TickMath.getTickAtPriceString(coverPositionData.lowerPrice, parseInt(coverPositionData.tickSpacing)),
+      TickMath.getTickAtPriceString(coverPositionData.upperPrice, parseInt(coverPoolData.volatilityTier.tickSpread)),
+      TickMath.getTickAtPriceString(coverPositionData.lowerPrice, parseInt(coverPoolData.volatilityTier.tickSpread)),
       tokenIn,
       tokenOut,
       coverAmountIn,
       signer
     );
+
+    setMintGasFee(newMintGasFee.formattedPrice);
     setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
   }
 
