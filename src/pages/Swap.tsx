@@ -1,14 +1,14 @@
 import {
   AdjustmentsHorizontalIcon,
   ArrowSmallDownIcon,
-  XMarkIcon
-} from '@heroicons/react/24/outline'
-import { useState, useEffect, Fragment } from 'react'
-import { Popover, Transition } from '@headlessui/react'
-import { ChevronDownIcon, ArrowPathIcon } from '@heroicons/react/20/solid'
-import SelectToken from '../components/SelectToken'
-import useInputBox from '../hooks/useInputBox'
-import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton'
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import { useState, useEffect, Fragment } from "react";
+import { Popover, Transition } from "@headlessui/react";
+import { ChevronDownIcon, ArrowPathIcon } from "@heroicons/react/20/solid";
+import SelectToken from "../components/SelectToken";
+import useInputBox from "../hooks/useInputBox";
+import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import {
   erc20ABI,
   useAccount,
@@ -157,6 +157,14 @@ export default function Swap() {
     state.setMintGasLimit,
   ]);
 
+  console.log('///////////////////////////////')
+  console.log("tokenIn", tokenIn);
+  console.log('tokenInRangeUSDPrice', tokenInRangeUSDPrice);
+  console.log('tokenInCoverUSDPrice', tokenInCoverUSDPrice);
+  console.log("tokenOut", tokenOut);
+  console.log('tokenOutRangeUSDPrice', tokenOutRangeUSDPrice);
+  console.log('tokenOutCoverUSDPrice', tokenOutCoverUSDPrice);
+
   //false when user in normal swap, true when user in limit swap
   const [limitTabSelected, setLimitTabSelected] = useState(false);
 
@@ -228,7 +236,7 @@ export default function Swap() {
         );
       }
     }
-  }, [rangePoolData, coverPoolData]);
+  }, [rangePoolData, coverPoolData, tokenIn, tokenOut]);
 
   ////////////////////////////////Balances
 
@@ -706,7 +714,6 @@ export default function Swap() {
 
   ////////////////////////////////
   const [expanded, setExpanded] = useState(false);
-  
 
   const Option = () => {
     if (expanded) {
@@ -999,7 +1006,8 @@ export default function Swap() {
             <div className="flex">
               <div className="flex text-xs text-[#4C4C4C]">
                 ~$
-                {pairSelected || parseFloat(ethers.utils.formatUnits(bnInput, 18)) !== 0 ? (
+                {pairSelected ||
+                parseFloat(ethers.utils.formatUnits(bnInput, 18)) !== 0 ? (
                   tokenOutRangeUSDPrice || tokenOutCoverUSDPrice ? (
                     !limitTabSelected ? (
                       //swap page
@@ -1012,7 +1020,11 @@ export default function Swap() {
                       // limit page TODO tokenOutRangeUSDPrice should be changed by tokenOutLimitUSDPrice when implemented
                       (
                         parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                        parseFloat(limitPrice) 
+                        parseFloat(
+                          rangeQuote >= coverQuote
+                            ? (rangeQuote * parseFloat(limitPrice)).toFixed(2)
+                            : (coverQuote * parseFloat(limitPrice)).toFixed(2)
+                        )
                       ).toFixed(2)
                     )
                   ) : (
@@ -1042,9 +1054,7 @@ export default function Swap() {
 
                 <div className="flex items-center justify-end gap-2 px-1 mt-2">
                   <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]">
-                  {pairSelected ? (
-                    "Balance: " + tokenOutBalance) :
-                    <></>}
+                    {pairSelected ? "Balance: " + tokenOutBalance : <></>}
                   </div>
                 </div>
               </div>

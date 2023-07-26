@@ -151,10 +151,20 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
         }));
       } else {
         //if tokens are different
-        set(() => ({
+        set((state) => ({
           tokenIn: {
-            callId: newToken.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
+            callId:
+              newToken.address.localeCompare(state.tokenOut.address) < 0
+                ? 0
+                : 1,
             ...newToken,
+          },
+          tokenOut: {
+            callId:
+              newToken.address.localeCompare(state.tokenOut.address) < 0
+                ? 1
+                : 0,
+            ...state.tokenOut,
           },
           pairSelected: true,
         }));
@@ -298,8 +308,26 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   },
   switchDirection: () => {
     set((state) => ({
-      tokenIn: state.tokenOut,
-      tokenOut: state.tokenIn,
+      tokenIn: {
+        callId:
+          state.tokenOut.address.localeCompare(state.tokenIn.address) < 0
+            ? 0
+            : 1,
+        name: state.tokenOut.name,
+        symbol: state.tokenOut.symbol,
+        logoURI: state.tokenOut.logoURI,
+        address: state.tokenOut.address,
+      },
+      tokenOut: {
+        callId:
+          state.tokenOut.address.localeCompare(state.tokenIn.address) < 0
+            ? 1
+            : 0,
+        name: state.tokenIn.name,
+        symbol: state.tokenIn.symbol,
+        logoURI: state.tokenIn.logoURI,
+        address: state.tokenIn.address,
+      },
     }));
   },
   resetSwapParams: () => {
