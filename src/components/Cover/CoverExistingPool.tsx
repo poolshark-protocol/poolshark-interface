@@ -146,7 +146,7 @@ export default function CoverExistingPool({ goBack }) {
     if (coverPoolData.latestTick) {
       updatePositionData();
     }
-  }, [coverPoolData]);
+  }, [coverPoolData, coverPoolAddress]);
 
   async function updatePositionData() {
     const tickAtPrice = Number(coverPoolData.latestTick);
