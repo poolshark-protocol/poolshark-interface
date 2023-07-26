@@ -105,7 +105,7 @@ export default function ConcentratedPoolPreview({ fee }) {
   async function updateGasFee() {
     console.log('lower range price string', rangePositionData.lowerPrice)
     console.log('upper range price string', rangePositionData.upperPrice)
-    console.log('tick spacing', rangePoolData.tickSpacing)
+    console.log('tick spacing', rangePoolData.feeTier.tickSpacing)
 
     const newGasFee = await gasEstimateRangeMint(
       rangePoolAddress,
@@ -113,13 +113,13 @@ export default function ConcentratedPoolPreview({ fee }) {
       BigNumber.from(
         TickMath.getTickAtPriceString(
           rangePositionData.lowerPrice,
-          parseInt(rangePoolData.tickSpacing)
+          parseInt(rangePoolData.feeTier.tickSpacing)
         )
       ),
       BigNumber.from(
           TickMath.getTickAtPriceString(
             rangePositionData.upperPrice,
-            parseInt(rangePoolData.tickSpacing)
+            parseInt(rangePoolData.feeTier.tickSpacing)
           )
         ),
       tokenInAmount,
@@ -342,7 +342,7 @@ export default function ConcentratedPoolPreview({ fee }) {
                                 ? BigNumber.from(
                                     TickMath.getTickAtPriceString(
                                       rangePositionData.lowerPrice,
-                                      parseInt(rangePoolData.tickSpacing)
+                                      parseInt(rangePoolData.feeTier.tickSpacing)
                                     )
                                   )
                                 : BN_ZERO
@@ -352,7 +352,7 @@ export default function ConcentratedPoolPreview({ fee }) {
                                 ? BigNumber.from(
                                     TickMath.getTickAtPriceString(
                                       rangePositionData.upperPrice,
-                                      parseInt(rangePoolData.tickSpacing)
+                                      parseInt(rangePoolData.feeTier.tickSpacing)
                                     )
                                   )
                                 : BN_ZERO
