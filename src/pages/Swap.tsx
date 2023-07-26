@@ -157,13 +157,13 @@ export default function Swap() {
     state.setMintGasLimit,
   ]);
 
-  console.log('///////////////////////////////')
+  console.log("///////////////////////////////");
   console.log("tokenIn", tokenIn);
-  console.log('tokenInRangeUSDPrice', tokenInRangeUSDPrice);
-  console.log('tokenInCoverUSDPrice', tokenInCoverUSDPrice);
+  console.log("tokenInRangeUSDPrice", tokenInRangeUSDPrice);
+  console.log("tokenInCoverUSDPrice", tokenInCoverUSDPrice);
   console.log("tokenOut", tokenOut);
-  console.log('tokenOutRangeUSDPrice', tokenOutRangeUSDPrice);
-  console.log('tokenOutCoverUSDPrice', tokenOutCoverUSDPrice);
+  console.log("tokenOutRangeUSDPrice", tokenOutRangeUSDPrice);
+  console.log("tokenOutCoverUSDPrice", tokenOutCoverUSDPrice);
 
   //false when user in normal swap, true when user in limit swap
   const [limitTabSelected, setLimitTabSelected] = useState(false);
@@ -665,6 +665,11 @@ export default function Swap() {
   const [limitPriceSwitch, setLimitPriceSwitch] = useState(true);
   const [limitPriceInput, setLimitPriceInput] = useState("0");
 
+  console.log("limit price", limitPrice);
+  console.log("limit price switch", limitPriceSwitch);
+  console.log("limit price input", limitPriceInput);
+  console.log("///////////////////////////////");
+
   useEffect(() => {
     setLimitPriceInput(
       limitPriceSwitch
@@ -672,9 +677,11 @@ export default function Swap() {
         : (tokenOutRangeUSDPrice / tokenInRangeAllowance).toPrecision(6)
     );
     setLimitPrice(
-      (tokenInRangeUSDPrice / tokenOutRangeUSDPrice).toPrecision(6)
+      limitPriceSwitch
+        ? (tokenInRangeUSDPrice / tokenOutRangeUSDPrice).toPrecision(6)
+        : (tokenOutRangeUSDPrice / tokenInRangeAllowance).toPrecision(6)
     );
-  }, [tokenIn, tokenOut]);
+  }, [tokenInRangeUSDPrice, tokenOutRangeUSDPrice]);
 
   useEffect(() => {
     if (parseFloat(limitPriceInput) > 0)
@@ -687,13 +694,7 @@ export default function Swap() {
   }, [limitPriceSwitch]);
 
   useEffect(() => {
-    if (limitPriceSwitch) {
-      setLimitPrice(limitPriceInput);
-    } else {
-      if (parseFloat(limitPriceInput) > 0)
-        setLimitPrice((1 / parseFloat(limitPriceInput)).toPrecision(6));
-      else setLimitPrice("0");
-    }
+    setLimitPrice(limitPriceInput);
   }, [limitPriceInput]);
 
   ////////////////////////////////Button states for swap
@@ -1078,17 +1079,40 @@ export default function Swap() {
                   }}
                 />
                 <></>
-                {/*TODO - fix market price comparion when switch directions*/}
                 <div className="flex">
                   <div className="flex text-[10px] md:text-xs text-[#4C4C4C]">
                     {pairSelected && rangePrice > 0
-                      ? (parseFloat(limitPrice) / rangePrice - 1) * 100 > 0
+                      ? limitPriceSwitch
+                        ? (parseFloat(limitPrice) / rangePrice - 1) * 100 > 0
+                          ? (
+                              (parseFloat(limitPrice) / rangePrice - 1) *
+                              100
+                            ).toFixed(2) + "% above Market Price"
+                          : Math.abs(
+                              (parseFloat(limitPrice) / rangePrice - 1) * 100
+                            ).toFixed(2) + "% below Market Price"
+                        : (parseFloat(limitPrice) /
+                            Number(
+                              invertPrice(rangePrice.toString(), tokenOrder)
+                            ) -
+                            1) *
+                            100 >
+                          0
                         ? (
-                            (parseFloat(limitPrice) / rangePrice - 1) *
+                            (parseFloat(limitPrice) /
+                              Number(
+                                invertPrice(rangePrice.toString(), tokenOrder)
+                              ) -
+                              1) *
                             100
                           ).toFixed(2) + "% above Market Price"
                         : Math.abs(
-                            (parseFloat(limitPrice) / rangePrice - 1) * 100
+                            (parseFloat(limitPrice) /
+                              Number(
+                                invertPrice(rangePrice.toString(), tokenOrder)
+                              ) -
+                              1) *
+                              100
                           ).toFixed(2) + "% below Market Price"
                       : "0.00% above Market Price"}
                   </div>
