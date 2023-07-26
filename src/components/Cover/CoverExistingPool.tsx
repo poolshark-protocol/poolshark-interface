@@ -439,8 +439,8 @@ export default function CoverExistingPool({ goBack }) {
     const newMintGasFee = await gasEstimateCoverMint(
       coverPoolAddress,
       address,
-      TickMath.getTickAtPriceString(coverPositionData.upperPrice, parseInt(coverPositionData.tickSpacing)),
-      TickMath.getTickAtPriceString(coverPositionData.lowerPrice, parseInt(coverPositionData.tickSpacing)),
+      TickMath.getTickAtPriceString(coverPositionData.upperPrice, parseInt(coverPoolData.volatilityTier.tickSpread)),
+      TickMath.getTickAtPriceString(coverPositionData.lowerPrice, parseInt(coverPoolData.volatilityTier.tickSpread)),
       tokenIn,
       tokenOut,
       coverAmountIn,
