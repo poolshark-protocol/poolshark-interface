@@ -51,7 +51,6 @@ export default function CreateCover(props: any) {
     setTokenInBalance,
     setTokenInAllowance,
     tokenOut,
-    tokenOutCoverUSDPrice,
     setTokenOut,
     setTokenOutCoverUSDPrice,
     pairSelected,
@@ -70,7 +69,6 @@ export default function CreateCover(props: any) {
     state.setTokenInBalance,
     state.setTokenInCoverAllowance,
     state.tokenOut,
-    state.tokenOutCoverUSDPrice,
     state.setTokenOut,
     state.setTokenOutCoverUSDPrice,
     state.pairSelected,
@@ -375,7 +373,12 @@ export default function CreateCover(props: any) {
   useEffect(() => {
     if (coverPositionData.lowerPrice && coverPositionData.upperPrice)
       updateGasFee();
-  }, [tokenIn]);
+  }, [coverPositionData.lowerPrice,
+    coverPositionData.upperPrice,
+    coverAmountIn,
+    coverAmountOut,
+    tokenIn,
+    tokenOut,]);
 
   async function updateGasFee() {
     const newMintGasFee = await gasEstimateCoverMint(
