@@ -430,8 +430,6 @@ export default function Swap() {
   };
 
   ////////////////////////////////Prices
-  const [limitPrice, setLimitPrice] = useState("0");
-
   const [coverPrice, setCoverPrice] = useState(0);
   const [rangePrice, setRangePrice] = useState(0);
 
@@ -487,12 +485,6 @@ export default function Swap() {
         setRangePrice(
           parseFloat(TickMath.getPriceStringAtSqrtPrice(priceRange[5]))
         );
-        if (parseFloat(limitPrice) == 0)
-          setLimitPrice(
-            parseFloat(
-              TickMath.getPriceStringAtSqrtPrice(priceRange[5])
-            ).toPrecision(5)
-          );
       }
     }
   }, [priceCover, priceRange]);
@@ -527,34 +519,65 @@ export default function Swap() {
     }
   }, [slippage, rangeBnPrice, coverBnPrice]);
 
+  ////////////////////////////////Limit Price Switch
+  const [limitPrice, setLimitPrice] = useState(0);
+  const [limitPriceOrder, setLimitPriceOrder] = useState(true);
+  const [limitPriceInput, setLimitPriceInput] = useState("0");
+
+  console.log("limit price", limitPrice);
+  console.log("limit price switch", limitPriceOrder);
+  console.log("limit price input", limitPriceInput);
+  console.log("///////////////////////////////");
+
+  useEffect(() => {
+    setLimitPriceInput(
+      (tokenInRangeUSDPrice / tokenOutRangeUSDPrice).toPrecision(6).toString()
+    );
+    setLimitPrice(tokenInRangeUSDPrice / tokenOutRangeUSDPrice);
+  }, [tokenOutRangeUSDPrice, tokenInRangeUSDPrice]);
+
+  useEffect(() => {
+    setLimitPriceInput(
+      (tokenOutRangeUSDPrice / tokenInRangeUSDPrice).toPrecision(6).toString()
+    );
+    setLimitPrice(tokenInRangeUSDPrice / tokenOutRangeUSDPrice);
+  }, [limitPriceOrder]);
+
+  useEffect(() => {
+    setLimitPrice(parseFloat(limitPriceInput));
+  }, [limitPriceInput]);
+
   ////////////////////////////////Limit Ticks
   const [lowerTick, setLowerTick] = useState(BN_ZERO);
   const [upperTick, setUpperTick] = useState(BN_ZERO);
 
   useEffect(() => {
-    if (slippage && limitPrice && rangePoolData?.feeTier?.tickSpacing) {
+    if (slippage && limitPriceInput && rangePoolData?.feeTier?.tickSpacing) {
       console.log("ready to update limit ticks");
       updateLimitTicks();
     }
-  }, [limitPrice, slippage]);
+  }, [limitPriceInput, slippage]);
 
   function updateLimitTicks() {
-    console.log("limit price on tick", limitPrice);
+    console.log("limit price on tick", limitPriceInput);
     const tickSpacing = rangePoolData.feeTier.tickSpacing;
-    if (isFinite(parseFloat(limitPrice)) && parseFloat(limitPrice) > 0) {
+    if (
+      isFinite(parseFloat(limitPriceInput)) &&
+      parseFloat(limitPriceInput) > 0
+    ) {
       if (
         parseFloat(slippage) * 100 > tickSpacing &&
-        parseFloat(limitPrice) > 0
+        parseFloat(limitPriceInput) > 0
       ) {
         const limitPriceTolerance =
-          (parseFloat(limitPrice) *
+          (parseFloat(limitPriceInput) *
             parseFloat((parseFloat(slippage) * 100).toFixed(6))) /
           10000;
         if (tokenOrder) {
-          const endPrice = parseFloat(limitPrice) - -limitPriceTolerance;
+          const endPrice = parseFloat(limitPriceInput) - -limitPriceTolerance;
           setLowerTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(limitPrice, tickSpacing)
+              TickMath.getTickAtPriceString(limitPriceInput, tickSpacing)
             )
           );
           console.log("lower limit tick set", lowerTick);
@@ -565,7 +588,7 @@ export default function Swap() {
           );
           console.log("upper limit tick set", upperTick);
         } else {
-          const endPrice = parseFloat(limitPrice) - limitPriceTolerance;
+          const endPrice = parseFloat(limitPriceInput) - limitPriceTolerance;
           setLowerTick(
             BigNumber.from(
               TickMath.getTickAtPriceString(String(endPrice), tickSpacing)
@@ -574,7 +597,7 @@ export default function Swap() {
           console.log("lower limit tick set", lowerTick);
           setUpperTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(limitPrice, tickSpacing)
+              TickMath.getTickAtPriceString(limitPriceInput, tickSpacing)
             )
           );
           console.log("upper limit tick set", upperTick);
@@ -582,12 +605,12 @@ export default function Swap() {
       } else {
         if (tokenOrder) {
           const endTick =
-            TickMath.getTickAtPriceString(limitPrice, tickSpacing) -
+            TickMath.getTickAtPriceString(limitPriceInput, tickSpacing) -
             -tickSpacing;
           console.log("end tick", endTick);
           setLowerTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(limitPrice, tickSpacing)
+              TickMath.getTickAtPriceString(limitPriceInput, tickSpacing)
             )
           );
           console.log("lower limit tick set", lowerTick);
@@ -595,13 +618,13 @@ export default function Swap() {
           console.log("upper limit tick set", upperTick);
         } else {
           const endTick =
-            TickMath.getTickAtPriceString(limitPrice, tickSpacing) -
+            TickMath.getTickAtPriceString(limitPriceInput, tickSpacing) -
             tickSpacing;
           setLowerTick(BigNumber.from(String(endTick)));
           console.log("lower limit tick set", lowerTick);
           setUpperTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(limitPrice, tickSpacing)
+              TickMath.getTickAtPriceString(limitPriceInput, tickSpacing)
             )
           );
           console.log("upper limit tick set", upperTick);
@@ -661,42 +684,6 @@ export default function Swap() {
     );
   }
 
-  ////////////////////////////////Limit Price Switch
-  const [limitPriceSwitch, setLimitPriceSwitch] = useState(true);
-  const [limitPriceInput, setLimitPriceInput] = useState("0");
-
-  console.log("limit price", limitPrice);
-  console.log("limit price switch", limitPriceSwitch);
-  console.log("limit price input", limitPriceInput);
-  console.log("///////////////////////////////");
-
-  useEffect(() => {
-    setLimitPriceInput(
-      limitPriceSwitch
-        ? (tokenInRangeUSDPrice / tokenOutRangeUSDPrice).toPrecision(6)
-        : (tokenOutRangeUSDPrice / tokenInRangeAllowance).toPrecision(6)
-    );
-    setLimitPrice(
-      limitPriceSwitch
-        ? (tokenInRangeUSDPrice / tokenOutRangeUSDPrice).toPrecision(6)
-        : (tokenOutRangeUSDPrice / tokenInRangeAllowance).toPrecision(6)
-    );
-  }, [tokenInRangeUSDPrice, tokenOutRangeUSDPrice]);
-
-  useEffect(() => {
-    if (parseFloat(limitPriceInput) > 0)
-      setLimitPriceInput(
-        (1 / parseFloat(limitPriceInput))
-          .toPrecision(6)
-          .replace(/0+$/, "")
-          .replace(/(\.)(?!\d)/g, "")
-      );
-  }, [limitPriceSwitch]);
-
-  useEffect(() => {
-    setLimitPrice(limitPriceInput);
-  }, [limitPriceInput]);
-
   ////////////////////////////////Button states for swap
   const [buttonState, setButtonState] = useState("");
 
@@ -742,7 +729,7 @@ export default function Swap() {
                   ? "0"
                   : (
                       parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                      parseFloat(limitPrice)
+                      limitPrice
                     ).toFixed(2)
                 : "Select Token"}
             </div>
@@ -975,6 +962,7 @@ export default function Swap() {
               className="w-4 h-4"
               onClick={() => {
                 switchDirection();
+                setLimitPriceOrder(!limitPriceOrder);
               }}
             />
           }
@@ -995,7 +983,7 @@ export default function Swap() {
                   <div>
                     {(
                       parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                      parseFloat(limitPrice)
+                      limitPrice
                     ).toFixed(2)}
                   </div>
                 )
@@ -1021,11 +1009,7 @@ export default function Swap() {
                       // limit page TODO tokenOutRangeUSDPrice should be changed by tokenOutLimitUSDPrice when implemented
                       (
                         parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                        parseFloat(
-                          rangeQuote >= coverQuote
-                            ? (rangeQuote * parseFloat(limitPrice)).toFixed(2)
-                            : (coverQuote * parseFloat(limitPrice)).toFixed(2)
-                        )
+                        limitPrice
                       ).toFixed(2)
                     )
                   ) : (
@@ -1082,35 +1066,35 @@ export default function Swap() {
                 <div className="flex">
                   <div className="flex text-[10px] md:text-xs text-[#4C4C4C]">
                     {pairSelected && rangePrice > 0
-                      ? limitPriceSwitch
-                        ? (parseFloat(limitPrice) / rangePrice - 1) * 100 > 0
+                      ? //switcher tokenOrder
+                        limitPriceOrder
+                        ? //when normal order tokenIn/tokenOut
+                          (parseFloat(limitPriceInput) / tokenInRangeUSDPrice -
+                            1) *
+                            100 >
+                          0
                           ? (
-                              (parseFloat(limitPrice) / rangePrice - 1) *
+                              (limitPrice / tokenInRangeUSDPrice - 1) *
                               100
                             ).toFixed(2) + "% above Market Price"
                           : Math.abs(
-                              (parseFloat(limitPrice) / rangePrice - 1) * 100
+                              (limitPrice / tokenInRangeUSDPrice - 1) * 100
                             ).toFixed(2) + "% below Market Price"
-                        : (parseFloat(limitPrice) /
-                            Number(
-                              invertPrice(rangePrice.toString(), tokenOrder)
-                            ) -
+                        : //when inverted order tokenOut/tokenIn
+                        (limitPrice /
+                            Number(invertPrice(tokenInRangeUSDPrice, false)) -
                             1) *
                             100 >
                           0
                         ? (
-                            (parseFloat(limitPrice) /
-                              Number(
-                                invertPrice(rangePrice.toString(), tokenOrder)
-                              ) -
+                            (limitPrice /
+                              Number(invertPrice(tokenInRangeUSDPrice, false)) -
                               1) *
                             100
                           ).toFixed(2) + "% above Market Price"
                         : Math.abs(
-                            (parseFloat(limitPrice) /
-                              Number(
-                                invertPrice(rangePrice.toString(), tokenOrder)
-                              ) -
+                            (limitPrice /
+                              Number(invertPrice(tokenInRangeUSDPrice, false)) -
                               1) *
                               100
                           ).toFixed(2) + "% below Market Price"
@@ -1130,9 +1114,9 @@ export default function Swap() {
                       ) : (
                         <button
                           className="flex md:text-sm text-xs items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
-                          onClick={() => setLimitPriceSwitch(!limitPriceSwitch)}
+                          onClick={() => setLimitPriceOrder(!limitPriceOrder)}
                         >
-                          {limitPriceSwitch
+                          {limitPriceOrder
                             ? tokenOut.symbol + " per " + tokenIn.symbol
                             : tokenIn.symbol + " per " + tokenOut.symbol}
 
