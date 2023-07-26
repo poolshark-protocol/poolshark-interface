@@ -6,7 +6,7 @@ import {
 } from '@heroicons/react/20/solid'
 import { useState, useEffect } from 'react'
 import RangeCompoundButton from '../../../components/Buttons/RangeCompoundButton'
-import { useAccount, useSigner } from 'wagmi'
+import { useAccount } from 'wagmi'
 import { BigNumber, ethers } from 'ethers'
 import { TickMath } from '../../../utils/math/tickMath'
 import JSBI from 'jsbi'
@@ -43,7 +43,6 @@ export default function Range() {
   ])
 
   const { address, isConnected } = useAccount()
-  const { data: signer } = useSigner()
 
   const [snapshot, setSnapshot] = useState(undefined)
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -446,7 +445,6 @@ export default function Range() {
                       address={address}
                       lower={BigNumber.from(rangePositionData.min)}
                       upper={BigNumber.from(rangePositionData.max)}
-                      signer={signer}
                     />
                   </div>
                 </div>

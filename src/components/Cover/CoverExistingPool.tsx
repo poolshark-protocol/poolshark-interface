@@ -10,7 +10,6 @@ import {
   erc20ABI,
   useAccount,
   useContractRead,
-  useBalance,
   useSigner,
   useProvider,
 } from "wagmi";
@@ -22,36 +21,25 @@ import JSBI from "jsbi";
 import { Listbox, Transition } from "@headlessui/react";
 import {
   TickMath,
-  getDefaultLowerPrice,
-  getDefaultLowerTick,
-  getDefaultUpperPrice,
-  getDefaultUpperTick,
   roundTick,
 } from "../../utils/math/tickMath";
-import { coverPoolABI } from "../../abis/evm/coverPool";
-import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
-import { token } from "../../utils/types";
-import { feeTiers, getCoverPool, getCoverPoolInfo } from "../../utils/pools";
+import { getCoverPool } from "../../utils/pools";
 import {
   fetchCoverTokenUSDPrice,
-  fetchTokenPrices,
-  switchDirection,
 } from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
 import TickSpacing from "../Tooltips/TickSpacing";
 import { getCoverPoolFromFactory } from "../../utils/queries";
 import { gasEstimateCoverMint } from "../../utils/gas";
-import JSBD from "jsbd";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
 import useInputBox from "../../hooks/useInputBox";
 import { getBalances } from "../../utils/balances";
 import { useRangeStore } from "../../hooks/useRangeStore";
-import { CoinStatus } from "fuels";
 import { invertPrice } from "../../utils/math/tickMath";
-import { parse } from "graphql";
 
 export default function CoverExistingPool({ goBack }) {
   const [
@@ -62,22 +50,13 @@ export default function CoverExistingPool({ goBack }) {
     setCoverPoolData,
     setCoverPositionData,
     tokenIn,
-    tokenInAmount,
     tokenInCoverUSDPrice,
     tokenInBalance,
-    tokenInAllowance,
-    setTokenIn,
-    setTokenInAmount,
     setTokenInCoverUSDPrice,
     setTokenInBalance,
     setTokenInAllowance,
     tokenOut,
-    tokenOutCoverUSDPrice,
-    tokenOutBalance,
-    tokenOutAllowance,
-    setTokenOut,
     setTokenOutCoverUSDPrice,
-    setTokenOutBalance,
     setTokenOutAllowance,
     pairSelected,
   ] = useCoverStore((state) => [
@@ -88,22 +67,13 @@ export default function CoverExistingPool({ goBack }) {
     state.setCoverPoolData,
     state.setCoverPositionData,
     state.tokenIn,
-    state.tokenInAmount,
     state.tokenInCoverUSDPrice,
     state.tokenInBalance,
-    state.tokenInCoverAllowance,
-    state.setTokenIn,
-    state.setTokenInAmount,
     state.setTokenInCoverUSDPrice,
     state.setTokenInBalance,
     state.setTokenInCoverAllowance,
     state.tokenOut,
-    state.tokenOutCoverUSDPrice,
-    state.tokenOutBalance,
-    state.tokenOutCoverAllowance,
-    state.setTokenOut,
     state.setTokenOutCoverUSDPrice,
-    state.setTokenOutBalance,
     state.setTokenOutCoverAllowance,
     state.pairSelected,
   ]);
@@ -469,8 +439,8 @@ export default function CoverExistingPool({ goBack }) {
     const newMintGasFee = await gasEstimateCoverMint(
       coverPoolAddress,
       address,
-      parseInt(coverPositionData.upperPrice),
-      parseInt(coverPositionData.lowerPrice),
+      TickMath.getTickAtPriceString(coverPositionData.upperPrice, parseInt(coverPositionData.tickSpacing)),
+      TickMath.getTickAtPriceString(coverPositionData.lowerPrice, parseInt(coverPositionData.tickSpacing)),
       tokenIn,
       tokenOut,
       coverAmountIn,
@@ -977,13 +947,6 @@ export default function CoverExistingPool({ goBack }) {
             lower={
               coverPositionData.lowerPrice
                 ? TickMath.getTickAtPriceString(coverPositionData.lowerPrice)
-                : 0
-            }
-            claim={
-              coverPositionData.lowerPrice && coverPositionData.upperPrice
-                ? tokenOrder
-                  ? TickMath.getTickAtPriceString(coverPositionData.upperPrice)
-                  : TickMath.getTickAtPriceString(coverPositionData.lowerPrice)
                 : 0
             }
             upper={

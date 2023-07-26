@@ -1,4 +1,3 @@
-import { ethers, BigNumber } from "ethers";
 import {
   usePrepareContractWrite,
   useContractWrite,
@@ -9,24 +8,21 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
-import { coverPoolAddress } from "../../constants/contractAddresses";
-import { useCoverStore } from "../../hooks/useStore";
 import { roundTick } from "../../utils/math/tickMath";
-import { BN_ZERO } from "../../utils/math/constants";
+import { BigNumber } from "ethers";
 
 export default function CoverMintButton({
   poolAddress,
   disabled,
   to,
   lower,
-  claim,
   upper,
   amount,
   zeroForOne,
   tickSpacing,
   buttonState,
-  gasLimit,
   tokenSymbol,
+  gasLimit,
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
@@ -39,16 +35,16 @@ export default function CoverMintButton({
       [
         to,
         amount,
-        roundTick(Number(lower), tickSpacing),
-        roundTick(Number(upper), tickSpacing),
+        BigNumber.from(roundTick(Number(lower), tickSpacing)),
+        BigNumber.from(roundTick(Number(upper), tickSpacing)),
         zeroForOne,
       ],
     ],
+    overrides: {
+      gasLimit: gasLimit,
+    },
     enabled: !disabled,
     chainId: 421613,
-    overrides: {
-      gasLimit: BigNumber.from("3000000"),
-    },
   });
 
   const { data, write } = useContractWrite(config);
@@ -66,7 +62,7 @@ export default function CoverMintButton({
   return (
     <>
       <button
-        disabled={disabled}
+        disabled={disabled || gasLimit.lte(BigNumber.from(0))}
         className={
           disabled
             ? "w-full py-4 mx-auto font-medium text-center text-sm md:text-base transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50"

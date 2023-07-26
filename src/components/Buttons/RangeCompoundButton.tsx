@@ -2,47 +2,18 @@ import {
     usePrepareContractWrite,
     useContractWrite,
     useWaitForTransaction,
-    useSigner,
 } from 'wagmi';
 import { rangePoolABI } from "../../abis/evm/rangePool";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
-import React, { useEffect, useState } from "react";
-import { gasEstimateRangeBurn } from '../../utils/gas';
+import React, { useState } from "react";
 import { BN_ZERO } from '../../utils/math/constants';
 
-export default function RangeCompoundButton({ poolAddress, address, lower, upper, signer }) {
+export default function RangeCompoundButton({ poolAddress, address, lower, upper }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
-  const [ fetchDelay, setFetchDelay ] = useState(false)
-  const [ gasLimit, setGasLimit ] = useState(BN_ZERO)
-
-  useEffect(() => {
-    if (!fetchDelay) {
-      updateGasFee()
-    } else {
-      const interval = setInterval(() => {
-        updateGasFee()
-      }, 3000)
-      return () => clearInterval(interval)
-    }
-  }, [])
-
-  async function updateGasFee() {
-    const newBurnGasFee = await gasEstimateRangeBurn(
-      poolAddress,
-      address,
-      lower,
-      upper,
-      BN_ZERO,
-      signer
-    )
-    if (newBurnGasFee.gasUnits.gt(BN_ZERO)) setFetchDelay(true)
-
-    setGasLimit(newBurnGasFee.gasUnits.mul(130).div(100))
-  }
 
   //TO-DO: assess if collectFees() or collect true in burn
   const { config } = usePrepareContractWrite({
@@ -56,9 +27,6 @@ export default function RangeCompoundButton({ poolAddress, address, lower, upper
           BN_ZERO
         ]],
       chainId: 421613,
-      overrides:{
-          gasLimit: gasLimit
-      },
   })
 
   const { data, isSuccess, write } = useContractWrite(config)
@@ -79,7 +47,7 @@ export default function RangeCompoundButton({ poolAddress, address, lower, upper
           onClick={() => {
             address ?  write?.() : null
           }}
-          disabled={gasLimit.gt(BN_ZERO) ? false : true}
+          disabled={false}
               >
               Compound position
       </button>
