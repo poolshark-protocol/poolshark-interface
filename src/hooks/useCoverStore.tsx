@@ -59,6 +59,7 @@ type CoverAction = {
   setGasLimit: (limit: BigNumber) => void;
   //reset
   resetSwapParams: () => void;
+  switchDirection: () => void;
 };
 
 const initialCoverState: CoverState = {

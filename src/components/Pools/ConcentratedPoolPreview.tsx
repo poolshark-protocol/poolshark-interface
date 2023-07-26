@@ -364,7 +364,9 @@ export default function ConcentratedPoolPreview({ fee }) {
                                     TickMath.getTickAtPriceString(
                                       rangePositionData.lowerPrice,
                                       parseInt(
-                                        rangePoolData.feeTier.tickSpacing
+                                        rangePoolData.feeTier
+                                          ? rangePoolData.feeTier.tickSpacing
+                                          : 20
                                       )
                                     )
                                   )
@@ -376,7 +378,9 @@ export default function ConcentratedPoolPreview({ fee }) {
                                     TickMath.getTickAtPriceString(
                                       rangePositionData.upperPrice,
                                       parseInt(
-                                        rangePoolData.feeTier.tickSpacing ?? 20
+                                        rangePoolData.feeTier
+                                          ? rangePoolData.feeTier.tickSpacing
+                                          : 20
                                       )
                                     )
                                   )
