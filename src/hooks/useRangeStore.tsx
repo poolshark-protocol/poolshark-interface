@@ -68,6 +68,7 @@ type RangeAction = {
   setGasFee: (gasFee: BigNumber) => void;
   setGasLimit: (gasLimit: BigNumber) => void;
   //
+  switchDirection: () => void;
   resetRangeParams: () => void;
   //
   setDisabled: (disabled: boolean) => void;
