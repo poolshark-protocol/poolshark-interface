@@ -639,6 +639,11 @@ export default function Swap() {
   }
 
   async function updateMintFee() {
+
+    console.log('lower limit', lowerTick)
+    console.log('upper limit', upperTick)
+    console.log('zeroforone limit', tokenOrder)
+    
     await gasEstimateSwapLimit(
       rangePoolAddress,
       address,
