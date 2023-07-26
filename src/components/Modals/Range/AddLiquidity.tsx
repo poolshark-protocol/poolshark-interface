@@ -18,7 +18,6 @@ import { DyDxMath } from '../../../utils/math/dydxMath'
 import { getBalances } from '../../../utils/balances'
 import { chainIdsToNamesForGitTokenList } from '../../../utils/chains'
 import RangeMintDoubleApproveButton from '../../Buttons/RangeMintDoubleApproveButton'
-import { gasEstimateRangeMint } from '../../../utils/gas'
 import RangeMintApproveButton from '../../Buttons/RangeMintApproveButton'
 import { useRangeStore } from '../../../hooks/useRangeStore'
 
@@ -47,25 +46,20 @@ export default function RangeAddLiquidity({
     bnInput,
     inputBox,
     maxBalance,
-    bnInputLimit,
-    LimitInputBox,
   } = useInputBox()
   const { data: signer } = useSigner()
   const [balanceIn, setBalanceIn] = useState('')
   const [balanceOut, setBalanceOut] = useState('')
   const [amount0, setAmount0] = useState(BN_ZERO)
   const [amount1, setAmount1] = useState(BN_ZERO)
+  const [disabled, setDisabled] = useState(false)
   const [allowanceIn, setAllowanceIn] = useState(BN_ZERO)
   const [allowanceOut, setAllowanceOut] = useState(BN_ZERO)
-  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
-  const [mintGasFee, setMintGasFee] = useState('$0.00')
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(rangePositionData.min))
   const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(rangePositionData.max))
   const [stateChainName, setStateChainName] = useState()
   const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
-  const { isDisconnected, isConnected } = useAccount()
-  const [disabled, setDisabled] = useState(true)
-  const [ fetchDelay, setFetchDelay ] = useState(false)
+  const { isConnected } = useAccount()
   const [rangeSqrtPrice, setRangeSqrtPrice] = useState(JSBI.BigInt(rangePositionData.price))
   const [doubleApprove, setdoubleApprove] = useState(false)
   const [buttonState, setButtonState] = useState('')
@@ -174,23 +168,6 @@ export default function RangeAddLiquidity({
     )
   }
 
-  async function updateMintFee(tokenInAmount: BigNumber, tokenOutAmount: JSBI) {
-    const newGasFee = await gasEstimateRangeMint(
-      rangePoolAddress,
-      address,
-      BigNumber.from(rangePositionData.min),
-      BigNumber.from(rangePositionData.max),
-      tokenOrder ? tokenInAmount : BigNumber.from(String(tokenOutAmount)),
-      tokenOrder ? BigNumber.from(String(tokenOutAmount)) : tokenInAmount,
-      signer,
-    )
-    if (!fetchDelay && newGasFee.gasUnits.gt(BN_ZERO)) setFetchDelay(true)
-    setMintGasFee(newGasFee.formattedPrice)
-    setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
-    if (newGasFee.gasUnits.gt(0)) setDisabled(false)
-    else setDisabled(true)
-  }
-
       // disabled messages
       useEffect(() => {
         
@@ -208,7 +185,7 @@ export default function RangeAddLiquidity({
             Number(ethers.utils.formatUnits(amount1, 18)) > Number(balanceOut)
         ) {
           setDisabled(true)
-        } else if (mintGasLimit.gt(BN_ZERO)) { setDisabled(false)}
+        } else { setDisabled(false) }
       }, [bnInput, balanceIn, balanceOut, disabled])
 
 
@@ -244,10 +221,7 @@ export default function RangeAddLiquidity({
         tokenOrder
           ? setAmount1(BigNumber.from(String(tokenOutAmount)))
           : setAmount0(BigNumber.from(String(tokenOutAmount)))
-        updateMintFee(
-          bnInput,
-          tokenOutAmount
-        )
+        setDisabled(false)
       } else {
         setAmount1(BN_ZERO)
         setAmount0(BN_ZERO)
@@ -384,7 +358,6 @@ export default function RangeAddLiquidity({
                     amount0={amount0}
                     amount1={amount1}
                     disabled={disabled}
-                    gasLimit={mintGasLimit}
                   />
                   ) : (allowanceIn.lt(amount0) &&
                   allowanceOut.lt(amount1)) ||

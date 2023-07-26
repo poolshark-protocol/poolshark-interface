@@ -9,19 +9,15 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useEffect, useState } from "react";
-import { BigNumber } from "ethers";
-import { gasEstimateCoverMint, gasEstimateRangeBurn } from '../../utils/gas';
+import { gasEstimateRangeBurn } from '../../utils/gas';
 import { BN_ZERO } from '../../utils/math/constants';
 
-export default function RangeCompoundButton({ poolAddress, address, lower, upper }) {
+export default function RangeCompoundButton({ poolAddress, address, lower, upper, signer }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
   const [ fetchDelay, setFetchDelay ] = useState(false)
   const [ gasLimit, setGasLimit ] = useState(BN_ZERO)
-  const [ gasFee, setGasFee ] = useState('$0.00')
-
-  const {data: signer} = useSigner()
 
   useEffect(() => {
     if (!fetchDelay) {
@@ -44,8 +40,7 @@ export default function RangeCompoundButton({ poolAddress, address, lower, upper
       signer
     )
     if (newBurnGasFee.gasUnits.gt(BN_ZERO)) setFetchDelay(true)
-    
-    setGasFee(newBurnGasFee.formattedPrice)
+
     setGasLimit(newBurnGasFee.gasUnits.mul(130).div(100))
   }
 

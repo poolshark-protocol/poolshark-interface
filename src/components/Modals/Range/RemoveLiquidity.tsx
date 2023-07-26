@@ -1,14 +1,12 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useState } from 'react'
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useSigner } from "wagmi";
 import RangeRemoveLiqButton from "../../Buttons/RangeRemoveLiqButton";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ZERO } from "../../../utils/math/constants";
 import JSBI from "jsbi";
 import { DyDxMath } from "../../../utils/math/dydxMath";
 import { TickMath } from "../../../utils/math/tickMath";
-import { gasEstimateRangeBurn } from "../../../utils/gas";
 import { useRouter } from "next/router";
 import { useRangeStore } from "../../../hooks/useRangeStore";
 
@@ -34,36 +32,20 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
   const [sliderValue, setSliderValue] = useState(1)
   const [sliderOutput, setSliderOutput] = useState('1')
   const [burnPercent, setBurnPercent] = useState(BN_ZERO)
-  const [disabled, setDisabled] = useState(true)
   const [amount0, setAmount0] = useState(BN_ZERO)
   const [amount1, setAmount1] = useState(BN_ZERO)
   const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
   const [ rangeSqrtPrice, setRangeSqrtPrice ] = useState(JSBI.BigInt(rangePositionData.price))
-  const [ fetchDelay, setFetchDelay ] = useState(false)
-  const [ gasLimit, setGasLimit ] = useState(BN_ZERO)
-  const [ gasFee, setGasFee ] = useState('$0.00')
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(rangePositionData.min))
   const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(rangePositionData.max))
-  const {data: signer} = useSigner()
 
   useEffect(() => {
     const percentInput = sliderValue
-    //console.log('percent input', percentInput, rangePositionData.userTokenAmount, BigNumber.from(percentInput).mul(BigNumber.from(rangePositionData.userTokenAmount)).div(BigNumber.from(100)).toString())
-    if (percentInput <= 0 || percentInput > 100) {
-      setDisabled(true)
-      return
-    } else {
-      setDisabled(false)
-    }
     const tokenAmountToBurn = BigNumber.from(percentInput).mul(BigNumber.from(rangePositionData.userTokenAmount)).div(BigNumber.from(100))
     setBurnPercent(ethers.utils.parseUnits(sliderValue.toString(), 36))
     console.log('new burn percent', ethers.utils.parseUnits(sliderValue.toString(), 36).toString())
     setAmounts(JSBI.BigInt(tokenAmountToBurn), true)
   }, [sliderValue])
-
-  useEffect(() => {
-    updateGasFee()
-  }, [burnPercent])
 
   const handleChange = (event: any) => {
     if (Number(event.target.value) != 0) {
@@ -75,22 +57,6 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
   
   const handleSliderButton = (percent: number) => {
     setSliderValue(percent)
-  }
-
-  async function updateGasFee() {
-    //TODO: burnPercent value is correct here but still showing as '0' in gasEstimate function
-    const newBurnGasFee = await gasEstimateRangeBurn(
-      rangePoolAddress,
-      address,
-      BigNumber.from(rangePositionData.min),
-      BigNumber.from(rangePositionData.max),
-      burnPercent,
-      signer
-    )
-
-    if (!fetchDelay && newBurnGasFee.gasUnits.gt(BN_ZERO)) setFetchDelay(true)
-    setGasFee(newBurnGasFee.formattedPrice)
-    setGasLimit(newBurnGasFee.gasUnits.mul(200).div(100))
   }
 
   function setAmounts(liquidity: JSBI, changeDisplay = false) {
@@ -112,11 +78,6 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
         if (changeDisplay) setSliderOutput(Number(ethers.utils.formatUnits(tokenOrder ? amount0Bn : amount1Bn, 18)).toPrecision(6))
         setAmount0(amount0Bn) 
         setAmount1(amount1Bn)
-        setDisabled(false)
-      } else {
-        setAmount1(BN_ZERO) 
-        setAmount0(BN_ZERO)
-        setDisabled(true)
       }
     } catch (error) {
       console.log(error)
@@ -268,13 +229,11 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                   </div>
                 </div>
                 <RangeRemoveLiqButton
-                    disabled={disabled}
                     poolAddress={rangePoolAddress}
                     address={address}
                     lower={BigNumber.from(rangePositionData.min)}
                     upper={BigNumber.from(rangePositionData.max)}
                     burnPercent={burnPercent}
-                    gasLimit={gasLimit}
                     closeModal={() => 
                       {if (burnPercent.eq(ethers.utils.parseUnits('1', 38))) {
                         router.push('/pool')
