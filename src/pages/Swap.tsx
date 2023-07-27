@@ -157,8 +157,6 @@ export default function Swap() {
     state.setMintGasLimit,
   ]);
 
-  console.log("///////////////////////////////");
-
   //false when user in normal swap, true when user in limit swap
   const [limitTabSelected, setLimitTabSelected] = useState(false);
 
@@ -275,7 +273,7 @@ export default function Swap() {
       console.log("Error allowance", error);
     },
     onSuccess(data) {
-      console.log("Success allowance", data);
+      //console.log("Success allowance", data);
     },
   });
 
@@ -291,7 +289,7 @@ export default function Swap() {
       console.log("Error allowance", error);
     },
     onSuccess(data) {
-      console.log("Success allowance", data);
+      //console.log("Success allowance", data);
     },
   });
 
@@ -322,7 +320,7 @@ export default function Swap() {
       console.log("Error range wagmi", error);
     },
     onSettled(data, error) {
-      console.log("Settled range wagmi", { data, error });
+      //console.log("Settled range wagmi", { data, error });
     },
   });
 
@@ -338,7 +336,7 @@ export default function Swap() {
       console.log("Error cover wagmi", error);
     },
     onSettled(data, error) {
-      console.log("Settled", { data, error });
+      //console.log("Settled", { data, error });
     },
   });
 
@@ -445,7 +443,7 @@ export default function Swap() {
       console.log("Error price Range", error);
     },
     onSettled(data, error) {
-      console.log("Settled price Range", { data, error });
+      //console.log("Settled price Range", { data, error });
     },
   });
 
@@ -461,7 +459,7 @@ export default function Swap() {
       console.log("Error price Cover", error);
     },
     onSettled(data, error) {
-      console.log("Settled price Cover", { data, error });
+      //console.log("Settled price Cover", { data, error });
     },
   });
 
@@ -517,11 +515,6 @@ export default function Swap() {
   const [limitPriceOrder, setLimitPriceOrder] = useState(true);
   const [limitStringPrice, setLimitStringPrice] = useState("0");
 
-  console.log("token order", tokenOrder);
-  console.log("limit price order", limitPriceOrder);
-  console.log("limit price input", limitStringPrice);
-  console.log("///////////////////////////////");
-
   useEffect(() => {
     setLimitStringPrice(
       (tokenInRangeUSDPrice / tokenOutRangeUSDPrice).toPrecision(6).toString()
@@ -553,13 +546,11 @@ export default function Swap() {
 
   useEffect(() => {
     if (slippage && limitStringPrice && rangePoolData?.feeTier?.tickSpacing) {
-      //console.log("ready to update limit ticks");
       updateLimitTicks();
     }
   }, [limitStringPrice, slippage]);
 
   function updateLimitTicks() {
-    //console.log("limit price on tick", limitStringPrice);
     const tickSpacing = rangePoolData.feeTier.tickSpacing;
     if (
       isFinite(parseFloat(limitStringPrice)) &&
@@ -580,13 +571,11 @@ export default function Swap() {
               TickMath.getTickAtPriceString(limitStringPrice, tickSpacing)
             )
           );
-          console.log("lower limit tick set", lowerTick);
           setUpperTick(
             BigNumber.from(
               TickMath.getTickAtPriceString(String(endPrice), tickSpacing)
             )
           );
-          console.log("upper limit tick set", upperTick);
         } else {
           const endPrice = parseFloat(limitStringPrice) - limitPriceTolerance;
           setLowerTick(
@@ -594,40 +583,33 @@ export default function Swap() {
               TickMath.getTickAtPriceString(String(endPrice), tickSpacing)
             )
           );
-          console.log("lower limit tick set", lowerTick);
           setUpperTick(
             BigNumber.from(
               TickMath.getTickAtPriceString(limitStringPrice, tickSpacing)
             )
           );
-          console.log("upper limit tick set", upperTick);
         }
       } else {
         if (tokenOrder) {
           const endTick =
             TickMath.getTickAtPriceString(limitStringPrice, tickSpacing) -
             -tickSpacing;
-          console.log("end tick", endTick);
           setLowerTick(
             BigNumber.from(
               TickMath.getTickAtPriceString(limitStringPrice, tickSpacing)
             )
           );
-          console.log("lower limit tick set", lowerTick);
           setUpperTick(BigNumber.from(String(endTick)));
-          console.log("upper limit tick set", upperTick);
         } else {
           const endTick =
             TickMath.getTickAtPriceString(limitStringPrice, tickSpacing) -
             tickSpacing;
           setLowerTick(BigNumber.from(String(endTick)));
-          console.log("lower limit tick set", lowerTick);
           setUpperTick(
             BigNumber.from(
               TickMath.getTickAtPriceString(limitStringPrice, tickSpacing)
             )
           );
-          console.log("upper limit tick set", upperTick);
         }
       }
     }
