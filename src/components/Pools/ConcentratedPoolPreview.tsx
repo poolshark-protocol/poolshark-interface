@@ -6,11 +6,10 @@ import { erc20ABI, useAccount, useContractRead, useProvider } from "wagmi";
 import { TickMath } from "../../utils/math/tickMath";
 import RangeMintDoubleApproveButton from "../Buttons/RangeMintDoubleApproveButton";
 import { useRouter } from "next/router";
-import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
-import { gasEstimateRangeMint, gasEstimateSwapLimit } from "../../utils/gas";
 import RangeMintApproveButton from "../Buttons/RangeMintApproveButton";
 import { useRangeStore } from "../../hooks/useRangeStore";
-import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import { BN_ZERO } from "../../utils/math/constants";
+import { gasEstimateRangeMint } from "../../utils/gas";
 
 export default function ConcentratedPoolPreview({ fee }) {
   const [
@@ -20,32 +19,15 @@ export default function ConcentratedPoolPreview({ fee }) {
     tokenIn,
     tokenInAmount,
     tokenInRangeUSDPrice,
-    tokenInBalance,
     tokenInAllowance,
-    setTokenIn,
-    setTokenInAmount,
-    setTokenInRangeUSDPrice,
-    setTokenInBalance,
-    setTokenInAllowance,
     tokenOut,
     tokenOutAmount,
     tokenOutRangeUSDPrice,
-    tokenOutBalance,
     tokenOutAllowance,
-    setTokenOut,
-    setTokenOutAmount,
-    setTokenOutRangeUSDPrice,
-    setTokenOutBalance,
-    setTokenOutAllowance,
-    pairSelected,
     disabled,
-    setDisabled,
     buttonMessage,
-    setButtonMessage,
-    minInput,
-    maxInput,
-    setMinInput,
-    setMaxInput,
+    setTokenInAllowance,
+    setTokenOutAllowance,
   ] = useRangeStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
@@ -53,32 +35,15 @@ export default function ConcentratedPoolPreview({ fee }) {
     state.tokenIn,
     state.tokenInAmount,
     state.tokenInRangeUSDPrice,
-    state.tokenInBalance,
     state.tokenInRangeAllowance,
-    state.setTokenIn,
-    state.setTokenInAmount,
-    state.setTokenInRangeUSDPrice,
-    state.setTokenInBalance,
-    state.setTokenInRangeAllowance,
     state.tokenOut,
     state.tokenOutAmount,
     state.tokenOutRangeUSDPrice,
-    state.tokenOutBalance,
     state.tokenOutRangeAllowance,
-    state.setTokenOut,
-    state.setTokenOutAmount,
-    state.setTokenOutRangeUSDPrice,
-    state.setTokenOutBalance,
-    state.setTokenOutRangeAllowance,
-    state.pairSelected,
     state.disabled,
-    state.setDisabled,
     state.buttonMessage,
-    state.setButtonMessage,
-    state.minInput,
-    state.maxInput,
-    state.setMinInput,
-    state.setMaxInput,
+    state.setTokenInRangeAllowance,
+    state.setTokenOutRangeAllowance,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -132,7 +97,6 @@ export default function ConcentratedPoolPreview({ fee }) {
 
   ////////////////////////////////Mint Gas Fee
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
-  //const [mintGasFee, setMintGasFee] = useState("$0.00");
 
   useEffect(() => {
     updateGasFee();
@@ -142,17 +106,28 @@ export default function ConcentratedPoolPreview({ fee }) {
     const newGasFee = await gasEstimateRangeMint(
       rangePoolAddress,
       address,
-      rangePositionData.lowerPrice,
-      rangePositionData.upperPrice,
+      BigNumber.from(
+        TickMath.getTickAtPriceString(
+          rangePositionData.lowerPrice,
+          parseInt(rangePoolData.feeTier.tickSpacing)
+        )
+      ),
+      BigNumber.from(
+          TickMath.getTickAtPriceString(
+            rangePositionData.upperPrice,
+            parseInt(rangePoolData.feeTier.tickSpacing)
+          )
+        ),
       tokenInAmount,
       tokenOutAmount,
       signer
     );
-    //setMintGasFee(newGasFee.formattedPrice);
+
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
   }
 
   ///////////////////////////////
+
   const [isOpen, setIsOpen] = useState(false);
 
   function closeModal() {
@@ -400,8 +375,8 @@ export default function ConcentratedPoolPreview({ fee }) {
                                 ? tokenOutAmount
                                 : tokenInAmount
                             }
-                            gasLimit={mintGasLimit}
                             closeModal={() => router.push("/pool")}
+                            gasLimit={mintGasLimit}
                           />
                         ) : (tokenInAllowance.lt(tokenInAmount) &&
                             tokenOutAllowance.lt(tokenOutAmount)) ||

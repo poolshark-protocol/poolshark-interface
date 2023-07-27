@@ -559,7 +559,6 @@ export default function Swap() {
   }, [limitStringPrice, slippage]);
 
   function updateLimitTicks() {
-    //console.log("limit price on tick", limitStringPrice);
     const tickSpacing = rangePoolData.feeTier.tickSpacing;
     if (
       isFinite(parseFloat(limitStringPrice)) &&

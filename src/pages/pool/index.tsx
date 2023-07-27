@@ -88,7 +88,7 @@ export default function Pool() {
     const data = await fetchCoverPositions(address)
     if (data['data']) {
       const positions = data['data'].positions
-      console.log('positions length', positions.length)
+
       const positionData = mapUserCoverPositions(positions)
       setAllCoverPositions(positionData)
     }
@@ -270,7 +270,6 @@ export default function Pool() {
                         </div>
                       ) : (
                         allRangePositions.map((allRangePosition) => {
-                          console.log('user liquidity check 2', allRangePosition.userLiquidity)
                           if (
                             allRangePosition.id != undefined &&
                             allRangePosition.userOwnerAddress ===

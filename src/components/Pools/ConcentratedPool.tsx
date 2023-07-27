@@ -3,7 +3,6 @@ import {
   ChevronDownIcon,
   PlusIcon,
   MinusIcon,
-  ArrowLongRightIcon,
   InformationCircleIcon,
 } from "@heroicons/react/20/solid";
 import { Listbox, Transition } from "@headlessui/react";
@@ -14,17 +13,14 @@ import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
 import { getRangePoolFromFactory } from "../../utils/queries";
 import useInputBox from "../../hooks/useInputBox";
-import { erc20ABI, useAccount, useBalance, useSigner } from "wagmi";
+import { useAccount, useBalance } from "wagmi";
 import { BigNumber, ethers } from "ethers";
-import { useContractRead } from "wagmi";
-import { getBalances } from "../../utils/balances";
-import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import inputFilter from "../../utils/inputFilter";
 import TickSpacing from "../Tooltips/TickSpacing";
 import { fetchRangeTokenUSDPrice, switchDirection } from "../../utils/tokens";
 import { feeTiers, getRangePool } from "../../utils/pools";
-import { gasEstimateRangeMint } from "../../utils/gas";
 
 export default function ConcentratedPool({}) {
   const [
@@ -91,8 +87,6 @@ export default function ConcentratedPool({}) {
     setDisplay,
     inputBox,
     maxBalance,
-    bnInputLimit,
-    LimitInputBox,
   } = useInputBox();
 
   const [hasSelected, setHasSelected] = useState(true);
@@ -303,45 +297,14 @@ export default function ConcentratedPool({}) {
           ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
           : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
         : ZERO;
+        
       setTokenInAmount(bnInput);
-      //console.log("tokenInAmount", bnInput);
-      console.log("tokenOutAmount", Number(tokenOutAmount.toString()));
       setTokenOutAmount(BigNumber.from(tokenOutAmount.toString()));
     } catch (error) {
       console.log(error);
     }
   }
-
-  ////////////////////////////////Gas Fee
-  /* const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
-  const [mintGasFee, setMintGasFee] = useState("$0.00");
-
-  useEffect(() => {
-    updateGasFee();
-  }, [minTick, maxTick, tokenInAmount, amountOut]);
-
-  async function updateGasFee() {
-    if (
-      (amount0.gt(BN_ZERO) || amount1.gt(BN_ZERO)) &&
-      Number(tokenInAllowance).gte(amount0) &&
-      allowance1.gte(amount1)
-    ) {
-      const newGasFee = await gasEstimateRangeMint(
-        rangePoolAddress,
-        address,
-        minTick,
-        maxTick,
-        tokenInAmount,
-        amountOut,
-        signer
-      );
-
-      setMintGasFee(newGasFee.formattedPrice);
-      setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
-    }
-  }
- */
-
+  
   ////////////////////////////////Change Price Buttons
   //set lower and upper price
   const changePrice = (direction: string, inputId: string) => {

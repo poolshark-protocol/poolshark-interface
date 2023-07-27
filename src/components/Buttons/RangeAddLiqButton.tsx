@@ -1,23 +1,51 @@
-import { BigNumber, ethers } from 'ethers';
 import {
     usePrepareContractWrite,
     useContractWrite,
     useWaitForTransaction,
+    useSigner,
 } from 'wagmi';
-import { coverPoolABI } from "../../abis/evm/coverPool";
-import { coverPoolAddress } from "../../constants/contractAddresses";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { rangePoolABI } from '../../abis/evm/rangePool';
+import { BN_ZERO } from '../../utils/math/constants';
+import { gasEstimateRangeMint } from '../../utils/gas';
 
-export default function RangeAddLiqButton({poolAddress, address, lower, upper, amount0, amount1, disabled, gasLimit}) {
+export default function RangeAddLiqButton({poolAddress, address, lower, upper, amount0, amount1, disabled}) {
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
+    const [ fetchDelay, setFetchDelay ] = useState(false)
+    const [ gasLimit, setGasLimit ] = useState(BN_ZERO)
 
-    const burnPercent = ethers.utils.parseUnits("5", 34)
+    const {data: signer} = useSigner()
+
+    useEffect(() => {
+      if (!fetchDelay) {
+        updateGasFee()
+      } else {
+        const interval = setInterval(() => {
+          updateGasFee()
+        }, 3000)
+        return () => clearInterval(interval)
+      }
+    }, [])
+  
+    async function updateGasFee() {
+      const newBurnGasFee = await gasEstimateRangeMint(
+        poolAddress,
+        address,
+        lower,
+        upper,
+        amount0,
+        amount1,
+        signer
+      )
+      if (newBurnGasFee.gasUnits.gt(BN_ZERO)) setFetchDelay(true)
+      
+      setGasLimit(newBurnGasFee.gasUnits.mul(130).div(100))
+    }
   
     const { config } = usePrepareContractWrite({
       address: poolAddress,
@@ -58,7 +86,7 @@ export default function RangeAddLiqButton({poolAddress, address, lower, upper, a
     return (
         <>
         <button 
-            disabled={disabled} 
+            disabled={gasLimit.lte(BN_ZERO) || disabled} 
             className=" w-full py-4 mx-auto font-medium text-sm md:text-base text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
             onClick={() => {
               address ?  write?.() : null

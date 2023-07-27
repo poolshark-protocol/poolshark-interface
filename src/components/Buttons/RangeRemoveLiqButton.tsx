@@ -1,21 +1,54 @@
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber } from 'ethers';
 import {
     usePrepareContractWrite,
     useContractWrite,
     useWaitForTransaction,
+    useSigner,
 } from 'wagmi';
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { rangePoolABI } from '../../abis/evm/rangePool';
+import { gasEstimateRangeBurn } from '../../utils/gas';
+import { BN_ZERO } from '../../utils/math/constants';
 
-export default function RangeRemoveLiqButton({poolAddress, address, lower, upper, burnPercent, disabled, gasLimit, closeModal}) {
+export default function RangeRemoveLiqButton({poolAddress, address, lower, upper, burnPercent, closeModal}) {
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
 
-    console.log('burn button args', burnPercent.toString(), gasLimit.toString(), lower.toString(), upper.toString())
+    console.log('burn button args', burnPercent.toString(), lower.toString(), upper.toString())
+
+    const [ fetchDelay, setFetchDelay ] = useState(false)
+    const [ gasLimit, setGasLimit ] = useState(BN_ZERO)
+
+    const {data: signer} = useSigner()
+
+    useEffect(() => {
+      if (!fetchDelay) {
+        updateGasFee()
+      } else {
+        const interval = setInterval(() => {
+          updateGasFee()
+        }, 3000)
+        return () => clearInterval(interval)
+      }
+    }, [])
+  
+    async function updateGasFee() {
+      const newBurnGasFee = await gasEstimateRangeBurn(
+        poolAddress,
+        address,
+        lower,
+        upper,
+        burnPercent,
+        signer
+      )
+      if (newBurnGasFee.gasUnits.gt(BN_ZERO)) setFetchDelay(true)
+      
+      setGasLimit(newBurnGasFee.gasUnits.mul(130).div(100))
+    }
   
     const { config } = usePrepareContractWrite({
         address: poolAddress,
@@ -29,11 +62,11 @@ export default function RangeRemoveLiqButton({poolAddress, address, lower, upper
         ]],
         chainId: 421613,
         overrides:{
-            gasLimit: BigNumber.from('1000000')
+            gasLimit: gasLimit,
         },
     })
 
-    const { data, isSuccess, write } = useContractWrite(config)
+    const { data, write } = useContractWrite(config)
 
     const {isLoading} = useWaitForTransaction({
       hash: data?.hash,
@@ -50,7 +83,7 @@ export default function RangeRemoveLiqButton({poolAddress, address, lower, upper
 
     return (
         <>
-        <button disabled={disabled} className=" w-full text-sm md:text-base py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        <button disabled={gasLimit.gt(BN_ZERO) ? false : true} className=" w-full text-sm md:text-base py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
             onClick={() => {
               address ?  write?.() : null
             }}
