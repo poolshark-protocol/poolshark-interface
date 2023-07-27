@@ -85,15 +85,7 @@ export default function ConcentratedPool({}) {
 
   const { address, isConnected } = useAccount();
 
-  const {
-    bnInput,
-    setBnInput,
-    setDisplay,
-    inputBox,
-    maxBalance,
-    bnInputLimit,
-    LimitInputBox,
-  } = useInputBox();
+  const { bnInput, inputBox, maxBalance } = useInputBox();
 
   const [hasSelected, setHasSelected] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
@@ -117,27 +109,19 @@ export default function ConcentratedPool({}) {
 
   //this sets the default position price delta
   useEffect(() => {
-    console.log("rangePoolData", rangePoolData);
     if (rangePoolData.price) {
-      console.log("rangePoolData.price", rangePoolData.price);
-      console.log("rangePoolData.tickAtPrice", rangePoolData.tickAtPrice);
       const price = JSBI.BigInt(rangePoolData.price);
       const tickAtPrice = rangePoolData.tickAtPrice;
       setRangePrice(TickMath.getPriceStringAtSqrtPrice(price));
       setRangeSqrtPrice(price);
       const positionData = rangePositionData;
-      console.log("set lower e upper price", lowerPrice, upperPrice);
       if (isNaN(parseFloat(lowerPrice)) || parseFloat(lowerPrice) <= 0) {
-        console.log("set lower price");
         setLowerPrice(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
         positionData.lowerPrice = BigNumber.from(tickAtPrice - 7000);
-        //setMinTick(rangePositionData, BigNumber.from(tickAtPrice - 7000));
       }
       if (isNaN(parseFloat(upperPrice)) || parseFloat(upperPrice) <= 0) {
-        console.log("set upper price");
         setUpperPrice(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
         positionData.upperPrice = BigNumber.from(tickAtPrice - -7000);
-        //setMaxTick(rangePositionData, BigNumber.from(tickAtPrice - -7000));
       }
       setRangeTickPrice(tickAtPrice);
       setRangePositionData(positionData);
@@ -297,15 +281,12 @@ export default function ConcentratedPool({}) {
               tokenOrder ? BN_ZERO : bnInput,
               tokenOrder ? bnInput : BN_ZERO
             );
-      console.log("liquidity", liquidity.toString());
       const tokenOutAmount = JSBI.greaterThan(liquidity, ZERO)
         ? tokenOrder
           ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
           : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
         : ZERO;
       setTokenInAmount(bnInput);
-      //console.log("tokenInAmount", bnInput);
-      console.log("tokenOutAmount", Number(tokenOutAmount.toString()));
       setTokenOutAmount(BigNumber.from(tokenOutAmount.toString()));
     } catch (error) {
       console.log(error);
@@ -313,34 +294,8 @@ export default function ConcentratedPool({}) {
   }
 
   ////////////////////////////////Gas Fee
-  /* const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
-  const [mintGasFee, setMintGasFee] = useState("$0.00");
+  
 
-  useEffect(() => {
-    updateGasFee();
-  }, [minTick, maxTick, tokenInAmount, amountOut]);
-
-  async function updateGasFee() {
-    if (
-      (amount0.gt(BN_ZERO) || amount1.gt(BN_ZERO)) &&
-      Number(tokenInAllowance).gte(amount0) &&
-      allowance1.gte(amount1)
-    ) {
-      const newGasFee = await gasEstimateRangeMint(
-        rangePoolAddress,
-        address,
-        minTick,
-        maxTick,
-        tokenInAmount,
-        amountOut,
-        signer
-      );
-
-      setMintGasFee(newGasFee.formattedPrice);
-      setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
-    }
-  }
- */
 
   ////////////////////////////////Change Price Buttons
   //set lower and upper price
@@ -396,10 +351,8 @@ export default function ConcentratedPool({}) {
         Number(tokenInBalance) ||
       Number(ethers.utils.formatUnits(tokenOutAmount)) > Number(tokenOutBalance)
     ) {
-      //console.log('disabled true')
       setDisabled(true);
     } else {
-      //console.log('disabled false')
       setDisabled(false);
     }
   }, [
@@ -483,18 +436,7 @@ export default function ConcentratedPool({}) {
               <div
                 onClick={() => {
                   if (hasSelected) {
-                    const newInput = tokenInAmount;
-                    //switch direction
                     switchDirection();
-                    /* setBnInput(newInput);
-                    setDisplay(
-                      parseFloat(
-                        ethers.utils.formatUnits(newInput, 18).toString()
-                      )
-                        .toPrecision(5)
-                        .replace(/0+$/, "")
-                        .replace(/(\.)(?!\d)/g, "")
-                    ); */
                   }
                 }}
                 className="flex items-center cursor-pointer bg-dark border-grey1 border text-xs px-1 py-1 rounded-lg"
@@ -763,7 +705,7 @@ export default function ConcentratedPool({}) {
             </div>
           </div>
         </div>
-         <ConcentratedPoolPreview fee={fee} />
+        <ConcentratedPoolPreview fee={fee} />
       </div>
     </div>
   );
