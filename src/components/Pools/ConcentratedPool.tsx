@@ -132,13 +132,14 @@ export default function ConcentratedPool({}) {
   const [fee, setFee] = useState(updateSelectedFeeTier);
 
   function updateSelectedFeeTier(): any {
-    if (rangePoolData.feeTier == 0.01) {
+    console.log(rangePoolData.feeTier);
+    if (rangePoolData.feeTier.id == 100) {
       return feeTiers[0];
-    } else if (rangePoolData.feeTier == 0.05) {
+    } else if (rangePoolData.feeTier.id == 500) {
       return feeTiers[1];
-    } else if (rangePoolData.feeTier == 0.3) {
+    } else if (rangePoolData.feeTier.id == 3000) {
       return feeTiers[2];
-    } else if (rangePoolData.feeTier == 1) {
+    } else if (rangePoolData.feeTier.id == 10000) {
       return feeTiers[3];
     } else return feeTiers[0];
   }
@@ -294,8 +295,6 @@ export default function ConcentratedPool({}) {
   }
 
   ////////////////////////////////Gas Fee
-  
-
 
   ////////////////////////////////Change Price Buttons
   //set lower and upper price
