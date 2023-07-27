@@ -457,6 +457,7 @@ export default function CoverExistingPool({ goBack }) {
 
   // disabled messages
   useEffect(() => {
+    console.log('valid bounds', validBounds)
     if (
       Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) *
         tokenInCoverUSDPrice >
@@ -474,7 +475,7 @@ export default function CoverExistingPool({ goBack }) {
       setButtonState("amount");
     } else if (pairSelected == false) {
       setButtonState("token");
-    } else if (mintGasLimit.gt(BN_ZERO)) {
+    } else if (mintGasLimit.eq(BN_ZERO)) {
       setDisabled(true);
     } else {
       setDisabled(false);
@@ -493,9 +494,14 @@ export default function CoverExistingPool({ goBack }) {
   useEffect(() => {
     const disabledFlag =
       bnInput.eq(BN_ZERO) &&
-      coverPositionData.lowerPrice < coverPositionData.upperPrice;
-    setDisabled(disabledFlag);
-  }, [coverPositionData.lowerPrice, coverPositionData.upperPrice, bnInput]);
+      coverPositionData.lowerPrice < coverPositionData.upperPrice &&
+      validBounds &&
+      parseFloat(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) >
+        parseFloat(tokenInBalance) &&
+        pairSelected == true ;
+    setDisabled(disabledFlag); 
+    console.log("disabled flag", disabledFlag);
+  }, [coverPositionData.lowerPrice, coverPositionData.upperPrice, bnInput, validBounds, tokenInBalance, coverAmountIn]);
 
   ////////////////////////////////
 
