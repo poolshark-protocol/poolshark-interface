@@ -1078,36 +1078,38 @@ export default function Swap() {
                       ? //switcher tokenOrder
                         limitPriceOrder
                         ? //when normal order tokenIn/tokenOut
-                          (parseFloat(limitStringPrice) / tokenInRangeUSDPrice -
+                          (parseFloat(limitStringPrice) /
+                            (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
                             1) *
                             100 >
                           0
                           ? (
                               (parseFloat(limitStringPrice) /
-                                tokenInRangeUSDPrice -
+                                (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
                                 1) *
                               100
                             ).toFixed(2) + "% above Market Price"
                           : Math.abs(
                               (parseFloat(limitStringPrice) /
-                                tokenInRangeUSDPrice -
+                                (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
                                 1) *
                                 100
                             ).toFixed(2) + "% below Market Price"
                         : //when inverted order tokenOut/tokenIn
-                        (parseFloat(limitStringPrice) / tokenOutRangeUSDPrice -
+                        (parseFloat(invertPrice(limitStringPrice, false)) /
+                            (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
                             1) *
                             100 >
                           0
                         ? (
-                            (parseFloat(limitStringPrice) /
-                              tokenOutRangeUSDPrice -
+                            (parseFloat(invertPrice(limitStringPrice, false)) /
+                              (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
                               1) *
                             100
                           ).toFixed(2) + "% above Market Price"
                         : Math.abs(
-                            (parseFloat(limitStringPrice) /
-                              tokenOutRangeUSDPrice -
+                            (parseFloat(invertPrice(limitStringPrice, false)) /
+                              (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
                               1) *
                               100
                           ).toFixed(2) + "% below Market Price"
