@@ -130,9 +130,6 @@ export const gasEstimateSwapLimit = async (
 
     const contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
 
-    console.log('lower limit tick', lowerTick.toString())
-    console.log('upper limit tick', upperTick.toString())
-
     let gasUnits: BigNumber
     gasUnits = await contract
       .connect(signer)

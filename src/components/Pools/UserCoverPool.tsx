@@ -47,18 +47,6 @@ export default function UserCoverPool({
     updateClaimTick()
   }, [])
 
-  /*useEffect(() => {
-    setClaimPrice(parseFloat(TickMath.getPriceStringAtTick(claimTick)))
-  }, [claimTick])
-
-  useEffect(() => {
-    setFillPercent((Math.abs((Boolean(coverPosition.zeroForOne) ? upperPrice : lowerPrice) - claimPrice)
-    / Math.abs(upperPrice - lowerPrice)).toPrecision(3))
-
-    console.log('fill percent', fillPercent)
-    console.log('claim price', claimPrice)
-  }, [claimPrice])*/
-
   const updateClaimTick = async () => {
     const tick = await getClaimTick(
       coverPosition.poolId,

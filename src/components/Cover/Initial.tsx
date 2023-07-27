@@ -20,7 +20,6 @@ export default function Initial(props: any) {
   }, [props.query])
 
   function setParams(query: any) {
-    //console.log('query', query)
     setIsShifted('coverExistingPool')
     const feeTierPercentage = query.feeTier / 10000
   }

@@ -290,9 +290,8 @@ export default function ConcentratedPool({}) {
           ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
           : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
         : ZERO;
+        
       setTokenInAmount(bnInput);
-      //console.log("tokenInAmount", bnInput);
-      console.log("tokenOutAmount", Number(tokenOutAmount.toString()));
       setTokenOutAmount(BigNumber.from(tokenOutAmount.toString()));
     } catch (error) {
       console.log(error);

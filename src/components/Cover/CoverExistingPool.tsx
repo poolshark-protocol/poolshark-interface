@@ -424,7 +424,7 @@ export default function CoverExistingPool({ goBack }) {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    if (coverPositionData.lowerPrice && coverPositionData.upperPrice)
+    if (coverPositionData.lowerPrice && coverPositionData.upperPrice && coverPoolData.volatilityTier)
       updateGasFee();
   }, [
     coverPositionData.lowerPrice,
@@ -446,6 +446,7 @@ export default function CoverExistingPool({ goBack }) {
       coverAmountIn,
       signer
     );
+
     console.log("new mint gas fee", newMintGasFee);
     setMintGasFee(newMintGasFee.formattedPrice);
     setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
@@ -457,7 +458,6 @@ export default function CoverExistingPool({ goBack }) {
 
   // disabled messages
   useEffect(() => {
-    console.log('valid bounds', validBounds)
     if (
       Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) *
         tokenInCoverUSDPrice >
@@ -500,7 +500,6 @@ export default function CoverExistingPool({ goBack }) {
         parseFloat(tokenInBalance) &&
         pairSelected == true ;
     setDisabled(disabledFlag); 
-    console.log("disabled flag", disabledFlag);
   }, [coverPositionData.lowerPrice, coverPositionData.upperPrice, bnInput, validBounds, tokenInBalance, coverAmountIn]);
 
   ////////////////////////////////
@@ -762,7 +761,6 @@ export default function CoverExistingPool({ goBack }) {
               id="input"
               onChange={(e) => {
                 setSliderValue(Number(inputFilter(e.target.value)));
-                //console.log("slider value", sliderValue);
               }}
               value={sliderValue}
               className="text-right placeholder:text-grey1 text-white text-xl w-20 focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"

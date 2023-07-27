@@ -103,10 +103,6 @@ export default function ConcentratedPoolPreview({ fee }) {
   }, [tokenInAmount, tokenOut, rangePositionData]);
 
   async function updateGasFee() {
-    console.log('lower range price string', rangePositionData.lowerPrice)
-    console.log('upper range price string', rangePositionData.upperPrice)
-    console.log('tick spacing', rangePoolData.feeTier.tickSpacing)
-
     const newGasFee = await gasEstimateRangeMint(
       rangePoolAddress,
       address,

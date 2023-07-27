@@ -531,7 +531,6 @@ export default function Swap() {
   }, [limitPrice, slippage]);
 
   function updateLimitTicks() {
-    console.log("limit price on tick", limitPrice);
     const tickSpacing = rangePoolData.feeTier.tickSpacing;
     if (isFinite(parseFloat(limitPrice)) && parseFloat(limitPrice) > 0) {
       if (
@@ -639,11 +638,6 @@ export default function Swap() {
   }
 
   async function updateMintFee() {
-
-    console.log('lower limit', lowerTick)
-    console.log('upper limit', upperTick)
-    console.log('zeroforone limit', tokenOrder)
-    
     await gasEstimateSwapLimit(
       rangePoolAddress,
       address,
