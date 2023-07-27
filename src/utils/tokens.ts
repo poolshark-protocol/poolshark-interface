@@ -13,11 +13,7 @@ export const logoMap = {
   UNI: "/static/images/dai_icon.png",
 };
 
-export const fetchRangeTokenUSDPrice = async (
-  poolData,
-  token,
-  setTokenUSDPrice
-) => {
+export const fetchRangeTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
   try {
     setTokenUSDPrice(
       token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice
@@ -27,11 +23,7 @@ export const fetchRangeTokenUSDPrice = async (
   }
 };
 
-export const fetchCoverTokenUSDPrice = async (
-  poolData,
-  token,
-  setTokenUSDPrice
-) => {
+export const fetchCoverTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
   try {
     setTokenUSDPrice(
       token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice

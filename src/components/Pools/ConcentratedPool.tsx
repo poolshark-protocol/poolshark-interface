@@ -51,6 +51,7 @@ export default function ConcentratedPool({}) {
     setTokenOutRangeUSDPrice,
     setTokenOutBalance,
     pairSelected,
+    switchDirection,
     setDisabled,
     setButtonMessage,
   ] = useRangeStore((state) => [
@@ -77,6 +78,7 @@ export default function ConcentratedPool({}) {
     state.setTokenOutRangeUSDPrice,
     state.setTokenOutBalance,
     state.pairSelected,
+    state.switchDirection,
     state.setDisabled,
     state.setButtonMessage,
   ]);
@@ -115,7 +117,7 @@ export default function ConcentratedPool({}) {
 
   //this sets the default position price delta
   useEffect(() => {
-    console.log("rangePoolData", rangePoolData)
+    console.log("rangePoolData", rangePoolData);
     if (rangePoolData.price) {
       console.log("rangePoolData.price", rangePoolData.price);
       console.log("rangePoolData.tickAtPrice", rangePoolData.tickAtPrice);
@@ -236,7 +238,7 @@ export default function ConcentratedPool({}) {
         );
       }
     }
-  }, [rangePoolData]);
+  }, [rangePoolData, tokenIn, tokenOut]);
 
   ////////////////////////////////Prices and Ticks
   const [rangePrice, setRangePrice] = useState(undefined);
@@ -259,7 +261,12 @@ export default function ConcentratedPool({}) {
     if (rangePositionData.lowerPrice && rangePositionData.upperPrice) {
       tokenOutAmountMath();
     }
-  }, [bnInput, rangePositionData.lowerPrice, rangePositionData.upperPrice]);
+  }, [
+    bnInput,
+    rangePositionData.lowerPrice,
+    rangePositionData.upperPrice,
+    tokenOrder,
+  ]);
 
   function tokenOutAmountMath() {
     try {
@@ -478,7 +485,8 @@ export default function ConcentratedPool({}) {
                   if (hasSelected) {
                     const newInput = tokenInAmount;
                     //switch direction
-                    setBnInput(newInput);
+                    switchDirection();
+                    /* setBnInput(newInput);
                     setDisplay(
                       parseFloat(
                         ethers.utils.formatUnits(newInput, 18).toString()
@@ -486,7 +494,7 @@ export default function ConcentratedPool({}) {
                         .toPrecision(5)
                         .replace(/0+$/, "")
                         .replace(/(\.)(?!\d)/g, "")
-                    );
+                    ); */
                   }
                 }}
                 className="flex items-center cursor-pointer bg-dark border-grey1 border text-xs px-1 py-1 rounded-lg"
@@ -655,12 +663,18 @@ export default function ConcentratedPool({}) {
               onClick={() => {
                 setLowerPrice(
                   TickMath.getPriceStringAtTick(
-                    roundTick(-887272, parseInt(rangePoolData.feeTier.tickSpacing))
+                    roundTick(
+                      -887272,
+                      parseInt(rangePoolData.feeTier.tickSpacing)
+                    )
                   )
                 );
                 setUpperPrice(
                   TickMath.getPriceStringAtTick(
-                    roundTick(887272, parseInt(rangePoolData.feeTier.tickSpacing))
+                    roundTick(
+                      887272,
+                      parseInt(rangePoolData.feeTier.tickSpacing)
+                    )
                   )
                 );
               }}
@@ -749,7 +763,7 @@ export default function ConcentratedPool({}) {
             </div>
           </div>
         </div>
-        <ConcentratedPoolPreview fee={fee} />
+         <ConcentratedPoolPreview fee={fee} />
       </div>
     </div>
   );

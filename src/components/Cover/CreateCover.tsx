@@ -61,6 +61,7 @@ export default function CreateCover(props: any) {
     setTokenOutCoverUSDPrice,
     setTokenOutBalance,
     pairSelected,
+    switchDirection,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPoolData,
@@ -85,6 +86,7 @@ export default function CreateCover(props: any) {
     state.setTokenOutCoverUSDPrice,
     state.setTokenOutBalance,
     state.pairSelected,
+    state.switchDirection,
   ]);
 
   const { data: signer } = useSigner();
@@ -262,7 +264,7 @@ export default function CreateCover(props: any) {
         );
       }
     }
-  }, [coverPoolData]);
+  }, [coverPoolData, tokenOrder]);
 
   ////////////////////////////////Position Price Delta
   const [lowerPrice, setLowerPrice] = useState("0");
@@ -311,6 +313,8 @@ export default function CreateCover(props: any) {
   useEffect(() => {
     if (!bnInput.eq(BN_ZERO)) {
       setCoverAmountIn(JSBI.BigInt(bnInput.toString()));
+    } else {
+      setCoverAmountIn(JSBI.BigInt(BN_ZERO.toString()));
     }
   }, [
     bnInput,
@@ -321,33 +325,44 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     changeCoverAmounts();
-  }, [coverAmountIn]);
+  }, [coverAmountIn, tokenOrder]);
 
   function changeCoverAmounts() {
     if (
-      bnInput != BN_ZERO &&
-      Number(coverPositionData.lowerPrice) &&
-      Number(coverPositionData.upperPrice) &&
+      coverPositionData.lowerPrice &&
+      coverPositionData.upperPrice &&
       parseFloat(coverPositionData.lowerPrice) > 0 &&
       parseFloat(coverPositionData.upperPrice) > 0 &&
       parseFloat(coverPositionData.lowerPrice) <
         parseFloat(coverPositionData.upperPrice)
     ) {
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
-        parseInt(coverPositionData.lowerPrice)
+        TickMath.getTickAtPriceString(coverPositionData.lowerPrice)
       );
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(
-        parseInt(coverPositionData.upperPrice)
+        TickMath.getTickAtPriceString(coverPositionData.upperPrice)
       );
       const liquidityAmount = DyDxMath.getLiquidityForAmounts(
         lowerSqrtPrice,
         upperSqrtPrice,
         lowerSqrtPrice,
-        BN_ZERO,
+        bnInput,
         BigNumber.from(String(coverAmountIn))
       );
       setCoverAmountOut(
-        DyDxMath.getDy(liquidityAmount, lowerSqrtPrice, upperSqrtPrice, true)
+        tokenOrder
+          ? DyDxMath.getDy(
+              liquidityAmount,
+              lowerSqrtPrice,
+              upperSqrtPrice,
+              true
+            )
+          : DyDxMath.getDx(
+              liquidityAmount,
+              lowerSqrtPrice,
+              upperSqrtPrice,
+              true
+            )
       );
     }
   }
@@ -579,21 +594,7 @@ export default function CreateCover(props: any) {
             <ArrowLongRightIcon
               className="md:w-6 w-4 cursor-pointer md:rotate-0 rotate-90"
               onClick={() => {
-                /* if (hasSelected) {
-                  console.log("getting cover order set");
-                  switchDirection(
-                    tokenOrder,
-                    null,
-                    tokenIn,
-                    setTokenIn,
-                    tokenOut,
-                    setTokenOut,
-                    queryTokenIn,
-                    setQueryTokenIn,
-                    queryTokenOut,
-                    setQueryTokenOut
-                  );
-                } */
+                switchDirection();
               }}
             />
           </div>
@@ -662,12 +663,10 @@ export default function CreateCover(props: any) {
           <div>
             {parseFloat(coverPositionData.lowerPrice) <
             parseFloat(coverPositionData.upperPrice) ? (
-              parseFloat(
-                parseFloat(ethers.utils.formatUnits(String(coverAmountOut), 18))
-                  .toPrecision(6)
-                  .replace(/0+$/, "")
-                  .replace(/(\.)(?!\d)/g, "")
-              )
+              (
+                (tokenInCoverUSDPrice / tokenOutCoverUSDPrice) *
+                parseFloat(ethers.utils.formatUnits(bnInput, 18))
+              ).toPrecision(6)
             ) : (
               <>?</>
             )}{" "}
@@ -781,13 +780,9 @@ export default function CreateCover(props: any) {
         >
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
             {1} {tokenIn.symbol} ={" "}
-            {tokenOutCoverUSDPrice
+            {!tokenInCoverUSDPrice
               ? "?" + " " + tokenOut.symbol
-              : parseFloat(
-                  parseFloat(
-                    invertPrice(tokenOutCoverUSDPrice.toString(), tokenOrder)
-                  ).toPrecision(6)
-                ) +
+              : (tokenInCoverUSDPrice / tokenOutCoverUSDPrice).toPrecision(6) +
                 " " +
                 tokenOut.symbol}
           </div>

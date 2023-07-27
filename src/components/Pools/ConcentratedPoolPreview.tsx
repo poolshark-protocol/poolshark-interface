@@ -130,7 +130,6 @@ export default function ConcentratedPoolPreview({ fee }) {
     }
   }, [allowanceInRange, allowanceOutRange]);
 
-
   ////////////////////////////////Mint Gas Fee
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
   //const [mintGasFee, setMintGasFee] = useState("$0.00");
@@ -364,7 +363,11 @@ export default function ConcentratedPoolPreview({ fee }) {
                                 ? BigNumber.from(
                                     TickMath.getTickAtPriceString(
                                       rangePositionData.lowerPrice,
-                                      parseInt(rangePoolData.feeTier.tickSpacing)
+                                      parseInt(
+                                        rangePoolData.feeTier
+                                          ? rangePoolData.feeTier.tickSpacing
+                                          : 20
+                                      )
                                     )
                                   )
                                 : BN_ZERO
@@ -374,7 +377,11 @@ export default function ConcentratedPoolPreview({ fee }) {
                                 ? BigNumber.from(
                                     TickMath.getTickAtPriceString(
                                       rangePositionData.upperPrice,
-                                      parseInt(rangePoolData.feeTier.tickSpacing)
+                                      parseInt(
+                                        rangePoolData.feeTier
+                                          ? rangePoolData.feeTier.tickSpacing
+                                          : 20
+                                      )
                                     )
                                   )
                                 : BN_ZERO
