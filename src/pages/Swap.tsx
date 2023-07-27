@@ -158,12 +158,6 @@ export default function Swap() {
   ]);
 
   console.log("///////////////////////////////");
-  console.log("tokenIn", tokenIn);
-  console.log("tokenInRangeUSDPrice", tokenInRangeUSDPrice);
-  console.log("tokenInCoverUSDPrice", tokenInCoverUSDPrice);
-  console.log("tokenOut", tokenOut);
-  console.log("tokenOutRangeUSDPrice", tokenOutRangeUSDPrice);
-  console.log("tokenOutCoverUSDPrice", tokenOutCoverUSDPrice);
 
   //false when user in normal swap, true when user in limit swap
   const [limitTabSelected, setLimitTabSelected] = useState(false);
@@ -523,7 +517,8 @@ export default function Swap() {
   const [limitPriceOrder, setLimitPriceOrder] = useState(true);
   const [limitStringPrice, setLimitStringPrice] = useState("0");
 
-  console.log("limit price switch", limitPriceOrder);
+  console.log("token order", tokenOrder);
+  console.log("limit price order", limitPriceOrder);
   console.log("limit price input", limitStringPrice);
   console.log("///////////////////////////////");
 
@@ -534,24 +529,23 @@ export default function Swap() {
   }, [tokenOutRangeUSDPrice, tokenInRangeUSDPrice]);
 
   useEffect(() => {
-    if (limitPriceOrder) {
-      setLimitStringPrice(
-        (tokenInRangeUSDPrice / tokenOutRangeUSDPrice).toPrecision(6).toString()
-      );
-    } else {
+    var newPrice = (tokenInRangeUSDPrice / tokenOutRangeUSDPrice)
+      .toPrecision(6)
+      .toString();
+    setLimitStringPrice(newPrice);
+  }, [tokenOrder]);
+
+  useEffect(() => {
+    if (!limitPriceOrder) {
       setLimitStringPrice(
         (tokenOutRangeUSDPrice / tokenInRangeUSDPrice).toPrecision(6).toString()
       );
-    }
-  }, [limitPriceOrder]);
-
-  useEffect(() => {
-    if (tokenOrder) {
-      setLimitPriceOrder(true);
     } else {
-      setLimitPriceOrder(false);
+      setLimitStringPrice(
+        (tokenInRangeUSDPrice / tokenOutRangeUSDPrice).toPrecision(6).toString()
+      );
     }
-  }, [tokenOrder]);
+  }, [limitPriceOrder, tokenOrder]);
 
   ////////////////////////////////Limit Ticks
   const [lowerTick, setLowerTick] = useState(BN_ZERO);
@@ -559,13 +553,13 @@ export default function Swap() {
 
   useEffect(() => {
     if (slippage && limitStringPrice && rangePoolData?.feeTier?.tickSpacing) {
-      console.log("ready to update limit ticks");
+      //console.log("ready to update limit ticks");
       updateLimitTicks();
     }
   }, [limitStringPrice, slippage]);
 
   function updateLimitTicks() {
-    console.log("limit price on tick", limitStringPrice);
+    //console.log("limit price on tick", limitStringPrice);
     const tickSpacing = rangePoolData.feeTier.tickSpacing;
     if (
       isFinite(parseFloat(limitStringPrice)) &&
@@ -987,15 +981,15 @@ export default function Swap() {
                   </div>
                 ) : (
                   <div>
-                    {limitPriceOrder
+                    {!limitPriceOrder
                       ? (
                           parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                          parseFloat(limitStringPrice)
-                        ).toFixed(2)
+                          parseFloat(invertPrice(limitStringPrice, false))
+                        ).toPrecision(6)
                       : (
                           parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                          parseFloat(invertPrice(limitStringPrice, false))
-                        ).toFixed(2)}
+                          parseFloat(limitStringPrice)
+                        ).toPrecision(6)}
                   </div>
                 )
               ) : (
