@@ -129,10 +129,9 @@ export default function ConcentratedPool({}) {
   }, [rangePoolData]);
 
   ////////////////////////////////Pools Fee Tiers
-  const [fee, setFee] = useState(updateSelectedFeeTier);
+  const [fee, setFee] = useState(feeTiers[0]);
 
   function updateSelectedFeeTier(): any {
-    console.log(rangePoolData.feeTier);
     if (rangePoolData.feeTier.id == 100) {
       return feeTiers[0];
     } else if (rangePoolData.feeTier.id == 500) {
@@ -143,6 +142,12 @@ export default function ConcentratedPool({}) {
       return feeTiers[3];
     } else return feeTiers[0];
   }
+
+  useEffect(() => {
+    if (rangePoolData.feeTier) {
+      setFee(updateSelectedFeeTier());
+    }
+  }, [rangePoolData]);
 
   const handleManualFeeChange = async (auxfee: any) => {
     const pool = tokenOrder
