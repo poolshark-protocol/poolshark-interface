@@ -59,6 +59,7 @@ export default function CoverExistingPool({ goBack }) {
     setTokenOutCoverUSDPrice,
     setTokenOutAllowance,
     pairSelected,
+    switchDirection,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPoolData,
@@ -76,6 +77,7 @@ export default function CoverExistingPool({ goBack }) {
     state.setTokenOutCoverUSDPrice,
     state.setTokenOutCoverAllowance,
     state.pairSelected,
+    state.switchDirection,
   ]);
 
   const [rangePositionData] = useRangeStore((state) => [
@@ -116,7 +118,7 @@ export default function CoverExistingPool({ goBack }) {
     if (coverPoolData.latestTick) {
       updatePositionData();
     }
-  }, [coverPoolData]);
+  }, [coverPoolData, coverPoolAddress]);
 
   async function updatePositionData() {
     const tickAtPrice = Number(coverPoolData.latestTick);
@@ -275,7 +277,7 @@ export default function CoverExistingPool({ goBack }) {
         );
       }
     }
-  }, [coverPoolData]);
+  }, [coverPoolData, tokenOrder]);
 
   ////////////////////////////////Position Price Delta
   const [lowerPrice, setLowerPrice] = useState("0");
@@ -335,7 +337,7 @@ export default function CoverExistingPool({ goBack }) {
 
   useEffect(() => {
     changeCoverOutAmount();
-  }, [sliderValue, lowerPrice, upperPrice]);
+  }, [sliderValue, lowerPrice, upperPrice, tokenOrder]);
 
   function changeCoverOutAmount() {
     if (
@@ -707,20 +709,7 @@ export default function CoverExistingPool({ goBack }) {
           <ArrowLongRightIcon
             className="md:w-6 w-5 cursor-pointer"
             onClick={() => {
-              /* if (hasSelected) {
-                switchDirection(
-                  tokenOrder,
-                  null,
-                  tokenIn,
-                  setTokenIn,
-                  tokenOut,
-                  setTokenOut,
-                  queryTokenIn,
-                  setQueryTokenIn,
-                  queryTokenOut,
-                  setQueryTokenOut
-                );
-              } */
+              switchDirection();
             }}
           />
           <button className="flex items-center gap-x-3 bg-black border border-grey1 md:px-4 px-2 py-1.5 rounded-xl">
@@ -921,11 +910,7 @@ export default function CoverExistingPool({ goBack }) {
             {1} {tokenIn.symbol} ={" "}
             {!tokenInCoverUSDPrice
               ? "?" + " " + tokenOut.symbol
-              : parseFloat(
-                  parseFloat(
-                    invertPrice(tokenInCoverUSDPrice.toString(), true)
-                  ).toPrecision(6)
-                ) +
+              : (tokenInCoverUSDPrice / tokenOutCoverUSDPrice).toPrecision(6) +
                 " " +
                 tokenOut.symbol}
           </div>

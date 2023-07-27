@@ -68,6 +68,7 @@ type RangeAction = {
   setGasFee: (gasFee: BigNumber) => void;
   setGasLimit: (gasLimit: BigNumber) => void;
   //
+  switchDirection: () => void;
   resetRangeParams: () => void;
   //
   setDisabled: (disabled: boolean) => void;
@@ -316,8 +317,26 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   },
   switchDirection: () => {
     set((state) => ({
-      tokenIn: state.tokenOut,
-      tokenOut: state.tokenIn,
+      tokenIn: {
+        callId:
+          state.tokenOut.address.localeCompare(state.tokenIn.address) < 0
+            ? 0
+            : 1,
+        name: state.tokenOut.name,
+        symbol: state.tokenOut.symbol,
+        logoURI: state.tokenOut.logoURI,
+        address: state.tokenOut.address,
+      },
+      tokenOut: {
+        callId:
+          state.tokenOut.address.localeCompare(state.tokenIn.address) < 0
+            ? 1
+            : 0,
+        name: state.tokenIn.name,
+        symbol: state.tokenIn.symbol,
+        logoURI: state.tokenIn.logoURI,
+        address: state.tokenIn.address,
+      },
     }));
   },
   resetRangeParams: () => {

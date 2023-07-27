@@ -338,7 +338,11 @@ export default function ConcentratedPoolPreview({ fee }) {
                                 ? BigNumber.from(
                                     TickMath.getTickAtPriceString(
                                       rangePositionData.lowerPrice,
-                                      parseInt(rangePoolData.feeTier.tickSpacing)
+                                      parseInt(
+                                        rangePoolData.feeTier
+                                          ? rangePoolData.feeTier.tickSpacing
+                                          : 20
+                                      )
                                     )
                                   )
                                 : BN_ZERO
@@ -348,7 +352,11 @@ export default function ConcentratedPoolPreview({ fee }) {
                                 ? BigNumber.from(
                                     TickMath.getTickAtPriceString(
                                       rangePositionData.upperPrice,
-                                      parseInt(rangePoolData.feeTier.tickSpacing)
+                                      parseInt(
+                                        rangePoolData.feeTier
+                                          ? rangePoolData.feeTier.tickSpacing
+                                          : 20
+                                      )
                                     )
                                   )
                                 : BN_ZERO
