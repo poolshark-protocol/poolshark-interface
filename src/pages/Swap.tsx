@@ -944,7 +944,6 @@ export default function Swap() {
               className="w-4 h-4"
               onClick={() => {
                 switchDirection();
-                //setLimitPriceOrder(!limitPriceOrder);
               }}
             />
           }

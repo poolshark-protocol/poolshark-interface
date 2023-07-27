@@ -170,7 +170,7 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
         }));
       }
     } else {
-      //if tokenOut its not selected
+      //if tokenOut its not selected callId is 0 because only 1 token is selected
       set(() => ({
         tokenIn: {
           callId: 0,
@@ -239,7 +239,7 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
         }));
       }
     } else {
-      //if tokenIn its not selected
+      //if tokenIn its not selected callId is 0 because only 1 token is selected
       set(() => ({
         tokenOut: { callId: 0, ...newToken },
         pairSelected: false,
