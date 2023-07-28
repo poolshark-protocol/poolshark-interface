@@ -226,7 +226,7 @@ export default function CoverExistingPool({ goBack }) {
     args: [address, coverPoolAddress],
     chainId: 421613,
     watch: true,
-    enabled: isConnected && coverPoolAddress && tokenIn.address != "0x00",
+    enabled: isConnected && coverPoolAddress && tokenOut.address != "0x00",
     onSuccess(data) {
       //console.log('Success')
     },
