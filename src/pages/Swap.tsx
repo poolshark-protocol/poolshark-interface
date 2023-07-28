@@ -206,28 +206,36 @@ export default function Swap() {
   useEffect(() => {
     if (rangePoolData && coverPoolData) {
       if (tokenIn.address) {
-        fetchRangeTokenUSDPrice(
-          rangePoolData,
-          tokenIn,
-          setTokenInRangeUSDPrice
-        );
-        fetchCoverTokenUSDPrice(
-          coverPoolData,
-          tokenIn,
-          setTokenInCoverUSDPrice
-        );
+          if (rangePoolData.token0 && rangePoolData.token1) {
+            fetchRangeTokenUSDPrice(
+              rangePoolData,
+              tokenIn,
+              setTokenInRangeUSDPrice
+            );
+          }
+          if (coverPoolData.token0 && coverPoolData.token1) {
+            fetchCoverTokenUSDPrice(
+              coverPoolData,
+              tokenIn,
+              setTokenInCoverUSDPrice
+            );
+          }
       }
       if (tokenOut.address) {
-        fetchRangeTokenUSDPrice(
-          rangePoolData,
-          tokenOut,
-          setTokenOutRangeUSDPrice
-        );
-        fetchCoverTokenUSDPrice(
-          coverPoolData,
-          tokenOut,
-          setTokenOutCoverUSDPrice
-        );
+        if (rangePoolData.token0 && rangePoolData.token1) {
+          fetchRangeTokenUSDPrice(
+            rangePoolData,
+            tokenOut,
+            setTokenOutRangeUSDPrice
+          );
+        }
+        if (coverPoolData.token0 && coverPoolData.token1) {
+          fetchCoverTokenUSDPrice(
+            coverPoolData,
+            tokenOut,
+            setTokenOutCoverUSDPrice
+          );
+        }
       }
     }
   }, [rangePoolData, coverPoolData, tokenIn, tokenOut]);
