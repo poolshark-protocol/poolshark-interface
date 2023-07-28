@@ -20,13 +20,12 @@ import { Listbox, Transition } from "@headlessui/react";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import { Fragment, useEffect, useState } from "react";
 import useInputBox from "../../hooks/useInputBox";
-import { tokenOneAddress } from "../../constants/contractAddresses";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import { BigNumber, ethers } from "ethers";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { getCoverPoolFromFactory } from "../../utils/queries";
 import JSBI from "jsbi";
-import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import { getBalances } from "../../utils/balances";
 import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
@@ -45,21 +44,16 @@ export default function CreateCover(props: any) {
     setCoverPoolData,
     setCoverPositionData,
     tokenIn,
-    tokenInAmount,
     tokenInCoverUSDPrice,
     tokenInBalance,
-    tokenInAllowance,
     setTokenIn,
-    setTokenInAmount,
     setTokenInCoverUSDPrice,
     setTokenInBalance,
     setTokenInAllowance,
     tokenOut,
     tokenOutCoverUSDPrice,
-    tokenOutBalance,
     setTokenOut,
     setTokenOutCoverUSDPrice,
-    setTokenOutBalance,
     pairSelected,
     switchDirection,
   ] = useCoverStore((state) => [
@@ -70,21 +64,16 @@ export default function CreateCover(props: any) {
     state.setCoverPoolData,
     state.setCoverPositionData,
     state.tokenIn,
-    state.tokenInAmount,
     state.tokenInCoverUSDPrice,
     state.tokenInBalance,
-    state.tokenInCoverAllowance,
     state.setTokenIn,
-    state.setTokenInAmount,
     state.setTokenInCoverUSDPrice,
     state.setTokenInBalance,
     state.setTokenInCoverAllowance,
     state.tokenOut,
     state.tokenOutCoverUSDPrice,
-    state.tokenOutBalance,
     state.setTokenOut,
     state.setTokenOutCoverUSDPrice,
-    state.setTokenOutBalance,
     state.pairSelected,
     state.switchDirection,
   ]);
@@ -104,6 +93,15 @@ export default function CreateCover(props: any) {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
   }, [chainId]);
 
+  ////////////////////////////////TokenOrder
+  const [tokenOrder, setTokenOrder] = useState(true);
+
+  useEffect(() => {
+    if (tokenIn.address && tokenOut.address) {
+      setTokenOrder(tokenIn.callId == 0);
+    }
+  }, [tokenIn, tokenOut]);
+
   //////////////////////////////Pools
 
   useEffect(() => {
@@ -120,15 +118,24 @@ export default function CreateCover(props: any) {
   }
 
   useEffect(() => {
-    if (coverPoolData.latestTick) {
+    if (coverPoolData.latestTick && coverPoolData.volatilityTier) {
       updatePositionData();
     }
-  }, [coverPoolData]);
+  }, [coverPoolData, tokenOrder]);
 
   async function updatePositionData() {
     const tickAtPrice = Number(coverPoolData.latestTick);
-    const lowerPrice = TickMath.getPriceStringAtTick(tickAtPrice - 7000);
-    const upperPrice = TickMath.getPriceStringAtTick(tickAtPrice - -7000);
+    const tickSpread = Number(coverPoolData.volatilityTier.tickSpread);
+    const lowerPrice = TickMath.getPriceStringAtTick(
+      tokenOrder
+        ? tickAtPrice + -tickSpread * 16
+        : tickAtPrice + tickSpread * 8,
+      tickSpread
+    );
+    const upperPrice = TickMath.getPriceStringAtTick(
+      tokenOrder ? tickAtPrice - tickSpread * 6 : tickAtPrice + tickSpread * 18,
+      tickSpread
+    );
     setLowerPrice(lowerPrice);
     setUpperPrice(upperPrice);
     setCoverPositionData({
@@ -193,15 +200,6 @@ export default function CreateCover(props: any) {
       console.log(error);
     }
   };
-
-  ////////////////////////////////TokenOrder
-  const [tokenOrder, setTokenOrder] = useState(true);
-
-  useEffect(() => {
-    if (tokenIn.address && tokenOut.address) {
-      setTokenOrder(tokenIn.callId == 0);
-    }
-  }, [tokenIn, tokenOut]);
 
   ////////////////////////////////Token Allowances
 
@@ -399,21 +397,39 @@ export default function CreateCover(props: any) {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    if (coverPositionData.lowerPrice && coverPositionData.upperPrice)
+    if (
+      coverPositionData.lowerPrice &&
+      coverPositionData.upperPrice &&
+      coverPoolData.volatilityTier.tickSpread
+    )
       updateGasFee();
-  }, [tokenIn]);
+  }, [
+    coverPositionData.lowerPrice,
+    coverPositionData.upperPrice,
+    coverAmountIn,
+    coverAmountOut,
+    tokenIn,
+    tokenOut,
+  ]);
 
   async function updateGasFee() {
     const newMintGasFee = await gasEstimateCoverMint(
       coverPoolAddress,
       address,
-      Number(coverPositionData.upperPrice.toString()),
-      Number(coverPositionData.lowerPrice.toString()),
+      TickMath.getTickAtPriceString(
+        coverPositionData.upperPrice,
+        parseInt(coverPoolData.volatilityTier.tickSpread)
+      ),
+      TickMath.getTickAtPriceString(
+        coverPositionData.lowerPrice,
+        parseInt(coverPoolData.volatilityTier.tickSpread)
+      ),
       tokenIn,
       tokenOut,
       coverAmountIn,
       signer
     );
+
     setMintGasFee(newMintGasFee.formattedPrice);
     setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
   }
@@ -768,8 +784,12 @@ export default function CreateCover(props: any) {
             </div>
           </div>
           <span className="md:text-xs text-[10px] text-grey">
-            {tokenIn.symbol} per{" "}
-            {tokenOut.symbol === "SELECT TOKEN" ? "?" : tokenOut.symbol}
+          {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per{" "}
+            {tokenOut.symbol === "SELECT TOKEN"
+              ? "?"
+              : tokenOrder
+              ? tokenIn.symbol
+              : tokenOut.symbol}
           </span>
         </div>
       </div>
@@ -817,9 +837,6 @@ export default function CreateCover(props: any) {
             to={address}
             lower={TickMath.getTickAtPriceString(
               coverPositionData.lowerPrice ?? "0"
-            )}
-            claim={TickMath.getTickAtPriceString(
-              coverPositionData.upperPrice ?? "0"
             )}
             upper={TickMath.getTickAtPriceString(
               coverPositionData.upperPrice ?? "0"

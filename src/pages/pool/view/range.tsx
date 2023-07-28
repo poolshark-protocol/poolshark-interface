@@ -441,7 +441,7 @@ export default function Range() {
                 <div className="mt-5 space-y-2">
                   <div className="space-y-3">
                     <RangeCompoundButton
-                      poolAddress={rangePoolAddress.toString()}
+                      poolAddress={rangePoolAddress}
                       address={address}
                       lower={BigNumber.from(rangePositionData.min)}
                       upper={BigNumber.from(rangePositionData.max)}

@@ -10,7 +10,6 @@ import {
   erc20ABI,
   useAccount,
   useContractRead,
-  useBalance,
   useSigner,
   useProvider,
 } from "wagmi";
@@ -20,38 +19,22 @@ import { Fragment, useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
 import JSBI from "jsbi";
 import { Listbox, Transition } from "@headlessui/react";
-import {
-  TickMath,
-  getDefaultLowerPrice,
-  getDefaultLowerTick,
-  getDefaultUpperPrice,
-  getDefaultUpperTick,
-  roundTick,
-} from "../../utils/math/tickMath";
-import { coverPoolABI } from "../../abis/evm/coverPool";
-import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import { TickMath, roundTick } from "../../utils/math/tickMath";
+import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
-import { token } from "../../utils/types";
-import { feeTiers, getCoverPool, getCoverPoolInfo } from "../../utils/pools";
-import {
-  fetchCoverTokenUSDPrice,
-  fetchTokenPrices,
-  switchDirection,
-} from "../../utils/tokens";
+import { getCoverPool } from "../../utils/pools";
+import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
 import TickSpacing from "../Tooltips/TickSpacing";
 import { getCoverPoolFromFactory } from "../../utils/queries";
 import { gasEstimateCoverMint } from "../../utils/gas";
-import JSBD from "jsbd";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
 import useInputBox from "../../hooks/useInputBox";
 import { getBalances } from "../../utils/balances";
 import { useRangeStore } from "../../hooks/useRangeStore";
-import { CoinStatus } from "fuels";
 import { invertPrice } from "../../utils/math/tickMath";
-import { parse } from "graphql";
 
 export default function CoverExistingPool({ goBack }) {
   const [
@@ -62,22 +45,14 @@ export default function CoverExistingPool({ goBack }) {
     setCoverPoolData,
     setCoverPositionData,
     tokenIn,
-    tokenInAmount,
     tokenInCoverUSDPrice,
     tokenInBalance,
-    tokenInAllowance,
-    setTokenIn,
-    setTokenInAmount,
     setTokenInCoverUSDPrice,
     setTokenInBalance,
     setTokenInAllowance,
     tokenOut,
     tokenOutCoverUSDPrice,
-    tokenOutBalance,
-    tokenOutAllowance,
-    setTokenOut,
     setTokenOutCoverUSDPrice,
-    setTokenOutBalance,
     setTokenOutAllowance,
     pairSelected,
     switchDirection,
@@ -89,22 +64,14 @@ export default function CoverExistingPool({ goBack }) {
     state.setCoverPoolData,
     state.setCoverPositionData,
     state.tokenIn,
-    state.tokenInAmount,
     state.tokenInCoverUSDPrice,
     state.tokenInBalance,
-    state.tokenInCoverAllowance,
-    state.setTokenIn,
-    state.setTokenInAmount,
     state.setTokenInCoverUSDPrice,
     state.setTokenInBalance,
     state.setTokenInCoverAllowance,
     state.tokenOut,
     state.tokenOutCoverUSDPrice,
-    state.tokenOutBalance,
-    state.tokenOutCoverAllowance,
-    state.setTokenOut,
     state.setTokenOutCoverUSDPrice,
-    state.setTokenOutBalance,
     state.setTokenOutCoverAllowance,
     state.pairSelected,
     state.switchDirection,
@@ -129,6 +96,15 @@ export default function CoverExistingPool({ goBack }) {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
   }, [chainId]);
 
+  ////////////////////////////////TokenOrder
+  const [tokenOrder, setTokenOrder] = useState(true);
+
+  useEffect(() => {
+    if (tokenIn.address && tokenOut.address) {
+      setTokenOrder(tokenIn.callId == 0);
+    }
+  }, [tokenIn, tokenOut]);
+
   //////////////////////////////Pools
 
   useEffect(() => {
@@ -148,12 +124,21 @@ export default function CoverExistingPool({ goBack }) {
     if (coverPoolData.latestTick) {
       updatePositionData();
     }
-  }, [coverPoolData, coverPoolAddress]);
+  }, [coverPoolData, coverPoolAddress, tokenOrder]);
 
   async function updatePositionData() {
     const tickAtPrice = Number(coverPoolData.latestTick);
-    const lowerPrice = TickMath.getPriceStringAtTick(tickAtPrice - 7000);
-    const upperPrice = TickMath.getPriceStringAtTick(tickAtPrice - -7000);
+    const tickSpread = Number(coverPoolData.volatilityTier.tickSpread);
+    const lowerPrice = TickMath.getPriceStringAtTick(
+      tokenOrder
+        ? tickAtPrice + -tickSpread * 16
+        : tickAtPrice + tickSpread * 8,
+      tickSpread
+    );
+    const upperPrice = TickMath.getPriceStringAtTick(
+      tokenOrder ? tickAtPrice - tickSpread * 6 : tickAtPrice + tickSpread * 18,
+      tickSpread
+    );
     setLowerPrice(lowerPrice);
     setUpperPrice(upperPrice);
     setCoverPositionData({
@@ -218,15 +203,6 @@ export default function CoverExistingPool({ goBack }) {
       console.log(error);
     }
   };
-
-  ////////////////////////////////TokenOrder
-  const [tokenOrder, setTokenOrder] = useState(true);
-
-  useEffect(() => {
-    if (tokenIn.address && tokenOut.address) {
-      setTokenOrder(tokenIn.callId == 0);
-    }
-  }, [tokenIn, tokenOut]);
 
   ////////////////////////////////Token Allowances
 
@@ -456,7 +432,11 @@ export default function CoverExistingPool({ goBack }) {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    if (coverPositionData.lowerPrice && coverPositionData.upperPrice)
+    if (
+      coverPositionData.lowerPrice &&
+      coverPositionData.upperPrice &&
+      coverPoolData.volatilityTier
+    )
       updateGasFee();
   }, [
     coverPositionData.lowerPrice,
@@ -471,13 +451,20 @@ export default function CoverExistingPool({ goBack }) {
     const newMintGasFee = await gasEstimateCoverMint(
       coverPoolAddress,
       address,
-      parseInt(coverPositionData.upperPrice),
-      parseInt(coverPositionData.lowerPrice),
+      TickMath.getTickAtPriceString(
+        coverPositionData.upperPrice,
+        parseInt(coverPoolData.volatilityTier.tickSpread)
+      ),
+      TickMath.getTickAtPriceString(
+        coverPositionData.lowerPrice,
+        parseInt(coverPoolData.volatilityTier.tickSpread)
+      ),
       tokenIn,
       tokenOut,
       coverAmountIn,
       signer
     );
+
     console.log("new mint gas fee", newMintGasFee);
     setMintGasFee(newMintGasFee.formattedPrice);
     setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
@@ -506,7 +493,7 @@ export default function CoverExistingPool({ goBack }) {
       setButtonState("amount");
     } else if (pairSelected == false) {
       setButtonState("token");
-    } else if (mintGasLimit.gt(BN_ZERO)) {
+    } else if (mintGasLimit.eq(BN_ZERO)) {
       setDisabled(true);
     } else {
       setDisabled(false);
@@ -525,9 +512,20 @@ export default function CoverExistingPool({ goBack }) {
   useEffect(() => {
     const disabledFlag =
       bnInput.eq(BN_ZERO) &&
-      coverPositionData.lowerPrice < coverPositionData.upperPrice;
+      coverPositionData.lowerPrice < coverPositionData.upperPrice &&
+      validBounds &&
+      parseFloat(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) >
+        parseFloat(tokenInBalance) &&
+      pairSelected == true;
     setDisabled(disabledFlag);
-  }, [coverPositionData.lowerPrice, coverPositionData.upperPrice, bnInput]);
+  }, [
+    coverPositionData.lowerPrice,
+    coverPositionData.upperPrice,
+    bnInput,
+    validBounds,
+    tokenInBalance,
+    coverAmountIn,
+  ]);
 
   ////////////////////////////////
 
@@ -691,6 +689,16 @@ export default function CoverExistingPool({ goBack }) {
         <div className="flex flex-col justify-between w-full my-1 px-1 break-normal transition duration-500 h-fit">
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Min. filled amount</div>
+            <div className="ml-auto text-xs">
+              {(
+                parseFloat(
+                  ethers.utils.formatUnits(String(coverAmountOut), 18)
+                ) *
+                (1 - coverPoolData.volatilityTier.tickSpread / 10000)
+              ).toPrecision(5) +
+                " " +
+                tokenOut.symbol}
+            </div>
           </div>
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
@@ -765,7 +773,6 @@ export default function CoverExistingPool({ goBack }) {
               id="input"
               onChange={(e) => {
                 setSliderValue(Number(inputFilter(e.target.value)));
-                //console.log("slider value", sliderValue);
               }}
               value={sliderValue}
               className="text-right placeholder:text-grey1 text-white text-xl w-20 focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
@@ -962,13 +969,6 @@ export default function CoverExistingPool({ goBack }) {
             lower={
               coverPositionData.lowerPrice
                 ? TickMath.getTickAtPriceString(coverPositionData.lowerPrice)
-                : 0
-            }
-            claim={
-              coverPositionData.lowerPrice && coverPositionData.upperPrice
-                ? tokenOrder
-                  ? TickMath.getTickAtPriceString(coverPositionData.upperPrice)
-                  : TickMath.getTickAtPriceString(coverPositionData.lowerPrice)
                 : 0
             }
             upper={

@@ -3,7 +3,6 @@ import {
   ChevronDownIcon,
   PlusIcon,
   MinusIcon,
-  ArrowLongRightIcon,
   InformationCircleIcon,
 } from "@heroicons/react/20/solid";
 import { Listbox, Transition } from "@headlessui/react";
@@ -14,17 +13,14 @@ import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
 import { getRangePoolFromFactory } from "../../utils/queries";
 import useInputBox from "../../hooks/useInputBox";
-import { erc20ABI, useAccount, useBalance, useSigner } from "wagmi";
+import { useAccount, useBalance } from "wagmi";
 import { BigNumber, ethers } from "ethers";
-import { useContractRead } from "wagmi";
-import { getBalances } from "../../utils/balances";
-import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import inputFilter from "../../utils/inputFilter";
 import TickSpacing from "../Tooltips/TickSpacing";
 import { fetchRangeTokenUSDPrice, switchDirection } from "../../utils/tokens";
 import { feeTiers, getRangePool } from "../../utils/pools";
-import { gasEstimateRangeMint } from "../../utils/gas";
 
 export default function ConcentratedPool({}) {
   const [
@@ -90,6 +86,15 @@ export default function ConcentratedPool({}) {
   const [hasSelected, setHasSelected] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
 
+  ////////////////////////////////TokenOrder
+  const [tokenOrder, setTokenOrder] = useState(true);
+
+  useEffect(() => {
+    if (tokenIn.address && tokenOut.address) {
+      setTokenOrder(tokenIn.callId == 0);
+    }
+  }, [tokenIn, tokenOut]);
+
   ////////////////////////////////Pools
 
   useEffect(() => {
@@ -109,7 +114,10 @@ export default function ConcentratedPool({}) {
 
   //this sets the default position price delta
   useEffect(() => {
-    if (rangePoolData.price) {
+    console.log("rangePoolData", rangePoolData);
+    if (rangePoolData.price && rangePoolData.tickAtPrice) {
+      console.log("rangePoolData.price", rangePoolData.price);
+      console.log("rangePoolData.tickAtPrice", rangePoolData.tickAtPrice);
       const price = JSBI.BigInt(rangePoolData.price);
       const tickAtPrice = rangePoolData.tickAtPrice;
       setRangePrice(TickMath.getPriceStringAtSqrtPrice(price));
@@ -117,16 +125,14 @@ export default function ConcentratedPool({}) {
       const positionData = rangePositionData;
       if (isNaN(parseFloat(lowerPrice)) || parseFloat(lowerPrice) <= 0) {
         setLowerPrice(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
-        positionData.lowerPrice = BigNumber.from(tickAtPrice - 7000);
       }
       if (isNaN(parseFloat(upperPrice)) || parseFloat(upperPrice) <= 0) {
         setUpperPrice(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
-        positionData.upperPrice = BigNumber.from(tickAtPrice - -7000);
       }
       setRangeTickPrice(tickAtPrice);
       setRangePositionData(positionData);
     }
-  }, [rangePoolData]);
+  }, [rangePoolData, tokenOrder]);
 
   ////////////////////////////////Pools Fee Tiers
   const [fee, setFee] = useState(feeTiers[0]);
@@ -170,15 +176,6 @@ export default function ConcentratedPool({}) {
       }
     }
   };
-
-  ////////////////////////////////TokenOrder
-  const [tokenOrder, setTokenOrder] = useState(true);
-
-  useEffect(() => {
-    if (tokenIn.address && tokenOut.address) {
-      setTokenOrder(tokenIn.callId == 0);
-    }
-  }, [tokenIn, tokenOut]);
 
   ////////////////////////////////Token Balances
 
@@ -261,18 +258,18 @@ export default function ConcentratedPool({}) {
   function tokenOutAmountMath() {
     try {
       const lower = TickMath.getTickAtPriceString(
-        rangePositionData.lowerPrice,
+        lowerPrice,
         parseInt(rangePoolData.feeTier.tickSpacing)
       );
       const upper = TickMath.getTickAtPriceString(
-        rangePositionData.upperPrice,
+        upperPrice,
         parseInt(rangePoolData.feeTier.tickSpacing)
       );
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lower);
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upper);
       const liquidity =
-        parseFloat(rangePrice) >= parseFloat(rangePositionData.lowerPrice) &&
-        parseFloat(rangePrice) <= parseFloat(rangePositionData.upperPrice)
+        parseFloat(rangePrice) >= parseFloat(lowerPrice) &&
+        parseFloat(rangePrice) <= parseFloat(upperPrice)
           ? DyDxMath.getLiquidityForAmounts(
               tokenOrder ? rangeSqrtPrice : lowerSqrtPrice,
               tokenOrder ? upperSqrtPrice : rangeSqrtPrice,
@@ -293,7 +290,7 @@ export default function ConcentratedPool({}) {
           : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
         : ZERO;
       setTokenInAmount(bnInput);
-      setTokenOutAmount(BigNumber.from(tokenOutAmount.toString()));
+      setTokenOutAmount(BigNumber.from(String(tokenOutAmount)));
     } catch (error) {
       console.log(error);
     }
@@ -301,7 +298,6 @@ export default function ConcentratedPool({}) {
 
   ////////////////////////////////Gas Fee
 
-  ////////////////////////////////Change Price Buttons
   //set lower and upper price
   const changePrice = (direction: string, inputId: string) => {
     if (!rangePoolData.feeTier.tickSpacing) return;
@@ -665,7 +661,12 @@ export default function ConcentratedPool({}) {
                 </div>
               </div>
               <span className="md:text-xs text-[10px] text-grey">
-                {tokenOut.symbol} per {tokenIn.symbol}
+                {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per{" "}
+                {tokenOut.symbol === "SELECT TOKEN"
+                  ? "?"
+                  : tokenOrder
+                  ? tokenIn.symbol
+                  : tokenOut.symbol}
               </span>
             </div>
             <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
@@ -704,7 +705,12 @@ export default function ConcentratedPool({}) {
                 </div>
               </div>
               <span className="md:text-xs text-[10px] text-grey">
-                {tokenOut.symbol} per {tokenIn.symbol}
+                {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per{" "}
+                {tokenOut.symbol === "SELECT TOKEN"
+                  ? "?"
+                  : tokenOrder
+                  ? tokenIn.symbol
+                  : tokenOut.symbol}
               </span>
             </div>
           </div>

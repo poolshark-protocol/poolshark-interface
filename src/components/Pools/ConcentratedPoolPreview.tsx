@@ -6,11 +6,10 @@ import { erc20ABI, useAccount, useContractRead, useProvider } from "wagmi";
 import { TickMath } from "../../utils/math/tickMath";
 import RangeMintDoubleApproveButton from "../Buttons/RangeMintDoubleApproveButton";
 import { useRouter } from "next/router";
-import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
-import { gasEstimateRangeMint, gasEstimateSwapLimit } from "../../utils/gas";
 import RangeMintApproveButton from "../Buttons/RangeMintApproveButton";
 import { useRangeStore } from "../../hooks/useRangeStore";
-import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import { BN_ZERO } from "../../utils/math/constants";
+import { gasEstimateRangeMint } from "../../utils/gas";
 
 export default function ConcentratedPoolPreview({ fee }) {
   const [
@@ -98,13 +97,20 @@ export default function ConcentratedPoolPreview({ fee }) {
 
   ////////////////////////////////Mint Gas Fee
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
-  //const [mintGasFee, setMintGasFee] = useState("$0.00");
 
   useEffect(() => {
-    updateGasFee();
+    if (
+      tokenInAmount &&
+      tokenOutAmount &&
+      rangePositionData.lowerPrice &&
+      rangePositionData.upperPrice &&
+      rangePoolData.feeTier
+    )
+      updateGasFee();
   }, [tokenInAmount, tokenOut, rangePositionData]);
 
   async function updateGasFee() {
+    console.log("rangePositionData", rangePositionData);
     const newGasFee = await gasEstimateRangeMint(
       rangePoolAddress,
       address,
@@ -114,11 +120,12 @@ export default function ConcentratedPoolPreview({ fee }) {
       tokenOutAmount,
       signer
     );
-    //setMintGasFee(newGasFee.formattedPrice);
+
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
   }
 
   ///////////////////////////////
+
   const [isOpen, setIsOpen] = useState(false);
 
   function closeModal() {
@@ -326,30 +333,12 @@ export default function ConcentratedPoolPreview({ fee }) {
                             poolAddress={rangePoolAddress}
                             lower={
                               rangePositionData.lowerPrice
-                                ? BigNumber.from(
-                                    TickMath.getTickAtPriceString(
-                                      rangePositionData.lowerPrice,
-                                      parseInt(
-                                        rangePoolData.feeTier
-                                          ? rangePoolData.feeTier.tickSpacing
-                                          : 20
-                                      )
-                                    )
-                                  )
+                                ? rangePositionData.lowerPrice
                                 : BN_ZERO
                             }
                             upper={
                               rangePositionData.upperPrice
-                                ? BigNumber.from(
-                                    TickMath.getTickAtPriceString(
-                                      rangePositionData.upperPrice,
-                                      parseInt(
-                                        rangePoolData.feeTier
-                                          ? rangePoolData.feeTier.tickSpacing
-                                          : 20
-                                      )
-                                    )
-                                  )
+                                ? rangePositionData.upperPrice
                                 : BN_ZERO
                             }
                             disabled={
@@ -366,8 +355,8 @@ export default function ConcentratedPoolPreview({ fee }) {
                                 ? tokenOutAmount
                                 : tokenInAmount
                             }
-                            gasLimit={mintGasLimit}
                             closeModal={() => router.push("/pool")}
+                            gasLimit={mintGasLimit}
                           />
                         ) : (tokenInAllowance.lt(tokenInAmount) &&
                             tokenOutAllowance.lt(tokenOutAmount)) ||
