@@ -1293,7 +1293,7 @@ export default function Swap() {
               />
             ) : (
               <RangeLimitSwapButton
-                disabled={false}
+                disabled={mintGasLimit.eq(BN_ZERO)}
                 poolAddress={rangePoolAddress}
                 to={address}
                 lower={lowerTick}
