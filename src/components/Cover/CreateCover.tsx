@@ -40,9 +40,11 @@ export default function CreateCover(props: any) {
     coverPoolAddress,
     coverPoolData,
     coverPositionData,
+    volatilityTier,
     setCoverPoolAddress,
     setCoverPoolData,
     setCoverPositionData,
+    setVolatilityTier,
     tokenIn,
     tokenInCoverUSDPrice,
     tokenInBalance,
@@ -60,9 +62,11 @@ export default function CreateCover(props: any) {
     state.coverPoolAddress,
     state.coverPoolData,
     state.coverPositionData,
+    state.volatilityTier,
     state.setCoverPoolAddress,
     state.setCoverPoolData,
     state.setCoverPositionData,
+    state.setVolatilityTier,
     state.tokenIn,
     state.tokenInCoverUSDPrice,
     state.tokenInBalance,
@@ -106,15 +110,16 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     updatePools();
-  }, [coverPoolAddress]);
+  });
 
   async function updatePools() {
-    await getCoverPool(
+    handleManualVolatilityChange(volatilityTier);
+    /* await getCoverPool(
       tokenIn,
       tokenOut,
       setCoverPoolAddress,
       setCoverPoolData
-    );
+    ); */
   }
 
   useEffect(() => {
@@ -181,6 +186,7 @@ export default function CreateCover(props: any) {
         tokenIn.address,
         tokenOut.address
       );
+
       const volatilityId = volatility.id;
       const dataLength = pool["data"]["coverPools"].length;
       for (let i = 0; i < dataLength; i++) {
@@ -192,8 +198,10 @@ export default function CreateCover(props: any) {
             pool["data"]["coverPools"][i]["volatilityTier"]["tickSpread"] == 40)
         ) {
           setVolatility(volatilityId);
+          setVolatilityTier(volatilityId);
           //setting the address will trigger the poolInfo refetching
           setCoverPoolAddress(pool["data"]["coverPools"][i]["id"]);
+          setCoverPoolData(pool["data"]["coverPools"][i]);
         }
       }
     } catch (error) {
@@ -241,12 +249,13 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     updateBalances();
-  }, [tokenIn.address, tokenOut.address]);
+  }, [tokenIn.address, tokenOut.address, coverPoolData]);
 
   ////////////////////////////////Token Prices
 
   useEffect(() => {
     if (coverPoolData.token0 && coverPoolData.token1) {
+      console.log("coverPoolData", coverPoolData);
       if (tokenIn.address) {
         fetchCoverTokenUSDPrice(
           coverPoolData,
@@ -323,7 +332,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     changeCoverAmounts();
-  }, [coverAmountIn, tokenOrder]);
+  }, [coverAmountIn, tokenOrder, coverPositionData]);
 
   function changeCoverAmounts() {
     if (
@@ -373,7 +382,7 @@ export default function CreateCover(props: any) {
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
       coverPoolData.latestTick &&
-      coverPoolData.volatilityTier.tickSpread
+      coverPoolData.volatilityTier
     )
       changeValidBounds();
   }, [coverPositionData.lowerPrice, coverPositionData.upperPrice]);
@@ -400,7 +409,7 @@ export default function CreateCover(props: any) {
     if (
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
-      coverPoolData.volatilityTier.tickSpread
+      coverPoolData.volatilityTier
     )
       updateGasFee();
   }, [
@@ -784,7 +793,7 @@ export default function CreateCover(props: any) {
             </div>
           </div>
           <span className="md:text-xs text-[10px] text-grey">
-          {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per{" "}
+            {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per{" "}
             {tokenOut.symbol === "SELECT TOKEN"
               ? "?"
               : tokenOrder
