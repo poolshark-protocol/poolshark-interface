@@ -81,24 +81,22 @@ export default function ConcentratedPool({}) {
 
   const { address, isConnected } = useAccount();
 
-  const {
-    bnInput,
-    setBnInput,
-    setDisplay,
-    inputBox,
-    maxBalance,
-  } = useInputBox();
+  const { bnInput, setBnInput, setDisplay, inputBox, maxBalance } =
+    useInputBox();
 
   const [hasSelected, setHasSelected] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
 
-  ////////////////////////////////Pools
+  ////////////////////////////////TokenOrder
+  const [tokenOrder, setTokenOrder] = useState(true);
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address) {
-      updatePools();
+      setTokenOrder(tokenIn.callId == 0);
     }
   }, [tokenIn, tokenOut]);
+
+  ////////////////////////////////Pools
 
   async function updatePools() {
     await getRangePool(
@@ -109,34 +107,55 @@ export default function ConcentratedPool({}) {
     );
   }
 
+  useEffect(() => {
+    if (tokenIn.address && tokenOut.address) {
+      updatePools();
+    }
+  }, [tokenIn, tokenOut]);
+
   //this sets the default position price delta
   useEffect(() => {
     console.log("rangePoolData", rangePoolData);
-    if (rangePoolData.price) {
-      console.log("rangePoolData.price", rangePoolData.price);
-      console.log("rangePoolData.tickAtPrice", rangePoolData.tickAtPrice);
+    if (
+      tokenIn.address &&
+      tokenOut.address &&
+      rangePoolData.price &&
+      rangePoolData.tickAtPrice &&
+      rangePoolData.feeTier
+    ) {
+      console.log("rangePoolData", rangePoolData);
       const price = JSBI.BigInt(rangePoolData.price);
-      const tickAtPrice = rangePoolData.tickAtPrice;
+      const tickAtPrice = parseInt(rangePoolData.tickAtPrice);
+      const tickSpacing = parseInt(rangePoolData.feeTier.tickSpacing);
+      const lowerPrice = TickMath.getPriceStringAtTick(
+        tokenOrder
+          ? tickAtPrice + -tickSpacing * 16
+          : tickAtPrice + tickSpacing * 8,
+        tickSpacing
+      );
+      const upperPrice = TickMath.getPriceStringAtTick(
+        tokenOrder
+          ? tickAtPrice - tickSpacing * 6
+          : tickAtPrice + tickSpacing * 18,
+        tickSpacing
+      );
       setRangePrice(TickMath.getPriceStringAtSqrtPrice(price));
       setRangeSqrtPrice(price);
-      const positionData = rangePositionData;
-      console.log("set lower e upper price", lowerPrice, upperPrice);
-      if (isNaN(parseFloat(lowerPrice)) || parseFloat(lowerPrice) <= 0) {
-        console.log("set lower price");
-        setLowerPrice(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
-        positionData.lowerPrice = BigNumber.from(tickAtPrice - 7000);
-        //setMinTick(rangePositionData, BigNumber.from(tickAtPrice - 7000));
-      }
-      if (isNaN(parseFloat(upperPrice)) || parseFloat(upperPrice) <= 0) {
-        console.log("set upper price");
-        setUpperPrice(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
-        positionData.upperPrice = BigNumber.from(tickAtPrice - -7000);
-        //setMaxTick(rangePositionData, BigNumber.from(tickAtPrice - -7000));
-      }
+      setLowerPrice(lowerPrice);
+      setUpperPrice(upperPrice);
       setRangeTickPrice(tickAtPrice);
-      setRangePositionData(positionData);
+      setRangePositionData({
+        ...rangePositionData,
+        tickAtPrice: tickAtPrice,
+        lowerPrice: BigNumber.from(
+          TickMath.getTickAtPriceString(lowerPrice, tickSpacing)
+        ),
+        upperPrice: BigNumber.from(
+          TickMath.getTickAtPriceString(upperPrice, tickSpacing)
+        ),
+      });
     }
-  }, [rangePoolData]);
+  }, [rangePoolData, tokenOrder]);
 
   ////////////////////////////////Pools Fee Tiers
   const [fee, setFee] = useState(updateSelectedFeeTier);
@@ -174,15 +193,6 @@ export default function ConcentratedPool({}) {
       }
     }
   };
-
-  ////////////////////////////////TokenOrder
-  const [tokenOrder, setTokenOrder] = useState(true);
-
-  useEffect(() => {
-    if (tokenIn.address && tokenOut.address) {
-      setTokenOrder(tokenIn.callId == 0);
-    }
-  }, [tokenIn, tokenOut]);
 
   ////////////////////////////////Token Balances
 
@@ -297,14 +307,14 @@ export default function ConcentratedPool({}) {
           ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
           : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
         : ZERO;
-        
+
       setTokenInAmount(bnInput);
       setTokenOutAmount(BigNumber.from(tokenOutAmount.toString()));
     } catch (error) {
       console.log(error);
     }
   }
-  
+
   ////////////////////////////////Change Price Buttons
   //set lower and upper price
   const changePrice = (direction: string, inputId: string) => {
@@ -726,7 +736,7 @@ export default function ConcentratedPool({}) {
             </div>
           </div>
         </div>
-         <ConcentratedPoolPreview fee={fee} />
+        <ConcentratedPoolPreview fee={fee} />
       </div>
     </div>
   );

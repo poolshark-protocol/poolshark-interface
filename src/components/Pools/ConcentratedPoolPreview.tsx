@@ -99,25 +99,23 @@ export default function ConcentratedPoolPreview({ fee }) {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    updateGasFee();
+    if (
+      tokenInAmount &&
+      tokenOutAmount &&
+      rangePositionData.lowerPrice &&
+      rangePositionData.upperPrice &&
+      rangePoolData.feeTier
+    )
+      updateGasFee();
   }, [tokenInAmount, tokenOut, rangePositionData]);
 
   async function updateGasFee() {
+    console.log("rangePositionData", rangePositionData);
     const newGasFee = await gasEstimateRangeMint(
       rangePoolAddress,
       address,
-      BigNumber.from(
-        TickMath.getTickAtPriceString(
-          rangePositionData.lowerPrice,
-          parseInt(rangePoolData.feeTier.tickSpacing)
-        )
-      ),
-      BigNumber.from(
-          TickMath.getTickAtPriceString(
-            rangePositionData.upperPrice,
-            parseInt(rangePoolData.feeTier.tickSpacing)
-          )
-        ),
+      rangePositionData.lowerPrice,
+      rangePositionData.upperPrice,
       tokenInAmount,
       tokenOutAmount,
       signer
@@ -335,30 +333,12 @@ export default function ConcentratedPoolPreview({ fee }) {
                             poolAddress={rangePoolAddress}
                             lower={
                               rangePositionData.lowerPrice
-                                ? BigNumber.from(
-                                    TickMath.getTickAtPriceString(
-                                      rangePositionData.lowerPrice,
-                                      parseInt(
-                                        rangePoolData.feeTier
-                                          ? rangePoolData.feeTier.tickSpacing
-                                          : 20
-                                      )
-                                    )
-                                  )
+                                ? rangePositionData.lowerPrice
                                 : BN_ZERO
                             }
                             upper={
                               rangePositionData.upperPrice
-                                ? BigNumber.from(
-                                    TickMath.getTickAtPriceString(
-                                      rangePositionData.upperPrice,
-                                      parseInt(
-                                        rangePoolData.feeTier
-                                          ? rangePoolData.feeTier.tickSpacing
-                                          : 20
-                                      )
-                                    )
-                                  )
+                                ? rangePositionData.upperPrice
                                 : BN_ZERO
                             }
                             disabled={

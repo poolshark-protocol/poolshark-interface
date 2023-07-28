@@ -93,6 +93,15 @@ export default function CreateCover(props: any) {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
   }, [chainId]);
 
+  ////////////////////////////////TokenOrder
+  const [tokenOrder, setTokenOrder] = useState(true);
+
+  useEffect(() => {
+    if (tokenIn.address && tokenOut.address) {
+      setTokenOrder(tokenIn.callId == 0);
+    }
+  }, [tokenIn, tokenOut]);
+
   //////////////////////////////Pools
 
   useEffect(() => {
@@ -109,15 +118,24 @@ export default function CreateCover(props: any) {
   }
 
   useEffect(() => {
-    if (coverPoolData.latestTick) {
+    if (coverPoolData.latestTick && coverPoolData.volatilityTier) {
       updatePositionData();
     }
-  }, [coverPoolData]);
+  }, [coverPoolData, tokenOrder]);
 
   async function updatePositionData() {
     const tickAtPrice = Number(coverPoolData.latestTick);
-    const lowerPrice = TickMath.getPriceStringAtTick(tickAtPrice - 7000);
-    const upperPrice = TickMath.getPriceStringAtTick(tickAtPrice - -7000);
+    const tickSpread = Number(coverPoolData.volatilityTier.tickSpread);
+    const lowerPrice = TickMath.getPriceStringAtTick(
+      tokenOrder
+        ? tickAtPrice + -tickSpread * 16
+        : tickAtPrice + tickSpread * 8,
+      tickSpread
+    );
+    const upperPrice = TickMath.getPriceStringAtTick(
+      tokenOrder ? tickAtPrice - tickSpread * 6 : tickAtPrice + tickSpread * 18,
+      tickSpread
+    );
     setLowerPrice(lowerPrice);
     setUpperPrice(upperPrice);
     setCoverPositionData({
@@ -182,15 +200,6 @@ export default function CreateCover(props: any) {
       console.log(error);
     }
   };
-
-  ////////////////////////////////TokenOrder
-  const [tokenOrder, setTokenOrder] = useState(true);
-
-  useEffect(() => {
-    if (tokenIn.address && tokenOut.address) {
-      setTokenOrder(tokenIn.callId == 0);
-    }
-  }, [tokenIn, tokenOut]);
 
   ////////////////////////////////Token Allowances
 
@@ -390,19 +399,27 @@ export default function CreateCover(props: any) {
   useEffect(() => {
     if (coverPositionData.lowerPrice && coverPositionData.upperPrice)
       updateGasFee();
-  }, [coverPositionData.lowerPrice,
+  }, [
+    coverPositionData.lowerPrice,
     coverPositionData.upperPrice,
     coverAmountIn,
     coverAmountOut,
     tokenIn,
-    tokenOut,]);
+    tokenOut,
+  ]);
 
   async function updateGasFee() {
     const newMintGasFee = await gasEstimateCoverMint(
       coverPoolAddress,
       address,
-      TickMath.getTickAtPriceString(coverPositionData.upperPrice, parseInt(coverPoolData.volatilityTier.tickSpread)),
-      TickMath.getTickAtPriceString(coverPositionData.lowerPrice, parseInt(coverPoolData.volatilityTier.tickSpread)),
+      TickMath.getTickAtPriceString(
+        coverPositionData.upperPrice,
+        parseInt(coverPoolData.volatilityTier.tickSpread)
+      ),
+      TickMath.getTickAtPriceString(
+        coverPositionData.lowerPrice,
+        parseInt(coverPoolData.volatilityTier.tickSpread)
+      ),
       tokenIn,
       tokenOut,
       coverAmountIn,
