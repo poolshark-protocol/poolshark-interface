@@ -397,7 +397,11 @@ export default function CreateCover(props: any) {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    if (coverPositionData.lowerPrice && coverPositionData.upperPrice)
+    if (
+      coverPositionData.lowerPrice &&
+      coverPositionData.upperPrice &&
+      coverPoolData.volatilityTier.tickSpread
+    )
       updateGasFee();
   }, [
     coverPositionData.lowerPrice,
@@ -780,8 +784,12 @@ export default function CreateCover(props: any) {
             </div>
           </div>
           <span className="md:text-xs text-[10px] text-grey">
-            {tokenIn.symbol} per{" "}
-            {tokenOut.symbol === "SELECT TOKEN" ? "?" : tokenOut.symbol}
+          {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per{" "}
+            {tokenOut.symbol === "SELECT TOKEN"
+              ? "?"
+              : tokenOrder
+              ? tokenIn.symbol
+              : tokenOut.symbol}
           </span>
         </div>
       </div>

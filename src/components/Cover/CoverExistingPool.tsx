@@ -96,6 +96,15 @@ export default function CoverExistingPool({ goBack }) {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
   }, [chainId]);
 
+  ////////////////////////////////TokenOrder
+  const [tokenOrder, setTokenOrder] = useState(true);
+
+  useEffect(() => {
+    if (tokenIn.address && tokenOut.address) {
+      setTokenOrder(tokenIn.callId == 0);
+    }
+  }, [tokenIn, tokenOut]);
+
   //////////////////////////////Pools
 
   useEffect(() => {
@@ -115,7 +124,7 @@ export default function CoverExistingPool({ goBack }) {
     if (coverPoolData.latestTick) {
       updatePositionData();
     }
-  }, [coverPoolData, coverPoolAddress]);
+  }, [coverPoolData, coverPoolAddress, tokenOrder]);
 
   async function updatePositionData() {
     const tickAtPrice = Number(coverPoolData.latestTick);
@@ -194,15 +203,6 @@ export default function CoverExistingPool({ goBack }) {
       console.log(error);
     }
   };
-
-  ////////////////////////////////TokenOrder
-  const [tokenOrder, setTokenOrder] = useState(true);
-
-  useEffect(() => {
-    if (tokenIn.address && tokenOut.address) {
-      setTokenOrder(tokenIn.callId == 0);
-    }
-  }, [tokenIn, tokenOut]);
 
   ////////////////////////////////Token Allowances
 
