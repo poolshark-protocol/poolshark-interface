@@ -81,16 +81,20 @@ export default function ConcentratedPool({}) {
 
   const { address, isConnected } = useAccount();
 
-  const {
-    bnInput,
-    setBnInput,
-    setDisplay,
-    inputBox,
-    maxBalance,
-  } = useInputBox();
+  const { bnInput, setBnInput, setDisplay, inputBox, maxBalance } =
+    useInputBox();
 
   const [hasSelected, setHasSelected] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
+
+  ////////////////////////////////TokenOrder
+  const [tokenOrder, setTokenOrder] = useState(true);
+
+  useEffect(() => {
+    if (tokenIn.address && tokenOut.address) {
+      setTokenOrder(tokenIn.callId == 0);
+    }
+  }, [tokenIn, tokenOut]);
 
   ////////////////////////////////Pools
 
@@ -112,7 +116,7 @@ export default function ConcentratedPool({}) {
   //this sets the default position price delta
   useEffect(() => {
     console.log("rangePoolData", rangePoolData);
-    if (rangePoolData.price) {
+    if (rangePoolData.price && rangePoolData.tickAtPrice) {
       console.log("rangePoolData.price", rangePoolData.price);
       console.log("rangePoolData.tickAtPrice", rangePoolData.tickAtPrice);
       const price = JSBI.BigInt(rangePoolData.price);
@@ -124,31 +128,33 @@ export default function ConcentratedPool({}) {
       if (isNaN(parseFloat(lowerPrice)) || parseFloat(lowerPrice) <= 0) {
         console.log("set lower price");
         setLowerPrice(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
-        positionData.lowerPrice = BigNumber.from(tickAtPrice - 7000);
-        //setMinTick(rangePositionData, BigNumber.from(tickAtPrice - 7000));
       }
       if (isNaN(parseFloat(upperPrice)) || parseFloat(upperPrice) <= 0) {
         console.log("set upper price");
         setUpperPrice(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
-        positionData.upperPrice = BigNumber.from(tickAtPrice - -7000);
-        //setMaxTick(rangePositionData, BigNumber.from(tickAtPrice - -7000));
       }
       setRangeTickPrice(tickAtPrice);
       setRangePositionData(positionData);
     }
-  }, [rangePoolData]);
+  }, [rangePoolData, tokenOrder]);
 
   ////////////////////////////////Pools Fee Tiers
-  const [fee, setFee] = useState(updateSelectedFeeTier);
+  const [fee, setFee] = useState(feeTiers[0]);
+
+  useEffect(() => {
+    if (rangePoolData.feeTier) {
+      setFee(updateSelectedFeeTier());
+    }
+  }, [rangePoolData]);
 
   function updateSelectedFeeTier(): any {
-    if (rangePoolData.feeTier == 0.01) {
+    if (rangePoolData.feeTier.id == "100") {
       return feeTiers[0];
-    } else if (rangePoolData.feeTier == 0.05) {
+    } else if (rangePoolData.feeTier.id == "500") {
       return feeTiers[1];
-    } else if (rangePoolData.feeTier == 0.3) {
+    } else if (rangePoolData.feeTier.id == "3000") {
       return feeTiers[2];
-    } else if (rangePoolData.feeTier == 1) {
+    } else if (rangePoolData.feeTier.id == "10000") {
       return feeTiers[3];
     } else return feeTiers[0];
   }
@@ -174,15 +180,6 @@ export default function ConcentratedPool({}) {
       }
     }
   };
-
-  ////////////////////////////////TokenOrder
-  const [tokenOrder, setTokenOrder] = useState(true);
-
-  useEffect(() => {
-    if (tokenIn.address && tokenOut.address) {
-      setTokenOrder(tokenIn.callId == 0);
-    }
-  }, [tokenIn, tokenOut]);
 
   ////////////////////////////////Token Balances
 
@@ -265,18 +262,18 @@ export default function ConcentratedPool({}) {
   function tokenOutAmountMath() {
     try {
       const lower = TickMath.getTickAtPriceString(
-        rangePositionData.lowerPrice,
+        lowerPrice,
         parseInt(rangePoolData.feeTier.tickSpacing)
       );
       const upper = TickMath.getTickAtPriceString(
-        rangePositionData.upperPrice,
+        upperPrice,
         parseInt(rangePoolData.feeTier.tickSpacing)
       );
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lower);
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upper);
       const liquidity =
-        parseFloat(rangePrice) >= parseFloat(rangePositionData.lowerPrice) &&
-        parseFloat(rangePrice) <= parseFloat(rangePositionData.upperPrice)
+        parseFloat(rangePrice) >= parseFloat(lowerPrice) &&
+        parseFloat(rangePrice) <= parseFloat(upperPrice)
           ? DyDxMath.getLiquidityForAmounts(
               tokenOrder ? rangeSqrtPrice : lowerSqrtPrice,
               tokenOrder ? upperSqrtPrice : rangeSqrtPrice,
@@ -297,15 +294,34 @@ export default function ConcentratedPool({}) {
           ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
           : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
         : ZERO;
-        
       setTokenInAmount(bnInput);
-      setTokenOutAmount(BigNumber.from(tokenOutAmount.toString()));
+      setTokenOutAmount(BigNumber.from(String(tokenOutAmount)));
     } catch (error) {
       console.log(error);
     }
   }
-  
-  ////////////////////////////////Change Price Buttons
+
+  ////////////////////////////////Lower and Upper Price
+
+  useEffect(() => {
+    if (
+      rangePositionData.lowerPrice &&
+      rangePositionData.upperPrice &&
+      !tokenOrder
+    ) {
+      const lower = TickMath.getTickAtPriceString(
+        rangePositionData.lowerPrice,
+        parseInt(rangePoolData.feeTier.tickSpacing)
+      );
+      setLowerPrice(TickMath.getPriceStringAtTick(lower));
+      const upper = TickMath.getTickAtPriceString(
+        rangePositionData.upperPrice,
+        parseInt(rangePoolData.feeTier.tickSpacing)
+      );
+      setUpperPrice(TickMath.getPriceStringAtTick(upper));
+    }
+  }, [tokenOrder]);
+
   //set lower and upper price
   const changePrice = (direction: string, inputId: string) => {
     if (!rangePoolData.feeTier.tickSpacing) return;
@@ -682,7 +698,12 @@ export default function ConcentratedPool({}) {
                 </div>
               </div>
               <span className="md:text-xs text-[10px] text-grey">
-                {tokenOut.symbol} per {tokenIn.symbol}
+                {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per{" "}
+                {tokenOut.symbol === "SELECT TOKEN"
+                  ? "?"
+                  : tokenOrder
+                  ? tokenIn.symbol
+                  : tokenOut.symbol}
               </span>
             </div>
             <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
@@ -721,12 +742,17 @@ export default function ConcentratedPool({}) {
                 </div>
               </div>
               <span className="md:text-xs text-[10px] text-grey">
-                {tokenOut.symbol} per {tokenIn.symbol}
+                {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per{" "}
+                {tokenOut.symbol === "SELECT TOKEN"
+                  ? "?"
+                  : tokenOrder
+                  ? tokenIn.symbol
+                  : tokenOut.symbol}
               </span>
             </div>
           </div>
         </div>
-         <ConcentratedPoolPreview fee={fee} />
+        <ConcentratedPoolPreview fee={fee} />
       </div>
     </div>
   );

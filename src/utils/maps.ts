@@ -147,7 +147,7 @@ export function mapCoverPools(coverPools) {
       tokenZero: coverPool.token0,
       liquidity: coverPool.liquidity,
       auctionLenght: coverPool.volatilityTier.auctionLength,
-      feeTier: coverPool.volatilityTier.feeAmount,
+      feeTier: coverPool.volatilityTier,
       tickSpacing: coverPool.volatilityTier.tickSpread,
       tvlUsd: (parseFloat(coverPool.totalValueLockedUsd) / 1_000_000).toFixed(2),
       volumeUsd: (parseFloat(coverPool.volumeUsd) / 1_000_000).toFixed(2),

@@ -12,6 +12,7 @@ type CoverState = {
   coverPoolAddress: `0x${string}`;
   coverPoolData: any;
   coverPositionData: any;
+  volatilityTier: any;
   coverSlippage: string;
   //true if both tokens selected, false if only one token selected
   pairSelected: Boolean;
@@ -38,6 +39,7 @@ type CoverAction = {
   setCoverPoolAddress: (address: String) => void;
   setCoverPoolData: (data: any) => void;
   setCoverPositionData: (data: any) => void;
+  setVolatilityTier: (volatilityTier: any) => void;
   //setPairSelected: (pairSelected: Boolean) => void;
   //tokenIn
   setTokenIn: (tokenOut: token, newToken: token) => void;
@@ -68,6 +70,7 @@ const initialCoverState: CoverState = {
   coverPoolData: {},
   coverPositionData: {},
   coverSlippage: "0.5",
+  volatilityTier: 0,
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
   pairSelected: true,
   //
@@ -106,6 +109,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   coverPoolData: initialCoverState.coverPoolData,
   coverPositionData: initialCoverState.coverPositionData,
   coverSlippage: initialCoverState.coverSlippage,
+  volatilityTier: initialCoverState.volatilityTier,
   pairSelected: initialCoverState.pairSelected,
   //tokenIn
   tokenIn: initialCoverState.tokenIn,
@@ -243,6 +247,11 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   setCoverPositionData: (coverPositionData: any) => {
     set(() => ({
       coverPositionData: coverPositionData,
+    }));
+  },
+  setVolatilityTier: (volatilityTier: any) => {
+    set(() => ({
+      volatilityTier: volatilityTier,
     }));
   },
   setCoverSlippage: (coverSlippage: string) => {

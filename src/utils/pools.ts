@@ -58,6 +58,61 @@ export const getCoverPool = async (
     let id = ZERO_ADDRESS;
     let coverPoolData = {};
     const dataLength = pool["data"]["coverPools"].length;
+
+    if (coverPoolData) {
+      console.log("cover pool data", coverPoolData);
+      for (let i = 0; i < dataLength; i++) {
+        if (pool["data"]["coverPools"][i]["id"] == coverPoolData["id"]) {
+          console.log("found cover pool data", coverPoolData);
+          coverPoolData = pool["data"]["coverPools"][i];
+        }
+      }
+    }
+
+    if (dataLength != 0) {
+      id = pool["data"]["coverPools"]["0"]["id"];
+      coverPoolData = pool["data"]["coverPools"]["0"];
+    } else {
+      const fallbackPool = await getCoverPoolFromFactory(
+        tokenOut.address,
+        tokenIn.address
+      );
+      id = fallbackPool["data"]["coverPools"]["0"]["id"];
+      coverPoolData = fallbackPool["data"]["coverPools"]["0"];
+    }
+    setCoverPoolAddress(id);
+    setCoverPoolData(coverPoolData);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getCoverPoolFromFeeTier = async (
+  tokenIn: token,
+  tokenOut: token,
+  feeTier: number,
+  setCoverPoolAddress,
+  setCoverPoolData
+) => {
+  try {
+    const pool = await getCoverPoolFromFactory(
+      tokenIn.address,
+      tokenOut.address
+    );
+    let id = ZERO_ADDRESS;
+    let coverPoolData = {};
+    const dataLength = pool["data"]["coverPools"].length;
+
+    if (coverPoolData) {
+      console.log("cover pool data", coverPoolData);
+      for (let i = 0; i < dataLength; i++) {
+        if (pool["data"]["coverPools"][i]["id"] == coverPoolData["id"]) {
+          console.log("found cover pool data", coverPoolData);
+          coverPoolData = pool["data"]["coverPools"][i];
+        }
+      }
+    }
+
     if (dataLength != 0) {
       id = pool["data"]["coverPools"]["0"]["id"];
       coverPoolData = pool["data"]["coverPools"]["0"];

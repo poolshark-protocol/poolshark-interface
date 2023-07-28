@@ -19,17 +19,12 @@ import { Fragment, useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
 import JSBI from "jsbi";
 import { Listbox, Transition } from "@headlessui/react";
-import {
-  TickMath,
-  roundTick,
-} from "../../utils/math/tickMath";
+import { TickMath, roundTick } from "../../utils/math/tickMath";
 import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
 import { getCoverPool } from "../../utils/pools";
-import {
-  fetchCoverTokenUSDPrice,
-} from "../../utils/tokens";
+import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
 import TickSpacing from "../Tooltips/TickSpacing";
 import { getCoverPoolFromFactory } from "../../utils/queries";
@@ -46,9 +41,11 @@ export default function CoverExistingPool({ goBack }) {
     coverPoolAddress,
     coverPoolData,
     coverPositionData,
+    volatilityTier,
     setCoverPoolAddress,
     setCoverPoolData,
     setCoverPositionData,
+    setVolatilityTier,
     tokenIn,
     tokenInCoverUSDPrice,
     tokenInBalance,
@@ -65,9 +62,11 @@ export default function CoverExistingPool({ goBack }) {
     state.coverPoolAddress,
     state.coverPoolData,
     state.coverPositionData,
+    state.volatilityTier,
     state.setCoverPoolAddress,
     state.setCoverPoolData,
     state.setCoverPositionData,
+    state.setVolatilityTier,
     state.tokenIn,
     state.tokenInCoverUSDPrice,
     state.tokenInBalance,
@@ -101,6 +100,15 @@ export default function CoverExistingPool({ goBack }) {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
   }, [chainId]);
 
+  ////////////////////////////////TokenOrder
+  const [tokenOrder, setTokenOrder] = useState(true);
+
+  useEffect(() => {
+    if (tokenIn.address && tokenOut.address) {
+      setTokenOrder(tokenIn.callId == 0);
+    }
+  }, [tokenIn, tokenOut]);
+
   //////////////////////////////Pools
 
   useEffect(() => {
@@ -108,24 +116,37 @@ export default function CoverExistingPool({ goBack }) {
   }, [coverPoolAddress]);
 
   async function updatePools() {
-    await getCoverPool(
-      tokenIn,
-      tokenOut,
-      setCoverPoolAddress,
-      setCoverPoolData
-    );
+    /* if (coverPoolData.volatilityTier) { */
+    handleManualVolatilityChange(volatilityTier);
+    /* } else {
+      await getCoverPool(
+        tokenIn,
+        tokenOut,
+        setCoverPoolAddress,
+        setCoverPoolData
+      );
+    } */
   }
 
   useEffect(() => {
     if (coverPoolData.latestTick) {
       updatePositionData();
     }
-  }, [coverPoolData, coverPoolAddress]);
+  }, [coverPoolData, tokenOrder]);
 
   async function updatePositionData() {
     const tickAtPrice = Number(coverPoolData.latestTick);
-    const lowerPrice = TickMath.getPriceStringAtTick(tickAtPrice - 7000);
-    const upperPrice = TickMath.getPriceStringAtTick(tickAtPrice - -7000);
+    const tickSpread = Number(coverPoolData.volatilityTier.tickSpread);
+    const lowerPrice = TickMath.getPriceStringAtTick(
+      tokenOrder
+        ? tickAtPrice + -tickSpread * 16
+        : tickAtPrice + tickSpread * 8,
+      tickSpread
+    );
+    const upperPrice = TickMath.getPriceStringAtTick(
+      tokenOrder ? tickAtPrice - tickSpread * 6 : tickAtPrice + tickSpread * 18,
+      tickSpread
+    );
     setLowerPrice(lowerPrice);
     setUpperPrice(upperPrice);
     setCoverPositionData({
@@ -165,13 +186,16 @@ export default function CoverExistingPool({ goBack }) {
   }, [volatility]);
 
   //when volatility changes, we find the corresponding pool id and changed it trigerring the poolInfo refetching
+  //should go to utils, used in creatcover
   const handleManualVolatilityChange = async (volatility: any) => {
     try {
       const pool = await getCoverPoolFromFactory(
         tokenIn.address,
         tokenOut.address
       );
+
       const volatilityId = volatility.id;
+      console.log("volatility", volatility);
       const dataLength = pool["data"]["coverPools"].length;
       for (let i = 0; i < dataLength; i++) {
         if (
@@ -182,23 +206,16 @@ export default function CoverExistingPool({ goBack }) {
             pool["data"]["coverPools"][i]["volatilityTier"]["tickSpread"] == 40)
         ) {
           setVolatility(volatilityId);
+          //setVolatilityTier(volatilityId);
           //setting the address will trigger the poolInfo refetching
           setCoverPoolAddress(pool["data"]["coverPools"][i]["id"]);
+          setCoverPoolData(pool["data"]["coverPools"][i]);
         }
       }
     } catch (error) {
       console.log(error);
     }
   };
-
-  ////////////////////////////////TokenOrder
-  const [tokenOrder, setTokenOrder] = useState(true);
-
-  useEffect(() => {
-    if (tokenIn.address && tokenOut.address) {
-      setTokenOrder(tokenIn.callId == 0);
-    }
-  }, [tokenIn, tokenOut]);
 
   ////////////////////////////////Token Allowances
 
@@ -428,7 +445,11 @@ export default function CoverExistingPool({ goBack }) {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    if (coverPositionData.lowerPrice && coverPositionData.upperPrice && coverPoolData.volatilityTier)
+    if (
+      coverPositionData.lowerPrice &&
+      coverPositionData.upperPrice &&
+      coverPoolData.volatilityTier
+    )
       updateGasFee();
   }, [
     coverPositionData.lowerPrice,
@@ -443,8 +464,14 @@ export default function CoverExistingPool({ goBack }) {
     const newMintGasFee = await gasEstimateCoverMint(
       coverPoolAddress,
       address,
-      TickMath.getTickAtPriceString(coverPositionData.upperPrice, parseInt(coverPoolData.volatilityTier.tickSpread)),
-      TickMath.getTickAtPriceString(coverPositionData.lowerPrice, parseInt(coverPoolData.volatilityTier.tickSpread)),
+      TickMath.getTickAtPriceString(
+        coverPositionData.upperPrice,
+        parseInt(coverPoolData.volatilityTier.tickSpread)
+      ),
+      TickMath.getTickAtPriceString(
+        coverPositionData.lowerPrice,
+        parseInt(coverPoolData.volatilityTier.tickSpread)
+      ),
       tokenIn,
       tokenOut,
       coverAmountIn,
@@ -502,9 +529,16 @@ export default function CoverExistingPool({ goBack }) {
       validBounds &&
       parseFloat(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) >
         parseFloat(tokenInBalance) &&
-        pairSelected == true ;
-    setDisabled(disabledFlag); 
-  }, [coverPositionData.lowerPrice, coverPositionData.upperPrice, bnInput, validBounds, tokenInBalance, coverAmountIn]);
+      pairSelected == true;
+    setDisabled(disabledFlag);
+  }, [
+    coverPositionData.lowerPrice,
+    coverPositionData.upperPrice,
+    bnInput,
+    validBounds,
+    tokenInBalance,
+    coverAmountIn,
+  ]);
 
   ////////////////////////////////
 
@@ -669,7 +703,7 @@ export default function CoverExistingPool({ goBack }) {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Min. filled amount</div>
             <div className="ml-auto text-xs">
-            {(
+              {(
                 parseFloat(
                   ethers.utils.formatUnits(String(coverAmountOut), 18)
                 ) *
