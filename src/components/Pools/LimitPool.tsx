@@ -650,29 +650,6 @@ export default function LimitPool({}) {
                 {showTooltip ? <TickSpacing /> : null}
               </div>
             </div>
-            <button
-              className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md whitespace-nowrap"
-              onClick={() => {
-                setLowerPrice(
-                  TickMath.getPriceStringAtTick(
-                    roundTick(
-                      -887272,
-                      parseInt(rangePoolData.feeTier.tickSpacing)
-                    )
-                  )
-                );
-                setUpperPrice(
-                  TickMath.getPriceStringAtTick(
-                    roundTick(
-                      887272,
-                      parseInt(rangePoolData.feeTier.tickSpacing)
-                    )
-                  )
-                );
-              }}
-            >
-              Full Range
-            </button>
           </div>
           <div className="flex flex-col gap-y-3 w-full">
             <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
