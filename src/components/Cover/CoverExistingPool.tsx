@@ -444,7 +444,8 @@ export default function CoverExistingPool({ goBack }) {
     if (
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
-      coverPoolData.volatilityTier
+      coverPoolData.volatilityTier &&
+      coverAmountIn.length > 0
     )
       updateGasFee();
   }, [
@@ -457,6 +458,8 @@ export default function CoverExistingPool({ goBack }) {
   ]);
 
   async function updateGasFee() {
+    console.log(coverAmountIn, "positionAmountIn")
+    
     const newMintGasFee = await gasEstimateCoverMint(
       coverPoolAddress,
       address,
