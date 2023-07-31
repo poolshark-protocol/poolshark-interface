@@ -24,7 +24,6 @@ export const fetchRangeTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
 };
 
 export const fetchCoverTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
-  console.log(poolData, token);
   const price = TickMath.getPriceStringAtTick(
     poolData.latestTick,
     poolData.volatilityTier.tickSpread
