@@ -12,6 +12,7 @@ import {
   useContractRead,
   useSigner,
   useProvider,
+  useBalance,
 } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
@@ -23,7 +24,6 @@ import { TickMath, roundTick } from "../../utils/math/tickMath";
 import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
-import { getCoverPool } from "../../utils/pools";
 import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
 import TickSpacing from "../Tooltips/TickSpacing";
@@ -32,9 +32,7 @@ import { gasEstimateCoverMint } from "../../utils/gas";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
 import useInputBox from "../../hooks/useInputBox";
-import { getBalances } from "../../utils/balances";
 import { useRangeStore } from "../../hooks/useRangeStore";
-import { invertPrice } from "../../utils/math/tickMath";
 
 export default function CoverExistingPool({ goBack }) {
   const [
@@ -261,20 +259,20 @@ export default function CoverExistingPool({ goBack }) {
 
   ////////////////////////////////Token Balances
 
-  async function updateBalances() {
-    await getBalances(
-      address,
-      false,
-      tokenIn,
-      tokenOut,
-      setTokenInBalance,
-      () => {}
-    );
-  }
+  const { data: tokenInBal } = useBalance({
+    address: address,
+    token: tokenIn.address,
+    enabled: tokenIn.address != undefined,
+    watch: true,
+  });
 
   useEffect(() => {
-    updateBalances();
-  }, [tokenIn.address, tokenOut.address]);
+    if (isConnected) {
+      setTokenInBalance(
+        parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+      );
+    }
+  }, [tokenInBal]);
 
   ////////////////////////////////Token Prices
 
