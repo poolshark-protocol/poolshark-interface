@@ -19,7 +19,7 @@ import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import inputFilter from "../../utils/inputFilter";
 import TickSpacing from "../Tooltips/TickSpacing";
-import { fetchRangeTokenUSDPrice, switchDirection } from "../../utils/tokens";
+import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
 import { feeTiers, getRangePool } from "../../utils/pools";
 import LimitPoolPreview from "./LimitPoolPreview";
 
