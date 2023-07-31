@@ -24,11 +24,13 @@ import {
   mapUserRangePositions,
 } from '../../utils/maps'
 import { TickMath } from '../../utils/math/tickMath'
+import UserLimitPool from '../../components/Pools/UserLimitPool'
 
 export default function Pool() {
   const poolTypes = [
     { id: 1, type: 'Range Pools', unavailable: false },
     { id: 2, type: 'Cover Pools', unavailable: false },
+    { id: 3, type: 'Limit Pools', unavailable: false },
   ]
   const { address, isDisconnected } = useAccount()
 
@@ -233,7 +235,7 @@ export default function Pool() {
                   </div>
                 ) : (
                   <>
-                    {selected.id === 1 ? (
+                    {selected.id === 1 && (
                       allRangePositions.length === 0 ? (
                         <div className="space-y-2">
                           <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
@@ -282,66 +284,133 @@ export default function Pool() {
                           }
                         })
                       )
-                    ) : allCoverPositions.length === 0 ? (
-                      <div className="space-y-2">
-                        <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                            className="md:w-14 w-10 py-4 mx-auto text-grey"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                          Your cover positions will appear here.
-                        </div>
-                      </div>
-                    ) : (
-                      allCoverPositions.map((allCoverPosition) => {
-                        if (
-                          allCoverPosition.id != undefined &&
-                          allCoverPosition.userOwnerAddress ===
-                            address?.toLowerCase() &&
-                          (allCoverPosition.tokenZero.name.toLowerCase() ===
-                            searchTerm.toLowerCase() ||
-                            allCoverPosition.tokenOne.name.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allCoverPosition.tokenZero.symbol.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allCoverPosition.tokenOne.symbol.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allCoverPosition.tokenZero.id.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allCoverPosition.tokenOne.id.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            searchTerm === "")
-                        ) {
-                          return (
-                            <UserCoverPool
-                              key={allCoverPosition.id + "coverPosition"}
-                              coverPosition={allCoverPosition}
-                              lowerPrice={parseFloat(
-                                TickMath.getPriceStringAtTick(
-                                  allCoverPosition.lowerTick
-                                )
-                              )}
-                              upperPrice={parseFloat(
-                                TickMath.getPriceStringAtTick(
-                                  allCoverPosition.upperTick
-                                )
-                              )}
-                              href={"/pool/view/cover"}
-                            />
-                          );
-                        }
-                      })
-                    )}
-                  </>
-                )}
+                    ) }
+
+
+                    {selected.id === 2 && (
+                                         allCoverPositions.length === 0 ? (
+                                          <div className="space-y-2">
+                                            <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
+                                              <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 20 20"
+                                                fill="currentColor"
+                                                className="md:w-14 w-10 py-4 mx-auto text-grey"
+                                              >
+                                                <path
+                                                  fillRule="evenodd"
+                                                  d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z"
+                                                  clipRule="evenodd"
+                                                />
+                                              </svg>
+                                              Your cover positions will appear here.
+                                            </div>
+                                          </div>
+                                        ) : (
+                                          allCoverPositions.map((allCoverPosition) => {
+                                            if (
+                                              allCoverPosition.id != undefined &&
+                                              allCoverPosition.userOwnerAddress ===
+                                                address?.toLowerCase() &&
+                                              (allCoverPosition.tokenZero.name.toLowerCase() ===
+                                                searchTerm.toLowerCase() ||
+                                                allCoverPosition.tokenOne.name.toLowerCase() ===
+                                                  searchTerm.toLowerCase() ||
+                                                allCoverPosition.tokenZero.symbol.toLowerCase() ===
+                                                  searchTerm.toLowerCase() ||
+                                                allCoverPosition.tokenOne.symbol.toLowerCase() ===
+                                                  searchTerm.toLowerCase() ||
+                                                allCoverPosition.tokenZero.id.toLowerCase() ===
+                                                  searchTerm.toLowerCase() ||
+                                                allCoverPosition.tokenOne.id.toLowerCase() ===
+                                                  searchTerm.toLowerCase() ||
+                                                searchTerm === "")
+                                            ) {
+                                              return (
+                                                <UserCoverPool
+                                                  key={allCoverPosition.id + "coverPosition"}
+                                                  coverPosition={allCoverPosition}
+                                                  lowerPrice={parseFloat(
+                                                    TickMath.getPriceStringAtTick(
+                                                      allCoverPosition.lowerTick
+                                                    )
+                                                  )}
+                                                  upperPrice={parseFloat(
+                                                    TickMath.getPriceStringAtTick(
+                                                      allCoverPosition.upperTick
+                                                    )
+                                                  )}
+                                                  href={"/pool/view/cover"}
+                                                />
+                                              )
+                                            }
+                                          })))}
+
+
+                                  {/*   LIMIT POOL DISPLAY GOES HERE
+
+
+                                  {selected.id === 3 && (
+                                         allCoverPositions.length === 0 ? (
+                                          <div className="space-y-2">
+                                            <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
+                                              <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 20 20"
+                                                fill="currentColor"
+                                                className="md:w-14 w-10 py-4 mx-auto text-grey"
+                                              >
+                                                <path
+                                                  fillRule="evenodd"
+                                                  d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z"
+                                                  clipRule="evenodd"
+                                                />
+                                              </svg>
+                                              Your limit positions will appear here.
+                                            </div>
+                                          </div>
+                                        ) : (
+                                          allCoverPositions.map((allCoverPosition) => {
+                                            if (
+                                              allCoverPosition.id != undefined &&
+                                              allCoverPosition.userOwnerAddress ===
+                                                address?.toLowerCase() &&
+                                              (allCoverPosition.tokenZero.name.toLowerCase() ===
+                                                searchTerm.toLowerCase() ||
+                                                allCoverPosition.tokenOne.name.toLowerCase() ===
+                                                  searchTerm.toLowerCase() ||
+                                                allCoverPosition.tokenZero.symbol.toLowerCase() ===
+                                                  searchTerm.toLowerCase() ||
+                                                allCoverPosition.tokenOne.symbol.toLowerCase() ===
+                                                  searchTerm.toLowerCase() ||
+                                                allCoverPosition.tokenZero.id.toLowerCase() ===
+                                                  searchTerm.toLowerCase() ||
+                                                allCoverPosition.tokenOne.id.toLowerCase() ===
+                                                  searchTerm.toLowerCase() ||
+                                                searchTerm === "")
+                                            ) {
+                                              return (
+                                                <UserLimitPool
+                                                  key={allCoverPosition.id + "coverPosition"}
+                                                  coverPosition={allCoverPosition}
+                                                  lowerPrice={parseFloat(
+                                                    TickMath.getPriceStringAtTick(
+                                                      allCoverPosition.lowerTick
+                                                    )
+                                                  )}
+                                                  upperPrice={parseFloat(
+                                                    TickMath.getPriceStringAtTick(
+                                                      allCoverPosition.upperTick
+                                                    )
+                                                  )}
+                                                  href={"/pool/view/cover"}
+                                                />
+                                              )
+                                            }
+                                          })))}
+                                          */}
+                                          </>
+                                        )}
               </div>
             </div>
             <div className="pb-20">
@@ -357,8 +426,8 @@ export default function Pool() {
                     </tr>
                   </thead>
                   <tbody>
-                    {selected.id === 1
-                      ? allRangePools.map((allRangePool) => {
+                    {selected.id === 1 &&
+                       allRangePools.map((allRangePool) => {
                           if (
                             allRangePool.tokenZero.name.toLowerCase() ===
                               searchTerm.toLowerCase() ||
@@ -391,41 +460,87 @@ export default function Pool() {
                                 href="/pool/concentrated"
                               />
                             );
-                        })
-                      : allCoverPools.map((allCoverPool) => {
-                          if (
-                            allCoverPool.tokenZero.name.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allCoverPool.tokenOne.name.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allCoverPool.tokenZero.symbol.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allCoverPool.tokenOne.symbol.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allCoverPool.tokenZero.id.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allCoverPool.tokenOne.id.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            searchTerm === ""
-                          )
-                            return (
-                              <PoolList
-                                account={address}
-                                key={allCoverPool.poolId}
-                                poolId={allCoverPool.poolId}
-                                tokenZero={allCoverPool.tokenZero}
-                                tokenOne={allCoverPool.tokenOne}
-                                liquidity={allCoverPool.liquidity}
-                                auctionLenght={allCoverPool.auctionLenght}
-                                feeTier={allCoverPool.feeTier}
-                                tickSpacing={allCoverPool.tickSpacing}
-                                tvlUsd={allCoverPool.tvlUsd}
-                                volumeUsd={allCoverPool.volumeUsd}
-                                volumeEth={allCoverPool.volumeEth}
-                                href="/cover"
-                              />
-                            );
                         })}
+                         {selected.id === 2 &&
+                       allCoverPools.map((allCoverPool) => {
+                        if (
+                          allCoverPool.tokenZero.name.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPool.tokenOne.name.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPool.tokenZero.symbol.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPool.tokenOne.symbol.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPool.tokenZero.id.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPool.tokenOne.id.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          searchTerm === ""
+                        )
+                          return (
+                            <PoolList
+                              account={address}
+                              key={allCoverPool.poolId}
+                              poolId={allCoverPool.poolId}
+                              tokenZero={allCoverPool.tokenZero}
+                              tokenOne={allCoverPool.tokenOne}
+                              liquidity={allCoverPool.liquidity}
+                              auctionLenght={allCoverPool.auctionLenght}
+                              feeTier={allCoverPool.feeTier}
+                              tickSpacing={allCoverPool.tickSpacing}
+                              tvlUsd={allCoverPool.tvlUsd}
+                              volumeUsd={allCoverPool.volumeUsd}
+                              volumeEth={allCoverPool.volumeEth}
+                              href="/cover"
+                            />
+                          );
+                      })}
+
+
+                      {/*
+                      ADD LIMIT POOL STUFF HERE
+
+                      {selected.id === 3 &&
+                       allCoverPools.map((allCoverPool) => {
+                        if (
+                          allCoverPool.tokenZero.name.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPool.tokenOne.name.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPool.tokenZero.symbol.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPool.tokenOne.symbol.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPool.tokenZero.id.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPool.tokenOne.id.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          searchTerm === ""
+                        )
+                          return (
+                            <PoolList
+                              account={address}
+                              key={allCoverPool.poolId}
+                              poolId={allCoverPool.poolId}
+                              tokenZero={allCoverPool.tokenZero}
+                              tokenOne={allCoverPool.tokenOne}
+                              liquidity={allCoverPool.liquidity}
+                              auctionLenght={allCoverPool.auctionLenght}
+                              feeTier={allCoverPool.feeTier}
+                              tickSpacing={allCoverPool.tickSpacing}
+                              tvlUsd={allCoverPool.tvlUsd}
+                              volumeUsd={allCoverPool.volumeUsd}
+                              volumeEth={allCoverPool.volumeEth}
+                              href="/cover"
+                            />
+                          );
+                      })}
+                    */}
+                      
+                      
+                      
+                      
                   </tbody>
                 </table>
               </div>
