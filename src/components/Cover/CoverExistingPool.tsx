@@ -53,7 +53,6 @@ export default function CoverExistingPool({ goBack }) {
     tokenOut,
     tokenOutCoverUSDPrice,
     setTokenOutCoverUSDPrice,
-    setTokenOutAllowance,
     pairSelected,
     switchDirection,
   ] = useCoverStore((state) => [
@@ -74,7 +73,6 @@ export default function CoverExistingPool({ goBack }) {
     state.tokenOut,
     state.tokenOutCoverUSDPrice,
     state.setTokenOutCoverUSDPrice,
-    state.setTokenOutCoverAllowance,
     state.pairSelected,
     state.switchDirection,
   ]);
@@ -214,7 +212,7 @@ export default function CoverExistingPool({ goBack }) {
   };
 
   ////////////////////////////////Token Allowances
-
+  
   const { data: allowanceInCover } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -232,27 +230,9 @@ export default function CoverExistingPool({ goBack }) {
     onSettled(data, error) {},
   });
 
-  const { data: allowanceOutCover } = useContractRead({
-    address: tokenIn.address,
-    abi: erc20ABI,
-    functionName: "allowance",
-    args: [address, coverPoolAddress],
-    chainId: 421613,
-    watch: true,
-    enabled: isConnected && coverPoolAddress && tokenOut.address != "0x00",
-    onSuccess(data) {
-      //console.log('Success')
-    },
-    onError(error) {
-      console.log("Error", error);
-    },
-    onSettled(data, error) {},
-  });
-
   useEffect(() => {
     if (allowanceInCover) {
       setTokenInAllowance(ethers.utils.formatUnits(allowanceInCover, 18));
-      setTokenOutAllowance(ethers.utils.formatUnits(allowanceOutCover, 18));
     }
   }, [allowanceInCover]);
 
