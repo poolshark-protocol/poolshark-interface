@@ -193,7 +193,6 @@ export default function CoverExistingPool({ goBack }) {
       );
 
       const volatilityId = volatility.id;
-      console.log("volatility", volatility);
       const dataLength = pool["data"]["coverPools"].length;
       for (let i = 0; i < dataLength; i++) {
         if (
@@ -475,7 +474,6 @@ export default function CoverExistingPool({ goBack }) {
       signer
     );
 
-    console.log("new mint gas fee", newMintGasFee);
     setMintGasFee(newMintGasFee.formattedPrice);
     setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
   }
