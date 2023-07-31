@@ -254,7 +254,6 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     if (coverPoolData.token0 && coverPoolData.token1) {
-      console.log("coverPoolData", coverPoolData);
       if (tokenIn.address) {
         fetchCoverTokenUSDPrice(
           coverPoolData,
