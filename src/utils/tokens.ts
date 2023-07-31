@@ -1,6 +1,6 @@
 //eventually this functions should merge into one
 
-import { invertPrice } from "./math/tickMath";
+import { TickMath, invertPrice } from "./math/tickMath";
 
 export const logoMap = {
   TOKEN20A: "/static/images/token.png",
@@ -24,10 +24,13 @@ export const fetchRangeTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
 };
 
 export const fetchCoverTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
+  console.log(poolData, token);
+  const price = TickMath.getPriceStringAtTick(
+    poolData.latestTick,
+    poolData.volatilityTier.tickSpread
+  );
   try {
-    setTokenUSDPrice(
-      token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice
-    );
+    setTokenUSDPrice(token.callId == 0 ? price : invertPrice(price, false));
   } catch (error) {
     console.log(error);
   }
