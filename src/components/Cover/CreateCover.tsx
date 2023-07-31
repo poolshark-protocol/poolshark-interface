@@ -199,7 +199,6 @@ export default function CreateCover(props: any) {
         ) {
           setVolatility(volatilityId);
           setVolatilityTier(volatilityId);
-          //setting the address will trigger the poolInfo refetching
           setCoverPoolAddress(pool["data"]["coverPools"][i]["id"]);
           setCoverPoolData(pool["data"]["coverPools"][i]);
         }
