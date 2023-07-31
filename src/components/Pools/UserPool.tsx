@@ -104,11 +104,11 @@ export default function UserPool({ rangePosition, href }) {
       setCoverTokenOut(tokenInNew, tokenOutNew);
       setRangePositionData(rangePosition);
       setVolatilityTier({
-        id: 1,
-        tier: "2.4% per min",
-        text: "Most Volatility",
+        id: 0,
+        tier: "1.7% per min",
+        text: "Less Volatility",
         unavailable: false,
-        tickSpread: 40,
+        tickSpread: 20,
       });
     } else {
       setRangeTokenIn(tokenOutNew, tokenInNew);
