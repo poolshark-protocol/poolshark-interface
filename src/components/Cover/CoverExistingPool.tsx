@@ -12,6 +12,7 @@ import {
   useContractRead,
   useSigner,
   useProvider,
+  useBalance,
 } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
@@ -23,7 +24,6 @@ import { TickMath, roundTick } from "../../utils/math/tickMath";
 import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
-import { getCoverPool } from "../../utils/pools";
 import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
 import TickSpacing from "../Tooltips/TickSpacing";
@@ -32,9 +32,7 @@ import { gasEstimateCoverMint } from "../../utils/gas";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
 import useInputBox from "../../hooks/useInputBox";
-import { getBalances } from "../../utils/balances";
 import { useRangeStore } from "../../hooks/useRangeStore";
-import { invertPrice } from "../../utils/math/tickMath";
 
 export default function CoverExistingPool({ goBack }) {
   const [
@@ -195,7 +193,6 @@ export default function CoverExistingPool({ goBack }) {
       );
 
       const volatilityId = volatility.id;
-      console.log("volatility", volatility);
       const dataLength = pool["data"]["coverPools"].length;
       for (let i = 0; i < dataLength; i++) {
         if (
@@ -261,20 +258,20 @@ export default function CoverExistingPool({ goBack }) {
 
   ////////////////////////////////Token Balances
 
-  async function updateBalances() {
-    await getBalances(
-      address,
-      false,
-      tokenIn,
-      tokenOut,
-      setTokenInBalance,
-      () => {}
-    );
-  }
+  const { data: tokenInBal } = useBalance({
+    address: address,
+    token: tokenIn.address,
+    enabled: tokenIn.address != undefined,
+    watch: true,
+  });
 
   useEffect(() => {
-    updateBalances();
-  }, [tokenIn.address, tokenOut.address]);
+    if (isConnected) {
+      setTokenInBalance(
+        parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+      );
+    }
+  }, [tokenInBal]);
 
   ////////////////////////////////Token Prices
 
@@ -477,7 +474,6 @@ export default function CoverExistingPool({ goBack }) {
       signer
     );
 
-    console.log("new mint gas fee", newMintGasFee);
     setMintGasFee(newMintGasFee.formattedPrice);
     setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
   }
@@ -541,88 +537,6 @@ export default function CoverExistingPool({ goBack }) {
 
   ////////////////////////////////
 
-  /* useEffect(() => {
-    if (latestTick) {
-      if (coverPoolRoute != undefined && tokenOut.address.toString() != "") {
-        const price = TickMath.getPriceStringAtTick(latestTick);
-        console.log("tick price", tokenOrder);
-        setCoverTickPrice(invertPrice(price, tokenOrder));
-      }
-    }
-  }, [latestTick, tokenIn.address]); */
-
-  /* useEffect(() => {
-    changeCoverAmounts();
-    changeValidBounds();
-  }, [sliderValue, lowerTick, upperTick, tokenOrder]); */
-
-  //Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18)).toPrecision(5);
-
-  // disabled messages
-  /* useEffect(() => {
-    if (
-      Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) >
-      parseFloat(tokenInBal?.formatted.toString())
-    ) {
-      setButtonState("balance");
-    }
-    if (!validBounds) {
-      setButtonState("bounds");
-    }
-    if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
-      setButtonState("price");
-    }
-  }, [validBounds, lowerPrice, upperPrice, tokenInBal, coverAmountIn]); */
-
-  // check for valid inputs
-  /*  useEffect(() => {
-    const disabledFlag =
-      JSBI.equal(coverAmountIn, ZERO) ||
-      isNaN(parseFloat(lowerPrice)) ||
-      parseFloat(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) >
-        parseFloat(tokenInBal?.formatted.toString()) ||
-      isNaN(parseFloat(upperPrice)) ||
-      lowerTick >= upperTick ||
-      !validBounds ||
-      hasSelected == false;
-    setDisabled(disabledFlag);
-    if (!disabledFlag) {
-      //updateGasFee()
-    }
-    console.log("latest price", latestTick);
-  }, [lowerPrice, upperPrice, coverAmountIn, validBounds, tokenInBal]); */
-
-  /* useEffect(() => {
-    if (!isNaN(parseFloat(lowerPrice))) {
-      console.log("setting lower tick");
-      setLowerTick(TickMath.getTickAtPriceString(lowerPrice, tickSpread));
-    }
-    if (!isNaN(parseFloat(upperPrice))) {
-      console.log("setting upper tick");
-      setUpperTick(TickMath.getTickAtPriceString(upperPrice, tickSpread));
-    }
-  }, [lowerPrice, upperPrice]); */
-
-  //useEffect(() => {}, [coverAmountOut]);
-
-  ////////////////////////////////
-
-  /* async function updateGasFee() {
-    const newMintGasFee = await gasEstimateCoverMint(
-      coverPoolRoute,
-      address,
-      upperPrice,
-      lowerPrice,
-      tokenIn,
-      tokenOut,
-      coverAmountIn,
-      tickSpread,
-      signer,
-    )
-    
-    setMintGasFee(newMintGasFee.formattedPrice)
-    setMintGasLimit(newMintGasFee.gasUnits.mul(130).div(100))
-  } */
 
   const handleChange = (event: any) => {
     setSliderValue(event.target.value);

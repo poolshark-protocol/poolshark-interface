@@ -1,193 +1,220 @@
-import { Transition, Dialog } from '@headlessui/react'
-import { Fragment, useEffect, useState } from 'react'
-import { XMarkIcon } from '@heroicons/react/20/solid'
+import { Transition, Dialog } from "@headlessui/react";
+import { Fragment, useEffect, useState } from "react";
+import { XMarkIcon } from "@heroicons/react/20/solid";
 import {
   useAccount,
   erc20ABI,
   useContractRead,
   useProvider,
   useSigner,
-} from 'wagmi'
-import useInputBox from '../../../hooks/useInputBox'
-import RangeAddLiqButton from '../../Buttons/RangeAddLiqButton'
-import { BN_ZERO, ZERO } from '../../../utils/math/constants'
-import { TickMath } from '../../../utils/math/tickMath'
-import { ethers, BigNumber } from 'ethers'
-import JSBI from 'jsbi'
-import { DyDxMath } from '../../../utils/math/dydxMath'
-import { getBalances } from '../../../utils/balances'
-import { chainIdsToNamesForGitTokenList } from '../../../utils/chains'
-import RangeMintDoubleApproveButton from '../../Buttons/RangeMintDoubleApproveButton'
-import RangeMintApproveButton from '../../Buttons/RangeMintApproveButton'
-import { useRangeStore } from '../../../hooks/useRangeStore'
+  useBalance,
+} from "wagmi";
+import useInputBox from "../../../hooks/useInputBox";
+import RangeAddLiqButton from "../../Buttons/RangeAddLiqButton";
+import { BN_ZERO, ZERO } from "../../../utils/math/constants";
+import { TickMath } from "../../../utils/math/tickMath";
+import { ethers, BigNumber } from "ethers";
+import JSBI from "jsbi";
+import { DyDxMath } from "../../../utils/math/dydxMath";
+import { chainIdsToNamesForGitTokenList } from "../../../utils/chains";
+import RangeMintDoubleApproveButton from "../../Buttons/RangeMintDoubleApproveButton";
+import RangeMintApproveButton from "../../Buttons/RangeMintApproveButton";
+import { useRangeStore } from "../../../hooks/useRangeStore";
 
-export default function RangeAddLiquidity({
-  isOpen,
-  setIsOpen,
-  address,
-}) {
+export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
     rangePoolAddress,
+    pairSelected,
     tokenIn,
+    tokenInBalance,
+    setTokenInBalance,
     tokenOut,
+    tokenOutBalance,
+    setTokenOutBalance,
     rangePositionData,
     tokenInRangeUSDPrice,
     tokenOutRangeUSDPrice,
   ] = useRangeStore((state) => [
     state.rangePoolAddress,
+    state.pairSelected,
     state.tokenIn,
+    state.tokenInBalance,
+    state.setTokenInBalance,
     state.tokenOut,
+    state.tokenOutBalance,
+    state.setTokenOutBalance,
     state.rangePositionData,
     state.tokenInRangeUSDPrice,
     state.tokenOutRangeUSDPrice,
-  ])
+  ]);
 
-  const {
-    bnInput,
-    inputBox,
-    maxBalance,
-  } = useInputBox()
-  const { data: signer } = useSigner()
-  const [balanceIn, setBalanceIn] = useState('')
-  const [balanceOut, setBalanceOut] = useState('')
-  const [amount0, setAmount0] = useState(BN_ZERO)
-  const [amount1, setAmount1] = useState(BN_ZERO)
-  const [disabled, setDisabled] = useState(false)
-  const [allowanceIn, setAllowanceIn] = useState(BN_ZERO)
-  const [allowanceOut, setAllowanceOut] = useState(BN_ZERO)
-  const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(rangePositionData.min))
-  const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(rangePositionData.max))
-  const [stateChainName, setStateChainName] = useState()
-  const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
-  const { isConnected } = useAccount()
-  const [rangeSqrtPrice, setRangeSqrtPrice] = useState(JSBI.BigInt(rangePositionData.price))
-  const [doubleApprove, setdoubleApprove] = useState(false)
-  const [buttonState, setButtonState] = useState('')
+  const { bnInput, inputBox, maxBalance } = useInputBox();
+  const { data: signer } = useSigner();
+  const [balanceIn, setBalanceIn] = useState("");
+  const [balanceOut, setBalanceOut] = useState("");
+  const [amount0, setAmount0] = useState(BN_ZERO);
+  const [amount1, setAmount1] = useState(BN_ZERO);
+  const [disabled, setDisabled] = useState(false);
+  const [allowanceIn, setAllowanceIn] = useState(BN_ZERO);
+  const [allowanceOut, setAllowanceOut] = useState(BN_ZERO);
+  const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
+    Number(rangePositionData.min)
+  );
+  const upperSqrtPrice = TickMath.getSqrtRatioAtTick(
+    Number(rangePositionData.max)
+  );
+  const [stateChainName, setStateChainName] = useState();
+  const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0;
+  const { isConnected } = useAccount();
+  const [rangeSqrtPrice, setRangeSqrtPrice] = useState(
+    JSBI.BigInt(rangePositionData.price)
+  );
+  const [doubleApprove, setdoubleApprove] = useState(false);
+  const [buttonState, setButtonState] = useState("");
   const {
     network: { chainId },
-  } = useProvider()
-
+  } = useProvider();
 
   const { data: tokenInAllowance } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
-    functionName: 'allowance',
+    functionName: "allowance",
     args: [address, rangePoolAddress],
     chainId: 421613,
     watch: true,
     enabled:
-      isConnected && rangePoolAddress != undefined && tokenIn.address != undefined,
+      isConnected &&
+      rangePoolAddress != undefined &&
+      tokenIn.address != undefined,
     onSuccess(data) {
-      console.log('Success')
+      console.log("Success");
     },
     onError(error) {
-      console.log('Error', error)
+      console.log("Error", error);
     },
     onSettled(data, error) {
       console.log(
-        'allowance check',
+        "allowance check",
         allowanceIn.lt(bnInput),
-        allowanceIn.toString(),
-      )
-      console.log('Allowance Settled', {
+        allowanceIn.toString()
+      );
+      console.log("Allowance Settled", {
         data,
         error,
         rangePoolAddress,
         tokenIn,
-      })
+      });
     },
-  })
-
+  });
 
   useEffect(() => {
     setTimeout(() => {
-      if (tokenInAllowance) setAllowanceIn(tokenInAllowance)
-    }, 50)
-  }, [tokenInAllowance])
+      if (tokenInAllowance) setAllowanceIn(tokenInAllowance);
+    }, 50);
+  }, [tokenInAllowance]);
 
   const { data: tokenOutAllowance } = useContractRead({
     address: tokenOut.address,
     abi: erc20ABI,
-    functionName: 'allowance',
+    functionName: "allowance",
     args: [address, rangePoolAddress],
     chainId: 421613,
     watch: true,
     enabled:
-      isConnected && rangePoolAddress != undefined && tokenOut.address != undefined,
+      isConnected &&
+      rangePoolAddress != undefined &&
+      tokenOut.address != undefined,
     onSuccess(data) {
-      console.log('Success')
+      console.log("Success");
     },
     onError(error) {
-      console.log('Error', error)
+      console.log("Error", error);
     },
     onSettled(data, error) {
       console.log(
-        'allowance check out',
+        "allowance check out",
         allowanceOut.lt(amount1),
-        allowanceOut.toString(),
-      )
-      console.log('Allowance Settled', {
+        allowanceOut.toString()
+      );
+      console.log("Allowance Settled", {
         data,
         error,
         rangePoolAddress,
         tokenIn,
-      })
+      });
     },
-  })
+  });
 
   useEffect(() => {
     setTimeout(() => {
       if (tokenOutAllowance) {
-        console.log('token out allowance check', tokenOutAllowance.toString())
-        setAllowanceOut(tokenOutAllowance)
+        console.log("token out allowance check", tokenOutAllowance.toString());
+        setAllowanceOut(tokenOutAllowance);
       }
-    }, 50)
-  }, [tokenOutAllowance])
+    }, 50);
+  }, [tokenOutAllowance]);
 
   useEffect(() => {
-    console.log('mint gas updating')
-    setAmounts()
-  }, [bnInput])
+    console.log("mint gas updating");
+    setAmounts();
+  }, [bnInput]);
 
   useEffect(() => {
-    updateBalances()
-  }, [])
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
+  }, [chainId]);
+
+  ////////////////////////////////Balances
+
+  const { data: tokenInBal } = useBalance({
+    address: address,
+    token: tokenIn.address,
+    enabled: tokenIn.address != undefined,
+    watch: true,
+  });
+
+  const { data: tokenOutBal } = useBalance({
+    address: address,
+    token: tokenOut.address,
+    enabled: tokenOut.address != undefined,
+    watch: true,
+  });
 
   useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
-  }, [chainId])
+    if (isConnected) {
+      setTokenInBalance(
+        parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+      );
+      if (pairSelected) {
+        setTokenOutBalance(
+          parseFloat(tokenOutBal?.formatted.toString()).toFixed(2)
+        );
+      }
+    }
+  }, [tokenInBal, tokenOutBal]);
 
-  async function updateBalances() {
-    await getBalances(
-      address,
-      true,
-      tokenIn,
-      tokenOut,
-      tokenOrder ? setBalanceIn : setBalanceOut,
-      tokenOrder ? setBalanceOut : setBalanceIn,
-    )
-  }
+  //////////////////////////////
 
-      // disabled messages
-      useEffect(() => {
-        
-        if (Number(ethers.utils.formatUnits(bnInput, 18)) > Number(balanceIn)) {
-          setButtonState('balance0')
-        }
-        if (Number(ethers.utils.formatUnits(amount1, 18)) > Number(balanceOut)) {
-          setButtonState('balance1')
-        }
-        if (Number(ethers.utils.formatUnits(bnInput, 18)) === 0) {
-          setButtonState('amount')
-        }
-        if (Number(ethers.utils.formatUnits(bnInput, 18)) === 0 ||
-            Number(ethers.utils.formatUnits(bnInput, 18)) > Number(balanceIn) ||
-            Number(ethers.utils.formatUnits(amount1, 18)) > Number(balanceOut)
-        ) {
-          setDisabled(true)
-        } else { setDisabled(false) }
-      }, [bnInput, balanceIn, balanceOut, disabled])
-
+  // disabled messages
+  useEffect(() => {
+    if (Number(ethers.utils.formatUnits(bnInput, 18)) > Number(balanceIn)) {
+      setButtonState("balance0");
+    }
+    if (Number(ethers.utils.formatUnits(amount1, 18)) > Number(balanceOut)) {
+      setButtonState("balance1");
+    }
+    if (Number(ethers.utils.formatUnits(bnInput, 18)) === 0) {
+      setButtonState("amount");
+    }
+    if (
+      Number(ethers.utils.formatUnits(bnInput, 18)) === 0 ||
+      Number(ethers.utils.formatUnits(bnInput, 18)) > Number(balanceIn) ||
+      Number(ethers.utils.formatUnits(amount1, 18)) > Number(balanceOut)
+    ) {
+      setDisabled(true);
+    } else {
+      setDisabled(false);
+    }
+  }, [bnInput, balanceIn, balanceOut, disabled]);
 
   function setAmounts() {
     try {
@@ -200,35 +227,35 @@ export default function RangeAddLiquidity({
                 tokenOrder ? upperSqrtPrice : rangeSqrtPrice,
                 rangeSqrtPrice,
                 tokenOrder ? BN_ZERO : bnInput,
-                tokenOrder ? bnInput : BN_ZERO,
+                tokenOrder ? bnInput : BN_ZERO
               )
             : DyDxMath.getLiquidityForAmounts(
                 lowerSqrtPrice,
                 upperSqrtPrice,
                 rangeSqrtPrice,
                 tokenOrder ? BN_ZERO : bnInput,
-                tokenOrder ? bnInput : BN_ZERO,
-              )
-        console.log('liquidity check', liquidity)
+                tokenOrder ? bnInput : BN_ZERO
+              );
+        console.log("liquidity check", liquidity);
         const tokenOutAmount = JSBI.greaterThan(liquidity, ZERO)
           ? tokenOrder
             ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
             : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
-          : ZERO
+          : ZERO;
         // set amount based on bnInput
-        tokenOrder ? setAmount0(bnInput) : setAmount1(bnInput)
+        tokenOrder ? setAmount0(bnInput) : setAmount1(bnInput);
         // set amount based on liquidity math
         tokenOrder
           ? setAmount1(BigNumber.from(String(tokenOutAmount)))
-          : setAmount0(BigNumber.from(String(tokenOutAmount)))
-        setDisabled(false)
+          : setAmount0(BigNumber.from(String(tokenOutAmount)));
+        setDisabled(false);
       } else {
-        setAmount1(BN_ZERO)
-        setAmount0(BN_ZERO)
-        setDisabled(true)
+        setAmount1(BN_ZERO);
+        setAmount0(BN_ZERO);
+        setDisabled(true);
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
   return (
@@ -270,124 +297,162 @@ export default function RangeAddLiquidity({
                   />
                 </div>
                 <div className="flex flex-col gap-y-3 mb-5">
-                <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-                <div className=" p-2 w-32">
-                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-1 rounded-xl">
-                              {inputBox("0")}
-                              </div>
-                              <div className="flex">
-                                <div className="flex text-xs text-[#4C4C4C]">
-                                 ${tokenOrder ? (Number(tokenOutRangeUSDPrice * parseFloat(ethers.utils.formatUnits(amount1, 18))).toFixed(2)) : (Number(tokenInRangeUSDPrice * parseFloat(ethers.utils.formatUnits(amount0, 18))).toFixed(2))}
-                                
-                                </div>
-                              </div>
-                            </div>
-              <div className="">
-                <div className=" ml-auto">
-                  <div>
-                    <div className="flex justify-end">
-                      <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl">
-                        <img className="w-7" src={tokenIn.logoURI} />
-                        {tokenIn.symbol}
-                      </button>
-                    </div>
-                    <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                      <div className="flex whitespace-nowrap md:text-xs text-[10px] whitespace-nowrap text-[#4C4C4C]" key={balanceIn}>
-                        Balance: {balanceIn === 'NaN' ? 0 : balanceIn}
+                  <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
+                    <div className=" p-2 w-32">
+                      <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-1 rounded-xl">
+                        {inputBox("0")}
                       </div>
-                      <button
-                        className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
-                        onClick={() => maxBalance(balanceIn, '0')}
-                      >
-                        Max
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-            <div className=" p-2 ">
-                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
-                              {Number(
-                  tokenOrder
-                    ? ethers.utils.formatUnits(amount1, 18)
-                    : ethers.utils.formatUnits(amount0, 18)
-                ).toFixed(2)}
-                              </div>
-                              <div className="flex">
-                                <div className="flex text-xs text-[#4C4C4C]">
-                                ${tokenOrder ? (Number(tokenInRangeUSDPrice * parseFloat(ethers.utils.formatUnits(amount0, 18))).toFixed(2)) : (Number(tokenOutRangeUSDPrice * parseFloat(ethers.utils.formatUnits(amount1, 18))).toFixed(2))}
-                                </div>
-                              </div>
-                            </div>
-              <div className="">
-                <div className=" ml-auto">
-                  <div>
-                    <div className="flex justify-end">
-                      <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
-                        <div className="flex items-center gap-x-2 w-full">
-                          <img className="w-7" src={tokenOut.logoURI} />
-                          {tokenOut.symbol}
+                      <div className="flex">
+                        <div className="flex text-xs text-[#4C4C4C]">
+                          $
+                          {tokenOrder
+                            ? Number(
+                                tokenOutRangeUSDPrice *
+                                  parseFloat(
+                                    ethers.utils.formatUnits(amount1, 18)
+                                  )
+                              ).toFixed(2)
+                            : Number(
+                                tokenInRangeUSDPrice *
+                                  parseFloat(
+                                    ethers.utils.formatUnits(amount0, 18)
+                                  )
+                              ).toFixed(2)}
                         </div>
-                      </button>
+                      </div>
                     </div>
-                    <div className="flex whitespace-nowrap items-center justify-end gap-x-2 px-1 mt-2">
-                      <div className="flex md:text-xs text-[10px] text-[#4C4C4C]" key={balanceIn}>
-                        Balance: {balanceOut === 'NaN' ? 0 : balanceOut}
+                    <div className="">
+                      <div className=" ml-auto">
+                        <div>
+                          <div className="flex justify-end">
+                            <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl">
+                              <img className="w-7" src={tokenIn.logoURI} />
+                              {tokenIn.symbol}
+                            </button>
+                          </div>
+                          <div className="flex items-center justify-end gap-2 px-1 mt-2">
+                            <div
+                              className="flex whitespace-nowrap md:text-xs text-[10px] whitespace-nowrap text-[#4C4C4C]"
+                              key={balanceIn}
+                            >
+                              Balance: {balanceIn === "NaN" ? 0 : balanceIn}
+                            </div>
+                            <button
+                              className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
+                              onClick={() => maxBalance(balanceIn, "0")}
+                            >
+                              Max
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
+                  <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
+                    <div className=" p-2 ">
+                      <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
+                        {Number(
+                          tokenOrder
+                            ? ethers.utils.formatUnits(amount1, 18)
+                            : ethers.utils.formatUnits(amount0, 18)
+                        ).toFixed(2)}
+                      </div>
+                      <div className="flex">
+                        <div className="flex text-xs text-[#4C4C4C]">
+                          $
+                          {tokenOrder
+                            ? Number(
+                                tokenInRangeUSDPrice *
+                                  parseFloat(
+                                    ethers.utils.formatUnits(amount0, 18)
+                                  )
+                              ).toFixed(2)
+                            : Number(
+                                tokenOutRangeUSDPrice *
+                                  parseFloat(
+                                    ethers.utils.formatUnits(amount1, 18)
+                                  )
+                              ).toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="">
+                      <div className=" ml-auto">
+                        <div>
+                          <div className="flex justify-end">
+                            <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
+                              <div className="flex items-center gap-x-2 w-full">
+                                <img className="w-7" src={tokenOut.logoURI} />
+                                {tokenOut.symbol}
+                              </div>
+                            </button>
+                          </div>
+                          <div className="flex whitespace-nowrap items-center justify-end gap-x-2 px-1 mt-2">
+                            <div
+                              className="flex md:text-xs text-[10px] text-[#4C4C4C]"
+                              key={balanceIn}
+                            >
+                              Balance: {balanceOut === "NaN" ? 0 : balanceOut}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {disabled === true ? (
+                    <button className="opacity-50 w-full cursor-not-allowed py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF]">
+                      {buttonState === "amount" ? <>Input Amount</> : <></>}
+                      {buttonState === "balance0" ? (
+                        <>Insufficient {tokenIn.symbol} Balance</>
+                      ) : (
+                        <></>
+                      )}
+                      {buttonState === "balance1" ? (
+                        <>Insufficient {tokenOut.symbol} Balance</>
+                      ) : (
+                        <></>
+                      )}
+                    </button>
+                  ) : (
+                    <>
+                      {allowanceIn.gte(amount0) && allowanceOut.gte(amount1) ? (
+                        <RangeAddLiqButton
+                          poolAddress={rangePoolAddress}
+                          address={address}
+                          lower={BigNumber.from(rangePositionData.min)}
+                          upper={BigNumber.from(rangePositionData.max)}
+                          amount0={amount0}
+                          amount1={amount1}
+                          disabled={disabled}
+                        />
+                      ) : (allowanceIn.lt(amount0) &&
+                          allowanceOut.lt(amount1)) ||
+                        doubleApprove ? (
+                        <RangeMintDoubleApproveButton
+                          poolAddress={rangePoolAddress}
+                          tokenIn={tokenIn}
+                          tokenOut={tokenOut}
+                          setAllowanceController={setdoubleApprove}
+                        />
+                      ) : !doubleApprove && allowanceIn.lt(amount0) ? (
+                        <RangeMintApproveButton
+                          poolAddress={rangePoolAddress}
+                          approveToken={tokenIn}
+                        />
+                      ) : !doubleApprove && allowanceOut.lt(amount1) ? (
+                        <RangeMintApproveButton
+                          poolAddress={rangePoolAddress}
+                          approveToken={tokenOut}
+                        />
+                      ) : null}
+                    </>
+                  )}
                 </div>
-                </div>
-                </div>
-                {disabled === true ? 
-                <button className="opacity-50 w-full cursor-not-allowed py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF]">
-        {buttonState === 'amount' ? <>Input Amount</> : <></>}
-        {buttonState === 'balance0' ? <>Insufficient {tokenIn.symbol} Balance</> : <></>}
-        {buttonState === 'balance1' ? <>Insufficient {tokenOut.symbol} Balance</> : <></>}
-            </button>
-            :
-            <>
-                {allowanceIn.gte(amount0) && allowanceOut.gte(amount1) ? (
-                  <RangeAddLiqButton
-                    poolAddress={rangePoolAddress}
-                    address={address}
-                    lower={BigNumber.from(rangePositionData.min)}
-                    upper={BigNumber.from(rangePositionData.max)}
-                    amount0={amount0}
-                    amount1={amount1}
-                    disabled={disabled}
-                  />
-                  ) : (allowanceIn.lt(amount0) &&
-                  allowanceOut.lt(amount1)) ||
-                doubleApprove ? (
-                <RangeMintDoubleApproveButton
-                  poolAddress={rangePoolAddress}
-                  tokenIn={tokenIn}
-                  tokenOut={tokenOut}
-                  setAllowanceController={setdoubleApprove}
-                />
-              ) : !doubleApprove && allowanceIn.lt(amount0) ? (
-                <RangeMintApproveButton
-                  poolAddress={rangePoolAddress}
-                  approveToken={tokenIn}
-                />
-              ) : !doubleApprove && allowanceOut.lt(amount1) ? (
-                <RangeMintApproveButton
-                  poolAddress={rangePoolAddress}
-                  approveToken={tokenOut}
-                />
-              ) : null}
-              </>
-            }
-            </div>
               </Dialog.Panel>
             </Transition.Child>
-          
-        </div>
+          </div>
         </div>
       </Dialog>
     </Transition>
-  )
+  );
 }

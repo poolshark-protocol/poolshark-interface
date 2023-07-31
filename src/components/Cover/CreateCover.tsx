@@ -13,6 +13,7 @@ import {
   useProvider,
   useContractRead,
   useSigner,
+  useBalance,
 } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
@@ -27,7 +28,6 @@ import { getCoverPoolFromFactory } from "../../utils/queries";
 import JSBI from "jsbi";
 import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
-import { getBalances } from "../../utils/balances";
 import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
 import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
@@ -235,26 +235,25 @@ export default function CreateCover(props: any) {
 
   ////////////////////////////////Token Balances
 
-  async function updateBalances() {
-    await getBalances(
-      address,
-      false,
-      tokenIn,
-      tokenOut,
-      setTokenInBalance,
-      () => {}
-    );
-  }
+  const { data: tokenInBal } = useBalance({
+    address: address,
+    token: tokenIn.address,
+    enabled: tokenIn.address != undefined,
+    watch: true,
+  });
 
   useEffect(() => {
-    updateBalances();
-  }, [tokenIn.address, tokenOut.address, coverPoolData]);
+    if (isConnected) {
+      setTokenInBalance(
+        parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+      );
+    }
+  }, [tokenInBal]);
 
   ////////////////////////////////Token Prices
 
   useEffect(() => {
     if (coverPoolData.token0 && coverPoolData.token1) {
-      console.log("coverPoolData", coverPoolData);
       if (tokenIn.address) {
         fetchCoverTokenUSDPrice(
           coverPoolData,

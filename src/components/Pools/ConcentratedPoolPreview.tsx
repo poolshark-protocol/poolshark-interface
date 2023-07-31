@@ -20,14 +20,14 @@ export default function ConcentratedPoolPreview({ fee }) {
     tokenInAmount,
     tokenInRangeUSDPrice,
     tokenInAllowance,
+    setTokenInAllowance,
     tokenOut,
     tokenOutAmount,
     tokenOutRangeUSDPrice,
     tokenOutAllowance,
+    setTokenOutAllowance,
     disabled,
     buttonMessage,
-    setTokenInAllowance,
-    setTokenOutAllowance,
   ] = useRangeStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
@@ -36,14 +36,14 @@ export default function ConcentratedPoolPreview({ fee }) {
     state.tokenInAmount,
     state.tokenInRangeUSDPrice,
     state.tokenInRangeAllowance,
+    state.setTokenInRangeAllowance,
     state.tokenOut,
     state.tokenOutAmount,
     state.tokenOutRangeUSDPrice,
     state.tokenOutRangeAllowance,
+    state.setTokenOutRangeAllowance,
     state.disabled,
     state.buttonMessage,
-    state.setTokenInRangeAllowance,
-    state.setTokenOutRangeAllowance,
   ]);
 
   const { address, isConnected } = useAccount();

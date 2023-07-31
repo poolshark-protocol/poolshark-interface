@@ -19,7 +19,7 @@ import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import inputFilter from "../../utils/inputFilter";
 import TickSpacing from "../Tooltips/TickSpacing";
-import { fetchRangeTokenUSDPrice, switchDirection } from "../../utils/tokens";
+import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
 import { feeTiers, getRangePool } from "../../utils/pools";
 
 export default function ConcentratedPool({}) {
@@ -81,8 +81,7 @@ export default function ConcentratedPool({}) {
 
   const { address, isConnected } = useAccount();
 
-  const { bnInput, setBnInput, setDisplay, inputBox, maxBalance } =
-    useInputBox();
+  const { bnInput, inputBox, maxBalance } = useInputBox();
 
   const [hasSelected, setHasSelected] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
@@ -124,13 +123,10 @@ export default function ConcentratedPool({}) {
       setRangePrice(TickMath.getPriceStringAtSqrtPrice(price));
       setRangeSqrtPrice(price);
       const positionData = rangePositionData;
-      console.log("set lower e upper price", lowerPrice, upperPrice);
       if (isNaN(parseFloat(lowerPrice)) || parseFloat(lowerPrice) <= 0) {
-        console.log("set lower price");
         setLowerPrice(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
       }
       if (isNaN(parseFloat(upperPrice)) || parseFloat(upperPrice) <= 0) {
-        console.log("set upper price");
         setUpperPrice(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
       }
       setRangeTickPrice(tickAtPrice);
@@ -141,23 +137,23 @@ export default function ConcentratedPool({}) {
   ////////////////////////////////Pools Fee Tiers
   const [fee, setFee] = useState(feeTiers[0]);
 
+  function updateSelectedFeeTier(): any {
+    if (rangePoolData.feeTier.id == 100) {
+      return feeTiers[0];
+    } else if (rangePoolData.feeTier.id == 500) {
+      return feeTiers[1];
+    } else if (rangePoolData.feeTier.id == 3000) {
+      return feeTiers[2];
+    } else if (rangePoolData.feeTier.id == 10000) {
+      return feeTiers[3];
+    } else return feeTiers[0];
+  }
+
   useEffect(() => {
     if (rangePoolData.feeTier) {
       setFee(updateSelectedFeeTier());
     }
   }, [rangePoolData]);
-
-  function updateSelectedFeeTier(): any {
-    if (rangePoolData.feeTier.id == "100") {
-      return feeTiers[0];
-    } else if (rangePoolData.feeTier.id == "500") {
-      return feeTiers[1];
-    } else if (rangePoolData.feeTier.id == "3000") {
-      return feeTiers[2];
-    } else if (rangePoolData.feeTier.id == "10000") {
-      return feeTiers[3];
-    } else return feeTiers[0];
-  }
 
   const handleManualFeeChange = async (auxfee: any) => {
     const pool = tokenOrder
@@ -288,7 +284,6 @@ export default function ConcentratedPool({}) {
               tokenOrder ? BN_ZERO : bnInput,
               tokenOrder ? bnInput : BN_ZERO
             );
-      console.log("liquidity", liquidity.toString());
       const tokenOutAmount = JSBI.greaterThan(liquidity, ZERO)
         ? tokenOrder
           ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
@@ -301,26 +296,7 @@ export default function ConcentratedPool({}) {
     }
   }
 
-  ////////////////////////////////Lower and Upper Price
-
-  useEffect(() => {
-    if (
-      rangePositionData.lowerPrice &&
-      rangePositionData.upperPrice &&
-      !tokenOrder
-    ) {
-      const lower = TickMath.getTickAtPriceString(
-        rangePositionData.lowerPrice,
-        parseInt(rangePoolData.feeTier.tickSpacing)
-      );
-      setLowerPrice(TickMath.getPriceStringAtTick(lower));
-      const upper = TickMath.getTickAtPriceString(
-        rangePositionData.upperPrice,
-        parseInt(rangePoolData.feeTier.tickSpacing)
-      );
-      setUpperPrice(TickMath.getPriceStringAtTick(upper));
-    }
-  }, [tokenOrder]);
+  ////////////////////////////////Gas Fee
 
   //set lower and upper price
   const changePrice = (direction: string, inputId: string) => {
@@ -375,10 +351,8 @@ export default function ConcentratedPool({}) {
         Number(tokenInBalance) ||
       Number(ethers.utils.formatUnits(tokenOutAmount)) > Number(tokenOutBalance)
     ) {
-      //console.log('disabled true')
       setDisabled(true);
     } else {
-      //console.log('disabled false')
       setDisabled(false);
     }
   }, [
@@ -462,18 +436,7 @@ export default function ConcentratedPool({}) {
               <div
                 onClick={() => {
                   if (hasSelected) {
-                    const newInput = tokenInAmount;
-                    //switch direction
                     switchDirection();
-                    /* setBnInput(newInput);
-                    setDisplay(
-                      parseFloat(
-                        ethers.utils.formatUnits(newInput, 18).toString()
-                      )
-                        .toPrecision(5)
-                        .replace(/0+$/, "")
-                        .replace(/(\.)(?!\d)/g, "")
-                    ); */
                   }
                 }}
                 className="flex items-center cursor-pointer bg-dark border-grey1 border text-xs px-1 py-1 rounded-lg"
