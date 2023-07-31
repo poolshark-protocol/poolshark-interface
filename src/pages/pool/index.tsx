@@ -191,18 +191,6 @@ export default function Pool() {
               // href={{
               //   pathname:
               //     selected.id == 1 ? "/pool/concentrated" : "/pool/directional",
-              //   query: {
-              //     account: "",
-              //     poolId: selected.id.toString(),
-              //     tokenOneName: "",
-              //     tokenOneSymbol: "",
-              //     tokenOneLogoURI: "",
-              //     tokenOneAddress: "",
-              //     tokenZeroName: "",
-              //     tokenZeroSymbol: "",
-              //     tokenZeroLogoURI: "",
-              //     tokenZeroAddress: "",
-              //   },
               // }}
             > */}
             {/*<button className="flex items-center gap-x-1.5 px-7 py-[9px] text-white text-sm transition whitespace-nowrap rounded-lg cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
@@ -225,8 +213,6 @@ export default function Pool() {
             <div className="">
               <h1 className="mb-3">My Positions</h1>
               <div className="space-y-2">
-                {/* // allRangePositions.length === 0 || 
-                // allCoverPositions.length=== 0 */}
                 {isDisconnected ? (
                   <div className="space-y-2">
                     <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
@@ -242,8 +228,6 @@ export default function Pool() {
                           clipRule="evenodd"
                         />
                       </svg>
-                      {/* Your {selected.id === 1 ? <>range</> : <>cover</>} pools
-                      will appear here.  */}
                       Please Connect Wallet.
                     </div>
                   </div>
