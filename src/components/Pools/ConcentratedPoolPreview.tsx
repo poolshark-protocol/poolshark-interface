@@ -48,13 +48,11 @@ export default function ConcentratedPoolPreview({ fee }) {
 
   const { address, isConnected } = useAccount();
   const router = useRouter();
-
   const provider = useProvider();
   const signer = new ethers.VoidSigner(address, provider);
 
-  const [doubleApprove, setdoubleApprove] = useState(false);
-
   ////////////////////////////////Allowances
+  const [doubleApprove, setdoubleApprove] = useState(false);
 
   const { data: allowanceInRange } = useContractRead({
     address: tokenIn.address,
@@ -103,8 +101,7 @@ export default function ConcentratedPoolPreview({ fee }) {
       tokenInAmount &&
       tokenOutAmount &&
       rangePositionData.lowerPrice &&
-      rangePositionData.upperPrice &&
-      rangePoolData.feeTier
+      rangePositionData.upperPrice
     )
       updateGasFee();
   }, [tokenInAmount, tokenOut, rangePositionData]);
@@ -114,13 +111,20 @@ export default function ConcentratedPoolPreview({ fee }) {
     const newGasFee = await gasEstimateRangeMint(
       rangePoolAddress,
       address,
-      rangePositionData.lowerPrice,
-      rangePositionData.upperPrice,
+      BigNumber.from(
+        TickMath.getTickAtPriceString(
+          Number(rangePositionData.lowerPrice).toFixed(6)
+        )
+      ),
+      BigNumber.from(
+        TickMath.getTickAtPriceString(
+          Number(rangePositionData.upperPrice).toFixed(6)
+        )
+      ),
       tokenInAmount,
       tokenOutAmount,
       signer
     );
-
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
   }
 
@@ -333,12 +337,20 @@ export default function ConcentratedPoolPreview({ fee }) {
                             poolAddress={rangePoolAddress}
                             lower={
                               rangePositionData.lowerPrice
-                                ? rangePositionData.lowerPrice
+                                ? TickMath.getTickAtPriceString(
+                                    Number(
+                                      rangePositionData.lowerPrice
+                                    ).toFixed(5)
+                                  )
                                 : BN_ZERO
                             }
                             upper={
                               rangePositionData.upperPrice
-                                ? rangePositionData.upperPrice
+                                ? TickMath.getTickAtPriceString(
+                                    Number(
+                                      rangePositionData.upperPrice
+                                    ).toFixed(5)
+                                  )
                                 : BN_ZERO
                             }
                             disabled={
