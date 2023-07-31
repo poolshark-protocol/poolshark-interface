@@ -41,9 +41,11 @@ export default function CoverExistingPool({ goBack }) {
     coverPoolAddress,
     coverPoolData,
     coverPositionData,
+    volatilityTier,
     setCoverPoolAddress,
     setCoverPoolData,
     setCoverPositionData,
+    setVolatilityTier,
     tokenIn,
     tokenInCoverUSDPrice,
     tokenInBalance,
@@ -60,9 +62,11 @@ export default function CoverExistingPool({ goBack }) {
     state.coverPoolAddress,
     state.coverPoolData,
     state.coverPositionData,
+    state.volatilityTier,
     state.setCoverPoolAddress,
     state.setCoverPoolData,
     state.setCoverPositionData,
+    state.setVolatilityTier,
     state.tokenIn,
     state.tokenInCoverUSDPrice,
     state.tokenInBalance,
@@ -112,19 +116,23 @@ export default function CoverExistingPool({ goBack }) {
   }, [coverPoolAddress]);
 
   async function updatePools() {
-    await getCoverPool(
-      tokenIn,
-      tokenOut,
-      setCoverPoolAddress,
-      setCoverPoolData
-    );
+    /* if (coverPoolData.volatilityTier) { */
+    handleManualVolatilityChange(volatilityTier);
+    /* } else {
+      await getCoverPool(
+        tokenIn,
+        tokenOut,
+        setCoverPoolAddress,
+        setCoverPoolData
+      );
+    } */
   }
 
   useEffect(() => {
     if (coverPoolData.latestTick) {
       updatePositionData();
     }
-  }, [coverPoolData, coverPoolAddress, tokenOrder]);
+  }, [coverPoolData, tokenOrder]);
 
   async function updatePositionData() {
     const tickAtPrice = Number(coverPoolData.latestTick);
@@ -178,13 +186,16 @@ export default function CoverExistingPool({ goBack }) {
   }, [volatility]);
 
   //when volatility changes, we find the corresponding pool id and changed it trigerring the poolInfo refetching
+  //should go to utils, used in creatcover
   const handleManualVolatilityChange = async (volatility: any) => {
     try {
       const pool = await getCoverPoolFromFactory(
         tokenIn.address,
         tokenOut.address
       );
+
       const volatilityId = volatility.id;
+      console.log("volatility", volatility);
       const dataLength = pool["data"]["coverPools"].length;
       for (let i = 0; i < dataLength; i++) {
         if (
@@ -195,8 +206,10 @@ export default function CoverExistingPool({ goBack }) {
             pool["data"]["coverPools"][i]["volatilityTier"]["tickSpread"] == 40)
         ) {
           setVolatility(volatilityId);
+          //setVolatilityTier(volatilityId);
           //setting the address will trigger the poolInfo refetching
           setCoverPoolAddress(pool["data"]["coverPools"][i]["id"]);
+          setCoverPoolData(pool["data"]["coverPools"][i]);
         }
       }
     } catch (error) {
@@ -230,7 +243,7 @@ export default function CoverExistingPool({ goBack }) {
     args: [address, coverPoolAddress],
     chainId: 421613,
     watch: true,
-    enabled: isConnected && coverPoolAddress && tokenIn.address != "0x00",
+    enabled: isConnected && coverPoolAddress && tokenOut.address != "0x00",
     onSuccess(data) {
       //console.log('Success')
     },

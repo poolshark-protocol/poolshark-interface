@@ -39,6 +39,7 @@ export default function UserPool({ rangePosition, href }) {
     setCoverPoolAddress,
     setCoverPoolData,
     setCoverPositionData,
+    setVolatilityTier,
   ] = useCoverStore((state) => [
     state.tokenIn,
     state.tokenOut,
@@ -47,6 +48,7 @@ export default function UserPool({ rangePosition, href }) {
     state.setCoverPoolAddress,
     state.setCoverPoolData,
     state.setCoverPositionData,
+    state.setVolatilityTier,
   ]);
 
   const [rangePrice, setRangePrice] = useState(undefined);
@@ -101,6 +103,13 @@ export default function UserPool({ rangePosition, href }) {
       setCoverTokenIn(tokenOutNew, tokenInNew);
       setCoverTokenOut(tokenInNew, tokenOutNew);
       setRangePositionData(rangePosition);
+      setVolatilityTier({
+        id: 1,
+        tier: "2.4% per min",
+        text: "Most Volatility",
+        unavailable: false,
+        tickSpread: 40,
+      });
     } else {
       setRangeTokenIn(tokenOutNew, tokenInNew);
       setRangeTokenOut(tokenInNew, tokenOutNew);
