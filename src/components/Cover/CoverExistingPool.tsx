@@ -206,8 +206,7 @@ export default function CoverExistingPool({ goBack }) {
             pool["data"]["coverPools"][i]["volatilityTier"]["tickSpread"] == 40)
         ) {
           setVolatility(volatilityId);
-          //setVolatilityTier(volatilityId);
-          //setting the address will trigger the poolInfo refetching
+          setVolatilityTier(volatilityId);
           setCoverPoolAddress(pool["data"]["coverPools"][i]["id"]);
           setCoverPoolData(pool["data"]["coverPools"][i]);
         }
