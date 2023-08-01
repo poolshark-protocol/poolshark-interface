@@ -39,8 +39,6 @@ export default function PoolList({
 
   const router = useRouter();
 
-  const feeTierPercentage = feeTier / 10000;
-
   const chooseRangePool = () => {
     const tokenIn = {
       name: tokenZero.symbol,
@@ -109,7 +107,12 @@ export default function PoolList({
         </div>
         {tokenZero.symbol}-{tokenOne.symbol}
         <div className="pr-2 md:px-2 py-1 rounded-lg text-grey">
-          {feeTierPercentage}%
+          {href == "/cover"
+            ? feeTier.tickSpread == "20"
+              ? "1.7"
+              : "2.4"
+            : "0.05"}
+          %
         </div>
       </td>
       <td>${tvlUsd}m</td>
