@@ -101,7 +101,8 @@ export default function ConcentratedPoolPreview({ fee }) {
       tokenInAmount &&
       tokenOutAmount &&
       rangePositionData.lowerPrice &&
-      rangePositionData.upperPrice
+      rangePositionData.upperPrice &&
+      rangePositionData.lowerPrice < rangePositionData.upperPrice
     )
       updateGasFee();
   }, [tokenInAmount, tokenOut, rangePositionData]);
@@ -113,12 +114,14 @@ export default function ConcentratedPoolPreview({ fee }) {
       address,
       BigNumber.from(
         TickMath.getTickAtPriceString(
-          Number(rangePositionData.lowerPrice).toFixed(6)
+          rangePositionData.lowerPrice,
+          parseInt(rangePoolData.feeTier.tickSpacing)
         )
       ),
       BigNumber.from(
         TickMath.getTickAtPriceString(
-          Number(rangePositionData.upperPrice).toFixed(6)
+          rangePositionData.upperPrice,
+          parseInt(rangePoolData.feeTier.tickSpacing)
         )
       ),
       tokenInAmount,
@@ -337,19 +340,29 @@ export default function ConcentratedPoolPreview({ fee }) {
                             poolAddress={rangePoolAddress}
                             lower={
                               rangePositionData.lowerPrice
-                                ? TickMath.getTickAtPriceString(
-                                    Number(
-                                      rangePositionData.lowerPrice
-                                    ).toFixed(5)
+                                ? BigNumber.from(
+                                    TickMath.getTickAtPriceString(
+                                      rangePositionData.lowerPrice,
+                                      parseInt(
+                                        rangePoolData.feeTier
+                                          ? rangePoolData.feeTier.tickSpacing
+                                          : 20
+                                      )
+                                    )
                                   )
                                 : BN_ZERO
                             }
                             upper={
                               rangePositionData.upperPrice
-                                ? TickMath.getTickAtPriceString(
-                                    Number(
-                                      rangePositionData.upperPrice
-                                    ).toFixed(5)
+                                ? BigNumber.from(
+                                    TickMath.getTickAtPriceString(
+                                      rangePositionData.upperPrice,
+                                      parseInt(
+                                        rangePoolData.feeTier
+                                          ? rangePoolData.feeTier.tickSpacing
+                                          : 20
+                                      )
+                                    )
                                   )
                                 : BN_ZERO
                             }
