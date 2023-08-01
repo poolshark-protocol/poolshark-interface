@@ -311,3 +311,20 @@ export const feeTiers = [
     unavailable: false,
   },
 ];
+
+export const volatilityTiers = [
+  {
+    id: 0,
+    tier: "1.7% per min",
+    text: "Less Volatility",
+    unavailable: false,
+    tickSpread: 20,
+  },
+  {
+    id: 1,
+    tier: "2.4% per min",
+    text: "Most Volatility",
+    unavailable: false,
+    tickSpread: 40,
+  },
+];

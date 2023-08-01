@@ -30,19 +30,12 @@ export default function PoolList({
     state.setRangePoolData,
   ]);
 
-  const [
-    setCoverTokenIn,
-    setCoverTokenOut,
-    setCoverPoolAddress,
-    setCoverPoolData,
-    setVolatilityTier,
-  ] = useCoverStore((state) => [
-    state.setTokenIn,
-    state.setTokenOut,
-    state.setCoverPoolAddress,
-    state.setCoverPoolData,
-    state.setVolatilityTier,
-  ]);
+  const [setCoverTokenIn, setCoverTokenOut, setCoverPoolFromVolatility] =
+    useCoverStore((state) => [
+      state.setTokenIn,
+      state.setTokenOut,
+      state.setCoverPoolFromVolatility,
+    ]);
 
   const router = useRouter();
 
@@ -85,15 +78,17 @@ export default function PoolList({
     } as token;
     setCoverTokenIn(tokenOut, tokenIn);
     setCoverTokenOut(tokenIn, tokenOut);
-    setCoverPoolAddress(poolId);
-    setVolatilityTier({
+    const tier = {
       ...feeTier,
       id: feeTier.tickSpread == "20" ? 0 : 1,
-    });
+    };
+    setCoverPoolFromVolatility(tokenIn, tokenOut, tier);
     router.push({
       pathname: href,
       query: { state: "existing" },
     });
+
+    console.log('')
   };
 
   return (
