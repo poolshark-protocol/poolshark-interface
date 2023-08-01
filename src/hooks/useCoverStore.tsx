@@ -6,13 +6,14 @@ import {
   tokenZeroAddress,
 } from "../constants/contractAddresses";
 import { create } from "zustand";
+import { getCoverPoolFromFactory } from "../utils/queries";
 
 type CoverState = {
   //poolAddress for current token pairs
   coverPoolAddress: `0x${string}`;
   coverPoolData: any;
   coverPositionData: any;
-  volatilityTier: any;
+  volatilityTierId: number;
   coverSlippage: string;
   //true if both tokens selected, false if only one token selected
   pairSelected: Boolean;
@@ -39,7 +40,6 @@ type CoverAction = {
   setCoverPoolAddress: (address: String) => void;
   setCoverPoolData: (data: any) => void;
   setCoverPositionData: (data: any) => void;
-  setVolatilityTier: (volatilityTier: any) => void;
   //setPairSelected: (pairSelected: Boolean) => void;
   //tokenIn
   setTokenIn: (tokenOut: token, newToken: token) => void;
@@ -62,6 +62,11 @@ type CoverAction = {
   //reset
   resetSwapParams: () => void;
   switchDirection: () => void;
+  setCoverPoolFromVolatility: (
+    tokanIn: token,
+    tokenOut: token,
+    volatility: any
+  ) => void;
 };
 
 const initialCoverState: CoverState = {
@@ -70,7 +75,7 @@ const initialCoverState: CoverState = {
   coverPoolData: {},
   coverPositionData: {},
   coverSlippage: "0.5",
-  volatilityTier: 0,
+  volatilityTierId: 0,
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
   pairSelected: true,
   //
@@ -109,7 +114,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   coverPoolData: initialCoverState.coverPoolData,
   coverPositionData: initialCoverState.coverPositionData,
   coverSlippage: initialCoverState.coverSlippage,
-  volatilityTier: initialCoverState.volatilityTier,
+  volatilityTierId: initialCoverState.volatilityTierId,
   pairSelected: initialCoverState.pairSelected,
   //tokenIn
   tokenIn: initialCoverState.tokenIn,
@@ -249,11 +254,6 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       coverPositionData: coverPositionData,
     }));
   },
-  setVolatilityTier: (volatilityTier: any) => {
-    set(() => ({
-      volatilityTier: volatilityTier,
-    }));
-  },
   setCoverSlippage: (coverSlippage: string) => {
     set(() => ({
       coverSlippage: coverSlippage,
@@ -311,6 +311,34 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         address: state.tokenIn.address,
       },
     }));
+  },
+  setCoverPoolFromVolatility: async (tokenIn, tokenOut, volatility: any) => {
+    try {
+      const pool = await getCoverPoolFromFactory(
+        tokenIn.address,
+        tokenOut.address
+      );
+      const volatilityId = volatility.id;
+      const dataLength = pool["data"]["coverPools"].length;
+      for (let i = 0; i < dataLength; i++) {
+        if (
+          (volatilityId == 0 &&
+            pool["data"]["coverPools"][i]["volatilityTier"]["tickSpread"] ==
+              20) ||
+          (volatilityId == 1 &&
+            pool["data"]["coverPools"][i]["volatilityTier"]["tickSpread"] == 40)
+        ) {
+          console.log("volatility id", volatilityId);
+          set(() => ({
+            coverPoolAddress: pool["data"]["coverPools"][i]["id"],
+            coverPoolData: pool["data"]["coverPools"][i],
+            volatilityTierId: volatilityId,
+          }));
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
   },
   resetSwapParams: () => {
     set({

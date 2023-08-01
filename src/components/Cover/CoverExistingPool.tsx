@@ -33,17 +33,14 @@ import { useCoverStore } from "../../hooks/useCoverStore";
 import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
 import useInputBox from "../../hooks/useInputBox";
 import { useRangeStore } from "../../hooks/useRangeStore";
+import { volatilityTiers } from "../../utils/pools";
 
 export default function CoverExistingPool({ goBack }) {
   const [
     coverPoolAddress,
     coverPoolData,
     coverPositionData,
-    volatilityTier,
-    setCoverPoolAddress,
-    setCoverPoolData,
     setCoverPositionData,
-    setVolatilityTier,
     tokenIn,
     tokenInCoverUSDPrice,
     tokenInBalance,
@@ -55,15 +52,12 @@ export default function CoverExistingPool({ goBack }) {
     setTokenOutCoverUSDPrice,
     pairSelected,
     switchDirection,
+    setCoverPoolFromVolatility,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPoolData,
     state.coverPositionData,
-    state.volatilityTier,
-    state.setCoverPoolAddress,
-    state.setCoverPoolData,
     state.setCoverPositionData,
-    state.setVolatilityTier,
     state.tokenIn,
     state.tokenInCoverUSDPrice,
     state.tokenInBalance,
@@ -75,6 +69,7 @@ export default function CoverExistingPool({ goBack }) {
     state.setTokenOutCoverUSDPrice,
     state.pairSelected,
     state.switchDirection,
+    state.setCoverPoolFromVolatility,
   ]);
 
   const [rangePositionData] = useRangeStore((state) => [
@@ -96,7 +91,7 @@ export default function CoverExistingPool({ goBack }) {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
   }, [chainId]);
 
-  ////////////////////////////////TokenOrder
+  ////////////////////////////////Token Order
   const [tokenOrder, setTokenOrder] = useState(true);
 
   useEffect(() => {
@@ -105,114 +100,8 @@ export default function CoverExistingPool({ goBack }) {
     }
   }, [tokenIn, tokenOut]);
 
-  //////////////////////////////Pools
-
-  useEffect(() => {
-    updatePools();
-  }, [coverPoolAddress]);
-
-  async function updatePools() {
-    /* if (coverPoolData.volatilityTier) { */
-    handleManualVolatilityChange(volatilityTier);
-    /* } else {
-      await getCoverPool(
-        tokenIn,
-        tokenOut,
-        setCoverPoolAddress,
-        setCoverPoolData
-      );
-    } */
-  }
-
-  useEffect(() => {
-    if (coverPoolData.latestTick) {
-      updatePositionData();
-    }
-  }, [coverPoolData, tokenOrder]);
-
-  async function updatePositionData() {
-    const tickAtPrice = Number(coverPoolData.latestTick);
-    const tickSpread = Number(coverPoolData.volatilityTier.tickSpread);
-    const lowerPrice = TickMath.getPriceStringAtTick(
-      tokenOrder
-        ? tickAtPrice + -tickSpread * 16
-        : tickAtPrice + tickSpread * 8,
-      tickSpread
-    );
-    const upperPrice = TickMath.getPriceStringAtTick(
-      tokenOrder ? tickAtPrice - tickSpread * 6 : tickAtPrice + tickSpread * 18,
-      tickSpread
-    );
-    setLowerPrice(lowerPrice);
-    setUpperPrice(upperPrice);
-    setCoverPositionData({
-      ...coverPositionData,
-      tickAtPrice: tickAtPrice,
-      lowerPrice: lowerPrice,
-      upperPrice: upperPrice,
-    });
-  }
-
-  //////////////////////////////Pools Change Volatility Tiers
-
-  const volatilityTiers = [
-    {
-      id: 0,
-      tier: "1.7% per min",
-      text: "Less Volatility",
-      unavailable: false,
-      tickSpread: 20,
-    },
-    {
-      id: 1,
-      tier: "2.4% per min",
-      text: "Most Volatility",
-      unavailable: false,
-      tickSpread: 40,
-    },
-  ];
-
-  const [volatility, setVolatility] = useState(0);
-  const [selectedVolatility, setSelectedVolatility] = useState(
-    volatilityTiers[0]
-  );
-
-  useEffect(() => {
-    setSelectedVolatility(volatilityTiers[volatility]);
-  }, [volatility]);
-
-  //when volatility changes, we find the corresponding pool id and changed it trigerring the poolInfo refetching
-  //should go to utils, used in creatcover
-  const handleManualVolatilityChange = async (volatility: any) => {
-    try {
-      const pool = await getCoverPoolFromFactory(
-        tokenIn.address,
-        tokenOut.address
-      );
-
-      const volatilityId = volatility.id;
-      const dataLength = pool["data"]["coverPools"].length;
-      for (let i = 0; i < dataLength; i++) {
-        if (
-          (volatilityId == 0 &&
-            pool["data"]["coverPools"][i]["volatilityTier"]["tickSpread"] ==
-              20) ||
-          (volatilityId == 1 &&
-            pool["data"]["coverPools"][i]["volatilityTier"]["tickSpread"] == 40)
-        ) {
-          setVolatility(volatilityId);
-          setVolatilityTier(volatilityId);
-          setCoverPoolAddress(pool["data"]["coverPools"][i]["id"]);
-          setCoverPoolData(pool["data"]["coverPools"][i]);
-        }
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   ////////////////////////////////Token Allowances
-  
+
   const { data: allowanceInCover } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -273,6 +162,57 @@ export default function CoverExistingPool({ goBack }) {
       }
     }
   }, [coverPoolData, tokenOrder]);
+
+  //////////////////////////////Cover Pool Data
+  //initial volatility Tier set to 1.7% when selected from list of range pools
+  const [selectedVolatility, setSelectedVolatility] = useState(
+    volatilityTiers[0]
+  );
+
+  useEffect(() => {
+    updatePools();
+  }, [tokenIn, tokenOut, selectedVolatility]);
+
+  async function updatePools() {
+    setCoverPoolFromVolatility(tokenIn, tokenOut, selectedVolatility);
+  }
+
+  //sames as updatePools but triggered from the html
+  const handleManualVolatilityChange = async (volatility: any) => {
+    setSelectedVolatility(volatility);
+  };
+
+  ////////////////////////////////Init Position Data
+
+  //positionData set at pool data change
+  useEffect(() => {
+    if (coverPoolData.latestTick) {
+      updatePositionData();
+    }
+  }, [coverPoolData, tokenOrder]);
+
+  async function updatePositionData() {
+    const tickAtPrice = Number(coverPoolData.latestTick);
+    const tickSpread = Number(coverPoolData.volatilityTier.tickSpread);
+    const lowerPrice = TickMath.getPriceStringAtTick(
+      tokenOrder
+        ? tickAtPrice + -tickSpread * 16
+        : tickAtPrice + tickSpread * 8,
+      tickSpread
+    );
+    const upperPrice = TickMath.getPriceStringAtTick(
+      tokenOrder ? tickAtPrice - tickSpread * 6 : tickAtPrice + tickSpread * 18,
+      tickSpread
+    );
+    setLowerPrice(lowerPrice);
+    setUpperPrice(upperPrice);
+    setCoverPositionData({
+      ...coverPositionData,
+      tickAtPrice: tickAtPrice,
+      lowerPrice: lowerPrice,
+      upperPrice: upperPrice,
+    });
+  }
 
   ////////////////////////////////Position Price Delta
   const [lowerPrice, setLowerPrice] = useState("0");
@@ -438,8 +378,8 @@ export default function CoverExistingPool({ goBack }) {
   ]);
 
   async function updateGasFee() {
-    console.log(coverAmountIn, "positionAmountIn")
-    
+    console.log(coverAmountIn, "positionAmountIn");
+
     const newMintGasFee = await gasEstimateCoverMint(
       coverPoolAddress,
       address,
@@ -520,14 +460,9 @@ export default function CoverExistingPool({ goBack }) {
 
   ////////////////////////////////
 
-
   const handleChange = (event: any) => {
     setSliderValue(event.target.value);
   };
-
-  useEffect(() => {
-    setSelectedVolatility(volatilityTiers[volatility]);
-  }, [volatility]);
 
   function SelectVolatility() {
     return (
