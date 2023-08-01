@@ -245,7 +245,9 @@ export default function ConcentratedPool({}) {
   }, [lowerPrice, upperPrice]);
 
   useEffect(() => {
-    if (rangePositionData.lowerPrice && rangePositionData.upperPrice) {
+    if (rangePositionData.lowerPrice &&
+       rangePositionData.upperPrice &&
+       rangePoolData.feeTier) {
       tokenOutAmountMath();
     }
   }, [
