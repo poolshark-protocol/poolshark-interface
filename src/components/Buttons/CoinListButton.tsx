@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useEffect } from "react";
+import useTokenBalance from "../../hooks/useTokenBalance";
 
 function CoinListButton({ chooseToken, coin }) {
+
   return (
     <button
       onClick={() => chooseToken(coin)}
@@ -14,7 +16,7 @@ function CoinListButton({ chooseToken, coin }) {
       <img className="w-6" src={coin.logoURI} />
       {coin.symbol}
     </button>
-  )
+  );
 }
 
-export default CoinListButton
+export default CoinListButton;

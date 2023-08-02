@@ -2,8 +2,6 @@ import useTokenBalance from '../hooks/useTokenBalance'
 
 function CoinListItem({ chooseToken, coin }) {
   const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance(coin?.address)
-  /*  console.log('coin', coin.symbol)
-  console.log('tokenBalanceInfo', tokenBalanceInfo) */
 
   return (
     <div
@@ -34,11 +32,11 @@ function CoinListItem({ chooseToken, coin }) {
                   .toExponential(5)
                   .toString()
               : Number(tokenBalanceBox().props.children[1]).toString()
-            : '0'}
+            : "0"}
         </span>
       </button>
     </div>
-  )
+  );
 }
 
-export default CoinListItem
+export default CoinListItem;
