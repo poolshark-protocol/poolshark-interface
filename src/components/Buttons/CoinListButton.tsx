@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import useTokenBalance from "../../hooks/useTokenBalance";
 
 function CoinListButton({ chooseToken, coin }) {
-  const [tokenBalanceInfo, tokenBalanceBox] = useTokenBalance(coin?.address);
 
   return (
     <button
