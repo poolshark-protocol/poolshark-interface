@@ -12,16 +12,15 @@ import {
 import useTokenList from "../hooks/useTokenList";
 import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
-import { token } from "../utils/types";
+import { useAccount, useBalance } from "wagmi";
 
 export default function SelectToken(props) {
+  const { address, isDisconnected, isConnected } = useAccount();
+
   const [isOpen, setIsOpen] = useState(false);
   const [inputVal, setInputVal] = useState("");
   const coins = useTokenList()[0];
 
-  //@dev this is temporary for testnet
-  // const [rawCoinList, setRawCoinList] = useState(coins["listed_tokens"]);
-  const [orderedCoinList, setOrderedCoinList] = useState([]);
   const [rawCoinList, setRawCoinList] = useState([
     {
       name: "WETH",
@@ -29,6 +28,14 @@ export default function SelectToken(props) {
       symbol: "WETH",
       logoURI: "/static/images/eth_icon.png",
       decimals: 18,
+      balance: Number(
+        useBalance({
+          address: address,
+          token: tokenOneAddress,
+          chainId: 421613,
+          watch: true,
+        }).data.formatted
+      ),
     },
     {
       name: "USDC",
@@ -36,34 +43,18 @@ export default function SelectToken(props) {
       symbol: "USDC",
       logoURI: "/static/images/token.png",
       decimals: 18,
+      balance: Number(
+        useBalance({
+          address: address,
+          token: tokenZeroAddress,
+          chainId: 421613,
+          watch: true,
+        }).data.formatted
+      ),
     },
   ]);
 
-  //@dev this is temporary for testnet
-  // const findCoin = () => {
-  //   if (inputVal.length === 0) {
-  //     setRawCoinList(coins["listed_tokens"]);
-  //   } else {
-  //     if (inputVal.length === 42 && inputVal.substring(0, 2) === "0x") {
-  //       let searchedCoin = coins["search_tokens"].find(
-  //         (token) => token.id === inputVal
-  //       );
-  //       if (searchedCoin != undefined) {
-  //         setRawCoinList(searchedCoin);
-  //       }
-  //     } else {
-  //       let searchedCoins = coins["search_tokens"].filter(
-  //         (coin) =>
-  //           coin.name.toUpperCase().includes(inputVal.toUpperCase()) ||
-  //           coin.symbol.toUpperCase().includes(inputVal.toUpperCase())
-  //       );
-  //       if (searchedCoins.length > 20) {
-  //         searchedCoins = searchedCoins.slice(0, 20);
-  //       }
-  //       setRawCoinList(searchedCoins);
-  //     }
-  //   }
-  // };
+  console.log(rawCoinList);
 
   const chooseToken = (coin) => {
     coin = {
@@ -89,11 +80,6 @@ export default function SelectToken(props) {
     }
     closeModal();
   };
-
-  useEffect(() => {
-    //@dev this is temporary for testnet
-    // findCoin();
-  }, [inputVal, isOpen]);
 
   function closeModal() {
     setIsOpen(false);
@@ -160,15 +146,17 @@ export default function SelectToken(props) {
                     </div>
                   </div>
                   <div>
-                    {orderedCoinList?.map((coin) => {
-                      return (
-                        <CoinListItem
-                          key={coin.symbol}
-                          coin={coin}
-                          chooseToken={chooseToken}
-                        />
-                      );
-                    })}
+                    {rawCoinList
+                      .sort((a, b) => b.balance - a.balance)
+                      .map((coin) => {
+                        return (
+                          <CoinListItem
+                            key={coin.symbol}
+                            coin={coin}
+                            chooseToken={chooseToken}
+                          />
+                        );
+                      })}
                   </div>
                 </Dialog.Panel>
               </Transition.Child>

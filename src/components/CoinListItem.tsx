@@ -32,11 +32,11 @@ function CoinListItem({ chooseToken, coin }) {
                   .toExponential(5)
                   .toString()
               : Number(tokenBalanceBox().props.children[1]).toString()
-            : '0'}
+            : "0"}
         </span>
       </button>
     </div>
-  )
+  );
 }
 
-export default CoinListItem
+export default CoinListItem;
