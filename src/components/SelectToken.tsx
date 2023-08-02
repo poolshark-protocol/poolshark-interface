@@ -160,7 +160,7 @@ export default function SelectToken(props) {
                     </div>
                   </div>
                   <div>
-                    {rawCoinList?.map((coin) => {
+                    {orderedCoinList?.map((coin) => {
                       return (
                         <CoinListItem
                           key={coin.symbol}
