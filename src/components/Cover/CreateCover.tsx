@@ -347,7 +347,8 @@ export default function CreateCover(props: any) {
     if (
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
-      coverPoolData.volatilityTier
+      coverPoolData.volatilityTier &&
+      coverAmountIn.length > 0
     )
       updateGasFee();
   }, [
