@@ -676,7 +676,7 @@ export default function CreateCover(props: any) {
               placeholder="0"
               id="minInput"
               type="text"
-              value={lowerPrice}
+              value={invertPrice(lowerPrice, tokenOrder)}
               onChange={() =>
                 setLowerPrice(
                   inputFilter(
@@ -715,7 +715,7 @@ export default function CreateCover(props: any) {
               placeholder="0"
               id="maxInput"
               type="text"
-              value={upperPrice}
+              value={invertPrice(upperPrice, tokenOrder)}
               onChange={() =>
                 setUpperPrice(
                   inputFilter(
