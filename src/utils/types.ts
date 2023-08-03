@@ -4,6 +4,9 @@ export type token = {
   symbol: string
   logoURI: string
   address: `0x${string}`
+  userBalance: number
+  userPoolAllowance: number
+  coverUSDPrice: number
 }
 
 

@@ -9,30 +9,27 @@ import { create } from "zustand";
 import { getCoverPoolFromFactory } from "../utils/queries";
 
 type CoverState = {
+  //TokenIn defines the token on the left/up
+  tokenIn: token;
+  //TokenOut defines the token on the right/down
+  tokenOut: token;
+  //true if both tokens selected, false if only one token selected
+  pairSelected: Boolean;
   //poolAddress for current token pairs
   coverPoolAddress: `0x${string}`;
   coverPoolData: any;
+  //tickSpacing
+  //claimTick
+  //volatilityTierId: number;
   coverPositionData: any;
-  volatilityTierId: number;
-  coverSlippage: string;
-  //true if both tokens selected, false if only one token selected
-  pairSelected: Boolean;
-  //TokenIn defines the token on the left/up on a swap page
-  tokenIn: token;
-  tokenInAmount: string;
-  tokenInCoverUSDPrice: number;
-  tokenInCoverAllowance: string;
-  tokenInBalance: string;
-  //TokenOut defines the token on the left/up on a swap page
-  tokenOut: token;
-  tokenOutCoverUSDPrice: number;
-  tokenOutBalance: string;
-  tokenOutCoverAllowance: string;
+  coverSwapSlippage: string;
+  coverMintParams: {
+    tokenInAmount: string;
+    gasFee: string;
+    gasLimit: BigNumber;
+  };
   //Claim tick
   claimTick: number;
-  //Gas
-  gasFee: string;
-  gasLimit: BigNumber;
   //Bcontract calls
   disabled: Boolean;
   buttonMessage: string;
@@ -78,8 +75,8 @@ const initialCoverState: CoverState = {
   coverPoolAddress: "0x00",
   coverPoolData: {},
   coverPositionData: {},
-  coverSlippage: "0.5",
-  volatilityTierId: 0,
+  coverSwapSlippage: "0.5",
+  //volatilityTierId: 0,
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
   pairSelected: true,
   //
@@ -89,6 +86,9 @@ const initialCoverState: CoverState = {
     symbol: "WETH",
     logoURI: "/static/images/eth_icon.png",
     address: tokenOneAddress,
+    userBalance: 0.0,
+    userPoolAllowance: 0.0,
+    coverUSDPrice: 0.0,
   } as token,
   tokenInAmount: "0.00",
   tokenInCoverUSDPrice: 0,
@@ -101,6 +101,9 @@ const initialCoverState: CoverState = {
     symbol: "Select Token",
     logoURI: "",
     address: tokenZeroAddress,
+    userBalance: 0.0,
+    userPoolAllowance: 0.0,
+    coverUSDPrice: 0.0,
   } as token,
   tokenOutCoverUSDPrice: 0,
   tokenOutBalance: "0.00",
@@ -373,12 +376,71 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       console.log(error);
     }
   },
- 
-  setMintButtonState: () => {
-
+  setMintButtonState: (coverMintParams) => {
+    // disabled messages
+    /* useEffect(() => {
+    if (
+      Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) *
+        tokenInCoverUSDPrice >
+      Number(tokenInBalance)
+    ) {
+      setButtonState("balance");
+    } else if (!validBounds) {
+      setButtonState("bounds");
+    } else if (
+      parseInt(coverPositionData.lowerPrice) >
+      parseInt(coverPositionData.upperPrice)
+    ) {
+      setButtonState("price");
+    } else if (BigNumber.from(coverAmountIn.toString()).eq(BN_ZERO)) {
+      setButtonState("amount");
+    } else if (pairSelected == false) {
+      setButtonState("token");
+    } else if (mintGasLimit.eq(BN_ZERO)) {
+      setDisabled(true);
+    } else {
+      setDisabled(false);
+    }
+  }, [
+    coverAmountIn,
+    coverAmountOut,
+    pairSelected,
+    validBounds,
+    coverPositionData,
+    tokenInBalance,
+    mintGasLimit,
+  ]); */
+    // set disabled
+    /* useEffect(() => {
+    const disabledFlag =
+      bnInput.eq(BN_ZERO) &&
+      coverPositionData.lowerPrice < coverPositionData.upperPrice &&
+      validBounds &&
+      parseFloat(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) >
+        parseFloat(tokenInBalance) &&
+      pairSelected == true;
+    setDisabled(disabledFlag);
+  }, [
+    coverPositionData.lowerPrice,
+    coverPositionData.upperPrice,
+    bnInput,
+    validBounds,
+    tokenInBalance,
+    coverAmountIn,
+  ]); */
     set((state) => ({
-      disabled: Number(state.tokenInCoverAllowance) > 0 && state.pairSelected && Number(state.tokenInBalance) > 0 ? false : true,
-      buttonMessage: Number(state.tokenInCoverAllowance) > 0 && state.pairSelected && Number(state.tokenInBalance) > 0 ? "Mint" : "Approve",
+      buttonDisabledFlag:
+        Number(state.tokenInCoverAllowance) > 0 &&
+        state.pairSelected &&
+        Number(state.tokenInBalance) > 0
+          ? false
+          : true,
+      buttonMessage:
+        Number(state.tokenInCoverAllowance) > 0 &&
+        state.pairSelected &&
+        Number(state.tokenInBalance) > 0
+          ? "Mint"
+          : "Approve",
     }));
-  }
+  },
 }));
