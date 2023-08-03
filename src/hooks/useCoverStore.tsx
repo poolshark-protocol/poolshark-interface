@@ -33,6 +33,9 @@ type CoverState = {
   //Gas
   gasFee: string;
   gasLimit: BigNumber;
+  //Bcontract calls
+  disabled: Boolean;
+  buttonMessage: string;
 };
 
 type CoverAction = {
@@ -106,6 +109,9 @@ const initialCoverState: CoverState = {
   //
   gasFee: "$0.00",
   gasLimit: BN_ZERO,
+  //
+  disabled: false,
+  buttonMessage: "",
 };
 
 export const useCoverStore = create<CoverState & CoverAction>((set) => ({
@@ -132,6 +138,9 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   //gas
   gasFee: initialCoverState.gasFee,
   gasLimit: initialCoverState.gasLimit,
+  //contract calls
+  disabled: initialCoverState.disabled,
+  buttonMessage: initialCoverState.buttonMessage,
   setTokenIn: (tokenOut, newToken: token) => {
     //if tokenOut is selected
     if (
