@@ -13,8 +13,17 @@ import CreateCover from '../components/Cover/CreateCover'
 import { fetchCoverPositions } from '../utils/queries'
 import { mapUserCoverPositions } from '../utils/maps'
 import { TickMath } from '../utils/math/tickMath'
+import { useCoverStore } from '../hooks/useCoverStore'
 
 export default function Cover() {
+  const [
+    needsRefetch,
+    setNeedsRefetch,
+  ] = useCoverStore((state) => [
+    state.needsRefetch,
+    state.setNeedsRefetch,
+  ])
+
   const {
     network: { chainId },
   } = useProvider()

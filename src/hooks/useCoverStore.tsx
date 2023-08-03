@@ -33,6 +33,8 @@ type CoverState = {
   //Gas
   gasFee: string;
   gasLimit: BigNumber;
+  //refresh
+  needsRefetch: Boolean;
 };
 
 type CoverAction = {
@@ -59,6 +61,8 @@ type CoverAction = {
   //gas
   setGasFee: (fee: string) => void;
   setGasLimit: (limit: BigNumber) => void;
+  //refetch
+  setNeedsRefetch: (needsRefetch: Boolean) => void;
   //reset
   resetSwapParams: () => void;
   switchDirection: () => void;
@@ -106,6 +110,8 @@ const initialCoverState: CoverState = {
   //
   gasFee: "$0.00",
   gasLimit: BN_ZERO,
+  //
+  needsRefetch: false,
 };
 
 export const useCoverStore = create<CoverState & CoverAction>((set) => ({
@@ -132,6 +138,8 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   //gas
   gasFee: initialCoverState.gasFee,
   gasLimit: initialCoverState.gasLimit,
+  //refresh
+  needsRefetch: initialCoverState.needsRefetch,
   setTokenIn: (tokenOut, newToken: token) => {
     //if tokenOut is selected
     if (
@@ -288,6 +296,11 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       gasLimit: gasLimit,
     }));
   },
+  setNeedsRefetch: (needsRefetch: Boolean) => {
+    set(() => ({
+      needsRefetch: needsRefetch,
+    }));
+  },
   switchDirection: () => {
     set((state) => ({
       tokenIn: {
@@ -360,6 +373,8 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       //gas
       gasFee: initialCoverState.gasFee,
       gasLimit: initialCoverState.gasLimit,
+      //refresh
+      needsRefetch: initialCoverState.needsRefetch,
     });
   },
 }));
