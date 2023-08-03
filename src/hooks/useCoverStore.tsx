@@ -16,7 +16,7 @@ type CoverState = {
   volatilityTierId: number;
   coverSlippage: string;
   //true if both tokens selected, false if only one token selected
-  pairSelected: Boolean;
+  pairSelected: boolean;
   //TokenIn defines the token on the left/up on a swap page
   tokenIn: token;
   tokenInAmount: string;
@@ -34,7 +34,7 @@ type CoverState = {
   gasFee: string;
   gasLimit: BigNumber;
   //refresh
-  needsRefetch: Boolean;
+  needsRefetch: boolean;
 };
 
 type CoverAction = {
@@ -42,7 +42,7 @@ type CoverAction = {
   setCoverPoolAddress: (address: String) => void;
   setCoverPoolData: (data: any) => void;
   setCoverPositionData: (data: any) => void;
-  //setPairSelected: (pairSelected: Boolean) => void;
+  //setPairSelected: (pairSelected: boolean) => void;
   //tokenIn
   setTokenIn: (tokenOut: token, newToken: token) => void;
   setTokenInAmount: (amount: string) => void;
@@ -62,7 +62,7 @@ type CoverAction = {
   setGasFee: (fee: string) => void;
   setGasLimit: (limit: BigNumber) => void;
   //refetch
-  setNeedsRefetch: (needsRefetch: Boolean) => void;
+  setNeedsRefetch: (needsRefetch: boolean) => void;
   //reset
   resetSwapParams: () => void;
   switchDirection: () => void;
@@ -296,7 +296,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       gasLimit: gasLimit,
     }));
   },
-  setNeedsRefetch: (needsRefetch: Boolean) => {
+  setNeedsRefetch: (needsRefetch: boolean) => {
     set(() => ({
       needsRefetch: needsRefetch,
     }));

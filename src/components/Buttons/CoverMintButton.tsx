@@ -10,6 +10,7 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { roundTick } from "../../utils/math/tickMath";
 import { BigNumber } from "ethers";
+import { useCoverStore } from "../../hooks/useCoverStore";
 
 export default function CoverMintButton({
   poolAddress,
@@ -26,6 +27,12 @@ export default function CoverMintButton({
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
+
+  const [
+    setNeedsRefetch
+  ] = useCoverStore((state) => [
+    state.setNeedsRefetch
+  ]);
 
   const { config } = usePrepareContractWrite({
     address: poolAddress,
@@ -53,6 +60,8 @@ export default function CoverMintButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
+      setNeedsRefetch(true);
+      console.log("refetch setted")
     },
     onError() {
       setErrorDisplay(true);

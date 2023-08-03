@@ -25,6 +25,7 @@ import {
 } from '../../utils/maps'
 import { TickMath } from '../../utils/math/tickMath'
 import UserLimitPool from '../../components/Pools/UserLimitPool'
+import { useRangeStore } from '../../hooks/useRangeStore'
 
 export default function Pool() {
   const poolTypes = [
@@ -41,6 +42,14 @@ export default function Pool() {
   const [allRangePools, setAllRangePools] = useState([])
   const [allCoverPools, setAllCoverPools] = useState([])
 
+  const [
+    needsRefetch,
+    setNeedsRefetch
+  ] = useRangeStore((state) => [
+    state.needsRefetch,
+    state.setNeedsRefetch
+  ]);
+
   //////////////////////Get Pools Data
   useEffect(() => {
     getRangePoolData()
@@ -56,13 +65,15 @@ export default function Pool() {
 
   useEffect(() => {
     setTimeout(() => {
-      if (allRangePositions) {
+      if (needsRefetch == true) {
         if(selected.id === 1) {
           getUserRangePositionData()
         }
+
+        setNeedsRefetch(false)
       }
-    }, 2000)
-  }, [allRangePositions])
+    }, 5000)
+  }, [needsRefetch])
 
   useEffect(() => {
     setTimeout(() => {
