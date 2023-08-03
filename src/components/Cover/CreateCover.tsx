@@ -347,7 +347,8 @@ export default function CreateCover(props: any) {
     if (
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
-      coverPoolData.volatilityTier
+      coverPoolData.volatilityTier &&
+      coverAmountIn.length > 0
     )
       updateGasFee();
   }, [
@@ -659,7 +660,7 @@ export default function CreateCover(props: any) {
               placeholder="0"
               id="minInput"
               type="text"
-              value={lowerPrice}
+              value={tokenOrder ? invertPrice(lowerPrice, tokenOrder) : invertPrice(upperPrice, tokenOrder)}
               onChange={() =>
                 setLowerPrice(
                   inputFilter(
@@ -698,7 +699,7 @@ export default function CreateCover(props: any) {
               placeholder="0"
               id="maxInput"
               type="text"
-              value={upperPrice}
+              value={tokenOrder ? invertPrice(upperPrice, tokenOrder) : invertPrice(lowerPrice, tokenOrder)}
               onChange={() =>
                 setUpperPrice(
                   inputFilter(

@@ -20,7 +20,7 @@ import { Fragment, useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
 import JSBI from "jsbi";
 import { Listbox, Transition } from "@headlessui/react";
-import { TickMath, roundTick } from "../../utils/math/tickMath";
+import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
@@ -703,7 +703,7 @@ export default function CoverExistingPool({ goBack }) {
               placeholder="0"
               id="minInput"
               type="text"
-              value={lowerPrice}
+              value={tokenOrder ? invertPrice(lowerPrice, tokenOrder) : invertPrice(upperPrice, tokenOrder)}
               onChange={() =>
                 setLowerPrice(
                   inputFilter(
@@ -742,7 +742,7 @@ export default function CoverExistingPool({ goBack }) {
               placeholder="0"
               id="maxInput"
               type="text"
-              value={upperPrice}
+              value={tokenOrder ? invertPrice(upperPrice, tokenOrder) : invertPrice(lowerPrice, tokenOrder)}
               onChange={() =>
                 setUpperPrice(
                   inputFilter(
