@@ -54,8 +54,6 @@ export default function SelectToken(props) {
     },
   ]);
 
-  console.log(rawCoinList);
-
   const chooseToken = (coin) => {
     coin = {
       name: coin?.name,
