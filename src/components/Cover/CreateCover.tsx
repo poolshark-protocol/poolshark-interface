@@ -110,7 +110,7 @@ export default function CreateCover(props: any) {
     functionName: "allowance",
     args: [address, coverPoolAddress],
     chainId: 421613,
-    watch: true,
+    watch: false,
     enabled: isConnected && coverPoolAddress && tokenIn.address != "0x00",
     onSuccess(data) {
       //console.log('Success')
@@ -133,7 +133,7 @@ export default function CreateCover(props: any) {
     address: address,
     token: tokenIn.address,
     enabled: tokenIn.address != undefined,
-    watch: true,
+    watch: false,
   });
 
   useEffect(() => {
@@ -676,7 +676,7 @@ export default function CreateCover(props: any) {
               placeholder="0"
               id="minInput"
               type="text"
-              value={tokenOrder ? invertPrice(lowerPrice, tokenOrder) : invertPrice(upperPrice, tokenOrder)}
+              value={lowerPrice}
               onChange={() =>
                 setLowerPrice(
                   inputFilter(
@@ -715,7 +715,7 @@ export default function CreateCover(props: any) {
               placeholder="0"
               id="maxInput"
               type="text"
-              value={tokenOrder ? invertPrice(upperPrice, tokenOrder) : invertPrice(lowerPrice, tokenOrder)}
+              value={upperPrice}
               onChange={() =>
                 setUpperPrice(
                   inputFilter(

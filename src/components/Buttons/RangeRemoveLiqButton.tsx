@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import {
     usePrepareContractWrite,
     useContractWrite,
@@ -12,8 +12,14 @@ import React, { useEffect, useState } from "react";
 import { rangePoolABI } from '../../abis/evm/rangePool';
 import { gasEstimateRangeBurn } from '../../utils/gas';
 import { BN_ZERO } from '../../utils/math/constants';
+import { useRangeStore } from '../../hooks/useRangeStore';
 
 export default function RangeRemoveLiqButton({poolAddress, address, lower, upper, burnPercent, closeModal}) {
+    const [
+      setNeedsRefetch
+    ] = useRangeStore((state) => [
+      state.setNeedsRefetch
+    ]);
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -75,6 +81,9 @@ export default function RangeRemoveLiqButton({poolAddress, address, lower, upper
         setTimeout(() => {
           closeModal()
         }, 2000);
+        if (burnPercent.eq(ethers.utils.parseUnits('1', 38))) {
+          setNeedsRefetch(true);
+        }
       },
       onError() {
         setErrorDisplay(true);

@@ -26,6 +26,7 @@ import {
 import { TickMath } from '../../utils/math/tickMath'
 import UserLimitPool from '../../components/Pools/UserLimitPool'
 import { useRangeStore } from '../../hooks/useRangeStore'
+import { useCoverStore } from '../../hooks/useCoverStore'
 
 export default function Pool() {
   const poolTypes = [
@@ -46,6 +47,14 @@ export default function Pool() {
     needsRefetch,
     setNeedsRefetch
   ] = useRangeStore((state) => [
+    state.needsRefetch,
+    state.setNeedsRefetch
+  ]);
+
+  const [
+    needsCoverRefetch,
+    setNeedsCoverRefetch
+  ] = useCoverStore((state) => [
     state.needsRefetch,
     state.setNeedsRefetch
   ]);
@@ -77,13 +86,15 @@ export default function Pool() {
 
   useEffect(() => {
     setTimeout(() => {
-      if (allCoverPositions) {
+      if (needsCoverRefetch == true) {
         if(selected.id === 2) {
           getUserCoverPositionData()
         }
+
+        setNeedsCoverRefetch(false)
       }
-    }, 2000)
-  }, [allCoverPositions])
+    }, 5000)
+  }, [needsCoverRefetch])
 
   async function getUserRangePositionData() {
     try {
