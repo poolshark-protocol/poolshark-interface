@@ -13,8 +13,17 @@ import CreateCover from '../components/Cover/CreateCover'
 import { fetchCoverPositions } from '../utils/queries'
 import { mapUserCoverPositions } from '../utils/maps'
 import { TickMath } from '../utils/math/tickMath'
+import { useCoverStore } from '../hooks/useCoverStore'
 
 export default function Cover() {
+  const [
+    needsRefetch,
+    setNeedsRefetch,
+  ] = useCoverStore((state) => [
+    state.needsRefetch,
+    state.setNeedsRefetch,
+  ])
+
   const {
     network: { chainId },
   } = useProvider()
@@ -34,12 +43,16 @@ export default function Cover() {
   }, [address])
 
   useEffect(() => {
-    setTimeout(() => {
-      if (allCoverPositions) {
+    console.log('refetching')
+    if (needsRefetch == true) {
+      setTimeout(() => {
         getUserCoverPositionData()
-      }
-    }, 2000)
-  }, [allCoverPositions])
+        console.log('refetched')
+
+        setNeedsRefetch(false)
+      }, 5000)
+    }
+  }, [needsRefetch])
 
   useEffect(() => {
     if (state === 'existing' && router.query.state === 'nav') {

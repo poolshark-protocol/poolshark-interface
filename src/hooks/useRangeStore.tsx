@@ -17,7 +17,7 @@ type RangeState = {
   //Range position data containing all the info about the position
   rangePositionData: any;
   //true if both tokens selected, false if only one token selected
-  pairSelected: Boolean;
+  pairSelected: boolean;
   //TokenIn defines the token on the left/up on a swap page
   tokenIn: token;
   tokenInAmount: BigNumber;
@@ -39,6 +39,8 @@ type RangeState = {
   //Disabled
   disabled: boolean;
   buttonMessage: string;
+  //refresh
+  needsRefetch: boolean;
 };
 
 type RangeAction = {
@@ -48,7 +50,7 @@ type RangeAction = {
   setRangeSlippage: (rangeSlippage: string) => void;
   setRangePositionData: (rangePosition: any) => void;
   //
-  setPairSelected: (pairSelected: Boolean) => void;
+  setPairSelected: (pairSelected: boolean) => void;
   //
   setTokenIn: (tokenOut: any, newToken: any) => void;
   setTokenInAmount: (amount: BigNumber) => void;
@@ -73,6 +75,8 @@ type RangeAction = {
   //
   setDisabled: (disabled: boolean) => void;
   setButtonMessage: (balance: string) => void;
+  //
+  setNeedsRefetch: (needsRefetch: boolean) => void;
 };
 
 const initialRangeState: RangeState = {
@@ -118,6 +122,8 @@ const initialRangeState: RangeState = {
   //
   disabled: false,
   buttonMessage: "",
+  //
+  needsRefetch: false,
 };
 
 export const useRangeStore = create<RangeState & RangeAction>((set) => ({
@@ -150,8 +156,10 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   //disable
   disabled: initialRangeState.disabled,
   buttonMessage: initialRangeState.buttonMessage,
+  //refresh
+  needsRefetch: initialRangeState.needsRefetch,
   //actions
-  setPairSelected: (pairSelected: Boolean) => {
+  setPairSelected: (pairSelected: boolean) => {
     set(() => ({
       pairSelected: pairSelected,
     }));
@@ -313,6 +321,11 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   setButtonMessage: (buttonMessage: string) => {
     set(() => ({
       buttonMessage: buttonMessage,
+    }));
+  },
+  setNeedsRefetch: (needsRefetch: boolean) => {
+    set(() => ({
+      needsRefetch: needsRefetch,
     }));
   },
   switchDirection: () => {

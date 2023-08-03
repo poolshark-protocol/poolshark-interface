@@ -9,8 +9,15 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
+import { useCoverStore } from '../../hooks/useCoverStore';
 
 export default function CoverRemoveLiqButton({disabled, poolAddress, address, lower, claim, upper, zeroForOne, burnPercent, gasLimit, closeModal}) {
+
+    const [
+      setNeedsRefetch
+    ] = useCoverStore((state) => [
+      state.setNeedsRefetch
+    ]);
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -45,6 +52,9 @@ export default function CoverRemoveLiqButton({disabled, poolAddress, address, lo
         setTimeout(() => {
           closeModal()
         }, 2000);
+        if (burnPercent.eq(ethers.utils.parseUnits('1', 38))) {
+          setNeedsRefetch(true);
+        }
       },
       onError() {
         setErrorDisplay(true);
