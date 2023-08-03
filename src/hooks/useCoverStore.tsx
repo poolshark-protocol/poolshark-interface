@@ -70,6 +70,7 @@ type CoverAction = {
     tokenOut: token,
     volatility: any
   ) => void;
+  setMintButtonState: () => void;
 };
 
 const initialCoverState: CoverState = {
@@ -297,6 +298,29 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       gasLimit: gasLimit,
     }));
   },
+  resetSwapParams: () => {
+    set({
+      coverPoolAddress: initialCoverState.coverPoolAddress,
+      coverPoolData: initialCoverState.coverPoolData,
+      coverPositionData: initialCoverState.coverPositionData,
+      pairSelected: initialCoverState.pairSelected,
+      //tokenIn
+      tokenIn: initialCoverState.tokenIn,
+      tokenInCoverUSDPrice: initialCoverState.tokenInCoverUSDPrice,
+      tokenInCoverAllowance: initialCoverState.tokenInCoverAllowance,
+      tokenInBalance: initialCoverState.tokenInBalance,
+      //tokenOut
+      tokenOut: initialCoverState.tokenOut,
+      tokenOutCoverUSDPrice: initialCoverState.tokenOutCoverUSDPrice,
+      tokenOutBalance: initialCoverState.tokenOutBalance,
+      //tick
+      claimTick: initialCoverState.claimTick,
+      //gas
+      gasFee: initialCoverState.gasFee,
+      gasLimit: initialCoverState.gasLimit,
+    });
+  },
+
   switchDirection: () => {
     set((state) => ({
       tokenIn: {
@@ -349,26 +373,12 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       console.log(error);
     }
   },
-  resetSwapParams: () => {
-    set({
-      coverPoolAddress: initialCoverState.coverPoolAddress,
-      coverPoolData: initialCoverState.coverPoolData,
-      coverPositionData: initialCoverState.coverPositionData,
-      pairSelected: initialCoverState.pairSelected,
-      //tokenIn
-      tokenIn: initialCoverState.tokenIn,
-      tokenInCoverUSDPrice: initialCoverState.tokenInCoverUSDPrice,
-      tokenInCoverAllowance: initialCoverState.tokenInCoverAllowance,
-      tokenInBalance: initialCoverState.tokenInBalance,
-      //tokenOut
-      tokenOut: initialCoverState.tokenOut,
-      tokenOutCoverUSDPrice: initialCoverState.tokenOutCoverUSDPrice,
-      tokenOutBalance: initialCoverState.tokenOutBalance,
-      //tick
-      claimTick: initialCoverState.claimTick,
-      //gas
-      gasFee: initialCoverState.gasFee,
-      gasLimit: initialCoverState.gasLimit,
-    });
-  },
+ 
+  setMintButtonState: () => {
+
+    set((state) => ({
+      disabled: Number(state.tokenInCoverAllowance) > 0 && state.pairSelected && Number(state.tokenInBalance) > 0 ? false : true,
+      buttonMessage: Number(state.tokenInCoverAllowance) > 0 && state.pairSelected && Number(state.tokenInBalance) > 0 ? "Mint" : "Approve",
+    }));
+  }
 }));
