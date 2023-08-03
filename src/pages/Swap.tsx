@@ -548,20 +548,6 @@ export default function Swap() {
     }
   }, [limitPriceOrder, tokenOrder]);
 
-  /* useEffect(() => {
-    console.log('/////////////////////////////')
-    console.log("limitStringPriceQuote", limitStringPriceQuote);
-    console.log("slippage", slippage);
-    console.log("rangePoolData", rangePoolData);
-    console.log("coverPoolData", coverPoolData);
-    console.log("rangeQuote", rangeQuote);
-    console.log("coverQuote", coverQuote);
-    console.log('range Prices', rangePrice, rangeBnPrice, rangeBnBaseLimit)
-    console.log('cover Prices', coverPrice, coverBnPrice, coverBnBaseLimit)
-    console.log('range token prices', tokenInRangeUSDPrice, tokenOutRangeUSDPrice)
-    console.log('cover token prices', tokenOutCoverUSDPrice, tokenInRangeUSDPrice)
-  }); */
-
   ////////////////////////////////Limit Ticks
   const [lowerTick, setLowerTick] = useState(BN_ZERO);
   const [upperTick, setUpperTick] = useState(BN_ZERO);
