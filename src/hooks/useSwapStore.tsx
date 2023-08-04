@@ -36,6 +36,8 @@ type SwapState = {
   gasLimit: BigNumber;
   mintGasFee: string;
   mintGasLimit: BigNumber;
+  //refresh
+  needsAllowance: boolean;
 };
 
 type SwapAction = {
@@ -62,6 +64,8 @@ type SwapAction = {
   setGasLimit: (limit: BigNumber) => void;
   setMintGasFee: (fee: string) => void;
   setMintGasLimit: (limit: BigNumber) => void;
+  //refresh
+  setNeedsAllowance: (needsAllowance: boolean) => void;
   //reset
   resetSwapParams: () => void;
 };
@@ -105,6 +109,8 @@ const initialSwapState: SwapState = {
   gasLimit: BN_ZERO,
   mintGasFee: "$0.00",
   mintGasLimit: BN_ZERO,
+  //
+  needsAllowance: false,
 };
 
 export const useSwapStore = create<SwapState & SwapAction>((set) => ({
@@ -133,6 +139,8 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   gasLimit: initialSwapState.gasLimit,
   mintGasFee: initialSwapState.mintGasFee,
   mintGasLimit: initialSwapState.mintGasLimit,
+  //refresh
+  needsAllowance: initialSwapState.needsAllowance,
   setTokenIn: (tokenOut, newToken: token) => {
     //if tokenOut is selected
     if (
@@ -306,6 +314,11 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       mintGasLimit: mintGasLimit,
     }));
   },
+  setNeedsAllowance: (needsAllowance: boolean) => {
+    set(() => ({
+      needsAllowance: needsAllowance,
+    }));
+  },
   switchDirection: () => {
     set((state) => ({
       tokenIn: {
@@ -354,6 +367,8 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       gasLimit: initialSwapState.gasLimit,
       mintGasFee: initialSwapState.mintGasFee,
       mintGasLimit: initialSwapState.mintGasLimit,
+      //refresh
+      needsAllowance: initialSwapState.needsAllowance,
     });
   },
 }));
