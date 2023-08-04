@@ -568,21 +568,6 @@ export default function CoverExistingPool({ goBack }) {
             Amount Covered
           </div>
           <div className="flex items-center justify-end gap-x-2">
-            {/*
-            <input
-              autoComplete="off"
-              type="text"
-              id="input"
-              onChange={(e) => {
-                //const newTokenAmount = Math.round(parseFloat(e.target.value) * 10**18)
-                //setCoverAmountOut(JSBI.BigInt(newTokenAmount))
-              }}
-              value={Number.parseFloat(
-                ethers.utils.formatUnits(String(coverAmountOut), 18),
-              ).toPrecision(5)}
-              className="bg-black text-right w-32 py-1 placeholder:text-grey1 text-white text-lg mb-2 focus:ring-0 focus:ring-offset-0 focus:outline-none"
-            />
-              */}
             <div className="bg-black text-right w-32 py-1 placeholder:text-grey1 text-white text-lg">
               {Number.parseFloat(
                 ethers.utils.formatUnits(String(coverAmountOut), 18)

@@ -43,14 +43,11 @@ export default function CreateCover(props: any) {
     volatilityTierId,
     setCoverPositionData,
     tokenIn,
-    tokenInCoverUSDPrice,
-    tokenInBalance,
     setTokenIn,
     setTokenInCoverUSDPrice,
     setTokenInBalance,
     setTokenInAllowance,
     tokenOut,
-    tokenOutCoverUSDPrice,
     setTokenOut,
     setTokenOutCoverUSDPrice,
     pairSelected,
@@ -63,14 +60,11 @@ export default function CreateCover(props: any) {
     state.volatilityTierId,
     state.setCoverPositionData,
     state.tokenIn,
-    state.tokenInCoverUSDPrice,
-    state.tokenInBalance,
     state.setTokenIn,
     state.setTokenInCoverUSDPrice,
     state.setTokenInBalance,
     state.setTokenInCoverAllowance,
     state.tokenOut,
-    state.tokenOutCoverUSDPrice,
     state.setTokenOut,
     state.setTokenOutCoverUSDPrice,
     state.pairSelected,
@@ -388,7 +382,9 @@ export default function CreateCover(props: any) {
 
   // disabled messages
   useEffect(() => {
-    if (Number(ethers.utils.formatUnits(bnInput)) > Number(tokenInBalance)) {
+    if (
+      Number(ethers.utils.formatUnits(bnInput)) > Number(tokenIn.userBalance)
+    ) {
       setButtonState("balance");
     } else if (!validBounds) {
       setButtonState("bounds");
@@ -410,7 +406,7 @@ export default function CreateCover(props: any) {
     validBounds,
     coverPositionData.lowerPrice,
     coverPositionData.upperPrice,
-    tokenInBalance,
+    tokenIn.userBalance,
     mintGasLimit,
   ]);
 
@@ -573,7 +569,7 @@ export default function CreateCover(props: any) {
             $
             {(
               parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-              tokenInCoverUSDPrice
+              tokenIn.coverUSDPrice
             ).toFixed(2)}
           </div>
         </div>
@@ -590,12 +586,12 @@ export default function CreateCover(props: any) {
               </div>
               <div className="flex items-center justify-end gap-2 px-1 mt-2">
                 <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]">
-                  Balance: {tokenInBalance === "NaN" ? 0 : tokenInBalance}
+                  Balance: {tokenIn.userBalance ?? 0}
                 </div>
                 {isConnected ? (
                   <button
                     className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
-                    onClick={() => maxBalance(tokenInBalance, "0")}
+                    onClick={() => maxBalance(tokenIn.userBalance, "0")}
                   >
                     Max
                   </button>
@@ -612,7 +608,7 @@ export default function CreateCover(props: any) {
             {parseFloat(coverPositionData.lowerPrice) <
             parseFloat(coverPositionData.upperPrice) ? (
               (
-                (tokenInCoverUSDPrice / tokenOutCoverUSDPrice) *
+                (tokenIn.coverUSDPrice / tokenOut.coverUSDPrice) *
                 parseFloat(ethers.utils.formatUnits(bnInput, 18))
               ).toPrecision(6)
             ) : (
@@ -660,7 +656,11 @@ export default function CreateCover(props: any) {
               placeholder="0"
               id="minInput"
               type="text"
-              value={tokenOrder ? invertPrice(lowerPrice, tokenOrder) : invertPrice(upperPrice, tokenOrder)}
+              value={
+                tokenOrder
+                  ? invertPrice(lowerPrice, tokenOrder)
+                  : invertPrice(upperPrice, tokenOrder)
+              }
               onChange={() =>
                 setLowerPrice(
                   inputFilter(
@@ -699,7 +699,11 @@ export default function CreateCover(props: any) {
               placeholder="0"
               id="maxInput"
               type="text"
-              value={tokenOrder ? invertPrice(upperPrice, tokenOrder) : invertPrice(lowerPrice, tokenOrder)}
+              value={
+                tokenOrder
+                  ? invertPrice(upperPrice, tokenOrder)
+                  : invertPrice(lowerPrice, tokenOrder)
+              }
               onChange={() =>
                 setUpperPrice(
                   inputFilter(
@@ -732,9 +736,11 @@ export default function CreateCover(props: any) {
         >
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
             {1} {tokenIn.symbol} ={" "}
-            {!tokenInCoverUSDPrice
+            {!tokenIn.coverUSDPrice
               ? "?" + " " + tokenOut.symbol
-              : (tokenInCoverUSDPrice / tokenOutCoverUSDPrice).toPrecision(6) +
+              : (tokenIn.coverUSDPrice / tokenOut.coverUSDPrice).toPrecision(
+                  6
+                ) +
                 " " +
                 tokenOut.symbol}
           </div>
