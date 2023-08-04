@@ -40,15 +40,13 @@ export default function CoverExistingPool({ goBack }) {
     coverPoolAddress,
     coverPoolData,
     coverPositionData,
+    coverMintParams,
     setCoverPositionData,
     tokenIn,
-    tokenInCoverUSDPrice,
-    tokenInBalance,
     setTokenInCoverUSDPrice,
     setTokenInBalance,
     setTokenInAllowance,
     tokenOut,
-    tokenOutCoverUSDPrice,
     setTokenOutCoverUSDPrice,
     pairSelected,
     switchDirection,
@@ -57,15 +55,13 @@ export default function CoverExistingPool({ goBack }) {
     state.coverPoolAddress,
     state.coverPoolData,
     state.coverPositionData,
+    state.coverMintParams,
     state.setCoverPositionData,
     state.tokenIn,
-    state.tokenInCoverUSDPrice,
-    state.tokenInBalance,
     state.setTokenInCoverUSDPrice,
     state.setTokenInBalance,
     state.setTokenInCoverAllowance,
     state.tokenOut,
-    state.tokenOutCoverUSDPrice,
     state.setTokenOutCoverUSDPrice,
     state.pairSelected,
     state.switchDirection,
@@ -400,7 +396,7 @@ export default function CoverExistingPool({ goBack }) {
     setMintGasFee(newMintGasFee.formattedPrice);
     setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
   }
-  
+
   ////////////////////////////////
 
   const handleChange = (event: any) => {
@@ -646,7 +642,11 @@ export default function CoverExistingPool({ goBack }) {
               placeholder="0"
               id="minInput"
               type="text"
-              value={tokenOrder ? invertPrice(lowerPrice, tokenOrder) : invertPrice(upperPrice, tokenOrder)}
+              value={
+                tokenOrder
+                  ? invertPrice(lowerPrice, tokenOrder)
+                  : invertPrice(upperPrice, tokenOrder)
+              }
               onChange={() =>
                 setLowerPrice(
                   inputFilter(
@@ -685,7 +685,11 @@ export default function CoverExistingPool({ goBack }) {
               placeholder="0"
               id="maxInput"
               type="text"
-              value={tokenOrder ? invertPrice(upperPrice, tokenOrder) : invertPrice(lowerPrice, tokenOrder)}
+              value={
+                tokenOrder
+                  ? invertPrice(upperPrice, tokenOrder)
+                  : invertPrice(lowerPrice, tokenOrder)
+              }
               onChange={() =>
                 setUpperPrice(
                   inputFilter(
@@ -718,9 +722,11 @@ export default function CoverExistingPool({ goBack }) {
         >
           <div className="flex-none text-xs uppercase text-[#C9C9C9]">
             {1} {tokenIn.symbol} ={" "}
-            {!tokenInCoverUSDPrice
+            {!tokenIn.coverUSDPrice
               ? "?" + " " + tokenOut.symbol
-              : (tokenInCoverUSDPrice / tokenOutCoverUSDPrice).toPrecision(6) +
+              : (tokenIn.coverUSDPrice / tokenOut.coverUSDPrice).toPrecision(
+                  6
+                ) +
                 " " +
                 tokenOut.symbol}
           </div>
@@ -739,8 +745,8 @@ export default function CoverExistingPool({ goBack }) {
         {Number(allowanceInCover) <
         Number(ethers.utils.formatUnits(String(bnInput), 18)) ? (
           <CoverMintApproveButton
-            disabled={disabled}
-            buttonState={buttonMessage}
+            disabled={coverMintParams.disabled}
+            buttonState={coverMintParams.buttonMessage}
             poolAddress={coverPoolAddress}
             approveToken={tokenIn.address}
             amount={String(coverAmountIn)}
@@ -750,8 +756,8 @@ export default function CoverExistingPool({ goBack }) {
         ) : (
           <CoverMintButton
             poolAddress={coverPoolAddress}
-            disabled={disabled}
-            buttonState={buttonMessage}
+            disabled={coverMintParams.disabled}
+            buttonState={coverMintParams.buttonMessage}
             to={address}
             lower={
               coverPositionData.lowerPrice

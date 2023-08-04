@@ -9,20 +9,20 @@ import { create } from "zustand";
 import { getCoverPoolFromFactory } from "../utils/queries";
 
 type CoverState = {
-  //TokenIn defines the token on the left/up
-  tokenIn: tokenCover;
-  //TokenOut defines the token on the right/down
-  tokenOut: tokenCover;
-  //true if both tokens selected, false if only one token selected
-  pairSelected: Boolean;
   //poolAddress for current token pairs
   coverPoolAddress: `0x${string}`;
+  volatilityTierId: number;
   coverPoolData: any;
   //tickSpacing
   //claimTick
-  volatilityTierId: number;
   coverPositionData: any;
   coverSwapSlippage: string;
+  //TokenIn defines the token on the left/up
+  tokenIn: tokenCover;
+  //TokenOut defines the token on the risght/down
+  tokenOut: tokenCover;
+  //true if both tokens selected, false if only one token selected
+  pairSelected: Boolean;
   coverMintParams: {
     tokenInAmount: string;
     gasFee: string;
@@ -73,10 +73,10 @@ type CoverAction = {
 const initialCoverState: CoverState = {
   //pools
   coverPoolAddress: "0x00",
+  volatilityTierId: 0,
   coverPoolData: {},
   coverPositionData: {},
   coverSwapSlippage: "0.5",
-  volatilityTierId: 0,
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
   pairSelected: true,
   //
