@@ -128,8 +128,8 @@ const initialRangeState: RangeState = {
   buttonMessage: "",
   //
   needsRefetch: false,
-  needsAllowanceIn: false,
-  needsAllowanceOut: false,
+  needsAllowanceIn: true,
+  needsAllowanceOut: true,
 };
 
 export const useRangeStore = create<RangeState & RangeAction>((set) => ({

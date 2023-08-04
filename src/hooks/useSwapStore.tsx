@@ -37,7 +37,9 @@ type SwapState = {
   mintGasFee: string;
   mintGasLimit: BigNumber;
   //refresh
-  needsAllowance: boolean;
+  needsCoverAllowance: boolean;
+  needsRangeAllowanceIn: boolean;
+  needsRangeAllowanceOut: boolean;
 };
 
 type SwapAction = {
@@ -65,7 +67,9 @@ type SwapAction = {
   setMintGasFee: (fee: string) => void;
   setMintGasLimit: (limit: BigNumber) => void;
   //refresh
-  setNeedsAllowance: (needsAllowance: boolean) => void;
+  setNeedsCoverAllowance: (needsAllowance: boolean) => void;
+  setNeedsRangeAllowanceIn: (needsAllowance: boolean) => void;
+  setNeedsRangeAllowanceOut: (needsAllowance: boolean) => void;
   //reset
   resetSwapParams: () => void;
 };
@@ -110,7 +114,9 @@ const initialSwapState: SwapState = {
   mintGasFee: "$0.00",
   mintGasLimit: BN_ZERO,
   //
-  needsAllowance: false,
+  needsCoverAllowance: true,
+  needsRangeAllowanceIn: true,
+  needsRangeAllowanceOut: true,
 };
 
 export const useSwapStore = create<SwapState & SwapAction>((set) => ({
@@ -140,7 +146,9 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   mintGasFee: initialSwapState.mintGasFee,
   mintGasLimit: initialSwapState.mintGasLimit,
   //refresh
-  needsAllowance: initialSwapState.needsAllowance,
+  needsCoverAllowance: initialSwapState.needsCoverAllowance,
+  needsRangeAllowanceIn: initialSwapState.needsRangeAllowanceIn,
+  needsRangeAllowanceOut: initialSwapState.needsRangeAllowanceOut,
   setTokenIn: (tokenOut, newToken: token) => {
     //if tokenOut is selected
     if (
@@ -314,9 +322,19 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       mintGasLimit: mintGasLimit,
     }));
   },
-  setNeedsAllowance: (needsAllowance: boolean) => {
+  setNeedsCoverAllowance: (needsCoverAllowance: boolean) => {
     set(() => ({
-      needsAllowance: needsAllowance,
+      needsCoverAllowance: needsCoverAllowance,
+    }));
+  },
+  setNeedsRangeAllowanceIn: (needsRangeAllowanceIn: boolean) => {
+    set(() => ({
+      needsRangeAllowanceIn: needsRangeAllowanceIn,
+    }));
+  },
+  setNeedsRangeAllowanceOut: (needsRangeAllowanceOut: boolean) => {
+    set(() => ({
+      needsRangeAllowanceOut: needsRangeAllowanceOut,
     }));
   },
   switchDirection: () => {
@@ -368,7 +386,9 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       mintGasFee: initialSwapState.mintGasFee,
       mintGasLimit: initialSwapState.mintGasLimit,
       //refresh
-      needsAllowance: initialSwapState.needsAllowance,
+      needsCoverAllowance: initialSwapState.needsCoverAllowance,
+      needsRangeAllowanceIn: initialSwapState.needsRangeAllowanceIn,
+      needsRangeAllowanceOut: initialSwapState.needsRangeAllowanceOut,
     });
   },
 }));

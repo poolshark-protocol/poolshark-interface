@@ -114,7 +114,7 @@ const initialCoverState: CoverState = {
   gasLimit: BN_ZERO,
   //
   needsRefetch: false,
-  needsAllowance: false,
+  needsAllowance: true,
 };
 
 export const useCoverStore = create<CoverState & CoverAction>((set) => ({
