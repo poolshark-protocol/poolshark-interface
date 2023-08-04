@@ -9,6 +9,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { useCoverStore } from '../../hooks/useStore';
+import { useCoverStore as newCoverStore } from '../../hooks/useCoverStore';
 
 export default function CoverApproveButton({poolAddress, address}) {
   const [ errorDisplay,    setErrorDisplay   ] = useState(false);
@@ -16,6 +17,10 @@ export default function CoverApproveButton({poolAddress, address}) {
 
   const [coverContractParams, updateAllowance] = useCoverStore((state: any) => [
     state.coverContractParams, state.updateCoverAllowance
+  ]);
+
+  const [setNeedsAllowance] = newCoverStore((state) => [
+    state.setNeedsAllowance
   ]);
 
   const { config } = usePrepareContractWrite({
@@ -33,6 +38,7 @@ export default function CoverApproveButton({poolAddress, address}) {
     onSuccess() {
       updateAllowance(coverContractParams.amount)
       setSuccessDisplay(true);
+      setNeedsAllowance(true);
      
     },
     onError() {

@@ -9,7 +9,7 @@ import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useState } from 'react'
 import { useSwapStore } from '../../hooks/useStore'
-import { ethers } from 'ethers'
+import { useSwapStore as useRangeStore } from '../../hooks/useSwapStore'
 
 export default function SwapRangeApproveButton({
   poolAddress,
@@ -32,6 +32,12 @@ export default function SwapRangeApproveButton({
     state.updateSwapAllowance,
   ])
 
+  const [
+    setNeedsRangeAllowanceIn,
+  ] = useRangeStore((state) => [
+    state.setNeedsRangeAllowanceIn,
+  ])
+
   const { config } = usePrepareContractWrite({
     address: approveToken,
     abi: erc20ABI,
@@ -47,6 +53,7 @@ export default function SwapRangeApproveButton({
     onSuccess() {
       updateSwapAllowance(Amount)
       setSuccessDisplay(true)
+      setNeedsRangeAllowanceIn(true)
     },
     onError() {
       setErrorDisplay(true)

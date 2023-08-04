@@ -11,9 +11,17 @@ import React, { useEffect, useState } from "react";
 import { rangePoolABI } from '../../abis/evm/rangePool';
 import { BN_ZERO } from '../../utils/math/constants';
 import { gasEstimateRangeMint } from '../../utils/gas';
+import { useRangeStore } from '../../hooks/useRangeStore';
+import { BigNumber } from 'ethers';
 
 export default function RangeAddLiqButton({poolAddress, address, lower, upper, amount0, amount1, disabled}) {
-
+    const [
+      setNeedsAllowanceIn,
+      setNeedsAllowanceOut
+    ] = useRangeStore((state) => [
+      state.setNeedsAllowanceIn,
+      state.setNeedsAllowanceOut
+    ])
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
     const [ fetchDelay, setFetchDelay ] = useState(false)
@@ -77,6 +85,10 @@ export default function RangeAddLiqButton({poolAddress, address, lower, upper, a
       hash: data?.hash,
       onSuccess() {
         setSuccessDisplay(true);
+        setNeedsAllowanceIn(true);
+        if (amount1.gt(BigNumber.from(0))) {
+          setNeedsAllowanceOut(true);
+        }
       },
       onError() {
         setErrorDisplay(true);

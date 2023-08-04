@@ -9,6 +9,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { useSwapStore } from "../../hooks/useStore";
+import { useSwapStore as useRangeStore } from "../../hooks/useSwapStore";
 import { ethers } from "ethers";
 
 export default function SwapRangeDoubleApproveButton({
@@ -26,6 +27,14 @@ export default function SwapRangeDoubleApproveButton({
   const [Amount, SwapParams, updateSwapAllowance] = useSwapStore(
     (state: any) => [state.Amount, state.SwapParams, state.updateSwapAllowance]
   );
+
+  const [
+    setNeedsRangeAllowanceIn,
+    setNeedsRangeAllowanceOut,
+  ] = useRangeStore((state) => [
+    state.setNeedsRangeAllowanceIn,
+    state.setNeedsRangeAllowanceOut,
+  ]);
 
   const { config: t0 } = usePrepareContractWrite({
     address: tokenIn,
@@ -60,6 +69,7 @@ export default function SwapRangeDoubleApproveButton({
     onSuccess() {
       updateSwapAllowance(Amount);
       setSuccessDisplay(true);
+      setNeedsRangeAllowanceIn(true);
     },
     onError() {
       setErrorDisplay(true);
@@ -71,6 +81,7 @@ export default function SwapRangeDoubleApproveButton({
     onSuccess() {
       updateSwapAllowance(Amount);
       setSuccessDisplay(true);
+      setNeedsRangeAllowanceOut(true);
     },
     onError() {
       setErrorDisplay(true);

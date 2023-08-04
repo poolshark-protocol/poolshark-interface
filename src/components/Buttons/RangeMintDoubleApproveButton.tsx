@@ -10,6 +10,7 @@ import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useEffect, useState } from 'react'
 import { useSwapStore } from '../../hooks/useStore'
 import { BigNumber } from 'ethers'
+import { useRangeStore } from '../../hooks/useRangeStore'
 
 export default function RangeMintDoubleApproveButton({
   poolAddress,
@@ -32,6 +33,14 @@ export default function RangeMintDoubleApproveButton({
     state.updateSwapAllowance,
   ])
 
+  const [
+    setNeedsAllowanceIn,
+    setNeedsAllowanceOut
+  ] = useRangeStore((state) => [
+    state.setNeedsAllowanceIn,
+    state.setNeedsAllowanceOut
+  ])
+  
   const gasLimit = BigNumber.from(100000)
 
   const { config: t0 } = usePrepareContractWrite({
@@ -73,6 +82,7 @@ export default function RangeMintDoubleApproveButton({
     onSuccess() {
       updateSwapAllowance(Amount)
       setSuccessDisplay0(true)
+      setNeedsAllowanceIn(true)
     },
     onError() {
       setErrorDisplay0(true)
@@ -84,6 +94,7 @@ export default function RangeMintDoubleApproveButton({
     onSuccess() {
       updateSwapAllowance(Amount)
       setSuccessDisplay0(true)
+      setNeedsAllowanceOut(true)
     },
     onError() {
       setErrorDisplay0(true)

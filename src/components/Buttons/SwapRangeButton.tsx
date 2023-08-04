@@ -11,12 +11,19 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { rangePoolABI } from "../../abis/evm/rangePool";
 import { useSwapStore } from "../../hooks/useStore"
+import { useSwapStore as useRangeStore } from "../../hooks/useSwapStore"
 
 export default function SwapRangeButton({disabled, poolAddress, amount, zeroForOne, priceLimit, gasLimit}) {
 
   /*const [Limit] = useSwapStore((state: any) => [
     state.Limit
   ]);*/
+
+  const [
+    setNeedsRangeAllowanceIn,
+  ] = useRangeStore((state) => [
+    state.setNeedsRangeAllowanceIn,
+  ]);
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -49,6 +56,7 @@ export default function SwapRangeButton({disabled, poolAddress, amount, zeroForO
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
+      setNeedsRangeAllowanceIn(true);
     },
     onError() {
       setErrorDisplay(true);

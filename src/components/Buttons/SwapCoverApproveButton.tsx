@@ -9,6 +9,7 @@ import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useEffect, useState } from 'react'
 import { useSwapStore } from '../../hooks/useStore'
+import { useSwapStore as useCoverStore } from '../../hooks/useSwapStore'
 import { ethers } from 'ethers'
 
 export default function SwapCoverApproveButton({
@@ -32,6 +33,12 @@ export default function SwapCoverApproveButton({
     state.updateSwapAllowance,
   ])
 
+  const [
+    setNeedsCoverAllowance,
+  ] = useCoverStore((state) => [
+    state.setNeedsCoverAllowance,
+  ])
+
   const { config } = usePrepareContractWrite({
     address: approveToken,
     abi: erc20ABI,
@@ -47,6 +54,7 @@ export default function SwapCoverApproveButton({
     onSuccess() {
       updateSwapAllowance(Amount)
       setSuccessDisplay(true)
+      setNeedsCoverAllowance(true)
     },
     onError() {
       setErrorDisplay(true)

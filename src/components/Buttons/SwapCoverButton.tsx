@@ -10,12 +10,17 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
+import { useSwapStore } from "../../hooks/useSwapStore";
 
 export default function SwapCoverButton({disabled, poolAddress, amount, zeroForOne, priceLimit, gasLimit}) {
 
   /*const [Limit] = useSwapStore((state: any) => [
     state.Limit
   ]);*/
+
+  const [setNeedsCoverAllowance] = useSwapStore((state) => [
+    state.setNeedsCoverAllowance,
+  ]);
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -47,6 +52,7 @@ export default function SwapCoverButton({disabled, poolAddress, amount, zeroForO
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
+      setNeedsCoverAllowance(true);
     },
     onError() {
       setErrorDisplay(true);

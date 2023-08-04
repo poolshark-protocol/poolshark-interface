@@ -9,6 +9,7 @@ import {
   import { ConfirmingToast } from '../Toasts/Confirming'
   import React, { useEffect, useState } from 'react'
   import { ethers } from 'ethers'
+import { useCoverStore } from '../../hooks/useCoverStore'
   
   export default function CoverMintApproveButton({
     poolAddress,
@@ -18,6 +19,10 @@ import {
   }) {
     const [errorDisplay, setErrorDisplay] = useState(false)
     const [successDisplay, setSuccessDisplay] = useState(false)
+
+    const [setNeedsAllowance] = useCoverStore((state) => [
+      state.setNeedsAllowance,
+    ])
   
     const { config } = usePrepareContractWrite({
       address: approveToken,
@@ -34,6 +39,7 @@ import {
       hash: data?.hash,
       onSuccess() {
         setSuccessDisplay(true)
+        setNeedsAllowance(true)
       },
       onError() {
         setErrorDisplay(true)
