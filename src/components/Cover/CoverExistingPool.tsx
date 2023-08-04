@@ -740,7 +740,7 @@ export default function CoverExistingPool({ goBack }) {
         Number(ethers.utils.formatUnits(String(bnInput), 18)) ? (
           <CoverMintApproveButton
             disabled={disabled}
-            buttonState={buttonState}
+            buttonState={buttonMessage}
             poolAddress={coverPoolAddress}
             approveToken={tokenIn.address}
             amount={String(coverAmountIn)}
@@ -751,7 +751,7 @@ export default function CoverExistingPool({ goBack }) {
           <CoverMintButton
             poolAddress={coverPoolAddress}
             disabled={disabled}
-            buttonState={buttonState}
+            buttonState={buttonMessage}
             to={address}
             lower={
               coverPositionData.lowerPrice

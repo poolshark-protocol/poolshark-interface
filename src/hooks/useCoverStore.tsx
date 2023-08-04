@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { token } from "../utils/types";
+import { token, tokenCover } from "../utils/types";
 import { BN_ZERO } from "../utils/math/constants";
 import {
   tokenOneAddress,
@@ -10,9 +10,9 @@ import { getCoverPoolFromFactory } from "../utils/queries";
 
 type CoverState = {
   //TokenIn defines the token on the left/up
-  tokenIn: token;
+  tokenIn: tokenCover;
   //TokenOut defines the token on the right/down
-  tokenOut: token;
+  tokenOut: tokenCover;
   //true if both tokens selected, false if only one token selected
   pairSelected: Boolean;
   //poolAddress for current token pairs
@@ -20,19 +20,19 @@ type CoverState = {
   coverPoolData: any;
   //tickSpacing
   //claimTick
-  //volatilityTierId: number;
+  volatilityTierId: number;
   coverPositionData: any;
   coverSwapSlippage: string;
   coverMintParams: {
     tokenInAmount: string;
     gasFee: string;
     gasLimit: BigNumber;
+    disabled: Boolean;
+    buttonMessage: string;
   };
   //Claim tick
   claimTick: number;
   //Bcontract calls
-  disabled: Boolean;
-  buttonMessage: string;
 };
 
 type CoverAction = {
@@ -76,7 +76,7 @@ const initialCoverState: CoverState = {
   coverPoolData: {},
   coverPositionData: {},
   coverSwapSlippage: "0.5",
-  //volatilityTierId: 0,
+  volatilityTierId: 0,
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
   pairSelected: true,
   //
@@ -89,11 +89,7 @@ const initialCoverState: CoverState = {
     userBalance: 0.0,
     userPoolAllowance: 0.0,
     coverUSDPrice: 0.0,
-  } as token,
-  tokenInAmount: "0.00",
-  tokenInCoverUSDPrice: 0,
-  tokenInCoverAllowance: "0.00",
-  tokenInBalance: "0.00",
+  } as tokenCover,
   //
   tokenOut: {
     callId: 1,
@@ -104,18 +100,17 @@ const initialCoverState: CoverState = {
     userBalance: 0.0,
     userPoolAllowance: 0.0,
     coverUSDPrice: 0.0,
-  } as token,
-  tokenOutCoverUSDPrice: 0,
-  tokenOutBalance: "0.00",
-  tokenOutCoverAllowance: "0.00",
+  } as tokenCover,
   //
   claimTick: 0,
   //
-  gasFee: "$0.00",
-  gasLimit: BN_ZERO,
-  //
-  disabled: false,
-  buttonMessage: "",
+  coverMintParams: {
+    tokenInAmount: "0.0",
+    gasFee: "$0.00",
+    gasLimit: BN_ZERO,
+    disabled: false,
+    buttonMessage: "",
+  },
 };
 
 export const useCoverStore = create<CoverState & CoverAction>((set) => ({
@@ -123,29 +118,17 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   coverPoolAddress: initialCoverState.coverPoolAddress,
   coverPoolData: initialCoverState.coverPoolData,
   coverPositionData: initialCoverState.coverPositionData,
-  coverSlippage: initialCoverState.coverSlippage,
+  coverSwapSlippage: initialCoverState.coverSwapSlippage,
   volatilityTierId: initialCoverState.volatilityTierId,
   pairSelected: initialCoverState.pairSelected,
   //tokenIn
   tokenIn: initialCoverState.tokenIn,
-  tokenInAmount: initialCoverState.tokenInAmount,
-  tokenInCoverUSDPrice: initialCoverState.tokenInCoverUSDPrice,
-  tokenInCoverAllowance: initialCoverState.tokenInCoverAllowance,
-  tokenInBalance: initialCoverState.tokenInBalance,
   //tokenOut
   tokenOut: initialCoverState.tokenOut,
-  tokenOutCoverUSDPrice: initialCoverState.tokenOutCoverUSDPrice,
-  tokenOutBalance: initialCoverState.tokenOutBalance,
-  tokenOutCoverAllowance: initialCoverState.tokenOutCoverAllowance,
   //tick
   claimTick: initialCoverState.claimTick,
-  //gas
-  gasFee: initialCoverState.gasFee,
-  gasLimit: initialCoverState.gasLimit,
-  //contract calls
-  disabled: initialCoverState.disabled,
-  buttonMessage: initialCoverState.buttonMessage,
-  setTokenIn: (tokenOut, newToken: token) => {
+  coverMintParams: initialCoverState.coverMintParams,
+  setTokenIn: (tokenOut, newToken: tokenCover) => {
     //if tokenOut is selected
     if (
       tokenOut.address != initialCoverState.tokenOut.address ||
@@ -184,34 +167,48 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     }
   },
   setTokenInAmount: (newAmount: string) => {
-    set(() => ({
-      tokenInAmount: newAmount,
+    set((state) => ({
+      tokenIn: {
+        ...state.tokenIn,
+        userBalance: Number(newAmount),
+      },
     }));
   },
 
   setTokenInCoverUSDPrice: (newPrice: number) => {
-    set(() => ({
-      tokenInCoverUSDPrice: newPrice,
+    set((state) => ({
+      tokenIn: {
+        ...state.tokenIn,
+        coverUSDPrice: newPrice,
+      },
     }));
   },
 
   setTokenInCoverAllowance: (newAllowance: string) => {
-    set(() => ({
-      tokenInCoverAllowance: newAllowance,
+    set((state) => ({
+      tokenIn: {
+        ...state.tokenIn,
+        userPoolAllowance: Number(newAllowance),
+      },
     }));
   },
   setTokenInBalance: (newBalance: string) => {
-    set(() => ({
-      tokenInBalance: newBalance,
+    set((state) => ({
+      tokenIn: {
+        ...state.tokenIn,
+        userBalance: Number(newBalance),
+      },
     }));
   },
-
   setTokenOutCoverUSDPrice: (newPrice: number) => {
-    set(() => ({
-      tokenOutCoverUSDPrice: newPrice,
+    set((state) => ({
+      tokenOut: {
+        ...state.tokenOut,
+        coverUSDPrice: newPrice,
+      },
     }));
   },
-  setTokenOut: (tokenIn, newToken: token) => {
+  setTokenOut: (tokenIn, newToken: tokenCover) => {
     //if tokenIn exists
     if (
       tokenIn.address != initialCoverState.tokenOut.address ||
@@ -243,13 +240,19 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     }
   },
   setTokenOutBalance: (newBalance: string) => {
-    set(() => ({
-      tokenOutBalance: newBalance,
+    set((state) => ({
+      tokenOut: {
+        ...state.tokenOut,
+        userBalance: Number(newBalance),
+      },
     }));
   },
   setTokenOutCoverAllowance: (newAllowance: string) => {
-    set(() => ({
-      tokenOutCoverAllowance: newAllowance,
+    set((state) => ({
+      tokenOut: {
+        ...state.tokenOut,
+        userPoolAllowance: Number(newAllowance),
+      },
     }));
   },
   setCoverPoolAddress: (coverPoolAddress: `0x${string}`) => {
@@ -269,7 +272,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   },
   setCoverSlippage: (coverSlippage: string) => {
     set(() => ({
-      coverSlippage: coverSlippage,
+      coverSwapSlippage: coverSlippage,
     }));
   },
   setClaimTick: (claimTick: number) => {
@@ -292,37 +295,22 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     }));
   },
   setGasFee: (gasFee: string) => {
-    set(() => ({
-      gasFee: gasFee,
+    set((state) => ({
+      coverMintParams: {
+        ...state.coverMintParams,
+        gasFee: gasFee,
+      },
     }));
   },
   setGasLimit: (gasLimit: BigNumber) => {
-    set(() => ({
-      gasLimit: gasLimit,
+    set((state) => ({
+      coverMintParams: {
+        ...state.coverMintParams,
+        gasLimit: gasLimit,
+      },
     }));
   },
-  resetSwapParams: () => {
-    set({
-      coverPoolAddress: initialCoverState.coverPoolAddress,
-      coverPoolData: initialCoverState.coverPoolData,
-      coverPositionData: initialCoverState.coverPositionData,
-      pairSelected: initialCoverState.pairSelected,
-      //tokenIn
-      tokenIn: initialCoverState.tokenIn,
-      tokenInCoverUSDPrice: initialCoverState.tokenInCoverUSDPrice,
-      tokenInCoverAllowance: initialCoverState.tokenInCoverAllowance,
-      tokenInBalance: initialCoverState.tokenInBalance,
-      //tokenOut
-      tokenOut: initialCoverState.tokenOut,
-      tokenOutCoverUSDPrice: initialCoverState.tokenOutCoverUSDPrice,
-      tokenOutBalance: initialCoverState.tokenOutBalance,
-      //tick
-      claimTick: initialCoverState.claimTick,
-      //gas
-      gasFee: initialCoverState.gasFee,
-      gasLimit: initialCoverState.gasLimit,
-    });
-  },
+  resetSwapParams: () => {},
 
   switchDirection: () => {
     set((state) => ({
@@ -335,6 +323,9 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         symbol: state.tokenOut.symbol,
         logoURI: state.tokenOut.logoURI,
         address: state.tokenOut.address,
+        userBalance: state.tokenOut.userBalance,
+        userPoolAllowance: state.tokenOut.userPoolAllowance,
+        coverUSDPrice: state.tokenOut.coverUSDPrice,
       },
       tokenOut: {
         callId:
@@ -345,6 +336,9 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         symbol: state.tokenIn.symbol,
         logoURI: state.tokenIn.logoURI,
         address: state.tokenIn.address,
+        userBalance: state.tokenIn.userBalance,
+        userPoolAllowance: state.tokenIn.userPoolAllowance,
+        coverUSDPrice: state.tokenIn.coverUSDPrice,
       },
     }));
   },
@@ -376,71 +370,166 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       console.log(error);
     }
   },
-  setMintButtonState: (coverMintParams) => {
+  setMintButtonState: () =>
     // disabled messages
     /* useEffect(() => {
-    if (
-      Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) *
-        tokenInCoverUSDPrice >
-      Number(tokenInBalance)
-    ) {
-      setButtonState("balance");
-    } else if (!validBounds) {
-      setButtonState("bounds");
-    } else if (
-      parseInt(coverPositionData.lowerPrice) >
-      parseInt(coverPositionData.upperPrice)
-    ) {
-      setButtonState("price");
-    } else if (BigNumber.from(coverAmountIn.toString()).eq(BN_ZERO)) {
-      setButtonState("amount");
-    } else if (pairSelected == false) {
-      setButtonState("token");
-    } else if (mintGasLimit.eq(BN_ZERO)) {
-      setDisabled(true);
-    } else {
-      setDisabled(false);
-    }
-  }, [
-    coverAmountIn,
-    coverAmountOut,
-    pairSelected,
-    validBounds,
-    coverPositionData,
-    tokenInBalance,
-    mintGasLimit,
-  ]); */
+      if (
+        Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) *
+          tokenInCoverUSDPrice >
+        Number(tokenInBalance)
+      ) {
+        setButtonState("balance");
+      } else if (!validBounds) {
+        setButtonState("bounds");
+      } else if (
+        parseInt(coverPositionData.lowerPrice) >
+        parseInt(coverPositionData.upperPrice)
+      ) {
+        setButtonState("price");
+      } else if (BigNumber.from(coverAmountIn.toString()).eq(BN_ZERO)) {
+        setButtonState("amount");
+      } else if (pairSelected == false) {
+        setButtonState("token");
+      } else if (mintGasLimit.eq(BN_ZERO)) {
+        setDisabled(true);
+      } else {
+        setDisabled(false);
+      }
+    }, [
+      coverAmountIn,
+      coverAmountOut,
+      pairSelected,
+      validBounds,
+      coverPositionData,
+      tokenInBalance,
+      mintGasLimit,
+    ]); */
     // set disabled
     /* useEffect(() => {
-    const disabledFlag =
-      bnInput.eq(BN_ZERO) &&
-      coverPositionData.lowerPrice < coverPositionData.upperPrice &&
-      validBounds &&
-      parseFloat(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) >
-        parseFloat(tokenInBalance) &&
-      pairSelected == true;
-    setDisabled(disabledFlag);
-  }, [
-    coverPositionData.lowerPrice,
-    coverPositionData.upperPrice,
-    bnInput,
-    validBounds,
-    tokenInBalance,
-    coverAmountIn,
-  ]); */
+      const disabledFlag =
+        bnInput.eq(BN_ZERO) &&
+        coverPositionData.lowerPrice < coverPositionData.upperPrice &&
+        validBounds &&
+        parseFloat(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) >
+          parseFloat(tokenInBalance) &&
+        pairSelected == true;
+      setDisabled(disabledFlag);
+    }, [
+      coverPositionData.lowerPrice,
+      coverPositionData.upperPrice,
+      bnInput,
+      validBounds,
+      tokenInBalance,
+      coverAmountIn,
+    ]); */
+    // disabled messages
+    /* useEffect(() => {
+      if (
+        Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) *
+          tokenInCoverUSDPrice >
+        Number(tokenInBalance)
+      ) {
+        setButtonState("balance");
+      } else if (!validBounds) {
+        setButtonState("bounds");
+      } else if (
+        parseInt(coverPositionData.lowerPrice) >
+        parseInt(coverPositionData.upperPrice)
+      ) {
+        setButtonState("price");
+      } else if (BigNumber.from(coverAmountIn.toString()).eq(BN_ZERO)) {
+        setButtonState("amount");
+      } else if (pairSelected == false) {
+        setButtonState("token");
+      } else if (mintGasLimit.eq(BN_ZERO)) {
+        setDisabled(true);
+      } else {
+        setDisabled(false);
+      }
+    }, [
+      coverAmountIn,
+      coverAmountOut,
+      pairSelected,
+      validBounds,
+      coverPositionData,
+      tokenInBalance,
+      mintGasLimit,
+    ]); */
+    // set disabled
+    /* useEffect(() => {
+      const disabledFlag =
+        bnInput.eq(BN_ZERO) &&
+        coverPositionData.lowerPrice < coverPositionData.upperPrice &&
+        validBounds &&
+        parseFloat(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) >
+          parseFloat(tokenInBalance) &&
+        pairSelected == true;
+      setDisabled(disabledFlag);
+    }, [
+      coverPositionData.lowerPrice,
+      coverPositionData.upperPrice,
+      bnInput,
+      validBounds,
+      tokenInBalance,
+      coverAmountIn,
+    ]); */
+    // disabled messages
+    /* useEffect(() => {
+      if (
+        Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) *
+          tokenInCoverUSDPrice >
+        Number(tokenInBalance)
+      ) {
+        setButtonState("balance");
+      } else if (!validBounds) {
+        setButtonState("bounds");
+      } else if (
+        parseInt(coverPositionData.lowerPrice) >
+        parseInt(coverPositionData.upperPrice)
+      ) {
+        setButtonState("price");
+      } else if (BigNumber.from(coverAmountIn.toString()).eq(BN_ZERO)) {
+        setButtonState("amount");
+      } else if (pairSelected == false) {
+        setButtonState("token");
+      } else if (mintGasLimit.eq(BN_ZERO)) {
+        setDisabled(true);
+      } else {
+        setDisabled(false);
+      }
+    }, [
+      coverAmountIn,
+      coverAmountOut,
+      pairSelected,
+      validBounds,
+      coverPositionData,
+      tokenInBalance,
+      mintGasLimit,
+    ]); */
+    // set disabled
+    /* useEffect(() => {
+      const disabledFlag =
+        bnInput.eq(BN_ZERO) &&
+        coverPositionData.lowerPrice < coverPositionData.upperPrice &&
+        validBounds &&
+        parseFloat(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) >
+          parseFloat(tokenInBalance) &&
+        pairSelected == true;
+      setDisabled(disabledFlag);
+    }, [
+      coverPositionData.lowerPrice,
+      coverPositionData.upperPrice,
+      bnInput,
+      validBounds,
+      tokenInBalance,
+      coverAmountIn,
+    ]); */
     set((state) => ({
-      buttonDisabledFlag:
-        Number(state.tokenInCoverAllowance) > 0 &&
-        state.pairSelected &&
-        Number(state.tokenInBalance) > 0
-          ? false
-          : true,
-      buttonMessage:
-        Number(state.tokenInCoverAllowance) > 0 &&
-        state.pairSelected &&
-        Number(state.tokenInBalance) > 0
-          ? "Mint"
-          : "Approve",
-    }));
-  },
+      coverMintParams: {
+        ...state.coverMintParams,
+        buttonMessage: "Mint",
+        buttonState: "mint",
+        disabled: false,
+      },
+    })),
 }));
