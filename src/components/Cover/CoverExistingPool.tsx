@@ -796,7 +796,7 @@ export default function CoverExistingPool({ goBack }) {
       <div className="space-y-3">
         {isDisconnected ? <ConnectWalletButton /> : null}
         {Number(tokenInAllowance) <
-        Number(ethers.utils.formatUnits(String(bnInput), 18)) ? (
+        Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) ? (
           <CoverMintApproveButton
             poolAddress={coverPoolAddress}
             approveToken={tokenIn.address}
