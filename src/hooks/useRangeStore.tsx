@@ -41,7 +41,8 @@ type RangeState = {
   buttonMessage: string;
   //refresh
   needsRefetch: boolean;
-  needsAllowance: boolean;
+  needsAllowanceIn: boolean;
+  needsAllowanceOut: boolean;
 };
 
 type RangeAction = {
@@ -78,7 +79,8 @@ type RangeAction = {
   setButtonMessage: (balance: string) => void;
   //
   setNeedsRefetch: (needsRefetch: boolean) => void;
-  setNeedsAllowance: (needsAllowance: boolean) => void;
+  setNeedsAllowanceIn: (needsAllowance: boolean) => void;
+  setNeedsAllowanceOut: (needsAllowance: boolean) => void;
 };
 
 const initialRangeState: RangeState = {
@@ -126,7 +128,8 @@ const initialRangeState: RangeState = {
   buttonMessage: "",
   //
   needsRefetch: false,
-  needsAllowance: false,
+  needsAllowanceIn: false,
+  needsAllowanceOut: false,
 };
 
 export const useRangeStore = create<RangeState & RangeAction>((set) => ({
@@ -161,7 +164,8 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   buttonMessage: initialRangeState.buttonMessage,
   //refresh
   needsRefetch: initialRangeState.needsRefetch,
-  needsAllowance: initialRangeState.needsAllowance,
+  needsAllowanceIn: initialRangeState.needsAllowanceIn,
+  needsAllowanceOut: initialRangeState.needsAllowanceOut,
   //actions
   setPairSelected: (pairSelected: boolean) => {
     set(() => ({
@@ -332,9 +336,14 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       needsRefetch: needsRefetch,
     }));
   },
-  setNeedsAllowance: (needsAllowance: boolean) => {
+  setNeedsAllowanceIn: (needsAllowanceIn: boolean) => {
     set(() => ({
-      needsAllowance: needsAllowance,
+      needsAllowanceIn: needsAllowanceIn,
+    }));
+  },
+  setNeedsAllowanceOut: (needsAllowanceOut: boolean) => {
+    set(() => ({
+      needsAllowanceIn: needsAllowanceOut,
     }));
   },
   switchDirection: () => {
@@ -391,6 +400,9 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       //disable
       disabled: initialRangeState.disabled,
       buttonMessage: initialRangeState.buttonMessage,
+      //refresh
+      needsAllowanceIn: initialRangeState.needsAllowanceIn,
+      needsAllowanceOut: initialRangeState.needsAllowanceOut,
     });
   },
 }));

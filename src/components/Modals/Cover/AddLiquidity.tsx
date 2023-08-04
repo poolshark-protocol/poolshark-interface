@@ -28,6 +28,8 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     setTokenInBalance,
     tokenOut,
     tokenInCoverUSDPrice,
+    needsAllowance,
+    setNeedsAllowance,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPositionData,
@@ -36,6 +38,8 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     state.setTokenInBalance,
     state.tokenOut,
     state.tokenInCoverUSDPrice,
+    state.needsAllowance,
+    state.setNeedsAllowance,
   ]);
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
@@ -61,13 +65,14 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     functionName: "allowance",
     args: [address, coverPoolAddress],
     chainId: 421613,
-    watch: true,
+    watch: needsAllowance,
     enabled:
       isConnected &&
       coverPoolAddress != undefined &&
       tokenIn.address != undefined,
     onSuccess(data) {
       console.log("Success");
+      setNeedsAllowance(false);
     },
     onError(error) {
       console.log("Error", error);
@@ -242,13 +247,10 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                 allowanceIn.lt(bnInput) &&
                 stateChainName === "arbitrumGoerli" ? (
                   <CoverMintApproveButton
-                    disabled={disabled}
                     poolAddress={coverPoolAddress}
                     approveToken={tokenIn.address}
                     amount={bnInput}
                     tokenSymbol={tokenIn.symbol}
-                    allowance={allowanceIn}
-                    buttonState={buttonState}
                   />
                 ) : stateChainName === "arbitrumGoerli" ? (
                   <CoverAddLiqButton

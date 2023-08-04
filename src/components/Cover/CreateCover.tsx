@@ -56,6 +56,8 @@ export default function CreateCover(props: any) {
     pairSelected,
     switchDirection,
     setCoverPoolFromVolatility,
+    needsAllowance,
+    setNeedsAllowance,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPoolData,
@@ -77,6 +79,8 @@ export default function CreateCover(props: any) {
     state.pairSelected,
     state.switchDirection,
     state.setCoverPoolFromVolatility,
+    state.needsAllowance,
+    state.setNeedsAllowance,
   ]);
 
   const { data: signer } = useSigner();
@@ -111,10 +115,10 @@ export default function CreateCover(props: any) {
     functionName: "allowance",
     args: [address, coverPoolAddress],
     chainId: 421613,
-    watch: false,
+    watch: needsAllowance,
     enabled: isConnected && coverPoolAddress && tokenIn.address != "0x00",
     onSuccess(data) {
-      //console.log('Success')
+      setNeedsAllowance(false);
     },
     onError(error) {
       console.log("Error", error);

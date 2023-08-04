@@ -34,6 +34,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     rangePositionData,
     tokenInRangeUSDPrice,
     tokenOutRangeUSDPrice,
+    needsAllowanceIn,
+    setNeedsAllowanceIn,
+    needsAllowanceOut,
+    setNeedsAllowanceOut,
   ] = useRangeStore((state) => [
     state.rangePoolAddress,
     state.pairSelected,
@@ -46,6 +50,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     state.rangePositionData,
     state.tokenInRangeUSDPrice,
     state.tokenOutRangeUSDPrice,
+    state.needsAllowanceIn,
+    state.setNeedsAllowanceIn,
+    state.needsAllowanceOut,
+    state.setNeedsAllowanceOut,
   ]);
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
@@ -88,6 +96,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
       tokenIn.address != undefined,
     onSuccess(data) {
       console.log("Success");
+      setNeedsAllowanceIn(false);
     },
     onError(error) {
       console.log("Error", error);
@@ -119,13 +128,14 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     functionName: "allowance",
     args: [address, rangePoolAddress],
     chainId: 421613,
-    watch: true,
+    watch: needsAllowanceOut,
     enabled:
       isConnected &&
       rangePoolAddress != undefined &&
       tokenOut.address != undefined,
     onSuccess(data) {
       console.log("Success");
+      setNeedsAllowanceOut(false);
     },
     onError(error) {
       console.log("Error", error);

@@ -28,6 +28,10 @@ export default function ConcentratedPoolPreview({ fee }) {
     setTokenOutAllowance,
     disabled,
     buttonMessage,
+    needsAllowanceIn,
+    setNeedsAllowanceIn,
+    needsAllowanceOut,
+    setNeedsAllowanceOut,
   ] = useRangeStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
@@ -44,6 +48,10 @@ export default function ConcentratedPoolPreview({ fee }) {
     state.setTokenOutRangeAllowance,
     state.disabled,
     state.buttonMessage,
+    state.needsAllowanceIn,
+    state.setNeedsAllowanceIn,
+    state.needsAllowanceOut,
+    state.setNeedsAllowanceOut,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -60,13 +68,14 @@ export default function ConcentratedPoolPreview({ fee }) {
     functionName: "allowance",
     args: [address, rangePoolAddress],
     chainId: 421613,
-    watch: true,
+    watch: needsAllowanceIn,
     //enabled: tokenIn.address,
-    onError(error) {
-      console.log("Error allowance", error);
-    },
     onSuccess(data) {
       //console.log("Success allowance", data);
+      setNeedsAllowanceIn(false);
+    },
+    onError(error) {
+      console.log("Error allowance", error);
     },
   });
 
@@ -76,13 +85,14 @@ export default function ConcentratedPoolPreview({ fee }) {
     functionName: "allowance",
     args: [address, rangePoolAddress],
     chainId: 421613,
-    watch: true,
+    watch: needsAllowanceOut,
     //enabled: pairSelected && rangePoolAddress != ZERO_ADDRESS,
     onError(error) {
       console.log("Error allowance", error);
     },
     onSuccess(data) {
       //console.log("Success allowance", data);
+      setNeedsAllowanceOut(false);
     },
   });
 

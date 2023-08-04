@@ -53,6 +53,8 @@ export default function CoverExistingPool({ goBack }) {
     pairSelected,
     switchDirection,
     setCoverPoolFromVolatility,
+    needsAllowance,
+    setNeedsAllowance,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPoolData,
@@ -71,6 +73,8 @@ export default function CoverExistingPool({ goBack }) {
     state.pairSelected,
     state.switchDirection,
     state.setCoverPoolFromVolatility,
+    state.needsAllowance,
+    state.setNeedsAllowance,
   ]);
 
   const [rangePositionData] = useRangeStore((state) => [
@@ -109,10 +113,11 @@ export default function CoverExistingPool({ goBack }) {
     functionName: "allowance",
     args: [address, coverPoolAddress],
     chainId: 421613,
-    watch: false,
+    watch: needsAllowance,
     enabled: isConnected && coverPoolAddress && tokenIn.address != "0x00",
     onSuccess(data) {
       console.log("cover allowance", allowanceInCover.toString())
+      setNeedsAllowance(false)
       //console.log('Success')
     },
     onError(error) {
