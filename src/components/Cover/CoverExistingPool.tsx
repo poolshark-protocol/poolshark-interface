@@ -27,7 +27,6 @@ import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
 import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
 import TickSpacing from "../Tooltips/TickSpacing";
-import { getCoverPoolFromFactory } from "../../utils/queries";
 import { gasEstimateCoverMint } from "../../utils/gas";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
@@ -44,6 +43,7 @@ export default function CoverExistingPool({ goBack }) {
     tokenIn,
     tokenInCoverUSDPrice,
     tokenInBalance,
+    tokenInAllowance,
     setTokenInCoverUSDPrice,
     setTokenInBalance,
     setTokenInAllowance,
@@ -61,6 +61,7 @@ export default function CoverExistingPool({ goBack }) {
     state.tokenIn,
     state.tokenInCoverUSDPrice,
     state.tokenInBalance,
+    state.tokenInCoverAllowance,
     state.setTokenInCoverUSDPrice,
     state.setTokenInBalance,
     state.setTokenInCoverAllowance,
@@ -111,6 +112,7 @@ export default function CoverExistingPool({ goBack }) {
     watch: false,
     enabled: isConnected && coverPoolAddress && tokenIn.address != "0x00",
     onSuccess(data) {
+      console.log("cover allowance", allowanceInCover.toString())
       //console.log('Success')
     },
     onError(error) {
@@ -793,16 +795,13 @@ export default function CoverExistingPool({ goBack }) {
       </div>
       <div className="space-y-3">
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {Number(allowanceInCover) <
+        {Number(tokenInAllowance) <
         Number(ethers.utils.formatUnits(String(bnInput), 18)) ? (
           <CoverMintApproveButton
-            disabled={disabled}
-            buttonState={buttonState}
             poolAddress={coverPoolAddress}
             approveToken={tokenIn.address}
             amount={String(coverAmountIn)}
             tokenSymbol={tokenIn.symbol}
-            allowance={allowanceInCover}
           />
         ) : (
           <CoverMintButton

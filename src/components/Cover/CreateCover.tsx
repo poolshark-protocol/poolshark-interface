@@ -24,7 +24,6 @@ import useInputBox from "../../hooks/useInputBox";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import { BigNumber, ethers } from "ethers";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import { getCoverPoolFromFactory } from "../../utils/queries";
 import JSBI from "jsbi";
 import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
@@ -33,7 +32,7 @@ import inputFilter from "../../utils/inputFilter";
 import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
 import TickSpacing from "../Tooltips/TickSpacing";
 import { gasEstimateCoverMint } from "../../utils/gas";
-import { getCoverPool, volatilityTiers } from "../../utils/pools";
+import { volatilityTiers } from "../../utils/pools";
 
 export default function CreateCover(props: any) {
   const [
@@ -45,6 +44,7 @@ export default function CreateCover(props: any) {
     tokenIn,
     tokenInCoverUSDPrice,
     tokenInBalance,
+    tokenInAllowance,
     setTokenIn,
     setTokenInCoverUSDPrice,
     setTokenInBalance,
@@ -65,6 +65,7 @@ export default function CreateCover(props: any) {
     state.tokenIn,
     state.tokenInCoverUSDPrice,
     state.tokenInBalance,
+    state.tokenInCoverAllowance,
     state.setTokenIn,
     state.setTokenInCoverUSDPrice,
     state.setTokenInBalance,
@@ -123,7 +124,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     if (allowanceInCover) {
-      setTokenInAllowance(allowanceInCover.toString());
+      setTokenInAllowance(ethers.utils.formatUnits(allowanceInCover, 18));
     }
   }, [allowanceInCover]);
 
@@ -750,16 +751,13 @@ export default function CreateCover(props: any) {
       </div>
       <div className="mb-3">
         {isConnected &&
-        Number(allowanceInCover) <
+        Number(tokenInAllowance) <
           Number(ethers.utils.formatUnits(String(coverAmountIn), 18)) ? (
           <CoverMintApproveButton
-            disabled={disabled}
             poolAddress={coverPoolAddress}
             approveToken={tokenIn.address}
             amount={bnInput}
             tokenSymbol={tokenIn.symbol}
-            allowance={allowanceInCover}
-            buttonState={buttonState}
           />
         ) : (
           <CoverMintButton
