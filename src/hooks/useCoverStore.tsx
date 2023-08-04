@@ -108,7 +108,7 @@ const initialCoverState: CoverState = {
     tokenInAmount: "0.0",
     gasFee: "$0.00",
     gasLimit: BN_ZERO,
-    disabled: false,
+    disabled: true,
     buttonMessage: "",
   },
 };
@@ -370,166 +370,21 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       console.log(error);
     }
   },
-  setMintButtonState: () =>
-    // disabled messages
-    /* useEffect(() => {
-      if (
-        Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) *
-          tokenInCoverUSDPrice >
-        Number(tokenInBalance)
-      ) {
-        setButtonState("balance");
-      } else if (!validBounds) {
-        setButtonState("bounds");
-      } else if (
-        parseInt(coverPositionData.lowerPrice) >
-        parseInt(coverPositionData.upperPrice)
-      ) {
-        setButtonState("price");
-      } else if (BigNumber.from(coverAmountIn.toString()).eq(BN_ZERO)) {
-        setButtonState("amount");
-      } else if (pairSelected == false) {
-        setButtonState("token");
-      } else if (mintGasLimit.eq(BN_ZERO)) {
-        setDisabled(true);
-      } else {
-        setDisabled(false);
-      }
-    }, [
-      coverAmountIn,
-      coverAmountOut,
-      pairSelected,
-      validBounds,
-      coverPositionData,
-      tokenInBalance,
-      mintGasLimit,
-    ]); */
-    // set disabled
-    /* useEffect(() => {
-      const disabledFlag =
-        bnInput.eq(BN_ZERO) &&
-        coverPositionData.lowerPrice < coverPositionData.upperPrice &&
-        validBounds &&
-        parseFloat(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) >
-          parseFloat(tokenInBalance) &&
-        pairSelected == true;
-      setDisabled(disabledFlag);
-    }, [
-      coverPositionData.lowerPrice,
-      coverPositionData.upperPrice,
-      bnInput,
-      validBounds,
-      tokenInBalance,
-      coverAmountIn,
-    ]); */
-    // disabled messages
-    /* useEffect(() => {
-      if (
-        Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) *
-          tokenInCoverUSDPrice >
-        Number(tokenInBalance)
-      ) {
-        setButtonState("balance");
-      } else if (!validBounds) {
-        setButtonState("bounds");
-      } else if (
-        parseInt(coverPositionData.lowerPrice) >
-        parseInt(coverPositionData.upperPrice)
-      ) {
-        setButtonState("price");
-      } else if (BigNumber.from(coverAmountIn.toString()).eq(BN_ZERO)) {
-        setButtonState("amount");
-      } else if (pairSelected == false) {
-        setButtonState("token");
-      } else if (mintGasLimit.eq(BN_ZERO)) {
-        setDisabled(true);
-      } else {
-        setDisabled(false);
-      }
-    }, [
-      coverAmountIn,
-      coverAmountOut,
-      pairSelected,
-      validBounds,
-      coverPositionData,
-      tokenInBalance,
-      mintGasLimit,
-    ]); */
-    // set disabled
-    /* useEffect(() => {
-      const disabledFlag =
-        bnInput.eq(BN_ZERO) &&
-        coverPositionData.lowerPrice < coverPositionData.upperPrice &&
-        validBounds &&
-        parseFloat(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) >
-          parseFloat(tokenInBalance) &&
-        pairSelected == true;
-      setDisabled(disabledFlag);
-    }, [
-      coverPositionData.lowerPrice,
-      coverPositionData.upperPrice,
-      bnInput,
-      validBounds,
-      tokenInBalance,
-      coverAmountIn,
-    ]); */
-    // disabled messages
-    /* useEffect(() => {
-      if (
-        Number(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) *
-          tokenInCoverUSDPrice >
-        Number(tokenInBalance)
-      ) {
-        setButtonState("balance");
-      } else if (!validBounds) {
-        setButtonState("bounds");
-      } else if (
-        parseInt(coverPositionData.lowerPrice) >
-        parseInt(coverPositionData.upperPrice)
-      ) {
-        setButtonState("price");
-      } else if (BigNumber.from(coverAmountIn.toString()).eq(BN_ZERO)) {
-        setButtonState("amount");
-      } else if (pairSelected == false) {
-        setButtonState("token");
-      } else if (mintGasLimit.eq(BN_ZERO)) {
-        setDisabled(true);
-      } else {
-        setDisabled(false);
-      }
-    }, [
-      coverAmountIn,
-      coverAmountOut,
-      pairSelected,
-      validBounds,
-      coverPositionData,
-      tokenInBalance,
-      mintGasLimit,
-    ]); */
-    // set disabled
-    /* useEffect(() => {
-      const disabledFlag =
-        bnInput.eq(BN_ZERO) &&
-        coverPositionData.lowerPrice < coverPositionData.upperPrice &&
-        validBounds &&
-        parseFloat(ethers.utils.formatUnits(coverAmountIn.toString(), 18)) >
-          parseFloat(tokenInBalance) &&
-        pairSelected == true;
-      setDisabled(disabledFlag);
-    }, [
-      coverPositionData.lowerPrice,
-      coverPositionData.upperPrice,
-      bnInput,
-      validBounds,
-      tokenInBalance,
-      coverAmountIn,
-    ]); */
+  setMintButtonState: () => {
     set((state) => ({
       coverMintParams: {
         ...state.coverMintParams,
-        buttonMessage: "Mint",
-        buttonState: "mint",
-        disabled: false,
+        buttonMessage:
+          state.tokenIn.userBalance <
+          Number(state.coverMintParams.tokenInAmount)
+            ? "Insufficient Token Balance"
+            : "Create Cover",
+        disabled:
+          state.tokenIn.userBalance <
+          Number(state.coverMintParams.tokenInAmount)
+            ? true
+            : initialCoverState.coverMintParams.disabled,
       },
-    })),
+    }));
+  },
 }));

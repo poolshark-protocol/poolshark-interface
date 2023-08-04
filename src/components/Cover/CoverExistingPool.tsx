@@ -742,7 +742,7 @@ export default function CoverExistingPool({ goBack }) {
           <CoverMintButton
             poolAddress={coverPoolAddress}
             disabled={coverMintParams.disabled}
-            buttonState={coverMintParams.buttonMessage}
+            buttonMessage={coverMintParams.buttonMessage}
             to={address}
             lower={
               coverPositionData.lowerPrice

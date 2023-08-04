@@ -40,6 +40,7 @@ export default function CreateCover(props: any) {
     coverPoolAddress,
     coverPoolData,
     coverPositionData,
+    coverMintParams,
     volatilityTierId,
     setCoverPositionData,
     tokenIn,
@@ -53,10 +54,12 @@ export default function CreateCover(props: any) {
     pairSelected,
     switchDirection,
     setCoverPoolFromVolatility,
+    setMintButtonState,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPoolData,
     state.coverPositionData,
+    state.coverMintParams,
     state.volatilityTierId,
     state.setCoverPositionData,
     state.tokenIn,
@@ -70,6 +73,7 @@ export default function CreateCover(props: any) {
     state.pairSelected,
     state.switchDirection,
     state.setCoverPoolFromVolatility,
+    state.setMintButtonState,
   ]);
 
   const { data: signer } = useSigner();
@@ -377,7 +381,12 @@ export default function CreateCover(props: any) {
   }
 
   ////////////////////////////////Disabled Button Handler
-  const [buttonState, setButtonState] = useState("");
+
+  useEffect(() => {
+    setMintButtonState();
+  }, [tokenIn.userBalance, coverMintParams.tokenInAmount]);
+
+  /* const [buttonState, setButtonState] = useState("");
   const [disabled, setDisabled] = useState(false);
 
   // disabled messages
@@ -417,7 +426,7 @@ export default function CreateCover(props: any) {
       coverPositionData.lowerPrice < coverPositionData.upperPrice;
     setDisabled(disabledFlag);
   }, [coverPositionData.lowerPrice, coverPositionData.upperPrice, bnInput]);
-
+ */
   ////////////////////// Expanded Option
   const [expanded, setExpanded] = useState(false);
 
@@ -755,7 +764,7 @@ export default function CreateCover(props: any) {
         </div>
       </div>
       <div className="mb-3">
-        {isConnected &&
+        {/* {isConnected &&
         Number(allowanceInCover) <
           Number(ethers.utils.formatUnits(String(coverAmountIn), 18)) ? (
           <CoverMintApproveButton
@@ -767,29 +776,29 @@ export default function CreateCover(props: any) {
             allowance={allowanceInCover}
             buttonState={buttonState}
           />
-        ) : (
-          <CoverMintButton
-            poolAddress={coverPoolAddress}
-            tokenSymbol={tokenIn.symbol}
-            disabled={disabled}
-            to={address}
-            lower={TickMath.getTickAtPriceString(
-              coverPositionData.lowerPrice ?? "0"
-            )}
-            upper={TickMath.getTickAtPriceString(
-              coverPositionData.upperPrice ?? "0"
-            )}
-            amount={bnInput}
-            zeroForOne={tokenOrder}
-            tickSpacing={
-              coverPoolData.volatilityTier
-                ? coverPoolData.volatilityTier.tickSpread
-                : 20
-            }
-            buttonState={buttonState}
-            gasLimit={mintGasLimit}
-          />
-        )}
+        ) : ( */}
+        <CoverMintButton
+          poolAddress={coverPoolAddress}
+          tokenSymbol={tokenIn.symbol}
+          disabled={coverMintParams.disabled}
+          to={address}
+          lower={TickMath.getTickAtPriceString(
+            coverPositionData.lowerPrice ?? "0"
+          )}
+          upper={TickMath.getTickAtPriceString(
+            coverPositionData.upperPrice ?? "0"
+          )}
+          amount={bnInput}
+          zeroForOne={tokenOrder}
+          tickSpacing={
+            coverPoolData.volatilityTier
+              ? coverPoolData.volatilityTier.tickSpread
+              : 20
+          }
+          buttonMessage={coverMintParams.buttonMessage}
+          gasLimit={mintGasLimit}
+        />
+        {/* )} */}
       </div>
     </>
   );

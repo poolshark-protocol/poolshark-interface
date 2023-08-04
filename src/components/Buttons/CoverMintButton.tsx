@@ -20,7 +20,7 @@ export default function CoverMintButton({
   amount,
   zeroForOne,
   tickSpacing,
-  buttonState,
+  buttonMessage,
   tokenSymbol,
   gasLimit,
 }) {
@@ -70,25 +70,7 @@ export default function CoverMintButton({
         }
         onClick={() => write?.()}
       >
-        {disabled ? (
-          <>
-            {buttonState === "price" ? (
-              <>Min. is greater than Max. Price</>
-            ) : (
-              <></>
-            )}
-            {buttonState === "amount" ? <>Input Amount</> : <></>}
-            {buttonState === "token" ? <>Output token not selected</> : <></>}
-            {buttonState === "bounds" ? <>Invalid Price Range</> : <></>}
-            {buttonState === "balance" ? (
-              <>Insufficient {tokenSymbol} Balance</>
-            ) : (
-              <></>
-            )}
-          </>
-        ) : (
-          <>Create Cover</>
-        )}
+        {buttonMessage}
       </button>
       <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
         {errorDisplay && (
