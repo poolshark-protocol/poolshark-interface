@@ -116,7 +116,7 @@ export default function CreateCover(props: any) {
     args: [address, coverPoolAddress],
     chainId: 421613,
     watch: needsAllowance,
-    enabled: isConnected && coverPoolAddress && tokenIn.address != "0x00",
+    enabled: isConnected && coverPoolAddress && tokenIn.address != "0x00" && needsAllowance,
     onSuccess(data) {
       setNeedsAllowance(false);
     },

@@ -89,11 +89,12 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     functionName: "allowance",
     args: [address, rangePoolAddress],
     chainId: 421613,
-    watch: true,
+    watch: needsAllowanceIn,
     enabled:
       isConnected &&
       rangePoolAddress != undefined &&
-      tokenIn.address != undefined,
+      tokenIn.address != undefined &&
+      needsAllowanceIn,
     onSuccess(data) {
       console.log("Success");
       setNeedsAllowanceIn(false);
@@ -132,7 +133,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     enabled:
       isConnected &&
       rangePoolAddress != undefined &&
-      tokenOut.address != undefined,
+      tokenOut.address != undefined &&
+      needsAllowanceOut,
     onSuccess(data) {
       console.log("Success");
       setNeedsAllowanceOut(false);
@@ -179,14 +181,14 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     address: address,
     token: tokenIn.address,
     enabled: tokenIn.address != undefined,
-    watch: true,
+    watch: false,
   });
 
   const { data: tokenOutBal } = useBalance({
     address: address,
     token: tokenOut.address,
     enabled: tokenOut.address != undefined,
-    watch: true,
+    watch: false,
   });
 
   useEffect(() => {

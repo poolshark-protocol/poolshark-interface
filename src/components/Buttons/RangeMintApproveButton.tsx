@@ -10,6 +10,7 @@ import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useEffect, useState } from 'react'
 import { BigNumber } from 'ethers'
 import { useSwapStore } from '../../hooks/useStore'
+import { useSwapStore as useRangeStore } from '../../hooks/useSwapStore'
 
 export default function RangeMintApproveButton({ poolAddress, approveToken }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
@@ -23,6 +24,12 @@ export default function RangeMintApproveButton({ poolAddress, approveToken }) {
     state.Amount,
     state.SwapParams,
     state.updateSwapAllowance,
+  ])
+
+  const [
+    setNeedsRangeAllowanceIn,
+  ] = useRangeStore((state) => [
+    state.setNeedsRangeAllowanceIn,
   ])
 
   const { config: t0 } = usePrepareContractWrite({
@@ -44,6 +51,7 @@ export default function RangeMintApproveButton({ poolAddress, approveToken }) {
     onSuccess() {
       updateSwapAllowance(Amount)
       setSuccessDisplay(true)
+      setNeedsRangeAllowanceIn(true)
     },
     onError() {
       setErrorDisplay(true)

@@ -114,7 +114,7 @@ export default function CoverExistingPool({ goBack }) {
     args: [address, coverPoolAddress],
     chainId: 421613,
     watch: needsAllowance,
-    enabled: isConnected && coverPoolAddress && tokenIn.address != "0x00",
+    enabled: isConnected && coverPoolAddress && tokenIn.address != "0x00" && needsAllowance,
     onSuccess(data) {
       console.log("cover allowance", allowanceInCover.toString())
       setNeedsAllowance(false)

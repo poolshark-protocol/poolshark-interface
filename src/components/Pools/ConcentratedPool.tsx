@@ -183,14 +183,14 @@ export default function ConcentratedPool({}) {
     address: address,
     token: tokenIn.address,
     enabled: tokenIn.address != undefined,
-    watch: true,
+    watch: false,
   });
 
   const { data: tokenOutBal } = useBalance({
     address: address,
     token: tokenOut.address,
     enabled: tokenOut.address != undefined,
-    watch: true,
+    watch: false,
   });
 
   useEffect(() => {

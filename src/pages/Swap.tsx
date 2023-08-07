@@ -258,14 +258,14 @@ export default function Swap() {
     address: address,
     token: tokenIn.address,
     enabled: tokenIn.address != undefined,
-    watch: true,
+    watch: false,
   });
 
   const { data: tokenOutBal } = useBalance({
     address: address,
     token: tokenOut.address,
     enabled: tokenOut.address != undefined,
-    watch: true,
+    watch: false,
   });
 
   useEffect(() => {
@@ -290,7 +290,7 @@ export default function Swap() {
     args: [address, rangePoolAddress],
     chainId: 421613,
     watch: needsRangeAllowanceIn,
-    enabled: pairSelected && rangePoolAddress,
+    enabled: pairSelected && rangePoolAddress && needsRangeAllowanceIn,
     onError(error) {
       console.log("Error allowance", error);
     },
@@ -306,8 +306,8 @@ export default function Swap() {
     functionName: "allowance",
     args: [address, coverPoolAddress],
     chainId: 421613,
-    watch: true,
-    enabled: pairSelected && coverPoolAddress,
+    watch: needsCoverAllowance,
+    enabled: pairSelected && coverPoolAddress && needsCoverAllowance,
     onError(error) {
       console.log("Error allowance", error);
     },

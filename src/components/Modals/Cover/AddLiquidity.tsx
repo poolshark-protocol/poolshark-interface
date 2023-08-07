@@ -69,7 +69,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     enabled:
       isConnected &&
       coverPoolAddress != undefined &&
-      tokenIn.address != undefined,
+      tokenIn.address != undefined && needsAllowance,
     onSuccess(data) {
       console.log("Success");
       setNeedsAllowance(false);
@@ -94,7 +94,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     address: address,
     token: tokenIn.address,
     enabled: tokenIn.address != undefined,
-    watch: true,
+    watch: false,
   });
 
   useEffect(() => {
