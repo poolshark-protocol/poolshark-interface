@@ -29,8 +29,8 @@ type CoverState = {
     gasLimit: BigNumber;
     disabled: Boolean;
     buttonMessage: string;
-    needsRefetch: Boolean;
   };
+  needsRefetch: Boolean;
   //Claim tick
   claimTick: number;
   //Bcontract calls
@@ -112,8 +112,8 @@ const initialCoverState: CoverState = {
     gasLimit: BN_ZERO,
     disabled: true,
     buttonMessage: "",
-    needsRefetch: false,
   },
+  needsRefetch: false,
 
   //
 };
@@ -133,6 +133,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   //tick
   claimTick: initialCoverState.claimTick,
   coverMintParams: initialCoverState.coverMintParams,
+  needsRefetch: initialCoverState.needsRefetch,
   setTokenIn: (tokenOut, newToken: tokenCover) => {
     //if tokenOut is selected
     if (
@@ -316,11 +317,8 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     }));
   },
   setNeedsRefetch: (needsRefetch: boolean) => {
-    set((state) => ({
-      coverMintParams: {
-        ...state.coverMintParams,
-        needsRefetch: needsRefetch,
-      },
+    set(() => ({
+      needsRefetch: needsRefetch,
     }));
   },
   switchDirection: () => {
