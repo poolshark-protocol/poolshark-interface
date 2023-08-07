@@ -386,47 +386,6 @@ export default function CreateCover(props: any) {
     setMintButtonState();
   }, [tokenIn, coverMintParams.tokenInAmount]);
 
-  /* const [buttonState, setButtonState] = useState("");
-  const [disabled, setDisabled] = useState(false);
-
-  // disabled messages
-  useEffect(() => {
-    if (
-      Number(ethers.utils.formatUnits(bnInput)) > Number(tokenIn.userBalance)
-    ) {
-      setButtonState("balance");
-    } else if (!validBounds) {
-      setButtonState("bounds");
-    } else if (
-      parseFloat(coverPositionData.lowerPrice) >=
-      parseFloat(coverPositionData.upperPrice)
-    ) {
-      setButtonState("price");
-    } else if (bnInput.eq(BN_ZERO)) {
-      setButtonState("amount");
-    } else if (pairSelected == false) {
-      setButtonState("token");
-    } else if (mintGasLimit.gt(BN_ZERO)) {
-      setDisabled(false);
-    }
-  }, [
-    bnInput,
-    pairSelected,
-    validBounds,
-    coverPositionData.lowerPrice,
-    coverPositionData.upperPrice,
-    tokenIn.userBalance,
-    mintGasLimit,
-  ]);
-
-  // set disabled
-  useEffect(() => {
-    const disabledFlag =
-      bnInput.eq(BN_ZERO) &&
-      coverPositionData.lowerPrice < coverPositionData.upperPrice;
-    setDisabled(disabledFlag);
-  }, [coverPositionData.lowerPrice, coverPositionData.upperPrice, bnInput]);
- */
   ////////////////////// Expanded Option
   const [expanded, setExpanded] = useState(false);
 
