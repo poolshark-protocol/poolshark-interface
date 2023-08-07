@@ -362,7 +362,7 @@ export default function CoverExistingPool({ goBack }) {
   const [mintGasFee, setMintGasFee] = useState("$0.00");
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
-  /* useEffect(() => {
+  useEffect(() => {
     if (
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
@@ -377,7 +377,7 @@ export default function CoverExistingPool({ goBack }) {
     coverAmountOut,
     tokenIn,
     tokenOut,
-  ]); */
+  ]);
 
   async function updateGasFee() {
     console.log(coverAmountIn, "positionAmountIn");
