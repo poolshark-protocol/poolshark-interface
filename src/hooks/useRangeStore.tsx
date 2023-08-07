@@ -153,7 +153,7 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   gasLimit: initialRangeState.gasLimit,
   //range position data
   rangePositionData: initialRangeState.rangePositionData,
-  //disable
+  //contract calls
   disabled: initialRangeState.disabled,
   buttonMessage: initialRangeState.buttonMessage,
   //refresh
