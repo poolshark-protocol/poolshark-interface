@@ -41,6 +41,7 @@ export default function CoverExistingPool({ goBack }) {
     coverPoolData,
     coverPositionData,
     coverMintParams,
+    volatilityTierId,
     setCoverPositionData,
     tokenIn,
     setTokenInCoverUSDPrice,
@@ -56,6 +57,7 @@ export default function CoverExistingPool({ goBack }) {
     state.coverPoolData,
     state.coverPositionData,
     state.coverMintParams,
+    state.volatilityTierId,
     state.setCoverPositionData,
     state.tokenIn,
     state.setTokenInCoverUSDPrice,
@@ -166,7 +168,11 @@ export default function CoverExistingPool({ goBack }) {
   );
 
   useEffect(() => {
-    updatePools();
+    if (
+      (selectedVolatility.tickSpread == 20 && volatilityTierId != 0) ||
+      (selectedVolatility.tickSpread == 40 && volatilityTierId != 1)
+    )
+      updatePools();
   }, [tokenIn, tokenOut, selectedVolatility]);
 
   async function updatePools() {
@@ -356,7 +362,7 @@ export default function CoverExistingPool({ goBack }) {
   const [mintGasFee, setMintGasFee] = useState("$0.00");
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
@@ -371,7 +377,7 @@ export default function CoverExistingPool({ goBack }) {
     coverAmountOut,
     tokenIn,
     tokenOut,
-  ]);
+  ]); */
 
   async function updateGasFee() {
     console.log(coverAmountIn, "positionAmountIn");
