@@ -15,7 +15,7 @@ import CoinListItem from "./CoinListItem";
 import { useAccount, useBalance } from "wagmi";
 
 export default function SelectToken(props) {
-  const { address} = useAccount();
+  const { address } = useAccount();
 
   const [isOpen, setIsOpen] = useState(false);
   const [inputVal, setInputVal] = useState("");
@@ -34,7 +34,7 @@ export default function SelectToken(props) {
           token: tokenOneAddress,
           chainId: 421613,
           watch: true,
-        }).data.formatted
+        }).data?.formatted
       ),
     },
     {
@@ -49,7 +49,7 @@ export default function SelectToken(props) {
           token: tokenZeroAddress,
           chainId: 421613,
           watch: true,
-        }).data.formatted
+        }).data?.formatted
       ),
     },
   ]);
