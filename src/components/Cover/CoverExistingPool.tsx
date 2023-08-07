@@ -812,12 +812,22 @@ export default function CoverExistingPool({ goBack }) {
             to={address}
             lower={
               coverPositionData.lowerPrice
-                ? TickMath.getTickAtPriceString(coverPositionData.lowerPrice)
+                ? TickMath.getTickAtPriceString(
+                  coverPositionData.lowerPrice ?? "0",
+                  coverPoolData.volatilityTier ?
+                  parseInt(coverPoolData.volatilityTier.tickSpread) :
+                  20
+                )
                 : 0
             }
             upper={
               coverPositionData.upperPrice
-                ? TickMath.getTickAtPriceString(coverPositionData.upperPrice)
+                ? TickMath.getTickAtPriceString(
+                  coverPositionData.upperPrice ?? "0",
+                  coverPoolData.volatilityTier ?
+                  parseInt(coverPoolData.volatilityTier.tickSpread) :
+                  20
+                )
                 : 0
             }
             tokenSymbol={tokenIn.symbol}

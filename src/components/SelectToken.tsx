@@ -34,7 +34,7 @@ export default function SelectToken(props) {
           token: tokenOneAddress,
           chainId: 421613,
           watch: true,
-        }).data.formatted
+        }).data?.formatted
       ),
     },
     {
@@ -49,7 +49,7 @@ export default function SelectToken(props) {
           token: tokenZeroAddress,
           chainId: 421613,
           watch: true,
-        }).data.formatted
+        }).data?.formatted
       ),
     },
   ]);
