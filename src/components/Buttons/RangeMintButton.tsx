@@ -9,6 +9,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { BN_ZERO } from "../../utils/math/constants";
+import { useRangeStore } from "../../hooks/useRangeStore";
 
 export default function RangeMintButton({
   disabled,
@@ -21,6 +22,11 @@ export default function RangeMintButton({
   closeModal,
   gasLimit,
 }) {
+  const [
+    setNeedsRefetch
+  ] = useRangeStore((state) => [
+    state.setNeedsRefetch
+  ]);
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
 
@@ -50,6 +56,7 @@ export default function RangeMintButton({
       setTimeout(() => {
         closeModal();
       }, 2000);
+      setNeedsRefetch(true);
     },
     onError() {
       setErrorDisplay(true);

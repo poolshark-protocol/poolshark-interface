@@ -29,6 +29,7 @@ type CoverState = {
     gasLimit: BigNumber;
     disabled: Boolean;
     buttonMessage: string;
+    needsRefetch: Boolean;
   };
   //Claim tick
   claimTick: number;
@@ -40,7 +41,7 @@ type CoverAction = {
   setCoverPoolAddress: (address: String) => void;
   setCoverPoolData: (data: any) => void;
   setCoverPositionData: (data: any) => void;
-  //setPairSelected: (pairSelected: Boolean) => void;
+  //setPairSelected: (pairSelected: boolean) => void;
   //tokenIn
   setTokenIn: (tokenOut: token, newToken: token) => void;
   setTokenInAmount: (amount: string) => void;
@@ -59,8 +60,9 @@ type CoverAction = {
   //gas
   setGasFee: (fee: string) => void;
   setGasLimit: (limit: BigNumber) => void;
+  //refetch
+  setNeedsRefetch: (needsRefetch: boolean) => void;
   //reset
-  resetSwapParams: () => void;
   switchDirection: () => void;
   setCoverPoolFromVolatility: (
     tokanIn: token,
@@ -110,7 +112,10 @@ const initialCoverState: CoverState = {
     gasLimit: BN_ZERO,
     disabled: true,
     buttonMessage: "",
+    needsRefetch: false,
   },
+
+  //
 };
 
 export const useCoverStore = create<CoverState & CoverAction>((set) => ({
@@ -310,8 +315,14 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       },
     }));
   },
-  resetSwapParams: () => {},
-
+  setNeedsRefetch: (needsRefetch: boolean) => {
+    set((state) => ({
+      coverMintParams: {
+        ...state.coverMintParams,
+        needsRefetch: needsRefetch,
+      },
+    }));
+  },
   switchDirection: () => {
     set((state) => ({
       tokenIn: {

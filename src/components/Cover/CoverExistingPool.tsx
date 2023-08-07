@@ -104,7 +104,7 @@ export default function CoverExistingPool({ goBack }) {
     functionName: "allowance",
     args: [address, coverPoolAddress],
     chainId: 421613,
-    watch: true,
+    watch: false,
     enabled: isConnected && coverPoolAddress && tokenIn.address != "0x00",
     onSuccess(data) {
       //console.log('Success')
@@ -127,7 +127,7 @@ export default function CoverExistingPool({ goBack }) {
     address: address,
     token: tokenIn.address,
     enabled: tokenIn.address != undefined,
-    watch: true,
+    watch: false,
   });
 
   useEffect(() => {
