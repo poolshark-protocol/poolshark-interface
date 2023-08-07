@@ -206,6 +206,7 @@ export default function CoverExistingPool({ goBack }) {
       tokenOrder ? tickAtPrice - tickSpread * 6 : tickAtPrice + tickSpread * 18,
       tickSpread
     );
+    console.log("lowerPrice", lowerPrice);
     setLowerPrice(lowerPrice);
     setUpperPrice(upperPrice);
     setCoverPositionData({
@@ -633,11 +634,7 @@ export default function CoverExistingPool({ goBack }) {
               placeholder="0"
               id="minInput"
               type="text"
-              value={
-                tokenOrder
-                  ? invertPrice(lowerPrice, tokenOrder)
-                  : invertPrice(upperPrice, tokenOrder)
-              }
+              value={lowerPrice}
               onChange={() =>
                 setLowerPrice(
                   inputFilter(
@@ -676,11 +673,7 @@ export default function CoverExistingPool({ goBack }) {
               placeholder="0"
               id="maxInput"
               type="text"
-              value={
-                tokenOrder
-                  ? invertPrice(upperPrice, tokenOrder)
-                  : invertPrice(lowerPrice, tokenOrder)
-              }
+              value={upperPrice}
               onChange={() =>
                 setUpperPrice(
                   inputFilter(
