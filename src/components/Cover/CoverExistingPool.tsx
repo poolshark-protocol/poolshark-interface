@@ -34,6 +34,7 @@ import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
 import useInputBox from "../../hooks/useInputBox";
 import { useRangeStore } from "../../hooks/useRangeStore";
 import { volatilityTiers } from "../../utils/pools";
+import { CoinStatus } from "fuels";
 
 export default function CoverExistingPool({ goBack }) {
   const [
@@ -52,6 +53,7 @@ export default function CoverExistingPool({ goBack }) {
     pairSelected,
     switchDirection,
     setCoverPoolFromVolatility,
+    setMintButtonState,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPoolData,
@@ -68,6 +70,7 @@ export default function CoverExistingPool({ goBack }) {
     state.pairSelected,
     state.switchDirection,
     state.setCoverPoolFromVolatility,
+    state.setMintButtonState,
   ]);
 
   const [rangePositionData] = useRangeStore((state) => [
@@ -206,7 +209,6 @@ export default function CoverExistingPool({ goBack }) {
       tokenOrder ? tickAtPrice - tickSpread * 6 : tickAtPrice + tickSpread * 18,
       tickSpread
     );
-    console.log("lowerPrice", lowerPrice);
     setLowerPrice(lowerPrice);
     setUpperPrice(upperPrice);
     setCoverPositionData({
@@ -381,8 +383,6 @@ export default function CoverExistingPool({ goBack }) {
   ]);
 
   async function updateGasFee() {
-    console.log(coverAmountIn, "positionAmountIn");
-
     const newMintGasFee = await gasEstimateCoverMint(
       coverPoolAddress,
       address,
@@ -403,6 +403,12 @@ export default function CoverExistingPool({ goBack }) {
     setMintGasFee(newMintGasFee.formattedPrice);
     setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
   }
+
+  ////////////////////////////////Mint Button Handler
+
+  useEffect(() => {
+    setMintButtonState();
+  }, [tokenIn, coverMintParams.tokenInAmount]);
 
   ////////////////////////////////
 
