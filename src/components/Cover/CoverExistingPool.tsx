@@ -732,43 +732,45 @@ export default function CoverExistingPool({ goBack }) {
       </div>
       <div className="space-y-3">
         {isDisconnected ? <ConnectWalletButton /> : null}
-        {Number(allowanceInCover) <
-        Number(ethers.utils.formatUnits(String(bnInput), 18)) ? (
-          <CoverMintApproveButton
-            disabled={coverMintParams.disabled}
-            buttonState={coverMintParams.buttonMessage}
-            poolAddress={coverPoolAddress}
-            approveToken={tokenIn.address}
-            amount={String(coverAmountIn)}
-            tokenSymbol={tokenIn.symbol}
-            allowance={allowanceInCover}
-          />
+        {allowanceInCover ? (
+          allowanceInCover.lt(bnInput) ? (
+            <CoverMintApproveButton
+              disabled={coverMintParams.disabled}
+              poolAddress={coverPoolAddress}
+              approveToken={tokenIn.address}
+              amount={String(coverAmountIn)}
+              tokenSymbol={tokenIn.symbol}
+              buttonMessage={"Approve " + tokenIn.symbol}
+              allowance={allowanceInCover}
+            />
+          ) : (
+            <CoverMintButton
+              poolAddress={coverPoolAddress}
+              disabled={coverMintParams.disabled}
+              buttonMessage={coverMintParams.buttonMessage}
+              to={address}
+              lower={
+                coverPositionData.lowerPrice
+                  ? TickMath.getTickAtPriceString(coverPositionData.lowerPrice)
+                  : 0
+              }
+              upper={
+                coverPositionData.upperPrice
+                  ? TickMath.getTickAtPriceString(coverPositionData.upperPrice)
+                  : 0
+              }
+              amount={String(coverAmountIn)}
+              zeroForOne={tokenOrder}
+              tickSpacing={
+                coverPoolData.volatilityTier
+                  ? coverPoolData.volatilityTier.tickSpread
+                  : 20
+              }
+              gasLimit={mintGasLimit}
+            />
+          )
         ) : (
-          <CoverMintButton
-            poolAddress={coverPoolAddress}
-            disabled={coverMintParams.disabled}
-            buttonMessage={coverMintParams.buttonMessage}
-            to={address}
-            lower={
-              coverPositionData.lowerPrice
-                ? TickMath.getTickAtPriceString(coverPositionData.lowerPrice)
-                : 0
-            }
-            upper={
-              coverPositionData.upperPrice
-                ? TickMath.getTickAtPriceString(coverPositionData.upperPrice)
-                : 0
-            }
-            tokenSymbol={tokenIn.symbol}
-            amount={String(coverAmountIn)}
-            zeroForOne={tokenOrder}
-            tickSpacing={
-              coverPoolData.volatilityTier
-                ? coverPoolData.volatilityTier.tickSpread
-                : 20
-            }
-            gasLimit={mintGasLimit}
-          />
+          <></>
         )}
       </div>
     </>

@@ -22,7 +22,6 @@ export default function CoverMintButton({
   zeroForOne,
   tickSpacing,
   buttonMessage,
-  tokenSymbol,
   gasLimit,
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false);
