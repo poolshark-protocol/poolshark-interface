@@ -24,18 +24,14 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     coverPoolAddress,
     coverPositionData,
     tokenIn,
-    tokenInBalance,
     setTokenInBalance,
     tokenOut,
-    tokenInCoverUSDPrice,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPositionData,
     state.tokenIn,
-    state.tokenInBalance,
     state.setTokenInBalance,
     state.tokenOut,
-    state.tokenInCoverUSDPrice,
   ]);
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
@@ -197,7 +193,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                       <div className="flex text-xs text-[#4C4C4C]">
                         ${" "}
                         {Number(
-                          tokenInCoverUSDPrice *
+                          tokenIn.coverUSDPrice *
                             parseFloat(ethers.utils.formatUnits(bnInput, 18))
                         ).toFixed(2)}
                       </div>
@@ -248,7 +244,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                     amount={bnInput}
                     tokenSymbol={tokenIn.symbol}
                     allowance={allowanceIn}
-                    buttonState={buttonState}
+                    buttonMessage={"Approve " + tokenIn.symbol}
                   />
                 ) : stateChainName === "arbitrumGoerli" ? (
                   <CoverAddLiqButton

@@ -15,7 +15,7 @@ import CoinListItem from "./CoinListItem";
 import { useAccount, useBalance } from "wagmi";
 
 export default function SelectToken(props) {
-  const { address} = useAccount();
+  const { address } = useAccount();
 
   const [isOpen, setIsOpen] = useState(false);
   const [inputVal, setInputVal] = useState("");

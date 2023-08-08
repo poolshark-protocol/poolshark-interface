@@ -8,13 +8,14 @@ import { SuccessToast } from '../Toasts/Success'
 import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useEffect, useState } from 'react'
-import { useSwapStore } from '../../hooks/useStore'
 import { BigNumber } from 'ethers'
 
 export default function RangeMintDoubleApproveButton({
   poolAddress,
   tokenIn,
   tokenOut,
+  amount0,
+  amount1,
   setAllowanceController,
 }) {
   const [errorDisplay0, setErrorDisplay0] = useState(false)
@@ -22,23 +23,13 @@ export default function RangeMintDoubleApproveButton({
   const [errorDisplay1, setErrorDisplay1] = useState(false)
   const [successDisplay1, setSuccessDisplay1] = useState(false)
 
-  const [
-    Amount,
-    SwapParams,
-    updateSwapAllowance,
-  ] = useSwapStore((state: any) => [
-    state.Amount,
-    state.SwapParams,
-    state.updateSwapAllowance,
-  ])
-
   const gasLimit = BigNumber.from(100000)
 
   const { config: t0 } = usePrepareContractWrite({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'approve',
-    args: [poolAddress, Amount],
+    args: [poolAddress, amount0],
     chainId: 421613,
     overrides: {
       gasLimit: gasLimit
@@ -49,7 +40,7 @@ export default function RangeMintDoubleApproveButton({
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: 'approve',
-    args: [poolAddress, Amount],
+    args: [poolAddress, amount1],
     chainId: 421613,
     overrides: {
       gasLimit: gasLimit
@@ -71,7 +62,6 @@ export default function RangeMintDoubleApproveButton({
   const { isLoading: isLoadingT0 } = useWaitForTransaction({
     hash: dataT0?.hash,
     onSuccess() {
-      updateSwapAllowance(Amount)
       setSuccessDisplay0(true)
     },
     onError() {
@@ -82,7 +72,6 @@ export default function RangeMintDoubleApproveButton({
   const { isLoading: isLoadingT1 } = useWaitForTransaction({
     hash: dataT1?.hash,
     onSuccess() {
-      updateSwapAllowance(Amount)
       setSuccessDisplay0(true)
     },
     onError() {
