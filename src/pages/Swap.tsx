@@ -1211,12 +1211,10 @@ export default function Swap() {
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                 <div>
                   <SwapRangeApproveButton
-                    disabled={false}
                     poolAddress={rangePoolAddress}
                     approveToken={tokenIn.address}
                     tokenSymbol={tokenIn.symbol}
-                    bnInput={bnInput}
-                    allowanceRange={tokenInRangeAllowance}
+                    amount={bnInput}
                   />
                 </div>
               ) : (
@@ -1241,8 +1239,7 @@ export default function Swap() {
                   poolAddress={coverPoolAddress}
                   approveToken={tokenIn.address}
                   tokenSymbol={tokenIn.symbol}
-                  allowanceCover={tokenInCoverAllowance}
-                  bnInput={bnInput}
+                  amount={bnInput}
                 />
               </div>
             ) : (
@@ -1281,12 +1278,10 @@ export default function Swap() {
             ) : Number(tokenInRangeAllowance) <
               Number(ethers.utils.formatUnits(bnInput, 18)) ? (
               <SwapRangeApproveButton
-                disabled={false}
                 poolAddress={rangePoolAddress}
                 approveToken={tokenIn.address}
                 tokenSymbol={tokenIn.symbol}
-                allowanceRange={tokenInRangeAllowance}
-                bnInput={bnInput}
+                amount={bnInput}
               />
             ) : (
               <RangeLimitSwapButton
