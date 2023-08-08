@@ -1241,8 +1241,7 @@ export default function Swap() {
                   poolAddress={coverPoolAddress}
                   approveToken={tokenIn.address}
                   tokenSymbol={tokenIn.symbol}
-                  allowanceCover={tokenInCoverAllowance}
-                  bnInput={bnInput}
+                  amount={bnInput}
                 />
               </div>
             ) : (
