@@ -8,7 +8,6 @@ import { SuccessToast } from '../Toasts/Success'
 import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useState } from 'react'
-import { useSwapStore } from '../../hooks/useStore'
 
 export default function SwapRangeApproveButton({
   poolAddress,
