@@ -377,6 +377,8 @@ export default function LimitPoolPreview({ fee }) {
                             poolAddress={rangePoolAddress}
                             tokenIn={tokenIn}
                             tokenOut={tokenOut}
+                            amount0={tokenInAmount}
+                            amount1={tokenOutAmount}
                             setAllowanceController={setdoubleApprove}
                           />
                         ) : !doubleApprove &&
