@@ -386,11 +386,6 @@ export default function CreateCover(props: any) {
     setMintButtonState();
   }, [tokenIn, coverMintParams.tokenInAmount]);
 
-
-  console.log('///////////////////////////////')
-  console.log("allowance", allowanceInCover);
-  console.log("bninput", bnInput);
-
   ////////////////////// Expanded Option
   const [expanded, setExpanded] = useState(false);
 
