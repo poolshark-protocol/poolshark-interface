@@ -737,10 +737,16 @@ export default function CreateCover(props: any) {
               disabled={coverMintParams.disabled}
               to={address}
               lower={TickMath.getTickAtPriceString(
-                coverPositionData.lowerPrice ?? "0"
+                coverPositionData.lowerPrice ?? "0",
+                coverPoolData.volatilityTier
+                ? parseInt(coverPoolData.volatilityTier.tickSpread)
+                : 20
               )}
               upper={TickMath.getTickAtPriceString(
-                coverPositionData.upperPrice ?? "0"
+                coverPositionData.upperPrice ?? "0",
+                coverPoolData.volatilityTier
+                ? parseInt(coverPoolData.volatilityTier.tickSpread)
+                : 20
               )}
               amount={bnInput}
               zeroForOne={tokenOrder}
