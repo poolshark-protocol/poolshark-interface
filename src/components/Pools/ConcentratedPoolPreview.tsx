@@ -397,12 +397,14 @@ export default function ConcentratedPoolPreview({ fee }) {
                           <RangeMintApproveButton
                             poolAddress={rangePoolAddress}
                             approveToken={tokenIn}
+                            amount={tokenInAmount}
                           />
                         ) : !doubleApprove &&
                           tokenOutAllowance.lt(tokenOutAmount) ? (
                           <RangeMintApproveButton
                             poolAddress={rangePoolAddress}
                             approveToken={tokenOut}
+                            amount={tokenOutAmount}
                           />
                         ) : null}
                       </div>

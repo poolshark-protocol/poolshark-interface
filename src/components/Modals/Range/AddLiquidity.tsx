@@ -438,11 +438,13 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                         <RangeMintApproveButton
                           poolAddress={rangePoolAddress}
                           approveToken={tokenIn}
+                          amount={amount0}
                         />
                       ) : !doubleApprove && allowanceOut.lt(amount1) ? (
                         <RangeMintApproveButton
                           poolAddress={rangePoolAddress}
                           approveToken={tokenOut}
+                          amount={amount1}
                         />
                       ) : null}
                     </>
