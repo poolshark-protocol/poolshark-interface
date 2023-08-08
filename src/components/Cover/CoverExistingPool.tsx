@@ -35,6 +35,7 @@ import useInputBox from "../../hooks/useInputBox";
 import { useRangeStore } from "../../hooks/useRangeStore";
 import { volatilityTiers } from "../../utils/pools";
 import { CoinStatus } from "fuels";
+import { parseUnits } from "ethers/lib/utils.js";
 
 export default function CoverExistingPool({ goBack }) {
   const [
@@ -265,8 +266,8 @@ export default function CoverExistingPool({ goBack }) {
 
   // set amount in
   useEffect(() => {
-    if (!bnInput.eq(BN_ZERO)) {
-      setCoverAmountIn(JSBI.BigInt(bnInput.toString()));
+    if (coverAmountIn) {
+      setCoverAmountIn(JSBI.BigInt(coverAmountIn.toString()));
     }
   }, [
     bnInput,
@@ -733,7 +734,9 @@ export default function CoverExistingPool({ goBack }) {
       <div className="space-y-3">
         {isDisconnected ? <ConnectWalletButton /> : null}
         {allowanceInCover ? (
-          allowanceInCover.lt(bnInput) ? (
+          allowanceInCover.lt(
+            BigNumber.from(coverMintParams.tokenInAmount.toString())
+          ) ? (
             <CoverMintApproveButton
               disabled={coverMintParams.disabled}
               poolAddress={coverPoolAddress}

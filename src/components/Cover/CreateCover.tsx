@@ -33,6 +33,7 @@ import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
 import TickSpacing from "../Tooltips/TickSpacing";
 import { gasEstimateCoverMint } from "../../utils/gas";
 import { getCoverPool, volatilityTiers } from "../../utils/pools";
+import { all } from "axios";
 
 export default function CreateCover(props: any) {
   const [
@@ -139,7 +140,6 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     if (isConnected) {
-      console.log("tokenInBal", tokenInBal);
       setTokenInBalance(parseFloat(tokenInBal?.formatted).toFixed(2));
     }
   }, [tokenInBal]);
@@ -718,8 +718,10 @@ export default function CreateCover(props: any) {
         </div>
       </div>
       <div className="mb-3">
-        {allowanceInCover ? (
-          isConnected && allowanceInCover.lt(bnInput) ? (
+        {allowanceInCover && isConnected ? (
+          allowanceInCover.lt(
+            BigNumber.from(coverMintParams.tokenInAmount.toString())
+          ) ? (
             <CoverMintApproveButton
               disabled={coverMintParams.disabled}
               poolAddress={coverPoolAddress}
