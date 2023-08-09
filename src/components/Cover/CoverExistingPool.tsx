@@ -53,6 +53,8 @@ export default function CoverExistingPool({ goBack }) {
     setNeedsAllowance,
     setMintButtonState,
     setTokenInBalance,
+    needsBalance,
+    setNeedsBalance,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPoolData,
@@ -71,6 +73,8 @@ export default function CoverExistingPool({ goBack }) {
     state.setNeedsAllowance,
     state.setMintButtonState,
     state.setTokenInBalance,
+    state.needsBalance,
+    state.setNeedsBalance,
   ]);
 
   const [rangePositionData] = useRangeStore((state) => [
@@ -127,8 +131,11 @@ export default function CoverExistingPool({ goBack }) {
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.address,
-    enabled: tokenIn.address != undefined,
-    watch: false,
+    enabled: tokenIn.address != undefined && needsBalance,
+    watch: needsBalance,
+    onSuccess(data) {
+      setNeedsBalance(false)
+    }
   });
 
   useEffect(() => {

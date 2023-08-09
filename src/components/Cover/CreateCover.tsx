@@ -57,6 +57,8 @@ export default function CreateCover(props: any) {
     setNeedsAllowance,
     setTokenInCoverUSDPrice,
     setTokenInBalance,
+    needsBalance,
+    setNeedsBalance,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPoolData,
@@ -79,6 +81,8 @@ export default function CreateCover(props: any) {
     state.setNeedsAllowance,
     state.setTokenInCoverUSDPrice,
     state.setTokenInBalance,
+    state.needsBalance,
+    state.setNeedsBalance,
   ]);
 
   const { data: signer } = useSigner();
@@ -365,8 +369,11 @@ export default function CreateCover(props: any) {
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.address,
-    enabled: tokenIn.address != undefined,
-    watch: false,
+    enabled: tokenIn.address != undefined && needsBalance,
+    watch: needsBalance,
+    onSuccess(data) {
+      setNeedsBalance(false);
+    }
   });
 
   useEffect(() => {
