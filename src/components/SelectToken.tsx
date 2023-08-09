@@ -12,16 +12,38 @@ import {
 import useTokenList from "../hooks/useTokenList";
 import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
-import { useAccount, useBalance } from "wagmi";
+import { useAccount, useBalance, useProvider } from "wagmi";
+import { chainIdsToNamesForGitTokenList } from "../utils/chains";
+import axios from "axios";
+import { coinsList } from "../utils/types";
 
 export default function SelectToken(props) {
   const { address } = useAccount();
+  const {
+    network: { chainId },
+  } = useProvider();
 
   const [isOpen, setIsOpen] = useState(false);
   const [inputVal, setInputVal] = useState("");
-  const coins = useTokenList()[0];
+  const coins = useTokenList() as coinsList;
 
-  const [rawCoinList, setRawCoinList] = useState([
+  useEffect(() => {
+    //iterate coind and add balance field
+    if (coins?.listed_tokens ) {
+      coins.listed_tokens.forEach((coin) => {
+        coin.balance = Number(
+          useBalance({
+            address: address,
+            token: coin?.id,
+            chainId: 421613,
+            watch: true,
+          }).data?.formatted
+        );
+      });
+    }
+  }, [coins]);
+
+  /* const [rawCoinList, setRawCoinList] = useState([
     {
       name: "WETH",
       address: tokenOneAddress,
@@ -52,7 +74,7 @@ export default function SelectToken(props) {
         }).data?.formatted
       ),
     },
-  ]);
+  ]); */
 
   const chooseToken = (coin) => {
     coin = {
@@ -132,7 +154,7 @@ export default function SelectToken(props) {
                       onChange={(e) => setInputVal(e.target.value)}
                     ></input>
                     <div className="flex justify-between flex-wrap mt-4 gap-y-2">
-                      {rawCoinList?.map((coin) => {
+                      {coins?.map((coin) => {
                         return (
                           <CoinListButton
                             key={coin.symbol + "top"}
@@ -144,7 +166,7 @@ export default function SelectToken(props) {
                     </div>
                   </div>
                   <div>
-                    {rawCoinList
+                    {coins
                       .sort((a, b) => b.balance - a.balance)
                       .map((coin) => {
                         return (

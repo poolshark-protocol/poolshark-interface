@@ -17,4 +17,8 @@ export type token = {
   address: `0x${string}`
 }
 
+export type coinsList = {
+  listed_tokens: [],
+}
+
 
