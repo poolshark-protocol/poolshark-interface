@@ -45,6 +45,7 @@ import {
   fetchCoverTokenUSDPrice,
   fetchRangeTokenUSDPrice,
 } from "../utils/tokens";
+import { coinRaw } from "../utils/types";
 
 export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -397,7 +398,7 @@ export default function Swap() {
       updateTierFees();
       chooseSlippage();
     }
-  }, [pairSelected]);
+  }, [tokenIn, tokenOut]);
 
   async function updateTierFees() {
     await getFeeTiers();
@@ -698,6 +699,16 @@ export default function Swap() {
 
   ////////////////////////////////
   const [expanded, setExpanded] = useState(false);
+
+  /* function balancesHelper(coin: coinRaw) {
+    const balance = useBalance({
+      address: address,
+      token: coin.id,
+      chainId: 421613,
+      watch: true,
+    }).data?.formatted;
+    return balance;
+  } */
 
   const Option = () => {
     if (expanded) {

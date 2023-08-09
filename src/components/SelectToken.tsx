@@ -5,11 +5,6 @@ import {
   MagnifyingGlassIcon,
 } from "@heroicons/react/20/solid";
 import { Transition, Dialog } from "@headlessui/react";
-import {
-  tokenZeroAddress,
-  tokenOneAddress,
-} from "../constants/contractAddresses";
-import useTokenList from "../hooks/useTokenList";
 import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
 import { useAccount, useBalance, useProvider } from "wagmi";
@@ -25,19 +20,48 @@ export default function SelectToken(props) {
 
   const [isOpen, setIsOpen] = useState(false);
   const [inputVal, setInputVal] = useState("");
-  const coins = useTokenList() as coinsList;
   const [rawCoinList, setRawCoinList] = useState([]);
 
   useEffect(() => {
-    if (coins?.listed_tokens) {
-      setRawCoinList(coins.listed_tokens);
+    const fetch = async () => {
+      const chainName = chainIdsToNamesForGitTokenList[chainId];
+      axios
+        .get(
+          `https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/${
+            chainName === undefined ? "ethereum" : "arbitrum-goerli"
+          }/tokenlist.json`
+        )
+        .then(function (response) {
+          const coins = {
+            listed_tokens: response.data.listed_tokens,
+            search_tokens: response.data.search_tokens,
+          } as coinsList;
+          for (let i = 0; i < coins.listed_tokens.length; i++) {
+            coins.listed_tokens[i].address = coins.listed_tokens[i].id;
+            setRawCoinList(coins.listed_tokens);
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    };
+    fetch();
+  }, [chainId, address]);
+
+  /*  useEffect(() => {
+    updateBalance();
+  }, rawCoinList);
+
+  function updateBalance() {
+    for (let i = 0; i < rawCoinList.length; i++) {
+      rawCoinList[i].balance = useBalance(rawCoinList[i].address);
     }
-  }, [coins]);
+  } */
 
   const chooseToken = (coin) => {
     coin = {
       name: coin?.name,
-      address: coin?.address, //@dev use id for address in production like so address: coin?.id because thats what coin [] will have instead of address
+      address: coin?.id,
       symbol: coin?.symbol,
       logoURI: coin?.logoURI,
     };
