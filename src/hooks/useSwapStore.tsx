@@ -40,6 +40,9 @@ type SwapState = {
   needsCoverAllowance: boolean;
   needsRangeAllowanceIn: boolean;
   needsRangeAllowanceOut: boolean;
+  needsCoverBalance: boolean;
+  needsRangeBalanceIn: boolean;
+  needsRangeBalanceOut: boolean;
 };
 
 type SwapAction = {
@@ -70,6 +73,9 @@ type SwapAction = {
   setNeedsCoverAllowance: (needsAllowance: boolean) => void;
   setNeedsRangeAllowanceIn: (needsAllowance: boolean) => void;
   setNeedsRangeAllowanceOut: (needsAllowance: boolean) => void;
+  setNeedsCoverBalance: (needsBalance: boolean) => void;
+  setNeedsRangeBalanceIn: (needsBalance: boolean) => void;
+  setNeedsRangeBalanceOut: (needsBalance: boolean) => void;
   //reset
   resetSwapParams: () => void;
 };
@@ -117,6 +123,9 @@ const initialSwapState: SwapState = {
   needsCoverAllowance: true,
   needsRangeAllowanceIn: true,
   needsRangeAllowanceOut: true,
+  needsCoverBalance: true,
+  needsRangeBalanceIn: true,
+  needsRangeBalanceOut: true,
 };
 
 export const useSwapStore = create<SwapState & SwapAction>((set) => ({
@@ -149,6 +158,9 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   needsCoverAllowance: initialSwapState.needsCoverAllowance,
   needsRangeAllowanceIn: initialSwapState.needsRangeAllowanceIn,
   needsRangeAllowanceOut: initialSwapState.needsRangeAllowanceOut,
+  needsCoverBalance: initialSwapState.needsCoverBalance,
+  needsRangeBalanceIn: initialSwapState.needsRangeBalanceIn,
+  needsRangeBalanceOut: initialSwapState.needsRangeBalanceOut,
   setTokenIn: (tokenOut, newToken: token) => {
     //if tokenOut is selected
     if (
@@ -337,6 +349,21 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       needsRangeAllowanceOut: needsRangeAllowanceOut,
     }));
   },
+  setNeedsCoverBalance: (needsCoverBalance: boolean) => {
+    set(() => ({
+      needsCoverBalance: needsCoverBalance,
+    }));
+  },
+  setNeedsRangeBalanceIn: (needsRangeBalanceIn: boolean) => {
+    set(() => ({
+      needsRangeBalanceIn: needsRangeBalanceIn,
+    }));
+  },
+  setNeedsRangeBalanceOut: (needsRangeBalanceOut: boolean) => {
+    set(() => ({
+      needsRangeBalanceOut: needsRangeBalanceOut,
+    }));
+  },
   switchDirection: () => {
     set((state) => ({
       tokenIn: {
@@ -389,6 +416,9 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       needsCoverAllowance: initialSwapState.needsCoverAllowance,
       needsRangeAllowanceIn: initialSwapState.needsRangeAllowanceIn,
       needsRangeAllowanceOut: initialSwapState.needsRangeAllowanceOut,
+      needsCoverBalance: initialSwapState.needsCoverBalance,
+      needsRangeBalanceIn: initialSwapState.needsRangeBalanceIn,
+      needsRangeBalanceOut: initialSwapState.needsRangeBalanceOut,
     });
   },
 }));

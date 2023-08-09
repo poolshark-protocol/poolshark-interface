@@ -38,6 +38,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     setNeedsAllowanceIn,
     needsAllowanceOut,
     setNeedsAllowanceOut,
+    needsBalanceIn,
+    setNeedsBalanceIn,
+    needsBalanceOut,
+    setNeedsBalanceOut,
   ] = useRangeStore((state) => [
     state.rangePoolAddress,
     state.pairSelected,
@@ -54,6 +58,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     state.setNeedsAllowanceIn,
     state.needsAllowanceOut,
     state.setNeedsAllowanceOut,
+    state.needsBalanceIn,
+    state.setNeedsBalanceIn,
+    state.needsBalanceOut,
+    state.setNeedsBalanceOut,
   ]);
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
@@ -180,15 +188,21 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.address,
-    enabled: tokenIn.address != undefined,
-    watch: false,
+    enabled: tokenIn.address != undefined && needsBalanceIn,
+    watch: needsBalanceIn,
+    onSuccess(data) {
+      setNeedsBalanceIn(false);
+    }
   });
 
   const { data: tokenOutBal } = useBalance({
     address: address,
     token: tokenOut.address,
-    enabled: tokenOut.address != undefined,
-    watch: false,
+    enabled: tokenOut.address != undefined && needsBalanceOut,
+    watch: needsBalanceOut,
+    onSuccess(data) {
+      setNeedsBalanceOut(false);
+    }
   });
 
   useEffect(() => {

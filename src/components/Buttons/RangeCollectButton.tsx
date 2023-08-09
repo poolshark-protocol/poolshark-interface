@@ -10,11 +10,20 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BigNumber } from "ethers";
 import { BN_ZERO } from '../../utils/math/constants';
+import { useRangeStore } from '../../hooks/useRangeStore';
 
 export default function RangeCollectButton({ poolAddress, address, lower, upper, gasLimit }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
+
+  const [
+    setNeedsBalanceIn,
+    setNeedsBalanceOut
+  ] = useRangeStore((state) => [
+    state.setNeedsBalanceIn,
+    state.setNeedsBalanceOut
+  ]);
 
   const { config } = usePrepareContractWrite({
       address: poolAddress,
@@ -38,6 +47,8 @@ export default function RangeCollectButton({ poolAddress, address, lower, upper,
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
+      setNeedsBalanceIn(true);
+      setNeedsBalanceOut(true);
     },
     onError() {
       setErrorDisplay(true);

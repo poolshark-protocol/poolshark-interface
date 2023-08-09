@@ -43,6 +43,8 @@ type RangeState = {
   needsRefetch: boolean;
   needsAllowanceIn: boolean;
   needsAllowanceOut: boolean;
+  needsBalanceIn: boolean;
+  needsBalanceOut: boolean;
 };
 
 type RangeAction = {
@@ -81,6 +83,8 @@ type RangeAction = {
   setNeedsRefetch: (needsRefetch: boolean) => void;
   setNeedsAllowanceIn: (needsAllowance: boolean) => void;
   setNeedsAllowanceOut: (needsAllowance: boolean) => void;
+  setNeedsBalanceIn: (needsBalance: boolean) => void;
+  setNeedsBalanceOut: (needsBalance: boolean) => void;
 };
 
 const initialRangeState: RangeState = {
@@ -130,6 +134,8 @@ const initialRangeState: RangeState = {
   needsRefetch: false,
   needsAllowanceIn: true,
   needsAllowanceOut: true,
+  needsBalanceIn: true,
+  needsBalanceOut: true,
 };
 
 export const useRangeStore = create<RangeState & RangeAction>((set) => ({
@@ -166,6 +172,8 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   needsRefetch: initialRangeState.needsRefetch,
   needsAllowanceIn: initialRangeState.needsAllowanceIn,
   needsAllowanceOut: initialRangeState.needsAllowanceOut,
+  needsBalanceIn: initialRangeState.needsBalanceIn,
+  needsBalanceOut: initialRangeState.needsBalanceOut,
   //actions
   setPairSelected: (pairSelected: boolean) => {
     set(() => ({
@@ -346,6 +354,16 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       needsAllowanceIn: needsAllowanceOut,
     }));
   },
+  setNeedsBalanceIn: (needsBalanceIn: boolean) => {
+    set(() => ({
+      needsBalanceIn: needsBalanceIn,
+    }));
+  },
+  setNeedsBalanceOut: (needsBalanceOut: boolean) => {
+    set(() => ({
+      needsBalanceOut: needsBalanceOut,
+    }));
+  },
   switchDirection: () => {
     set((state) => ({
       tokenIn: {
@@ -403,6 +421,9 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       //refresh
       needsAllowanceIn: initialRangeState.needsAllowanceIn,
       needsAllowanceOut: initialRangeState.needsAllowanceOut,
+      needsBalanceIn: initialRangeState.needsBalanceIn,
+      needsBalanceOut: initialRangeState.needsBalanceOut,
+      needsRefetch: initialRangeState.needsRefetch,
     });
   },
 }));
