@@ -34,6 +34,7 @@ type CoverState = {
   };
   needsRefetch: boolean;
   needsAllowance: boolean;
+  needsBalance: boolean;
   //Claim tick
   claimTick: number;
   //Bcontract calls
@@ -69,6 +70,8 @@ type CoverAction = {
   setNeedsRefetch: (needsRefetch: boolean) => void;
   //allowance
   setNeedsAllowance: (needsAllowance: boolean) => void;
+  //balance
+  setNeedsBalance: (needsBalance: boolean) => void;
   //reset
   switchDirection: () => void;
   setCoverPoolFromVolatility: (
@@ -123,6 +126,7 @@ const initialCoverState: CoverState = {
   },
   needsRefetch: false,
   needsAllowance: true,
+  needsBalance: true,
   //
 };
 
@@ -143,6 +147,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   coverMintParams: initialCoverState.coverMintParams,
   needsRefetch: initialCoverState.needsRefetch,
   needsAllowance: initialCoverState.needsAllowance,
+  needsBalance: initialCoverState.needsBalance,
   setTokenIn: (tokenOut, newToken: tokenCover) => {
     //if tokenOut is selected
     if (
@@ -349,6 +354,11 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   setNeedsAllowance: (needsAllowance: boolean) => {
     set(() => ({
       needsAllowance: needsAllowance,
+    }));
+  },
+  setNeedsBalance: (needsBalance: boolean) => {
+    set(() => ({
+      needsBalance: needsBalance,
     }));
   },
   switchDirection: () => {
