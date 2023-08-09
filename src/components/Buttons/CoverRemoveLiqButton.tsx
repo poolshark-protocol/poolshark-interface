@@ -14,9 +14,11 @@ import { useCoverStore } from '../../hooks/useCoverStore';
 export default function CoverRemoveLiqButton({disabled, poolAddress, address, lower, claim, upper, zeroForOne, burnPercent, gasLimit, closeModal}) {
 
     const [
-      setNeedsRefetch
+      setNeedsRefetch,
+      setNeedsBalance
     ] = useCoverStore((state) => [
-      state.setNeedsRefetch
+      state.setNeedsRefetch,
+      state.setNeedsBalance
     ]);
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
@@ -55,6 +57,7 @@ export default function CoverRemoveLiqButton({disabled, poolAddress, address, lo
         if (burnPercent.eq(ethers.utils.parseUnits('1', 38))) {
           setNeedsRefetch(true);
         }
+        setNeedsBalance(true);
       },
       onError() {
         setErrorDisplay(true);

@@ -9,11 +9,22 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BigNumber, ethers } from "ethers";
+import { useRangeStore } from '../../hooks/useRangeStore';
 
 export default function RangeBurnButton({poolAddress, address, lower, upper, burnAmount, totalAmount, gasLimit}) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
+
+  const [
+    setNeedsRefetch,
+    setNeedsBalanceIn,
+    setNeedsBalanceOut
+  ] = useRangeStore((state) => [
+    state.setNeedsRefetch,
+    state.setNeedsBalanceIn,
+    state.setNeedsBalanceOut
+  ]);
 
   const burnPercent: BigNumber = burnAmount.mul(ethers.utils.parseUnits('1', 38)).div(totalAmount)
 
@@ -39,6 +50,11 @@ export default function RangeBurnButton({poolAddress, address, lower, upper, bur
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
+      setNeedsBalanceIn(true);
+      setNeedsBalanceOut(true);
+      if (burnPercent.eq(ethers.utils.parseUnits('1', 38))) {
+        setNeedsRefetch(true);
+      }
     },
     onError() {
       setErrorDisplay(true);
