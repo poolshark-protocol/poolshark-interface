@@ -26,24 +26,26 @@ export default function SelectToken(props) {
   const [isOpen, setIsOpen] = useState(false);
   const [inputVal, setInputVal] = useState("");
   const coins = useTokenList() as coinsList;
+  const [rawCoinList, setRawCoinList] = useState([]);
 
   useEffect(() => {
     //iterate coind and add balance field
-    if (coins?.listed_tokens ) {
-      coins.listed_tokens.forEach((coin) => {
+    if (coins?.listed_tokens) {
+      /* coins.listed_tokens.forEach((coin) => {
         coin.balance = Number(
           useBalance({
             address: address,
-            token: coin?.id,
+            token: coin.id,
             chainId: 421613,
             watch: true,
           }).data?.formatted
         );
-      });
+      }); */
+      setRawCoinList(coins.listed_tokens);
     }
   }, [coins]);
 
-  /* const [rawCoinList, setRawCoinList] = useState([
+  /*const [rawCoinList, setRawCoinList] = useState([
     {
       name: "WETH",
       address: tokenOneAddress,
@@ -154,7 +156,7 @@ export default function SelectToken(props) {
                       onChange={(e) => setInputVal(e.target.value)}
                     ></input>
                     <div className="flex justify-between flex-wrap mt-4 gap-y-2">
-                      {coins?.map((coin) => {
+                      {rawCoinList.map((coin) => {
                         return (
                           <CoinListButton
                             key={coin.symbol + "top"}
@@ -166,7 +168,7 @@ export default function SelectToken(props) {
                     </div>
                   </div>
                   <div>
-                    {coins
+                    {rawCoinList
                       .sort((a, b) => b.balance - a.balance)
                       .map((coin) => {
                         return (
