@@ -26,13 +26,12 @@ export default function Cover() {
     coverPoolAddress,
     coverPoolData,
     coverPositionData,
+    coverMintParams,
     tokenIn,
     tokenOut,
-    tokenInCoverUSDPrice,
-    tokenOutCoverUSDPrice,
+
     claimTick,
-    gasFee,
-    gasLimit,
+
     setTokenInCoverUSDPrice,
     setTokenOutCoverUSDPrice,
     setClaimTick,
@@ -42,13 +41,12 @@ export default function Cover() {
     state.coverPoolAddress,
     state.coverPoolData,
     state.coverPositionData,
+    state.coverMintParams,
     state.tokenIn,
     state.tokenOut,
-    state.tokenInCoverUSDPrice,
-    state.tokenOutCoverUSDPrice,
+
     state.claimTick,
-    state.gasFee,
-    state.gasLimit,
+
     state.setTokenInCoverUSDPrice,
     state.setTokenOutCoverUSDPrice,
     state.setClaimTick,
@@ -103,9 +101,10 @@ export default function Cover() {
           "..." +
           coverPoolAddress
             .toString()
-            .substring(coverPoolAddress.toString().length - 4, 
-            coverPoolAddress.toString().length
-          )
+            .substring(
+              coverPoolAddress.toString().length - 4,
+              coverPoolAddress.toString().length
+            )
       : undefined
   );
 
@@ -134,8 +133,8 @@ export default function Cover() {
   }, []);
 
   useEffect(() => {
-    getCoverPoolRatios()
-  }, [tokenInCoverUSDPrice, tokenOutCoverUSDPrice]);
+    getCoverPoolRatios();
+  }, [tokenIn.coverUSDPrice, tokenOut.coverUSDPrice]);
 
   //TODO need to be set to utils
   const getCoverPoolRatios = () => {
@@ -144,24 +143,32 @@ export default function Cover() {
         setLowerInverse(
           parseFloat(
             (
-              tokenOutCoverUSDPrice /
-              Number(TickMath.getPriceStringAtTick(Number(coverPositionData.max)))
+              tokenOut.coverUSDPrice /
+              Number(
+                TickMath.getPriceStringAtTick(Number(coverPositionData.max))
+              )
             ).toPrecision(6)
           )
         );
         setUpperInverse(
           parseFloat(
             (
-              tokenOutCoverUSDPrice /
-              Number(TickMath.getPriceStringAtTick(Number(coverPositionData.min)))
+              tokenOut.coverUSDPrice /
+              Number(
+                TickMath.getPriceStringAtTick(Number(coverPositionData.min))
+              )
             ).toPrecision(6)
           )
         );
         setPriceInverse(
           parseFloat(
             (
-              tokenOutCoverUSDPrice /
-              Number(TickMath.getPriceStringAtTick(Number(coverPositionData.latestTick)))
+              tokenOut.coverUSDPrice /
+              Number(
+                TickMath.getPriceStringAtTick(
+                  Number(coverPositionData.latestTick)
+                )
+              )
             ).toPrecision(6)
           )
         );
@@ -178,7 +185,14 @@ export default function Cover() {
     abi: coverPoolABI,
     functionName: "snapshot",
     args: [
-      [address, BigNumber.from("0"), BigNumber.from(coverPositionData.min), BigNumber.from(coverPositionData.max), BigNumber.from(claimTick), Boolean(coverPositionData.zeroForOne)],
+      [
+        address,
+        BigNumber.from("0"),
+        BigNumber.from(coverPositionData.min),
+        BigNumber.from(coverPositionData.max),
+        BigNumber.from(claimTick),
+        Boolean(coverPositionData.zeroForOne),
+      ],
     ],
     chainId: 421613,
     watch: true,
@@ -208,16 +222,21 @@ export default function Cover() {
   });
 
   useEffect(() => {
-    if (filledAmount){
-      setCoverFilledAmount(ethers.utils.formatUnits(filledAmount[2], 18))
-    };
+    if (filledAmount) {
+      setCoverFilledAmount(ethers.utils.formatUnits(filledAmount[2], 18));
+    }
   }, [filledAmount]);
 
   useEffect(() => {
     if (coverFilledAmount && coverPositionData.userFillIn) {
       setFillPercent(
         Number(coverFilledAmount) /
-          Number(ethers.utils.formatUnits(coverPositionData.userFillIn.toString(), 18))
+          Number(
+            ethers.utils.formatUnits(
+              coverPositionData.userFillIn.toString(),
+              18
+            )
+          )
       );
     }
   }, [coverFilledAmount]);
@@ -368,8 +387,11 @@ export default function Cover() {
                   $
                   {(
                     Number(
-                      ethers.utils.formatUnits(coverPositionData.userFillOut.toString(), 18)
-                    ) * tokenInCoverUSDPrice
+                      ethers.utils.formatUnits(
+                        coverPositionData.userFillOut.toString(),
+                        18
+                      )
+                    ) * tokenIn.coverUSDPrice
                   ).toFixed(2)}
                 </span>
 
@@ -380,7 +402,10 @@ export default function Cover() {
                       {tokenIn.symbol}
                     </div>
                     {Number(
-                      ethers.utils.formatUnits(coverPositionData.userFillOut.toString(), 18)
+                      ethers.utils.formatUnits(
+                        coverPositionData.userFillOut.toString(),
+                        18
+                      )
                     ).toFixed(2)}
                   </div>
                 </div>
@@ -402,13 +427,19 @@ export default function Cover() {
               <div className="md:w-1/2 w-full">
                 <h1 className="text-lg mb-3 mt-10 md:mt-0">Filled Position</h1>
                 <span className="text-4xl">
-                  $ {(Number(coverFilledAmount) * tokenInCoverUSDPrice).toFixed(2)}
+                  ${" "}
+                  {(Number(coverFilledAmount) * tokenIn.coverUSDPrice).toFixed(
+                    2
+                  )}
                   <span className="text-grey">
                     /$
                     {(
                       Number(
-                        ethers.utils.formatUnits(coverPositionData.userFillIn.toString(), 18)
-                      ) * tokenInCoverUSDPrice
+                        ethers.utils.formatUnits(
+                          coverPositionData.userFillIn.toString(),
+                          18
+                        )
+                      ) * tokenIn.coverUSDPrice
                     ).toFixed(2)}
                   </span>
                 </span>
@@ -426,7 +457,10 @@ export default function Cover() {
                       <span className="text-grey">
                         /
                         {Number(
-                          ethers.utils.formatUnits(coverPositionData.userFillIn.toString(), 18)
+                          ethers.utils.formatUnits(
+                            coverPositionData.userFillIn.toString(),
+                            18
+                          )
                         ).toFixed(2)}
                       </span>
                     </span>
@@ -442,8 +476,8 @@ export default function Cover() {
                       claim={BigNumber.from(claimTick)}
                       upper={BigNumber.from(coverPositionData.max)}
                       zeroForOne={Boolean(coverPositionData.zeroForOne)}
-                      gasLimit={gasLimit.mul(150).div(100)}
-                      gasFee={gasFee}
+                      gasLimit={coverMintParams.gasLimit.mul(150).div(100)}
+                      gasFee={coverMintParams.gasFee}
                     />
                     {/*TO-DO: add positionOwner ternary again*/}
                   </div>
@@ -453,9 +487,19 @@ export default function Cover() {
             <div className="flex justify-between items-center mt-7">
               <div className="flex gap-x-6 items-center">
                 <h1 className="text-lg">Price Range </h1>
-                {parseFloat(TickMath.getPriceStringAtTick(Number(coverPositionData.latestTick))) <
-                  parseFloat(TickMath.getPriceStringAtTick(Number(coverPositionData.min))) ||
-                parseFloat(TickMath.getPriceStringAtTick(Number(coverPositionData.latestTick))) >=
+                {parseFloat(
+                  TickMath.getPriceStringAtTick(
+                    Number(coverPositionData.latestTick)
+                  )
+                ) <
+                  parseFloat(
+                    TickMath.getPriceStringAtTick(Number(coverPositionData.min))
+                  ) ||
+                parseFloat(
+                  TickMath.getPriceStringAtTick(
+                    Number(coverPositionData.latestTick)
+                  )
+                ) >=
                   parseFloat(
                     TickMath.getPriceStringAtTick(Number(coverPositionData.max))
                   ) ? (
@@ -504,7 +548,9 @@ export default function Cover() {
                     ? ""
                     : priceDirection
                     ? lowerInverse
-                    : TickMath.getPriceStringAtTick(Number(coverPositionData.min))}
+                    : TickMath.getPriceStringAtTick(
+                        Number(coverPositionData.min)
+                      )}
                 </div>
                 <div className="text-grey md:text-xs text-[10px] w-full">
                   {Boolean(coverPositionData.zeroForOne)
@@ -545,7 +591,9 @@ export default function Cover() {
                     ? ""
                     : priceDirection
                     ? upperInverse
-                    : TickMath.getPriceStringAtTick(Number(coverPositionData.max))}
+                    : TickMath.getPriceStringAtTick(
+                        Number(coverPositionData.max)
+                      )}
                 </div>
                 <div className="text-grey md:text-xs text-[10px] w-full">
                   {Boolean(coverPositionData.zeroForOne)
@@ -582,7 +630,9 @@ export default function Cover() {
               <div className="text-white text-2xl my-2 w-full">
                 {priceDirection
                   ? priceInverse
-                  : TickMath.getPriceStringAtTick(Number(coverPositionData.latestTick))}
+                  : TickMath.getPriceStringAtTick(
+                      Number(coverPositionData.latestTick)
+                    )}
               </div>
               <div className="text-grey text-xs w-full">
                 {Boolean(coverPositionData.zeroForOne)

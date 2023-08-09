@@ -7,31 +7,18 @@ import { erc20ABI } from 'wagmi'
 import { SuccessToast } from '../Toasts/Success'
 import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
-import React, { useEffect, useState } from 'react'
-import { useSwapStore } from '../../hooks/useStore'
+import React, { useState } from 'react'
 import { useSwapStore as useCoverStore } from '../../hooks/useSwapStore'
-import { ethers } from 'ethers'
 
 export default function SwapCoverApproveButton({
   poolAddress,
   approveToken,
   disabled,
-  bnInput,
-  allowanceCover,
+  amount,
   tokenSymbol,
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
-
-  const [
-    Amount,
-    SwapParams,
-    updateSwapAllowance,
-  ] = useSwapStore((state: any) => [
-    state.Amount,
-    state.SwapParams,
-    state.updateSwapAllowance,
-  ])
 
   const [
     setNeedsCoverAllowance,
@@ -43,7 +30,7 @@ export default function SwapCoverApproveButton({
     address: approveToken,
     abi: erc20ABI,
     functionName: 'approve',
-    args: [poolAddress, Amount],
+    args: [poolAddress, amount],
     chainId: 421613,
   })
 
@@ -52,7 +39,6 @@ export default function SwapCoverApproveButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      updateSwapAllowance(Amount)
       setSuccessDisplay(true)
       setNeedsCoverAllowance(true)
     },

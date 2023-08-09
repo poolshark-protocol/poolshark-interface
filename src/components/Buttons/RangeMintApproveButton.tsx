@@ -7,24 +7,12 @@ import { erc20ABI } from 'wagmi'
 import { SuccessToast } from '../Toasts/Success'
 import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
-import React, { useEffect, useState } from 'react'
-import { BigNumber } from 'ethers'
-import { useSwapStore } from '../../hooks/useStore'
+import React, { useState } from 'react'
 import { useSwapStore as useRangeStore } from '../../hooks/useSwapStore'
 
-export default function RangeMintApproveButton({ poolAddress, approveToken }) {
+export default function RangeMintApproveButton({ poolAddress, approveToken, amount }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
-
-  const [
-    Amount,
-    SwapParams,
-    updateSwapAllowance,
-  ] = useSwapStore((state: any) => [
-    state.Amount,
-    state.SwapParams,
-    state.updateSwapAllowance,
-  ])
 
   const [
     setNeedsRangeAllowanceIn,
@@ -36,7 +24,7 @@ export default function RangeMintApproveButton({ poolAddress, approveToken }) {
     address: approveToken.address,
     abi: erc20ABI,
     functionName: 'approve',
-    args: [poolAddress, Amount],
+    args: [poolAddress, amount],
     chainId: 421613,
   })
 
@@ -49,7 +37,6 @@ export default function RangeMintApproveButton({ poolAddress, approveToken }) {
   const { isLoading: isLoadingT0 } = useWaitForTransaction({
     hash: dataT0?.hash,
     onSuccess() {
-      updateSwapAllowance(Amount)
       setSuccessDisplay(true)
       setNeedsRangeAllowanceIn(true)
     },

@@ -8,29 +8,16 @@ import { SuccessToast } from '../Toasts/Success'
 import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useState } from 'react'
-import { useSwapStore } from '../../hooks/useStore'
 import { useSwapStore as useRangeStore } from '../../hooks/useSwapStore'
 
 export default function SwapRangeApproveButton({
   poolAddress,
   approveToken,
-  disabled,
   tokenSymbol,
-  bnInput,
-  allowanceRange,
+  amount,
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
-
-  const [
-    Amount,
-    SwapParams,
-    updateSwapAllowance,
-  ] = useSwapStore((state: any) => [
-    state.Amount,
-    state.SwapParams,
-    state.updateSwapAllowance,
-  ])
 
   const [
     setNeedsRangeAllowanceIn,
@@ -42,7 +29,7 @@ export default function SwapRangeApproveButton({
     address: approveToken,
     abi: erc20ABI,
     functionName: 'approve',
-    args: [poolAddress, Amount],
+    args: [poolAddress, amount],
     chainId: 421613,
   })
 
@@ -51,7 +38,6 @@ export default function SwapRangeApproveButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      updateSwapAllowance(Amount)
       setSuccessDisplay(true)
       setNeedsRangeAllowanceIn(true)
     },

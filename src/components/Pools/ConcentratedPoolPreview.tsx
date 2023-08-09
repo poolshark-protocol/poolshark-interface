@@ -400,6 +400,8 @@ export default function ConcentratedPoolPreview({ fee }) {
                             poolAddress={rangePoolAddress}
                             tokenIn={tokenIn}
                             tokenOut={tokenOut}
+                            amount0={tokenInAmount}
+                            amount1={tokenOutAmount}
                             setAllowanceController={setdoubleApprove}
                           />
                         ) : !doubleApprove &&
@@ -407,12 +409,14 @@ export default function ConcentratedPoolPreview({ fee }) {
                           <RangeMintApproveButton
                             poolAddress={rangePoolAddress}
                             approveToken={tokenIn}
+                            amount={tokenInAmount}
                           />
                         ) : !doubleApprove &&
                           tokenOutAllowance.lt(tokenOutAmount) ? (
                           <RangeMintApproveButton
                             poolAddress={rangePoolAddress}
                             approveToken={tokenOut}
+                            amount={tokenOutAmount}
                           />
                         ) : null}
                       </div>

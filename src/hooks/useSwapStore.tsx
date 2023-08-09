@@ -10,15 +10,15 @@ import { create } from "zustand";
 type SwapState = {
   //poolAddress for current token pairs
   ////cover
-  coverPoolAddress: String;
+  coverPoolAddress: string;
   coverPoolData: any;
   coverSlippage: string;
   ////range
-  rangePoolAddress: String;
+  rangePoolAddress: string;
   rangePoolData: any;
   rangeSlippage: string;
   //true if both tokens selected, false if only one token selected
-  pairSelected: Boolean;
+  pairSelected: boolean;
   //TokenIn defines the token on the left/up on a swap page
   tokenIn: token;
   tokenInRangeUSDPrice: number;
@@ -28,8 +28,8 @@ type SwapState = {
   tokenInBalance: string;
   //TokenOut defines the token on the left/up on a swap page
   tokenOut: token;
-  tokenOutRangeUSDPrice: Number;
-  tokenOutCoverUSDPrice: Number;
+  tokenOutRangeUSDPrice: number;
+  tokenOutCoverUSDPrice: number;
   tokenOutBalance: string;
   //Gas
   gasFee: string;

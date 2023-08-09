@@ -10,7 +10,6 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { rangePoolABI } from "../../abis/evm/rangePool";
-import { useSwapStore } from "../../hooks/useStore"
 import { useSwapStore as useRangeStore } from "../../hooks/useSwapStore"
 
 export default function SwapRangeButton({disabled, poolAddress, amount, zeroForOne, priceLimit, gasLimit}) {
