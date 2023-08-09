@@ -10,7 +10,21 @@ export default function useTokenList() {
     network: { chainId },
   } = useProvider();
 
-  const [coins, setCoins] = useState({});
+  const [coins, setCoins] = useState({} as coinsList);
+
+  useEffect(() => {
+    updateBalances();
+  }, [address, coins]);
+
+  function updateBalances() {
+    if (coins.listed_tokens) {
+      const coinsAux = coins;
+      coinsAux.listed_tokens.forEach((coin) => {
+        coin.address = coin.id;
+      });
+      setCoins(coinsAux);
+    }
+  }
 
   useEffect(() => {
     const fetch = async () => {
@@ -26,17 +40,6 @@ export default function useTokenList() {
             listed_tokens: response.data.listed_tokens,
             search_tokens: response.data.search_tokens,
           } as coinsList;
-          coins.listed_tokens.forEach((coin) => {
-            coin.address = coin.id;
-            coin.balance = Number(
-              useBalance({
-                address: address,
-                token: coin.id,
-                chainId: 421613,
-                watch: true,
-              }).data?.formatted
-            );
-          });
           setCoins(coins);
         })
         .catch(function (error) {

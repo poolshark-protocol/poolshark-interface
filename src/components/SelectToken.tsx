@@ -29,54 +29,10 @@ export default function SelectToken(props) {
   const [rawCoinList, setRawCoinList] = useState([]);
 
   useEffect(() => {
-    //iterate coind and add balance field
     if (coins?.listed_tokens) {
-      /* coins.listed_tokens.forEach((coin) => {
-        coin.balance = Number(
-          useBalance({
-            address: address,
-            token: coin.id,
-            chainId: 421613,
-            watch: true,
-          }).data?.formatted
-        );
-      }); */
       setRawCoinList(coins.listed_tokens);
     }
   }, [coins]);
-
-  /*const [rawCoinList, setRawCoinList] = useState([
-    {
-      name: "WETH",
-      address: tokenOneAddress,
-      symbol: "WETH",
-      logoURI: "/static/images/eth_icon.png",
-      decimals: 18,
-      balance: Number(
-        useBalance({
-          address: address,
-          token: tokenOneAddress,
-          chainId: 421613,
-          watch: true,
-        }).data?.formatted
-      ),
-    },
-    {
-      name: "USDC",
-      address: tokenZeroAddress,
-      symbol: "USDC",
-      logoURI: "/static/images/token.png",
-      decimals: 18,
-      balance: Number(
-        useBalance({
-          address: address,
-          token: tokenZeroAddress,
-          chainId: 421613,
-          watch: true,
-        }).data?.formatted
-      ),
-    },
-  ]); */
 
   const chooseToken = (coin) => {
     coin = {
