@@ -20,22 +20,19 @@ import { Fragment, useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
 import JSBI from "jsbi";
 import { Listbox, Transition } from "@headlessui/react";
-import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
+import { TickMath, roundTick } from "../../utils/math/tickMath";
 import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
 import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
 import TickSpacing from "../Tooltips/TickSpacing";
-import { getCoverPoolFromFactory } from "../../utils/queries";
 import { gasEstimateCoverMint } from "../../utils/gas";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
 import useInputBox from "../../hooks/useInputBox";
 import { useRangeStore } from "../../hooks/useRangeStore";
 import { volatilityTiers } from "../../utils/pools";
-import { CoinStatus } from "fuels";
-import { parseUnits } from "ethers/lib/utils.js";
 
 export default function CoverExistingPool({ goBack }) {
   const [
@@ -46,15 +43,16 @@ export default function CoverExistingPool({ goBack }) {
     volatilityTierId,
     setCoverPositionData,
     tokenIn,
-    setTokenInCoverUSDPrice,
-    setTokenInBalance,
-    setTokenInAllowance,
     tokenOut,
+    setTokenInCoverUSDPrice,
     setTokenOutCoverUSDPrice,
     pairSelected,
     switchDirection,
     setCoverPoolFromVolatility,
+    needsAllowance,
+    setNeedsAllowance,
     setMintButtonState,
+    setTokenInBalance,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPoolData,
@@ -63,15 +61,16 @@ export default function CoverExistingPool({ goBack }) {
     state.volatilityTierId,
     state.setCoverPositionData,
     state.tokenIn,
-    state.setTokenInCoverUSDPrice,
-    state.setTokenInBalance,
-    state.setTokenInCoverAllowance,
     state.tokenOut,
+    state.setTokenInCoverUSDPrice,
     state.setTokenOutCoverUSDPrice,
     state.pairSelected,
     state.switchDirection,
     state.setCoverPoolFromVolatility,
+    state.needsAllowance,
+    state.setNeedsAllowance,
     state.setMintButtonState,
+    state.setTokenInBalance,
   ]);
 
   const [rangePositionData] = useRangeStore((state) => [
@@ -110,9 +109,11 @@ export default function CoverExistingPool({ goBack }) {
     functionName: "allowance",
     args: [address, coverPoolAddress],
     chainId: 421613,
-    watch: false,
-    enabled: isConnected && coverPoolAddress && tokenIn.address != "0x00",
+    watch: needsAllowance,
+    enabled: isConnected && coverPoolAddress && tokenIn.address != "0x00" && needsAllowance,
     onSuccess(data) {
+      console.log("cover allowance", allowanceInCover.toString())
+      setNeedsAllowance(false)
       //console.log('Success')
     },
     onError(error) {
@@ -120,12 +121,6 @@ export default function CoverExistingPool({ goBack }) {
     },
     onSettled(data, error) {},
   });
-
-  useEffect(() => {
-    if (allowanceInCover) {
-      setTokenInAllowance(ethers.utils.formatUnits(allowanceInCover, 18));
-    }
-  }, [allowanceInCover]);
 
   ////////////////////////////////Token Balances
 
@@ -138,9 +133,7 @@ export default function CoverExistingPool({ goBack }) {
 
   useEffect(() => {
     if (isConnected) {
-      setTokenInBalance(
-        parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
-      );
+      setTokenInBalance(parseFloat(tokenInBal?.formatted).toFixed(2));
     }
   }, [tokenInBal]);
 
@@ -366,6 +359,12 @@ export default function CoverExistingPool({ goBack }) {
   const [mintGasFee, setMintGasFee] = useState("$0.00");
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
+  ////////////////////////////////Mint Button Handler
+
+  useEffect(() => {
+    setMintButtonState();
+  }, [tokenIn, coverMintParams.tokenInAmount]);
+
   useEffect(() => {
     if (
       coverPositionData.lowerPrice &&
@@ -404,12 +403,6 @@ export default function CoverExistingPool({ goBack }) {
     setMintGasFee(newMintGasFee.formattedPrice);
     setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
   }
-
-  ////////////////////////////////Mint Button Handler
-
-  useEffect(() => {
-    setMintButtonState();
-  }, [tokenIn, coverMintParams.tokenInAmount]);
 
   ////////////////////////////////
 
@@ -738,13 +731,10 @@ export default function CoverExistingPool({ goBack }) {
             BigNumber.from(coverMintParams.tokenInAmount.toString())
           ) ? (
             <CoverMintApproveButton
-              disabled={coverMintParams.disabled}
               poolAddress={coverPoolAddress}
               approveToken={tokenIn.address}
               amount={String(coverAmountIn)}
               tokenSymbol={tokenIn.symbol}
-              buttonMessage={"Approve " + tokenIn.symbol}
-              allowance={allowanceInCover}
             />
           ) : (
             <CoverMintButton

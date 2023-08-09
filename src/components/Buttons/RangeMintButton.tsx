@@ -23,9 +23,13 @@ export default function RangeMintButton({
   gasLimit,
 }) {
   const [
-    setNeedsRefetch
+    setNeedsRefetch,
+    setNeedsAllowanceIn,
+    setNeedsAllowanceOut,
   ] = useRangeStore((state) => [
-    state.setNeedsRefetch
+    state.setNeedsRefetch,
+    state.setNeedsAllowanceIn,
+    state.setNeedsAllowanceOut,
   ]);
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
@@ -57,6 +61,10 @@ export default function RangeMintButton({
         closeModal();
       }, 2000);
       setNeedsRefetch(true);
+      setNeedsAllowanceIn(true);
+      if (amount1.gt(BN_ZERO)) {
+        setNeedsAllowanceOut(true);
+      }
     },
     onError() {
       setErrorDisplay(true);

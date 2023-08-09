@@ -2,60 +2,58 @@ import {
   useWaitForTransaction,
   usePrepareContractWrite,
   useContractWrite,
-} from "wagmi";
-import { erc20ABI } from "wagmi";
-import { SuccessToast } from "../Toasts/Success";
-import { ErrorToast } from "../Toasts/Error";
-import { ConfirmingToast } from "../Toasts/Confirming";
-import React, { useEffect, useState } from "react";
-import { ethers } from "ethers";
+} from 'wagmi'
+import { erc20ABI } from 'wagmi'
+import { SuccessToast } from '../Toasts/Success'
+import { ErrorToast } from '../Toasts/Error'
+import { ConfirmingToast } from '../Toasts/Confirming'
+import React, { useState } from 'react'
+import { useCoverStore } from '../../hooks/useCoverStore'
 
 export default function CoverMintApproveButton({
   poolAddress,
   approveToken,
-  disabled,
   amount,
-  allowance,
-  buttonMessage,
-  tokenSymbol,
+  tokenSymbol
 }) {
-  const [errorDisplay, setErrorDisplay] = useState(false);
-  const [successDisplay, setSuccessDisplay] = useState(false);
+  const [errorDisplay, setErrorDisplay] = useState(false)
+  const [successDisplay, setSuccessDisplay] = useState(false)
 
-  console.log("approve check", amount, String(allowance));
+  const [setNeedsAllowance] = useCoverStore((state) => [
+    state.setNeedsAllowance,
+  ])
 
   const { config } = usePrepareContractWrite({
     address: approveToken,
     abi: erc20ABI,
-    functionName: "approve",
+    functionName: 'approve',
     args: [poolAddress, amount],
     enabled: approveToken != undefined && poolAddress != undefined,
     chainId: 421613,
-  });
+  })
 
-  const { data, isSuccess, write } = useContractWrite(config);
+  const { data, isSuccess, write } = useContractWrite(config)
 
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      setSuccessDisplay(true);
+      setSuccessDisplay(true)
+      setNeedsAllowance(true)
     },
     onError() {
-      setErrorDisplay(true);
+      setErrorDisplay(true)
     },
-  });
+  })
 
   return (
     <>
       <div
         className={
-          disabled
-            ? "w-full py-4 mx-auto font-medium text-center text-sm md:text-base transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50"
-            : "w-full py-4 mx-auto font-medium text-center text-sm md:text-base transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+          'w-full py-4 mx-auto font-medium text-center text-sm md:text-base transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80'
         }
-        onClick={(address) => (address && !disabled ? write?.() : null)}
+        onClick={(address) => (address ? write?.() : null)}
       >
-        {buttonMessage}
+      <> Approve {tokenSymbol}</>
       </div>
       <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
         {errorDisplay && (
@@ -75,5 +73,6 @@ export default function CoverMintApproveButton({
         )}
       </div>
     </>
-  );
+  )
 }
+  
