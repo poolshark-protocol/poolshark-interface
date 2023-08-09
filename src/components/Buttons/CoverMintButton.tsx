@@ -28,9 +28,11 @@ export default function CoverMintButton({
   const [successDisplay, setSuccessDisplay] = useState(false);
 
   const [
-    setNeedsRefetch
+    setNeedsRefetch,
+    setNeedsAllowance,
   ] = useCoverStore((state) => [
-    state.setNeedsRefetch
+    state.setNeedsRefetch,
+    state.setNeedsAllowance,
   ]);
 
   const { config } = usePrepareContractWrite({
@@ -60,6 +62,7 @@ export default function CoverMintButton({
     onSuccess() {
       setSuccessDisplay(true);
       setNeedsRefetch(true);
+      setNeedsAllowance(true);
       console.log("refetch setted")
     },
     onError() {

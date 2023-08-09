@@ -8,6 +8,7 @@ import { SuccessToast } from '../Toasts/Success'
 import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useState } from 'react'
+import { useSwapStore as useCoverStore } from '../../hooks/useSwapStore'
 
 export default function SwapCoverApproveButton({
   poolAddress,
@@ -18,6 +19,12 @@ export default function SwapCoverApproveButton({
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
+
+  const [
+    setNeedsCoverAllowance,
+  ] = useCoverStore((state) => [
+    state.setNeedsCoverAllowance,
+  ])
 
   const { config } = usePrepareContractWrite({
     address: approveToken,
@@ -33,6 +40,7 @@ export default function SwapCoverApproveButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true)
+      setNeedsCoverAllowance(true)
     },
     onError() {
       setErrorDisplay(true)

@@ -9,6 +9,8 @@ import { SuccessToast } from '../Toasts/Success'
 import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useState, useEffect } from 'react'
+import { useRangeStore } from '../../hooks/useRangeStore'
+import { useSwapStore } from '../../hooks/useSwapStore'
 
 
 export default function RangeMintButton({
@@ -23,6 +25,19 @@ export default function RangeMintButton({
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
+
+  const [
+    setNeedsRefetch,
+  ] = useRangeStore((state) => [
+    state.setNeedsRefetch,
+  ])
+
+  const [
+    setNeedsRangeAllowanceIn,
+  ] = useSwapStore((state) => [
+    state.setNeedsRangeAllowanceIn,
+  ])
+  
   const [isDisabled, setDisabled] = useState(disabled)
 
   useEffect(() => {}, [disabled])
@@ -78,6 +93,8 @@ export default function RangeMintButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true)
+      setNeedsRefetch(true)
+      setNeedsRangeAllowanceIn(true)
     },
     onError() {
       setErrorDisplay(true)

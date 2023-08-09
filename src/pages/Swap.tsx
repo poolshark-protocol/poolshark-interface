@@ -106,6 +106,13 @@ export default function Swap() {
     mintGasLimit,
     setMintGasFee,
     setMintGasLimit,
+    //refresh
+    needsCoverAllowance,
+    setNeedsCoverAllowance,
+    needsRangeAllowanceIn,
+    setNeedsRangeAllowanceIn,
+    needsRangeAllowanceOut,
+    setNeedsRangeAllowanceOut,
   ] = useSwapStore((state: any) => [
     //tokenIN
     state.tokenIn,
@@ -156,6 +163,13 @@ export default function Swap() {
     state.mintGasLimit,
     state.setMintGasFee,
     state.setMintGasLimit,
+    //refresh
+    state.needsCoverAllowance,
+    state.setNeedsCoverAllowance,
+    state.needsRangeAllowanceIn,
+    state.setNeedsRangeAllowanceIn,
+    state.needsRangeAllowanceOut,
+    state.setNeedsRangeAllowanceOut,
   ]);
 
   //false when user in normal swap, true when user in limit swap
@@ -245,14 +259,14 @@ export default function Swap() {
     address: address,
     token: tokenIn.address,
     enabled: tokenIn.address != undefined,
-    watch: true,
+    watch: false,
   });
 
   const { data: tokenOutBal } = useBalance({
     address: address,
     token: tokenOut.address,
     enabled: tokenOut.address != undefined,
-    watch: true,
+    watch: false,
   });
 
   useEffect(() => {
@@ -276,12 +290,13 @@ export default function Swap() {
     functionName: "allowance",
     args: [address, rangePoolAddress],
     chainId: 421613,
-    watch: true,
-    enabled: pairSelected && rangePoolAddress,
+    watch: needsRangeAllowanceIn,
+    enabled: pairSelected && rangePoolAddress && needsRangeAllowanceIn,
     onError(error) {
       console.log("Error allowance", error);
     },
     onSuccess(data) {
+      setNeedsRangeAllowanceIn(false);
       //console.log("Success allowance", data);
     },
   });
@@ -292,19 +307,22 @@ export default function Swap() {
     functionName: "allowance",
     args: [address, coverPoolAddress],
     chainId: 421613,
-    watch: true,
-    enabled: pairSelected && coverPoolAddress,
+    watch: needsCoverAllowance,
+    enabled: pairSelected && coverPoolAddress && needsCoverAllowance,
     onError(error) {
       console.log("Error allowance", error);
     },
     onSuccess(data) {
+      setNeedsCoverAllowance(false);
       //console.log("Success allowance", data);
     },
   });
 
   useEffect(() => {
-    if (allowanceInRange && allowanceInCover) {
+    if (allowanceInRange) {
       setTokenInRangeAllowance(ethers.utils.formatUnits(allowanceInRange, 18));
+    }
+    if (allowanceInCover){
       setTokenInCoverAllowance(ethers.utils.formatUnits(allowanceInCover, 18));
     }
   }, [allowanceInRange, allowanceInCover]);

@@ -12,9 +12,12 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { roundTick } from '../../utils/math/tickMath';
 import { BN_ZERO } from '../../utils/math/constants';
+import { useCoverStore } from '../../hooks/useCoverStore';
 
 export default function CoverAddLiqButton({poolAddress, address, lower, upper, zeroForOne, amount, toAddress, gasLimit, buttonState, disabled, tokenSymbol}) {
-
+    const [ setNeedsAllowance ] = useCoverStore((state) => [
+      state.setNeedsAllowance
+    ]);
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
 
@@ -46,6 +49,7 @@ export default function CoverAddLiqButton({poolAddress, address, lower, upper, z
       hash: data?.hash,
       onSuccess() {
         setSuccessDisplay(true);
+        setNeedsAllowance(true);
       },
       onError() {
         setErrorDisplay(true);

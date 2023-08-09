@@ -8,6 +8,7 @@ import { SuccessToast } from '../Toasts/Success'
 import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useState } from 'react'
+import { useSwapStore as useRangeStore } from '../../hooks/useSwapStore'
 
 export default function SwapRangeApproveButton({
   poolAddress,
@@ -17,6 +18,12 @@ export default function SwapRangeApproveButton({
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
+
+  const [
+    setNeedsRangeAllowanceIn,
+  ] = useRangeStore((state) => [
+    state.setNeedsRangeAllowanceIn,
+  ])
 
   const { config } = usePrepareContractWrite({
     address: approveToken,
@@ -32,6 +39,7 @@ export default function SwapRangeApproveButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true)
+      setNeedsRangeAllowanceIn(true)
     },
     onError() {
       setErrorDisplay(true)

@@ -23,16 +23,17 @@ type CoverState = {
   //TokenOut defines the token on the risght/down
   tokenOut: tokenCover;
   //true if both tokens selected, false if only one token selected
-  pairSelected: Boolean;
+  pairSelected: boolean;
   coverMintParams: {
     tokenInAmount: JSBI;
     tokenOutAmount: JSBI;
     gasFee: string;
     gasLimit: BigNumber;
-    disabled: Boolean;
+    disabled: boolean;
     buttonMessage: string;
   };
-  needsRefetch: Boolean;
+  needsRefetch: boolean;
+  needsAllowance: boolean;
   //Claim tick
   claimTick: number;
   //Bcontract calls
@@ -66,6 +67,8 @@ type CoverAction = {
   setGasLimit: (limit: BigNumber) => void;
   //refetch
   setNeedsRefetch: (needsRefetch: boolean) => void;
+  //allowance
+  setNeedsAllowance: (needsAllowance: boolean) => void;
   //reset
   switchDirection: () => void;
   setCoverPoolFromVolatility: (
@@ -119,7 +122,7 @@ const initialCoverState: CoverState = {
     buttonMessage: "",
   },
   needsRefetch: false,
-
+  needsAllowance: true,
   //
 };
 
@@ -139,6 +142,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   claimTick: initialCoverState.claimTick,
   coverMintParams: initialCoverState.coverMintParams,
   needsRefetch: initialCoverState.needsRefetch,
+  needsAllowance: initialCoverState.needsAllowance,
   setTokenIn: (tokenOut, newToken: tokenCover) => {
     //if tokenOut is selected
     if (
@@ -340,6 +344,11 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   setNeedsRefetch: (needsRefetch: boolean) => {
     set(() => ({
       needsRefetch: needsRefetch,
+    }));
+  },
+  setNeedsAllowance: (needsAllowance: boolean) => {
+    set(() => ({
+      needsAllowance: needsAllowance,
     }));
   },
   switchDirection: () => {

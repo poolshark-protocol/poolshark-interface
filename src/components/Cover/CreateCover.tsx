@@ -32,8 +32,7 @@ import inputFilter from "../../utils/inputFilter";
 import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
 import TickSpacing from "../Tooltips/TickSpacing";
 import { gasEstimateCoverMint } from "../../utils/gas";
-import { getCoverPool, volatilityTiers } from "../../utils/pools";
-import { all } from "axios";
+import { volatilityTiers } from "../../utils/pools";
 
 export default function CreateCover(props: any) {
   const [
@@ -45,9 +44,6 @@ export default function CreateCover(props: any) {
     setCoverPositionData,
     tokenIn,
     setTokenIn,
-    setTokenInCoverUSDPrice,
-    setTokenInBalance,
-    setTokenInAllowance,
     setCoverAmountIn,
     tokenOut,
     setTokenOut,
@@ -57,6 +53,10 @@ export default function CreateCover(props: any) {
     switchDirection,
     setCoverPoolFromVolatility,
     setMintButtonState,
+    needsAllowance,
+    setNeedsAllowance,
+    setTokenInCoverUSDPrice,
+    setTokenInBalance,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPoolData,
@@ -66,9 +66,6 @@ export default function CreateCover(props: any) {
     state.setCoverPositionData,
     state.tokenIn,
     state.setTokenIn,
-    state.setTokenInCoverUSDPrice,
-    state.setTokenInBalance,
-    state.setTokenInCoverAllowance,
     state.setCoverAmountIn,
     state.tokenOut,
     state.setTokenOut,
@@ -78,6 +75,10 @@ export default function CreateCover(props: any) {
     state.switchDirection,
     state.setCoverPoolFromVolatility,
     state.setMintButtonState,
+    state.needsAllowance,
+    state.setNeedsAllowance,
+    state.setTokenInCoverUSDPrice,
+    state.setTokenInBalance,
   ]);
 
   const { data: signer } = useSigner();
@@ -112,37 +113,16 @@ export default function CreateCover(props: any) {
     functionName: "allowance",
     args: [address, coverPoolAddress],
     chainId: 421613,
-    watch: false,
-    enabled: isConnected && coverPoolAddress && tokenIn.address != "0x00",
+    watch: needsAllowance,
+    enabled: isConnected && coverPoolAddress && tokenIn.address != "0x00" && needsAllowance,
     onSuccess(data) {
-      //console.log('Success')
+      setNeedsAllowance(false);
     },
     onError(error) {
       console.log("Error", error);
     },
     onSettled(data, error) {},
   });
-
-  useEffect(() => {
-    if (allowanceInCover) {
-      setTokenInAllowance(allowanceInCover.toString());
-    }
-  }, [allowanceInCover]);
-
-  ////////////////////////////////Token Balances
-
-  const { data: tokenInBal } = useBalance({
-    address: address,
-    token: tokenIn.address,
-    enabled: tokenIn.address != undefined,
-    watch: false,
-  });
-
-  useEffect(() => {
-    if (isConnected) {
-      setTokenInBalance(parseFloat(tokenInBal?.formatted).toFixed(2));
-    }
-  }, [tokenInBal]);
 
   ////////////////////////////////Token Prices
 
@@ -379,6 +359,21 @@ export default function CreateCover(props: any) {
     setMintGasFee(newMintGasFee.formattedPrice);
     setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
   }
+
+  ////////////////////////////////Token Balances
+
+  const { data: tokenInBal } = useBalance({
+    address: address,
+    token: tokenIn.address,
+    enabled: tokenIn.address != undefined,
+    watch: false,
+  });
+
+  useEffect(() => {
+    if (isConnected) {
+      setTokenInBalance(parseFloat(tokenInBal?.formatted).toFixed(2));
+    }
+  }, [tokenInBal]);
 
   ////////////////////////////////Mint Button Handler
 
@@ -723,13 +718,10 @@ export default function CreateCover(props: any) {
             BigNumber.from(coverMintParams.tokenInAmount.toString())
           ) ? (
             <CoverMintApproveButton
-              disabled={coverMintParams.disabled}
               poolAddress={coverPoolAddress}
               approveToken={tokenIn.address}
               amount={bnInput}
               tokenSymbol={tokenIn.symbol}
-              allowance={allowanceInCover}
-              buttonMessage={"Approve " + tokenIn.symbol}
             />
           ) : (
             <CoverMintButton
