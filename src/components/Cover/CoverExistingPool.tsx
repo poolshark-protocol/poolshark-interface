@@ -494,7 +494,6 @@ export default function CoverExistingPool({ goBack }) {
     }
   };
 
-  console.log("pool address", coverPoolAddress);
 
   return (
     <>
