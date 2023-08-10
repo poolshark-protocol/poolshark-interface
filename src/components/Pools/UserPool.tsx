@@ -32,16 +32,12 @@ export default function UserPool({ rangePosition, href }) {
   ]);
 
   const [
-    coverTokenIn,
-    coverTokenOut,
     setCoverTokenIn,
     setCoverTokenOut,
     setCoverPoolAddress,
     setCoverPoolData,
     setCoverPositionData,
   ] = useCoverStore((state) => [
-    state.tokenIn,
-    state.tokenOut,
     state.setTokenIn,
     state.setTokenOut,
     state.setCoverPoolAddress,
