@@ -75,7 +75,7 @@ type CoverAction = {
   //reset
   switchDirection: () => void;
   setCoverPoolFromVolatility: (
-    tokanIn: token,
+    tokenIn: token,
     tokenOut: token,
     volatility: any
   ) => void;
@@ -420,7 +420,6 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     }
   },
   setMintButtonState: () => {
-    console.log("setMintButtonState");
     set((state) => ({
       coverMintParams: {
         ...state.coverMintParams,

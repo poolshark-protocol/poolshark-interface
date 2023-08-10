@@ -305,7 +305,7 @@ export const gasEstimateCoverMint = async (
     return { formattedPrice, gasUnits }
   }
   catch (error) {
-    console.log('gas error', error)
+    //console.log('gas error', error)
     return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
   }
 }
