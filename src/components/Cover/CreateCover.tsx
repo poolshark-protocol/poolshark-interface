@@ -118,7 +118,7 @@ export default function CreateCover(props: any) {
     args: [address, coverPoolAddress],
     chainId: 421613,
     watch: needsAllowance,
-    enabled: isConnected && coverPoolAddress && tokenIn.address != "0x00" && needsAllowance,
+    enabled: isConnected && coverPoolAddress != "0x00" && needsAllowance,
     onSuccess(data) {
       setNeedsAllowance(false);
     },
@@ -373,7 +373,7 @@ export default function CreateCover(props: any) {
     watch: needsBalance,
     onSuccess(data) {
       setNeedsBalance(false);
-    }
+    },
   });
 
   useEffect(() => {
@@ -738,14 +738,14 @@ export default function CreateCover(props: any) {
               lower={TickMath.getTickAtPriceString(
                 coverPositionData.lowerPrice ?? "0",
                 coverPoolData.volatilityTier
-                ? parseInt(coverPoolData.volatilityTier.tickSpread)
-                : 20
+                  ? parseInt(coverPoolData.volatilityTier.tickSpread)
+                  : 20
               )}
               upper={TickMath.getTickAtPriceString(
                 coverPositionData.upperPrice ?? "0",
                 coverPoolData.volatilityTier
-                ? parseInt(coverPoolData.volatilityTier.tickSpread)
-                : 20
+                  ? parseInt(coverPoolData.volatilityTier.tickSpread)
+                  : 20
               )}
               amount={bnInput}
               zeroForOne={tokenOrder}

@@ -46,6 +46,8 @@ export default function CoverExistingPool({ goBack }) {
     tokenOut,
     setTokenInCoverUSDPrice,
     setTokenOutCoverUSDPrice,
+    setCoverAmountIn,
+    setCoverAmountOut,
     pairSelected,
     switchDirection,
     setCoverPoolFromVolatility,
@@ -66,6 +68,8 @@ export default function CoverExistingPool({ goBack }) {
     state.tokenOut,
     state.setTokenInCoverUSDPrice,
     state.setTokenOutCoverUSDPrice,
+    state.setCoverAmountIn,
+    state.setCoverAmountOut,
     state.pairSelected,
     state.switchDirection,
     state.setCoverPoolFromVolatility,
@@ -83,7 +87,6 @@ export default function CoverExistingPool({ goBack }) {
 
   const { data: signer } = useSigner();
   const { address, isConnected, isDisconnected } = useAccount();
-  const { bnInput, inputBox, maxBalance } = useInputBox();
 
   ////////////////////////////////Chain
   const [stateChainName, setStateChainName] = useState();
@@ -114,10 +117,10 @@ export default function CoverExistingPool({ goBack }) {
     args: [address, coverPoolAddress],
     chainId: 421613,
     watch: needsAllowance,
-    enabled: isConnected && coverPoolAddress && tokenIn.address != "0x00" && needsAllowance,
+    enabled: isConnected && coverPoolAddress != "0x00" && needsAllowance,
     onSuccess(data) {
-      console.log("cover allowance", allowanceInCover.toString())
-      setNeedsAllowance(false)
+      console.log("cover allowance", allowanceInCover.toString());
+      setNeedsAllowance(false);
       //console.log('Success')
     },
     onError(error) {
@@ -134,8 +137,8 @@ export default function CoverExistingPool({ goBack }) {
     enabled: tokenIn.address != undefined && needsBalance,
     watch: needsBalance,
     onSuccess(data) {
-      setNeedsBalance(false)
-    }
+      setNeedsBalance(false);
+    },
   });
 
   useEffect(() => {
@@ -260,27 +263,18 @@ export default function CoverExistingPool({ goBack }) {
   };
 
   ////////////////////////////////Position Amount Calculations
-  const [coverAmountIn, setCoverAmountIn] = useState(ZERO);
-  const [coverAmountOut, setCoverAmountOut] = useState(ZERO);
   const [sliderValue, setSliderValue] = useState(50);
 
   // set amount in
-  useEffect(() => {
-    if (coverAmountIn) {
-      setCoverAmountIn(JSBI.BigInt(coverAmountIn.toString()));
-    }
-  }, [
-    bnInput,
-    coverPositionData.lowerPrice,
-    coverPositionData.upperPrice,
-    tokenOrder,
-  ]);
+  /* useEffect(() => {
+    setCoverAmountIn(JSBI.BigInt(coverMintParams.tokenInAmount.toString()));
+  }, [coverPositionData.lowerPrice, coverPositionData.upperPrice, tokenOrder]); */
 
   useEffect(() => {
-    changeCoverOutAmount();
+    updateCoverAmounts();
   }, [sliderValue, lowerPrice, upperPrice, tokenOrder]);
 
-  function changeCoverOutAmount() {
+  function updateCoverAmounts() {
     if (
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
@@ -377,14 +371,14 @@ export default function CoverExistingPool({ goBack }) {
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
       coverPoolData.volatilityTier &&
-      coverAmountIn.length > 0
+      coverMintParams.tokenInAmount.length > 0
     )
       updateGasFee();
   }, [
     coverPositionData.lowerPrice,
     coverPositionData.upperPrice,
-    coverAmountIn,
-    coverAmountOut,
+    coverMintParams.tokenInAmount,
+    coverMintParams.tokenOutAmount,
     tokenIn,
     tokenOut,
   ]);
@@ -403,7 +397,7 @@ export default function CoverExistingPool({ goBack }) {
       ),
       tokenIn,
       tokenOut,
-      coverAmountIn,
+      coverMintParams.tokenInAmount,
       signer
     );
 
@@ -489,7 +483,10 @@ export default function CoverExistingPool({ goBack }) {
             <div className="ml-auto text-xs">
               {(
                 parseFloat(
-                  ethers.utils.formatUnits(String(coverAmountOut), 18)
+                  ethers.utils.formatUnits(
+                    String(coverMintParams.tokenOutAmount),
+                    18
+                  )
                 ) *
                 (1 - coverPoolData.volatilityTier.tickSpread / 10000)
               ).toPrecision(5) +
@@ -584,7 +581,10 @@ export default function CoverExistingPool({ goBack }) {
           <div className="flex items-center justify-end gap-x-2">
             <div className="bg-black text-right w-32 py-1 placeholder:text-grey1 text-white text-lg">
               {Number.parseFloat(
-                ethers.utils.formatUnits(String(coverAmountOut), 18)
+                ethers.utils.formatUnits(
+                  String(coverMintParams.tokenOutAmount),
+                  18
+                )
               ).toPrecision(5)}
             </div>
 
@@ -596,7 +596,10 @@ export default function CoverExistingPool({ goBack }) {
           <div className="gap-x-2 flex items-center justify-end">
             <span className="text-lg">
               {Number(
-                ethers.utils.formatUnits(coverAmountIn.toString(), 18)
+                ethers.utils.formatUnits(
+                  coverMintParams.tokenInAmount.toString(),
+                  18
+                )
               ).toPrecision(5)}
             </span>
             <span className="mt-1">{tokenIn.symbol}</span>
@@ -740,7 +743,7 @@ export default function CoverExistingPool({ goBack }) {
             <CoverMintApproveButton
               poolAddress={coverPoolAddress}
               approveToken={tokenIn.address}
-              amount={String(coverAmountIn)}
+              amount={String(coverMintParams.tokenInAmount)}
               tokenSymbol={tokenIn.symbol}
             />
           ) : (
@@ -752,24 +755,24 @@ export default function CoverExistingPool({ goBack }) {
               lower={
                 coverPositionData.lowerPrice
                   ? TickMath.getTickAtPriceString(
-                    coverPositionData.lowerPrice ?? "0",
-                    coverPoolData.volatilityTier ?
-                    parseInt(coverPoolData.volatilityTier.tickSpread) :
-                    20
-                  )
-                : 0
+                      coverPositionData.lowerPrice ?? "0",
+                      coverPoolData.volatilityTier
+                        ? parseInt(coverPoolData.volatilityTier.tickSpread)
+                        : 20
+                    )
+                  : 0
               }
               upper={
                 coverPositionData.upperPrice
                   ? TickMath.getTickAtPriceString(
-                    coverPositionData.upperPrice ?? "0",
-                    coverPoolData.volatilityTier ?
-                    parseInt(coverPoolData.volatilityTier.tickSpread) :
-                    20
-                  )
-                : 0
+                      coverPositionData.upperPrice ?? "0",
+                      coverPoolData.volatilityTier
+                        ? parseInt(coverPoolData.volatilityTier.tickSpread)
+                        : 20
+                    )
+                  : 0
               }
-              amount={String(coverAmountIn)}
+              amount={String(coverMintParams.tokenInAmount)}
               zeroForOne={tokenOrder}
               tickSpacing={
                 coverPoolData.volatilityTier
