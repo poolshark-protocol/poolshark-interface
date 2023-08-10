@@ -8,7 +8,7 @@ import { logoMap } from "../../utils/tokens";
 import { useRangeStore } from "../../hooks/useRangeStore";
 import { ethers } from "ethers";
 import Link from "next/link";
-import { getCoverPool, getRangePool } from "../../utils/pools";
+import { getCoverPool, getRangePool, volatilityTiers } from "../../utils/pools";
 import { token } from "../../utils/types";
 import { useCoverStore } from "../../hooks/useCoverStore";
 
@@ -37,12 +37,14 @@ export default function UserPool({ rangePosition, href }) {
     setCoverPoolAddress,
     setCoverPoolData,
     setCoverPositionData,
+    setCoverPoolFromVolatility,
   ] = useCoverStore((state) => [
     state.setTokenIn,
     state.setTokenOut,
     state.setCoverPoolAddress,
     state.setCoverPoolData,
     state.setCoverPositionData,
+    state.setCoverPoolFromVolatility,
   ]);
 
   const [rangePrice, setRangePrice] = useState(undefined);
@@ -97,12 +99,7 @@ export default function UserPool({ rangePosition, href }) {
       setCoverTokenIn(tokenOutNew, tokenInNew);
       setCoverTokenOut(tokenInNew, tokenOutNew);
       setRangePositionData(rangePosition);
-      getCoverPool(
-        tokenInNew,
-        tokenOutNew,
-        setCoverPoolAddress,
-        setCoverPoolData
-      );
+      setCoverPoolFromVolatility(tokenInNew, tokenOutNew, volatilityTiers[0]);
     } else {
       setRangeTokenIn(tokenOutNew, tokenInNew);
       setRangeTokenOut(tokenInNew, tokenOutNew);
