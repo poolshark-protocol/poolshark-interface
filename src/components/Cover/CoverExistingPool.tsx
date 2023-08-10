@@ -119,7 +119,6 @@ export default function CoverExistingPool({ goBack }) {
     watch: needsAllowance,
     enabled: isConnected && coverPoolAddress != "0x00" && needsAllowance,
     onSuccess(data) {
-      console.log("cover allowance", allowanceInCover.toString());
       setNeedsAllowance(false);
       //console.log('Success')
     },
@@ -371,17 +370,6 @@ export default function CoverExistingPool({ goBack }) {
   }, [coverMintParams.tokenInAmount, coverPoolAddress]);
 
   async function updateGasFee() {
-    console.log(
-      "cover pool address",
-      coverPoolAddress
-      /* address,
-      upperPrice,
-      lowerPrice,
-      tokenIn,
-      tokenOut,
-      coverMintParams.tokenInAmount,
-      signer */
-    );
     const newMintGasFee = await gasEstimateCoverMint(
       coverPoolAddress,
       address,
