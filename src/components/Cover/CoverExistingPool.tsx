@@ -360,12 +360,6 @@ export default function CoverExistingPool({ goBack }) {
   const [mintGasFee, setMintGasFee] = useState("$0.00");
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
-  ////////////////////////////////Mint Button Handler
-
-  useEffect(() => {
-    setMintButtonState();
-  }, [tokenIn, coverMintParams.tokenInAmount]);
-
   useEffect(() => {
     if (
       coverPositionData.lowerPrice &&
@@ -378,9 +372,6 @@ export default function CoverExistingPool({ goBack }) {
     coverPositionData.lowerPrice,
     coverPositionData.upperPrice,
     coverMintParams.tokenInAmount,
-    coverMintParams.tokenOutAmount,
-    tokenIn,
-    tokenOut,
   ]);
 
   async function updateGasFee() {
@@ -400,10 +391,15 @@ export default function CoverExistingPool({ goBack }) {
       coverMintParams.tokenInAmount,
       signer
     );
-
     setMintGasFee(newMintGasFee.formattedPrice);
     setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
   }
+
+  ////////////////////////////////Mint Button Handler
+
+  useEffect(() => {
+    setMintButtonState();
+  }, [tokenIn, coverMintParams.tokenInAmount]);
 
   ////////////////////////////////
 
