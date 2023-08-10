@@ -375,16 +375,28 @@ export default function CoverExistingPool({ goBack }) {
   ]);
 
   async function updateGasFee() {
+    console.log("updateGasFee");
+    console.log(
+      " updateGasFee Params",
+      coverPoolAddress,
+      address,
+      upperPrice,
+      lowerPrice,
+      tokenIn,
+      tokenOut,
+      coverMintParams.tokenInAmount,
+      signer
+    );
     const newMintGasFee = await gasEstimateCoverMint(
       coverPoolAddress,
       address,
       TickMath.getTickAtPriceString(
         coverPositionData.upperPrice,
-        parseInt(coverPoolData.volatilityTier.tickSpread)
+        parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
       ),
       TickMath.getTickAtPriceString(
         coverPositionData.lowerPrice,
-        parseInt(coverPoolData.volatilityTier.tickSpread)
+        parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
       ),
       tokenIn,
       tokenOut,
