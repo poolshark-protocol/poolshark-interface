@@ -119,7 +119,6 @@ export default function CoverExistingPool({ goBack }) {
     watch: needsAllowance,
     enabled: isConnected && coverPoolAddress != "0x00" && needsAllowance,
     onSuccess(data) {
-      console.log("cover allowance", allowanceInCover.toString());
       setNeedsAllowance(false);
       //console.log('Success')
     },
@@ -368,11 +367,7 @@ export default function CoverExistingPool({ goBack }) {
       coverMintParams.tokenInAmount.length > 0
     )
       updateGasFee();
-  }, [
-    coverPositionData.lowerPrice,
-    coverPositionData.upperPrice,
-    coverMintParams.tokenInAmount,
-  ]);
+  }, [coverMintParams.tokenInAmount, coverPoolAddress]);
 
   async function updateGasFee() {
     const newMintGasFee = await gasEstimateCoverMint(
@@ -380,11 +375,11 @@ export default function CoverExistingPool({ goBack }) {
       address,
       TickMath.getTickAtPriceString(
         coverPositionData.upperPrice,
-        parseInt(coverPoolData.volatilityTier.tickSpread)
+        parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
       ),
       TickMath.getTickAtPriceString(
         coverPositionData.lowerPrice,
-        parseInt(coverPoolData.volatilityTier.tickSpread)
+        parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
       ),
       tokenIn,
       tokenOut,
@@ -498,6 +493,7 @@ export default function CoverExistingPool({ goBack }) {
       );
     }
   };
+
 
   return (
     <>
@@ -714,11 +710,7 @@ export default function CoverExistingPool({ goBack }) {
             {1} {tokenIn.symbol} ={" "}
             {!tokenIn.coverUSDPrice
               ? "?" + " " + tokenOut.symbol
-              : (tokenIn.coverUSDPrice / tokenOut.coverUSDPrice).toPrecision(
-                  6
-                ) +
-                " " +
-                tokenOut.symbol}
+              : tokenOut.coverUSDPrice + " " + tokenOut.symbol}
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
             <button>

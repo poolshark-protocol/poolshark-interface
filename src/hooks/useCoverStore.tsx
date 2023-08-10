@@ -407,7 +407,6 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
           (volatilityId == 1 &&
             pool["data"]["coverPools"][i]["volatilityTier"]["tickSpread"] == 40)
         ) {
-          console.log("volatility id", volatilityId);
           set(() => ({
             coverPoolAddress: pool["data"]["coverPools"][i]["id"],
             coverPoolData: pool["data"]["coverPools"][i],
