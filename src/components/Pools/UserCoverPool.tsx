@@ -63,7 +63,6 @@ export default function UserCoverPool({
 
   function choosePosition() {
     setCoverPositionData(coverPosition);
-
     const tokenInNew = {
       name: coverPosition.tokenZero.name,
       symbol: coverPosition.tokenZero.symbol,
@@ -76,10 +75,8 @@ export default function UserCoverPool({
       logoURI: logoMap[coverPosition.tokenOne.symbol],
       address: coverPosition.tokenOne.id,
     } as token;
-
     setTokenIn(tokenOutNew, tokenInNew);
     setTokenOut(tokenInNew, tokenOutNew);
-
     getCoverPool(tokenIn, tokenOut, setCoverPoolAddress, setCoverPoolData);
   }
 
