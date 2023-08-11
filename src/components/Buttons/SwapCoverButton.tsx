@@ -18,8 +18,9 @@ export default function SwapCoverButton({disabled, poolAddress, amount, zeroForO
     state.Limit
   ]);*/
 
-  const [setNeedsCoverAllowance] = useSwapStore((state) => [
+  const [setNeedsCoverAllowance, setNeedsCoverBalance] = useSwapStore((state) => [
     state.setNeedsCoverAllowance,
+    state.setNeedsCoverBalance
   ]);
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
@@ -53,6 +54,7 @@ export default function SwapCoverButton({disabled, poolAddress, amount, zeroForO
     onSuccess() {
       setSuccessDisplay(true);
       setNeedsCoverAllowance(true);
+      setNeedsCoverBalance(true);
     },
     onError() {
       setErrorDisplay(true);

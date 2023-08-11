@@ -146,6 +146,44 @@ export const getCoverPoolFromFactory = (tokenA: string, tokenB: string) => {
   })
 }
 
+export const getLimitPoolFromFactory = (tokenA: string, tokenB: string) => {
+  const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB
+  const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA
+  return new Promise(function (resolve) {
+    const getPool = `
+        {
+            limitPools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
+              id
+              feeTier {
+                feeAmount
+                tickSpacing
+              }
+              tickSpacing
+              pool0price
+              pool1price
+              price0
+              price1
+            }
+          }
+         `
+    //console.log('query:', getPool)
+    const client = new ApolloClient({
+      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/limit-arbitrumGoerli/version/v0.1.0/api',
+      cache: new InMemoryCache(),
+    })
+    client
+      .query({ query: gql(getPool) })
+      .then((data) => {
+        resolve(data)
+        /* console.log(data) */
+      })
+      .catch((err) => {
+        resolve(err)
+        console.log(err)
+      })
+  })
+}
+
 export const getTickIfZeroForOne = (
   upper: number,
   poolAddress: string,
@@ -199,6 +237,73 @@ export const getTickIfNotZeroForOne = (
     //console.log('pool address', poolAddress)
     const client = new ApolloClient({
       uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/version/v0.0.3/api',
+      cache: new InMemoryCache(),
+    })
+    client
+      .query({ query: gql(getTicks) })
+      .then((data) => {
+        resolve(data)
+        /* console.log(data) */
+      })
+      .catch((err) => {
+        resolve(err)
+      })
+  })
+}
+
+export const getLimitTickIfZeroForOne = (
+  upper: number,
+  poolAddress: string,
+  epochLast: number,
+) => {
+  return new Promise(function (resolve) {
+    const getTicks = `
+       { 
+         ticks(
+            first: 1
+            where: {index_lte:"${upper}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
+          ) {
+            index
+          }
+        }
+        `
+    //console.log('pool address', poolAddress)
+    const client = new ApolloClient({
+      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/limit-arbitrumGoerli/version/v0.1.0/api',
+      cache: new InMemoryCache(),
+    })
+    client
+      .query({ query: gql(getTicks) })
+      .then((data) => {
+        resolve(data)
+        /* console.log(data) */
+      })
+      .catch((err) => {
+        resolve(err)
+      })
+  })
+}
+
+export const getLimitTickIfNotZeroForOne = (
+  lower: number,
+  poolAddress: string,
+  epochLast: number,
+) => {
+  return new Promise(function (resolve) {
+    const getTicks = `
+       { 
+         ticks(
+            first: 1
+            where: {index_gte:"${lower}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
+          ) {
+            index
+          }
+        }
+        `
+    //console.log(getTicks)
+    //console.log('pool address', poolAddress)
+    const client = new ApolloClient({
+      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/limit-arbitrumGoerli/version/v0.1.0/api',
       cache: new InMemoryCache(),
     })
     client
@@ -357,6 +462,176 @@ export const fetchCoverPoolMetrics = () => {
         `
     const client = new ApolloClient({
       uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/version/v0.0.3/api',
+      cache: new InMemoryCache(),
+    })
+    client
+      .query({ query: gql(poolsMetricsQuery) })
+      .then((data) => {
+        resolve(data)
+        /* console.log(data) */
+      })
+      .catch((err) => {
+        resolve(err)
+      })
+  })
+}
+
+export const fetchLimitPositions = (address: string) => {
+  return new Promise(function (resolve) {
+    const positionsQuery = `
+      query($owner: String) {
+          limitPositions(where: {owner:"${address}"}) {
+                id
+                amountIn
+                amountOut
+                amountFilled
+                tokenIn{
+                    id
+                    name
+                    symbol
+                    decimals
+                }
+                tokenOut{
+                  id
+                  name
+                  symbol
+                  decimals
+                }
+                liquidity
+                lower
+                upper
+                epochLast
+                claimPriceLast
+                owner
+                pool{
+                    id
+                    token0{
+                        id
+                        name
+                        symbol
+                        decimals
+                    }
+                    token1{
+                        id
+                        name
+                        symbol
+                        decimals
+                    }
+                    liquidity
+                    liquidityGlobal
+                    genesisTime
+                    epoch
+                    feeTier{
+                        feeAmount
+                        tickSpread
+                    }
+                    pool0price
+                    pool1price
+                    price0
+                    price1
+                    pool0liquidity
+                    pool1liquidity
+                    tickSpacing
+                }
+                txnHash
+            }
+        }
+    `
+    const client = new ApolloClient({
+      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/limit-arbitrumGoerli/version/v0.1.0/api',
+      cache: new InMemoryCache(),
+    })
+    client
+      .query({
+        query: gql(positionsQuery),
+        variables: {
+          owner: address,
+        },
+      })
+      .then((data) => {
+        resolve(data)
+      })
+      .catch((err) => {
+        resolve(err)
+      })
+  })
+}
+
+export const fetchLimitPools = () => {
+  return new Promise(function (resolve) {
+    const poolsQuery = `
+            query($id: String) {
+                limitPools(id: $id) {
+                    id
+                    inputPool
+                    genesisTime
+                    epoch
+                    token0{
+                        id
+                        name
+                        symbol
+                        decimals
+                    }
+                    token1{
+                        id
+                        name
+                        symbol
+                        decimals
+                    }
+                    liquidity
+                    liquidityGlobal
+                    feeTier{
+                        feeAmount
+                        tickSpacing
+                    }
+                    tickSpacing
+                    price0
+                    price1
+                    pool0price
+                    pool1price
+                    pool0liquidity
+                    pool1liquidity
+                    feesEth
+                    feesUsd
+                    volumeEth
+                    volumeToken0
+                    volumeToken1
+                    volumeUsd
+                    totalValueLockedEth
+                    totalValueLocked0
+                    totalValueLocked1
+                    totalValueLockedUsd
+                }
+            }
+        `
+    const client = new ApolloClient({
+      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/limit-arbitrumGoerli/version/v0.1.0/api',
+      cache: new InMemoryCache(),
+    })
+    client
+      .query({ query: gql(poolsQuery) })
+      .then((data) => {
+        resolve(data)
+        /* console.log(data) */
+      })
+      .catch((err) => {
+        resolve(err)
+      })
+  })
+}
+
+export const fetchLimitPoolMetrics = () => {
+  return new Promise(function (resolve) {
+    const poolsMetricsQuery = `
+            query($id: String) {
+                limitPoolFactories(id: $id) {
+                    id
+                    poolCount
+                }
+            }
+        `
+    const client = new ApolloClient({
+      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/limit-arbitrumGoerli/version/v0.1.0/api',
       cache: new InMemoryCache(),
     })
     client

@@ -113,6 +113,13 @@ export default function Swap() {
     setNeedsRangeAllowanceIn,
     needsRangeAllowanceOut,
     setNeedsRangeAllowanceOut,
+    //balance
+    needsCoverBalance,
+    setNeedsCoverBalance,
+    needsRangeBalanceIn,
+    setNeedsRangeBalanceIn,
+    needsRangeBalanceOut,
+    setNeedsRangeBalanceOut,
   ] = useSwapStore((state: any) => [
     //tokenIN
     state.tokenIn,
@@ -170,6 +177,13 @@ export default function Swap() {
     state.setNeedsRangeAllowanceIn,
     state.needsRangeAllowanceOut,
     state.setNeedsRangeAllowanceOut,
+    //balance
+    state.needsCoverBalance,
+    state.setNeedsCoverBalance,
+    state.needsRangeBalanceIn,
+    state.setNeedsRangeBalanceIn,
+    state.needsRangeBalanceOut,
+    state.setNeedsRangeBalanceOut,
   ]);
 
   //false when user in normal swap, true when user in limit swap
@@ -258,15 +272,26 @@ export default function Swap() {
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.address,
-    enabled: tokenIn.address != undefined,
-    watch: false,
+    enabled: (tokenIn.address != undefined && needsCoverBalance) || (tokenIn.address != undefined && needsRangeBalanceIn),
+    watch: needsCoverBalance || needsRangeBalanceIn,
+    onSuccess(data) {
+      if (needsCoverBalance) {
+        setNeedsCoverBalance(false);
+      }
+      if (needsRangeBalanceIn) {
+        setNeedsRangeBalanceIn(false);
+      }
+    },
   });
 
   const { data: tokenOutBal } = useBalance({
     address: address,
     token: tokenOut.address,
-    enabled: tokenOut.address != undefined,
-    watch: false,
+    enabled: tokenOut.address != undefined && needsRangeBalanceOut,
+    watch: needsRangeBalanceOut,
+    onSuccess(data) {
+      setNeedsRangeBalanceOut(false);
+    }
   });
 
   useEffect(() => {

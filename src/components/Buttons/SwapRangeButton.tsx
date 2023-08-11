@@ -20,8 +20,10 @@ export default function SwapRangeButton({disabled, poolAddress, amount, zeroForO
 
   const [
     setNeedsRangeAllowanceIn,
+    setNeedsRangeBalanceIn,
   ] = useRangeStore((state) => [
     state.setNeedsRangeAllowanceIn,
+    state.setNeedsRangeBalanceIn,
   ]);
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
@@ -56,6 +58,7 @@ export default function SwapRangeButton({disabled, poolAddress, amount, zeroForO
     onSuccess() {
       setSuccessDisplay(true);
       setNeedsRangeAllowanceIn(true);
+      setNeedsRangeBalanceIn(true);
     },
     onError() {
       setErrorDisplay(true);

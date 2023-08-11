@@ -9,11 +9,18 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BigNumber, ethers } from "ethers";
+import { useCoverStore } from '../../hooks/useCoverStore';
 
 export default function CoverCollectButton({ poolAddress, address, lower, claim, upper, zeroForOne, gasLimit, gasFee }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
+
+  const [
+    setNeedsBalance
+  ] = useCoverStore((state) => [
+    state.setNeedsBalance,
+  ])
 
   const { config } = usePrepareContractWrite({
       address: poolAddress,
@@ -40,6 +47,7 @@ export default function CoverCollectButton({ poolAddress, address, lower, claim,
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
+      setNeedsBalance(true)
     },
     onError() {
       setErrorDisplay(true);

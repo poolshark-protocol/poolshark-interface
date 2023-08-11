@@ -8,7 +8,7 @@ import { logoMap } from "../../utils/tokens";
 import { useRangeStore } from "../../hooks/useRangeStore";
 import { ethers } from "ethers";
 import Link from "next/link";
-import { getRangePool } from "../../utils/pools";
+import { getCoverPool, getRangePool, volatilityTiers } from "../../utils/pools";
 import { token } from "../../utils/types";
 import { useCoverStore } from "../../hooks/useCoverStore";
 
@@ -32,21 +32,19 @@ export default function UserPool({ rangePosition, href }) {
   ]);
 
   const [
-    coverTokenIn,
-    coverTokenOut,
     setCoverTokenIn,
     setCoverTokenOut,
     setCoverPoolAddress,
     setCoverPoolData,
     setCoverPositionData,
+    setCoverPoolFromVolatility,
   ] = useCoverStore((state) => [
-    state.tokenIn,
-    state.tokenOut,
     state.setTokenIn,
     state.setTokenOut,
     state.setCoverPoolAddress,
     state.setCoverPoolData,
     state.setCoverPositionData,
+    state.setCoverPoolFromVolatility,
   ]);
 
   const [rangePrice, setRangePrice] = useState(undefined);
@@ -101,13 +99,7 @@ export default function UserPool({ rangePosition, href }) {
       setCoverTokenIn(tokenOutNew, tokenInNew);
       setCoverTokenOut(tokenInNew, tokenOutNew);
       setRangePositionData(rangePosition);
-      /* setVolatilityTier({
-        id: 0,
-        tier: "1.7% per min",
-        text: "Less Volatility",
-        unavailable: false,
-        tickSpread: 20,
-      }); */
+      setCoverPoolFromVolatility(tokenInNew, tokenOutNew, volatilityTiers[0]);
     } else {
       setRangeTokenIn(tokenOutNew, tokenInNew);
       setRangeTokenOut(tokenInNew, tokenOutNew);

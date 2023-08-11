@@ -17,10 +17,14 @@ import { BigNumber } from 'ethers';
 export default function RangeAddLiqButton({poolAddress, address, lower, upper, amount0, amount1, disabled}) {
     const [
       setNeedsAllowanceIn,
-      setNeedsAllowanceOut
+      setNeedsAllowanceOut,
+      setNeedsBalanceIn,
+      setNeedsBalanceOut,
     ] = useRangeStore((state) => [
       state.setNeedsAllowanceIn,
-      state.setNeedsAllowanceOut
+      state.setNeedsAllowanceOut,
+      state.setNeedsBalanceIn,
+      state.setNeedsBalanceOut,
     ])
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -86,8 +90,10 @@ export default function RangeAddLiqButton({poolAddress, address, lower, upper, a
       onSuccess() {
         setSuccessDisplay(true);
         setNeedsAllowanceIn(true);
+        setNeedsBalanceIn(true);
         if (amount1.gt(BigNumber.from(0))) {
           setNeedsAllowanceOut(true);
+          setNeedsBalanceOut(true);
         }
       },
       onError() {

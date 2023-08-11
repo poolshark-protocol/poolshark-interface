@@ -57,6 +57,8 @@ export default function CreateCover(props: any) {
     setNeedsAllowance,
     setTokenInCoverUSDPrice,
     setTokenInBalance,
+    needsBalance,
+    setNeedsBalance,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPoolData,
@@ -79,6 +81,8 @@ export default function CreateCover(props: any) {
     state.setNeedsAllowance,
     state.setTokenInCoverUSDPrice,
     state.setTokenInBalance,
+    state.needsBalance,
+    state.setNeedsBalance,
   ]);
 
   const { data: signer } = useSigner();
@@ -114,7 +118,7 @@ export default function CreateCover(props: any) {
     args: [address, coverPoolAddress],
     chainId: 421613,
     watch: needsAllowance,
-    enabled: isConnected && coverPoolAddress && tokenIn.address != "0x00" && needsAllowance,
+    enabled: isConnected && coverPoolAddress != "0x00" && needsAllowance,
     onSuccess(data) {
       setNeedsAllowance(false);
     },
@@ -365,8 +369,11 @@ export default function CreateCover(props: any) {
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.address,
-    enabled: tokenIn.address != undefined,
-    watch: false,
+    enabled: tokenIn.address != undefined && needsBalance,
+    watch: needsBalance,
+    onSuccess(data) {
+      setNeedsBalance(false);
+    },
   });
 
   useEffect(() => {
@@ -731,14 +738,14 @@ export default function CreateCover(props: any) {
               lower={TickMath.getTickAtPriceString(
                 coverPositionData.lowerPrice ?? "0",
                 coverPoolData.volatilityTier
-                ? parseInt(coverPoolData.volatilityTier.tickSpread)
-                : 20
+                  ? parseInt(coverPoolData.volatilityTier.tickSpread)
+                  : 20
               )}
               upper={TickMath.getTickAtPriceString(
                 coverPositionData.upperPrice ?? "0",
                 coverPoolData.volatilityTier
-                ? parseInt(coverPoolData.volatilityTier.tickSpread)
-                : 20
+                  ? parseInt(coverPoolData.volatilityTier.tickSpread)
+                  : 20
               )}
               amount={bnInput}
               zeroForOne={tokenOrder}

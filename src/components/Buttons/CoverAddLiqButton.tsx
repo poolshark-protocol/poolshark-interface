@@ -15,8 +15,9 @@ import { BN_ZERO } from '../../utils/math/constants';
 import { useCoverStore } from '../../hooks/useCoverStore';
 
 export default function CoverAddLiqButton({poolAddress, address, lower, upper, zeroForOne, amount, toAddress, gasLimit, buttonState, disabled, tokenSymbol}) {
-    const [ setNeedsAllowance ] = useCoverStore((state) => [
-      state.setNeedsAllowance
+    const [ setNeedsAllowance, setNeedsBalance ] = useCoverStore((state) => [
+      state.setNeedsAllowance,
+      state.setNeedsBalance
     ]);
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -50,6 +51,7 @@ export default function CoverAddLiqButton({poolAddress, address, lower, upper, z
       onSuccess() {
         setSuccessDisplay(true);
         setNeedsAllowance(true);
+        setNeedsBalance(true);
       },
       onError() {
         setErrorDisplay(true);

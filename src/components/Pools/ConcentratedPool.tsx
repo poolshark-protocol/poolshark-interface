@@ -50,6 +50,10 @@ export default function ConcentratedPool({}) {
     switchDirection,
     setDisabled,
     setButtonMessage,
+    needsBalanceIn,
+    needsBalanceOut,
+    setNeedsBalanceIn,
+    setNeedsBalanceOut,
   ] = useRangeStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
@@ -77,6 +81,10 @@ export default function ConcentratedPool({}) {
     state.switchDirection,
     state.setDisabled,
     state.setButtonMessage,
+    state.needsBalanceIn,
+    state.needsBalanceOut,
+    state.setNeedsBalanceIn,
+    state.setNeedsBalanceOut,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -182,15 +190,21 @@ export default function ConcentratedPool({}) {
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.address,
-    enabled: tokenIn.address != undefined,
-    watch: false,
+    enabled: tokenIn.address != undefined && needsBalanceIn,
+    watch: needsBalanceIn,
+    onSuccess(data) {
+      setNeedsBalanceIn(false);
+    },
   });
 
   const { data: tokenOutBal } = useBalance({
     address: address,
     token: tokenOut.address,
-    enabled: tokenOut.address != undefined,
-    watch: false,
+    enabled: tokenOut.address != undefined && needsBalanceOut,
+    watch: needsBalanceOut,
+    onSuccess(data) {
+      setNeedsBalanceOut(false);
+    }
   });
 
   useEffect(() => {

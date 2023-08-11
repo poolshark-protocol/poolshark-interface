@@ -16,9 +16,13 @@ import { useRangeStore } from '../../hooks/useRangeStore';
 
 export default function RangeRemoveLiqButton({poolAddress, address, lower, upper, burnPercent, closeModal}) {
     const [
-      setNeedsRefetch
+      setNeedsRefetch,
+      setNeedsBalanceIn,
+      setNeedsBalanceOut
     ] = useRangeStore((state) => [
-      state.setNeedsRefetch
+      state.setNeedsRefetch,
+      state.setNeedsBalanceIn,
+      state.setNeedsBalanceOut
     ]);
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
@@ -84,6 +88,8 @@ export default function RangeRemoveLiqButton({poolAddress, address, lower, upper
         if (burnPercent.eq(ethers.utils.parseUnits('1', 38))) {
           setNeedsRefetch(true);
         }
+        setNeedsBalanceIn(true);
+        setNeedsBalanceOut(true);
       },
       onError() {
         setErrorDisplay(true);

@@ -27,15 +27,17 @@ export default function RangeMintButton({
   const [successDisplay, setSuccessDisplay] = useState(false)
 
   const [
-    setNeedsRefetch,
+    setNeedsRefetch
   ] = useRangeStore((state) => [
-    state.setNeedsRefetch,
+    state.setNeedsRefetch
   ])
 
   const [
     setNeedsRangeAllowanceIn,
+    setNeedsRangeBalanceIn
   ] = useSwapStore((state) => [
     state.setNeedsRangeAllowanceIn,
+    state.setNeedsRangeBalanceIn
   ])
   
   const [isDisabled, setDisabled] = useState(disabled)
@@ -95,6 +97,7 @@ export default function RangeMintButton({
       setSuccessDisplay(true)
       setNeedsRefetch(true)
       setNeedsRangeAllowanceIn(true)
+      setNeedsRangeBalanceIn(true)
     },
     onError() {
       setErrorDisplay(true)

@@ -28,6 +28,8 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     tokenOut,
     needsAllowance,
     setNeedsAllowance,
+    needsBalance,
+    setNeedsBalance,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPositionData,
@@ -36,6 +38,8 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     state.tokenOut,
     state.needsAllowance,
     state.setNeedsAllowance,
+    state.needsBalance,
+    state.setNeedsBalance,
   ]);
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
@@ -89,8 +93,11 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.address,
-    enabled: tokenIn.address != undefined,
-    watch: false,
+    enabled: tokenIn.address != undefined && needsBalance,
+    watch: needsBalance,
+    onSuccess(data) {
+      setNeedsBalance(false);
+    }
   });
 
   useEffect(() => {
