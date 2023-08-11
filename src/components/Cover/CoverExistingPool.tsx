@@ -494,7 +494,6 @@ export default function CoverExistingPool({ goBack }) {
     }
   };
 
-
   return (
     <>
       <div className="mb-6">
@@ -710,7 +709,11 @@ export default function CoverExistingPool({ goBack }) {
             {1} {tokenIn.symbol} ={" "}
             {!tokenIn.coverUSDPrice
               ? "?" + " " + tokenOut.symbol
-              : tokenOut.coverUSDPrice + " " + tokenOut.symbol}
+              : (tokenIn.coverUSDPrice / tokenOut.coverUSDPrice).toPrecision(
+                  5
+                ) +
+                " " +
+                tokenOut.symbol}
           </div>
           <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
             <button>

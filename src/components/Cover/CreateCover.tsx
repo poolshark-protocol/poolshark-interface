@@ -543,7 +543,7 @@ export default function CreateCover(props: any) {
             {(
               parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
               tokenIn.coverUSDPrice
-            ).toFixed(2)}
+            ).toPrecision(6)}
           </div>
         </div>
         <div className="flex w-1/2">
