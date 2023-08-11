@@ -710,7 +710,7 @@ export default function CoverExistingPool({ goBack }) {
             {!tokenIn.coverUSDPrice
               ? "?" + " " + tokenOut.symbol
               : (tokenIn.coverUSDPrice / tokenOut.coverUSDPrice).toPrecision(
-                  5
+                  10
                 ) +
                 " " +
                 tokenOut.symbol}

@@ -704,7 +704,7 @@ export default function CreateCover(props: any) {
             {!tokenIn.coverUSDPrice
               ? "?" + " " + tokenOut.symbol
               : (tokenIn.coverUSDPrice / tokenOut.coverUSDPrice).toPrecision(
-                  6
+                  10
                 ) +
                 " " +
                 tokenOut.symbol}
