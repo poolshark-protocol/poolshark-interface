@@ -543,7 +543,7 @@ export default function CreateCover(props: any) {
             {(
               parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
               tokenIn.coverUSDPrice
-            ).toFixed(2)}
+            ).toPrecision(6)}
           </div>
         </div>
         <div className="flex w-1/2">
@@ -703,9 +703,18 @@ export default function CreateCover(props: any) {
             {1} {tokenIn.symbol} ={" "}
             {!tokenIn.coverUSDPrice
               ? "?" + " " + tokenOut.symbol
-              : (tokenIn.coverUSDPrice / tokenOut.coverUSDPrice).toPrecision(
-                  6
-                ) +
+              : (tokenOrder
+                  ? TickMath.getPriceStringAtTick(
+                      parseInt(coverPoolData.latestTick),
+                      parseInt(coverPoolData.volatilityTier.tickSpread)
+                    )
+                  : invertPrice(
+                      TickMath.getPriceStringAtTick(
+                        parseInt(coverPoolData.latestTick),
+                        parseInt(coverPoolData.volatilityTier.tickSpread)
+                      ),
+                      false
+                    )) +
                 " " +
                 tokenOut.symbol}
           </div>

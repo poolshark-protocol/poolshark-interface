@@ -24,12 +24,10 @@ export const fetchRangeTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
 };
 
 export const fetchCoverTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
-  const price = TickMath.getPriceStringAtTick(
-    parseInt(poolData.latestTick),
-    parseInt(poolData.volatilityTier.tickSpread)
-  );
   try {
-    setTokenUSDPrice(token.callId == 0 ? price : invertPrice(price, false));
+    setTokenUSDPrice(
+      token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice
+    );
   } catch (error) {
     console.log(error);
   }
