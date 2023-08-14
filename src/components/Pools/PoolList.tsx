@@ -85,8 +85,6 @@ export default function PoolList({
       pathname: href,
       query: { state: "existing" },
     });
-
-    console.log('')
   };
 
   return (
@@ -111,7 +109,7 @@ export default function PoolList({
             ? feeTier.tickSpread == "20"
               ? "1.7"
               : "2.4"
-            : "0.05"}
+            : Number(feeTier / 10000).toFixed(2)}
           %
         </div>
       </td>

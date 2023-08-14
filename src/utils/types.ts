@@ -29,6 +29,16 @@ export type token = {
 };
 
 export type coinsList = {
-  listed_tokens: [];
-  search_tokens: [];
+  [x: string]: any;
+  listed_tokens: coinRaw[];
+};
+
+export type coinRaw = {
+  id: `0x${string}`;
+  address: `0x${string}`;
+  name: string;
+  symbol: string;
+  logoURI: string;
+  decimals: number;
+  balance: number;
 };
