@@ -115,6 +115,8 @@ export default function UserPool({ rangePosition, href }) {
 
   const feeTierPercentage = Number(rangePosition.feeTier) / 10000;
 
+  console.log("rangePosition", rangePosition);
+
   return (
     <>
       <div onClick={choosePosition}>
