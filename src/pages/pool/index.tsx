@@ -518,8 +518,6 @@ export default function Pool() {
                             />
                           );
                       })}
-
-
                       {/*
                       ADD LIMIT POOL STUFF HERE
 

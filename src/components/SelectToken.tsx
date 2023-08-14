@@ -5,59 +5,67 @@ import {
   MagnifyingGlassIcon,
 } from "@heroicons/react/20/solid";
 import { Transition, Dialog } from "@headlessui/react";
-import {
-  tokenZeroAddress,
-  tokenOneAddress,
-} from "../constants/contractAddresses";
-import useTokenList from "../hooks/useTokenList";
 import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
-import { useAccount, useBalance } from "wagmi";
+import { useAccount, useBalance, useProvider } from "wagmi";
+import { chainIdsToNamesForGitTokenList } from "../utils/chains";
+import axios from "axios";
+import { coinsList } from "../utils/types";
 
 export default function SelectToken(props) {
   const { address } = useAccount();
+  const {
+    network: { chainId },
+  } = useProvider();
 
   const [isOpen, setIsOpen] = useState(false);
   const [inputVal, setInputVal] = useState("");
-  const coins = useTokenList()[0];
+  const [rawCoinList, setRawCoinList] = useState([]);
 
-  const [rawCoinList, setRawCoinList] = useState([
-    {
-      name: "WETH",
-      address: tokenOneAddress,
-      symbol: "WETH",
-      logoURI: "/static/images/eth_icon.png",
-      decimals: 18,
-      balance: Number(
-        useBalance({
-          address: address,
-          token: tokenOneAddress,
-          chainId: 421613,
-          watch: true,
-        }).data?.formatted
-      ),
-    },
-    {
-      name: "USDC",
-      address: tokenZeroAddress,
-      symbol: "USDC",
-      logoURI: "/static/images/token.png",
-      decimals: 18,
-      balance: Number(
-        useBalance({
-          address: address,
-          token: tokenZeroAddress,
-          chainId: 421613,
-          watch: true,
-        }).data?.formatted
-      ),
-    },
-  ]);
+  useEffect(() => {
+    const fetch = async () => {
+      const chainName = chainIdsToNamesForGitTokenList[chainId];
+      axios
+        .get(
+          `https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/${
+            chainName === undefined ? "ethereum" : "arbitrum-goerli"
+          }/tokenlist.json`
+        )
+        .then(function (response) {
+          console.log(
+            "response.data.listed_tokens",
+            response.data.listed_tokens
+          );
+          const coins = {
+            listed_tokens: response.data.listed_tokens,
+            search_tokens: response.data.search_tokens,
+          } as coinsList;
+          for (let i = 0; i < coins.listed_tokens.length; i++) {
+            coins.listed_tokens[i].address = coins.listed_tokens[i].id;
+            setRawCoinList(coins.listed_tokens);
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    };
+    fetch();
+  }, [chainId, address]);
+
+  /*  useEffect(() => {
+    updateBalance();
+  }, rawCoinList);
+
+  function updateBalance() {
+    for (let i = 0; i < rawCoinList.length; i++) {
+      rawCoinList[i].balance = useBalance(rawCoinList[i].address);
+    }
+  } */
 
   const chooseToken = (coin) => {
     coin = {
       name: coin?.name,
-      address: coin?.address, //@dev use id for address in production like so address: coin?.id because thats what coin [] will have instead of address
+      address: coin?.id,
       symbol: coin?.symbol,
       logoURI: coin?.logoURI,
     };
@@ -132,7 +140,7 @@ export default function SelectToken(props) {
                       onChange={(e) => setInputVal(e.target.value)}
                     ></input>
                     <div className="flex justify-between flex-wrap mt-4 gap-y-2">
-                      {rawCoinList?.map((coin) => {
+                      {rawCoinList.map((coin) => {
                         return (
                           <CoinListButton
                             key={coin.symbol + "top"}
