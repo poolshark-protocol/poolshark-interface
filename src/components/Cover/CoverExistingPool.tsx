@@ -20,7 +20,7 @@ import { Fragment, useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
 import JSBI from "jsbi";
 import { Listbox, Transition } from "@headlessui/react";
-import { TickMath, roundTick } from "../../utils/math/tickMath";
+import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
@@ -709,9 +709,18 @@ export default function CoverExistingPool({ goBack }) {
             {1} {tokenIn.symbol} ={" "}
             {!tokenIn.coverUSDPrice
               ? "?" + " " + tokenOut.symbol
-              : (tokenIn.coverUSDPrice / tokenOut.coverUSDPrice).toPrecision(
-                  10
-                ) +
+              : (tokenOrder
+                  ? TickMath.getPriceStringAtTick(
+                      parseInt(coverPoolData.latestTick),
+                      parseInt(coverPoolData.volatilityTier.tickSpread)
+                    )
+                  : invertPrice(
+                      TickMath.getPriceStringAtTick(
+                        parseInt(coverPoolData.latestTick),
+                        parseInt(coverPoolData.volatilityTier.tickSpread)
+                      ),
+                      false
+                    )) +
                 " " +
                 tokenOut.symbol}
           </div>
