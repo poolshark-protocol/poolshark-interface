@@ -112,7 +112,7 @@ export default function PoolList({
               ? "1.7"
               : "2.4"
             : Number(feeTier / 10000).toFixed(2)}
-          % %
+          %
         </div>
       </td>
       <td>${tvlUsd}m</td>

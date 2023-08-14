@@ -113,10 +113,6 @@ export default function UserPool({ rangePosition, href }) {
     }
   }
 
-  const feeTierPercentage = Number(rangePosition.feeTier) / 10000;
-
-  console.log("rangePosition", rangePosition);
-
   return (
     <>
       <div onClick={choosePosition}>
@@ -144,7 +140,7 @@ export default function UserPool({ rangePosition, href }) {
                   {rangePosition.tokenOne.symbol}
                 </div>
                 <div className="bg-black px-2 py-1 rounded-lg text-grey text-sm hidden md:block">
-                  {feeTierPercentage}%
+                  {Number(Number(rangePosition.feeTier) / 10000).toFixed(2)}%
                 </div>
               </div>
               <div className="text-[10px] sm:text-xs grid grid-cols-5 items-center gap-x-3 md:pr-5">
@@ -167,7 +163,7 @@ export default function UserPool({ rangePosition, href }) {
             </div>
             <div className="md:col-span-2 flex gap-x-5 w-full flex-row-reverse md:flex-row items-center col-span-5 md:mx-5 mt-3 md:mt-0">
               <div className="bg-black  px-10 py-2 rounded-lg text-grey text-xs md:hidden block">
-                {feeTierPercentage}%
+                {Number(Number(rangePosition.feeTier) / 10000).toFixed(2)}%
               </div>
 
               <div className="w-full md:mr-10">
