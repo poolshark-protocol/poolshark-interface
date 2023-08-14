@@ -703,8 +703,9 @@ export default function CreateCover(props: any) {
             {1} {tokenIn.symbol} ={" "}
             {!tokenIn.coverUSDPrice
               ? "?" + " " + tokenOut.symbol
-              : (tokenIn.coverUSDPrice / tokenOut.coverUSDPrice).toPrecision(
-                  10
+              : TickMath.getPriceStringAtTick(
+                  parseInt(coverPoolData.latestTick),
+                  parseInt(coverPoolData.volatilityTier.tickSpread)
                 ) +
                 " " +
                 tokenOut.symbol}
