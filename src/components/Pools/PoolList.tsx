@@ -87,8 +87,6 @@ export default function PoolList({
     });
   };
 
-  console.log("feeTier", feeTier);
-
   return (
     <tr
       className="text-right cursor-pointer text-xs md:text-sm"
