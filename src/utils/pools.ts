@@ -283,28 +283,21 @@ export const getFeeTier = async (
 
 export const feeTiers = [
   {
-    id: 1,
-    tier: "0.01%",
-    tierId: 100,
-    text: "Best for very stable pairs",
-    unavailable: false,
-  },
-  {
-    id: 2,
+    id: 0,
     tier: "0.05%",
     tierId: 500,
     text: "Best for stable pairs",
     unavailable: false,
   },
   {
-    id: 3,
+    id: 1,
     tier: "0.3%",
     tierId: 3000,
     text: "Best for most pairs",
     unavailable: false,
   },
   {
-    id: 4,
+    id: 2,
     tier: "1%",
     tierId: 10000,
     text: "Best for exotic pairs",

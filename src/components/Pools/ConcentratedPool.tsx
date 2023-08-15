@@ -146,14 +146,12 @@ export default function ConcentratedPool({}) {
   const [fee, setFee] = useState(feeTiers[0]);
 
   function updateSelectedFeeTier(): any {
-    if (rangePoolData.feeTier.id == 100) {
+    if (rangePoolData.feeTier.id == 500) {
       return feeTiers[0];
-    } else if (rangePoolData.feeTier.id == 500) {
-      return feeTiers[1];
     } else if (rangePoolData.feeTier.id == 3000) {
-      return feeTiers[2];
+      return feeTiers[1];
     } else if (rangePoolData.feeTier.id == 10000) {
-      return feeTiers[3];
+      return feeTiers[2];
     } else return feeTiers[0];
   }
 
