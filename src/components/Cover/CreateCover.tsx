@@ -262,16 +262,10 @@ export default function CreateCover(props: any) {
   // set amount in
   useEffect(() => {
     if (!bnInput.eq(BN_ZERO)) {
+      console.log("bnInput", bnInput.toString());
       setCoverAmountIn(JSBI.BigInt(bnInput.toString()));
-    } else {
-      setCoverAmountIn(JSBI.BigInt(BN_ZERO.toString()));
     }
-  }, [
-    bnInput,
-    coverPositionData.lowerPrice,
-    coverPositionData.upperPrice,
-    tokenOrder,
-  ]);
+  }, [bnInput]);
 
   useEffect(() => {
     changeCoverAmounts();
