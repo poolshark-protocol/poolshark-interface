@@ -43,6 +43,7 @@ export default function CoverExistingPool({ goBack }) {
     volatilityTierId,
     setCoverPositionData,
     tokenIn,
+    setTokenInCoverAllowance,
     tokenOut,
     setTokenInCoverUSDPrice,
     setTokenOutCoverUSDPrice,
@@ -65,6 +66,7 @@ export default function CoverExistingPool({ goBack }) {
     state.volatilityTierId,
     state.setCoverPositionData,
     state.tokenIn,
+    state.setTokenInCoverAllowance,
     state.tokenOut,
     state.setTokenInCoverUSDPrice,
     state.setTokenOutCoverUSDPrice,
@@ -127,6 +129,12 @@ export default function CoverExistingPool({ goBack }) {
     },
     onSettled(data, error) {},
   });
+
+  useEffect(() => {
+    if (allowanceInCover) {
+      setTokenInCoverAllowance(allowanceInCover.toString());
+    }
+  }, [allowanceInCover]);
 
   ////////////////////////////////Token Balances
 

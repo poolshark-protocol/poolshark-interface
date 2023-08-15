@@ -44,6 +44,7 @@ export default function CreateCover(props: any) {
     setCoverPositionData,
     tokenIn,
     setTokenIn,
+    setTokenInCoverAllowance,
     setCoverAmountIn,
     tokenOut,
     setTokenOut,
@@ -68,6 +69,7 @@ export default function CreateCover(props: any) {
     state.setCoverPositionData,
     state.tokenIn,
     state.setTokenIn,
+    state.setTokenInCoverAllowance,
     state.setCoverAmountIn,
     state.tokenOut,
     state.setTokenOut,
@@ -127,6 +129,12 @@ export default function CreateCover(props: any) {
     },
     onSettled(data, error) {},
   });
+
+  useEffect(() => {
+    if (allowanceInCover) {
+      setTokenInCoverAllowance(allowanceInCover.toString());
+    }
+  }, [allowanceInCover]);
 
   ////////////////////////////////Token Prices
 
