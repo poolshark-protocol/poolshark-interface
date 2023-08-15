@@ -272,7 +272,9 @@ export default function Swap() {
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.address,
-    enabled: (tokenIn.address != undefined && needsCoverBalance) || (tokenIn.address != undefined && needsRangeBalanceIn),
+    enabled:
+      (tokenIn.address != undefined && needsCoverBalance) ||
+      (tokenIn.address != undefined && needsRangeBalanceIn),
     watch: needsCoverBalance || needsRangeBalanceIn,
     onSuccess(data) {
       if (needsCoverBalance) {
@@ -290,8 +292,10 @@ export default function Swap() {
     enabled: tokenOut.address != undefined && needsRangeBalanceOut,
     watch: needsRangeBalanceOut,
     onSuccess(data) {
-      setNeedsRangeBalanceOut(false);
-    }
+      if (needsRangeBalanceOut) {
+        setNeedsRangeBalanceOut(false);
+      }
+    },
   });
 
   useEffect(() => {
@@ -299,11 +303,11 @@ export default function Swap() {
       setTokenInBalance(
         parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
       );
-      if (pairSelected) {
-        setTokenOutBalance(
-          parseFloat(tokenOutBal?.formatted.toString()).toFixed(2)
-        );
-      }
+    }
+    if (tokenOutBal) {
+      setTokenOutBalance(
+        parseFloat(tokenOutBal?.formatted.toString()).toFixed(2)
+      );
     }
   }, [tokenInBal, tokenOutBal]);
 
@@ -347,7 +351,7 @@ export default function Swap() {
     if (allowanceInRange) {
       setTokenInRangeAllowance(ethers.utils.formatUnits(allowanceInRange, 18));
     }
-    if (allowanceInCover){
+    if (allowanceInCover) {
       setTokenInCoverAllowance(ethers.utils.formatUnits(allowanceInCover, 18));
     }
   }, [allowanceInRange, allowanceInCover]);
