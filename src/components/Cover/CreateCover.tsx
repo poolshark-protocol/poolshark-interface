@@ -150,27 +150,42 @@ export default function CreateCover(props: any) {
   }, [coverPoolData, tokenOrder]);
 
   //////////////////////////////Cover Pool Data
-
+  //initial volatility Tier set to 1.7% when selected from list of range pools
   const [selectedVolatility, setSelectedVolatility] = useState(
     volatilityTiers[0]
   );
+  const [selectFromEmptyFlag, setSelectFromEmptyFlag] = useState(true);
 
   useEffect(() => {
-    setSelectedVolatility(volatilityTiers[volatilityTierId]);
-  }, [volatilityTierId]);
+    if (
+      //updating feeTiers
+      (selectedVolatility.tickSpread == 20 && volatilityTierId != 0) ||
+      (selectedVolatility.tickSpread == 40 && volatilityTierId != 1) ||
+      //updating from empty selected token
+      (tokenOut.name != "Select Token" && selectFromEmptyFlag)
+    ) {
+      updatePools();
+      if (selectFromEmptyFlag) {
+        setSelectFromEmptyFlag(false);
+      }
+    }
+  }, [selectedVolatility, tokenIn.name, tokenOut.name]);
+
+  async function updatePools() {
+    setCoverPoolFromVolatility(tokenIn, tokenOut, selectedVolatility);
+  }
 
   //sames as updatePools but triggered from the html
   const handleManualVolatilityChange = async (volatility: any) => {
-    setCoverPoolFromVolatility(tokenIn, tokenOut, volatility);
+    setSelectedVolatility(volatility);
   };
-
   ////////////////////////////////Init Position Data
 
   useEffect(() => {
     if (coverPoolData.latestTick && coverPoolData.volatilityTier) {
       updatePositionData();
     }
-  }, [coverPoolData, tokenOrder]);
+  }, [tokenIn, tokenOut, coverPoolData, tokenOrder]);
 
   async function updatePositionData() {
     const tickAtPrice = Number(coverPoolData.latestTick);
