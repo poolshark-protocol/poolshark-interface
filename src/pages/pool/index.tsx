@@ -556,11 +556,7 @@ export default function Pool() {
                             />
                           );
                       })}
-                    */}
-                      
-                      
-                      
-                      
+                    */} 
                   </tbody>
                 </table>
               </div>

@@ -18,17 +18,12 @@ export default function PoolList({
   volumeEth,
   href,
 }) {
-  const [
-    setRangeTokenIn,
-    setRangeTokenOut,
-    setRangePoolAddress,
-    setRangePoolData,
-  ] = useRangeStore((state) => [
-    state.setTokenIn,
-    state.setTokenOut,
-    state.setRangePoolAddress,
-    state.setRangePoolData,
-  ]);
+  const [setRangeTokenIn, setRangeTokenOut, setRangePoolFromVolatility] =
+    useRangeStore((state) => [
+      state.setTokenIn,
+      state.setTokenOut,
+      state.setRangePoolFromVolatility,
+    ]);
 
   const [setCoverTokenIn, setCoverTokenOut, setCoverPoolFromVolatility] =
     useCoverStore((state) => [
@@ -54,8 +49,11 @@ export default function PoolList({
     };
     setRangeTokenIn(tokenOut, tokenIn);
     setRangeTokenOut(tokenIn, tokenOut);
-    setRangePoolAddress(poolId);
-    //setFeeTier(feeTier)
+    const tier = {
+      tier: feeTier,
+      id: feeTier == "500" ? 0 : feeTier == "3000" ? 1 : 2,
+    };
+    setRangePoolFromVolatility(tokenIn, tokenOut, tier);
     router.push({
       pathname: href,
     });

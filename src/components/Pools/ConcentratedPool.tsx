@@ -27,6 +27,7 @@ export default function ConcentratedPool({}) {
     rangePoolAddress,
     rangePoolData,
     rangePositionData,
+    feeTierId,
     setRangePoolAddress,
     setRangePoolData,
     setRangePositionData,
@@ -50,6 +51,7 @@ export default function ConcentratedPool({}) {
     switchDirection,
     setDisabled,
     setButtonMessage,
+    setRangePoolFromVolatility,
     needsBalanceIn,
     needsBalanceOut,
     setNeedsBalanceIn,
@@ -58,6 +60,7 @@ export default function ConcentratedPool({}) {
     state.rangePoolAddress,
     state.rangePoolData,
     state.rangePositionData,
+    state.feeTierId,
     state.setRangePoolAddress,
     state.setRangePoolData,
     state.setRangePositionData,
@@ -81,6 +84,7 @@ export default function ConcentratedPool({}) {
     state.switchDirection,
     state.setDisabled,
     state.setButtonMessage,
+    state.setRangePoolFromVolatility,
     state.needsBalanceIn,
     state.needsBalanceOut,
     state.setNeedsBalanceIn,
@@ -104,28 +108,30 @@ export default function ConcentratedPool({}) {
   }, [tokenIn, tokenOut]);
 
   ////////////////////////////////Pools
+  //initial volatility Tier set to 1.7% when selected from list of range pools
+  const [selectedFeeTier, setSelectedFeeTier] = useState(
+    feeTiers[feeTierId ?? 0]
+  );
 
   useEffect(() => {
-    if (tokenIn.address && tokenOut.address) {
-      updatePools();
-    }
-  }, [tokenIn, tokenOut]);
+    updatePoolsFromStore();
+  }, [feeTierId, tokenIn.name, tokenOut.name]);
 
-  async function updatePools() {
-    await getRangePool(
-      tokenIn,
-      tokenOut,
-      setRangePoolAddress,
-      setRangePoolData
-    );
+  async function updatePoolsFromStore() {
+    setRangePoolFromVolatility(tokenIn, tokenOut, feeTierId);
+    setSelectedFeeTier(feeTiers[feeTierId]);
   }
+
+  //sames as updatePools but triggered from the html
+  const handleManualVolatilityChange = async (volatility: any) => {
+    setRangePoolFromVolatility(tokenIn, tokenOut, volatility);
+    setSelectedFeeTier(volatility);
+  };
+
 
   //this sets the default position price delta
   useEffect(() => {
-    console.log("rangePoolData", rangePoolData);
     if (rangePoolData.price && rangePoolData.tickAtPrice) {
-      console.log("rangePoolData.price", rangePoolData.price);
-      console.log("rangePoolData.tickAtPrice", rangePoolData.tickAtPrice);
       const price = JSBI.BigInt(rangePoolData.price);
       const tickAtPrice = rangePoolData.tickAtPrice;
       setRangePrice(TickMath.getPriceStringAtSqrtPrice(price));
@@ -141,47 +147,6 @@ export default function ConcentratedPool({}) {
       setRangePositionData(positionData);
     }
   }, [rangePoolData, tokenOrder]);
-
-  ////////////////////////////////Pools Fee Tiers
-  const [fee, setFee] = useState(feeTiers[0]);
-
-  function updateSelectedFeeTier(): any {
-    if (rangePoolData.feeTier.id == 500) {
-      return feeTiers[0];
-    } else if (rangePoolData.feeTier.id == 3000) {
-      return feeTiers[1];
-    } else if (rangePoolData.feeTier.id == 10000) {
-      return feeTiers[2];
-    } else return feeTiers[0];
-  }
-
-  useEffect(() => {
-    if (rangePoolData.feeTier) {
-      setFee(updateSelectedFeeTier());
-    }
-  }, [rangePoolData]);
-
-  const handleManualFeeChange = async (auxfee: any) => {
-    const pool = tokenOrder
-      ? await getRangePoolFromFactory(tokenIn.address, tokenOut.address)
-      : await getRangePoolFromFactory(tokenOut.address, tokenIn.address);
-    const data = pool["data"]["rangePools"];
-    for (var i = 0; i < data.length; i++) {
-      if (data[i]["feeTier"]["id"] == 3000 && auxfee.tierId == 3000) {
-        setFee(feeTiers[2]);
-        setRangePoolAddress(pool["data"]["rangePools"][i]["id"]);
-      } else if (data[i]["feeTier"]["id"] == 500 && auxfee.tierId == 500) {
-        setFee(feeTiers[1]);
-        setRangePoolAddress(pool["data"]["rangePools"][i]["id"]);
-      } else if (data[i]["feeTier"]["id"] == 100 && auxfee.tierId == 100) {
-        setFee(feeTiers[0]);
-        setRangePoolAddress(pool["data"]["rangePools"][i]["id"]);
-      } else if (data[i]["feeTier"]["id"] == 10000 && auxfee.tierId == 10000) {
-        setFee(feeTiers[3]);
-        setRangePoolAddress(pool["data"]["rangePools"][i]["id"]);
-      }
-    }
-  };
 
   ////////////////////////////////Token Balances
 
@@ -202,7 +167,7 @@ export default function ConcentratedPool({}) {
     watch: needsBalanceOut,
     onSuccess(data) {
       setNeedsBalanceOut(false);
-    }
+    },
   });
 
   useEffect(() => {
@@ -257,9 +222,11 @@ export default function ConcentratedPool({}) {
   }, [lowerPrice, upperPrice]);
 
   useEffect(() => {
-    if (rangePositionData.lowerPrice &&
-       rangePositionData.upperPrice &&
-       rangePoolData.feeTier) {
+    if (
+      rangePositionData.lowerPrice &&
+      rangePositionData.upperPrice &&
+      rangePoolData.feeTier
+    ) {
       tokenOutAmountMath();
     }
   }, [
@@ -384,12 +351,12 @@ export default function ConcentratedPool({}) {
   //select fee html
   function SelectFee() {
     return (
-      <Listbox value={fee} onChange={handleManualFeeChange}>
+      <Listbox value={selectedFeeTier} onChange={handleManualVolatilityChange}>
         <div className="relative mt-1 w-full">
           <Listbox.Button className="relative cursor-default rounded-lg bg-black text-white cursor-pointer border border-grey1 py-2 pl-3 w-full text-left shadow-md focus:outline-none">
-            <span className="block truncate">{fee.tier}</span>
+            <span className="block truncate">{selectedFeeTier.tier}</span>
             <span className="block truncate text-xs text-grey mt-1">
-              {fee.text}
+              {selectedFeeTier.text}
             </span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
               <ChevronDownIcon className="w-7 text-grey" aria-hidden="true" />
@@ -729,7 +696,7 @@ export default function ConcentratedPool({}) {
             </div>
           </div>
         </div>
-        <ConcentratedPoolPreview fee={fee} />
+        <ConcentratedPoolPreview fee={selectedFeeTier} />
       </div>
     </div>
   );
