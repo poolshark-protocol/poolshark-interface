@@ -15,7 +15,6 @@ type RangeState = {
   //rangePoolData contains all the info about the pool
   rangePoolData: any;
   feeTierId: number;
-  feeSelected: boolean;
   rangeSlippage: string;
   //Range position data containing all the info about the position
   rangePositionData: any;
@@ -100,7 +99,6 @@ const initialRangeState: RangeState = {
   rangePoolAddress: "0x000",
   rangePoolData: {},
   feeTierId: 0,
-  feeSelected: false,
   rangeSlippage: "0.5",
   //
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
@@ -153,7 +151,6 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   rangePoolAddress: initialRangeState.rangePoolAddress,
   rangePoolData: initialRangeState.rangePoolData,
   feeTierId: initialRangeState.feeTierId,
-  feeSelected: initialRangeState.feeSelected,
   rangeSlippage: initialRangeState.rangeSlippage,
   //true if both tokens selected, false if only one token selected
   pairSelected: initialRangeState.pairSelected,
@@ -421,7 +418,6 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
             rangePoolAddress: pool["data"]["rangePools"][i]["id"],
             rangePoolData: pool["data"]["rangePools"][i],
             feeTierId: volatilityId,
-            feeSelected: true,
           }));
         }
       }
