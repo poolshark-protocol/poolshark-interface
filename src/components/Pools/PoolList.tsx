@@ -53,7 +53,6 @@ export default function PoolList({
       tier: feeTier,
       id: feeTier == "500" ? 0 : feeTier == "3000" ? 1 : 2,
     };
-    console.log('poolslist feetier', tier);
     setRangePoolFromVolatility(tokenIn, tokenOut, tier);
     router.push({
       pathname: href,

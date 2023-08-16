@@ -128,9 +128,6 @@ export default function ConcentratedPool({}) {
     setSelectedFeeTier(volatility);
   };
 
-  console.log("fee/////////////////////////////");
-  console.log("fee selectedFeeTier", selectedFeeTier);
-  console.log("fee rangePoolData", rangePoolData);
 
   //this sets the default position price delta
   useEffect(() => {

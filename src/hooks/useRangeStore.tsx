@@ -408,7 +408,6 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       );
       const volatilityId = volatility.id;
       const dataLength = pool["data"]["rangePools"].length;
-      console.log("pools", pool);
       for (let i = 0; i < dataLength; i++) {
         if (
           (volatilityId == 0 &&
@@ -418,7 +417,6 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
           (volatilityId == 2 &&
             pool["data"]["rangePools"][i]["feeTier"]["feeAmount"] == "10000")
         ) {
-          console.log("fee selected pool", pool["data"]["rangePools"][i]["id"]);
           set(() => ({
             rangePoolAddress: pool["data"]["rangePools"][i]["id"],
             rangePoolData: pool["data"]["rangePools"][i],
