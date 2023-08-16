@@ -389,6 +389,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         userPoolAllowance: state.tokenIn.userPoolAllowance,
         coverUSDPrice: state.tokenIn.coverUSDPrice,
       },
+      needsAllowance: true,
     }));
   },
   setCoverPoolFromVolatility: async (tokenIn, tokenOut, volatility: any) => {
