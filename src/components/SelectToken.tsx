@@ -32,10 +32,6 @@ export default function SelectToken(props) {
           }/tokenlist.json`
         )
         .then(function (response) {
-          console.log(
-            "response.data.listed_tokens",
-            response.data.listed_tokens
-          );
           const coins = {
             listed_tokens: response.data.listed_tokens,
             search_tokens: response.data.search_tokens,
@@ -51,16 +47,6 @@ export default function SelectToken(props) {
     };
     fetch();
   }, [chainId, address]);
-
-  /*  useEffect(() => {
-    updateBalance();
-  }, rawCoinList);
-
-  function updateBalance() {
-    for (let i = 0; i < rawCoinList.length; i++) {
-      rawCoinList[i].balance = useBalance(rawCoinList[i].address);
-    }
-  } */
 
   const chooseToken = (coin) => {
     coin = {

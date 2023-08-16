@@ -60,7 +60,6 @@ export const getCoverPool = async (
     const dataLength = pool["data"]["coverPools"].length;
 
     if (coverPoolData) {
-      console.log("cover pool data", coverPoolData);
       for (let i = 0; i < dataLength; i++) {
         if (pool["data"]["coverPools"][i]["id"] == coverPoolData["id"]) {
           console.log("found cover pool data", coverPoolData);

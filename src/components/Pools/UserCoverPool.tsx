@@ -83,6 +83,7 @@ export default function UserCoverPool({
     } as token;
     setTokenIn(tokenOutNew, tokenInNew);
     setTokenOut(tokenInNew, tokenOutNew);
+    //TODO we should also set the pools from volatility tiers
     getCoverPool(tokenIn, tokenOut, setCoverPoolAddress, setCoverPoolData);
   }
 
