@@ -6,6 +6,7 @@ import {
   tokenZeroAddress,
 } from "../constants/contractAddresses";
 import { create } from "zustand";
+import { getRangePoolFromFactory } from "../utils/queries";
 
 type RangeState = {
   //poolAddress for current token pairs
@@ -13,6 +14,8 @@ type RangeState = {
   rangePoolAddress: `0x${string}`;
   //rangePoolData contains all the info about the pool
   rangePoolData: any;
+  feeTierId: number;
+  feeSelected: boolean;
   rangeSlippage: string;
   //Range position data containing all the info about the position
   rangePositionData: any;
@@ -75,6 +78,11 @@ type RangeAction = {
   setGasLimit: (gasLimit: BigNumber) => void;
   //
   switchDirection: () => void;
+  setRangePoolFromVolatility: (
+    tokenIn: any,
+    tokenOut: any,
+    volatility: any
+  ) => void;
   resetRangeParams: () => void;
   //
   setDisabled: (disabled: boolean) => void;
@@ -91,6 +99,8 @@ const initialRangeState: RangeState = {
   //pools
   rangePoolAddress: "0x000",
   rangePoolData: {},
+  feeTierId: 0,
+  feeSelected: false,
   rangeSlippage: "0.5",
   //
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
@@ -142,6 +152,8 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   //pool
   rangePoolAddress: initialRangeState.rangePoolAddress,
   rangePoolData: initialRangeState.rangePoolData,
+  feeTierId: initialRangeState.feeTierId,
+  feeSelected: initialRangeState.feeSelected,
   rangeSlippage: initialRangeState.rangeSlippage,
   //true if both tokens selected, false if only one token selected
   pairSelected: initialRangeState.pairSelected,
@@ -387,6 +399,37 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
         address: state.tokenIn.address,
       },
     }));
+  },
+  setRangePoolFromVolatility: async (tokenIn, tokenOut, volatility: any) => {
+    try {
+      const pool = await getRangePoolFromFactory(
+        tokenIn.address,
+        tokenOut.address
+      );
+      const volatilityId = volatility.id;
+      const dataLength = pool["data"]["rangePools"].length;
+      console.log("pools", pool);
+      for (let i = 0; i < dataLength; i++) {
+        if (
+          (volatilityId == 0 &&
+            pool["data"]["rangePools"][i]["feeTier"]["feeAmount"] == "500") ||
+          (volatilityId == 1 &&
+            pool["data"]["rangePools"][i]["feeTier"]["feeAmount"] == "3000") ||
+          (volatilityId == 2 &&
+            pool["data"]["rangePools"][i]["feeTier"]["feeAmount"] == "10000")
+        ) {
+          console.log("fee selected pool", pool["data"]["rangePools"][i]["id"]);
+          set(() => ({
+            rangePoolAddress: pool["data"]["rangePools"][i]["id"],
+            rangePoolData: pool["data"]["rangePools"][i],
+            feeTierId: volatilityId,
+            feeSelected: true,
+          }));
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
   },
   resetRangeParams: () => {
     set({
