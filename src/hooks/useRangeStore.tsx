@@ -1,12 +1,13 @@
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { token, tokenRange } from "../utils/types";
-import { BN_ZERO } from "../utils/math/constants";
+import { BN_ZERO, ZERO } from "../utils/math/constants";
 import {
   tokenOneAddress,
   tokenZeroAddress,
 } from "../constants/contractAddresses";
 import { create } from "zustand";
 import { getRangePoolFromFactory } from "../utils/queries";
+import JSBI from "jsbi";
 
 type RangeState = {
   //poolAddress for current token pairs
@@ -27,12 +28,14 @@ type RangeState = {
   //min and max price input
   minInput: string;
   maxInput: string;
-  //Gas
-  gasFee: BigNumber;
-  gasLimit: BigNumber;
-  //Disabled
-  disabled: boolean;
-  buttonMessage: string;
+  rangeMintParams: {
+    tokenInAmount: JSBI;
+    tokenOutAmount: JSBI;
+    gasFee: string;
+    gasLimit: BigNumber;
+    disabled: boolean;
+    buttonMessage: string;
+  };
   //refresh
   needsRefetch: boolean;
   needsAllowanceIn: boolean;
@@ -65,7 +68,7 @@ type RangeAction = {
   setMinInput: (newMinTick: string) => void;
   setMaxInput: (newMaxTick: string) => void;
   //
-  setGasFee: (gasFee: BigNumber) => void;
+  setGasFee: (gasFee: string) => void;
   setGasLimit: (gasLimit: BigNumber) => void;
   //
   switchDirection: () => void;
@@ -76,8 +79,7 @@ type RangeAction = {
   ) => void;
   resetRangeParams: () => void;
   //
-  setDisabled: (disabled: boolean) => void;
-  setButtonMessage: (balance: string) => void;
+  setMintButtonState: () => void;
   //
   setNeedsRefetch: (needsRefetch: boolean) => void;
   setNeedsAllowanceIn: (needsAllowance: boolean) => void;
@@ -90,6 +92,7 @@ const initialRangeState: RangeState = {
   //pools
   rangePoolAddress: "0x000",
   rangePoolData: {},
+  rangePositionData: {},
   feeTierId: 0,
   rangeSlippage: "0.5",
   //
@@ -121,13 +124,14 @@ const initialRangeState: RangeState = {
   minInput: "",
   maxInput: "",
   //
-  gasFee: BN_ZERO,
-  gasLimit: BN_ZERO,
-  //
-  rangePositionData: {},
-  //
-  disabled: false,
-  buttonMessage: "",
+  rangeMintParams: {
+    tokenInAmount: ZERO,
+    tokenOutAmount: ZERO,
+    gasFee: "$0.00",
+    gasLimit: BN_ZERO,
+    disabled: true,
+    buttonMessage: "",
+  },
   //
   needsRefetch: false,
   needsAllowanceIn: true,
@@ -151,14 +155,10 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   //input amounts
   minInput: initialRangeState.minInput,
   maxInput: initialRangeState.maxInput,
-  //gas
-  gasFee: initialRangeState.gasFee,
-  gasLimit: initialRangeState.gasLimit,
   //range position data
   rangePositionData: initialRangeState.rangePositionData,
-  //contract calls
-  disabled: initialRangeState.disabled,
-  buttonMessage: initialRangeState.buttonMessage,
+  //
+  rangeMintParams: initialRangeState.rangeMintParams,
   //refresh
   needsRefetch: initialRangeState.needsRefetch,
   needsAllowanceIn: initialRangeState.needsAllowanceIn,
@@ -307,14 +307,20 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       rangeSlippage: rangeSlippage,
     }));
   },
-  setGasFee: (gasFee: BigNumber) => {
-    set(() => ({
-      gasFee: gasFee,
+  setGasFee: (gasFee: string) => {
+    set((state) => ({
+      rangeMintParams: {
+        ...state.rangeMintParams,
+        gasFee: gasFee,
+      },
     }));
   },
   setGasLimit: (gasLimit: BigNumber) => {
-    set(() => ({
-      gasLimit: gasLimit,
+    set((state) => ({
+      rangeMintParams: {
+        ...state.rangeMintParams,
+        gasLimit: gasLimit,
+      },
     }));
   },
   setRangePositionData: (rangePositionData: any) => {
@@ -322,14 +328,45 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       rangePositionData: rangePositionData,
     }));
   },
-  setDisabled: (disabled: boolean) => {
-    set(() => ({
-      disabled: disabled,
-    }));
-  },
-  setButtonMessage: (buttonMessage: string) => {
-    set(() => ({
-      buttonMessage: buttonMessage,
+  setMintButtonState: () => {
+    set((state) => ({
+      rangeMintParams: {
+        ...state.rangeMintParams,
+        buttonMessage:
+          state.tokenIn.userBalance <
+          parseFloat(
+            ethers.utils.formatUnits(
+              String(state.rangeMintParams.tokenInAmount),
+              18
+            )
+          )
+            ? "Insufficient Token Balance"
+            : parseFloat(
+                ethers.utils.formatUnits(
+                  String(state.rangeMintParams.tokenInAmount),
+                  18
+                )
+              ) == 0
+            ? "Enter Amount"
+            : "Create Cover",
+        disabled:
+          state.tokenIn.userBalance <
+          parseFloat(
+            ethers.utils.formatUnits(
+              String(state.rangeMintParams.tokenInAmount),
+              18
+            )
+          )
+            ? true
+            : parseFloat(
+                ethers.utils.formatUnits(
+                  String(state.rangeMintParams.tokenInAmount),
+                  18
+                )
+              ) == 0
+            ? true
+            : false,
+      },
     }));
   },
   setNeedsRefetch: (needsRefetch: boolean) => {
@@ -424,21 +461,13 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       pairSelected: initialRangeState.pairSelected,
       //tokenIn
       tokenIn: initialRangeState.tokenIn,
-
       //tokenOut
       tokenOut: initialRangeState.tokenOut,
-
       //input amounts
       minInput: initialRangeState.minInput,
       maxInput: initialRangeState.maxInput,
-      //gas
-      gasFee: initialRangeState.gasFee,
-      gasLimit: initialRangeState.gasLimit,
       //position data
       rangePositionData: initialRangeState.rangePositionData,
-      //disable
-      disabled: initialRangeState.disabled,
-      buttonMessage: initialRangeState.buttonMessage,
       //refresh
       needsAllowanceIn: initialRangeState.needsAllowanceIn,
       needsAllowanceOut: initialRangeState.needsAllowanceOut,
