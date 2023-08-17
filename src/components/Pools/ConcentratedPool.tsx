@@ -128,9 +128,9 @@ export default function ConcentratedPool({}) {
     setSelectedFeeTier(volatility);
   };
 
-
   //this sets the default position price delta
   useEffect(() => {
+    console.log("use rangePoolData", rangePoolData);
     if (rangePoolData.price && rangePoolData.tickAtPrice) {
       const price = JSBI.BigInt(rangePoolData.price);
       const tickAtPrice = rangePoolData.tickAtPrice;

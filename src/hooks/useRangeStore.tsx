@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { token } from "../utils/types";
+import { token, tokenRange } from "../utils/types";
 import { BN_ZERO } from "../utils/math/constants";
 import {
   tokenOneAddress,
@@ -21,17 +21,9 @@ type RangeState = {
   //true if both tokens selected, false if only one token selected
   pairSelected: boolean;
   //TokenIn defines the token on the left/up on a swap page
-  tokenIn: token;
-  tokenInAmount: BigNumber;
-  tokenInRangeUSDPrice: number;
-  tokenInRangeAllowance: BigNumber;
-  tokenInBalance: string;
+  tokenIn: tokenRange;
   //TokenOut defines the token on the left/up on a swap page
-  tokenOut: token;
-  tokenOutAmount: BigNumber;
-  tokenOutRangeUSDPrice: number;
-  tokenOutBalance: string;
-  tokenOutRangeAllowance: BigNumber;
+  tokenOut: tokenRange;
   //min and max price input
   minInput: string;
   maxInput: string;
@@ -61,7 +53,7 @@ type RangeAction = {
   setTokenIn: (tokenOut: any, newToken: any) => void;
   setTokenInAmount: (amount: BigNumber) => void;
   setTokenInRangeUSDPrice: (price: number) => void;
-  setTokenInRangeAllowance: (allowance: BigNumber) => void;
+  setTokenInRangeAllowance: (allowance: string) => void;
   setTokenInBalance: (balance: string) => void;
   //
   setTokenOut: (tokenIn: any, newToken: any) => void;
@@ -110,11 +102,10 @@ const initialRangeState: RangeState = {
     symbol: "WETH",
     logoURI: "/static/images/eth_icon.png",
     address: tokenOneAddress,
-  } as token,
-  tokenInAmount: BN_ZERO,
-  tokenInRangeUSDPrice: 0,
-  tokenInRangeAllowance: BN_ZERO,
-  tokenInBalance: "0.00",
+    userBalance: 0.0,
+    userPoolAllowance: 0.0,
+    rangeUSDPrice: 0.0,
+  } as tokenRange,
   //
   tokenOut: {
     callId: 1,
@@ -122,11 +113,10 @@ const initialRangeState: RangeState = {
     symbol: "Select Token",
     logoURI: "",
     address: tokenZeroAddress,
-  } as token,
-  tokenOutAmount: BN_ZERO,
-  tokenOutRangeUSDPrice: 0,
-  tokenOutRangeAllowance: BN_ZERO,
-  tokenOutBalance: "0.00",
+    userBalance: 0.0,
+    userPoolAllowance: 0.0,
+    rangeUSDPrice: 0.0,
+  } as tokenRange,
   //
   minInput: "",
   maxInput: "",
@@ -156,16 +146,8 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   pairSelected: initialRangeState.pairSelected,
   //tokenIn
   tokenIn: initialRangeState.tokenIn,
-  tokenInAmount: initialRangeState.tokenInAmount,
-  tokenInRangeUSDPrice: initialRangeState.tokenInRangeUSDPrice,
-  tokenInRangeAllowance: initialRangeState.tokenInRangeAllowance,
-  tokenInBalance: initialRangeState.tokenInBalance,
   //tokenOut
   tokenOut: initialRangeState.tokenOut,
-  tokenOutAmount: initialRangeState.tokenOutAmount,
-  tokenOutRangeUSDPrice: initialRangeState.tokenOutRangeUSDPrice,
-  tokenOutBalance: initialRangeState.tokenOutBalance,
-  tokenOutRangeAllowance: initialRangeState.tokenOutRangeAllowance,
   //input amounts
   minInput: initialRangeState.minInput,
   maxInput: initialRangeState.maxInput,
@@ -189,7 +171,7 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       pairSelected: pairSelected,
     }));
   },
-  setTokenIn: (tokenOut, newToken: token) => {
+  setTokenIn: (tokenOut, newToken: tokenRange) => {
     //if tokenOut is selected
     if (
       tokenOut.address != initialRangeState.tokenOut.address ||
@@ -228,31 +210,32 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
     }
   },
   setTokenInAmount: (newAmount: BigNumber) => {
-    set(() => ({
-      tokenInAmount: newAmount,
+    //TODO this should also go to mint params
+    set((state) => ({
+      tokenIn: { ...state.tokenIn, amount: newAmount },
     }));
   },
   setTokenInRangeUSDPrice: (newPrice: number) => {
-    set(() => ({
-      tokenInRangeUSDPrice: newPrice,
+    set((state) => ({
+      tokenIn: { ...state.tokenIn, rangeUSDPrice: newPrice },
     }));
   },
-  setTokenInRangeAllowance: (newAllowance: BigNumber) => {
-    set(() => ({
-      tokenInRangeAllowance: newAllowance,
+  setTokenInRangeAllowance: (newAllowance: string) => {
+    set((state) => ({
+      tokenIn: { ...state.tokenIn, userPoolAllowance: Number(newAllowance) },
     }));
   },
   setTokenInBalance: (newBalance: string) => {
-    set(() => ({
-      tokenInBalance: newBalance,
+    set((state) => ({
+      tokenIn: { ...state.tokenIn, userBalance: Number(newBalance) },
     }));
   },
   setTokenOutRangeUSDPrice: (newPrice: number) => {
-    set(() => ({
-      tokenOutRangeUSDPrice: newPrice,
+    set((state) => ({
+      tokenOut: { ...state.tokenOut, rangeUSDPrice: newPrice },
     }));
   },
-  setTokenOut: (tokenIn, newToken: token) => {
+  setTokenOut: (tokenIn, newToken: tokenRange) => {
     //if tokenIn exists
     if (
       tokenIn.address != initialRangeState.tokenOut.address ||
@@ -284,18 +267,19 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
     }
   },
   setTokenOutAmount: (newAmount: BigNumber) => {
-    set(() => ({
-      tokenOutAmount: newAmount,
+    //TODO this should also go to mint params
+    set((state) => ({
+      tokenOut: { ...state.tokenOut, amount: newAmount },
     }));
   },
   setTokenOutBalance: (newBalance: string) => {
-    set(() => ({
-      tokenOutBalance: newBalance,
+    set((state) => ({
+      tokenOut: { ...state.tokenOut, userBalance: Number(newBalance) },
     }));
   },
   setTokenOutRangeAllowance: (newAllowance: BigNumber) => {
-    set(() => ({
-      tokenOutRangeAllowance: newAllowance,
+    set((state) => ({
+      tokenOut: { ...state.tokenOut, userPoolAllowance: Number(newAllowance) },
     }));
   },
   setMinInput: (minInput: string) => {
@@ -384,6 +368,9 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
         symbol: state.tokenOut.symbol,
         logoURI: state.tokenOut.logoURI,
         address: state.tokenOut.address,
+        rangeUSDPrice: state.tokenOut.rangeUSDPrice,
+        userBalance: state.tokenOut.userBalance,
+        userPoolAllowance: state.tokenOut.userPoolAllowance,
       },
       tokenOut: {
         callId:
@@ -394,6 +381,9 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
         symbol: state.tokenIn.symbol,
         logoURI: state.tokenIn.logoURI,
         address: state.tokenIn.address,
+        rangeUSDPrice: state.tokenIn.rangeUSDPrice,
+        userBalance: state.tokenIn.userBalance,
+        userPoolAllowance: state.tokenIn.userPoolAllowance,
       },
     }));
   },
@@ -434,16 +424,10 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       pairSelected: initialRangeState.pairSelected,
       //tokenIn
       tokenIn: initialRangeState.tokenIn,
-      tokenInAmount: initialRangeState.tokenInAmount,
-      tokenInRangeUSDPrice: initialRangeState.tokenInRangeUSDPrice,
-      tokenInRangeAllowance: initialRangeState.tokenInRangeAllowance,
-      tokenInBalance: initialRangeState.tokenInBalance,
+
       //tokenOut
       tokenOut: initialRangeState.tokenOut,
-      tokenOutAmount: initialRangeState.tokenOutAmount,
-      tokenOutRangeUSDPrice: initialRangeState.tokenOutRangeUSDPrice,
-      tokenOutBalance: initialRangeState.tokenOutBalance,
-      tokenOutRangeAllowance: initialRangeState.tokenOutRangeAllowance,
+
       //input amounts
       minInput: initialRangeState.minInput,
       maxInput: initialRangeState.maxInput,

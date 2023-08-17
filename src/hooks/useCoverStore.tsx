@@ -187,6 +187,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     }
   },
   setTokenInAmount: (newAmount: string) => {
+    //TODO this is wrong -> should update mintparams and not tokenIn
     set((state) => ({
       tokenIn: {
         ...state.tokenIn,
