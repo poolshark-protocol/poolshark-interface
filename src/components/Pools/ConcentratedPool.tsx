@@ -644,7 +644,7 @@ export default function ConcentratedPool({}) {
             </div>
           </div>
         </div>
-        {/* <ConcentratedPoolPreview fee={selectedFeeTier} /> */}
+        <ConcentratedPoolPreview fee={selectedFeeTier} />
       </div>
     </div>
   );
