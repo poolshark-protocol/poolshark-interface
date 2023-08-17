@@ -88,7 +88,7 @@ export default function ConcentratedPool({}) {
     if (tokenIn.address && tokenOut.address) {
       setTokenOrder(tokenIn.callId == 0);
     }
-  }, [tokenIn, tokenOut]);
+  }, [tokenIn]);
 
   ////////////////////////////////Pools
   //initial volatility Tier set to 1.7% when selected from list of range pools
@@ -98,7 +98,7 @@ export default function ConcentratedPool({}) {
 
   useEffect(() => {
     updatePoolsFromStore();
-  }, [feeTierId, tokenIn.name, tokenOut.name]);
+  }, [tokenIn, tokenOut, feeTierId]);
 
   async function updatePoolsFromStore() {
     setRangePoolFromVolatility(tokenIn, tokenOut, feeTierId);
@@ -113,7 +113,6 @@ export default function ConcentratedPool({}) {
 
   //this sets the default position price delta
   useEffect(() => {
-    console.log("use rangePoolData", rangePoolData);
     if (rangePoolData.price && rangePoolData.tickAtPrice) {
       const price = JSBI.BigInt(rangePoolData.price);
       const tickAtPrice = rangePoolData.tickAtPrice;
@@ -129,7 +128,7 @@ export default function ConcentratedPool({}) {
       setRangeTickPrice(tickAtPrice);
       setRangePositionData(positionData);
     }
-  }, [rangePoolData, tokenOrder]);
+  }, [rangePoolData]);
 
   ////////////////////////////////Token Balances
 
@@ -185,7 +184,7 @@ export default function ConcentratedPool({}) {
         );
       }
     }
-  }, [rangePoolData, tokenIn, tokenOut]);
+  }, [rangePoolData]);
 
   ////////////////////////////////Prices and Ticks
   const [rangePrice, setRangePrice] = useState(undefined);
@@ -214,8 +213,6 @@ export default function ConcentratedPool({}) {
     }
   }, [
     bnInput,
-    rangePositionData.lowerPrice,
-    rangePositionData.upperPrice,
     tokenOrder,
   ]);
 
