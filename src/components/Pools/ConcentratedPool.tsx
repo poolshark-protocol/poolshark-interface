@@ -11,7 +11,6 @@ import ConcentratedPoolPreview from "./ConcentratedPoolPreview";
 import { useRangeStore } from "../../hooks/useRangeStore";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
-import { getRangePoolFromFactory } from "../../utils/queries";
 import useInputBox from "../../hooks/useInputBox";
 import { useAccount, useBalance } from "wagmi";
 import { BigNumber, ethers } from "ethers";
@@ -648,7 +647,7 @@ export default function ConcentratedPool({}) {
             </div>
           </div>
         </div>
-        <ConcentratedPoolPreview fee={selectedFeeTier} />
+        {/* <ConcentratedPoolPreview fee={selectedFeeTier} /> */}
       </div>
     </div>
   );

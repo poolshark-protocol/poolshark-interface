@@ -29,8 +29,8 @@ type RangeState = {
   minInput: string;
   maxInput: string;
   rangeMintParams: {
-    tokenInAmount: JSBI;
-    tokenOutAmount: JSBI;
+    tokenInAmount: BigNumber;
+    tokenOutAmount: BigNumber;
     gasFee: string;
     gasLimit: BigNumber;
     disabled: boolean;
@@ -62,7 +62,7 @@ type RangeAction = {
   setTokenOut: (tokenIn: any, newToken: any) => void;
   setTokenOutAmount: (amount: BigNumber) => void;
   setTokenOutRangeUSDPrice: (price: number) => void;
-  setTokenOutRangeAllowance: (allowance: BigNumber) => void;
+  setTokenOutRangeAllowance: (allowance: string) => void;
   setTokenOutBalance: (balance: string) => void;
   //
   setMinInput: (newMinTick: string) => void;
@@ -106,7 +106,7 @@ const initialRangeState: RangeState = {
     logoURI: "/static/images/eth_icon.png",
     address: tokenOneAddress,
     userBalance: 0.0,
-    userPoolAllowance: 0.0,
+    userPoolAllowance: 0,
     rangeUSDPrice: 0.0,
   } as tokenRange,
   //
@@ -117,7 +117,7 @@ const initialRangeState: RangeState = {
     logoURI: "",
     address: tokenZeroAddress,
     userBalance: 0.0,
-    userPoolAllowance: 0.0,
+    userPoolAllowance: 0,
     rangeUSDPrice: 0.0,
   } as tokenRange,
   //
@@ -125,8 +125,8 @@ const initialRangeState: RangeState = {
   maxInput: "",
   //
   rangeMintParams: {
-    tokenInAmount: ZERO,
-    tokenOutAmount: ZERO,
+    tokenInAmount: BN_ZERO,
+    tokenOutAmount: BN_ZERO,
     gasFee: "$0.00",
     gasLimit: BN_ZERO,
     disabled: true,
@@ -277,7 +277,7 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       tokenOut: { ...state.tokenOut, userBalance: Number(newBalance) },
     }));
   },
-  setTokenOutRangeAllowance: (newAllowance: BigNumber) => {
+  setTokenOutRangeAllowance: (newAllowance: string) => {
     set((state) => ({
       tokenOut: { ...state.tokenOut, userPoolAllowance: Number(newAllowance) },
     }));
