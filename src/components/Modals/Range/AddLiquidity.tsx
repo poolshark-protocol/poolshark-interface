@@ -421,10 +421,16 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                           <div className="flex whitespace-nowrap items-center justify-end gap-x-2 px-1 mt-2">
                             <div
                               className="flex md:text-xs text-[10px] text-[#4C4C4C]"
-                              key={balanceIn}
+                              key={balanceOut}
                             >
                               Balance: {balanceOut === "NaN" ? 0 : balanceOut}
                             </div>
+                            <button
+                              className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
+                              onClick={() => lowerMaxBalance(balanceOut, "0")}
+                            >
+                              Max
+                            </button>
                           </div>
                         </div>
                       </div>
