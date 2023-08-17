@@ -26,14 +26,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     rangePoolAddress,
     pairSelected,
     tokenIn,
-    tokenInBalance,
     setTokenInBalance,
     tokenOut,
-    tokenOutBalance,
     setTokenOutBalance,
     rangePositionData,
-    tokenInRangeUSDPrice,
-    tokenOutRangeUSDPrice,
     needsAllowanceIn,
     setNeedsAllowanceIn,
     needsAllowanceOut,
@@ -46,14 +42,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     state.rangePoolAddress,
     state.pairSelected,
     state.tokenIn,
-    state.tokenInBalance,
     state.setTokenInBalance,
     state.tokenOut,
-    state.tokenOutBalance,
     state.setTokenOutBalance,
     state.rangePositionData,
-    state.tokenInRangeUSDPrice,
-    state.tokenOutRangeUSDPrice,
     state.needsAllowanceIn,
     state.setNeedsAllowanceIn,
     state.needsAllowanceOut,
@@ -192,7 +184,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     watch: needsBalanceIn,
     onSuccess(data) {
       setNeedsBalanceIn(false);
-    }
+    },
   });
 
   const { data: tokenOutBal } = useBalance({
@@ -202,7 +194,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     watch: needsBalanceOut,
     onSuccess(data) {
       setNeedsBalanceOut(false);
-    }
+    },
   });
 
   useEffect(() => {
@@ -333,13 +325,13 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                           $
                           {tokenOrder
                             ? Number(
-                                tokenOutRangeUSDPrice *
+                                tokenOut.rangeUSDPrice *
                                   parseFloat(
                                     ethers.utils.formatUnits(amount1, 18)
                                   )
                               ).toFixed(2)
                             : Number(
-                                tokenInRangeUSDPrice *
+                                tokenIn.rangeUSDPrice *
                                   parseFloat(
                                     ethers.utils.formatUnits(amount0, 18)
                                   )
@@ -388,13 +380,13 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                           $
                           {tokenOrder
                             ? Number(
-                                tokenInRangeUSDPrice *
+                                tokenIn.rangeUSDPrice *
                                   parseFloat(
                                     ethers.utils.formatUnits(amount0, 18)
                                   )
                               ).toFixed(2)
                             : Number(
-                                tokenOutRangeUSDPrice *
+                                tokenOut.rangeUSDPrice *
                                   parseFloat(
                                     ethers.utils.formatUnits(amount1, 18)
                                   )
