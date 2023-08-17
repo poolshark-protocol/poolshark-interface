@@ -327,9 +327,9 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                     <div className=" p-2 w-32">
                       <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-1 rounded-xl">
                         {
-                          upperInputBox("0", tokenOrder
-                            ? ethers.utils.formatUnits(amount1, 18)
-                            : ethers.utils.formatUnits(amount0, 18))
+                          upperInputBox("0", (tokenOrder
+                            ? ethers.utils.formatUnits(amount1, 18).toString()
+                            : ethers.utils.formatUnits(amount0, 18).toString()))
                         }
                       </div>
                       <div className="flex">
@@ -382,9 +382,9 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                     <div className=" p-2 ">
                       <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
                         {
-                          lowerInputBox("0", tokenOrder
-                            ? ethers.utils.formatUnits(amount0, 18)
-                            : ethers.utils.formatUnits(amount1, 18)
+                          lowerInputBox("0", (tokenOrder
+                            ? ethers.utils.formatUnits(amount0, 18).toString()
+                            : ethers.utils.formatUnits(amount1, 18).toString())
                           )
                           }
                       </div>

@@ -25,7 +25,7 @@ export default function useDoubleInputBox() {
       result == '' ? BigNumber.from('0') : ethers.utils.parseUnits(result, 18),
     )
     setInputLower(
-        result == '' ? BigNumber.from('0') : ethers.utils.parseUnits(inputLower, 18),
+      result == '' ? BigNumber.from('0') : ethers.utils.parseUnits(inputLower, 18),
     )
 
     if (result !== '') {
