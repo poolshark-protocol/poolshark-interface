@@ -11,7 +11,7 @@ export default function useDoubleInputBox() {
   const [inputLower, setInputLower] = useState(BigNumber.from('0'))
   const [bnInputLower, setBnInputLower] = useState(BigNumber.from('0'))
 
-  const handleUpperChange = (event, updateValue, inputLower) => {
+  const handleUpperChange = (event, inputLower, updateValue) => {
     const result = inputFilter(event.target.value)
     //TODO: do not allow for exceeding max decimals
     setDisplayUpper(result == '' ? '' : result)
@@ -58,7 +58,7 @@ export default function useDoubleInputBox() {
     }
   }
 
-  const handleLowerChange = (event, updateValue, inputUpper) => {
+  const handleLowerChange = (event, inputUpper, updateValue) => {
     const result = inputFilter(event.target.value)
     //TODO: do not allow for exceeding max decimals
     setDisplayLower(result == '' ? '' : result)
@@ -105,15 +105,35 @@ export default function useDoubleInputBox() {
     }
   }
 
+  const upperMaxBalance = (balance, placeholder) => {
+    setDisplayUpper(balance)
+    setInputUpper(ethers.utils.parseUnits(balance, 18))
+    if (balance != '') {
+      const valueToBn = ethers.utils.parseUnits(balance, 18)
+      setBnInputUpper(valueToBn)
+    }
+    upperInputBox(placeholder)
+  }
+
+  const lowerMaxBalance = (balance, placeholder) => {
+    setDisplayLower(balance)
+    setInputLower(ethers.utils.parseUnits(balance, 18))
+    if (balance != '') {
+      const valueToBn = ethers.utils.parseUnits(balance, 18)
+      setBnInputLower(valueToBn)
+    }
+    lowerInputBox(placeholder)
+  }
+
   //TODO: add an optional param for changing value
-  const upperInputBox = (placeholder: string, updateValue?: any, inputLower?: any) => {
+  const upperInputBox = (placeholder: string, inputLower?: any, updateValue?: any) => {
     return (
       <div className="">
         <input
           autoComplete="off"
           type="text"
           id="input"
-          onChange={(e) => handleUpperChange(e, updateValue, inputLower)}
+          onChange={(e) => handleUpperChange(e, inputLower, updateValue)}
           value={displayUpper}
           placeholder={placeholder}
           className="bg-[#0C0C0C] placeholder:text-grey1 w-full text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
@@ -122,14 +142,14 @@ export default function useDoubleInputBox() {
     );
   }
 
-  const lowerInputBox = (placeholder: string, updateValue?: any, inputUpper?: any) => {
+  const lowerInputBox = (placeholder: string, inputUpper?: any, updateValue?: any) => {
     return (
       <div className="flex gap-x-2">
         <input
           autoComplete="off"
           type="text"
           id="LimitInput"
-          onChange={(e) => handleLowerChange(e, updateValue, inputUpper)}
+          onChange={(e) => handleLowerChange(e, inputUpper, updateValue)}
           value={displayLower}
           placeholder={placeholder}
           className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
@@ -152,6 +172,8 @@ export default function useDoubleInputBox() {
     setInputUpper,
     setInputLower,
     upperInputBox, 
-    lowerInputBox 
+    lowerInputBox,
+    upperMaxBalance,
+    lowerMaxBalance,
 }
 }

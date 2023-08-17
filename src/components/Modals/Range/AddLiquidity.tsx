@@ -9,7 +9,7 @@ import {
   useSigner,
   useBalance,
 } from "wagmi";
-import useInputBox from "../../../hooks/useInputBox";
+import useDoubleInputBox from "../../../hooks/useDoubleInputBox";
 import RangeAddLiqButton from "../../Buttons/RangeAddLiqButton";
 import { BN_ZERO, ZERO } from "../../../utils/math/constants";
 import { TickMath } from "../../../utils/math/tickMath";
@@ -64,7 +64,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     state.setNeedsBalanceOut,
   ]);
 
-  const { bnInput, inputBox, maxBalance } = useInputBox();
+  const { bnInputUpper, bnInputLower, upperMaxBalance, lowerMaxBalance, upperInputBox, lowerInputBox } = useDoubleInputBox();
   const { data: signer } = useSigner();
   const [balanceIn, setBalanceIn] = useState("");
   const [balanceOut, setBalanceOut] = useState("");
@@ -113,7 +113,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     onSettled(data, error) {
       console.log(
         "allowance check",
-        allowanceIn.lt(bnInput),
+        allowanceIn.lt(bnInputUpper),
         allowanceIn.toString()
       );
       console.log("Allowance Settled", {
@@ -177,7 +177,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
   useEffect(() => {
     console.log("mint gas updating");
     setAmounts();
-  }, [bnInput]);
+  }, [bnInputUpper]);
 
   useEffect(() => {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
@@ -222,29 +222,29 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
 
   // disabled messages
   useEffect(() => {
-    if (Number(ethers.utils.formatUnits(bnInput, 18)) > Number(balanceIn)) {
+    if (Number(ethers.utils.formatUnits(bnInputUpper, 18)) > Number(balanceIn)) {
       setButtonState("balance0");
     }
     if (Number(ethers.utils.formatUnits(amount1, 18)) > Number(balanceOut)) {
       setButtonState("balance1");
     }
-    if (Number(ethers.utils.formatUnits(bnInput, 18)) === 0) {
+    if (Number(ethers.utils.formatUnits(bnInputUpper, 18)) === 0) {
       setButtonState("amount");
     }
     if (
-      Number(ethers.utils.formatUnits(bnInput, 18)) === 0 ||
-      Number(ethers.utils.formatUnits(bnInput, 18)) > Number(balanceIn) ||
+      Number(ethers.utils.formatUnits(bnInputUpper, 18)) === 0 ||
+      Number(ethers.utils.formatUnits(bnInputUpper, 18)) > Number(balanceIn) ||
       Number(ethers.utils.formatUnits(amount1, 18)) > Number(balanceOut)
     ) {
       setDisabled(true);
     } else {
       setDisabled(false);
     }
-  }, [bnInput, balanceIn, balanceOut, disabled]);
+  }, [bnInputUpper, balanceIn, balanceOut, disabled]);
 
   function setAmounts() {
     try {
-      if (Number(ethers.utils.formatUnits(bnInput)) !== 0) {
+      if (Number(ethers.utils.formatUnits(bnInputUpper)) !== 0) {
         const liquidity =
           JSBI.greaterThanOrEqual(rangeSqrtPrice, lowerSqrtPrice) &&
           JSBI.lessThanOrEqual(rangeSqrtPrice, upperSqrtPrice)
@@ -252,15 +252,15 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                 tokenOrder ? rangeSqrtPrice : lowerSqrtPrice,
                 tokenOrder ? upperSqrtPrice : rangeSqrtPrice,
                 rangeSqrtPrice,
-                tokenOrder ? BN_ZERO : bnInput,
-                tokenOrder ? bnInput : BN_ZERO
+                tokenOrder ? BN_ZERO : bnInputUpper,
+                tokenOrder ? bnInputUpper : BN_ZERO
               )
             : DyDxMath.getLiquidityForAmounts(
                 lowerSqrtPrice,
                 upperSqrtPrice,
                 rangeSqrtPrice,
-                tokenOrder ? BN_ZERO : bnInput,
-                tokenOrder ? bnInput : BN_ZERO
+                tokenOrder ? BN_ZERO : bnInputUpper,
+                tokenOrder ? bnInputUpper : BN_ZERO
               );
         console.log("liquidity check", liquidity);
         const tokenOutAmount = JSBI.greaterThan(liquidity, ZERO)
@@ -269,7 +269,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
             : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
           : ZERO;
         // set amount based on bnInput
-        tokenOrder ? setAmount0(bnInput) : setAmount1(bnInput);
+        tokenOrder ? setAmount0(bnInputUpper) : setAmount1(bnInputUpper);
         // set amount based on liquidity math
         tokenOrder
           ? setAmount1(BigNumber.from(String(tokenOutAmount)))
@@ -326,7 +326,11 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                   <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
                     <div className=" p-2 w-32">
                       <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-1 rounded-xl">
-                        {inputBox("0")}
+                        {
+                          upperInputBox("0", tokenOrder
+                            ? ethers.utils.formatUnits(amount1, 18)
+                            : ethers.utils.formatUnits(amount0, 18))
+                        }
                       </div>
                       <div className="flex">
                         <div className="flex text-xs text-[#4C4C4C]">
@@ -365,7 +369,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                             </div>
                             <button
                               className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
-                              onClick={() => maxBalance(balanceIn, "0")}
+                              onClick={() => upperMaxBalance(balanceIn, "0")}
                             >
                               Max
                             </button>
@@ -377,11 +381,12 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                   <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
                     <div className=" p-2 ">
                       <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
-                        {Number(
-                          tokenOrder
-                            ? ethers.utils.formatUnits(amount1, 18)
-                            : ethers.utils.formatUnits(amount0, 18)
-                        ).toFixed(2)}
+                        {
+                          lowerInputBox("0", tokenOrder
+                            ? ethers.utils.formatUnits(amount0, 18)
+                            : ethers.utils.formatUnits(amount1, 18)
+                          )
+                          }
                       </div>
                       <div className="flex">
                         <div className="flex text-xs text-[#4C4C4C]">
