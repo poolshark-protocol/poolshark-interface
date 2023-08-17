@@ -86,11 +86,11 @@ export default function useDoubleInputBox() {
   //TODO: add an optional param for changing value
   const upperInputBox = (placeholder: string, inputLower?: any) => {
     return (
-      <div className="">
+      <div className="flex gap-x-2">
         <input
           autoComplete="off"
           type="text"
-          id="input"
+          id="upperInput"
           onChange={(e) => handleUpperChange(e, inputLower)}
           value={displayUpper}
           placeholder={placeholder}
@@ -106,7 +106,7 @@ export default function useDoubleInputBox() {
         <input
           autoComplete="off"
           type="text"
-          id="LimitInput"
+          id="lowerInput"
           onChange={(e) => handleLowerChange(e, inputUpper)}
           value={displayLower}
           placeholder={placeholder}
