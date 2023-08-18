@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { token } from "../utils/types";
+import { tokenSwap } from "../utils/types";
 import { BN_ZERO } from "../utils/math/constants";
 import {
   tokenOneAddress,
@@ -20,14 +20,14 @@ type SwapState = {
   //true if both tokens selected, false if only one token selected
   pairSelected: boolean;
   //TokenIn defines the token on the left/up on a swap page
-  tokenIn: token;
+  tokenIn: tokenSwap;
   tokenInRangeUSDPrice: number;
   tokenInCoverUSDPrice: number;
   tokenInRangeAllowance: string;
   tokenInCoverAllowance: string;
   tokenInBalance: string;
   //TokenOut defines the token on the left/up on a swap page
-  tokenOut: token;
+  tokenOut: tokenSwap;
   tokenOutRangeUSDPrice: number;
   tokenOutCoverUSDPrice: number;
   tokenOutBalance: string;
@@ -53,14 +53,14 @@ type SwapAction = {
   setRangePoolData: (data: any) => void;
   setPairSelected: (pairSelected: Boolean) => void;
   //tokenIn
-  setTokenIn: (tokenOut: token, newToken: token) => void;
+  setTokenIn: (tokenOut: tokenSwap, newToken: tokenSwap) => void;
   //setTokenInRangeUSDPrice: (price: number) => void;
   //setTokenInCoverUSDPrice: (price: number) => void;
   setTokenInRangeAllowance: (allowance: string) => void;
   setTokenInCoverAllowance: (allowance: string) => void;
   setTokenInBalance: (balance: string) => void;
   //tokenOut
-  setTokenOut: (tokenOut: token, newToken: token) => void;
+  setTokenOut: (tokenOut: tokenSwap, newToken: tokenSwap) => void;
   //setTokenOutRangeUSDPrice: (price: number) => void;
   //setTokenOutCoverUSDPrice: (price: number) => void;
   setTokenOutBalance: (balance: string) => void;
@@ -97,7 +97,8 @@ const initialSwapState: SwapState = {
     symbol: "WETH",
     logoURI: "/static/images/eth_icon.png",
     address: tokenOneAddress,
-  } as token,
+    decimals: 18,
+  } as tokenSwap,
   tokenInRangeUSDPrice: 0,
   tokenInCoverUSDPrice: 0,
   tokenInRangeAllowance: "0.00",
@@ -110,7 +111,8 @@ const initialSwapState: SwapState = {
     symbol: "Select Token",
     logoURI: "",
     address: tokenZeroAddress,
-  } as token,
+    decimals: 18,
+  } as tokenSwap,
   tokenOutRangeUSDPrice: 0,
   tokenOutCoverUSDPrice: 0,
   tokenOutBalance: "0.00",
@@ -161,7 +163,7 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   needsCoverBalance: initialSwapState.needsCoverBalance,
   needsRangeBalanceIn: initialSwapState.needsRangeBalanceIn,
   needsRangeBalanceOut: initialSwapState.needsRangeBalanceOut,
-  setTokenIn: (tokenOut, newToken: token) => {
+  setTokenIn: (tokenOut, newToken: tokenSwap) => {
     //if tokenOut is selected
     if (
       tokenOut.address != initialSwapState.tokenOut.address ||
@@ -243,7 +245,7 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       tokenOutCoverUSDPrice: newPrice,
     }));
   },
-  setTokenOut: (tokenIn, newToken: token) => {
+  setTokenOut: (tokenIn, newToken: tokenSwap) => {
     //if tokenIn exists
     if (
       tokenIn.address != initialSwapState.tokenOut.address ||
@@ -375,6 +377,7 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
         symbol: state.tokenOut.symbol,
         logoURI: state.tokenOut.logoURI,
         address: state.tokenOut.address,
+        decimals: state.tokenOut.decimals,
       },
       tokenOut: {
         callId:
@@ -385,6 +388,7 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
         symbol: state.tokenIn.symbol,
         logoURI: state.tokenIn.logoURI,
         address: state.tokenIn.address,
+        decimals: state.tokenIn.decimals,
       },
     }));
   },

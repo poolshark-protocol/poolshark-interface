@@ -4,6 +4,7 @@ export type tokenCover = {
   symbol: string;
   logoURI: string;
   address: `0x${string}`;
+  decimals: number;
   userBalance: number;
   userPoolAllowance: number;
   coverUSDPrice: number;
@@ -15,17 +16,19 @@ export type tokenLimit = {
   symbol: string;
   logoURI: string;
   address: `0x${string}`;
+  decimals: number;
   userBalance: number;
   userPoolAllowance: number;
   limitUSDPrice: number;
 };
 
-export type token = {
+export type tokenSwap = {
   callId: number;
   name: string;
   symbol: string;
   logoURI: string;
   address: `0x${string}`;
+  decimals: number;
 };
 
 export type coinsList = {
