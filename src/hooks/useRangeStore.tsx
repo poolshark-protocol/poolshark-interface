@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { token } from "../utils/types";
+import { tokenRange } from "../utils/types";
 import { BN_ZERO } from "../utils/math/constants";
 import {
   tokenOneAddress,
@@ -21,13 +21,13 @@ type RangeState = {
   //true if both tokens selected, false if only one token selected
   pairSelected: boolean;
   //TokenIn defines the token on the left/up on a swap page
-  tokenIn: token;
+  tokenIn: tokenRange;
   tokenInAmount: BigNumber;
   tokenInRangeUSDPrice: number;
   tokenInRangeAllowance: BigNumber;
   tokenInBalance: string;
   //TokenOut defines the token on the left/up on a swap page
-  tokenOut: token;
+  tokenOut: tokenRange;
   tokenOutAmount: BigNumber;
   tokenOutRangeUSDPrice: number;
   tokenOutBalance: string;
@@ -110,7 +110,8 @@ const initialRangeState: RangeState = {
     symbol: "WETH",
     logoURI: "/static/images/eth_icon.png",
     address: tokenOneAddress,
-  } as token,
+    decimals
+  } as tokenRange,
   tokenInAmount: BN_ZERO,
   tokenInRangeUSDPrice: 0,
   tokenInRangeAllowance: BN_ZERO,
@@ -122,7 +123,7 @@ const initialRangeState: RangeState = {
     symbol: "Select Token",
     logoURI: "",
     address: tokenZeroAddress,
-  } as token,
+  } as tokenRange,
   tokenOutAmount: BN_ZERO,
   tokenOutRangeUSDPrice: 0,
   tokenOutRangeAllowance: BN_ZERO,
@@ -189,7 +190,7 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       pairSelected: pairSelected,
     }));
   },
-  setTokenIn: (tokenOut, newToken: token) => {
+  setTokenIn: (tokenOut, newToken: tokenRange) => {
     //if tokenOut is selected
     if (
       tokenOut.address != initialRangeState.tokenOut.address ||
@@ -252,7 +253,7 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       tokenOutRangeUSDPrice: newPrice,
     }));
   },
-  setTokenOut: (tokenIn, newToken: token) => {
+  setTokenOut: (tokenIn, newToken: tokenRange) => {
     //if tokenIn exists
     if (
       tokenIn.address != initialRangeState.tokenOut.address ||

@@ -22,6 +22,18 @@ export type tokenLimit = {
   limitUSDPrice: number;
 };
 
+export type tokenRange = {
+  callId: number;
+  name: string;
+  symbol: string;
+  logoURI: string;
+  address: `0x${string}`;
+  decimals: number;
+  userBalance: number;
+  userPoolAllowance: number;
+  rangeUSDPrice: number;
+};
+
 export type tokenSwap = {
   callId: number;
   name: string;

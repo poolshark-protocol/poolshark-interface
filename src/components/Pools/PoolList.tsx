@@ -2,7 +2,7 @@ import { logoMap } from "../../utils/tokens";
 import { useRangeStore } from "../../hooks/useRangeStore";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { useRouter } from "next/router";
-import { token } from "../../utils/types";
+import { tokenCover } from "../../utils/types";
 
 export default function PoolList({
   poolId,
@@ -65,13 +65,13 @@ export default function PoolList({
       address: tokenZero.id,
       logoURI: logoMap[tokenZero.symbol],
       symbol: tokenZero.symbol,
-    } as token;
+    } as tokenCover;
     const tokenOut = {
       name: tokenOne.symbol,
       address: tokenOne.id,
       logoURI: logoMap[tokenOne.symbol],
       symbol: tokenOne.symbol,
-    } as token;
+    } as tokenCover;
     setCoverTokenIn(tokenOut, tokenIn);
     setCoverTokenOut(tokenIn, tokenOut);
     const tier = {

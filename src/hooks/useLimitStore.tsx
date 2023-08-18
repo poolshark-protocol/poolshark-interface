@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from "ethers";
-import { token, tokenLimit } from "../utils/types";
+import { tokenLimit } from "../utils/types";
 import { BN_ZERO, ZERO } from "../utils/math/constants";
 import {
   tokenOneAddress,
@@ -46,14 +46,14 @@ type LimitAction = {
   setLimitPositionData: (data: any) => void;
   //setPairSelected: (pairSelected: boolean) => void;
   //tokenIn
-  setTokenIn: (tokenOut: token, newToken: token) => void;
+  setTokenIn: (tokenOut: tokenLimit, newToken: tokenLimit) => void;
   setTokenInAmount: (amount: string) => void;
   setTokenInLimitUSDPrice: (price: number) => void;
   setTokenInLimitAllowance: (allowance: string) => void;
   setTokenInBalance: (balance: string) => void;
   setLimitAmountIn: (amount: JSBI) => void;
   //tokenOut
-  setTokenOut: (tokenOut: token, newToken: token) => void;
+  setTokenOut: (tokenOut: tokenLimit, newToken: tokenLimit) => void;
   setTokenOutLimitUSDPrice: (price: number) => void;
   setTokenOutBalance: (balance: string) => void;
   setTokenOutLimitAllowance: (allowance: string) => void;
@@ -72,8 +72,8 @@ type LimitAction = {
   //reset
   switchDirection: () => void;
   setLimitPoolFromVolatility: (
-    tokanIn: token,
-    tokenOut: token,
+    tokanIn: tokenLimit,
+    tokenOut: tokenLimit,
     volatility: any
   ) => void;
   setMintButtonState: () => void;
@@ -95,6 +95,7 @@ const initialLimitState: LimitState = {
     symbol: "WETH",
     logoURI: "/static/images/eth_icon.png",
     address: tokenOneAddress,
+    decimals: 18,
     userBalance: 0.0,
     userPoolAllowance: 0.0,
     limitUSDPrice: 0.0,
@@ -106,6 +107,7 @@ const initialLimitState: LimitState = {
     symbol: "Select Token",
     logoURI: "",
     address: tokenZeroAddress,
+    decimals: 18,
     userBalance: 0.0,
     userPoolAllowance: 0.0,
     limitUSDPrice: 0.0,
@@ -362,6 +364,7 @@ export const useLimitStore = create<LimitState & LimitAction>((set) => ({
         symbol: state.tokenOut.symbol,
         logoURI: state.tokenOut.logoURI,
         address: state.tokenOut.address,
+        decimals: state.tokenOut.decimals,
         userBalance: state.tokenOut.userBalance,
         userPoolAllowance: state.tokenOut.userPoolAllowance,
         limitUSDPrice: state.tokenOut.limitUSDPrice,
@@ -375,6 +378,7 @@ export const useLimitStore = create<LimitState & LimitAction>((set) => ({
         symbol: state.tokenIn.symbol,
         logoURI: state.tokenIn.logoURI,
         address: state.tokenIn.address,
+        decimals: state.tokenIn.decimals,
         userBalance: state.tokenIn.userBalance,
         userPoolAllowance: state.tokenIn.userPoolAllowance,
         limitUSDPrice: state.tokenIn.limitUSDPrice,
