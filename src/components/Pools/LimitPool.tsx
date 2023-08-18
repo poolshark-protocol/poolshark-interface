@@ -1,10 +1,10 @@
-import { Fragment, useEffect, useState } from "react";
+ import { Fragment, useEffect, useState } from "react";
 import {
   ChevronDownIcon,
   PlusIcon,
   MinusIcon,
   InformationCircleIcon,
-  ArrowLongRightIcon
+  ArrowLongRightIcon,
 } from "@heroicons/react/20/solid";
 import { Listbox, Transition } from "@headlessui/react";
 import SelectToken from "../SelectToken";
@@ -21,9 +21,10 @@ import inputFilter from "../../utils/inputFilter";
 import TickSpacing from "../Tooltips/TickSpacing";
 import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
 import { feeTiers, getRangePool } from "../../utils/pools";
-import LimitPoolPreview from "./LimitPoolPreview";
+//import LimitPoolPreview from "./LimitPoolPreview";
 
-export default function LimitPool({}) {
+export default function LimitPool({}) {}
+/* 
   const [
     rangePoolAddress,
     rangePoolData,
@@ -32,25 +33,19 @@ export default function LimitPool({}) {
     setRangePoolData,
     setRangePositionData,
     tokenIn,
-    tokenInAmount,
-    tokenInRangeUSDPrice,
-    tokenInBalance,
+
     setTokenIn,
     setTokenInAmount,
     setTokenInRangeUSDPrice,
     setTokenInBalance,
     tokenOut,
-    tokenOutAmount,
-    tokenOutRangeUSDPrice,
-    tokenOutBalance,
+
     setTokenOut,
     setTokenOutAmount,
     setTokenOutRangeUSDPrice,
     setTokenOutBalance,
     pairSelected,
     switchDirection,
-    setDisabled,
-    setButtonMessage,
   ] = useRangeStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
@@ -59,25 +54,19 @@ export default function LimitPool({}) {
     state.setRangePoolData,
     state.setRangePositionData,
     state.tokenIn,
-    state.tokenInAmount,
-    state.tokenInRangeUSDPrice,
-    state.tokenInBalance,
+
     state.setTokenIn,
     state.setTokenInAmount,
     state.setTokenInRangeUSDPrice,
     state.setTokenInBalance,
     state.tokenOut,
-    state.tokenOutAmount,
-    state.tokenOutRangeUSDPrice,
-    state.tokenOutBalance,
+
     state.setTokenOut,
     state.setTokenOutAmount,
     state.setTokenOutRangeUSDPrice,
     state.setTokenOutBalance,
     state.pairSelected,
     state.switchDirection,
-    state.setDisabled,
-    state.setButtonMessage,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -352,7 +341,7 @@ export default function LimitPool({}) {
   };
 
   // disabled messages
-  useEffect(() => {
+  /* useEffect(() => {
     if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
       setButtonMessage("price");
     }
@@ -390,7 +379,7 @@ export default function LimitPool({}) {
     tokenOutAmount,
     tokenInBalance,
     tokenOutBalance,
-  ]);
+  ]); 
 
   ////////////////////////////////
 
@@ -463,7 +452,6 @@ export default function LimitPool({}) {
               <div
                 onClick={() => {
                   if (hasSelected) {
-                    const newInput = tokenInAmount;
                     //switch direction
                     switchDirection();
                     /* setBnInput(newInput);
@@ -474,7 +462,7 @@ export default function LimitPool({}) {
                         .toPrecision(5)
                         .replace(/0+$/, "")
                         .replace(/(\.)(?!\d)/g, "")
-                    ); */
+                    ); 
                   }
                 }}
                 className="flex items-center cursor-pointer bg-dark border-grey1 border text-xs px-1 py-1 rounded-lg"
@@ -508,11 +496,11 @@ export default function LimitPool({}) {
               displayToken={tokenIn}
             />
             <div className="items-center w-min px-2 py-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg">
-            <ArrowLongRightIcon
-              className="md:w-6 w-4 md:rotate-0 rotate-90"
-              onClick={() => switchDirection()}
-            />
-          </div>
+              <ArrowLongRightIcon
+                className="md:w-6 w-4 md:rotate-0 rotate-90"
+                onClick={() => switchDirection()}
+              />
+            </div>
             <SelectToken
               index="1"
               key="out"
@@ -546,7 +534,7 @@ export default function LimitPool({}) {
                     <div className="flex text-xs text-[#4C4C4C]">
                       ~$
                       {(
-                        tokenInRangeUSDPrice *
+                        tokenIn.rangeUSDPrice *
                         Number(ethers.utils.formatUnits(bnInput, 18))
                       ).toFixed(2)}
                     </div>
@@ -564,11 +552,11 @@ export default function LimitPool({}) {
                     </div>
                     <div className="flex whitespace-nowrap items-center justify-end gap-2 px-1 mt-2">
                       <div className="flex md:text-xs text-[10px] text-[#4C4C4C]">
-                        Balance: {tokenInBalance ?? 0}
+                        Balance: {tokenIn.userBalance ?? 0}
                       </div>
                       <button
                         className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
-                        onClick={() => maxBalance(tokenInBalance, "0")}
+                        onClick={() => maxBalance(tokenIn.userBalance, "0")}
                       >
                         Max
                       </button>
@@ -577,21 +565,21 @@ export default function LimitPool({}) {
                 </div>
               </div>
             </div>
-            <ArrowLongRightIcon
-              className="md:w-6 mx-auto w-4 rotate-90"
-            />
+            <ArrowLongRightIcon className="md:w-6 mx-auto w-4 rotate-90" />
             <div className="gap-x-4 mt-8">
-            <h1 className="md:text-base text-sm">Amount to receive</h1>
-          </div>
+              <h1 className="md:text-base text-sm">Amount to receive</h1>
+            </div>
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl  rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
-                {Number(ethers.utils.formatUnits(tokenOutAmount, 18))}
+                {Number(ethers.utils.formatUnits(tokenOut.rangeUSDPrice, 18))}
                 {
                   <div className="flex mt-2 text-xs text-[#4C4C4C]">
                     ~$
                     {(
-                      Number(tokenOutRangeUSDPrice) *
-                      Number(ethers.utils.formatUnits(tokenOutAmount, 18))
+                      Number(tokenOut.rangeUSDPrice) *
+                      Number(
+                        ethers.utils.formatUnits(tokenOut.rangeUSDPrice, 18)
+                      )
                     ).toFixed(2)}
                   </div>
                 }
@@ -609,7 +597,7 @@ export default function LimitPool({}) {
                     </div>
                     <div className="flex whitespace-nowrap items-center justify-end gap-x-2 px-1 mt-2">
                       <div className="flex md:text-xs text-[10px] text-[#4C4C4C]">
-                        Balance: {tokenOutBalance ?? 0}
+                        Balance: {tokenOut.userBalance ?? 0}
                       </div>
                     </div>
                   </div>
@@ -747,3 +735,4 @@ export default function LimitPool({}) {
     </div>
   );
 }
+ */
