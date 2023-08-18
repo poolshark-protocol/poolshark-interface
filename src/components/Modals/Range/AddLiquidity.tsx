@@ -64,7 +64,16 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     state.setNeedsBalanceOut,
   ]);
 
-  const { bnInputUpper, bnInputLower, upperMaxBalance, lowerMaxBalance, upperInputBox, lowerInputBox } = useDoubleInputBox();
+  const { 
+    displayUpper,
+    bnInputUpper, 
+    bnInputLower,
+    setBnInputLower,
+    setDisplayLower,
+    upperMaxBalance, 
+    lowerMaxBalance, 
+    upperInputBox, 
+    lowerInputBox } = useDoubleInputBox();
   const { data: signer } = useSigner();
   const [balanceIn, setBalanceIn] = useState("");
   const [balanceOut, setBalanceOut] = useState("");
@@ -175,9 +184,17 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
   }, [tokenOutAllowance]);
 
   useEffect(() => {
-    console.log("mint gas updating");
-    setAmounts();
+    setAmountsUpper();
   }, [bnInputUpper]);
+
+  useEffect(() => {
+    if (displayUpper != "") {
+      setDisplayLower(tokenOrder
+        ? ethers.utils.formatUnits(amount1, 18).toString()
+        : ethers.utils.formatUnits(amount0, 18).toString())
+      setBnInputLower(tokenOrder ? amount1 : amount0)
+    }
+  }, [amount0, amount1])
 
   useEffect(() => {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
@@ -242,7 +259,28 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     }
   }, [bnInputUpper, balanceIn, balanceOut, disabled]);
 
-  function setAmounts() {
+  useEffect(() => {
+    if (Number(ethers.utils.formatUnits(bnInputLower, 18)) > Number(balanceOut)) {
+      setButtonState("balance0");
+    }
+    if (Number(ethers.utils.formatUnits(amount0, 18)) > Number(balanceIn)) {
+      setButtonState("balance1");
+    }
+    if (Number(ethers.utils.formatUnits(bnInputLower, 18)) === 0) {
+      setButtonState("amount");
+    }
+    if (
+      Number(ethers.utils.formatUnits(bnInputLower, 18)) === 0 ||
+      Number(ethers.utils.formatUnits(bnInputLower, 18)) > Number(balanceOut) ||
+      Number(ethers.utils.formatUnits(amount0, 18)) > Number(balanceIn)
+    ) {
+      setDisabled(true);
+    } else {
+      setDisabled(false);
+    }
+  }, [bnInputLower, balanceIn, balanceOut, disabled]);
+
+  function setAmountsUpper() {
     try {
       if (Number(ethers.utils.formatUnits(bnInputUpper)) !== 0) {
         const liquidity =
@@ -284,6 +322,50 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
       console.log(error);
     }
   }
+
+  function setAmountsLower() {
+    try {
+      if (Number(ethers.utils.formatUnits(bnInputUpper)) !== 0) {
+        const liquidity =
+          JSBI.greaterThanOrEqual(rangeSqrtPrice, lowerSqrtPrice) &&
+          JSBI.lessThanOrEqual(rangeSqrtPrice, upperSqrtPrice)
+            ? DyDxMath.getLiquidityForAmounts(
+                tokenOrder ? rangeSqrtPrice : lowerSqrtPrice,
+                tokenOrder ? upperSqrtPrice : rangeSqrtPrice,
+                rangeSqrtPrice,
+                tokenOrder ? BN_ZERO : bnInputUpper,
+                tokenOrder ? bnInputUpper : BN_ZERO
+              )
+            : DyDxMath.getLiquidityForAmounts(
+                lowerSqrtPrice,
+                upperSqrtPrice,
+                rangeSqrtPrice,
+                tokenOrder ? BN_ZERO : bnInputUpper,
+                tokenOrder ? bnInputUpper : BN_ZERO
+              );
+        console.log("liquidity check", liquidity);
+        const tokenOutAmount = JSBI.greaterThan(liquidity, ZERO)
+          ? tokenOrder
+            ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
+            : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
+          : ZERO;
+        // set amount based on bnInput
+        tokenOrder ? setAmount0(bnInputUpper) : setAmount1(bnInputUpper);
+        // set amount based on liquidity math
+        tokenOrder
+          ? setAmount1(BigNumber.from(String(tokenOutAmount)))
+          : setAmount0(BigNumber.from(String(tokenOutAmount)));
+        setDisabled(false);
+      } else {
+        setAmount1(BN_ZERO);
+        setAmount0(BN_ZERO);
+        setDisabled(true);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
