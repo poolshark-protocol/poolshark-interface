@@ -1,7 +1,7 @@
 import { BigNumber, Contract, Signer, ethers } from 'ethers'
 import { rangePoolABI } from '../abis/evm/rangePool'
 import { coverPoolABI } from '../abis/evm/coverPool'
-import { token } from './types'
+import { tokenCover, tokenSwap } from './types'
 import { TickMath, roundTick } from './math/tickMath'
 import { fetchPrice } from './queries'
 import JSBI from 'jsbi'
@@ -19,8 +19,8 @@ export const gasEstimateSwap = async (
   coverQuote: number,
   rangeBnPrice: BigNumber,
   rangeBnBaseLimit: BigNumber,
-  tokenIn: token,
-  tokenOut: token,
+  tokenIn: tokenSwap,
+  tokenOut: tokenSwap,
   bnInput: BigNumber,
   allowanceRange: BigNumber,
   allowanceCover: BigNumber,
@@ -106,8 +106,8 @@ export const gasEstimateSwapLimit = async (
   address: string,
   lowerTick: BigNumber,
   upperTick: BigNumber,
-  token0: token,
-  token1: token,
+  token0: tokenSwap,
+  token1: tokenSwap,
   bnInput: BigNumber,
   signer,
   setMintGasFee,
@@ -267,8 +267,8 @@ export const gasEstimateCoverMint = async (
   address: string,
   upperTick: number,
   lowerTick: number,
-  tokenIn: token,
-  tokenOut: token,
+  tokenIn: tokenCover,
+  tokenOut: tokenCover,
   inAmount: JSBI,
   signer
 ): Promise<gasEstimateResult> => {

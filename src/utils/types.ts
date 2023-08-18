@@ -13,12 +13,13 @@ export type coinRaw = {
   balance: number;
 };
 
-export type token = {
+export type tokenSwap = {
   callId: number;
   name: string;
   symbol: string;
   logoURI: string;
   address: `0x${string}`;
+  decimals: number;
 };
 
 export type tokenRange = {
@@ -56,7 +57,3 @@ export type tokenLimit = {
   userPoolAllowance: number;
   limitUSDPrice: number;
 };
-
-
-
-

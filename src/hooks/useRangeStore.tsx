@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from "ethers";
-import { token, tokenRange } from "../utils/types";
+import { tokenRange } from "../utils/types";
 import { BN_ZERO, ZERO } from "../utils/math/constants";
 import {
   tokenOneAddress,

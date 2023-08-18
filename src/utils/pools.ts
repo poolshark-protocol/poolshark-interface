@@ -7,13 +7,13 @@ import {
   getCoverPoolFromFactory,
   getRangePoolFromFactory,
 } from "./queries";
-import { token } from "./types";
+import { tokenCover, tokenRange } from "./types";
 
 //TODO@retraca enable this componnent to directly u0pdate zustand states
 
 export const getRangePool = async (
-  tokenIn: token,
-  tokenOut: token,
+  tokenIn: tokenRange,
+  tokenOut: tokenRange,
   setRangePoolAddress,
   setRangePoolData
 ) => {
@@ -45,8 +45,8 @@ export const getRangePool = async (
 };
 
 export const getCoverPool = async (
-  tokenIn: token,
-  tokenOut: token,
+  tokenIn: tokenCover,
+  tokenOut: tokenCover,
   setCoverPoolAddress,
   setCoverPoolData
 ) => {
@@ -87,8 +87,8 @@ export const getCoverPool = async (
 };
 
 export const getCoverPoolFromFeeTier = async (
-  tokenIn: token,
-  tokenOut: token,
+  tokenIn: tokenCover,
+  tokenOut: tokenCover,
   feeTier: number,
   setCoverPoolAddress,
   setCoverPoolData
@@ -133,8 +133,8 @@ export const getCoverPoolFromFeeTier = async (
 export const getCoverPoolInfo = async (
   poolRoute: string,
   tokenOrder: boolean,
-  tokenIn: token,
-  tokenOut: token,
+  tokenIn: tokenCover,
+  tokenOut: tokenCover,
   setCoverPoolRoute,
   setCoverPrice,
   setTokenInUsdPrice,
