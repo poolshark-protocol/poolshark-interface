@@ -206,7 +206,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                         ${" "}
                         {Number(
                           tokenIn.coverUSDPrice *
-                            parseFloat(ethers.utils.formatUnits(bnInput, 18))
+                            parseFloat(ethers.utils.formatUnits(bnInput, tokenIn.decimals))
                         ).toFixed(2)}
                       </div>
                     </div>

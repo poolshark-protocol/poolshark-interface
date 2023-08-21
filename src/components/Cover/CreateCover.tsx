@@ -558,7 +558,7 @@ export default function CreateCover(props: any) {
           <div className="flex md:text-xs text-[10px] -mb-1 text-[#4C4C4C]">
             $
             {(
-              parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+              parseFloat(ethers.utils.formatUnits(bnInput, tokenIn.decimals)) *
               tokenIn.coverUSDPrice
             ).toPrecision(6)}
           </div>
@@ -599,7 +599,7 @@ export default function CreateCover(props: any) {
             parseFloat(coverPositionData.upperPrice) ? (
               (
                 (tokenIn.coverUSDPrice / tokenOut.coverUSDPrice) *
-                parseFloat(ethers.utils.formatUnits(bnInput, 18))
+                parseFloat(ethers.utils.formatUnits(bnInput, tokenIn.decimals))
               ).toPrecision(6)
             ) : (
               <>?</>
