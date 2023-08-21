@@ -207,16 +207,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
         : ethers.utils.formatUnits(amount0, 18).toString())
       setBnInputUpper(tokenOrder ? amount1 : amount0)
     }
-  }, [displayLower]);
-
-  useEffect(() => {
-    if (displayUpper != "") {
-      setDisplayLower(tokenOrder
-        ? ethers.utils.formatUnits(amount1, 18).toString()
-        : ethers.utils.formatUnits(amount0, 18).toString())
-      setBnInputLower(tokenOrder ? amount1 : amount0)
-    }
-  }, [amount0, amount1])*/
+  }, [displayLower]);*/
 
   useEffect(() => {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
