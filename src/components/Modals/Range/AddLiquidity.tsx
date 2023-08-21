@@ -77,9 +77,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     lowerMaxBalance, 
     upperInputBox, 
     lowerInputBox } = useDoubleInputBox();
-  const { data: signer } = useSigner();
-  const [balanceIn, setBalanceIn] = useState("");
-  const [balanceOut, setBalanceOut] = useState("");
   const [amount0, setAmount0] = useState(BN_ZERO);
   const [amount1, setAmount1] = useState(BN_ZERO);
   const [disabled, setDisabled] = useState(false);
@@ -248,10 +245,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
 
   // disabled messages
   useEffect(() => {
-    if (Number(ethers.utils.formatUnits(bnInputUpper, 18)) > Number(balanceIn)) {
+    if (Number(ethers.utils.formatUnits(bnInputUpper, 18)) > Number(tokenInBalance)) {
       setButtonState("balance0");
     }
-    if (Number(ethers.utils.formatUnits(amount1, 18)) > Number(balanceOut)) {
+    if (Number(ethers.utils.formatUnits(amount1, 18)) > Number(tokenOutBalance)) {
       setButtonState("balance1");
     }
     if (Number(ethers.utils.formatUnits(bnInputUpper, 18)) === 0) {
@@ -259,14 +256,14 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     }
     if (
       Number(ethers.utils.formatUnits(bnInputUpper, 18)) === 0 ||
-      Number(ethers.utils.formatUnits(bnInputUpper, 18)) > Number(balanceIn) ||
-      Number(ethers.utils.formatUnits(amount1, 18)) > Number(balanceOut)
+      Number(ethers.utils.formatUnits(bnInputUpper, 18)) > Number(tokenInBalance) ||
+      Number(ethers.utils.formatUnits(amount1, 18)) > Number(tokenOutBalance)
     ) {
       setDisabled(true);
     } else {
       setDisabled(false);
     }
-  }, [bnInputUpper, balanceIn, balanceOut, disabled]);
+  }, [bnInputUpper, tokenInBalance, tokenOutBalance, disabled]);
 
   function setAmounts() {
     try {
@@ -388,13 +385,13 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                           <div className="flex items-center justify-end gap-2 px-1 mt-2">
                             <div
                               className="flex whitespace-nowrap md:text-xs text-[10px] whitespace-nowrap text-[#4C4C4C]"
-                              key={balanceIn}
+                              key={tokenInBalance}
                             >
-                              Balance: {balanceIn === "NaN" ? 0 : balanceIn}
+                              Balance: {tokenInBalance === "NaN" ? 0 : tokenInBalance}
                             </div>
                             <button
                               className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
-                              onClick={() => upperMaxBalance(balanceIn, "0")}
+                              onClick={() => upperMaxBalance(tokenInBalance, "0")}
                             >
                               Max
                             </button>
@@ -443,13 +440,13 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                           <div className="flex whitespace-nowrap items-center justify-end gap-x-2 px-1 mt-2">
                             <div
                               className="flex md:text-xs text-[10px] text-[#4C4C4C]"
-                              key={balanceOut}
+                              key={tokenOutBalance}
                             >
-                              Balance: {balanceOut === "NaN" ? 0 : balanceOut}
+                              Balance: {tokenOutBalance === "NaN" ? 0 : tokenOutBalance}
                             </div>
                             <button
                               className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
-                              onClick={() => lowerMaxBalance(balanceOut, "0")}
+                              onClick={() => lowerMaxBalance(tokenOutBalance, "0")}
                             >
                               Max
                             </button>
