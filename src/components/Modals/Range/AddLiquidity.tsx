@@ -138,9 +138,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
   });
 
   useEffect(() => {
-    setTimeout(() => {
-      if (tokenInAllowance) setAllowanceIn(tokenInAllowance);
-    }, 50);
+    if (tokenInAllowance) setAllowanceIn(tokenInAllowance);
   }, [tokenInAllowance]);
 
   const { data: tokenOutAllowance } = useContractRead({
@@ -178,12 +176,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
   });
 
   useEffect(() => {
-    setTimeout(() => {
-      if (tokenOutAllowance) {
-        console.log("token out allowance check", tokenOutAllowance.toString());
-        setAllowanceOut(tokenOutAllowance);
-      }
-    }, 50);
+    if (tokenOutAllowance) {
+      console.log("token out allowance check", tokenOutAllowance.toString());
+      setAllowanceOut(tokenOutAllowance);
+    }
   }, [tokenOutAllowance]);
 
   useEffect(() => {

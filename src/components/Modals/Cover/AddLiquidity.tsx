@@ -133,9 +133,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   }, [chainId]);
 
   useEffect(() => {
-    setTimeout(() => {
-      if (tokenInAllowance) setAllowanceIn(tokenInAllowance);
-    }, 50);
+    if (tokenInAllowance) setAllowanceIn(tokenInAllowance);
   }, [tokenInAllowance]);
 
   useEffect(() => {
