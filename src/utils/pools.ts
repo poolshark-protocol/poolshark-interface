@@ -7,9 +7,9 @@ import {
   getCoverPoolFromFactory,
   getRangePoolFromFactory,
 } from "./queries";
-import { tokenCover, tokenRange } from "./types";
+import { tokenCover, tokenRange, tokenSwap } from "./types";
 
-//TODO@retraca enable this componnent to directly u0pdate zustand states
+////////
 
 export const getRangePool = async (
   tokenIn: tokenRange,
@@ -85,6 +85,15 @@ export const getCoverPool = async (
     console.log(error);
   }
 };
+
+/////
+
+export const getSwapPool = async (
+  tokenIn: tokenSwap,
+  tokenOut: tokenSwap,
+  setSwapPoolAddress,
+  setSwapPoolData
+) => {};
 
 export const getCoverPoolFromFeeTier = async (
   tokenIn: tokenCover,

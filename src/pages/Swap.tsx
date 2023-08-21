@@ -37,7 +37,7 @@ import {
 } from "../utils/math/tickMath";
 import { BN_ONE, BN_ZERO } from "../utils/math/constants";
 import { gasEstimateSwap, gasEstimateSwapLimit } from "../utils/gas";
-import { getCoverPool, getRangePool } from "../utils/pools";
+import { getCoverPool, getRangePool, getSwapPool } from "../utils/pools";
 import inputFilter from "../utils/inputFilter";
 import RangeLimitSwapButton from "../components/Buttons/RangeLimitSwapButton";
 import { useSwapStore } from "../hooks/useSwapStore";
@@ -205,17 +205,11 @@ export default function Swap() {
   }, [tokenOut, tokenIn]);
 
   async function updatePools() {
-    await getRangePool(
+    await getSwapPool(
       tokenIn,
       tokenOut,
       setRangePoolAddress,
       setRangePoolData
-    );
-    await getCoverPool(
-      tokenIn,
-      tokenOut,
-      setCoverPoolAddress,
-      setCoverPoolData
     );
   }
 

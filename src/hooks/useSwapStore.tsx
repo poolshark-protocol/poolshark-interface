@@ -9,14 +9,9 @@ import { create } from "zustand";
 
 type SwapState = {
   //poolAddress for current token pairs
-  ////cover
-  coverPoolAddress: string;
-  coverPoolData: any;
-  coverSlippage: string;
-  ////range
-  rangePoolAddress: string;
-  rangePoolData: any;
-  rangeSlippage: string;
+  swapPoolAddress: string;
+  swapPoolData: any;
+  swapSlippage: string;
   //true if both tokens selected, false if only one token selected
   pairSelected: boolean;
   //TokenIn defines the token on the left/up on a swap page
@@ -47,10 +42,8 @@ type SwapState = {
 
 type SwapAction = {
   //pool
-  setCoverPoolAddress: (address: String) => void;
-  setCoverPoolData: (data: any) => void;
-  setRangePoolAddress: (address: String) => void;
-  setRangePoolData: (data: any) => void;
+  setSwapPoolAddress: (poolAddress: string) => void;
+  setSwapPoolData: (poolData: any) => void;
   setPairSelected: (pairSelected: Boolean) => void;
   //tokenIn
   setTokenIn: (tokenOut: tokenSwap, newToken: tokenSwap) => void;
@@ -82,12 +75,9 @@ type SwapAction = {
 
 const initialSwapState: SwapState = {
   //pools
-  coverPoolAddress: "",
-  coverPoolData: {},
-  coverSlippage: "0.5",
-  rangePoolAddress: "",
-  rangePoolData: {},
-  rangeSlippage: "0.5",
+  swapPoolAddress: "",
+  swapPoolData: {},
+  swapSlippage: "0.5",
   //
   pairSelected: false,
   //
@@ -132,12 +122,9 @@ const initialSwapState: SwapState = {
 
 export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   //pool
-  coverPoolAddress: initialSwapState.coverPoolAddress,
-  coverPoolData: initialSwapState.coverPoolData,
-  coverSlippage: initialSwapState.coverSlippage,
-  rangePoolAddress: initialSwapState.rangePoolAddress,
-  rangePoolData: initialSwapState.rangePoolData,
-  rangeSlippage: initialSwapState.rangeSlippage,
+  swapPoolAddress: initialSwapState.swapPoolAddress,
+  swapPoolData: initialSwapState.swapPoolData,
+  swapSlippage: initialSwapState.swapSlippage,
   pairSelected: initialSwapState.pairSelected,
   //tokenIn
   tokenIn: initialSwapState.tokenIn,
@@ -163,6 +150,16 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   needsCoverBalance: initialSwapState.needsCoverBalance,
   needsRangeBalanceIn: initialSwapState.needsRangeBalanceIn,
   needsRangeBalanceOut: initialSwapState.needsRangeBalanceOut,
+  setSwapPoolAddress: (poolAddress: string) => {
+    set(() => ({
+      swapPoolAddress: poolAddress,
+    }));
+  },
+  setSwapPoolData: (poolData: any) => {
+    set(() => ({
+      swapPoolData: poolData,
+    }));
+  },
   setTokenIn: (tokenOut, newToken: tokenSwap) => {
     //if tokenOut is selected
     if (
@@ -281,41 +278,13 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       tokenOutBalance: newBalance,
     }));
   },
-  setRangePoolAddress: (rangePoolAddress: string) => {
-    set(() => ({
-      rangePoolAddress: rangePoolAddress,
-    }));
-  },
-  setRangePoolData: (rangePoolData: any) => {
-    set(() => ({
-      rangePoolData: rangePoolData,
-    }));
-  },
-  setRangeSlippage: (rangeSlippage: string) => {
-    set(() => ({
-      rangeSlippage: rangeSlippage,
-    }));
-  },
+
   setPairSelected: (pairSelected: boolean) => {
     set(() => ({
       pairSelected: pairSelected,
     }));
   },
-  setCoverPoolAddress: (coverPoolAddress: string) => {
-    set(() => ({
-      coverPoolAddress: coverPoolAddress,
-    }));
-  },
-  setCoverPoolData: (coverPoolData: any) => {
-    set(() => ({
-      coverPoolData: coverPoolData,
-    }));
-  },
-  setCoverSlippage: (coverSlippage: string) => {
-    set(() => ({
-      coverSlippage: coverSlippage,
-    }));
-  },
+
   setGasFee: (gasFee: string) => {
     set(() => ({
       gasFee: gasFee,
@@ -394,10 +363,10 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   },
   resetSwapParams: () => {
     set({
-      coverPoolAddress: initialSwapState.coverPoolAddress,
-      coverPoolData: initialSwapState.coverPoolData,
-      rangePoolAddress: initialSwapState.rangePoolAddress,
-      rangePoolData: initialSwapState.rangePoolData,
+      //pools
+      swapPoolAddress: initialSwapState.swapPoolAddress,
+      swapPoolData: initialSwapState.swapPoolData,
+      swapSlippage: initialSwapState.swapSlippage,
       pairSelected: initialSwapState.pairSelected,
       //tokenIn
       tokenIn: initialSwapState.tokenIn,
