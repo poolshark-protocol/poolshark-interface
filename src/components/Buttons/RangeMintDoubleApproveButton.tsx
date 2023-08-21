@@ -114,7 +114,7 @@ export default function RangeMintDoubleApproveButton({
   return (
     <>
       <div
-        className="w-full py-4 text-sm md:text-base mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        className="w-full py-4 text-sm md:text-base mx-auto  text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
         onClick={(address) => (address ? approve() : null)}
       >
         Approve Both Tokens

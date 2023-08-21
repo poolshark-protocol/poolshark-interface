@@ -48,8 +48,8 @@ export default function Navbar({create, setCreate}: NavOptions) {
                 <div
                   className={
                     router.pathname == '/'
-                      ? 'bg-background text-main transition-all py-2 px-6 rounded-lg text-sm font-medium cursor-pointer'
-                      : 'text-grey hover:text-white py-2 px-6 rounded-lg text-sm font-medium cursor-pointer'
+                      ? 'bg-background text-main transition-all py-2 px-6 rounded-lg text-sm  cursor-pointer'
+                      : 'text-grey hover:text-white py-2 px-6 rounded-lg text-sm  cursor-pointer'
                   }
                 >
                   Swap
@@ -59,8 +59,8 @@ export default function Navbar({create, setCreate}: NavOptions) {
                 <div
                   className={
                     router.pathname == '/pool'
-                      ? 'bg-background text-main transition-all py-2 px-6 rounded-lg text-sm font-medium cursor-pointer'
-                      : 'text-grey hover:text-white py-2 px-6 rounded-lg text-sm font-medium cursor-pointer'
+                      ? 'bg-background text-main transition-all py-2 px-6 rounded-lg text-sm  cursor-pointer'
+                      : 'text-grey hover:text-white py-2 px-6 rounded-lg text-sm  cursor-pointer'
                   }
                 >
                   Pool
@@ -77,8 +77,8 @@ export default function Navbar({create, setCreate}: NavOptions) {
                 <div
                   className={
                     router.pathname == '/cover'
-                      ? 'bg-background text-main transition-all py-2 px-6 rounded-lg text-sm font-medium cursor-pointer'
-                      : 'text-grey hover:text-white py-2 px-6 rounded-lg text-sm font-medium cursor-pointer'
+                      ? 'bg-background text-main transition-all py-2 px-6 rounded-lg text-sm  cursor-pointer'
+                      : 'text-grey hover:text-white py-2 px-6 rounded-lg text-sm  cursor-pointer'
                   }
                 >
                   Cover
@@ -103,8 +103,8 @@ export default function Navbar({create, setCreate}: NavOptions) {
                 onClick={() => setCreate(true)}
                   className={
                     create
-                      ? "bg-background text-main transition-all py-2 px-6 rounded-lg text-sm font-medium cursor-pointer"
-                      : "text-grey hover:text-white py-2 px-6 rounded-lg text-sm font-medium cursor-pointer"
+                      ? "bg-background text-main transition-all py-2 px-6 rounded-lg text-sm  cursor-pointer"
+                      : "text-grey hover:text-white py-2 px-6 rounded-lg text-sm  cursor-pointer"
                   }
                 >
                   Create Cover
@@ -113,8 +113,8 @@ export default function Navbar({create, setCreate}: NavOptions) {
                  onClick={() => setCreate(false)}
                   className={
                     create === false
-                      ? "bg-background text-main transition-all py-2 px-6 rounded-lg text-sm font-medium cursor-pointer"
-                      : "text-grey hover:text-white py-2 px-6 rounded-lg text-sm font-medium cursor-pointer"
+                      ? "bg-background text-main transition-all py-2 px-6 rounded-lg text-sm  cursor-pointer"
+                      : "text-grey hover:text-white py-2 px-6 rounded-lg text-sm  cursor-pointer"
                   }
                 >
                   My positions
@@ -129,8 +129,8 @@ export default function Navbar({create, setCreate}: NavOptions) {
                 <div
                   className={
                     router.pathname == "/"
-                      ? "bg-background text-main transition-all py-2 px-6 rounded-lg text-sm font-medium cursor-pointer"
-                      : "text-grey hover:text-white py-2 px-6 rounded-lg text-sm font-medium cursor-pointer"
+                      ? "bg-background text-main transition-all py-2 px-6 rounded-lg text-sm  cursor-pointer"
+                      : "text-grey hover:text-white py-2 px-6 rounded-lg text-sm  cursor-pointer"
                   }
                 >
                   Swap
@@ -140,8 +140,8 @@ export default function Navbar({create, setCreate}: NavOptions) {
                 <div
                   className={
                     router.pathname == "/pool"
-                      ? "bg-background text-main transition-all py-2 px-6 rounded-lg text-sm font-medium cursor-pointer"
-                      : "text-grey hover:text-white py-2 px-6 rounded-lg text-sm font-medium cursor-pointer"
+                      ? "bg-background text-main transition-all py-2 px-6 rounded-lg text-sm  cursor-pointer"
+                      : "text-grey hover:text-white py-2 px-6 rounded-lg text-sm  cursor-pointer"
                   }
                 >
                   Pool
@@ -151,8 +151,8 @@ export default function Navbar({create, setCreate}: NavOptions) {
                 <div
                   className={
                     router.pathname == "/cover"
-                      ? "bg-background text-main transition-all py-2 px-6 rounded-lg text-sm font-medium cursor-pointer"
-                      : "text-grey hover:text-white py-2 px-6 rounded-lg text-sm font-medium cursor-pointer"
+                      ? "bg-background text-main transition-all py-2 px-6 rounded-lg text-sm  cursor-pointer"
+                      : "text-grey hover:text-white py-2 px-6 rounded-lg text-sm  cursor-pointer"
                   }
                 >
                   Cover

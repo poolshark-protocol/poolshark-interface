@@ -304,7 +304,7 @@ export default function Cover() {
   ////////////////////////////////
 
   return (
-    <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
+    <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen  ">
       <Navbar />
       <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full px-5">
         <div className="w-full lg:w-[60rem] mt-[10vh] mb-[10vh]">

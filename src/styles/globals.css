@@ -2,21 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
 @layer base {
   @font-face {
-    font-family: Satoshi;
+    font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
-    src: url(/fonts/Satoshi-Bold.woff) format("woff");
+    src: url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
   }
   @font-face {
-    font-family: Satoshi;
+    font-family: 'JetBrains Mono', monospace;
     font-weight: 500;
-    src: url(/fonts/Satoshi-Medium.woff) format("woff");
+    src: url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
   }
   @font-face {
-    font-family: Satoshi;
+    font-family: 'JetBrains Mono', monospace;
     font-weight: 400;
-    src: url(/fonts/Satoshi-Regular.woff) format("woff");
+    src: url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
   }
 }
 
@@ -34,7 +36,7 @@ a {
 
 * {
   box-sizing: border-box;
-  font-family: Satoshi;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .center {
@@ -93,7 +95,7 @@ font-weight: 500 !important
 }
 
 .iekbcc0{
-  font-family: Satoshi !important
+  font-family: 'JetBrains Mono', monospace;
 }
 
 [data-rk] .ju367vf9 {

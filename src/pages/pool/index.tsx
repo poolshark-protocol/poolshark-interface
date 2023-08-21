@@ -185,7 +185,7 @@ export default function Pool() {
   }
 
   return (
-    <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
+    <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen  ">
       <Navbar />
       <div className="flex justify-center w-full text-white relative min-h-[calc(100vh-76px)] w-full  px-3 md:px-0">
         <div className="w-[60rem] mt-[10vh] mb-[15vh]">
@@ -441,10 +441,10 @@ export default function Pool() {
                 <table className="w-full table-auto">
                   <thead className="mb-3">
                     <tr className="text-xs text-grey">
-                      <th className="text-left font-light">Name</th>
-                      <th className="text-right font-light">TVL</th>
-                      <th className="text-right font-light md:block hidden">Volume(USD)</th>
-                      <th className="text-right font-light">Volume(ETH)</th>
+                      <th className="text-left ">Name</th>
+                      <th className="text-right ">TVL</th>
+                      <th className="text-right  md:block hidden">Volume(USD)</th>
+                      <th className="text-right ">Volume(ETH)</th>
                     </tr>
                   </thead>
                   <tbody>

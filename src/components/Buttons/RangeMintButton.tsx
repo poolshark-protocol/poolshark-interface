@@ -82,7 +82,7 @@ export default function RangeMintButton({
       <button
         disabled={disabled /* || gasLimit.lte(BN_ZERO) */}
         className={
-          "w-full py-4 mx-auto text-center text-sm md:text-base font-medium transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+          "w-full py-4 mx-auto text-center text-sm md:text-base  transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
         }
         onClick={() => write?.()}
       >

@@ -63,11 +63,7 @@ export default function SwapCoverButton({disabled, poolAddress, amount, zeroForO
   
   return (
     <>
-      <button className={
-          disabled
-            ? 'w-full py-4 mx-auto text-sm md:text-base font-medium text-center transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50'
-            : 'w-full py-4 mx-auto text-sm md:text-base text-center transition font-medium rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80'
-        }
+      <button className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
           disabled={disabled}
           onClick={() => address ?  write?.() : null}
             >

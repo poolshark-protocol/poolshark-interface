@@ -86,7 +86,7 @@ export default function useInputBox() {
           onChange={(e) => handleChange(e, updateValue)}
           value={display}
           placeholder={placeholder}
-          className="bg-[#0C0C0C] placeholder:text-grey1 w-full text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
+          className="bg-transparent placeholder:text-grey1 w-full text-white text-3xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
         />
       </div>
     );
@@ -102,7 +102,7 @@ export default function useInputBox() {
           onChange={(e) => handleChangeLimit(e, updateValue)}
           value={displayLimit}
           placeholder={placeholder}
-          className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
+          className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-3xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
         />
       </div>
     );

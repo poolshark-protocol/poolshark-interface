@@ -70,8 +70,8 @@ export default function CoverRemoveLiqButton({disabled, poolAddress, address, lo
           disabled={disabled}
           className={
           disabled
-            ? 'w-full py-4 mx-auto font-medium text-center text-sm md:text-base transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50'
-            : 'w-full py-4 mx-auto text-center font-medium text-sm md:text-base transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80'
+            ? 'w-full py-4 mx-auto  text-center text-sm md:text-base transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50'
+            : 'w-full py-4 mx-auto text-center  text-sm md:text-base transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80'
         }
             onClick={() => {
               address ?  write?.() : null

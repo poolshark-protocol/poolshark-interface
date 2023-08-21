@@ -383,14 +383,14 @@ export default function ConcentratedPool({}) {
                     <>
                       <span
                         className={`block truncate text-white ${
-                          selected ? "font-medium" : "font-normal"
+                          selected ? "" : ""
                         }`}
                       >
                         {feeTierz.tier}
                       </span>
                       <span
                         className={`block truncate text-grey text-xs mt-1 ${
-                          selected ? "font-medium" : "font-normal"
+                          selected ? "" : ""
                         }`}
                       >
                         {feeTierz.text}

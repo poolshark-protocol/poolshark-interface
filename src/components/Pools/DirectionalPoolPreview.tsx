@@ -213,7 +213,7 @@ export default function DirectionalPoolPreview({
       </Transition>
       <div
         onClick={() => setIsOpen(true)}
-        className="mt-8 w-full py-4 mx-auto disabled:opacity-50 font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        className="mt-8 w-full py-4 mx-auto disabled:opacity-50  text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
       >
         Preview
       </div>

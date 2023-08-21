@@ -426,7 +426,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                     </div>
                   </div>
                   {disabled === true ? (
-                    <button className="opacity-50 w-full cursor-not-allowed py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF]">
+                    <button className="opacity-50 w-full cursor-not-allowed py-4 mx-auto  text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF]">
                       {buttonState === "amount" ? <>Input Amount</> : <></>}
                       {buttonState === "balance0" ? (
                         <>Insufficient {tokenIn.symbol} Balance</>

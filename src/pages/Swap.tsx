@@ -189,6 +189,9 @@ export default function Swap() {
   //false when user in normal swap, true when user in limit swap
   const [limitTabSelected, setLimitTabSelected] = useState(false);
 
+  //false when user is in exact price, true when user is in price range
+  const [priceRangeSelected, setPriceRangeSelected] = useState(false);
+
   ////////////////////////////////ChainId
   const [stateChainName, setStateChainName] = useState();
 
@@ -870,113 +873,64 @@ export default function Swap() {
     }
   };
   return (
-    <div className="pt-[10vh] mb-[10vh] px-3 md:px-0 w-full">
-      <div className="flex flex-col w-full md:max-w-md px-6 pt-5 pb-7 mx-auto bg-black border border-grey2 rounded-xl">
-        <div className="flex items-center">
-          <div className="flex gap-4 mb-1.5 text-sm">
-            <div
+    <div className="min-h-[calc(100vh-160px)] w-full">
+      <div className="flex w-full mt-[10vh] justify-center mb-20">
+        <div className="bg-black font-regular border border-grey rounded-[4px]">
+          <div className="flex text-xs">
+            <button
               onClick={() => setLimitTabSelected(false)}
-              className={`${
-                limitTabSelected
-                  ? "text-grey cursor-pointer"
-                  : "text-white cursor-pointer"
+              className={`w-full relative py-2.5 ${
+                !limitTabSelected
+                  ? "text-white"
+                  : "text-white/50 border-b border-r border-grey"
               }`}
             >
-              Market
-            </div>
-
-            <div
+              {!limitTabSelected && (
+                <div className="h-0.5 w-full bg-main absolute top-[-1px]" />
+              )}
+              MARKET SWAP
+            </button>
+            <button
               onClick={() => setLimitTabSelected(true)}
-              className={`${
+              className={`w-full relative py-2.5 ${
                 limitTabSelected
-                  ? "text-white cursor-pointer"
-                  : "text-grey cursor-pointer"
+                  ? "text-white"
+                  : "text-white/50 border-b border-l border-grey"
               }`}
             >
-              Limit
-            </div>
+              {limitTabSelected && (
+                <div className="h-0.5 w-full bg-main absolute top-[-1px]" />
+              )}
+              LIMIT SWAP
+            </button>
           </div>
-          <div className="ml-auto">
-            <Popover className="relative">
-              <Popover.Button className="outline-none">
-                <AdjustmentsHorizontalIcon className="w-5 h-5 outline-none" />
-              </Popover.Button>
-              <Transition
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <Popover.Panel className="absolute z-10 md:ml-14 -ml-48 z-50 mt-[5px] md:-mt-[48px] bg-black border border-grey2 rounded-xl p-5">
-                  {({ close }) => (
-                    <div className="w-full">
-                      <h1 className="">
-                        {limitTabSelected ? (
-                          <>Range Tolerance</>
-                        ) : (
-                          <>Slippage Tolerance</>
-                        )}
-                      </h1>
-                      <div className="flex xl:flex-row flex-col gap-y-2 mt-3 gap-x-3">
-                        <input
-                          autoComplete="off"
-                          placeholder="0%"
-                          className="bg-dark rounded-xl outline-none border border-grey1 pl-3 py-3 placeholder:text-grey1"
-                          value={auxSlippage + "%"}
-                          onChange={(e) =>
-                            setAuxSlippage(
-                              parseFloat(
-                                e.target.value.replace(/[^\d.-]/g, "")
-                              ) < 100
-                                ? e.target.value.replace(/[^\d.-]/g, "")
-                                : ""
-                            )
-                          }
-                        />
-                        <button
-                          className=" w-full py-2.5 px-12 mx-auto text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
-                          onClick={async () => {
-                            setSlippage(parseFloat(auxSlippage).toFixed(2));
-                            close();
-                          }}
-                        >
-                          Set
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </Popover.Panel>
-              </Transition>
-            </Popover>
-          </div>
-        </div>
-        {/* tokenIn box */}
-        <div className="w-full mt-4 align-middle items-center flex bg-dark border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-          <div className="flex-col justify-center md:w-1/2 p-2 ">
-            {/* input box for user inserting input value */}
-            {inputBox("0")}
-            {/* USD value of inputed amount */}
-            {tokenIn.address ? (
-              <div className="flex">
-                <div className="flex text-xs text-[#4C4C4C]">
+          <div className="p-4">
+            <span className="text-[11px] text-grey1">FROM</span>
+            <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
+              <div className="flex items-end justify-between text-[11px] text-grey1">
+                <span>
+                  {" "}
                   ~$
                   {(
                     Number(ethers.utils.formatUnits(bnInput, 18)) *
                     tokenInRangeUSDPrice
                   ).toFixed(2)}
-                </div>
+                </span>
+                <span>BALANCE: {tokenInBalance}</span>
               </div>
-            ) : (
-              <></>
-            )}
-          </div>
-          <div className="flex md:w-1/2">
-            <div className="flex justify-center ml-auto">
-              <div className="flex-col">
-                <div className="flex justify-end">
+              <div className="flex items-end justify-between mt-2 mb-3">
+                {inputBox("0")}
+                <div className="flex items-center gap-x-2">
+                  {isConnected && stateChainName === "arbitrumGoerli" ? (
+                    <button
+                      onClick={() => {
+                        maxBalance(tokenInBalance, "1");
+                      }}
+                      className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
+                    >
+                      MAX
+                    </button>
+                  ) : null}
                   <SelectToken
                     index="0"
                     key="in"
@@ -988,108 +942,96 @@ export default function Swap() {
                     displayToken={tokenIn}
                   />
                 </div>
-                <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                  <div
-                    className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]"
-                    key={tokenInBalance}
-                  >
-                    Balance: {tokenInBalance}
-                  </div>
-                  {isConnected && stateChainName === "arbitrumGoerli" ? (
-                    <button
-                      className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
-                      onClick={() => {
-                        maxBalance(tokenInBalance, "0");
-                      }}
-                    >
-                      Max
-                    </button>
-                  ) : null}
-                </div>
               </div>
             </div>
-          </div>
-        </div>
-        <div className="items-center -mb-2 -mt-2 p-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg cursor-pointer">
-          {
-            <ArrowSmallDownIcon
-              className="w-4 h-4"
-              onClick={() => {
-                switchDirection();
-              }}
-            />
-          }
-        </div>
-        {/* tokenOut box */}
-        <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-          <div className="flex-col justify-center w-1/2 p-2 ">
-            <div className=" bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
-              {/*display the expected amount of tokenOut*/}
-              {pairSelected && !bnInput.eq(BN_ZERO) ? (
-                !limitTabSelected ? (
-                  <div>
-                    {rangeQuote >= coverQuote
-                      ? rangeQuote.toPrecision(6)
-                      : coverQuote.toPrecision(6)}
-                  </div>
-                ) : (
-                  <div>
-                    {!limitPriceOrder
-                      ? (
-                          parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                          parseFloat(invertPrice(limitStringPriceQuote, false))
-                        ).toPrecision(6)
-                      : (
-                          parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                          parseFloat(limitStringPriceQuote)
-                        ).toPrecision(6)}
-                  </div>
-                )
-              ) : (
-                <div>0</div>
-              )}
+            <div className="flex items-center justify-center w-full pt-7 pb-4">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                className="w-5 cursor-pointer"
+                onClick={() => {
+                  switchDirection();
+                }}
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
+                />
+              </svg>
             </div>
-            {/*for displaying the USD value for the out amount */}
-            <div className="flex">
-              <div className="flex text-xs text-[#4C4C4C]">
-                ~$
-                {pairSelected ||
-                parseFloat(ethers.utils.formatUnits(bnInput, 18)) !== 0 ? (
-                  tokenOutRangeUSDPrice || tokenOutCoverUSDPrice ? (
-                    !limitTabSelected ? (
-                      //swap page
-                      rangeQuote >= coverQuote ? (
-                        (rangeQuote * tokenOutRangeUSDPrice).toFixed(2)
+            <span className="text-[11px] text-grey1">TO</span>
+            <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
+              <div className="flex items-end justify-between text-[11px] text-grey1">
+                <span>
+                  ~$
+                  {pairSelected ||
+                  parseFloat(ethers.utils.formatUnits(bnInput, 18)) !== 0 ? (
+                    tokenOutRangeUSDPrice || tokenOutCoverUSDPrice ? (
+                      !limitTabSelected ? (
+                        //swap page
+                        rangeQuote >= coverQuote ? (
+                          (rangeQuote * tokenOutRangeUSDPrice).toFixed(2)
+                        ) : (
+                          (coverQuote * tokenOutCoverUSDPrice).toFixed(2)
+                        )
+                      ) : //limit page
+                      limitPriceOrder ? (
+                        (
+                          parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                          parseFloat(limitStringPriceQuote) *
+                          tokenOutRangeUSDPrice
+                        ).toFixed(2)
                       ) : (
-                        (coverQuote * tokenOutCoverUSDPrice).toFixed(2)
+                        (
+                          parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                          parseFloat(
+                            invertPrice(limitStringPriceQuote, false)
+                          ) *
+                          tokenOutRangeUSDPrice
+                        ).toFixed(2)
                       )
-                    ) : //limit page
-                    limitPriceOrder ? (
-                      (
-                        parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                        parseFloat(limitStringPriceQuote) *
-                        tokenOutRangeUSDPrice
-                      ).toFixed(2)
                     ) : (
-                      (
-                        parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                        parseFloat(invertPrice(limitStringPriceQuote, false)) *
-                        tokenOutRangeUSDPrice
-                      ).toFixed(2)
+                      (0).toFixed(2)
                     )
                   ) : (
-                    (0).toFixed(2)
+                    <>{(0).toFixed(2)}</>
+                  )}
+                </span>
+                <span>
+                  {pairSelected ? "Balance: " + tokenOutBalance : <></>}
+                </span>
+              </div>
+              <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
+                {pairSelected && !bnInput.eq(BN_ZERO) ? (
+                  !limitTabSelected ? (
+                    <div>
+                      {rangeQuote >= coverQuote
+                        ? rangeQuote.toPrecision(6)
+                        : coverQuote.toPrecision(6)}
+                    </div>
+                  ) : (
+                    <div>
+                      {!limitPriceOrder
+                        ? (
+                            parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                            parseFloat(
+                              invertPrice(limitStringPriceQuote, false)
+                            )
+                          ).toPrecision(6)
+                        : (
+                            parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                            parseFloat(limitStringPriceQuote)
+                          ).toPrecision(6)}
+                    </div>
                   )
                 ) : (
-                  <>{(0).toFixed(2)}</>
+                  <div>0</div>
                 )}
-              </div>
-            </div>
-          </div>
-          <div className="flex w-1/2">
-            <div className="flex justify-center ml-auto">
-              <div className="flex-col">
-                <div className="flex justify-end">
+                <div className="flex items-center gap-x-2">
                   <SelectToken
                     key={"out"}
                     type="out"
@@ -1101,260 +1043,300 @@ export default function Swap() {
                     displayToken={tokenOut}
                   />
                 </div>
-
-                <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                  <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]">
-                    {pairSelected ? "Balance: " + tokenOutBalance : <></>}
-                  </div>
-                </div>
               </div>
             </div>
-          </div>
-        </div>
-        {limitTabSelected ? (
-          <div>
-            <div className="w-full align-middle items-center flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-4">
-              <div className="flex-col justify-center w-1/2 p-2 ">
-                <input
-                  autoComplete="off"
-                  className="bg-[#0C0C0C] outline-none"
-                  placeholder="0"
-                  value={
-                    !isNaN(parseFloat(limitStringPriceQuote))
-                      ? limitStringPriceQuote
-                      : 0
-                  }
-                  type="text"
-                  onChange={(e) => {
-                    setLimitStringPriceQuote(inputFilter(e.target.value));
-                  }}
-                />
-                <></>
-                <div className="flex">
-                  <div className="flex text-[10px] md:text-xs text-[#4C4C4C]">
-                    {pairSelected && rangePrice > 0
-                      ? //switcher tokenOrder
-                        limitPriceOrder
-                        ? //when normal order tokenIn/tokenOut
-                          (parseFloat(limitStringPriceQuote) /
-                            (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
-                            1) *
-                            100 >
-                          0
+            {limitTabSelected ? (
+              <div className="mt-5">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-x-3 text-sm">
+                    PRICE:
+                    <div className="text-xs">
+                      <button
+                        className={`px-5 py-2 ${
+                          priceRangeSelected
+                            ? "bg-black border-l border-t border-b border-grey"
+                            : "bg-main1 border border-main"
+                        }`}
+                        onClick={() => setPriceRangeSelected(false)}
+                      >
+                        EXACT PRICE
+                      </button>
+                      <button
+                        className={`px-5 py-2 ${
+                          priceRangeSelected
+                            ? "bg-main1 border border-main"
+                            : "bg-black border-r border-t border-b border-grey"
+                        }`}
+                        onClick={() => setPriceRangeSelected(true)}
+                      >
+                        PRICE RANGE
+                      </button>
+                    </div>
+                  </div>
+                  <span
+                    className=" text-xs flex items-center gap-x-2 group cursor-pointer"
+                    onClick={() => setLimitPriceOrder(!limitPriceOrder)}
+                  >
+                    <span className="text-grey1 group-hover:text-white transition-all">
+                      {tokenOrder && pairSelected === false ? (
+                        <div>{tokenIn.symbol} per ?</div>
+                      ) : (
+                        <div>
+                          {" "}
+                          {limitPriceOrder
+                            ? tokenOut.symbol + " per " + tokenIn.symbol
+                            : tokenIn.symbol + " per " + tokenOut.symbol}
+                        </div>
+                      )}
+                    </span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      className="text-white w-3"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
+                      />
+                    </svg>
+                  </span>
+                </div>
+                {priceRangeSelected ? (
+                  <div>
+                  <div className="flex items-center justify-between gap-x-10 mt-4">
+                    <div className="border border-grey w-full bg-dark flex flex-col items-center justify-center py-4">
+                      <span className="text-center text-xs text-grey1 mb-2">MIN. PRICE</span>
+                      <input className="outline-none bg-transparent text-3xl w-56 text-center mb-2"/>
+                    </div>
+                    <div className="border border-grey w-full bg-dark flex flex-col items-center justify-center py-4">
+                      <span className="text-center text-xs text-grey1 mb-2">MAX. PRICE</span>
+                      <input className="outline-none bg-transparent text-3xl w-56 text-center mb-2"/>
+                    </div>
+                  </div>
+                  </div>
+                ) : (
+                  <div className="bg-dark py-3 px-5 border border-grey rounded-[4px] mt-4">
+                  <div className="flex items-end justify-between text-[11px] text-grey1">
+                    <span>
+                      {pairSelected && rangePrice > 0
+                        ? //switcher tokenOrder
+                          limitPriceOrder
+                          ? //when normal order tokenIn/tokenOut
+                            (parseFloat(limitStringPriceQuote) /
+                              (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
+                              1) *
+                              100 >
+                            0
+                            ? (
+                                (parseFloat(limitStringPriceQuote) /
+                                  (tokenInRangeUSDPrice /
+                                    tokenOutRangeUSDPrice) -
+                                  1) *
+                                100
+                              ).toFixed(2) + "% above Market Price"
+                            : Math.abs(
+                                (parseFloat(limitStringPriceQuote) /
+                                  (tokenInRangeUSDPrice /
+                                    tokenOutRangeUSDPrice) -
+                                  1) *
+                                  100
+                              ).toFixed(2) + "% below Market Price"
+                          : //when inverted order tokenOut/tokenIn
+                          (parseFloat(
+                              invertPrice(limitStringPriceQuote, false)
+                            ) /
+                              (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
+                              1) *
+                              100 >
+                            0
                           ? (
-                              (parseFloat(limitStringPriceQuote) /
+                              (parseFloat(
+                                invertPrice(limitStringPriceQuote, false)
+                              ) /
                                 (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
                                 1) *
                               100
                             ).toFixed(2) + "% above Market Price"
                           : Math.abs(
-                              (parseFloat(limitStringPriceQuote) /
+                              (parseFloat(
+                                invertPrice(limitStringPriceQuote, false)
+                              ) /
                                 (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
                                 1) *
                                 100
                             ).toFixed(2) + "% below Market Price"
-                        : //when inverted order tokenOut/tokenIn
-                        (parseFloat(invertPrice(limitStringPriceQuote, false)) /
-                            (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
-                            1) *
-                            100 >
-                          0
-                        ? (
-                            (parseFloat(
-                              invertPrice(limitStringPriceQuote, false)
-                            ) /
-                              (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
-                              1) *
-                            100
-                          ).toFixed(2) + "% above Market Price"
-                        : Math.abs(
-                            (parseFloat(
-                              invertPrice(limitStringPriceQuote, false)
-                            ) /
-                              (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
-                              1) *
-                              100
-                          ).toFixed(2) + "% below Market Price"
-                      : "0.00% above Market Price"}
+                        : "0.00% above Market Price"}
+                    </span>
                   </div>
+                  <input
+                    autoComplete="off"
+                    className="bg-dark outline-none text-3xl my-3"
+                    placeholder="0"
+                    value={
+                      !isNaN(parseFloat(limitStringPriceQuote))
+                        ? limitStringPriceQuote
+                        : 0
+                    }
+                    type="text"
+                    onChange={(e) => {
+                      setLimitStringPriceQuote(inputFilter(e.target.value));
+                    }}
+                  />
                 </div>
-              </div>
-              <div className="flex w-1/2">
-                <div className="flex justify-center ml-auto">
-                  <div className="flex-col">
-                    <div className="flex justify-end">
-                      {tokenOrder && pairSelected === false ? (
-                        <button className="flex md:text-sm text-xs items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl">
-                          {tokenIn.symbol} per ?
-                          <ArrowPathIcon className="w-5" />
-                        </button>
-                      ) : (
-                        <button
-                          className="flex md:text-sm text-xs items-center gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
-                          onClick={() => setLimitPriceOrder(!limitPriceOrder)}
-                        >
-                          {limitPriceOrder
-                            ? tokenOut.symbol + " per " + tokenIn.symbol
-                            : tokenIn.symbol + " per " + tokenOut.symbol}
-
-                          <ArrowPathIcon className="w-5" />
-                        </button>
-                      )}
-                    </div>
-                    <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                      {/* <div className="text-xs text-white">
-                        Set to Market Price //@dev doesn't look like it's needed as its redundant
-                      </div> */}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <></>
-        )}
-        <div className="py-4">
-          <div
-            className="flex px-2 cursor-pointer"
-            onClick={() => setExpanded(!expanded)}
-          >
-            <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-              1 {tokenIn.symbol} ={" "}
-              {!pairSelected
-                ? " ?"
-                : (rangeQuote >= coverQuote
-                    ? //range price
-                      tokenOrder
-                      ? rangePrice.toPrecision(5)
-                      : invertPrice(rangePrice.toPrecision(5), false)
-                    : //cover price
-                    tokenOrder
-                    ? coverPrice.toPrecision(5)
-                    : invertPrice(coverPrice.toPrecision(5), false)) +
-                  " " +
-                  tokenOut.symbol}
-            </div>
-            <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
-              <button>
-                <ChevronDownIcon className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-          <div className="flex-wrap w-full break-normal transition ">
-            <Option />
-          </div>
-        </div>
-        {isDisconnected ? (
-          <ConnectWalletButton xl={true} />
-        ) : !limitTabSelected ? ( //swap tab
-          <>
-            {Number(tokenInBalance) <
-              Number(ethers.utils.formatUnits(bnInput)) ||
-            bnInput.lte(BN_ONE) ? (
-              <button
-                disabled
-                className="w-full py-4 text-sm md:text-base mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
-              >
-                {buttonState === "amount" ? <>Input Amount</> : <></>}
-                {buttonState === "token" ? <>Select Token</> : <></>}
-                {buttonState === "balance" ? (
-                  <>Insufficient {tokenIn.symbol} Balance</>
-                ) : (
-                  <></>
                 )}
-              </button>
-            ) : rangeQuote >= coverQuote ? ( //range buttons
-              Number(tokenInRangeAllowance) <
-              Number(ethers.utils.formatUnits(bnInput, 18)) ? (
-                <div>
+              </div>
+            ) : (
+              <></>
+            )}
+            <div className="py-4">
+              <div
+                className="flex px-2 cursor-pointer py-2 rounded-[4px]"
+                onClick={() => setExpanded(!expanded)}
+              >
+                <div className="flex-none text-xs uppercase text-[#C9C9C9]">
+                  1 {tokenIn.symbol} ={" "}
+                  {!pairSelected
+                    ? " ?"
+                    : (rangeQuote >= coverQuote
+                        ? //range price
+                          tokenOrder
+                          ? rangePrice.toPrecision(5)
+                          : invertPrice(rangePrice.toPrecision(5), false)
+                        : //cover price
+                        tokenOrder
+                        ? coverPrice.toPrecision(5)
+                        : invertPrice(coverPrice.toPrecision(5), false)) +
+                      " " +
+                      tokenOut.symbol}
+                </div>
+                <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
+                  <button>
+                    <ChevronDownIcon className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex-wrap w-full break-normal transition ">
+                <Option />
+              </div>
+            </div>
+            {isDisconnected ? (
+              <ConnectWalletButton xl={true} />
+            ) : !limitTabSelected ? ( //swap tab
+              <>
+                {Number(tokenInBalance) <
+                  Number(ethers.utils.formatUnits(bnInput)) ||
+                bnInput.lte(BN_ONE) ? (
+                  <button
+                    disabled
+                    className="w-full py-4 mx-auto cursor-not-allowed text-center transition rounded-full  border border-main bg-main1 uppercase text-sm opacity-50"
+                  >
+                    {buttonState === "amount" ? <>Input Amount</> : <></>}
+                    {buttonState === "token" ? <>Select Token</> : <></>}
+                    {buttonState === "balance" ? (
+                      <>Insufficient {tokenIn.symbol} Balance</>
+                    ) : (
+                      <></>
+                    )}
+                  </button>
+                ) : rangeQuote >= coverQuote ? ( //range buttons
+                  Number(tokenInRangeAllowance) <
+                  Number(ethers.utils.formatUnits(bnInput, 18)) ? (
+                    <div>
+                      <SwapRangeApproveButton
+                        poolAddress={rangePoolAddress}
+                        approveToken={tokenIn.address}
+                        tokenSymbol={tokenIn.symbol}
+                        amount={bnInput}
+                      />
+                    </div>
+                  ) : (
+                    <SwapRangeButton
+                      disabled={false}
+                      poolAddress={rangePoolAddress}
+                      zeroForOne={
+                        tokenOut.address != "" &&
+                        tokenIn.address.localeCompare(tokenOut.address) < 0
+                      }
+                      amount={bnInput}
+                      priceLimit={rangeBnPriceLimit}
+                      gasLimit={gasLimit}
+                    />
+                  )
+                ) : //cover buttons
+                Number(tokenInCoverAllowance) <
+                  Number(ethers.utils.formatUnits(bnInput, 18)) ? (
+                  <div>
+                    <SwapCoverApproveButton
+                      disabled={false}
+                      poolAddress={coverPoolAddress}
+                      approveToken={tokenIn.address}
+                      tokenSymbol={tokenIn.symbol}
+                      amount={bnInput}
+                    />
+                  </div>
+                ) : (
+                  <SwapCoverButton
+                    disabled={gasLimit.gt(BN_ZERO)}
+                    poolAddress={coverPoolAddress}
+                    zeroForOne={
+                      tokenOut.address != "" &&
+                      tokenIn.address.localeCompare(tokenOut.address) < 0
+                    }
+                    amount={bnInput}
+                    priceLimit={coverBnPriceLimit}
+                    gasLimit={gasLimit}
+                  />
+                )}
+              </>
+            ) : (
+              //limit tab
+              <>
+                {stateChainName !== "arbitrumGoerli" ||
+                Number(tokenInBalance) <
+                  Number(ethers.utils.formatUnits(bnInput)) ||
+                bnInput._hex == "0x00" ? (
+                  <button
+                    disabled
+                    className="w-full py-4 mx-auto cursor-not-allowed text-center transition rounded-full  border border-main bg-main1 uppercase text-sm opacity-50"
+                  >
+                    {buttonState === "amount" ? <>Input Amount</> : <></>}
+                    {buttonState === "token" ? <>Select Token</> : <></>}
+                    {buttonState === "balance" ? (
+                      <>Insufficient {tokenIn.symbol} Balance</>
+                    ) : (
+                      <></>
+                    )}
+                  </button>
+                ) : Number(tokenInRangeAllowance) <
+                  Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                   <SwapRangeApproveButton
                     poolAddress={rangePoolAddress}
                     approveToken={tokenIn.address}
                     tokenSymbol={tokenIn.symbol}
                     amount={bnInput}
                   />
-                </div>
-              ) : (
-                <SwapRangeButton
-                  disabled={false}
-                  poolAddress={rangePoolAddress}
-                  zeroForOne={
-                    tokenOut.address != "" &&
-                    tokenIn.address.localeCompare(tokenOut.address) < 0
-                  }
-                  amount={bnInput}
-                  priceLimit={rangeBnPriceLimit}
-                  gasLimit={gasLimit}
-                />
-              )
-            ) : //cover buttons
-            Number(tokenInCoverAllowance) <
-              Number(ethers.utils.formatUnits(bnInput, 18)) ? (
-              <div>
-                <SwapCoverApproveButton
-                  disabled={false}
-                  poolAddress={coverPoolAddress}
-                  approveToken={tokenIn.address}
-                  tokenSymbol={tokenIn.symbol}
-                  amount={bnInput}
-                />
-              </div>
-            ) : (
-              <SwapCoverButton
-                disabled={gasLimit.gt(BN_ZERO)}
-                poolAddress={coverPoolAddress}
-                zeroForOne={
-                  tokenOut.address != "" &&
-                  tokenIn.address.localeCompare(tokenOut.address) < 0
-                }
-                amount={bnInput}
-                priceLimit={coverBnPriceLimit}
-                gasLimit={gasLimit}
-              />
-            )}
-          </>
-        ) : (
-          //limit tab
-          <>
-            {stateChainName !== "arbitrumGoerli" ||
-            Number(tokenInBalance) <
-              Number(ethers.utils.formatUnits(bnInput)) ||
-            bnInput._hex == "0x00" ? (
-              <button
-                disabled
-                className="w-full text-sm md:text-base py-4 mx-auto cursor-not-allowed font-medium opacity-20 text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF]"
-              >
-                {buttonState === "amount" ? <>Input Amount</> : <></>}
-                {buttonState === "token" ? <>Select Token</> : <></>}
-                {buttonState === "balance" ? (
-                  <>Insufficient {tokenIn.symbol} Balance</>
                 ) : (
-                  <></>
+                  <RangeLimitSwapButton
+                    disabled={mintGasLimit.eq(BN_ZERO)}
+                    poolAddress={rangePoolAddress}
+                    to={address}
+                    lower={lowerTick}
+                    upper={upperTick}
+                    amount0={tokenOrder ? bnInput : BN_ZERO}
+                    amount1={tokenOrder ? BN_ZERO : bnInput}
+                    gasLimit={mintGasLimit}
+                  />
                 )}
-              </button>
-            ) : Number(tokenInRangeAllowance) <
-              Number(ethers.utils.formatUnits(bnInput, 18)) ? (
-              <SwapRangeApproveButton
-                poolAddress={rangePoolAddress}
-                approveToken={tokenIn.address}
-                tokenSymbol={tokenIn.symbol}
-                amount={bnInput}
-              />
-            ) : (
-              <RangeLimitSwapButton
-                disabled={mintGasLimit.eq(BN_ZERO)}
-                poolAddress={rangePoolAddress}
-                to={address}
-                lower={lowerTick}
-                upper={upperTick}
-                amount0={tokenOrder ? bnInput : BN_ZERO}
-                amount1={tokenOrder ? BN_ZERO : bnInput}
-                gasLimit={mintGasLimit}
-              />
+              </>
             )}
-          </>
-        )}
+          </div>
+        </div>
+      </div>
+      <div>
       </div>
     </div>
   );

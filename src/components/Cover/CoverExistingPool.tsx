@@ -447,14 +447,14 @@ export default function CoverExistingPool({ goBack }) {
                     <>
                       <span
                         className={`block truncate text-white ${
-                          selected ? "font-medium" : "font-normal"
+                          selected ? "" : ""
                         }`}
                       >
                         {volatilityTier.tier}
                       </span>
                       <span
                         className={`block truncate text-grey text-xs mt-1 ${
-                          selected ? "font-medium" : "font-normal"
+                          selected ? "" : ""
                         }`}
                       >
                         {volatilityTier.text}

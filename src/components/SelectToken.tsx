@@ -161,20 +161,20 @@ export default function SelectToken(props) {
         className={
           (props.tokenIn.symbol != "Select Token" && props.type == "in") ||
           (props.tokenOut.symbol != "Select Token" && props.type == "out")
-            ? "w-full md:text-base text-sm whitespace-nowrap flex items-center uppercase gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
-            : "w-full md:text-base text-sm whitespace-nowrap flex items-center bg-background text-main gap-x-1 md:gap-x-3 hover:opacity-80  md:px-4 px-3 py-2 rounded-xl"
+            ? "w-full whitespace-nowrap flex items-center gap-x-8 bg-dark border border-grey px-3 h-full rounded-[4px] h-10 min-w-[160px]"
+            : "w-full whitespace-nowrap flex items-center gap-x-8 bg-dark border border-grey px-3 h-full rounded-[4px] h-10 text-grey1"
         }
       >
         <div className="flex items-center gap-x-2 w-full">
           {(props.tokenIn.symbol != "Select Token" && props.type == "in") ||
           (props.tokenOut.symbol != "Select Token" && props.type == "out") ? (
-            <img className="md:w-7 w-6" src={props.displayToken?.logoURI} />
+            <img className="md:w-6 w-6" src={props.displayToken?.logoURI} />
           ) : (
             <></>
           )}
-          {props.displayToken?.symbol}
+          <span className="text-xs uppercase">{props.displayToken?.symbol}</span>
         </div>
-        <ChevronDownIcon className="w-5" />
+        <ChevronDownIcon className="w-6" />
       </button>
     </div>
   );

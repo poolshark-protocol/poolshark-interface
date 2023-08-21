@@ -408,7 +408,7 @@ export default function LimitPoolPreview({ fee }) {
       <button
         onClick={() => setIsOpen(true)}
         disabled={disabled}
-        className={`mt-8 w-full py-4 mx-auto font-medium text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed`}
+        className={`mt-8 w-full py-4 mx-auto  text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed`}
       >
         {disabled ? (
           <>

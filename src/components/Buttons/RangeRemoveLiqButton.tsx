@@ -98,7 +98,7 @@ export default function RangeRemoveLiqButton({poolAddress, address, lower, upper
 
     return (
         <>
-        <button disabled={gasLimit.gt(BN_ZERO) ? false : true} className=" w-full text-sm md:text-base py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        <button disabled={gasLimit.gt(BN_ZERO) ? false : true} className=" w-full text-sm md:text-base py-4 mx-auto  text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
             onClick={() => {
               address ?  write?.() : null
             }}

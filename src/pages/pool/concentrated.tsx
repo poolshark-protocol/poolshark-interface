@@ -5,7 +5,7 @@ import { ArrowLongLeftIcon } from "@heroicons/react/20/solid";
 
 export default function Concentrated() {
   return (
-    <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
+    <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen  ">
       <Navbar />
       <div className="flex justify-center w-full text-white">
         <div className="max-w-[60rem] w-full mx-4 md:mx-0 mt-[10vh] mb-[10vh]">

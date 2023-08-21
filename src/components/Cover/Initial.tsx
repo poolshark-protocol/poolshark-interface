@@ -69,7 +69,7 @@ export default function Initial(props: any) {
           </div>
         </div>
         <div className="mt-6">
-          <div className="w-full py-4 mx-auto font-medium text-center transition rounded-xl  bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
+          <div className="w-full py-4 mx-auto  text-center transition rounded-xl  bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
             Create Cover
           </div>
         </div>
@@ -81,12 +81,12 @@ export default function Initial(props: any) {
       <div className="space-y-2">
         <div
           onClick={() => setIsOpen(true)}
-          className="w-full text-sm md:text-base py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+          className="w-full text-sm md:text-base py-4 mx-auto  text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
         >
           Select Pool to Cover
         </div>
         <div
-          className="w-full text-sm md:text-base py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer border border-[#3174E0] from-[#344DBF] to-[#3098FF] hover:opacity-80"
+          className="w-full text-sm md:text-base py-4 mx-auto  text-center transition rounded-xl cursor-pointer border border-[#3174E0] from-[#344DBF] to-[#3098FF] hover:opacity-80"
           onClick={() => setIsShifted('createCover')}
         >
           Create my own Cover
@@ -133,7 +133,7 @@ export default function Initial(props: any) {
           </div>
         </div>
         <div className="mt-6">
-          <div className="w-full text-sm md:text-base py-4 mx-auto font-medium text-center transition rounded-xl  bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
+          <div className="w-full text-sm md:text-base py-4 mx-auto  text-center transition rounded-xl  bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80">
             Create Cover
           </div>
         </div>

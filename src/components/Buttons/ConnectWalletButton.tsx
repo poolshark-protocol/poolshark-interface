@@ -47,7 +47,7 @@ export const ConnectWalletButton = ({xl= false, center= false}: Props) => {
                 if (!connected) {
                   return (
                     <button
-                      className={`w-full mx-auto text-white px-8 font-Satoshi text-center transition rounded-lg cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80 ${xl ? `py-4 font-medium` : `py-2.5 text-sm`}`}
+                      className={`w-full mx-auto text-white px-8  text-center transition rounded-lg cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80 ${xl ? `py-4 ` : `py-2.5 text-sm`}`}
                       onClick={openConnectModal}
                       type="button"
                     >
@@ -61,7 +61,7 @@ export const ConnectWalletButton = ({xl= false, center= false}: Props) => {
                       <button
                         onClick={() => setIsOpen(true)}
                         type="button"
-                        className="w-full flex gap-x-2 items-center py-2.5 text-sm mx-auto text-white px-5 font-Satoshi text-center transition rounded-lg cursor-pointer bg-black border border-red-500 hover:opacity-80"
+                        className="w-full flex gap-x-2 items-center py-2.5 text-sm mx-auto text-white px-5  text-center transition rounded-lg cursor-pointer bg-black border border-red-500 hover:opacity-80"
                       >
                         Wrong network
                         <ChevronDownIcon className="w-5" />
