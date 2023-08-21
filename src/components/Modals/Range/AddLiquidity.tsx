@@ -78,12 +78,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     lowerMaxBalance, 
     upperInputBox, 
     lowerInputBox } = useDoubleInputBox();
-  const[upper, setUpper] = useState(true)
-  const[displayUpperAux, setDisplayUpperAux] = useState('')
-  const[displayLowerAux, setDisplayLowerAux] = useState('')
-  const[bnInputUpperAux, setBnInputUpperAux] = useState(BigNumber.from('0'))
-  const[bnInputLowerAux, setBnInputLowerAux] = useState(BigNumber.from('0'))
-
   const [amount0, setAmount0] = useState(BN_ZERO);
   const [amount1, setAmount1] = useState(BN_ZERO);
   const [disabled, setDisabled] = useState(false);
@@ -196,57 +190,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
         ? ethers.utils.formatUnits(amount1, 18).toString()
         : ethers.utils.formatUnits(amount0, 18).toString())
       setBnInputLowerAux(tokenOrder ? amount1 : amount0)
-      setUpper(false)
     }
   }, [displayUpper]);*/
-
-  function handleLowerBoxChange(e) {
-    const result = inputFilter(e.target.value)
-    //TODO: do not allow for exceeding max decimals
-    setDisplayLower(result == '' ? '' : result)
-    setDisplayUpper(tokenOrder
-      ? ethers.utils.formatUnits(amount1, 18).toString()
-      : ethers.utils.formatUnits(amount0, 18).toString())
-
-    if (result == '') {
-      setBnInputLower(BigNumber.from('0'))
-      setBnInputUpper(BigNumber.from('0'))
-    }
-
-    if (result !== '') {
-      const valueToBn = ethers.utils.parseUnits(result, 18)
-      const valueOpps = ethers.utils.parseUnits(tokenOrder
-        ? ethers.utils.formatUnits(amount1, 18).toString()
-        : ethers.utils.formatUnits(amount0, 18).toString())
-
-      setBnInputLower(valueToBn)
-      setBnInputUpper(valueOpps)
-    }
-  }
-
-  function handleUpperBoxChange(e) {
-    const result = inputFilter(e.target.value)
-    //TODO: do not allow for exceeding max decimals
-    setDisplayUpper(result == '' ? '' : result)
-    setDisplayLower(tokenOrder
-      ? ethers.utils.formatUnits(amount0, 18).toString()
-      : ethers.utils.formatUnits(amount1, 18).toString())
-
-    if (result == '') {
-      setBnInputUpper(BigNumber.from('0'))
-      setBnInputLower(BigNumber.from('0'))
-    }
-
-    if (result !== '') {
-      const valueToBn = ethers.utils.parseUnits(result, 18)
-      const valueOpps = ethers.utils.parseUnits(tokenOrder
-        ? ethers.utils.formatUnits(amount0, 18).toString()
-        : ethers.utils.formatUnits(amount1, 18).toString())
-
-      setBnInputUpper(valueToBn)
-      setBnInputLower(valueOpps)
-    }
-  }
 
   /*useEffect(() => {
     if (displayLower != "") {
@@ -255,7 +200,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
         ? ethers.utils.formatUnits(amount1, 18).toString()
         : ethers.utils.formatUnits(amount0, 18).toString())
       setBnInputUpperAux(tokenOrder ? amount1 : amount0)
-      setUpper(true)
     }
   }, [displayLower]);*/
 
@@ -408,18 +352,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                     <div className=" p-2 w-32">
                       <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-1 rounded-xl">
                         {
-                          upper ? upperInputBox("0"):
-                          <div className="flex gap-x-2">
-                              <input
-                                autoComplete="off"
-                                type="text"
-                                id="lowerInput"
-                                value={displayUpper}
-                                onChange={(e) => handleUpperBoxChange(e)}
-                                placeholder={"0"}
-                                className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
-                              />
-                            </div>
+                          upperInputBox("0")
                         }
                       </div>
                       <div className="flex">
@@ -472,19 +405,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                     <div className=" p-2 ">
                       <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
                         {
-                          upper ? 
-                            <div className="flex gap-x-2">
-                              <input
-                                autoComplete="off"
-                                type="text"
-                                id="lowerInput"
-                                value={displayLower}
-                                onChange={(e) => handleLowerBoxChange(e)}
-                                placeholder={"0"}
-                                className="bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
-                              />
-                            </div>
-                          : lowerInputBox("0")
+                          lowerInputBox("0")
                         }
                       </div>
                       <div className="flex">
