@@ -224,8 +224,12 @@ export default function Range() {
         // set amount based on bnInput
         const amount0Bn = BigNumber.from(String(amounts.token0Amount));
         const amount1Bn = BigNumber.from(String(amounts.token1Amount));
-        setAmount0(parseFloat(ethers.utils.formatUnits(amount0Bn, tokenIn.decimals)));
-        setAmount1(parseFloat(ethers.utils.formatUnits(amount1Bn, tokenIn.decimals)));
+        setAmount0(
+          parseFloat(ethers.utils.formatUnits(amount0Bn, tokenIn.decimals))
+        );
+        setAmount1(
+          parseFloat(ethers.utils.formatUnits(amount1Bn, tokenIn.decimals))
+        );
       }
     } catch (error) {
       console.log(error);
@@ -268,10 +272,12 @@ export default function Range() {
   function setFeesOwed() {
     try {
       if (snapshot) {
-        console.log("snapshot", snapshot.toString());
-        const fees0 = parseFloat(ethers.utils.formatUnits(snapshot[2], tokenIn.decimals));
-        const fees1 = parseFloat(ethers.utils.formatUnits(snapshot[3], tokenIn.decimals));
-        console.log("fees owed 1", ethers.utils.formatUnits(snapshot[3], tokenIn.decimals));
+        const fees0 = parseFloat(
+          ethers.utils.formatUnits(snapshot[2], tokenIn.decimals)
+        );
+        const fees1 = parseFloat(
+          ethers.utils.formatUnits(snapshot[3], tokenIn.decimals)
+        );
         setAmount0Fees(fees0);
         setAmount1Fees(fees1);
       }
