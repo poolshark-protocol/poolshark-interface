@@ -66,10 +66,13 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
 
   const { 
     displayUpper,
+    displayLower,
     bnInputUpper, 
     bnInputLower,
+    setBnInputUpper,
     setBnInputLower,
     setDisplayLower,
+    setDisplayUpper,
     upperMaxBalance, 
     lowerMaxBalance, 
     upperInputBox, 
@@ -89,7 +92,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     Number(rangePositionData.max)
   );
   const [stateChainName, setStateChainName] = useState();
-  const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0;
+  const [tokenOrder, setTokenOrder] = useState(tokenIn.address.localeCompare(tokenOut.address) < 0);
   const { isConnected } = useAccount();
   const [rangeSqrtPrice, setRangeSqrtPrice] = useState(
     JSBI.BigInt(rangePositionData.price)
@@ -184,7 +187,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
   }, [tokenOutAllowance]);
 
   useEffect(() => {
-    setAmountsUpper();
+    setAmounts();
   }, [bnInputUpper]);
 
   useEffect(() => {
@@ -194,7 +197,26 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
         : ethers.utils.formatUnits(amount0, 18).toString())
       setBnInputLower(tokenOrder ? amount1 : amount0)
     }
-  }, [amount0, amount1])
+  }, [amount0, amount1]);
+
+  /*useEffect(() => {
+    if (displayLower != "") {
+      setTokenOrder(!tokenOrder)
+      setDisplayUpper(tokenOrder
+        ? ethers.utils.formatUnits(amount1, 18).toString()
+        : ethers.utils.formatUnits(amount0, 18).toString())
+      setBnInputUpper(tokenOrder ? amount1 : amount0)
+    }
+  }, [displayLower]);
+
+  useEffect(() => {
+    if (displayUpper != "") {
+      setDisplayLower(tokenOrder
+        ? ethers.utils.formatUnits(amount1, 18).toString()
+        : ethers.utils.formatUnits(amount0, 18).toString())
+      setBnInputLower(tokenOrder ? amount1 : amount0)
+    }
+  }, [amount0, amount1])*/
 
   useEffect(() => {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
@@ -259,71 +281,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     }
   }, [bnInputUpper, balanceIn, balanceOut, disabled]);
 
-  useEffect(() => {
-    if (Number(ethers.utils.formatUnits(bnInputLower, 18)) > Number(balanceOut)) {
-      setButtonState("balance0");
-    }
-    if (Number(ethers.utils.formatUnits(amount0, 18)) > Number(balanceIn)) {
-      setButtonState("balance1");
-    }
-    if (Number(ethers.utils.formatUnits(bnInputLower, 18)) === 0) {
-      setButtonState("amount");
-    }
-    if (
-      Number(ethers.utils.formatUnits(bnInputLower, 18)) === 0 ||
-      Number(ethers.utils.formatUnits(bnInputLower, 18)) > Number(balanceOut) ||
-      Number(ethers.utils.formatUnits(amount0, 18)) > Number(balanceIn)
-    ) {
-      setDisabled(true);
-    } else {
-      setDisabled(false);
-    }
-  }, [bnInputLower, balanceIn, balanceOut, disabled]);
-
-  function setAmountsUpper() {
-    try {
-      if (Number(ethers.utils.formatUnits(bnInputUpper)) !== 0) {
-        const liquidity =
-          JSBI.greaterThanOrEqual(rangeSqrtPrice, lowerSqrtPrice) &&
-          JSBI.lessThanOrEqual(rangeSqrtPrice, upperSqrtPrice)
-            ? DyDxMath.getLiquidityForAmounts(
-                tokenOrder ? rangeSqrtPrice : lowerSqrtPrice,
-                tokenOrder ? upperSqrtPrice : rangeSqrtPrice,
-                rangeSqrtPrice,
-                tokenOrder ? BN_ZERO : bnInputUpper,
-                tokenOrder ? bnInputUpper : BN_ZERO
-              )
-            : DyDxMath.getLiquidityForAmounts(
-                lowerSqrtPrice,
-                upperSqrtPrice,
-                rangeSqrtPrice,
-                tokenOrder ? BN_ZERO : bnInputUpper,
-                tokenOrder ? bnInputUpper : BN_ZERO
-              );
-        console.log("liquidity check", liquidity);
-        const tokenOutAmount = JSBI.greaterThan(liquidity, ZERO)
-          ? tokenOrder
-            ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
-            : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
-          : ZERO;
-        // set amount based on bnInput
-        tokenOrder ? setAmount0(bnInputUpper) : setAmount1(bnInputUpper);
-        // set amount based on liquidity math
-        tokenOrder
-          ? setAmount1(BigNumber.from(String(tokenOutAmount)))
-          : setAmount0(BigNumber.from(String(tokenOutAmount)));
-        setDisabled(false);
-      } else {
-        setAmount1(BN_ZERO);
-        setAmount0(BN_ZERO);
-        setDisabled(true);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  function setAmountsLower() {
+  function setAmounts() {
     try {
       if (Number(ethers.utils.formatUnits(bnInputUpper)) !== 0) {
         const liquidity =
