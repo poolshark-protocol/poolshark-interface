@@ -57,6 +57,10 @@ export default function Swap() {
     useInputBox();
 
   const [
+    swapPoolAddress,
+    swapPoolData,
+    setSwapPoolAddress,
+    setSwapPoolData,
     //tokenIN
     tokenIn,
     setTokenIn,
@@ -121,6 +125,11 @@ export default function Swap() {
     needsRangeBalanceOut,
     setNeedsRangeBalanceOut,
   ] = useSwapStore((state: any) => [
+    //swapPool
+    state.swapPoolAddress,
+    state.swapPoolData,
+    state.setSwapPoolAddress,
+    state.setSwapPoolData,
     //tokenIN
     state.tokenIn,
     state.setTokenIn,
@@ -208,8 +217,8 @@ export default function Swap() {
     await getSwapPool(
       tokenIn,
       tokenOut,
-      setRangePoolAddress,
-      setRangePoolData
+      setSwapPoolAddress,
+      setSwapPoolData
     );
   }
 

@@ -11,6 +11,34 @@ import { tokenCover, tokenRange, tokenSwap } from "./types";
 
 ////////
 
+//Grab pool with most liquidity
+export const getSwapPool = async (
+  tokenIn: tokenSwap,
+  tokenOut: tokenSwap,
+  setSwapPoolAddress,
+  setSwapPoolData
+) => {
+  try {
+    const coverPools = await fetchCoverPools();
+    const rangePools = await fetchRangePools();
+    const allPools = coverPools["data"]["coverPools"].concat(
+      rangePools["data"]["rangePools"]
+    );
+    const maxLiquidityIndex = allPools.reduce(
+      (iMax, x, i, arr) => (x.liquidity > arr[iMax].liquidity ? i : iMax),
+      0
+    );
+    console.log("max liquidity", maxLiquidityIndex);
+    const maxLiquidityPool = allPools[maxLiquidityIndex];
+    console.log("max liquidity pool", maxLiquidityPool);
+    console.log("all pools", allPools);
+    setSwapPoolAddress(maxLiquidityPool["id"]);
+    setSwapPoolData(maxLiquidityPool);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const getRangePool = async (
   tokenIn: tokenRange,
   tokenOut: tokenRange,
@@ -87,13 +115,6 @@ export const getCoverPool = async (
 };
 
 /////
-
-export const getSwapPool = async (
-  tokenIn: tokenSwap,
-  tokenOut: tokenSwap,
-  setSwapPoolAddress,
-  setSwapPoolData
-) => {};
 
 export const getCoverPoolFromFeeTier = async (
   tokenIn: tokenCover,
