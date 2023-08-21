@@ -214,19 +214,27 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
 
   // disabled messages
   useEffect(() => {
-    if (Number(ethers.utils.formatUnits(bnInput, 18)) > Number(balanceIn)) {
+    if (
+      Number(ethers.utils.formatUnits(bnInput, tokenIn.decimals)) >
+      Number(balanceIn)
+    ) {
       setButtonState("balance0");
     }
-    if (Number(ethers.utils.formatUnits(amount1, 18)) > Number(balanceOut)) {
+    if (
+      Number(ethers.utils.formatUnits(amount1, tokenIn.decimals)) >
+      Number(balanceOut)
+    ) {
       setButtonState("balance1");
     }
-    if (Number(ethers.utils.formatUnits(bnInput, 18)) === 0) {
+    if (Number(ethers.utils.formatUnits(bnInput, tokenIn.decimals)) === 0) {
       setButtonState("amount");
     }
     if (
-      Number(ethers.utils.formatUnits(bnInput, 18)) === 0 ||
-      Number(ethers.utils.formatUnits(bnInput, 18)) > Number(balanceIn) ||
-      Number(ethers.utils.formatUnits(amount1, 18)) > Number(balanceOut)
+      Number(ethers.utils.formatUnits(bnInput, tokenIn.decimals)) === 0 ||
+      Number(ethers.utils.formatUnits(bnInput, tokenIn.decimals)) >
+        Number(balanceIn) ||
+      Number(ethers.utils.formatUnits(amount1, tokenIn.decimals)) >
+        Number(balanceOut)
     ) {
       setDisabled(true);
     } else {
@@ -327,13 +335,19 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                             ? Number(
                                 tokenOut.rangeUSDPrice *
                                   parseFloat(
-                                    ethers.utils.formatUnits(amount1, 18)
+                                    ethers.utils.formatUnits(
+                                      amount1,
+                                      tokenIn.decimals
+                                    )
                                   )
                               ).toFixed(2)
                             : Number(
                                 tokenIn.rangeUSDPrice *
                                   parseFloat(
-                                    ethers.utils.formatUnits(amount0, 18)
+                                    ethers.utils.formatUnits(
+                                      amount0,
+                                      tokenIn.decimals
+                                    )
                                   )
                               ).toFixed(2)}
                         </div>
@@ -371,8 +385,14 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                       <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
                         {Number(
                           tokenOrder
-                            ? ethers.utils.formatUnits(amount1, 18)
-                            : ethers.utils.formatUnits(amount0, 18)
+                            ? ethers.utils.formatUnits(
+                                amount1,
+                                tokenIn.decimals
+                              )
+                            : ethers.utils.formatUnits(
+                                amount0,
+                                tokenIn.decimals
+                              )
                         ).toFixed(2)}
                       </div>
                       <div className="flex">
@@ -382,13 +402,19 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                             ? Number(
                                 tokenIn.rangeUSDPrice *
                                   parseFloat(
-                                    ethers.utils.formatUnits(amount0, 18)
+                                    ethers.utils.formatUnits(
+                                      amount0,
+                                      tokenIn.decimals
+                                    )
                                   )
                               ).toFixed(2)
                             : Number(
                                 tokenOut.rangeUSDPrice *
                                   parseFloat(
-                                    ethers.utils.formatUnits(amount1, 18)
+                                    ethers.utils.formatUnits(
+                                      amount1,
+                                      tokenIn.decimals
+                                    )
                                   )
                               ).toFixed(2)}
                         </div>

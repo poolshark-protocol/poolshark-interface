@@ -211,10 +211,7 @@ export default function ConcentratedPool({}) {
     ) {
       tokenOutAmountMath();
     }
-  }, [
-    bnInput,
-    tokenOrder,
-  ]);
+  }, [bnInput, tokenOrder]);
 
   function tokenOutAmountMath() {
     try {
@@ -425,7 +422,9 @@ export default function ConcentratedPool({}) {
                       ~$
                       {(
                         tokenIn.rangeUSDPrice *
-                        Number(ethers.utils.formatUnits(bnInput, 18))
+                        Number(
+                          ethers.utils.formatUnits(bnInput, tokenIn.decimals)
+                        )
                       ).toFixed(2)}
                     </div>
                   </div>
@@ -458,7 +457,10 @@ export default function ConcentratedPool({}) {
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl  rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
                 {Number(
-                  ethers.utils.formatUnits(rangeMintParams.tokenOutAmount, 18)
+                  ethers.utils.formatUnits(
+                    rangeMintParams.tokenOutAmount,
+                    tokenIn.decimals
+                  )
                 )}
                 {
                   <div className="flex mt-2 text-xs text-[#4C4C4C]">
