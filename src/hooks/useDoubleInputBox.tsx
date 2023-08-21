@@ -36,7 +36,7 @@ export default function useDoubleInputBox() {
     setDisplayLower(result == '' ? '' : result)
 
     if (result == '') {
-        setBnInputLower(BigNumber.from('0'))
+      setBnInputLower(BigNumber.from('0'))
     }
 
     setInputLower(
