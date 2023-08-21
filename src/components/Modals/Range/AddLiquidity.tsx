@@ -197,7 +197,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
         : ethers.utils.formatUnits(amount0, 18).toString())
       setBnInputLower(tokenOrder ? amount1 : amount0)
     }
-  }, [amount0, amount1]);
+  }, [displayUpper]);
 
   /*useEffect(() => {
     if (displayLower != "") {
