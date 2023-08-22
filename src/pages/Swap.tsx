@@ -192,6 +192,9 @@ export default function Swap() {
   //false when user is in exact price, true when user is in price range
   const [priceRangeSelected, setPriceRangeSelected] = useState(false);
 
+    //false order history is selected, true when active orders is selected
+    const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
+
   ////////////////////////////////ChainId
   const [stateChainName, setStateChainName] = useState();
 
@@ -873,8 +876,8 @@ export default function Swap() {
     }
   };
   return (
-    <div className="min-h-[calc(100vh-160px)] w-full">
-      <div className="flex w-full mt-[10vh] justify-center mb-20">
+    <div className="min-h-[calc(100vh-160px)] w-[43rem]">
+      <div className="flex w-full mt-[10vh] justify-center mb-20 ">
         <div className="bg-black font-regular border border-grey rounded-[4px]">
           <div className="flex text-xs">
             <button
@@ -1107,86 +1110,92 @@ export default function Swap() {
                 </div>
                 {priceRangeSelected ? (
                   <div>
-                  <div className="flex items-center justify-between gap-x-10 mt-4">
-                    <div className="border border-grey w-full bg-dark flex flex-col items-center justify-center py-4">
-                      <span className="text-center text-xs text-grey1 mb-2">MIN. PRICE</span>
-                      <input className="outline-none bg-transparent text-3xl w-56 text-center mb-2"/>
+                    <div className="flex items-center justify-between gap-x-10 mt-4">
+                      <div className="border border-grey w-full bg-dark flex flex-col items-center justify-center py-4">
+                        <span className="text-center text-xs text-grey1 mb-2">
+                          MIN. PRICE
+                        </span>
+                        <input className="outline-none bg-transparent text-3xl w-56 text-center mb-2" />
+                      </div>
+                      <div className="border border-grey w-full bg-dark flex flex-col items-center justify-center py-4">
+                        <span className="text-center text-xs text-grey1 mb-2">
+                          MAX. PRICE
+                        </span>
+                        <input className="outline-none bg-transparent text-3xl w-56 text-center mb-2" />
+                      </div>
                     </div>
-                    <div className="border border-grey w-full bg-dark flex flex-col items-center justify-center py-4">
-                      <span className="text-center text-xs text-grey1 mb-2">MAX. PRICE</span>
-                      <input className="outline-none bg-transparent text-3xl w-56 text-center mb-2"/>
-                    </div>
-                  </div>
                   </div>
                 ) : (
                   <div className="bg-dark py-3 px-5 border border-grey rounded-[4px] mt-4">
-                  <div className="flex items-end justify-between text-[11px] text-grey1">
-                    <span>
-                      {pairSelected && rangePrice > 0
-                        ? //switcher tokenOrder
-                          limitPriceOrder
-                          ? //when normal order tokenIn/tokenOut
-                            (parseFloat(limitStringPriceQuote) /
-                              (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
-                              1) *
-                              100 >
-                            0
+                    <div className="flex items-end justify-between text-[11px] text-grey1">
+                      <span>
+                        {pairSelected && rangePrice > 0
+                          ? //switcher tokenOrder
+                            limitPriceOrder
+                            ? //when normal order tokenIn/tokenOut
+                              (parseFloat(limitStringPriceQuote) /
+                                (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
+                                1) *
+                                100 >
+                              0
+                              ? (
+                                  (parseFloat(limitStringPriceQuote) /
+                                    (tokenInRangeUSDPrice /
+                                      tokenOutRangeUSDPrice) -
+                                    1) *
+                                  100
+                                ).toFixed(2) + "% above Market Price"
+                              : Math.abs(
+                                  (parseFloat(limitStringPriceQuote) /
+                                    (tokenInRangeUSDPrice /
+                                      tokenOutRangeUSDPrice) -
+                                    1) *
+                                    100
+                                ).toFixed(2) + "% below Market Price"
+                            : //when inverted order tokenOut/tokenIn
+                            (parseFloat(
+                                invertPrice(limitStringPriceQuote, false)
+                              ) /
+                                (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
+                                1) *
+                                100 >
+                              0
                             ? (
-                                (parseFloat(limitStringPriceQuote) /
+                                (parseFloat(
+                                  invertPrice(limitStringPriceQuote, false)
+                                ) /
                                   (tokenInRangeUSDPrice /
                                     tokenOutRangeUSDPrice) -
                                   1) *
                                 100
                               ).toFixed(2) + "% above Market Price"
                             : Math.abs(
-                                (parseFloat(limitStringPriceQuote) /
+                                (parseFloat(
+                                  invertPrice(limitStringPriceQuote, false)
+                                ) /
                                   (tokenInRangeUSDPrice /
                                     tokenOutRangeUSDPrice) -
                                   1) *
                                   100
                               ).toFixed(2) + "% below Market Price"
-                          : //when inverted order tokenOut/tokenIn
-                          (parseFloat(
-                              invertPrice(limitStringPriceQuote, false)
-                            ) /
-                              (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
-                              1) *
-                              100 >
-                            0
-                          ? (
-                              (parseFloat(
-                                invertPrice(limitStringPriceQuote, false)
-                              ) /
-                                (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
-                                1) *
-                              100
-                            ).toFixed(2) + "% above Market Price"
-                          : Math.abs(
-                              (parseFloat(
-                                invertPrice(limitStringPriceQuote, false)
-                              ) /
-                                (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
-                                1) *
-                                100
-                            ).toFixed(2) + "% below Market Price"
-                        : "0.00% above Market Price"}
-                    </span>
+                          : "0.00% above Market Price"}
+                      </span>
+                    </div>
+                    <input
+                      autoComplete="off"
+                      className="bg-dark outline-none text-3xl my-3"
+                      placeholder="0"
+                      value={
+                        !isNaN(parseFloat(limitStringPriceQuote))
+                          ? limitStringPriceQuote
+                          : 0
+                      }
+                      type="text"
+                      onChange={(e) => {
+                        setLimitStringPriceQuote(inputFilter(e.target.value));
+                      }}
+                    />
                   </div>
-                  <input
-                    autoComplete="off"
-                    className="bg-dark outline-none text-3xl my-3"
-                    placeholder="0"
-                    value={
-                      !isNaN(parseFloat(limitStringPriceQuote))
-                        ? limitStringPriceQuote
-                        : 0
-                    }
-                    type="text"
-                    onChange={(e) => {
-                      setLimitStringPriceQuote(inputFilter(e.target.value));
-                    }}
-                  />
-                </div>
                 )}
               </div>
             ) : (
@@ -1336,8 +1345,153 @@ export default function Swap() {
           </div>
         </div>
       </div>
-      <div>
-        
+      <div className="mb-20">
+        <div className="flex item-end justify-between">
+          <h1 className="mt-1.5">Limit Orders</h1>
+          <div className="text-xs">
+            <button
+              className={`px-5 py-2 ${
+                !activeOrdersSelected
+                  ? "bg-black border-l border-t border-b border-grey"
+                  : "bg-main1 border border-main"
+              }`}
+              onClick={() => setActiveOrdersSelected(true)}
+            >
+              ACTIVE ORDERS
+            </button>
+            <button
+              className={`px-5 py-2 ${
+                !activeOrdersSelected
+                  ? "bg-main1 border border-main"
+                  : "bg-black border-r border-t border-b border-grey"
+              }`}
+              onClick={() => setActiveOrdersSelected(false)}
+            >
+              ORDER HISTORY
+            </button>
+          </div>
+        </div>
+        <div className="w-full h-[1px] bg-grey mt-3 mb-5" />
+        <table className="w-full table-auto">
+          <thead className="pb-4 border-b-10 border-black">
+            <tr className="text-xs text-grey1/60 mb-3 leading-normal">
+              <th className="text-left ">Sell</th>
+              <th className="text-left ">Buy</th>
+              <th className="text-left">Price</th>
+              <th className="text-left">Status</th>
+              <th className="text-right ">Age</th>
+            </tr>
+          </thead>
+          <div className="mt-3" />
+          {activeOrdersSelected ? (
+          <tbody className="">
+            <tr className="text-right text-xs md:text-sm">
+              <td className="">
+                <div className="flex items-center text-sm text-grey1 gap-x-2">
+                  <img
+                    className="w-[25px] h-[25px]"
+                    src="/static/images/dai_icon.png"
+                  />
+                  200 DAI
+                </div>
+              </td>
+              <td className="">
+                <div className="flex items-center text-sm text-white gap-x-2">
+                  <img
+                    className="w-[25px] h-[25px]"
+                    src="/static/images/dai_icon.png"
+                  />
+                  200 DAI
+                </div>
+              </td>
+              <td className="text-left text-xs">
+                <div className="flex flex-col">
+                  {/* FOR EXACT PRICE   */}
+                  <span>
+                    <span className="text-grey1">1 ETH =</span> 200 DAI
+                  </span>
+
+                  {/* FOR PRICE RANGES
+                  <span className="flex flex-col">
+                    <div><span className="text-grey1">FROM  1 ETH =</span> 200 DAI</div>
+                    <div><span className="text-grey1">TO 1 ETH =</span> 200 DAI</div>
+                  </span>
+            */}
+                </div>
+              </td>
+              <td className="">
+                <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
+                  <span className="z-50">Not Filled</span>
+                  <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
+                </div>
+              </td>
+              <td className="text-sm text-grey1">5d</td>
+              <td className="text-sm text-grey1 pl-5">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="w-7 text-red-600 bg-red-900/30 p-1 rounded-full cursor-pointer -mr-5"
+                >
+                  <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                </svg>
+              </td>
+            </tr>
+          </tbody>
+          ) : (
+          <tbody className="">
+            <tr className="text-right text-xs md:text-sm">
+              <td className="">
+                <div className="flex items-center text-sm text-grey1 gap-x-2">
+                  <img
+                    className="w-[25px] h-[25px]"
+                    src="/static/images/dai_icon.png"
+                  />
+                  200 DAI
+                </div>
+              </td>
+              <td className="">
+                <div className="flex items-center text-sm text-white gap-x-2">
+                  <img
+                    className="w-[25px] h-[25px]"
+                    src="/static/images/dai_icon.png"
+                  />
+                  200 DAI
+                </div>
+              </td>
+              <td className="text-left text-xs">
+                <div className="flex flex-col">
+                  {/* FOR EXACT PRICE   */}
+                  <span>
+                    <span className="text-grey1">1 ETH =</span> 200 DAI
+                  </span>
+
+                  {/* FOR PRICE RANGES
+                  <span className="flex flex-col">
+                    <div><span className="text-grey1">FROM  1 ETH =</span> 200 DAI</div>
+                    <div><span className="text-grey1">TO 1 ETH =</span> 200 DAI</div>
+                  </span>
+            */}
+                </div>
+              </td>
+              <td className="">
+                <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
+                  <span className="z-50">Not Filled</span>
+                  <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
+                </div>
+              </td>
+              <td className="text-sm text-grey1">5d</td>
+            </tr>
+          </tbody>
+          )}
+        </table>
+        {activeOrdersSelected && (
+        <div className="flex items-center justify-center w-full mt-9">
+          <button className="bg-red-900/20 py-2 px-5 text-xs text-red-600 mx-auto">
+            Cancell All Orders
+          </button>
+        </div>
+        )}
       </div>
     </div>
   );
