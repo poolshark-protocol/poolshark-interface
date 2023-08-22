@@ -291,7 +291,7 @@ export default function Cover() {
       const data = await fetchCoverPositions(address)
       if (data['data'])
         setAllCoverPositions(
-          mapUserCoverPositions(data['data'].positionFractions),
+          mapUserCoverPositions(data['data'].positions),
         )
     } catch (error) {
       console.log(error)

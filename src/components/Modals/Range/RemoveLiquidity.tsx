@@ -238,6 +238,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                       {if (burnPercent.eq(ethers.utils.parseUnits('1', 38))) {
                         router.push('/pool')
                       }}}
+                    setIsOpen={setIsOpen}
                 />
               </Dialog.Panel>
             </Transition.Child>

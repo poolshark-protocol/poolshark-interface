@@ -198,6 +198,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
                       router.push("/pool");
                     }
                   }}
+                  setIsOpen={setIsOpen}
                 />
               </Dialog.Panel>
             </Transition.Child>
