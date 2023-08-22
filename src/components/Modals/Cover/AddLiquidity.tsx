@@ -265,6 +265,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                     gasLimit={mintGasLimit}
                     buttonState={buttonState}
                     tokenSymbol={tokenIn.symbol}
+                    setIsOpen={setIsOpen}
                   />
                 ) : null}
               </Dialog.Panel>

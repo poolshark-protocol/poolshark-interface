@@ -14,7 +14,7 @@ import { gasEstimateRangeMint } from '../../utils/gas';
 import { useRangeStore } from '../../hooks/useRangeStore';
 import { BigNumber } from 'ethers';
 
-export default function RangeAddLiqButton({poolAddress, address, lower, upper, amount0, amount1, disabled}) {
+export default function RangeAddLiqButton({poolAddress, address, lower, upper, amount0, amount1, disabled, setIsOpen}) {
     const [
       setNeedsAllowanceIn,
       setNeedsAllowanceOut,
@@ -95,6 +95,7 @@ export default function RangeAddLiqButton({poolAddress, address, lower, upper, a
           setNeedsAllowanceOut(true);
           setNeedsBalanceOut(true);
         }
+        setIsOpen(false);
       },
       onError() {
         setErrorDisplay(true);

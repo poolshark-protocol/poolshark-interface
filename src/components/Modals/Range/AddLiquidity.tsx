@@ -448,6 +448,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                           amount0={amount0}
                           amount1={amount1}
                           disabled={disabled}
+                          setIsOpen={setIsOpen}
                         />
                       ) : (allowanceIn.lt(amount0) &&
                           allowanceOut.lt(amount1)) ||
