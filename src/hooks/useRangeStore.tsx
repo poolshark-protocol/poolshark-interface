@@ -41,6 +41,7 @@ type RangeState = {
   buttonMessage: string;
   //refresh
   needsRefetch: boolean;
+  needsPosRefetch: boolean;
   needsAllowanceIn: boolean;
   needsAllowanceOut: boolean;
   needsBalanceIn: boolean;
@@ -81,6 +82,7 @@ type RangeAction = {
   setButtonMessage: (balance: string) => void;
   //
   setNeedsRefetch: (needsRefetch: boolean) => void;
+  setNeedsPosRefetch: (needsPosRefetch: boolean) => void;
   setNeedsAllowanceIn: (needsAllowance: boolean) => void;
   setNeedsAllowanceOut: (needsAllowance: boolean) => void;
   setNeedsBalanceIn: (needsBalance: boolean) => void;
@@ -132,6 +134,7 @@ const initialRangeState: RangeState = {
   buttonMessage: "",
   //
   needsRefetch: false,
+  needsPosRefetch: false,
   needsAllowanceIn: true,
   needsAllowanceOut: true,
   needsBalanceIn: true,
@@ -170,6 +173,7 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   buttonMessage: initialRangeState.buttonMessage,
   //refresh
   needsRefetch: initialRangeState.needsRefetch,
+  needsPosRefetch: initialRangeState.needsPosRefetch,
   needsAllowanceIn: initialRangeState.needsAllowanceIn,
   needsAllowanceOut: initialRangeState.needsAllowanceOut,
   needsBalanceIn: initialRangeState.needsBalanceIn,
@@ -344,6 +348,11 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       needsRefetch: needsRefetch,
     }));
   },
+  setNeedsPosRefetch: (needsPosRefetch: boolean) => {
+    set(() => ({
+      needsPosRefetch: needsPosRefetch,
+    }));
+  },
   setNeedsAllowanceIn: (needsAllowanceIn: boolean) => {
     set(() => ({
       needsAllowanceIn: needsAllowanceIn,
@@ -424,6 +433,7 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       needsBalanceIn: initialRangeState.needsBalanceIn,
       needsBalanceOut: initialRangeState.needsBalanceOut,
       needsRefetch: initialRangeState.needsRefetch,
+      needsPosRefetch: initialRangeState.needsPosRefetch,
     });
   },
 }));

@@ -18,11 +18,13 @@ export default function RangeRemoveLiqButton({poolAddress, address, lower, upper
     const [
       setNeedsRefetch,
       setNeedsBalanceIn,
-      setNeedsBalanceOut
+      setNeedsBalanceOut,
+      setNeedsPosRefetch,
     ] = useRangeStore((state) => [
       state.setNeedsRefetch,
       state.setNeedsBalanceIn,
-      state.setNeedsBalanceOut
+      state.setNeedsBalanceOut,
+      state.setNeedsPosRefetch,
     ]);
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
@@ -90,6 +92,7 @@ export default function RangeRemoveLiqButton({poolAddress, address, lower, upper
         }
         setNeedsBalanceIn(true);
         setNeedsBalanceOut(true);
+        setNeedsPosRefetch(true);
       },
       onError() {
         setErrorDisplay(true);
