@@ -6,7 +6,6 @@ import {
   erc20ABI,
   useContractRead,
   useProvider,
-  useSigner,
   useBalance,
 } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
@@ -64,10 +63,11 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     state.setNeedsBalanceOut,
   ]);
 
-  const { bnInput, inputBox, maxBalance } = useInputBox();
-  const { data: signer } = useSigner();
-  const [balanceIn, setBalanceIn] = useState("");
-  const [balanceOut, setBalanceOut] = useState("");
+  const { 
+    bnInput, 
+    maxBalance,  
+    inputBox 
+  } = useInputBox();
   const [amount0, setAmount0] = useState(BN_ZERO);
   const [amount1, setAmount1] = useState(BN_ZERO);
   const [disabled, setDisabled] = useState(false);
@@ -80,7 +80,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     Number(rangePositionData.max)
   );
   const [stateChainName, setStateChainName] = useState();
-  const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0;
+  const [tokenOrder, setTokenOrder] = useState(tokenIn.address.localeCompare(tokenOut.address) < 0);
   const { isConnected } = useAccount();
   const [rangeSqrtPrice, setRangeSqrtPrice] = useState(
     JSBI.BigInt(rangePositionData.price)
@@ -126,9 +126,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
   });
 
   useEffect(() => {
-    setTimeout(() => {
-      if (tokenInAllowance) setAllowanceIn(tokenInAllowance);
-    }, 50);
+    if (tokenInAllowance) setAllowanceIn(tokenInAllowance);
   }, [tokenInAllowance]);
 
   const { data: tokenOutAllowance } = useContractRead({
@@ -166,16 +164,13 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
   });
 
   useEffect(() => {
-    setTimeout(() => {
-      if (tokenOutAllowance) {
-        console.log("token out allowance check", tokenOutAllowance.toString());
-        setAllowanceOut(tokenOutAllowance);
-      }
-    }, 50);
+    if (tokenOutAllowance) {
+      console.log("token out allowance check", tokenOutAllowance.toString());
+      setAllowanceOut(tokenOutAllowance);
+    }
   }, [tokenOutAllowance]);
 
   useEffect(() => {
-    console.log("mint gas updating");
     setAmounts();
   }, [bnInput]);
 
@@ -222,10 +217,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
 
   // disabled messages
   useEffect(() => {
-    if (Number(ethers.utils.formatUnits(bnInput, 18)) > Number(balanceIn)) {
+    if (Number(ethers.utils.formatUnits(bnInput, 18)) > Number(tokenInBalance)) {
       setButtonState("balance0");
     }
-    if (Number(ethers.utils.formatUnits(amount1, 18)) > Number(balanceOut)) {
+    if (Number(ethers.utils.formatUnits(amount1, 18)) > Number(tokenOutBalance)) {
       setButtonState("balance1");
     }
     if (Number(ethers.utils.formatUnits(bnInput, 18)) === 0) {
@@ -233,14 +228,14 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     }
     if (
       Number(ethers.utils.formatUnits(bnInput, 18)) === 0 ||
-      Number(ethers.utils.formatUnits(bnInput, 18)) > Number(balanceIn) ||
-      Number(ethers.utils.formatUnits(amount1, 18)) > Number(balanceOut)
+      Number(ethers.utils.formatUnits(bnInput, 18)) > Number(tokenInBalance) ||
+      Number(ethers.utils.formatUnits(amount1, 18)) > Number(tokenOutBalance)
     ) {
       setDisabled(true);
     } else {
       setDisabled(false);
     }
-  }, [bnInput, balanceIn, balanceOut, disabled]);
+  }, [bnInput, tokenInBalance, tokenOutBalance, disabled]);
 
   function setAmounts() {
     try {
@@ -284,6 +279,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
       console.log(error);
     }
   }
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
@@ -326,7 +322,9 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                   <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
                     <div className=" p-2 w-32">
                       <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-1 rounded-xl">
-                        {inputBox("0")}
+                        {
+                          inputBox("0")
+                        }
                       </div>
                       <div className="flex">
                         <div className="flex text-xs text-[#4C4C4C]">
@@ -359,13 +357,13 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                           <div className="flex items-center justify-end gap-2 px-1 mt-2">
                             <div
                               className="flex whitespace-nowrap md:text-xs text-[10px] whitespace-nowrap text-[#4C4C4C]"
-                              key={balanceIn}
+                              key={tokenInBalance}
                             >
-                              Balance: {balanceIn === "NaN" ? 0 : balanceIn}
+                              Balance: {tokenInBalance === "NaN" ? 0 : tokenInBalance}
                             </div>
                             <button
                               className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
-                              onClick={() => maxBalance(balanceIn, "0")}
+                              onClick={() => maxBalance(tokenInBalance, "0")}
                             >
                               Max
                             </button>
@@ -377,11 +375,11 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                   <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
                     <div className=" p-2 ">
                       <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
-                        {Number(
-                          tokenOrder
-                            ? ethers.utils.formatUnits(amount1, 18)
-                            : ethers.utils.formatUnits(amount0, 18)
-                        ).toFixed(2)}
+                        {
+                          tokenOrder ?
+                            parseFloat(ethers.utils.formatUnits(amount1, 18)).toFixed(2) :
+                            parseFloat(ethers.utils.formatUnits(amount0, 18)).toFixed(2)
+                        }
                       </div>
                       <div className="flex">
                         <div className="flex text-xs text-[#4C4C4C]">
@@ -416,9 +414,9 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                           <div className="flex whitespace-nowrap items-center justify-end gap-x-2 px-1 mt-2">
                             <div
                               className="flex md:text-xs text-[10px] text-[#4C4C4C]"
-                              key={balanceIn}
+                              key={tokenOutBalance}
                             >
-                              Balance: {balanceOut === "NaN" ? 0 : balanceOut}
+                              Balance: {tokenOutBalance === "NaN" ? 0 : tokenOutBalance}
                             </div>
                           </div>
                         </div>
@@ -450,6 +448,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                           amount0={amount0}
                           amount1={amount1}
                           disabled={disabled}
+                          setIsOpen={setIsOpen}
                         />
                       ) : (allowanceIn.lt(amount0) &&
                           allowanceOut.lt(amount1)) ||
