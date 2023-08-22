@@ -8,7 +8,7 @@ import Link from "next/link";
 import { logoMap } from "../../utils/tokens";
 import { TickMath } from "../../utils/math/tickMath";
 import { getClaimTick } from "../../utils/maps";
-import { token } from "../../utils/types";
+import { tokenCover } from "../../utils/types";
 import { getCoverPool } from "../../utils/pools";
 
 export default function UserCoverPool({
@@ -74,13 +74,13 @@ export default function UserCoverPool({
       symbol: coverPosition.tokenZero.symbol,
       logoURI: logoMap[coverPosition.tokenZero.symbol],
       address: coverPosition.tokenZero.id,
-    } as token;
+    } as tokenCover;
     const tokenOutNew = {
       name: coverPosition.tokenOne.name,
       symbol: coverPosition.tokenOne.symbol,
       logoURI: logoMap[coverPosition.tokenOne.symbol],
       address: coverPosition.tokenOne.id,
-    } as token;
+    } as tokenCover;
     setTokenIn(tokenOutNew, tokenInNew);
     setTokenOut(tokenInNew, tokenOutNew);
     //TODO we should also set the pools from volatility tiers

@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from "ethers";
-import { token, tokenRange } from "../utils/types";
+import { tokenRange } from "../utils/types";
 import { BN_ZERO, ZERO } from "../utils/math/constants";
 import {
   tokenOneAddress,
@@ -107,6 +107,7 @@ const initialRangeState: RangeState = {
     symbol: "WETH",
     logoURI: "/static/images/eth_icon.png",
     address: tokenOneAddress,
+    decimals: 18,
     userBalance: 0.0,
     userPoolAllowance: 0,
     rangeUSDPrice: 0.0,
@@ -118,6 +119,7 @@ const initialRangeState: RangeState = {
     symbol: "Select Token",
     logoURI: "",
     address: tokenZeroAddress,
+    decimals: 18,
     userBalance: 0.0,
     userPoolAllowance: 0,
     rangeUSDPrice: 0.0,
@@ -414,6 +416,7 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
         symbol: state.tokenOut.symbol,
         logoURI: state.tokenOut.logoURI,
         address: state.tokenOut.address,
+        decimals: state.tokenOut.decimals,
         rangeUSDPrice: state.tokenOut.rangeUSDPrice,
         userBalance: state.tokenOut.userBalance,
         userPoolAllowance: state.tokenOut.userPoolAllowance,
@@ -427,6 +430,7 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
         symbol: state.tokenIn.symbol,
         logoURI: state.tokenIn.logoURI,
         address: state.tokenIn.address,
+        decimals: state.tokenIn.decimals,
         rangeUSDPrice: state.tokenIn.rangeUSDPrice,
         userBalance: state.tokenIn.userBalance,
         userPoolAllowance: state.tokenIn.userPoolAllowance,

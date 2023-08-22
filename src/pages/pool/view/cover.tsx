@@ -231,7 +231,7 @@ export default function Cover() {
 
   useEffect(() => {
     if (filledAmount) {
-      setCoverFilledAmount(ethers.utils.formatUnits(filledAmount[2], 18));
+      setCoverFilledAmount(ethers.utils.formatUnits(filledAmount[2], tokenIn.decimals));
     }
   }, [filledAmount]);
 

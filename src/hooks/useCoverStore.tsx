@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from "ethers";
-import { token, tokenCover } from "../utils/types";
+import { tokenCover } from "../utils/types";
 import { BN_ZERO, ZERO } from "../utils/math/constants";
 import {
   tokenOneAddress,
@@ -48,14 +48,14 @@ type CoverAction = {
   setCoverPositionData: (data: any) => void;
   //setPairSelected: (pairSelected: boolean) => void;
   //tokenIn
-  setTokenIn: (tokenOut: token, newToken: token) => void;
+  setTokenIn: (tokenOut: tokenCover, newToken: tokenCover) => void;
   setTokenInAmount: (amount: string) => void;
   setTokenInCoverUSDPrice: (price: number) => void;
   setTokenInCoverAllowance: (allowance: string) => void;
   setTokenInBalance: (balance: string) => void;
   setCoverAmountIn: (amount: JSBI) => void;
   //tokenOut
-  setTokenOut: (tokenOut: token, newToken: token) => void;
+  setTokenOut: (tokenOut: tokenCover, newToken: tokenCover) => void;
   setTokenOutCoverUSDPrice: (price: number) => void;
   setTokenOutBalance: (balance: string) => void;
   setTokenOutCoverAllowance: (allowance: string) => void;
@@ -77,8 +77,8 @@ type CoverAction = {
   //reset
   switchDirection: () => void;
   setCoverPoolFromVolatility: (
-    tokenIn: token,
-    tokenOut: token,
+    tokenIn: tokenCover,
+    tokenOut: tokenCover,
     volatility: any
   ) => void;
   setMintButtonState: () => void;
@@ -100,6 +100,7 @@ const initialCoverState: CoverState = {
     symbol: "WETH",
     logoURI: "/static/images/eth_icon.png",
     address: tokenOneAddress,
+    decimals: 18,
     userBalance: 0.0,
     userPoolAllowance: 0.0,
     coverUSDPrice: 0.0,
@@ -111,6 +112,7 @@ const initialCoverState: CoverState = {
     symbol: "Select Token",
     logoURI: "",
     address: tokenZeroAddress,
+    decimals: 18,
     userBalance: 0.0,
     userPoolAllowance: 0.0,
     coverUSDPrice: 0.0,
@@ -382,6 +384,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         symbol: state.tokenOut.symbol,
         logoURI: state.tokenOut.logoURI,
         address: state.tokenOut.address,
+        decimals: state.tokenOut.decimals,
         userBalance: state.tokenOut.userBalance,
         userPoolAllowance: state.tokenOut.userPoolAllowance,
         coverUSDPrice: state.tokenOut.coverUSDPrice,
@@ -395,6 +398,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         symbol: state.tokenIn.symbol,
         logoURI: state.tokenIn.logoURI,
         address: state.tokenIn.address,
+        decimals: state.tokenIn.decimals,
         userBalance: state.tokenIn.userBalance,
         userPoolAllowance: state.tokenIn.userPoolAllowance,
         coverUSDPrice: state.tokenIn.coverUSDPrice,

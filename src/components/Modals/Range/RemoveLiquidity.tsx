@@ -79,7 +79,10 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
         if (changeDisplay)
           setSliderOutput(
             Number(
-              ethers.utils.formatUnits(tokenOrder ? amount0Bn : amount1Bn, 18)
+              ethers.utils.formatUnits(
+                tokenOrder ? amount0Bn : amount1Bn,
+                tokenIn.decimals
+              )
             ).toPrecision(6)
           );
         setAmount0(amount0Bn);
@@ -185,13 +188,19 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                           ? Number(
                               tokenIn.rangeUSDPrice *
                                 parseFloat(
-                                  ethers.utils.formatUnits(amount0, 18)
+                                  ethers.utils.formatUnits(
+                                    amount0,
+                                    tokenIn.decimals
+                                  )
                                 )
                             ).toFixed(2)
                           : Number(
                               tokenOut.rangeUSDPrice *
                                 parseFloat(
-                                  ethers.utils.formatUnits(amount1, 18)
+                                  ethers.utils.formatUnits(
+                                    amount1,
+                                    tokenIn.decimals
+                                  )
                                 )
                             ).toFixed(2)}
                       </div>
@@ -225,8 +234,8 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                     <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
                       {Number(
                         tokenOrder
-                          ? ethers.utils.formatUnits(amount1, 18)
-                          : ethers.utils.formatUnits(amount0, 18)
+                          ? ethers.utils.formatUnits(amount1, tokenIn.decimals)
+                          : ethers.utils.formatUnits(amount0, tokenIn.decimals)
                       ).toFixed(2)}
                     </div>
                     <div className="flex">
@@ -236,13 +245,19 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                           ? Number(
                               tokenOut.rangeUSDPrice *
                                 parseFloat(
-                                  ethers.utils.formatUnits(amount1, 18)
+                                  ethers.utils.formatUnits(
+                                    amount1,
+                                    tokenIn.decimals
+                                  )
                                 )
                             ).toFixed(2)
                           : Number(
                               tokenIn.rangeUSDPrice *
                                 parseFloat(
-                                  ethers.utils.formatUnits(amount0, 18)
+                                  ethers.utils.formatUnits(
+                                    amount0,
+                                    tokenIn.decimals
+                                  )
                                 )
                             ).toFixed(2)}
                       </div>
