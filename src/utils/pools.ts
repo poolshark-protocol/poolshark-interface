@@ -28,10 +28,7 @@ export const getSwapPool = async (
       (iMax, x, i, arr) => (x.liquidity > arr[iMax].liquidity ? i : iMax),
       0
     );
-    console.log("max liquidity", maxLiquidityIndex);
     const maxLiquidityPool = allPools[maxLiquidityIndex];
-    console.log("max liquidity pool", maxLiquidityPool);
-    console.log("all pools", allPools);
     setSwapPoolAddress(maxLiquidityPool["id"]);
     setSwapPoolData(maxLiquidityPool);
   } catch (error) {
