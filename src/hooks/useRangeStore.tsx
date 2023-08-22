@@ -1,12 +1,13 @@
-import { BigNumber } from "ethers";
-import { token } from "../utils/types";
-import { BN_ZERO } from "../utils/math/constants";
+import { BigNumber, ethers } from "ethers";
+import { token, tokenRange } from "../utils/types";
+import { BN_ZERO, ZERO } from "../utils/math/constants";
 import {
   tokenOneAddress,
   tokenZeroAddress,
 } from "../constants/contractAddresses";
 import { create } from "zustand";
 import { getRangePoolFromFactory } from "../utils/queries";
+import JSBI from "jsbi";
 
 type RangeState = {
   //poolAddress for current token pairs
@@ -21,26 +22,20 @@ type RangeState = {
   //true if both tokens selected, false if only one token selected
   pairSelected: boolean;
   //TokenIn defines the token on the left/up on a swap page
-  tokenIn: token;
-  tokenInAmount: BigNumber;
-  tokenInRangeUSDPrice: number;
-  tokenInRangeAllowance: BigNumber;
-  tokenInBalance: string;
+  tokenIn: tokenRange;
   //TokenOut defines the token on the left/up on a swap page
-  tokenOut: token;
-  tokenOutAmount: BigNumber;
-  tokenOutRangeUSDPrice: number;
-  tokenOutBalance: string;
-  tokenOutRangeAllowance: BigNumber;
+  tokenOut: tokenRange;
   //min and max price input
   minInput: string;
   maxInput: string;
-  //Gas
-  gasFee: BigNumber;
-  gasLimit: BigNumber;
-  //Disabled
-  disabled: boolean;
-  buttonMessage: string;
+  rangeMintParams: {
+    tokenInAmount: BigNumber;
+    tokenOutAmount: BigNumber;
+    gasFee: string;
+    gasLimit: BigNumber;
+    disabled: boolean;
+    buttonMessage: string;
+  };
   //refresh
   needsRefetch: boolean;
   needsPosRefetch: boolean;
@@ -62,19 +57,19 @@ type RangeAction = {
   setTokenIn: (tokenOut: any, newToken: any) => void;
   setTokenInAmount: (amount: BigNumber) => void;
   setTokenInRangeUSDPrice: (price: number) => void;
-  setTokenInRangeAllowance: (allowance: BigNumber) => void;
+  setTokenInRangeAllowance: (allowance: string) => void;
   setTokenInBalance: (balance: string) => void;
   //
   setTokenOut: (tokenIn: any, newToken: any) => void;
   setTokenOutAmount: (amount: BigNumber) => void;
   setTokenOutRangeUSDPrice: (price: number) => void;
-  setTokenOutRangeAllowance: (allowance: BigNumber) => void;
+  setTokenOutRangeAllowance: (allowance: string) => void;
   setTokenOutBalance: (balance: string) => void;
   //
   setMinInput: (newMinTick: string) => void;
   setMaxInput: (newMaxTick: string) => void;
   //
-  setGasFee: (gasFee: BigNumber) => void;
+  setGasFee: (gasFee: string) => void;
   setGasLimit: (gasLimit: BigNumber) => void;
   //
   switchDirection: () => void;
@@ -85,8 +80,7 @@ type RangeAction = {
   ) => void;
   resetRangeParams: () => void;
   //
-  setDisabled: (disabled: boolean) => void;
-  setButtonMessage: (balance: string) => void;
+  setMintButtonState: () => void;
   //
   setNeedsRefetch: (needsRefetch: boolean) => void;
   setNeedsPosRefetch: (needsPosRefetch: boolean) => void;
@@ -100,6 +94,7 @@ const initialRangeState: RangeState = {
   //pools
   rangePoolAddress: "0x000",
   rangePoolData: {},
+  rangePositionData: {},
   feeTierId: 0,
   rangeSlippage: "0.5",
   //
@@ -112,11 +107,10 @@ const initialRangeState: RangeState = {
     symbol: "WETH",
     logoURI: "/static/images/eth_icon.png",
     address: tokenOneAddress,
-  } as token,
-  tokenInAmount: BN_ZERO,
-  tokenInRangeUSDPrice: 0,
-  tokenInRangeAllowance: BN_ZERO,
-  tokenInBalance: "0.00",
+    userBalance: 0.0,
+    userPoolAllowance: 0,
+    rangeUSDPrice: 0.0,
+  } as tokenRange,
   //
   tokenOut: {
     callId: 1,
@@ -124,22 +118,22 @@ const initialRangeState: RangeState = {
     symbol: "Select Token",
     logoURI: "",
     address: tokenZeroAddress,
-  } as token,
-  tokenOutAmount: BN_ZERO,
-  tokenOutRangeUSDPrice: 0,
-  tokenOutRangeAllowance: BN_ZERO,
-  tokenOutBalance: "0.00",
+    userBalance: 0.0,
+    userPoolAllowance: 0,
+    rangeUSDPrice: 0.0,
+  } as tokenRange,
   //
   minInput: "",
   maxInput: "",
   //
-  gasFee: BN_ZERO,
-  gasLimit: BN_ZERO,
-  //
-  rangePositionData: {},
-  //
-  disabled: false,
-  buttonMessage: "",
+  rangeMintParams: {
+    tokenInAmount: BN_ZERO,
+    tokenOutAmount: BN_ZERO,
+    gasFee: "$0.00",
+    gasLimit: BN_ZERO,
+    disabled: true,
+    buttonMessage: "",
+  },
   //
   needsRefetch: false,
   needsPosRefetch: false,
@@ -159,27 +153,15 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   pairSelected: initialRangeState.pairSelected,
   //tokenIn
   tokenIn: initialRangeState.tokenIn,
-  tokenInAmount: initialRangeState.tokenInAmount,
-  tokenInRangeUSDPrice: initialRangeState.tokenInRangeUSDPrice,
-  tokenInRangeAllowance: initialRangeState.tokenInRangeAllowance,
-  tokenInBalance: initialRangeState.tokenInBalance,
   //tokenOut
   tokenOut: initialRangeState.tokenOut,
-  tokenOutAmount: initialRangeState.tokenOutAmount,
-  tokenOutRangeUSDPrice: initialRangeState.tokenOutRangeUSDPrice,
-  tokenOutBalance: initialRangeState.tokenOutBalance,
-  tokenOutRangeAllowance: initialRangeState.tokenOutRangeAllowance,
   //input amounts
   minInput: initialRangeState.minInput,
   maxInput: initialRangeState.maxInput,
-  //gas
-  gasFee: initialRangeState.gasFee,
-  gasLimit: initialRangeState.gasLimit,
   //range position data
   rangePositionData: initialRangeState.rangePositionData,
-  //contract calls
-  disabled: initialRangeState.disabled,
-  buttonMessage: initialRangeState.buttonMessage,
+  //
+  rangeMintParams: initialRangeState.rangeMintParams,
   //refresh
   needsRefetch: initialRangeState.needsRefetch,
   needsPosRefetch: initialRangeState.needsPosRefetch,
@@ -193,7 +175,7 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       pairSelected: pairSelected,
     }));
   },
-  setTokenIn: (tokenOut, newToken: token) => {
+  setTokenIn: (tokenOut, newToken: tokenRange) => {
     //if tokenOut is selected
     if (
       tokenOut.address != initialRangeState.tokenOut.address ||
@@ -232,31 +214,32 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
     }
   },
   setTokenInAmount: (newAmount: BigNumber) => {
-    set(() => ({
-      tokenInAmount: newAmount,
+    //TODO this should also go to mint params
+    set((state) => ({
+      tokenIn: { ...state.tokenIn, amount: newAmount },
     }));
   },
   setTokenInRangeUSDPrice: (newPrice: number) => {
-    set(() => ({
-      tokenInRangeUSDPrice: newPrice,
+    set((state) => ({
+      tokenIn: { ...state.tokenIn, rangeUSDPrice: newPrice },
     }));
   },
-  setTokenInRangeAllowance: (newAllowance: BigNumber) => {
-    set(() => ({
-      tokenInRangeAllowance: newAllowance,
+  setTokenInRangeAllowance: (newAllowance: string) => {
+    set((state) => ({
+      tokenIn: { ...state.tokenIn, userPoolAllowance: Number(newAllowance) },
     }));
   },
   setTokenInBalance: (newBalance: string) => {
-    set(() => ({
-      tokenInBalance: newBalance,
+    set((state) => ({
+      tokenIn: { ...state.tokenIn, userBalance: Number(newBalance) },
     }));
   },
   setTokenOutRangeUSDPrice: (newPrice: number) => {
-    set(() => ({
-      tokenOutRangeUSDPrice: newPrice,
+    set((state) => ({
+      tokenOut: { ...state.tokenOut, rangeUSDPrice: newPrice },
     }));
   },
-  setTokenOut: (tokenIn, newToken: token) => {
+  setTokenOut: (tokenIn, newToken: tokenRange) => {
     //if tokenIn exists
     if (
       tokenIn.address != initialRangeState.tokenOut.address ||
@@ -288,18 +271,19 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
     }
   },
   setTokenOutAmount: (newAmount: BigNumber) => {
-    set(() => ({
-      tokenOutAmount: newAmount,
+    //TODO this should also go to mint params
+    set((state) => ({
+      tokenOut: { ...state.tokenOut, amount: newAmount },
     }));
   },
   setTokenOutBalance: (newBalance: string) => {
-    set(() => ({
-      tokenOutBalance: newBalance,
+    set((state) => ({
+      tokenOut: { ...state.tokenOut, userBalance: Number(newBalance) },
     }));
   },
-  setTokenOutRangeAllowance: (newAllowance: BigNumber) => {
-    set(() => ({
-      tokenOutRangeAllowance: newAllowance,
+  setTokenOutRangeAllowance: (newAllowance: string) => {
+    set((state) => ({
+      tokenOut: { ...state.tokenOut, userPoolAllowance: Number(newAllowance) },
     }));
   },
   setMinInput: (minInput: string) => {
@@ -327,14 +311,20 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       rangeSlippage: rangeSlippage,
     }));
   },
-  setGasFee: (gasFee: BigNumber) => {
-    set(() => ({
-      gasFee: gasFee,
+  setGasFee: (gasFee: string) => {
+    set((state) => ({
+      rangeMintParams: {
+        ...state.rangeMintParams,
+        gasFee: gasFee,
+      },
     }));
   },
   setGasLimit: (gasLimit: BigNumber) => {
-    set(() => ({
-      gasLimit: gasLimit,
+    set((state) => ({
+      rangeMintParams: {
+        ...state.rangeMintParams,
+        gasLimit: gasLimit,
+      },
     }));
   },
   setRangePositionData: (rangePositionData: any) => {
@@ -342,14 +332,45 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       rangePositionData: rangePositionData,
     }));
   },
-  setDisabled: (disabled: boolean) => {
-    set(() => ({
-      disabled: disabled,
-    }));
-  },
-  setButtonMessage: (buttonMessage: string) => {
-    set(() => ({
-      buttonMessage: buttonMessage,
+  setMintButtonState: () => {
+    set((state) => ({
+      rangeMintParams: {
+        ...state.rangeMintParams,
+        buttonMessage:
+          state.tokenIn.userBalance <
+          parseFloat(
+            ethers.utils.formatUnits(
+              String(state.rangeMintParams.tokenInAmount),
+              18
+            )
+          )
+            ? "Insufficient Token Balance"
+            : parseFloat(
+                ethers.utils.formatUnits(
+                  String(state.rangeMintParams.tokenInAmount),
+                  18
+                )
+              ) == 0
+            ? "Enter Amount"
+            : "Create Cover",
+        disabled:
+          state.tokenIn.userBalance <
+          parseFloat(
+            ethers.utils.formatUnits(
+              String(state.rangeMintParams.tokenInAmount),
+              18
+            )
+          )
+            ? true
+            : parseFloat(
+                ethers.utils.formatUnits(
+                  String(state.rangeMintParams.tokenInAmount),
+                  18
+                )
+              ) == 0
+            ? true
+            : false,
+      },
     }));
   },
   setNeedsRefetch: (needsRefetch: boolean) => {
@@ -393,6 +414,9 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
         symbol: state.tokenOut.symbol,
         logoURI: state.tokenOut.logoURI,
         address: state.tokenOut.address,
+        rangeUSDPrice: state.tokenOut.rangeUSDPrice,
+        userBalance: state.tokenOut.userBalance,
+        userPoolAllowance: state.tokenOut.userPoolAllowance,
       },
       tokenOut: {
         callId:
@@ -403,6 +427,9 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
         symbol: state.tokenIn.symbol,
         logoURI: state.tokenIn.logoURI,
         address: state.tokenIn.address,
+        rangeUSDPrice: state.tokenIn.rangeUSDPrice,
+        userBalance: state.tokenIn.userBalance,
+        userPoolAllowance: state.tokenIn.userPoolAllowance,
       },
     }));
   },
@@ -443,27 +470,13 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       pairSelected: initialRangeState.pairSelected,
       //tokenIn
       tokenIn: initialRangeState.tokenIn,
-      tokenInAmount: initialRangeState.tokenInAmount,
-      tokenInRangeUSDPrice: initialRangeState.tokenInRangeUSDPrice,
-      tokenInRangeAllowance: initialRangeState.tokenInRangeAllowance,
-      tokenInBalance: initialRangeState.tokenInBalance,
       //tokenOut
       tokenOut: initialRangeState.tokenOut,
-      tokenOutAmount: initialRangeState.tokenOutAmount,
-      tokenOutRangeUSDPrice: initialRangeState.tokenOutRangeUSDPrice,
-      tokenOutBalance: initialRangeState.tokenOutBalance,
-      tokenOutRangeAllowance: initialRangeState.tokenOutRangeAllowance,
       //input amounts
       minInput: initialRangeState.minInput,
       maxInput: initialRangeState.maxInput,
-      //gas
-      gasFee: initialRangeState.gasFee,
-      gasLimit: initialRangeState.gasLimit,
       //position data
       rangePositionData: initialRangeState.rangePositionData,
-      //disable
-      disabled: initialRangeState.disabled,
-      buttonMessage: initialRangeState.buttonMessage,
       //refresh
       needsAllowanceIn: initialRangeState.needsAllowanceIn,
       needsAllowanceOut: initialRangeState.needsAllowanceOut,

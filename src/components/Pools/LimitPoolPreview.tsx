@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+ import { Fragment, useEffect, useState } from "react";
 import { Transition, Dialog } from "@headlessui/react";
 import RangeMintButton from "../Buttons/RangeMintButton";
 import { BigNumber, ethers } from "ethers";
@@ -12,21 +12,16 @@ import { BN_ZERO } from "../../utils/math/constants";
 import { gasEstimateRangeMint } from "../../utils/gas";
 import { ArrowLongRightIcon } from "@heroicons/react/20/solid";
 
-export default function LimitPoolPreview({ fee }) {
+export default function LimitPoolPreview({ fee }) {}
+/* 
   const [
     rangePoolAddress,
     rangePoolData,
     rangePositionData,
     tokenIn,
-    tokenInAmount,
-    tokenInRangeUSDPrice,
-    tokenInAllowance,
+
     tokenOut,
-    tokenOutAmount,
-    tokenOutRangeUSDPrice,
-    tokenOutAllowance,
-    disabled,
-    buttonMessage,
+
     setTokenInAllowance,
     setTokenOutAllowance,
   ] = useRangeStore((state) => [
@@ -34,15 +29,9 @@ export default function LimitPoolPreview({ fee }) {
     state.rangePoolData,
     state.rangePositionData,
     state.tokenIn,
-    state.tokenInAmount,
-    state.tokenInRangeUSDPrice,
-    state.tokenInRangeAllowance,
+
     state.tokenOut,
-    state.tokenOutAmount,
-    state.tokenOutRangeUSDPrice,
-    state.tokenOutRangeAllowance,
-    state.disabled,
-    state.buttonMessage,
+
     state.setTokenInRangeAllowance,
     state.setTokenOutRangeAllowance,
   ]);
@@ -177,10 +166,8 @@ export default function LimitPoolPreview({ fee }) {
                             {tokenIn.symbol}
                           </button>
                           <div className="items-center w-min px-2 py-2 m-auto border border-[#1E1E1E] z-30 bg-black rounded-lg">
-            <ArrowLongRightIcon
-              className="md:w-6 w-4 md:rotate-0 rotate-90"
-            />
-          </div>
+                            <ArrowLongRightIcon className="md:w-6 w-4 md:rotate-0 rotate-90" />
+                          </div>
                           <button className="flex w-full items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
                             <img
                               className="w-7 w-full"
@@ -251,12 +238,12 @@ export default function LimitPoolPreview({ fee }) {
                               </div>
                             </div>
                           </div>
-                          <ArrowLongRightIcon
-              className="md:w-6 mx-auto w-4 rotate-90"
-            />
-            <div className="gap-x-4 mt-8">
-            <h1 className="md:text-base text-sm">Amount to receive</h1>
-          </div>
+                          <ArrowLongRightIcon className="md:w-6 mx-auto w-4 rotate-90" />
+                          <div className="gap-x-4 mt-8">
+                            <h1 className="md:text-base text-sm">
+                              Amount to receive
+                            </h1>
+                          </div>
                           <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
                             <div className=" p-2 ">
                               <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
@@ -428,3 +415,4 @@ export default function LimitPoolPreview({ fee }) {
     </div>
   );
 }
+ */
