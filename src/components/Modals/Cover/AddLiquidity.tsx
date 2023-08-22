@@ -49,7 +49,6 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   } = useProvider();
   const { data: signer } = useSigner();
 
-  const [balanceIn, setBalanceIn] = useState("");
   const [allowanceIn, setAllowanceIn] = useState(BN_ZERO);
   const { isConnected } = useAccount();
   const [stateChainName, setStateChainName] = useState();
@@ -112,7 +111,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
 
   // disabled messages
   useEffect(() => {
-    if (Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn)) {
+    if (Number(ethers.utils.formatUnits(bnInput)) > Number(tokenIn.userBalance)) {
       setButtonState("balance");
     }
     if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
@@ -120,22 +119,20 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     }
     if (
       Number(ethers.utils.formatUnits(bnInput)) === 0 ||
-      Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn)
+      Number(ethers.utils.formatUnits(bnInput)) > Number(tokenIn.userBalance)
     ) {
       setDisabled(true);
     } else {
       setDisabled(false);
     }
-  }, [bnInput, balanceIn, disabled]);
+  }, [bnInput, tokenIn.userBalance, disabled]);
 
   useEffect(() => {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
   }, [chainId]);
 
   useEffect(() => {
-    setTimeout(() => {
-      if (tokenInAllowance) setAllowanceIn(tokenInAllowance);
-    }, 50);
+    if (tokenInAllowance) setAllowanceIn(tokenInAllowance);
   }, [tokenInAllowance]);
 
   useEffect(() => {
@@ -225,18 +222,18 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                         <div className="flex items-center justify-end gap-2 px-1 mt-2">
                           <div
                             className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]"
-                            key={balanceIn}
+                            key={tokenIn.userBalance}
                           >
                             Balance:{" "}
-                            {balanceIn === "NaN"
+                            {isNaN(tokenIn.userBalance)
                               ? "0.00"
-                              : Number(balanceIn).toPrecision(5)}
+                              : Number(tokenIn.userBalance).toPrecision(5)}
                           </div>
                           <button
                             className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
                             onClick={() => {
-                              console.log("max", balanceIn);
-                              maxBalance(balanceIn, "0");
+                              console.log("max", tokenIn.userBalance);
+                              maxBalance(tokenIn.userBalance.toString(), "0");
                             }}
                           >
                             Max
@@ -268,6 +265,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                     gasLimit={mintGasLimit}
                     buttonState={buttonState}
                     tokenSymbol={tokenIn.symbol}
+                    setIsOpen={setIsOpen}
                   />
                 ) : null}
               </Dialog.Panel>

@@ -581,7 +581,7 @@ export default function CreateCover(props: any) {
                 {isConnected ? (
                   <button
                     className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
-                    onClick={() => maxBalance(tokenIn.userBalance, "0")}
+                    onClick={() => maxBalance(tokenIn.userBalance.toString(), "0")}
                   >
                     Max
                   </button>

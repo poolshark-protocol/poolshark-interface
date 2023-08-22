@@ -287,16 +287,16 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                   </div>
                 </div>
                 <RangeRemoveLiqButton
-                  poolAddress={rangePoolAddress}
-                  address={address}
-                  lower={BigNumber.from(rangePositionData.min)}
-                  upper={BigNumber.from(rangePositionData.max)}
-                  burnPercent={burnPercent}
-                  closeModal={() => {
-                    if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
-                      router.push("/pool");
-                    }
-                  }}
+                    poolAddress={rangePoolAddress}
+                    address={address}
+                    lower={BigNumber.from(rangePositionData.min)}
+                    upper={BigNumber.from(rangePositionData.max)}
+                    burnPercent={burnPercent}
+                    closeModal={() => 
+                      {if (burnPercent.eq(ethers.utils.parseUnits('1', 38))) {
+                        router.push('/pool')
+                      }}}
+                    setIsOpen={setIsOpen}
                 />
               </Dialog.Panel>
             </Transition.Child>
