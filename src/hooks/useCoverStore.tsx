@@ -33,6 +33,7 @@ type CoverState = {
     buttonMessage: string;
   };
   needsRefetch: boolean;
+  needsPosRefetch: boolean;
   needsAllowance: boolean;
   needsBalance: boolean;
   //Claim tick
@@ -68,6 +69,7 @@ type CoverAction = {
   setGasLimit: (limit: BigNumber) => void;
   //refetch
   setNeedsRefetch: (needsRefetch: boolean) => void;
+  setNeedsPosRefetch: (needsPosRefetch: boolean) => void;
   //allowance
   setNeedsAllowance: (needsAllowance: boolean) => void;
   //balance
@@ -125,6 +127,7 @@ const initialCoverState: CoverState = {
     buttonMessage: "",
   },
   needsRefetch: false,
+  needsPosRefetch: false,
   needsAllowance: true,
   needsBalance: true,
   //
@@ -146,6 +149,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   claimTick: initialCoverState.claimTick,
   coverMintParams: initialCoverState.coverMintParams,
   needsRefetch: initialCoverState.needsRefetch,
+  needsPosRefetch: initialCoverState.needsPosRefetch,
   needsAllowance: initialCoverState.needsAllowance,
   needsBalance: initialCoverState.needsBalance,
   setTokenIn: (tokenOut, newToken: tokenCover) => {
@@ -350,6 +354,11 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   setNeedsRefetch: (needsRefetch: boolean) => {
     set(() => ({
       needsRefetch: needsRefetch,
+    }));
+  },
+  setNeedsPosRefetch: (needsPosRefetch: boolean) => {
+    set(() => ({
+      needsPosRefetch: needsPosRefetch,
     }));
   },
   setNeedsAllowance: (needsAllowance: boolean) => {

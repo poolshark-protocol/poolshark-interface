@@ -3,21 +3,23 @@ import {
   ArrowTopRightOnSquareIcon,
   ArrowsRightLeftIcon,
   ExclamationTriangleIcon,
-} from "@heroicons/react/20/solid";
-import { useState, useEffect } from "react";
-import RangeCompoundButton from "../../../components/Buttons/RangeCompoundButton";
-import { useAccount } from "wagmi";
-import { BigNumber, ethers } from "ethers";
-import { TickMath } from "../../../utils/math/tickMath";
-import JSBI from "jsbi";
-import { copyElementUseEffect } from "../../../utils/misc";
-import { DyDxMath } from "../../../utils/math/dydxMath";
-import { rangePoolABI } from "../../../abis/evm/rangePool";
-import { useContractRead } from "wagmi";
-import RemoveLiquidity from "../../../components/Modals/Range/RemoveLiquidity";
-import AddLiquidity from "../../../components/Modals/Range/AddLiquidity";
-import { useRangeStore } from "../../../hooks/useRangeStore";
-import { fetchRangeTokenUSDPrice } from "../../../utils/tokens";
+} from '@heroicons/react/20/solid'
+import { useState, useEffect } from 'react'
+import RangeCompoundButton from '../../../components/Buttons/RangeCompoundButton'
+import { useAccount } from 'wagmi'
+import { BigNumber, ethers } from 'ethers'
+import { TickMath } from '../../../utils/math/tickMath'
+import JSBI from 'jsbi'
+import { copyElementUseEffect } from '../../../utils/misc'
+import { DyDxMath } from '../../../utils/math/dydxMath'
+import { rangePoolABI } from '../../../abis/evm/rangePool'
+import { useContractRead } from 'wagmi'
+import RemoveLiquidity from '../../../components/Modals/Range/RemoveLiquidity'
+import AddLiquidity from '../../../components/Modals/Range/AddLiquidity'
+import { useRangeStore } from '../../../hooks/useRangeStore'
+import { fetchRangeTokenUSDPrice } from '../../../utils/tokens'
+import { fetchRangePositions } from '../../../utils/queries'
+import { mapUserRangePositions } from '../../../utils/maps'
 
 export default function Range() {
   const [
@@ -29,6 +31,11 @@ export default function Range() {
 
     setTokenInRangeUSDPrice,
     setTokenOutRangeUSDPrice,
+    needsRefetch,
+    needsPosRefetch,
+    setNeedsRefetch,
+    setNeedsPosRefetch,
+    setRangePositionData,
   ] = useRangeStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
@@ -38,7 +45,12 @@ export default function Range() {
 
     state.setTokenInRangeUSDPrice,
     state.setTokenOutRangeUSDPrice,
-  ]);
+    state.needsRefetch,
+    state.needsPosRefetch,
+    state.setNeedsRefetch,
+    state.setNeedsPosRefetch,
+    state.setRangePositionData,
+  ])
 
   const { address, isConnected } = useAccount();
 
@@ -46,21 +58,21 @@ export default function Range() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
   const [priceDirection, setPriceDirection] = useState(false);
-
-  const [userLiquidityUsd, setUserLiquidityUsd] = useState(0);
-  const [lowerPrice, setLowerPrice] = useState("");
-  const [upperPrice, setUpperPrice] = useState("");
-  const [amount0, setAmount0] = useState(0);
-  const [amount1, setAmount1] = useState(0);
-  const [amount0Usd, setAmount0Usd] = useState(0);
-  const [amount1Usd, setAmount1Usd] = useState(0);
-  const [amount0Fees, setAmount0Fees] = useState(0.0);
-  const [amount1Fees, setAmount1Fees] = useState(0.0);
-  const [amount0FeesUsd, setAmount0FeesUsd] = useState(0.0);
-  const [amount1FeesUsd, setAmount1FeesUsd] = useState(0.0);
-  const [is0Copied, setIs0Copied] = useState(false);
-  const [is1Copied, setIs1Copied] = useState(false);
-  const [isPoolCopied, setIsPoolCopied] = useState(false);
+  const [allRangePositions, setAllRangePositions] = useState([])
+  const [userLiquidityUsd, setUserLiquidityUsd] = useState(0)
+  const [lowerPrice, setLowerPrice] = useState("")
+  const [upperPrice, setUpperPrice] = useState("")
+  const [amount0, setAmount0] = useState(0)
+  const [amount1, setAmount1] = useState(0)
+  const [amount0Usd, setAmount0Usd] = useState(0)
+  const [amount1Usd, setAmount1Usd] = useState(0)
+  const [amount0Fees, setAmount0Fees] = useState(0.0)
+  const [amount1Fees, setAmount1Fees] = useState(0.0)
+  const [amount0FeesUsd, setAmount0FeesUsd] = useState(0.0)
+  const [amount1FeesUsd, setAmount1FeesUsd] = useState(0.0)
+  const [is0Copied, setIs0Copied] = useState(false)
+  const [is1Copied, setIs1Copied] = useState(false)
+  const [isPoolCopied, setIsPoolCopied] = useState(false)
   const [lowerInverse, setLowerInverse] = useState(0);
   const [upperInverse, setUpperInverse] = useState(0);
   const [priceInverse, setPriceInverse] = useState(0);
@@ -235,6 +247,37 @@ export default function Range() {
   useEffect(() => {
     setUserLiquidityUsd(amount0Usd + amount1Usd);
   }, [amount0Usd, amount1Usd]);
+
+  async function getUserRangePositionData() {
+    try {
+      const data = await fetchRangePositions(address)
+      if (data['data'])
+        setAllRangePositions(
+          mapUserRangePositions(data['data'].positionFractions),
+        )
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (needsRefetch == true || needsPosRefetch == true) {
+        getUserRangePositionData()
+        
+        const positionId = rangePositionData.id
+        const position = allRangePositions.find((position) => position.id == positionId)
+        console.log('new position', position)
+
+      if(position != undefined) {
+        setRangePositionData(position)
+      }
+
+        setNeedsRefetch(false)
+        setNeedsPosRefetch(false)
+      }
+    }, 5000)
+  }, [needsRefetch, needsPosRefetch])
 
   ////////////////////////Fees
 

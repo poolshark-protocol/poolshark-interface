@@ -14,15 +14,17 @@ import { gasEstimateRangeBurn } from '../../utils/gas';
 import { BN_ZERO } from '../../utils/math/constants';
 import { useRangeStore } from '../../hooks/useRangeStore';
 
-export default function RangeRemoveLiqButton({poolAddress, address, lower, upper, burnPercent, closeModal}) {
+export default function RangeRemoveLiqButton({poolAddress, address, lower, upper, burnPercent, closeModal, setIsOpen}) {
     const [
       setNeedsRefetch,
       setNeedsBalanceIn,
-      setNeedsBalanceOut
+      setNeedsBalanceOut,
+      setNeedsPosRefetch,
     ] = useRangeStore((state) => [
       state.setNeedsRefetch,
       state.setNeedsBalanceIn,
-      state.setNeedsBalanceOut
+      state.setNeedsBalanceOut,
+      state.setNeedsPosRefetch,
     ]);
 
     const [ errorDisplay, setErrorDisplay ] = useState(false);
@@ -90,6 +92,8 @@ export default function RangeRemoveLiqButton({poolAddress, address, lower, upper
         }
         setNeedsBalanceIn(true);
         setNeedsBalanceOut(true);
+        setNeedsPosRefetch(true);
+        setIsOpen(false);
       },
       onError() {
         setErrorDisplay(true);
