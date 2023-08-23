@@ -14,17 +14,19 @@ import { gasEstimateRangeMint } from '../../utils/gas';
 import { useRangeStore } from '../../hooks/useRangeStore';
 import { BigNumber } from 'ethers';
 
-export default function RangeAddLiqButton({poolAddress, address, lower, upper, amount0, amount1, disabled}) {
+export default function RangeAddLiqButton({poolAddress, address, lower, upper, amount0, amount1, disabled, setIsOpen}) {
     const [
       setNeedsAllowanceIn,
       setNeedsAllowanceOut,
       setNeedsBalanceIn,
       setNeedsBalanceOut,
+      setNeedsRefetch,
     ] = useRangeStore((state) => [
       state.setNeedsAllowanceIn,
       state.setNeedsAllowanceOut,
       state.setNeedsBalanceIn,
       state.setNeedsBalanceOut,
+      state.setNeedsRefetch,
     ])
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -91,10 +93,12 @@ export default function RangeAddLiqButton({poolAddress, address, lower, upper, a
         setSuccessDisplay(true);
         setNeedsAllowanceIn(true);
         setNeedsBalanceIn(true);
+        setNeedsRefetch(true);
         if (amount1.gt(BigNumber.from(0))) {
           setNeedsAllowanceOut(true);
           setNeedsBalanceOut(true);
         }
+        setIsOpen(false);
       },
       onError() {
         setErrorDisplay(true);

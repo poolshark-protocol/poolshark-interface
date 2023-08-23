@@ -16,41 +16,47 @@ export default function ConcentratedPoolPreview({ fee }) {
     rangePoolAddress,
     rangePoolData,
     rangePositionData,
+    rangeMintParams,
+    feeTierId,
+    setRangePositionData,
     tokenIn,
-    tokenInAmount,
-    tokenInRangeUSDPrice,
-    tokenInAllowance,
     setTokenInAllowance,
     tokenOut,
-    tokenOutAmount,
-    tokenOutRangeUSDPrice,
-    tokenOutAllowance,
     setTokenOutAllowance,
-    disabled,
-    buttonMessage,
+    pairSelected,
+    switchDirection,
+    setMintButtonState,
+    setRangePoolFromVolatility,
+    needsBalanceIn,
+    needsBalanceOut,
+    setNeedsBalanceIn,
+    setNeedsBalanceOut,
     needsAllowanceIn,
-    setNeedsAllowanceIn,
     needsAllowanceOut,
+    setNeedsAllowanceIn,
     setNeedsAllowanceOut,
   ] = useRangeStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
     state.rangePositionData,
+    state.rangeMintParams,
+    state.feeTierId,
+    state.setRangePositionData,
     state.tokenIn,
-    state.tokenInAmount,
-    state.tokenInRangeUSDPrice,
-    state.tokenInRangeAllowance,
     state.setTokenInRangeAllowance,
     state.tokenOut,
-    state.tokenOutAmount,
-    state.tokenOutRangeUSDPrice,
-    state.tokenOutRangeAllowance,
     state.setTokenOutRangeAllowance,
-    state.disabled,
-    state.buttonMessage,
+    state.pairSelected,
+    state.switchDirection,
+    state.setMintButtonState,
+    state.setRangePoolFromVolatility,
+    state.needsBalanceIn,
+    state.needsBalanceOut,
+    state.setNeedsBalanceIn,
+    state.setNeedsBalanceOut,
     state.needsAllowanceIn,
-    state.setNeedsAllowanceIn,
     state.needsAllowanceOut,
+    state.setNeedsAllowanceIn,
     state.setNeedsAllowanceOut,
   ]);
 
@@ -98,8 +104,8 @@ export default function ConcentratedPoolPreview({ fee }) {
 
   useEffect(() => {
     if (allowanceInRange && allowanceOutRange) {
-      setTokenInAllowance(allowanceInRange);
-      setTokenOutAllowance(allowanceOutRange);
+      setTokenInAllowance(allowanceInRange.toString());
+      setTokenOutAllowance(allowanceOutRange.toString());
     }
   }, [allowanceInRange, allowanceOutRange]);
 
@@ -108,14 +114,14 @@ export default function ConcentratedPoolPreview({ fee }) {
 
   useEffect(() => {
     if (
-      tokenInAmount &&
-      tokenOutAmount &&
+      rangeMintParams.tokenInAmount &&
+      rangeMintParams.tokenOutAmount &&
       rangePositionData.lowerPrice &&
       rangePositionData.upperPrice &&
       rangePositionData.lowerPrice < rangePositionData.upperPrice
     )
       updateGasFee();
-  }, [tokenInAmount, tokenOut, rangePositionData]);
+  }, [rangeMintParams.tokenInAmount, tokenOut, rangePositionData]);
 
   async function updateGasFee() {
     console.log("rangePositionData", rangePositionData);
@@ -134,8 +140,8 @@ export default function ConcentratedPoolPreview({ fee }) {
           parseInt(rangePoolData.feeTier.tickSpacing)
         )
       ),
-      tokenInAmount,
-      tokenOutAmount,
+      rangeMintParams.tokenInAmount,
+      rangeMintParams.tokenOutAmount,
       signer
     );
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
@@ -223,17 +229,20 @@ export default function ConcentratedPoolPreview({ fee }) {
                             <div className=" p-2 ">
                               <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
                                 {parseFloat(
-                                  ethers.utils.formatUnits(tokenInAmount, 18)
+                                  ethers.utils.formatUnits(
+                                    rangeMintParams.tokenInAmount,
+                                    18
+                                  )
                                 ).toFixed(3)}
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
                                   $
                                   {(
-                                    Number(tokenInRangeUSDPrice) *
+                                    Number(tokenIn.rangeUSDPrice) *
                                     Number(
                                       ethers.utils.formatUnits(
-                                        tokenInAmount,
+                                        rangeMintParams.tokenInAmount,
                                         18
                                       )
                                     )
@@ -266,17 +275,20 @@ export default function ConcentratedPoolPreview({ fee }) {
                             <div className=" p-2 ">
                               <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
                                 {parseFloat(
-                                  ethers.utils.formatUnits(tokenOutAmount, 18)
+                                  ethers.utils.formatUnits(
+                                    rangeMintParams.tokenOutAmount,
+                                    18
+                                  )
                                 ).toFixed(3)}
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
                                   $
                                   {(
-                                    Number(tokenOutRangeUSDPrice) *
+                                    Number(tokenOut.rangeUSDPrice) *
                                     Number(
                                       ethers.utils.formatUnits(
-                                        tokenOutAmount,
+                                        rangeMintParams.tokenOutAmount,
                                         18
                                       )
                                     )
@@ -343,8 +355,12 @@ export default function ConcentratedPoolPreview({ fee }) {
                         </div>
                       </div>
                       <div className="mt-4">
-                        {tokenInAllowance.gte(tokenInAmount) &&
-                        tokenOutAllowance.gte(tokenOutAmount) ? (
+                        {BigNumber.from(tokenIn.userPoolAllowance ?? 0).gte(
+                          rangeMintParams.tokenInAmount
+                        ) &&
+                        BigNumber.from(tokenOut.userPoolAllowance ?? 0).gte(
+                          rangeMintParams.tokenOutAmount
+                        ) ? (
                           <RangeMintButton
                             to={address}
                             poolAddress={rangePoolAddress}
@@ -377,46 +393,58 @@ export default function ConcentratedPoolPreview({ fee }) {
                                 : BN_ZERO
                             }
                             disabled={
-                              tokenInAllowance.lt(tokenInAmount) ||
-                              tokenOutAllowance.lt(tokenOutAmount)
+                              BigNumber.from(tokenIn.userPoolAllowance ?? 0).lt(
+                                rangeMintParams.tokenInAmount
+                              ) ||
+                              BigNumber.from(
+                                tokenOut.userPoolAllowance ?? 0
+                              ).lt(rangeMintParams.tokenOutAmount)
                             }
                             amount0={
                               tokenIn.callId === 0
-                                ? tokenInAmount
-                                : tokenOutAmount
+                                ? rangeMintParams.tokenInAmount
+                                : rangeMintParams.tokenOutAmount
                             }
                             amount1={
                               tokenIn.callId === 0
-                                ? tokenOutAmount
-                                : tokenInAmount
+                                ? rangeMintParams.tokenOutAmount
+                                : rangeMintParams.tokenInAmount
                             }
                             closeModal={() => router.push("/pool")}
                             gasLimit={mintGasLimit}
                           />
-                        ) : (tokenInAllowance.lt(tokenInAmount) &&
-                            tokenOutAllowance.lt(tokenOutAmount)) ||
+                        ) : (BigNumber.from(tokenIn.userPoolAllowance ?? 0).lt(
+                            rangeMintParams.tokenInAmount
+                          ) &&
+                            BigNumber.from(tokenOut.userPoolAllowance).lt(
+                              rangeMintParams.tokenOutAmount
+                            )) ||
                           doubleApprove ? (
                           <RangeMintDoubleApproveButton
                             poolAddress={rangePoolAddress}
                             tokenIn={tokenIn}
                             tokenOut={tokenOut}
-                            amount0={tokenInAmount}
-                            amount1={tokenOutAmount}
+                            amount0={rangeMintParams.tokenInAmount}
+                            amount1={rangeMintParams.tokenOutAmount}
                             setAllowanceController={setdoubleApprove}
                           />
                         ) : !doubleApprove &&
-                          tokenInAllowance.lt(tokenInAmount) ? (
+                          BigNumber.from(tokenIn.userPoolAllowance ?? 0).lt(
+                            rangeMintParams.tokenInAmount
+                          ) ? (
                           <RangeMintApproveButton
                             poolAddress={rangePoolAddress}
                             approveToken={tokenIn}
-                            amount={tokenInAmount}
+                            amount={rangeMintParams.tokenInAmount}
                           />
                         ) : !doubleApprove &&
-                          tokenOutAllowance.lt(tokenOutAmount) ? (
+                          BigNumber.from(tokenOut.userPoolAllowance).lt(
+                            rangeMintParams.tokenOutAmount
+                          ) ? (
                           <RangeMintApproveButton
                             poolAddress={rangePoolAddress}
                             approveToken={tokenOut}
-                            amount={tokenOutAmount}
+                            amount={rangeMintParams.tokenOutAmount}
                           />
                         ) : null}
                       </div>
@@ -430,23 +458,10 @@ export default function ConcentratedPoolPreview({ fee }) {
       </Transition>
       <button
         onClick={() => setIsOpen(true)}
-        disabled={disabled}
+        //disabled={rangeMintParams.disabled}
         className={`mt-8 w-full py-4 mx-auto  text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed`}
       >
-        {disabled ? (
-          <>
-            {buttonMessage === "price" && <>Min. is greater than Max. Price</>}
-            {buttonMessage === "amount" && <>Input Deposit Amount</>}
-            {buttonMessage === "tokenInBalance" && (
-              <>Insufficient {tokenIn.symbol} Balance</>
-            )}
-            {buttonMessage === "tokenOutBalance" && (
-              <>Insufficient {tokenOut.symbol} Balance</>
-            )}
-          </>
-        ) : (
-          <>Preview</>
-        )}
+        <>Preview</>
       </button>
     </div>
   );

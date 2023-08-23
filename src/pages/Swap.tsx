@@ -355,10 +355,14 @@ export default function Swap() {
 
   useEffect(() => {
     if (allowanceInRange) {
-      setTokenInRangeAllowance(ethers.utils.formatUnits(allowanceInRange, 18));
+      setTokenInRangeAllowance(
+        ethers.utils.formatUnits(allowanceInRange, tokenIn.decimals)
+      );
     }
     if (allowanceInCover) {
-      setTokenInCoverAllowance(ethers.utils.formatUnits(allowanceInCover, 18));
+      setTokenInCoverAllowance(
+        ethers.utils.formatUnits(allowanceInCover, tokenIn.decimals)
+      );
     }
   }, [allowanceInRange, allowanceInCover]);
 
@@ -405,7 +409,9 @@ export default function Swap() {
   useEffect(() => {
     if (quoteRange) {
       if (quoteRange[0].gt(BN_ZERO) && quoteRange[1].gt(BN_ZERO)) {
-        setRangeQuote(parseFloat(ethers.utils.formatUnits(quoteRange[1], 18)));
+        setRangeQuote(
+          parseFloat(ethers.utils.formatUnits(quoteRange[1], tokenIn.decimals))
+        );
         const priceAfter = parseFloat(
           TickMath.getPriceStringAtSqrtPrice(quoteRange[2])
         );
@@ -424,7 +430,9 @@ export default function Swap() {
 
     if (quoteCover) {
       if (quoteCover[0].gt(BN_ZERO) && quoteCover[1].gt(BN_ZERO)) {
-        setCoverQuote(parseFloat(ethers.utils.formatUnits(quoteCover[1], 18)));
+        setCoverQuote(
+          parseFloat(ethers.utils.formatUnits(quoteCover[1], tokenIn.decimals))
+        );
         const priceAfter = parseFloat(
           TickMath.getPriceStringAtSqrtPrice(quoteCover[2])
         );
@@ -709,8 +717,8 @@ export default function Swap() {
       tokenIn,
       tokenOut,
       bnInput,
-      ethers.utils.parseUnits(tokenInRangeAllowance, 18),
-      ethers.utils.parseUnits(tokenInCoverAllowance, 18),
+      ethers.utils.parseUnits(tokenInRangeAllowance, tokenIn.decimals),
+      ethers.utils.parseUnits(tokenInCoverAllowance, tokenIn.decimals),
       address,
       signer,
       isConnected,
@@ -776,20 +784,25 @@ export default function Swap() {
                     ? rangeQuote === 0
                       ? "0"
                       : (
-                          parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                          rangeQuote
+                          parseFloat(
+                            ethers.utils.formatUnits(bnInput, tokenIn.decimals)
+                          ) * rangeQuote
                         ).toFixed(2)
                     : coverQuote === 0
                     ? "0"
                     : (
-                        parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                        coverQuote
+                        parseFloat(
+                          ethers.utils.formatUnits(bnInput, tokenIn.decimals)
+                        ) * coverQuote
                       ).toFixed(2)
-                  : parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) == 0
+                  : parseFloat(
+                      ethers.utils.formatUnits(rangeBnPrice, tokenIn.decimals)
+                    ) == 0
                   ? "0"
                   : (
-                      parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                      parseFloat(limitStringPriceQuote)
+                      parseFloat(
+                        ethers.utils.formatUnits(bnInput, tokenIn.decimals)
+                      ) * parseFloat(limitStringPriceQuote)
                     ).toPrecision(6)
                 : "Select Token"}
             </div>
@@ -814,32 +827,57 @@ export default function Swap() {
                       ? rangeQuote === 0
                         ? "0"
                         : (
-                            parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                            parseFloat(
+                              ethers.utils.formatUnits(
+                                bnInput,
+                                tokenIn.decimals
+                              )
+                            ) *
                               rangeQuote -
-                            parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                            parseFloat(
+                              ethers.utils.formatUnits(
+                                bnInput,
+                                tokenIn.decimals
+                              )
+                            ) *
                               rangeQuote *
                               (parseFloat(slippage) * 0.01)
                           ).toFixed(2)
                       : coverQuote === 0
                       ? "0"
                       : (
-                          parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                          parseFloat(
+                            ethers.utils.formatUnits(bnInput, tokenIn.decimals)
+                          ) *
                             coverQuote -
-                          parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                          parseFloat(
+                            ethers.utils.formatUnits(bnInput, tokenIn.decimals)
+                          ) *
                             coverQuote *
                             (parseFloat(slippage) * 0.01)
                         ).toFixed(2)
-                    : parseFloat(ethers.utils.formatUnits(rangeBnPrice, 18)) ==
-                      0
+                    : parseFloat(
+                        ethers.utils.formatUnits(rangeBnPrice, tokenIn.decimals)
+                      ) == 0
                     ? "0"
                     : (
-                        parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                        parseFloat(
+                          ethers.utils.formatUnits(bnInput, tokenIn.decimals)
+                        ) *
                           parseFloat(
-                            ethers.utils.formatUnits(rangeBnPrice, 18)
+                            ethers.utils.formatUnits(
+                              rangeBnPrice,
+                              tokenIn.decimals
+                            )
                           ) -
-                        parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                        parseFloat(
+                          ethers.utils.formatUnits(bnInput, tokenIn.decimals)
+                        ) *
                           parseFloat(
-                            ethers.utils.formatUnits(rangeBnPrice, 18)
+                            ethers.utils.formatUnits(
+                              rangeBnPrice,
+                              tokenIn.decimals
+                            )
                           ) *
                           (parseFloat(slippage) * 0.01)
                       ).toFixed(2)
@@ -915,8 +953,9 @@ export default function Swap() {
                   {" "}
                   ~$
                   {(
-                    Number(ethers.utils.formatUnits(bnInput, 18)) *
-                    tokenInRangeUSDPrice
+                    Number(
+                      ethers.utils.formatUnits(bnInput, tokenIn.decimals)
+                    ) * tokenInRangeUSDPrice
                   ).toFixed(2)}
                 </span>
                 <span>BALANCE: {tokenInBalance}</span>

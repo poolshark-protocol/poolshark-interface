@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from "ethers";
-import { token, tokenCover } from "../utils/types";
+import { tokenCover } from "../utils/types";
 import { BN_ZERO, ZERO } from "../utils/math/constants";
 import {
   tokenOneAddress,
@@ -33,6 +33,7 @@ type CoverState = {
     buttonMessage: string;
   };
   needsRefetch: boolean;
+  needsPosRefetch: boolean;
   needsAllowance: boolean;
   needsBalance: boolean;
   //Claim tick
@@ -47,14 +48,14 @@ type CoverAction = {
   setCoverPositionData: (data: any) => void;
   //setPairSelected: (pairSelected: boolean) => void;
   //tokenIn
-  setTokenIn: (tokenOut: token, newToken: token) => void;
+  setTokenIn: (tokenOut: tokenCover, newToken: tokenCover) => void;
   setTokenInAmount: (amount: string) => void;
   setTokenInCoverUSDPrice: (price: number) => void;
   setTokenInCoverAllowance: (allowance: string) => void;
   setTokenInBalance: (balance: string) => void;
   setCoverAmountIn: (amount: JSBI) => void;
   //tokenOut
-  setTokenOut: (tokenOut: token, newToken: token) => void;
+  setTokenOut: (tokenOut: tokenCover, newToken: tokenCover) => void;
   setTokenOutCoverUSDPrice: (price: number) => void;
   setTokenOutBalance: (balance: string) => void;
   setTokenOutCoverAllowance: (allowance: string) => void;
@@ -68,6 +69,7 @@ type CoverAction = {
   setGasLimit: (limit: BigNumber) => void;
   //refetch
   setNeedsRefetch: (needsRefetch: boolean) => void;
+  setNeedsPosRefetch: (needsPosRefetch: boolean) => void;
   //allowance
   setNeedsAllowance: (needsAllowance: boolean) => void;
   //balance
@@ -75,8 +77,8 @@ type CoverAction = {
   //reset
   switchDirection: () => void;
   setCoverPoolFromVolatility: (
-    tokenIn: token,
-    tokenOut: token,
+    tokenIn: tokenCover,
+    tokenOut: tokenCover,
     volatility: any
   ) => void;
   setMintButtonState: () => void;
@@ -98,6 +100,7 @@ const initialCoverState: CoverState = {
     symbol: "WETH",
     logoURI: "/static/images/eth_icon.png",
     address: tokenOneAddress,
+    decimals: 18,
     userBalance: 0.0,
     userPoolAllowance: 0.0,
     coverUSDPrice: 0.0,
@@ -109,6 +112,7 @@ const initialCoverState: CoverState = {
     symbol: "Select Token",
     logoURI: "",
     address: tokenZeroAddress,
+    decimals: 18,
     userBalance: 0.0,
     userPoolAllowance: 0.0,
     coverUSDPrice: 0.0,
@@ -125,6 +129,7 @@ const initialCoverState: CoverState = {
     buttonMessage: "",
   },
   needsRefetch: false,
+  needsPosRefetch: false,
   needsAllowance: true,
   needsBalance: true,
   //
@@ -146,6 +151,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   claimTick: initialCoverState.claimTick,
   coverMintParams: initialCoverState.coverMintParams,
   needsRefetch: initialCoverState.needsRefetch,
+  needsPosRefetch: initialCoverState.needsPosRefetch,
   needsAllowance: initialCoverState.needsAllowance,
   needsBalance: initialCoverState.needsBalance,
   setTokenIn: (tokenOut, newToken: tokenCover) => {
@@ -187,6 +193,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     }
   },
   setTokenInAmount: (newAmount: string) => {
+    //TODO this is wrong -> should update mintparams and not tokenIn
     set((state) => ({
       tokenIn: {
         ...state.tokenIn,
@@ -351,6 +358,11 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       needsRefetch: needsRefetch,
     }));
   },
+  setNeedsPosRefetch: (needsPosRefetch: boolean) => {
+    set(() => ({
+      needsPosRefetch: needsPosRefetch,
+    }));
+  },
   setNeedsAllowance: (needsAllowance: boolean) => {
     set(() => ({
       needsAllowance: needsAllowance,
@@ -372,6 +384,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         symbol: state.tokenOut.symbol,
         logoURI: state.tokenOut.logoURI,
         address: state.tokenOut.address,
+        decimals: state.tokenOut.decimals,
         userBalance: state.tokenOut.userBalance,
         userPoolAllowance: state.tokenOut.userPoolAllowance,
         coverUSDPrice: state.tokenOut.coverUSDPrice,
@@ -385,6 +398,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         symbol: state.tokenIn.symbol,
         logoURI: state.tokenIn.logoURI,
         address: state.tokenIn.address,
+        decimals: state.tokenIn.decimals,
         userBalance: state.tokenIn.userBalance,
         userPoolAllowance: state.tokenIn.userPoolAllowance,
         coverUSDPrice: state.tokenIn.coverUSDPrice,

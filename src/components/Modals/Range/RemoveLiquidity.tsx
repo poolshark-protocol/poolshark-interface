@@ -1,5 +1,5 @@
 import { Transition, Dialog } from "@headlessui/react";
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import RangeRemoveLiqButton from "../../Buttons/RangeRemoveLiqButton";
 import { BigNumber, ethers } from "ethers";
@@ -11,76 +11,85 @@ import { useRouter } from "next/router";
 import { useRangeStore } from "../../../hooks/useRangeStore";
 
 export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
-  const [
-    rangePoolAddress,
-    rangePositionData,
-    tokenIn,
-    tokenOut,
-    tokenInRangeUSDPrice,
-    tokenOutRangeUSDPrice
-  ] = useRangeStore((state) => [
-    state.rangePoolAddress,
-    state.rangePositionData,
-    state.tokenIn,
-    state.tokenOut,
-    state.tokenInRangeUSDPrice,
-    state.tokenOutRangeUSDPrice
-  ])
-  
-  const router = useRouter()
+  const [rangePoolAddress, rangePositionData, tokenIn, tokenOut] =
+    useRangeStore((state) => [
+      state.rangePoolAddress,
+      state.rangePositionData,
+      state.tokenIn,
+      state.tokenOut,
+    ]);
 
-  const [sliderValue, setSliderValue] = useState(1)
-  const [sliderOutput, setSliderOutput] = useState('1')
-  const [burnPercent, setBurnPercent] = useState(BN_ZERO)
-  const [amount0, setAmount0] = useState(BN_ZERO)
-  const [amount1, setAmount1] = useState(BN_ZERO)
-  const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
-  const [ rangeSqrtPrice, setRangeSqrtPrice ] = useState(JSBI.BigInt(rangePositionData.price))
-  const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(rangePositionData.min))
-  const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(rangePositionData.max))
+  const router = useRouter();
+
+  const [sliderValue, setSliderValue] = useState(1);
+  const [sliderOutput, setSliderOutput] = useState("1");
+  const [burnPercent, setBurnPercent] = useState(BN_ZERO);
+  const [amount0, setAmount0] = useState(BN_ZERO);
+  const [amount1, setAmount1] = useState(BN_ZERO);
+  const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0;
+  const [rangeSqrtPrice, setRangeSqrtPrice] = useState(
+    JSBI.BigInt(rangePositionData.price)
+  );
+  const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
+    Number(rangePositionData.min)
+  );
+  const upperSqrtPrice = TickMath.getSqrtRatioAtTick(
+    Number(rangePositionData.max)
+  );
 
   useEffect(() => {
-    const percentInput = sliderValue
-    const tokenAmountToBurn = BigNumber.from(percentInput).mul(BigNumber.from(rangePositionData.userTokenAmount)).div(BigNumber.from(100))
-    setBurnPercent(ethers.utils.parseUnits(sliderValue.toString(), 36))
-    console.log('new burn percent', ethers.utils.parseUnits(sliderValue.toString(), 36).toString())
-    setAmounts(JSBI.BigInt(tokenAmountToBurn), true)
-  }, [sliderValue])
+    const percentInput = sliderValue;
+    const tokenAmountToBurn = BigNumber.from(percentInput)
+      .mul(BigNumber.from(rangePositionData.userTokenAmount))
+      .div(BigNumber.from(100));
+    setBurnPercent(ethers.utils.parseUnits(sliderValue.toString(), 36));
+    console.log(
+      "new burn percent",
+      ethers.utils.parseUnits(sliderValue.toString(), 36).toString()
+    );
+    setAmounts(JSBI.BigInt(tokenAmountToBurn), true);
+  }, [sliderValue]);
 
   const handleChange = (event: any) => {
     if (Number(event.target.value) != 0) {
-      setSliderValue(event.target.value)
+      setSliderValue(event.target.value);
     } else {
-      setSliderValue(0)
+      setSliderValue(0);
     }
-  }
-  
+  };
+
   const handleSliderButton = (percent: number) => {
-    setSliderValue(percent)
-  }
+    setSliderValue(percent);
+  };
 
   function setAmounts(liquidity: JSBI, changeDisplay = false) {
     try {
-      if (
-        JSBI.greaterThan(liquidity, ZERO)
-      ) {
+      if (JSBI.greaterThan(liquidity, ZERO)) {
         const amounts = DyDxMath.getAmountsForLiquidity(
           lowerSqrtPrice,
           upperSqrtPrice,
           rangeSqrtPrice,
           liquidity,
           true
-        )
+        );
         // set amount based on liquidity math
-        const amount0Bn = BigNumber.from(String(amounts.token0Amount))
-        const amount1Bn = BigNumber.from(String(amounts.token1Amount))
-        
-        if (changeDisplay) setSliderOutput(Number(ethers.utils.formatUnits(tokenOrder ? amount0Bn : amount1Bn, 18)).toPrecision(6))
-        setAmount0(amount0Bn) 
-        setAmount1(amount1Bn)
+        const amount0Bn = BigNumber.from(String(amounts.token0Amount));
+        const amount1Bn = BigNumber.from(String(amounts.token1Amount));
+
+        if (changeDisplay)
+          setSliderOutput(
+            Number(
+              ethers.utils.formatUnits(
+                tokenOrder ? amount0Bn : amount1Bn,
+                tokenIn.decimals
+              )
+            ).toPrecision(6)
+          );
+        setAmount0(amount0Bn);
+        setAmount1(amount1Bn);
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 
@@ -128,47 +137,77 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                     {sliderValue}%
                     </div>
                     <div className="md:flex items-center hidden md:text-base text-sm gap-x-4">
-                      <button onClick={() => handleSliderButton(25)} className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
+                      <button
+                        onClick={() => handleSliderButton(25)}
+                        className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer"
+                      >
                         25%
                       </button>
-                      <button onClick={() => handleSliderButton(50)} className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
+                      <button
+                        onClick={() => handleSliderButton(50)}
+                        className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer"
+                      >
                         50%
                       </button>
-                      <button onClick={() => handleSliderButton(75)} className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
+                      <button
+                        onClick={() => handleSliderButton(75)}
+                        className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer"
+                      >
                         75%
                       </button>
-                      <button onClick={() => handleSliderButton(100)} className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer">
+                      <button
+                        onClick={() => handleSliderButton(100)}
+                        className="bg-black p-2 rounded-lg border border-grey1 hover:text-main hover:bg-background hover:border-transparent transition-all cursor-pointer"
+                      >
                         100%
                       </button>
                     </div>
-                    </div>
-        <input
-          autoComplete="off"
-          type="range"
-          min="1"
-          max="100"
-          value={sliderValue}
-          onChange={handleChange}
-          className="w-full styled-slider slider-progress bg-transparent mt-6"
-        />
+                  </div>
+                  <input
+                    autoComplete="off"
+                    type="range"
+                    min="1"
+                    max="100"
+                    value={sliderValue}
+                    onChange={handleChange}
+                    className="w-full styled-slider slider-progress bg-transparent mt-6"
+                  />
                 </div>
                 <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-6 mb-6">
-                <div className=" p-2 ">
-                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-1 rounded-xl">
-                                <div
-                                  id="input"
-                                  className="bg-[#0C0C0C] placeholder:text-grey1 w-full text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
-                                >
-                                  {sliderOutput}
-                                </div>
-                              </div>
-                              <div className="flex">
-                                <div className="flex text-xs text-[#4C4C4C]">
-                                ${tokenOrder ? (Number(tokenInRangeUSDPrice * parseFloat(ethers.utils.formatUnits(amount0, 18))).toFixed(2)) : (Number(tokenOutRangeUSDPrice * parseFloat(ethers.utils.formatUnits(amount1, 18))).toFixed(2))}
-                                
-                                </div>
-                              </div>
-                            </div>
+                  <div className=" p-2 ">
+                    <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-1 rounded-xl">
+                      <div
+                        id="input"
+                        className="bg-[#0C0C0C] placeholder:text-grey1 w-full text-white text-2xl mb-2 rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none"
+                      >
+                        {sliderOutput}
+                      </div>
+                    </div>
+                    <div className="flex">
+                      <div className="flex text-xs text-[#4C4C4C]">
+                        $
+                        {tokenOrder
+                          ? Number(
+                              tokenIn.rangeUSDPrice *
+                                parseFloat(
+                                  ethers.utils.formatUnits(
+                                    amount0,
+                                    tokenIn.decimals
+                                  )
+                                )
+                            ).toFixed(2)
+                          : Number(
+                              tokenOut.rangeUSDPrice *
+                                parseFloat(
+                                  ethers.utils.formatUnits(
+                                    amount1,
+                                    tokenIn.decimals
+                                  )
+                                )
+                            ).toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
                   <div className="">
                     <div className=" ml-auto">
                       <div>
@@ -181,31 +220,51 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                           </button>
                         </div>
                         <div className="flex items-center justify-end gap-x-2 px-1 mt-2">
-                           <button onClick={() => handleSliderButton(100)}
-              className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
-            >
-              MAX
-            </button>
+                          <button
+                            onClick={() => handleSliderButton(100)}
+                            className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
+                          >
+                            MAX
+                          </button>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-6 mb-6">
-                <div className=" p-2 ">
-                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
-                              {Number(
-                  tokenOrder
-                    ? ethers.utils.formatUnits(amount1, 18)
-                    : ethers.utils.formatUnits(amount0, 18)
-                ).toFixed(2)}
-                              </div>
-                              <div className="flex">
-                                <div className="flex text-xs text-[#4C4C4C]">
-                                ${tokenOrder ? (Number(tokenOutRangeUSDPrice * parseFloat(ethers.utils.formatUnits(amount1, 18))).toFixed(2)) : (Number(tokenInRangeUSDPrice * parseFloat(ethers.utils.formatUnits(amount0, 18))).toFixed(2))}
-                                </div>
-                              </div>
-                            </div>
+                  <div className=" p-2 ">
+                    <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
+                      {Number(
+                        tokenOrder
+                          ? ethers.utils.formatUnits(amount1, tokenIn.decimals)
+                          : ethers.utils.formatUnits(amount0, tokenIn.decimals)
+                      ).toFixed(2)}
+                    </div>
+                    <div className="flex">
+                      <div className="flex text-xs text-[#4C4C4C]">
+                        $
+                        {tokenOrder
+                          ? Number(
+                              tokenOut.rangeUSDPrice *
+                                parseFloat(
+                                  ethers.utils.formatUnits(
+                                    amount1,
+                                    tokenIn.decimals
+                                  )
+                                )
+                            ).toFixed(2)
+                          : Number(
+                              tokenIn.rangeUSDPrice *
+                                parseFloat(
+                                  ethers.utils.formatUnits(
+                                    amount0,
+                                    tokenIn.decimals
+                                  )
+                                )
+                            ).toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
                   <div className="">
                     <div className=" ml-auto">
                       <div>
@@ -218,11 +277,12 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                           </button>
                         </div>
                         <div className="flex items-center justify-end gap-x-2 px-1 mt-2">
-                           <button onClick={() => handleSliderButton(100)}
-              className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
-            >
-              MAX
-            </button>
+                          <button
+                            onClick={() => handleSliderButton(100)}
+                            className="text-grey text-xs bg-dark border border-grey1 px-4 py-1 rounded-md"
+                          >
+                            MAX
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -238,6 +298,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                       {if (burnPercent.eq(ethers.utils.parseUnits('1', 38))) {
                         router.push('/pool')
                       }}}
+                    setIsOpen={setIsOpen}
                 />
               </Dialog.Panel>
             </Transition.Child>

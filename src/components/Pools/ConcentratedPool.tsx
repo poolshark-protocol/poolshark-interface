@@ -11,7 +11,6 @@ import ConcentratedPoolPreview from "./ConcentratedPoolPreview";
 import { useRangeStore } from "../../hooks/useRangeStore";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
-import { getRangePoolFromFactory } from "../../utils/queries";
 import useInputBox from "../../hooks/useInputBox";
 import { useAccount, useBalance } from "wagmi";
 import { BigNumber, ethers } from "ethers";
@@ -27,30 +26,22 @@ export default function ConcentratedPool({}) {
     rangePoolAddress,
     rangePoolData,
     rangePositionData,
+    rangeMintParams,
     feeTierId,
-    setRangePoolAddress,
-    setRangePoolData,
     setRangePositionData,
     tokenIn,
-    tokenInAmount,
-    tokenInRangeUSDPrice,
-    tokenInBalance,
     setTokenIn,
     setTokenInAmount,
     setTokenInRangeUSDPrice,
     setTokenInBalance,
     tokenOut,
-    tokenOutAmount,
-    tokenOutRangeUSDPrice,
-    tokenOutBalance,
     setTokenOut,
     setTokenOutAmount,
     setTokenOutRangeUSDPrice,
     setTokenOutBalance,
     pairSelected,
     switchDirection,
-    setDisabled,
-    setButtonMessage,
+    setMintButtonState,
     setRangePoolFromVolatility,
     needsBalanceIn,
     needsBalanceOut,
@@ -60,30 +51,22 @@ export default function ConcentratedPool({}) {
     state.rangePoolAddress,
     state.rangePoolData,
     state.rangePositionData,
+    state.rangeMintParams,
     state.feeTierId,
-    state.setRangePoolAddress,
-    state.setRangePoolData,
     state.setRangePositionData,
     state.tokenIn,
-    state.tokenInAmount,
-    state.tokenInRangeUSDPrice,
-    state.tokenInBalance,
     state.setTokenIn,
     state.setTokenInAmount,
     state.setTokenInRangeUSDPrice,
     state.setTokenInBalance,
     state.tokenOut,
-    state.tokenOutAmount,
-    state.tokenOutRangeUSDPrice,
-    state.tokenOutBalance,
     state.setTokenOut,
     state.setTokenOutAmount,
     state.setTokenOutRangeUSDPrice,
     state.setTokenOutBalance,
     state.pairSelected,
     state.switchDirection,
-    state.setDisabled,
-    state.setButtonMessage,
+    state.setMintButtonState,
     state.setRangePoolFromVolatility,
     state.needsBalanceIn,
     state.needsBalanceOut,
@@ -105,7 +88,7 @@ export default function ConcentratedPool({}) {
     if (tokenIn.address && tokenOut.address) {
       setTokenOrder(tokenIn.callId == 0);
     }
-  }, [tokenIn, tokenOut]);
+  }, [tokenIn]);
 
   ////////////////////////////////Pools
   //initial volatility Tier set to 1.7% when selected from list of range pools
@@ -115,7 +98,7 @@ export default function ConcentratedPool({}) {
 
   useEffect(() => {
     updatePoolsFromStore();
-  }, [feeTierId, tokenIn.name, tokenOut.name]);
+  }, [tokenIn, tokenOut, feeTierId]);
 
   async function updatePoolsFromStore() {
     setRangePoolFromVolatility(tokenIn, tokenOut, feeTierId);
@@ -127,7 +110,6 @@ export default function ConcentratedPool({}) {
     setRangePoolFromVolatility(tokenIn, tokenOut, volatility);
     setSelectedFeeTier(volatility);
   };
-
 
   //this sets the default position price delta
   useEffect(() => {
@@ -146,7 +128,7 @@ export default function ConcentratedPool({}) {
       setRangeTickPrice(tickAtPrice);
       setRangePositionData(positionData);
     }
-  }, [rangePoolData, tokenOrder]);
+  }, [rangePoolData]);
 
   ////////////////////////////////Token Balances
 
@@ -202,7 +184,7 @@ export default function ConcentratedPool({}) {
         );
       }
     }
-  }, [rangePoolData, tokenIn, tokenOut]);
+  }, [rangePoolData]);
 
   ////////////////////////////////Prices and Ticks
   const [rangePrice, setRangePrice] = useState(undefined);
@@ -229,12 +211,7 @@ export default function ConcentratedPool({}) {
     ) {
       tokenOutAmountMath();
     }
-  }, [
-    bnInput,
-    rangePositionData.lowerPrice,
-    rangePositionData.upperPrice,
-    tokenOrder,
-  ]);
+  }, [bnInput, tokenOrder]);
 
   function tokenOutAmountMath() {
     try {
@@ -306,45 +283,6 @@ export default function ConcentratedPool({}) {
       setUpperPrice(newPriceString);
     }
   };
-
-  // disabled messages
-  useEffect(() => {
-    if (parseFloat(lowerPrice) >= parseFloat(upperPrice)) {
-      setButtonMessage("price");
-    }
-    if (bnInput.eq(BN_ZERO)) {
-      setButtonMessage("amount");
-    }
-    if (
-      Number(ethers.utils.formatUnits(tokenInAmount)) > Number(tokenInBalance)
-    ) {
-      setButtonMessage("tokenInBalance");
-    }
-    if (
-      Number(ethers.utils.formatUnits(tokenOutAmount)) > Number(tokenOutBalance)
-    ) {
-      setButtonMessage("tokenOutBalance");
-    }
-    if (
-      Number(ethers.utils.formatUnits(bnInput)) === 0 ||
-      parseFloat(lowerPrice) >= parseFloat(upperPrice) ||
-      Number(ethers.utils.formatUnits(tokenInAmount)) >
-        Number(tokenInBalance) ||
-      Number(ethers.utils.formatUnits(tokenOutAmount)) > Number(tokenOutBalance)
-    ) {
-      setDisabled(true);
-    } else {
-      setDisabled(false);
-    }
-  }, [
-    bnInput,
-    lowerPrice,
-    upperPrice,
-    tokenInAmount,
-    tokenOutAmount,
-    tokenInBalance,
-    tokenOutBalance,
-  ]);
 
   ////////////////////////////////
 
@@ -483,8 +421,10 @@ export default function ConcentratedPool({}) {
                     <div className="flex text-xs text-[#4C4C4C]">
                       ~$
                       {(
-                        tokenInRangeUSDPrice *
-                        Number(ethers.utils.formatUnits(bnInput, 18))
+                        tokenIn.rangeUSDPrice *
+                        Number(
+                          ethers.utils.formatUnits(bnInput, tokenIn.decimals)
+                        )
                       ).toFixed(2)}
                     </div>
                   </div>
@@ -501,11 +441,11 @@ export default function ConcentratedPool({}) {
                     </div>
                     <div className="flex whitespace-nowrap items-center justify-end gap-2 px-1 mt-2">
                       <div className="flex md:text-xs text-[10px] text-[#4C4C4C]">
-                        Balance: {tokenInBalance ?? 0}
+                        Balance: {tokenIn.userBalance ?? 0}
                       </div>
                       <button
                         className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
-                        onClick={() => maxBalance(tokenInBalance, "0")}
+                        onClick={() => maxBalance(tokenIn.userBalance, "0")}
                       >
                         Max
                       </button>
@@ -516,13 +456,23 @@ export default function ConcentratedPool({}) {
             </div>
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl  rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
-                {Number(ethers.utils.formatUnits(tokenOutAmount, 18))}
+                {Number(
+                  ethers.utils.formatUnits(
+                    rangeMintParams.tokenOutAmount,
+                    tokenIn.decimals
+                  )
+                )}
                 {
                   <div className="flex mt-2 text-xs text-[#4C4C4C]">
                     ~$
                     {(
-                      Number(tokenOutRangeUSDPrice) *
-                      Number(ethers.utils.formatUnits(tokenOutAmount, 18))
+                      Number(tokenOut.rangeUSDPrice) *
+                      Number(
+                        ethers.utils.formatUnits(
+                          rangeMintParams.tokenOutAmount,
+                          18
+                        )
+                      )
                     ).toFixed(2)}
                   </div>
                 }
@@ -540,7 +490,7 @@ export default function ConcentratedPool({}) {
                     </div>
                     <div className="flex whitespace-nowrap items-center justify-end gap-x-2 px-1 mt-2">
                       <div className="flex md:text-xs text-[10px] text-[#4C4C4C]">
-                        Balance: {tokenOutBalance ?? 0}
+                        Balance: {tokenOut.userBalance ?? 0}
                       </div>
                     </div>
                   </div>

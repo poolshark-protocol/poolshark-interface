@@ -13,13 +13,14 @@ import { BigNumber, ethers } from "ethers";
 import { TickMath } from "../../../utils/math/tickMath";
 import { coverPoolABI } from "../../../abis/evm/coverPool";
 import { copyElementUseEffect } from "../../../utils/misc";
-import { getClaimTick } from "../../../utils/maps";
+import { getClaimTick, mapUserCoverPositions } from "../../../utils/maps";
 import RemoveLiquidity from "../../../components/Modals/Cover/RemoveLiquidity";
 import AddLiquidity from "../../../components/Modals/Cover/AddLiquidity";
 import { BN_ZERO } from "../../../utils/math/constants";
 import { gasEstimateCoverBurn } from "../../../utils/gas";
 import { useCoverStore } from "../../../hooks/useCoverStore";
 import { fetchCoverTokenUSDPrice } from "../../../utils/tokens";
+import { fetchCoverPositions } from "../../../utils/queries";
 
 export default function Cover() {
   const [
@@ -29,9 +30,12 @@ export default function Cover() {
     coverMintParams,
     tokenIn,
     tokenOut,
-
+    needsRefetch,
+    needsPosRefetch,
     claimTick,
-
+    setNeedsRefetch,
+    setNeedsPosRefetch,
+    setCoverPositionData,
     setTokenInCoverUSDPrice,
     setTokenOutCoverUSDPrice,
     setClaimTick,
@@ -44,9 +48,12 @@ export default function Cover() {
     state.coverMintParams,
     state.tokenIn,
     state.tokenOut,
-
+    state.needsRefetch,
+    state.needsPosRefetch,
     state.claimTick,
-
+    state.setNeedsRefetch,
+    state.setNeedsPosRefetch,
+    state.setCoverPositionData,
     state.setTokenInCoverUSDPrice,
     state.setTokenOutCoverUSDPrice,
     state.setClaimTick,
@@ -63,6 +70,7 @@ export default function Cover() {
   const [priceDirection, setPriceDirection] = useState(false);
   const [fillPercent, setFillPercent] = useState(0);
   const [coverFilledAmount, setCoverFilledAmount] = useState("");
+  const [allCoverPositions, setAllCoverPositions] = useState([]);
 
   //Display and copy flags
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -223,7 +231,7 @@ export default function Cover() {
 
   useEffect(() => {
     if (filledAmount) {
-      setCoverFilledAmount(ethers.utils.formatUnits(filledAmount[2], 18));
+      setCoverFilledAmount(ethers.utils.formatUnits(filledAmount[2], tokenIn.decimals));
     }
   }, [filledAmount]);
 
@@ -277,6 +285,38 @@ export default function Cover() {
     setGasLimit(newGasFee.gasUnits);
     setGasFee(newGasFee.formattedPrice);
   }
+
+  async function getUserCoverPositionData() {
+    try {
+      const data = await fetchCoverPositions(address)
+      if (data['data'])
+        setAllCoverPositions(
+          mapUserCoverPositions(data['data'].positions),
+        )
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (needsRefetch == true || needsPosRefetch == true) {
+        getUserCoverPositionData()
+        
+        const positionId = coverPositionData.id
+        const position = allCoverPositions.find((position) => position.id == positionId)
+        console.log('new position', position)
+
+      if(position != undefined) {
+        setCoverPositionData(position)
+      }
+
+        setNeedsRefetch(false)
+        setNeedsPosRefetch(false)
+      }
+    }, 5000)
+  }, [needsRefetch, needsPosRefetch])
+  
 
   ////////////////////////////////Addresses
 

@@ -370,8 +370,6 @@ export default function Pool() {
 
 
                                   {/*   LIMIT POOL DISPLAY GOES HERE
-
-
                                   {selected.id === 3 && (
                                          allCoverPositions.length === 0 ? (
                                           <div className="space-y-2">

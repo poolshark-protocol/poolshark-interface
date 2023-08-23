@@ -9,8 +9,8 @@ import { useRangeStore } from "../../hooks/useRangeStore";
 import { ethers } from "ethers";
 import Link from "next/link";
 import { getCoverPool, getRangePool, volatilityTiers } from "../../utils/pools";
-import { token } from "../../utils/types";
 import { useCoverStore } from "../../hooks/useCoverStore";
+import { tokenCover, tokenLimit } from "../../utils/types";
 
 export default function UserPool({ rangePosition, href }) {
   const [
@@ -88,13 +88,15 @@ export default function UserPool({ rangePosition, href }) {
       symbol: rangePosition.tokenZero.symbol,
       logoURI: logoMap[rangePosition.tokenZero.symbol],
       address: rangePosition.tokenZero.id,
-    } as token;
+      decimals: rangePosition.tokenZero.decimals,
+    } as tokenCover;
     const tokenOutNew = {
       name: rangePosition.tokenOne.name,
       symbol: rangePosition.tokenOne.symbol,
       logoURI: logoMap[rangePosition.tokenOne.symbol],
       address: rangePosition.tokenOne.id,
-    } as token;
+      decimals: rangePosition.tokenOne.decimals,
+    } as tokenCover;
     if (href.includes("cover")) {
       setCoverTokenIn(tokenOutNew, tokenInNew);
       setCoverTokenOut(tokenInNew, tokenOutNew);
