@@ -273,9 +273,11 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
     }
   },
   setTokenOutAmount: (newAmount: BigNumber) => {
-    //TODO this should also go to mint params
     set((state) => ({
-      tokenOut: { ...state.tokenOut, amount: newAmount },
+      rangeMintParams: {
+        ...state.rangeMintParams,
+        tokenOutAmount: newAmount,
+      },
     }));
   },
   setTokenOutBalance: (newBalance: string) => {
