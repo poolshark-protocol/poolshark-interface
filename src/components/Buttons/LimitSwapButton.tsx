@@ -3,22 +3,22 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { rangePoolABI } from "../../abis/evm/rangePool";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
-import { BN_ZERO } from "../../utils/math/constants";
 import { useRangeStore } from "../../hooks/useRangeStore";
+import { limitPoolABI } from "../../abis/evm/limitPool";
 
-export default function RangeMintButton({
+export default function LimitSwapButton({
   disabled,
   poolAddress,
   to,
+  amount,
+  mintPercent,
   lower,
   upper,
-  amount0,
-  amount1,
+  zeroForOne,
   closeModal,
   gasLimit,
 }) {
@@ -40,19 +40,17 @@ export default function RangeMintButton({
 
   useEffect(() => {}, [disabled]);
 
-  const positionId = 0; /// @dev - assume new position
-
   const { config } = usePrepareContractWrite({
     address: poolAddress,
-    abi: rangePoolABI,
-    functionName: "mintRange",
+    abi: limitPoolABI,
+    functionName: "mintLimit",
     args: [[
       to,
+      amount,
+      mintPercent,
       lower,
       upper,
-      positionId,
-      amount0,
-      amount1
+      zeroForOne
     ]],
     chainId: 421613,
     overrides: {
@@ -75,9 +73,9 @@ export default function RangeMintButton({
       }, 2000);
       setNeedsRefetch(true);
       setNeedsAllowanceIn(true);
-      if (amount1.gt(BN_ZERO)) {
-        setNeedsAllowanceOut(true);
-      }
+      // if (amount1.gt(BN_ZERO)) {
+      //   setNeedsAllowanceOut(true);
+      // }
       setNeedsBalanceIn(true);
       setNeedsBalanceOut(true);
     },
