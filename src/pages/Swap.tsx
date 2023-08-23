@@ -160,6 +160,8 @@ export default function Swap() {
   }, [chainId]);
 
   ////////////////////////////////Pools
+  const [availablePools, setAvailablePools] = useState(undefined);
+  const [quoteParams, setQuoteParams] = useState(undefined);
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address) {
@@ -168,8 +170,40 @@ export default function Swap() {
   }, [tokenOut, tokenIn]);
 
   async function updatePools() {
-    await getSwapPool(tokenIn, tokenOut, setSwapPoolAddress, setSwapPoolData);
+    const pools = await getSwapPool(
+      tokenIn,
+      tokenOut,
+      setSwapPoolAddress,
+      setSwapPoolData
+    );
+    for (let i = 0; i < pools.length; i++) {
+      const params = {
+        priceLimit: pools[i].priceLimit,
+        amount: bnInput,
+        exactIn: true,
+        zeroForOne: tokenOrder,
+      };
+      setQuoteParams(quoteParams ? [...quoteParams, params] : [params]);
+    }
+    setAvailablePools(pools);
   }
+
+  const { data: pools } = useContractRead({
+    address: undefined, //contract address,
+    abi: undefined, // contract abi,
+    functionName: "multiQuote",
+    args: [availablePools, quoteParams, true],
+    chainId: 421613,
+    //enabled: needsRangeAllowanceIn,
+    onError(error) {
+      console.log("Error allowance", error);
+    },
+    onSuccess(data) {
+      //setNeedsRangeAllowanceIn(false);
+      //set ordered list to state
+      console.log("Success multiquote", data);
+    },
+  });
 
   ////////////////////////////////TokenOrder
   const [tokenOrder, setTokenOrder] = useState(true);
@@ -203,8 +237,8 @@ export default function Swap() {
     address: address,
     token: tokenIn.address,
     enabled:
-      (tokenIn.address != undefined && needsCoverBalance) ||
-      (tokenIn.address != undefined && needsRangeBalanceIn),
+      (tokenIn.address && needsCoverBalance) ||
+      (tokenIn.address && needsRangeBalanceIn),
     watch: needsCoverBalance || needsRangeBalanceIn,
     onSuccess(data) {
       if (needsCoverBalance) {

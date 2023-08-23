@@ -19,18 +19,20 @@ export const getSwapPool = async (
   setSwapPoolData
 ) => {
   try {
-    const coverPools = await fetchCoverPools();
+    //const coverPools = await fetchCoverPools();
     const rangePools = await fetchRangePools();
-    const allPools = coverPools["data"]["coverPools"].concat(
-      rangePools["data"]["rangePools"]
-    );
-    const maxLiquidityIndex = allPools.reduce(
+    const allPools =
+      /* coverPools["data"]["coverPools"].concat( */
+      rangePools["data"]["rangePools"];
+    /* ); */
+   /*  const maxLiquidityIndex = allPools.reduce(
       (iMax, x, i, arr) => (x.liquidity > arr[iMax].liquidity ? i : iMax),
       0
     );
     const maxLiquidityPool = allPools[maxLiquidityIndex];
     setSwapPoolAddress(maxLiquidityPool["id"]);
-    setSwapPoolData(maxLiquidityPool);
+    setSwapPoolData(maxLiquidityPool); */
+    return allPools;
   } catch (error) {
     console.log(error);
   }
