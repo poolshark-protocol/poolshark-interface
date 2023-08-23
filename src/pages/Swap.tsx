@@ -375,9 +375,6 @@ export default function Swap() {
 
   //when price states change updates price bn states
   useEffect(() => {
-    if (coverPrice) {
-      setCoverBnPrice(ethers.utils.parseEther(coverPrice.toString()));
-    }
     if (rangePrice) {
       setRangeBnPrice(ethers.utils.parseEther(rangePrice.toString()));
     }
@@ -385,14 +382,6 @@ export default function Swap() {
 
   //when price bn states change updates base limit states
   useEffect(() => {
-    if (coverBnPrice) {
-      if (!coverBnPrice.eq(BN_ZERO)) {
-        const baseLimit = coverBnPrice
-          .mul(parseFloat((parseFloat(slippage) * 100).toFixed(6)))
-          .div(10000);
-        setCoverBnBaseLimit(baseLimit);
-      }
-    }
     if (rangeBnPrice) {
       if (!rangeBnPrice.eq(BN_ZERO)) {
         const baseLimit = rangeBnPrice

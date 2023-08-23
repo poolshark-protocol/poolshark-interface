@@ -16,16 +16,8 @@ type SwapState = {
   pairSelected: boolean;
   //TokenIn defines the token on the left/up on a swap page
   tokenIn: tokenSwap;
-  tokenInRangeUSDPrice: number;
-  tokenInCoverUSDPrice: number;
-  tokenInRangeAllowance: string;
-  tokenInCoverAllowance: string;
-  tokenInBalance: string;
   //TokenOut defines the token on the left/up on a swap page
   tokenOut: tokenSwap;
-  tokenOutRangeUSDPrice: number;
-  tokenOutCoverUSDPrice: number;
-  tokenOutBalance: string;
   //Gas
   gasFee: string;
   gasLimit: BigNumber;
@@ -47,15 +39,12 @@ type SwapAction = {
   setPairSelected: (pairSelected: Boolean) => void;
   //tokenIn
   setTokenIn: (tokenOut: tokenSwap, newToken: tokenSwap) => void;
-  //setTokenInRangeUSDPrice: (price: number) => void;
-  //setTokenInCoverUSDPrice: (price: number) => void;
-  setTokenInRangeAllowance: (allowance: string) => void;
-  setTokenInCoverAllowance: (allowance: string) => void;
+  setTokenInUSDPrice: (price: number) => void;
+  setTokenInAllowance: (allowance: string) => void;
   setTokenInBalance: (balance: string) => void;
   //tokenOut
   setTokenOut: (tokenOut: tokenSwap, newToken: tokenSwap) => void;
-  //setTokenOutRangeUSDPrice: (price: number) => void;
-  //setTokenOutCoverUSDPrice: (price: number) => void;
+  setTokenOutUSDPrice: (price: number) => void;
   setTokenOutBalance: (balance: string) => void;
   //gas
   setGasFee: (fee: string) => void;
@@ -69,6 +58,8 @@ type SwapAction = {
   setNeedsCoverBalance: (needsBalance: boolean) => void;
   setNeedsRangeBalanceIn: (needsBalance: boolean) => void;
   setNeedsRangeBalanceOut: (needsBalance: boolean) => void;
+  //
+  switchDirections: () => void;
   //reset
   resetSwapParams: () => void;
 };
@@ -88,12 +79,10 @@ const initialSwapState: SwapState = {
     logoURI: "/static/images/eth_icon.png",
     address: tokenOneAddress,
     decimals: 18,
+    userBalance: 0.0,
+    userPoolAllowance: 0,
+    USDPrice: 0.0,
   } as tokenSwap,
-  tokenInRangeUSDPrice: 0,
-  tokenInCoverUSDPrice: 0,
-  tokenInRangeAllowance: "0.00",
-  tokenInCoverAllowance: "0.00",
-  tokenInBalance: "0.00",
   //
   tokenOut: {
     callId: 1,
@@ -102,10 +91,10 @@ const initialSwapState: SwapState = {
     logoURI: "",
     address: tokenZeroAddress,
     decimals: 18,
+    userBalance: 0.0,
+    userPoolAllowance: 0,
+    USDPrice: 0.0,
   } as tokenSwap,
-  tokenOutRangeUSDPrice: 0,
-  tokenOutCoverUSDPrice: 0,
-  tokenOutBalance: "0.00",
   //
   gasFee: "$0.00",
   gasLimit: BN_ZERO,
@@ -128,16 +117,8 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   pairSelected: initialSwapState.pairSelected,
   //tokenIn
   tokenIn: initialSwapState.tokenIn,
-  tokenInRangeUSDPrice: initialSwapState.tokenInRangeUSDPrice,
-  tokenInCoverUSDPrice: initialSwapState.tokenInCoverUSDPrice,
-  tokenInRangeAllowance: initialSwapState.tokenInRangeAllowance,
-  tokenInCoverAllowance: initialSwapState.tokenInCoverAllowance,
-  tokenInBalance: initialSwapState.tokenInBalance,
   //tokenOut
   tokenOut: initialSwapState.tokenOut,
-  tokenOutRangeUSDPrice: initialSwapState.tokenOutRangeUSDPrice,
-  tokenOutCoverUSDPrice: initialSwapState.tokenOutCoverUSDPrice,
-  tokenOutBalance: initialSwapState.tokenOutBalance,
   //gas
   gasFee: initialSwapState.gasFee,
   gasLimit: initialSwapState.gasLimit,
@@ -207,39 +188,38 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       }));
     }
   },
-  setTokenInRangeUSDPrice: (newPrice: number) => {
-    set(() => ({
-      tokenInRangeUSDPrice: newPrice,
+  setTokenInUSDPrice: (newPrice: number) => {
+    set((state) => ({
+      tokenIn: {
+        ...state.tokenIn,
+        USDPrice: newPrice,
+      },
     }));
   },
-  setTokenInCoverUSDPrice: (newPrice: number) => {
-    set(() => ({
-      tokenInCoverUSDPrice: newPrice,
+
+  setTokenInAllowance: (newAllowance: string) => {
+    set((state) => ({
+      tokenIn: {
+        ...state.tokenIn,
+        userPoolAllowance: Number(newAllowance),
+      },
     }));
   },
-  setTokenInRangeAllowance: (newAllowance: string) => {
-    set(() => ({
-      tokenInRangeAllowance: newAllowance,
-    }));
-  },
-  setTokenInCoverAllowance: (newAllowance: string) => {
-    set(() => ({
-      tokenInCoverAllowance: newAllowance,
-    }));
-  },
+
   setTokenInBalance: (newBalance: string) => {
-    set(() => ({
-      tokenInBalance: newBalance,
+    set((state) => ({
+      tokenIn: {
+        ...state.tokenIn,
+        userBalance: Number(newBalance),
+      },
     }));
   },
-  setTokenOutRangeUSDPrice: (newPrice: number) => {
-    set(() => ({
-      tokenOutRangeUSDPrice: newPrice,
-    }));
-  },
-  setTokenOutCoverUSDPrice: (newPrice: number) => {
-    set(() => ({
-      tokenOutCoverUSDPrice: newPrice,
+  setTokenOutUSDPrice: (newPrice: number) => {
+    set((state) => ({
+      tokenOut: {
+        ...state.tokenOut,
+        USDPrice: newPrice,
+      },
     }));
   },
   setTokenOut: (tokenIn, newToken: tokenSwap) => {
@@ -274,8 +254,11 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
     }
   },
   setTokenOutBalance: (newBalance: string) => {
-    set(() => ({
-      tokenOutBalance: newBalance,
+    set((state) => ({
+      tokenOut: {
+        ...state.tokenOut,
+        userBalance: Number(newBalance),
+      },
     }));
   },
 
@@ -335,7 +318,7 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       needsRangeBalanceOut: needsRangeBalanceOut,
     }));
   },
-  switchDirection: () => {
+  switchDirections: () => {
     set((state) => ({
       tokenIn: {
         callId:
@@ -347,6 +330,9 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
         logoURI: state.tokenOut.logoURI,
         address: state.tokenOut.address,
         decimals: state.tokenOut.decimals,
+        userBalance: state.tokenOut.userBalance,
+        userPoolAllowance: state.tokenOut.userPoolAllowance,
+        USDPrice: state.tokenOut.USDPrice,
       },
       tokenOut: {
         callId:
@@ -358,6 +344,9 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
         logoURI: state.tokenIn.logoURI,
         address: state.tokenIn.address,
         decimals: state.tokenIn.decimals,
+        userBalance: state.tokenIn.userBalance,
+        userPoolAllowance: state.tokenIn.userPoolAllowance,
+        USDPrice: state.tokenIn.USDPrice,
       },
     }));
   },
@@ -370,16 +359,8 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       pairSelected: initialSwapState.pairSelected,
       //tokenIn
       tokenIn: initialSwapState.tokenIn,
-      tokenInRangeUSDPrice: initialSwapState.tokenInRangeUSDPrice,
-      tokenInCoverUSDPrice: initialSwapState.tokenInCoverUSDPrice,
-      tokenInRangeAllowance: initialSwapState.tokenInRangeAllowance,
-      tokenInCoverAllowance: initialSwapState.tokenInCoverAllowance,
-      tokenInBalance: initialSwapState.tokenInBalance,
       //tokenOut
       tokenOut: initialSwapState.tokenOut,
-      tokenOutRangeUSDPrice: initialSwapState.tokenOutRangeUSDPrice,
-      tokenOutCoverUSDPrice: initialSwapState.tokenOutCoverUSDPrice,
-      tokenOutBalance: initialSwapState.tokenOutBalance,
       //gas
       gasFee: initialSwapState.gasFee,
       gasLimit: initialSwapState.gasLimit,
