@@ -215,7 +215,7 @@ export default function Cover() {
                                   allCoverPosition.upperTick
                                 )
                               )}
-                              href={"/pool/view/cover"}
+                              href={"/cover/view"}
                             />
                           );
                         }

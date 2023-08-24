@@ -220,7 +220,7 @@ export default function Range() {
                             <UserRangePool
                               key={allRangePosition.id + "rangePosition"}
                               rangePosition={allRangePosition}
-                              href={"/pool/view/range"}
+                              href={"/range/view"}
                             />
                           );
                         }
