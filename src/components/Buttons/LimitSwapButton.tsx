@@ -3,56 +3,48 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { rangePoolABI } from "../../abis/evm/rangePool";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
-import { BN_ZERO } from "../../utils/math/constants";
-import { useRangeStore } from "../../hooks/useRangeStore";
+import { limitPoolABI } from "../../abis/evm/limitPool";
+import { useSwapStore } from "../../hooks/useSwapStore";
 
-export default function RangeMintButton({
+export default function LimitSwapButton({
   disabled,
   poolAddress,
   to,
+  amount,
+  mintPercent,
   lower,
   upper,
-  amount0,
-  amount1,
+  zeroForOne,
   closeModal,
   gasLimit,
 }) {
   const [
-    setNeedsRefetch,
-    setNeedsAllowanceIn,
-    setNeedsAllowanceOut,
-    setNeedsBalanceIn,
-    setNeedsBalanceOut,
-  ] = useRangeStore((state) => [
-    state.setNeedsRefetch,
-    state.setNeedsAllowanceIn,
-    state.setNeedsAllowanceOut,
-    state.setNeedsBalanceIn,
-    state.setNeedsBalanceOut,
+    setNeedsRangeAllowanceIn,
+    setNeedsRangeBalanceIn,
+  ] = useSwapStore((state) => [
+    state.setNeedsRangeAllowanceIn,
+    state.setNeedsRangeBalanceIn,
   ]);
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
 
   useEffect(() => {}, [disabled]);
 
-  const positionId = 0; /// @dev - assume new position
-
   const { config } = usePrepareContractWrite({
     address: poolAddress,
-    abi: rangePoolABI,
-    functionName: "mintRange",
+    abi: limitPoolABI,
+    functionName: "mintLimit",
     args: [[
       to,
+      amount,
+      mintPercent,
       lower,
       upper,
-      positionId,
-      amount0,
-      amount1
+      zeroForOne
     ]],
     chainId: 421613,
     overrides: {
@@ -73,13 +65,11 @@ export default function RangeMintButton({
       setTimeout(() => {
         closeModal();
       }, 2000);
-      setNeedsRefetch(true);
-      setNeedsAllowanceIn(true);
-      if (amount1.gt(BN_ZERO)) {
-        setNeedsAllowanceOut(true);
-      }
-      setNeedsBalanceIn(true);
-      setNeedsBalanceOut(true);
+      setNeedsRangeAllowanceIn(true);
+      // if (amount1.gt(BN_ZERO)) {
+      //   setNeedsAllowanceOut(true);
+      // }
+      setNeedsRangeBalanceIn(true);
     },
     onError() {
       setErrorDisplay(true);

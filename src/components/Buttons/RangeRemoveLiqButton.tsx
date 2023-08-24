@@ -14,7 +14,7 @@ import { gasEstimateRangeBurn } from '../../utils/gas';
 import { BN_ZERO } from '../../utils/math/constants';
 import { useRangeStore } from '../../hooks/useRangeStore';
 
-export default function RangeRemoveLiqButton({poolAddress, address, lower, upper, burnPercent, closeModal, setIsOpen}) {
+export default function RangeRemoveLiqButton({poolAddress, address, positionId, burnPercent, closeModal, setIsOpen}) {
     const [
       setNeedsRefetch,
       setNeedsBalanceIn,
@@ -30,7 +30,7 @@ export default function RangeRemoveLiqButton({poolAddress, address, lower, upper
     const [ errorDisplay, setErrorDisplay ] = useState(false);
     const [ successDisplay, setSuccessDisplay ] = useState(false);
 
-    console.log('burn button args', burnPercent.toString(), lower.toString(), upper.toString())
+    console.log('burn button args', burnPercent.toString(), positionId.toString())
 
     const [ fetchDelay, setFetchDelay ] = useState(false)
     const [ gasLimit, setGasLimit ] = useState(BN_ZERO)
@@ -52,8 +52,7 @@ export default function RangeRemoveLiqButton({poolAddress, address, lower, upper
       const newBurnGasFee = await gasEstimateRangeBurn(
         poolAddress,
         address,
-        lower,
-        upper,
+        positionId,
         burnPercent,
         signer
       )
@@ -68,8 +67,7 @@ export default function RangeRemoveLiqButton({poolAddress, address, lower, upper
         functionName: "burn",
         args:[[
             address,
-            lower,
-            upper,
+            positionId,
             burnPercent
         ]],
         chainId: 421613,

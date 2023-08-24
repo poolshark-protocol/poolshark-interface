@@ -23,11 +23,14 @@ import { useRangeStore } from "../../../hooks/useRangeStore";
 export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
     rangePoolAddress,
+    rangeMintParams,
     pairSelected,
     tokenIn,
     setTokenInBalance,
+    setTokenInAmount,
     tokenOut,
     setTokenOutBalance,
+    setTokenOutAmount,
     rangePositionData,
     needsAllowanceIn,
     setNeedsAllowanceIn,
@@ -39,11 +42,14 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     setNeedsBalanceOut,
   ] = useRangeStore((state) => [
     state.rangePoolAddress,
+    state.rangeMintParams,
     state.pairSelected,
     state.tokenIn,
     state.setTokenInBalance,
+    state.setTokenInAmount,
     state.tokenOut,
     state.setTokenOutBalance,
+    state.setTokenOutAmount,
     state.rangePositionData,
     state.needsAllowanceIn,
     state.setNeedsAllowanceIn,
@@ -225,10 +231,9 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     if (
       Number(ethers.utils.formatUnits(bnInput, tokenIn.decimals)) === 0 ||
       Number(ethers.utils.formatUnits(bnInput, tokenIn.decimals)) >
-      Number(tokenIn.userBalance) ||
+        Number(tokenIn.userBalance) ||
       Number(ethers.utils.formatUnits(amount1, tokenIn.decimals)) >
-      Number(tokenOut.userBalance)
-      
+        Number(tokenOut.userBalance)
     ) {
       setDisabled(true);
     } else {
@@ -263,11 +268,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
             : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
           : ZERO;
         // set amount based on bnInput
-        tokenOrder ? setAmount0(bnInput) : setAmount1(bnInput);
-        // set amount based on liquidity math
-        tokenOrder
-          ? setAmount1(BigNumber.from(String(tokenOutAmount)))
-          : setAmount0(BigNumber.from(String(tokenOutAmount)));
+        setTokenInAmount(bnInput);
+        setTokenOutAmount(BigNumber.from(String(tokenOutAmount)));
         setDisabled(false);
       } else {
         setAmount1(BN_ZERO);
@@ -381,40 +383,27 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                   <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
                     <div className=" p-2 ">
                       <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
-                        {Number(
-                          tokenOrder
-                            ? ethers.utils.formatUnits(
-                                amount1,
+                        {Number(rangeMintParams.tokenOutAmount) != 0
+                          ? Number(
+                              ethers.utils.formatUnits(
+                                rangeMintParams.tokenOutAmount,
                                 tokenIn.decimals
                               )
-                            : ethers.utils.formatUnits(
-                                amount0,
-                                tokenIn.decimals
-                              )
-                        ).toFixed(2)}
+                            ).toPrecision(5)
+                          : 0}
                       </div>
                       <div className="flex">
                         <div className="flex text-xs text-[#4C4C4C]">
                           $
-                          {tokenOrder
-                            ? Number(
-                                tokenIn.rangeUSDPrice *
-                                  parseFloat(
-                                    ethers.utils.formatUnits(
-                                      amount0,
-                                      tokenIn.decimals
-                                    )
-                                  )
-                              ).toFixed(2)
-                            : Number(
-                                tokenOut.rangeUSDPrice *
-                                  parseFloat(
-                                    ethers.utils.formatUnits(
-                                      amount1,
-                                      tokenIn.decimals
-                                    )
-                                  )
-                              ).toFixed(2)}
+                          {(
+                            Number(tokenOut.rangeUSDPrice) *
+                            Number(
+                              ethers.utils.formatUnits(
+                                rangeMintParams.tokenOutAmount,
+                                18
+                              )
+                            )
+                          ).toFixed(2)}
                         </div>
                       </div>
                     </div>
@@ -468,6 +457,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                           amount1={amount1}
                           disabled={disabled}
                           setIsOpen={setIsOpen}
+                          positionId={rangePositionData.id}
                         />
                       ) : (allowanceIn.lt(amount0) &&
                           allowanceOut.lt(amount1)) ||

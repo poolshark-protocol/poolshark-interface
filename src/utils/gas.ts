@@ -101,7 +101,7 @@ export const gasEstimateSwap = async (
   }
 }
 
-export const gasEstimateSwapLimit = async (
+export const gasEstimateMintLimit = async (
   rangePoolRoute: string,
   address: string,
   lowerTick: BigNumber,
@@ -133,12 +133,13 @@ export const gasEstimateSwapLimit = async (
     let gasUnits: BigNumber
     gasUnits = await contract
       .connect(signer)
-      .estimateGas.mint([
+      .estimateGas.mintLimit([
         recipient,
+        zeroForOne ? bnInput : BN_ZERO,
+        ethers.utils.parseUnits('1', 26), // skip mint under 1% left after swap
         lowerTick,
         upperTick,
-        zeroForOne ? bnInput : BN_ZERO,
-        zeroForOne ? BN_ZERO : bnInput
+        zeroForOne
     ])
     console.log('limit gas units', gasUnits.toString())
     const gasPrice = await provider.getGasPrice()
@@ -169,7 +170,8 @@ export const gasEstimateRangeMint = async (
   upperTick: BigNumber,
   amount0: BigNumber,
   amount1: BigNumber,
-  signer
+  signer,
+  positionId?: number
 ): Promise<gasEstimateResult> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
@@ -185,10 +187,11 @@ export const gasEstimateRangeMint = async (
 
     const gasUnits = await contract
       .connect(signer)
-      .estimateGas.mint([
+      .estimateGas.mintRange([
         recipient,
         lowerTick,
         upperTick,
+        positionId ? positionId : 0, /// @dev - 0 for new position; positionId for existing (i.e. adding liquidity)
         amount0,
         amount1
     ])
@@ -216,8 +219,7 @@ export const gasEstimateRangeMint = async (
 export const gasEstimateRangeBurn = async (
   rangePoolRoute: string,
   address: string,
-  lowerTick: BigNumber,
-  upperTick: BigNumber,
+  positionId: number,
   burnPercent: BigNumber,
   signer
 ): Promise<gasEstimateResult> => {
@@ -231,18 +233,17 @@ export const gasEstimateRangeBurn = async (
       return { formattedPrice: '$0.00', gasUnits: BN_ZERO }
     }
     const contract = new ethers.Contract(rangePoolRoute, rangePoolABI, provider)
-    console.log('burn args', burnPercent.toString(), lowerTick.toString(), upperTick.toString())
+    console.log('burn args', burnPercent.toString(), positionId.toString())
     const recipient = address
 
     const gasUnits = await contract
       .connect(signer)
       .estimateGas.burn([
         recipient,
-        lowerTick,
-        upperTick,
+        positionId,
         burnPercent
     ])
-    console.log('burn estimate args', gasUnits.toString(), burnPercent.toString(), lowerTick.toString(), upperTick.toString(), )
+    console.log('burn estimate args', gasUnits.toString(), burnPercent.toString(), positionId.toString(), )
     const price = await fetchPrice('ethereum')
     const gasPrice = await provider.getGasPrice()
     const ethUsdPrice = price['data']['bundles']['0']['ethPriceUSD']

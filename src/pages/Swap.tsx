@@ -1,7 +1,6 @@
 import {
   AdjustmentsHorizontalIcon,
   ArrowSmallDownIcon,
-  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { useState, useEffect, Fragment } from "react";
 import { Popover, Transition } from "@headlessui/react";
@@ -36,16 +35,15 @@ import {
   minPriceBn,
 } from "../utils/math/tickMath";
 import { BN_ONE, BN_ZERO } from "../utils/math/constants";
-import { gasEstimateSwap, gasEstimateSwapLimit } from "../utils/gas";
+import { gasEstimateSwap } from "../utils/gas";
 import { getCoverPool, getRangePool, getSwapPool } from "../utils/pools";
 import inputFilter from "../utils/inputFilter";
-import RangeLimitSwapButton from "../components/Buttons/RangeLimitSwapButton";
 import { useSwapStore } from "../hooks/useSwapStore";
 import {
   fetchCoverTokenUSDPrice,
   fetchRangeTokenUSDPrice,
 } from "../utils/tokens";
-import { coinRaw } from "../utils/types";
+import LimitSwapButton from "../components/Buttons/LimitSwapButton";
 
 export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -1243,14 +1241,16 @@ export default function Swap() {
                 amount={bnInput}
               />
             ) : (
-              <RangeLimitSwapButton
+              <LimitSwapButton
                 disabled={mintGasLimit.eq(BN_ZERO)}
                 poolAddress={swapPoolAddress}
                 to={address}
+                amount={bnInput}
+                mintPercent={ethers.utils.parseUnits("1", 26)} /// @dev - skip mint is less than 1% left after swap
                 lower={lowerTick}
                 upper={upperTick}
-                amount0={tokenOrder ? bnInput : BN_ZERO}
-                amount1={tokenOrder ? BN_ZERO : bnInput}
+                closeModal={() => {}}
+                zeroForOne={tokenOrder}
                 gasLimit={mintGasLimit}
               />
             )}

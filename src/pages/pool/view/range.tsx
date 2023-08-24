@@ -514,8 +514,7 @@ export default function Range() {
                     <RangeCompoundButton
                       poolAddress={rangePoolAddress}
                       address={address}
-                      lower={BigNumber.from(rangePositionData.min)}
-                      upper={BigNumber.from(rangePositionData.max)}
+                      positionId={rangePositionData.id}
                     />
                   </div>
                 </div>
