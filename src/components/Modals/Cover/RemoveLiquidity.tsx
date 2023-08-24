@@ -14,12 +14,14 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
     coverMintParams,
     tokenIn,
     claimTick,
+    setMintButtonState,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPositionData,
     state.coverMintParams,
     state.tokenIn,
     state.claimTick,
+    state.setMintButtonState,
   ]);
 
   const router = useRouter();
@@ -50,6 +52,10 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
       ((parseFloat(amountInDisplay) * sliderValue) / 100).toPrecision(6)
     );
   }, [sliderValue]);
+
+  useEffect(() => {
+    setMintButtonState();
+  }, [burnPercent]);
 
   const handleChange = (event: any) => {
     if (Number(event.target.value) != 0) {
@@ -208,3 +214,5 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
     </Transition>
   );
 }
+
+
