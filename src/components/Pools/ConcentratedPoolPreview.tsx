@@ -124,20 +124,19 @@ export default function ConcentratedPoolPreview({ fee }) {
   }, [rangeMintParams.tokenInAmount, tokenOut, rangePositionData]);
 
   async function updateGasFee() {
-    console.log("rangePositionData", rangePositionData);
     const newGasFee = await gasEstimateRangeMint(
       rangePoolAddress,
       address,
       BigNumber.from(
         TickMath.getTickAtPriceString(
           rangePositionData.lowerPrice,
-          parseInt(rangePoolData.feeTier.tickSpacing)
+          parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
         )
       ),
       BigNumber.from(
         TickMath.getTickAtPriceString(
           rangePositionData.upperPrice,
-          parseInt(rangePoolData.feeTier.tickSpacing)
+          parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
         )
       ),
       rangeMintParams.tokenInAmount,
@@ -355,10 +354,8 @@ export default function ConcentratedPoolPreview({ fee }) {
                         </div>
                       </div>
                       <div className="mt-4">
-                        {BigNumber.from(tokenIn.userPoolAllowance ?? 0).gte(
-                          rangeMintParams.tokenInAmount
-                        ) &&
-                        BigNumber.from(tokenOut.userPoolAllowance ?? 0).gte(
+                        {allowanceInRange?.gte(rangeMintParams.tokenInAmount) &&
+                        allowanceOutRange?.gte(
                           rangeMintParams.tokenOutAmount
                         ) ? (
                           <RangeMintButton
@@ -393,12 +390,12 @@ export default function ConcentratedPoolPreview({ fee }) {
                                 : BN_ZERO
                             }
                             disabled={
-                              BigNumber.from(tokenIn.userPoolAllowance ?? 0).lt(
+                              allowanceInRange.lt(
                                 rangeMintParams.tokenInAmount
                               ) ||
-                              BigNumber.from(
-                                tokenOut.userPoolAllowance ?? 0
-                              ).lt(rangeMintParams.tokenOutAmount)
+                              allowanceOutRange.lt(
+                                rangeMintParams.tokenOutAmount
+                              )
                             }
                             amount0={
                               tokenIn.callId === 0
@@ -413,10 +410,10 @@ export default function ConcentratedPoolPreview({ fee }) {
                             closeModal={() => router.push("/pool")}
                             gasLimit={mintGasLimit}
                           />
-                        ) : (BigNumber.from(tokenIn.userPoolAllowance ?? 0).lt(
+                        ) : (allowanceInRange?.lt(
                             rangeMintParams.tokenInAmount
                           ) &&
-                            BigNumber.from(tokenOut.userPoolAllowance).lt(
+                            allowanceOutRange?.lt(
                               rangeMintParams.tokenOutAmount
                             )) ||
                           doubleApprove ? (
@@ -429,7 +426,7 @@ export default function ConcentratedPoolPreview({ fee }) {
                             setAllowanceController={setdoubleApprove}
                           />
                         ) : !doubleApprove &&
-                          BigNumber.from(tokenIn.userPoolAllowance ?? 0).lt(
+                          allowanceInRange?.lt(
                             rangeMintParams.tokenInAmount
                           ) ? (
                           <RangeMintApproveButton
@@ -438,7 +435,7 @@ export default function ConcentratedPoolPreview({ fee }) {
                             amount={rangeMintParams.tokenInAmount}
                           />
                         ) : !doubleApprove &&
-                          BigNumber.from(tokenOut.userPoolAllowance).lt(
+                          allowanceOutRange?.lt(
                             rangeMintParams.tokenOutAmount
                           ) ? (
                           <RangeMintApproveButton
