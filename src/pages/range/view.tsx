@@ -543,8 +543,7 @@ export default function ViewRange() {
               <RangeCompoundButton
                 poolAddress={rangePoolAddress}
                 address={address}
-                lower={BigNumber.from(rangePositionData.min)}
-                upper={BigNumber.from(rangePositionData.max)}
+                positionId={rangePositionData.id}
               />
             </div>
           </div>
