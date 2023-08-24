@@ -468,7 +468,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                           amount1={amount1}
                           disabled={disabled}
                           setIsOpen={setIsOpen}
-                          positionId={rangePositionData.id} //TODO: grab existing positionId from Subgraph
+                          positionId={rangePositionData.id}
                         />
                       ) : (allowanceIn.lt(amount0) &&
                           allowanceOut.lt(amount1)) ||

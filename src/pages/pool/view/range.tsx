@@ -508,7 +508,7 @@ export default function Range() {
                     <RangeCompoundButton
                       poolAddress={rangePoolAddress}
                       address={address}
-                      positionId={rangePositionData.id} //TODO: populate from Subgraph
+                      positionId={rangePositionData.id}
                     />
                   </div>
                 </div>
