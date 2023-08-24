@@ -36,10 +36,10 @@ import {
   minPriceBn,
 } from "../utils/math/tickMath";
 import { BN_ONE, BN_ZERO } from "../utils/math/constants";
-import { gasEstimateSwap, gasEstimateSwapLimit } from "../utils/gas";
+import { gasEstimateSwap, gasEstimateMintLimit } from "../utils/gas";
 import { getCoverPool, getRangePool } from "../utils/pools";
 import inputFilter from "../utils/inputFilter";
-import RangeLimitSwapButton from "../components/Buttons/RangeLimitSwapButton";
+import LimitSwapButton from "../components/Buttons/LimitSwapButton";
 import { useSwapStore } from "../hooks/useSwapStore";
 import {
   fetchCoverTokenUSDPrice,
@@ -728,7 +728,7 @@ export default function Trade() {
   }
 
   async function updateMintFee() {
-    await gasEstimateSwapLimit(
+    await gasEstimateMintLimit(
       rangePoolAddress,
       address,
       lowerTick,
@@ -1368,14 +1368,16 @@ export default function Trade() {
                     amount={bnInput}
                   />
                 ) : (
-                  <RangeLimitSwapButton
+                  <LimitSwapButton
                     disabled={mintGasLimit.eq(BN_ZERO)}
                     poolAddress={rangePoolAddress}
                     to={address}
+                    amount={bnInput}
+                    mintPercent={ethers.utils.parseUnits('1', 26)}
                     lower={lowerTick}
                     upper={upperTick}
-                    amount0={tokenOrder ? bnInput : BN_ZERO}
-                    amount1={tokenOrder ? BN_ZERO : bnInput}
+                    closeModal={() => {}}
+                    zeroForOne={tokenOrder}
                     gasLimit={mintGasLimit}
                   />
                 )}
