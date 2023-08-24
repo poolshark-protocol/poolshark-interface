@@ -98,6 +98,8 @@ export default function ConcentratedPool({}) {
 
   useEffect(() => {
     updatePoolsFromStore();
+    setTokenInAmount(BN_ZERO);
+    setTokenOutAmount(BN_ZERO);
   }, [tokenIn, tokenOut, feeTierId]);
 
   async function updatePoolsFromStore() {
@@ -211,7 +213,7 @@ export default function ConcentratedPool({}) {
     ) {
       tokenOutAmountMath();
     }
-  }, [bnInput, tokenOrder]);
+  }, [bnInput, rangePoolAddress, tokenOrder]);
 
   function tokenOutAmountMath() {
     try {
@@ -456,7 +458,7 @@ export default function ConcentratedPool({}) {
             </div>
             <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
               <div className=" p-2 bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl  rounded-xl focus:ring-0 focus:ring-offset-0 focus:outline-none">
-                {Number(rangeMintParams.tokenOutAmount)!=0
+                {Number(rangeMintParams.tokenOutAmount) != 0
                   ? Number(
                       ethers.utils.formatUnits(
                         rangeMintParams.tokenOutAmount,
