@@ -55,6 +55,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
 
   useEffect(() => {
     setMintButtonState();
+    console.log(coverMintParams.disabled, "disabled");
   }, [burnPercent]);
 
   const handleChange = (event: any) => {
