@@ -25,11 +25,11 @@ import { useRouter } from 'next/router';
 export default function Range() {
 
   const [
+    rangePoolAddress,
     rangePoolData,
     rangePositionData,
     tokenIn,
     tokenOut,
-
     setTokenInRangeUSDPrice,
     setTokenOutRangeUSDPrice,
     needsRefetch,
@@ -38,11 +38,11 @@ export default function Range() {
     setNeedsPosRefetch,
     setRangePositionData,
   ] = useRangeStore((state) => [
+    state.rangePoolAddress,
     state.rangePoolData,
     state.rangePositionData,
     state.tokenIn,
     state.tokenOut,
-
     state.setTokenInRangeUSDPrice,
     state.setTokenOutRangeUSDPrice,
     state.needsRefetch,

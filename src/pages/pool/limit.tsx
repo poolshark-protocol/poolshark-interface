@@ -1,7 +1,7 @@
 import Navbar from "../../components/Navbar";
 import Link from "next/link";
 import { ArrowLongLeftIcon } from "@heroicons/react/20/solid";
-import LimitPool from "../../components/Pools/LimitPool";
+//import LimitPool from "../../components/Pools/LimitPool";
 
 export default function Limit() {
   return (

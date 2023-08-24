@@ -5,7 +5,7 @@ import {
   InformationCircleIcon,
 } from '@heroicons/react/24/outline'
 import UserPool from '../../components/Pools/UserPool'
-import UserCoverPool from '../../components/Pools/UserCoverPool'
+import UserCoverPool from '../../components/Cover/UserCoverPool'
 import PoolList from '../../components/Pools/PoolList'
 import Link from 'next/link'
 import { Listbox, Transition } from '@headlessui/react'
@@ -24,7 +24,7 @@ import {
   mapUserRangePositions,
 } from '../../utils/maps'
 import { TickMath } from '../../utils/math/tickMath'
-import UserLimitPool from '../../components/Pools/UserLimitPool'
+//import UserLimitPool from '../../components/Pools/UserLimitPool'
 import { useRangeStore } from '../../hooks/useRangeStore'
 import { useCoverStore } from '../../hooks/useCoverStore'
 

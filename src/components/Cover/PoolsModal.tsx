@@ -1,10 +1,10 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useState, useEffect } from "react";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/20/solid";
-import UserCoverPool from "../Pools/UserCoverPool";
+import UserCoverPool from "../Cover/UserCoverPool";
 import { fetchRangePositions, fetchUniV3Positions } from "../../utils/queries";
 import { useAccount } from "wagmi";
-import UserPool from "../Pools/UserPool";
+import UserPool from "../Pools/UserPool"; 
 import { BigNumber } from "ethers";
 
 export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
