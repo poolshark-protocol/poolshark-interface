@@ -3,12 +3,12 @@ import {
     useContractWrite,
     useWaitForTransaction,
   } from "wagmi";
-  import { SuccessToast } from "../Toasts/Success";
-  import { ErrorToast } from "../Toasts/Error";
-  import { ConfirmingToast } from "../Toasts/Confirming";
-  import React, { useState, useEffect } from "react";
-  import { useRangeStore } from "../../hooks/useRangeStore";
+import { SuccessToast } from "../Toasts/Success";
+import { ErrorToast } from "../Toasts/Error";
+import { ConfirmingToast } from "../Toasts/Confirming";
+import React, { useState, useEffect } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
+import { useLimitStore } from "../../hooks/useLimitStore";
   
   export default function LimitMintButton({
     disabled,
@@ -24,16 +24,12 @@ import { limitPoolABI } from "../../abis/evm/limitPool";
   }) {
     const [
       setNeedsRefetch,
-      setNeedsAllowanceIn,
-      setNeedsAllowanceOut,
-      setNeedsBalanceIn,
-      setNeedsBalanceOut,
-    ] = useRangeStore((state) => [
+      setNeedsAllowance,
+      setNeedsBalance,
+    ] = useLimitStore((state) => [
       state.setNeedsRefetch,
-      state.setNeedsAllowanceIn,
-      state.setNeedsAllowanceOut,
-      state.setNeedsBalanceIn,
-      state.setNeedsBalanceOut,
+      state.setNeedsAllowance,
+      state.setNeedsBalance,
     ]);
     const [errorDisplay, setErrorDisplay] = useState(false);
     const [successDisplay, setSuccessDisplay] = useState(false);
@@ -72,12 +68,11 @@ import { limitPoolABI } from "../../abis/evm/limitPool";
           closeModal();
         }, 2000);
         setNeedsRefetch(true);
-        setNeedsAllowanceIn(true);
+        setNeedsAllowance(true);
         // if (amount1.gt(BN_ZERO)) {
         //   setNeedsAllowanceOut(true);
         // }
-        setNeedsBalanceIn(true);
-        setNeedsBalanceOut(true);
+        setNeedsBalance(true);
       },
       onError() {
         setErrorDisplay(true);

@@ -34,6 +34,7 @@ type LimitState = {
   };
   needsRefetch: boolean;
   needsAllowance: boolean;
+  needsBalance: boolean;
   //Claim tick
   claimTick: number;
   //Bcontract calls
@@ -69,6 +70,8 @@ type LimitAction = {
   setNeedsRefetch: (needsRefetch: boolean) => void;
   //allowance
   setNeedsAllowance: (needsAllowance: boolean) => void;
+  //balance
+  setNeedsBalance: (needsBalance: boolean) => void;
   //reset
   switchDirection: () => void;
   setLimitPoolFromVolatility: (
@@ -125,6 +128,7 @@ const initialLimitState: LimitState = {
   },
   needsRefetch: false,
   needsAllowance: true,
+  needsBalance: true,
   //
 };
 
@@ -145,6 +149,7 @@ export const useLimitStore = create<LimitState & LimitAction>((set) => ({
   limitMintParams: initialLimitState.limitMintParams,
   needsRefetch: initialLimitState.needsRefetch,
   needsAllowance: initialLimitState.needsAllowance,
+  needsBalance: initialLimitState.needsBalance,
   setTokenIn: (tokenOut, newToken: tokenLimit) => {
     //if tokenOut is selected
     if (
@@ -351,6 +356,11 @@ export const useLimitStore = create<LimitState & LimitAction>((set) => ({
   setNeedsAllowance: (needsAllowance: boolean) => {
     set(() => ({
       needsAllowance: needsAllowance,
+    }));
+  },
+  setNeedsBalance: (needsBalance: boolean) => {
+    set(() => ({
+      needsBalance: needsBalance,
     }));
   },
   switchDirection: () => {
