@@ -8,7 +8,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
-import { useLimitStore } from "../../hooks/useLimitStore";
+import { useSwapStore } from "../../hooks/useSwapStore";
 
 export default function LimitSwapButton({
   disabled,
@@ -23,13 +23,11 @@ export default function LimitSwapButton({
   gasLimit,
 }) {
   const [
-    setNeedsRefetch,
-    setNeedsAllowance,
-    setNeedsBalance,
-  ] = useLimitStore((state) => [
-    state.setNeedsRefetch,
-    state.setNeedsAllowance,
-    state.setNeedsBalance,
+    setNeedsRangeAllowanceIn,
+    setNeedsRangeBalanceIn,
+  ] = useSwapStore((state) => [
+    state.setNeedsRangeAllowanceIn,
+    state.setNeedsRangeBalanceIn,
   ]);
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
@@ -67,12 +65,11 @@ export default function LimitSwapButton({
       setTimeout(() => {
         closeModal();
       }, 2000);
-      setNeedsRefetch(true);
-      setNeedsAllowance(true);
+      setNeedsRangeAllowanceIn(true);
       // if (amount1.gt(BN_ZERO)) {
       //   setNeedsAllowanceOut(true);
       // }
-      setNeedsBalance(true);
+      setNeedsRangeBalanceIn(true);
     },
     onError() {
       setErrorDisplay(true);
