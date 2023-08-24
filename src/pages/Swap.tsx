@@ -991,7 +991,7 @@ export default function Swap() {
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke-width="1.5"
+                strokeWidth="1.5"
                 stroke="currentColor"
                 className="w-5 cursor-pointer"
                 onClick={() => {
@@ -999,8 +999,8 @@ export default function Swap() {
                 }}
               >
                 <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
                 />
               </svg>
@@ -1135,13 +1135,13 @@ export default function Swap() {
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
-                      stroke-width="1.5"
+                      strokeWidth="1.5"
                       stroke="currentColor"
                       className="text-white w-3"
                     >
                       <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
                       />
                     </svg>
@@ -1410,9 +1410,9 @@ export default function Swap() {
             </button>
           </div>
         </div>
-        <div className="w-full h-[1px] bg-grey mt-3 mb-5" />
+        <div className="w-full h-[1px] bg-grey mt-3" />
         <table className="w-full table-auto">
-          <thead className="pb-4 border-b-10 border-black">
+          <thead className="pb-4 border-b-10 border-black h-12">
             <tr className="text-xs text-grey1/60 mb-3 leading-normal">
               <th className="text-left ">Sell</th>
               <th className="text-left ">Buy</th>
@@ -1420,8 +1420,7 @@ export default function Swap() {
               <th className="text-left">Status</th>
               <th className="text-right ">Age</th>
             </tr>
-          </thead>
-          <div className="mt-3" />
+            </thead>
           {activeOrdersSelected ? (
           <tbody className="">
             <tr className="text-right text-xs md:text-sm">
