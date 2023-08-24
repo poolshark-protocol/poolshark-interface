@@ -45,15 +45,12 @@ export default function RangeMintApproveButton({ poolAddress, approveToken, amou
     },
   })
 
-  function approve() {
-    writeT0()
-  }
 
   return (
     <>
       <div
         className="w-full py-4 mx-auto text-sm md:text-base font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
-        onClick={(address) => (address ? approve() : null)}
+        onClick={() => writeT0?.()}
       >
         Approve {approveToken.symbol}
       </div>
