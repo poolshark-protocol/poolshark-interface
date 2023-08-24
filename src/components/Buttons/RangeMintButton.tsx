@@ -40,11 +40,20 @@ export default function RangeMintButton({
 
   useEffect(() => {}, [disabled]);
 
+  const positionId = 0; /// @dev - assume new position
+
   const { config } = usePrepareContractWrite({
     address: poolAddress,
     abi: rangePoolABI,
-    functionName: "mint",
-    args: [[to, lower, upper, amount0, amount1]],
+    functionName: "mintRange",
+    args: [[
+      to,
+      lower,
+      upper,
+      positionId,
+      amount0,
+      amount1
+    ]],
     chainId: 421613,
     overrides: {
       gasLimit: gasLimit,

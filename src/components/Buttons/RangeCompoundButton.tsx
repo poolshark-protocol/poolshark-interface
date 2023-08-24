@@ -10,7 +10,7 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BN_ZERO } from '../../utils/math/constants';
 
-export default function RangeCompoundButton({ poolAddress, address, lower, upper }) {
+export default function RangeCompoundButton({ poolAddress, address, positionId }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -22,8 +22,7 @@ export default function RangeCompoundButton({ poolAddress, address, lower, upper
       functionName: "burn",
       args:[[
           address,
-          lower,
-          upper,
+          positionId,
           BN_ZERO
         ]],
       chainId: 421613,

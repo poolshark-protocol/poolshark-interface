@@ -9,10 +9,10 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BigNumber } from "ethers";
-import { BN_ZERO } from '../../utils/math/constants';
+import { BN_ONE, BN_ZERO } from '../../utils/math/constants';
 import { useRangeStore } from '../../hooks/useRangeStore';
 
-export default function RangeCollectButton({ poolAddress, address, lower, upper, gasLimit }) {
+export default function RangeCollectButton({ poolAddress, address, positionId, gasLimit }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -31,9 +31,8 @@ export default function RangeCollectButton({ poolAddress, address, lower, upper,
       functionName: "burn",
       args:[[
           address,
-          lower,
-          upper,
-          BN_ZERO
+          positionId,
+          BN_ONE
         ]],
       chainId: 421613,
       overrides:{

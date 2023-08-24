@@ -291,8 +291,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                 <RangeRemoveLiqButton
                     poolAddress={rangePoolAddress}
                     address={address}
-                    lower={BigNumber.from(rangePositionData.min)}
-                    upper={BigNumber.from(rangePositionData.max)}
+                    positionId={rangePositionData.id} //TODO: populate from Subgraph
                     burnPercent={burnPercent}
                     closeModal={() => 
                       {if (burnPercent.eq(ethers.utils.parseUnits('1', 38))) {
