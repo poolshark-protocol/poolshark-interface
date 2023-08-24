@@ -130,7 +130,7 @@ export const getCoverPoolFromFactory = (tokenA: string, tokenB: string) => {
          `
     //console.log('query:', getPool)
     const client = new ApolloClient({
-      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/version/v0.0.3/api',
+      uri: 'https://arbitrum-goerli.graph-eu.p2pify.com/aa7fdd1e6b48d05ea1754514f3e816f5/cover-arbitrumGoerli',
       cache: new InMemoryCache(),
     })
     client
@@ -202,7 +202,7 @@ export const getTickIfZeroForOne = (
         `
     //console.log('pool address', poolAddress)
     const client = new ApolloClient({
-      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/version/v0.0.3/api',
+      uri: 'https://arbitrum-goerli.graph-eu.p2pify.com/aa7fdd1e6b48d05ea1754514f3e816f5/cover-arbitrumGoerli',
       cache: new InMemoryCache(),
     })
     client
@@ -236,7 +236,7 @@ export const getTickIfNotZeroForOne = (
     //console.log(getTicks)
     //console.log('pool address', poolAddress)
     const client = new ApolloClient({
-      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/version/v0.0.3/api',
+      uri: 'https://arbitrum-goerli.graph-eu.p2pify.com/aa7fdd1e6b48d05ea1754514f3e816f5/cover-arbitrumGoerli',
       cache: new InMemoryCache(),
     })
     client
@@ -375,7 +375,7 @@ export const fetchCoverPositions = (address: string) => {
         }
     `
     const client = new ApolloClient({
-      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/version/v0.0.3/api',
+      uri: 'https://arbitrum-goerli.graph-eu.p2pify.com/aa7fdd1e6b48d05ea1754514f3e816f5/cover-arbitrumGoerli',
       cache: new InMemoryCache(),
     })
     client
@@ -435,7 +435,7 @@ export const fetchCoverPools = () => {
             }
         `
     const client = new ApolloClient({
-      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/version/v0.0.3/api',
+      uri: 'https://arbitrum-goerli.graph-eu.p2pify.com/aa7fdd1e6b48d05ea1754514f3e816f5/cover-arbitrumGoerli',
       cache: new InMemoryCache(),
     })
     client
@@ -461,7 +461,7 @@ export const fetchCoverPoolMetrics = () => {
             }
         `
     const client = new ApolloClient({
-      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/version/v0.0.3/api',
+      uri: 'https://arbitrum-goerli.graph-eu.p2pify.com/aa7fdd1e6b48d05ea1754514f3e816f5/cover-arbitrumGoerli',
       cache: new InMemoryCache(),
     })
     client
