@@ -101,7 +101,7 @@ export default function PoolList({
             src={logoMap[tokenOne.symbol]}
           />
         </div>
-        {tokenZero.symbol}-{tokenOne.symbol}
+        {tokenZero.symbol} - {tokenOne.symbol}
         <div className="pr-2 md:px-2 py-1 rounded-lg text-grey">
           {href == "/cover"
             ? feeTier.tickSpread == "20"

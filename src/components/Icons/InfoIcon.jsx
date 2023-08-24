@@ -1,5 +1,5 @@
 import * as React from "react"
-const Info = (props) => (
+const InfoIcon = (props) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width={17}
@@ -15,4 +15,4 @@ const Info = (props) => (
     />
   </svg>
 )
-export default Info
+export default InfoIcon

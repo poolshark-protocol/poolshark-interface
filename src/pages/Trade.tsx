@@ -47,7 +47,7 @@ import {
 } from "../utils/tokens";
 import { coinRaw } from "../utils/types";
 
-export default function Swap() {
+export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
   const { data: signer } = useSigner();
   const {

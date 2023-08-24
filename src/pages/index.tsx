@@ -1,4 +1,4 @@
-import Swap from "../pages/Swap";
+import Trade from "./Trade";
 import Navbar from "../components/Navbar";
 
 export default function Home() {
@@ -6,7 +6,7 @@ export default function Home() {
     <div className=" bg-no-repeat bg-black min-h-screen ">
       <Navbar />
       <div className="flex justify-center w-full text-white">
-        <Swap />
+        <Trade />
       </div>
     </div>
   );

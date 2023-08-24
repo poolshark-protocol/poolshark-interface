@@ -1,95 +1,111 @@
-import React, { useState, useEffect } from "react";
-import { useAccount, useProvider } from "wagmi";
-import { useRouter } from "next/router";
 import Navbar from "../../components/Navbar";
-import { fetchCoverPositions } from "../../utils/queries";
-import { mapUserCoverPositions } from "../../utils/maps";
+import {
+  MagnifyingGlassIcon,
+  ChevronDownIcon,
+  InformationCircleIcon,
+} from "@heroicons/react/24/outline";
+import UserPool from "../../components/Pools/UserPool";
+import PoolList from "../../components/Pools/PoolList";
+import Link from "next/link";
+import { Listbox, Transition } from "@headlessui/react";
+import {
+  fetchRangePools,
+  fetchRangePositions,
+  fetchCoverPools,
+  fetchCoverPositions,
+} from "../../utils/queries";
+import { Fragment, useState, useEffect } from "react";
+import { useAccount } from "wagmi";
+import {
+  mapCoverPools,
+  mapRangePools,
+  mapUserCoverPositions,
+  mapUserRangePositions,
+} from "../../utils/maps";
 import { TickMath } from "../../utils/math/tickMath";
+import { useRangeStore } from "../../hooks/useRangeStore";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import Info from "../../components/Icons/InfoIcon";
+import InfoIcon from "../../components/Icons/InfoIcon";
 import SearchIcon from "../../components/Icons/SearchIcon";
 import UserIcon from "../../components/Icons/UserIcon";
-import UserCoverPool from "../../components/Cover/UserCoverPool";
+import UserRangePool from "../../components/Range/UserRangePool";
+import PoolIcon from "../../components/Icons/PoolIcon";
+import RangePool from "../../components/Range/RangePool";
 
-export default function Cover() {
-  const [needsRefetch, setNeedsRefetch] = useCoverStore((state) => [
+export default function Range() {
+  const { address, isDisconnected } = useAccount();
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [allRangePositions, setAllRangePositions] = useState([]);
+  const [allRangePools, setAllRangePools] = useState([]);
+
+  const [needsRefetch, setNeedsRefetch] = useRangeStore((state) => [
     state.needsRefetch,
     state.setNeedsRefetch,
   ]);
 
-  const {
-    network: { chainId },
-  } = useProvider();
-  const router = useRouter();
-  const { address, isDisconnected } = useAccount();
+  const [needsCoverRefetch, setNeedsCoverRefetch] = useCoverStore((state) => [
+    state.needsRefetch,
+    state.setNeedsRefetch,
+  ]);
 
-  const [selectedPool, setSelectedPool] = useState(router.query ?? undefined);
-  const [state, setState] = useState(router.query.state ?? "initial");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [allCoverPositions, setAllCoverPositions] = useState([]);
-  const [create, setCreate] = useState(true);
+  //////////////////////Get Pools Data
+  useEffect(() => {
+    getRangePoolData();
+  }, []);
 
   useEffect(() => {
     if (address) {
-      getUserCoverPositionData();
+      getUserRangePositionData();
     }
   }, [address]);
 
-  useEffect(() => {
-    console.log("refetching");
-    if (needsRefetch == true) {
-      setTimeout(() => {
-        getUserCoverPositionData();
-        console.log("refetched");
-
-        setNeedsRefetch(false);
-      }, 5000);
-    }
-  }, [needsRefetch]);
-
-  useEffect(() => {
-    if (state === "existing" && router.query.state === "nav") {
-      setState("initial");
-    }
-  }, [router.query.state]);
-
-  async function getUserCoverPositionData() {
-    const data = await fetchCoverPositions(address);
-    if (data["data"]) {
-      const positions = data["data"].positions;
-      const positionData = mapUserCoverPositions(positions);
-      setAllCoverPositions(positionData);
+  async function getUserRangePositionData() {
+    try {
+      const data = await fetchRangePositions(address);
+      if (data["data"])
+        setAllRangePositions(
+          mapUserRangePositions(data["data"].positionFractions)
+        );
+    } catch (error) {
+      console.log(error);
     }
   }
+
+  async function getRangePoolData() {
+    const data = await fetchRangePools();
+    if (data["data"]) {
+      const pools = data["data"].rangePools;
+      setAllRangePools(mapRangePools(pools));
+    }
+  }
+
+  //////////////////////
 
   const handleSearchTermChange = (event) => {
     setSearchTerm(event.target.value);
   };
 
-  const handleDiselectPool = (state) => {
-    setState(state);
-    setSelectedPool(undefined);
-  };
-
   return (
     <div className="min-h-screen bg-black">
-      <Navbar create={create} setCreate={setCreate} />
+      <Navbar />
       <div className="container mx-auto mt-8">
         <div className="flex gap-x-8 justify-between">
-          <div className="p-7 h-[300px] w-[60%] flex flex-col justify-between bg-[url('/static/images/bg/shark.png')]">
+          <div className="p-7 h-[300px] w-[60%] flex flex-col justify-between bg-[url('/static/images/bg/shark1.png')]">
             <div className="flex flex-col gap-y-3 ">
               <h1 className="uppercase text-white">
-                Cover your liquidity pools
+                BECOME A LIQUIDITY PROVIDER AND EARN FEES
               </h1>
               <p className="text-sm text-white/40 font-light">
-                Creave a Cover Pool to mitigate your impermanent loss, take a bullish entry or reduce risk and losses. Its easy and only takes a few minutes
+                Lorem ipsum dolor sit amet consectetur adipiscing elit nascetur
+                purus, habitant mattis cum eros senectus fusce suscipit tempor
               </p>
             </div>
             <button
               className="px-12 py-3 text-white w-min whitespace-nowrap cursor-pointer text-center transition border border-main bg-main1 uppercase text-sm
                 hover:opacity-80"
             >
-              CREATE COVER
+              CREATE RANGE POOL
             </button>
           </div>
           <div className="h-[300px] w-[40%] border border-grey p-7 flex flex-col justify-between">
@@ -102,12 +118,11 @@ export default function Cover() {
                 <br />
                 <br />
                 <span className="text-xs">
-                  - If the ETH price <b>increases</b>, the pool <b>sells DAI</b> and
-                  increases the amount of <b>ETH exposure</b>
-                  <br />- If the ETH price <b>decreases</b>, the pool <b>
-                    sells ETH
-                  </b>{" "}
-                  and increases the amount of <b>DAI exposure</b>
+                  - If the ETH price <b>increases</b>, the pool <b>sells DAI</b>{" "}
+                  and increases the amount of <b>ETH exposure</b>
+                  <br />- If the ETH price <b>decreases</b>, the pool{" "}
+                  <b>sells ETH</b> and increases the amount of{" "}
+                  <b>DAI exposure</b>
                 </span>
               </p>
             </div>
@@ -117,7 +132,7 @@ export default function Cover() {
               rel="noreferrer"
               className="text-grey3 underline text-sm flex items-center gap-x-2 font-light"
             >
-              <Info />
+              <InfoIcon />
               Read More
             </a>
           </div>
@@ -154,11 +169,11 @@ export default function Cover() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  Your cover positions will appear here.
+                  Your range positions will appear here.
                 </div>
               ) : (
                 <>
-                  {allCoverPositions.length === 0 ? (
+                  {allRangePositions.length === 0 ? (
                     <div className="text-grey1 text-xs  py-10 text-center">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -172,50 +187,40 @@ export default function Cover() {
                           clipRule="evenodd"
                         />
                       </svg>
-                      Your cover positions will appear here.
+                      Your range positions will appear here.
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      <div className="grid grid-cols-4 text-xs text-grey1/60 w-full mt-5 mb-2">
+                      <div className="grid grid-cols-4 text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
                         <span>Pool Name</span>
                         <span className="text-right">Price Range</span>
-                        <span className="text-right">% Filled</span>
+                        <span className="text-right">Pool balance</span>
                         <span className="text-right mr-4">USD Value</span>
                       </div>
-                      {allCoverPositions.map((allCoverPosition) => {
+                      {allRangePositions.map((allRangePosition) => {
                         if (
-                          allCoverPosition.id != undefined &&
-                          allCoverPosition.userOwnerAddress ===
+                          allRangePosition.id != undefined &&
+                          allRangePosition.userOwnerAddress ===
                             address?.toLowerCase() &&
-                          (allCoverPosition.tokenZero.name.toLowerCase() ===
+                          (allRangePosition.tokenZero.name.toLowerCase() ===
                             searchTerm.toLowerCase() ||
-                            allCoverPosition.tokenOne.name.toLowerCase() ===
+                            allRangePosition.tokenOne.name.toLowerCase() ===
                               searchTerm.toLowerCase() ||
-                            allCoverPosition.tokenZero.symbol.toLowerCase() ===
+                            allRangePosition.tokenZero.symbol.toLowerCase() ===
                               searchTerm.toLowerCase() ||
-                            allCoverPosition.tokenOne.symbol.toLowerCase() ===
+                            allRangePosition.tokenOne.symbol.toLowerCase() ===
                               searchTerm.toLowerCase() ||
-                            allCoverPosition.tokenZero.id.toLowerCase() ===
+                            allRangePosition.tokenZero.id.toLowerCase() ===
                               searchTerm.toLowerCase() ||
-                            allCoverPosition.tokenOne.id.toLowerCase() ===
+                            allRangePosition.tokenOne.id.toLowerCase() ===
                               searchTerm.toLowerCase() ||
                             searchTerm === "")
                         ) {
                           return (
-                            <UserCoverPool
-                              key={allCoverPosition.id + "coverPosition"}
-                              coverPosition={allCoverPosition}
-                              lowerPrice={parseFloat(
-                                TickMath.getPriceStringAtTick(
-                                  allCoverPosition.lowerTick
-                                )
-                              )}
-                              upperPrice={parseFloat(
-                                TickMath.getPriceStringAtTick(
-                                  allCoverPosition.upperTick
-                                )
-                              )}
-                              href={"/pool/view/cover"}
+                            <UserRangePool
+                              key={allRangePosition.id + "rangePosition"}
+                              rangePosition={allRangePosition}
+                              href={"/pool/view/range"}
                             />
                           );
                         }
@@ -224,6 +229,61 @@ export default function Cover() {
                   )}
                 </>
               )}
+            </div>
+          </div>
+          <div className="p-6 bg-black border border-grey/50 rounded-[4px]">
+            <div className="flex justify-between">
+            <div className="text-white flex items-center text-sm gap-x-3">
+              <PoolIcon />
+              <h1>ALL POOLS</h1>
+            </div>
+            <span className="text-grey1 text-xs">Click on a pool to Add Liquidity</span>
+            </div>
+            <div>
+              <div className="space-y-3 w-full">
+                <div className="grid grid-cols-2 w-full text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
+                  <div className="text-left">Pool Name</div>
+                  <div className="grid grid-cols-3">
+                  <span className="text-right">Volume (24h)</span>
+                  <span className="text-right">TVL</span>
+                  <span className="text-right mr-4">Fees (24h)</span>
+                  </div>
+                </div>
+                {allRangePools.map((allRangePool) => {
+                  if (
+                    allRangePool.tokenZero.name.toLowerCase() ===
+                      searchTerm.toLowerCase() ||
+                    allRangePool.tokenOne.name.toLowerCase() ===
+                      searchTerm.toLowerCase() ||
+                    allRangePool.tokenZero.symbol.toLowerCase() ===
+                      searchTerm.toLowerCase() ||
+                    allRangePool.tokenOne.symbol.toLowerCase() ===
+                      searchTerm.toLowerCase() ||
+                    allRangePool.tokenZero.id.toLowerCase() ===
+                      searchTerm.toLowerCase() ||
+                    allRangePool.tokenOne.id.toLowerCase() ===
+                      searchTerm.toLowerCase() ||
+                    searchTerm === ""
+                  )
+                    return (
+                      <RangePool
+                        account={address}
+                        key={allRangePool.poolId}
+                        poolId={allRangePool.poolId}
+                        tokenZero={allRangePool.tokenZero}
+                        tokenOne={allRangePool.tokenOne}
+                        liquidity={allRangePool.liquidity}
+                        auctionLenght={undefined}
+                        feeTier={allRangePool.feeTier}
+                        tickSpacing={allRangePool.tickSpacing}
+                        tvlUsd={allRangePool.tvlUsd}
+                        volumeUsd={allRangePool.volumeUsd}
+                        volumeEth={allRangePool.volumeEth}
+                        href="/pool/concentrated"
+                      />
+                    );
+                })}
+              </div>
             </div>
           </div>
         </div>

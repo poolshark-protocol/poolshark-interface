@@ -43,7 +43,7 @@ export default function Navbar({create, setCreate}: NavOptions) {
                   TRADE
                 </div>
               </Link>
-              <Link href="/pool">
+              <Link href="/range">
                 <div
                   className={
                     router.pathname == '/range'
