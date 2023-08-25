@@ -717,12 +717,7 @@ export const fetchRangePositions = (address: string) => {
     const positionsQuery = `
     {
       rangePositions(where: {owner:"${address}"}) {
-        id
-        owner
-        amount
-        token{
-          totalSupply
-          position{
+         
             lower
             upper
             liquidity
@@ -740,16 +735,10 @@ export const fetchRangePositions = (address: string) => {
                   symbol
                   decimals
               }
-              ticks{
-                  price0
-                  price1
-                  liquidityDelta
-                  liquidityDeltaMinus
-              }
               factory{
                   id
               }
-              price
+              poolPrice
               liquidity
               feeTier{
                   feeAmount
@@ -766,8 +755,6 @@ export const fetchRangePositions = (address: string) => {
               volumeToken1
               volumeUsd
             }
-          }
-        }
       }  
   }
     `;

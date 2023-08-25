@@ -93,9 +93,10 @@ export default function Pool() {
   async function getUserRangePositionData() {
     try {
       const data = await fetchRangePositions(address);
-      if (data["data"])
+      console.log("rangePositions", data);
+      if (data["data"].rangePositions)
         setAllRangePositions(
-          mapUserRangePositions(data["data"].positionFractions)
+          mapUserRangePositions(data["data"].rangePositions)
         );
     } catch (error) {
       console.log(error);
