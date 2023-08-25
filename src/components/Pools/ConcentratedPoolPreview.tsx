@@ -390,12 +390,7 @@ export default function ConcentratedPoolPreview({ fee }) {
                                 : BN_ZERO
                             }
                             disabled={
-                              allowanceInRange.lt(
-                                rangeMintParams.tokenInAmount
-                              ) ||
-                              allowanceOutRange.lt(
-                                rangeMintParams.tokenOutAmount
-                              )
+                             rangeMintParams.disabled
                             }
                             amount0={
                               tokenIn.callId === 0

@@ -3,32 +3,32 @@ import {
   ArrowTopRightOnSquareIcon,
   ArrowsRightLeftIcon,
   ExclamationTriangleIcon,
-} from '@heroicons/react/20/solid'
-import { useState, useEffect } from 'react'
-import RangeCompoundButton from '../../../components/Buttons/RangeCompoundButton'
-import { useAccount } from 'wagmi'
-import { BigNumber, ethers } from 'ethers'
-import { TickMath } from '../../../utils/math/tickMath'
-import JSBI from 'jsbi'
-import { copyElementUseEffect } from '../../../utils/misc'
-import { DyDxMath } from '../../../utils/math/dydxMath'
-import { rangePoolABI } from '../../../abis/evm/rangePool'
-import { useContractRead } from 'wagmi'
-import RemoveLiquidity from '../../../components/Modals/Range/RemoveLiquidity'
-import AddLiquidity from '../../../components/Modals/Range/AddLiquidity'
-import { useRangeStore } from '../../../hooks/useRangeStore'
-import { fetchRangeTokenUSDPrice } from '../../../utils/tokens'
-import { fetchRangePositions } from '../../../utils/queries'
-import { mapUserRangePositions } from '../../../utils/maps'
+} from "@heroicons/react/20/solid";
+import { useState, useEffect } from "react";
+import RangeCompoundButton from "../../../components/Buttons/RangeCompoundButton";
+import { useAccount } from "wagmi";
+import { BigNumber, ethers } from "ethers";
+import { TickMath } from "../../../utils/math/tickMath";
+import JSBI from "jsbi";
+import { copyElementUseEffect } from "../../../utils/misc";
+import { DyDxMath } from "../../../utils/math/dydxMath";
+import { rangePoolABI } from "../../../abis/evm/rangePool";
+import { useContractRead } from "wagmi";
+import RemoveLiquidity from "../../../components/Modals/Range/RemoveLiquidity";
+import AddLiquidity from "../../../components/Modals/Range/AddLiquidity";
+import { useRangeStore } from "../../../hooks/useRangeStore";
+import { fetchRangeTokenUSDPrice } from "../../../utils/tokens";
+import { fetchRangePositions } from "../../../utils/queries";
+import { mapUserRangePositions } from "../../../utils/maps";
 
 export default function Range() {
   const [
     rangePoolAddress,
     rangePoolData,
     rangePositionData,
+    rangeMintParams,
     tokenIn,
     tokenOut,
-
     setTokenInRangeUSDPrice,
     setTokenOutRangeUSDPrice,
     needsRefetch,
@@ -36,13 +36,14 @@ export default function Range() {
     setNeedsRefetch,
     setNeedsPosRefetch,
     setRangePositionData,
+    setMintButtonState,
   ] = useRangeStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
     state.rangePositionData,
+    state.rangeMintParams,
     state.tokenIn,
     state.tokenOut,
-
     state.setTokenInRangeUSDPrice,
     state.setTokenOutRangeUSDPrice,
     state.needsRefetch,
@@ -50,29 +51,29 @@ export default function Range() {
     state.setNeedsRefetch,
     state.setNeedsPosRefetch,
     state.setRangePositionData,
-  ])
+    state.setMintButtonState,
+  ]);
 
   const { address, isConnected } = useAccount();
-
   const [snapshot, setSnapshot] = useState(undefined);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
   const [priceDirection, setPriceDirection] = useState(false);
-  const [allRangePositions, setAllRangePositions] = useState([])
-  const [userLiquidityUsd, setUserLiquidityUsd] = useState(0)
-  const [lowerPrice, setLowerPrice] = useState("")
-  const [upperPrice, setUpperPrice] = useState("")
-  const [amount0, setAmount0] = useState(0)
-  const [amount1, setAmount1] = useState(0)
-  const [amount0Usd, setAmount0Usd] = useState(0)
-  const [amount1Usd, setAmount1Usd] = useState(0)
-  const [amount0Fees, setAmount0Fees] = useState(0.0)
-  const [amount1Fees, setAmount1Fees] = useState(0.0)
-  const [amount0FeesUsd, setAmount0FeesUsd] = useState(0.0)
-  const [amount1FeesUsd, setAmount1FeesUsd] = useState(0.0)
-  const [is0Copied, setIs0Copied] = useState(false)
-  const [is1Copied, setIs1Copied] = useState(false)
-  const [isPoolCopied, setIsPoolCopied] = useState(false)
+  const [allRangePositions, setAllRangePositions] = useState([]);
+  const [userLiquidityUsd, setUserLiquidityUsd] = useState(0);
+  const [lowerPrice, setLowerPrice] = useState("");
+  const [upperPrice, setUpperPrice] = useState("");
+  const [amount0, setAmount0] = useState(0);
+  const [amount1, setAmount1] = useState(0);
+  const [amount0Usd, setAmount0Usd] = useState(0);
+  const [amount1Usd, setAmount1Usd] = useState(0);
+  const [amount0Fees, setAmount0Fees] = useState(0.0);
+  const [amount1Fees, setAmount1Fees] = useState(0.0);
+  const [amount0FeesUsd, setAmount0FeesUsd] = useState(0.0);
+  const [amount1FeesUsd, setAmount1FeesUsd] = useState(0.0);
+  const [is0Copied, setIs0Copied] = useState(false);
+  const [is1Copied, setIs1Copied] = useState(false);
+  const [isPoolCopied, setIsPoolCopied] = useState(false);
   const [lowerInverse, setLowerInverse] = useState(0);
   const [upperInverse, setUpperInverse] = useState(0);
   const [priceInverse, setPriceInverse] = useState(0);
@@ -236,8 +237,12 @@ export default function Range() {
         // set amount based on bnInput
         const amount0Bn = BigNumber.from(String(amounts.token0Amount));
         const amount1Bn = BigNumber.from(String(amounts.token1Amount));
-        setAmount0(parseFloat(ethers.utils.formatUnits(amount0Bn, tokenIn.decimals)));
-        setAmount1(parseFloat(ethers.utils.formatUnits(amount1Bn, tokenIn.decimals)));
+        setAmount0(
+          parseFloat(ethers.utils.formatUnits(amount0Bn, tokenIn.decimals))
+        );
+        setAmount1(
+          parseFloat(ethers.utils.formatUnits(amount1Bn, tokenIn.decimals))
+        );
       }
     } catch (error) {
       console.log(error);
@@ -250,34 +255,36 @@ export default function Range() {
 
   async function getUserRangePositionData() {
     try {
-      const data = await fetchRangePositions(address)
-      if (data['data'])
+      const data = await fetchRangePositions(address);
+      if (data["data"])
         setAllRangePositions(
-          mapUserRangePositions(data['data'].positionFractions),
-        )
+          mapUserRangePositions(data["data"].positionFractions)
+        );
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 
   useEffect(() => {
     setTimeout(() => {
       if (needsRefetch == true || needsPosRefetch == true) {
-        getUserRangePositionData()
-        
-        const positionId = rangePositionData.id
-        const position = allRangePositions.find((position) => position.id == positionId)
-        console.log('new position', position)
+        getUserRangePositionData();
 
-      if(position != undefined) {
-        setRangePositionData(position)
-      }
+        const positionId = rangePositionData.id;
+        const position = allRangePositions.find(
+          (position) => position.id == positionId
+        );
+        console.log("new position", position);
 
-        setNeedsRefetch(false)
-        setNeedsPosRefetch(false)
+        if (position != undefined) {
+          setRangePositionData(position);
+        }
+
+        setNeedsRefetch(false);
+        setNeedsPosRefetch(false);
       }
-    }, 5000)
-  }, [needsRefetch, needsPosRefetch])
+    }, 5000);
+  }, [needsRefetch, needsPosRefetch]);
 
   ////////////////////////Fees
 
@@ -312,9 +319,16 @@ export default function Range() {
     try {
       if (snapshot) {
         console.log("snapshot", snapshot.toString());
-        const fees0 = parseFloat(ethers.utils.formatUnits(snapshot[2], tokenIn.decimals));
-        const fees1 = parseFloat(ethers.utils.formatUnits(snapshot[3], tokenIn.decimals));
-        console.log("fees owed 1", ethers.utils.formatUnits(snapshot[3], tokenIn.decimals));
+        const fees0 = parseFloat(
+          ethers.utils.formatUnits(snapshot[2], tokenIn.decimals)
+        );
+        const fees1 = parseFloat(
+          ethers.utils.formatUnits(snapshot[3], tokenIn.decimals)
+        );
+        console.log(
+          "fees owed 1",
+          ethers.utils.formatUnits(snapshot[3], tokenIn.decimals)
+        );
         setAmount0Fees(fees0);
         setAmount1Fees(fees1);
       }
@@ -322,6 +336,14 @@ export default function Range() {
       console.log(error);
     }
   }
+
+  ////////////////////////////////Mint Button Handler
+
+  useEffect(() => {
+    setMintButtonState();
+  }, [tokenIn, rangeMintParams.tokenInAmount]);
+
+  ////////////////////////////////
 
   return (
     <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi ">
