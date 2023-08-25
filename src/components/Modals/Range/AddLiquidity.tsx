@@ -311,78 +311,82 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-xl bg-black text-white border border-grey2 text-left align-middle shadow-xl px-5 py-5 transition-all">
+              <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-[4px] bg-black text-white border border-grey text-left align-middle shadow-xl px-5 py-5 transition-all">
                 <div className="flex items-center justify-between px-2 mb-5">
-                  <h1 className="text-lg">Add Liquidity</h1>
+                  <h1 className="">Add Liquidity</h1>
                   <XMarkIcon
                     onClick={() => setIsOpen(false)}
                     className="w-7 cursor-pointer"
                   />
                 </div>
                 <div className="flex flex-col gap-y-3 mb-5">
-                  <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-                    <div className=" p-2 w-32">
-                      <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-1 rounded-xl">
-                        {inputBox("0")}
-                      </div>
-                      <div className="flex">
-                        <div className="flex text-xs text-[#4C4C4C]">
-                          $
-                          {tokenOrder
-                            ? Number(
-                                tokenOut.rangeUSDPrice *
-                                  parseFloat(
-                                    ethers.utils.formatUnits(
-                                      amount1,
-                                      tokenIn.decimals
-                                    )
+                  <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
+                    <div className="flex items-end justify-between text-[11px] text-grey1">
+                      <span>
+                        ~$
+                        {tokenOrder
+                          ? Number(
+                              tokenOut.rangeUSDPrice *
+                                parseFloat(
+                                  ethers.utils.formatUnits(
+                                    amount1,
+                                    tokenIn.decimals
                                   )
-                              ).toFixed(2)
-                            : Number(
-                                tokenIn.rangeUSDPrice *
-                                  parseFloat(
-                                    ethers.utils.formatUnits(
-                                      amount0,
-                                      tokenIn.decimals
-                                    )
+                                )
+                            ).toFixed(2)
+                          : Number(
+                              tokenIn.rangeUSDPrice *
+                                parseFloat(
+                                  ethers.utils.formatUnits(
+                                    amount0,
+                                    tokenIn.decimals
                                   )
-                              ).toFixed(2)}
-                        </div>
-                      </div>
+                                )
+                            ).toFixed(2)}
+                      </span>
+                      <span>
+                        BALANCE: {tokenIn.userBalance ? 0 : tokenIn.userBalance}
+                      </span>
                     </div>
-                    <div className="">
-                      <div className=" ml-auto">
-                        <div>
-                          <div className="flex justify-end">
-                            <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl">
-                              <img className="w-7" src={tokenIn.logoURI} />
-                              {tokenIn.symbol}
-                            </button>
-                          </div>
-                          <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                            <div
-                              className="flex whitespace-nowrap md:text-xs text-[10px] whitespace-nowrap text-[#4C4C4C]"
-                              key={tokenIn.userBalance}
-                            >
-                              Balance:{" "}
-                              {tokenIn.userBalance ? 0 : tokenIn.userBalance}
-                            </div>
-                            <button
-                              className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
-                              onClick={() =>
-                                maxBalance(tokenIn.userBalance, "0")
-                              }
-                            >
-                              Max
-                            </button>
-                          </div>
+                    <div className="flex items-end justify-between mt-2 mb-3">
+                      {inputBox("0")}
+                      <div className="flex items-center gap-x-2">
+                        {isConnected && stateChainName === "arbitrumGoerli" ? (
+                          <button
+                            onClick={() => maxBalance(tokenIn.userBalance, "0")}
+                            className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
+                          >
+                            MAX
+                          </button>
+                        ) : null}
+                        <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
+                          <img height="28" width="25" src={tokenIn.logoURI} />
+                          {tokenIn.symbol}
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-                    <div className=" p-2 ">
-                      <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
+                  <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2 flex flex-col gap-y-2">
+                    <div className="flex items-end justify-between text-[11px] text-grey1">
+                      <span>
+                        ~$
+                        {(
+                          Number(tokenOut.rangeUSDPrice) *
+                          Number(
+                            ethers.utils.formatUnits(
+                              rangeMintParams.tokenOutAmount,
+                              18
+                            )
+                          )
+                        ).toFixed(2)}
+                      </span>
+                      <span>
+                        BALANCE:{" "}
+                        {tokenOut.userBalance ? 0 : tokenOut.userBalance}
+                      </span>
+                    </div>
+                    <div className="flex items-end justify-between mt-2 mb-3">
+                      <span className="text-3xl">
                         {Number(rangeMintParams.tokenOutAmount) != 0
                           ? Number(
                               ethers.utils.formatUnits(
@@ -391,48 +395,17 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                               )
                             ).toPrecision(5)
                           : 0}
-                      </div>
-                      <div className="flex">
-                        <div className="flex text-xs text-[#4C4C4C]">
-                          $
-                          {(
-                            Number(tokenOut.rangeUSDPrice) *
-                            Number(
-                              ethers.utils.formatUnits(
-                                rangeMintParams.tokenOutAmount,
-                                18
-                              )
-                            )
-                          ).toFixed(2)}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="">
-                      <div className=" ml-auto">
-                        <div>
-                          <div className="flex justify-end">
-                            <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
-                              <div className="flex items-center gap-x-2 w-full">
-                                <img className="w-7" src={tokenOut.logoURI} />
-                                {tokenOut.symbol}
-                              </div>
-                            </button>
-                          </div>
-                          <div className="flex whitespace-nowrap items-center justify-end gap-x-2 px-1 mt-2">
-                            <div
-                              className="flex md:text-xs text-[10px] text-[#4C4C4C]"
-                              key={tokenOut.userBalance}
-                            >
-                              Balance:{" "}
-                              {tokenOut.userBalance ? 0 : tokenOut.userBalance}
-                            </div>
-                          </div>
+                      </span>
+                      <div className="flex items-center gap-x-2">
+                        <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
+                          <img height="28" width="25" src={tokenOut.logoURI} />
+                          {tokenOut.symbol}
                         </div>
                       </div>
                     </div>
                   </div>
                   {disabled === true ? (
-                    <button className="opacity-50 w-full cursor-not-allowed py-4 mx-auto  text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF]">
+                    <button disabled={disabled} className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80">
                       {buttonState === "amount" ? <>Input Amount</> : <></>}
                       {buttonState === "balance0" ? (
                         <>Insufficient {tokenIn.symbol} Balance</>

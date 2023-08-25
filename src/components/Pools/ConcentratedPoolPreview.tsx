@@ -456,7 +456,7 @@ export default function ConcentratedPoolPreview({ fee }) {
       <button
         onClick={() => setIsOpen(true)}
         //disabled={rangeMintParams.disabled}
-        className={`mt-8 w-full py-4 mx-auto  text-center transition rounded-xl bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed`}
+        className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
       >
         <>Preview</>
       </button>

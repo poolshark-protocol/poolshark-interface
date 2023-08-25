@@ -46,7 +46,7 @@ export default function Navbar({create, setCreate}: NavOptions) {
               <Link href="/range">
                 <div
                   className={
-                    router.pathname == '/range'
+                    router.pathname.includes('/range')
                       ? 'bg-main1 border border-main text-main2 transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-1.5 text-[13px]'
                       : 'text-grey1 border border-transparent transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-1.5 text-[13px]'
                   }
@@ -60,7 +60,7 @@ export default function Navbar({create, setCreate}: NavOptions) {
               >
                 <div
                   className={
-                    router.pathname == '/cover'
+                    router.pathname.includes('/cover')
                       ? 'bg-main1 border border-main text-main2 transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]'
                       : 'text-grey1 border border-transparent transition-all py-1.5 px-5 text-sm flex items-center cursor-pointer gap-x-2 text-[13px]'
                   }

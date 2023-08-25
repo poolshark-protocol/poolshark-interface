@@ -11,6 +11,20 @@ import SearchIcon from "../../components/Icons/SearchIcon";
 import UserIcon from "../../components/Icons/UserIcon";
 import UserCoverPool from "../../components/Cover/UserCoverPool";
 import Link from "next/link";
+import PoolIcon from "../../components/Icons/PoolIcon";
+import CoverPool from "../../components/Cover/CoverPool";
+import {
+  fetchRangePools,
+  fetchRangePositions,
+  fetchCoverPools,
+} from '../../utils/queries'
+import {
+  mapCoverPools,
+  mapRangePools,
+  mapUserRangePositions,
+} from '../../utils/maps'
+//import UserLimitPool from '../../components/Pools/UserLimitPool'
+import { useRangeStore } from '../../hooks/useRangeStore'
 
 export default function Cover() {
   const [needsRefetch, setNeedsRefetch] = useCoverStore((state) => [
@@ -29,12 +43,17 @@ export default function Cover() {
   const [searchTerm, setSearchTerm] = useState("");
   const [allCoverPositions, setAllCoverPositions] = useState([]);
   const [create, setCreate] = useState(true);
+  const [allCoverPools, setAllCoverPools] = useState([])
 
   useEffect(() => {
     if (address) {
       getUserCoverPositionData();
     }
   }, [address]);
+
+  useEffect(() => {
+    getCoverPoolData()
+  }, [])
 
   useEffect(() => {
     console.log("refetching");
@@ -72,10 +91,19 @@ export default function Cover() {
     setSelectedPool(undefined);
   };
 
+  async function getCoverPoolData() {
+    const data = await fetchCoverPools()
+    if (data['data']) {
+      const pools = data['data'].coverPools
+      setAllCoverPools(mapCoverPools(pools))
+    }
+  }
+
+
   return (
     <div className="min-h-screen bg-black">
       <Navbar create={create} setCreate={setCreate} />
-      <div className="container mx-auto mt-8">
+      <div className="container mx-auto my-8">
         <div className="flex gap-x-8 justify-between">
           <div className="p-7 h-[300px] w-[60%] flex flex-col justify-between bg-[url('/static/images/bg/shark.png')]">
             <div className="flex flex-col gap-y-3 ">
@@ -91,7 +119,7 @@ export default function Cover() {
               
             >
               <button className="px-12 py-3 text-white w-min whitespace-nowrap cursor-pointer text-center transition border border-main bg-main1 uppercase text-sm
-                hover:opacity-80">CREATE COVER</button>
+                hover:opacity-80">CREATE COVER POOL</button>
               
             </Link>
           </div>
@@ -227,6 +255,61 @@ export default function Cover() {
                   )}
                 </>
               )}
+            </div>
+          </div>
+          <div className="p-6 bg-black border border-grey/50 rounded-[4px]">
+            <div className="flex justify-between">
+            <div className="text-white flex items-center text-sm gap-x-3">
+              <PoolIcon />
+              <h1>ALL POOLS</h1>
+            </div>
+            <span className="text-grey1 text-xs">Click on a pool to Add Liquidity</span>
+            </div>
+            <div>
+              <div className="space-y-3 w-full">
+                <div className="grid grid-cols-2 w-full text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
+                  <div className="text-left">Pool Name</div>
+                  <div className="grid grid-cols-3">
+                  <span className="text-right">Volume (24h)</span>
+                  <span className="text-right">TVL</span>
+                  <span className="text-right mr-4">Fees (24h)</span>
+                  </div>
+                </div>
+                {allCoverPools.map((allRangePool) => {
+                  if (
+                    allRangePool.tokenZero.name.toLowerCase() ===
+                      searchTerm.toLowerCase() ||
+                    allRangePool.tokenOne.name.toLowerCase() ===
+                      searchTerm.toLowerCase() ||
+                    allRangePool.tokenZero.symbol.toLowerCase() ===
+                      searchTerm.toLowerCase() ||
+                    allRangePool.tokenOne.symbol.toLowerCase() ===
+                      searchTerm.toLowerCase() ||
+                    allRangePool.tokenZero.id.toLowerCase() ===
+                      searchTerm.toLowerCase() ||
+                    allRangePool.tokenOne.id.toLowerCase() ===
+                      searchTerm.toLowerCase() ||
+                    searchTerm === ""
+                  )
+                    return (
+                      <CoverPool
+                        account={address}
+                        key={allRangePool.poolId}
+                        poolId={allRangePool.poolId}
+                        tokenZero={allRangePool.tokenZero}
+                        tokenOne={allRangePool.tokenOne}
+                        liquidity={allRangePool.liquidity}
+                        auctionLenght={undefined}
+                        feeTier={allRangePool.feeTier}
+                        tickSpacing={allRangePool.tickSpacing}
+                        tvlUsd={allRangePool.tvlUsd}
+                        volumeUsd={allRangePool.volumeUsd}
+                        volumeEth={allRangePool.volumeEth}
+                        href="/cover/create"
+                      />
+                    );
+                })}
+              </div>
             </div>
           </div>
         </div>

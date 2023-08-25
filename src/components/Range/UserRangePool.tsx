@@ -124,7 +124,7 @@ export default function UserRangePool({ rangePosition, href }) {
             pathname: href,
           }}
         >
-          <div className="grid grid-cols-4 items-center bg-black px-4 py-3 rounded-[4px] border-grey border">
+          <div className="grid grid-cols-4 items-center bg-black px-4 py-3 rounded-[4px] border-grey border hover:bg-main1/20 cursor-pointer">
             <div className="flex items-center gap-x-6">
               <div className="flex items-center">
                 <img

@@ -89,7 +89,7 @@ export default function Range() {
   return (
     <div className="min-h-screen bg-black">
       <Navbar />
-      <div className="container mx-auto mt-8">
+      <div className="container mx-auto my-8">
         <div className="flex gap-x-8 justify-between">
           <div className="p-7 h-[300px] w-[60%] flex flex-col justify-between bg-[url('/static/images/bg/shark1.png')]">
             <div className="flex flex-col gap-y-3 ">
@@ -101,33 +101,27 @@ export default function Range() {
                 purus, habitant mattis cum eros senectus fusce suscipit tempor
               </p>
             </div>
+            {/*
             <button
               className="px-12 py-3 text-white w-min whitespace-nowrap cursor-pointer text-center transition border border-main bg-main1 uppercase text-sm
                 hover:opacity-80"
             >
               CREATE RANGE POOL
             </button>
+  */}
           </div>
           <div className="h-[300px] w-[40%] border border-grey p-7 flex flex-col justify-between">
             <div className="flex flex-col gap-y-3 ">
               <h1 className="uppercase text-white">How it works</h1>
               <p className="text-sm text-grey3 font-light">
-                Cover Pools allow you to create positions to increase exposure
-                to a specific token conditional on it increasing in price on a
-                given pair.
-                <br />
-                <br />
-                <span className="text-xs">
-                  - If the ETH price <b>increases</b>, the pool <b>sells DAI</b>{" "}
-                  and increases the amount of <b>ETH exposure</b>
-                  <br />- If the ETH price <b>decreases</b>, the pool{" "}
-                  <b>sells ETH</b> and increases the amount of{" "}
-                  <b>DAI exposure</b>
-                </span>
+              Range Pools are similar to what users have come to expect from AMMs while bounding liquidity between a price range.
+              <br/>
+              <br/>
+              <span className="text-xs">LPs can provide their liquidity to a specific price range, resulting in a higher concentration of liquidity and less slippage for swappers in comparison to AMM without price bounds. This is due to being able to have more liquidity within a specific range by not providing to the Full Range of a constant product curve.</span>
               </p>
             </div>
             <a
-              href="https://docs.poolsharks.io/overview/cover-pools/"
+              href="https://docs.poolsharks.io/overview/range-pools/"
               target="_blank"
               rel="noreferrer"
               className="text-grey3 underline text-sm flex items-center gap-x-2 font-light"
@@ -279,7 +273,7 @@ export default function Range() {
                         tvlUsd={allRangePool.tvlUsd}
                         volumeUsd={allRangePool.volumeUsd}
                         volumeEth={allRangePool.volumeEth}
-                        href="/pool/concentrated"
+                        href="/range/add-liquidity"
                       />
                     );
                 })}

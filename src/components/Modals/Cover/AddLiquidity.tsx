@@ -185,7 +185,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-xl bg-black text-white border border-grey2 text-left align-middle shadow-xl px-5 py-5 transition-all">
+               <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-[4px] bg-black text-white border border-grey text-left align-middle shadow-xl px-5 py-5 transition-all">
                 <div className="flex items-center justify-between px-2">
                   <h1 className="text-lg">Add Liquidity</h1>
                   <XMarkIcon
