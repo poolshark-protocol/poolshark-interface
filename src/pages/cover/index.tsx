@@ -10,6 +10,7 @@ import Info from "../../components/Icons/InfoIcon";
 import SearchIcon from "../../components/Icons/SearchIcon";
 import UserIcon from "../../components/Icons/UserIcon";
 import UserCoverPool from "../../components/Cover/UserCoverPool";
+import Link from "next/link";
 
 export default function Cover() {
   const [needsRefetch, setNeedsRefetch] = useCoverStore((state) => [
@@ -85,12 +86,14 @@ export default function Cover() {
                 Creave a Cover Pool to mitigate your impermanent loss, take a bullish entry or reduce risk and losses. Its easy and only takes a few minutes
               </p>
             </div>
-            <button
-              className="px-12 py-3 text-white w-min whitespace-nowrap cursor-pointer text-center transition border border-main bg-main1 uppercase text-sm
-                hover:opacity-80"
+            <Link
+            href="/cover/create"
+              
             >
-              CREATE COVER
-            </button>
+              <button className="px-12 py-3 text-white w-min whitespace-nowrap cursor-pointer text-center transition border border-main bg-main1 uppercase text-sm
+                hover:opacity-80">CREATE COVER</button>
+              
+            </Link>
           </div>
           <div className="h-[300px] w-[40%] border border-grey p-7 flex flex-col justify-between">
             <div className="flex flex-col gap-y-3 ">

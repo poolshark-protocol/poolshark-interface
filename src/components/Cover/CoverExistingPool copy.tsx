@@ -503,23 +503,32 @@ export default function CoverExistingPool({ goBack }) {
   };
 
   return (
-    <div className="flex flex-col space-y-8">
-      <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
-        <h1 className="mb-4">SELECTED TOKENS</h1>
+    <>
+      <div className="mb-6">
+        <div className="flex flex-row justify-between">
+          <h1 className="mb-3 md:text-base text-sm">Selected Pool</h1>
+          <span
+            className="flex gap-x-1 cursor-pointer"
+            onClick={() => goBack("initial")}
+          >
+            <ArrowLongLeftIcon className="w-4 opacity-50 mb-3 " />
+            <h1 className="mb-3 opacity-50 md:text-base text-sm">Back</h1>
+          </span>
+        </div>
         <div className="flex justify-between md:justify-start gap-x-4 items-center">
-          <button className="flex w-full items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
+          <button className="flex items-center gap-x-3 bg-black border border-grey1 md:px-4 px-2 py-1.5 rounded-xl">
             <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
               <img className="md:w-7 w-6" src={tokenIn.logoURI} />
               {tokenIn.symbol}
             </div>
           </button>
           <ArrowLongRightIcon
-            className="w-14 cursor-pointer"
+            className="md:w-6 w-5 cursor-pointer"
             onClick={() => {
               switchDirection();
             }}
           />
-          <button className="flex w-full items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
+          <button className="flex items-center gap-x-3 bg-black border border-grey1 md:px-4 px-2 py-1.5 rounded-xl">
             <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
               <img className="md:w-7 w-6" src={tokenOut.logoURI} />
               {tokenOut.symbol}
@@ -527,24 +536,26 @@ export default function CoverExistingPool({ goBack }) {
           </button>
         </div>
       </div>
-      <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
-        <h1 className="mb-4">SELECT AMOUNT</h1>
-        <div className="w-full flex items-center justify-between text-xs text-[#646464]">
-          <div>0</div>
-          <div>Full</div>
-        </div>
-        <div className="w-full flex items-center mt-2">
-          <input
-            autoComplete="off"
-            type="range"
-            min="0"
-            max="100"
-            value={sliderValue}
-            onChange={handleChange}
-            className="w-full styled-slider slider-progress bg-transparent"
-          />
-        </div>
-        <div className="flex justify-between items-center text-sm mt-3">
+      <h1 className="mb-3 md:text-base text-sm">
+        How much do you want to Cover?
+      </h1>
+      <div className="w-full flex items-center justify-between text-xs text-[#646464]">
+        <div>0</div>
+        <div>Full</div>
+      </div>
+      <div className="w-full flex items-center mt-2">
+        <input
+          autoComplete="off"
+          type="range"
+          min="0"
+          max="100"
+          value={sliderValue}
+          onChange={handleChange}
+          className="w-full styled-slider slider-progress bg-transparent"
+        />
+      </div>
+      <div className="mt-3 ">
+        <div className="flex justify-between items-center text-sm">
           <div className="text-[#646464] md:text-sm text-xs">
             Percentage Covered
           </div>
@@ -562,24 +573,10 @@ export default function CoverExistingPool({ goBack }) {
             <div className="mt-1">%</div>
           </div>
         </div>
-        <div className="flex justify-between items-center text-sm mt-4">
-          <div className="text-[#646464] md:text-sm text-xs">
-            Amount to sell
-          </div>
-          <div className="gap-x-2 flex items-center justify-end">
-            <span className="text-lg">
-              {Number(
-                ethers.utils.formatUnits(
-                  coverMintParams.tokenInAmount.toString(),
-                  18
-                )
-              ).toPrecision(5)}
-            </span>
-            <span className="mt-1">{tokenIn.symbol}</span>
-          </div>
-        </div>
         <div className="flex items-center justify-between text-sm">
-          <div className="text-[#646464] md:text-sm text-xs">Amount to buy</div>
+          <div className="text-[#646464] md:text-sm text-xs">
+            Amount Covered
+          </div>
           <div className="flex items-center justify-end gap-x-2">
             <div className="bg-black text-right w-32 py-1 placeholder:text-grey1 text-white text-lg">
               {Number.parseFloat(
@@ -593,118 +590,161 @@ export default function CoverExistingPool({ goBack }) {
             <div className="">{tokenOut.symbol}</div>
           </div>
         </div>
-      </div>
-      <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
-        <h1 className="mb-4">CHOOSE A VOLATILITY TIER</h1>
-        <div className="flex justify-between mt-8 gap-x-16">
-          {volatilityTiers.map((volatilityTier, volatilityTierIdx) => (
-            <div
-              onClick={() => setSelectedVolatility(volatilityTier)}
-              key={volatilityTierIdx}
-              className={`bg-black p-4 w-full rounded-[4px] cursor-pointer transition-all ${
-                selectedVolatility === volatilityTier
-                  ? "border-grey1 border bg-grey/20"
-                  : "border border-grey"
-              }`}
-            >
-              <h1>{volatilityTier.tier} FEE</h1>
-              <h2 className="text-[11px] uppercase text-grey1 mt-2">
-                {volatilityTier.text}
-              </h2>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
-        <h1 className="mb-4">SET A PRICE RANGE</h1>
-        <div className="flex flex-col gap-y-4">
-          <div className="flex items-center gap-x-5 mt-3">
-            <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
-              <span className="text-grey1 text-xs">MIN. PRICE</span>
-              <span className="text-white text-3xl">
-                <input
-                  autoComplete="off"
-                  className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
-                  placeholder="0"
-                  id="minInput"
-                  type="text"
-                  value={lowerPrice}
-                  onChange={() =>
-                    setLowerPrice(
-                      inputFilter(
-                        (
-                          document.getElementById(
-                            "minInput"
-                          ) as HTMLInputElement
-                        )?.value
-                      )
-                    )
-                  }
-                />
-              </span>
-            </div>
-            <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
-              <span className="text-grey1 text-xs">MAX. PRICE</span>
-              <span className="text-white text-3xl">
-                <input
-                  autoComplete="off"
-                  className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
-                  placeholder="0"
-                  id="maxInput"
-                  type="text"
-                  value={upperPrice}
-                  onChange={() =>
-                    setUpperPrice(
-                      inputFilter(
-                        (
-                          document.getElementById(
-                            "maxInput"
-                          ) as HTMLInputElement
-                        )?.value
-                      )
-                    )
-                  }
-                />
-              </span>
-            </div>
-          </div>
-          <div className="py-2">
-            <div
-              className="flex px-2 cursor-pointer"
-              onClick={() => setExpanded(!expanded)}
-            >
-              <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                {1} {tokenIn.symbol} ={" "}
-                {!tokenIn.coverUSDPrice
-                  ? "?" + " " + tokenOut.symbol
-                  : (tokenOrder
-                      ? TickMath.getPriceStringAtTick(
-                          parseInt(coverPoolData.latestTick),
-                          parseInt(coverPoolData.volatilityTier.tickSpread)
-                        )
-                      : invertPrice(
-                          TickMath.getPriceStringAtTick(
-                            parseInt(coverPoolData.latestTick),
-                            parseInt(coverPoolData.volatilityTier.tickSpread)
-                          ),
-                          false
-                        )) +
-                    " " +
-                    tokenOut.symbol}
-              </div>
-              <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
-                <button>
-                  <ChevronDownIcon className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-            <div className="flex-wrap w-full break-normal transition ">
-              <Option />
-            </div>
+        <div className="flex justify-between items-center text-sm">
+          <div className="text-[#646464] md:text-sm text-xs">Amount to pay</div>
+          <div className="gap-x-2 flex items-center justify-end">
+            <span className="text-lg">
+              {Number(
+                ethers.utils.formatUnits(
+                  coverMintParams.tokenInAmount.toString(),
+                  18
+                )
+              ).toPrecision(5)}
+            </span>
+            <span className="mt-1">{tokenIn.symbol}</span>
           </div>
         </div>
       </div>
-      {allowanceInCover ? (
+      <div>
+        <div className="gap-x-4 mt-5 md:text-base text-sm">
+          <h1>Volatility tier</h1>
+        </div>
+        <div className="mt-3">
+          <SelectVolatility />
+        </div>
+      </div>
+      <div className="flex items-center w-full mb-3 mt-4 gap-x-2 relative">
+        <h1 className="md:text-base text-sm">Set Price Range</h1>
+        <InformationCircleIcon
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+          className="w-5 h-5 mt-[1px] text-grey cursor-pointer"
+        />
+        <div
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+          className="absolute mt-32 pt-8"
+        >
+          {showTooltip ? <TickSpacing /> : null}
+        </div>
+      </div>
+      <div className="flex justify-between w-full gap-x-6">
+        <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
+          <span className="md:text-xs text-[10px] text-grey">Min. Price</span>
+          <div className="flex justify-center items-center">
+            <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
+              <button onClick={() => changePrice("minus", "minInput")}>
+                <MinusIcon className="w-5 h-5 ml-[2.5px]" />
+              </button>
+            </div>
+            <input
+              autoComplete="off"
+              className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
+              placeholder="0"
+              id="minInput"
+              type="text"
+              value={lowerPrice}
+              onChange={() =>
+                setLowerPrice(
+                  inputFilter(
+                    (document.getElementById("minInput") as HTMLInputElement)
+                      ?.value
+                  )
+                )
+              }
+            />
+            <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
+              <button onClick={() => changePrice("plus", "minInput")}>
+                <PlusIcon className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+          <span className="text-xs text-grey">
+            {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per{" "}
+            {tokenOut.symbol === "SELECT TOKEN"
+              ? "?"
+              : tokenOrder
+              ? tokenIn.symbol
+              : tokenOut.symbol}
+          </span>
+        </div>
+        <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
+          <span className="md:text-xs text-[10px] text-grey">Max. Price</span>
+          <div className="flex justify-center items-center">
+            <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
+              <button onClick={() => changePrice("minus", "maxInput")}>
+                <MinusIcon className="w-5 h-5 ml-[2.5px]" />
+              </button>
+            </div>
+            <input
+              autoComplete="off"
+              className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
+              placeholder="0"
+              id="maxInput"
+              type="text"
+              value={upperPrice}
+              onChange={() =>
+                setUpperPrice(
+                  inputFilter(
+                    (document.getElementById("maxInput") as HTMLInputElement)
+                      ?.value
+                  )
+                )
+              }
+            />
+            <div className="border border-grey1 text-grey flex items-center h-7 w-7 justify-center rounded-lg text-white cursor-pointer hover:border-gray-600">
+              <button onClick={() => changePrice("plus", "maxInput")}>
+                <PlusIcon className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+          <span className="text-xs text-grey">
+            {tokenOrder ? tokenOut.symbol : tokenIn.symbol} per{" "}
+            {tokenOut.symbol === "SELECT TOKEN"
+              ? "?"
+              : tokenOrder
+              ? tokenIn.symbol
+              : tokenOut.symbol}
+          </span>
+        </div>
+      </div>
+      <div className="py-4">
+        <div
+          className="flex px-2 cursor-pointer"
+          onClick={() => setExpanded(!expanded)}
+        >
+          <div className="flex-none text-xs uppercase text-[#C9C9C9]">
+            {1} {tokenIn.symbol} ={" "}
+            {!tokenIn.coverUSDPrice
+              ? "?" + " " + tokenOut.symbol
+              : (tokenOrder
+                  ? TickMath.getPriceStringAtTick(
+                      parseInt(coverPoolData.latestTick),
+                      parseInt(coverPoolData.volatilityTier.tickSpread)
+                    )
+                  : invertPrice(
+                      TickMath.getPriceStringAtTick(
+                        parseInt(coverPoolData.latestTick),
+                        parseInt(coverPoolData.volatilityTier.tickSpread)
+                      ),
+                      false
+                    )) +
+                " " +
+                tokenOut.symbol}
+          </div>
+          <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
+            <button>
+              <ChevronDownIcon className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+        <div className="flex-wrap w-full break-normal transition ">
+          <Option />
+        </div>
+      </div>
+      <div className="space-y-3">
+        {isDisconnected ? <ConnectWalletButton /> : null}
+        {allowanceInCover ? (
           allowanceInCover.lt(
             BigNumber.from(coverMintParams.tokenInAmount.toString())
           ) ? (
@@ -753,6 +793,7 @@ export default function CoverExistingPool({ goBack }) {
         ) : (
           <></>
         )}
-    </div>
+      </div>
+    </>
   );
 }

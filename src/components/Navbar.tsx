@@ -56,12 +56,7 @@ export default function Navbar({create, setCreate}: NavOptions) {
                 </div>
               </Link>
               <Link
-                href={{
-                  pathname: '/cover',
-                  query: {
-                    state: 'nav',
-                  },
-                }}
+                href="/cover"
               >
                 <div
                   className={
