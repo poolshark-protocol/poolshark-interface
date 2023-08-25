@@ -286,6 +286,12 @@ export default function ConcentratedPool({}) {
     }
   };
 
+  ////////////////////////////////Mint Button Handler
+
+  useEffect(() => {
+    setMintButtonState();
+  }, [tokenIn, rangeMintParams.tokenInAmount]);
+
   ////////////////////////////////
 
   //select fee html
