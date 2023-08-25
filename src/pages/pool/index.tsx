@@ -1,144 +1,139 @@
-import Navbar from '../../components/Navbar'
+import Navbar from "../../components/Navbar";
 import {
   MagnifyingGlassIcon,
   ChevronDownIcon,
   InformationCircleIcon,
-} from '@heroicons/react/24/outline'
-import UserPool from '../../components/Pools/UserPool'
-import UserCoverPool from '../../components/Pools/UserCoverPool'
-import PoolList from '../../components/Pools/PoolList'
-import Link from 'next/link'
-import { Listbox, Transition } from '@headlessui/react'
+} from "@heroicons/react/24/outline";
+import UserPool from "../../components/Pools/UserPool";
+import UserCoverPool from "../../components/Pools/UserCoverPool";
+import PoolList from "../../components/Pools/PoolList";
+import Link from "next/link";
+import { Listbox, Transition } from "@headlessui/react";
 import {
   fetchRangePools,
   fetchRangePositions,
   fetchCoverPools,
   fetchCoverPositions,
-} from '../../utils/queries'
-import { Fragment, useState, useEffect } from 'react'
-import { useAccount } from 'wagmi'
+} from "../../utils/queries";
+import { Fragment, useState, useEffect } from "react";
+import { useAccount } from "wagmi";
 import {
   mapCoverPools,
   mapRangePools,
   mapUserCoverPositions,
   mapUserRangePositions,
-} from '../../utils/maps'
-import { TickMath } from '../../utils/math/tickMath'
-import UserLimitPool from '../../components/Pools/UserLimitPool'
-import { useRangeStore } from '../../hooks/useRangeStore'
-import { useCoverStore } from '../../hooks/useCoverStore'
+} from "../../utils/maps";
+import { TickMath } from "../../utils/math/tickMath";
+import UserLimitPool from "../../components/Pools/UserLimitPool";
+import { useRangeStore } from "../../hooks/useRangeStore";
+import { useCoverStore } from "../../hooks/useCoverStore";
 
 export default function Pool() {
   const poolTypes = [
-    { id: 1, type: 'Range Pools', unavailable: false },
-    { id: 2, type: 'Cover Pools', unavailable: false },
-    { id: 3, type: 'Limit Pools', unavailable: false },
-  ]
-  const { address, isDisconnected } = useAccount()
+    { id: 1, type: "Range Pools", unavailable: false },
+    { id: 2, type: "Cover Pools", unavailable: false },
+    { id: 3, type: "Limit Pools", unavailable: false },
+  ];
+  const { address, isDisconnected } = useAccount();
 
-  const [selected, setSelected] = useState(poolTypes[0])
-  const [searchTerm, setSearchTerm] = useState('')
-  const [allRangePositions, setAllRangePositions] = useState([])
-  const [allCoverPositions, setAllCoverPositions] = useState([])
-  const [allRangePools, setAllRangePools] = useState([])
-  const [allCoverPools, setAllCoverPools] = useState([])
+  const [selected, setSelected] = useState(poolTypes[0]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [allRangePositions, setAllRangePositions] = useState([]);
+  const [allCoverPositions, setAllCoverPositions] = useState([]);
+  const [allRangePools, setAllRangePools] = useState([]);
+  const [allCoverPools, setAllCoverPools] = useState([]);
 
-  const [
-    needsRefetch,
-    setNeedsRefetch
-  ] = useRangeStore((state) => [
+  const [needsRefetch, setNeedsRefetch] = useRangeStore((state) => [
     state.needsRefetch,
-    state.setNeedsRefetch
+    state.setNeedsRefetch,
   ]);
 
-  const [
-    needsCoverRefetch,
-    setNeedsCoverRefetch
-  ] = useCoverStore((state) => [
+  const [needsCoverRefetch, setNeedsCoverRefetch] = useCoverStore((state) => [
     state.needsRefetch,
-    state.setNeedsRefetch
+    state.setNeedsRefetch,
   ]);
 
   //////////////////////Get Pools Data
   useEffect(() => {
-    getRangePoolData()
-    getCoverPoolData()
-  }, [])
+    getRangePoolData();
+    getCoverPoolData();
+  }, []);
 
   useEffect(() => {
     if (address) {
-      getUserRangePositionData()
-      getUserCoverPositionData()
+      getUserRangePositionData();
+      getUserCoverPositionData();
     }
-  }, [address])
+  }, [address]);
 
   useEffect(() => {
     setTimeout(() => {
       if (needsRefetch == true) {
-        if(selected.id === 1) {
-          getUserRangePositionData()
+        if (selected.id === 1) {
+          getUserRangePositionData();
         }
 
-        setNeedsRefetch(false)
+        setNeedsRefetch(false);
       }
-    }, 5000)
-  }, [needsRefetch])
+    }, 5000);
+  }, [needsRefetch]);
 
   useEffect(() => {
     setTimeout(() => {
       if (needsCoverRefetch == true) {
-        if(selected.id === 2) {
-          getUserCoverPositionData()
+        if (selected.id === 2) {
+          getUserCoverPositionData();
         }
 
-        setNeedsCoverRefetch(false)
+        setNeedsCoverRefetch(false);
       }
-    }, 5000)
-  }, [needsCoverRefetch])
+    }, 5000);
+  }, [needsCoverRefetch]);
 
   async function getUserRangePositionData() {
     try {
-      const data = await fetchRangePositions(address)
-      if (data['data'])
+      const data = await fetchRangePositions(address);
+      if (data["data"])
         setAllRangePositions(
-          mapUserRangePositions(data['data'].positionFractions),
-        )
+          mapUserRangePositions(data["data"].positionFractions)
+        );
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 
   async function getUserCoverPositionData() {
-    const data = await fetchCoverPositions(address)
-    if (data['data']) {
-      const positions = data['data'].positions
+    const data = await fetchCoverPositions(address);
+    if (data["data"]) {
+      const positions = data["data"].positions;
 
-      const positionData = mapUserCoverPositions(positions)
-      setAllCoverPositions(positionData)
+      const positionData = mapUserCoverPositions(positions);
+      setAllCoverPositions(positionData);
     }
   }
 
   async function getRangePoolData() {
-    const data = await fetchRangePools()
-    if (data['data']) {
-      const pools = data['data'].rangePools
-      setAllRangePools(mapRangePools(pools))
+    const data = await fetchRangePools();
+    console.log("limitpools", data);
+    if (data["data"]) {
+      const pools = data["data"].limitPools;
+      setAllRangePools(mapRangePools(pools));
     }
   }
 
   async function getCoverPoolData() {
-    const data = await fetchCoverPools()
-    if (data['data']) {
-      const pools = data['data'].coverPools
-      setAllCoverPools(mapCoverPools(pools))
+    const data = await fetchCoverPools();
+    if (data["data"]) {
+      const pools = data["data"].coverPools;
+      setAllCoverPools(mapCoverPools(pools));
     }
   }
 
   //////////////////////
 
   const handleSearchTermChange = (event) => {
-    setSearchTerm(event.target.value)
-  }
+    setSearchTerm(event.target.value);
+  };
 
   function SelectPool() {
     return (
@@ -165,7 +160,7 @@ export default function Pool() {
                   key={poolTypeIdx}
                   className={({ active }) =>
                     `relative cursor-pointer select-none py-2 px-4 ${
-                      active ? 'text-white' : 'text-grey'
+                      active ? "text-white" : "text-grey"
                     }`
                   }
                   value={poolType}
@@ -181,7 +176,7 @@ export default function Pool() {
           </Transition>
         </div>
       </Listbox>
-    )
+    );
   }
 
   return (
@@ -206,8 +201,12 @@ export default function Pool() {
                 }
               >
                 <>
-                <a target="_blank" className="md:block hidden">How it works?</a>
-                <a target="_blank" className="md:hidden block">Docs</a>
+                  <a target="_blank" className="md:block hidden">
+                    How it works?
+                  </a>
+                  <a target="_blank" className="md:hidden block">
+                    Docs
+                  </a>
                 </>
               </Link>
             </span>
@@ -257,8 +256,8 @@ export default function Pool() {
                   </div>
                 ) : (
                   <>
-                    {selected.id === 1 && (
-                      allRangePositions.length === 0 ? (
+                    {selected.id === 1 &&
+                      (allRangePositions.length === 0 ? (
                         <div className="space-y-2">
                           <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
                             <svg
@@ -305,71 +304,69 @@ export default function Pool() {
                             );
                           }
                         })
-                      )
-                    ) }
+                      ))}
 
+                    {selected.id === 2 &&
+                      (allCoverPositions.length === 0 ? (
+                        <div className="space-y-2">
+                          <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                              className="md:w-14 w-10 py-4 mx-auto text-grey"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                            Your cover positions will appear here.
+                          </div>
+                        </div>
+                      ) : (
+                        allCoverPositions.map((allCoverPosition) => {
+                          if (
+                            allCoverPosition.id != undefined &&
+                            allCoverPosition.userOwnerAddress ===
+                              address?.toLowerCase() &&
+                            (allCoverPosition.tokenZero.name.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenOne.name.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenZero.symbol.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenOne.symbol.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenZero.id.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenOne.id.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              searchTerm === "")
+                          ) {
+                            return (
+                              <UserCoverPool
+                                key={allCoverPosition.id + "coverPosition"}
+                                coverPosition={allCoverPosition}
+                                lowerPrice={parseFloat(
+                                  TickMath.getPriceStringAtTick(
+                                    allCoverPosition.lowerTick
+                                  )
+                                )}
+                                upperPrice={parseFloat(
+                                  TickMath.getPriceStringAtTick(
+                                    allCoverPosition.upperTick
+                                  )
+                                )}
+                                href={"/pool/view/cover"}
+                              />
+                            );
+                          }
+                        })
+                      ))}
 
-                    {selected.id === 2 && (
-                                         allCoverPositions.length === 0 ? (
-                                          <div className="space-y-2">
-                                            <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
-                                              <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                viewBox="0 0 20 20"
-                                                fill="currentColor"
-                                                className="md:w-14 w-10 py-4 mx-auto text-grey"
-                                              >
-                                                <path
-                                                  fillRule="evenodd"
-                                                  d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z"
-                                                  clipRule="evenodd"
-                                                />
-                                              </svg>
-                                              Your cover positions will appear here.
-                                            </div>
-                                          </div>
-                                        ) : (
-                                          allCoverPositions.map((allCoverPosition) => {
-                                            if (
-                                              allCoverPosition.id != undefined &&
-                                              allCoverPosition.userOwnerAddress ===
-                                                address?.toLowerCase() &&
-                                              (allCoverPosition.tokenZero.name.toLowerCase() ===
-                                                searchTerm.toLowerCase() ||
-                                                allCoverPosition.tokenOne.name.toLowerCase() ===
-                                                  searchTerm.toLowerCase() ||
-                                                allCoverPosition.tokenZero.symbol.toLowerCase() ===
-                                                  searchTerm.toLowerCase() ||
-                                                allCoverPosition.tokenOne.symbol.toLowerCase() ===
-                                                  searchTerm.toLowerCase() ||
-                                                allCoverPosition.tokenZero.id.toLowerCase() ===
-                                                  searchTerm.toLowerCase() ||
-                                                allCoverPosition.tokenOne.id.toLowerCase() ===
-                                                  searchTerm.toLowerCase() ||
-                                                searchTerm === "")
-                                            ) {
-                                              return (
-                                                <UserCoverPool
-                                                  key={allCoverPosition.id + "coverPosition"}
-                                                  coverPosition={allCoverPosition}
-                                                  lowerPrice={parseFloat(
-                                                    TickMath.getPriceStringAtTick(
-                                                      allCoverPosition.lowerTick
-                                                    )
-                                                  )}
-                                                  upperPrice={parseFloat(
-                                                    TickMath.getPriceStringAtTick(
-                                                      allCoverPosition.upperTick
-                                                    )
-                                                  )}
-                                                  href={"/pool/view/cover"}
-                                                />
-                                              )
-                                            }
-                                          })))}
-
-
-                                  {/*   LIMIT POOL DISPLAY GOES HERE
+                    {/*   LIMIT POOL DISPLAY GOES HERE
                                   {selected.id === 3 && (
                                          allCoverPositions.length === 0 ? (
                                           <div className="space-y-2">
@@ -429,8 +426,8 @@ export default function Pool() {
                                             }
                                           })))}
                                           */}
-                                          </>
-                                        )}
+                  </>
+                )}
               </div>
             </div>
             <div className="pb-20">
@@ -441,48 +438,50 @@ export default function Pool() {
                     <tr className="text-xs text-grey">
                       <th className="text-left font-light">Name</th>
                       <th className="text-right font-light">TVL</th>
-                      <th className="text-right font-light md:block hidden">Volume(USD)</th>
+                      <th className="text-right font-light md:block hidden">
+                        Volume(USD)
+                      </th>
                       <th className="text-right font-light">Volume(ETH)</th>
                     </tr>
                   </thead>
                   <tbody>
                     {selected.id === 1 &&
-                       allRangePools.map((allRangePool) => {
-                          if (
-                            allRangePool.tokenZero.name.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allRangePool.tokenOne.name.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allRangePool.tokenZero.symbol.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allRangePool.tokenOne.symbol.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allRangePool.tokenZero.id.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allRangePool.tokenOne.id.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            searchTerm === ""
-                          )
-                            return (
-                              <PoolList
-                                account={address}
-                                key={allRangePool.poolId}
-                                poolId={allRangePool.poolId}
-                                tokenZero={allRangePool.tokenZero}
-                                tokenOne={allRangePool.tokenOne}
-                                liquidity={allRangePool.liquidity}
-                                auctionLenght={undefined}
-                                feeTier={allRangePool.feeTier}
-                                tickSpacing={allRangePool.tickSpacing}
-                                tvlUsd={allRangePool.tvlUsd}
-                                volumeUsd={allRangePool.volumeUsd}
-                                volumeEth={allRangePool.volumeEth}
-                                href="/pool/concentrated"
-                              />
-                            );
-                        })}
-                         {selected.id === 2 &&
-                       allCoverPools.map((allCoverPool) => {
+                      allRangePools.map((allRangePool) => {
+                        if (
+                          allRangePool.tokenZero.name.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allRangePool.tokenOne.name.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allRangePool.tokenZero.symbol.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allRangePool.tokenOne.symbol.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allRangePool.tokenZero.id.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allRangePool.tokenOne.id.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          searchTerm === ""
+                        )
+                          return (
+                            <PoolList
+                              account={address}
+                              key={allRangePool.poolId}
+                              poolId={allRangePool.poolId}
+                              tokenZero={allRangePool.tokenZero}
+                              tokenOne={allRangePool.tokenOne}
+                              liquidity={allRangePool.liquidity}
+                              auctionLenght={undefined}
+                              feeTier={allRangePool.feeTier}
+                              tickSpacing={allRangePool.tickSpacing}
+                              tvlUsd={allRangePool.tvlUsd}
+                              volumeUsd={allRangePool.volumeUsd}
+                              volumeEth={allRangePool.volumeEth}
+                              href="/pool/concentrated"
+                            />
+                          );
+                      })}
+                    {selected.id === 2 &&
+                      allCoverPools.map((allCoverPool) => {
                         if (
                           allCoverPool.tokenZero.name.toLowerCase() ===
                             searchTerm.toLowerCase() ||
@@ -516,7 +515,7 @@ export default function Pool() {
                             />
                           );
                       })}
-                      {/*
+                    {/*
                       ADD LIMIT POOL STUFF HERE
 
                       {selected.id === 3 &&
@@ -554,7 +553,7 @@ export default function Pool() {
                             />
                           );
                       })}
-                    */} 
+                    */}
                   </tbody>
                 </table>
               </div>
