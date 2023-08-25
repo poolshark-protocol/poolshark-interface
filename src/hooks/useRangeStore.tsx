@@ -448,19 +448,19 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
         tokenOut.address
       );
       const volatilityId = volatility.id;
-      const dataLength = pool["data"]["rangePools"].length;
+      const dataLength = pool["data"]["limitPools"].length;
       for (let i = 0; i < dataLength; i++) {
         if (
           (volatilityId == 0 &&
-            pool["data"]["rangePools"][i]["feeTier"]["feeAmount"] == "500") ||
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == "500") ||
           (volatilityId == 1 &&
-            pool["data"]["rangePools"][i]["feeTier"]["feeAmount"] == "3000") ||
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == "3000") ||
           (volatilityId == 2 &&
-            pool["data"]["rangePools"][i]["feeTier"]["feeAmount"] == "10000")
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == "10000")
         ) {
           set(() => ({
-            rangePoolAddress: pool["data"]["rangePools"][i]["id"],
-            rangePoolData: pool["data"]["rangePools"][i],
+            rangePoolAddress: pool["data"]["limitPools"][i]["id"],
+            rangePoolData: pool["data"]["limitPools"][i],
             feeTierId: volatilityId,
           }));
         }

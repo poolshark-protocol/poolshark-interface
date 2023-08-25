@@ -57,9 +57,9 @@ export const getRangePoolFromFactory = (
           basePrices(where:{id: "eth"}){
             USD
           }
-          rangePools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
+          limitPools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
             id
-            price
+            poolPrice
             tickAtPrice
             token0{
               usdPrice
@@ -77,9 +77,9 @@ export const getRangePoolFromFactory = (
         `
       : `
         {
-          rangePools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}, feeTier_: {id: "${feeTierId}"}}) {
+          limitPools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}, feeTier_: {id: "${feeTierId}"}}) {
             id
-            price
+            poolPrice
             tickAtPrice
             feeTier {
               tickSpacing
@@ -716,7 +716,7 @@ export const fetchRangePositions = (address: string) => {
   return new Promise(function (resolve) {
     const positionsQuery = `
     {
-      positionFractions(where: {owner:"${address}"}) {
+      rangePositions(where: {owner:"${address}"}) {
         id
         owner
         amount
@@ -796,7 +796,7 @@ export const fetchRangeMetrics = () => {
   return new Promise(function (resolve) {
     const positionsQuery = `
         query($id: String) {
-            rangePoolFactories(id: $id) {
+            limitPoolFactories(id: $id) {
                 id
                 txnCount
                 feesEthTotal
