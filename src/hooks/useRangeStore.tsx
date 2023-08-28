@@ -371,7 +371,7 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
             : parseFloat(
                 ethers.utils.formatUnits(
                   String(state.rangeMintParams.tokenInAmount),
-                  18
+                  state.tokenIn.decimals
                 )
               ) == 0
             ? true
