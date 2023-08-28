@@ -115,8 +115,8 @@ export default function AddLiquidity({}) {
 
   //this sets the default position price delta
   useEffect(() => {
-    if (rangePoolData.price && rangePoolData.tickAtPrice) {
-      const price = JSBI.BigInt(rangePoolData.price);
+    if (rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
+      const price = JSBI.BigInt(rangePoolData.poolPrice);
       const tickAtPrice = rangePoolData.tickAtPrice;
       setRangePrice(TickMath.getPriceStringAtSqrtPrice(price));
       setRangeSqrtPrice(price);

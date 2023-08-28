@@ -25,17 +25,17 @@ export const getRangePool = async (
     //TODO@retraca create here or new fucntion for choosing the right pool considering feetier
     let id = ZERO_ADDRESS;
     let rangePoolData = {};
-    const dataLength = pool["data"]["rangePools"].length;
+    const dataLength = pool["data"]["limitPools"].length;
     if (dataLength != 0) {
-      id = pool["data"]["rangePools"]["0"]["id"];
-      rangePoolData = pool["data"]["rangePools"]["0"];
+      id = pool["data"]["limitPools"]["0"]["id"];
+      rangePoolData = pool["data"]["limitPools"]["0"];
     } else {
       const fallbackPool = await getRangePoolFromFactory(
         tokenOut.address,
         tokenIn.address
       );
-      id = fallbackPool["data"]["rangePools"]["0"]["id"];
-      rangePoolData = fallbackPool["data"]["rangePools"]["0"];
+      id = fallbackPool["data"]["limitPools"]["0"]["id"];
+      rangePoolData = fallbackPool["data"]["limitPools"]["0"];
     }
     setRangePoolAddress(id);
     setRangePoolData(rangePoolData);
@@ -272,10 +272,10 @@ export const getFeeTier = async (
     setCoverSlippage((parseFloat(feeTier) / 10000).toString());
   }
   const data = await fetchRangePools();
-  const rangePoolAddress = data["data"]["rangePools"]["0"]["id"];
+  const rangePoolAddress = data["data"]["limitPools"]["0"]["id"];
 
   if (rangePoolAddress === rangePoolRoute) {
-    const feeTier = data["data"]["rangePools"]["0"]["feeTier"]["feeAmount"];
+    const feeTier = data["data"]["limitPools"]["0"]["feeTier"]["feeAmount"];
     setRangeSlippage((parseFloat(feeTier) / 10000).toString());
   }
 };
