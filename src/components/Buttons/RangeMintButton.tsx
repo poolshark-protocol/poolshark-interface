@@ -13,6 +13,7 @@ import { useRangeStore } from "../../hooks/useRangeStore";
 
 export default function RangeMintButton({
   disabled,
+  buttonMessage,
   poolAddress,
   to,
   lower,
@@ -46,14 +47,7 @@ export default function RangeMintButton({
     address: poolAddress,
     abi: rangePoolABI,
     functionName: "mintRange",
-    args: [[
-      to,
-      lower,
-      upper,
-      positionId,
-      amount0,
-      amount1
-    ]],
+    args: [[to, lower, upper, positionId, amount0, amount1]],
     chainId: 421613,
     overrides: {
       gasLimit: gasLimit,
@@ -91,11 +85,13 @@ export default function RangeMintButton({
       <button
         disabled={disabled /* || gasLimit.lte(BN_ZERO) */}
         className={
-          "w-full py-4 mx-auto text-center text-sm md:text-base font-medium transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+          disabled
+            ? "w-full py-4 mx-auto font-medium text-center text-sm md:text-base transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50"
+            : "w-full py-4 mx-auto font-medium text-center text-sm md:text-base transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
         }
         onClick={() => write?.()}
       >
-        Mint Position
+        {buttonMessage}
       </button>
       <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
         {errorDisplay && (
