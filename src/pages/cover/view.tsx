@@ -198,8 +198,7 @@ export default function ViewCover() {
       [
         address,
         BigNumber.from("0"),
-        BigNumber.from(coverPositionData.min),
-        BigNumber.from(coverPositionData.max),
+        Number(coverPositionData.positionId),
         BigNumber.from(claimTick),
         Boolean(coverPositionData.zeroForOne),
       ],
@@ -234,7 +233,7 @@ export default function ViewCover() {
   useEffect(() => {
     if (filledAmount) {
       setCoverFilledAmount(
-        ethers.utils.formatUnits(filledAmount[2], tokenIn.decimals)
+        ethers.utils.formatUnits(filledAmount[3], tokenIn.decimals)
       );
     }
   }, [filledAmount]);
