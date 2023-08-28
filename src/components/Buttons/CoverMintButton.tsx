@@ -37,6 +37,8 @@ export default function CoverMintButton({
     state.setNeedsBalance,
   ]);
 
+  const newPositionId = 0
+
   const { config } = usePrepareContractWrite({
     address: poolAddress,
     abi: coverPoolABI,
@@ -45,6 +47,7 @@ export default function CoverMintButton({
       [
         to,
         amount,
+        newPositionId,
         BigNumber.from(roundTick(Number(lower), tickSpacing)),
         BigNumber.from(roundTick(Number(upper), tickSpacing)),
         zeroForOne,

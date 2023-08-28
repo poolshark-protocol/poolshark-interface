@@ -11,7 +11,8 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { useCoverStore } from '../../hooks/useCoverStore';
 
-export default function CoverRemoveLiqButton({disabled, poolAddress, address, lower, claim, upper, zeroForOne, burnPercent, gasLimit, closeModal, setIsOpen}) {
+//TODO: use positionId instead of lower/upper
+export default function CoverRemoveLiqButton({disabled, poolAddress, address, positionId, claim, zeroForOne, burnPercent, gasLimit, closeModal, setIsOpen}) {
 
     const [
       setNeedsRefetch,
@@ -35,9 +36,8 @@ export default function CoverRemoveLiqButton({disabled, poolAddress, address, lo
         args:[[
             address,
             burnPercent,
-            lower,
+            positionId,
             claim,
-            upper,
             zeroForOne,
             true
         ]],

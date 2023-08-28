@@ -260,6 +260,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                     address={address}
                     lower={Number(coverPositionData.min)}
                     upper={Number(coverPositionData.max)}
+                    positionId={Number(coverPositionData.positionId)}
                     zeroForOne={Boolean(coverPositionData.zeroForOne)}
                     amount={bnInput}
                     gasLimit={mintGasLimit}

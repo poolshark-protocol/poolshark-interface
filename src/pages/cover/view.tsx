@@ -594,9 +594,8 @@ export default function ViewCover() {
               <CoverCollectButton
                 poolAddress={coverPoolAddress}
                 address={address}
-                lower={BigNumber.from(coverPositionData.min)}
+                positionId={coverPositionData.positionId}
                 claim={BigNumber.from(claimTick)}
-                upper={BigNumber.from(coverPositionData.max)}
                 zeroForOne={Boolean(coverPositionData.zeroForOne)}
                 gasLimit={coverMintParams.gasLimit.mul(150).div(100)}
                 gasFee={coverMintParams.gasFee}
