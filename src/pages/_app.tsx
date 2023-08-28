@@ -38,12 +38,6 @@ const wagmiClient = createClient({
   autoConnect: true
 })
 
-const apolloClient = new ApolloClient({
-  cache: new InMemoryCache(),
-  uri: "https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/version/v0.0.3/api",
-})
-
-
 const whitelist = [
   '0x577a9E8DCd140447d7bF17f483ec11EEbA2b2901',
   '0x39feBB7DF83Ca769BE27C86816EFdBbDa404239b',
