@@ -194,9 +194,8 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
                   disabled={coverMintParams.disabled}
                   poolAddress={coverPoolAddress}
                   address={address}
-                  lower={BigNumber.from(coverPositionData.min)}
+                  positionId={Number(coverPositionData.positionId)}
                   claim={BigNumber.from(claimTick)}
-                  upper={BigNumber.from(coverPositionData.max)}
                   zeroForOne={Boolean(coverPositionData.zeroForOne)}
                   burnPercent={burnPercent}
                   gasLimit={coverMintParams.gasLimit.mul(250).div(100)}

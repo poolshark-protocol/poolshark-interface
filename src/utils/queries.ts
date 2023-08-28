@@ -94,7 +94,7 @@ export const getRangePoolFromFactory = (
         }
         `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/d27bd45407f722ba56aaf8b7a32c7b1b/limit-test-arbitrumGoerli",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/c4a6d141740ff16f13b525b778202dd8/limit-arbitrumGoerli-0",
       cache: new InMemoryCache(),
     });
     client
@@ -134,7 +134,7 @@ export const getCoverPoolFromFactory = (tokenA: string, tokenB: string) => {
          `;
     //console.log('query:', getPool)
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/aa7fdd1e6b48d05ea1754514f3e816f5/cover-arbitrumGoerli",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/11a2725a92a3b52639c1e27b077f666d/cover-arbitrumGoerli-0",
       cache: new InMemoryCache(),
     });
     client
@@ -172,7 +172,7 @@ export const getLimitPoolFromFactory = (tokenA: string, tokenB: string) => {
          `;
     //console.log('query:', getPool)
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/d27bd45407f722ba56aaf8b7a32c7b1b/limit-test-arbitrumGoerli",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/c4a6d141740ff16f13b525b778202dd8/limit-arbitrumGoerli-0",
       cache: new InMemoryCache(),
     });
     client
@@ -206,7 +206,7 @@ export const getTickIfZeroForOne = (
         `;
     //console.log('pool address', poolAddress)
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/aa7fdd1e6b48d05ea1754514f3e816f5/cover-arbitrumGoerli",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/11a2725a92a3b52639c1e27b077f666d/cover-arbitrumGoerli-0",
       cache: new InMemoryCache(),
     });
     client
@@ -240,7 +240,7 @@ export const getTickIfNotZeroForOne = (
     //console.log(getTicks)
     //console.log('pool address', poolAddress)
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/aa7fdd1e6b48d05ea1754514f3e816f5/cover-arbitrumGoerli",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/11a2725a92a3b52639c1e27b077f666d/cover-arbitrumGoerli-0",
       cache: new InMemoryCache(),
     });
     client
@@ -274,7 +274,7 @@ export const getLimitTickIfNotZeroForOne = (
         `;
     //console.log('pool address', poolAddress)
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/d27bd45407f722ba56aaf8b7a32c7b1b/limit-test-arbitrumGoerli",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/c4a6d141740ff16f13b525b778202dd8/limit-arbitrumGoerli-0",
       cache: new InMemoryCache(),
     });
     client
@@ -309,7 +309,7 @@ export const getLimitTickIfZeroForOne = (
     //console.log(getTicks)
     //console.log('pool address', poolAddress)
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/d27bd45407f722ba56aaf8b7a32c7b1b/limit-test-arbitrumGoerli",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/c4a6d141740ff16f13b525b778202dd8/limit-arbitrumGoerli-0",
       cache: new InMemoryCache(),
     });
     client
@@ -330,6 +330,10 @@ export const fetchCoverPositions = (address: string) => {
       query($owner: String) {
           positions(where: {owner:"${address}"}) {
                 id
+                positionId
+                lower
+                upper
+                zeroForOne
                 inAmount
                 inToken{
                     id
@@ -338,9 +342,6 @@ export const fetchCoverPositions = (address: string) => {
                     decimals
                 }
                 liquidity
-                zeroForOne
-                upper
-                lower
                 amountInDeltaMax
                 amountOutDeltaMax
                 epochLast
@@ -381,7 +382,7 @@ export const fetchCoverPositions = (address: string) => {
         }
     `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/aa7fdd1e6b48d05ea1754514f3e816f5/cover-arbitrumGoerli",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/11a2725a92a3b52639c1e27b077f666d/cover-arbitrumGoerli-0",
       cache: new InMemoryCache(),
     });
     client
@@ -441,7 +442,7 @@ export const fetchCoverPools = () => {
             }
         `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/aa7fdd1e6b48d05ea1754514f3e816f5/cover-arbitrumGoerli",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/11a2725a92a3b52639c1e27b077f666d/cover-arbitrumGoerli-0",
       cache: new InMemoryCache(),
     });
     client
@@ -467,7 +468,7 @@ export const fetchCoverPoolMetrics = () => {
             }
         `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/aa7fdd1e6b48d05ea1754514f3e816f5/cover-arbitrumGoerli",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/11a2725a92a3b52639c1e27b077f666d/cover-arbitrumGoerli-0",
       cache: new InMemoryCache(),
     });
     client
@@ -544,7 +545,7 @@ export const fetchLimitPositions = (address: string) => {
         }
     `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/d27bd45407f722ba56aaf8b7a32c7b1b/limit-test-arbitrumGoerli",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/c4a6d141740ff16f13b525b778202dd8/limit-arbitrumGoerli-0",
       cache: new InMemoryCache(),
     });
     client
@@ -611,7 +612,7 @@ export const fetchLimitPools = () => {
             }
         `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/d27bd45407f722ba56aaf8b7a32c7b1b/limit-test-arbitrumGoerli",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/c4a6d141740ff16f13b525b778202dd8/limit-arbitrumGoerli-0",
       cache: new InMemoryCache(),
     });
     client
@@ -637,7 +638,7 @@ export const fetchLimitPoolMetrics = () => {
             }
         `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/d27bd45407f722ba56aaf8b7a32c7b1b/limit-test-arbitrumGoerli",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/c4a6d141740ff16f13b525b778202dd8/limit-arbitrumGoerli-0",
       cache: new InMemoryCache(),
     });
     client
@@ -697,7 +698,7 @@ export const fetchRangePools = () => {
             }
         `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/d27bd45407f722ba56aaf8b7a32c7b1b/limit-test-arbitrumGoerli",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/c4a6d141740ff16f13b525b778202dd8/limit-arbitrumGoerli-0",
       cache: new InMemoryCache(),
     });
     client
@@ -717,6 +718,8 @@ export const fetchRangePositions = (address: string) => {
     const positionsQuery = `
     {
       rangePositions(where: {owner:"${address}"}) {
+            id
+            positionId
             lower
             upper
             liquidity
@@ -758,7 +761,7 @@ export const fetchRangePositions = (address: string) => {
   }
     `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/d27bd45407f722ba56aaf8b7a32c7b1b/limit-test-arbitrumGoerli",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/c4a6d141740ff16f13b525b778202dd8/limit-arbitrumGoerli-0",
       cache: new InMemoryCache(),
     });
     client
@@ -796,7 +799,7 @@ export const fetchRangeMetrics = () => {
         }
     `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/d27bd45407f722ba56aaf8b7a32c7b1b/limit-test-arbitrumGoerli",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/c4a6d141740ff16f13b525b778202dd8/limit-arbitrumGoerli-0",
       cache: new InMemoryCache(),
     });
     client

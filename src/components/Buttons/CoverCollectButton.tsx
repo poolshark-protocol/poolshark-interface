@@ -11,7 +11,7 @@ import React, { useState } from "react";
 import { BigNumber, ethers } from "ethers";
 import { useCoverStore } from '../../hooks/useCoverStore';
 
-export default function CoverCollectButton({ poolAddress, address, lower, claim, upper, zeroForOne, gasLimit, gasFee }) {
+export default function CoverCollectButton({ poolAddress, address, positionId, claim, zeroForOne, gasLimit, gasFee }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -29,9 +29,8 @@ export default function CoverCollectButton({ poolAddress, address, lower, claim,
       args:[[
           address,
           BigNumber.from(0),
-          lower,
+          positionId,
           claim,
-          upper,
           zeroForOne,
           true
       ]],

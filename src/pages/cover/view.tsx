@@ -198,8 +198,7 @@ export default function ViewCover() {
       [
         address,
         BigNumber.from("0"),
-        BigNumber.from(coverPositionData.min),
-        BigNumber.from(coverPositionData.max),
+        Number(coverPositionData.positionId),
         BigNumber.from(claimTick),
         Boolean(coverPositionData.zeroForOne),
       ],
@@ -234,7 +233,7 @@ export default function ViewCover() {
   useEffect(() => {
     if (filledAmount) {
       setCoverFilledAmount(
-        ethers.utils.formatUnits(filledAmount[2], tokenIn.decimals)
+        ethers.utils.formatUnits(filledAmount[3], tokenIn.decimals)
       );
     }
   }, [filledAmount]);
@@ -594,9 +593,8 @@ export default function ViewCover() {
               <CoverCollectButton
                 poolAddress={coverPoolAddress}
                 address={address}
-                lower={BigNumber.from(coverPositionData.min)}
+                positionId={coverPositionData.positionId}
                 claim={BigNumber.from(claimTick)}
-                upper={BigNumber.from(coverPositionData.max)}
                 zeroForOne={Boolean(coverPositionData.zeroForOne)}
                 gasLimit={coverMintParams.gasLimit.mul(150).div(100)}
                 gasFee={coverMintParams.gasFee}

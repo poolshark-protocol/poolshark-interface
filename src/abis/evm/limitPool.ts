@@ -145,18 +145,13 @@ export const limitPoolABI = [
             "type": "uint128"
           },
           {
-            "internalType": "int24",
-            "name": "lower",
-            "type": "int24"
+            "internalType": "uint32",
+            "name": "positionId",
+            "type": "uint32"
           },
           {
             "internalType": "int24",
             "name": "claim",
-            "type": "int24"
-          },
-          {
-            "internalType": "int24",
-            "name": "upper",
             "type": "int24"
           },
           {
@@ -208,19 +203,6 @@ export const limitPoolABI = [
   {
     "inputs": [],
     "name": "factory",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "feeTo",
     "outputs": [
       {
         "internalType": "address",
@@ -623,6 +605,11 @@ export const limitPoolABI = [
             "type": "uint96"
           },
           {
+            "internalType": "uint32",
+            "name": "positionId",
+            "type": "uint32"
+          },
+          {
             "internalType": "int24",
             "name": "lower",
             "type": "int24"
@@ -774,19 +761,9 @@ export const limitPoolABI = [
   {
     "inputs": [
       {
-        "internalType": "address",
+        "internalType": "uint256",
         "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "int24",
-        "name": "",
-        "type": "int24"
-      },
-      {
-        "internalType": "int24",
-        "name": "",
-        "type": "int24"
+        "type": "uint256"
       }
     ],
     "name": "positions0",
@@ -802,6 +779,16 @@ export const limitPoolABI = [
         "type": "uint32"
       },
       {
+        "internalType": "int24",
+        "name": "lower",
+        "type": "int24"
+      },
+      {
+        "internalType": "int24",
+        "name": "upper",
+        "type": "int24"
+      },
+      {
         "internalType": "bool",
         "name": "crossedInto",
         "type": "bool"
@@ -813,19 +800,9 @@ export const limitPoolABI = [
   {
     "inputs": [
       {
-        "internalType": "address",
+        "internalType": "uint256",
         "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "int24",
-        "name": "",
-        "type": "int24"
-      },
-      {
-        "internalType": "int24",
-        "name": "",
-        "type": "int24"
+        "type": "uint256"
       }
     ],
     "name": "positions1",
@@ -839,6 +816,16 @@ export const limitPoolABI = [
         "internalType": "uint32",
         "name": "epochLast",
         "type": "uint32"
+      },
+      {
+        "internalType": "int24",
+        "name": "lower",
+        "type": "int24"
+      },
+      {
+        "internalType": "int24",
+        "name": "upper",
+        "type": "int24"
       },
       {
         "internalType": "bool",
@@ -1020,14 +1007,9 @@ export const limitPoolABI = [
             "type": "uint128"
           },
           {
-            "internalType": "int24",
-            "name": "lower",
-            "type": "int24"
-          },
-          {
-            "internalType": "int24",
-            "name": "upper",
-            "type": "int24"
+            "internalType": "uint32",
+            "name": "positionId",
+            "type": "uint32"
           },
           {
             "internalType": "int24",
