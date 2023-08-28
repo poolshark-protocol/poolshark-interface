@@ -28,9 +28,9 @@ export default function ViewRange() {
     rangePoolAddress,
     rangePoolData,
     rangePositionData,
+    rangeMintParams,
     tokenIn,
     tokenOut,
-
     setTokenInRangeUSDPrice,
     setTokenOutRangeUSDPrice,
     needsRefetch,
@@ -38,13 +38,14 @@ export default function ViewRange() {
     setNeedsRefetch,
     setNeedsPosRefetch,
     setRangePositionData,
+    setMintButtonState,
   ] = useRangeStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
     state.rangePositionData,
+    state.rangeMintParams,
     state.tokenIn,
     state.tokenOut,
-
     state.setTokenInRangeUSDPrice,
     state.setTokenOutRangeUSDPrice,
     state.needsRefetch,
@@ -52,6 +53,7 @@ export default function ViewRange() {
     state.setNeedsRefetch,
     state.setNeedsPosRefetch,
     state.setRangePositionData,
+    state.setMintButtonState,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -337,6 +339,14 @@ export default function ViewRange() {
       console.log(error);
     }
   }
+
+    ////////////////////////////////Mint Button Handler
+
+    useEffect(() => {
+      setMintButtonState();
+    }, [tokenIn, rangeMintParams.tokenInAmount]);
+  
+    ////////////////////////////////
 
   return (
     <div className="bg-black min-h-screen  ">

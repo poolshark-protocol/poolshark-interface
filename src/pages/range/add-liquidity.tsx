@@ -285,6 +285,12 @@ export default function AddLiquidity({}) {
       setUpperPrice(newPriceString);
     }
   };
+
+  useEffect(() => {
+    setMintButtonState();
+  }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount]);
+
+  
   return (
     <div className="bg-black min-h-screen  ">
       <Navbar />
