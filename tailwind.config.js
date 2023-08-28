@@ -5,6 +5,9 @@ module.exports = {
     "./src/components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    fontFamily: {
+      'Jetbrains': ['"JetBrains Mono"', 'monospace'],
+    },
     extend: {
       colors: {
         main: "#022F88",
@@ -18,9 +21,6 @@ module.exports = {
         dark: "#0C0C0C",
       },
     },
-    fontFamily: {
-      'Jetbrains': "JetBrains Mono",
-    }
   },
   plugins: [],
 };
