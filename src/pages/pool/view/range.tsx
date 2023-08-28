@@ -168,7 +168,7 @@ export default function Range() {
               tokenOut.rangeUSDPrice /
               parseFloat(
                 TickMath.getPriceStringAtSqrtPrice(
-                  JSBI.BigInt(String(rangePoolData.price))
+                  JSBI.BigInt(String(rangePoolData.poolPrice))
                 )
               )
             ).toPrecision(6)
@@ -215,7 +215,7 @@ export default function Range() {
       if (
         !isNaN(parseFloat(lowerPrice)) &&
         !isNaN(parseFloat(upperPrice)) &&
-        !isNaN(parseFloat(String(rangePoolData.price))) &&
+        !isNaN(parseFloat(String(rangePoolData.poolPrice))) &&
         Number(rangePositionData.userLiquidity) > 0 &&
         parseFloat(lowerPrice) < parseFloat(upperPrice)
       ) {
@@ -225,7 +225,7 @@ export default function Range() {
         const upperSqrtPrice = TickMath.getSqrtRatioAtTick(
           Number(rangePositionData.max)
         );
-        const rangeSqrtPrice = JSBI.BigInt(rangePoolData.price);
+        const rangeSqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
         const liquidity = JSBI.BigInt(rangePositionData.userLiquidity);
         const amounts = DyDxMath.getAmountsForLiquidity(
           lowerSqrtPrice,

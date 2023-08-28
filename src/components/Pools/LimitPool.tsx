@@ -106,10 +106,10 @@ export default function LimitPool({}) {}
   //this sets the default position price delta
   useEffect(() => {
     console.log("rangePoolData", rangePoolData);
-    if (rangePoolData.price && rangePoolData.tickAtPrice) {
-      console.log("rangePoolData.price", rangePoolData.price);
+    if (rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
+      console.log("rangePoolData.poolPrice", rangePoolData.poolPrice);
       console.log("rangePoolData.tickAtPrice", rangePoolData.tickAtPrice);
-      const price = JSBI.BigInt(rangePoolData.price);
+      const price = JSBI.BigInt(rangePoolData.poolPrice);
       const tickAtPrice = rangePoolData.tickAtPrice;
       setRangePrice(TickMath.getPriceStringAtSqrtPrice(price));
       setRangeSqrtPrice(price);
