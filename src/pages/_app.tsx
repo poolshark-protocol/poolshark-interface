@@ -46,6 +46,7 @@ const apolloClient = new ApolloClient({
 
 const whitelist = [
   '0x577a9E8DCd140447d7bF17f483ec11EEbA2b2901',
+  '0x39feBB7DF83Ca769BE27C86816EFdBbDa404239b',
   '0x65f5B282E024e3d6CaAD112e848dEc3317dB0902',
   '0xA1a26c50382f10e112328D793f76B2D84Ba87D4A',
   '0xCda329d290B6E7Cf8B9B1e4faAA48Da80B6Fa2F2',
@@ -361,6 +362,7 @@ const whitelist = [
   '0xFaF58c162eBE1E7f64DcfBC57fDB238Fd0613b20',
   '0x8E666bd6dD4AdC978350802D11558aAfE9f290f0',
   '0x9dA9409D17DeA285B078af06206941C049F692Dc',
+  '0xedf2cfd0a8da2891ea0f2b187eba298a366a100d',
 ]
 
 function MyApp({ Component, pageProps }) {
@@ -388,13 +390,13 @@ function MyApp({ Component, pageProps }) {
           <ApolloProvider client={apolloClient}>
             <>
             { _isConnected ? (whitelist.includes(address) ? (
-            <Component {...pageProps} />
+              <div className="font-Jetbrains"><Component  {...pageProps} /></div>
             )
             : 
-            <div className="min-h-screen">
+            <div className="min-h-screen font-Jetbrains">
             <div className="max-w-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <img src="/static/images/logo.png" className="mx-auto mb-10 w-56" />
-                <div className="text-white text-center text-lg mb-10 ">
+                <div className="text-white text-center mb-10 text-sm">
                 Poolshark is currently under a closed testnet beta. You must be whitelisted in order to access the platform.
                 </div>
                 <div className="mx-auto text-white text-center">
@@ -407,10 +409,10 @@ function MyApp({ Component, pageProps }) {
             </div>
           ) 
             : 
-            (<div className="min-h-screen">
+            (<div className="min-h-screen font-Jetbrains">
               <div className="max-w-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <img src="/static/images/logo.png" className="mx-auto mb-10 w-60" />
-                <div className="text-white text-center text-lg mb-10 ">
+                <div className="text-white text-center mb-10 text-sm">
                 Poolshark is currently under a closed testnet beta. You must be whitelisted in order to access the platform.
                 </div>
                 <div className="mx-32">

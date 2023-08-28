@@ -1,10 +1,9 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useState, useEffect } from "react";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/20/solid";
-import UserCoverPool from "../Pools/UserCoverPool";
+import UserRangePool from "../Range/UserRangePool";
 import { fetchRangePositions, fetchUniV3Positions } from "../../utils/queries";
 import { useAccount } from "wagmi";
-import UserPool from "../Pools/UserPool";
 import { BigNumber } from "ethers";
 
 export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
@@ -159,27 +158,27 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-3xl h-[45rem] transform overflow-y-auto rounded-xl bg-black text-white border border-grey2 text-left align-middle shadow-xl px-6 py-5 transition-all">
+              <Dialog.Panel className="w-full max-w-5xl h-[45rem] transform overflow-y-auto rounded-[4px] bg-black text-white border border-grey text-left align-middle shadow-xl px-6 py-5 transition-all">
                 <div className="flex justify-between items-center mb-5">
-                  <h1 className="text-xl">Select a Pool to Cover</h1>
+                  <h1 className="">Select a Pool to Cover</h1>
                   <XMarkIcon
                     onClick={() => setIsOpen(false)}
                     className="w-7 cursor-pointer"
                   />
                 </div>
                 <div className="relative mb-4">
-                  <MagnifyingGlassIcon className="w-5 text-grey absolute ml-[14px] mt-[13px]" />
+                  <MagnifyingGlassIcon className="w-4 text-grey1 absolute ml-[14px] mt-[10px]" />
                   <input
                     autoComplete="off"
-                    className="border border-grey2 bg-dark rounded-xl py-2.5 w-full placeholder:text-grey outline-none pl-12 md:text-base text-sm"
+                    className="border border-grey bg-dark rounded-[4px] py-2.5 w-full placeholder:text-grey outline-none pl-12 text-xs uppercase placeholder:text-grey1"
                     placeholder="Search name, symbol or address"
                     value={searchTerm}
                     onChange={handleSearchTermChange}
                   />
                 </div>
                 <div>
-                  <h1 className="mb-3">Poolshark Positions</h1>
-                  <div className="space-y-2">
+                  <h1 className="mb-3 text-xs uppercase">Poolshark Positions</h1>
+                  <div>
                     {allRangePositions.length === 0 ? (
                       <div className="space-y-2">
                         <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
@@ -199,7 +198,8 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                         </div>
                       </div>
                     ) : (
-                      <>
+                      <div className="overflow-scroll">
+                      <div className="w-[900px] lg:w-auto space-y-2">
                         {allRangePositions.map((allRangePosition) => {
                           if (
                             allRangePosition.userOwnerAddress ===
@@ -222,16 +222,18 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                                 }}
                                 key={allRangePosition.id + "click"}
                               >
-                                <UserPool
+                                <UserRangePool
                                   key={allRangePosition.id}
                                   rangePosition={allRangePosition}
-                                  href={"/cover"}
+                                  href={"/cover/create"}
+                                  isModal={true}
                                 />
                               </div>
                             );
                           }
                         })}
-                      </>
+                      </div>
+                      </div>
                     )}
                   </div>
                 </div>

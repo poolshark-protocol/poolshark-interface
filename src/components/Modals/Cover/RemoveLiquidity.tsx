@@ -110,7 +110,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
                 </div>
                 <div className="w-full  bg-[#0C0C0C] border border-[#1C1C1C] gap-4 px-4 py-4 rounded-xl mt-6 mb-6">
                   <div className="flex justify-between items-center">
-                    <div className="text-3xl font-medium">{sliderValue}%</div>
+                    <div className="text-3xl ">{sliderValue}%</div>
                     <div className="flex items-center gap-x-4">
                       <button
                         onClick={() => handleSliderButton(25)}

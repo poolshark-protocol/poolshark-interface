@@ -63,7 +63,7 @@ export default function CoverAddLiqButton({poolAddress, address, lower, upper, z
 
     return (
         <>
-        <button disabled={disabled} className="disabled:opacity-50 text-sm md:text-base disabled:cursor-not-allowed w-full py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        <button disabled={disabled} className="disabled:opacity-50 text-sm md:text-base disabled:cursor-not-allowed w-full py-4 mx-auto  text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
             onClick={() => {
               address ?  write?.() : null
             }}

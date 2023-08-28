@@ -111,7 +111,7 @@ export default function SelectToken(props) {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-xl bg-black border border-grey2 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-[4px] bg-black border border-grey text-left align-middle shadow-xl transition-all">
                   <div className="p-5">
                     <div className="flex justify-between items-center mb-6">
                       <h1 className="text-white">Select Token</h1>
@@ -123,7 +123,7 @@ export default function SelectToken(props) {
                     <MagnifyingGlassIcon className="w-5 text-white absolute mt-[13px] ml-[14px] text-grey" />
                     <input
                       autoComplete="off"
-                      className="border border-grey2 bg-dark outline-none py-2.5 pl-12 rounded-lg w-full placeholder:text-grey placeholder:font-regular text-white md:text-base text-sm"
+                      className="border border-grey bg-dark outline-none py-2.5 pl-12 rounded-lg w-full placeholder:text-grey placeholder:font-regular text-white text-sm"
                       placeholder="Search name or paste address"
                       value={inputVal}
                       onChange={(e) => setInputVal(e.target.value)}
@@ -164,20 +164,20 @@ export default function SelectToken(props) {
         className={
           (props.tokenIn.symbol != "Select Token" && props.type == "in") ||
           (props.tokenOut.symbol != "Select Token" && props.type == "out")
-            ? "w-full md:text-base text-sm whitespace-nowrap flex items-center uppercase gap-x-3 bg-black border border-grey1 px-2 py-1.5 rounded-xl"
-            : "w-full md:text-base text-sm whitespace-nowrap flex items-center bg-background text-main gap-x-1 md:gap-x-3 hover:opacity-80  md:px-4 px-3 py-2 rounded-xl"
+            ? "w-full whitespace-nowrap flex items-center gap-x-8 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]"
+            : "w-full whitespace-nowrap flex items-center gap-x-2 md:gap-x-8 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] text-grey1"
         }
       >
         <div className="flex items-center gap-x-2 w-full">
           {(props.tokenIn.symbol != "Select Token" && props.type == "in") ||
           (props.tokenOut.symbol != "Select Token" && props.type == "out") ? (
-            <img className="md:w-7 w-6" src={props.displayToken?.logoURI} />
+            <img className="md:w-6 w-6" src={props.displayToken?.logoURI} />
           ) : (
             <></>
           )}
-          {props.displayToken?.symbol}
+          <span className="text-xs uppercase">{props.displayToken?.symbol}</span>
         </div>
-        <ChevronDownIcon className="w-5" />
+        <ChevronDownIcon className="w-6" />
       </button>
     </div>
   );

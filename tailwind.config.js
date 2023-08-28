@@ -5,17 +5,20 @@ module.exports = {
     "./src/components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    fontFamily: {
+      'Jetbrains': ['"JetBrains Mono"', 'monospace'],
+    },
     extend: {
       colors: {
-        main: "#227BED",
+        main: "#022F88",
+        main1: "#000A2C",
+        main2: "#227BED",
         background: "#06172D",
-        grey: "#646464",
-        grey1: "#1E1E1E",
-        grey2: '#313131',
+        grey: "#2C2E33",
+        grey1: "#646364",
+        grey2: '#494949',
+        grey3: "#5F5F5F",
         dark: "#0C0C0C",
-      },
-      fontFamily: {
-        'Satoshi': ['Satoshi']
       },
     },
   },

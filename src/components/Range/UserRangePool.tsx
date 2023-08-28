@@ -11,8 +11,9 @@ import Link from "next/link";
 import { getCoverPool, getRangePool, volatilityTiers } from "../../utils/pools";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { tokenCover, tokenLimit } from "../../utils/types";
+import ArrowRightIcon from "../Icons/ArrowRightIcon";
 
-export default function UserPool({ rangePosition, href }) {
+export default function UserRangePool({ rangePosition, href, isModal }) {
   const [
     rangeTokenIn,
     rangeTokenOut,
@@ -123,69 +124,44 @@ export default function UserPool({ rangePosition, href }) {
             pathname: href,
           }}
         >
-          <div className="w-full cursor-pointer grid grid-cols-5 md:grid-cols-7 items-center w-full bg-dark border border-grey2 rounded-xl py-3.5 sm:pl-5 pl-3 md:pr-0 md:pr-5 pr-3 min-h-24 relative">
-            <div className="space-y-3 col-span-5">
-              <div className="flex items-center md:gap-x-5 gap-x-3">
-                <div className="flex items-center ">
-                  <img
-                    className="md:w-[30px] md:h-[30px] w-[25px] h-[25px]"
-                    src={logoMap[rangePosition.tokenZero.symbol]}
-                  />
-                  <img
-                    className="md:w-[30px] md:h-[30px] w-[25px] h-[25px] ml-[-8px]"
-                    src={logoMap[rangePosition.tokenOne.symbol]}
-                  />
-                </div>
-                <div className="flex items-center gap-x-2 md:text-base text-sm">
-                  {rangePosition.tokenZero.symbol}
-                  <div>-</div>
-                  {rangePosition.tokenOne.symbol}
-                </div>
-                <div className="bg-black px-2 py-1 rounded-lg text-grey text-sm hidden md:block">
-                  {Number(Number(rangePosition.feeTier) / 10000).toFixed(2)}%
-                </div>
+          <div className="grid grid-cols-4 items-center bg-black px-4 py-3 rounded-[4px] border-grey border hover:bg-main1/20 cursor-pointer">
+            <div className="flex items-center gap-x-6">
+              <div className="flex items-center">
+                <img
+                  className="w-[25px] h-[25px]"
+                  src={logoMap[rangePosition.tokenZero.symbol]}
+                />
+                <img
+                  className="w-[25px] h-[25px] ml-[-8px]"
+                  src={logoMap[rangePosition.tokenOne.symbol]}
+                />
               </div>
-              <div className="text-[10px] sm:text-xs grid grid-cols-5 items-center gap-x-3 md:pr-5">
-                <span className="col-span-2">
-                  <span className="text-grey">Min:</span>{" "}
-                  {TickMath.getPriceStringAtTick(Number(rangePosition.min))}{" "}
-                  {rangePosition.tokenOne.symbol} per{" "}
-                  {rangePosition.tokenZero.symbol}
-                </span>
-                <div className="flex items-center justify-center col-span-1">
-                  <ArrowsRightLeftIcon className="w-3 sm:w-4 text-grey" />
-                </div>
-                <span className="col-span-2">
-                  <span className="text-grey">Max:</span>{" "}
-                  {TickMath.getPriceStringAtTick(Number(rangePosition.max))}{" "}
-                  {rangePosition.tokenOne.symbol} per{" "}
-                  {rangePosition.tokenZero.symbol}
-                </span>
-              </div>
+              <span className="text-white text-xs flex items-center gap-x-1.5">
+                {rangePosition.tokenZero.symbol}{" "}-{" "}
+                {rangePosition.tokenOne.symbol}
+              </span>
+              <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
+              {Number(Number(rangePosition.feeTier) / 10000).toFixed(2)}%
+              </span>
             </div>
-            <div className="md:col-span-2 flex gap-x-5 w-full flex-row-reverse md:flex-row items-center col-span-5 md:mx-5 mt-3 md:mt-0">
-              <div className="bg-black  px-10 py-2 rounded-lg text-grey text-xs md:hidden block">
-                {Number(Number(rangePosition.feeTier) / 10000).toFixed(2)}%
-              </div>
-
-              <div className="w-full md:mr-10">
-                {rangeTickPrice ? (
-                  Number(rangeTickPrice) < Number(rangePosition.min) ||
-                  Number(rangeTickPrice) >= Number(rangePosition.max) ? (
-                    <div className="flex items-center justify-center w-full bg-black py-2 px-5 rounded-lg gap-x-2 text-xs whitespace-nowrap ">
-                      <ExclamationTriangleIcon className="w-4 text-yellow-600" />
-                      Out of Range
-                    </div>
-                  ) : (
-                    <div className="flex items-center bg-black justify-center w-fiull py-2 px-5 rounded-lg gap-x-2 text-xs whitespace-nowrap">
-                      <div className="w-2 h-2 bg-green-500 rounded-full" />
-                      In Range
-                    </div>
-                  )
-                ) : (
-                  <></>
-                )}
-              </div>
+            <div className={`text-white text-xs ${isModal ? "text-right col-span-2" : "text-right"}`}>
+              {TickMath.getPriceStringAtTick(Number(rangePosition.min))} -{" "}
+              {TickMath.getPriceStringAtTick(Number(rangePosition.max))}{" "}
+              <span className="text-grey1">
+                {rangePosition.zeroForOne
+                  ? rangePosition.tokenOne.symbol
+                  : rangePosition.tokenZero.symbol}{" "}
+                PER{" "}
+                {rangePosition.zeroForOne
+                  ? rangePosition.tokenZero.symbol
+                  : rangePosition.tokenOne.symbol}
+              </span>
+            </div>
+            <div className={`text-white text-xs text-right`}>
+            200 <span className="text-grey1">DAI</span> - 201 <span className="text-grey1">USDC</span>
+            </div>
+            <div className="text-right text-white text-xs">
+            {!isModal && (<span>$401 </span>)}
             </div>
           </div>
         </Link>
