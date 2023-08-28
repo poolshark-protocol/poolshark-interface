@@ -18,7 +18,7 @@ import inputFilter from "../../utils/inputFilter";
 import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
 import { feeTiers, getRangePool } from "../../utils/pools";
 import Navbar from "../../components/Navbar";
-import ConcentratedPoolPreview from "../../components/Pools/ConcentratedPoolPreview";
+import RangePoolPreview from "../../components/Range/RangePoolPreview";
 import { logoMap } from "../../utils/tokens";
 
 export default function AddLiquidity({}) {
@@ -288,8 +288,8 @@ export default function AddLiquidity({}) {
   return (
     <div className="bg-black min-h-screen  ">
       <Navbar />
-      <div className="text-white flex flex-col mx-auto max-w-2xl  justify-center pt-10">
-        <div className="flex items-center justify-between">
+      <div className="text-white flex flex-col mx-auto max-w-2xl  justify-center pt-10 px-3 md:px-0 pb-32 md:pb-0">
+        <div className="flex md:flex-row flex-col md:items-center items-start gap-y-4 justify-between">
           <h1 className="uppercase">RANGE POOL</h1>
           <div>
             <div className="flex  items-center gap-x-2 bg-dark border border-grey py-2 px-5 rounded-[4px]">
@@ -308,7 +308,7 @@ export default function AddLiquidity({}) {
           </div>
         </div>
         <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
-        <h1 className="mb-4">DEPOSIT AMOUNTS</h1>
+        <h1 className="mb-4">ADD LIQUIDITY</h1>
         <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
           <div className="flex items-end justify-between text-[11px] text-grey1">
             <span>
@@ -324,10 +324,10 @@ export default function AddLiquidity({}) {
           </div>
           <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
             {inputBox("0")}
-            <div className="flex items-center gap-x-2">
+            <div className="flex items-center gap-x-2 w-full">
             <button
                       onClick={() => maxBalance(tokenIn.userBalance, "0")}
-                      className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
+                      className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border md:block hidden"
                     >
                       MAX
                     </button>
@@ -366,7 +366,7 @@ export default function AddLiquidity({}) {
                       )
                     ).toPrecision(5)
                   : 0}
-            <div className="flex items-center gap-x-2">
+            <div className="flex items-center gap-x-2 ">
             <button className="flex w-full items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
             <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
               <img className="md:w-7 w-6" src={tokenOut.logoURI} />
@@ -378,7 +378,7 @@ export default function AddLiquidity({}) {
         </div>
         <h1 className="mb-4 mt-10">SET A PRICE RANGE</h1>
         <div className="flex flex-col gap-y-4">
-          <div className="flex items-center gap-x-5 mt-3">
+          <div className="flex md:flex-row flex-col items-center gap-5 mt-3">
             <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
               <span className="text-grey1 text-xs">MIN. PRICE</span>
               <span className="text-white text-3xl">
@@ -442,7 +442,7 @@ export default function AddLiquidity({}) {
               </div>
             </div>
         </div>
-        <ConcentratedPoolPreview fee={selectedFeeTier} />
+        <RangePoolPreview fee={selectedFeeTier} />
       </div>
       </div>
     </div>

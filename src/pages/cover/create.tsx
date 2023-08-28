@@ -53,7 +53,7 @@ export default function CoverCreate() {
   return (
     <div className="bg-black min-h-screen  ">
       <Navbar />
-      <div className="text-white flex flex-col mx-auto max-w-2xl  justify-center py-10">
+      <div className="text-white flex flex-col mx-auto max-w-2xl  justify-center py-10 px-3 md:px-0 pb-32 md:pb-0">
         <h1 className="uppercase">
           {shifted === "initial"
             ? "Select an option"

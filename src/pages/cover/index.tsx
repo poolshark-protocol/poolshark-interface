@@ -17,14 +17,14 @@ import {
   fetchRangePools,
   fetchRangePositions,
   fetchCoverPools,
-} from '../../utils/queries'
+} from "../../utils/queries";
 import {
   mapCoverPools,
   mapRangePools,
   mapUserRangePositions,
-} from '../../utils/maps'
+} from "../../utils/maps";
 //import UserLimitPool from '../../components/Pools/UserLimitPool'
-import { useRangeStore } from '../../hooks/useRangeStore'
+import { useRangeStore } from "../../hooks/useRangeStore";
 
 export default function Cover() {
   const [needsRefetch, setNeedsRefetch] = useCoverStore((state) => [
@@ -43,7 +43,7 @@ export default function Cover() {
   const [searchTerm, setSearchTerm] = useState("");
   const [allCoverPositions, setAllCoverPositions] = useState([]);
   const [create, setCreate] = useState(true);
-  const [allCoverPools, setAllCoverPools] = useState([])
+  const [allCoverPools, setAllCoverPools] = useState([]);
 
   useEffect(() => {
     if (address) {
@@ -52,8 +52,8 @@ export default function Cover() {
   }, [address]);
 
   useEffect(() => {
-    getCoverPoolData()
-  }, [])
+    getCoverPoolData();
+  }, []);
 
   useEffect(() => {
     console.log("refetching");
@@ -92,38 +92,39 @@ export default function Cover() {
   };
 
   async function getCoverPoolData() {
-    const data = await fetchCoverPools()
-    if (data['data']) {
-      const pools = data['data'].coverPools
-      setAllCoverPools(mapCoverPools(pools))
+    const data = await fetchCoverPools();
+    if (data["data"]) {
+      const pools = data["data"].coverPools;
+      setAllCoverPools(mapCoverPools(pools));
     }
   }
-
 
   return (
     <div className="min-h-screen bg-black">
       <Navbar create={create} setCreate={setCreate} />
-      <div className="container mx-auto my-8">
-        <div className="flex gap-x-8 justify-between">
-          <div className="p-7 h-[300px] w-[60%] flex flex-col justify-between bg-[url('/static/images/bg/shark.png')]">
-            <div className="flex flex-col gap-y-3 ">
+      <div className="container mx-auto my-8 px-3 md:px-0">
+        <div className="flex lg:flex-row flex-col gap-x-8 gap-y-5 justify-between">
+          <div className="p-7 lg:h-[300px] w-full lg:w-[60%] flex flex-col justify-between bg-[url('/static/images/bg/shark.png')]">
+            <div className="flex flex-col gap-y-3 mb-5">
               <h1 className="uppercase text-white">
                 Cover your liquidity pools
               </h1>
               <p className="text-sm text-white/40 font-light">
-                Creave a Cover Pool to mitigate your impermanent loss, take a bullish entry or reduce risk and losses. Its easy and only takes a few minutes
+                Creave a Cover Pool to mitigate your impermanent loss, take a
+                bullish entry or reduce risk and losses. Its easy and only takes
+                a few minutes
               </p>
             </div>
-            <Link
-            href="/cover/create"
-              
-            >
-              <button className="px-12 py-3 text-white w-min whitespace-nowrap cursor-pointer text-center transition border border-main bg-main1 uppercase text-sm
-                hover:opacity-80">CREATE COVER POOL</button>
-              
+            <Link href="/cover/create">
+              <button
+                className="px-12 py-3 text-white w-min whitespace-nowrap cursor-pointer text-center transition border border-main bg-main1 uppercase text-sm
+                hover:opacity-80"
+              >
+                CREATE COVER POOL
+              </button>
             </Link>
           </div>
-          <div className="h-[300px] w-[40%] border border-grey p-7 flex flex-col justify-between">
+          <div className="lg:h-[300px] h-full w-full lg:w-[80%] xl:w-[40%] border border-grey p-7 flex flex-col justify-between">
             <div className="flex flex-col gap-y-3 ">
               <h1 className="uppercase text-white">How it works</h1>
               <p className="text-sm text-grey3 font-light">
@@ -133,12 +134,11 @@ export default function Cover() {
                 <br />
                 <br />
                 <span className="text-xs">
-                  - If the ETH price <b>increases</b>, the pool <b>sells DAI</b> and
-                  increases the amount of <b>ETH exposure</b>
-                  <br />- If the ETH price <b>decreases</b>, the pool <b>
-                    sells ETH
-                  </b>{" "}
-                  and increases the amount of <b>DAI exposure</b>
+                  - If the ETH price <b>increases</b>, the pool <b>sells DAI</b>{" "}
+                  and increases the amount of <b>ETH exposure</b>
+                  <br />- If the ETH price <b>decreases</b>, the pool{" "}
+                  <b>sells ETH</b> and increases the amount of{" "}
+                  <b>DAI exposure</b>
                 </span>
               </p>
             </div>
@@ -206,51 +206,55 @@ export default function Cover() {
                       Your cover positions will appear here.
                     </div>
                   ) : (
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-4 text-xs text-grey1/60 w-full mt-5 mb-2">
-                        <span>Pool Name</span>
-                        <span className="text-right">Price Range</span>
-                        <span className="text-right">% Filled</span>
-                        <span className="text-right mr-4">USD Value</span>
+                    <div className="overflow-scroll">
+                      <div className="w-[1400px] lg:w-auto">
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-4 text-xs text-grey1/60 w-full mt-5 mb-2">
+                            <span>Pool Name</span>
+                            <span className="text-right">Price Range</span>
+                            <span className="text-right">% Filled</span>
+                            <span className="text-right mr-4">USD Value</span>
+                          </div>
+                          {allCoverPositions.map((allCoverPosition) => {
+                            if (
+                              allCoverPosition.id != undefined &&
+                              allCoverPosition.userOwnerAddress ===
+                                address?.toLowerCase() &&
+                              (allCoverPosition.tokenZero.name.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                                allCoverPosition.tokenOne.name.toLowerCase() ===
+                                  searchTerm.toLowerCase() ||
+                                allCoverPosition.tokenZero.symbol.toLowerCase() ===
+                                  searchTerm.toLowerCase() ||
+                                allCoverPosition.tokenOne.symbol.toLowerCase() ===
+                                  searchTerm.toLowerCase() ||
+                                allCoverPosition.tokenZero.id.toLowerCase() ===
+                                  searchTerm.toLowerCase() ||
+                                allCoverPosition.tokenOne.id.toLowerCase() ===
+                                  searchTerm.toLowerCase() ||
+                                searchTerm === "")
+                            ) {
+                              return (
+                                <UserCoverPool
+                                  key={allCoverPosition.id + "coverPosition"}
+                                  coverPosition={allCoverPosition}
+                                  lowerPrice={parseFloat(
+                                    TickMath.getPriceStringAtTick(
+                                      allCoverPosition.lowerTick
+                                    )
+                                  )}
+                                  upperPrice={parseFloat(
+                                    TickMath.getPriceStringAtTick(
+                                      allCoverPosition.upperTick
+                                    )
+                                  )}
+                                  href={"/cover/view"}
+                                />
+                              );
+                            }
+                          })}
+                        </div>
                       </div>
-                      {allCoverPositions.map((allCoverPosition) => {
-                        if (
-                          allCoverPosition.id != undefined &&
-                          allCoverPosition.userOwnerAddress ===
-                            address?.toLowerCase() &&
-                          (allCoverPosition.tokenZero.name.toLowerCase() ===
-                            searchTerm.toLowerCase() ||
-                            allCoverPosition.tokenOne.name.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allCoverPosition.tokenZero.symbol.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allCoverPosition.tokenOne.symbol.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allCoverPosition.tokenZero.id.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allCoverPosition.tokenOne.id.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            searchTerm === "")
-                        ) {
-                          return (
-                            <UserCoverPool
-                              key={allCoverPosition.id + "coverPosition"}
-                              coverPosition={allCoverPosition}
-                              lowerPrice={parseFloat(
-                                TickMath.getPriceStringAtTick(
-                                  allCoverPosition.lowerTick
-                                )
-                              )}
-                              upperPrice={parseFloat(
-                                TickMath.getPriceStringAtTick(
-                                  allCoverPosition.upperTick
-                                )
-                              )}
-                              href={"/cover/view"}
-                            />
-                          );
-                        }
-                      })}
                     </div>
                   )}
                 </>
@@ -259,56 +263,60 @@ export default function Cover() {
           </div>
           <div className="p-6 bg-black border border-grey/50 rounded-[4px]">
             <div className="flex justify-between">
-            <div className="text-white flex items-center text-sm gap-x-3">
-              <PoolIcon />
-              <h1>ALL POOLS</h1>
+              <div className="text-white flex items-center text-sm gap-x-3">
+                <PoolIcon />
+                <h1>ALL POOLS</h1>
+              </div>
+              <span className="text-grey1 text-xs w-32 md:w-auto text-right">
+                Click on a pool to Add Liquidity
+              </span>
             </div>
-            <span className="text-grey1 text-xs">Click on a pool to Add Liquidity</span>
-            </div>
-            <div>
-              <div className="space-y-3 w-full">
-                <div className="grid grid-cols-2 w-full text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
-                  <div className="text-left">Pool Name</div>
-                  <div className="grid grid-cols-3">
-                  <span className="text-right">Volume (24h)</span>
-                  <span className="text-right">TVL</span>
-                  <span className="text-right mr-4">Fees (24h)</span>
+            <div className="overflow-scroll">
+              <div className="w-[1400px] lg:w-auto">
+                <div className="space-y-3 w-full">
+                  <div className="grid grid-cols-2 w-full text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
+                    <div className="text-left">Pool Name</div>
+                    <div className="grid grid-cols-3">
+                      <span className="text-right">Volume (24h)</span>
+                      <span className="text-right">TVL</span>
+                      <span className="text-right mr-4">Fees (24h)</span>
+                    </div>
                   </div>
+                  {allCoverPools.map((allRangePool) => {
+                    if (
+                      allRangePool.tokenZero.name.toLowerCase() ===
+                        searchTerm.toLowerCase() ||
+                      allRangePool.tokenOne.name.toLowerCase() ===
+                        searchTerm.toLowerCase() ||
+                      allRangePool.tokenZero.symbol.toLowerCase() ===
+                        searchTerm.toLowerCase() ||
+                      allRangePool.tokenOne.symbol.toLowerCase() ===
+                        searchTerm.toLowerCase() ||
+                      allRangePool.tokenZero.id.toLowerCase() ===
+                        searchTerm.toLowerCase() ||
+                      allRangePool.tokenOne.id.toLowerCase() ===
+                        searchTerm.toLowerCase() ||
+                      searchTerm === ""
+                    )
+                      return (
+                        <CoverPool
+                          account={address}
+                          key={allRangePool.poolId}
+                          poolId={allRangePool.poolId}
+                          tokenZero={allRangePool.tokenZero}
+                          tokenOne={allRangePool.tokenOne}
+                          liquidity={allRangePool.liquidity}
+                          auctionLenght={undefined}
+                          feeTier={allRangePool.feeTier}
+                          tickSpacing={allRangePool.tickSpacing}
+                          tvlUsd={allRangePool.tvlUsd}
+                          volumeUsd={allRangePool.volumeUsd}
+                          volumeEth={allRangePool.volumeEth}
+                          href="/cover/create"
+                        />
+                      );
+                  })}
                 </div>
-                {allCoverPools.map((allRangePool) => {
-                  if (
-                    allRangePool.tokenZero.name.toLowerCase() ===
-                      searchTerm.toLowerCase() ||
-                    allRangePool.tokenOne.name.toLowerCase() ===
-                      searchTerm.toLowerCase() ||
-                    allRangePool.tokenZero.symbol.toLowerCase() ===
-                      searchTerm.toLowerCase() ||
-                    allRangePool.tokenOne.symbol.toLowerCase() ===
-                      searchTerm.toLowerCase() ||
-                    allRangePool.tokenZero.id.toLowerCase() ===
-                      searchTerm.toLowerCase() ||
-                    allRangePool.tokenOne.id.toLowerCase() ===
-                      searchTerm.toLowerCase() ||
-                    searchTerm === ""
-                  )
-                    return (
-                      <CoverPool
-                        account={address}
-                        key={allRangePool.poolId}
-                        poolId={allRangePool.poolId}
-                        tokenZero={allRangePool.tokenZero}
-                        tokenOne={allRangePool.tokenOne}
-                        liquidity={allRangePool.liquidity}
-                        auctionLenght={undefined}
-                        feeTier={allRangePool.feeTier}
-                        tickSpacing={allRangePool.tickSpacing}
-                        tvlUsd={allRangePool.tvlUsd}
-                        volumeUsd={allRangePool.volumeUsd}
-                        volumeEth={allRangePool.volumeEth}
-                        href="/cover/create"
-                      />
-                    );
-                })}
               </div>
             </div>
           </div>

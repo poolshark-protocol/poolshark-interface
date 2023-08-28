@@ -13,7 +13,7 @@ import { useCoverStore } from "../../hooks/useCoverStore";
 import { tokenCover, tokenLimit } from "../../utils/types";
 import ArrowRightIcon from "../Icons/ArrowRightIcon";
 
-export default function UserRangePool({ rangePosition, href }) {
+export default function UserRangePool({ rangePosition, href, isModal }) {
   const [
     rangeTokenIn,
     rangeTokenOut,
@@ -144,7 +144,7 @@ export default function UserRangePool({ rangePosition, href }) {
               {Number(Number(rangePosition.feeTier) / 10000).toFixed(2)}%
               </span>
             </div>
-            <div className="text-white text-right text-xs">
+            <div className={`text-white text-xs ${isModal ? "text-right col-span-2" : "text-right"}`}>
               {TickMath.getPriceStringAtTick(Number(rangePosition.min))} -{" "}
               {TickMath.getPriceStringAtTick(Number(rangePosition.max))}{" "}
               <span className="text-grey1">
@@ -157,11 +157,11 @@ export default function UserRangePool({ rangePosition, href }) {
                   : rangePosition.tokenOne.symbol}
               </span>
             </div>
-            <div className="text-right text-white text-xs">
-              200 <span className="text-grey1">DAI</span> - 201 <span className="text-grey1">USDC</span>
+            <div className={`text-white text-xs text-right`}>
+            200 <span className="text-grey1">DAI</span> - 201 <span className="text-grey1">USDC</span>
             </div>
             <div className="text-right text-white text-xs">
-              <span>$401 </span>
+            {!isModal && (<span>$401 </span>)}
             </div>
           </div>
         </Link>

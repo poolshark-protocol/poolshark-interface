@@ -11,7 +11,7 @@ import { useRangeStore } from "../../hooks/useRangeStore";
 import { BN_ZERO } from "../../utils/math/constants";
 import { gasEstimateRangeMint } from "../../utils/gas";
 
-export default function ConcentratedPoolPreview({ fee }) {
+export default function RangePoolPreview({ fee }) {
   const [
     rangePoolAddress,
     rangePoolData,
@@ -185,19 +185,19 @@ export default function ConcentratedPoolPreview({ fee }) {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="max-w-[55rem] w-full text-white text-left overflow-hidden rounded-xl shadow-xl transition-all">
-                  <div className="bg-black flex md:flex-row flex-col gap-x-20 justify-between border border-grey2 w-full rounded-xl py-6 px-7">
+                <Dialog.Panel className="max-w-[55rem] w-full text-white text-left overflow-hidden rounded-[4px] shadow-xl transition-all">
+                  <div className="bg-black flex md:flex-row flex-col gap-x-20 justify-between border border-grey w-full rounded-[4px] py-6 px-7">
                     <div className="md:w-1/2">
                       <div>
                         <div className="flex items-center gap-x-4">
                           <h1>Pair</h1>
                         </div>
                         <div className="flex flex-col md:flex-row items-center gap-x-5 gap-y-3 mt-3 w-full">
-                          <button className="flex w-full items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
+                          <button className="flex w-full items-center gap-x-3 bg-black border border-grey px-4 py-1.5 rounded-[4px]">
                             <img className="w-7" src={tokenIn.logoURI} />
                             {tokenIn.symbol}
                           </button>
-                          <button className="flex w-full items-center gap-x-3 bg-black border border-grey1 px-4 py-1.5 rounded-xl">
+                          <button className="flex w-full items-center gap-x-3 bg-black border border-grey px-4 py-1.5 rounded-[4px]">
                             <img
                               className="w-7 w-full"
                               src={tokenOut.logoURI}
@@ -389,14 +389,7 @@ export default function ConcentratedPoolPreview({ fee }) {
                                   )
                                 : BN_ZERO
                             }
-                            disabled={
-                              allowanceInRange.lt(
-                                rangeMintParams.tokenInAmount
-                              ) ||
-                              allowanceOutRange.lt(
-                                rangeMintParams.tokenOutAmount
-                              )
-                            }
+                            disabled={rangeMintParams.disabled}
                             amount0={
                               tokenIn.callId === 0
                                 ? rangeMintParams.tokenInAmount

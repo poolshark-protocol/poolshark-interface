@@ -1,10 +1,9 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useState, useEffect } from "react";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/20/solid";
-import UserCoverPool from "../Cover/UserCoverPool";
+import UserRangePool from "../Range/UserRangePool";
 import { fetchRangePositions, fetchUniV3Positions } from "../../utils/queries";
 import { useAccount } from "wagmi";
-import UserPool from "../Pools/UserPool"; 
 import { BigNumber } from "ethers";
 
 export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
@@ -159,7 +158,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-3xl h-[45rem] transform overflow-y-auto rounded-[4px] bg-black text-white border border-grey text-left align-middle shadow-xl px-6 py-5 transition-all">
+              <Dialog.Panel className="w-full max-w-5xl h-[45rem] transform overflow-y-auto rounded-[4px] bg-black text-white border border-grey text-left align-middle shadow-xl px-6 py-5 transition-all">
                 <div className="flex justify-between items-center mb-5">
                   <h1 className="">Select a Pool to Cover</h1>
                   <XMarkIcon
@@ -179,7 +178,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                 </div>
                 <div>
                   <h1 className="mb-3 text-xs uppercase">Poolshark Positions</h1>
-                  <div className="space-y-2">
+                  <div>
                     {allRangePositions.length === 0 ? (
                       <div className="space-y-2">
                         <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
@@ -199,7 +198,8 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                         </div>
                       </div>
                     ) : (
-                      <>
+                      <div className="overflow-scroll">
+                      <div className="w-[900px] lg:w-auto space-y-2">
                         {allRangePositions.map((allRangePosition) => {
                           if (
                             allRangePosition.userOwnerAddress ===
@@ -222,16 +222,18 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                                 }}
                                 key={allRangePosition.id + "click"}
                               >
-                                <UserPool
+                                <UserRangePool
                                   key={allRangePosition.id}
                                   rangePosition={allRangePosition}
                                   href={"/cover/create"}
+                                  isModal={true}
                                 />
                               </div>
                             );
                           }
                         })}
-                      </>
+                      </div>
+                      </div>
                     )}
                   </div>
                 </div>

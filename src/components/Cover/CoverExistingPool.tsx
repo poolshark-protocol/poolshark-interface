@@ -596,7 +596,7 @@ export default function CoverExistingPool({ goBack }) {
       </div>
       <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
         <h1 className="mb-4">CHOOSE A VOLATILITY TIER</h1>
-        <div className="flex justify-between mt-8 gap-x-16">
+        <div className="flex md:flex-row flex-col justify-between mt-8 gap-x-16 gap-y-5">
           {volatilityTiers.map((volatilityTier, volatilityTierIdx) => (
             <div
               onClick={() => setSelectedVolatility(volatilityTier)}
@@ -618,7 +618,7 @@ export default function CoverExistingPool({ goBack }) {
       <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
         <h1 className="mb-4">SET A PRICE RANGE</h1>
         <div className="flex flex-col gap-y-4">
-          <div className="flex items-center gap-x-5 mt-3">
+          <div className="flex md:flex-row flex-col items-center gap-5 mt-3">
             <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
               <span className="text-grey1 text-xs">MIN. PRICE</span>
               <span className="text-white text-3xl">

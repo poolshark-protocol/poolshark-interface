@@ -341,8 +341,8 @@ export default function ViewRange() {
   return (
     <div className="bg-black min-h-screen  ">
       <Navbar />
-      <div className="flex flex-col pt-10 text-white relative min-h-[calc(100vh-76px)] container mx-auto">
-        <div className="flex justify-between w-full items-center">
+      <div className="flex flex-col pt-10 pb-32 md:pb-0 text-white relative min-h-[calc(100vh-76px)] container mx-auto md:px-0 px-3">
+        <div className="flex md:flex-row flex-col justify-between w-full items-start md:items-center gap-y-5">
           <div className="flex items-center gap-x-3">
             <div className="flex items-center">
               <img height="50" width="50" src={tokenIn.logoURI} />
@@ -399,8 +399,8 @@ export default function ViewRange() {
             </button>
           </div>
         </div>
-        <div className="flex justify-between w-full mt-8  gap-x-10">
-          <div className="border border-grey rounded-[4px] w-1/2 p-5">
+        <div className="flex lg:flex-row flex-col justify-between w-full mt-8 gap-10">
+          <div className="border border-grey rounded-[4px] lg:w-1/2 w-full p-5">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">Liquidity</h1>
               <span className="text-grey1">${userLiquidityUsd.toFixed(2)}</span>
@@ -413,7 +413,7 @@ export default function ViewRange() {
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
                   {amount0.toFixed(2)}
                   <div className="flex items-center gap-x-2">
-                    <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
+                    <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenIn.logoURI} />
                       {tokenIn.symbol}
                     </div>
@@ -427,7 +427,7 @@ export default function ViewRange() {
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
                   {amount1.toFixed(2)}
                   <div className="flex items-center gap-x-2">
-                    <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
+                    <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenOut.logoURI} />
                       {tokenOut.symbol}
                     </div>
@@ -436,7 +436,7 @@ export default function ViewRange() {
               </div>
               <div className="flex justify-between items-center mt-8">
                 <div className="flex items-center gap-x-4">
-                  <h1 className="uppercase text-white">Price Range</h1>
+                  <h1 className="uppercase text-white md:block hidden">Price Range</h1>
                   {Number(rangePoolData.tickAtPrice) <
                     Number(rangePositionData.min) ||
                   Number(rangePoolData.tickAtPrice) >=
@@ -475,7 +475,7 @@ export default function ViewRange() {
                     <span className="text-white text-3xl">
                       {priceDirection ? <>{lowerInverse}</> : <>{lowerPrice}</>}
                     </span>
-                    <span className="text-grey1 text-[9px]">
+                    <span className="text-grey1 text-[9px] text-center">
                       Your position will be 100%{" "}
                       {priceDirection ? tokenOut.symbol : tokenIn.symbol} at
                       this price.
@@ -486,7 +486,7 @@ export default function ViewRange() {
                     <span className="text-white text-3xl">
                       {priceDirection ? <>{upperInverse}</> : <>{upperPrice}</>}
                     </span>
-                    <span className="text-grey1 text-[9px]">
+                    <span className="text-grey1 text-[9px] text-center">
                       Your position will be 100%{" "}
                       {priceDirection ? tokenIn.symbol : tokenOut.symbol} at
                       this price.
@@ -506,7 +506,7 @@ export default function ViewRange() {
               </div>
             </div>
           </div>
-          <div className="border bg-dark border-grey rounded-[4px] w-1/2 p-5 h-min">
+          <div className="border bg-dark border-grey rounded-[4px] lg:w-1/2 w-full p-5 h-min">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">Earned Fees</h1>
               <span className="text-grey1">${userLiquidityUsd.toFixed(2)}</span>
@@ -519,7 +519,7 @@ export default function ViewRange() {
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
                   {amount0.toFixed(2)}
                   <div className="flex items-center gap-x-2">
-                    <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
+                    <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenIn.logoURI} />
                       {tokenIn.symbol}
                     </div>
@@ -533,7 +533,7 @@ export default function ViewRange() {
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
                   {amount1.toFixed(2)}
                   <div className="flex items-center gap-x-2">
-                    <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
+                    <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenOut.logoURI} />
                       {tokenOut.symbol}
                     </div>

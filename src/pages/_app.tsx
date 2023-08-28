@@ -362,6 +362,7 @@ const whitelist = [
   '0xFaF58c162eBE1E7f64DcfBC57fDB238Fd0613b20',
   '0x8E666bd6dD4AdC978350802D11558aAfE9f290f0',
   '0x9dA9409D17DeA285B078af06206941C049F692Dc',
+  '0xedf2cfd0a8da2891ea0f2b187eba298a366a100d',
 ]
 
 function MyApp({ Component, pageProps }) {
@@ -395,7 +396,7 @@ function MyApp({ Component, pageProps }) {
             <div className="min-h-screen">
             <div className="max-w-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <img src="/static/images/logo.png" className="mx-auto mb-10 w-56" />
-                <div className="text-white text-center text-lg mb-10 ">
+                <div className="text-white text-center mb-10 text-sm">
                 Poolshark is currently under a closed testnet beta. You must be whitelisted in order to access the platform.
                 </div>
                 <div className="mx-auto text-white text-center">
@@ -411,7 +412,7 @@ function MyApp({ Component, pageProps }) {
             (<div className="min-h-screen">
               <div className="max-w-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <img src="/static/images/logo.png" className="mx-auto mb-10 w-60" />
-                <div className="text-white text-center text-lg mb-10 ">
+                <div className="text-white text-center mb-10 text-sm">
                 Poolshark is currently under a closed testnet beta. You must be whitelisted in order to access the platform.
                 </div>
                 <div className="mx-32">

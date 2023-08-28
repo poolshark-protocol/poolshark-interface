@@ -914,7 +914,7 @@ export default function Trade() {
     }
   };
   return (
-    <div className="min-h-[calc(100vh-160px)] w-[43rem]">
+    <div className="min-h-[calc(100vh-160px)] w-[43rem] px-3 md:px-0">
       <div className="flex w-full mt-[10vh] justify-center mb-20 ">
         <div className="bg-black font-regular border border-grey rounded-[4px]">
           <div className="flex text-xs">
@@ -1091,10 +1091,10 @@ export default function Trade() {
               <div className="mt-5">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-x-3 text-sm">
-                    PRICE:
-                    <div className="text-xs">
+                    <span className="md:block hidden">PRICE:</span>
+                    <div className="md:text-xs text-[10px]">
                       <button
-                        className={`px-5 py-2 ${
+                        className={`md:px-5 px-3 py-2 ${
                           priceRangeSelected
                             ? "bg-black border-l border-t border-b border-grey"
                             : "bg-main1 border border-main"
@@ -1104,7 +1104,7 @@ export default function Trade() {
                         EXACT PRICE
                       </button>
                       <button
-                        className={`px-5 py-2 ${
+                        className={`md:px-5 px-3 py-2 ${
                           priceRangeSelected
                             ? "bg-main1 border border-main"
                             : "bg-black border-r border-t border-b border-grey"
@@ -1154,13 +1154,13 @@ export default function Trade() {
                         <span className="text-center text-xs text-grey1 mb-2">
                           MIN. PRICE
                         </span>
-                        <input className="outline-none bg-transparent text-3xl w-56 text-center mb-2" />
+                        <input className="outline-none bg-transparent text-3xl w-1/2 md:w-56 text-center mb-2" />
                       </div>
                       <div className="border border-grey w-full bg-dark flex flex-col items-center justify-center py-4">
                         <span className="text-center text-xs text-grey1 mb-2">
                           MAX. PRICE
                         </span>
-                        <input className="outline-none bg-transparent text-3xl w-56 text-center mb-2" />
+                        <input className="outline-none bg-transparent text-3xl w-1/2 md:w-56 text-center mb-2" />
                       </div>
                     </div>
                   </div>
@@ -1222,7 +1222,7 @@ export default function Trade() {
                     </div>
                     <input
                       autoComplete="off"
-                      className="bg-dark outline-none text-3xl my-3"
+                      className="bg-dark outline-none text-3xl my-3 w-60 md:w-auto"
                       placeholder="0"
                       value={
                         !isNaN(parseFloat(limitStringPriceQuote))
@@ -1387,11 +1387,11 @@ export default function Trade() {
         </div>
       </div>
       <div className="mb-20">
-        <div className="flex item-end justify-between">
+        <div className="flex md:flex-row flex-col gap-y-3 item-end justify-between">
           <h1 className="mt-1.5">Limit Orders</h1>
-          <div className="text-xs">
+          <div className="text-xs w-full md:w-auto flex">
             <button
-              className={`px-5 py-2 ${
+              className={`px-5 py-2 w-full md:w-auto ${
                 !activeOrdersSelected
                   ? "bg-black border-l border-t border-b border-grey"
                   : "bg-main1 border border-main"
@@ -1401,7 +1401,7 @@ export default function Trade() {
               ACTIVE ORDERS
             </button>
             <button
-              className={`px-5 py-2 ${
+              className={`px-5 py-2 w-full md:w-auto ${
                 !activeOrdersSelected
                   ? "bg-main1 border border-main"
                   : "bg-black border-r border-t border-b border-grey"
@@ -1419,15 +1419,15 @@ export default function Trade() {
               <th className="text-left ">Sell</th>
               <th className="text-left ">Buy</th>
               <th className="text-left">Price</th>
-              <th className="text-left">Status</th>
-              <th className="text-right ">Age</th>
+              <th className="text-left md:grid-cell hidden">Status</th>
+              <th className="text-right md:grid-cell hidden">Age</th>
             </tr>
             </thead>
           {activeOrdersSelected ? (
           <tbody className="">
             <tr className="text-right text-xs md:text-sm">
               <td className="">
-                <div className="flex items-center text-sm text-grey1 gap-x-2">
+                <div className="flex items-center text-sm text-grey1 gap-x-2 text-left">
                   <img
                     className="w-[25px] h-[25px]"
                     src="/static/images/dai_icon.png"
@@ -1436,7 +1436,7 @@ export default function Trade() {
                 </div>
               </td>
               <td className="">
-                <div className="flex items-center text-sm text-white gap-x-2">
+                <div className="flex items-center text-sm text-white gap-x-2 text-left">
                   <img
                     className="w-[25px] h-[25px]"
                     src="/static/images/dai_icon.png"

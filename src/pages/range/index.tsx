@@ -4,8 +4,6 @@ import {
   ChevronDownIcon,
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
-import UserPool from "../../components/Pools/UserPool";
-import PoolList from "../../components/Pools/PoolList";
 import Link from "next/link";
 import { Listbox, Transition } from "@headlessui/react";
 import {
@@ -63,9 +61,10 @@ export default function Range() {
   async function getUserRangePositionData() {
     try {
       const data = await fetchRangePositions(address);
-      if (data["data"])
+      console.log("rangePositions", data);
+      if (data["data"].rangePositions)
         setAllRangePositions(
-          mapUserRangePositions(data["data"].positionFractions)
+          mapUserRangePositions(data["data"].rangePositions)
         );
     } catch (error) {
       console.log(error);
@@ -89,9 +88,9 @@ export default function Range() {
   return (
     <div className="min-h-screen bg-black">
       <Navbar />
-      <div className="container mx-auto my-8">
-        <div className="flex gap-x-8 justify-between">
-          <div className="p-7 h-[300px] w-[60%] flex flex-col justify-between bg-[url('/static/images/bg/shark1.png')]">
+      <div className="container mx-auto my-8 px-3 md:px-0">
+        <div className="flex lg:flex-row flex-col gap-x-8 gap-y-5 justify-between">
+          <div className="p-7 lg:h-[300px] w-full lg:w-[60%] flex flex-col justify-between bg-[url('/static/images/bg/shark1.png')]">
             <div className="flex flex-col gap-y-3 ">
               <h1 className="uppercase text-white">
                 BECOME A LIQUIDITY PROVIDER AND EARN FEES
@@ -110,14 +109,22 @@ export default function Range() {
             </button>
   */}
           </div>
-          <div className="h-[300px] w-[40%] border border-grey p-7 flex flex-col justify-between">
+          <div className="lg:h-[300px] h-full w-full lg:w-[80%] xl:w-[40%] border border-grey p-7 flex flex-col justify-between">
             <div className="flex flex-col gap-y-3 ">
               <h1 className="uppercase text-white">How it works</h1>
               <p className="text-sm text-grey3 font-light">
-              Range Pools are similar to what users have come to expect from AMMs while bounding liquidity between a price range.
-              <br/>
-              <br/>
-              <span className="text-xs">LPs can provide their liquidity to a specific price range, resulting in a higher concentration of liquidity and less slippage for swappers in comparison to AMM without price bounds. This is due to being able to have more liquidity within a specific range by not providing to the Full Range of a constant product curve.</span>
+                Range Pools are similar to what users have come to expect from
+                AMMs while bounding liquidity between a price range.
+                <br />
+                <br />
+                <span className="text-xs">
+                  LPs can provide their liquidity to a specific price range,
+                  resulting in a higher concentration of liquidity and less
+                  slippage for swappers in comparison to AMM without price
+                  bounds. This is due to being able to have more liquidity
+                  within a specific range by not providing to the Full Range of
+                  a constant product curve.
+                </span>
               </p>
             </div>
             <a
@@ -184,6 +191,8 @@ export default function Range() {
                       Your range positions will appear here.
                     </div>
                   ) : (
+                    <div className="overflow-scroll">
+            <div className="w-[1400px] lg:w-auto">
                     <div className="space-y-3">
                       <div className="grid grid-cols-4 text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
                         <span>Pool Name</span>
@@ -215,68 +224,75 @@ export default function Range() {
                               key={allRangePosition.id + "rangePosition"}
                               rangePosition={allRangePosition}
                               href={"/range/view"}
+                              isModal={false}
                             />
                           );
                         }
                       })}
+                    </div>
+                    </div>
                     </div>
                   )}
                 </>
               )}
             </div>
           </div>
-          <div className="p-6 bg-black border border-grey/50 rounded-[4px]">
+          <div className="p-6 bg-black border border-grey/50 rounded-[4px] ">
             <div className="flex justify-between">
-            <div className="text-white flex items-center text-sm gap-x-3">
-              <PoolIcon />
-              <h1>ALL POOLS</h1>
+              <div className="text-white flex items-center text-sm gap-x-3 w-full">
+                <PoolIcon />
+                <h1>ALL POOLS</h1>
+              </div>
+              <span className="text-grey1 text-xs md:w-full w-32 md:w-auto text-right">
+                Click on a pool to Add Liquidity
+              </span>
             </div>
-            <span className="text-grey1 text-xs">Click on a pool to Add Liquidity</span>
-            </div>
-            <div>
-              <div className="space-y-3 w-full">
-                <div className="grid grid-cols-2 w-full text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
-                  <div className="text-left">Pool Name</div>
-                  <div className="grid grid-cols-3">
-                  <span className="text-right">Volume (24h)</span>
-                  <span className="text-right">TVL</span>
-                  <span className="text-right mr-4">Fees (24h)</span>
+            <div className="overflow-scroll">
+              <div className="w-[700px] lg:w-auto">
+                <div className="space-y-3 w-full">
+                  <div className="grid grid-cols-2 w-full text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
+                    <div className="text-left">Pool Name</div>
+                    <div className="grid grid-cols-3">
+                      <span className="text-right">Volume (24h)</span>
+                      <span className="text-right">TVL</span>
+                      <span className="text-right mr-4">Fees (24h)</span>
+                    </div>
                   </div>
+                  {allRangePools.map((allRangePool) => {
+                    if (
+                      allRangePool.tokenZero.name.toLowerCase() ===
+                        searchTerm.toLowerCase() ||
+                      allRangePool.tokenOne.name.toLowerCase() ===
+                        searchTerm.toLowerCase() ||
+                      allRangePool.tokenZero.symbol.toLowerCase() ===
+                        searchTerm.toLowerCase() ||
+                      allRangePool.tokenOne.symbol.toLowerCase() ===
+                        searchTerm.toLowerCase() ||
+                      allRangePool.tokenZero.id.toLowerCase() ===
+                        searchTerm.toLowerCase() ||
+                      allRangePool.tokenOne.id.toLowerCase() ===
+                        searchTerm.toLowerCase() ||
+                      searchTerm === ""
+                    )
+                      return (
+                        <RangePool
+                          account={address}
+                          key={allRangePool.poolId}
+                          poolId={allRangePool.poolId}
+                          tokenZero={allRangePool.tokenZero}
+                          tokenOne={allRangePool.tokenOne}
+                          liquidity={allRangePool.liquidity}
+                          auctionLenght={undefined}
+                          feeTier={allRangePool.feeTier}
+                          tickSpacing={allRangePool.tickSpacing}
+                          tvlUsd={allRangePool.tvlUsd}
+                          volumeUsd={allRangePool.volumeUsd}
+                          volumeEth={allRangePool.volumeEth}
+                          href="/range/add-liquidity"
+                        />
+                      );
+                  })}
                 </div>
-                {allRangePools.map((allRangePool) => {
-                  if (
-                    allRangePool.tokenZero.name.toLowerCase() ===
-                      searchTerm.toLowerCase() ||
-                    allRangePool.tokenOne.name.toLowerCase() ===
-                      searchTerm.toLowerCase() ||
-                    allRangePool.tokenZero.symbol.toLowerCase() ===
-                      searchTerm.toLowerCase() ||
-                    allRangePool.tokenOne.symbol.toLowerCase() ===
-                      searchTerm.toLowerCase() ||
-                    allRangePool.tokenZero.id.toLowerCase() ===
-                      searchTerm.toLowerCase() ||
-                    allRangePool.tokenOne.id.toLowerCase() ===
-                      searchTerm.toLowerCase() ||
-                    searchTerm === ""
-                  )
-                    return (
-                      <RangePool
-                        account={address}
-                        key={allRangePool.poolId}
-                        poolId={allRangePool.poolId}
-                        tokenZero={allRangePool.tokenZero}
-                        tokenOne={allRangePool.tokenOne}
-                        liquidity={allRangePool.liquidity}
-                        auctionLenght={undefined}
-                        feeTier={allRangePool.feeTier}
-                        tickSpacing={allRangePool.tickSpacing}
-                        tvlUsd={allRangePool.tvlUsd}
-                        volumeUsd={allRangePool.volumeUsd}
-                        volumeEth={allRangePool.volumeEth}
-                        href="/range/add-liquidity"
-                      />
-                    );
-                })}
               </div>
             </div>
           </div>
