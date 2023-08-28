@@ -358,7 +358,7 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
                 )
               ) == 0
             ? "Enter Amount"
-            : "Create Cover",
+            : "Mint Range Position",
         disabled:
           state.tokenIn.userBalance <
           parseFloat(
