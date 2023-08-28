@@ -18,6 +18,9 @@ module.exports = {
         dark: "#0C0C0C",
       },
     },
+    fontFamily: {
+      'Jetbrains': "JetBrains Mono",
+    }
   },
   plugins: [],
 };
