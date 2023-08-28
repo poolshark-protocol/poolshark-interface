@@ -73,8 +73,9 @@ export default function Range() {
 
   async function getRangePoolData() {
     const data = await fetchRangePools();
+    console.log("rangePools", data);
     if (data["data"]) {
-      const pools = data["data"].rangePools;
+      const pools = data["data"].limitPools;
       setAllRangePools(mapRangePools(pools));
     }
   }
