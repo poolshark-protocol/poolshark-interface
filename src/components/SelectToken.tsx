@@ -111,7 +111,7 @@ export default function SelectToken(props) {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-xl bg-black border border-grey2 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-[4px] bg-black border border-grey text-left align-middle shadow-xl transition-all">
                   <div className="p-5">
                     <div className="flex justify-between items-center mb-6">
                       <h1 className="text-white">Select Token</h1>
@@ -123,7 +123,7 @@ export default function SelectToken(props) {
                     <MagnifyingGlassIcon className="w-5 text-white absolute mt-[13px] ml-[14px] text-grey" />
                     <input
                       autoComplete="off"
-                      className="border border-grey2 bg-dark outline-none py-2.5 pl-12 rounded-lg w-full placeholder:text-grey placeholder:font-regular text-white md:text-base text-sm"
+                      className="border border-grey bg-dark outline-none py-2.5 pl-12 rounded-lg w-full placeholder:text-grey placeholder:font-regular text-white text-sm"
                       placeholder="Search name or paste address"
                       value={inputVal}
                       onChange={(e) => setInputVal(e.target.value)}
