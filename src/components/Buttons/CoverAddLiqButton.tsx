@@ -14,7 +14,6 @@ import { roundTick } from '../../utils/math/tickMath';
 import { BN_ZERO } from '../../utils/math/constants';
 import { useCoverStore } from '../../hooks/useCoverStore';
 
-//TODO: use positionId instead of lower/upper
 export default function CoverAddLiqButton({poolAddress, address, positionId, lower, upper, zeroForOne, amount, toAddress, gasLimit, buttonState, disabled, tokenSymbol, setIsOpen}) {
     const [ setNeedsAllowance, setNeedsBalance, setNeedsRefetch ] = useCoverStore((state) => [
       state.setNeedsAllowance,

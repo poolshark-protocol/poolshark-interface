@@ -11,7 +11,6 @@ import React, { useState } from "react";
 import { BigNumber, ethers } from "ethers";
 import { useCoverStore } from '../../hooks/useCoverStore';
 
-//TODO: use positionId instead of lower/upper
 export default function CoverCollectButton({ poolAddress, address, positionId, claim, zeroForOne, gasLimit, gasFee }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);

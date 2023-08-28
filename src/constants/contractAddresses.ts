@@ -16,5 +16,3 @@ export const rangePoolFactoryAddress = "0x2ee926Eb4bBf3C49c6D1434C8083cF09a0266f
 // libraries
 export const tickMathAddress = "0xC0A5e34d581c62c8D62ADa24A304E67A20DF9f45"
 export const rangePoolSamplesAddress = "0x83E8d1b99111c393Be0d7537561d1D70C3280d2b"
-
-//TODO: pull addresses remotely so new networks can be added easily
