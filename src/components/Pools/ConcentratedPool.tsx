@@ -290,7 +290,7 @@ export default function ConcentratedPool({}) {
 
   useEffect(() => {
     setMintButtonState();
-  }, [tokenIn, rangeMintParams.tokenInAmount]);
+  }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount]);
 
   ////////////////////////////////
 

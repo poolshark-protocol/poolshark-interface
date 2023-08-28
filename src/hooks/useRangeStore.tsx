@@ -347,7 +347,7 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
           parseFloat(
             ethers.utils.formatUnits(
               String(state.rangeMintParams.tokenInAmount),
-              18
+              state.tokenIn.decimals
             )
           )
             ? "Insufficient Token Balance"
@@ -364,7 +364,7 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
           parseFloat(
             ethers.utils.formatUnits(
               String(state.rangeMintParams.tokenInAmount),
-              18
+              state.tokenIn.decimals
             )
           )
             ? true

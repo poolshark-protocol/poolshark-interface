@@ -390,6 +390,7 @@ export default function ConcentratedPoolPreview({ fee }) {
                                 : BN_ZERO
                             }
                             disabled={rangeMintParams.disabled}
+                            buttonMessage={rangeMintParams.buttonMessage}
                             amount0={
                               tokenIn.callId === 0
                                 ? rangeMintParams.tokenInAmount
