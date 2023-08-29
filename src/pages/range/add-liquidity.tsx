@@ -379,7 +379,9 @@ export default function AddLiquidity({}) {
               {inputBox("0")}
               <div className="flex items-center gap-x-2 w-full">
                 <button
-                  onClick={() => maxBalance(tokenIn.userBalance, "0")}
+                  onClick={() =>
+                    maxBalance(tokenIn.userBalance.toString(), "0")
+                  }
                   className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border md:block hidden"
                 >
                   MAX
