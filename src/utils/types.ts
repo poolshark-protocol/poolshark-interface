@@ -1,3 +1,5 @@
+import { BigNumber } from "ethers";
+
 export type coinsList = {
   [x: string]: any;
   listed_tokens: coinRaw[];
@@ -30,7 +32,7 @@ export type tokenRangeLimit = {
   address: `0x${string}`;
   decimals: number;
   userBalance: number;
-  userPoolAllowance: number;
+  userPoolAllowance: BigNumber;
   rangeUSDPrice: number;
 };
 

@@ -40,6 +40,12 @@ export default function RangePoolPreview({ fee }) {
     state.setNeedsAllowanceOut,
   ]);
 
+  useEffect(() => {
+    console.log("rangeMintParams", rangeMintParams);
+    console.log("tokenIn", tokenIn);
+    console.log("tokenOut", tokenOut);
+  }, [tokenIn, tokenOut, rangePositionData]);
+
   const { address, isConnected } = useAccount();
   const router = useRouter();
   const provider = useProvider();
@@ -47,47 +53,6 @@ export default function RangePoolPreview({ fee }) {
 
   ////////////////////////////////Allowances
   const [doubleApprove, setdoubleApprove] = useState(false);
-
-  const { data: allowanceInRange } = useContractRead({
-    address: tokenIn.address,
-    abi: erc20ABI,
-    functionName: "allowance",
-    args: [address, rangePoolAddress],
-    chainId: 421613,
-    watch: needsAllowanceIn,
-    //enabled: tokenIn.address,
-    onSuccess(data) {
-      //console.log("Success allowance", data);
-      setNeedsAllowanceIn(false);
-    },
-    onError(error) {
-      console.log("Error allowance", error);
-    },
-  });
-
-  const { data: allowanceOutRange } = useContractRead({
-    address: tokenOut.address,
-    abi: erc20ABI,
-    functionName: "allowance",
-    args: [address, rangePoolAddress],
-    chainId: 421613,
-    watch: needsAllowanceOut,
-    //enabled: pairSelected && rangePoolAddress != ZERO_ADDRESS,
-    onError(error) {
-      console.log("Error allowance", error);
-    },
-    onSuccess(data) {
-      //console.log("Success allowance", data);
-      setNeedsAllowanceOut(false);
-    },
-  });
-
-  useEffect(() => {
-    if (allowanceInRange && allowanceOutRange) {
-      setTokenInAllowance(allowanceInRange.toString());
-      setTokenOutAllowance(allowanceOutRange.toString());
-    }
-  }, [allowanceInRange, allowanceOutRange]);
 
   ////////////////////////////////Mint Gas Fee
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
@@ -334,8 +299,10 @@ export default function RangePoolPreview({ fee }) {
                         </div>
                       </div>
                       <div className="mt-4">
-                        {allowanceInRange?.gte(rangeMintParams.tokenInAmount) &&
-                        allowanceOutRange?.gte(
+                        {tokenIn.userPoolAllowance?.gte(
+                          rangeMintParams.tokenInAmount
+                        ) &&
+                        tokenOut.userPoolAllowance?.gte(
                           rangeMintParams.tokenOutAmount
                         ) ? (
                           <RangeMintButton
@@ -384,10 +351,10 @@ export default function RangePoolPreview({ fee }) {
                             closeModal={() => router.push("/pool")}
                             gasLimit={mintGasLimit}
                           />
-                        ) : (allowanceInRange?.lt(
+                        ) : (tokenIn.userPoolAllowance?.lt(
                             rangeMintParams.tokenInAmount
                           ) &&
-                            allowanceOutRange?.lt(
+                            tokenOut.userPoolAllowance?.lt(
                               rangeMintParams.tokenOutAmount
                             )) ||
                           doubleApprove ? (
@@ -400,7 +367,7 @@ export default function RangePoolPreview({ fee }) {
                             setAllowanceController={setdoubleApprove}
                           />
                         ) : !doubleApprove &&
-                          allowanceInRange?.lt(
+                          tokenIn.userPoolAllowance?.lt(
                             rangeMintParams.tokenInAmount
                           ) ? (
                           <RangeMintApproveButton
@@ -409,7 +376,7 @@ export default function RangePoolPreview({ fee }) {
                             amount={rangeMintParams.tokenInAmount}
                           />
                         ) : !doubleApprove &&
-                          allowanceOutRange?.lt(
+                          tokenOut.userPoolAllowance?.lt(
                             rangeMintParams.tokenOutAmount
                           ) ? (
                           <RangeMintApproveButton
