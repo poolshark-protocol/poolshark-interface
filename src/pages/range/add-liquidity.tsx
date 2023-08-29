@@ -10,7 +10,7 @@ import { useRangeStore } from "../../hooks/useRangeStore";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
 import useInputBox from "../../hooks/useInputBox";
-import { useAccount, useBalance } from "wagmi";
+import { erc20ABI, useAccount, useBalance, useContractRead } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
@@ -32,10 +32,12 @@ export default function AddLiquidity({}) {
     tokenIn,
     setTokenIn,
     setTokenInAmount,
+    setTokenInAllowance,
     setTokenInRangeUSDPrice,
     setTokenInBalance,
     tokenOut,
     setTokenOut,
+    setTokenOutAllowance,
     setTokenOutAmount,
     setTokenOutRangeUSDPrice,
     setTokenOutBalance,
@@ -43,7 +45,9 @@ export default function AddLiquidity({}) {
     switchDirection,
     setMintButtonState,
     setRangePoolFromVolatility,
+    needsAllowanceIn,
     needsBalanceIn,
+    needsAllowanceOut,
     needsBalanceOut,
     setNeedsBalanceIn,
     setNeedsBalanceOut,
@@ -57,10 +61,12 @@ export default function AddLiquidity({}) {
     state.tokenIn,
     state.setTokenIn,
     state.setTokenInAmount,
+    state.setTokenInRangeAllowance,
     state.setTokenInRangeUSDPrice,
     state.setTokenInBalance,
     state.tokenOut,
     state.setTokenOut,
+    state.setTokenOutRangeAllowance,
     state.setTokenOutAmount,
     state.setTokenOutRangeUSDPrice,
     state.setTokenOutBalance,
@@ -68,7 +74,9 @@ export default function AddLiquidity({}) {
     state.switchDirection,
     state.setMintButtonState,
     state.setRangePoolFromVolatility,
+    state.needsAllowanceIn,
     state.needsBalanceIn,
+    state.needsAllowanceOut,
     state.needsBalanceOut,
     state.setNeedsBalanceIn,
     state.setNeedsBalanceOut,
@@ -98,8 +106,8 @@ export default function AddLiquidity({}) {
 
   useEffect(() => {
     updatePoolsFromStore();
-    setTokenInAmount(BN_ZERO);
-    setTokenOutAmount(BN_ZERO);
+    /* setTokenInAmount(BN_ZERO);
+    setTokenOutAmount(BN_ZERO); */
   }, [tokenIn, tokenOut, feeTierId]);
 
   async function updatePoolsFromStore() {
@@ -127,10 +135,49 @@ export default function AddLiquidity({}) {
       if (isNaN(parseFloat(upperPrice)) || parseFloat(upperPrice) <= 0) {
         setUpperPrice(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
       }
-      setRangeTickPrice(tickAtPrice);
       setRangePositionData(positionData);
     }
   }, [rangePoolData]);
+
+  ////////////////////////////////Allowances
+  const { data: allowanceInRange } = useContractRead({
+    address: tokenIn.address,
+    abi: erc20ABI,
+    functionName: "allowance",
+    args: [address, rangePoolAddress],
+    chainId: 421613,
+    watch: needsAllowanceIn,
+    //enabled: tokenIn.address,
+    onSuccess(data) {
+      console.log("Success allowance in", data);
+      //setNeedsAllowanceIn(false);
+    },
+    onError(error) {
+      console.log("Error allowance", error);
+    },
+  });
+
+  const { data: allowanceOutRange } = useContractRead({
+    address: tokenOut.address,
+    abi: erc20ABI,
+    functionName: "allowance",
+    args: [address, rangePoolAddress],
+    chainId: 421613,
+    watch: needsAllowanceOut,
+    //enabled: pairSelected && rangePoolAddress != ZERO_ADDRESS,
+    onError(error) {
+      console.log("Error allowance", error);
+    },
+    onSuccess(data) {
+      console.log("Success allowance out", data);
+      //setNeedsAllowanceOut(false);
+    },
+  });
+
+  useEffect(() => {
+    setTokenInAllowance(allowanceInRange);
+    setTokenOutAllowance(allowanceOutRange);
+  }, [allowanceInRange, allowanceOutRange]);
 
   ////////////////////////////////Token Balances
 
@@ -190,7 +237,6 @@ export default function AddLiquidity({}) {
 
   ////////////////////////////////Prices and Ticks
   const [rangePrice, setRangePrice] = useState(undefined);
-  const [rangeTickPrice, setRangeTickPrice] = useState(undefined);
   const [rangeSqrtPrice, setRangeSqrtPrice] = useState(undefined);
 
   //Prices for calculations
@@ -214,6 +260,10 @@ export default function AddLiquidity({}) {
       tokenOutAmountMath();
     }
   }, [bnInput, rangePoolAddress, tokenOrder]);
+
+  console.log("//////////////////////");
+  //console.log("rangePoolAddress", rangePoolAddress);
+  //console.log("tokenIn", tokenIn);
 
   function tokenOutAmountMath() {
     try {
@@ -259,7 +309,7 @@ export default function AddLiquidity({}) {
   ////////////////////////////////Gas Fee
 
   //set lower and upper price
-  const changePrice = (direction: string, inputId: string) => {
+  /* const changePrice = (direction: string, inputId: string) => {
     if (!rangePoolData.feeTier.tickSpacing) return;
     const currentTick =
       inputId == "minInput"
@@ -284,7 +334,7 @@ export default function AddLiquidity({}) {
     if (inputId === "maxInput") {
       setUpperPrice(newPriceString);
     }
-  };
+  }; */
 
   useEffect(() => {
     setMintButtonState();

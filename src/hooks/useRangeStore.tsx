@@ -57,13 +57,13 @@ type RangeAction = {
   setTokenIn: (tokenOut: any, newToken: any) => void;
   setTokenInAmount: (amount: BigNumber) => void;
   setTokenInRangeUSDPrice: (price: number) => void;
-  setTokenInRangeAllowance: (allowance: string) => void;
+  setTokenInRangeAllowance: (allowance: BigNumber) => void;
   setTokenInBalance: (balance: string) => void;
   //
   setTokenOut: (tokenIn: any, newToken: any) => void;
   setTokenOutAmount: (amount: BigNumber) => void;
   setTokenOutRangeUSDPrice: (price: number) => void;
-  setTokenOutRangeAllowance: (allowance: string) => void;
+  setTokenOutRangeAllowance: (allowance: BigNumber) => void;
   setTokenOutBalance: (balance: string) => void;
   //
   setMinInput: (newMinTick: string) => void;
@@ -109,7 +109,7 @@ const initialRangeState: RangeState = {
     address: tokenOneAddress,
     decimals: 18,
     userBalance: 0.0,
-    userPoolAllowance: 0,
+    userPoolAllowance: BigNumber.from(0),
     rangeUSDPrice: 0.0,
   } as tokenRange,
   //
@@ -121,7 +121,7 @@ const initialRangeState: RangeState = {
     address: tokenZeroAddress,
     decimals: 18,
     userBalance: 0.0,
-    userPoolAllowance: 0,
+    userPoolAllowance: BigNumber.from(0),
     rangeUSDPrice: 0.0,
   } as tokenRange,
   //
@@ -228,9 +228,9 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       tokenIn: { ...state.tokenIn, rangeUSDPrice: newPrice },
     }));
   },
-  setTokenInRangeAllowance: (newAllowance: string) => {
+  setTokenInRangeAllowance: (newAllowance: BigNumber) => {
     set((state) => ({
-      tokenIn: { ...state.tokenIn, userPoolAllowance: Number(newAllowance) },
+      tokenIn: { ...state.tokenIn, userPoolAllowance: newAllowance },
     }));
   },
   setTokenInBalance: (newBalance: string) => {
@@ -287,9 +287,9 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
       tokenOut: { ...state.tokenOut, userBalance: Number(newBalance) },
     }));
   },
-  setTokenOutRangeAllowance: (newAllowance: string) => {
+  setTokenOutRangeAllowance: (newAllowance: BigNumber) => {
     set((state) => ({
-      tokenOut: { ...state.tokenOut, userPoolAllowance: Number(newAllowance) },
+      tokenOut: { ...state.tokenOut, userPoolAllowance: newAllowance },
     }));
   },
   setMinInput: (minInput: string) => {
