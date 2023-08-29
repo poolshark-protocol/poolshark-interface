@@ -45,7 +45,9 @@ export default function AddLiquidity({}) {
     switchDirection,
     setMintButtonState,
     setRangePoolFromVolatility,
+    needsAllowanceIn,
     needsBalanceIn,
+    needsAllowanceOut,
     needsBalanceOut,
     setNeedsBalanceIn,
     setNeedsBalanceOut,
@@ -72,7 +74,9 @@ export default function AddLiquidity({}) {
     state.switchDirection,
     state.setMintButtonState,
     state.setRangePoolFromVolatility,
+    state.needsAllowanceIn,
     state.needsBalanceIn,
+    state.needsAllowanceOut,
     state.needsBalanceOut,
     state.setNeedsBalanceIn,
     state.setNeedsBalanceOut,
@@ -142,7 +146,7 @@ export default function AddLiquidity({}) {
     functionName: "allowance",
     args: [address, rangePoolAddress],
     chainId: 421613,
-    //watch: needsAllowanceIn,
+    watch: needsAllowanceIn,
     //enabled: tokenIn.address,
     onSuccess(data) {
       console.log("Success allowance in", data);
@@ -159,7 +163,7 @@ export default function AddLiquidity({}) {
     functionName: "allowance",
     args: [address, rangePoolAddress],
     chainId: 421613,
-    //watch: needsAllowanceOut,
+    watch: needsAllowanceOut,
     //enabled: pairSelected && rangePoolAddress != ZERO_ADDRESS,
     onError(error) {
       console.log("Error allowance", error);
@@ -260,9 +264,6 @@ export default function AddLiquidity({}) {
   console.log("//////////////////////");
   //console.log("rangePoolAddress", rangePoolAddress);
   //console.log("tokenIn", tokenIn);
-
-  console.log("rangemintparams", rangeMintParams.tokenInAmount);
-  console.log("bnInput", bnInput);
 
   function tokenOutAmountMath() {
     try {

@@ -60,7 +60,11 @@ export default function RangePoolPreview({ fee }) {
     state.setNeedsAllowanceOut,
   ]);
 
-  
+  useEffect(() => {
+    console.log("rangeMintParams", rangeMintParams);
+    console.log("tokenIn", tokenIn);
+    console.log("tokenOut", tokenOut);
+  }, [tokenIn, tokenOut, rangePositionData]);
 
   const { address, isConnected } = useAccount();
   const router = useRouter();
