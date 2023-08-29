@@ -1,33 +1,23 @@
 import { BigNumber, ethers } from "ethers";
-import { tokenRange } from "../utils/types";
-import { BN_ZERO, ZERO } from "../utils/math/constants";
+import { tokenRangeLimit } from "../utils/types";
+import { BN_ZERO } from "../utils/math/constants";
 import {
   tokenOneAddress,
   tokenZeroAddress,
 } from "../constants/contractAddresses";
 import { create } from "zustand";
 import { getRangePoolFromFactory } from "../utils/queries";
-import JSBI from "jsbi";
 
-type RangeState = {
-  //poolAddress for current token pairs
-  ////range
+type RangeLimitState = {
+  //rangePoolAddress for current token pairs
   rangePoolAddress: `0x${string}`;
   //rangePoolData contains all the info about the pool
   rangePoolData: any;
-  feeTierId: number;
+  feeTierRangeId: number;
   rangeSlippage: string;
   //Range position data containing all the info about the position
   rangePositionData: any;
-  //true if both tokens selected, false if only one token selected
-  pairSelected: boolean;
-  //TokenIn defines the token on the left/up on a swap page
-  tokenIn: tokenRange;
-  //TokenOut defines the token on the left/up on a swap page
-  tokenOut: tokenRange;
-  //min and max price input
-  minInput: string;
-  maxInput: string;
+  //range params for minting position
   rangeMintParams: {
     tokenInAmount: BigNumber;
     tokenOutAmount: BigNumber;
@@ -36,6 +26,31 @@ type RangeState = {
     disabled: boolean;
     buttonMessage: string;
   };
+  //limitPoolAddress for current token pairs
+  limitPoolAddress: `0x${string}`;
+  //limitPositionData contains all the info about the position
+  limitPoolData: any;
+  feeTierLimitId: number;
+  //Limit position data containing all the info about the position
+  limitPositionData: any;
+  //limit params for minting position
+  limitMintParams: {
+    tokenInAmount: BigNumber;
+    tokenOutAmount: BigNumber;
+    gasFee: string;
+    gasLimit: BigNumber;
+    disabled: boolean;
+    buttonMessage: string;
+  }
+  //true if both tokens selected, false if only one token selected
+  pairSelected: boolean;
+  //TokenIn defines the token on the left/up on a swap page
+  tokenIn: tokenRangeLimit;
+  //TokenOut defines the token on the left/up on a swap page
+  tokenOut: tokenRangeLimit;
+  //min and max price input
+  minInput: string;
+  maxInput: string;
   //refresh
   needsRefetch: boolean;
   needsPosRefetch: boolean;
@@ -45,12 +60,16 @@ type RangeState = {
   needsBalanceOut: boolean;
 };
 
-type RangeAction = {
+type RangeLimitAction = {
   //
   setRangePoolAddress: (address: String) => void;
   setRangePoolData: (data: any) => void;
   setRangeSlippage: (rangeSlippage: string) => void;
   setRangePositionData: (rangePosition: any) => void;
+  //
+  setLimitPoolAddress: (address: String) => void;
+  setLimitPoolData: (data: any) => void;
+  setLimitPositionData: (limitPosition: any) => void;
   //
   setPairSelected: (pairSelected: boolean) => void;
   //
@@ -78,7 +97,12 @@ type RangeAction = {
     tokenOut: any,
     volatility: any
   ) => void;
-  resetRangeParams: () => void;
+  setLimitPoolFromVolatility: (
+    tokenIn: any,
+    tokenOut: any,
+    volatility: any
+  ) => void;
+  resetRangeLimitParams: () => void;
   //
   setMintButtonState: () => void;
   //
@@ -90,13 +114,36 @@ type RangeAction = {
   setNeedsBalanceOut: (needsBalance: boolean) => void;
 };
 
-const initialRangeState: RangeState = {
-  //pools
+const initialRangeLimitState: RangeLimitState = {
+  //range pools
   rangePoolAddress: "0x000",
   rangePoolData: {},
   rangePositionData: {},
-  feeTierId: 0,
+  feeTierRangeId: 0,
   rangeSlippage: "0.5",
+  //
+  rangeMintParams: {
+    tokenInAmount: BN_ZERO,
+    tokenOutAmount: BN_ZERO,
+    gasFee: "$0.00",
+    gasLimit: BN_ZERO,
+    disabled: true,
+    buttonMessage: "",
+  },
+  //limit pools
+  limitPoolAddress: "0x000",
+  limitPoolData: {},
+  limitPositionData: {},
+  feeTierLimitId: 0,
+  //
+  limitMintParams: {
+    tokenInAmount: BN_ZERO,
+    tokenOutAmount: BN_ZERO,
+    gasFee: "$0.00",
+    gasLimit: BN_ZERO,
+    disabled: true,
+    buttonMessage: "",
+  },
   //
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
   pairSelected: false,
@@ -111,7 +158,7 @@ const initialRangeState: RangeState = {
     userBalance: 0.0,
     userPoolAllowance: 0,
     rangeUSDPrice: 0.0,
-  } as tokenRange,
+  } as tokenRangeLimit,
   //
   tokenOut: {
     callId: 1,
@@ -123,19 +170,10 @@ const initialRangeState: RangeState = {
     userBalance: 0.0,
     userPoolAllowance: 0,
     rangeUSDPrice: 0.0,
-  } as tokenRange,
+  } as tokenRangeLimit,
   //
   minInput: "",
   maxInput: "",
-  //
-  rangeMintParams: {
-    tokenInAmount: BN_ZERO,
-    tokenOutAmount: BN_ZERO,
-    gasFee: "$0.00",
-    gasLimit: BN_ZERO,
-    disabled: true,
-    buttonMessage: "",
-  },
   //
   needsRefetch: false,
   needsPosRefetch: false,
@@ -145,32 +183,40 @@ const initialRangeState: RangeState = {
   needsBalanceOut: true,
 };
 
-export const useRangeStore = create<RangeState & RangeAction>((set) => ({
-  //pool
-  rangePoolAddress: initialRangeState.rangePoolAddress,
-  rangePoolData: initialRangeState.rangePoolData,
-  feeTierId: initialRangeState.feeTierId,
-  rangeSlippage: initialRangeState.rangeSlippage,
-  //true if both tokens selected, false if only one token selected
-  pairSelected: initialRangeState.pairSelected,
-  //tokenIn
-  tokenIn: initialRangeState.tokenIn,
-  //tokenOut
-  tokenOut: initialRangeState.tokenOut,
-  //input amounts
-  minInput: initialRangeState.minInput,
-  maxInput: initialRangeState.maxInput,
+export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>((set) => ({
+  //range pool
+  rangePoolAddress: initialRangeLimitState.rangePoolAddress,
+  rangePoolData: initialRangeLimitState.rangePoolData,
+  feeTierId: initialRangeLimitState.feeTierId,
+  rangeSlippage: initialRangeLimitState.rangeSlippage,
   //range position data
-  rangePositionData: initialRangeState.rangePositionData,
+  rangePositionData: initialRangeLimitState.rangePositionData,
   //
-  rangeMintParams: initialRangeState.rangeMintParams,
+  rangeMintParams: initialRangeLimitState.rangeMintParams,
+  //limit pool
+  limitPoolAddress: initialRangeLimitState.limitPoolAddress,
+  limitPoolData: initialRangeLimitState.limitPoolData,
+  feeTierLimitId: initialRangeLimitState.feeTierLimitId,
+  //limit position data
+  limitPositionData: initialRangeLimitState.limitPositionData,
+  //
+  limitMintParams: initialRangeLimitState.limitMintParams,
+  //true if both tokens selected, false if only one token selected
+  pairSelected: initialRangeLimitState.pairSelected,
+  //tokenIn
+  tokenIn: initialRangeLimitState.tokenIn,
+  //tokenOut
+  tokenOut: initialRangeLimitState.tokenOut,
+  //input amounts
+  minInput: initialRangeLimitState.minInput,
+  maxInput: initialRangeLimitState.maxInput,
   //refresh
-  needsRefetch: initialRangeState.needsRefetch,
-  needsPosRefetch: initialRangeState.needsPosRefetch,
-  needsAllowanceIn: initialRangeState.needsAllowanceIn,
-  needsAllowanceOut: initialRangeState.needsAllowanceOut,
-  needsBalanceIn: initialRangeState.needsBalanceIn,
-  needsBalanceOut: initialRangeState.needsBalanceOut,
+  needsRefetch: initialRangeLimitState.needsRefetch,
+  needsPosRefetch: initialRangeLimitState.needsPosRefetch,
+  needsAllowanceIn: initialRangeLimitState.needsAllowanceIn,
+  needsAllowanceOut: initialRangeLimitState.needsAllowanceOut,
+  needsBalanceIn: initialRangeLimitState.needsBalanceIn,
+  needsBalanceOut: initialRangeLimitState.needsBalanceOut,
   //actions
   setPairSelected: (pairSelected: boolean) => {
     set(() => ({
@@ -180,7 +226,7 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   setTokenIn: (tokenOut, newToken: tokenRange) => {
     //if tokenOut is selected
     if (
-      tokenOut.address != initialRangeState.tokenOut.address ||
+      tokenOut.address != initialRangeLimitState.tokenOut.address ||
       tokenOut.symbol != "Select Token"
     ) {
       //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to  initialState
@@ -190,7 +236,7 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
             callId: 0,
             ...newToken,
           },
-          tokenOut: initialRangeState.tokenOut,
+          tokenOut: initialRangeLimitState.tokenOut,
           pairSelected: false,
         }));
       } else {
@@ -246,14 +292,14 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   setTokenOut: (tokenIn, newToken: tokenRange) => {
     //if tokenIn exists
     if (
-      tokenIn.address != initialRangeState.tokenOut.address ||
+      tokenIn.address != initialRangeLimitState.tokenOut.address ||
       tokenIn.symbol != "Select Token"
     ) {
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
       if (newToken.address == tokenIn.address) {
         set(() => ({
           tokenOut: { callId: 0, ...newToken },
-          tokenIn: initialRangeState.tokenOut,
+          tokenIn: initialRangeLimitState.tokenOut,
           pairSelected: false,
         }));
       } else {
@@ -471,27 +517,39 @@ export const useRangeStore = create<RangeState & RangeAction>((set) => ({
   },
   resetRangeParams: () => {
     set({
-      //pool & pair
-      rangePoolAddress: initialRangeState.rangePoolAddress,
-      rangePoolData: initialRangeState.rangePoolData,
-      rangeSlippage: initialRangeState.rangeSlippage,
-      pairSelected: initialRangeState.pairSelected,
+      //range pool & pair
+      rangePoolAddress: initialRangeLimitState.rangePoolAddress,
+      rangePoolData: initialRangeLimitState.rangePoolData,
+      rangeSlippage: initialRangeLimitState.rangeSlippage,
+      feeTierRangeId: initialRangeLimitState.feeTierRangeId,
+      //range position data
+      rangePositionData: initialRangeLimitState.rangePositionData,
+      //range mint
+      rangeMintParams: initialRangeLimitState.rangeMintParams,
+      //limit pool
+      limitPoolAddress: initialRangeLimitState.limitPoolAddress,
+      limitPoolData: initialRangeLimitState.limitPoolData,
+      feeTierLimitId: initialRangeLimitState.feeTierLimitId,
+      //limit position data
+      limitPositionData: initialRangeLimitState.limitPositionData,
+      //limit mint
+      limitMintParams: initialRangeLimitState.limitMintParams,
       //tokenIn
-      tokenIn: initialRangeState.tokenIn,
+      tokenIn: initialRangeLimitState.tokenIn,
       //tokenOut
-      tokenOut: initialRangeState.tokenOut,
+      tokenOut: initialRangeLimitState.tokenOut,
+      //selected pair
+      pairSelected: initialRangeLimitState.pairSelected,
       //input amounts
-      minInput: initialRangeState.minInput,
-      maxInput: initialRangeState.maxInput,
-      //position data
-      rangePositionData: initialRangeState.rangePositionData,
+      minInput: initialRangeLimitState.minInput,
+      maxInput: initialRangeLimitState.maxInput,
       //refresh
-      needsAllowanceIn: initialRangeState.needsAllowanceIn,
-      needsAllowanceOut: initialRangeState.needsAllowanceOut,
-      needsBalanceIn: initialRangeState.needsBalanceIn,
-      needsBalanceOut: initialRangeState.needsBalanceOut,
-      needsRefetch: initialRangeState.needsRefetch,
-      needsPosRefetch: initialRangeState.needsPosRefetch,
+      needsAllowanceIn: initialRangeLimitState.needsAllowanceIn,
+      needsAllowanceOut: initialRangeLimitState.needsAllowanceOut,
+      needsBalanceIn: initialRangeLimitState.needsBalanceIn,
+      needsBalanceOut: initialRangeLimitState.needsBalanceOut,
+      needsRefetch: initialRangeLimitState.needsRefetch,
+      needsPosRefetch: initialRangeLimitState.needsPosRefetch,
     });
   },
 }));

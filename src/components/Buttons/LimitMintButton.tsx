@@ -8,7 +8,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
-import { useLimitStore } from "../../hooks/useLimitStore";
+import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
   
   export default function LimitMintButton({
     disabled,
@@ -24,12 +24,12 @@ import { useLimitStore } from "../../hooks/useLimitStore";
   }) {
     const [
       setNeedsRefetch,
-      setNeedsAllowance,
-      setNeedsBalance,
-    ] = useLimitStore((state) => [
+      setNeedsAllowanceIn,
+      setNeedsBalanceIn,
+    ] = useRangeLimitStore((state) => [
       state.setNeedsRefetch,
-      state.setNeedsAllowance,
-      state.setNeedsBalance,
+      state.setNeedsAllowanceIn,
+      state.setNeedsBalanceIn,
     ]);
     const [errorDisplay, setErrorDisplay] = useState(false);
     const [successDisplay, setSuccessDisplay] = useState(false);
@@ -68,11 +68,11 @@ import { useLimitStore } from "../../hooks/useLimitStore";
           closeModal();
         }, 2000);
         setNeedsRefetch(true);
-        setNeedsAllowance(true);
+        setNeedsAllowanceIn(true);
         // if (amount1.gt(BN_ZERO)) {
         //   setNeedsAllowanceOut(true);
         // }
-        setNeedsBalance(true);
+        setNeedsBalanceIn(true);
       },
       onError() {
         setErrorDisplay(true);

@@ -1,17 +1,12 @@
-import {
-  ArrowsRightLeftIcon,
-  ExclamationTriangleIcon,
-} from "@heroicons/react/20/solid";
 import { useEffect, useState } from "react";
 import { TickMath } from "../../utils/math/tickMath";
 import { logoMap } from "../../utils/tokens";
-import { useRangeStore } from "../../hooks/useRangeStore";
+import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { ethers } from "ethers";
 import Link from "next/link";
-import { getCoverPool, getRangePool, volatilityTiers } from "../../utils/pools";
+import { getRangePool, volatilityTiers } from "../../utils/pools";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import { tokenCover, tokenLimit } from "../../utils/types";
-import ArrowRightIcon from "../Icons/ArrowRightIcon";
+import { tokenCover } from "../../utils/types";
 
 export default function UserRangePool({ rangePosition, href, isModal }) {
   const [
@@ -22,7 +17,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     setRangePoolAddress,
     setRangePoolData,
     setRangePositionData,
-  ] = useRangeStore((state) => [
+  ] = useRangeLimitStore((state) => [
     state.tokenIn,
     state.tokenOut,
     state.setTokenIn,

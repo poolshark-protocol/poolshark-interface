@@ -7,7 +7,7 @@ import { TickMath } from "../../utils/math/tickMath";
 import RangeMintDoubleApproveButton from "../Buttons/RangeMintDoubleApproveButton";
 import { useRouter } from "next/router";
 import RangeMintApproveButton from "../Buttons/RangeMintApproveButton";
-import { useRangeStore } from "../../hooks/useRangeStore";
+import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { BN_ZERO } from "../../utils/math/constants";
 import { gasEstimateRangeMint } from "../../utils/gas";
 
@@ -17,43 +17,23 @@ export default function RangePoolPreview({ fee }) {
     rangePoolData,
     rangePositionData,
     rangeMintParams,
-    feeTierId,
-    setRangePositionData,
     tokenIn,
     setTokenInAllowance,
     tokenOut,
     setTokenOutAllowance,
-    pairSelected,
-    switchDirection,
-    setMintButtonState,
-    setRangePoolFromVolatility,
-    needsBalanceIn,
-    needsBalanceOut,
-    setNeedsBalanceIn,
-    setNeedsBalanceOut,
     needsAllowanceIn,
     needsAllowanceOut,
     setNeedsAllowanceIn,
     setNeedsAllowanceOut,
-  ] = useRangeStore((state) => [
+  ] = useRangeLimitStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
     state.rangePositionData,
     state.rangeMintParams,
-    state.feeTierId,
-    state.setRangePositionData,
     state.tokenIn,
     state.setTokenInRangeAllowance,
     state.tokenOut,
     state.setTokenOutRangeAllowance,
-    state.pairSelected,
-    state.switchDirection,
-    state.setMintButtonState,
-    state.setRangePoolFromVolatility,
-    state.needsBalanceIn,
-    state.needsBalanceOut,
-    state.setNeedsBalanceIn,
-    state.setNeedsBalanceOut,
     state.needsAllowanceIn,
     state.needsAllowanceOut,
     state.setNeedsAllowanceIn,

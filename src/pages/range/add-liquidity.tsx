@@ -1,12 +1,5 @@
-import { Fragment, useEffect, useState } from "react";
-import {
-  ChevronDownIcon,
-  PlusIcon,
-  MinusIcon,
-  InformationCircleIcon,
-} from "@heroicons/react/20/solid";
-import { Listbox, Transition } from "@headlessui/react";
-import { useRangeStore } from "../../hooks/useRangeStore";
+import { useEffect, useState } from "react";
+import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
 import useInputBox from "../../hooks/useInputBox";
@@ -16,10 +9,9 @@ import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import inputFilter from "../../utils/inputFilter";
 import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
-import { feeTiers, getRangePool } from "../../utils/pools";
+import { feeTiers } from "../../utils/pools";
 import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
-import { logoMap } from "../../utils/tokens";
 
 export default function AddLiquidity({}) {
   const [
@@ -47,7 +39,7 @@ export default function AddLiquidity({}) {
     needsBalanceOut,
     setNeedsBalanceIn,
     setNeedsBalanceOut,
-  ] = useRangeStore((state) => [
+  ] = useRangeLimitStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
     state.rangePositionData,

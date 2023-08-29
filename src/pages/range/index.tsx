@@ -1,27 +1,15 @@
 import Navbar from "../../components/Navbar";
 import {
-  MagnifyingGlassIcon,
-  ChevronDownIcon,
-  InformationCircleIcon,
-} from "@heroicons/react/24/outline";
-import Link from "next/link";
-import { Listbox, Transition } from "@headlessui/react";
-import {
   fetchRangePools,
   fetchRangePositions,
-  fetchCoverPools,
-  fetchCoverPositions,
 } from "../../utils/queries";
-import { Fragment, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import {
-  mapCoverPools,
   mapRangePools,
-  mapUserCoverPositions,
   mapUserRangePositions,
 } from "../../utils/maps";
-import { TickMath } from "../../utils/math/tickMath";
-import { useRangeStore } from "../../hooks/useRangeStore";
+import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import InfoIcon from "../../components/Icons/InfoIcon";
 import SearchIcon from "../../components/Icons/SearchIcon";
@@ -37,7 +25,7 @@ export default function Range() {
   const [allRangePositions, setAllRangePositions] = useState([]);
   const [allRangePools, setAllRangePools] = useState([]);
 
-  const [needsRefetch, setNeedsRefetch] = useRangeStore((state) => [
+  const [needsRefetch, setNeedsRefetch] = useRangeLimitStore((state) => [
     state.needsRefetch,
     state.setNeedsRefetch,
   ]);
