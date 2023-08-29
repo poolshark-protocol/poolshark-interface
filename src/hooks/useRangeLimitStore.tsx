@@ -6,7 +6,7 @@ import {
   tokenZeroAddress,
 } from "../constants/contractAddresses";
 import { create } from "zustand";
-import { getRangePoolFromFactory } from "../utils/queries";
+import { getLimitPoolFromFactory, getRangePoolFromFactory } from "../utils/queries";
 
 type RangeLimitState = {
   //rangePoolAddress for current token pairs
@@ -88,8 +88,11 @@ type RangeLimitAction = {
   setMinInput: (newMinTick: string) => void;
   setMaxInput: (newMaxTick: string) => void;
   //
-  setGasFee: (gasFee: string) => void;
-  setGasLimit: (gasLimit: BigNumber) => void;
+  setRangeGasFee: (gasFee: string) => void;
+  setRangeGasLimit: (gasLimit: BigNumber) => void;
+  //
+  setLimitGasFee: (gasFee: string) => void;
+  setLimitGasLimit: (gasLimit: BigNumber) => void;
   //
   switchDirection: () => void;
   setRangePoolFromVolatility: (
@@ -187,7 +190,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>((se
   //range pool
   rangePoolAddress: initialRangeLimitState.rangePoolAddress,
   rangePoolData: initialRangeLimitState.rangePoolData,
-  feeTierId: initialRangeLimitState.feeTierId,
+  feeTierRangeId: initialRangeLimitState.feeTierRangeId,
   rangeSlippage: initialRangeLimitState.rangeSlippage,
   //range position data
   rangePositionData: initialRangeLimitState.rangePositionData,
@@ -223,7 +226,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>((se
       pairSelected: pairSelected,
     }));
   },
-  setTokenIn: (tokenOut, newToken: tokenRange) => {
+  setTokenIn: (tokenOut, newToken: tokenRangeLimit) => {
     //if tokenOut is selected
     if (
       tokenOut.address != initialRangeLimitState.tokenOut.address ||
@@ -289,7 +292,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>((se
       tokenOut: { ...state.tokenOut, rangeUSDPrice: newPrice },
     }));
   },
-  setTokenOut: (tokenIn, newToken: tokenRange) => {
+  setTokenOut: (tokenIn, newToken: tokenRangeLimit) => {
     //if tokenIn exists
     if (
       tokenIn.address != initialRangeLimitState.tokenOut.address ||
@@ -363,7 +366,12 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>((se
       rangeSlippage: rangeSlippage,
     }));
   },
-  setGasFee: (gasFee: string) => {
+  setRangePositionData: (rangePositionData: any) => {
+    set(() => ({
+      rangePositionData: rangePositionData,
+    }));
+  },
+  setRangeGasFee: (gasFee: string) => {
     set((state) => ({
       rangeMintParams: {
         ...state.rangeMintParams,
@@ -371,7 +379,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>((se
       },
     }));
   },
-  setGasLimit: (gasLimit: BigNumber) => {
+  setRangeGasLimit: (gasLimit: BigNumber) => {
     set((state) => ({
       rangeMintParams: {
         ...state.rangeMintParams,
@@ -379,9 +387,35 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>((se
       },
     }));
   },
-  setRangePositionData: (rangePositionData: any) => {
+  setLimitPoolAddress: (limitPoolAddress: `0x${string}`) => {
     set(() => ({
-      rangePositionData: rangePositionData,
+      limitPoolAddress: limitPoolAddress,
+    }));
+  },
+  setLimitPoolData: (limitPoolData: any) => {
+    set(() => ({
+      limitPoolData: limitPoolData,
+    }));
+  },
+  setLimitPositionData: (limitPositionData: any) => {
+    set(() => ({
+      limitPositionData: limitPositionData,
+    }));
+  },
+  setLimitGasFee: (gasFee: string) => {
+    set((state) => ({
+      limitMintParams: {
+        ...state.limitMintParams,
+        gasFee: gasFee,
+      },
+    }));
+  },
+  setLimitGasLimit: (gasLimit: BigNumber) => {
+    set((state) => ({
+      limitMintParams: {
+        ...state.limitMintParams,
+        gasLimit: gasLimit,
+      },
     }));
   },
   setMintButtonState: () => {
@@ -515,7 +549,35 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>((se
       console.log(error);
     }
   },
-  resetRangeParams: () => {
+  setLimitPoolFromVolatility: async (tokenIn, tokenOut, volatility: any) => {
+    try {
+      const pool = await getLimitPoolFromFactory(
+        tokenIn.address,
+        tokenOut.address
+      );
+      const volatilityId = volatility.id;
+      const dataLength = pool["data"]["limitPools"].length;
+      for (let i = 0; i < dataLength; i++) {
+        if (
+          (volatilityId == 0 &&
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == "500") ||
+          (volatilityId == 1 &&
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == "3000") ||
+          (volatilityId == 2 &&
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == "10000")
+        ) {
+          set(() => ({
+            limitPoolAddress: pool["data"]["limitPools"][i]["id"],
+            limitPoolData: pool["data"]["limitPools"][i],
+            feeTierId: volatilityId,
+          }));
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  resetRangeLimitParams: () => {
     set({
       //range pool & pair
       rangePoolAddress: initialRangeLimitState.rangePoolAddress,
