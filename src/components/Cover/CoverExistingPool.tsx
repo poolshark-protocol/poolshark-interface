@@ -1,10 +1,6 @@
 import {
   ChevronDownIcon,
   ArrowLongRightIcon,
-  ArrowLongLeftIcon,
-  MinusIcon,
-  PlusIcon,
-  InformationCircleIcon,
 } from "@heroicons/react/20/solid";
 import {
   erc20ABI,
@@ -15,23 +11,20 @@ import {
   useBalance,
 } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
-import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import { Fragment, useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
 import JSBI from "jsbi";
 import { Listbox, Transition } from "@headlessui/react";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
-import { BN_ZERO, ZERO } from "../../utils/math/constants";
+import { BN_ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
 import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
-import TickSpacing from "../Tooltips/TickSpacing";
 import { gasEstimateCoverMint } from "../../utils/gas";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
-import useInputBox from "../../hooks/useInputBox";
-import { useRangeStore } from "../../hooks/useRangeStore";
+import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { volatilityTiers } from "../../utils/pools";
 
 export default function CoverExistingPool({ goBack }) {
@@ -83,7 +76,7 @@ export default function CoverExistingPool({ goBack }) {
     state.setNeedsBalance,
   ]);
 
-  const [rangePositionData] = useRangeStore((state) => [
+  const [rangePositionData] = useRangeLimitStore((state) => [
     state.rangePositionData,
   ]);
 

@@ -18,7 +18,7 @@ import { DyDxMath } from "../../../utils/math/dydxMath";
 import { chainIdsToNamesForGitTokenList } from "../../../utils/chains";
 import RangeMintDoubleApproveButton from "../../Buttons/RangeMintDoubleApproveButton";
 import RangeMintApproveButton from "../../Buttons/RangeMintApproveButton";
-import { useRangeStore } from "../../../hooks/useRangeStore";
+import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
@@ -40,7 +40,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     setNeedsBalanceIn,
     needsBalanceOut,
     setNeedsBalanceOut,
-  ] = useRangeStore((state) => [
+  ] = useRangeLimitStore((state) => [
     state.rangePoolAddress,
     state.rangeMintParams,
     state.pairSelected,

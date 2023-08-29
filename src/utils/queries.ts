@@ -781,40 +781,6 @@ export const fetchRangePositions = (address: string) => {
   });
 };
 
-export const fetchRangeMetrics = () => {
-  return new Promise(function (resolve) {
-    const positionsQuery = `
-        query($id: String) {
-            limitPoolFactories(id: $id) {
-                id
-                txnCount
-                feesEthTotal
-                feesUsdTotal
-                poolCount
-                totalValueLockedEth
-                totalValueLockedUsd
-                volumeEthTotal
-                volumeUsdTotal
-            }  
-        }
-    `;
-    const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/c4a6d141740ff16f13b525b778202dd8/limit-arbitrumGoerli-0",
-      cache: new InMemoryCache(),
-    });
-    client
-      .query({
-        query: gql(positionsQuery),
-      })
-      .then((data) => {
-        resolve(data);
-      })
-      .catch((err) => {
-        resolve(err);
-      });
-  });
-};
-
 export const fetchUniV3Pools = () => {
   return new Promise(function (resolve) {
     const univ3PoolsQuery = `

@@ -1,8 +1,6 @@
 import { logoMap } from "../../utils/tokens";
-import { useRangeStore } from "../../hooks/useRangeStore";
-import { useCoverStore } from "../../hooks/useCoverStore";
+import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { useRouter } from "next/router";
-import { tokenCover } from "../../utils/types";
 
 export default function RangePool({
   poolId,
@@ -19,7 +17,7 @@ export default function RangePool({
   href,
 }) {
   const [setRangeTokenIn, setRangeTokenOut, setRangePoolFromVolatility] =
-    useRangeStore((state) => [
+    useRangeLimitStore((state) => [
       state.setTokenIn,
       state.setTokenOut,
       state.setRangePoolFromVolatility,

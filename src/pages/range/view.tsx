@@ -1,9 +1,4 @@
 import Navbar from "../../components/Navbar";
-import {
-  ArrowTopRightOnSquareIcon,
-  ArrowsRightLeftIcon,
-  ExclamationTriangleIcon,
-} from "@heroicons/react/20/solid";
 import { useState, useEffect } from "react";
 import RangeCompoundButton from "../../components/Buttons/RangeCompoundButton";
 import { useAccount } from "wagmi";
@@ -16,7 +11,7 @@ import { rangePoolABI } from "../../abis/evm/rangePool";
 import { useContractRead } from "wagmi";
 import RemoveLiquidity from "../../components/Modals/Range/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Range/AddLiquidity";
-import { useRangeStore } from "../../hooks/useRangeStore";
+import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
 import { fetchRangePositions } from "../../utils/queries";
 import { mapUserRangePositions } from "../../utils/maps";
@@ -39,7 +34,7 @@ export default function ViewRange() {
     setNeedsPosRefetch,
     setRangePositionData,
     setMintButtonState,
-  ] = useRangeStore((state) => [
+  ] = useRangeLimitStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
     state.rangePositionData,

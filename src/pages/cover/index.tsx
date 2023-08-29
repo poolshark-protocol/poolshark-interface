@@ -13,18 +13,10 @@ import UserCoverPool from "../../components/Cover/UserCoverPool";
 import Link from "next/link";
 import PoolIcon from "../../components/Icons/PoolIcon";
 import CoverPool from "../../components/Cover/CoverPool";
-import {
-  fetchRangePools,
-  fetchRangePositions,
-  fetchCoverPools,
-} from "../../utils/queries";
+import { fetchCoverPools } from "../../utils/queries";
 import {
   mapCoverPools,
-  mapRangePools,
-  mapUserRangePositions,
 } from "../../utils/maps";
-//import UserLimitPool from '../../components/Pools/UserLimitPool'
-import { useRangeStore } from "../../hooks/useRangeStore";
 
 export default function Cover() {
   const [needsRefetch, setNeedsRefetch] = useCoverStore((state) => [
