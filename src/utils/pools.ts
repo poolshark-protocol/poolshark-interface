@@ -7,13 +7,13 @@ import {
   getCoverPoolFromFactory,
   getRangePoolFromFactory,
 } from "./queries";
-import { tokenCover, tokenRange } from "./types";
+import { tokenCover, tokenRangeLimit } from "./types";
 
 //TODO@retraca enable this componnent to directly u0pdate zustand states
 
 export const getRangePool = async (
-  tokenIn: tokenRange,
-  tokenOut: tokenRange,
+  tokenIn: tokenRangeLimit,
+  tokenOut: tokenRangeLimit,
   setRangePoolAddress,
   setRangePoolData
 ) => {
