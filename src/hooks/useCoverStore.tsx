@@ -99,7 +99,7 @@ const initialCoverState: CoverState = {
     name: "Wrapped Ether",
     symbol: "WETH",
     logoURI: "/static/images/eth_icon.png",
-    address: tokenOneAddress,
+    address: tokenZeroAddress,
     decimals: 18,
     userBalance: 0.0,
     userPoolAllowance: 0.0,
@@ -108,10 +108,10 @@ const initialCoverState: CoverState = {
   //
   tokenOut: {
     callId: 1,
-    name: "Select Token",
-    symbol: "Select Token",
-    logoURI: "",
-    address: tokenZeroAddress,
+    name: "DAI",
+    symbol: "DAI",
+    logoURI: "/static/images/dai_icon.png",
+    address: tokenOneAddress,
     decimals: 18,
     userBalance: 0.0,
     userPoolAllowance: 0.0,
