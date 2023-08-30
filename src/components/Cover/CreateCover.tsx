@@ -91,6 +91,7 @@ export default function CreateCover(props: any) {
   const { data: signer } = useSigner();
   const { address, isConnected, isDisconnected } = useAccount();
   const { bnInput, inputBox, maxBalance } = useInputBox();
+  const [loadingPrices, setLoadingPrices] = useState(true);
 
   ////////////////////////////////Chain
   const [stateChainName, setStateChainName] = useState();
@@ -443,20 +444,31 @@ export default function CreateCover(props: any) {
 
   const [showTooltip, setShowTooltip] = useState(false);
 
-  const [minInput, setMinInput] = useState("");
-  const [maxInput, setMaxInput] = useState("");
+
+    /////////////////////Logic for switching price denomination
+
+  const [minInput, setMinInput] = useState(lowerPrice);
+  const [maxInput, setMaxInput] = useState(upperPrice);
 
 
   const handlePriceSwitch = () => {
     setPriceOrder(!priceOrder);
-    setMaxInput(invertPrice(maxInput, false));
-    setMinInput(invertPrice(minInput, false));
+      setMaxInput(invertPrice(maxInput, false));
+      setMinInput(invertPrice(minInput, false));
   };
 
   useEffect(() => {
     setUpperPrice(invertPrice(maxInput, priceOrder));
     setLowerPrice(invertPrice(minInput, priceOrder));
   }, [maxInput, minInput]);
+
+  useEffect(() => {
+    if (lowerPrice !== "0" && upperPrice !== "0" && loadingPrices) {
+      setLoadingPrices(false); 
+      setMinInput(lowerPrice);
+      setMaxInput(upperPrice);
+    }
+  },[lowerPrice, upperPrice]);
 
   return (
     <div className="flex flex-col space-y-8">
@@ -584,9 +596,10 @@ export default function CreateCover(props: any) {
             <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
               <span className="text-grey1 text-xs">MIN. PRICE</span>
               <span className="text-white text-3xl">
+                { priceOrder ?
                 <input
                   autoComplete="off"
-                  className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
+                  className="bg-black py-2 outline-none text-center w-full"
                   placeholder="0"
                   id="minInput"
                   type="text"
@@ -599,16 +612,33 @@ export default function CreateCover(props: any) {
                     )
                   }
                 />
+                : 
+                <input
+                  autoComplete="off"
+                  className="bg-black py-2 outline-none text-center w-full"
+                  placeholder="0"
+                  id="minInput"
+                  type="text"
+                  value={maxInput}
+                  onChange={(e) =>
+                    setMaxInput(
+                      inputFilter(
+                        e.target.value
+                      )
+                    )
+                  }
+                /> }
               </span>
             </div>
             <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
               <span className="text-grey1 text-xs">MAX. PRICE</span>
               <span className="text-white text-3xl">
+              { priceOrder ?
                 <input
                   autoComplete="off"
-                  className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
+                  className="bg-black py-2 outline-none text-center w-full"
                   placeholder="0"
-                  id="maxInput"
+                  id="minInput"
                   type="text"
                   value={maxInput}
                   onChange={(e) =>
@@ -619,6 +649,22 @@ export default function CreateCover(props: any) {
                     )
                   }
                 />
+                : 
+                <input
+                  autoComplete="off"
+                  className="bg-black py-2 outline-none text-center w-full"
+                  placeholder="0"
+                  id="minInput"
+                  type="text"
+                  value={minInput}
+                  onChange={(e) =>
+                    setMinInput(
+                      inputFilter(
+                        e.target.value
+                      )
+                    )
+                  }
+                /> }
               </span>
             </div>
           </div>
