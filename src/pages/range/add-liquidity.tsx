@@ -118,10 +118,10 @@ export default function AddLiquidity({}) {
       setRangeSqrtPrice(price);
       const positionData = rangePositionData;
       if (isNaN(parseFloat(lowerPrice)) || parseFloat(lowerPrice) <= 0) {
-        setLowerPrice(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
+        setMinInput(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
       }
       if (isNaN(parseFloat(upperPrice)) || parseFloat(upperPrice) <= 0) {
-        setUpperPrice(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
+        setMaxInput(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
       }
       setRangeTickPrice(tickAtPrice);
       setRangePositionData(positionData);
@@ -284,31 +284,15 @@ export default function AddLiquidity({}) {
 
   useEffect(() => {
     setMintButtonState();
-  }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount]);
+  }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount])
+
 
   useEffect(() => {
-    setMinInput(
+    setMaxInput(
       tokenOrder
-        ? lowerPrice.toString().includes("e")
-          ? parseFloat(lowerPrice).toLocaleString(undefined, {
-              maximumFractionDigits: 0,
-            }).length > 6
-            ? "0"
-            : parseFloat(lowerPrice).toLocaleString(undefined, {
-                maximumFractionDigits: 0,
-              })
-          : lowerPrice
+        ? maxInput
         : invertPrice(
-            lowerPrice.toString().includes("e")
-              ? parseFloat(lowerPrice).toLocaleString(undefined, {
-                  maximumFractionDigits: 0,
-                }).length > 6
-                ? "0"
-                : parseFloat(lowerPrice).toLocaleString(undefined, {
-                    maximumFractionDigits: 0,
-                  })
-              : lowerPrice,
-            tokenOrder
+            maxInput, tokenOrder
           )
     );
   }, [lowerPrice, minInput, tokenOrder]);
@@ -405,8 +389,33 @@ export default function AddLiquidity({}) {
             </div>
           </div>
         </div>
-        <div className="flex justify-between items-center">
-        <h1 className="mb-4 mt-10">SET A PRICE RANGE</h1>
+        <div className="flex justify-between items-center mb-4 mt-10">
+        <div className="flex items-center gap-x-3">
+        <h1>SET A PRICE RANGE</h1>
+        <button
+              className="text-grey1 text-xs bg-black border border-grey px-4 py-0.5 rounded-full whitespace-nowrap"
+              onClick={() => {
+                setLowerPrice(
+                  TickMath.getPriceStringAtTick(
+                    roundTick(
+                      -887272,
+                      parseInt(rangePoolData.feeTier.tickSpacing)
+                    )
+                  )
+                );
+                setUpperPrice(
+                  TickMath.getPriceStringAtTick(
+                    roundTick(
+                      887272,
+                      parseInt(rangePoolData.feeTier.tickSpacing)
+                    )
+                  )
+                );
+              }}
+            >
+              Full Range
+            </button>
+        </div>
         <div
                   onClick={() => setTokenOrder(!tokenOrder)}
                   className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
@@ -438,14 +447,10 @@ export default function AddLiquidity({}) {
                   id="minInput"
                   type="text"
                   value={minInput}
-                  onChange={() =>
-                    setLowerPrice(
+                  onChange={(e) =>
+                    setMaxInput(
                       inputFilter(
-                        (
-                          document.getElementById(
-                            "minInput"
-                          ) as HTMLInputElement
-                        )?.value
+                        e.target.value
                       )
                     )
                   }
@@ -461,15 +466,11 @@ export default function AddLiquidity({}) {
                   placeholder="0"
                   id="maxInput"
                   type="text"
-                  value={upperPrice}
-                  onChange={() =>
-                    setUpperPrice(
+                  value={maxInput}
+                  onChange={(e) =>
+                    setMaxInput(
                       inputFilter(
-                        (
-                          document.getElementById(
-                            "maxInput"
-                          ) as HTMLInputElement
-                        )?.value
+                        e.target.value
                       )
                     )
                   }
