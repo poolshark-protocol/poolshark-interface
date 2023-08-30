@@ -74,8 +74,6 @@ export default function AddLiquidity({}) {
   const { bnInput, inputBox, maxBalance } = useInputBox();
 
   const [showTooltip, setShowTooltip] = useState(false);
-  const [minInput, setMinInput] = useState("");
-  const [maxInput, setMaxInput] = useState("");
 
   ////////////////////////////////TokenOrder
   const [tokenOrder, setTokenOrder] = useState(true);
@@ -117,10 +115,10 @@ export default function AddLiquidity({}) {
       setRangePrice(TickMath.getPriceStringAtSqrtPrice(price));
       setRangeSqrtPrice(price);
       const positionData = rangePositionData;
-      if (isNaN(parseFloat(lowerPrice)) || parseFloat(lowerPrice) <= 0) {
+      if (isNaN(parseFloat(minInput)) || parseFloat(minInput) <= 0) {
         setMinInput(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
       }
-      if (isNaN(parseFloat(upperPrice)) || parseFloat(upperPrice) <= 0) {
+      if (isNaN(parseFloat(maxInput)) || parseFloat(maxInput) <= 0) {
         setMaxInput(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
       }
       setRangeTickPrice(tickAtPrice);
@@ -286,16 +284,22 @@ export default function AddLiquidity({}) {
     setMintButtonState();
   }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount])
 
+  const [minInput, setMinInput] = useState(lowerPrice);
+  const [maxInput, setMaxInput] = useState(upperPrice);
+
+  const handlePriceSwitch = () => {
+    setTokenOrder(!tokenOrder)
+    setMaxInput(invertPrice(maxInput, false))
+    setMinInput(invertPrice(minInput, false))
+  }
 
   useEffect(() => {
-    setMaxInput(
-      tokenOrder
-        ? maxInput
-        : invertPrice(
-            maxInput, tokenOrder
-          )
-    );
-  }, [lowerPrice, minInput, tokenOrder]);
+    setUpperPrice(invertPrice(maxInput, tokenOrder))
+    setLowerPrice(invertPrice(minInput, tokenOrder))
+  }, [maxInput, minInput])
+
+  console.log(lowerPrice)
+
 
   
   return (
@@ -395,7 +399,7 @@ export default function AddLiquidity({}) {
         <button
               className="text-grey1 text-xs bg-black border border-grey px-4 py-0.5 rounded-full whitespace-nowrap"
               onClick={() => {
-                setLowerPrice(
+                setMinInput(
                   TickMath.getPriceStringAtTick(
                     roundTick(
                       -887272,
@@ -403,7 +407,7 @@ export default function AddLiquidity({}) {
                     )
                   )
                 );
-                setUpperPrice(
+                setMaxInput(
                   TickMath.getPriceStringAtTick(
                     roundTick(
                       887272,
@@ -417,7 +421,7 @@ export default function AddLiquidity({}) {
             </button>
         </div>
         <div
-                  onClick={() => setTokenOrder(!tokenOrder)}
+                  onClick={handlePriceSwitch}
                   className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
                 >
                   {tokenOrder ? (
@@ -442,13 +446,13 @@ export default function AddLiquidity({}) {
               <span className="text-white text-3xl">
                 <input
                   autoComplete="off"
-                  className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
+                  className="bg-black py-2 outline-none text-center w-full"
                   placeholder="0"
                   id="minInput"
                   type="text"
                   value={minInput}
                   onChange={(e) =>
-                    setMaxInput(
+                    setMinInput(
                       inputFilter(
                         e.target.value
                       )
@@ -462,7 +466,7 @@ export default function AddLiquidity({}) {
               <span className="text-white text-3xl">
                 <input
                   autoComplete="off"
-                  className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
+                  className="bg-black py-2 outline-none text-center w-full"
                   placeholder="0"
                   id="maxInput"
                   type="text"
