@@ -22,6 +22,9 @@ export type tokenSwap = {
   logoURI: string;
   address: `0x${string}`;
   decimals: number;
+  userBalance: number;
+  userPoolAllowance: number;
+  USDPrice: number;
 };
 
 export type tokenRangeLimit = {

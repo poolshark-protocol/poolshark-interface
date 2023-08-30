@@ -8,15 +8,11 @@ import {
 import { create } from "zustand";
 
 type SwapState = {
+  poolRouterAddress: string;
   //poolAddress for current token pairs
-  ////cover
-  coverPoolAddress: string;
-  coverPoolData: any;
-  coverSlippage: string;
-  ////range
-  rangePoolAddress: string;
-  rangePoolData: any;
-  rangeSlippage: string;
+  swapPoolAddresses: string[];
+  swapPoolData: any;
+  swapSlippage: string;
   //true if both tokens selected, false if only one token selected
   pairSelected: boolean;
   //TokenIn defines the token on the left/up on a swap page
@@ -49,7 +45,7 @@ type SwapAction = {
   //pool
   setCoverPoolAddress: (address: String) => void;
   setCoverPoolData: (data: any) => void;
-  setRangePoolAddress: (address: String) => void;
+  setSwapPoolAddresses: (address: String) => void;
   setRangePoolData: (data: any) => void;
   setPairSelected: (pairSelected: Boolean) => void;
   //tokenIn
@@ -81,13 +77,12 @@ type SwapAction = {
 };
 
 const initialSwapState: SwapState = {
+  //router
+  poolRouterAddress: "0x379cbea9234cae9e106bc2a86b39610dc56dbae2",
   //pools
-  coverPoolAddress: "",
-  coverPoolData: {},
-  coverSlippage: "0.5",
-  rangePoolAddress: "",
-  rangePoolData: {},
-  rangeSlippage: "0.5",
+  swapPoolAddresses: [],
+  swapPoolData: {},
+  swapSlippage: "0.5",
   //
   pairSelected: false,
   //
@@ -98,6 +93,9 @@ const initialSwapState: SwapState = {
     logoURI: "/static/images/eth_icon.png",
     address: tokenOneAddress,
     decimals: 18,
+    userBalance: 0.0,
+    userPoolAllowance: 0,
+    USDPrice: 0.0,
   } as tokenSwap,
   tokenInRangeUSDPrice: 0,
   tokenInCoverUSDPrice: 0,
@@ -112,6 +110,9 @@ const initialSwapState: SwapState = {
     logoURI: "",
     address: tokenZeroAddress,
     decimals: 18,
+    userBalance: 0.0,
+    userPoolAllowance: 0,
+    USDPrice: 0.0,
   } as tokenSwap,
   tokenOutRangeUSDPrice: 0,
   tokenOutCoverUSDPrice: 0,
@@ -131,13 +132,13 @@ const initialSwapState: SwapState = {
 };
 
 export const useSwapStore = create<SwapState & SwapAction>((set) => ({
+  //router
+  poolRouterAddress: initialSwapState.poolRouterAddress,
   //pool
-  coverPoolAddress: initialSwapState.coverPoolAddress,
-  coverPoolData: initialSwapState.coverPoolData,
-  coverSlippage: initialSwapState.coverSlippage,
-  rangePoolAddress: initialSwapState.rangePoolAddress,
-  rangePoolData: initialSwapState.rangePoolData,
-  rangeSlippage: initialSwapState.rangeSlippage,
+  //pools
+  swapPoolAddresses: initialSwapState.swapPoolAddresses,
+  swapPoolData: initialSwapState.swapPoolData,
+  swapSlippage: initialSwapState.swapSlippage,
   pairSelected: initialSwapState.pairSelected,
   //tokenIn
   tokenIn: initialSwapState.tokenIn,
@@ -281,39 +282,9 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       tokenOutBalance: newBalance,
     }));
   },
-  setRangePoolAddress: (rangePoolAddress: string) => {
+  setSwapPoolAddresses: (swapPoolAddresses: string[]) => {
     set(() => ({
-      rangePoolAddress: rangePoolAddress,
-    }));
-  },
-  setRangePoolData: (rangePoolData: any) => {
-    set(() => ({
-      rangePoolData: rangePoolData,
-    }));
-  },
-  setRangeSlippage: (rangeSlippage: string) => {
-    set(() => ({
-      rangeSlippage: rangeSlippage,
-    }));
-  },
-  setPairSelected: (pairSelected: boolean) => {
-    set(() => ({
-      pairSelected: pairSelected,
-    }));
-  },
-  setCoverPoolAddress: (coverPoolAddress: string) => {
-    set(() => ({
-      coverPoolAddress: coverPoolAddress,
-    }));
-  },
-  setCoverPoolData: (coverPoolData: any) => {
-    set(() => ({
-      coverPoolData: coverPoolData,
-    }));
-  },
-  setCoverSlippage: (coverSlippage: string) => {
-    set(() => ({
-      coverSlippage: coverSlippage,
+      swapPoolAddresses: swapPoolAddresses,
     }));
   },
   setGasFee: (gasFee: string) => {
@@ -378,6 +349,9 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
         logoURI: state.tokenOut.logoURI,
         address: state.tokenOut.address,
         decimals: state.tokenOut.decimals,
+        userBalance: state.tokenOut.userBalance,
+        userPoolAllowance: state.tokenOut.userPoolAllowance,
+        USDPrice: state.tokenOut.USDPrice,
       },
       tokenOut: {
         callId:
@@ -389,6 +363,9 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
         logoURI: state.tokenIn.logoURI,
         address: state.tokenIn.address,
         decimals: state.tokenIn.decimals,
+        userBalance: state.tokenIn.userBalance,
+        userPoolAllowance: state.tokenIn.userPoolAllowance,
+        USDPrice: state.tokenIn.USDPrice,
       },
     }));
   },

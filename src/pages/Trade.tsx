@@ -1,11 +1,5 @@
-import {
-  AdjustmentsHorizontalIcon,
-  ArrowSmallDownIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
-import { useState, useEffect, Fragment } from "react";
-import { Popover, Transition } from "@headlessui/react";
-import { ChevronDownIcon, ArrowPathIcon } from "@heroicons/react/20/solid";
+import { useState, useEffect } from "react";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import SelectToken from "../components/SelectToken";
 import useInputBox from "../hooks/useInputBox";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
@@ -37,7 +31,6 @@ import {
 } from "../utils/math/tickMath";
 import { BN_ONE, BN_ZERO } from "../utils/math/constants";
 import { gasEstimateSwap, gasEstimateMintLimit } from "../utils/gas";
-import { getCoverPool, getRangePool } from "../utils/pools";
 import inputFilter from "../utils/inputFilter";
 import LimitSwapButton from "../components/Buttons/LimitSwapButton";
 import { useSwapStore } from "../hooks/useSwapStore";
@@ -45,7 +38,8 @@ import {
   fetchCoverTokenUSDPrice,
   fetchRangeTokenUSDPrice,
 } from "../utils/tokens";
-import { coinRaw } from "../utils/types";
+import { getSwapPool } from "../utils/pools";
+import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -57,6 +51,14 @@ export default function Trade() {
     useInputBox();
 
   const [
+    //swap
+    poolRouterAddress,
+    swapPoolAddress,
+    swapPoolData,
+    swapSlippage,
+    setSwapPoolAddress,
+    setSwapPoolData,
+    setSwapSlippage,
     //tokenIN
     tokenIn,
     setTokenIn,
@@ -83,20 +85,6 @@ export default function Trade() {
     switchDirection,
     pairSelected,
     setPairSelected,
-    //rangePool
-    rangePoolAddress,
-    rangePoolData,
-    rangeSlippage,
-    setRangePoolAddress,
-    setRangePoolData,
-    setRangeSlippage,
-    //coverPool
-    coverPoolAddress,
-    coverPoolData,
-    coverSlippage,
-    setCoverPoolAddress,
-    setCoverPoolData,
-    setCoverSlippage,
     //gas
     gasFee,
     gasLimit,
@@ -147,6 +135,8 @@ export default function Trade() {
     state.switchDirection,
     state.pairSelected,
     state.setPairSelected,
+    //router
+    state.poolRouterAddress,
     //rangePool
     state.rangePoolAddress,
     state.rangePoolData,
@@ -202,27 +192,73 @@ export default function Trade() {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
   }, [chainId]);
 
-  ////////////////////////////////Pools
+   ////////////////////////////////Pools
+   const [availablePools, setAvailablePools] = useState(undefined);
+   const [quoteParams, setQuoteParams] = useState(undefined);
+ 
+   useEffect(() => {
+     if (tokenIn.address && tokenOut.address) {
+       updatePools();
+     }
+   }, [tokenOut, tokenIn]);
+ 
+   async function updatePools() {
+     const pools = await getSwapPool(
+       tokenIn,
+       tokenOut,
+       setSwapPoolAddress,
+       setSwapPoolData
+     );
+     for (let i = 0; i < pools.length; i++) {
+       const params = {
+         priceLimit: tokenOrder ? minPriceBn : maxPriceBn,
+         amount: bnInput,
+         exactIn: true,
+         zeroForOne: tokenOrder,
+       };
+       setQuoteParams(quoteParams ? [...quoteParams, params] : [params]);
+     }
+     setAvailablePools(pools);
+   }
+
+   //TODO: loop through poolQuotes and set
+   //       - state.swapSlippage
+   //       - state.swapParams
+   const { data: poolQuotes } = useContractRead({
+    address: poolRouterAddress, //contract address,
+    abi: poolsharkRouterABI, // contract abi,
+    functionName: "multiQuote",
+    args: [availablePools, quoteParams, true],
+    chainId: 421613,
+    //enabled: needsRangeAllowanceIn,
+    onError(error) {
+      console.log("Error allowance", error);
+    },
+    onSuccess(data) {
+      //setNeedsRangeAllowanceIn(false);
+      //set ordered list to state
+      console.log("Success multiquote", data);
+    },
+  });
 
   useEffect(() => {
-    if (tokenIn.address && tokenOut.address) {
-      updatePools();
+    if (poolQuotes) {
+      updateSwapParams();
     }
-  }, [tokenOut, tokenIn]);
+  }, [poolQuotes]);
 
-  async function updatePools() {
-    await getRangePool(
-      tokenIn,
-      tokenOut,
-      setRangePoolAddress,
-      setRangePoolData
-    );
-    await getCoverPool(
-      tokenIn,
-      tokenOut,
-      setCoverPoolAddress,
-      setCoverPoolData
-    );
+  async function updateSwapParams() {
+    for (let i = 0; i < availablePools.length; i++) {
+      const params = {
+        priceLimit: poolQuotes[i].priceAfter, // factor in slippage as well
+        amount: bnInput,
+        exactIn: true,
+        zeroForOne: tokenOrder,
+      };
+      setSwapParams(quoteParams ? [...quoteParams, params] : [params]);
+      //TODO: list is sorted so we can set the pool addresses array for the swap() call
+      setSwapPoolAddresses(poolQuotes[i].pool)
+    }
   }
 
   ////////////////////////////////TokenOrder
@@ -237,41 +273,42 @@ export default function Trade() {
   ////////////////////////////////TokenUSDPrices
 
   useEffect(() => {
-    if (rangePoolData && coverPoolData) {
+    if (swapPoolData) {
       if (tokenIn.address) {
-        if (rangePoolData.token0 && rangePoolData.token1) {
+        if (swapPoolData.token0 && swapPoolData.token1) {
+          // if limit pool fetch limit price
           fetchRangeTokenUSDPrice(
-            rangePoolData,
+            swapPoolData,
             tokenIn,
             setTokenInRangeUSDPrice
           );
+          // if cover pool fetch cover price
+          // fetchCoverTokenUSDPrice(
+          //   swapPoolData,
+          //   tokenInd,
+          //   setTokenInCoverUSDPrice
+          // );
         }
-        if (coverPoolData.token0 && coverPoolData.token1) {
-          fetchCoverTokenUSDPrice(
-            coverPoolData,
-            tokenIn,
-            setTokenInCoverUSDPrice
-          );
-        }
+        //TODO: check if cover and/or range pools present
       }
       if (tokenOut.address) {
-        if (rangePoolData.token0 && rangePoolData.token1) {
+        if (swapPoolData.token0 && swapPoolData.token1) {
+          // if limit pool fetch limit price
           fetchRangeTokenUSDPrice(
-            rangePoolData,
+            swapPoolData,
             tokenOut,
             setTokenOutRangeUSDPrice
           );
-        }
-        if (coverPoolData.token0 && coverPoolData.token1) {
-          fetchCoverTokenUSDPrice(
-            coverPoolData,
-            tokenOut,
-            setTokenOutCoverUSDPrice
-          );
+          // if cover pool fetch cover price
+          // fetchCoverTokenUSDPrice(
+          //   swapPoolData,
+          //   tokenOut,
+          //   setTokenOutCoverUSDPrice
+          // );
         }
       }
     }
-  }, [rangePoolData, coverPoolData, tokenIn, tokenOut]);
+  }, [swapPoolData, tokenIn, tokenOut]);
 
   ////////////////////////////////Balances
 
@@ -318,15 +355,16 @@ export default function Trade() {
   }, [tokenInBal, tokenOutBal]);
 
   ////////////////////////////////Allowances
-
-  const { data: allowanceInRange } = useContractRead({
+  //TODO: allowance is applied to the PoolRouter
+  // there are no token approvals on the pool anymore
+  const { data: allowanceInRouter } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolAddress],
+    args: [address, poolRouterAddress],
     chainId: 421613,
     watch: needsRangeAllowanceIn,
-    enabled: pairSelected && rangePoolAddress && needsRangeAllowanceIn,
+    enabled: pairSelected && poolRouterAddress && needsRangeAllowanceIn,
     onError(error) {
       console.log("Error allowance", error);
     },
@@ -336,35 +374,13 @@ export default function Trade() {
     },
   });
 
-  const { data: allowanceInCover } = useContractRead({
-    address: tokenIn.address,
-    abi: erc20ABI,
-    functionName: "allowance",
-    args: [address, coverPoolAddress],
-    chainId: 421613,
-    watch: needsCoverAllowance,
-    enabled: pairSelected && coverPoolAddress && needsCoverAllowance,
-    onError(error) {
-      console.log("Error allowance", error);
-    },
-    onSuccess(data) {
-      setNeedsCoverAllowance(false);
-      //console.log("Success allowance", data);
-    },
-  });
-
   useEffect(() => {
-    if (allowanceInRange) {
+    if (allowanceInRouter) {
       setTokenInRangeAllowance(
-        ethers.utils.formatUnits(allowanceInRange, tokenIn.decimals)
+        ethers.utils.formatUnits(allowanceInRouter, tokenIn.decimals)
       );
     }
-    if (allowanceInCover) {
-      setTokenInCoverAllowance(
-        ethers.utils.formatUnits(allowanceInCover, tokenIn.decimals)
-      );
-    }
-  }, [allowanceInRange, allowanceInCover]);
+  }, [allowanceInRouter]);
 
   ////////////////////////////////Quotes
   const [coverQuote, setCoverQuote] = useState(0);

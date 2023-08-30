@@ -2,42 +2,28 @@ import { ZERO_ADDRESS } from "./math/constants";
 import { TickMath } from "./math/tickMath";
 import {
   fetchCoverPools,
-  fetchRangePools,
+  fetchRangePools as fetchLimitPools,
   getCoverPoolFromFactory,
   getRangePoolFromFactory,
 } from "./queries";
-import { tokenCover, tokenRangeLimit } from "./types";
+import { tokenCover, tokenRangeLimit, tokenSwap } from "./types";
 
 //TODO@retraca enable this componnent to directly u0pdate zustand states
 
-export const getRangePool = async (
-  tokenIn: tokenRangeLimit,
-  tokenOut: tokenRangeLimit,
-  setRangePoolAddress,
-  setRangePoolData
+//Grab pool with most liquidity
+export const getSwapPool = async (
+  tokenIn: tokenSwap,
+  tokenOut: tokenSwap,
+  setSwapPoolAddress,
+  setSwapPoolData
 ) => {
   try {
-    const pool = await getRangePoolFromFactory(
-      tokenIn.address,
-      tokenOut.address
-    );
-    //TODO@retraca create here or new fucntion for choosing the right pool considering feetier
-    let id = ZERO_ADDRESS;
-    let rangePoolData = {};
-    const dataLength = pool["data"]["limitPools"].length;
-    if (dataLength != 0) {
-      id = pool["data"]["limitPools"]["0"]["id"];
-      rangePoolData = pool["data"]["limitPools"]["0"];
-    } else {
-      const fallbackPool = await getRangePoolFromFactory(
-        tokenOut.address,
-        tokenIn.address
-      );
-      id = fallbackPool["data"]["limitPools"]["0"]["id"];
-      rangePoolData = fallbackPool["data"]["limitPools"]["0"];
-    }
-    setRangePoolAddress(id);
-    setRangePoolData(rangePoolData);
+    //const coverPools = await fetchCoverPools();
+    const limitPools = await fetchLimitPools();
+    const allPools =
+      /* coverPools["data"]["coverPools"].concat( */
+      limitPools["data"]["limitPools"];
+    return allPools;
   } catch (error) {
     console.log(error);
   }
@@ -270,7 +256,7 @@ export const getFeeTier = async (
       coverData["data"]["coverPools"]["0"]["volatilityTier"]["feeAmount"];
     setCoverSlippage((parseFloat(feeTier) / 10000).toString());
   }
-  const data = await fetchRangePools();
+  const data = await fetchLimitPools();
   const rangePoolAddress = data["data"]["limitPools"]["0"]["id"];
 
   if (rangePoolAddress === rangePoolRoute) {
