@@ -16,6 +16,7 @@ import {
   useBalance,
 } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
+import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
 import { Listbox, Transition } from "@headlessui/react";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
@@ -104,6 +105,7 @@ export default function CreateCover(props: any) {
 
   ////////////////////////////////TokenOrder
   const [tokenOrder, setTokenOrder] = useState(true);
+  const [priceOrder, setPriceOrder] = useState(true);
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address) {
@@ -441,6 +443,21 @@ export default function CreateCover(props: any) {
 
   const [showTooltip, setShowTooltip] = useState(false);
 
+  const [minInput, setMinInput] = useState("");
+  const [maxInput, setMaxInput] = useState("");
+
+
+  const handlePriceSwitch = () => {
+    setPriceOrder(!priceOrder);
+    setMaxInput(invertPrice(maxInput, false));
+    setMinInput(invertPrice(minInput, false));
+  };
+
+  useEffect(() => {
+    setUpperPrice(invertPrice(maxInput, priceOrder));
+    setLowerPrice(invertPrice(minInput, priceOrder));
+  }, [maxInput, minInput]);
+
   return (
     <div className="flex flex-col space-y-8">
       <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
@@ -551,7 +568,17 @@ export default function CreateCover(props: any) {
         </div>
       </div>
       <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
-        <h1 className="mb-4">SET A PRICE RANGE</h1>
+        <div className="flex mb-4 items-center justify-between">
+        <h1 className="">SET A PRICE RANGE</h1>
+        <div
+              onClick={handlePriceSwitch}
+              className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
+            >
+              {priceOrder ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>} per{" "}
+              {priceOrder ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>}{" "}
+              <DoubleArrowIcon />
+            </div>
+            </div>
         <div className="flex flex-col gap-y-4">
           <div className="flex md:flex-row flex-col items-center gap-5 mt-3">
             <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
@@ -563,15 +590,11 @@ export default function CreateCover(props: any) {
                   placeholder="0"
                   id="minInput"
                   type="text"
-                  value={lowerPrice}
-                  onChange={() =>
-                    setLowerPrice(
+                  value={minInput}
+                  onChange={(e) =>
+                    setMinInput(
                       inputFilter(
-                        (
-                          document.getElementById(
-                            "minInput"
-                          ) as HTMLInputElement
-                        )?.value
+                        e.target.value
                       )
                     )
                   }
@@ -587,15 +610,11 @@ export default function CreateCover(props: any) {
                   placeholder="0"
                   id="maxInput"
                   type="text"
-                  value={upperPrice}
-                  onChange={() =>
-                    setUpperPrice(
+                  value={maxInput}
+                  onChange={(e) =>
+                    setMaxInput(
                       inputFilter(
-                        (
-                          document.getElementById(
-                            "maxInput"
-                          ) as HTMLInputElement
-                        )?.value
+                        e.target.value
                       )
                     )
                   }
