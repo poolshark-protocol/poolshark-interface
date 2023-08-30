@@ -507,7 +507,7 @@ export default function CreateCover(props: any) {
           </div>
           <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
             {parseFloat(coverPositionData.lowerPrice) <
-            parseFloat(coverPositionData.upperPrice) ? (
+              parseFloat(coverPositionData.upperPrice) && bnInput.toString()!="0" ? (
               (
                 (tokenIn.coverUSDPrice / tokenOut.coverUSDPrice) *
                 parseFloat(ethers.utils.formatUnits(bnInput, tokenIn.decimals))
@@ -640,46 +640,46 @@ export default function CreateCover(props: any) {
         </div>
       </div>
       {allowanceInCover ? (
-          allowanceInCover.lt(
-            BigNumber.from(coverMintParams.tokenInAmount.toString())
-          ) ? (
-            <CoverMintApproveButton
-              poolAddress={coverPoolAddress}
-              approveToken={tokenIn.address}
-              amount={bnInput}
-              tokenSymbol={tokenIn.symbol}
-            />
-          ) : (
-            <CoverMintButton
-              poolAddress={coverPoolAddress}
-              disabled={coverMintParams.disabled}
-              to={address}
-              lower={TickMath.getTickAtPriceString(
-                coverPositionData.lowerPrice ?? "0",
-                coverPoolData.volatilityTier
-                  ? parseInt(coverPoolData.volatilityTier.tickSpread)
-                  : 20
-              )}
-              upper={TickMath.getTickAtPriceString(
-                coverPositionData.upperPrice ?? "0",
-                coverPoolData.volatilityTier
-                  ? parseInt(coverPoolData.volatilityTier.tickSpread)
-                  : 20
-              )}
-              amount={bnInput}
-              zeroForOne={tokenOrder}
-              tickSpacing={
-                coverPoolData.volatilityTier
-                  ? coverPoolData.volatilityTier.tickSpread
-                  : 20
-              }
-              buttonMessage={coverMintParams.buttonMessage}
-              gasLimit={mintGasLimit}
-            />
-          )
+        allowanceInCover.lt(
+          BigNumber.from(coverMintParams.tokenInAmount.toString())
+        ) ? (
+          <CoverMintApproveButton
+            poolAddress={coverPoolAddress}
+            approveToken={tokenIn.address}
+            amount={bnInput}
+            tokenSymbol={tokenIn.symbol}
+          />
         ) : (
-          <> </>
-        )}
+          <CoverMintButton
+            poolAddress={coverPoolAddress}
+            disabled={coverMintParams.disabled}
+            to={address}
+            lower={TickMath.getTickAtPriceString(
+              coverPositionData.lowerPrice ?? "0",
+              coverPoolData.volatilityTier
+                ? parseInt(coverPoolData.volatilityTier.tickSpread)
+                : 20
+            )}
+            upper={TickMath.getTickAtPriceString(
+              coverPositionData.upperPrice ?? "0",
+              coverPoolData.volatilityTier
+                ? parseInt(coverPoolData.volatilityTier.tickSpread)
+                : 20
+            )}
+            amount={bnInput}
+            zeroForOne={tokenOrder}
+            tickSpacing={
+              coverPoolData.volatilityTier
+                ? coverPoolData.volatilityTier.tickSpread
+                : 20
+            }
+            buttonMessage={coverMintParams.buttonMessage}
+            gasLimit={mintGasLimit}
+          />
+        )
+      ) : (
+        <> </>
+      )}
     </div>
   );
 }
