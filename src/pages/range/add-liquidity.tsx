@@ -1,10 +1,5 @@
 import { Fragment, useEffect, useState } from "react";
-import {
-  ChevronDownIcon,
-  PlusIcon,
-  MinusIcon,
-  InformationCircleIcon,
-} from "@heroicons/react/20/solid";
+import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import { Listbox, Transition } from "@headlessui/react";
 import { useRangeStore } from "../../hooks/useRangeStore";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
@@ -78,8 +73,9 @@ export default function AddLiquidity({}) {
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
 
-  const [hasSelected, setHasSelected] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [minInput, setMinInput] = useState("");
+  const [maxInput, setMaxInput] = useState("");
 
   ////////////////////////////////TokenOrder
   const [tokenOrder, setTokenOrder] = useState(true);
@@ -290,6 +286,33 @@ export default function AddLiquidity({}) {
     setMintButtonState();
   }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount]);
 
+  useEffect(() => {
+    setMinInput(
+      tokenOrder
+        ? lowerPrice.toString().includes("e")
+          ? parseFloat(lowerPrice).toLocaleString(undefined, {
+              maximumFractionDigits: 0,
+            }).length > 6
+            ? "0"
+            : parseFloat(lowerPrice).toLocaleString(undefined, {
+                maximumFractionDigits: 0,
+              })
+          : lowerPrice
+        : invertPrice(
+            lowerPrice.toString().includes("e")
+              ? parseFloat(lowerPrice).toLocaleString(undefined, {
+                  maximumFractionDigits: 0,
+                }).length > 6
+                ? "0"
+                : parseFloat(lowerPrice).toLocaleString(undefined, {
+                    maximumFractionDigits: 0,
+                  })
+              : lowerPrice,
+            tokenOrder
+          )
+    );
+  }, [lowerPrice, minInput, tokenOrder]);
+
   
   return (
     <div className="bg-black min-h-screen  ">
@@ -305,7 +328,7 @@ export default function AddLiquidity({}) {
                 </div>
             
             <span className="text-white text-xs">
-            {tokenOrder ? tokenOut.symbol : tokenIn.symbol} - {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
+            {tokenIn.symbol} - {tokenOut.symbol}
             </span>
             <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
             {selectedFeeTier.tier}
@@ -330,15 +353,15 @@ export default function AddLiquidity({}) {
           </div>
           <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
             {inputBox("0")}
-            <div className="flex items-center gap-x-2 w-full">
+            <div className="flex items-center justify-end gap-x-2 w-full">
             <button
                       onClick={() => maxBalance(tokenIn.userBalance, "0")}
                       className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border md:block hidden"
                     >
                       MAX
                     </button>
-            <button className="flex w-full items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
-            <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
+            <button className="flex w-full md:w-auto items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
+            <div className="flex md:text-base text-sm items-center gap-x-2">
               <img className="md:w-7 w-6" src={tokenIn.logoURI} />
               {tokenIn.symbol}
             </div>
@@ -382,7 +405,27 @@ export default function AddLiquidity({}) {
             </div>
           </div>
         </div>
+        <div className="flex justify-between items-center">
         <h1 className="mb-4 mt-10">SET A PRICE RANGE</h1>
+        <div
+                  onClick={() => setTokenOrder(!tokenOrder)}
+                  className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
+                >
+                  {tokenOrder ? (
+                    <>{tokenIn.symbol}</>
+                  ) : (
+                    <>{tokenOut.symbol}</>
+                  )}{" "}
+                  per{" "}
+                  {tokenOrder ? (
+                    <>{tokenOut.symbol}</>
+                  ) : (
+                    <>{tokenIn.symbol}</>
+                  )}{" "}
+                  <DoubleArrowIcon />
+                </div>
+
+                </div>
         <div className="flex flex-col gap-y-4">
           <div className="flex md:flex-row flex-col items-center gap-5 mt-3">
             <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
@@ -394,7 +437,7 @@ export default function AddLiquidity({}) {
                   placeholder="0"
                   id="minInput"
                   type="text"
-                  value={lowerPrice}
+                  value={minInput}
                   onChange={() =>
                     setLowerPrice(
                       inputFilter(
