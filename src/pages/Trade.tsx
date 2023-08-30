@@ -56,7 +56,7 @@ export default function Trade() {
     swapPoolAddress,
     swapPoolData,
     swapSlippage,
-    setSwapPoolAddress,
+    setSwapPoolAddresses,
     setSwapPoolData,
     setSwapSlippage,
     //tokenIN
@@ -195,6 +195,7 @@ export default function Trade() {
    ////////////////////////////////Pools
    const [availablePools, setAvailablePools] = useState(undefined);
    const [quoteParams, setQuoteParams] = useState(undefined);
+   const [swapParams, setSwapParams] = useState(undefined);
  
    useEffect(() => {
      if (tokenIn.address && tokenOut.address) {
@@ -206,7 +207,7 @@ export default function Trade() {
      const pools = await getSwapPool(
        tokenIn,
        tokenOut,
-       setSwapPoolAddress,
+       setSwapPoolAddresses,
        setSwapPoolData
      );
      for (let i = 0; i < pools.length; i++) {
@@ -248,6 +249,7 @@ export default function Trade() {
   }, [poolQuotes]);
 
   async function updateSwapParams() {
+    let sortedPools: string[]
     for (let i = 0; i < availablePools.length; i++) {
       const params = {
         priceLimit: poolQuotes[i].priceAfter, // factor in slippage as well
@@ -255,10 +257,11 @@ export default function Trade() {
         exactIn: true,
         zeroForOne: tokenOrder,
       };
-      setSwapParams(quoteParams ? [...quoteParams, params] : [params]);
+      setSwapParams(swapParams ? [...swapParams, params] : [params]);
       //TODO: list is sorted so we can set the pool addresses array for the swap() call
-      setSwapPoolAddresses(poolQuotes[i].pool)
+      sortedPools[i] = poolQuotes[i].pool
     }
+    setSwapPoolAddresses(sortedPools)
   }
 
   ////////////////////////////////TokenOrder

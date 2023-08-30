@@ -12,7 +12,7 @@ import {
   import { useSwapStore as useRangeLimitStore } from "../../hooks/useSwapStore"
 import { poolsharkRouterABI } from '../../abis/evm/poolsharkRouter';
   
-  export default function SwapRouterButton({disabled, routerAddress, amount, zeroForOne, priceLimit, gasLimit}) {
+  export default function SwapRouterButton({disabled, routerAddress, poolAddresses, swapParams, gasLimit}) {
   
     /*const [Limit] = useSwapStore((state: any) => [
       state.Limit
@@ -40,6 +40,7 @@ import { poolsharkRouterABI } from '../../abis/evm/poolsharkRouter';
         abi: poolsharkRouterABI,
         functionName: "multiSwapSplit",
         args:[[
+            //
             //poolAddressesArr
             //swapParamsArr
         ]],
