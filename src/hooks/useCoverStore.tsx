@@ -108,9 +108,9 @@ const initialCoverState: CoverState = {
   //
   tokenOut: {
     callId: 1,
-    name: "Select Token",
-    symbol: "Select Token",
-    logoURI: "",
+    name: "DAI",
+    symbol: "DAI",
+    logoURI: "/static/images/dai_icon.png",
     address: tokenOneAddress,
     decimals: 18,
     userBalance: 0.0,
