@@ -1,5 +1,4 @@
 import { logoMap } from "../../utils/tokens";
-import { useRangeStore } from "../../hooks/useRangeStore";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { useRouter } from "next/router";
 import { tokenCover } from "../../utils/types";

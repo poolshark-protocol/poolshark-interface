@@ -1,20 +1,17 @@
-import { Fragment, useEffect, useState } from "react";
-import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
-import { Listbox, Transition } from "@headlessui/react";
-import { useRangeStore } from "../../hooks/useRangeStore";
+import { useEffect, useState } from "react";
+import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
 import useInputBox from "../../hooks/useInputBox";
-import { useAccount, useBalance } from "wagmi";
+import { erc20ABI, useAccount, useBalance, useContractRead } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import inputFilter from "../../utils/inputFilter";
 import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
-import { feeTiers, getRangePool } from "../../utils/pools";
+import { feeTiers } from "../../utils/pools";
 import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
-import { logoMap } from "../../utils/tokens";
 
 export default function AddLiquidity({}) {
   const [
@@ -25,45 +22,49 @@ export default function AddLiquidity({}) {
     feeTierId,
     setRangePositionData,
     tokenIn,
-    setTokenIn,
     setTokenInAmount,
+    setTokenInAllowance,
     setTokenInRangeUSDPrice,
     setTokenInBalance,
     tokenOut,
     setTokenOut,
+    setTokenOutAllowance,
     setTokenOutAmount,
     setTokenOutRangeUSDPrice,
     setTokenOutBalance,
     pairSelected,
-    switchDirection,
     setMintButtonState,
     setRangePoolFromVolatility,
+    needsAllowanceIn,
     needsBalanceIn,
+    needsAllowanceOut,
     needsBalanceOut,
     setNeedsBalanceIn,
     setNeedsBalanceOut,
-  ] = useRangeStore((state) => [
+  ] = useRangeLimitStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
     state.rangePositionData,
     state.rangeMintParams,
-    state.feeTierId,
+    state.feeTierRangeId,
     state.setRangePositionData,
     state.tokenIn,
-    state.setTokenIn,
     state.setTokenInAmount,
+    state.setTokenInRangeAllowance,
     state.setTokenInRangeUSDPrice,
     state.setTokenInBalance,
     state.tokenOut,
     state.setTokenOut,
+    state.setTokenOutRangeAllowance,
     state.setTokenOutAmount,
     state.setTokenOutRangeUSDPrice,
     state.setTokenOutBalance,
     state.pairSelected,
-    state.switchDirection,
     state.setMintButtonState,
     state.setRangePoolFromVolatility,
+    state.needsAllowanceIn,
     state.needsBalanceIn,
+    state.needsAllowanceOut,
     state.needsBalanceOut,
     state.setNeedsBalanceIn,
     state.setNeedsBalanceOut,
@@ -92,8 +93,8 @@ export default function AddLiquidity({}) {
 
   useEffect(() => {
     updatePoolsFromStore();
-    setTokenInAmount(BN_ZERO);
-    setTokenOutAmount(BN_ZERO);
+    /* setTokenInAmount(BN_ZERO);
+    setTokenOutAmount(BN_ZERO); */
   }, [tokenIn, tokenOut, feeTierId]);
 
   async function updatePoolsFromStore() {
@@ -121,10 +122,49 @@ export default function AddLiquidity({}) {
       if (isNaN(parseFloat(maxInput)) || parseFloat(maxInput) <= 0) {
         setMaxInput(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
       }
-      setRangeTickPrice(tickAtPrice);
       setRangePositionData(positionData);
     }
   }, [rangePoolData]);
+
+  ////////////////////////////////Allowances
+  const { data: allowanceInRange } = useContractRead({
+    address: tokenIn.address,
+    abi: erc20ABI,
+    functionName: "allowance",
+    args: [address, rangePoolAddress],
+    chainId: 421613,
+    watch: needsAllowanceIn,
+    //enabled: tokenIn.address,
+    onSuccess(data) {
+      console.log("Success allowance in", data);
+      //setNeedsAllowanceIn(false);
+    },
+    onError(error) {
+      console.log("Error allowance", error);
+    },
+  });
+
+  const { data: allowanceOutRange } = useContractRead({
+    address: tokenOut.address,
+    abi: erc20ABI,
+    functionName: "allowance",
+    args: [address, rangePoolAddress],
+    chainId: 421613,
+    watch: needsAllowanceOut,
+    //enabled: pairSelected && rangePoolAddress != ZERO_ADDRESS,
+    onError(error) {
+      console.log("Error allowance", error);
+    },
+    onSuccess(data) {
+      console.log("Success allowance out", data);
+      //setNeedsAllowanceOut(false);
+    },
+  });
+
+  useEffect(() => {
+    setTokenInAllowance(allowanceInRange);
+    setTokenOutAllowance(allowanceOutRange);
+  }, [allowanceInRange, allowanceOutRange]);
 
   ////////////////////////////////Token Balances
 
@@ -184,7 +224,6 @@ export default function AddLiquidity({}) {
 
   ////////////////////////////////Prices and Ticks
   const [rangePrice, setRangePrice] = useState(undefined);
-  const [rangeTickPrice, setRangeTickPrice] = useState(undefined);
   const [rangeSqrtPrice, setRangeSqrtPrice] = useState(undefined);
 
   //Prices for calculations
@@ -208,6 +247,10 @@ export default function AddLiquidity({}) {
       tokenOutAmountMath();
     }
   }, [bnInput, rangePoolAddress, tokenOrder]);
+
+  console.log("//////////////////////");
+  //console.log("rangePoolAddress", rangePoolAddress);
+  //console.log("tokenIn", tokenIn);
 
   function tokenOutAmountMath() {
     try {
@@ -253,7 +296,7 @@ export default function AddLiquidity({}) {
   ////////////////////////////////Gas Fee
 
   //set lower and upper price
-  const changePrice = (direction: string, inputId: string) => {
+  /* const changePrice = (direction: string, inputId: string) => {
     if (!rangePoolData.feeTier.tickSpacing) return;
     const currentTick =
       inputId == "minInput"
@@ -278,27 +321,11 @@ export default function AddLiquidity({}) {
     if (inputId === "maxInput") {
       setUpperPrice(newPriceString);
     }
-  };
+  }; */
 
   useEffect(() => {
     setMintButtonState();
   }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount]);
-
-  const [minInput, setMinInput] = useState("");
-  const [maxInput, setMaxInput] = useState("");
-
-  const handlePriceSwitch = () => {
-    setTokenOrder(!tokenOrder);
-    setMaxInput(invertPrice(maxInput, false));
-    setMinInput(invertPrice(minInput, false));
-  };
-
-  useEffect(() => {
-    setUpperPrice(invertPrice(maxInput, tokenOrder));
-    setLowerPrice(invertPrice(minInput, tokenOrder));
-  }, [maxInput, minInput]);
-
-  console.log(lowerPrice);
 
   return (
     <div className="bg-black min-h-screen  ">
@@ -314,7 +341,8 @@ export default function AddLiquidity({}) {
               </div>
 
               <span className="text-white text-xs">
-                {tokenIn.symbol} - {tokenOut.symbol}
+                {tokenOrder ? tokenOut.symbol : tokenIn.symbol} -{" "}
+                {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
               </span>
               <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
                 {selectedFeeTier.tier}
@@ -337,15 +365,17 @@ export default function AddLiquidity({}) {
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
               {inputBox("0")}
-              <div className="flex items-center justify-end gap-x-2 w-full">
+              <div className="flex items-center gap-x-2 w-full">
                 <button
-                  onClick={() => maxBalance(tokenIn.userBalance, "0")}
+                  onClick={() =>
+                    maxBalance(tokenIn.userBalance.toString(), "0")
+                  }
                   className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border md:block hidden"
                 >
                   MAX
                 </button>
-                <button className="flex w-full md:w-auto items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
-                  <div className="flex md:text-base text-sm items-center gap-x-2">
+                <button className="flex w-full items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
+                  <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
                     <img className="md:w-7 w-6" src={tokenIn.logoURI} />
                     {tokenIn.symbol}
                   </div>
@@ -386,42 +416,7 @@ export default function AddLiquidity({}) {
               </div>
             </div>
           </div>
-          <div className="flex justify-between items-center mb-4 mt-10">
-            <div className="flex items-center gap-x-3">
-              <h1>SET A PRICE RANGE</h1>
-              <button
-                className="text-grey1 text-xs bg-black border border-grey px-4 py-0.5 rounded-full whitespace-nowrap"
-                onClick={() => {
-                  setMinInput(
-                    TickMath.getPriceStringAtTick(
-                      roundTick(
-                        -887272,
-                        parseInt(rangePoolData.feeTier.tickSpacing)
-                      )
-                    )
-                  );
-                  setMaxInput(
-                    TickMath.getPriceStringAtTick(
-                      roundTick(
-                        887272,
-                        parseInt(rangePoolData.feeTier.tickSpacing)
-                      )
-                    )
-                  );
-                }}
-              >
-                Full Range
-              </button>
-            </div>
-            <div
-              onClick={handlePriceSwitch}
-              className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
-            >
-              {tokenOrder ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>} per{" "}
-              {tokenOrder ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>}{" "}
-              <DoubleArrowIcon />
-            </div>
-          </div>
+          <h1 className="mb-4 mt-10">SET A PRICE RANGE</h1>
           <div className="flex flex-col gap-y-4">
             <div className="flex md:flex-row flex-col items-center gap-5 mt-3">
               <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
@@ -429,12 +424,22 @@ export default function AddLiquidity({}) {
                 <span className="text-white text-3xl">
                   <input
                     autoComplete="off"
-                    className="bg-black py-2 outline-none text-center w-full"
+                    className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
                     placeholder="0"
                     id="minInput"
                     type="text"
-                    value={minInput}
-                    onChange={(e) => setMinInput(inputFilter(e.target.value))}
+                    value={lowerPrice}
+                    onChange={() =>
+                      setLowerPrice(
+                        inputFilter(
+                          (
+                            document.getElementById(
+                              "minInput"
+                            ) as HTMLInputElement
+                          )?.value
+                        )
+                      )
+                    }
                   />
                 </span>
               </div>
@@ -443,12 +448,22 @@ export default function AddLiquidity({}) {
                 <span className="text-white text-3xl">
                   <input
                     autoComplete="off"
-                    className="bg-black py-2 outline-none text-center w-full"
+                    className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
                     placeholder="0"
                     id="maxInput"
                     type="text"
-                    value={maxInput}
-                    onChange={(e) => setMaxInput(inputFilter(e.target.value))}
+                    value={upperPrice}
+                    onChange={() =>
+                      setUpperPrice(
+                        inputFilter(
+                          (
+                            document.getElementById(
+                              "maxInput"
+                            ) as HTMLInputElement
+                          )?.value
+                        )
+                      )
+                    }
                   />
                 </span>
               </div>

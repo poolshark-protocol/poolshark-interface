@@ -9,7 +9,7 @@ import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useEffect, useState } from 'react'
 import { BigNumber } from 'ethers'
-import { useRangeStore } from '../../hooks/useRangeStore'
+import { useRangeLimitStore } from '../../hooks/useRangeLimitStore'
 
 export default function RangeMintDoubleApproveButton({
   poolAddress,
@@ -27,7 +27,7 @@ export default function RangeMintDoubleApproveButton({
   const [
     setNeedsAllowanceIn,
     setNeedsAllowanceOut
-  ] = useRangeStore((state) => [
+  ] = useRangeLimitStore((state) => [
     state.setNeedsAllowanceIn,
     state.setNeedsAllowanceOut
   ])

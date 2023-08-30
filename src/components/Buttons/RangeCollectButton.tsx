@@ -8,9 +8,8 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import { BigNumber } from "ethers";
-import { BN_ONE, BN_ZERO } from '../../utils/math/constants';
-import { useRangeStore } from '../../hooks/useRangeStore';
+import { BN_ONE } from '../../utils/math/constants';
+import { useRangeLimitStore } from '../../hooks/useRangeLimitStore';
 
 export default function RangeCollectButton({ poolAddress, address, positionId, gasLimit }) {
 
@@ -20,7 +19,7 @@ export default function RangeCollectButton({ poolAddress, address, positionId, g
   const [
     setNeedsBalanceIn,
     setNeedsBalanceOut
-  ] = useRangeStore((state) => [
+  ] = useRangeLimitStore((state) => [
     state.setNeedsBalanceIn,
     state.setNeedsBalanceOut
   ]);
