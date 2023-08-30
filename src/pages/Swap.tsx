@@ -44,6 +44,7 @@ import {
   fetchRangeTokenUSDPrice,
 } from "../utils/tokens";
 import LimitSwapButton from "../components/Buttons/LimitSwapButton";
+import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 
 export default function Swap() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -55,6 +56,7 @@ export default function Swap() {
     useInputBox();
 
   const [
+    poolRouterAddress,
     swapPoolAddress,
     swapPoolData,
     swapSlippage,
@@ -100,6 +102,8 @@ export default function Swap() {
     needsRangeBalanceOut,
     setNeedsRangeBalanceOut,
   ] = useSwapStore((state: any) => [
+    //router
+    state.poolRouterAddress,
     //swapPool
     state.swapPoolAddress,
     state.swapPoolData,
@@ -176,7 +180,7 @@ export default function Swap() {
     );
     for (let i = 0; i < pools.length; i++) {
       const params = {
-        priceLimit: pools[i].priceLimit,
+        priceLimit: tokenOrder ? minPriceBn : maxPriceBn,
         amount: bnInput,
         exactIn: true,
         zeroForOne: tokenOrder,
@@ -186,9 +190,9 @@ export default function Swap() {
     setAvailablePools(pools);
   }
 
-  const { data: pools } = useContractRead({
-    address: undefined, //contract address,
-    abi: undefined, // contract abi,
+  const { data: poolQuotes } = useContractRead({
+    address: poolRouterAddress, //contract address,
+    abi: poolsharkRouterABI, // contract abi,
     functionName: "multiQuote",
     args: [availablePools, quoteParams, true],
     chainId: 421613,

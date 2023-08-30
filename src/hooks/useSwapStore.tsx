@@ -8,6 +8,7 @@ import {
 import { create } from "zustand";
 
 type SwapState = {
+  poolRouterAddress: string;
   //poolAddress for current token pairs
   swapPoolAddress: string;
   swapPoolData: any;
@@ -65,13 +66,14 @@ type SwapAction = {
 };
 
 const initialSwapState: SwapState = {
-  //pools
+  // pools
+  poolRouterAddress: "0x379CBEa9234cAe9e106bC2a86b39610dC56dbAe2",
   swapPoolAddress: "",
   swapPoolData: {},
   swapSlippage: "0.5",
-  //
+  // selection
   pairSelected: false,
-  //
+  // weth
   tokenIn: {
     callId: 0,
     name: "Wrapped Ether",
@@ -115,6 +117,8 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
   swapPoolData: initialSwapState.swapPoolData,
   swapSlippage: initialSwapState.swapSlippage,
   pairSelected: initialSwapState.pairSelected,
+  //router
+  poolRouterAddress: initialSwapState.poolRouterAddress,
   //tokenIn
   tokenIn: initialSwapState.tokenIn,
   //tokenOut
