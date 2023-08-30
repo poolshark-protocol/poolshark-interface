@@ -2,7 +2,7 @@ import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useState, useEffect } from "react";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import UserRangePool from "../Range/UserRangePool";
-import { fetchRangePositions, fetchUniV3Positions } from "../../utils/queries";
+import { fetchLimitPositions, fetchUniV3Positions } from "../../utils/queries";
 import { useAccount } from "wagmi";
 import { BigNumber } from "ethers";
 
@@ -15,62 +15,62 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
     setSearchTerm(event.target.value);
   };
 
-  const [rangePositions, setRangePositions] = useState([]);
-  const [allRangePositions, setAllRangePositions] = useState([]);
+  const [limitPositions, setLimitPositions] = useState([]);
+  const [allLimitPositions, setAllLimitPositions] = useState([]);
 
-  async function getUserRangePositionData() {
-    const data = await fetchRangePositions(address);
+  async function getUserLimitPositionData() {
+    const data = await fetchLimitPositions(address);
     if (data["data"]) {
       const positions = data["data"].positionFractions;
-      setRangePositions(positions);
+      setLimitPositions(positions);
     }
   }
 
-  function mapUserRangePositions() {
-    const mappedRangePositions = [];
-    rangePositions.map((rangePosition) => {
-      const rangePositionData = {
-        id: rangePosition.id,
-        poolId: rangePosition.token.position.pool.id,
-        tokenZero: rangePosition.token.position.pool.token0,
-        valueTokenZero: rangePosition.token.position.pool.token0.usdPrice,
-        tokenOne: rangePosition.token.position.pool.token1,
-        valueTokenOne: rangePosition.token.position.pool.token1.usdPrice,
-        min: rangePosition.token.position.lower,
-        max: rangePosition.token.position.upper,
-        price: rangePosition.token.position.pool.price,
-        tickSpacing: rangePosition.token.position.pool.feeTier.tickSpacing,
-        feeTier: rangePosition.token.position.pool.feeTier.feeAmount,
-        userTokenAmount: rangePosition.amount,
+  function mapUserLimitPositions() {
+    const mappedLimitPositions = [];
+    limitPositions.map((limitPosition) => {
+      const limitPositionData = {
+        id: limitPosition.id,
+        poolId: limitPosition.token.position.pool.id,
+        tokenZero: limitPosition.token.position.pool.token0,
+        valueTokenZero: limitPosition.token.position.pool.token0.usdPrice,
+        tokenOne: limitPosition.token.position.pool.token1,
+        valueTokenOne: limitPosition.token.position.pool.token1.usdPrice,
+        min: limitPosition.token.position.lower,
+        max: limitPosition.token.position.upper,
+        price: limitPosition.token.position.pool.price,
+        tickSpacing: limitPosition.token.position.pool.feeTier.tickSpacing,
+        feeTier: limitPosition.token.position.pool.feeTier.feeAmount,
+        userTokenAmount: limitPosition.amount,
         userLiquidity: Math.round(
-          (rangePosition.amount / rangePosition.token.totalSupply) *
-            rangePosition.token.position.liquidity
+          (limitPosition.amount / limitPosition.token.totalSupply) *
+            limitPosition.token.position.liquidity
         ),
         tvlUsd: (
-          Number(rangePosition.token.position.pool.totalValueLockedUsd) /
+          Number(limitPosition.token.position.pool.totalValueLockedUsd) /
           1_000_000
         ).toFixed(2),
         volumeUsd: (
-          Number(rangePosition.token.position.pool.volumeUsd) / 1_000_000
+          Number(limitPosition.token.position.pool.volumeUsd) / 1_000_000
         ).toFixed(2),
         volumeEth: (
-          Number(rangePosition.token.position.pool.volumeEth) / 1
+          Number(limitPosition.token.position.pool.volumeEth) / 1
         ).toFixed(2),
-        userOwnerAddress: rangePosition.owner.replace(/"|'/g, ""),
+        userOwnerAddress: limitPosition.owner.replace(/"|'/g, ""),
       };
-      mappedRangePositions.push(rangePositionData);
+      mappedLimitPositions.push(limitPositionData);
     });
-    setAllRangePositions(mappedRangePositions);
+    setAllLimitPositions(mappedLimitPositions);
   }
 
   //async so needs to be wrapped
   useEffect(() => {
-    if (address != undefined) getUserRangePositionData();
+    if (address != undefined) getUserLimitPositionData();
   }, [address]);
 
   useEffect(() => {
-    mapUserRangePositions();
-  }, [rangePositions]);
+    mapUserLimitPositions();
+  }, [limitPositions]);
 
   /*const [uniV3Positions, setUniV3Positions] = useState([])
   const [allUniV3Positions, setAllUniV3Positions] = useState([])
@@ -179,7 +179,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                 <div>
                   <h1 className="mb-3 text-xs uppercase">Poolshark Positions</h1>
                   <div>
-                    {allRangePositions.length === 0 ? (
+                    {allLimitPositions.length === 0 ? (
                       <div className="space-y-2">
                         <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
                           <svg
@@ -200,17 +200,17 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                     ) : (
                       <div className="overflow-scroll">
                       <div className="w-[900px] lg:w-auto space-y-2">
-                        {allRangePositions.map((allRangePosition) => {
+                        {allLimitPositions.map((allLimitPosition) => {
                           if (
-                            allRangePosition.userOwnerAddress ===
+                            allLimitPosition.userOwnerAddress ===
                               address?.toLowerCase() &&
-                            (allRangePosition.tokenZero.name === searchTerm ||
-                              allRangePosition.tokenOne.name === searchTerm ||
-                              allRangePosition.tokenZero.symbol ===
+                            (allLimitPosition.tokenZero.name === searchTerm ||
+                              allLimitPosition.tokenOne.name === searchTerm ||
+                              allLimitPosition.tokenZero.symbol ===
                                 searchTerm ||
-                              allRangePosition.tokenOne.symbol === searchTerm ||
-                              allRangePosition.tokenZero.id === searchTerm ||
-                              allRangePosition.tokenOne.id === searchTerm ||
+                              allLimitPosition.tokenOne.symbol === searchTerm ||
+                              allLimitPosition.tokenZero.id === searchTerm ||
+                              allLimitPosition.tokenOne.id === searchTerm ||
                               searchTerm === "")
                           ) {
                             return (
@@ -218,13 +218,13 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                                 onClick={() => {
                                   setIsOpen(false);
                                   //prefill('exisingPool')
-                                  setParams(allRangePosition);
+                                  setParams(allLimitPosition);
                                 }}
-                                key={allRangePosition.id + "click"}
+                                key={allLimitPosition.id + "click"}
                               >
                                 <UserRangePool
-                                  key={allRangePosition.id}
-                                  rangePosition={allRangePosition}
+                                  key={allLimitPosition.id}
+                                  rangePosition={allLimitPosition}
                                   href={"/cover/create"}
                                   isModal={true}
                                 />

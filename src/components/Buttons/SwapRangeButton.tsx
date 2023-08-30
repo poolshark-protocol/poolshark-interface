@@ -1,16 +1,15 @@
-import { BigNumber } from "ethers";
 import {
-    usePrepareContractWrite,
-    useContractWrite,
-    useWaitForTransaction,
-    useAccount
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+  useAccount
 } from 'wagmi';
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { rangePoolABI } from "../../abis/evm/rangePool";
-import { useSwapStore as useRangeStore } from "../../hooks/useSwapStore"
+import { useSwapStore as useRangeLimitStore } from "../../hooks/useSwapStore"
 
 export default function SwapRangeButton({disabled, poolAddress, amount, zeroForOne, priceLimit, gasLimit}) {
 
@@ -21,7 +20,7 @@ export default function SwapRangeButton({disabled, poolAddress, amount, zeroForO
   const [
     setNeedsRangeAllowanceIn,
     setNeedsRangeBalanceIn,
-  ] = useRangeStore((state) => [
+  ] = useRangeLimitStore((state) => [
     state.setNeedsRangeAllowanceIn,
     state.setNeedsRangeBalanceIn,
   ]);

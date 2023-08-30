@@ -8,11 +8,11 @@ import JSBI from "jsbi";
 import { DyDxMath } from "../../../utils/math/dydxMath";
 import { TickMath } from "../../../utils/math/tickMath";
 import { useRouter } from "next/router";
-import { useRangeStore } from "../../../hooks/useRangeStore";
+import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 
 export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
   const [rangePoolAddress, rangePositionData, tokenIn, tokenOut] =
-    useRangeStore((state) => [
+    useRangeLimitStore((state) => [
       state.rangePoolAddress,
       state.rangePositionData,
       state.tokenIn,

@@ -8,7 +8,7 @@ import { SuccessToast } from '../Toasts/Success'
 import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useState } from 'react'
-import { useSwapStore as useRangeStore } from '../../hooks/useSwapStore'
+import { useSwapStore as useRangeLimitStore } from '../../hooks/useSwapStore'
 
 export default function RangeMintApproveButton({ poolAddress, approveToken, amount }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
@@ -16,7 +16,7 @@ export default function RangeMintApproveButton({ poolAddress, approveToken, amou
 
   const [
     setNeedsRangeAllowanceIn,
-  ] = useRangeStore((state) => [
+  ] = useRangeLimitStore((state) => [
     state.setNeedsRangeAllowanceIn,
   ])
 

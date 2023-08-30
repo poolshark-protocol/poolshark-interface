@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 import { rangePoolABI } from '../../abis/evm/rangePool';
 import { BN_ZERO } from '../../utils/math/constants';
 import { gasEstimateRangeMint } from '../../utils/gas';
-import { useRangeStore } from '../../hooks/useRangeStore';
+import { useRangeLimitStore } from '../../hooks/useRangeLimitStore';
 import { BigNumber } from 'ethers';
 
 export default function RangeAddLiqButton({poolAddress, address, lower, upper, positionId, amount0, amount1, disabled, setIsOpen}) {
@@ -21,7 +21,7 @@ export default function RangeAddLiqButton({poolAddress, address, lower, upper, p
       setNeedsBalanceIn,
       setNeedsBalanceOut,
       setNeedsRefetch,
-    ] = useRangeStore((state) => [
+    ] = useRangeLimitStore((state) => [
       state.setNeedsAllowanceIn,
       state.setNeedsAllowanceOut,
       state.setNeedsBalanceIn,

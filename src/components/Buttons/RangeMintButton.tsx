@@ -9,7 +9,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { BN_ZERO } from "../../utils/math/constants";
-import { useRangeStore } from "../../hooks/useRangeStore";
+import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 
 export default function RangeMintButton({
   disabled,
@@ -29,7 +29,7 @@ export default function RangeMintButton({
     setNeedsAllowanceOut,
     setNeedsBalanceIn,
     setNeedsBalanceOut,
-  ] = useRangeStore((state) => [
+  ] = useRangeLimitStore((state) => [
     state.setNeedsRefetch,
     state.setNeedsAllowanceIn,
     state.setNeedsAllowanceOut,
