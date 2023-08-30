@@ -41,8 +41,8 @@ import { poolsharkRouterABI } from '../../abis/evm/poolsharkRouter';
         functionName: "multiSwapSplit",
         args:[[
             //
-            //poolAddressesArr
-            //swapParamsArr
+            //poolAddressesArr - string[]
+            //swapParamsArr - SwapParams[]
         ]],
         chainId: 421613,
         overrides:{

@@ -40,6 +40,7 @@ import {
 } from "../utils/tokens";
 import { getSwapPool } from "../utils/pools";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
+import { QuoteParams, SwapParams } from "../utils/types";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -211,7 +212,7 @@ export default function Trade() {
        setSwapPoolData
      );
      for (let i = 0; i < pools.length; i++) {
-       const params = {
+       const params: QuoteParams = {
          priceLimit: tokenOrder ? minPriceBn : maxPriceBn,
          amount: bnInput,
          exactIn: true,
@@ -251,11 +252,13 @@ export default function Trade() {
   async function updateSwapParams() {
     let sortedPools: string[]
     for (let i = 0; i < availablePools.length; i++) {
-      const params = {
+      const params: SwapParams = {
+        to: address,
         priceLimit: poolQuotes[i].priceAfter, // factor in slippage as well
         amount: bnInput,
         exactIn: true,
         zeroForOne: tokenOrder,
+        callbackData: ethers.utils.formatBytes32String('')
       };
       setSwapParams(swapParams ? [...swapParams, params] : [params]);
       //TODO: list is sorted so we can set the pool addresses array for the swap() call

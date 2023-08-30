@@ -15,6 +15,22 @@ export type coinRaw = {
   balance: number;
 };
 
+export type QuoteParams = {
+  priceLimit: BigNumber;
+  amount: BigNumber;
+  exactIn: boolean;
+  zeroForOne: boolean;
+}
+
+export type SwapParams = {
+  to: string;
+  priceLimit: BigNumber;
+  amount: BigNumber;
+  exactIn: boolean;
+  zeroForOne: boolean;
+  callbackData: string
+}
+
 export type tokenSwap = {
   callId: number;
   name: string;
