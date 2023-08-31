@@ -70,7 +70,7 @@ export default function Range() {
   return (
     <div className="min-h-screen bg-black">
       <Navbar />
-      <div className="container mx-auto my-8 px-3 md:px-0">
+      <div className="container mx-auto my-8 px-3 md:px-0 pb-32">
         <div className="flex lg:flex-row flex-col gap-x-8 gap-y-5 justify-between">
           <div className="p-7 lg:h-[300px] w-full lg:w-[60%] flex flex-col justify-between bg-[url('/static/images/bg/shark1.png')]">
             <div className="flex flex-col gap-y-3 ">
