@@ -343,7 +343,7 @@ export default function AddLiquidity({}) {
                 {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
               </span>
               <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                {selectedFeeTier.tier}
+                {(rangePoolData.feeTier.feeAmount / 10000).toFixed(2)}%
               </span>
             </div>
           </div>
