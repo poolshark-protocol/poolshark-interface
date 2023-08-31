@@ -1,14 +1,8 @@
 import Navbar from "../../components/Navbar";
-import {
-  fetchRangePools,
-  fetchRangePositions,
-} from "../../utils/queries";
+import { fetchRangePools, fetchRangePositions } from "../../utils/queries";
 import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
-import {
-  mapRangePools,
-  mapUserRangePositions,
-} from "../../utils/maps";
+import { mapRangePools, mapUserRangePositions } from "../../utils/maps";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import InfoIcon from "../../components/Icons/InfoIcon";
@@ -40,6 +34,14 @@ export default function Range() {
     getRangePoolData();
   }, []);
 
+  async function getRangePoolData() {
+    const data = await fetchRangePools();
+    if (data["data"]) {
+      const pools = data["data"].limitPools;
+      setAllRangePools(mapRangePools(pools));
+    }
+  }
+
   useEffect(() => {
     if (address) {
       getUserRangePositionData();
@@ -49,22 +51,13 @@ export default function Range() {
   async function getUserRangePositionData() {
     try {
       const data = await fetchRangePositions(address);
-      console.log("rangePositions", data);
-      if (data["data"].rangePositions)
+      if (data["data"].rangePositions) {
         setAllRangePositions(
           mapUserRangePositions(data["data"].rangePositions)
         );
+      }
     } catch (error) {
       console.log(error);
-    }
-  }
-
-  async function getRangePoolData() {
-    const data = await fetchRangePools();
-    console.log("rangePools", data);
-    if (data["data"]) {
-      const pools = data["data"].limitPools;
-      setAllRangePools(mapRangePools(pools));
     }
   }
 
@@ -181,45 +174,43 @@ export default function Range() {
                     </div>
                   ) : (
                     <div className="overflow-scroll">
-            <div className="w-[1400px] lg:w-auto">
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-4 text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
-                        <span>Pool Name</span>
-                        <span className="text-right">Price Range</span>
-                        <span className="text-right">Pool balance</span>
-                        <span className="text-right mr-4">USD Value</span>
+                      <div className="w-[1400px] lg:w-auto">
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-4 text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
+                            <span>Pool Name</span>
+                            <span className="text-right">Price Range</span>
+                            <span className="text-right">Pool balance</span>
+                            <span className="text-right mr-4">USD Value</span>
+                          </div>
+                          {allRangePositions.map((allRangePosition) => {
+                            if (
+                              allRangePosition.id != undefined &&
+                              (allRangePosition.tokenZero.name.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                                allRangePosition.tokenOne.name.toLowerCase() ===
+                                  searchTerm.toLowerCase() ||
+                                allRangePosition.tokenZero.symbol.toLowerCase() ===
+                                  searchTerm.toLowerCase() ||
+                                allRangePosition.tokenOne.symbol.toLowerCase() ===
+                                  searchTerm.toLowerCase() ||
+                                allRangePosition.tokenZero.id.toLowerCase() ===
+                                  searchTerm.toLowerCase() ||
+                                allRangePosition.tokenOne.id.toLowerCase() ===
+                                  searchTerm.toLowerCase() ||
+                                searchTerm === "")
+                            ) {
+                              return (
+                                <UserRangePool
+                                  key={allRangePosition.id + "rangePosition"}
+                                  rangePosition={allRangePosition}
+                                  href={"/range/view"}
+                                  isModal={false}
+                                />
+                              );
+                            }
+                          })}
+                        </div>
                       </div>
-                      {allRangePositions.map((allRangePosition) => {
-                        if (
-                          allRangePosition.id != undefined &&
-                          allRangePosition.userOwnerAddress ===
-                            address?.toLowerCase() &&
-                          (allRangePosition.tokenZero.name.toLowerCase() ===
-                            searchTerm.toLowerCase() ||
-                            allRangePosition.tokenOne.name.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allRangePosition.tokenZero.symbol.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allRangePosition.tokenOne.symbol.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allRangePosition.tokenZero.id.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            allRangePosition.tokenOne.id.toLowerCase() ===
-                              searchTerm.toLowerCase() ||
-                            searchTerm === "")
-                        ) {
-                          return (
-                            <UserRangePool
-                              key={allRangePosition.id + "rangePosition"}
-                              rangePosition={allRangePosition}
-                              href={"/range/view"}
-                              isModal={false}
-                            />
-                          );
-                        }
-                      })}
-                    </div>
-                    </div>
                     </div>
                   )}
                 </>
