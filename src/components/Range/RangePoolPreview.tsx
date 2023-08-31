@@ -46,7 +46,42 @@ export default function RangePoolPreview({ fee }) {
   const signer = new ethers.VoidSigner(address, provider);
 
   ////////////////////////////////Allowances
-  const [doubleApprove, setdoubleApprove] = useState(false);
+  const { data: allowanceInRange } = useContractRead({
+    address: tokenIn.address,
+    abi: erc20ABI,
+    functionName: "allowance",
+    args: [address, rangePoolAddress],
+    chainId: 421613,
+    watch: needsAllowanceIn,
+    //enabled: tokenIn.address,
+    onSuccess(data) {
+      //setNeedsAllowanceIn(false);
+    },
+    onError(error) {
+      console.log("Error allowance", error);
+    },
+  });
+
+  const { data: allowanceOutRange } = useContractRead({
+    address: tokenOut.address,
+    abi: erc20ABI,
+    functionName: "allowance",
+    args: [address, rangePoolAddress],
+    chainId: 421613,
+    watch: needsAllowanceOut,
+    //enabled: pairSelected && rangePoolAddress != ZERO_ADDRESS,
+    onSuccess(data) {
+      //setNeedsAllowanceOut(false);
+    },
+    onError(error) {
+      console.log("Error allowance", error);
+    },
+  });
+
+  useEffect(() => {
+    setTokenInAllowance(allowanceInRange);
+    setTokenOutAllowance(allowanceOutRange);
+  }, [allowanceInRange, allowanceOutRange]);
 
   ///////////////////////////////Modal
   const [isOpen, setIsOpen] = useState(false);
@@ -64,9 +99,9 @@ export default function RangePoolPreview({ fee }) {
       rangeMintParams.tokenOutAmount &&
       rangePositionData.lowerPrice &&
       rangePositionData.upperPrice &&
-      rangePositionData.lowerPrice < rangePositionData.upperPrice
+      Number(rangePositionData.lowerPrice) <
+        Number(rangePositionData.upperPrice)
     ) {
-      console.log("updateGasFee");
       updateGasFee();
     }
   }, [rangeMintParams.tokenInAmount, tokenOut, rangePositionData]);
@@ -91,9 +126,9 @@ export default function RangePoolPreview({ fee }) {
       rangeMintParams.tokenOutAmount,
       signer
     );
-    console.log("newGasFee", newGasFee.gasUnits);
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
   }
+
 
   return (
     <div>
@@ -291,12 +326,36 @@ export default function RangePoolPreview({ fee }) {
                         </div>
                       </div>
                       <div className="mt-4">
-                        {tokenIn.userPoolAllowance?.gte(
+                        {tokenIn.userPoolAllowance?.lt(
                           rangeMintParams.tokenInAmount
                         ) &&
-                        tokenOut.userPoolAllowance?.gte(
+                        tokenOut.userPoolAllowance?.lt(
                           rangeMintParams.tokenOutAmount
                         ) ? (
+                          <RangeMintDoubleApproveButton
+                            poolAddress={rangePoolAddress}
+                            tokenIn={tokenIn}
+                            tokenOut={tokenOut}
+                            amount0={rangeMintParams.tokenInAmount}
+                            amount1={rangeMintParams.tokenOutAmount}
+                          />
+                        ) : tokenIn.userPoolAllowance?.lt(
+                            rangeMintParams.tokenInAmount
+                          ) ? (
+                          <RangeMintApproveButton
+                            poolAddress={rangePoolAddress}
+                            approveToken={tokenIn}
+                            amount={rangeMintParams.tokenInAmount}
+                          />
+                        ) : tokenOut.userPoolAllowance?.lt(
+                            rangeMintParams.tokenOutAmount
+                          ) ? (
+                          <RangeMintApproveButton
+                            poolAddress={rangePoolAddress}
+                            approveToken={tokenOut}
+                            amount={rangeMintParams.tokenOutAmount}
+                          />
+                        ) : (
                           <RangeMintButton
                             to={address}
                             poolAddress={rangePoolAddress}
@@ -340,43 +399,10 @@ export default function RangePoolPreview({ fee }) {
                                 ? rangeMintParams.tokenOutAmount
                                 : rangeMintParams.tokenInAmount
                             }
-                            closeModal={() => router.push("/pool")}
+                            closeModal={() => router.push("/range")}
                             gasLimit={mintGasLimit}
                           />
-                        ) : (tokenIn.userPoolAllowance?.lt(
-                            rangeMintParams.tokenInAmount
-                          ) &&
-                            tokenOut.userPoolAllowance?.lt(
-                              rangeMintParams.tokenOutAmount
-                            )) ||
-                          doubleApprove ? (
-                          <RangeMintDoubleApproveButton
-                            poolAddress={rangePoolAddress}
-                            tokenIn={tokenIn}
-                            tokenOut={tokenOut}
-                            amount0={rangeMintParams.tokenInAmount}
-                            amount1={rangeMintParams.tokenOutAmount}
-                            setAllowanceController={setdoubleApprove}
-                          />
-                        ) : !doubleApprove &&
-                          tokenIn.userPoolAllowance?.lt(
-                            rangeMintParams.tokenInAmount
-                          ) ? (
-                          <RangeMintApproveButton
-                            poolAddress={rangePoolAddress}
-                            approveToken={tokenIn}
-                            amount={rangeMintParams.tokenInAmount}
-                          />
-                        ) : !doubleApprove &&
-                          tokenOut.userPoolAllowance?.lt(
-                            rangeMintParams.tokenOutAmount
-                          ) ? (
-                          <RangeMintApproveButton
-                            poolAddress={rangePoolAddress}
-                            approveToken={tokenOut}
-                            amount={rangeMintParams.tokenOutAmount}
-                          />
-                        ) : null}
+                        )}
                       </div>
                     </div>
                   </div>
