@@ -283,6 +283,7 @@ export default function AddLiquidity({}) {
       setTokenOutAmount(BigNumber.from(String(tokenOutAmount)));
     } catch (error) {
       console.log(error);
+      setTokenOutAmount(BigNumber.from("0"));
     }
   }
 
