@@ -16,6 +16,7 @@ import {
   useBalance,
 } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
+import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
 import { Listbox, Transition } from "@headlessui/react";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
@@ -90,7 +91,7 @@ export default function CreateCover(props: any) {
   const { data: signer } = useSigner();
   const { address, isConnected, isDisconnected } = useAccount();
   const { bnInput, inputBox, maxBalance } = useInputBox();
-  
+  const [loadingPrices, setLoadingPrices] = useState(true);
 
   ////////////////////////////////Chain
   const [stateChainName, setStateChainName] = useState();
@@ -105,6 +106,7 @@ export default function CreateCover(props: any) {
 
   ////////////////////////////////TokenOrder
   const [tokenOrder, setTokenOrder] = useState(true);
+  const [priceOrder, setPriceOrder] = useState(true);
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address) {
@@ -442,6 +444,32 @@ export default function CreateCover(props: any) {
 
   const [showTooltip, setShowTooltip] = useState(false);
 
+
+    /////////////////////Logic for switching price denomination
+
+  const [minInput, setMinInput] = useState(lowerPrice);
+  const [maxInput, setMaxInput] = useState(upperPrice);
+
+
+  const handlePriceSwitch = () => {
+    setPriceOrder(!priceOrder);
+      setMaxInput(invertPrice(maxInput, false));
+      setMinInput(invertPrice(minInput, false));
+  };
+
+  useEffect(() => {
+    setUpperPrice(invertPrice(maxInput, priceOrder));
+    setLowerPrice(invertPrice(minInput, priceOrder));
+  }, [maxInput, minInput]);
+
+  useEffect(() => {
+    if (lowerPrice !== "0" && upperPrice !== "0" && loadingPrices) {
+      setLoadingPrices(false); 
+      setMinInput(lowerPrice);
+      setMaxInput(upperPrice);
+    }
+  },[lowerPrice, upperPrice]);
+
   return (
     <div className="flex flex-col space-y-8">
       <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
@@ -552,55 +580,91 @@ export default function CreateCover(props: any) {
         </div>
       </div>
       <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
-        <h1 className="mb-4">SET A PRICE RANGE</h1>
+        <div className="flex mb-4 items-center justify-between">
+        <h1 className="">SET A PRICE RANGE</h1>
+        <div
+              onClick={handlePriceSwitch}
+              className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
+            >
+              {priceOrder ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>} per{" "}
+              {priceOrder ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>}{" "}
+              <DoubleArrowIcon />
+            </div>
+            </div>
         <div className="flex flex-col gap-y-4">
           <div className="flex md:flex-row flex-col items-center gap-5 mt-3">
             <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
               <span className="text-grey1 text-xs">MIN. PRICE</span>
               <span className="text-white text-3xl">
+                { priceOrder ?
                 <input
                   autoComplete="off"
-                  className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
+                  className="bg-black py-2 outline-none text-center w-full"
                   placeholder="0"
                   id="minInput"
                   type="text"
-                  value={lowerPrice}
-                  onChange={() =>
-                    setLowerPrice(
+                  value={minInput}
+                  onChange={(e) =>
+                    setMinInput(
                       inputFilter(
-                        (
-                          document.getElementById(
-                            "minInput"
-                          ) as HTMLInputElement
-                        )?.value
+                        e.target.value
                       )
                     )
                   }
                 />
+                : 
+                <input
+                  autoComplete="off"
+                  className="bg-black py-2 outline-none text-center w-full"
+                  placeholder="0"
+                  id="minInput"
+                  type="text"
+                  value={maxInput}
+                  onChange={(e) =>
+                    setMaxInput(
+                      inputFilter(
+                        e.target.value
+                      )
+                    )
+                  }
+                /> }
               </span>
             </div>
             <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
               <span className="text-grey1 text-xs">MAX. PRICE</span>
               <span className="text-white text-3xl">
+              { priceOrder ?
                 <input
                   autoComplete="off"
-                  className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
+                  className="bg-black py-2 outline-none text-center w-full"
                   placeholder="0"
-                  id="maxInput"
+                  id="minInput"
                   type="text"
-                  value={upperPrice}
-                  onChange={() =>
-                    setUpperPrice(
+                  value={maxInput}
+                  onChange={(e) =>
+                    setMaxInput(
                       inputFilter(
-                        (
-                          document.getElementById(
-                            "maxInput"
-                          ) as HTMLInputElement
-                        )?.value
+                        e.target.value
                       )
                     )
                   }
                 />
+                : 
+                <input
+                  autoComplete="off"
+                  className="bg-black py-2 outline-none text-center w-full"
+                  placeholder="0"
+                  id="minInput"
+                  type="text"
+                  value={minInput}
+                  onChange={(e) =>
+                    setMinInput(
+                      inputFilter(
+                        e.target.value
+                      )
+                    )
+                  }
+                /> }
               </span>
             </div>
           </div>
