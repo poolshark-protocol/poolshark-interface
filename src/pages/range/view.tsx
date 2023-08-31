@@ -556,11 +556,11 @@ export default function ViewRange() {
           </div>
         </div>
       </div>
-      {/* <RemoveLiquidity
+      <RemoveLiquidity
         isOpen={isRemoveOpen}
         setIsOpen={setIsRemoveOpen}
         address={address}
-      /> */}
+      />
       <AddLiquidity
         isOpen={isAddOpen}
         setIsOpen={setIsAddOpen}

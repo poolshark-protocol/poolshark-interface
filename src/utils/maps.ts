@@ -51,11 +51,7 @@ export function mapUserRangePositions(rangePositions) {
       feeTier: rangePosition.pool.feeTier.feeAmount,
       unclaimedFees: rangePosition.pool.feesUsd,
       liquidity: rangePosition.pool.liquidity,
-      /* userLiquidity: BigNumber.from(rangePosition.amount)
-        .mul(BigNumber.from(rangePosition.liquidity))
-        .div(BigNumber.from(rangePosition.totalSupply))
-        .toString(), */
-      //userTokenAmount: rangePosition.amount,
+      userLiquidity: rangePosition.liquidity,
       tvlUsd: (
         parseFloat(rangePosition.pool.totalValueLockedUsd) / 1_000_000
       ).toFixed(2),
@@ -63,7 +59,7 @@ export function mapUserRangePositions(rangePositions) {
         2
       ),
       volumeEth: (parseFloat(rangePosition.pool.volumeEth) / 1).toFixed(2),
-      /* userOwnerAddress: rangePosition.owner.replace(/"|'/g, ""), */
+      userOwnerAddress: rangePosition.owner.replace(/"|'/g, ""),
     };
     mappedRangePositions.push(rangePositionData);
   });
