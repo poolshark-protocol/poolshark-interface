@@ -90,6 +90,7 @@ export default function CreateCover(props: any) {
   const { data: signer } = useSigner();
   const { address, isConnected, isDisconnected } = useAccount();
   const { bnInput, inputBox, maxBalance } = useInputBox();
+  
 
   ////////////////////////////////Chain
   const [stateChainName, setStateChainName] = useState();
