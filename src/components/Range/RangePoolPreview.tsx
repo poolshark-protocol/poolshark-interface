@@ -40,19 +40,20 @@ export default function RangePoolPreview({ fee }) {
     state.setNeedsAllowanceOut,
   ]);
 
-  useEffect(() => {
-    console.log("rangeMintParams", rangeMintParams);
-    console.log("tokenIn", tokenIn);
-    console.log("tokenOut", tokenOut);
-  }, [tokenIn, tokenOut, rangePositionData]);
-
-  const { address, isConnected } = useAccount();
+  const { address } = useAccount();
   const router = useRouter();
   const provider = useProvider();
   const signer = new ethers.VoidSigner(address, provider);
 
   ////////////////////////////////Allowances
   const [doubleApprove, setdoubleApprove] = useState(false);
+
+  ///////////////////////////////Modal
+  const [isOpen, setIsOpen] = useState(false);
+
+  function closeModal() {
+    setIsOpen(false);
+  }
 
   ////////////////////////////////Mint Gas Fee
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
@@ -64,8 +65,10 @@ export default function RangePoolPreview({ fee }) {
       rangePositionData.lowerPrice &&
       rangePositionData.upperPrice &&
       rangePositionData.lowerPrice < rangePositionData.upperPrice
-    )
+    ) {
+      console.log("updateGasFee");
       updateGasFee();
+    }
   }, [rangeMintParams.tokenInAmount, tokenOut, rangePositionData]);
 
   async function updateGasFee() {
@@ -88,19 +91,8 @@ export default function RangePoolPreview({ fee }) {
       rangeMintParams.tokenOutAmount,
       signer
     );
+    console.log("newGasFee", newGasFee.gasUnits);
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
-  }
-
-  ///////////////////////////////
-
-  const [isOpen, setIsOpen] = useState(false);
-
-  function closeModal() {
-    setIsOpen(false);
-  }
-
-  function openModal() {
-    setIsOpen(true);
   }
 
   return (

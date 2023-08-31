@@ -94,8 +94,6 @@ export default function AddLiquidity({}) {
 
   useEffect(() => {
     updatePoolsFromStore();
-    /* setTokenInAmount(BN_ZERO);
-    setTokenOutAmount(BN_ZERO); */
   }, [tokenIn, tokenOut, feeTierId]);
 
   async function updatePoolsFromStore() {
@@ -137,7 +135,6 @@ export default function AddLiquidity({}) {
     watch: needsAllowanceIn,
     //enabled: tokenIn.address,
     onSuccess(data) {
-      console.log("Success allowance in", data);
       //setNeedsAllowanceIn(false);
     },
     onError(error) {
@@ -153,12 +150,11 @@ export default function AddLiquidity({}) {
     chainId: 421613,
     watch: needsAllowanceOut,
     //enabled: pairSelected && rangePoolAddress != ZERO_ADDRESS,
+    onSuccess(data) {
+      //setNeedsAllowanceOut(false);
+    },
     onError(error) {
       console.log("Error allowance", error);
-    },
-    onSuccess(data) {
-      console.log("Success allowance out", data);
-      //setNeedsAllowanceOut(false);
     },
   });
 
@@ -249,10 +245,6 @@ export default function AddLiquidity({}) {
     }
   }, [bnInput, rangePoolAddress, tokenOrder]);
 
-  console.log("//////////////////////");
-  //console.log("rangePoolAddress", rangePoolAddress);
-  //console.log("tokenIn", tokenIn);
-
   function tokenOutAmountMath() {
     try {
       const lower = TickMath.getTickAtPriceString(
@@ -324,9 +316,13 @@ export default function AddLiquidity({}) {
     }
   }; */
 
+  ////////////////////////////////Mint Button State
+
   useEffect(() => {
     setMintButtonState();
   }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount]);
+
+  ////////////////////////////////
 
   return (
     <div className="bg-black min-h-screen  ">
