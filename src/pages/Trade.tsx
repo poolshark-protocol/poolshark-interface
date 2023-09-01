@@ -82,7 +82,7 @@ export default function Trade() {
     switchDirection,
     setMintButtonState,
   ] = useTradeStore((s) => [
-    s.poolRouterAddress,
+    s.poolRouterAddresses,
     s.tradePoolAddress,
     s.setTradePoolAddress,
     s.tradePoolData,
@@ -112,6 +112,11 @@ export default function Trade() {
     s.switchDirection,
     s.setMintButtonState,
   ]);
+
+  console.log(
+    "poolRouterAddress",
+    poolRouterAddress[chainIdsToNamesForGitTokenList[chainId]]
+  );
 
   //false when user in normal swap, true when user in limit swap
   const [limitTabSelected, setLimitTabSelected] = useState(false);
@@ -164,7 +169,7 @@ export default function Trade() {
   //       - state.swapSlippage
   //       - state.swapParams
   const { data: poolQuotes } = useContractRead({
-    address: poolRouterAddress, //contract address,
+    address: poolRouterAddress[chainIdsToNamesForGitTokenList[chainId]], //contract address,
     abi: poolsharkRouterABI, // contract abi,
     functionName: "multiQuote",
     args: [availablePools, quoteParams, true],
@@ -299,7 +304,12 @@ export default function Trade() {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, poolRouterAddress as `0x${string}`],
+    args: [
+      address,
+      poolRouterAddress[
+        chainIdsToNamesForGitTokenList[chainId]
+      ] as `0x${string}`,
+    ],
     chainId: 421613,
     watch: needsAllowanceIn,
     enabled: poolRouterAddress && needsAllowanceIn,

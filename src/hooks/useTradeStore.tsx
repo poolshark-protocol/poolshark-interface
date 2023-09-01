@@ -12,7 +12,10 @@ import {
 } from "../utils/queries";
 
 type TradeState = {
-  poolRouterAddress: string;
+  poolRouterAddresses: {
+    arbitrumGoerli: string;
+    arbitrumMainnet: string;
+  };
   //tradePoolAddress for current token pairs
   tradePoolAddress: `0x${string}`;
   //tradePoolData contains all the info about the pool
@@ -96,7 +99,10 @@ type TradeLimitAction = {
 };
 
 const initialTradeState: TradeState = {
-  poolRouterAddress: "0x379cbea9234cae9e106bc2a86b39610dc56dbae2",
+  poolRouterAddresses: {
+    arbitrumGoerli: "0x85856cede494f812742ecbf432832a16ad5033a1",
+    arbitrumMainnet: "0x379cbea9234cae9e106bc2a86b39610dc56dbae2",
+  },
   //trade pools
   tradePoolAddress: "0x000",
   tradePoolData: {},
@@ -152,7 +158,7 @@ const initialTradeState: TradeState = {
 };
 
 export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
-  poolRouterAddress: initialTradeState.poolRouterAddress,
+  poolRouterAddresses: initialTradeState.poolRouterAddresses,
   //trade pool
   tradePoolAddress: initialTradeState.tradePoolAddress,
   tradePoolData: initialTradeState.tradePoolData,
