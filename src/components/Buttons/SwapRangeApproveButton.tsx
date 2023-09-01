@@ -2,13 +2,13 @@ import {
   useWaitForTransaction,
   usePrepareContractWrite,
   useContractWrite,
-} from 'wagmi'
-import { erc20ABI } from 'wagmi'
-import { SuccessToast } from '../Toasts/Success'
-import { ErrorToast } from '../Toasts/Error'
-import { ConfirmingToast } from '../Toasts/Confirming'
-import React, { useState } from 'react'
-import { useSwapStore as useRangeLimitStore } from '../../hooks/useSwapStore'
+} from "wagmi";
+import { erc20ABI } from "wagmi";
+import { SuccessToast } from "../Toasts/Success";
+import { ErrorToast } from "../Toasts/Error";
+import { ConfirmingToast } from "../Toasts/Confirming";
+import React, { useState } from "react";
+import { useTradeStore as useRangeLimitStore } from "../../hooks/useTradeStore";
 
 export default function SwapRangeApproveButton({
   poolAddress,
@@ -16,35 +16,33 @@ export default function SwapRangeApproveButton({
   tokenSymbol,
   amount,
 }) {
-  const [errorDisplay, setErrorDisplay] = useState(false)
-  const [successDisplay, setSuccessDisplay] = useState(false)
+  const [errorDisplay, setErrorDisplay] = useState(false);
+  const [successDisplay, setSuccessDisplay] = useState(false);
 
-  const [
-    setNeedsRangeAllowanceIn,
-  ] = useRangeLimitStore((state) => [
-    state.setNeedsRangeAllowanceIn,
-  ])
+  const [setNeedsAllowanceIn] = useRangeLimitStore((state) => [
+    state.setNeedsAllowanceIn,
+  ]);
 
   const { config } = usePrepareContractWrite({
     address: approveToken,
     abi: erc20ABI,
-    functionName: 'approve',
+    functionName: "approve",
     args: [poolAddress, amount],
     chainId: 421613,
-  })
+  });
 
-  const { data, isSuccess, write } = useContractWrite(config)
+  const { data, isSuccess, write } = useContractWrite(config);
 
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      setSuccessDisplay(true)
-      setNeedsRangeAllowanceIn(true)
+      setSuccessDisplay(true);
+      setNeedsAllowanceIn(true);
     },
     onError() {
-      setErrorDisplay(true)
+      setErrorDisplay(true);
     },
-  })
+  });
 
   return (
     <>
@@ -72,5 +70,5 @@ export default function SwapRangeApproveButton({
         )}
       </div>
     </>
-  )
+  );
 }

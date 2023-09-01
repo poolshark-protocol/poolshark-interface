@@ -40,7 +40,7 @@ import {
 import { getSwapPool } from "../utils/pools";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { QuoteParams, SwapParams } from "../utils/types";
-import { useTradeStore } from "../hooks/useSwapStore";
+import { useTradeStore } from "../hooks/useTradeStore";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -59,6 +59,8 @@ export default function Trade() {
     setTradePoolData,
     pairSelected,
     setPairSelected,
+    tradeSlippage,
+    setTradeSlippage,
     tokenIn,
     setTokenIn,
     setTokenInBalance,
@@ -87,6 +89,8 @@ export default function Trade() {
     s.setTradePoolData,
     s.pairSelected,
     s.setPairSelected,
+    s.tradeSlippage,
+    s.setTradeSlippage,
     s.tokenIn,
     s.setTokenIn,
     s.setTokenInBalance,
@@ -360,7 +364,7 @@ export default function Trade() {
   }, [quoteRange]);
 
   ////////////////////////////////FeeTiers and Slippage
-  /*   const [slippage, setSlippage] = useState("0.5");
+  const [slippage, setSlippage] = useState("0.5");
   const [auxSlippage, setAuxSlippage] = useState("0.5");
 
   useEffect(() => {
@@ -384,13 +388,13 @@ export default function Trade() {
       tokenOut.address
     );
     const feeTier = poolRange["data"]["rangePools"][0]["feeTier"]["feeAmount"];
-    setRangeSlippage((parseFloat(feeTier) / 10000).toString());
+    setTradeSlippage((parseFloat(feeTier) / 10000).toString());
   };
 
   const chooseSlippage = () => {
-    setSlippage(rangeSlippage);
-    setAuxSlippage(rangeSlippage);
-  }; */
+    setSlippage(tradeSlippage);
+    setAuxSlippage(tradeSlippage);
+  };
 
   ////////////////////////////////Prices
   const [rangePrice, setRangePrice] = useState(0);
@@ -552,12 +556,12 @@ export default function Trade() {
     }
   }
   ////////////////////////////////Fee Estimations
-  //const [swapGasFee, setSwapGasFee] = useState("$0.00");
-  //const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
-  //const [mintFee, setMintFee] = useState("$0.00");
-  //const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
+  const [swapGasFee, setSwapGasFee] = useState("$0.00");
+  const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
+  const [mintFee, setMintFee] = useState("$0.00");
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
-  /* useEffect(() => {
+  useEffect(() => {
     if (!bnInput.eq(BN_ZERO)) {
       if (!limitTabSelected) {
         updateGasFee();
@@ -568,7 +572,7 @@ export default function Trade() {
   }, [bnInput]);
 
   async function updateGasFee() {
-    await gasEstimateSwap(
+    /* await gasEstimateSwap(
       rangePoolAddress,
       coverPoolAddress,
       rangeQuote,
@@ -585,11 +589,11 @@ export default function Trade() {
       isConnected,
       setGasFee,
       setGasLimit
-    );
+    ); */
   }
 
   async function updateMintFee() {
-    await gasEstimateMintLimit(
+    /* await gasEstimateMintLimit(
       rangePoolAddress,
       address,
       lowerTick,
@@ -600,8 +604,8 @@ export default function Trade() {
       signer,
       setMintGasFee,
       setMintGasLimit
-    );
-  } */
+    ); */
+  }
 
   ////////////////////////////////Mint Button State
 
@@ -661,9 +665,9 @@ export default function Trade() {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
             {!limitTabSelected ? (
-              <div className="ml-auto text-xs">{gasFee}</div>
+              <div className="ml-auto text-xs">{swapGasFee}</div>
             ) : (
-              <div className="ml-auto text-xs">{mintGasFee}</div>
+              <div className="ml-auto text-xs">{mintFee}</div>
             )}
           </div>
           {!limitTabSelected ? (
@@ -1130,7 +1134,7 @@ export default function Trade() {
                       }
                       amount={bnInput}
                       priceLimit={rangeBnPriceLimit}
-                      gasLimit={gasLimit}
+                      gasLimit={swapGasLimit}
                     />
                   )
                 }

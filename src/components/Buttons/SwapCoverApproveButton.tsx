@@ -2,13 +2,13 @@ import {
   useWaitForTransaction,
   usePrepareContractWrite,
   useContractWrite,
-} from 'wagmi'
-import { erc20ABI } from 'wagmi'
-import { SuccessToast } from '../Toasts/Success'
-import { ErrorToast } from '../Toasts/Error'
-import { ConfirmingToast } from '../Toasts/Confirming'
-import React, { useState } from 'react'
-import { useSwapStore as useCoverStore } from '../../hooks/useSwapStore'
+} from "wagmi";
+import { erc20ABI } from "wagmi";
+import { SuccessToast } from "../Toasts/Success";
+import { ErrorToast } from "../Toasts/Error";
+import { ConfirmingToast } from "../Toasts/Confirming";
+import React, { useState } from "react";
+import { useTradeStore as useCoverStore } from "../../hooks/useTradeStore";
 
 export default function SwapCoverApproveButton({
   poolAddress,
@@ -17,35 +17,33 @@ export default function SwapCoverApproveButton({
   amount,
   tokenSymbol,
 }) {
-  const [errorDisplay, setErrorDisplay] = useState(false)
-  const [successDisplay, setSuccessDisplay] = useState(false)
+  const [errorDisplay, setErrorDisplay] = useState(false);
+  const [successDisplay, setSuccessDisplay] = useState(false);
 
-  const [
-    setNeedsCoverAllowance,
-  ] = useCoverStore((state) => [
-    state.setNeedsCoverAllowance,
-  ])
+  const [setNeedsAllowance] = useCoverStore((state) => [
+    state.setNeedsAllowanceIn,
+  ]);
 
   const { config } = usePrepareContractWrite({
     address: approveToken,
     abi: erc20ABI,
-    functionName: 'approve',
+    functionName: "approve",
     args: [poolAddress, amount],
     chainId: 421613,
-  })
+  });
 
-  const { data, isSuccess, write } = useContractWrite(config)
+  const { data, isSuccess, write } = useContractWrite(config);
 
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      setSuccessDisplay(true)
-      setNeedsCoverAllowance(true)
+      setSuccessDisplay(true);
+      setNeedsAllowance(true);
     },
     onError() {
-      setErrorDisplay(true)
+      setErrorDisplay(true);
     },
-  })
+  });
 
   return (
     <>
@@ -73,5 +71,5 @@ export default function SwapCoverApproveButton({
         )}
       </div>
     </>
-  )
+  );
 }
