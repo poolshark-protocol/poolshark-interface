@@ -33,7 +33,6 @@ import { BN_ONE, BN_ZERO } from "../utils/math/constants";
 import { gasEstimateSwap, gasEstimateMintLimit } from "../utils/gas";
 import inputFilter from "../utils/inputFilter";
 import LimitSwapButton from "../components/Buttons/LimitSwapButton";
-import { useSwapStore } from "../hooks/useSwapStore";
 import {
   fetchCoverTokenUSDPrice,
   fetchRangeTokenUSDPrice,
@@ -41,6 +40,7 @@ import {
 import { getSwapPool } from "../utils/pools";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { QuoteParams, SwapParams } from "../utils/types";
+import { useTradeStore } from "../hooks/useSwapStore";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -52,129 +52,55 @@ export default function Trade() {
     useInputBox();
 
   const [
-    //swap
     poolRouterAddress,
-    swapPoolAddress,
-    swapPoolData,
-    swapSlippage,
-    setSwapPoolAddresses,
-    setSwapPoolData,
-    setSwapSlippage,
-    //tokenIN
+    tradePoolAddress,
+    setTradePoolAddress,
+    tradePoolData,
+    setTradePoolData,
     tokenIn,
     setTokenIn,
-    tokenInRangeUSDPrice,
-    setTokenInRangeUSDPrice,
-    tokenInCoverUSDPrice,
-    setTokenInCoverUSDPrice,
-    tokenInBalance,
     setTokenInBalance,
-    tokenInRangeAllowance,
-    setTokenInRangeAllowance,
-    tokenInCoverAllowance,
-    setTokenInCoverAllowance,
-    //tokenOut
+    setTokenInTradeAllowance,
+    setTokenInTradeUSDPrice,
     tokenOut,
     setTokenOut,
-    tokenOutRangeUSDPrice,
-    setTokenOutRangeUSDPrice,
-    tokenOutCoverUSDPrice,
-    setTokenOutCoverUSDPrice,
-    tokenOutBalance,
     setTokenOutBalance,
-    //tokenOrder
-    switchDirection,
-    pairSelected,
-    setPairSelected,
-    //gas
-    gasFee,
-    gasLimit,
-    setGasFee,
-    setGasLimit,
-    mintGasFee,
-    mintGasLimit,
-    setMintGasFee,
-    setMintGasLimit,
-    //refresh
-    needsCoverAllowance,
-    setNeedsCoverAllowance,
-    needsRangeAllowanceIn,
-    setNeedsRangeAllowanceIn,
-    needsRangeAllowanceOut,
-    setNeedsRangeAllowanceOut,
-    //balance
-    needsCoverBalance,
-    setNeedsCoverBalance,
-    needsRangeBalanceIn,
-    setNeedsRangeBalanceIn,
-    needsRangeBalanceOut,
-    setNeedsRangeBalanceOut,
-  ] = useSwapStore((state: any) => [
-    //tokenIN
-    state.tokenIn,
-    state.setTokenIn,
-    state.tokenInRangeUSDPrice,
-    state.setTokenInRangeUSDPrice,
-    state.tokenInCoverUSDPrice,
-    state.setTokenInCoverUSDPrice,
-    state.tokenInBalance,
-    state.setTokenInBalance,
-    state.tokenInRangeAllowance,
-    state.setTokenInRangeAllowance,
-    state.tokenInCoverAllowance,
-    state.setTokenInCoverAllowance,
-    //tokenOut
-    state.tokenOut,
-    state.setTokenOut,
-    state.tokenOutRangeUSDPrice,
-    state.setTokenOutRangeUSDPrice,
-    state.tokenOutCoverUSDPrice,
-    state.setTokenOutCoverUSDPrice,
-    state.tokenOutBalance,
-    state.setTokenOutBalance,
-    //tokenOrder
-    state.switchDirection,
-    state.pairSelected,
-    state.setPairSelected,
-    //router
-    state.poolRouterAddress,
-    //rangePool
-    state.rangePoolAddress,
-    state.rangePoolData,
-    state.rangeSlippage,
-    state.setRangePoolAddress,
-    state.setRangePoolData,
-    state.setRangeSlippage,
-    //coverPool
-    state.coverPoolAddress,
-    state.coverPoolData,
-    state.coverSlippage,
-    state.setCoverPoolAddress,
-    state.setCoverPoolData,
-    state.setCoverSlippage,
-    //gas
-    state.gasFee,
-    state.gasLimit,
-    state.setGasFee,
-    state.setGasLimit,
-    state.mintGasFee,
-    state.mintGasLimit,
-    state.setMintGasFee,
-    state.setMintGasLimit,
-    //refresh
-    state.needsCoverAllowance,
-    state.setNeedsCoverAllowance,
-    state.needsRangeAllowanceIn,
-    state.setNeedsRangeAllowanceIn,
-    state.needsRangeAllowanceOut,
-    state.setNeedsRangeAllowanceOut,
-    //balance
-    state.needsCoverBalance,
-    state.setNeedsCoverBalance,
-    state.needsRangeBalanceIn,
-    state.setNeedsRangeBalanceIn,
-    state.needsRangeBalanceOut,
-    state.setNeedsRangeBalanceOut,
+    setTokenOutTradeUSDPrice,
+    needsAllowanceIn,
+    setNeedsAllowanceIn,
+    needsAllowanceOut,
+    setNeedsAllowanceOut,
+    needsBalanceIn,
+    setNeedsBalanceIn,
+    needsBalanceOut,
+    setNeedsBalanceOut,
+    tradeMintParams,
+    setMintButtonState,
+  ] = useTradeStore((s) => [
+    s.poolRouterAddress,
+    s.tradePoolAddress,
+    s.setTradePoolAddress,
+    s.tradePoolData,
+    s.setTradePoolData,
+    s.tokenIn,
+    s.setTokenIn,
+    s.setTokenInBalance,
+    s.setTokenInTradeAllowance,
+    s.setTokenInTradeUSDPrice,
+    s.tokenOut,
+    s.setTokenOut,
+    s.setTokenOutBalance,
+    s.setTokenOutTradeUSDPrice,
+    s.needsAllowanceIn,
+    s.setNeedsAllowanceIn,
+    s.needsAllowanceOut,
+    s.setNeedsAllowanceOut,
+    s.needsBalanceIn,
+    s.setNeedsBalanceIn,
+    s.needsBalanceOut,
+    s.setNeedsBalanceOut,
+    s.tradeMintParams,
+    s.setMintButtonState,
   ]);
 
   //false when user in normal swap, true when user in limit swap
@@ -183,8 +109,8 @@ export default function Trade() {
   //false when user is in exact price, true when user is in price range
   const [priceRangeSelected, setPriceRangeSelected] = useState(false);
 
-    //false order history is selected, true when active orders is selected
-    const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
+  //false order history is selected, true when active orders is selected
+  const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
 
   ////////////////////////////////ChainId
   const [stateChainName, setStateChainName] = useState();
@@ -193,40 +119,40 @@ export default function Trade() {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
   }, [chainId]);
 
-   ////////////////////////////////Pools
-   const [availablePools, setAvailablePools] = useState(undefined);
-   const [quoteParams, setQuoteParams] = useState(undefined);
-   const [swapParams, setSwapParams] = useState(undefined);
- 
-   useEffect(() => {
-     if (tokenIn.address && tokenOut.address) {
-       updatePools();
-     }
-   }, [tokenOut, tokenIn]);
- 
-   async function updatePools() {
-     const pools = await getSwapPool(
-       tokenIn,
-       tokenOut,
-       setSwapPoolAddresses,
-       setSwapPoolData
-     );
-     for (let i = 0; i < pools.length; i++) {
-       const params: QuoteParams = {
-         priceLimit: tokenOrder ? minPriceBn : maxPriceBn,
-         amount: bnInput,
-         exactIn: true,
-         zeroForOne: tokenOrder,
-       };
-       setQuoteParams(quoteParams ? [...quoteParams, params] : [params]);
-     }
-     setAvailablePools(pools);
-   }
+  ////////////////////////////////Pools
+  const [availablePools, setAvailablePools] = useState(undefined);
+  const [quoteParams, setQuoteParams] = useState(undefined);
+  const [swapParams, setSwapParams] = useState(undefined);
 
-   //TODO: loop through poolQuotes and set
-   //       - state.swapSlippage
-   //       - state.swapParams
-   const { data: poolQuotes } = useContractRead({
+  useEffect(() => {
+    if (tokenIn.address && tokenOut.address) {
+      updatePools();
+    }
+  }, [tokenOut, tokenIn]);
+
+  async function updatePools() {
+    const pools = await getSwapPool(
+      tokenIn,
+      tokenOut,
+      setTradePoolAddress,
+      setTradePoolData
+    );
+    for (let i = 0; i < pools.length; i++) {
+      const params: QuoteParams = {
+        priceLimit: tokenOrder ? minPriceBn : maxPriceBn,
+        amount: bnInput,
+        exactIn: true,
+        zeroForOne: tokenOrder,
+      };
+      setQuoteParams(quoteParams ? [...quoteParams, params] : [params]);
+    }
+    setAvailablePools(pools);
+  }
+
+  //TODO: loop through poolQuotes and set
+  //       - state.swapSlippage
+  //       - state.swapParams
+  const { data: poolQuotes } = useContractRead({
     address: poolRouterAddress, //contract address,
     abi: poolsharkRouterABI, // contract abi,
     functionName: "multiQuote",
@@ -250,7 +176,7 @@ export default function Trade() {
   }, [poolQuotes]);
 
   async function updateSwapParams() {
-    let sortedPools: string[]
+    let sortedPools: string[];
     for (let i = 0; i < availablePools.length; i++) {
       const params: SwapParams = {
         to: address,
@@ -258,13 +184,13 @@ export default function Trade() {
         amount: bnInput,
         exactIn: true,
         zeroForOne: tokenOrder,
-        callbackData: ethers.utils.formatBytes32String('')
+        callbackData: ethers.utils.formatBytes32String(""),
       };
       setSwapParams(swapParams ? [...swapParams, params] : [params]);
       //TODO: list is sorted so we can set the pool addresses array for the swap() call
-      sortedPools[i] = poolQuotes[i].pool
+      sortedPools[i] = poolQuotes[i].pool;
     }
-    setSwapPoolAddresses(sortedPools)
+    setTradePoolAddress(sortedPools[0]);
   }
 
   ////////////////////////////////TokenOrder
@@ -279,18 +205,18 @@ export default function Trade() {
   ////////////////////////////////TokenUSDPrices
 
   useEffect(() => {
-    if (swapPoolData) {
+    if (tradePoolData) {
       if (tokenIn.address) {
-        if (swapPoolData.token0 && swapPoolData.token1) {
+        if (tradePoolData.token0 && tradePoolData.token1) {
           // if limit pool fetch limit price
           fetchRangeTokenUSDPrice(
-            swapPoolData,
+            tradePoolData,
             tokenIn,
-            setTokenInRangeUSDPrice
+            setTokenInTradeUSDPrice
           );
           // if cover pool fetch cover price
           // fetchCoverTokenUSDPrice(
-          //   swapPoolData,
+          //   tradePoolData,
           //   tokenInd,
           //   setTokenInCoverUSDPrice
           // );
@@ -298,39 +224,34 @@ export default function Trade() {
         //TODO: check if cover and/or range pools present
       }
       if (tokenOut.address) {
-        if (swapPoolData.token0 && swapPoolData.token1) {
+        if (tradePoolData.token0 && tradePoolData.token1) {
           // if limit pool fetch limit price
           fetchRangeTokenUSDPrice(
-            swapPoolData,
+            tradePoolData,
             tokenOut,
-            setTokenOutRangeUSDPrice
+            setTokenOutTradeUSDPrice
           );
           // if cover pool fetch cover price
           // fetchCoverTokenUSDPrice(
-          //   swapPoolData,
+          //   tradePoolData,
           //   tokenOut,
           //   setTokenOutCoverUSDPrice
           // );
         }
       }
     }
-  }, [swapPoolData, tokenIn, tokenOut]);
+  }, [tradePoolData, tokenIn, tokenOut]);
 
   ////////////////////////////////Balances
 
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.address,
-    enabled:
-      (tokenIn.address != undefined && needsCoverBalance) ||
-      (tokenIn.address != undefined && needsRangeBalanceIn),
-    watch: needsCoverBalance || needsRangeBalanceIn,
+    enabled: tokenIn.address != undefined && needsBalanceIn,
+    watch: needsBalanceIn,
     onSuccess(data) {
-      if (needsCoverBalance) {
-        setNeedsCoverBalance(false);
-      }
-      if (needsRangeBalanceIn) {
-        setNeedsRangeBalanceIn(false);
+      if (needsBalanceIn) {
+        setNeedsBalanceIn(false);
       }
     },
   });
@@ -338,11 +259,11 @@ export default function Trade() {
   const { data: tokenOutBal } = useBalance({
     address: address,
     token: tokenOut.address,
-    enabled: tokenOut.address != undefined && needsRangeBalanceOut,
-    watch: needsRangeBalanceOut,
+    enabled: tokenOut.address != undefined && needsBalanceOut,
+    watch: needsBalanceOut,
     onSuccess(data) {
-      if (needsRangeBalanceOut) {
-        setNeedsRangeBalanceOut(false);
+      if (needsBalanceOut) {
+        setNeedsBalanceOut(false);
       }
     },
   });
@@ -367,24 +288,22 @@ export default function Trade() {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, poolRouterAddress],
+    args: [address, poolRouterAddress as `0x${string}`],
     chainId: 421613,
-    watch: needsRangeAllowanceIn,
-    enabled: pairSelected && poolRouterAddress && needsRangeAllowanceIn,
+    watch: needsAllowanceIn,
+    enabled: poolRouterAddress && needsAllowanceIn,
     onError(error) {
       console.log("Error allowance", error);
     },
     onSuccess(data) {
-      setNeedsRangeAllowanceIn(false);
+      setNeedsAllowanceIn(false);
       //console.log("Success allowance", data);
     },
   });
 
   useEffect(() => {
     if (allowanceInRouter) {
-      setTokenInRangeAllowance(
-        ethers.utils.formatUnits(allowanceInRouter, tokenIn.decimals)
-      );
+      setTokenInTradeAllowance(allowanceInRouter);
     }
   }, [allowanceInRouter]);
 
@@ -397,34 +316,17 @@ export default function Trade() {
   const [coverBnPriceLimit, setCoverBnPriceLimit] = useState(BN_ZERO);
 
   const { data: quoteRange } = useContractRead({
-    address: rangePoolAddress,
+    address: tradePoolAddress,
     abi: rangePoolABI,
     functionName: "quote",
     args: [[tokenOrder ? minPriceBn : maxPriceBn, bnInput, tokenOrder]],
     chainId: 421613,
     watch: true,
-    enabled: rangePoolAddress,
     onError(error) {
       console.log("Error range wagmi", error);
     },
     onSettled(data, error) {
       //console.log("Settled range wagmi", { data, error });
-    },
-  });
-
-  const { data: quoteCover } = useContractRead({
-    address: coverPoolAddress,
-    abi: coverPoolABI,
-    functionName: "quote",
-    args: [[tokenOrder ? minPriceBn : maxPriceBn, bnInput, tokenOrder]],
-    chainId: 421613,
-    watch: true,
-    enabled: coverPoolAddress,
-    onError(error) {
-      console.log("Error cover wagmi", error);
-    },
-    onSettled(data, error) {
-      //console.log("Settled", { data, error });
     },
   });
 
@@ -449,31 +351,10 @@ export default function Trade() {
         setRangeBnPriceLimit(BigNumber.from(String(rangePriceLimit)));
       }
     }
-
-    if (quoteCover) {
-      if (quoteCover[0].gt(BN_ZERO) && quoteCover[1].gt(BN_ZERO)) {
-        setCoverQuote(
-          parseFloat(ethers.utils.formatUnits(quoteCover[1], tokenIn.decimals))
-        );
-        const priceAfter = parseFloat(
-          TickMath.getPriceStringAtSqrtPrice(quoteCover[2])
-        );
-        const priceSlippage = parseFloat(
-          ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6)
-        );
-        const priceAfterSlippage = String(
-          priceAfter - (tokenOrder ? priceSlippage : -priceSlippage)
-        );
-        setCoverPriceAfter(priceAfter);
-        const coverPriceLimit =
-          TickMath.getSqrtPriceAtPriceString(priceAfterSlippage);
-        setCoverBnPriceLimit(BigNumber.from(String(coverPriceLimit)));
-      }
-    }
-  }, [quoteCover, quoteRange]);
+  }, [quoteRange]);
 
   ////////////////////////////////FeeTiers and Slippage
-  const [slippage, setSlippage] = useState("0.5");
+  /*   const [slippage, setSlippage] = useState("0.5");
   const [auxSlippage, setAuxSlippage] = useState("0.5");
 
   useEffect(() => {
@@ -492,9 +373,6 @@ export default function Trade() {
       tokenIn.address,
       tokenOut.address
     );
-    const feeTierCover =
-      poolCover["data"]["coverPools"][0]["volatilityTier"]["feeAmount"];
-    setCoverSlippage((parseFloat(feeTierCover) / 10000).toString());
     const poolRange = await getRangePoolFromFactory(
       tokenIn.address,
       tokenOut.address
@@ -504,33 +382,22 @@ export default function Trade() {
   };
 
   const chooseSlippage = () => {
-    if (rangeQuote >= coverQuote) {
-      setSlippage(rangeSlippage);
-      setAuxSlippage(rangeSlippage);
-    } else {
-      setSlippage(coverSlippage);
-      setAuxSlippage(coverSlippage);
-    }
-  };
+    setSlippage(rangeSlippage);
+    setAuxSlippage(rangeSlippage);
+  }; */
 
   ////////////////////////////////Prices
-  const [coverPrice, setCoverPrice] = useState(0);
   const [rangePrice, setRangePrice] = useState(0);
-
-  const [coverBnPrice, setCoverBnPrice] = useState(BigNumber.from(0));
   const [rangeBnPrice, setRangeBnPrice] = useState(BigNumber.from(0));
-
-  const [coverBnBaseLimit, setCoverBnBaseLimit] = useState(BigNumber.from(0));
   const [rangeBnBaseLimit, setRangeBnBaseLimit] = useState(BigNumber.from(0));
 
   const { data: priceRange } = useContractRead({
-    address: rangePoolAddress,
+    address: tradePoolAddress,
     abi: rangePoolABI,
     functionName: "poolState",
     args: [],
     chainId: 421613,
     watch: true,
-    enabled: rangePoolAddress,
     onError(error) {
       console.log("Error price Range", error);
     },
@@ -539,31 +406,8 @@ export default function Trade() {
     },
   });
 
-  const { data: priceCover } = useContractRead({
-    address: coverPoolAddress,
-    abi: coverPoolABI,
-    functionName: tokenOrder ? "pool0" : "pool1",
-    args: [],
-    chainId: 421613,
-    watch: true,
-    enabled: coverPoolAddress,
-    onError(error) {
-      console.log("Error price Cover", error);
-    },
-    onSettled(data, error) {
-      //console.log("Settled price Cover", { data, error });
-    },
-  });
-
   //when contract prices change updates price states
   useEffect(() => {
-    if (priceCover) {
-      if (priceCover[0].gt(BN_ZERO)) {
-        setCoverPrice(
-          parseFloat(TickMath.getPriceStringAtSqrtPrice(priceCover[0]))
-        );
-      }
-    }
     if (priceRange) {
       if (priceRange[5].gt(BN_ZERO)) {
         setRangePrice(
@@ -571,28 +415,17 @@ export default function Trade() {
         );
       }
     }
-  }, [priceCover, priceRange]);
+  }, [priceRange]);
 
   //when price states change updates price bn states
   useEffect(() => {
-    if (coverPrice) {
-      setCoverBnPrice(ethers.utils.parseEther(coverPrice.toString()));
-    }
     if (rangePrice) {
       setRangeBnPrice(ethers.utils.parseEther(rangePrice.toString()));
     }
-  }, [coverPrice, rangePrice]);
+  }, [rangePrice]);
 
   //when price bn states change updates base limit states
   useEffect(() => {
-    if (coverBnPrice) {
-      if (!coverBnPrice.eq(BN_ZERO)) {
-        const baseLimit = coverBnPrice
-          .mul(parseFloat((parseFloat(slippage) * 100).toFixed(6)))
-          .div(10000);
-        setCoverBnBaseLimit(baseLimit);
-      }
-    }
     if (rangeBnPrice) {
       if (!rangeBnPrice.eq(BN_ZERO)) {
         const baseLimit = rangeBnPrice
@@ -601,7 +434,7 @@ export default function Trade() {
         setRangeBnBaseLimit(baseLimit);
       }
     }
-  }, [slippage, rangeBnPrice, coverBnPrice]);
+  }, [slippage, rangeBnPrice]);
 
   ////////////////////////////////Limit Price Switch
   const [limitPriceOrder, setLimitPriceOrder] = useState(true);
@@ -609,12 +442,12 @@ export default function Trade() {
 
   useEffect(() => {
     setLimitStringPriceQuote(
-      (tokenInRangeUSDPrice / tokenOutRangeUSDPrice).toPrecision(6).toString()
+      (tokenIn.USDPrice / tokenOut.USDPrice).toPrecision(6).toString()
     );
-  }, [tokenOutRangeUSDPrice, tokenInRangeUSDPrice]);
+  }, [tokenOut.USDPrice, tokenIn.USDPrice]);
 
   useEffect(() => {
-    var newPrice = (tokenInRangeUSDPrice / tokenOutRangeUSDPrice)
+    var newPrice = (tokenIn.USDPrice / tokenOut.USDPrice)
       .toPrecision(6)
       .toString();
     setLimitStringPriceQuote(newPrice);
@@ -623,11 +456,11 @@ export default function Trade() {
   useEffect(() => {
     if (!limitPriceOrder) {
       setLimitStringPriceQuote(
-        (tokenOutRangeUSDPrice / tokenInRangeUSDPrice).toPrecision(6).toString()
+        (tokenOut.USDPrice / tokenIn.USDPrice).toPrecision(6).toString()
       );
     } else {
       setLimitStringPriceQuote(
-        (tokenInRangeUSDPrice / tokenOutRangeUSDPrice).toPrecision(6).toString()
+        (tokenIn.USDPrice / tokenOut.USDPrice).toPrecision(6).toString()
       );
     }
   }, [limitPriceOrder, tokenOrder]);
@@ -640,14 +473,14 @@ export default function Trade() {
     if (
       slippage &&
       limitStringPriceQuote &&
-      rangePoolData?.feeTier?.tickSpacing
+      tradePoolData?.feeTier?.tickSpacing
     ) {
       updateLimitTicks();
     }
   }, [limitStringPriceQuote, slippage]);
 
   function updateLimitTicks() {
-    const tickSpacing = rangePoolData.feeTier.tickSpacing;
+    const tickSpacing = tradePoolData.feeTier.tickSpacing;
     if (
       isFinite(parseFloat(limitStringPriceQuote)) &&
       parseFloat(limitStringPriceQuote) > 0
@@ -718,7 +551,7 @@ export default function Trade() {
   //const [mintFee, setMintFee] = useState("$0.00");
   //const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (!bnInput.eq(BN_ZERO)) {
       if (!limitTabSelected) {
         updateGasFee();
@@ -762,23 +595,13 @@ export default function Trade() {
       setMintGasFee,
       setMintGasLimit
     );
-  }
+  } */
 
-  ////////////////////////////////Button states for swap
-  const [buttonState, setButtonState] = useState("");
+  ////////////////////////////////Mint Button State
 
-  // disabled messages
   useEffect(() => {
-    if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
-      setButtonState("amount");
-    }
-    if (pairSelected == false) {
-      setButtonState("token");
-    }
-    if (Number(tokenInBalance) < Number(ethers.utils.formatUnits(bnInput))) {
-      setButtonState("balance");
-    }
-  }, [bnInput, pairSelected, tokenInBalance, bnInput]);
+    setMintButtonState();
+  }, [tradeMintParams.tokenInAmount, tradeMintParams.tokenOutAmount]);
 
   ////////////////////////////////
   const [expanded, setExpanded] = useState(false);
@@ -1395,7 +1218,7 @@ export default function Trade() {
                     poolAddress={rangePoolAddress}
                     to={address}
                     amount={bnInput}
-                    mintPercent={ethers.utils.parseUnits('1', 26)}
+                    mintPercent={ethers.utils.parseUnits("1", 26)}
                     lower={lowerTick}
                     upper={upperTick}
                     closeModal={() => {}}
@@ -1444,115 +1267,115 @@ export default function Trade() {
               <th className="text-left md:grid-cell hidden">Status</th>
               <th className="text-right md:grid-cell hidden">Age</th>
             </tr>
-            </thead>
+          </thead>
           {activeOrdersSelected ? (
-          <tbody className="">
-            <tr className="text-right text-xs md:text-sm">
-              <td className="">
-                <div className="flex items-center text-sm text-grey1 gap-x-2 text-left">
-                  <img
-                    className="w-[25px] h-[25px]"
-                    src="/static/images/dai_icon.png"
-                  />
-                  200 DAI
-                </div>
-              </td>
-              <td className="">
-                <div className="flex items-center text-sm text-white gap-x-2 text-left">
-                  <img
-                    className="w-[25px] h-[25px]"
-                    src="/static/images/dai_icon.png"
-                  />
-                  200 DAI
-                </div>
-              </td>
-              <td className="text-left text-xs">
-                <div className="flex flex-col">
-                  {/* FOR EXACT PRICE   */}
-                  <span>
-                    <span className="text-grey1">1 ETH =</span> 200 DAI
-                  </span>
+            <tbody className="">
+              <tr className="text-right text-xs md:text-sm">
+                <td className="">
+                  <div className="flex items-center text-sm text-grey1 gap-x-2 text-left">
+                    <img
+                      className="w-[25px] h-[25px]"
+                      src="/static/images/dai_icon.png"
+                    />
+                    200 DAI
+                  </div>
+                </td>
+                <td className="">
+                  <div className="flex items-center text-sm text-white gap-x-2 text-left">
+                    <img
+                      className="w-[25px] h-[25px]"
+                      src="/static/images/dai_icon.png"
+                    />
+                    200 DAI
+                  </div>
+                </td>
+                <td className="text-left text-xs">
+                  <div className="flex flex-col">
+                    {/* FOR EXACT PRICE   */}
+                    <span>
+                      <span className="text-grey1">1 ETH =</span> 200 DAI
+                    </span>
 
-                  {/* FOR PRICE RANGES
+                    {/* FOR PRICE RANGES
                   <span className="flex flex-col">
                     <div><span className="text-grey1">FROM  1 ETH =</span> 200 DAI</div>
                     <div><span className="text-grey1">TO 1 ETH =</span> 200 DAI</div>
                   </span>
             */}
-                </div>
-              </td>
-              <td className="">
-                <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
-                  <span className="z-50">Not Filled</span>
-                  <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
-                </div>
-              </td>
-              <td className="text-sm text-grey1">5d</td>
-              <td className="text-sm text-grey1 pl-5">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  className="w-7 text-red-600 bg-red-900/30 p-1 rounded-full cursor-pointer -mr-5"
-                >
-                  <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                </svg>
-              </td>
-            </tr>
-          </tbody>
+                  </div>
+                </td>
+                <td className="">
+                  <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
+                    <span className="z-50">Not Filled</span>
+                    <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
+                  </div>
+                </td>
+                <td className="text-sm text-grey1">5d</td>
+                <td className="text-sm text-grey1 pl-5">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="w-7 text-red-600 bg-red-900/30 p-1 rounded-full cursor-pointer -mr-5"
+                  >
+                    <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                  </svg>
+                </td>
+              </tr>
+            </tbody>
           ) : (
-          <tbody className="">
-            <tr className="text-right text-xs md:text-sm">
-              <td className="">
-                <div className="flex items-center text-sm text-grey1 gap-x-2">
-                  <img
-                    className="w-[25px] h-[25px]"
-                    src="/static/images/dai_icon.png"
-                  />
-                  200 DAI
-                </div>
-              </td>
-              <td className="">
-                <div className="flex items-center text-sm text-white gap-x-2">
-                  <img
-                    className="w-[25px] h-[25px]"
-                    src="/static/images/dai_icon.png"
-                  />
-                  200 DAI
-                </div>
-              </td>
-              <td className="text-left text-xs">
-                <div className="flex flex-col">
-                  {/* FOR EXACT PRICE   */}
-                  <span>
-                    <span className="text-grey1">1 ETH =</span> 200 DAI
-                  </span>
+            <tbody className="">
+              <tr className="text-right text-xs md:text-sm">
+                <td className="">
+                  <div className="flex items-center text-sm text-grey1 gap-x-2">
+                    <img
+                      className="w-[25px] h-[25px]"
+                      src="/static/images/dai_icon.png"
+                    />
+                    200 DAI
+                  </div>
+                </td>
+                <td className="">
+                  <div className="flex items-center text-sm text-white gap-x-2">
+                    <img
+                      className="w-[25px] h-[25px]"
+                      src="/static/images/dai_icon.png"
+                    />
+                    200 DAI
+                  </div>
+                </td>
+                <td className="text-left text-xs">
+                  <div className="flex flex-col">
+                    {/* FOR EXACT PRICE   */}
+                    <span>
+                      <span className="text-grey1">1 ETH =</span> 200 DAI
+                    </span>
 
-                  {/* FOR PRICE RANGES
+                    {/* FOR PRICE RANGES
                   <span className="flex flex-col">
                     <div><span className="text-grey1">FROM  1 ETH =</span> 200 DAI</div>
                     <div><span className="text-grey1">TO 1 ETH =</span> 200 DAI</div>
                   </span>
             */}
-                </div>
-              </td>
-              <td className="">
-                <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
-                  <span className="z-50">Not Filled</span>
-                  <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
-                </div>
-              </td>
-              <td className="text-sm text-grey1">5d</td>
-            </tr>
-          </tbody>
+                  </div>
+                </td>
+                <td className="">
+                  <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
+                    <span className="z-50">Not Filled</span>
+                    <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
+                  </div>
+                </td>
+                <td className="text-sm text-grey1">5d</td>
+              </tr>
+            </tbody>
           )}
         </table>
         {activeOrdersSelected && (
-        <div className="flex items-center justify-center w-full mt-9">
-          <button className="bg-red-900/20 py-2 px-5 text-xs text-red-600 mx-auto">
-            Cancell All Orders
-          </button>
-        </div>
+          <div className="flex items-center justify-center w-full mt-9">
+            <button className="bg-red-900/20 py-2 px-5 text-xs text-red-600 mx-auto">
+              Cancell All Orders
+            </button>
+          </div>
         )}
       </div>
     </div>
