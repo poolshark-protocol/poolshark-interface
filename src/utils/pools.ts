@@ -11,11 +11,9 @@ import { tokenCover, tokenRangeLimit, tokenSwap } from "./types";
 //TODO@retraca enable this componnent to directly u0pdate zustand states
 
 //Grab pool with most liquidity
-export const getSwapPool = async (
+export const getSwapPools = async (
   tokenIn: tokenSwap,
   tokenOut: tokenSwap,
-  setSwapPoolAddress,
-  setSwapPoolData
 ) => {
   try {
     //const coverPools = await fetchCoverPools();

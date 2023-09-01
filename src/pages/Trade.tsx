@@ -37,7 +37,7 @@ import {
   fetchCoverTokenUSDPrice,
   fetchRangeTokenUSDPrice,
 } from "../utils/tokens";
-import { getSwapPool } from "../utils/pools";
+import { getSwapPools } from "../utils/pools";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { QuoteParams, SwapParams } from "../utils/types";
 import { useTradeStore } from "../hooks/useTradeStore";
@@ -135,18 +135,15 @@ export default function Trade() {
   const [swapParams, setSwapParams] = useState(undefined);
 
   useEffect(() => {
-    if (tokenIn.address && tokenOut.address) {
+    if (tokenIn.address && tokenOut.address && bnInput) {
       updatePools();
     }
-  }, [tokenOut, tokenIn]);
+  }, [tokenOut.address, tokenIn.address, bnInput]);
 
   async function updatePools() {
-    const pools = await getSwapPool(
-      tokenIn,
-      tokenOut,
-      setTradePoolAddress,
-      setTradePoolData
-    );
+    const pools = await getSwapPools(tokenIn, tokenOut);
+    const poolAdresses: string[] = [];
+    const quoteList: QuoteParams[] = [];
     for (let i = 0; i < pools.length; i++) {
       const params: QuoteParams = {
         priceLimit: tokenOrder ? minPriceBn : maxPriceBn,
@@ -154,9 +151,13 @@ export default function Trade() {
         exactIn: true,
         zeroForOne: tokenOrder,
       };
-      setQuoteParams(quoteParams ? [...quoteParams, params] : [params]);
+      quoteList[i] = params;
+      poolAdresses[i] = pools[i].id;
     }
-    setAvailablePools(pools);
+    setAvailablePools(poolAdresses);
+    setQuoteParams(quoteList);
+    console.log("multiquote availablePools", availablePools);
+    console.log("multiquote quoteParams", quoteParams);
   }
 
   //TODO: loop through poolQuotes and set
@@ -168,12 +169,11 @@ export default function Trade() {
     functionName: "multiQuote",
     args: [availablePools, quoteParams, true],
     chainId: 421613,
-    //enabled: needsRangeAllowanceIn,
+    enabled: availablePools && quoteParams,
     onError(error) {
-      console.log("Error allowance", error);
+      console.log("Error multiquote", error);
     },
     onSuccess(data) {
-      //setNeedsRangeAllowanceIn(false);
       //set ordered list to state
       console.log("Success multiquote", data);
     },
@@ -200,6 +200,7 @@ export default function Trade() {
       //TODO: list is sorted so we can set the pool addresses array for the swap() call
       sortedPools[i] = poolQuotes[i].pool;
     }
+    console.log("sortedPools", sortedPools);
     setTradePoolAddress(sortedPools[0]);
   }
 
@@ -387,7 +388,7 @@ export default function Trade() {
       tokenIn.address,
       tokenOut.address
     );
-    const feeTier = poolRange["data"]["rangePools"][0]["feeTier"]["feeAmount"];
+    const feeTier = poolRange["data"]["limitPools"][0]["feeTier"]["feeAmount"];
     setTradeSlippage((parseFloat(feeTier) / 10000).toString());
   };
 
