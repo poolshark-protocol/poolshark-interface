@@ -57,6 +57,8 @@ export default function Trade() {
     setTradePoolAddress,
     tradePoolData,
     setTradePoolData,
+    pairSelected,
+    setPairSelected,
     tokenIn,
     setTokenIn,
     setTokenInBalance,
@@ -75,6 +77,7 @@ export default function Trade() {
     needsBalanceOut,
     setNeedsBalanceOut,
     tradeMintParams,
+    switchDirection,
     setMintButtonState,
   ] = useTradeStore((s) => [
     s.poolRouterAddress,
@@ -82,6 +85,8 @@ export default function Trade() {
     s.setTradePoolAddress,
     s.tradePoolData,
     s.setTradePoolData,
+    s.pairSelected,
+    s.setPairSelected,
     s.tokenIn,
     s.setTokenIn,
     s.setTokenInBalance,
@@ -100,6 +105,7 @@ export default function Trade() {
     s.needsBalanceOut,
     s.setNeedsBalanceOut,
     s.tradeMintParams,
+    s.switchDirection,
     s.setMintButtonState,
   ]);
 
@@ -572,7 +578,7 @@ export default function Trade() {
       tokenIn,
       tokenOut,
       bnInput,
-      ethers.utils.parseUnits(tokenInRangeAllowance, tokenIn.decimals),
+      ethers.utils.parseUnits(tokenIn.userPoolAllowance, tokenIn.decimals),
       ethers.utils.parseUnits(tokenInCoverAllowance, tokenIn.decimals),
       address,
       signer,
@@ -738,15 +744,10 @@ export default function Trade() {
               <div className="ml-auto text-xs">
                 {pairSelected
                   ? rangePriceAfter || coverPriceAfter
-                    ? rangeQuote >= coverQuote
-                      ? (
-                          Math.abs((rangePrice - rangePriceAfter) * 100) /
-                          rangePrice
-                        ).toFixed(2) + "%"
-                      : (
-                          Math.abs((coverPrice - coverPriceAfter) * 100) /
-                          coverPrice
-                        ).toFixed(2) + "%"
+                    ? (
+                        Math.abs((rangePrice - rangePriceAfter) * 100) /
+                        rangePrice
+                      ).toFixed(2) + "%"
                     : "0.00%"
                   : "Select Token"}
               </div>
@@ -800,10 +801,10 @@ export default function Trade() {
                   {(
                     Number(
                       ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                    ) * tokenInRangeUSDPrice
+                    ) * tokenIn.USDPrice
                   ).toFixed(2)}
                 </span>
-                <span>BALANCE: {tokenInBalance}</span>
+                <span>BALANCE: {tokenIn.userBalance}</span>
               </div>
               <div className="flex items-end justify-between mt-2 mb-3">
                 {inputBox("0")}
@@ -811,7 +812,7 @@ export default function Trade() {
                   {isConnected && stateChainName === "arbitrumGoerli" ? (
                     <button
                       onClick={() => {
-                        maxBalance(tokenInBalance, "1");
+                        maxBalance(tokenIn.userBalance, "1");
                       }}
                       className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
                     >
@@ -857,20 +858,16 @@ export default function Trade() {
                   ~$
                   {pairSelected ||
                   parseFloat(ethers.utils.formatUnits(bnInput, 18)) !== 0 ? (
-                    tokenOutRangeUSDPrice || tokenOutCoverUSDPrice ? (
+                    tokenOut.USDPrice ? (
                       !limitTabSelected ? (
                         //swap page
-                        rangeQuote >= coverQuote ? (
-                          (rangeQuote * tokenOutRangeUSDPrice).toFixed(2)
-                        ) : (
-                          (coverQuote * tokenOutCoverUSDPrice).toFixed(2)
-                        )
+                        (rangeQuote * tokenOut.USDPrice).toFixed(2)
                       ) : //limit page
                       limitPriceOrder ? (
                         (
                           parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                           parseFloat(limitStringPriceQuote) *
-                          tokenOutRangeUSDPrice
+                          tokenOut.USDPrice
                         ).toFixed(2)
                       ) : (
                         (
@@ -878,7 +875,7 @@ export default function Trade() {
                           parseFloat(
                             invertPrice(limitStringPriceQuote, false)
                           ) *
-                          tokenOutRangeUSDPrice
+                          tokenOut.USDPrice
                         ).toFixed(2)
                       )
                     ) : (
@@ -889,7 +886,7 @@ export default function Trade() {
                   )}
                 </span>
                 <span>
-                  {pairSelected ? "Balance: " + tokenOutBalance : <></>}
+                  {pairSelected ? "Balance: " + tokenOut.userBalance : <></>}
                 </span>
               </div>
               <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
@@ -1018,21 +1015,19 @@ export default function Trade() {
                             limitPriceOrder
                             ? //when normal order tokenIn/tokenOut
                               (parseFloat(limitStringPriceQuote) /
-                                (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
+                                (tokenIn.USDPrice / tokenOut.USDPrice) -
                                 1) *
                                 100 >
                               0
                               ? (
                                   (parseFloat(limitStringPriceQuote) /
-                                    (tokenInRangeUSDPrice /
-                                      tokenOutRangeUSDPrice) -
+                                    (tokenIn.USDPrice / tokenOut.USDPrice) -
                                     1) *
                                   100
                                 ).toFixed(2) + "% above Market Price"
                               : Math.abs(
                                   (parseFloat(limitStringPriceQuote) /
-                                    (tokenInRangeUSDPrice /
-                                      tokenOutRangeUSDPrice) -
+                                    (tokenIn.USDPrice / tokenOut.USDPrice) -
                                     1) *
                                     100
                                 ).toFixed(2) + "% below Market Price"
@@ -1040,7 +1035,7 @@ export default function Trade() {
                             (parseFloat(
                                 invertPrice(limitStringPriceQuote, false)
                               ) /
-                                (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
+                                (tokenIn.USDPrice / tokenOut.USDPrice) -
                                 1) *
                                 100 >
                               0
@@ -1048,8 +1043,7 @@ export default function Trade() {
                                 (parseFloat(
                                   invertPrice(limitStringPriceQuote, false)
                                 ) /
-                                  (tokenInRangeUSDPrice /
-                                    tokenOutRangeUSDPrice) -
+                                  (tokenIn.USDPrice / tokenOut.USDPrice) -
                                   1) *
                                 100
                               ).toFixed(2) + "% above Market Price"
@@ -1057,8 +1051,7 @@ export default function Trade() {
                                 (parseFloat(
                                   invertPrice(limitStringPriceQuote, false)
                                 ) /
-                                  (tokenInRangeUSDPrice /
-                                    tokenOutRangeUSDPrice) -
+                                  (tokenIn.USDPrice / tokenOut.USDPrice) -
                                   1) *
                                   100
                               ).toFixed(2) + "% below Market Price"
@@ -1094,15 +1087,10 @@ export default function Trade() {
                   1 {tokenIn.symbol} ={" "}
                   {!pairSelected
                     ? " ?"
-                    : (rangeQuote >= coverQuote
-                        ? //range price
-                          tokenOrder
-                          ? rangePrice.toPrecision(5)
-                          : invertPrice(rangePrice.toPrecision(5), false)
-                        : //cover price
-                        tokenOrder
-                        ? coverPrice.toPrecision(5)
-                        : invertPrice(coverPrice.toPrecision(5), false)) +
+                    : //range price
+                      (tokenOrder
+                        ? rangePrice.toPrecision(5)
+                        : invertPrice(rangePrice.toPrecision(5), false)) +
                       " " +
                       tokenOut.symbol}
                 </div>
@@ -1120,27 +1108,13 @@ export default function Trade() {
               <ConnectWalletButton xl={true} />
             ) : !limitTabSelected ? ( //swap tab
               <>
-                {Number(tokenInBalance) <
-                  Number(ethers.utils.formatUnits(bnInput)) ||
-                bnInput.lte(BN_ONE) ? (
-                  <button
-                    disabled
-                    className="w-full py-4 mx-auto cursor-not-allowed text-center transition rounded-full  border border-main bg-main1 uppercase text-sm opacity-50"
-                  >
-                    {buttonState === "amount" ? <>Input Amount</> : <></>}
-                    {buttonState === "token" ? <>Select Token</> : <></>}
-                    {buttonState === "balance" ? (
-                      <>Insufficient {tokenIn.symbol} Balance</>
-                    ) : (
-                      <></>
-                    )}
-                  </button>
-                ) : rangeQuote >= coverQuote ? ( //range buttons
-                  Number(tokenInRangeAllowance) <
+                {
+                  //range buttons
+                  Number(tokenIn.userPoolAllowance) <
                   Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                     <div>
                       <SwapRangeApproveButton
-                        poolAddress={rangePoolAddress}
+                        poolAddress={tradePoolAddress}
                         approveToken={tokenIn.address}
                         tokenSymbol={tokenIn.symbol}
                         amount={bnInput}
@@ -1149,9 +1123,9 @@ export default function Trade() {
                   ) : (
                     <SwapRangeButton
                       disabled={false}
-                      poolAddress={rangePoolAddress}
+                      poolAddress={tradePoolAddress}
                       zeroForOne={
-                        tokenOut.address != "" &&
+                        tokenOut.address &&
                         tokenIn.address.localeCompare(tokenOut.address) < 0
                       }
                       amount={bnInput}
@@ -1159,55 +1133,15 @@ export default function Trade() {
                       gasLimit={gasLimit}
                     />
                   )
-                ) : //cover buttons
-                Number(tokenInCoverAllowance) <
-                  Number(ethers.utils.formatUnits(bnInput, 18)) ? (
-                  <div>
-                    <SwapCoverApproveButton
-                      disabled={false}
-                      poolAddress={coverPoolAddress}
-                      approveToken={tokenIn.address}
-                      tokenSymbol={tokenIn.symbol}
-                      amount={bnInput}
-                    />
-                  </div>
-                ) : (
-                  <SwapCoverButton
-                    disabled={gasLimit.gt(BN_ZERO)}
-                    poolAddress={coverPoolAddress}
-                    zeroForOne={
-                      tokenOut.address != "" &&
-                      tokenIn.address.localeCompare(tokenOut.address) < 0
-                    }
-                    amount={bnInput}
-                    priceLimit={coverBnPriceLimit}
-                    gasLimit={gasLimit}
-                  />
-                )}
+                }
               </>
             ) : (
               //limit tab
               <>
-                {stateChainName !== "arbitrumGoerli" ||
-                Number(tokenInBalance) <
-                  Number(ethers.utils.formatUnits(bnInput)) ||
-                bnInput._hex == "0x00" ? (
-                  <button
-                    disabled
-                    className="w-full py-4 mx-auto cursor-not-allowed text-center transition rounded-full  border border-main bg-main1 uppercase text-sm opacity-50"
-                  >
-                    {buttonState === "amount" ? <>Input Amount</> : <></>}
-                    {buttonState === "token" ? <>Select Token</> : <></>}
-                    {buttonState === "balance" ? (
-                      <>Insufficient {tokenIn.symbol} Balance</>
-                    ) : (
-                      <></>
-                    )}
-                  </button>
-                ) : Number(tokenInRangeAllowance) <
-                  Number(ethers.utils.formatUnits(bnInput, 18)) ? (
+                {Number(tokenIn.userPoolAllowance) <
+                Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                   <SwapRangeApproveButton
-                    poolAddress={rangePoolAddress}
+                    poolAddress={tradePoolAddress}
                     approveToken={tokenIn.address}
                     tokenSymbol={tokenIn.symbol}
                     amount={bnInput}
@@ -1215,7 +1149,7 @@ export default function Trade() {
                 ) : (
                   <LimitSwapButton
                     disabled={mintGasLimit.eq(BN_ZERO)}
-                    poolAddress={rangePoolAddress}
+                    poolAddress={tradePoolAddress}
                     to={address}
                     amount={bnInput}
                     mintPercent={ethers.utils.parseUnits("1", 26)}
