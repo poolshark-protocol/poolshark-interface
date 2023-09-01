@@ -1,89 +1,119 @@
-import { BigNumber } from "ethers";
-import { tokenSwap } from "../utils/types";
+import { BigNumber, ethers } from "ethers";
+import { tokenRangeLimit, tokenSwap } from "../utils/types";
 import { BN_ZERO } from "../utils/math/constants";
 import {
   tokenOneAddress,
   tokenZeroAddress,
 } from "../constants/contractAddresses";
 import { create } from "zustand";
+import {
+  getLimitPoolFromFactory,
+  getRangePoolFromFactory,
+} from "../utils/queries";
 
-type SwapState = {
+type TradeState = {
   poolRouterAddress: string;
-  //poolAddress for current token pairs
-  swapPoolAddresses: string[];
-  swapPoolData: any;
-  swapSlippage: string;
+  //tradePoolAddress for current token pairs
+  tradePoolAddress: `0x${string}`;
+  //tradePoolData contains all the info about the pool
+  tradePoolData: any;
+  feeTierTradeId: number;
+  tradeSlippage: string;
+  //Trade position data containing all the info about the position
+  tradePositionData: any;
+  //trade params for minting position
+  tradeMintParams: {
+    tokenInAmount: BigNumber;
+    tokenOutAmount: BigNumber;
+    gasFee: string;
+    gasLimit: BigNumber;
+    disabled: boolean;
+    buttonMessage: string;
+  };
   //true if both tokens selected, false if only one token selected
   pairSelected: boolean;
   //TokenIn defines the token on the left/up on a swap page
   tokenIn: tokenSwap;
-  tokenInRangeUSDPrice: number;
-  tokenInCoverUSDPrice: number;
-  tokenInRangeAllowance: string;
-  tokenInCoverAllowance: string;
-  tokenInBalance: string;
   //TokenOut defines the token on the left/up on a swap page
   tokenOut: tokenSwap;
-  tokenOutRangeUSDPrice: number;
-  tokenOutCoverUSDPrice: number;
-  tokenOutBalance: string;
-  //Gas
-  gasFee: string;
-  gasLimit: BigNumber;
-  mintGasFee: string;
-  mintGasLimit: BigNumber;
+  //min and max price input
+  minInput: string;
+  maxInput: string;
   //refresh
-  needsCoverAllowance: boolean;
-  needsRangeAllowanceIn: boolean;
-  needsRangeAllowanceOut: boolean;
-  needsCoverBalance: boolean;
-  needsRangeBalanceIn: boolean;
-  needsRangeBalanceOut: boolean;
+  needsRefetch: boolean;
+  needsPosRefetch: boolean;
+  needsAllowanceIn: boolean;
+  needsAllowanceOut: boolean;
+  needsBalanceIn: boolean;
+  needsBalanceOut: boolean;
 };
 
-type SwapAction = {
-  //pool
-  setCoverPoolAddress: (address: String) => void;
-  setCoverPoolData: (data: any) => void;
-  setSwapPoolAddresses: (address: String) => void;
-  setRangePoolData: (data: any) => void;
-  setPairSelected: (pairSelected: Boolean) => void;
-  //tokenIn
-  setTokenIn: (tokenOut: tokenSwap, newToken: tokenSwap) => void;
-  //setTokenInRangeUSDPrice: (price: number) => void;
-  //setTokenInCoverUSDPrice: (price: number) => void;
-  setTokenInRangeAllowance: (allowance: string) => void;
-  setTokenInCoverAllowance: (allowance: string) => void;
-  setTokenInBalance: (balance: string) => void;
-  //tokenOut
-  setTokenOut: (tokenOut: tokenSwap, newToken: tokenSwap) => void;
-  //setTokenOutRangeUSDPrice: (price: number) => void;
-  //setTokenOutCoverUSDPrice: (price: number) => void;
-  setTokenOutBalance: (balance: string) => void;
-  //gas
-  setGasFee: (fee: string) => void;
-  setGasLimit: (limit: BigNumber) => void;
-  setMintGasFee: (fee: string) => void;
-  setMintGasLimit: (limit: BigNumber) => void;
-  //refresh
-  setNeedsCoverAllowance: (needsAllowance: boolean) => void;
-  setNeedsRangeAllowanceIn: (needsAllowance: boolean) => void;
-  setNeedsRangeAllowanceOut: (needsAllowance: boolean) => void;
-  setNeedsCoverBalance: (needsBalance: boolean) => void;
-  setNeedsRangeBalanceIn: (needsBalance: boolean) => void;
-  setNeedsRangeBalanceOut: (needsBalance: boolean) => void;
-  //reset
-  resetSwapParams: () => void;
-};
-
-const initialSwapState: SwapState = {
-  //router
-  poolRouterAddress: "0x379cbea9234cae9e106bc2a86b39610dc56dbae2",
-  //pools
-  swapPoolAddresses: [],
-  swapPoolData: {},
-  swapSlippage: "0.5",
+type TradeLimitAction = {
   //
+  setTradePoolAddress: (address: String) => void;
+  setTradePoolData: (data: any) => void;
+  setTradeSlippage: (tradeSlippage: string) => void;
+  setTradePositionData: (tradePosition: any) => void;
+  //
+  setPairSelected: (pairSelected: boolean) => void;
+  //
+  setTokenIn: (tokenOut: any, newToken: any) => void;
+  setTokenInAmount: (amount: BigNumber) => void;
+  setTokenInTradeUSDPrice: (price: number) => void;
+  setTokenInTradeAllowance: (allowance: BigNumber) => void;
+  setTokenInBalance: (balance: string) => void;
+  //
+  setTokenOut: (tokenIn: any, newToken: any) => void;
+  setTokenOutAmount: (amount: BigNumber) => void;
+  setTokenOutTradeUSDPrice: (price: number) => void;
+  setTokenOutTradeAllowance: (allowance: BigNumber) => void;
+  setTokenOutBalance: (balance: string) => void;
+  //
+  setMinInput: (newMinTick: string) => void;
+  setMaxInput: (newMaxTick: string) => void;
+  //
+  setTradeGasFee: (gasFee: string) => void;
+  setTradeGasLimit: (gasLimit: BigNumber) => void;
+
+  //
+  switchDirection: () => void;
+  setTradePoolFromVolatility: (
+    tokenIn: any,
+    tokenOut: any,
+    volatility: any
+  ) => void;
+
+  resetTradeLimitParams: () => void;
+  //
+  setMintButtonState: () => void;
+  //
+  setNeedsRefetch: (needsRefetch: boolean) => void;
+  setNeedsPosRefetch: (needsPosRefetch: boolean) => void;
+  setNeedsAllowanceIn: (needsAllowance: boolean) => void;
+  setNeedsAllowanceOut: (needsAllowance: boolean) => void;
+  setNeedsBalanceIn: (needsBalance: boolean) => void;
+  setNeedsBalanceOut: (needsBalance: boolean) => void;
+};
+
+const initialTradeState: TradeState = {
+  poolRouterAddress: "0x379cbea9234cae9e106bc2a86b39610dc56dbae2",
+  //trade pools
+  tradePoolAddress: "0x000",
+  tradePoolData: {},
+  tradePositionData: {},
+  feeTierTradeId: 0,
+  tradeSlippage: "0.5",
+  //
+  tradeMintParams: {
+    tokenInAmount: BN_ZERO,
+    tokenOutAmount: BN_ZERO,
+    gasFee: "$0.00",
+    gasLimit: BN_ZERO,
+    disabled: true,
+    buttonMessage: "",
+  },
+  //
+  //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
   pairSelected: false,
   //
   tokenIn: {
@@ -91,83 +121,73 @@ const initialSwapState: SwapState = {
     name: "Wrapped Ether",
     symbol: "WETH",
     logoURI: "/static/images/eth_icon.png",
-    address: tokenOneAddress,
-    decimals: 18,
-    userBalance: 0.0,
-    userPoolAllowance: 0,
-    USDPrice: 0.0,
-  } as tokenSwap,
-  tokenInRangeUSDPrice: 0,
-  tokenInCoverUSDPrice: 0,
-  tokenInRangeAllowance: "0.00",
-  tokenInCoverAllowance: "0.00",
-  tokenInBalance: "0.00",
-  //
-  tokenOut: {
-    callId: 1,
-    name: "Select Token",
-    symbol: "Select Token",
-    logoURI: "",
     address: tokenZeroAddress,
     decimals: 18,
     userBalance: 0.0,
-    userPoolAllowance: 0,
+    userPoolAllowance: BigNumber.from(0),
     USDPrice: 0.0,
   } as tokenSwap,
-  tokenOutRangeUSDPrice: 0,
-  tokenOutCoverUSDPrice: 0,
-  tokenOutBalance: "0.00",
   //
-  gasFee: "$0.00",
-  gasLimit: BN_ZERO,
-  mintGasFee: "$0.00",
-  mintGasLimit: BN_ZERO,
+  tokenOut: {
+    callId: 1,
+    name: "DAI",
+    symbol: "DAI",
+    logoURI: "/static/images/dai_icon.png",
+    address: tokenOneAddress,
+    decimals: 18,
+    userBalance: 0.0,
+    userPoolAllowance: BigNumber.from(0),
+    USDPrice: 0.0,
+  } as tokenSwap,
   //
-  needsCoverAllowance: true,
-  needsRangeAllowanceIn: true,
-  needsRangeAllowanceOut: true,
-  needsCoverBalance: true,
-  needsRangeBalanceIn: true,
-  needsRangeBalanceOut: true,
+  minInput: "",
+  maxInput: "",
+  //
+  needsRefetch: false,
+  needsPosRefetch: false,
+  needsAllowanceIn: true,
+  needsAllowanceOut: true,
+  needsBalanceIn: true,
+  needsBalanceOut: true,
 };
 
-export const useSwapStore = create<SwapState & SwapAction>((set) => ({
-  //router
-  poolRouterAddress: initialSwapState.poolRouterAddress,
-  //pool
-  //pools
-  swapPoolAddresses: initialSwapState.swapPoolAddresses,
-  swapPoolData: initialSwapState.swapPoolData,
-  swapSlippage: initialSwapState.swapSlippage,
-  pairSelected: initialSwapState.pairSelected,
+export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
+  poolRouterAddress: initialTradeState.poolRouterAddress,
+  //trade pool
+  tradePoolAddress: initialTradeState.tradePoolAddress,
+  tradePoolData: initialTradeState.tradePoolData,
+  feeTierTradeId: initialTradeState.feeTierTradeId,
+  tradeSlippage: initialTradeState.tradeSlippage,
+  //trade position data
+  tradePositionData: initialTradeState.tradePositionData,
+  //
+  tradeMintParams: initialTradeState.tradeMintParams,
+  //true if both tokens selected, false if only one token selected
+  pairSelected: initialTradeState.pairSelected,
   //tokenIn
-  tokenIn: initialSwapState.tokenIn,
-  tokenInRangeUSDPrice: initialSwapState.tokenInRangeUSDPrice,
-  tokenInCoverUSDPrice: initialSwapState.tokenInCoverUSDPrice,
-  tokenInRangeAllowance: initialSwapState.tokenInRangeAllowance,
-  tokenInCoverAllowance: initialSwapState.tokenInCoverAllowance,
-  tokenInBalance: initialSwapState.tokenInBalance,
+  tokenIn: initialTradeState.tokenIn,
   //tokenOut
-  tokenOut: initialSwapState.tokenOut,
-  tokenOutRangeUSDPrice: initialSwapState.tokenOutRangeUSDPrice,
-  tokenOutCoverUSDPrice: initialSwapState.tokenOutCoverUSDPrice,
-  tokenOutBalance: initialSwapState.tokenOutBalance,
-  //gas
-  gasFee: initialSwapState.gasFee,
-  gasLimit: initialSwapState.gasLimit,
-  mintGasFee: initialSwapState.mintGasFee,
-  mintGasLimit: initialSwapState.mintGasLimit,
+  tokenOut: initialTradeState.tokenOut,
+  //input amounts
+  minInput: initialTradeState.minInput,
+  maxInput: initialTradeState.maxInput,
   //refresh
-  needsCoverAllowance: initialSwapState.needsCoverAllowance,
-  needsRangeAllowanceIn: initialSwapState.needsRangeAllowanceIn,
-  needsRangeAllowanceOut: initialSwapState.needsRangeAllowanceOut,
-  needsCoverBalance: initialSwapState.needsCoverBalance,
-  needsRangeBalanceIn: initialSwapState.needsRangeBalanceIn,
-  needsRangeBalanceOut: initialSwapState.needsRangeBalanceOut,
+  needsRefetch: initialTradeState.needsRefetch,
+  needsPosRefetch: initialTradeState.needsPosRefetch,
+  needsAllowanceIn: initialTradeState.needsAllowanceIn,
+  needsAllowanceOut: initialTradeState.needsAllowanceOut,
+  needsBalanceIn: initialTradeState.needsBalanceIn,
+  needsBalanceOut: initialTradeState.needsBalanceOut,
+  //actions
+  setPairSelected: (pairSelected: boolean) => {
+    set(() => ({
+      pairSelected: pairSelected,
+    }));
+  },
   setTokenIn: (tokenOut, newToken: tokenSwap) => {
     //if tokenOut is selected
     if (
-      tokenOut.address != initialSwapState.tokenOut.address ||
+      tokenOut.address != initialTradeState.tokenOut.address ||
       tokenOut.symbol != "Select Token"
     ) {
       //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to  initialState
@@ -177,31 +197,22 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
             callId: 0,
             ...newToken,
           },
-          tokenOut: initialSwapState.tokenOut,
+          tokenOut: initialTradeState.tokenOut,
           pairSelected: false,
         }));
       } else {
         //if tokens are different
-        set((state) => ({
+        set(() => ({
           tokenIn: {
             callId:
-              newToken.address.localeCompare(state.tokenOut.address) < 0
-                ? 0
-                : 1,
+              newToken.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
             ...newToken,
-          },
-          tokenOut: {
-            callId:
-              newToken.address.localeCompare(state.tokenOut.address) < 0
-                ? 1
-                : 0,
-            ...state.tokenOut,
           },
           pairSelected: true,
         }));
       }
     } else {
-      //if tokenOut its not selected callId is 0 because only 1 token is selected
+      //if tokenOut its not selected
       set(() => ({
         tokenIn: {
           callId: 0,
@@ -211,52 +222,45 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
       }));
     }
   },
-  setTokenInRangeUSDPrice: (newPrice: number) => {
-    set(() => ({
-      tokenInRangeUSDPrice: newPrice,
+  setTokenInAmount: (newAmount: BigNumber) => {
+    set((state) => ({
+      tradeMintParams: {
+        ...state.tradeMintParams,
+        tokenInAmount: newAmount,
+      },
     }));
   },
-  setTokenInCoverUSDPrice: (newPrice: number) => {
-    set(() => ({
-      tokenInCoverUSDPrice: newPrice,
+  setTokenInTradeUSDPrice: (newPrice: number) => {
+    set((state) => ({
+      tokenIn: { ...state.tokenIn, tradeUSDPrice: newPrice },
     }));
   },
-  setTokenInRangeAllowance: (newAllowance: string) => {
-    set(() => ({
-      tokenInRangeAllowance: newAllowance,
-    }));
-  },
-  setTokenInCoverAllowance: (newAllowance: string) => {
-    set(() => ({
-      tokenInCoverAllowance: newAllowance,
+  setTokenInTradeAllowance: (newAllowance: BigNumber) => {
+    set((state) => ({
+      tokenIn: { ...state.tokenIn, userPoolAllowance: newAllowance },
     }));
   },
   setTokenInBalance: (newBalance: string) => {
-    set(() => ({
-      tokenInBalance: newBalance,
+    set((state) => ({
+      tokenIn: { ...state.tokenIn, userBalance: Number(newBalance) },
     }));
   },
-  setTokenOutRangeUSDPrice: (newPrice: number) => {
-    set(() => ({
-      tokenOutRangeUSDPrice: newPrice,
-    }));
-  },
-  setTokenOutCoverUSDPrice: (newPrice: number) => {
-    set(() => ({
-      tokenOutCoverUSDPrice: newPrice,
+  setTokenOutTradeUSDPrice: (newPrice: number) => {
+    set((state) => ({
+      tokenOut: { ...state.tokenOut, tradeUSDPrice: newPrice },
     }));
   },
   setTokenOut: (tokenIn, newToken: tokenSwap) => {
     //if tokenIn exists
     if (
-      tokenIn.address != initialSwapState.tokenOut.address ||
+      tokenIn.address != initialTradeState.tokenOut.address ||
       tokenIn.symbol != "Select Token"
     ) {
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
       if (newToken.address == tokenIn.address) {
         set(() => ({
           tokenOut: { callId: 0, ...newToken },
-          tokenIn: initialSwapState.tokenOut,
+          tokenIn: initialTradeState.tokenOut,
           pairSelected: false,
         }));
       } else {
@@ -270,71 +274,147 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
         }));
       }
     } else {
-      //if tokenIn its not selected callId is 0 because only 1 token is selected
+      //if tokenIn its not selected
       set(() => ({
         tokenOut: { callId: 0, ...newToken },
         pairSelected: false,
       }));
     }
   },
+  setTokenOutAmount: (newAmount: BigNumber) => {
+    set((state) => ({
+      tradeMintParams: {
+        ...state.tradeMintParams,
+        tokenOutAmount: newAmount,
+      },
+    }));
+  },
   setTokenOutBalance: (newBalance: string) => {
-    set(() => ({
-      tokenOutBalance: newBalance,
+    set((state) => ({
+      tokenOut: { ...state.tokenOut, userBalance: Number(newBalance) },
     }));
   },
-  setSwapPoolAddresses: (swapPoolAddresses: string[]) => {
-    set(() => ({
-      swapPoolAddresses: swapPoolAddresses,
+  setTokenOutTradeAllowance: (newAllowance: BigNumber) => {
+    set((state) => ({
+      tokenOut: { ...state.tokenOut, userPoolAllowance: newAllowance },
     }));
   },
-  setGasFee: (gasFee: string) => {
+  setMinInput: (minInput: string) => {
     set(() => ({
-      gasFee: gasFee,
+      minInput: minInput,
     }));
   },
-  setGasLimit: (gasLimit: BigNumber) => {
+  setMaxInput: (maxInput: string) => {
     set(() => ({
-      gasLimit: gasLimit,
+      maxInput: maxInput,
     }));
   },
-  setMintGasFee: (mintGasFee: string) => {
+  setTradePoolAddress: (tradePoolAddress: `0x${string}`) => {
     set(() => ({
-      mintGasFee: mintGasFee,
+      tradePoolAddress: tradePoolAddress,
     }));
   },
-  setMintGasLimit: (mintGasLimit: BigNumber) => {
+  setTradePoolData: (tradePoolData: any) => {
     set(() => ({
-      mintGasLimit: mintGasLimit,
+      tradePoolData: tradePoolData,
     }));
   },
-  setNeedsCoverAllowance: (needsCoverAllowance: boolean) => {
+  setTradeSlippage: (tradeSlippage: string) => {
     set(() => ({
-      needsCoverAllowance: needsCoverAllowance,
+      tradeSlippage: tradeSlippage,
     }));
   },
-  setNeedsRangeAllowanceIn: (needsRangeAllowanceIn: boolean) => {
+  setTradePositionData: (tradePositionData: any) => {
     set(() => ({
-      needsRangeAllowanceIn: needsRangeAllowanceIn,
+      tradePositionData: tradePositionData,
     }));
   },
-  setNeedsRangeAllowanceOut: (needsRangeAllowanceOut: boolean) => {
-    set(() => ({
-      needsRangeAllowanceOut: needsRangeAllowanceOut,
+  setTradeGasFee: (gasFee: string) => {
+    set((state) => ({
+      tradeMintParams: {
+        ...state.tradeMintParams,
+        gasFee: gasFee,
+      },
     }));
   },
-  setNeedsCoverBalance: (needsCoverBalance: boolean) => {
-    set(() => ({
-      needsCoverBalance: needsCoverBalance,
+  setTradeGasLimit: (gasLimit: BigNumber) => {
+    set((state) => ({
+      tradeMintParams: {
+        ...state.tradeMintParams,
+        gasLimit: gasLimit,
+      },
     }));
   },
-  setNeedsRangeBalanceIn: (needsRangeBalanceIn: boolean) => {
-    set(() => ({
-      needsRangeBalanceIn: needsRangeBalanceIn,
+
+  setMintButtonState: () => {
+    set((state) => ({
+      tradeMintParams: {
+        ...state.tradeMintParams,
+        buttonMessage:
+          state.tokenIn.userBalance <
+          parseFloat(
+            ethers.utils.formatUnits(
+              String(state.tradeMintParams.tokenInAmount),
+              state.tokenIn.decimals
+            )
+          )
+            ? "Insufficient Token Balance"
+            : parseFloat(
+                ethers.utils.formatUnits(
+                  String(state.tradeMintParams.tokenInAmount),
+                  18
+                )
+              ) == 0
+            ? "Enter Amount"
+            : "Mint Trade Position",
+        disabled:
+          state.tokenIn.userBalance <
+          parseFloat(
+            ethers.utils.formatUnits(
+              String(state.tradeMintParams.tokenInAmount),
+              state.tokenIn.decimals
+            )
+          )
+            ? true
+            : parseFloat(
+                ethers.utils.formatUnits(
+                  String(state.tradeMintParams.tokenInAmount),
+                  state.tokenIn.decimals
+                )
+              ) == 0
+            ? true
+            : false,
+      },
     }));
   },
-  setNeedsRangeBalanceOut: (needsRangeBalanceOut: boolean) => {
+  setNeedsRefetch: (needsRefetch: boolean) => {
     set(() => ({
-      needsRangeBalanceOut: needsRangeBalanceOut,
+      needsRefetch: needsRefetch,
+    }));
+  },
+  setNeedsPosRefetch: (needsPosRefetch: boolean) => {
+    set(() => ({
+      needsPosRefetch: needsPosRefetch,
+    }));
+  },
+  setNeedsAllowanceIn: (needsAllowanceIn: boolean) => {
+    set(() => ({
+      needsAllowanceIn: needsAllowanceIn,
+    }));
+  },
+  setNeedsAllowanceOut: (needsAllowanceOut: boolean) => {
+    set(() => ({
+      needsAllowanceIn: needsAllowanceOut,
+    }));
+  },
+  setNeedsBalanceIn: (needsBalanceIn: boolean) => {
+    set(() => ({
+      needsBalanceIn: needsBalanceIn,
+    }));
+  },
+  setNeedsBalanceOut: (needsBalanceOut: boolean) => {
+    set(() => ({
+      needsBalanceOut: needsBalanceOut,
     }));
   },
   switchDirection: () => {
@@ -349,9 +429,9 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
         logoURI: state.tokenOut.logoURI,
         address: state.tokenOut.address,
         decimals: state.tokenOut.decimals,
+        USDPrice: state.tokenOut.USDPrice,
         userBalance: state.tokenOut.userBalance,
         userPoolAllowance: state.tokenOut.userPoolAllowance,
-        USDPrice: state.tokenOut.USDPrice,
       },
       tokenOut: {
         callId:
@@ -363,43 +443,68 @@ export const useSwapStore = create<SwapState & SwapAction>((set) => ({
         logoURI: state.tokenIn.logoURI,
         address: state.tokenIn.address,
         decimals: state.tokenIn.decimals,
+        USDPrice: state.tokenIn.USDPrice,
         userBalance: state.tokenIn.userBalance,
         userPoolAllowance: state.tokenIn.userPoolAllowance,
-        USDPrice: state.tokenIn.USDPrice,
       },
     }));
   },
-  resetSwapParams: () => {
+  setTradePoolFromVolatility: async (tokenIn, tokenOut, volatility: any) => {
+    try {
+      const pool = await getLimitPoolFromFactory(
+        tokenIn.address,
+        tokenOut.address
+      );
+      const volatilityId = volatility.id;
+      const dataLength = pool["data"]["limitPools"].length;
+      for (let i = 0; i < dataLength; i++) {
+        if (
+          (volatilityId == 0 &&
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == "500") ||
+          (volatilityId == 1 &&
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == "3000") ||
+          (volatilityId == 2 &&
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == "10000")
+        ) {
+          set(() => ({
+            tradePoolAddress: pool["data"]["limitPools"][i]["id"],
+            tradePoolData: pool["data"]["limitPools"][i],
+            feeTierId: volatilityId,
+          }));
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  },
+
+  resetTradeLimitParams: () => {
     set({
-      coverPoolAddress: initialSwapState.coverPoolAddress,
-      coverPoolData: initialSwapState.coverPoolData,
-      rangePoolAddress: initialSwapState.rangePoolAddress,
-      rangePoolData: initialSwapState.rangePoolData,
-      pairSelected: initialSwapState.pairSelected,
+      //trade pool & pair
+      tradePoolAddress: initialTradeState.tradePoolAddress,
+      tradePoolData: initialTradeState.tradePoolData,
+      tradeSlippage: initialTradeState.tradeSlippage,
+      feeTierTradeId: initialTradeState.feeTierTradeId,
+      //trade position data
+      tradePositionData: initialTradeState.tradePositionData,
+      //trade mint
+      tradeMintParams: initialTradeState.tradeMintParams,
       //tokenIn
-      tokenIn: initialSwapState.tokenIn,
-      tokenInRangeUSDPrice: initialSwapState.tokenInRangeUSDPrice,
-      tokenInCoverUSDPrice: initialSwapState.tokenInCoverUSDPrice,
-      tokenInRangeAllowance: initialSwapState.tokenInRangeAllowance,
-      tokenInCoverAllowance: initialSwapState.tokenInCoverAllowance,
-      tokenInBalance: initialSwapState.tokenInBalance,
+      tokenIn: initialTradeState.tokenIn,
       //tokenOut
-      tokenOut: initialSwapState.tokenOut,
-      tokenOutRangeUSDPrice: initialSwapState.tokenOutRangeUSDPrice,
-      tokenOutCoverUSDPrice: initialSwapState.tokenOutCoverUSDPrice,
-      tokenOutBalance: initialSwapState.tokenOutBalance,
-      //gas
-      gasFee: initialSwapState.gasFee,
-      gasLimit: initialSwapState.gasLimit,
-      mintGasFee: initialSwapState.mintGasFee,
-      mintGasLimit: initialSwapState.mintGasLimit,
+      tokenOut: initialTradeState.tokenOut,
+      //selected pair
+      pairSelected: initialTradeState.pairSelected,
+      //input amounts
+      minInput: initialTradeState.minInput,
+      maxInput: initialTradeState.maxInput,
       //refresh
-      needsCoverAllowance: initialSwapState.needsCoverAllowance,
-      needsRangeAllowanceIn: initialSwapState.needsRangeAllowanceIn,
-      needsRangeAllowanceOut: initialSwapState.needsRangeAllowanceOut,
-      needsCoverBalance: initialSwapState.needsCoverBalance,
-      needsRangeBalanceIn: initialSwapState.needsRangeBalanceIn,
-      needsRangeBalanceOut: initialSwapState.needsRangeBalanceOut,
+      needsAllowanceIn: initialTradeState.needsAllowanceIn,
+      needsAllowanceOut: initialTradeState.needsAllowanceOut,
+      needsBalanceIn: initialTradeState.needsBalanceIn,
+      needsBalanceOut: initialTradeState.needsBalanceOut,
+      needsRefetch: initialTradeState.needsRefetch,
+      needsPosRefetch: initialTradeState.needsPosRefetch,
     });
   },
 }));

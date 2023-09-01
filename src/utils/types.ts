@@ -39,7 +39,7 @@ export type tokenSwap = {
   address: `0x${string}`;
   decimals: number;
   userBalance: number;
-  userPoolAllowance: number;
+  userPoolAllowance: BigNumber;
   USDPrice: number;
 };
 

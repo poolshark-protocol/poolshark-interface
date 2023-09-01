@@ -29,6 +29,39 @@ export const getSwapPool = async (
   }
 };
 
+export const getRangePool = async (
+  tokenIn: tokenRangeLimit,
+  tokenOut: tokenRangeLimit,
+  setRangePoolAddress,
+  setRangePoolData
+) => {
+  try {
+    const pool = await getRangePoolFromFactory(
+      tokenIn.address,
+      tokenOut.address
+    );
+    //TODO@retraca create here or new fucntion for choosing the right pool considering feetier
+    let id = ZERO_ADDRESS;
+    let rangePoolData = {};
+    const dataLength = pool["data"]["limitPools"].length;
+    if (dataLength != 0) {
+      id = pool["data"]["limitPools"]["0"]["id"];
+      rangePoolData = pool["data"]["limitPools"]["0"];
+    } else {
+      const fallbackPool = await getRangePoolFromFactory(
+        tokenOut.address,
+        tokenIn.address
+      );
+      id = fallbackPool["data"]["limitPools"]["0"]["id"];
+      rangePoolData = fallbackPool["data"]["limitPools"]["0"];
+    }
+    setRangePoolAddress(id);
+    setRangePoolData(rangePoolData);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const getCoverPool = async (
   tokenIn: tokenCover,
   tokenOut: tokenCover,
