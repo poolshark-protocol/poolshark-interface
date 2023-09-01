@@ -43,41 +43,6 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     state.setCoverPoolFromVolatility,
   ]);
 
-  const [rangePrice, setRangePrice] = useState(undefined);
-  const [rangeTickPrice, setRangeTickPrice] = useState(undefined);
-
-  useEffect(() => {
-    getRangePoolInfo();
-  }, []);
-
-  useEffect(() => {
-    setRangeParams();
-  }, [rangePrice]);
-
-  const getRangePoolInfo = async () => {
-    try {
-      if (rangePosition) {
-        setRangePrice(
-          parseFloat(TickMath.getPriceStringAtSqrtPrice(rangePosition.price))
-        );
-        setRangeTickPrice(Number(rangePosition.tickAtPrice));
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  function setRangeParams() {
-    try {
-      if (rangePrice) {
-        const price = TickMath.getTickAtPriceString(rangePrice);
-        setRangeTickPrice(ethers.utils.parseUnits(String(price), 0));
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   function choosePosition() {
     const tokenInNew = {
       name: rangePosition.tokenZero.name,
@@ -132,14 +97,18 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
                 />
               </div>
               <span className="text-white text-xs flex items-center gap-x-1.5">
-                {rangePosition.tokenZero.symbol}{" "}-{" "}
+                {rangePosition.tokenZero.symbol} -{" "}
                 {rangePosition.tokenOne.symbol}
               </span>
               <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-              {Number(Number(rangePosition.feeTier) / 10000).toFixed(2)}%
+                {Number(Number(rangePosition.feeTier) / 10000).toFixed(2)}%
               </span>
             </div>
-            <div className={`text-white text-xs ${isModal ? "text-right col-span-2" : "text-right"}`}>
+            <div
+              className={`text-white text-xs ${
+                isModal ? "text-right col-span-2" : "text-right"
+              }`}
+            >
               {TickMath.getPriceStringAtTick(Number(rangePosition.min))} -{" "}
               {TickMath.getPriceStringAtTick(Number(rangePosition.max))}{" "}
               <span className="text-grey1">
@@ -153,10 +122,11 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
               </span>
             </div>
             <div className={`text-white text-xs text-right`}>
-            200 <span className="text-grey1">DAI</span> - 201 <span className="text-grey1">USDC</span>
+              200 <span className="text-grey1">DAI</span> - 201{" "}
+              <span className="text-grey1">USDC</span>
             </div>
             <div className="text-right text-white text-xs">
-            {!isModal && (<span>$401 </span>)}
+              {!isModal && <span>$401 </span>}
             </div>
           </div>
         </Link>

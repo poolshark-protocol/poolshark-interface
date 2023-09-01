@@ -17,7 +17,6 @@ export default function RangeMintDoubleApproveButton({
   tokenOut,
   amount0,
   amount1,
-  setAllowanceController,
 }) {
   const [errorDisplay0, setErrorDisplay0] = useState(false)
   const [successDisplay0, setSuccessDisplay0] = useState(false)
@@ -91,25 +90,10 @@ export default function RangeMintDoubleApproveButton({
   })
 
   function approve() {
-    setAllowanceController(true)
     writeT0()
     writeT1()
   }
 
-  useEffect(() => {
-    //5seconds for waiting for toaster and resetting state in parent component
-    if (successDisplay0 && successDisplay1)
-      setTimeout(() => {
-        setAllowanceController(false)
-      }, 5000)
-    //30 seconds for second token approval, if not, parent component will render single approval component for unapproved token 
-    if (successDisplay0 || successDisplay1) {
-      setTimeout(() => {
-        setAllowanceController(false)
-      }, 30000)
-    }
-    setAllowanceController(true)
-  }, [successDisplay0, successDisplay1])
 
   return (
     <>

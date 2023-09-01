@@ -40,7 +40,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
   useEffect(() => {
     const percentInput = sliderValue;
     const tokenAmountToBurn = BigNumber.from(percentInput)
-      .mul(BigNumber.from(rangePositionData.userTokenAmount))
+      .mul(BigNumber.from(rangePositionData.liquidity))
       .div(BigNumber.from(100));
     setBurnPercent(ethers.utils.parseUnits(sliderValue.toString(), 36));
     console.log(
@@ -133,9 +133,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                 </div>
                 <div className="w-full  bg-[#0C0C0C] border border-[#1C1C1C] gap-4 px-4 py-4 rounded-xl mt-6 mb-6">
                   <div className="flex justify-between items-center">
-                  <div className="text-3xl ">
-                    {sliderValue}%
-                    </div>
+                    <div className="text-3xl ">{sliderValue}%</div>
                     <div className="md:flex items-center hidden md:text-base text-sm gap-x-4">
                       <button
                         onClick={() => handleSliderButton(25)}
@@ -174,101 +172,104 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                   />
                 </div>
                 <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
-                    <div className="flex items-end justify-between text-[11px] text-grey1">
-                      <span>
-                        ~$
-                        {tokenOrder
-                          ? Number(
-                              tokenIn.rangeUSDPrice *
-                                parseFloat(
-                                  ethers.utils.formatUnits(
-                                    amount0,
-                                    tokenIn.decimals
-                                  )
+                  <div className="flex items-end justify-between text-[11px] text-grey1">
+                    <span>
+                      ~$
+                      {tokenOrder
+                        ? Number(
+                            tokenIn.rangeUSDPrice *
+                              parseFloat(
+                                ethers.utils.formatUnits(
+                                  amount0,
+                                  tokenIn.decimals
                                 )
-                            ).toFixed(2)
-                          : Number(
-                              tokenOut.rangeUSDPrice *
-                                parseFloat(
-                                  ethers.utils.formatUnits(
-                                    amount1,
-                                    tokenIn.decimals
-                                  )
+                              )
+                          ).toFixed(2)
+                        : Number(
+                            tokenOut.rangeUSDPrice *
+                              parseFloat(
+                                ethers.utils.formatUnits(
+                                  amount1,
+                                  tokenIn.decimals
                                 )
-                            ).toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex items-end justify-between mt-2 mb-3">
+                              )
+                          ).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex items-end justify-between mt-2 mb-3">
                     <span className="text-3xl">{sliderOutput}</span>
-                      <div className="flex items-center gap-x-2">
-                          <button
-                          onClick={() => handleSliderButton(100)}
-                            className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
-                          >
-                            MAX
-                          </button>
-                        <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                          <img height="28" width="25" src={tokenIn.logoURI} />
-                          {tokenIn.symbol}
-                        </div>
+                    <div className="flex items-center gap-x-2">
+                      <button
+                        onClick={() => handleSliderButton(100)}
+                        className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
+                      >
+                        MAX
+                      </button>
+                      <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
+                        <img height="28" width="25" src={tokenIn.logoURI} />
+                        {tokenIn.symbol}
                       </div>
                     </div>
                   </div>
-                  <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2 mb-8">
-                    <div className="flex items-end justify-between text-[11px] text-grey1">
-                      <span>
-                        ~$
-                        {tokenOrder
-                          ? Number(
-                              tokenOut.rangeUSDPrice *
-                                parseFloat(
-                                  ethers.utils.formatUnits(
-                                    amount1,
-                                    tokenIn.decimals
-                                  )
+                </div>
+                <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2 mb-8">
+                  <div className="flex items-end justify-between text-[11px] text-grey1">
+                    <span>
+                      ~$
+                      {tokenOrder
+                        ? Number(
+                            tokenOut.rangeUSDPrice *
+                              parseFloat(
+                                ethers.utils.formatUnits(
+                                  amount1,
+                                  tokenIn.decimals
                                 )
-                            ).toFixed(2)
-                          : Number(
-                              tokenIn.rangeUSDPrice *
-                                parseFloat(
-                                  ethers.utils.formatUnits(
-                                    amount0,
-                                    tokenIn.decimals
-                                  )
+                              )
+                          ).toFixed(2)
+                        : Number(
+                            tokenIn.rangeUSDPrice *
+                              parseFloat(
+                                ethers.utils.formatUnits(
+                                  amount0,
+                                  tokenIn.decimals
                                 )
-                            ).toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex items-end justify-between mt-2 mb-3">
-                    <span className="text-3xl">{Number(
+                              )
+                          ).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex items-end justify-between mt-2 mb-3">
+                    <span className="text-3xl">
+                      {Number(
                         tokenOrder
                           ? ethers.utils.formatUnits(amount1, tokenIn.decimals)
                           : ethers.utils.formatUnits(amount0, tokenIn.decimals)
-                      ).toFixed(2)}</span>
-                      <div className="flex items-center gap-x-2">
-                          <button
-                          onClick={() => handleSliderButton(100)}
-                            className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
-                          >
-                            MAX
-                          </button>
-                        <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
-                          <img height="28" width="25" src={tokenOut.logoURI} />
-                          {tokenOut.symbol}
-                        </div>
+                      ).toFixed(2)}
+                    </span>
+                    <div className="flex items-center gap-x-2">
+                      <button
+                        onClick={() => handleSliderButton(100)}
+                        className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
+                      >
+                        MAX
+                      </button>
+                      <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
+                        <img height="28" width="25" src={tokenOut.logoURI} />
+                        {tokenOut.symbol}
                       </div>
                     </div>
                   </div>
+                </div>
                 <RangeRemoveLiqButton
-                    poolAddress={rangePoolAddress}
-                    address={address}
-                    positionId={rangePositionData.id}
-                    burnPercent={burnPercent}
-                    closeModal={() => 
-                      {if (burnPercent.eq(ethers.utils.parseUnits('1', 38))) {
-                        router.push('/pool')
-                      }}}
-                    setIsOpen={setIsOpen}
+                  poolAddress={rangePoolAddress}
+                  address={address}
+                  positionId={rangePositionData.id}
+                  burnPercent={burnPercent}
+                  closeModal={() => {
+                    if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
+                      router.push("/pool");
+                    }
+                  }}
+                  setIsOpen={setIsOpen}
                 />
               </Dialog.Panel>
             </Transition.Child>

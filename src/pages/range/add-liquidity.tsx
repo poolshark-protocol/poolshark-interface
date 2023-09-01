@@ -12,6 +12,7 @@ import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
 import { feeTiers } from "../../utils/pools";
 import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
+import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 
 export default function AddLiquidity({}) {
   const [
@@ -74,7 +75,6 @@ export default function AddLiquidity({}) {
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
 
-  const [hasSelected, setHasSelected] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
 
   ////////////////////////////////TokenOrder
@@ -94,8 +94,6 @@ export default function AddLiquidity({}) {
 
   useEffect(() => {
     updatePoolsFromStore();
-    /* setTokenInAmount(BN_ZERO);
-    setTokenOutAmount(BN_ZERO); */
   }, [tokenIn, tokenOut, feeTierId]);
 
   async function updatePoolsFromStore() {
@@ -117,11 +115,11 @@ export default function AddLiquidity({}) {
       setRangePrice(TickMath.getPriceStringAtSqrtPrice(price));
       setRangeSqrtPrice(price);
       const positionData = rangePositionData;
-      if (isNaN(parseFloat(lowerPrice)) || parseFloat(lowerPrice) <= 0) {
-        setLowerPrice(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
+      if (isNaN(parseFloat(minInput)) || parseFloat(minInput) <= 0) {
+        setMinInput(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
       }
-      if (isNaN(parseFloat(upperPrice)) || parseFloat(upperPrice) <= 0) {
-        setUpperPrice(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
+      if (isNaN(parseFloat(maxInput)) || parseFloat(maxInput) <= 0) {
+        setMaxInput(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
       }
       setRangePositionData(positionData);
     }
@@ -137,7 +135,6 @@ export default function AddLiquidity({}) {
     watch: needsAllowanceIn,
     //enabled: tokenIn.address,
     onSuccess(data) {
-      console.log("Success allowance in", data);
       //setNeedsAllowanceIn(false);
     },
     onError(error) {
@@ -153,12 +150,11 @@ export default function AddLiquidity({}) {
     chainId: 421613,
     watch: needsAllowanceOut,
     //enabled: pairSelected && rangePoolAddress != ZERO_ADDRESS,
+    onSuccess(data) {
+      //setNeedsAllowanceOut(false);
+    },
     onError(error) {
       console.log("Error allowance", error);
-    },
-    onSuccess(data) {
-      console.log("Success allowance out", data);
-      //setNeedsAllowanceOut(false);
     },
   });
 
@@ -249,10 +245,6 @@ export default function AddLiquidity({}) {
     }
   }, [bnInput, rangePoolAddress, tokenOrder]);
 
-  console.log("//////////////////////");
-  //console.log("rangePoolAddress", rangePoolAddress);
-  //console.log("tokenIn", tokenIn);
-
   function tokenOutAmountMath() {
     try {
       const lower = TickMath.getTickAtPriceString(
@@ -291,6 +283,7 @@ export default function AddLiquidity({}) {
       setTokenOutAmount(BigNumber.from(String(tokenOutAmount)));
     } catch (error) {
       console.log(error);
+      setTokenOutAmount(BigNumber.from("0"));
     }
   }
 
@@ -324,9 +317,28 @@ export default function AddLiquidity({}) {
     }
   }; */
 
+  const [minInput, setMinInput] = useState("");
+  const [maxInput, setMaxInput] = useState("");
+
+  const handlePriceSwitch = () => {
+    setTokenOrder(!tokenOrder);
+    setMaxInput(invertPrice(maxInput, false));
+    setMinInput(invertPrice(minInput, false));
+  };
+
+  useEffect(() => {
+    setUpperPrice(invertPrice(maxInput, tokenOrder));
+    setLowerPrice(invertPrice(minInput, tokenOrder));
+  }, [maxInput, minInput])
+
+
+  ////////////////////////////////Mint Button State
+
   useEffect(() => {
     setMintButtonState();
   }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount]);
+
+  ////////////////////////////////
 
   return (
     <div className="bg-black min-h-screen  ">
@@ -346,7 +358,7 @@ export default function AddLiquidity({}) {
                 {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
               </span>
               <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                {selectedFeeTier.tier}
+                {(rangePoolData.feeTier.feeAmount / 10000).toFixed(2)}%
               </span>
             </div>
           </div>
@@ -417,55 +429,117 @@ export default function AddLiquidity({}) {
               </div>
             </div>
           </div>
-          <h1 className="mb-4 mt-10">SET A PRICE RANGE</h1>
+          <div className="flex justify-between items-center mb-4 mt-10">
+            <div className="flex items-center gap-x-3">
+              <h1>SET A PRICE RANGE</h1>
+              <button
+                className="text-grey1 text-xs bg-black border border-grey px-4 py-0.5 rounded-full whitespace-nowrap"
+                onClick={() => {
+                  setMinInput(
+                    TickMath.getPriceStringAtTick(
+                      roundTick(
+                        -887272,
+                        parseInt(rangePoolData.feeTier.tickSpacing)
+                      )
+                    )
+                  );
+                  setMaxInput(
+                    TickMath.getPriceStringAtTick(
+                      roundTick(
+                        887272,
+                        parseInt(rangePoolData.feeTier.tickSpacing)
+                      )
+                    )
+                  );
+                }}
+              >
+                Full Range
+              </button>
+            </div>
+            <div
+              onClick={handlePriceSwitch}
+              className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
+            >
+              {tokenOrder ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>} per{" "}
+              {tokenOrder ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>}{" "}
+              <DoubleArrowIcon />
+            </div>
+          </div>
           <div className="flex flex-col gap-y-4">
             <div className="flex md:flex-row flex-col items-center gap-5 mt-3">
               <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                 <span className="text-grey1 text-xs">MIN. PRICE</span>
                 <span className="text-white text-3xl">
+                  {tokenOrder ?
                   <input
-                    autoComplete="off"
-                    className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
-                    placeholder="0"
-                    id="minInput"
-                    type="text"
-                    value={lowerPrice}
-                    onChange={() =>
-                      setLowerPrice(
-                        inputFilter(
-                          (
-                            document.getElementById(
-                              "minInput"
-                            ) as HTMLInputElement
-                          )?.value
-                        )
+                  autoComplete="off"
+                  className="bg-black py-2 outline-none text-center w-full"
+                  placeholder="0"
+                  id="minInput"
+                  type="text"
+                  value={minInput}
+                  onChange={(e) =>
+                    setMinInput(
+                      inputFilter(
+                        e.target.value
                       )
-                    }
-                  />
+                    )
+                  }
+                /> :
+                <input
+                  autoComplete="off"
+                  className="bg-black py-2 outline-none text-center w-full"
+                  placeholder="0"
+                  id="minInput"
+                  type="text"
+                  value={maxInput}
+                  onChange={(e) =>
+                    setMaxInput(
+                      inputFilter(
+                        e.target.value
+                      )
+                    )
+                  }
+                />
+                  }
+                  
                 </span>
               </div>
               <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                 <span className="text-grey1 text-xs">MAX. PRICE</span>
                 <span className="text-white text-3xl">
+                {tokenOrder ?
                   <input
-                    autoComplete="off"
-                    className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
-                    placeholder="0"
-                    id="maxInput"
-                    type="text"
-                    value={upperPrice}
-                    onChange={() =>
-                      setUpperPrice(
-                        inputFilter(
-                          (
-                            document.getElementById(
-                              "maxInput"
-                            ) as HTMLInputElement
-                          )?.value
-                        )
+                  autoComplete="off"
+                  className="bg-black py-2 outline-none text-center w-full"
+                  placeholder="0"
+                  id="minInput"
+                  type="text"
+                  value={maxInput}
+                  onChange={(e) =>
+                    setMaxInput(
+                      inputFilter(
+                        e.target.value
                       )
-                    }
-                  />
+                    )
+                  }
+                />:
+                <input
+                  autoComplete="off"
+                  className="bg-black py-2 outline-none text-center w-full"
+                  placeholder="0"
+                  id="minInput"
+                  type="text"
+                  value={minInput}
+                  onChange={(e) =>
+                    setMinInput(
+                      inputFilter(
+                        e.target.value
+                      )
+                    )
+                  }
+                />
+                  }
                 </span>
               </div>
             </div>

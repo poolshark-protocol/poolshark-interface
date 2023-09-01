@@ -720,6 +720,7 @@ export const fetchRangePositions = (address: string) => {
       rangePositions(where: {owner:"${address}"}) {
             id
             positionId
+            owner
             lower
             upper
             liquidity

@@ -335,13 +335,13 @@ export default function ViewRange() {
     }
   }
 
-    ////////////////////////////////Mint Button Handler
+  ////////////////////////////////Mint Button Handler
 
-    useEffect(() => {
-      setMintButtonState();
-    }, [tokenIn, rangeMintParams.tokenInAmount]);
-  
-    ////////////////////////////////
+  useEffect(() => {
+    setMintButtonState();
+  }, [tokenIn, rangeMintParams.tokenInAmount]);
+
+  ////////////////////////////////Return
 
   return (
     <div className="bg-black min-h-screen  ">
@@ -441,7 +441,9 @@ export default function ViewRange() {
               </div>
               <div className="flex justify-between items-center mt-8">
                 <div className="flex items-center gap-x-4">
-                  <h1 className="uppercase text-white md:block hidden">Price Range</h1>
+                  <h1 className="uppercase text-white md:block hidden">
+                    Price Range
+                  </h1>
                   {Number(rangePoolData.tickAtPrice) <
                     Number(rangePositionData.min) ||
                   Number(rangePoolData.tickAtPrice) >=
