@@ -31,7 +31,6 @@ export default function SwapRouterButton({
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
 
-  console.log("gas limit swap range", gasLimit.toString());
 
   const { address } = useAccount();
   const userAddress = address;

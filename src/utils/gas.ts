@@ -13,17 +13,12 @@ export interface gasEstimateResult {
 }
 
 export const gasEstimateSwap = async (
-  rangePoolRoute: string,
-  coverPoolRoute: string,
-  rangeQuote: number,
-  coverQuote: number,
-  rangeBnPrice: BigNumber,
-  rangeBnBaseLimit: BigNumber,
+  poolRoute: string,
   tokenIn: tokenSwap,
   tokenOut: tokenSwap,
   bnInput: BigNumber,
+  priceLimit: BigNumber,
   allowanceRange: BigNumber,
-  allowanceCover: BigNumber,
   address: string,
   signer: Signer,
   isConnected: boolean,
@@ -36,57 +31,24 @@ export const gasEstimateSwap = async (
     );
     const ethUsdQuery = await fetchPrice("ethereum");
     const ethUsdPrice = ethUsdQuery["data"]["bundles"]["0"]["ethPriceUSD"];
-
     const recipient = address;
-    const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
-    const priceLimit =
-      tokenOut.address != ("" as string) &&
-      tokenIn.address.localeCompare(tokenOut.address) < 0
-        ? BigNumber.from(
-            TickMath.getSqrtPriceAtPriceString(
-              rangeBnPrice.sub(rangeBnBaseLimit).toString(),
-              18
-            ).toString()
-          )
-        : BigNumber.from(
-            TickMath.getSqrtPriceAtPriceString(
-              rangeBnPrice.add(rangeBnBaseLimit).toString(),
-              18
-            ).toString()
-          );
+    const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;      
     let gasUnits: BigNumber;
-    if (rangePoolRoute && coverPoolRoute && isConnected) {
-      if (rangeQuote > coverQuote) {
-        const contract = new ethers.Contract(
-          rangePoolRoute,
-          rangePoolABI,
-          provider
-        );
-        gasUnits = await contract
-          .connect(signer)
-          .estimateGas.swap([
-            recipient,
-            recipient,
-            priceLimit,
-            bnInput.lte(allowanceRange) ? bnInput : allowanceRange,
-            zeroForOne,
-          ]);
-      } else {
-        const contract = new ethers.Contract(
-          coverPoolRoute,
-          coverPoolABI,
-          provider
-        );
-        gasUnits = await contract
-          .connect(signer)
-          .estimateGas.swap([
-            recipient,
-            recipient,
-            priceLimit,
-            bnInput.lte(allowanceCover) ? bnInput : allowanceCover,
-            zeroForOne,
-          ]);
-      }
+    if (poolRoute && isConnected) {
+      const contract = new ethers.Contract(
+        poolRoute,
+        rangePoolABI,
+        provider
+      );
+      gasUnits = await contract
+        .connect(signer)
+        .estimateGas.swap([
+          recipient,
+          recipient,
+          priceLimit,
+          bnInput.lte(allowanceRange) ? bnInput : allowanceRange,
+          zeroForOne,
+        ]);
     } else {
       gasUnits = BigNumber.from(1000000);
     }

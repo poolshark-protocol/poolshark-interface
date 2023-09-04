@@ -44,6 +44,7 @@ import { useTradeStore } from "../hooks/useTradeStore";
 import { parse } from "graphql";
 import { parseUnits } from "ethers/lib/utils.js";
 import SwapRouterButton from "../components/Buttons/SwapRouterButton";
+import JSBI from "jsbi";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -68,6 +69,7 @@ export default function Trade() {
     setTradeSlippage,
     tokenIn,
     setTokenIn,
+    setTokenInAmount,
     setTokenInBalance,
     setTokenInTradeAllowance,
     setTokenInTradeUSDPrice,
@@ -99,6 +101,7 @@ export default function Trade() {
     s.setTradeSlippage,
     s.tokenIn,
     s.setTokenIn,
+    s.setTokenInAmount,
     s.setTokenInBalance,
     s.setTokenInTradeAllowance,
     s.setTokenInTradeUSDPrice,
@@ -137,7 +140,6 @@ export default function Trade() {
   ////////////////////////////////Pools
   const [availablePools, setAvailablePools] = useState(undefined);
   const [quoteParams, setQuoteParams] = useState(undefined);
-
   const [swapPoolAddresses, setSwapPoolAddresses] = useState<string[]>([]);
   const [swapParams, setSwapParams] = useState(undefined);
   const [amountOut, setAmountOut] = useState(undefined);
@@ -195,9 +197,19 @@ export default function Trade() {
     const poolAddresses: string[] = [];
     for (let i = 0; i < poolQuotes.length; i++) {
       poolAddresses.push(poolQuotes[i].pool);
+      const basePrice: Number = Number(
+        TickMath.getPriceStringAtSqrtPrice(poolQuotes[i].priceAfter)
+      );
+      const limitPrice: Number =
+        (Number(basePrice) * (1 + parseFloat(slippage) * 100)) / 10000;
+      const limitPriceJsbi: JSBI = TickMath.getSqrtPriceAtPriceString(
+        limitPrice.toString()
+      );
+      const priceLimitBn = BigNumber.from(String(limitPriceJsbi));
+      console.log("priceLimitBn", priceLimitBn);
       const params: SwapParams = {
         to: address,
-        priceLimit: poolQuotes[i].priceAfter, // factor in slippage as well
+        priceLimit: priceLimitBn,
         amount: bnInput,
         exactIn: true,
         zeroForOne: tokenOrder,
@@ -303,10 +315,11 @@ export default function Trade() {
   }, [tokenInBal, tokenOutBal]);
 
   ////////////////////////////////Allowances
+
   //TODO: allowance is applied to the PoolRouter
   // there are no token approvals on the pool anymore
   const { data: allowanceInRouter } = useContractRead({
-    address: poolRouterAddress[chainIdsToNamesForGitTokenList[chainId]],
+    address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
     args: [
@@ -316,13 +329,14 @@ export default function Trade() {
       ] as `0x${string}`,
     ],
     chainId: 421613,
-    watch: needsAllowanceIn,
-    enabled: poolRouterAddress && needsAllowanceIn,
+    //watch: needsAllowanceIn,
+    //enabled: poolRouterAddress,
     onError(error) {
       console.log("Error allowance", error);
     },
     onSuccess(data) {
       setNeedsAllowanceIn(false);
+      console.log("Success allowance", data);
       //console.log("Success allowance", data);
     },
   });
@@ -333,8 +347,8 @@ export default function Trade() {
     }
   }, [allowanceInRouter]);
 
-  const [rangeBnPriceLimit, setRangeBnPriceLimit] = useState(BN_ZERO);
   /* ////////////////////////////////Quotes
+  const [rangeBnPriceLimit, setRangeBnPriceLimit] = useState(BN_ZERO);
   const [tradeQuote, setRangeQuote] = useState(0);
   const [rangePriceAfter, setRangePriceAfter] = useState(undefined);
 
@@ -458,6 +472,8 @@ export default function Trade() {
       }
     }
   }, [slippage, rangeBnPrice]); */
+
+  //i receive the price afte from the multiquote and then i will add and subtract the slippage from it
 
   ////////////////////////////////Limit Price Switch
   const [limitPriceOrder, setLimitPriceOrder] = useState(true);
@@ -585,24 +601,23 @@ export default function Trade() {
   }, [bnInput]);
 
   async function updateGasFee() {
-    /* await gasEstimateSwap(
-      rangePoolAddress,
-      coverPoolAddress,
-      tradeQuote,
-      coverQuote,
-      rangeBnPrice,
-      rangeBnBaseLimit,
+    await gasEstimateSwap(
+      swapPoolAddresses[0],
       tokenIn,
       tokenOut,
+      swapParams[0].priceLimit,
       bnInput,
-      ethers.utils.parseUnits(tokenIn.userPoolAllowance, tokenIn.decimals),
-      ethers.utils.parseUnits(tokenInCoverAllowance, tokenIn.decimals),
+      ethers.utils.parseUnits(
+        tokenIn.userPoolAllowance.toString(),
+        tokenIn.decimals
+      ),
       address,
       signer,
       isConnected,
-      setGasFee,
-      setGasLimit
-    ); */
+      setSwapGasFee,
+      setSwapGasLimit
+    );
+    console.log("gas limit swap", swapGasLimit.toString());
   }
 
   async function updateMintFee() {
@@ -621,6 +636,13 @@ export default function Trade() {
   }
 
   ////////////////////////////////Mint Button State
+
+  useEffect(() => {
+    if (bnInput) {
+      setTokenInAmount(bnInput);
+      //setTokenOutAmount();
+    }
+  }, [bnInput]);
 
   useEffect(() => {
     setMintButtonState();
@@ -1102,7 +1124,7 @@ export default function Trade() {
                     </div>
                   ) : (
                     <SwapRouterButton
-                      disabled={false}
+                      disabled={tradeParams.disabled}
                       routerAddress={
                         poolRouterAddress[
                           chainIdsToNamesForGitTokenList[chainId]
