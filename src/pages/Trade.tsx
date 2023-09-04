@@ -43,6 +43,7 @@ import { QuoteParams, SwapParams } from "../utils/types";
 import { useTradeStore } from "../hooks/useTradeStore";
 import { parse } from "graphql";
 import { parseUnits } from "ethers/lib/utils.js";
+import SwapRouterButton from "../components/Buttons/SwapRouterButton";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -1088,7 +1089,7 @@ export default function Trade() {
                   Number(tokenIn.userPoolAllowance) <
                   Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                     <div>
-                      {/* <SwapRangeApproveButton
+                      <SwapRangeApproveButton
                         poolAddress={
                           poolRouterAddress[
                             chainIdsToNamesForGitTokenList[chainId]
@@ -1097,18 +1098,18 @@ export default function Trade() {
                         approveToken={tokenIn.address}
                         tokenSymbol={tokenIn.symbol}
                         amount={bnInput}
-                      /> */}
+                      />
                     </div>
                   ) : (
-                    <SwapRangeButton
+                    <SwapRouterButton
                       disabled={false}
-                      poolAddress={tradePoolAddress}
-                      zeroForOne={
-                        tokenOut.address &&
-                        tokenIn.address.localeCompare(tokenOut.address) < 0
+                      routerAddress={
+                        poolRouterAddress[
+                          chainIdsToNamesForGitTokenList[chainId]
+                        ]
                       }
-                      amount={bnInput}
-                      priceLimit={rangeBnPriceLimit}
+                      poolAddresses={swapPoolAddresses}
+                      swapParams={swapParams}
                       gasLimit={swapGasLimit}
                     />
                   )
