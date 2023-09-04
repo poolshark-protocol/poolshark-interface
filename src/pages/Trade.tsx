@@ -203,10 +203,10 @@ export default function Trade() {
       };
       setSwapParams(swapParams ? [...swapParams, params] : [params]);
       //TODO: list is sorted so we can set the pool addresses array for the swap() call
-      sortedPools[i] = poolQuotes[i].pool;
+      //sortedPools[i] = poolQuotes[i].pool;
     }
-    console.log("sortedPools", sortedPools);
-    setTradePoolAddress(sortedPools[0]);
+    //console.log("sortedPools", sortedPools);
+    //setTradePoolAddress(sortedPools[0]);
   }
 
   ////////////////////////////////TokenOrder
@@ -329,12 +329,9 @@ export default function Trade() {
   }, [allowanceInRouter]);
 
   ////////////////////////////////Quotes
-  const [coverQuote, setCoverQuote] = useState(0);
   const [rangeQuote, setRangeQuote] = useState(0);
-  const [coverPriceAfter, setCoverPriceAfter] = useState(undefined);
   const [rangePriceAfter, setRangePriceAfter] = useState(undefined);
   const [rangeBnPriceLimit, setRangeBnPriceLimit] = useState(BN_ZERO);
-  const [coverBnPriceLimit, setCoverBnPriceLimit] = useState(BN_ZERO);
 
   const { data: quoteRange } = useContractRead({
     address: tradePoolAddress,
@@ -646,25 +643,17 @@ export default function Trade() {
             <div className="ml-auto text-xs">
               {pairSelected
                 ? !limitTabSelected
-                  ? rangeQuote >= coverQuote
-                    ? rangeQuote === 0
-                      ? "0"
-                      : (
-                          parseFloat(
-                            ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                          ) * rangeQuote
-                        ).toFixed(2)
-                    : coverQuote === 0
+                  ? rangeQuote === 0
                     ? "0"
                     : (
                         parseFloat(
                           ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                        ) * coverQuote
+                        ) * rangeQuote
                       ).toFixed(2)
-                  : parseFloat(
-                      ethers.utils.formatUnits(rangeBnPrice, tokenIn.decimals)
-                    ) == 0
-                  ? "0"
+                    ? "0"
+                    : parseFloat(
+                        ethers.utils.formatUnits(rangeBnPrice, tokenIn.decimals)
+                      ) == 0
                   : (
                       parseFloat(
                         ethers.utils.formatUnits(bnInput, tokenIn.decimals)
@@ -689,37 +678,17 @@ export default function Trade() {
               <div className="ml-auto text-xs">
                 {pairSelected
                   ? !limitTabSelected
-                    ? rangeQuote >= coverQuote
-                      ? rangeQuote === 0
-                        ? "0"
-                        : (
-                            parseFloat(
-                              ethers.utils.formatUnits(
-                                bnInput,
-                                tokenIn.decimals
-                              )
-                            ) *
-                              rangeQuote -
-                            parseFloat(
-                              ethers.utils.formatUnits(
-                                bnInput,
-                                tokenIn.decimals
-                              )
-                            ) *
-                              rangeQuote *
-                              (parseFloat(slippage) * 0.01)
-                          ).toFixed(2)
-                      : coverQuote === 0
+                    ? rangeQuote === 0
                       ? "0"
                       : (
                           parseFloat(
                             ethers.utils.formatUnits(bnInput, tokenIn.decimals)
                           ) *
-                            coverQuote -
+                            rangeQuote -
                           parseFloat(
                             ethers.utils.formatUnits(bnInput, tokenIn.decimals)
                           ) *
-                            coverQuote *
+                            rangeQuote *
                             (parseFloat(slippage) * 0.01)
                         ).toFixed(2)
                     : parseFloat(
@@ -758,7 +727,7 @@ export default function Trade() {
               <div className="text-xs text-[#4C4C4C]">Price Impact</div>
               <div className="ml-auto text-xs">
                 {pairSelected
-                  ? rangePriceAfter || coverPriceAfter
+                  ? rangePriceAfter
                     ? (
                         Math.abs((rangePrice - rangePriceAfter) * 100) /
                         rangePrice
@@ -907,11 +876,7 @@ export default function Trade() {
               <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
                 {pairSelected && !bnInput.eq(BN_ZERO) ? (
                   !limitTabSelected ? (
-                    <div>
-                      {rangeQuote >= coverQuote
-                        ? rangeQuote.toPrecision(6)
-                        : coverQuote.toPrecision(6)}
-                    </div>
+                    <div>{rangeQuote.toPrecision(6)}</div>
                   ) : (
                     <div>
                       {!limitPriceOrder
