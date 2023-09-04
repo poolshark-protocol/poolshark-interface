@@ -41,6 +41,8 @@ import { getSwapPools } from "../utils/pools";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { QuoteParams, SwapParams } from "../utils/types";
 import { useTradeStore } from "../hooks/useTradeStore";
+import { parse } from "graphql";
+import { parseUnits } from "ethers/lib/utils.js";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -57,6 +59,8 @@ export default function Trade() {
     setTradePoolAddress,
     tradePoolData,
     setTradePoolData,
+    tradeParams,
+    //setTradeParams,
     pairSelected,
     setPairSelected,
     tradeSlippage,
@@ -78,7 +82,6 @@ export default function Trade() {
     setNeedsBalanceIn,
     needsBalanceOut,
     setNeedsBalanceOut,
-    tradeMintParams,
     switchDirection,
     setMintButtonState,
   ] = useTradeStore((s) => [
@@ -87,6 +90,8 @@ export default function Trade() {
     s.setTradePoolAddress,
     s.tradePoolData,
     s.setTradePoolData,
+    s.tradeParams,
+    //s.setTradeParams,
     s.pairSelected,
     s.setPairSelected,
     s.tradeSlippage,
@@ -108,15 +113,9 @@ export default function Trade() {
     s.setNeedsBalanceIn,
     s.needsBalanceOut,
     s.setNeedsBalanceOut,
-    s.tradeMintParams,
     s.switchDirection,
     s.setMintButtonState,
   ]);
-
-  console.log(
-    "poolRouterAddress",
-    poolRouterAddress[chainIdsToNamesForGitTokenList[chainId]]
-  );
 
   //false when user in normal swap, true when user in limit swap
   const [limitTabSelected, setLimitTabSelected] = useState(false);
@@ -137,7 +136,10 @@ export default function Trade() {
   ////////////////////////////////Pools
   const [availablePools, setAvailablePools] = useState(undefined);
   const [quoteParams, setQuoteParams] = useState(undefined);
+
+  const [swapPoolAddresses, setSwapPoolAddresses] = useState<string[]>([]);
   const [swapParams, setSwapParams] = useState(undefined);
+  const [amountOut, setAmountOut] = useState(undefined);
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address && bnInput) {
@@ -161,8 +163,6 @@ export default function Trade() {
     }
     setAvailablePools(poolAdresses);
     setQuoteParams(quoteList);
-    console.log("multiquote availablePools", availablePools);
-    console.log("multiquote quoteParams", quoteParams);
   }
 
   //TODO: loop through poolQuotes and set
@@ -186,13 +186,14 @@ export default function Trade() {
 
   useEffect(() => {
     if (poolQuotes) {
-      updateSwapParams();
+      updateSwapParams(poolQuotes);
     }
   }, [poolQuotes]);
 
-  async function updateSwapParams() {
-    let sortedPools: string[];
-    for (let i = 0; i < availablePools.length; i++) {
+  async function updateSwapParams(poolQuotes: any) {
+    const poolAddresses: string[] = [];
+    for (let i = 0; i < poolQuotes.length; i++) {
+      poolAddresses.push(poolQuotes[i].pool);
       const params: SwapParams = {
         to: address,
         priceLimit: poolQuotes[i].priceAfter, // factor in slippage as well
@@ -202,11 +203,14 @@ export default function Trade() {
         callbackData: ethers.utils.formatBytes32String(""),
       };
       setSwapParams(swapParams ? [...swapParams, params] : [params]);
-      //TODO: list is sorted so we can set the pool addresses array for the swap() call
-      //sortedPools[i] = poolQuotes[i].pool;
     }
-    //console.log("sortedPools", sortedPools);
-    //setTradePoolAddress(sortedPools[0]);
+    setSwapPoolAddresses(poolAddresses);
+    setAmountOut(
+      ethers.utils.formatUnits(
+        poolQuotes[0].amountOut.toString(),
+        tokenOut.decimals
+      )
+    );
   }
 
   ////////////////////////////////TokenOrder
@@ -328,10 +332,10 @@ export default function Trade() {
     }
   }, [allowanceInRouter]);
 
-  ////////////////////////////////Quotes
-  const [rangeQuote, setRangeQuote] = useState(0);
-  const [rangePriceAfter, setRangePriceAfter] = useState(undefined);
   const [rangeBnPriceLimit, setRangeBnPriceLimit] = useState(BN_ZERO);
+  /* ////////////////////////////////Quotes
+  const [tradeQuote, setRangeQuote] = useState(0);
+  const [rangePriceAfter, setRangePriceAfter] = useState(undefined);
 
   const { data: quoteRange } = useContractRead({
     address: tradePoolAddress,
@@ -369,7 +373,7 @@ export default function Trade() {
         setRangeBnPriceLimit(BigNumber.from(String(rangePriceLimit)));
       }
     }
-  }, [quoteRange]);
+  }, [quoteRange]); */
 
   ////////////////////////////////FeeTiers and Slippage
   const [slippage, setSlippage] = useState("0.5");
@@ -405,7 +409,7 @@ export default function Trade() {
   };
 
   ////////////////////////////////Prices
-  const [rangePrice, setRangePrice] = useState(0);
+  /* const [rangePrice, setRangePrice] = useState(0);
   const [rangeBnPrice, setRangeBnPrice] = useState(BigNumber.from(0));
   const [rangeBnBaseLimit, setRangeBnBaseLimit] = useState(BigNumber.from(0));
 
@@ -452,7 +456,7 @@ export default function Trade() {
         setRangeBnBaseLimit(baseLimit);
       }
     }
-  }, [slippage, rangeBnPrice]);
+  }, [slippage, rangeBnPrice]); */
 
   ////////////////////////////////Limit Price Switch
   const [limitPriceOrder, setLimitPriceOrder] = useState(true);
@@ -583,7 +587,7 @@ export default function Trade() {
     /* await gasEstimateSwap(
       rangePoolAddress,
       coverPoolAddress,
-      rangeQuote,
+      tradeQuote,
       coverQuote,
       rangeBnPrice,
       rangeBnBaseLimit,
@@ -619,7 +623,7 @@ export default function Trade() {
 
   useEffect(() => {
     setMintButtonState();
-  }, [tradeMintParams.tokenInAmount, tradeMintParams.tokenOutAmount]);
+  }, [tradeParams.tokenInAmount, tradeParams.tokenOutAmount]);
 
   ////////////////////////////////
   const [expanded, setExpanded] = useState(false);
@@ -643,17 +647,7 @@ export default function Trade() {
             <div className="ml-auto text-xs">
               {pairSelected
                 ? !limitTabSelected
-                  ? rangeQuote === 0
-                    ? "0"
-                    : (
-                        parseFloat(
-                          ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                        ) * rangeQuote
-                      ).toFixed(2)
-                    ? "0"
-                    : parseFloat(
-                        ethers.utils.formatUnits(rangeBnPrice, tokenIn.decimals)
-                      ) == 0
+                  ? amountOut
                   : (
                       parseFloat(
                         ethers.utils.formatUnits(bnInput, tokenIn.decimals)
@@ -676,19 +670,19 @@ export default function Trade() {
                 Minimum received after slippage ({slippage}%)
               </div>
               <div className="ml-auto text-xs">
-                {pairSelected
+                {/* {pairSelected
                   ? !limitTabSelected
-                    ? rangeQuote === 0
+                    ? tradeQuote === 0
                       ? "0"
                       : (
                           parseFloat(
                             ethers.utils.formatUnits(bnInput, tokenIn.decimals)
                           ) *
-                            rangeQuote -
+                            tradeQuote -
                           parseFloat(
                             ethers.utils.formatUnits(bnInput, tokenIn.decimals)
                           ) *
-                            rangeQuote *
+                            tradeQuote *
                             (parseFloat(slippage) * 0.01)
                         ).toFixed(2)
                     : parseFloat(
@@ -716,7 +710,7 @@ export default function Trade() {
                           ) *
                           (parseFloat(slippage) * 0.01)
                       ).toFixed(2)
-                  : "Select Token"}
+                  : "Select Token"} */}
               </div>
             </div>
           ) : (
@@ -726,14 +720,14 @@ export default function Trade() {
             <div className="flex p-1">
               <div className="text-xs text-[#4C4C4C]">Price Impact</div>
               <div className="ml-auto text-xs">
-                {pairSelected
+                {/* {pairSelected
                   ? rangePriceAfter
                     ? (
                         Math.abs((rangePrice - rangePriceAfter) * 100) /
                         rangePrice
                       ).toFixed(2) + "%"
                     : "0.00%"
-                  : "Select Token"}
+                  : "Select Token"} */}
               </div>
             </div>
           ) : (
@@ -845,7 +839,7 @@ export default function Trade() {
                     tokenOut.USDPrice ? (
                       !limitTabSelected ? (
                         //swap page
-                        (rangeQuote * tokenOut.USDPrice).toFixed(2)
+                        (amountOut * tokenOut.USDPrice).toFixed(2)
                       ) : //limit page
                       limitPriceOrder ? (
                         (
@@ -876,7 +870,7 @@ export default function Trade() {
               <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
                 {pairSelected && !bnInput.eq(BN_ZERO) ? (
                   !limitTabSelected ? (
-                    <div>{rangeQuote.toPrecision(6)}</div>
+                    <div>{Number(amountOut).toPrecision(5)}</div>
                   ) : (
                     <div>
                       {!limitPriceOrder
@@ -990,7 +984,7 @@ export default function Trade() {
                   <div className="bg-dark py-3 px-5 border border-grey rounded-[4px] mt-4">
                     <div className="flex items-end justify-between text-[11px] text-grey1">
                       <span>
-                        {pairSelected && rangePrice > 0
+                        {pairSelected
                           ? //switcher tokenOrder
                             limitPriceOrder
                             ? //when normal order tokenIn/tokenOut
@@ -1063,7 +1057,7 @@ export default function Trade() {
                 className="flex px-2 cursor-pointer py-2 rounded-[4px]"
                 onClick={() => setExpanded(!expanded)}
               >
-                <div className="flex-none text-xs uppercase text-[#C9C9C9]">
+                {/* <div className="flex-none text-xs uppercase text-[#C9C9C9]">
                   1 {tokenIn.symbol} ={" "}
                   {!pairSelected
                     ? " ?"
@@ -1073,7 +1067,7 @@ export default function Trade() {
                         : invertPrice(rangePrice.toPrecision(5), false)) +
                       " " +
                       tokenOut.symbol}
-                </div>
+                </div> */}
                 <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
                   <button>
                     <ChevronDownIcon className="w-4 h-4" />
@@ -1086,19 +1080,24 @@ export default function Trade() {
             </div>
             {isDisconnected ? (
               <ConnectWalletButton xl={true} />
-            ) : !limitTabSelected ? ( //swap tab
+            ) : !limitTabSelected ? (
+              //swap tab
               <>
                 {
                   //range buttons
                   Number(tokenIn.userPoolAllowance) <
                   Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                     <div>
-                      <SwapRangeApproveButton
-                        poolAddress={tradePoolAddress}
+                      {/* <SwapRangeApproveButton
+                        poolAddress={
+                          poolRouterAddress[
+                            chainIdsToNamesForGitTokenList[chainId]
+                          ]
+                        }
                         approveToken={tokenIn.address}
                         tokenSymbol={tokenIn.symbol}
                         amount={bnInput}
-                      />
+                      /> */}
                     </div>
                   ) : (
                     <SwapRangeButton
@@ -1121,7 +1120,9 @@ export default function Trade() {
                 {Number(tokenIn.userPoolAllowance) <
                 Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                   <SwapRangeApproveButton
-                    poolAddress={tradePoolAddress}
+                    poolAddress={
+                      poolRouterAddress[chainIdsToNamesForGitTokenList[chainId]]
+                    }
                     approveToken={tokenIn.address}
                     tokenSymbol={tokenIn.symbol}
                     amount={bnInput}

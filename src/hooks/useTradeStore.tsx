@@ -25,7 +25,7 @@ type TradeState = {
   //Trade position data containing all the info about the position
   tradePositionData: any;
   //trade params for minting position
-  tradeMintParams: {
+  tradeParams: {
     tokenInAmount: BigNumber;
     tokenOutAmount: BigNumber;
     gasFee: string;
@@ -110,7 +110,7 @@ const initialTradeState: TradeState = {
   feeTierTradeId: 0,
   tradeSlippage: "0.5",
   //
-  tradeMintParams: {
+  tradeParams: {
     tokenInAmount: BN_ZERO,
     tokenOutAmount: BN_ZERO,
     gasFee: "$0.00",
@@ -120,7 +120,7 @@ const initialTradeState: TradeState = {
   },
   //
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
-  pairSelected: false,
+  pairSelected: true,
   //
   tokenIn: {
     callId: 0,
@@ -167,7 +167,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   //trade position data
   tradePositionData: initialTradeState.tradePositionData,
   //
-  tradeMintParams: initialTradeState.tradeMintParams,
+  tradeParams: initialTradeState.tradeParams,
   //true if both tokens selected, false if only one token selected
   pairSelected: initialTradeState.pairSelected,
   //tokenIn
@@ -230,8 +230,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   },
   setTokenInAmount: (newAmount: BigNumber) => {
     set((state) => ({
-      tradeMintParams: {
-        ...state.tradeMintParams,
+      tradeParams: {
+        ...state.tradeParams,
         tokenInAmount: newAmount,
       },
     }));
@@ -289,8 +289,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   },
   setTokenOutAmount: (newAmount: BigNumber) => {
     set((state) => ({
-      tradeMintParams: {
-        ...state.tradeMintParams,
+      tradeParams: {
+        ...state.tradeParams,
         tokenOutAmount: newAmount,
       },
     }));
@@ -337,16 +337,16 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   },
   setTradeGasFee: (gasFee: string) => {
     set((state) => ({
-      tradeMintParams: {
-        ...state.tradeMintParams,
+      tradeParams: {
+        ...state.tradeParams,
         gasFee: gasFee,
       },
     }));
   },
   setTradeGasLimit: (gasLimit: BigNumber) => {
     set((state) => ({
-      tradeMintParams: {
-        ...state.tradeMintParams,
+      tradeParams: {
+        ...state.tradeParams,
         gasLimit: gasLimit,
       },
     }));
@@ -354,20 +354,20 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
 
   setMintButtonState: () => {
     set((state) => ({
-      tradeMintParams: {
-        ...state.tradeMintParams,
+      tradeParams: {
+        ...state.tradeParams,
         buttonMessage:
           state.tokenIn.userBalance <
           parseFloat(
             ethers.utils.formatUnits(
-              String(state.tradeMintParams.tokenInAmount),
+              String(state.tradeParams.tokenInAmount),
               state.tokenIn.decimals
             )
           )
             ? "Insufficient Token Balance"
             : parseFloat(
                 ethers.utils.formatUnits(
-                  String(state.tradeMintParams.tokenInAmount),
+                  String(state.tradeParams.tokenInAmount),
                   18
                 )
               ) == 0
@@ -377,14 +377,14 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
           state.tokenIn.userBalance <
           parseFloat(
             ethers.utils.formatUnits(
-              String(state.tradeMintParams.tokenInAmount),
+              String(state.tradeParams.tokenInAmount),
               state.tokenIn.decimals
             )
           )
             ? true
             : parseFloat(
                 ethers.utils.formatUnits(
-                  String(state.tradeMintParams.tokenInAmount),
+                  String(state.tradeParams.tokenInAmount),
                   state.tokenIn.decimals
                 )
               ) == 0
@@ -494,7 +494,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       //trade position data
       tradePositionData: initialTradeState.tradePositionData,
       //trade mint
-      tradeMintParams: initialTradeState.tradeMintParams,
+      tradeParams: initialTradeState.tradeParams,
       //tokenIn
       tokenIn: initialTradeState.tokenIn,
       //tokenOut
