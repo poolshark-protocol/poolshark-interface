@@ -301,7 +301,7 @@ export default function Trade() {
   //TODO: allowance is applied to the PoolRouter
   // there are no token approvals on the pool anymore
   const { data: allowanceInRouter } = useContractRead({
-    address: tokenIn.address,
+    address: poolRouterAddress[chainIdsToNamesForGitTokenList[chainId]],
     abi: erc20ABI,
     functionName: "allowance",
     args: [
