@@ -2,13 +2,30 @@ import { ZERO_ADDRESS } from "./math/constants";
 import { TickMath } from "./math/tickMath";
 import {
   fetchCoverPools,
-  fetchRangePools,
+  fetchRangePools as fetchLimitPools,
   getCoverPoolFromFactory,
   getRangePoolFromFactory,
 } from "./queries";
-import { tokenCover, tokenRangeLimit } from "./types";
+import { tokenCover, tokenRangeLimit, tokenSwap } from "./types";
 
 //TODO@retraca enable this componnent to directly u0pdate zustand states
+
+//Grab pool with most liquidity
+export const getSwapPools = async (
+  tokenIn: tokenSwap,
+  tokenOut: tokenSwap,
+  setSwapPoolData
+) => {
+  try {
+    //const coverPools = await fetchCoverPools();
+    const limitPools = await fetchLimitPools();
+    const allPools = limitPools["data"]["limitPools"];
+    setSwapPoolData(allPools[0]);
+    return allPools;
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 export const getRangePool = async (
   tokenIn: tokenRangeLimit,
@@ -270,7 +287,7 @@ export const getFeeTier = async (
       coverData["data"]["coverPools"]["0"]["volatilityTier"]["feeAmount"];
     setCoverSlippage((parseFloat(feeTier) / 10000).toString());
   }
-  const data = await fetchRangePools();
+  const data = await fetchLimitPools();
   const rangePoolAddress = data["data"]["limitPools"]["0"]["id"];
 
   if (rangePoolAddress === rangePoolRoute) {

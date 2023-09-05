@@ -1,11 +1,13 @@
 import { BigNumber, Contract, Signer, ethers } from "ethers";
 import { rangePoolABI } from "../abis/evm/rangePool";
 import { coverPoolABI } from "../abis/evm/coverPool";
-import { tokenCover, tokenSwap } from "./types";
+import { SwapParams, tokenCover, tokenSwap } from "./types";
 import { TickMath, roundTick } from "./math/tickMath";
 import { fetchPrice } from "./queries";
 import JSBI from "jsbi";
 import { BN_ZERO } from "./math/constants";
+import { limitPoolABI } from "../abis/evm/limitPool";
+import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 
 export interface gasEstimateResult {
   formattedPrice: string;
@@ -13,18 +15,11 @@ export interface gasEstimateResult {
 }
 
 export const gasEstimateSwap = async (
-  rangePoolRoute: string,
-  coverPoolRoute: string,
-  rangeQuote: number,
-  coverQuote: number,
-  rangeBnPrice: BigNumber,
-  rangeBnBaseLimit: BigNumber,
+  poolRouter: string,
+  poolAddresses: string[],
+  swapParams: SwapParams[],
   tokenIn: tokenSwap,
   tokenOut: tokenSwap,
-  bnInput: BigNumber,
-  allowanceRange: BigNumber,
-  allowanceCover: BigNumber,
-  address: string,
   signer: Signer,
   isConnected: boolean,
   setGasFee,
@@ -36,57 +31,18 @@ export const gasEstimateSwap = async (
     );
     const ethUsdQuery = await fetchPrice("ethereum");
     const ethUsdPrice = ethUsdQuery["data"]["bundles"]["0"]["ethPriceUSD"];
-
-    const recipient = address;
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
-    const priceLimit =
-      tokenOut.address != ("" as string) &&
-      tokenIn.address.localeCompare(tokenOut.address) < 0
-        ? BigNumber.from(
-            TickMath.getSqrtPriceAtPriceString(
-              rangeBnPrice.sub(rangeBnBaseLimit).toString(),
-              18
-            ).toString()
-          )
-        : BigNumber.from(
-            TickMath.getSqrtPriceAtPriceString(
-              rangeBnPrice.add(rangeBnBaseLimit).toString(),
-              18
-            ).toString()
-          );
     let gasUnits: BigNumber;
-    if (rangePoolRoute && coverPoolRoute && isConnected) {
-      if (rangeQuote > coverQuote) {
-        const contract = new ethers.Contract(
-          rangePoolRoute,
-          rangePoolABI,
-          provider
-        );
-        gasUnits = await contract
-          .connect(signer)
-          .estimateGas.swap([
-            recipient,
-            recipient,
-            priceLimit,
-            bnInput.lte(allowanceRange) ? bnInput : allowanceRange,
-            zeroForOne,
-          ]);
-      } else {
-        const contract = new ethers.Contract(
-          coverPoolRoute,
-          coverPoolABI,
-          provider
-        );
-        gasUnits = await contract
-          .connect(signer)
-          .estimateGas.swap([
-            recipient,
-            recipient,
-            priceLimit,
-            bnInput.lte(allowanceCover) ? bnInput : allowanceCover,
-            zeroForOne,
-          ]);
-      }
+    if (poolRouter && isConnected) {
+      const contract = new ethers.Contract(
+        poolRouter,
+        poolsharkRouterABI,
+        provider
+      );
+      console.log("contract", contract);
+      gasUnits = await contract
+        .connect(signer)
+        .estimateGas.multiSwapSplit(poolAddresses, swapParams);
     } else {
       gasUnits = BigNumber.from(1000000);
     }
@@ -103,7 +59,7 @@ export const gasEstimateSwap = async (
   } catch (error) {
     console.log("gas error", error);
     setGasFee("$0.00");
-    setGasLimit(BN_ZERO);
+    setGasLimit(BigNumber.from(1000000));
   }
 };
 

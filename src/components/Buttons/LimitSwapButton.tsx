@@ -8,7 +8,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
-import { useSwapStore } from "../../hooks/useSwapStore";
+import { useTradeStore } from "../../hooks/useTradeStore";
 
 export default function LimitSwapButton({
   disabled,
@@ -22,12 +22,9 @@ export default function LimitSwapButton({
   closeModal,
   gasLimit,
 }) {
-  const [
-    setNeedsRangeAllowanceIn,
-    setNeedsRangeBalanceIn,
-  ] = useSwapStore((state) => [
-    state.setNeedsRangeAllowanceIn,
-    state.setNeedsRangeBalanceIn,
+  const [setNeedsAllowanceIn, setNeedsBalanceIn] = useTradeStore((state) => [
+    state.setNeedsAllowanceIn,
+    state.setNeedsBalanceIn,
   ]);
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
@@ -38,14 +35,7 @@ export default function LimitSwapButton({
     address: poolAddress,
     abi: limitPoolABI,
     functionName: "mintLimit",
-    args: [[
-      to,
-      amount,
-      mintPercent,
-      lower,
-      upper,
-      zeroForOne
-    ]],
+    args: [[to, amount, mintPercent, lower, upper, zeroForOne]],
     chainId: 421613,
     overrides: {
       gasLimit: gasLimit,
@@ -65,11 +55,11 @@ export default function LimitSwapButton({
       setTimeout(() => {
         closeModal();
       }, 2000);
-      setNeedsRangeAllowanceIn(true);
+      setNeedsAllowanceIn(true);
       // if (amount1.gt(BN_ZERO)) {
       //   setNeedsAllowanceOut(true);
       // }
-      setNeedsRangeBalanceIn(true);
+      setNeedsBalanceIn(true);
     },
     onError() {
       setErrorDisplay(true);

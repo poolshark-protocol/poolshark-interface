@@ -9,20 +9,20 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { rangePoolABI } from "../../abis/evm/rangePool";
-import { useSwapStore as useRangeLimitStore } from "../../hooks/useSwapStore"
+import { useTradeStore} from "../../hooks/useTradeStore";
 
 export default function SwapRangeButton({disabled, poolAddress, amount, zeroForOne, priceLimit, gasLimit}) {
 
-  /*const [Limit] = useSwapStore((state: any) => [
+  /*const [Limit] = useTradeStore((state: any) => [
     state.Limit
   ]);*/
 
   const [
-    setNeedsRangeAllowanceIn,
-    setNeedsRangeBalanceIn,
-  ] = useRangeLimitStore((state) => [
-    state.setNeedsRangeAllowanceIn,
-    state.setNeedsRangeBalanceIn,
+    setNeedsAllowanceIn,
+    setNeedsBalanceIn,
+  ] = useTradeStore((state) => [
+    state.setNeedsAllowanceIn,
+    state.setNeedsBalanceIn,
   ]);
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
@@ -56,8 +56,8 @@ export default function SwapRangeButton({disabled, poolAddress, amount, zeroForO
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
-      setNeedsRangeAllowanceIn(true);
-      setNeedsRangeBalanceIn(true);
+      setNeedsAllowanceIn(true);
+      setNeedsBalanceIn(true);
     },
     onError() {
       setErrorDisplay(true);

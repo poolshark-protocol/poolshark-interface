@@ -1,11 +1,5 @@
-import {
-  AdjustmentsHorizontalIcon,
-  ArrowSmallDownIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
-import { useState, useEffect, Fragment } from "react";
-import { Popover, Transition } from "@headlessui/react";
-import { ChevronDownIcon, ArrowPathIcon } from "@heroicons/react/20/solid";
+import { useState, useEffect } from "react";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import SelectToken from "../components/SelectToken";
 import useInputBox from "../hooks/useInputBox";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
@@ -37,15 +31,20 @@ import {
 } from "../utils/math/tickMath";
 import { BN_ONE, BN_ZERO } from "../utils/math/constants";
 import { gasEstimateSwap, gasEstimateMintLimit } from "../utils/gas";
-import { getCoverPool, getRangePool } from "../utils/pools";
 import inputFilter from "../utils/inputFilter";
 import LimitSwapButton from "../components/Buttons/LimitSwapButton";
-import { useSwapStore } from "../hooks/useSwapStore";
 import {
   fetchCoverTokenUSDPrice,
   fetchRangeTokenUSDPrice,
 } from "../utils/tokens";
-import { coinRaw } from "../utils/types";
+import { getSwapPools } from "../utils/pools";
+import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
+import { QuoteParams, SwapParams } from "../utils/types";
+import { useTradeStore } from "../hooks/useTradeStore";
+import { parse } from "graphql";
+import { parseUnits } from "ethers/lib/utils.js";
+import SwapRouterButton from "../components/Buttons/SwapRouterButton";
+import JSBI from "jsbi";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -57,133 +56,69 @@ export default function Trade() {
     useInputBox();
 
   const [
-    //tokenIN
-    tokenIn,
-    setTokenIn,
-    tokenInRangeUSDPrice,
-    setTokenInRangeUSDPrice,
-    tokenInCoverUSDPrice,
-    setTokenInCoverUSDPrice,
-    tokenInBalance,
-    setTokenInBalance,
-    tokenInRangeAllowance,
-    setTokenInRangeAllowance,
-    tokenInCoverAllowance,
-    setTokenInCoverAllowance,
-    //tokenOut
-    tokenOut,
-    setTokenOut,
-    tokenOutRangeUSDPrice,
-    setTokenOutRangeUSDPrice,
-    tokenOutCoverUSDPrice,
-    setTokenOutCoverUSDPrice,
-    tokenOutBalance,
-    setTokenOutBalance,
-    //tokenOrder
-    switchDirection,
+    poolRouterAddress,
+    tradePoolAddress,
+    setTradePoolAddress,
+    tradePoolData,
+    setTradePoolData,
+    tradeParams,
+    //setTradeParams,
     pairSelected,
     setPairSelected,
-    //rangePool
-    rangePoolAddress,
-    rangePoolData,
-    rangeSlippage,
-    setRangePoolAddress,
-    setRangePoolData,
-    setRangeSlippage,
-    //coverPool
-    coverPoolAddress,
-    coverPoolData,
-    coverSlippage,
-    setCoverPoolAddress,
-    setCoverPoolData,
-    setCoverSlippage,
-    //gas
-    gasFee,
-    gasLimit,
-    setGasFee,
-    setGasLimit,
-    mintGasFee,
-    mintGasLimit,
-    setMintGasFee,
-    setMintGasLimit,
-    //refresh
-    needsCoverAllowance,
-    setNeedsCoverAllowance,
-    needsRangeAllowanceIn,
-    setNeedsRangeAllowanceIn,
-    needsRangeAllowanceOut,
-    setNeedsRangeAllowanceOut,
-    //balance
-    needsCoverBalance,
-    setNeedsCoverBalance,
-    needsRangeBalanceIn,
-    setNeedsRangeBalanceIn,
-    needsRangeBalanceOut,
-    setNeedsRangeBalanceOut,
-  ] = useSwapStore((state: any) => [
-    //tokenIN
-    state.tokenIn,
-    state.setTokenIn,
-    state.tokenInRangeUSDPrice,
-    state.setTokenInRangeUSDPrice,
-    state.tokenInCoverUSDPrice,
-    state.setTokenInCoverUSDPrice,
-    state.tokenInBalance,
-    state.setTokenInBalance,
-    state.tokenInRangeAllowance,
-    state.setTokenInRangeAllowance,
-    state.tokenInCoverAllowance,
-    state.setTokenInCoverAllowance,
-    //tokenOut
-    state.tokenOut,
-    state.setTokenOut,
-    state.tokenOutRangeUSDPrice,
-    state.setTokenOutRangeUSDPrice,
-    state.tokenOutCoverUSDPrice,
-    state.setTokenOutCoverUSDPrice,
-    state.tokenOutBalance,
-    state.setTokenOutBalance,
-    //tokenOrder
-    state.switchDirection,
-    state.pairSelected,
-    state.setPairSelected,
-    //rangePool
-    state.rangePoolAddress,
-    state.rangePoolData,
-    state.rangeSlippage,
-    state.setRangePoolAddress,
-    state.setRangePoolData,
-    state.setRangeSlippage,
-    //coverPool
-    state.coverPoolAddress,
-    state.coverPoolData,
-    state.coverSlippage,
-    state.setCoverPoolAddress,
-    state.setCoverPoolData,
-    state.setCoverSlippage,
-    //gas
-    state.gasFee,
-    state.gasLimit,
-    state.setGasFee,
-    state.setGasLimit,
-    state.mintGasFee,
-    state.mintGasLimit,
-    state.setMintGasFee,
-    state.setMintGasLimit,
-    //refresh
-    state.needsCoverAllowance,
-    state.setNeedsCoverAllowance,
-    state.needsRangeAllowanceIn,
-    state.setNeedsRangeAllowanceIn,
-    state.needsRangeAllowanceOut,
-    state.setNeedsRangeAllowanceOut,
-    //balance
-    state.needsCoverBalance,
-    state.setNeedsCoverBalance,
-    state.needsRangeBalanceIn,
-    state.setNeedsRangeBalanceIn,
-    state.needsRangeBalanceOut,
-    state.setNeedsRangeBalanceOut,
+    tradeSlippage,
+    setTradeSlippage,
+    tokenIn,
+    setTokenIn,
+    setTokenInAmount,
+    setTokenInBalance,
+    setTokenInTradeAllowance,
+    setTokenInTradeUSDPrice,
+    tokenOut,
+    setTokenOut,
+    setTokenOutBalance,
+    setTokenOutTradeUSDPrice,
+    needsAllowanceIn,
+    setNeedsAllowanceIn,
+    needsAllowanceOut,
+    setNeedsAllowanceOut,
+    needsBalanceIn,
+    setNeedsBalanceIn,
+    needsBalanceOut,
+    setNeedsBalanceOut,
+    switchDirection,
+    setMintButtonState,
+  ] = useTradeStore((s) => [
+    s.poolRouterAddresses,
+    s.tradePoolAddress,
+    s.setTradePoolAddress,
+    s.tradePoolData,
+    s.setTradePoolData,
+    s.tradeParams,
+    //s.setTradeParams,
+    s.pairSelected,
+    s.setPairSelected,
+    s.tradeSlippage,
+    s.setTradeSlippage,
+    s.tokenIn,
+    s.setTokenIn,
+    s.setTokenInAmount,
+    s.setTokenInBalance,
+    s.setTokenInTradeAllowance,
+    s.setTokenInTradeUSDPrice,
+    s.tokenOut,
+    s.setTokenOut,
+    s.setTokenOutBalance,
+    s.setTokenOutTradeUSDPrice,
+    s.needsAllowanceIn,
+    s.setNeedsAllowanceIn,
+    s.needsAllowanceOut,
+    s.setNeedsAllowanceOut,
+    s.needsBalanceIn,
+    s.setNeedsBalanceIn,
+    s.needsBalanceOut,
+    s.setNeedsBalanceOut,
+    s.switchDirection,
+    s.setMintButtonState,
   ]);
 
   //false when user in normal swap, true when user in limit swap
@@ -192,8 +127,8 @@ export default function Trade() {
   //false when user is in exact price, true when user is in price range
   const [priceRangeSelected, setPriceRangeSelected] = useState(false);
 
-    //false order history is selected, true when active orders is selected
-    const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
+  //false order history is selected, true when active orders is selected
+  const [activeOrdersSelected, setActiveOrdersSelected] = useState(true);
 
   ////////////////////////////////ChainId
   const [stateChainName, setStateChainName] = useState();
@@ -202,29 +137,6 @@ export default function Trade() {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
   }, [chainId]);
 
-  ////////////////////////////////Pools
-
-  useEffect(() => {
-    if (tokenIn.address && tokenOut.address) {
-      updatePools();
-    }
-  }, [tokenOut, tokenIn]);
-
-  async function updatePools() {
-    await getRangePool(
-      tokenIn,
-      tokenOut,
-      setRangePoolAddress,
-      setRangePoolData
-    );
-    await getCoverPool(
-      tokenIn,
-      tokenOut,
-      setCoverPoolAddress,
-      setCoverPoolData
-    );
-  }
-
   ////////////////////////////////TokenOrder
   const [tokenOrder, setTokenOrder] = useState(true);
 
@@ -232,62 +144,148 @@ export default function Trade() {
     if (tokenIn.address && tokenOut.address) {
       setTokenOrder(tokenIn.callId == 0);
     }
-  }, [tokenIn, tokenOut]);
+  }, [tokenIn.address, tokenOut.address]);
+
+  ////////////////////////////////Pools
+  const [availablePools, setAvailablePools] = useState(undefined);
+  const [quoteParams, setQuoteParams] = useState(undefined);
+  const [swapPoolAddresses, setSwapPoolAddresses] = useState<string[]>([]);
+  const [swapParams, setSwapParams] = useState(undefined);
+  const [amountOut, setAmountOut] = useState(undefined);
+
+  useEffect(() => {
+    if (tokenIn.address && tokenOut.address && bnInput) {
+      updatePools();
+    }
+  }, [tokenOrder, bnInput]);
+
+  async function updatePools() {
+    const pools = await getSwapPools(tokenIn, tokenOut, setTradePoolData);
+    const poolAdresses: string[] = [];
+    const quoteList: QuoteParams[] = [];
+    for (let i = 0; i < pools.length; i++) {
+      const params: QuoteParams = {
+        priceLimit: tokenOrder ? minPriceBn : maxPriceBn,
+        amount: bnInput,
+        exactIn: true,
+        zeroForOne: tokenOrder,
+      };
+      quoteList[i] = params;
+      poolAdresses[i] = pools[i].id;
+    }
+    setAvailablePools(poolAdresses);
+    setQuoteParams(quoteList);
+  }
+
+  const { data: poolQuotes } = useContractRead({
+    address: poolRouterAddress[chainIdsToNamesForGitTokenList[chainId]], //contract address,
+    abi: poolsharkRouterABI, // contract abi,
+    functionName: "multiQuote",
+    args: [availablePools, quoteParams, true],
+    chainId: 421613,
+    enabled: availablePools && quoteParams,
+    onError(error) {
+      console.log("Error multiquote", error);
+    },
+    onSuccess(data) {
+      //console.log("Success multiquote", data);
+    },
+  });
+
+  useEffect(() => {
+    if (poolQuotes) {
+      updateSwapParams(poolQuotes);
+    }
+  }, [poolQuotes]);
+
+  async function updateSwapParams(poolQuotes: any) {
+    //fix price Limit
+    const poolAddresses: string[] = [];
+    const swapParams: SwapParams[] = [];
+    for (let i = 0; i < poolQuotes.length; i++) {
+      console.log("poolQuotes", poolQuotes[i]);
+      poolAddresses.push(poolQuotes[i].pool);
+      const basePrice: Number = Number(
+        TickMath.getPriceStringAtSqrtPrice(poolQuotes[i].priceAfter)
+      );
+      const limitPrice: Number =
+        (Number(basePrice) * (1 + parseFloat(slippage) * 100)) / 10000;
+      const limitPriceJsbi: JSBI = TickMath.getSqrtPriceAtPriceString(
+        limitPrice.toString()
+      );
+      const priceLimitBn = BigNumber.from(String(limitPriceJsbi));
+      const params: SwapParams = {
+        to: address,
+        priceLimit: priceLimitBn,
+        amount: bnInput,
+        exactIn: true,
+        zeroForOne: tokenOrder,
+        callbackData: ethers.utils.formatBytes32String(""),
+      };
+      swapParams.push(params);
+    }
+    setAmountOut(
+      ethers.utils.formatUnits(
+        poolQuotes[0].amountOut.toString(),
+        tokenOut.decimals
+      )
+    );
+    setSwapPoolAddresses(poolAddresses);
+    //setTradePoolData(pools[0]);
+    setSwapParams(swapParams);
+  }
 
   ////////////////////////////////TokenUSDPrices
 
   useEffect(() => {
-    if (rangePoolData && coverPoolData) {
+    if (tradePoolData) {
       if (tokenIn.address) {
-        if (rangePoolData.token0 && rangePoolData.token1) {
+        if (tradePoolData.token0 && tradePoolData.token1) {
+          // if limit pool fetch limit price
           fetchRangeTokenUSDPrice(
-            rangePoolData,
+            tradePoolData,
             tokenIn,
-            setTokenInRangeUSDPrice
+            setTokenInTradeUSDPrice
           );
+          // if cover pool fetch cover price
+          // fetchCoverTokenUSDPrice(
+          //   tradePoolData,
+          //   tokenInd,
+          //   setTokenInCoverUSDPrice
+          // );
         }
-        if (coverPoolData.token0 && coverPoolData.token1) {
-          fetchCoverTokenUSDPrice(
-            coverPoolData,
-            tokenIn,
-            setTokenInCoverUSDPrice
-          );
-        }
+        //TODO: check if cover and/or range pools present
       }
       if (tokenOut.address) {
-        if (rangePoolData.token0 && rangePoolData.token1) {
+        if (tradePoolData.token0 && tradePoolData.token1) {
+          // if limit pool fetch limit price
+          console.log("tradePoolData", tradePoolData);
           fetchRangeTokenUSDPrice(
-            rangePoolData,
+            tradePoolData,
             tokenOut,
-            setTokenOutRangeUSDPrice
+            setTokenOutTradeUSDPrice
           );
-        }
-        if (coverPoolData.token0 && coverPoolData.token1) {
-          fetchCoverTokenUSDPrice(
-            coverPoolData,
-            tokenOut,
-            setTokenOutCoverUSDPrice
-          );
+          // if cover pool fetch cover price
+          // fetchCoverTokenUSDPrice(
+          //   tradePoolData,
+          //   tokenOut,
+          //   setTokenOutCoverUSDPrice
+          // );
         }
       }
     }
-  }, [rangePoolData, coverPoolData, tokenIn, tokenOut]);
+  }, [tradePoolData]);
 
   ////////////////////////////////Balances
 
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.address,
-    enabled:
-      (tokenIn.address != undefined && needsCoverBalance) ||
-      (tokenIn.address != undefined && needsRangeBalanceIn),
-    watch: needsCoverBalance || needsRangeBalanceIn,
+    enabled: tokenIn.address != undefined && needsBalanceIn,
+    watch: needsBalanceIn,
     onSuccess(data) {
-      if (needsCoverBalance) {
-        setNeedsCoverBalance(false);
-      }
-      if (needsRangeBalanceIn) {
-        setNeedsRangeBalanceIn(false);
+      if (needsBalanceIn) {
+        setNeedsBalanceIn(false);
       }
     },
   });
@@ -295,11 +293,11 @@ export default function Trade() {
   const { data: tokenOutBal } = useBalance({
     address: address,
     token: tokenOut.address,
-    enabled: tokenOut.address != undefined && needsRangeBalanceOut,
-    watch: needsRangeBalanceOut,
+    enabled: tokenOut.address != undefined && needsBalanceOut,
+    watch: needsBalanceOut,
     onSuccess(data) {
-      if (needsRangeBalanceOut) {
-        setNeedsRangeBalanceOut(false);
+      if (needsBalanceOut) {
+        setNeedsBalanceOut(false);
       }
     },
   });
@@ -319,90 +317,54 @@ export default function Trade() {
 
   ////////////////////////////////Allowances
 
-  const { data: allowanceInRange } = useContractRead({
+  //TODO: allowance is applied to the PoolRouter
+  // there are no token approvals on the pool anymore
+  const { data: allowanceInRouter } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolAddress],
+    args: [
+      address,
+      poolRouterAddress[
+        chainIdsToNamesForGitTokenList[chainId]
+      ] as `0x${string}`,
+    ],
     chainId: 421613,
-    watch: needsRangeAllowanceIn,
-    enabled: pairSelected && rangePoolAddress && needsRangeAllowanceIn,
+    watch: needsAllowanceIn,
+    //enabled: poolRouterAddress,
     onError(error) {
       console.log("Error allowance", error);
     },
     onSuccess(data) {
-      setNeedsRangeAllowanceIn(false);
-      //console.log("Success allowance", data);
-    },
-  });
-
-  const { data: allowanceInCover } = useContractRead({
-    address: tokenIn.address,
-    abi: erc20ABI,
-    functionName: "allowance",
-    args: [address, coverPoolAddress],
-    chainId: 421613,
-    watch: needsCoverAllowance,
-    enabled: pairSelected && coverPoolAddress && needsCoverAllowance,
-    onError(error) {
-      console.log("Error allowance", error);
-    },
-    onSuccess(data) {
-      setNeedsCoverAllowance(false);
+      setNeedsAllowanceIn(false);
+      console.log("Success allowance", data);
       //console.log("Success allowance", data);
     },
   });
 
   useEffect(() => {
-    if (allowanceInRange) {
-      setTokenInRangeAllowance(
-        ethers.utils.formatUnits(allowanceInRange, tokenIn.decimals)
-      );
+    if (allowanceInRouter) {
+      setTokenInTradeAllowance(allowanceInRouter);
     }
-    if (allowanceInCover) {
-      setTokenInCoverAllowance(
-        ethers.utils.formatUnits(allowanceInCover, tokenIn.decimals)
-      );
-    }
-  }, [allowanceInRange, allowanceInCover]);
+  }, [allowanceInRouter]);
 
-  ////////////////////////////////Quotes
-  const [coverQuote, setCoverQuote] = useState(0);
-  const [rangeQuote, setRangeQuote] = useState(0);
-  const [coverPriceAfter, setCoverPriceAfter] = useState(undefined);
-  const [rangePriceAfter, setRangePriceAfter] = useState(undefined);
+  /* ////////////////////////////////Quotes
   const [rangeBnPriceLimit, setRangeBnPriceLimit] = useState(BN_ZERO);
-  const [coverBnPriceLimit, setCoverBnPriceLimit] = useState(BN_ZERO);
+  const [tradeQuote, setRangeQuote] = useState(0);
+  const [rangePriceAfter, setRangePriceAfter] = useState(undefined);
 
   const { data: quoteRange } = useContractRead({
-    address: rangePoolAddress,
+    address: tradePoolAddress,
     abi: rangePoolABI,
     functionName: "quote",
     args: [[tokenOrder ? minPriceBn : maxPriceBn, bnInput, tokenOrder]],
     chainId: 421613,
     watch: true,
-    enabled: rangePoolAddress,
     onError(error) {
       console.log("Error range wagmi", error);
     },
     onSettled(data, error) {
       //console.log("Settled range wagmi", { data, error });
-    },
-  });
-
-  const { data: quoteCover } = useContractRead({
-    address: coverPoolAddress,
-    abi: coverPoolABI,
-    functionName: "quote",
-    args: [[tokenOrder ? minPriceBn : maxPriceBn, bnInput, tokenOrder]],
-    chainId: 421613,
-    watch: true,
-    enabled: coverPoolAddress,
-    onError(error) {
-      console.log("Error cover wagmi", error);
-    },
-    onSettled(data, error) {
-      //console.log("Settled", { data, error });
     },
   });
 
@@ -427,28 +389,7 @@ export default function Trade() {
         setRangeBnPriceLimit(BigNumber.from(String(rangePriceLimit)));
       }
     }
-
-    if (quoteCover) {
-      if (quoteCover[0].gt(BN_ZERO) && quoteCover[1].gt(BN_ZERO)) {
-        setCoverQuote(
-          parseFloat(ethers.utils.formatUnits(quoteCover[1], tokenIn.decimals))
-        );
-        const priceAfter = parseFloat(
-          TickMath.getPriceStringAtSqrtPrice(quoteCover[2])
-        );
-        const priceSlippage = parseFloat(
-          ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6)
-        );
-        const priceAfterSlippage = String(
-          priceAfter - (tokenOrder ? priceSlippage : -priceSlippage)
-        );
-        setCoverPriceAfter(priceAfter);
-        const coverPriceLimit =
-          TickMath.getSqrtPriceAtPriceString(priceAfterSlippage);
-        setCoverBnPriceLimit(BigNumber.from(String(coverPriceLimit)));
-      }
-    }
-  }, [quoteCover, quoteRange]);
+  }, [quoteRange]); */
 
   ////////////////////////////////FeeTiers and Slippage
   const [slippage, setSlippage] = useState("0.5");
@@ -470,45 +411,31 @@ export default function Trade() {
       tokenIn.address,
       tokenOut.address
     );
-    const feeTierCover =
-      poolCover["data"]["coverPools"][0]["volatilityTier"]["feeAmount"];
-    setCoverSlippage((parseFloat(feeTierCover) / 10000).toString());
     const poolRange = await getRangePoolFromFactory(
       tokenIn.address,
       tokenOut.address
     );
-    const feeTier = poolRange["data"]["rangePools"][0]["feeTier"]["feeAmount"];
-    setRangeSlippage((parseFloat(feeTier) / 10000).toString());
+    const feeTier = poolRange["data"]["limitPools"][0]["feeTier"]["feeAmount"];
+    setTradeSlippage((parseFloat(feeTier) / 10000).toString());
   };
 
   const chooseSlippage = () => {
-    if (rangeQuote >= coverQuote) {
-      setSlippage(rangeSlippage);
-      setAuxSlippage(rangeSlippage);
-    } else {
-      setSlippage(coverSlippage);
-      setAuxSlippage(coverSlippage);
-    }
+    setSlippage(tradeSlippage);
+    setAuxSlippage(tradeSlippage);
   };
 
   ////////////////////////////////Prices
-  const [coverPrice, setCoverPrice] = useState(0);
-  const [rangePrice, setRangePrice] = useState(0);
-
-  const [coverBnPrice, setCoverBnPrice] = useState(BigNumber.from(0));
+  /* const [rangePrice, setRangePrice] = useState(0);
   const [rangeBnPrice, setRangeBnPrice] = useState(BigNumber.from(0));
-
-  const [coverBnBaseLimit, setCoverBnBaseLimit] = useState(BigNumber.from(0));
   const [rangeBnBaseLimit, setRangeBnBaseLimit] = useState(BigNumber.from(0));
 
   const { data: priceRange } = useContractRead({
-    address: rangePoolAddress,
+    address: tradePoolAddress,
     abi: rangePoolABI,
     functionName: "poolState",
     args: [],
     chainId: 421613,
     watch: true,
-    enabled: rangePoolAddress,
     onError(error) {
       console.log("Error price Range", error);
     },
@@ -517,31 +444,8 @@ export default function Trade() {
     },
   });
 
-  const { data: priceCover } = useContractRead({
-    address: coverPoolAddress,
-    abi: coverPoolABI,
-    functionName: tokenOrder ? "pool0" : "pool1",
-    args: [],
-    chainId: 421613,
-    watch: true,
-    enabled: coverPoolAddress,
-    onError(error) {
-      console.log("Error price Cover", error);
-    },
-    onSettled(data, error) {
-      //console.log("Settled price Cover", { data, error });
-    },
-  });
-
   //when contract prices change updates price states
   useEffect(() => {
-    if (priceCover) {
-      if (priceCover[0].gt(BN_ZERO)) {
-        setCoverPrice(
-          parseFloat(TickMath.getPriceStringAtSqrtPrice(priceCover[0]))
-        );
-      }
-    }
     if (priceRange) {
       if (priceRange[5].gt(BN_ZERO)) {
         setRangePrice(
@@ -549,28 +453,17 @@ export default function Trade() {
         );
       }
     }
-  }, [priceCover, priceRange]);
+  }, [priceRange]);
 
   //when price states change updates price bn states
   useEffect(() => {
-    if (coverPrice) {
-      setCoverBnPrice(ethers.utils.parseEther(coverPrice.toString()));
-    }
     if (rangePrice) {
       setRangeBnPrice(ethers.utils.parseEther(rangePrice.toString()));
     }
-  }, [coverPrice, rangePrice]);
+  }, [rangePrice]);
 
   //when price bn states change updates base limit states
   useEffect(() => {
-    if (coverBnPrice) {
-      if (!coverBnPrice.eq(BN_ZERO)) {
-        const baseLimit = coverBnPrice
-          .mul(parseFloat((parseFloat(slippage) * 100).toFixed(6)))
-          .div(10000);
-        setCoverBnBaseLimit(baseLimit);
-      }
-    }
     if (rangeBnPrice) {
       if (!rangeBnPrice.eq(BN_ZERO)) {
         const baseLimit = rangeBnPrice
@@ -579,7 +472,9 @@ export default function Trade() {
         setRangeBnBaseLimit(baseLimit);
       }
     }
-  }, [slippage, rangeBnPrice, coverBnPrice]);
+  }, [slippage, rangeBnPrice]); */
+
+  //i receive the price afte from the multiquote and then i will add and subtract the slippage from it
 
   ////////////////////////////////Limit Price Switch
   const [limitPriceOrder, setLimitPriceOrder] = useState(true);
@@ -587,12 +482,12 @@ export default function Trade() {
 
   useEffect(() => {
     setLimitStringPriceQuote(
-      (tokenInRangeUSDPrice / tokenOutRangeUSDPrice).toPrecision(6).toString()
+      (tokenIn.USDPrice / tokenOut.USDPrice).toPrecision(6).toString()
     );
-  }, [tokenOutRangeUSDPrice, tokenInRangeUSDPrice]);
+  }, [tokenOut.USDPrice, tokenIn.USDPrice]);
 
   useEffect(() => {
-    var newPrice = (tokenInRangeUSDPrice / tokenOutRangeUSDPrice)
+    var newPrice = (tokenIn.USDPrice / tokenOut.USDPrice)
       .toPrecision(6)
       .toString();
     setLimitStringPriceQuote(newPrice);
@@ -601,11 +496,11 @@ export default function Trade() {
   useEffect(() => {
     if (!limitPriceOrder) {
       setLimitStringPriceQuote(
-        (tokenOutRangeUSDPrice / tokenInRangeUSDPrice).toPrecision(6).toString()
+        (tokenOut.USDPrice / tokenIn.USDPrice).toPrecision(6).toString()
       );
     } else {
       setLimitStringPriceQuote(
-        (tokenInRangeUSDPrice / tokenOutRangeUSDPrice).toPrecision(6).toString()
+        (tokenIn.USDPrice / tokenOut.USDPrice).toPrecision(6).toString()
       );
     }
   }, [limitPriceOrder, tokenOrder]);
@@ -618,14 +513,14 @@ export default function Trade() {
     if (
       slippage &&
       limitStringPriceQuote &&
-      rangePoolData?.feeTier?.tickSpacing
+      tradePoolData?.feeTier?.tickSpacing
     ) {
       updateLimitTicks();
     }
   }, [limitStringPriceQuote, slippage]);
 
   function updateLimitTicks() {
-    const tickSpacing = rangePoolData.feeTier.tickSpacing;
+    const tickSpacing = tradePoolData.feeTier.tickSpacing;
     if (
       isFinite(parseFloat(limitStringPriceQuote)) &&
       parseFloat(limitStringPriceQuote) > 0
@@ -691,10 +586,10 @@ export default function Trade() {
     }
   }
   ////////////////////////////////Fee Estimations
-  //const [swapGasFee, setSwapGasFee] = useState("$0.00");
-  //const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
-  //const [mintFee, setMintFee] = useState("$0.00");
-  //const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
+  const [swapGasFee, setSwapGasFee] = useState("$0.00");
+  const [swapGasLimit, setSwapGasLimit] = useState(BN_ZERO);
+  const [mintFee, setMintFee] = useState("$0.00");
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
     if (!bnInput.eq(BN_ZERO)) {
@@ -704,31 +599,24 @@ export default function Trade() {
         updateMintFee();
       }
     }
-  }, [bnInput]);
+  }, [swapParams]);
 
   async function updateGasFee() {
     await gasEstimateSwap(
-      rangePoolAddress,
-      coverPoolAddress,
-      rangeQuote,
-      coverQuote,
-      rangeBnPrice,
-      rangeBnBaseLimit,
+      poolRouterAddress[chainIdsToNamesForGitTokenList[chainId]],
+      swapPoolAddresses,
+      swapParams,
       tokenIn,
       tokenOut,
-      bnInput,
-      ethers.utils.parseUnits(tokenInRangeAllowance, tokenIn.decimals),
-      ethers.utils.parseUnits(tokenInCoverAllowance, tokenIn.decimals),
-      address,
       signer,
       isConnected,
-      setGasFee,
-      setGasLimit
+      setSwapGasFee,
+      setSwapGasLimit
     );
   }
 
   async function updateMintFee() {
-    await gasEstimateMintLimit(
+    /* await gasEstimateMintLimit(
       rangePoolAddress,
       address,
       lowerTick,
@@ -739,37 +627,27 @@ export default function Trade() {
       signer,
       setMintGasFee,
       setMintGasLimit
-    );
+    ); */
   }
 
-  ////////////////////////////////Button states for swap
-  const [buttonState, setButtonState] = useState("");
+  ////////////////////////////////Mint Button State
 
-  // disabled messages
   useEffect(() => {
-    if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
-      setButtonState("amount");
+    if (bnInput) {
+      setTokenInAmount(bnInput);
     }
-    if (pairSelected == false) {
-      setButtonState("token");
-    }
-    if (Number(tokenInBalance) < Number(ethers.utils.formatUnits(bnInput))) {
-      setButtonState("balance");
-    }
-  }, [bnInput, pairSelected, tokenInBalance, bnInput]);
+  }, [bnInput]);
+
+  useEffect(() => {
+    setMintButtonState();
+  }, [tradeParams.tokenInAmount, tradeParams.tokenOutAmount]);
 
   ////////////////////////////////
   const [expanded, setExpanded] = useState(false);
 
-  /* function balancesHelper(coin: coinRaw) {
-    const balance = useBalance({
-      address: address,
-      token: coin.id,
-      chainId: 421613,
-      watch: true,
-    }).data?.formatted;
-    return balance;
-  } */
+  console.log("tokenIn", tokenIn);
+  console.log("tokenOut", tokenOut);
+  console.log("amountOut", amountOut);
 
   const Option = () => {
     if (expanded) {
@@ -780,25 +658,7 @@ export default function Trade() {
             <div className="ml-auto text-xs">
               {pairSelected
                 ? !limitTabSelected
-                  ? rangeQuote >= coverQuote
-                    ? rangeQuote === 0
-                      ? "0"
-                      : (
-                          parseFloat(
-                            ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                          ) * rangeQuote
-                        ).toFixed(2)
-                    : coverQuote === 0
-                    ? "0"
-                    : (
-                        parseFloat(
-                          ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                        ) * coverQuote
-                      ).toFixed(2)
-                  : parseFloat(
-                      ethers.utils.formatUnits(rangeBnPrice, tokenIn.decimals)
-                    ) == 0
-                  ? "0"
+                  ? amountOut
                   : (
                       parseFloat(
                         ethers.utils.formatUnits(bnInput, tokenIn.decimals)
@@ -810,9 +670,9 @@ export default function Trade() {
           <div className="flex p-1">
             <div className="text-xs text-[#4C4C4C]">Network Fee</div>
             {!limitTabSelected ? (
-              <div className="ml-auto text-xs">{gasFee}</div>
+              <div className="ml-auto text-xs">{swapGasFee}</div>
             ) : (
-              <div className="ml-auto text-xs">{mintGasFee}</div>
+              <div className="ml-auto text-xs">{mintFee}</div>
             )}
           </div>
           {!limitTabSelected ? (
@@ -821,39 +681,19 @@ export default function Trade() {
                 Minimum received after slippage ({slippage}%)
               </div>
               <div className="ml-auto text-xs">
-                {pairSelected
+                {/* {pairSelected
                   ? !limitTabSelected
-                    ? rangeQuote >= coverQuote
-                      ? rangeQuote === 0
-                        ? "0"
-                        : (
-                            parseFloat(
-                              ethers.utils.formatUnits(
-                                bnInput,
-                                tokenIn.decimals
-                              )
-                            ) *
-                              rangeQuote -
-                            parseFloat(
-                              ethers.utils.formatUnits(
-                                bnInput,
-                                tokenIn.decimals
-                              )
-                            ) *
-                              rangeQuote *
-                              (parseFloat(slippage) * 0.01)
-                          ).toFixed(2)
-                      : coverQuote === 0
+                    ? tradeQuote === 0
                       ? "0"
                       : (
                           parseFloat(
                             ethers.utils.formatUnits(bnInput, tokenIn.decimals)
                           ) *
-                            coverQuote -
+                            tradeQuote -
                           parseFloat(
                             ethers.utils.formatUnits(bnInput, tokenIn.decimals)
                           ) *
-                            coverQuote *
+                            tradeQuote *
                             (parseFloat(slippage) * 0.01)
                         ).toFixed(2)
                     : parseFloat(
@@ -881,7 +721,7 @@ export default function Trade() {
                           ) *
                           (parseFloat(slippage) * 0.01)
                       ).toFixed(2)
-                  : "Select Token"}
+                  : "Select Token"} */}
               </div>
             </div>
           ) : (
@@ -891,19 +731,14 @@ export default function Trade() {
             <div className="flex p-1">
               <div className="text-xs text-[#4C4C4C]">Price Impact</div>
               <div className="ml-auto text-xs">
-                {pairSelected
-                  ? rangePriceAfter || coverPriceAfter
-                    ? rangeQuote >= coverQuote
-                      ? (
-                          Math.abs((rangePrice - rangePriceAfter) * 100) /
-                          rangePrice
-                        ).toFixed(2) + "%"
-                      : (
-                          Math.abs((coverPrice - coverPriceAfter) * 100) /
-                          coverPrice
-                        ).toFixed(2) + "%"
+                {/* {pairSelected
+                  ? rangePriceAfter
+                    ? (
+                        Math.abs((rangePrice - rangePriceAfter) * 100) /
+                        rangePrice
+                      ).toFixed(2) + "%"
                     : "0.00%"
-                  : "Select Token"}
+                  : "Select Token"} */}
               </div>
             </div>
           ) : (
@@ -955,10 +790,10 @@ export default function Trade() {
                   {(
                     Number(
                       ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                    ) * tokenInRangeUSDPrice
+                    ) * tokenIn.USDPrice
                   ).toFixed(2)}
                 </span>
-                <span>BALANCE: {tokenInBalance}</span>
+                <span>BALANCE: {tokenIn.userBalance}</span>
               </div>
               <div className="flex items-end justify-between mt-2 mb-3">
                 {inputBox("0")}
@@ -966,7 +801,7 @@ export default function Trade() {
                   {isConnected && stateChainName === "arbitrumGoerli" ? (
                     <button
                       onClick={() => {
-                        maxBalance(tokenInBalance, "1");
+                        maxBalance(tokenIn.userBalance, "1");
                       }}
                       className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
                     >
@@ -1010,22 +845,18 @@ export default function Trade() {
               <div className="flex items-end justify-between text-[11px] text-grey1">
                 <span>
                   ~$
-                  {pairSelected ||
+                  {pairSelected &&
                   parseFloat(ethers.utils.formatUnits(bnInput, 18)) !== 0 ? (
-                    tokenOutRangeUSDPrice || tokenOutCoverUSDPrice ? (
+                    tokenOut.USDPrice ? (
                       !limitTabSelected ? (
                         //swap page
-                        rangeQuote >= coverQuote ? (
-                          (rangeQuote * tokenOutRangeUSDPrice).toFixed(2)
-                        ) : (
-                          (coverQuote * tokenOutCoverUSDPrice).toFixed(2)
-                        )
+                        (amountOut * tokenOut.USDPrice).toFixed(2)
                       ) : //limit page
                       limitPriceOrder ? (
                         (
                           parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
                           parseFloat(limitStringPriceQuote) *
-                          tokenOutRangeUSDPrice
+                          tokenOut.USDPrice
                         ).toFixed(2)
                       ) : (
                         (
@@ -1033,7 +864,7 @@ export default function Trade() {
                           parseFloat(
                             invertPrice(limitStringPriceQuote, false)
                           ) *
-                          tokenOutRangeUSDPrice
+                          tokenOut.USDPrice
                         ).toFixed(2)
                       )
                     ) : (
@@ -1044,17 +875,13 @@ export default function Trade() {
                   )}
                 </span>
                 <span>
-                  {pairSelected ? "Balance: " + tokenOutBalance : <></>}
+                  {pairSelected ? "Balance: " + tokenOut.userBalance : <></>}
                 </span>
               </div>
               <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
                 {pairSelected && !bnInput.eq(BN_ZERO) ? (
                   !limitTabSelected ? (
-                    <div>
-                      {rangeQuote >= coverQuote
-                        ? rangeQuote.toPrecision(6)
-                        : coverQuote.toPrecision(6)}
-                    </div>
+                    <div>{Number(amountOut).toPrecision(5)}</div>
                   ) : (
                     <div>
                       {!limitPriceOrder
@@ -1168,26 +995,24 @@ export default function Trade() {
                   <div className="bg-dark py-3 px-5 border border-grey rounded-[4px] mt-4">
                     <div className="flex items-end justify-between text-[11px] text-grey1">
                       <span>
-                        {pairSelected && rangePrice > 0
+                        {pairSelected
                           ? //switcher tokenOrder
                             limitPriceOrder
                             ? //when normal order tokenIn/tokenOut
                               (parseFloat(limitStringPriceQuote) /
-                                (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
+                                (tokenIn.USDPrice / tokenOut.USDPrice) -
                                 1) *
                                 100 >
                               0
                               ? (
                                   (parseFloat(limitStringPriceQuote) /
-                                    (tokenInRangeUSDPrice /
-                                      tokenOutRangeUSDPrice) -
+                                    (tokenIn.USDPrice / tokenOut.USDPrice) -
                                     1) *
                                   100
                                 ).toFixed(2) + "% above Market Price"
                               : Math.abs(
                                   (parseFloat(limitStringPriceQuote) /
-                                    (tokenInRangeUSDPrice /
-                                      tokenOutRangeUSDPrice) -
+                                    (tokenIn.USDPrice / tokenOut.USDPrice) -
                                     1) *
                                     100
                                 ).toFixed(2) + "% below Market Price"
@@ -1195,7 +1020,7 @@ export default function Trade() {
                             (parseFloat(
                                 invertPrice(limitStringPriceQuote, false)
                               ) /
-                                (tokenInRangeUSDPrice / tokenOutRangeUSDPrice) -
+                                (tokenIn.USDPrice / tokenOut.USDPrice) -
                                 1) *
                                 100 >
                               0
@@ -1203,8 +1028,7 @@ export default function Trade() {
                                 (parseFloat(
                                   invertPrice(limitStringPriceQuote, false)
                                 ) /
-                                  (tokenInRangeUSDPrice /
-                                    tokenOutRangeUSDPrice) -
+                                  (tokenIn.USDPrice / tokenOut.USDPrice) -
                                   1) *
                                 100
                               ).toFixed(2) + "% above Market Price"
@@ -1212,8 +1036,7 @@ export default function Trade() {
                                 (parseFloat(
                                   invertPrice(limitStringPriceQuote, false)
                                 ) /
-                                  (tokenInRangeUSDPrice /
-                                    tokenOutRangeUSDPrice) -
+                                  (tokenIn.USDPrice / tokenOut.USDPrice) -
                                   1) *
                                   100
                               ).toFixed(2) + "% below Market Price"
@@ -1245,22 +1068,17 @@ export default function Trade() {
                 className="flex px-2 cursor-pointer py-2 rounded-[4px]"
                 onClick={() => setExpanded(!expanded)}
               >
-                <div className="flex-none text-xs uppercase text-[#C9C9C9]">
+                {/* <div className="flex-none text-xs uppercase text-[#C9C9C9]">
                   1 {tokenIn.symbol} ={" "}
                   {!pairSelected
                     ? " ?"
-                    : (rangeQuote >= coverQuote
-                        ? //range price
-                          tokenOrder
-                          ? rangePrice.toPrecision(5)
-                          : invertPrice(rangePrice.toPrecision(5), false)
-                        : //cover price
-                        tokenOrder
-                        ? coverPrice.toPrecision(5)
-                        : invertPrice(coverPrice.toPrecision(5), false)) +
+                    : //range price
+                      (tokenOrder
+                        ? rangePrice.toPrecision(5)
+                        : invertPrice(rangePrice.toPrecision(5), false)) +
                       " " +
                       tokenOut.symbol}
-                </div>
+                </div> */}
                 <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
                   <button>
                     <ChevronDownIcon className="w-4 h-4" />
@@ -1273,96 +1091,48 @@ export default function Trade() {
             </div>
             {isDisconnected ? (
               <ConnectWalletButton xl={true} />
-            ) : !limitTabSelected ? ( //swap tab
+            ) : !limitTabSelected ? (
+              //swap tab
               <>
-                {Number(tokenInBalance) <
-                  Number(ethers.utils.formatUnits(bnInput)) ||
-                bnInput.lte(BN_ONE) ? (
-                  <button
-                    disabled
-                    className="w-full py-4 mx-auto cursor-not-allowed text-center transition rounded-full  border border-main bg-main1 uppercase text-sm opacity-50"
-                  >
-                    {buttonState === "amount" ? <>Input Amount</> : <></>}
-                    {buttonState === "token" ? <>Select Token</> : <></>}
-                    {buttonState === "balance" ? (
-                      <>Insufficient {tokenIn.symbol} Balance</>
-                    ) : (
-                      <></>
-                    )}
-                  </button>
-                ) : rangeQuote >= coverQuote ? ( //range buttons
-                  Number(tokenInRangeAllowance) <
-                  Number(ethers.utils.formatUnits(bnInput, 18)) ? (
+                {
+                  //range buttons
+                  tokenIn.userPoolAllowance < bnInput ? (
                     <div>
                       <SwapRangeApproveButton
-                        poolAddress={rangePoolAddress}
+                        poolAddress={
+                          poolRouterAddress[
+                            chainIdsToNamesForGitTokenList[chainId]
+                          ]
+                        }
                         approveToken={tokenIn.address}
                         tokenSymbol={tokenIn.symbol}
                         amount={bnInput}
                       />
                     </div>
                   ) : (
-                    <SwapRangeButton
-                      disabled={false}
-                      poolAddress={rangePoolAddress}
-                      zeroForOne={
-                        tokenOut.address != "" &&
-                        tokenIn.address.localeCompare(tokenOut.address) < 0
+                    <SwapRouterButton
+                      disabled={tradeParams.disabled || needsAllowanceIn}
+                      routerAddress={
+                        poolRouterAddress[
+                          chainIdsToNamesForGitTokenList[chainId]
+                        ]
                       }
-                      amount={bnInput}
-                      priceLimit={rangeBnPriceLimit}
-                      gasLimit={gasLimit}
+                      poolAddresses={swapPoolAddresses}
+                      swapParams={swapParams ?? {}}
+                      gasLimit={swapGasLimit}
                     />
                   )
-                ) : //cover buttons
-                Number(tokenInCoverAllowance) <
-                  Number(ethers.utils.formatUnits(bnInput, 18)) ? (
-                  <div>
-                    <SwapCoverApproveButton
-                      disabled={false}
-                      poolAddress={coverPoolAddress}
-                      approveToken={tokenIn.address}
-                      tokenSymbol={tokenIn.symbol}
-                      amount={bnInput}
-                    />
-                  </div>
-                ) : (
-                  <SwapCoverButton
-                    disabled={gasLimit.gt(BN_ZERO)}
-                    poolAddress={coverPoolAddress}
-                    zeroForOne={
-                      tokenOut.address != "" &&
-                      tokenIn.address.localeCompare(tokenOut.address) < 0
-                    }
-                    amount={bnInput}
-                    priceLimit={coverBnPriceLimit}
-                    gasLimit={gasLimit}
-                  />
-                )}
+                }
               </>
             ) : (
               //limit tab
               <>
-                {stateChainName !== "arbitrumGoerli" ||
-                Number(tokenInBalance) <
-                  Number(ethers.utils.formatUnits(bnInput)) ||
-                bnInput._hex == "0x00" ? (
-                  <button
-                    disabled
-                    className="w-full py-4 mx-auto cursor-not-allowed text-center transition rounded-full  border border-main bg-main1 uppercase text-sm opacity-50"
-                  >
-                    {buttonState === "amount" ? <>Input Amount</> : <></>}
-                    {buttonState === "token" ? <>Select Token</> : <></>}
-                    {buttonState === "balance" ? (
-                      <>Insufficient {tokenIn.symbol} Balance</>
-                    ) : (
-                      <></>
-                    )}
-                  </button>
-                ) : Number(tokenInRangeAllowance) <
-                  Number(ethers.utils.formatUnits(bnInput, 18)) ? (
+                {Number(tokenIn.userPoolAllowance) <
+                Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                   <SwapRangeApproveButton
-                    poolAddress={rangePoolAddress}
+                    poolAddress={
+                      poolRouterAddress[chainIdsToNamesForGitTokenList[chainId]]
+                    }
                     approveToken={tokenIn.address}
                     tokenSymbol={tokenIn.symbol}
                     amount={bnInput}
@@ -1370,10 +1140,10 @@ export default function Trade() {
                 ) : (
                   <LimitSwapButton
                     disabled={mintGasLimit.eq(BN_ZERO)}
-                    poolAddress={rangePoolAddress}
+                    poolAddress={tradePoolAddress}
                     to={address}
                     amount={bnInput}
-                    mintPercent={ethers.utils.parseUnits('1', 26)}
+                    mintPercent={ethers.utils.parseUnits("1", 26)}
                     lower={lowerTick}
                     upper={upperTick}
                     closeModal={() => {}}
@@ -1422,115 +1192,115 @@ export default function Trade() {
               <th className="text-left md:grid-cell hidden">Status</th>
               <th className="text-right md:grid-cell hidden">Age</th>
             </tr>
-            </thead>
+          </thead>
           {activeOrdersSelected ? (
-          <tbody className="">
-            <tr className="text-right text-xs md:text-sm">
-              <td className="">
-                <div className="flex items-center text-sm text-grey1 gap-x-2 text-left">
-                  <img
-                    className="w-[25px] h-[25px]"
-                    src="/static/images/dai_icon.png"
-                  />
-                  200 DAI
-                </div>
-              </td>
-              <td className="">
-                <div className="flex items-center text-sm text-white gap-x-2 text-left">
-                  <img
-                    className="w-[25px] h-[25px]"
-                    src="/static/images/dai_icon.png"
-                  />
-                  200 DAI
-                </div>
-              </td>
-              <td className="text-left text-xs">
-                <div className="flex flex-col">
-                  {/* FOR EXACT PRICE   */}
-                  <span>
-                    <span className="text-grey1">1 ETH =</span> 200 DAI
-                  </span>
+            <tbody className="">
+              <tr className="text-right text-xs md:text-sm">
+                <td className="">
+                  <div className="flex items-center text-sm text-grey1 gap-x-2 text-left">
+                    <img
+                      className="w-[25px] h-[25px]"
+                      src="/static/images/dai_icon.png"
+                    />
+                    200 DAI
+                  </div>
+                </td>
+                <td className="">
+                  <div className="flex items-center text-sm text-white gap-x-2 text-left">
+                    <img
+                      className="w-[25px] h-[25px]"
+                      src="/static/images/dai_icon.png"
+                    />
+                    200 DAI
+                  </div>
+                </td>
+                <td className="text-left text-xs">
+                  <div className="flex flex-col">
+                    {/* FOR EXACT PRICE   */}
+                    <span>
+                      <span className="text-grey1">1 ETH =</span> 200 DAI
+                    </span>
 
-                  {/* FOR PRICE RANGES
+                    {/* FOR PRICE RANGES
                   <span className="flex flex-col">
                     <div><span className="text-grey1">FROM  1 ETH =</span> 200 DAI</div>
                     <div><span className="text-grey1">TO 1 ETH =</span> 200 DAI</div>
                   </span>
             */}
-                </div>
-              </td>
-              <td className="">
-                <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
-                  <span className="z-50">Not Filled</span>
-                  <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
-                </div>
-              </td>
-              <td className="text-sm text-grey1">5d</td>
-              <td className="text-sm text-grey1 pl-5">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  className="w-7 text-red-600 bg-red-900/30 p-1 rounded-full cursor-pointer -mr-5"
-                >
-                  <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                </svg>
-              </td>
-            </tr>
-          </tbody>
+                  </div>
+                </td>
+                <td className="">
+                  <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
+                    <span className="z-50">Not Filled</span>
+                    <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
+                  </div>
+                </td>
+                <td className="text-sm text-grey1">5d</td>
+                <td className="text-sm text-grey1 pl-5">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="w-7 text-red-600 bg-red-900/30 p-1 rounded-full cursor-pointer -mr-5"
+                  >
+                    <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                  </svg>
+                </td>
+              </tr>
+            </tbody>
           ) : (
-          <tbody className="">
-            <tr className="text-right text-xs md:text-sm">
-              <td className="">
-                <div className="flex items-center text-sm text-grey1 gap-x-2">
-                  <img
-                    className="w-[25px] h-[25px]"
-                    src="/static/images/dai_icon.png"
-                  />
-                  200 DAI
-                </div>
-              </td>
-              <td className="">
-                <div className="flex items-center text-sm text-white gap-x-2">
-                  <img
-                    className="w-[25px] h-[25px]"
-                    src="/static/images/dai_icon.png"
-                  />
-                  200 DAI
-                </div>
-              </td>
-              <td className="text-left text-xs">
-                <div className="flex flex-col">
-                  {/* FOR EXACT PRICE   */}
-                  <span>
-                    <span className="text-grey1">1 ETH =</span> 200 DAI
-                  </span>
+            <tbody className="">
+              <tr className="text-right text-xs md:text-sm">
+                <td className="">
+                  <div className="flex items-center text-sm text-grey1 gap-x-2">
+                    <img
+                      className="w-[25px] h-[25px]"
+                      src="/static/images/dai_icon.png"
+                    />
+                    200 DAI
+                  </div>
+                </td>
+                <td className="">
+                  <div className="flex items-center text-sm text-white gap-x-2">
+                    <img
+                      className="w-[25px] h-[25px]"
+                      src="/static/images/dai_icon.png"
+                    />
+                    200 DAI
+                  </div>
+                </td>
+                <td className="text-left text-xs">
+                  <div className="flex flex-col">
+                    {/* FOR EXACT PRICE   */}
+                    <span>
+                      <span className="text-grey1">1 ETH =</span> 200 DAI
+                    </span>
 
-                  {/* FOR PRICE RANGES
+                    {/* FOR PRICE RANGES
                   <span className="flex flex-col">
                     <div><span className="text-grey1">FROM  1 ETH =</span> 200 DAI</div>
                     <div><span className="text-grey1">TO 1 ETH =</span> 200 DAI</div>
                   </span>
             */}
-                </div>
-              </td>
-              <td className="">
-                <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
-                  <span className="z-50">Not Filled</span>
-                  <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
-                </div>
-              </td>
-              <td className="text-sm text-grey1">5d</td>
-            </tr>
-          </tbody>
+                  </div>
+                </td>
+                <td className="">
+                  <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
+                    <span className="z-50">Not Filled</span>
+                    <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
+                  </div>
+                </td>
+                <td className="text-sm text-grey1">5d</td>
+              </tr>
+            </tbody>
           )}
         </table>
         {activeOrdersSelected && (
-        <div className="flex items-center justify-center w-full mt-9">
-          <button className="bg-red-900/20 py-2 px-5 text-xs text-red-600 mx-auto">
-            Cancell All Orders
-          </button>
-        </div>
+          <div className="flex items-center justify-center w-full mt-9">
+            <button className="bg-red-900/20 py-2 px-5 text-xs text-red-600 mx-auto">
+              Cancell All Orders
+            </button>
+          </div>
         )}
       </div>
     </div>

@@ -1,46 +1,54 @@
 import {
-  useWaitForTransaction,
   usePrepareContractWrite,
   useContractWrite,
+  useWaitForTransaction,
+  useAccount,
 } from "wagmi";
-import { erc20ABI } from "wagmi";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import {
-  useTradeStore as useRangeLimitStore,
-  useTradeStore,
-} from "../../hooks/useTradeStore";
+import { rangePoolABI } from "../../abis/evm/rangePool";
+import { useTradeStore as useRangeLimitStore } from "../../hooks/useTradeStore";
+import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 
-export default function SwapRangeApproveButton({
-  poolAddress,
-  approveToken,
-  tokenSymbol,
-  amount,
+export default function SwapRouterButton({
+  disabled,
+  routerAddress,
+  poolAddresses,
+  swapParams,
+  gasLimit,
 }) {
+  //TODO: only use allowance for router
+  const [setNeedsAllowanceIn, setNeedsBalanceIn] = useRangeLimitStore(
+    (state) => [state.setNeedsAllowanceIn, state.setNeedsBalanceIn]
+  );
+
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
 
-  const [setNeedsAllowanceIn] = useTradeStore((state) => [
-    state.setNeedsAllowanceIn,
-  ]);
+  const { address } = useAccount();
+  const userAddress = address;
 
   const { config } = usePrepareContractWrite({
-    address: approveToken,
-    abi: erc20ABI,
-    functionName: "approve",
-    args: [poolAddress, amount],
+    address: routerAddress,
+    abi: poolsharkRouterABI,
+    functionName: "multiSwapSplit",
+    args: [poolAddresses, swapParams],
     chainId: 421613,
+    overrides: {
+      gasLimit: gasLimit,
+    },
   });
 
-  const { data, isSuccess, write } = useContractWrite(config);
+  const { data, write } = useContractWrite(config);
 
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
       setNeedsAllowanceIn(true);
+      setNeedsBalanceIn(true);
     },
     onError() {
       setErrorDisplay(true);
@@ -49,12 +57,13 @@ export default function SwapRangeApproveButton({
 
   return (
     <>
-      <div
+      <button
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
+        disabled={disabled}
         onClick={(address) => (address ? write?.() : null)}
       >
-        Approve {tokenSymbol}
-      </div>
+        Swap
+      </button>
       <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
         {errorDisplay && (
           <ErrorToast
