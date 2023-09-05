@@ -194,10 +194,11 @@ export default function Trade() {
   }, [poolQuotes]);
 
   async function updateSwapParams(poolQuotes: any) {
-    ///swap params is adding entries when i change bnInput
+    //swap params is adding entries when i change bnInput
     //remove [swaparams[0]] from ga estimate and contract write
-    //fix price Limit 
+    //fix price Limit
     const poolAddresses: string[] = [];
+    const swapParams: SwapParams[] = [];
     for (let i = 0; i < poolQuotes.length; i++) {
       poolAddresses.push(poolQuotes[i].pool);
       const basePrice: Number = Number(
@@ -217,15 +218,18 @@ export default function Trade() {
         zeroForOne: tokenOrder,
         callbackData: ethers.utils.formatBytes32String(""),
       };
-      setSwapParams(swapParams ? [...swapParams, params] : [params]);
+      swapParams.push(params);
     }
-    setSwapPoolAddresses(poolAddresses);
     setAmountOut(
       ethers.utils.formatUnits(
         poolQuotes[0].amountOut.toString(),
         tokenOut.decimals
       )
     );
+    setSwapPoolAddresses(poolAddresses);
+    setSwapParams(swapParams);
+    console.log("swap params", swapParams);
+    console.log("swap pool addresses", swapPoolAddresses);
   }
 
   ////////////////////////////////TokenOrder
@@ -609,12 +613,6 @@ export default function Trade() {
       swapParams,
       tokenIn,
       tokenOut,
-      bnInput,
-      ethers.utils.parseUnits(
-        tokenIn.userPoolAllowance.toString(),
-        tokenIn.decimals
-      ),
-      address,
       signer,
       isConnected,
       setSwapGasFee,

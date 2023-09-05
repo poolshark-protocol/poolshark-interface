@@ -20,30 +20,19 @@ export const gasEstimateSwap = async (
   swapParams: SwapParams[],
   tokenIn: tokenSwap,
   tokenOut: tokenSwap,
-  bnInput: BigNumber,
-  allowanceRouter: BigNumber,
-  address: string,
   signer: Signer,
   isConnected: boolean,
   setGasFee,
   setGasLimit
 ): Promise<void> => {
   try {
-    /* console.log("pool route", poolRouter);
-    console.log("tokens", tokenIn, tokenOut);
-    console.log("bnInput", bnInput);
-    console.log("allowance range", allowanceRouter);
-    console.log("address", address);
-    console.log("signer", signer); */
     console.log("swap params", swapParams);
     console.log("pool addresses", poolAddresses);
     const provider = new ethers.providers.JsonRpcProvider(
       "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
     );
     const ethUsdQuery = await fetchPrice("ethereum");
-    console.log("eth usd query", ethUsdQuery);
     const ethUsdPrice = ethUsdQuery["data"]["bundles"]["0"]["ethPriceUSD"];
-    console.log("eth usd price", ethUsdPrice);
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
     let gasUnits: BigNumber;
     if (poolRouter && isConnected) {
