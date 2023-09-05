@@ -46,6 +46,7 @@ import {
   fetchRangeTokenUSDPrice,
 } from "../utils/tokens";
 import { coinRaw } from "../utils/types";
+import SetLimitTick from "../components/Modals/SetLimitTick";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -185,6 +186,9 @@ export default function Trade() {
     state.needsRangeBalanceOut,
     state.setNeedsRangeBalanceOut,
   ]);
+
+  //set Limit Fee tier Modal
+  const [isOpen, setIsOpen] = useState(false);
 
   //false when user in normal swap, true when user in limit swap
   const [limitTabSelected, setLimitTabSelected] = useState(false);
@@ -1383,6 +1387,7 @@ export default function Trade() {
                 )}
               </>
             )}
+            <button onClick={() => setIsOpen(true)} className="w-full py-4 mx-auto text-center transition rounded-full  border border-main bg-main1 uppercase text-sm cursor-pointer">Create Limit Pool</button>
           </div>
         </div>
       </div>
@@ -1419,8 +1424,8 @@ export default function Trade() {
               <th className="text-left ">Sell</th>
               <th className="text-left ">Buy</th>
               <th className="text-left">Price</th>
-              <th className="text-left md:grid-cell hidden">Status</th>
-              <th className="text-right md:grid-cell hidden">Age</th>
+              <th className="text-left">Status</th>
+              <th className="text-right">Age</th>
             </tr>
             </thead>
           {activeOrdersSelected ? (
@@ -1533,6 +1538,10 @@ export default function Trade() {
         </div>
         )}
       </div>
+      <SetLimitTick
+      isOpen={isOpen}
+      setIsOpen={setIsOpen}
+      />
     </div>
   );
 }
