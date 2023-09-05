@@ -11,6 +11,7 @@ import UserIcon from "../../components/Icons/UserIcon";
 import UserRangePool from "../../components/Range/UserRangePool";
 import PoolIcon from "../../components/Icons/PoolIcon";
 import RangePool from "../../components/Range/RangePool";
+import Link from "next/link";
 
 export default function Range() {
   const { address, isDisconnected } = useAccount();
@@ -82,14 +83,14 @@ export default function Range() {
                 purus, habitant mattis cum eros senectus fusce suscipit tempor
               </p>
             </div>
-            {/*
+            <Link href="/range/create">
             <button
               className="px-12 py-3 text-white w-min whitespace-nowrap cursor-pointer text-center transition border border-main bg-main1 uppercase text-sm
                 hover:opacity-80"
             >
               CREATE RANGE POOL
             </button>
-  */}
+            </Link>
           </div>
           <div className="lg:h-[300px] h-full w-full lg:w-[80%] xl:w-[40%] border border-grey p-7 flex flex-col justify-between">
             <div className="flex flex-col gap-y-3 ">
