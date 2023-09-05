@@ -8,7 +8,10 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import { useTradeStore as useRangeLimitStore } from "../../hooks/useTradeStore";
+import {
+  useTradeStore as useRangeLimitStore,
+  useTradeStore,
+} from "../../hooks/useTradeStore";
 
 export default function SwapRangeApproveButton({
   poolAddress,
@@ -19,7 +22,7 @@ export default function SwapRangeApproveButton({
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
 
-  const [setNeedsAllowanceIn] = useRangeLimitStore((state) => [
+  const [setNeedsAllowanceIn] = useTradeStore((state) => [
     state.setNeedsAllowanceIn,
   ]);
 

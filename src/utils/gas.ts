@@ -26,8 +26,6 @@ export const gasEstimateSwap = async (
   setGasLimit
 ): Promise<void> => {
   try {
-    console.log("swap params", swapParams);
-    console.log("pool addresses", poolAddresses);
     const provider = new ethers.providers.JsonRpcProvider(
       "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
     );
@@ -44,7 +42,7 @@ export const gasEstimateSwap = async (
       console.log("contract", contract);
       gasUnits = await contract
         .connect(signer)
-        .estimateGas.multiSwapSplit(poolAddresses, [swapParams[0]]);
+        .estimateGas.multiSwapSplit(poolAddresses, swapParams);
     } else {
       gasUnits = BigNumber.from(1000000);
     }

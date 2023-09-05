@@ -368,7 +368,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             : parseFloat(
                 ethers.utils.formatUnits(
                   String(state.tradeParams.tokenInAmount),
-                  18
+                  state.tokenIn.decimals
                 )
               ) == 0
             ? "Enter Amount"

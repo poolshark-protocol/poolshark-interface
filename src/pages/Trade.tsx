@@ -194,8 +194,6 @@ export default function Trade() {
   }, [poolQuotes]);
 
   async function updateSwapParams(poolQuotes: any) {
-    //swap params is adding entries when i change bnInput
-    //remove [swaparams[0]] from ga estimate and contract write
     //fix price Limit
     const poolAddresses: string[] = [];
     const swapParams: SwapParams[] = [];
@@ -335,7 +333,7 @@ export default function Trade() {
       ] as `0x${string}`,
     ],
     chainId: 421613,
-    //watch: needsAllowanceIn,
+    watch: needsAllowanceIn,
     //enabled: poolRouterAddress,
     onError(error) {
       console.log("Error allowance", error);
@@ -604,7 +602,7 @@ export default function Trade() {
         updateMintFee();
       }
     }
-  }, [bnInput, allowanceInRouter]);
+  }, [swapParams]);
 
   async function updateGasFee() {
     await gasEstimateSwap(
@@ -618,7 +616,6 @@ export default function Trade() {
       setSwapGasFee,
       setSwapGasLimit
     );
-    console.log("gas limit swap", swapGasLimit.toString());
   }
 
   async function updateMintFee() {
@@ -641,7 +638,6 @@ export default function Trade() {
   useEffect(() => {
     if (bnInput) {
       setTokenInAmount(bnInput);
-      //setTokenOutAmount();
     }
   }, [bnInput]);
 
@@ -651,16 +647,6 @@ export default function Trade() {
 
   ////////////////////////////////
   const [expanded, setExpanded] = useState(false);
-
-  /* function balancesHelper(coin: coinRaw) {
-    const balance = useBalance({
-      address: address,
-      token: coin.id,
-      chainId: 421613,
-      watch: true,
-    }).data?.formatted;
-    return balance;
-  } */
 
   const Option = () => {
     if (expanded) {
@@ -1109,8 +1095,7 @@ export default function Trade() {
               <>
                 {
                   //range buttons
-                  Number(tokenIn.userPoolAllowance) <
-                  Number(ethers.utils.formatUnits(bnInput, 18)) ? (
+                  tokenIn.userPoolAllowance < bnInput ? (
                     <div>
                       <SwapRangeApproveButton
                         poolAddress={
@@ -1125,7 +1110,7 @@ export default function Trade() {
                     </div>
                   ) : (
                     <SwapRouterButton
-                      disabled={tradeParams.disabled}
+                      disabled={tradeParams.disabled || needsAllowanceIn}
                       routerAddress={
                         poolRouterAddress[
                           chainIdsToNamesForGitTokenList[chainId]
