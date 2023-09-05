@@ -664,12 +664,14 @@ export const fetchRangePools = () => {
                         name
                         symbol
                         decimals
+                        usdPrice
                     }
                     token1{
                         id
                         name
                         symbol
                         decimals
+                        usdPrice
                     }
                     feesEth
                     feesUsd

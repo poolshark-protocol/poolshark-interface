@@ -238,7 +238,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   },
   setTokenInTradeUSDPrice: (newPrice: number) => {
     set((state) => ({
-      tokenIn: { ...state.tokenIn, tradeUSDPrice: newPrice },
+      tokenIn: { ...state.tokenIn, USDPrice: newPrice },
     }));
   },
   setTokenInTradeAllowance: (newAllowance: BigNumber) => {
@@ -253,7 +253,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   },
   setTokenOutTradeUSDPrice: (newPrice: number) => {
     set((state) => ({
-      tokenOut: { ...state.tokenOut, tradeUSDPrice: newPrice },
+      tokenOut: { ...state.tokenOut, USDPrice: newPrice },
     }));
   },
   setTokenOut: (tokenIn, newToken: tokenSwap) => {

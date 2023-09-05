@@ -14,13 +14,13 @@ import { tokenCover, tokenRangeLimit, tokenSwap } from "./types";
 export const getSwapPools = async (
   tokenIn: tokenSwap,
   tokenOut: tokenSwap,
+  setSwapPoolData
 ) => {
   try {
     //const coverPools = await fetchCoverPools();
     const limitPools = await fetchLimitPools();
-    const allPools =
-      /* coverPools["data"]["coverPools"].concat( */
-      limitPools["data"]["limitPools"];
+    const allPools = limitPools["data"]["limitPools"];
+    setSwapPoolData(allPools[0]);
     return allPools;
   } catch (error) {
     console.log(error);

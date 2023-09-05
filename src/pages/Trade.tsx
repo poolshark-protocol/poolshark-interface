@@ -137,6 +137,15 @@ export default function Trade() {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
   }, [chainId]);
 
+  ////////////////////////////////TokenOrder
+  const [tokenOrder, setTokenOrder] = useState(true);
+
+  useEffect(() => {
+    if (tokenIn.address && tokenOut.address) {
+      setTokenOrder(tokenIn.callId == 0);
+    }
+  }, [tokenIn.address, tokenOut.address]);
+
   ////////////////////////////////Pools
   const [availablePools, setAvailablePools] = useState(undefined);
   const [quoteParams, setQuoteParams] = useState(undefined);
@@ -148,10 +157,10 @@ export default function Trade() {
     if (tokenIn.address && tokenOut.address && bnInput) {
       updatePools();
     }
-  }, [tokenOut.address, tokenIn.address, bnInput]);
+  }, [tokenOrder, bnInput]);
 
   async function updatePools() {
-    const pools = await getSwapPools(tokenIn, tokenOut);
+    const pools = await getSwapPools(tokenIn, tokenOut, setTradePoolData);
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
     for (let i = 0; i < pools.length; i++) {
@@ -168,9 +177,6 @@ export default function Trade() {
     setQuoteParams(quoteList);
   }
 
-  //TODO: loop through poolQuotes and set
-  //       - state.swapSlippage
-  //       - state.swapParams
   const { data: poolQuotes } = useContractRead({
     address: poolRouterAddress[chainIdsToNamesForGitTokenList[chainId]], //contract address,
     abi: poolsharkRouterABI, // contract abi,
@@ -182,8 +188,7 @@ export default function Trade() {
       console.log("Error multiquote", error);
     },
     onSuccess(data) {
-      //set ordered list to state
-      console.log("Success multiquote", data);
+      //console.log("Success multiquote", data);
     },
   });
 
@@ -198,6 +203,7 @@ export default function Trade() {
     const poolAddresses: string[] = [];
     const swapParams: SwapParams[] = [];
     for (let i = 0; i < poolQuotes.length; i++) {
+      console.log("poolQuotes", poolQuotes[i]);
       poolAddresses.push(poolQuotes[i].pool);
       const basePrice: Number = Number(
         TickMath.getPriceStringAtSqrtPrice(poolQuotes[i].priceAfter)
@@ -225,19 +231,9 @@ export default function Trade() {
       )
     );
     setSwapPoolAddresses(poolAddresses);
+    //setTradePoolData(pools[0]);
     setSwapParams(swapParams);
-    console.log("swap params", swapParams);
-    console.log("swap pool addresses", swapPoolAddresses);
   }
-
-  ////////////////////////////////TokenOrder
-  const [tokenOrder, setTokenOrder] = useState(true);
-
-  useEffect(() => {
-    if (tokenIn.address && tokenOut.address) {
-      setTokenOrder(tokenIn.callId == 0);
-    }
-  }, [tokenIn, tokenOut]);
 
   ////////////////////////////////TokenUSDPrices
 
@@ -263,6 +259,7 @@ export default function Trade() {
       if (tokenOut.address) {
         if (tradePoolData.token0 && tradePoolData.token1) {
           // if limit pool fetch limit price
+          console.log("tradePoolData", tradePoolData);
           fetchRangeTokenUSDPrice(
             tradePoolData,
             tokenOut,
@@ -277,7 +274,7 @@ export default function Trade() {
         }
       }
     }
-  }, [tradePoolData, tokenIn, tokenOut]);
+  }, [tradePoolData]);
 
   ////////////////////////////////Balances
 
@@ -648,6 +645,10 @@ export default function Trade() {
   ////////////////////////////////
   const [expanded, setExpanded] = useState(false);
 
+  console.log("tokenIn", tokenIn);
+  console.log("tokenOut", tokenOut);
+  console.log("amountOut", amountOut);
+
   const Option = () => {
     if (expanded) {
       return (
@@ -844,7 +845,7 @@ export default function Trade() {
               <div className="flex items-end justify-between text-[11px] text-grey1">
                 <span>
                   ~$
-                  {pairSelected ||
+                  {pairSelected &&
                   parseFloat(ethers.utils.formatUnits(bnInput, 18)) !== 0 ? (
                     tokenOut.USDPrice ? (
                       !limitTabSelected ? (
