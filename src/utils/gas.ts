@@ -6,6 +6,7 @@ import { TickMath, roundTick } from "./math/tickMath";
 import { fetchPrice } from "./queries";
 import JSBI from "jsbi";
 import { BN_ZERO } from "./math/constants";
+import { limitPoolABI } from "../abis/evm/limitPool";
 
 export interface gasEstimateResult {
   formattedPrice: string;
@@ -26,29 +27,36 @@ export const gasEstimateSwap = async (
   setGasLimit
 ): Promise<void> => {
   try {
+    console.log("pool route", poolRoute);
+    console.log("tokens", tokenIn, tokenOut);
+    console.log("bnInput", bnInput.toString());
+    console.log("price limit", priceLimit.toString());
+    console.log("allowance range", allowanceRange.toString());
+    console.log("address", address);
+    console.log("signer", signer);
+
     const provider = new ethers.providers.JsonRpcProvider(
       "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
     );
     const ethUsdQuery = await fetchPrice("ethereum");
+    console.log("eth usd query", ethUsdQuery);
     const ethUsdPrice = ethUsdQuery["data"]["bundles"]["0"]["ethPriceUSD"];
-    const recipient = address;
-    const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;      
+    console.log("eth usd price", ethUsdPrice);
+    const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
     let gasUnits: BigNumber;
     if (poolRoute && isConnected) {
-      const contract = new ethers.Contract(
-        poolRoute,
-        rangePoolABI,
-        provider
-      );
+      const contract = new ethers.Contract(poolRoute, rangePoolABI, provider);
+      console.log("contract", contract);
       gasUnits = await contract
         .connect(signer)
         .estimateGas.swap([
-          recipient,
-          recipient,
+          address,
+          address,
           priceLimit,
           bnInput.lte(allowanceRange) ? bnInput : allowanceRange,
           zeroForOne,
         ]);
+      console.log("gas units", gasUnits.toString());
     } else {
       gasUnits = BigNumber.from(1000000);
     }
@@ -65,7 +73,7 @@ export const gasEstimateSwap = async (
   } catch (error) {
     console.log("gas error", error);
     setGasFee("$0.00");
-    setGasLimit(BN_ZERO);
+    setGasLimit(BigNumber.from(1000000));
   }
 };
 

@@ -206,7 +206,6 @@ export default function Trade() {
         limitPrice.toString()
       );
       const priceLimitBn = BigNumber.from(String(limitPriceJsbi));
-      console.log("priceLimitBn", priceLimitBn);
       const params: SwapParams = {
         to: address,
         priceLimit: priceLimitBn,
@@ -598,7 +597,7 @@ export default function Trade() {
         updateMintFee();
       }
     }
-  }, [bnInput]);
+  }, [bnInput, allowanceInRouter]);
 
   async function updateGasFee() {
     await gasEstimateSwap(

@@ -31,7 +31,6 @@ export default function SwapRouterButton({
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
 
-
   const { address } = useAccount();
   const userAddress = address;
 
@@ -39,7 +38,7 @@ export default function SwapRouterButton({
     address: routerAddress,
     abi: poolsharkRouterABI,
     functionName: "multiSwapSplit",
-    args: [[poolAddresses, swapParams]],
+    args: [poolAddresses, swapParams],
     chainId: 421613,
     overrides: {
       gasLimit: gasLimit,
@@ -65,7 +64,7 @@ export default function SwapRouterButton({
       <button
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
         disabled={disabled}
-        onClick={() => (address ? write?.() : null)}
+        onClick={(address) => (address ? write?.() : null)}
       >
         Swap
       </button>
