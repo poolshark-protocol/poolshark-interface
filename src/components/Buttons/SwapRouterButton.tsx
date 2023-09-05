@@ -19,10 +19,6 @@ export default function SwapRouterButton({
   swapParams,
   gasLimit,
 }) {
-  /*const [Limit] = useTradeStore((state: any) => [
-      state.Limit
-    ]);*/
-
   //TODO: only use allowance for router
   const [setNeedsAllowanceIn, setNeedsBalanceIn] = useRangeLimitStore(
     (state) => [state.setNeedsAllowanceIn, state.setNeedsBalanceIn]
@@ -38,7 +34,7 @@ export default function SwapRouterButton({
     address: routerAddress,
     abi: poolsharkRouterABI,
     functionName: "multiSwapSplit",
-    args: [poolAddresses, swapParams],
+    args: [poolAddresses, [swapParams[0]]],
     chainId: 421613,
     overrides: {
       gasLimit: gasLimit,

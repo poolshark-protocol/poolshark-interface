@@ -194,6 +194,9 @@ export default function Trade() {
   }, [poolQuotes]);
 
   async function updateSwapParams(poolQuotes: any) {
+    ///swap params is adding entries when i change bnInput
+    //remove [swaparams[0]] from ga estimate and contract write
+    //fix price Limit 
     const poolAddresses: string[] = [];
     for (let i = 0; i < poolQuotes.length; i++) {
       poolAddresses.push(poolQuotes[i].pool);
@@ -601,10 +604,11 @@ export default function Trade() {
 
   async function updateGasFee() {
     await gasEstimateSwap(
-      swapPoolAddresses[0],
+      poolRouterAddress[chainIdsToNamesForGitTokenList[chainId]],
+      swapPoolAddresses,
+      swapParams,
       tokenIn,
       tokenOut,
-      swapParams[0].priceLimit,
       bnInput,
       ethers.utils.parseUnits(
         tokenIn.userPoolAllowance.toString(),
@@ -1130,7 +1134,7 @@ export default function Trade() {
                         ]
                       }
                       poolAddresses={swapPoolAddresses}
-                      swapParams={swapParams}
+                      swapParams={swapParams ?? {}}
                       gasLimit={swapGasLimit}
                     />
                   )

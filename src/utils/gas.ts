@@ -1,12 +1,13 @@
 import { BigNumber, Contract, Signer, ethers } from "ethers";
 import { rangePoolABI } from "../abis/evm/rangePool";
 import { coverPoolABI } from "../abis/evm/coverPool";
-import { tokenCover, tokenSwap } from "./types";
+import { SwapParams, tokenCover, tokenSwap } from "./types";
 import { TickMath, roundTick } from "./math/tickMath";
 import { fetchPrice } from "./queries";
 import JSBI from "jsbi";
 import { BN_ZERO } from "./math/constants";
 import { limitPoolABI } from "../abis/evm/limitPool";
+import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 
 export interface gasEstimateResult {
   formattedPrice: string;
@@ -14,12 +15,13 @@ export interface gasEstimateResult {
 }
 
 export const gasEstimateSwap = async (
-  poolRoute: string,
+  poolRouter: string,
+  poolAddresses: string[],
+  swapParams: SwapParams[],
   tokenIn: tokenSwap,
   tokenOut: tokenSwap,
   bnInput: BigNumber,
-  priceLimit: BigNumber,
-  allowanceRange: BigNumber,
+  allowanceRouter: BigNumber,
   address: string,
   signer: Signer,
   isConnected: boolean,
@@ -27,14 +29,14 @@ export const gasEstimateSwap = async (
   setGasLimit
 ): Promise<void> => {
   try {
-    console.log("pool route", poolRoute);
+    /* console.log("pool route", poolRouter);
     console.log("tokens", tokenIn, tokenOut);
-    console.log("bnInput", bnInput.toString());
-    console.log("price limit", priceLimit.toString());
-    console.log("allowance range", allowanceRange.toString());
+    console.log("bnInput", bnInput);
+    console.log("allowance range", allowanceRouter);
     console.log("address", address);
-    console.log("signer", signer);
-
+    console.log("signer", signer); */
+    console.log("swap params", swapParams);
+    console.log("pool addresses", poolAddresses);
     const provider = new ethers.providers.JsonRpcProvider(
       "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
     );
@@ -44,19 +46,16 @@ export const gasEstimateSwap = async (
     console.log("eth usd price", ethUsdPrice);
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
     let gasUnits: BigNumber;
-    if (poolRoute && isConnected) {
-      const contract = new ethers.Contract(poolRoute, rangePoolABI, provider);
+    if (poolRouter && isConnected) {
+      const contract = new ethers.Contract(
+        poolRouter,
+        poolsharkRouterABI,
+        provider
+      );
       console.log("contract", contract);
       gasUnits = await contract
         .connect(signer)
-        .estimateGas.swap([
-          address,
-          address,
-          priceLimit,
-          bnInput.lte(allowanceRange) ? bnInput : allowanceRange,
-          zeroForOne,
-        ]);
-      console.log("gas units", gasUnits.toString());
+        .estimateGas.multiSwapSplit(poolAddresses, [swapParams[0]]);
     } else {
       gasUnits = BigNumber.from(1000000);
     }
