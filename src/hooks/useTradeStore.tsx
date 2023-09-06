@@ -203,7 +203,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       if (newToken.address.toLowerCase() == tokenOut.address.toLowerCase()) {
         set(() => ({
           tokenIn: {
-            callId: 0,
+            callId:
+              newToken.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
             ...newToken,
           },
           tokenOut: initialTradeState.tokenOut,
@@ -224,7 +225,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       //if tokenOut its not selected
       set(() => ({
         tokenIn: {
-          callId: 0,
+          callId: newToken.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
           ...newToken,
         },
         pairSelected: false,
@@ -268,7 +269,10 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
       if (newToken.address == tokenIn.address) {
         set(() => ({
-          tokenOut: { callId: 0, ...newToken },
+          tokenOut: {
+            callId: newToken.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
+            ...newToken,
+          },
           tokenIn: initialTradeState.tokenOut,
           pairSelected: false,
         }));
@@ -285,7 +289,10 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     } else {
       //if tokenIn its not selected
       set(() => ({
-        tokenOut: { callId: 0, ...newToken },
+        tokenOut: {
+          callId: newToken.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
+          ...newToken,
+        },
         pairSelected: false,
       }));
     }
