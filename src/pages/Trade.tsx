@@ -62,7 +62,6 @@ export default function Trade() {
     tradePoolData,
     setTradePoolData,
     tradeParams,
-    //setTradeParams,
     pairSelected,
     setPairSelected,
     tradeSlippage,
@@ -94,7 +93,6 @@ export default function Trade() {
     s.tradePoolData,
     s.setTradePoolData,
     s.tradeParams,
-    //s.setTradeParams,
     s.pairSelected,
     s.setPairSelected,
     s.tradeSlippage,
@@ -157,7 +155,7 @@ export default function Trade() {
     if (tokenIn.address && tokenOut.address && bnInput) {
       updatePools();
     }
-  }, [tokenOrder, bnInput]);
+  }, [tokenOrder, bnInput, tokenIn.address, tokenOut.address]);
 
   async function updatePools() {
     const pools = await getSwapPools(tokenIn, tokenOut, setTradePoolData);
@@ -224,6 +222,7 @@ export default function Trade() {
       };
       swapParams.push(params);
     }
+    console.log("poolQuotes", poolQuotes);
     setAmountOut(
       ethers.utils.formatUnits(
         poolQuotes[0].amountOut.toString(),
@@ -258,7 +257,6 @@ export default function Trade() {
       if (tokenOut.address) {
         if (tradePoolData.token0 && tradePoolData.token1) {
           // if limit pool fetch limit price
-          console.log("tradePoolData", tradePoolData);
           fetchRangeTokenUSDPrice(
             tradePoolData,
             tokenOut,
@@ -638,8 +636,8 @@ export default function Trade() {
   ////////////////////////////////
   const [expanded, setExpanded] = useState(false);
 
-  console.log("tokenIn", tokenIn);
-  console.log("tokenOut", tokenOut);
+  console.log("tokenIn", tokenIn.USDPrice);
+  console.log("tokenOut", tokenOut.USDPrice);
 
   const Option = () => {
     if (expanded) {
