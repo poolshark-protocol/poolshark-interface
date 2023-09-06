@@ -636,8 +636,6 @@ export default function Trade() {
   ////////////////////////////////
   const [expanded, setExpanded] = useState(false);
 
-  console.log("tokenIn", tokenIn);
-  console.log("tokenOut", tokenOut);
 
   const Option = () => {
     if (expanded) {
