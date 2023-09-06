@@ -126,7 +126,8 @@ const initialTradeState: TradeState = {
     callId: 0,
     name: "Wrapped Ether",
     symbol: "WETH",
-    logoURI: "/static/images/eth_icon.png",
+    logoURI:
+      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
     address: tokenZeroAddress,
     decimals: 18,
     userBalance: 0.0,
@@ -136,10 +137,10 @@ const initialTradeState: TradeState = {
   //
   tokenOut: {
     callId: 1,
-    name: "DAI",
-    symbol: "DAI",
-    logoURI: "/static/images/dai_icon.png",
-    address: tokenOneAddress,
+    name: "Select Token",
+    symbol: "Select Token",
+    logoURI: "",
+    address: "0x00",
     decimals: 18,
     userBalance: 0.0,
     userPoolAllowance: BigNumber.from(0),
@@ -191,13 +192,15 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     }));
   },
   setTokenIn: (tokenOut, newToken: tokenSwap) => {
+    console.log("store tokenOut", tokenOut);
+    console.log("store newTokenIn", newToken);
     //if tokenOut is selected
     if (
       tokenOut.address != initialTradeState.tokenOut.address ||
       tokenOut.symbol != "Select Token"
     ) {
-      //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to  initialState
-      if (newToken.address == tokenOut.address) {
+      //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to initialState
+      if (newToken.address.toLowerCase() == tokenOut.address.toLowerCase()) {
         set(() => ({
           tokenIn: {
             callId: 0,

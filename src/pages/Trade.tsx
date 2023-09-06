@@ -231,7 +231,6 @@ export default function Trade() {
       )
     );
     setSwapPoolAddresses(poolAddresses);
-    //setTradePoolData(pools[0]);
     setSwapParams(swapParams);
   }
 
@@ -274,7 +273,7 @@ export default function Trade() {
         }
       }
     }
-  }, [tradePoolData]);
+  }, [tradePoolData, tokenIn.address, tokenOut.address]);
 
   ////////////////////////////////Balances
 
@@ -317,8 +316,6 @@ export default function Trade() {
 
   ////////////////////////////////Allowances
 
-  //TODO: allowance is applied to the PoolRouter
-  // there are no token approvals on the pool anymore
   const { data: allowanceInRouter } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
@@ -393,9 +390,9 @@ export default function Trade() {
 
   ////////////////////////////////FeeTiers and Slippage
   const [slippage, setSlippage] = useState("0.5");
-  const [auxSlippage, setAuxSlippage] = useState("0.5");
+  //const [auxSlippage, setAuxSlippage] = useState("0.5");
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (pairSelected) {
       updateTierFees();
       chooseSlippage();
@@ -407,10 +404,6 @@ export default function Trade() {
   }
 
   const getFeeTiers = async () => {
-    const poolCover = await getCoverPoolFromFactory(
-      tokenIn.address,
-      tokenOut.address
-    );
     const poolRange = await getRangePoolFromFactory(
       tokenIn.address,
       tokenOut.address
@@ -422,7 +415,7 @@ export default function Trade() {
   const chooseSlippage = () => {
     setSlippage(tradeSlippage);
     setAuxSlippage(tradeSlippage);
-  };
+  }; */
 
   ////////////////////////////////Prices
   /* const [rangePrice, setRangePrice] = useState(0);
@@ -647,7 +640,6 @@ export default function Trade() {
 
   console.log("tokenIn", tokenIn);
   console.log("tokenOut", tokenOut);
-  console.log("amountOut", amountOut);
 
   const Option = () => {
     if (expanded) {

@@ -17,7 +17,6 @@ export const getSwapPools = async (
   setSwapPoolData
 ) => {
   try {
-    //const coverPools = await fetchCoverPools();
     const limitPools = await fetchLimitPools();
     const allPools = limitPools["data"]["limitPools"];
     setSwapPoolData(allPools[0]);
