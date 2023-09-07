@@ -1,16 +1,9 @@
 //eventually this functions should merge into one
 
-import { TickMath, invertPrice } from "./math/tickMath";
-
 export const logoMap = {
-  TOKEN20A: "/static/images/dai_icon.png",
-  TOKEN20B: "/static/images/eth_icon.png",
   USDC: "/static/images/token.png",
-  WETH: "/static/images/eth_icon.png",
-  DAI: "/static/images/dai_icon.png",
-  stkEth: "/static/images/eth_icon.png",
-  pStake: "/static/images/eth_icon.png",
-  UNI: "/static/images/dai_icon.png",
+  WETH: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
+  DAI: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
 };
 
 export const fetchRangeTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {

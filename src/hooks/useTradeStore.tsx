@@ -126,7 +126,8 @@ const initialTradeState: TradeState = {
     callId: 0,
     name: "Wrapped Ether",
     symbol: "WETH",
-    logoURI: "/static/images/eth_icon.png",
+    logoURI:
+      "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
     address: tokenZeroAddress,
     decimals: 18,
     userBalance: 0.0,
@@ -136,10 +137,10 @@ const initialTradeState: TradeState = {
   //
   tokenOut: {
     callId: 1,
-    name: "DAI",
-    symbol: "DAI",
-    logoURI: "/static/images/dai_icon.png",
-    address: tokenOneAddress,
+    name: "Select Token",
+    symbol: "Select Token",
+    logoURI: "",
+    address: "0x00",
     decimals: 18,
     userBalance: 0.0,
     userPoolAllowance: BigNumber.from(0),
@@ -192,12 +193,9 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   },
   setTokenIn: (tokenOut, newToken: tokenSwap) => {
     //if tokenOut is selected
-    if (
-      tokenOut.address != initialTradeState.tokenOut.address ||
-      tokenOut.symbol != "Select Token"
-    ) {
-      //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to  initialState
-      if (newToken.address == tokenOut.address) {
+    if (tokenOut.address != initialTradeState.tokenOut.address) {
+      //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to initialState
+      if (newToken.address.toLowerCase() == tokenOut.address.toLowerCase()) {
         set(() => ({
           tokenIn: {
             callId: 0,
@@ -213,6 +211,18 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             callId:
               newToken.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
             ...newToken,
+          },
+          tokenOut: {
+            callId:
+              newToken.address.localeCompare(tokenOut.address) < 0 ? 1 : 0,
+            name: tokenOut.name,
+            symbol: tokenOut.symbol,
+            logoURI: tokenOut.logoURI,
+            address: tokenOut.address,
+            decimals: tokenOut.decimals,
+            USDPrice: tokenOut.USDPrice,
+            userBalance: tokenOut.userBalance,
+            userPoolAllowance: tokenOut.userPoolAllowance,
           },
           pairSelected: true,
         }));
@@ -258,22 +268,33 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   },
   setTokenOut: (tokenIn, newToken: tokenSwap) => {
     //if tokenIn exists
-    if (
-      tokenIn.address != initialTradeState.tokenOut.address ||
-      tokenIn.symbol != "Select Token"
-    ) {
+    if (tokenIn.address != initialTradeState.tokenOut.address) {
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
-      if (newToken.address == tokenIn.address) {
+      if (newToken.address.toLowerCase() == tokenIn.address.toLowerCase()) {
         set(() => ({
-          tokenOut: { callId: 0, ...newToken },
+          tokenOut: {
+            callId: 0,
+            ...newToken,
+          },
           tokenIn: initialTradeState.tokenOut,
           pairSelected: false,
         }));
       } else {
         //if tokens are different
         set(() => ({
+          tokenIn: {
+            callId: tokenIn.address.localeCompare(newToken.address) < 0 ? 0 : 1,
+            symbol: tokenIn.symbol,
+            name: tokenIn.name,
+            logoURI: tokenIn.logoURI,
+            address: tokenIn.address,
+            decimals: tokenIn.decimals,
+            USDPrice: tokenIn.USDPrice,
+            userBalance: tokenIn.userBalance,
+            userPoolAllowance: tokenIn.userPoolAllowance,
+          },
           tokenOut: {
-            callId: newToken.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
+            callId: tokenIn.address.localeCompare(newToken.address) < 0 ? 1 : 0,
             ...newToken,
           },
           pairSelected: true,
@@ -282,7 +303,11 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     } else {
       //if tokenIn its not selected
       set(() => ({
-        tokenOut: { callId: 0, ...newToken },
+        tokenOut: {
+          callId: 0,
+          ...newToken,
+        },
+        tokenIn: initialTradeState.tokenOut,
         pairSelected: false,
       }));
     }
@@ -426,10 +451,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   switchDirection: () => {
     set((state) => ({
       tokenIn: {
-        callId:
-          state.tokenOut.address.localeCompare(state.tokenIn.address) < 0
-            ? 0
-            : 1,
+        callId: state.tokenOut.callId,
         name: state.tokenOut.name,
         symbol: state.tokenOut.symbol,
         logoURI: state.tokenOut.logoURI,
@@ -440,10 +462,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         userPoolAllowance: state.tokenOut.userPoolAllowance,
       },
       tokenOut: {
-        callId:
-          state.tokenOut.address.localeCompare(state.tokenIn.address) < 0
-            ? 1
-            : 0,
+        callId: state.tokenIn.callId,
         name: state.tokenIn.name,
         symbol: state.tokenIn.symbol,
         logoURI: state.tokenIn.logoURI,
