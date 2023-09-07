@@ -136,17 +136,18 @@ export default function Trade() {
   }, [chainId]);
 
   ////////////////////////////////TokenOrder
+  //we should stop using tokenOrder and instead use tokenIn.callId==0
   const [tokenOrder, setTokenOrder] = useState(true);
 
-  useEffect(() => {
-    //tokenIn.callId == 0 means that tokenIn is the base token but for some reason it is inverted on hook
+  /* useEffect(() => {
     setTokenOrder(tokenIn.callId == 0);
-  }, [tokenIn, tokenOut]);
+  }, [tokenIn, tokenOut]); */
 
   ////////////////////////////////Pools
   //quoting variables
   const [availablePools, setAvailablePools] = useState(undefined);
   const [quoteParams, setQuoteParams] = useState(undefined);
+
   //swap call variables
   const [swapPoolAddresses, setSwapPoolAddresses] = useState<string[]>([]);
   const [swapParams, setSwapParams] = useState(undefined);
