@@ -39,7 +39,6 @@ export const gasEstimateSwap = async (
         poolsharkRouterABI,
         provider
       );
-      console.log("contract", contract);
       gasUnits = await contract
         .connect(signer)
         .estimateGas.multiSwapSplit(poolAddresses, swapParams);

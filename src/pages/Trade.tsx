@@ -139,23 +139,28 @@ export default function Trade() {
   const [tokenOrder, setTokenOrder] = useState(true);
 
   useEffect(() => {
-    if (tokenIn.address && tokenOut.address) {
-      setTokenOrder(tokenIn.callId == 0);
-    }
-  }, [tokenIn.address, tokenOut.address]);
+    //tokenIn.callId == 0 means that tokenIn is the base token but for some reason it is inverted on hook
+    setTokenOrder(tokenIn.callId == 0);
+  }, [tokenIn, tokenOut]);
 
   ////////////////////////////////Pools
+  //quoting variables
   const [availablePools, setAvailablePools] = useState(undefined);
   const [quoteParams, setQuoteParams] = useState(undefined);
+  //swap call variables
   const [swapPoolAddresses, setSwapPoolAddresses] = useState<string[]>([]);
   const [swapParams, setSwapParams] = useState(undefined);
+
+  //display variable
+  const [waitingForQuote, setWaitingForQuote] = useState(false);
   const [amountOut, setAmountOut] = useState(undefined);
 
   useEffect(() => {
-    if (tokenIn.address && tokenOut.address && bnInput) {
+    if (tokenIn.address && tokenOut.address != "0x00" && bnInput) {
+      setWaitingForQuote(true);
       updatePools();
     }
-  }, [tokenOrder, bnInput, tokenIn.address, tokenOut.address]);
+  }, [bnInput, tokenIn.address, tokenOut.address]);
 
   async function updatePools() {
     const pools = await getSwapPools(tokenIn, tokenOut, setTradePoolData);
@@ -163,10 +168,10 @@ export default function Trade() {
     const quoteList: QuoteParams[] = [];
     for (let i = 0; i < pools.length; i++) {
       const params: QuoteParams = {
-        priceLimit: tokenOrder ? minPriceBn : maxPriceBn,
+        priceLimit: tokenIn.callId == 0 ? minPriceBn : maxPriceBn,
         amount: bnInput,
         exactIn: true,
-        zeroForOne: tokenOrder,
+        zeroForOne: tokenIn.callId == 0,
       };
       quoteList[i] = params;
       poolAdresses[i] = pools[i].id;
@@ -192,16 +197,21 @@ export default function Trade() {
 
   useEffect(() => {
     if (poolQuotes) {
+      setAmountOut(
+        ethers.utils.formatUnits(
+          poolQuotes[0].amountOut.toString(),
+          tokenOut.decimals
+        )
+      );
+      setWaitingForQuote(false);
       updateSwapParams(poolQuotes);
     }
   }, [poolQuotes]);
 
-  async function updateSwapParams(poolQuotes: any) {
-    //fix price Limit
+  function updateSwapParams(poolQuotes: any) {
     const poolAddresses: string[] = [];
     const swapParams: SwapParams[] = [];
     for (let i = 0; i < poolQuotes.length; i++) {
-      console.log("poolQuotes", poolQuotes[i]);
       poolAddresses.push(poolQuotes[i].pool);
       const basePrice: Number = Number(
         TickMath.getPriceStringAtSqrtPrice(poolQuotes[i].priceAfter)
@@ -217,18 +227,11 @@ export default function Trade() {
         priceLimit: priceLimitBn,
         amount: bnInput,
         exactIn: true,
-        zeroForOne: tokenOrder,
+        zeroForOne: tokenIn.callId == 0,
         callbackData: ethers.utils.formatBytes32String(""),
       };
       swapParams.push(params);
     }
-    console.log("poolQuotes", poolQuotes);
-    setAmountOut(
-      ethers.utils.formatUnits(
-        poolQuotes[0].amountOut.toString(),
-        tokenOut.decimals
-      )
-    );
     setSwapPoolAddresses(poolAddresses);
     setSwapParams(swapParams);
   }
@@ -332,7 +335,6 @@ export default function Trade() {
     },
     onSuccess(data) {
       setNeedsAllowanceIn(false);
-      console.log("Success allowance", data);
       //console.log("Success allowance", data);
     },
   });
@@ -352,7 +354,7 @@ export default function Trade() {
     address: tradePoolAddress,
     abi: rangePoolABI,
     functionName: "quote",
-    args: [[tokenOrder ? minPriceBn : maxPriceBn, bnInput, tokenOrder]],
+    args: [[tokenIn? minPriceBn : maxPriceBn, bnInput, tokenOrder]],
     chainId: 421613,
     watch: true,
     onError(error) {
@@ -636,7 +638,6 @@ export default function Trade() {
   ////////////////////////////////
   const [expanded, setExpanded] = useState(false);
 
-
   const Option = () => {
     if (expanded) {
       return (
@@ -775,11 +776,15 @@ export default function Trade() {
                 <span>
                   {" "}
                   ~$
-                  {(
-                    Number(
-                      ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                    ) * tokenIn.USDPrice
-                  ).toFixed(2)}
+                  {!waitingForQuote ? (
+                    (
+                      Number(
+                        ethers.utils.formatUnits(bnInput, tokenIn.decimals)
+                      ) * tokenIn.USDPrice
+                    ).toFixed(2)
+                  ) : (
+                    <>0</>
+                  )}
                 </span>
                 <span>BALANCE: {tokenIn.userBalance}</span>
               </div>
@@ -834,29 +839,25 @@ export default function Trade() {
                 <span>
                   ~$
                   {pairSelected &&
-                  parseFloat(ethers.utils.formatUnits(bnInput, 18)) !== 0 ? (
-                    tokenOut.USDPrice ? (
-                      !limitTabSelected ? (
-                        //swap page
-                        (amountOut * tokenOut.USDPrice).toFixed(2)
-                      ) : //limit page
-                      limitPriceOrder ? (
-                        (
-                          parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                          parseFloat(limitStringPriceQuote) *
-                          tokenOut.USDPrice
-                        ).toFixed(2)
-                      ) : (
-                        (
-                          parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                          parseFloat(
-                            invertPrice(limitStringPriceQuote, false)
-                          ) *
-                          tokenOut.USDPrice
-                        ).toFixed(2)
-                      )
+                  !bnInput.eq(BN_ZERO) &&
+                  tokenOut.address != "0x00" &&
+                  !waitingForQuote ? (
+                    !limitTabSelected ? (
+                      //swap page
+                      (amountOut * tokenOut.USDPrice).toFixed(2)
+                    ) : //limit page
+                    limitPriceOrder ? (
+                      (
+                        parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                        parseFloat(limitStringPriceQuote) *
+                        tokenOut.USDPrice
+                      ).toFixed(2)
                     ) : (
-                      (0).toFixed(2)
+                      (
+                        parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
+                        parseFloat(invertPrice(limitStringPriceQuote, false)) *
+                        tokenOut.USDPrice
+                      ).toFixed(2)
                     )
                   ) : (
                     <>{(0).toFixed(2)}</>
@@ -867,7 +868,9 @@ export default function Trade() {
                 </span>
               </div>
               <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                {pairSelected && !bnInput.eq(BN_ZERO) ? (
+                {pairSelected &&
+                !bnInput.eq(BN_ZERO) &&
+                tokenOut.address != "0x00" ? (
                   !limitTabSelected ? (
                     <div>{Number(amountOut).toPrecision(5)}</div>
                   ) : (
