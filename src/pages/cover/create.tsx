@@ -54,8 +54,12 @@ export default function CoverCreate() {
     <div className="bg-black min-h-screen  ">
       <Navbar />
       <div className="text-white flex flex-col mx-auto max-w-2xl  justify-center py-10 px-3 md:px-0 pb-32">
-          <h1 className="uppercase">{state === "existing" ? "Create Cover Pool" : "Select an Option"}</h1>
-          {state !== "existing" &&
+        <h1 className="uppercase">
+          {state === "existing" || shifted === "createCover"
+            ? "Create Cover Position"
+            : "Select an Option"}
+        </h1>
+        {state !== "existing" && (
           <div className="mt-6 rounded-[4px] overflow-hidden border border-grey/70">
             <div className="bg-[url('/static/images/bg/shark2.png')] bg-no-repeat bg-cover w-full flex items-center justify-center">
               <a href="#create">
@@ -78,7 +82,7 @@ export default function CoverCreate() {
               </a>
             </div>
           </div>
-}
+        )}
         <div id="create">
           {selectedPool != undefined && state == "existing" ? (
             <CreateCover query={router.query} goBack={handleDiselectPool} />
