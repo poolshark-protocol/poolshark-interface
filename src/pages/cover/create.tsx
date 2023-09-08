@@ -55,8 +55,10 @@ export default function CoverCreate() {
       <Navbar />
       <div className="text-white flex flex-col mx-auto max-w-2xl  justify-center py-10 px-3 md:px-0 pb-32">
         <h1 className="uppercase">
-          {state === "existing" || shifted === "createCover"
+          {state === "existing"
             ? "Create Cover Position"
+            : shifted === "createCover"
+            ? "Create Custom Cover Position"
             : "Select an Option"}
         </h1>
         {state !== "existing" && (
@@ -67,7 +69,7 @@ export default function CoverCreate() {
                   onClick={() => setIsOpen(true)}
                   className="px-24 py-6 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition mx-auto my-12 border border-main bg-main1/50 uppercase backdrop-blur shadow-lg text-sm disabled:opacity-50 hover:opacity-80"
                 >
-                  COVER EXISTING POOL
+                  COVER RANGE POOL
                 </button>
               </a>
             </div>
@@ -77,7 +79,7 @@ export default function CoverCreate() {
                   onClick={() => setIsShifted("createCover")}
                   className="px-24 py-6 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition mx-auto my-12 border border-grey bg-black/50 backdrop-blur uppercase shadow-lg text-sm disabled:opacity-50 hover:opacity-80"
                 >
-                  CREATE CUSTOM COVER
+                  CREATE CUSTOM COVER POOL
                 </button>
               </a>
             </div>
