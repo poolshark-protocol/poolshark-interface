@@ -54,8 +54,14 @@ export default function CoverCreate() {
     <div className="bg-black min-h-screen  ">
       <Navbar />
       <div className="text-white flex flex-col mx-auto max-w-2xl  justify-center py-10 px-3 md:px-0 pb-32">
-          <h1 className="uppercase">{state === "existing" ? "Create Cover Pool" : "Select an Option"}</h1>
-          {state !== "existing" &&
+        <h1 className="uppercase">
+          {state === "existing"
+            ? "Create Cover Position"
+            : shifted === "createCover"
+            ? "Create Custom Cover Position"
+            : "Select an Option"}
+        </h1>
+        {state !== "existing" && (
           <div className="mt-6 rounded-[4px] overflow-hidden border border-grey/70">
             <div className="bg-[url('/static/images/bg/shark2.png')] bg-no-repeat bg-cover w-full flex items-center justify-center">
               <a href="#create">
@@ -63,7 +69,7 @@ export default function CoverCreate() {
                   onClick={() => setIsOpen(true)}
                   className="px-24 py-6 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition mx-auto my-12 border border-main bg-main1/50 uppercase backdrop-blur shadow-lg text-sm disabled:opacity-50 hover:opacity-80"
                 >
-                  COVER EXISTING POOL
+                  COVER RANGE POOL
                 </button>
               </a>
             </div>
@@ -73,12 +79,12 @@ export default function CoverCreate() {
                   onClick={() => setIsShifted("createCover")}
                   className="px-24 py-6 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition mx-auto my-12 border border-grey bg-black/50 backdrop-blur uppercase shadow-lg text-sm disabled:opacity-50 hover:opacity-80"
                 >
-                  CREATE CUSTOM COVER
+                  CREATE CUSTOM COVER POOL
                 </button>
               </a>
             </div>
           </div>
-}
+        )}
         <div id="create">
           {selectedPool != undefined && state == "existing" ? (
             <CreateCover query={router.query} goBack={handleDiselectPool} />

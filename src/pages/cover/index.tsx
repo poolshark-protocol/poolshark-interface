@@ -274,36 +274,36 @@ export default function Cover() {
                       <span className="text-right mr-4">Fees (24h)</span>
                     </div>
                   </div>
-                  {allCoverPools.map((allRangePool) => {
+                  {allCoverPools.map((allCoverPool) => {
                     if (
-                      allRangePool.tokenZero.name.toLowerCase() ===
+                      allCoverPool.tokenZero.name.toLowerCase() ===
                         searchTerm.toLowerCase() ||
-                      allRangePool.tokenOne.name.toLowerCase() ===
+                      allCoverPool.tokenOne.name.toLowerCase() ===
                         searchTerm.toLowerCase() ||
-                      allRangePool.tokenZero.symbol.toLowerCase() ===
+                      allCoverPool.tokenZero.symbol.toLowerCase() ===
                         searchTerm.toLowerCase() ||
-                      allRangePool.tokenOne.symbol.toLowerCase() ===
+                      allCoverPool.tokenOne.symbol.toLowerCase() ===
                         searchTerm.toLowerCase() ||
-                      allRangePool.tokenZero.id.toLowerCase() ===
+                      allCoverPool.tokenZero.id.toLowerCase() ===
                         searchTerm.toLowerCase() ||
-                      allRangePool.tokenOne.id.toLowerCase() ===
+                      allCoverPool.tokenOne.id.toLowerCase() ===
                         searchTerm.toLowerCase() ||
                       searchTerm === ""
                     )
                       return (
                         <CoverPool
                           account={address}
-                          key={allRangePool.poolId}
-                          poolId={allRangePool.poolId}
-                          tokenZero={allRangePool.tokenZero}
-                          tokenOne={allRangePool.tokenOne}
-                          liquidity={allRangePool.liquidity}
+                          key={allCoverPool.poolId}
+                          poolId={allCoverPool.poolId}
+                          tokenZero={allCoverPool.tokenZero}
+                          tokenOne={allCoverPool.tokenOne}
+                          liquidity={allCoverPool.liquidity}
                           auctionLenght={undefined}
-                          feeTier={allRangePool.feeTier}
-                          tickSpacing={allRangePool.tickSpacing}
-                          tvlUsd={allRangePool.tvlUsd}
-                          volumeUsd={allRangePool.volumeUsd}
-                          volumeEth={allRangePool.volumeEth}
+                          feeTier={allCoverPool.feeTier}
+                          tickSpacing={allCoverPool.tickSpacing}
+                          tvlUsd={allCoverPool.tvlUsd}
+                          volumeUsd={allCoverPool.volumeUsd}
+                          volumeEth={allCoverPool.volumeEth}
                           href="/cover/create"
                         />
                       );
