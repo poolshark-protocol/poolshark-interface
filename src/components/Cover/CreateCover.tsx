@@ -199,6 +199,8 @@ export default function CreateCover(props: any) {
   }, [tokenIn, tokenOut, coverPoolData, tokenOrder]);
 
   async function updatePositionData() {
+    console.log("updatePositionData");
+    console.log("coverPoolData", coverPoolData);
     const tickAtPrice = Number(coverPoolData.latestTick);
     const tickSpread = Number(coverPoolData.volatilityTier.tickSpread);
     const lowerPrice = TickMath.getPriceStringAtTick(
@@ -207,6 +209,7 @@ export default function CreateCover(props: any) {
         : tickAtPrice + tickSpread * 8,
       tickSpread
     );
+    console.log("lowerPrice", lowerPrice);
     const upperPrice = TickMath.getPriceStringAtTick(
       tokenOrder ? tickAtPrice - tickSpread * 6 : tickAtPrice + tickSpread * 18,
       tickSpread
@@ -219,6 +222,8 @@ export default function CreateCover(props: any) {
       lowerPrice: lowerPrice,
       upperPrice: upperPrice,
     });
+    setMinInput(lowerPrice);
+    setMaxInput(upperPrice);
   }
 
   ////////////////////////////////Position Price Delta
@@ -598,7 +603,7 @@ export default function CreateCover(props: any) {
                     placeholder="0"
                     id="minInput"
                     type="text"
-                    value={coverPositionData.lowerPrice}
+                    value={minInput}
                     onChange={(e) => setMinInput(inputFilter(e.target.value))}
                   />
                 ) : (
@@ -608,7 +613,7 @@ export default function CreateCover(props: any) {
                     placeholder="0"
                     id="minInput"
                     type="text"
-                    value={coverPositionData.upperPrice}
+                    value={maxInput}
                     onChange={(e) => setMaxInput(inputFilter(e.target.value))}
                   />
                 )}
@@ -624,7 +629,7 @@ export default function CreateCover(props: any) {
                     placeholder="0"
                     id="minInput"
                     type="text"
-                    value={coverPositionData.upperPrice}
+                    value={maxInput}
                     onChange={(e) => setMaxInput(inputFilter(e.target.value))}
                   />
                 ) : (
@@ -634,7 +639,7 @@ export default function CreateCover(props: any) {
                     placeholder="0"
                     id="minInput"
                     type="text"
-                    value={coverPositionData.lowePrice}
+                    value={minInput}
                     onChange={(e) => setMinInput(inputFilter(e.target.value))}
                   />
                 )}
