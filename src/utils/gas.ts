@@ -238,7 +238,7 @@ export const gasEstimateCoverMint = async (
   lowerTick: number,
   tokenIn: tokenCover,
   tokenOut: tokenCover,
-  inAmount: JSBI,
+  inAmount: BigNumber,
   signer
 ): Promise<gasEstimateResult> => {
   try {

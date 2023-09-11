@@ -45,12 +45,14 @@ export default function CreateCover(props: any) {
     setCoverPositionData,
     tokenIn,
     setTokenIn,
+    setTokenInAmount,
     setTokenInCoverAllowance,
-    setCoverAmountIn,
+    //setCoverAmountIn,
     tokenOut,
     setTokenOut,
+    setTokenOutAmount,
     setTokenOutCoverUSDPrice,
-    setCoverAmountOut,
+    //setCoverAmountOut,
     pairSelected,
     switchDirection,
     setCoverPoolFromVolatility,
@@ -70,12 +72,14 @@ export default function CreateCover(props: any) {
     state.setCoverPositionData,
     state.tokenIn,
     state.setTokenIn,
+    state.setTokenInAmount,
     state.setTokenInCoverAllowance,
-    state.setCoverAmountIn,
+    //state.setCoverAmountIn,
     state.tokenOut,
     state.setTokenOut,
+    state.setTokenOutAmount,
     state.setTokenOutCoverUSDPrice,
-    state.setCoverAmountOut,
+    //state.setCoverAmountOut,
     state.pairSelected,
     state.switchDirection,
     state.setCoverPoolFromVolatility,
@@ -199,8 +203,6 @@ export default function CreateCover(props: any) {
   }, [tokenIn, tokenOut, coverPoolData, tokenOrder]);
 
   async function updatePositionData() {
-    console.log("updatePositionData");
-    console.log("coverPoolData", coverPoolData);
     const tickAtPrice = Number(coverPoolData.latestTick);
     const tickSpread = Number(coverPoolData.volatilityTier.tickSpread);
     const lowerPrice = TickMath.getPriceStringAtTick(
@@ -209,7 +211,6 @@ export default function CreateCover(props: any) {
         : tickAtPrice + tickSpread * 8,
       tickSpread
     );
-    console.log("lowerPrice", lowerPrice);
     const upperPrice = TickMath.getPriceStringAtTick(
       tokenOrder ? tickAtPrice - tickSpread * 6 : tickAtPrice + tickSpread * 18,
       tickSpread
@@ -270,8 +271,7 @@ export default function CreateCover(props: any) {
   // set amount in
   useEffect(() => {
     if (!bnInput.eq(BN_ZERO)) {
-      console.log("bnInput", bnInput.toString());
-      setCoverAmountIn(JSBI.BigInt(bnInput.toString()));
+      setTokenInAmount(bnInput);
     }
   }, [bnInput]);
 
@@ -301,20 +301,22 @@ export default function CreateCover(props: any) {
         bnInput,
         BigNumber.from(String(coverMintParams.tokenInAmount))
       );
-      setCoverAmountOut(
-        tokenOrder
-          ? DyDxMath.getDy(
-              liquidityAmount,
-              lowerSqrtPrice,
-              upperSqrtPrice,
-              true
-            )
-          : DyDxMath.getDx(
-              liquidityAmount,
-              lowerSqrtPrice,
-              upperSqrtPrice,
-              true
-            )
+      setTokenOutAmount(
+        BigNumber.from(
+          tokenOrder
+            ? DyDxMath.getDy(
+                liquidityAmount,
+                lowerSqrtPrice,
+                upperSqrtPrice,
+                true
+              ).toString()
+            : DyDxMath.getDx(
+                liquidityAmount,
+                lowerSqrtPrice,
+                upperSqrtPrice,
+                true
+              ).toString()
+        )
       );
     }
   }
@@ -355,7 +357,7 @@ export default function CreateCover(props: any) {
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
       coverPoolData.volatilityTier &&
-      coverMintParams.tokenInAmount.length > 0
+      coverMintParams.tokenInAmount
     )
       updateGasFee();
   }, [
@@ -411,7 +413,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     setMintButtonState();
-  }, [tokenIn, coverMintParams.tokenInAmount]);
+  }, [coverMintParams.tokenInAmount, coverMintParams.tokenOutAmount]);
 
   ////////////////////// Expanded Option
   const [expanded, setExpanded] = useState(false);

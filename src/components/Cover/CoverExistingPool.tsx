@@ -1,7 +1,4 @@
-import {
-  ChevronDownIcon,
-  ArrowLongRightIcon,
-} from "@heroicons/react/20/solid";
+import { ChevronDownIcon, ArrowLongRightIcon } from "@heroicons/react/20/solid";
 import {
   erc20ABI,
   useAccount,
@@ -37,11 +34,13 @@ export default function CoverExistingPool({ goBack }) {
     setCoverPositionData,
     tokenIn,
     setTokenInCoverAllowance,
+    setTokenInAmount,
     tokenOut,
+    setTokenOutAmount,
     setTokenInCoverUSDPrice,
     setTokenOutCoverUSDPrice,
-    setCoverAmountIn,
-    setCoverAmountOut,
+    /* setCoverAmountIn,
+    setCoverAmountOut, */
     pairSelected,
     switchDirection,
     setCoverPoolFromVolatility,
@@ -60,11 +59,13 @@ export default function CoverExistingPool({ goBack }) {
     state.setCoverPositionData,
     state.tokenIn,
     state.setTokenInCoverAllowance,
+    state.setTokenInAmount,
     state.tokenOut,
+    state.setTokenOutAmount,
     state.setTokenInCoverUSDPrice,
     state.setTokenOutCoverUSDPrice,
-    state.setCoverAmountIn,
-    state.setCoverAmountOut,
+    /* state.setCoverAmountIn,
+    state.setCoverAmountOut, */
     state.pairSelected,
     state.switchDirection,
     state.setCoverPoolFromVolatility,
@@ -296,35 +297,39 @@ export default function CoverExistingPool({ goBack }) {
         ),
         JSBI.BigInt(100)
       );
-      setCoverAmountIn(
-        tokenOrder
-          ? DyDxMath.getDx(
-              liquidityAmount,
-              lowerSqrtPrice,
-              upperSqrtPrice,
-              true
-            )
-          : DyDxMath.getDy(
-              liquidityAmount,
-              lowerSqrtPrice,
-              upperSqrtPrice,
-              true
-            )
+      setTokenInAmount(
+        BigNumber.from(
+          tokenOrder
+            ? DyDxMath.getDx(
+                liquidityAmount,
+                lowerSqrtPrice,
+                upperSqrtPrice,
+                true
+              ).toString()
+            : DyDxMath.getDy(
+                liquidityAmount,
+                lowerSqrtPrice,
+                upperSqrtPrice,
+                true
+              ).toString()
+        )
       );
-      setCoverAmountOut(
-        tokenOrder
-          ? DyDxMath.getDy(
-              liquidityAmount,
-              lowerSqrtPrice,
-              upperSqrtPrice,
-              true
-            )
-          : DyDxMath.getDx(
-              liquidityAmount,
-              lowerSqrtPrice,
-              upperSqrtPrice,
-              true
-            )
+      setTokenOutAmount(
+        BigNumber.from(
+          tokenOrder
+            ? DyDxMath.getDy(
+                liquidityAmount,
+                lowerSqrtPrice,
+                upperSqrtPrice,
+                true
+              ).toString()
+            : DyDxMath.getDx(
+                liquidityAmount,
+                lowerSqrtPrice,
+                upperSqrtPrice,
+                true
+              ).toString()
+        )
       );
     }
   }
@@ -365,7 +370,7 @@ export default function CoverExistingPool({ goBack }) {
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
       coverPoolData.volatilityTier &&
-      coverMintParams.tokenInAmount.length > 0
+      coverMintParams.tokenInAmount
     )
       updateGasFee();
   }, [coverMintParams.tokenInAmount, coverPoolAddress]);
@@ -698,54 +703,54 @@ export default function CoverExistingPool({ goBack }) {
         </div>
       </div>
       {allowanceInCover ? (
-          allowanceInCover.lt(
-            BigNumber.from(coverMintParams.tokenInAmount.toString())
-          ) ? (
-            <CoverMintApproveButton
-              poolAddress={coverPoolAddress}
-              approveToken={tokenIn.address}
-              amount={String(coverMintParams.tokenInAmount)}
-              tokenSymbol={tokenIn.symbol}
-            />
-          ) : (
-            <CoverMintButton
-              poolAddress={coverPoolAddress}
-              disabled={coverMintParams.disabled}
-              buttonMessage={coverMintParams.buttonMessage}
-              to={address}
-              lower={
-                coverPositionData.lowerPrice
-                  ? TickMath.getTickAtPriceString(
-                      coverPositionData.lowerPrice ?? "0",
-                      coverPoolData.volatilityTier
-                        ? parseInt(coverPoolData.volatilityTier.tickSpread)
-                        : 20
-                    )
-                  : 0
-              }
-              upper={
-                coverPositionData.upperPrice
-                  ? TickMath.getTickAtPriceString(
-                      coverPositionData.upperPrice ?? "0",
-                      coverPoolData.volatilityTier
-                        ? parseInt(coverPoolData.volatilityTier.tickSpread)
-                        : 20
-                    )
-                  : 0
-              }
-              amount={String(coverMintParams.tokenInAmount)}
-              zeroForOne={tokenOrder}
-              tickSpacing={
-                coverPoolData.volatilityTier
-                  ? coverPoolData.volatilityTier.tickSpread
-                  : 20
-              }
-              gasLimit={mintGasLimit}
-            />
-          )
+        allowanceInCover.lt(
+          BigNumber.from(coverMintParams.tokenInAmount.toString())
+        ) ? (
+          <CoverMintApproveButton
+            poolAddress={coverPoolAddress}
+            approveToken={tokenIn.address}
+            amount={String(coverMintParams.tokenInAmount)}
+            tokenSymbol={tokenIn.symbol}
+          />
         ) : (
-          <></>
-        )}
+          <CoverMintButton
+            poolAddress={coverPoolAddress}
+            disabled={coverMintParams.disabled}
+            buttonMessage={coverMintParams.buttonMessage}
+            to={address}
+            lower={
+              coverPositionData.lowerPrice
+                ? TickMath.getTickAtPriceString(
+                    coverPositionData.lowerPrice ?? "0",
+                    coverPoolData.volatilityTier
+                      ? parseInt(coverPoolData.volatilityTier.tickSpread)
+                      : 20
+                  )
+                : 0
+            }
+            upper={
+              coverPositionData.upperPrice
+                ? TickMath.getTickAtPriceString(
+                    coverPositionData.upperPrice ?? "0",
+                    coverPoolData.volatilityTier
+                      ? parseInt(coverPoolData.volatilityTier.tickSpread)
+                      : 20
+                  )
+                : 0
+            }
+            amount={String(coverMintParams.tokenInAmount)}
+            zeroForOne={tokenOrder}
+            tickSpacing={
+              coverPoolData.volatilityTier
+                ? coverPoolData.volatilityTier.tickSpread
+                : 20
+            }
+            gasLimit={mintGasLimit}
+          />
+        )
+      ) : (
+        <></>
+      )}
     </div>
   );
 }
