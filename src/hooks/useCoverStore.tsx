@@ -449,31 +449,31 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
           parseFloat(
             ethers.utils.formatUnits(
               String(state.coverMintParams.tokenInAmount),
-              18
+              state.tokenIn.decimals
             )
           )
             ? "Insufficient Token Balance"
             : parseFloat(
                 ethers.utils.formatUnits(
                   String(state.coverMintParams.tokenInAmount),
-                  18
+                  state.tokenIn.decimals
                 )
               ) == 0
             ? "Enter Amount"
-            : "Create Cover",
+            : "Mint Cover Position",
         disabled:
           state.tokenIn.userBalance <
           parseFloat(
             ethers.utils.formatUnits(
               String(state.coverMintParams.tokenInAmount),
-              18
+              state.tokenIn.decimals
             )
           )
             ? true
             : parseFloat(
                 ethers.utils.formatUnits(
                   String(state.coverMintParams.tokenInAmount),
-                  18
+                  state.tokenIn.decimals
                 )
               ) == 0
             ? true
