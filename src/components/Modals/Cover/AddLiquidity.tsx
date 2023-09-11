@@ -147,7 +147,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
       Number(coverPositionData.min),
       tokenIn,
       tokenOut,
-      JSBI.BigInt(bnInput.toString()),
+      bnInput,
       signer
     );
 
