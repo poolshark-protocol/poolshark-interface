@@ -1111,7 +1111,7 @@ export default function Trade() {
                 Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                   <SwapRangeApproveButton
                     poolAddress={
-                      poolRouterAddress[chainIdsToNamesForGitTokenList[chainId]]
+                      tradePoolData.id
                     }
                     approveToken={tokenIn.address}
                     tokenSymbol={tokenIn.symbol}
