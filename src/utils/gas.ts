@@ -106,6 +106,7 @@ export const gasEstimateMintLimit = async (
       recipient,
       bnInput,
       ethers.utils.parseUnits("1", 24), // skip mint under 1% left after swap
+      BN_ZERO,
       lowerTick,
       upperTick,
       zeroForOne,

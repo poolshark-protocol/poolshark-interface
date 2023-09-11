@@ -9,6 +9,7 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
 import { useTradeStore } from "../../hooks/useTradeStore";
+import { BN_ZERO } from "../../utils/math/constants";
 
 export default function LimitSwapButton({
   disabled,
@@ -35,7 +36,7 @@ export default function LimitSwapButton({
     address: poolAddress,
     abi: limitPoolABI,
     functionName: "mintLimit",
-    args: [[to, amount, mintPercent, lower, upper, zeroForOne]],
+    args: [[to, amount, mintPercent, BN_ZERO, lower, upper, zeroForOne]],
     chainId: 421613,
     overrides: {
       gasLimit: gasLimit,
