@@ -709,9 +709,7 @@ export default function CoverExistingPool({ goBack }) {
         </div>
       </div>
       {allowanceInCover ? (
-        allowanceInCover.lt(
-          BigNumber.from(coverMintParams.tokenInAmount.toString())
-        ) ? (
+        allowanceInCover.lt(coverMintParams.tokenInAmount) ? (
           <CoverMintApproveButton
             poolAddress={coverPoolAddress}
             approveToken={tokenIn.address}

@@ -691,9 +691,7 @@ export default function CreateCover(props: any) {
         </div>
       </div>
       {allowanceInCover ? (
-        allowanceInCover.lt(
-          BigNumber.from(coverMintParams.tokenInAmount.toString())
-        ) ? (
+        allowanceInCover.lt(coverMintParams.tokenInAmount) ? (
           <CoverMintApproveButton
             poolAddress={coverPoolAddress}
             approveToken={tokenIn.address}
