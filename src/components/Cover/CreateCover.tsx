@@ -654,8 +654,14 @@ export default function CreateCover(props: any) {
               onClick={() => setExpanded(!expanded)}
             >
               <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                {1} {tokenIn.symbol} ={" "}
-                {!tokenIn.coverUSDPrice
+                {1} {tokenIn.symbol} =
+                {" " +
+                  (tokenOut.coverUSDPrice / tokenIn.coverUSDPrice).toPrecision(
+                    5
+                  ) +
+                  " " +
+                  tokenOut.symbol}
+                {/* {!tokenIn.coverUSDPrice
                   ? "?" + " " + tokenOut.symbol
                   : (tokenOrder
                       ? TickMath.getPriceStringAtTick(
@@ -670,7 +676,7 @@ export default function CreateCover(props: any) {
                           false
                         )) +
                     " " +
-                    tokenOut.symbol}
+                    tokenOut.symbol} */}
               </div>
               <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
                 <button>
