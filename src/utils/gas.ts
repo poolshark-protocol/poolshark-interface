@@ -253,16 +253,20 @@ export const gasEstimateCoverMint = async (
       coverPoolABI,
       provider
     );
-
-    const recipient = address;
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
-
     const lower = BigNumber.from(lowerTick);
     const upper = BigNumber.from(upperTick);
     const amountIn = BigNumber.from(String(inAmount));
     const gasUnits: BigNumber = await contract
       .connect(signer)
-      .estimateGas.mint([recipient, amountIn, lower, upper, zeroForOne]);
+      .estimateGas.mint({
+        positionId: 0,
+        to: address,
+        amount: amountIn,
+        lower: lower,
+        upper: upper,
+        zeroForOne: zeroForOne,
+      });
     const price = await fetchPrice("0x000");
     const gasPrice = await provider.getGasPrice();
     const ethUsdPrice = Number(price["data"]["bundles"]["0"]["ethPriceUSD"]);
