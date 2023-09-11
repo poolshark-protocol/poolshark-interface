@@ -105,7 +105,7 @@ export const gasEstimateMintLimit = async (
     gasUnits = await contract.connect(signer).estimateGas.mintLimit([
       recipient,
       bnInput,
-      ethers.utils.parseUnits("1", 26), // skip mint under 1% left after swap
+      ethers.utils.parseUnits("1", 24), // skip mint under 1% left after swap
       lowerTick,
       upperTick,
       zeroForOne,

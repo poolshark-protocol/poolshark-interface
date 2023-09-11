@@ -1123,7 +1123,7 @@ export default function Trade() {
                     poolAddress={tradePoolData.id}
                     to={address}
                     amount={bnInput}
-                    mintPercent={ethers.utils.parseUnits("1", 26)}
+                    mintPercent={ethers.utils.parseUnits("1", 24)}
                     lower={lowerTick}
                     upper={upperTick}
                     closeModal={() => {}}
