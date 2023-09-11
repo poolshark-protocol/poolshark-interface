@@ -13,36 +13,24 @@ import {
 } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { chainIdsToNamesForGitTokenList } from "../utils/chains";
-import { coverPoolABI } from "../abis/evm/coverPool";
-import {
-  getCoverPoolFromFactory,
-  getRangePoolFromFactory,
-} from "../utils/queries";
 import SwapRangeApproveButton from "../components/Buttons/SwapRangeApproveButton";
-import SwapRangeButton from "../components/Buttons/SwapRangeButton";
-import SwapCoverApproveButton from "../components/Buttons/SwapCoverApproveButton";
-import SwapCoverButton from "../components/Buttons/SwapCoverButton";
-import { rangePoolABI } from "../abis/evm/rangePool";
 import {
   TickMath,
   invertPrice,
   maxPriceBn,
   minPriceBn,
 } from "../utils/math/tickMath";
-import { BN_ONE, BN_ZERO } from "../utils/math/constants";
-import { gasEstimateSwap, gasEstimateMintLimit } from "../utils/gas";
+import { BN_ZERO } from "../utils/math/constants";
+import { gasEstimateMintLimit, gasEstimateSwap } from "../utils/gas";
 import inputFilter from "../utils/inputFilter";
 import LimitSwapButton from "../components/Buttons/LimitSwapButton";
 import {
-  fetchCoverTokenUSDPrice,
   fetchRangeTokenUSDPrice,
 } from "../utils/tokens";
 import { getSwapPools } from "../utils/pools";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { QuoteParams, SwapParams } from "../utils/types";
 import { useTradeStore } from "../hooks/useTradeStore";
-import { parse } from "graphql";
-import { parseUnits } from "ethers/lib/utils.js";
 import SwapRouterButton from "../components/Buttons/SwapRouterButton";
 import JSBI from "jsbi";
 
@@ -610,8 +598,8 @@ export default function Trade() {
   }
 
   async function updateMintFee() {
-    /* await gasEstimateMintLimit(
-      rangePoolAddress,
+    await gasEstimateMintLimit(
+      tradePoolData.id,
       address,
       lowerTick,
       upperTick,
@@ -619,9 +607,9 @@ export default function Trade() {
       tokenOut,
       bnInput,
       signer,
-      setMintGasFee,
+      setMintFee,
       setMintGasLimit
-    ); */
+    );
   }
 
   ////////////////////////////////Mint Button State
@@ -1132,7 +1120,7 @@ export default function Trade() {
                 ) : (
                   <LimitSwapButton
                     disabled={mintGasLimit.eq(BN_ZERO)}
-                    poolAddress={tradePoolAddress}
+                    poolAddress={tradePoolData.id}
                     to={address}
                     amount={bnInput}
                     mintPercent={ethers.utils.parseUnits("1", 26)}

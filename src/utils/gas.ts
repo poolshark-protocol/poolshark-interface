@@ -81,6 +81,12 @@ export const gasEstimateMintLimit = async (
     const price = await fetchPrice("ethereum");
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
 
+    console.log("user address mint", address)
+    console.log("range pool route mint", rangePoolRoute)
+    console.log("lower tick mint", lowerTick.toString())
+    console.log("upper tick mint", upperTick.toString())
+    console.log("bnInput", bnInput.toString())
+
     if (!rangePoolRoute || !provider) {
       setMintGasFee("$0.00");
       setMintGasLimit(BN_ZERO);
@@ -98,7 +104,7 @@ export const gasEstimateMintLimit = async (
     let gasUnits: BigNumber;
     gasUnits = await contract.connect(signer).estimateGas.mintLimit([
       recipient,
-      zeroForOne ? bnInput : BN_ZERO,
+      bnInput,
       ethers.utils.parseUnits("1", 26), // skip mint under 1% left after swap
       lowerTick,
       upperTick,
