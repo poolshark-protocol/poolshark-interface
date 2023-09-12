@@ -35,7 +35,7 @@ html,
 body {
   padding: 0;
   margin: 0;
-  background: rgb(3, 1, 16);
+  background: black;
   scroll-behavior: smooth;
 }
 
