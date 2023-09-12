@@ -329,8 +329,7 @@ export default function AddLiquidity({}) {
   useEffect(() => {
     setUpperPrice(invertPrice(maxInput, tokenOrder));
     setLowerPrice(invertPrice(minInput, tokenOrder));
-  }, [maxInput, minInput])
-
+  }, [maxInput, minInput]);
 
   ////////////////////////////////Mint Button State
 
@@ -470,76 +469,53 @@ export default function AddLiquidity({}) {
               <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                 <span className="text-grey1 text-xs">MIN. PRICE</span>
                 <span className="text-white text-3xl">
-                  {tokenOrder ?
-                  <input
-                  autoComplete="off"
-                  className="bg-black py-2 outline-none text-center w-full"
-                  placeholder="0"
-                  id="minInput"
-                  type="text"
-                  value={minInput}
-                  onChange={(e) =>
-                    setMinInput(
-                      inputFilter(
-                        e.target.value
-                      )
-                    )
-                  }
-                /> :
-                <input
-                  autoComplete="off"
-                  className="bg-black py-2 outline-none text-center w-full"
-                  placeholder="0"
-                  id="minInput"
-                  type="text"
-                  value={maxInput}
-                  onChange={(e) =>
-                    setMaxInput(
-                      inputFilter(
-                        e.target.value
-                      )
-                    )
-                  }
-                />
-                  }
-                  
+                  {tokenOrder ? (
+                    <input
+                      autoComplete="off"
+                      className="bg-black py-2 outline-none text-center w-full"
+                      placeholder="0"
+                      id="minInput"
+                      type="text"
+                      value={minInput}
+                      onChange={(e) => setMinInput(inputFilter(e.target.value))}
+                    />
+                  ) : (
+                    <input
+                      autoComplete="off"
+                      className="bg-black py-2 outline-none text-center w-full"
+                      placeholder="0"
+                      id="minInput"
+                      type="text"
+                      value={maxInput}
+                      onChange={(e) => setMaxInput(inputFilter(e.target.value))}
+                    />
+                  )}
                 </span>
               </div>
               <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                 <span className="text-grey1 text-xs">MAX. PRICE</span>
                 <span className="text-white text-3xl">
-                {tokenOrder ?
-                  <input
-                  autoComplete="off"
-                  className="bg-black py-2 outline-none text-center w-full"
-                  placeholder="0"
-                  id="minInput"
-                  type="text"
-                  value={maxInput}
-                  onChange={(e) =>
-                    setMaxInput(
-                      inputFilter(
-                        e.target.value
-                      )
-                    )
-                  }
-                />:
-                <input
-                  autoComplete="off"
-                  className="bg-black py-2 outline-none text-center w-full"
-                  placeholder="0"
-                  id="minInput"
-                  type="text"
-                  value={minInput}
-                  onChange={(e) =>
-                    setMinInput(
-                      inputFilter(
-                        e.target.value
-                      )
-                    )
-                  }
-                />
-                  }
+                  {tokenOrder ? (
+                    <input
+                      autoComplete="off"
+                      className="bg-black py-2 outline-none text-center w-full"
+                      placeholder="0"
+                      id="minInput"
+                      type="text"
+                      value={maxInput}
+                      onChange={(e) => setMaxInput(inputFilter(e.target.value))}
+                    />
+                  ) : (
+                    <input
+                      autoComplete="off"
+                      className="bg-black py-2 outline-none text-center w-full"
+                      placeholder="0"
+                      id="minInput"
+                      type="text"
+                      value={minInput}
+                      onChange={(e) => setMinInput(inputFilter(e.target.value))}
+                    />
+                  )}
                 </span>
               </div>
             </div>
@@ -557,7 +533,7 @@ export default function AddLiquidity({}) {
               </div>
             </div>
           </div>
-          <RangePoolPreview fee={selectedFeeTier} />
+          <RangePoolPreview />
         </div>
       </div>
     </div>

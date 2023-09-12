@@ -11,7 +11,7 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { BN_ZERO } from "../../utils/math/constants";
 import { gasEstimateRangeMint } from "../../utils/gas";
 
-export default function RangePoolPreview({ fee }) {
+export default function RangePoolPreview() {
   const [
     rangePoolAddress,
     rangePoolData,
@@ -184,9 +184,9 @@ export default function RangePoolPreview({ fee }) {
                         </div>
                         <div className="mt-3">
                           <button className="relative cursor-default rounded-lg bg-black text-white cursor-pointer border border-grey1 py-2 pl-3 w-full text-left shadow-md focus:outline-none">
-                            <span className="block truncate">{fee.tier}</span>
+                            <span className="block truncate">{(rangePoolData.feeTier.feeAmount / 10000).toFixed(2)}%</span>
                             <span className="block truncate text-xs text-grey mt-1">
-                              {fee.text}
+                              {/* {fee.text} */}
                             </span>
                           </button>
                         </div>
