@@ -141,7 +141,6 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
       bnInput,
       signer
     );
-
     setMintGasFee(newMintFee.formattedPrice);
     setMintGasLimit(newMintFee.gasUnits.mul(130).div(100));
   }
