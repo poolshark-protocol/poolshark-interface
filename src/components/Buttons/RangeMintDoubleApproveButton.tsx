@@ -103,7 +103,7 @@ export default function RangeMintDoubleApproveButton({
       >
         Approve Both Tokens
       </div>
-      <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
+      <div className="fixed bottom-4 right-4 flex flex-col space-y-2">
         {errorDisplay0 && (
           <ErrorToast
             key={dataT0?.hash + 'doubleApprove_error'}

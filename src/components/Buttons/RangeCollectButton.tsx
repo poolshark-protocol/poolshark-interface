@@ -62,7 +62,7 @@ export default function RangeCollectButton({ poolAddress, address, positionId, g
               >
               Collect position
       </div>
-      <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
+      <div className="fixed bottom-4 right-4 flex flex-col space-y-2">
     {errorDisplay && (
       <ErrorToast
         hash={data?.hash}
