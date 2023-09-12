@@ -474,7 +474,18 @@ export default function CreateCover(props: any) {
   return (
     <div className="flex flex-col space-y-8">
       <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
-        <h1 className="mb-4">SELECT TOKEN & AMOUNT</h1>
+      <div className="flex mb-4 items-center justify-between">
+          <h1 className="">SELECT TOKEN & AMOUNT</h1>
+          <div
+            onClick={() => {
+              switchDirection();
+            }}
+            className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
+          >
+            Switch directions
+            <DoubleArrowIcon />
+          </div>
+        </div>
         <span className="text-[11px] text-grey1">AMOUNT TO SELL</span>
         <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
           <div className="flex items-end justify-between text-[11px] text-grey1">
@@ -505,23 +516,11 @@ export default function CreateCover(props: any) {
           </div>
         </div>
         <div className="flex items-center justify-center w-full pt-7 pb-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            className="w-5 cursor-pointer"
+        <ArrowLongRightIcon
+            className="w-7 cursor-pointer hover:-rotate-90 rotate-90 transition-all"
             onClick={() => {
               switchDirection();
-            }}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
-            />
-          </svg>
+            }}/>
         </div>
         <span className="text-[11px] text-grey1">AMOUNT TO BUY</span>
         <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">

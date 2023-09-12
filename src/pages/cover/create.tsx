@@ -86,18 +86,22 @@ export default function CoverCreate() {
           </div>
         ):
         <div className="rounded-[4px] flex overflow-hidden w-full mt-6">
+          <a href="#create" className="w-full">
                 <button
                   onClick={() => setIsOpen(true)}
                   className={`px-10 w-full py-2 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition mx-auto uppercase backdrop-blur shadow-lg text-sm disabled:opacity-50 hover:opacity-80 ${shifted === "createCover" ? "bg-black/50 border-grey border" : "bg-main1/50 border border-main"}`}
                 >
                   COVER A RANGE POOL
                 </button>
+                </a>
+                <a href="#create" className="w-full">
                 <button
                   onClick={() => setIsShifted("createCover")}
                   className={`px-10 w-full py-2 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition mx-auto uppercase backdrop-blur shadow-lg text-sm disabled:opacity-50 hover:opacity-80 ${shifted === "createCover" ? "bg-main1/50 border border-main" : "bg-black/50 border-grey border"}`}
                 >
                   CREATE CUSTOM COVER POOL
                 </button>
+                </a>
           </div>
         }
         <div id="create">
