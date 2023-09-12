@@ -328,133 +328,38 @@ export default function Trade() {
     },
   });
 
-  useEffect(() => {
-    if (allowanceInRouter) {
-      setTokenInTradeAllowance(allowanceInRouter);
-    }
-  }, [allowanceInRouter]);
-
-  /* ////////////////////////////////Quotes
-  const [rangeBnPriceLimit, setRangeBnPriceLimit] = useState(BN_ZERO);
-  const [tradeQuote, setRangeQuote] = useState(0);
-  const [rangePriceAfter, setRangePriceAfter] = useState(undefined);
-
-  const { data: quoteRange } = useContractRead({
-    address: tradePoolAddress,
-    abi: rangePoolABI,
-    functionName: "quote",
-    args: [[tokenIn? minPriceBn : maxPriceBn, bnInput, tokenOrder]],
+  const { data: allowanceInProxy } = useContractRead({
+    address: tokenIn.address,
+    abi: erc20ABI,
+    functionName: "allowance",
+    args: [
+      address,
+      tradePoolData.id as `0x${string}`,
+    ],
     chainId: 421613,
-    watch: true,
+    watch: needsAllowanceIn,
+    //enabled: poolRouterAddress,
     onError(error) {
-      console.log("Error range wagmi", error);
+      console.log("Error allowance", error);
     },
-    onSettled(data, error) {
-      //console.log("Settled range wagmi", { data, error });
+    onSuccess(data) {
+      setNeedsAllowanceIn(false);
+      //console.log("Success allowance", data);
     },
   });
 
   useEffect(() => {
-    if (quoteRange) {
-      if (quoteRange[0].gt(BN_ZERO) && quoteRange[1].gt(BN_ZERO)) {
-        setRangeQuote(
-          parseFloat(ethers.utils.formatUnits(quoteRange[1], tokenIn.decimals))
-        );
-        const priceAfter = parseFloat(
-          TickMath.getPriceStringAtSqrtPrice(quoteRange[2])
-        );
-        const priceSlippage = parseFloat(
-          ((priceAfter * parseFloat(slippage) * 100) / 10000).toFixed(6)
-        );
-        const priceAfterSlippage = String(
-          priceAfter - (tokenOrder ? priceSlippage : -priceSlippage)
-        );
-        setRangePriceAfter(priceAfter);
-        const rangePriceLimit =
-          TickMath.getSqrtPriceAtPriceString(priceAfterSlippage);
-        setRangeBnPriceLimit(BigNumber.from(String(rangePriceLimit)));
-      }
+    if (allowanceInRouter && !limitTabSelected) {
+      setTokenInTradeAllowance(allowanceInRouter);
     }
-  }, [quoteRange]); */
+
+    else if (allowanceInProxy && limitTabSelected) {
+      setTokenInTradeAllowance(allowanceInProxy);
+    }
+  }, [allowanceInRouter, allowanceInProxy]);
 
   ////////////////////////////////FeeTiers and Slippage
   const [slippage, setSlippage] = useState("0.5");
-  //const [auxSlippage, setAuxSlippage] = useState("0.5");
-
-  /* useEffect(() => {
-    if (pairSelected) {
-      updateTierFees();
-      chooseSlippage();
-    }
-  }, [tokenIn, tokenOut]);
-
-  async function updateTierFees() {
-    await getFeeTiers();
-  }
-
-  const getFeeTiers = async () => {
-    const poolRange = await getRangePoolFromFactory(
-      tokenIn.address,
-      tokenOut.address
-    );
-    const feeTier = poolRange["data"]["limitPools"][0]["feeTier"]["feeAmount"];
-    setTradeSlippage((parseFloat(feeTier) / 10000).toString());
-  };
-
-  const chooseSlippage = () => {
-    setSlippage(tradeSlippage);
-    setAuxSlippage(tradeSlippage);
-  }; */
-
-  ////////////////////////////////Prices
-  /* const [rangePrice, setRangePrice] = useState(0);
-  const [rangeBnPrice, setRangeBnPrice] = useState(BigNumber.from(0));
-  const [rangeBnBaseLimit, setRangeBnBaseLimit] = useState(BigNumber.from(0));
-
-  const { data: priceRange } = useContractRead({
-    address: tradePoolAddress,
-    abi: rangePoolABI,
-    functionName: "poolState",
-    args: [],
-    chainId: 421613,
-    watch: true,
-    onError(error) {
-      console.log("Error price Range", error);
-    },
-    onSettled(data, error) {
-      //console.log("Settled price Range", { data, error });
-    },
-  });
-
-  //when contract prices change updates price states
-  useEffect(() => {
-    if (priceRange) {
-      if (priceRange[5].gt(BN_ZERO)) {
-        setRangePrice(
-          parseFloat(TickMath.getPriceStringAtSqrtPrice(priceRange[5]))
-        );
-      }
-    }
-  }, [priceRange]);
-
-  //when price states change updates price bn states
-  useEffect(() => {
-    if (rangePrice) {
-      setRangeBnPrice(ethers.utils.parseEther(rangePrice.toString()));
-    }
-  }, [rangePrice]);
-
-  //when price bn states change updates base limit states
-  useEffect(() => {
-    if (rangeBnPrice) {
-      if (!rangeBnPrice.eq(BN_ZERO)) {
-        const baseLimit = rangeBnPrice
-          .mul(parseFloat((parseFloat(slippage) * 100).toFixed(6)))
-          .div(10000);
-        setRangeBnBaseLimit(baseLimit);
-      }
-    }
-  }, [slippage, rangeBnPrice]); */
 
   //i receive the price afte from the multiquote and then i will add and subtract the slippage from it
 
@@ -659,47 +564,6 @@ export default function Trade() {
                 Minimum received after slippage ({slippage}%)
               </div>
               <div className="ml-auto text-xs">
-                {/* {pairSelected
-                  ? !limitTabSelected
-                    ? tradeQuote === 0
-                      ? "0"
-                      : (
-                          parseFloat(
-                            ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                          ) *
-                            tradeQuote -
-                          parseFloat(
-                            ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                          ) *
-                            tradeQuote *
-                            (parseFloat(slippage) * 0.01)
-                        ).toFixed(2)
-                    : parseFloat(
-                        ethers.utils.formatUnits(rangeBnPrice, tokenIn.decimals)
-                      ) == 0
-                    ? "0"
-                    : (
-                        parseFloat(
-                          ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                        ) *
-                          parseFloat(
-                            ethers.utils.formatUnits(
-                              rangeBnPrice,
-                              tokenIn.decimals
-                            )
-                          ) -
-                        parseFloat(
-                          ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                        ) *
-                          parseFloat(
-                            ethers.utils.formatUnits(
-                              rangeBnPrice,
-                              tokenIn.decimals
-                            )
-                          ) *
-                          (parseFloat(slippage) * 0.01)
-                      ).toFixed(2)
-                  : "Select Token"} */}
               </div>
             </div>
           ) : (
