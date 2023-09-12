@@ -7,6 +7,7 @@ import {
   useProvider,
   useBalance,
 } from "wagmi";
+import DoubleArrowIcon from "../Icons/DoubleArrowIcon";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import { Fragment, useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
@@ -503,7 +504,19 @@ export default function CoverExistingPool({ goBack }) {
   return (
     <div className="flex flex-col space-y-8">
       <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
-        <h1 className="mb-4">SELECTED TOKENS</h1>
+      <div className="flex mb-4 items-center justify-between">
+          <h1 className="">SET A PRICE RANGE</h1>
+          <div
+            onClick={() => {
+              switchDirection();
+            }}
+            className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
+          >
+            Switch directions
+            <DoubleArrowIcon />
+          </div>
+        </div>
+
         <div className="flex justify-between md:justify-start gap-x-4 items-center">
           <button className="flex w-full items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
             <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
@@ -512,7 +525,7 @@ export default function CoverExistingPool({ goBack }) {
             </div>
           </button>
           <ArrowLongRightIcon
-            className="w-14 cursor-pointer"
+            className="w-14 cursor-pointer hover:rotate-180 transition-all"
             onClick={() => {
               switchDirection();
             }}
