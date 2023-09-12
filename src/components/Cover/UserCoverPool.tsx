@@ -88,6 +88,8 @@ export default function UserCoverPool({
     getCoverPool(tokenIn, tokenOut, setCoverPoolAddress, setCoverPoolData);
   }
 
+  //console.log("coverPosition", coverPosition);
+
   return (
     <>
       <div onClick={choosePosition}>
@@ -113,7 +115,10 @@ export default function UserCoverPool({
                 {coverPosition.tokenOne.symbol}
               </span>
               <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                {Number(Number(coverPosition.feeTier) / 10000).toFixed(2)}%
+                {coverPosition.volatilityTier.tickSpread == "20"
+                  ? "1.7"
+                  : "2.4"}
+                %
               </span>
             </div>
             <div className="text-white text-right text-xs">
