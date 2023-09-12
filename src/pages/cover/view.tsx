@@ -210,23 +210,10 @@ export default function ViewCover() {
       isConnected &&
       coverPoolAddress.toString() != "",
     onSuccess(data) {
-      console.log("Success price filled amount", data);
+      //console.log("Success price filled amount", data);
     },
     onError(error) {
       console.log("Error price Cover", error);
-      console.log(
-        "claim tick snapshot args",
-        address,
-        BigNumber.from("0").toString(),
-        coverPositionData.min.toString(),
-        coverPositionData.max.toString(),
-        claimTick.toString(),
-        Boolean(coverPositionData.zeroForOne),
-        router.isReady
-      );
-    },
-    onSettled(data, error) {
-      //console.log('Settled price Cover', { data, error })
     },
   });
 
@@ -308,12 +295,9 @@ export default function ViewCover() {
         const position = allCoverPositions.find(
           (position) => position.id == positionId
         );
-        console.log("new position", position);
-
         if (position != undefined) {
           setCoverPositionData(position);
         }
-
         setNeedsRefetch(false);
         setNeedsPosRefetch(false);
       }
@@ -379,7 +363,10 @@ export default function ViewCover() {
               </div>
               <div className="flex items-center gap-x-5">
                 <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                  {Number(coverPositionData.feeTier) / 10000}%
+                  {coverPositionData.volatilityTier.tickSpread == "20"
+                    ? "1.7"
+                    : "2.4"}
+                  %
                 </span>
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
                   0.9 USDC
@@ -558,16 +545,18 @@ export default function ViewCover() {
           <div className="border bg-dark border-grey rounded-[4px] w-1/2 p-5 h-min">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">Filled Liquidity</h1>
-              <span className="text-grey1">${Number(coverFilledAmount).toFixed(2)}
-                      <span className="text-grey">
-                        /
-                        {Number(
-                          ethers.utils.formatUnits(
-                            coverPositionData.userFillIn.toString(),
-                            18
-                          )
-                        ).toFixed(2)}
-                      </span></span>
+              <span className="text-grey1">
+                ${Number(coverFilledAmount).toFixed(2)}
+                <span className="text-grey">
+                  /
+                  {Number(
+                    ethers.utils.formatUnits(
+                      coverPositionData.userFillIn.toString(),
+                      18
+                    )
+                  ).toFixed(2)}
+                </span>
+              </span>
             </div>
             <div className="flex flex-col gap-y-3 mt-2">
               <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">

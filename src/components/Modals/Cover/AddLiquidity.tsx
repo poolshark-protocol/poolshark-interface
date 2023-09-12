@@ -70,20 +70,11 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
       coverPoolAddress != undefined &&
       tokenIn.address != undefined && needsAllowance,
     onSuccess(data) {
-      console.log("Success");
+      //console.log("Success");
       setNeedsAllowance(false);
     },
     onError(error) {
       console.log("Error", error);
-    },
-    onSettled(data, error) {
-      console.log("allowance check", allowanceIn.lt(bnInput));
-      console.log("Allowance Settled", {
-        data,
-        error,
-        coverPoolAddress,
-        tokenIn,
-      });
     },
   });
 
@@ -232,7 +223,6 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                           <button
                             className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
                             onClick={() => {
-                              console.log("max", tokenIn.userBalance);
                               maxBalance(tokenIn.userBalance.toString(), "0");
                             }}
                           >

@@ -44,10 +44,6 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
       return;
     }
     setBurnPercent(ethers.utils.parseUnits(String(sliderValue), 36));
-    console.log(
-      "setting burn percent",
-      ethers.utils.parseUnits(String(sliderValue), 36).toString()
-    );
     setSliderOutput(
       ((parseFloat(amountInDisplay) * sliderValue) / 100).toPrecision(6)
     );
@@ -55,7 +51,6 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
 
   useEffect(() => {
     setMintButtonState();
-    console.log(coverMintParams.disabled, "disabled");
   }, [burnPercent]);
 
   const handleChange = (event: any) => {
