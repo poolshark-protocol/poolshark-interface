@@ -69,7 +69,7 @@ export default function CoverCreate() {
                   onClick={() => setIsOpen(true)}
                   className="px-24 py-6 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition mx-auto my-12 border border-main bg-main1/50 uppercase backdrop-blur shadow-lg text-sm disabled:opacity-50 hover:opacity-80"
                 >
-                  COVER A RANGE POOL
+                  COVER A RANGE POSITION
                 </button>
               </a>
             </div>
@@ -91,7 +91,7 @@ export default function CoverCreate() {
                   onClick={() => setIsOpen(true)}
                   className={`px-10 w-full py-2 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition mx-auto uppercase backdrop-blur shadow-lg text-sm disabled:opacity-50 hover:opacity-80 ${shifted === "createCover" ? "bg-black/50 border-grey border" : "bg-main1/50 border border-main"}`}
                 >
-                  COVER A RANGE POOL
+                  COVER A RANGE POSITION
                 </button>
                 </a>
                 <a href="#create" className="w-full">
