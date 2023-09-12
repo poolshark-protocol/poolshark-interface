@@ -117,7 +117,7 @@ export default function RangeAddLiqButton({poolAddress, address, lower, upper, p
                 >
                 Add liquidity
         </button>
-        <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
+        <div className="fixed bottom-4 right-4 flex flex-col space-y-2">
       {errorDisplay && (
         <ErrorToast
           hash={data?.hash}

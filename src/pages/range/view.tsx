@@ -379,7 +379,7 @@ export default function ViewRange() {
               </div>
               <div className="flex items-center gap-x-5">
                 <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                  {Number(rangePositionData.feeTier) / 10000}%
+                  {(Number(rangePositionData.feeTier) / 10000).toFixed(2)}%
                 </span>
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
                   0.9 USDC

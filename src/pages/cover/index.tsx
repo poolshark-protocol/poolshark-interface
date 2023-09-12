@@ -48,12 +48,9 @@ export default function Cover() {
   }, []);
 
   useEffect(() => {
-    console.log("refetching");
     if (needsRefetch == true) {
       setTimeout(() => {
         getUserCoverPositionData();
-        console.log("refetched");
-
         setNeedsRefetch(false);
       }, 5000);
     }

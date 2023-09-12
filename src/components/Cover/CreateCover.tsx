@@ -45,12 +45,14 @@ export default function CreateCover(props: any) {
     setCoverPositionData,
     tokenIn,
     setTokenIn,
+    setTokenInAmount,
     setTokenInCoverAllowance,
-    setCoverAmountIn,
+    //setCoverAmountIn,
     tokenOut,
     setTokenOut,
+    setTokenOutAmount,
     setTokenOutCoverUSDPrice,
-    setCoverAmountOut,
+    //setCoverAmountOut,
     pairSelected,
     switchDirection,
     setCoverPoolFromVolatility,
@@ -70,12 +72,14 @@ export default function CreateCover(props: any) {
     state.setCoverPositionData,
     state.tokenIn,
     state.setTokenIn,
+    state.setTokenInAmount,
     state.setTokenInCoverAllowance,
-    state.setCoverAmountIn,
+    //state.setCoverAmountIn,
     state.tokenOut,
     state.setTokenOut,
+    state.setTokenOutAmount,
     state.setTokenOutCoverUSDPrice,
-    state.setCoverAmountOut,
+    //state.setCoverAmountOut,
     state.pairSelected,
     state.switchDirection,
     state.setCoverPoolFromVolatility,
@@ -199,8 +203,6 @@ export default function CreateCover(props: any) {
   }, [tokenIn, tokenOut, coverPoolData, tokenOrder]);
 
   async function updatePositionData() {
-    console.log("updatePositionData");
-    console.log("coverPoolData", coverPoolData);
     const tickAtPrice = Number(coverPoolData.latestTick);
     const tickSpread = Number(coverPoolData.volatilityTier.tickSpread);
     const lowerPrice = TickMath.getPriceStringAtTick(
@@ -209,7 +211,6 @@ export default function CreateCover(props: any) {
         : tickAtPrice + tickSpread * 8,
       tickSpread
     );
-    console.log("lowerPrice", lowerPrice);
     const upperPrice = TickMath.getPriceStringAtTick(
       tokenOrder ? tickAtPrice - tickSpread * 6 : tickAtPrice + tickSpread * 18,
       tickSpread
@@ -270,8 +271,7 @@ export default function CreateCover(props: any) {
   // set amount in
   useEffect(() => {
     if (!bnInput.eq(BN_ZERO)) {
-      console.log("bnInput", bnInput.toString());
-      setCoverAmountIn(JSBI.BigInt(bnInput.toString()));
+      setTokenInAmount(bnInput);
     }
   }, [bnInput]);
 
@@ -301,20 +301,22 @@ export default function CreateCover(props: any) {
         bnInput,
         BigNumber.from(String(coverMintParams.tokenInAmount))
       );
-      setCoverAmountOut(
-        tokenOrder
-          ? DyDxMath.getDy(
-              liquidityAmount,
-              lowerSqrtPrice,
-              upperSqrtPrice,
-              true
-            )
-          : DyDxMath.getDx(
-              liquidityAmount,
-              lowerSqrtPrice,
-              upperSqrtPrice,
-              true
-            )
+      setTokenOutAmount(
+        BigNumber.from(
+          tokenOrder
+            ? DyDxMath.getDy(
+                liquidityAmount,
+                lowerSqrtPrice,
+                upperSqrtPrice,
+                true
+              ).toString()
+            : DyDxMath.getDx(
+                liquidityAmount,
+                lowerSqrtPrice,
+                upperSqrtPrice,
+                true
+              ).toString()
+        )
       );
     }
   }
@@ -355,7 +357,7 @@ export default function CreateCover(props: any) {
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
       coverPoolData.volatilityTier &&
-      coverMintParams.tokenInAmount.length > 0
+      coverMintParams.tokenInAmount
     )
       updateGasFee();
   }, [
@@ -411,7 +413,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     setMintButtonState();
-  }, [tokenIn, coverMintParams.tokenInAmount]);
+  }, [coverMintParams.tokenInAmount, coverMintParams.tokenOutAmount]);
 
   ////////////////////// Expanded Option
   const [expanded, setExpanded] = useState(false);
@@ -472,7 +474,18 @@ export default function CreateCover(props: any) {
   return (
     <div className="flex flex-col space-y-8">
       <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
-        <h1 className="mb-4">SELECT TOKEN & AMOUNT</h1>
+      <div className="flex mb-4 items-center justify-between">
+          <h1 className="">SELECT TOKEN & AMOUNT</h1>
+          <div
+            onClick={() => {
+              switchDirection();
+            }}
+            className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
+          >
+            Switch directions
+            <DoubleArrowIcon />
+          </div>
+        </div>
         <span className="text-[11px] text-grey1">AMOUNT TO SELL</span>
         <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
           <div className="flex items-end justify-between text-[11px] text-grey1">
@@ -503,23 +516,11 @@ export default function CreateCover(props: any) {
           </div>
         </div>
         <div className="flex items-center justify-center w-full pt-7 pb-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            className="w-5 cursor-pointer"
+        <ArrowLongRightIcon
+            className="w-7 cursor-pointer hover:-rotate-90 rotate-90 transition-all"
             onClick={() => {
               switchDirection();
-            }}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
-            />
-          </svg>
+            }}/>
         </div>
         <span className="text-[11px] text-grey1">AMOUNT TO BUY</span>
         <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
@@ -652,8 +653,14 @@ export default function CreateCover(props: any) {
               onClick={() => setExpanded(!expanded)}
             >
               <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                {1} {tokenIn.symbol} ={" "}
-                {!tokenIn.coverUSDPrice
+                {1} {tokenIn.symbol} =
+                {" " +
+                  (tokenOut.coverUSDPrice / tokenIn.coverUSDPrice).toPrecision(
+                    5
+                  ) +
+                  " " +
+                  tokenOut.symbol}
+                {/* {!tokenIn.coverUSDPrice
                   ? "?" + " " + tokenOut.symbol
                   : (tokenOrder
                       ? TickMath.getPriceStringAtTick(
@@ -668,7 +675,7 @@ export default function CreateCover(props: any) {
                           false
                         )) +
                     " " +
-                    tokenOut.symbol}
+                    tokenOut.symbol} */}
               </div>
               <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
                 <button>
@@ -683,9 +690,7 @@ export default function CreateCover(props: any) {
         </div>
       </div>
       {allowanceInCover ? (
-        allowanceInCover.lt(
-          BigNumber.from(coverMintParams.tokenInAmount.toString())
-        ) ? (
+        allowanceInCover.lt(coverMintParams.tokenInAmount) ? (
           <CoverMintApproveButton
             poolAddress={coverPoolAddress}
             approveToken={tokenIn.address}
