@@ -7,6 +7,7 @@ import {
   useProvider,
   useBalance,
 } from "wagmi";
+import DoubleArrowIcon from "../Icons/DoubleArrowIcon";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import { Fragment, useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
@@ -97,6 +98,7 @@ export default function CoverExistingPool({ goBack }) {
 
   ////////////////////////////////Token Order
   const [tokenOrder, setTokenOrder] = useState(true);
+  const [priceOrder, setPriceOrder] = useState(true);
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address) {
@@ -408,6 +410,32 @@ export default function CoverExistingPool({ goBack }) {
     setSliderValue(event.target.value);
   };
 
+  //////////////////////////////// Switch Price denomination
+  const [minInput, setMinInput] = useState(lowerPrice);
+  const [maxInput, setMaxInput] = useState(upperPrice);
+  const [loadingPrices, setLoadingPrices] = useState(true);
+
+  const handlePriceSwitch = () => {
+    setPriceOrder(!priceOrder);
+    setMaxInput(invertPrice(maxInput, false));
+    setMinInput(invertPrice(minInput, false));
+  };
+
+  useEffect(() => {
+    setUpperPrice(invertPrice(maxInput, priceOrder));
+    setLowerPrice(invertPrice(minInput, priceOrder));
+  }, [maxInput, minInput]);
+
+  useEffect(() => {
+    if (lowerPrice !== "0" && upperPrice !== "0" && loadingPrices) {
+      setLoadingPrices(false);
+      setMinInput(lowerPrice);
+      setMaxInput(upperPrice);
+    }
+  }, [lowerPrice, upperPrice]);
+
+  console.log(upperPrice)
+
   function SelectVolatility() {
     return (
       <Listbox
@@ -503,7 +531,19 @@ export default function CoverExistingPool({ goBack }) {
   return (
     <div className="flex flex-col space-y-8">
       <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
-        <h1 className="mb-4">SELECTED TOKENS</h1>
+      <div className="flex mb-4 items-center justify-between">
+          <h1 className="">SET A PRICE RANGE</h1>
+          <div
+            onClick={() => {
+              switchDirection();
+            }}
+            className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
+          >
+            Switch directions
+            <DoubleArrowIcon />
+          </div>
+        </div>
+
         <div className="flex justify-between md:justify-start gap-x-4 items-center">
           <button className="flex w-full items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
             <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
@@ -512,7 +552,7 @@ export default function CoverExistingPool({ goBack }) {
             </div>
           </button>
           <ArrowLongRightIcon
-            className="w-14 cursor-pointer"
+            className="w-14 cursor-pointer hover:rotate-180 transition-all"
             onClick={() => {
               switchDirection();
             }}
@@ -614,55 +654,69 @@ export default function CoverExistingPool({ goBack }) {
         </div>
       </div>
       <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
-        <h1 className="mb-4">SET A PRICE RANGE</h1>
+      <div className="flex mb-4 items-center justify-between">
+          <h1 className="">SET A PRICE RANGE</h1>
+          <div
+            onClick={handlePriceSwitch}
+            className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
+          >
+            {priceOrder ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>} per{" "}
+            {priceOrder ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>}{" "}
+            <DoubleArrowIcon />
+          </div>
+        </div>
         <div className="flex flex-col gap-y-4">
           <div className="flex md:flex-row flex-col items-center gap-5 mt-3">
-            <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
+          <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
               <span className="text-grey1 text-xs">MIN. PRICE</span>
               <span className="text-white text-3xl">
-                <input
-                  autoComplete="off"
-                  className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
-                  placeholder="0"
-                  id="minInput"
-                  type="text"
-                  value={lowerPrice}
-                  onChange={() =>
-                    setLowerPrice(
-                      inputFilter(
-                        (
-                          document.getElementById(
-                            "minInput"
-                          ) as HTMLInputElement
-                        )?.value
-                      )
-                    )
-                  }
-                />
+                {priceOrder ? (
+                  <input
+                    autoComplete="off"
+                    className="bg-black py-2 outline-none text-center w-full"
+                    placeholder="0"
+                    id="minInput"
+                    type="text"
+                    value={minInput}
+                    onChange={(e) => setMinInput(inputFilter(e.target.value))}
+                  />
+                ) : (
+                  <input
+                    autoComplete="off"
+                    className="bg-black py-2 outline-none text-center w-full"
+                    placeholder="0"
+                    id="minInput"
+                    type="text"
+                    value={maxInput}
+                    onChange={(e) => setMaxInput(inputFilter(e.target.value))}
+                  />
+                )}
               </span>
             </div>
             <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
               <span className="text-grey1 text-xs">MAX. PRICE</span>
               <span className="text-white text-3xl">
-                <input
-                  autoComplete="off"
-                  className="bg-[#0C0C0C] py-2 outline-none text-center w-full"
-                  placeholder="0"
-                  id="maxInput"
-                  type="text"
-                  value={upperPrice}
-                  onChange={() =>
-                    setUpperPrice(
-                      inputFilter(
-                        (
-                          document.getElementById(
-                            "maxInput"
-                          ) as HTMLInputElement
-                        )?.value
-                      )
-                    )
-                  }
-                />
+                {priceOrder ? (
+                  <input
+                    autoComplete="off"
+                    className="bg-black py-2 outline-none text-center w-full"
+                    placeholder="0"
+                    id="minInput"
+                    type="text"
+                    value={maxInput}
+                    onChange={(e) => setMaxInput(inputFilter(e.target.value))}
+                  />
+                ) : (
+                  <input
+                    autoComplete="off"
+                    className="bg-black py-2 outline-none text-center w-full"
+                    placeholder="0"
+                    id="minInput"
+                    type="text"
+                    value={minInput}
+                    onChange={(e) => setMinInput(inputFilter(e.target.value))}
+                  />
+                )}
               </span>
             </div>
           </div>

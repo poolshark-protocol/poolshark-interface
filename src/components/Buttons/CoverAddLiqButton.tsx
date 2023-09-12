@@ -74,7 +74,7 @@ export default function CoverAddLiqButton({poolAddress, address, positionId, low
         {buttonState === 'balance' ? <>Insufficient {tokenSymbol} Balance</> : <></>}
         </> : <> Add Liquidity</>}
         </button>
-        <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
+        <div className="fixed bottom-4 right-4 flex flex-col space-y-2">
       {errorDisplay && (
         <ErrorToast
           hash={data?.hash}
