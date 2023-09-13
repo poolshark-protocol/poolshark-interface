@@ -92,7 +92,7 @@ export default function UserCoverPool({
 
   return (
     <>
-      <div onClick={choosePosition}>
+      <div className="cursor-pointer" onClick={choosePosition}>
         <Link
           href={{
             pathname: href,
@@ -137,7 +137,7 @@ export default function UserCoverPool({
             <div className="flex items-center justify-end w-full">
               <div className="flex relative bg-transparent items-center justify-center h-8 border-grey z-40 border rounded-[4px] gap-x-2 text-sm w-40">
                 <div
-                  className={`bg-white h-full absolute left-0 z-0 rounded-l-[4px] opacity-10 w-[${fillPercent}%]`}
+                  className={`bg-white h-full absolute left-0 z-0 rounded-l-[4px] opacity-10 w-[${Math.floor(parseFloat(fillPercent))}%]`}
                 />
                 <div className="z-20 text-white text-xs">
                   {fillPercent}% Filled
