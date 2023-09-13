@@ -28,6 +28,7 @@ export default function UserCoverPool({
     setTokenIn,
     setTokenOut,
     setClaimTick,
+    setCoverPoolFromVolatility,
   ] = useCoverStore((state) => [
     state.claimTick,
     state.tokenIn,
@@ -38,6 +39,7 @@ export default function UserCoverPool({
     state.setTokenIn,
     state.setTokenOut,
     state.setClaimTick,
+    state.setCoverPoolFromVolatility,
   ]);
 
   const [claimPrice, setClaimPrice] = useState(0);
@@ -84,8 +86,13 @@ export default function UserCoverPool({
     } as tokenCover;
     setTokenIn(tokenOutNew, tokenInNew);
     setTokenOut(tokenInNew, tokenOutNew);
-    //TODO we should also set the pools from volatility tiers
-    getCoverPool(tokenIn, tokenOut, setCoverPoolAddress, setCoverPoolData);
+    const vol0 = { id: 0 };
+    const vol1 = { id: 1 };
+    setCoverPoolFromVolatility(
+      tokenInNew,
+      tokenOutNew,
+      coverPosition.volatilityTier.tickSpread == "20" ? vol0 : vol1
+    );
   }
 
   //console.log("coverPosition", coverPosition);

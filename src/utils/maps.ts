@@ -93,6 +93,7 @@ export function mapUserCoverPositions(coverPositions) {
   coverPositions.map((coverPosition) => {
     const coverPositionData = {
       id: coverPosition.id,
+      positionId: coverPosition.positionId,
       poolId: coverPosition.pool.id,
       tokenZero: coverPosition.zeroForOne
         ? coverPosition.pool.token0
