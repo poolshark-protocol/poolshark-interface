@@ -81,11 +81,11 @@ export const gasEstimateMintLimit = async (
     const price = await fetchPrice("ethereum");
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
 
-    console.log("user address mint", address)
-    console.log("range pool route mint", rangePoolRoute)
-    console.log("lower tick mint", lowerTick.toString())
-    console.log("upper tick mint", upperTick.toString())
-    console.log("bnInput", bnInput.toString())
+    console.log("user address mint", address);
+    console.log("range pool route mint", rangePoolRoute);
+    console.log("lower tick mint", lowerTick.toString());
+    console.log("upper tick mint", upperTick.toString());
+    console.log("bnInput", bnInput.toString());
 
     if (!rangePoolRoute || !provider) {
       setMintGasFee("$0.00");
@@ -246,7 +246,8 @@ export const gasEstimateCoverMint = async (
   tokenIn: tokenCover,
   tokenOut: tokenCover,
   inAmount: BigNumber,
-  signer
+  signer,
+  positionId?: number
 ): Promise<gasEstimateResult> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
@@ -261,17 +262,15 @@ export const gasEstimateCoverMint = async (
       provider
     );
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
-    const lower = BigNumber.from(lowerTick);
-    const upper = BigNumber.from(upperTick);
     const amountIn = BigNumber.from(String(inAmount));
     const gasUnits: BigNumber = await contract
       .connect(signer)
       .estimateGas.mint({
-        positionId: 0,
         to: address,
+        positionId: positionId ?? 0,
         amount: amountIn,
-        lower: lower,
-        upper: upper,
+        lower: lowerTick,
+        upper: upperTick,
         zeroForOne: zeroForOne,
       });
     const price = await fetchPrice("0x000");
@@ -295,10 +294,9 @@ export const gasEstimateCoverMint = async (
 export const gasEstimateCoverBurn = async (
   coverPoolRoute: string,
   address: string,
+  positionId: number,
   burnPercent: BigNumber,
-  lowerTick: BigNumber,
   claimTick: BigNumber,
-  upperTick: BigNumber,
   zeroForOne: boolean,
   signer
 ): Promise<gasEstimateResult> => {
@@ -316,19 +314,15 @@ export const gasEstimateCoverBurn = async (
       provider
     );
     console.log("new burn percent check", burnPercent.toString());
-    const recipient = address;
 
-    const gasUnits = await contract
-      .connect(provider)
-      .estimateGas.burn([
-        recipient,
-        burnPercent,
-        lowerTick,
-        claimTick,
-        upperTick,
-        zeroForOne,
-        true,
-      ]);
+    const gasUnits = await contract.connect(signer).estimateGas.burn({
+      to: address,
+      burnPercent: burnPercent,
+      positionId: positionId,
+      claim: claimTick,
+      zeroForOne: zeroForOne,
+      sync: true,
+    });
     //console.log('new burn percent gas limit', gasUnits.toString(), burnPercent.toString(), lowerTick.toString(), upperTick.toString())
     const price = await fetchPrice("0x000");
     const gasPrice = await provider.getGasPrice();

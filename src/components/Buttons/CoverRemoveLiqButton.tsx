@@ -38,7 +38,16 @@ export default function CoverRemoveLiqButton({
     address: poolAddress,
     abi: coverPoolABI,
     functionName: "burn",
-    args: [[address, burnPercent, positionId, claim, zeroForOne, true]],
+    args: [
+      {
+        to: address,
+        burnPercent: burnPercent,
+        positionId: positionId,
+        claim: claim,
+        zeroForOne: zeroForOne,
+        sync: true,
+      },
+    ],
     chainId: 421613,
     overrides: {
       gasLimit: gasLimit,

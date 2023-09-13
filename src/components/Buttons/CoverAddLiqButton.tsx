@@ -39,8 +39,7 @@ export default function CoverAddLiqButton({
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
 
-  console.log("coverPoolData", coverPoolData);
-
+  
   console.log("cover add liq gas limit", gasLimit.toString());
 
   const { config } = usePrepareContractWrite({
@@ -48,18 +47,14 @@ export default function CoverAddLiqButton({
     abi: coverPoolABI,
     functionName: "mint",
     args: [
-      [
-        toAddress,
-        amount,
-        positionId,
-        BigNumber.from(
-          roundTick(Number(lower), coverPoolData.volatilityTier.tickSpread)
-        ),
-        BigNumber.from(
-          roundTick(Number(upper), coverPoolData.volatilityTier.tickSpread)
-        ),
-        zeroForOne,
-      ],
+      {
+        positionId: positionId,
+        to: toAddress,
+        amount: amount,
+        lower: lower,
+        upper: upper,
+        zeroForOne: zeroForOne,
+      },
     ],
     enabled: amount.gt(BN_ZERO) && poolAddress != undefined,
     chainId: 421613,
@@ -89,9 +84,7 @@ export default function CoverAddLiqButton({
       <button
         disabled={disabled}
         className="disabled:opacity-50 text-sm md:text-base disabled:cursor-not-allowed w-full py-4 mx-auto  text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
-        onClick={() => {
-          address ? write?.() : null;
-        }}
+        onClick={() => write?.()}
       >
         {disabled ? (
           <>

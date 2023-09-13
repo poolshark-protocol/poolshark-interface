@@ -190,32 +190,42 @@ export default function ViewCover() {
 
   ////////////////////////////////Filled Amount
 
-  const { data: filledAmount } = useContractRead({
-    address: coverPoolAddress.toString(),
+  /* console.log("coverpool", coverPoolAddress);
+  console.log("address", address);
+  console.log("positionId", coverPositionData.positionId);
+  console.log("claimTick", claimTick);
+  console.log("zeroForOne", Boolean(coverPositionData.zeroForOne)); */
+
+  /* const { data: filledAmount } = useContractRead({
+    address: coverPoolAddress,
     abi: coverPoolABI,
     functionName: "snapshot",
     args: [
-      [
-        address,
-        BigNumber.from("0"),
-        Number(coverPositionData.positionId),
-        BigNumber.from(claimTick),
-        Boolean(coverPositionData.zeroForOne),
-      ],
+      {
+        to: address,
+        positionId: Number(coverPositionData.positionId),
+        burnPercent: BigNumber.from("0"),
+        claim: BigNumber.from(claimTick),
+        zeroForOne: Boolean(coverPositionData.zeroForOne),
+      },
     ],
     chainId: 421613,
     watch: true,
     enabled:
       BigNumber.from(claimTick).lt(BigNumber.from("887272")) &&
       isConnected &&
-      coverPoolAddress.toString() != "",
+      coverPoolAddress != undefined &&
+      address != undefined,
     onSuccess(data) {
-      //console.log("Success price filled amount", data);
+      console.log("Success price filled amount", data);
     },
     onError(error) {
-      console.log("Error price Cover", error);
+      console.log("coverpool", coverPoolAddress);
+      console.log("address", address);
+      console.log("Error snapshot Cover", error);
     },
-  });
+  }); */
+  const filledAmount = 0;
 
   useEffect(() => {
     if (filledAmount) {
@@ -257,23 +267,6 @@ export default function ViewCover() {
     );
 
     setClaimTick(aux);
-    updateBurnFee(BigNumber.from(claimTick));
-  }
-
-  async function updateBurnFee(claim: BigNumber) {
-    const newGasFee = await gasEstimateCoverBurn(
-      coverPoolAddress.toString(),
-      address,
-      BN_ZERO,
-      BigNumber.from(coverPositionData.min),
-      claim,
-      BigNumber.from(coverPositionData.max),
-      Boolean(coverPositionData.zeroForOne),
-      signer
-    );
-
-    setGasLimit(newGasFee.gasUnits);
-    setGasFee(newGasFee.formattedPrice);
   }
 
   async function getUserCoverPositionData() {
