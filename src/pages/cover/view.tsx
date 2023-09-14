@@ -105,6 +105,7 @@ export default function ViewCover() {
             )
       : undefined
   );
+
   const [poolDisplay, setPoolDisplay] = useState(
     coverPoolAddress
       ? coverPoolAddress.toString().substring(0, 6) +
@@ -118,11 +119,27 @@ export default function ViewCover() {
       : undefined
   );
 
+  useEffect(() => {
+    setPoolDisplay(
+      coverPoolAddress
+        ? coverPoolAddress.toString().substring(0, 6) +
+            "..." +
+            coverPoolAddress
+              .toString()
+              .substring(
+                coverPoolAddress.toString().length - 4,
+                coverPoolAddress.toString().length
+              )
+        : undefined
+    );
+  }, [coverPoolAddress]);
+
   const [lowerInverse, setLowerInverse] = useState(0);
   const [upperInverse, setUpperInverse] = useState(0);
   const [priceInverse, setPriceInverse] = useState(0);
 
   ////////////////////////////////Fetch Pool Data
+
   useEffect(() => {
     if (coverPoolData.token0 && coverPoolData.token1) {
       if (tokenIn.address) {
@@ -289,7 +306,7 @@ export default function ViewCover() {
           (position) => position.id == positionId
         );
         if (position != undefined) {
-          setCoverPositionData(position);
+          //setCoverPositionData(position);
         }
         setNeedsRefetch(false);
         setNeedsPosRefetch(false);
@@ -356,10 +373,7 @@ export default function ViewCover() {
               </div>
               <div className="flex items-center gap-x-5">
                 <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                  {coverPositionData.volatilityTier.tickSpread == "20"
-                    ? "1.7"
-                    : "2.4"}
-                  %
+                  {coverPositionData.tickSpacing == "20" ? "1.7" : "2.4"}%
                 </span>
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
                   0.9 USDC
@@ -397,8 +411,8 @@ export default function ViewCover() {
                     {(
                       Number(
                         ethers.utils.formatUnits(
-                          coverPositionData.userFillOut.toString(),
-                          18
+                          coverPositionData.userFillOut ?? 0,
+                          tokenIn.decimals
                         )
                       ) * tokenIn.coverUSDPrice
                     ).toFixed(2)}
@@ -407,8 +421,8 @@ export default function ViewCover() {
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
                   {Number(
                     ethers.utils.formatUnits(
-                      coverPositionData.userFillOut.toString(),
-                      18
+                      coverPositionData.userFillOut ?? 0,
+                      tokenIn.decimals
                     )
                   ).toFixed(2)}
                   <div className="flex items-center gap-x-2">
@@ -424,22 +438,22 @@ export default function ViewCover() {
                   <h1 className="uppercase text-white">Price Range</h1>
                   {parseFloat(
                     TickMath.getPriceStringAtTick(
-                      Number(coverPositionData.latestTick)
+                      Number(coverPositionData.latestTick) ?? 1
                     )
                   ) <
                     parseFloat(
                       TickMath.getPriceStringAtTick(
-                        Number(coverPositionData.min)
+                        Number(coverPositionData.min) ?? 1
                       )
                     ) ||
                   parseFloat(
                     TickMath.getPriceStringAtTick(
-                      Number(coverPositionData.latestTick)
+                      Number(coverPositionData.latestTick) ?? 1
                     )
                   ) >=
                     parseFloat(
                       TickMath.getPriceStringAtTick(
-                        Number(coverPositionData.max)
+                        Number(coverPositionData.max) ?? 1
                       )
                     ) ? (
                     <span className="text-yellow-600 text-xs bg-yellow-900/30 px-4 py-1 rounded-[4px]">

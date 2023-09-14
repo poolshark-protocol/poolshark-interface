@@ -146,7 +146,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
       bnInput
     )
       updateGasFee();
-  }, [bnInput, coverPoolAddress]);
+  }, [bnInput, coverPoolAddress, allowanceIn, coverPositionData]);
 
   async function updateGasFee() {
     console.log("/////////////////////////////////////////");
