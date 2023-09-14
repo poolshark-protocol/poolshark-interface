@@ -286,9 +286,7 @@ export default function ViewCover() {
 
     setClaimTick(aux);
   }
-
-  console.log("coverPosition atualizou atual", coverPositionData);
-
+ 
   async function getUserCoverPositionData() {
     try {
       const data = await fetchCoverPositions(address);

@@ -86,8 +86,6 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
   const [burnGasLimit, setBurnGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    /* console.log("coverPositionData", coverPositionData);
-    console.log("coverPoolData", coverPoolData); */
     if (
       coverPositionData.lowerTick &&
       coverPositionData.upperTick &&
@@ -99,14 +97,6 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
   }, [sliderValue, coverPoolAddress]);
 
   async function updateGasFee() {
-    console.log("/////////////////////////////////////////");
-    console.log("coverPoolAddress", coverPoolAddress);
-    console.log("address", address);
-    console.log("coverPositionData", coverPositionData);
-    console.log("burnPercent", burnPercent);
-    console.log("claimTick", claimTick);
-    console.log("coverPositionData.zeroForOne", coverPositionData.zeroForOne);
-
     const newBurnGasFee = await gasEstimateCoverBurn(
       coverPoolAddress,
       address,
@@ -116,8 +106,6 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
       coverPositionData.zeroForOne,
       signer
     );
-
-    console.log("newBurnGasFee", newBurnGasFee);
     setBurnGasFee(newBurnGasFee.formattedPrice);
     setBurnGasLimit(newBurnGasFee.gasUnits.mul(250).div(100));
   }

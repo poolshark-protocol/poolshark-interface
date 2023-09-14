@@ -137,8 +137,6 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    /* console.log("coverPositionData", coverPositionData);
-    console.log("coverPoolData", coverPoolData); */
     if (
       coverPositionData.lowerTick &&
       coverPositionData.upperTick &&
@@ -149,17 +147,6 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   }, [bnInput, coverPoolAddress, allowanceIn, coverPositionData]);
 
   async function updateGasFee() {
-    console.log("/////////////////////////////////////////");
-    console.log("coverPoolAddress", coverPoolAddress);
-    console.log("address", address);
-    console.log("coverPositionData", coverPositionData);
-    console.log("coverPoolData", coverPoolData);
-    console.log("tokenIn", tokenIn);
-    console.log("tokenOut", tokenOut);
-    console.log("bnInput", bnInput);
-    console.log("signer", signer);
-    console.log("coverPositionData.positionId", coverPositionData.positionId);
-
     const newMintGasFee = await gasEstimateCoverMint(
       coverPoolAddress,
       address,
