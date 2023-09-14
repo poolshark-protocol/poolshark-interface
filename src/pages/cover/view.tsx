@@ -242,6 +242,7 @@ export default function ViewCover() {
       console.log("Error snapshot Cover", error);
     },
   }); */
+  //TODO new deployment
   const filledAmount = 0;
 
   useEffect(() => {
@@ -286,11 +287,23 @@ export default function ViewCover() {
     setClaimTick(aux);
   }
 
+  console.log("coverPosition atualizou atual", coverPositionData);
+
   async function getUserCoverPositionData() {
     try {
       const data = await fetchCoverPositions(address);
-      if (data["data"])
-        setAllCoverPositions(mapUserCoverPositions(data["data"].positions));
+      if (data["data"]) {
+        const positions = data["data"].positions;
+        const positionData = mapUserCoverPositions(positions);
+        setAllCoverPositions(positionData);
+        const positionId = coverPositionData.positionId;
+        const position = positionData.find(
+          (position) => position.positionId == positionId
+        );
+        if (position != undefined) {
+          setCoverPositionData(position);
+        }
+      }
     } catch (error) {
       console.log(error);
     }
@@ -300,14 +313,6 @@ export default function ViewCover() {
     setTimeout(() => {
       if (needsRefetch == true || needsPosRefetch == true) {
         getUserCoverPositionData();
-
-        const positionId = coverPositionData.id;
-        const position = allCoverPositions.find(
-          (position) => position.id == positionId
-        );
-        if (position != undefined) {
-          //setCoverPositionData(position);
-        }
         setNeedsRefetch(false);
         setNeedsPosRefetch(false);
       }
@@ -438,22 +443,22 @@ export default function ViewCover() {
                   <h1 className="uppercase text-white">Price Range</h1>
                   {parseFloat(
                     TickMath.getPriceStringAtTick(
-                      Number(coverPositionData.latestTick) ?? 1
+                      Number(coverPositionData.latestTick)
                     )
                   ) <
                     parseFloat(
                       TickMath.getPriceStringAtTick(
-                        Number(coverPositionData.min) ?? 1
+                        Number(coverPositionData.min)
                       )
                     ) ||
                   parseFloat(
                     TickMath.getPriceStringAtTick(
-                      Number(coverPositionData.latestTick) ?? 1
+                      Number(coverPositionData.latestTick)
                     )
                   ) >=
                     parseFloat(
                       TickMath.getPriceStringAtTick(
-                        Number(coverPositionData.max) ?? 1
+                        Number(coverPositionData.max)
                       )
                     ) ? (
                     <span className="text-yellow-600 text-xs bg-yellow-900/30 px-4 py-1 rounded-[4px]">
