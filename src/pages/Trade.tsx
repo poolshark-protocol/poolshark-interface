@@ -395,7 +395,7 @@ export default function Trade() {
   }, [limitPriceOrder, tokenOrder]);
 
   useEffect(() => {
-    const tickSpacing = tradePoolData.feeTier.tickSpacing;
+    const tickSpacing = tradePoolData?.feeTier?.tickSpacing;
 
     setLowerTick(
       BigNumber.from(
@@ -405,7 +405,7 @@ export default function Trade() {
   }, [lowerPriceString]);
 
   useEffect(() => {
-    const tickSpacing = tradePoolData.feeTier.tickSpacing;
+    const tickSpacing = tradePoolData?.feeTier?.tickSpacing;
 
     setUpperTick(
       BigNumber.from(
