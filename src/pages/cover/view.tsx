@@ -41,8 +41,6 @@ export default function ViewCover() {
     setTokenInCoverUSDPrice,
     setTokenOutCoverUSDPrice,
     setClaimTick,
-    setGasFee,
-    setGasLimit,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPoolData,
@@ -59,8 +57,6 @@ export default function ViewCover() {
     state.setTokenInCoverUSDPrice,
     state.setTokenOutCoverUSDPrice,
     state.setClaimTick,
-    state.setGasFee,
-    state.setGasLimit,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -286,7 +282,7 @@ export default function ViewCover() {
 
     setClaimTick(aux);
   }
- 
+
   async function getUserCoverPositionData() {
     try {
       const data = await fetchCoverPositions(address);
@@ -314,7 +310,7 @@ export default function ViewCover() {
         setNeedsRefetch(false);
         setNeedsPosRefetch(false);
       }
-    }, 5000);
+    }, 2000);
   }, [needsRefetch, needsPosRefetch]);
 
   ////////////////////////////////Addresses
@@ -339,6 +335,8 @@ export default function ViewCover() {
     navigator.clipboard.writeText(coverPoolAddress.toString());
     setIsPoolCopied(true);
   }
+
+  ////////////////////////////////
 
   return (
     <div className="bg-black min-h-screen  ">

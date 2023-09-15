@@ -110,6 +110,14 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
     setBurnGasLimit(newBurnGasFee.gasUnits.mul(250).div(100));
   }
 
+  ////////////////////////////////Mint Button Handler
+
+  useEffect(() => {
+    setMintButtonState();
+  }, [coverMintParams.tokenInAmount]);
+
+  ////////////////////////////////
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
