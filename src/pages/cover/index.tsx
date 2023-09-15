@@ -14,9 +14,7 @@ import Link from "next/link";
 import PoolIcon from "../../components/Icons/PoolIcon";
 import CoverPool from "../../components/Cover/CoverPool";
 import { fetchCoverPools } from "../../utils/queries";
-import {
-  mapCoverPools,
-} from "../../utils/maps";
+import { mapCoverPools } from "../../utils/maps";
 
 export default function Cover() {
   const [needsRefetch, setNeedsRefetch] = useCoverStore((state) => [
@@ -52,7 +50,7 @@ export default function Cover() {
       setTimeout(() => {
         getUserCoverPositionData();
         setNeedsRefetch(false);
-      }, 5000);
+      }, 1000);
     }
   }, [needsRefetch]);
 
