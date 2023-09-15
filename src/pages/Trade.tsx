@@ -366,6 +366,8 @@ export default function Trade() {
   ////////////////////////////////Limit Price Switch
   const [limitPriceOrder, setLimitPriceOrder] = useState(true);
   const [limitStringPriceQuote, setLimitStringPriceQuote] = useState("0");
+  const [lowerPriceString, setLowerPriceString] = useState("0");
+  const [upperPriceString, setUpperPriceString] = useState("0");
 
   useEffect(() => {
     setLimitStringPriceQuote(
@@ -391,6 +393,26 @@ export default function Trade() {
       );
     }
   }, [limitPriceOrder, tokenOrder]);
+
+  useEffect(() => {
+    const tickSpacing = tradePoolData.feeTier.tickSpacing;
+
+    setLowerTick(
+      BigNumber.from(
+        TickMath.getTickAtPriceString(lowerPriceString, tickSpacing)
+      )
+    );
+  }, [lowerPriceString]);
+
+  useEffect(() => {
+    const tickSpacing = tradePoolData.feeTier.tickSpacing;
+
+    setUpperTick(
+      BigNumber.from(
+        TickMath.getTickAtPriceString(upperPriceString, tickSpacing)
+      )
+    );
+  }, [upperPriceString]);
 
   ////////////////////////////////Limit Ticks
   const [lowerTick, setLowerTick] = useState(BN_ZERO);
@@ -825,13 +847,37 @@ export default function Trade() {
                         <span className="text-center text-xs text-grey1 mb-2">
                           MIN. PRICE
                         </span>
-                        <input className="outline-none bg-transparent text-3xl w-1/2 md:w-56 text-center mb-2" />
+                        <input
+                          autoComplete="off"
+                          className="outline-none bg-transparent text-3xl w-1/2 md:w-56 text-center mb-2"
+                          value={
+                            !isNaN(parseFloat(lowerPriceString))
+                              ? lowerPriceString
+                              : 0
+                          }
+                          type="text"
+                          onChange={(e) => {
+                            setLowerPriceString(inputFilter(e.target.value));
+                          }}
+                        />
                       </div>
                       <div className="border border-grey w-full bg-dark flex flex-col items-center justify-center py-4">
                         <span className="text-center text-xs text-grey1 mb-2">
                           MAX. PRICE
                         </span>
-                        <input className="outline-none bg-transparent text-3xl w-1/2 md:w-56 text-center mb-2" />
+                        <input
+                          autoComplete="off"
+                          className="outline-none bg-transparent text-3xl w-1/2 md:w-56 text-center mb-2"
+                          value={
+                            !isNaN(parseFloat(upperPriceString))
+                              ? upperPriceString
+                              : 0
+                          }
+                          type="text"
+                          onChange={(e) => {
+                            setUpperPriceString(inputFilter(e.target.value));
+                          }} 
+                        />
                       </div>
                     </div>
                   </div>
