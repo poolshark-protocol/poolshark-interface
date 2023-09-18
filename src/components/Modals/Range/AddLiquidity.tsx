@@ -280,8 +280,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
         setTokenOutAmount(BigNumber.from(String(tokenOutAmount)));
         setDisabled(false);
       } else {
-        setAmount1(BN_ZERO);
-        setAmount0(BN_ZERO);
+        setTokenInAmount(BN_ZERO);
+        setTokenOutAmount(BN_ZERO);
         setDisabled(true);
       }
     } catch (error) {
@@ -476,40 +476,43 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                     </button>
                   ) : (
                     <>
-                      {allowanceIn.gte(amount0) && allowanceOut.gte(amount1) ? (
+                      {allowanceIn.gte(rangeMintParams.tokenInAmount) &&
+                      allowanceOut.gte(rangeMintParams.tokenOutAmount) ? (
                         <RangeAddLiqButton
                           poolAddress={rangePoolAddress}
                           address={address}
                           lower={rangePositionData.min}
                           upper={rangePositionData.max}
-                          amount0={amount0}
-                          amount1={amount1}
+                          amount0={rangeMintParams.tokenInAmount}
+                          amount1={rangeMintParams.tokenOutAmount}
                           disabled={rangeMintParams.disabled}
                           setIsOpen={setIsOpen}
                           positionId={rangePositionData.id}
                           gasLimit={mintGasLimit}
                         />
-                      ) : (allowanceIn.lt(amount0) &&
-                          allowanceOut.lt(amount1)) ||
+                      ) : (allowanceIn.lt(rangeMintParams.tokenInAmount) &&
+                          allowanceOut.lt(rangeMintParams.tokenOutAmount)) ||
                         doubleApprove ? (
                         <RangeMintDoubleApproveButton
                           poolAddress={rangePoolAddress}
                           tokenIn={tokenIn}
                           tokenOut={tokenOut}
-                          amount0={amount0}
-                          amount1={amount1}
+                          amount0={rangeMintParams.tokenInAmount}
+                          amount1={rangeMintParams.tokenOutAmount}
                         />
-                      ) : !doubleApprove && allowanceIn.lt(amount0) ? (
+                      ) : !doubleApprove &&
+                        allowanceIn.lt(rangeMintParams.tokenInAmount) ? (
                         <RangeMintApproveButton
                           poolAddress={rangePoolAddress}
                           approveToken={tokenIn}
-                          amount={amount0}
+                          amount={rangeMintParams.tokenInAmount}
                         />
-                      ) : !doubleApprove && allowanceOut.lt(amount1) ? (
+                      ) : !doubleApprove &&
+                        allowanceOut.lt(rangeMintParams.tokenOutAmount) ? (
                         <RangeMintApproveButton
                           poolAddress={rangePoolAddress}
                           approveToken={tokenOut}
-                          amount={amount1}
+                          amount={rangeMintParams.tokenOutAmount}
                         />
                       ) : null}
                     </>

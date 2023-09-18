@@ -45,12 +45,21 @@ export default function RangeAddLiqButton({
 
   const { data: signer } = useSigner();
 
-
   const { config } = usePrepareContractWrite({
     address: poolAddress,
     abi: rangePoolABI,
-    functionName: "mint",
-    args: [[address, lower, upper, amount0, amount1]],
+    functionName: "mintRange",
+    args: [
+      {
+        to: address,
+        lower: lower,
+        upper: upper,
+        positionId: positionId,
+        amount0: amount0,
+        amount1: amount1,
+      },
+    ],
+    //args: [[address, lower, positionId, upper, amount0, amount1]],
     chainId: 421613,
     overrides: {
       gasLimit: gasLimit,

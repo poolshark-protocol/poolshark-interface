@@ -251,38 +251,6 @@ export default function ViewRange() {
     setUserLiquidityUsd(amount0Usd + amount1Usd);
   }, [amount0Usd, amount1Usd]);
 
-  async function getUserRangePositionData() {
-    try {
-      const data = await fetchRangePositions(address);
-      if (data["data"])
-        setAllRangePositions(
-          mapUserRangePositions(data["data"].positionFractions)
-        );
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  useEffect(() => {
-    setTimeout(() => {
-      if (needsRefetch == true || needsPosRefetch == true) {
-        getUserRangePositionData();
-
-        const positionId = rangePositionData.id;
-        const position = allRangePositions.find(
-          (position) => position.id == positionId
-        );
-        console.log("new position", position);
-
-        if (position != undefined) {
-          setRangePositionData(position);
-        }
-
-        setNeedsRefetch(false);
-        setNeedsPosRefetch(false);
-      }
-    }, 5000);
-  }, [needsRefetch, needsPosRefetch]);
 
   ////////////////////////Fees
 
@@ -335,6 +303,38 @@ export default function ViewRange() {
     }
   }
 
+  ////////////////////////////////
+  useEffect(() => {
+    setTimeout(() => {
+      if (needsRefetch == true || needsPosRefetch == true) {
+        getUserRangePositionData();
+        setNeedsRefetch(false);
+        setNeedsPosRefetch(false);
+      }
+    }, 2000);
+  }, [needsRefetch, needsPosRefetch]);
+
+  async function getUserRangePositionData() {
+    try {
+      const data = await fetchRangePositions(address);
+      if (data["data"]) {
+        const positions = data["data"].positions;
+        const positionData = mapUserRangePositions(positions);
+        setAllRangePositions(positionData);
+        const positionId = rangePositionData.positionId;
+        const position = positionData.find(
+          (position) => position.positionId == positionId
+        );
+        if (position != undefined) {
+          setRangePositionData(position);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  
   ////////////////////////////////Mint Button Handler
 
   useEffect(() => {
