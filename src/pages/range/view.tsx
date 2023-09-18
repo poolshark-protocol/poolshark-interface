@@ -254,7 +254,7 @@ export default function ViewRange() {
 
   ////////////////////////Fees
 
-  const { refetch: refetchSnapshot, data: feesOwed } = useContractRead({
+  /* const { refetch: refetchSnapshot, data: feesOwed } = useContractRead({
     address: rangePoolAddress,
     abi: rangePoolABI,
     functionName: "snapshot",
@@ -275,7 +275,7 @@ export default function ViewRange() {
       );
       console.log("Error snapshot Range", error);
     },
-  });
+  }); */
 
   useEffect(() => {
     setFeesOwed();
@@ -559,12 +559,10 @@ export default function ViewRange() {
       <RemoveLiquidity
         isOpen={isRemoveOpen}
         setIsOpen={setIsRemoveOpen}
-        address={address}
       />
       <AddLiquidity
         isOpen={isAddOpen}
         setIsOpen={setIsAddOpen}
-        address={address}
       />
     </div>
   );

@@ -141,6 +141,14 @@ export const gasEstimateRangeMint = async (
   signer,
   positionId?: number
 ): Promise<gasEstimateResult> => {
+  console.log("gas estimate range mint");
+  console.log("range pool route", rangePoolRoute);
+  console.log("address", address);
+  console.log("lower tick", lowerTick.toString());
+  console.log("upper tick", upperTick.toString());
+  console.log("amount0", amount0.toString());
+  console.log("amount1", amount1.toString());
+  console.log("positionId", positionId);
   try {
     const provider = new ethers.providers.JsonRpcProvider(
       "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
@@ -158,17 +166,14 @@ export const gasEstimateRangeMint = async (
       rangePoolABI,
       provider
     );
-
-    const recipient = address;
-
-    const gasUnits = await contract.connect(signer).estimateGas.mintRange([
-      recipient,
-      lowerTick,
-      upperTick,
-      positionId ? positionId : 0, /// @dev - 0 for new position; positionId for existing (i.e. adding liquidity)
-      amount0,
-      amount1,
-    ]);
+    const gasUnits = await contract.connect(signer).estimateGas.mintRange({
+      to: address,
+      lower: lowerTick,
+      upper: upperTick,
+      positionId: positionId ?? 0, /// @dev - 0 for new position; positionId for existing (i.e. adding liquidity)
+      amount0: amount0,
+      amount1: amount1,
+    });
     //console.log('new mint gas limit', gasUnits.toString(), lowerTick.toString(), upperTick.toString())
     const price = await fetchPrice("0x000");
     const gasPrice = await provider.getGasPrice();

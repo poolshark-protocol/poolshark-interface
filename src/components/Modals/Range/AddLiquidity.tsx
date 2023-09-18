@@ -21,7 +21,7 @@ import RangeMintApproveButton from "../../Buttons/RangeMintApproveButton";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { gasEstimateRangeMint } from "../../../utils/gas";
 
-export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
+export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [
     poolRouterAddress,
     rangePoolAddress,
@@ -70,6 +70,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
 
   const { bnInput, maxBalance, inputBox } = useInputBox();
   const provider = useProvider();
+  const { address } = useAccount();
   const signer = new ethers.VoidSigner(address, provider);
 
   const [amount0, setAmount0] = useState(BN_ZERO);
@@ -101,19 +102,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [
-      address,
-      poolRouterAddress[
-        chainIdsToNamesForGitTokenList[chainId]
-      ] as `0x${string}`,
-    ],
+    args: [address, rangePoolAddress],
     chainId: 421613,
     watch: needsAllowanceIn,
-    enabled:
-      isConnected &&
-      rangePoolAddress != undefined &&
-      tokenIn.address != undefined &&
-      needsAllowanceIn,
+    enabled: isConnected && needsAllowanceIn,
     onSuccess(data) {
       //console.log("Success");
       setNeedsAllowanceIn(false);
@@ -127,19 +119,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [
-      address,
-      poolRouterAddress[
-        chainIdsToNamesForGitTokenList[chainId]
-      ] as `0x${string}`,
-    ],
+    args: [address, rangePoolAddress],
     chainId: 421613,
     watch: needsAllowanceOut,
-    enabled:
-      isConnected &&
-      rangePoolAddress != undefined &&
-      tokenOut.address != undefined &&
-      needsAllowanceOut,
+    enabled: isConnected && needsAllowanceOut,
     onSuccess(data) {
       //console.log("Success");
       setNeedsAllowanceOut(false);
@@ -148,6 +131,11 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
       console.log("Error", error);
     },
   });
+
+  console.log("///////////////////////////////");
+
+  console.log("tokenInAllowance", Number(tokenInAllowance));
+  console.log("tokenOutAllowance", Number(tokenOutAllowance));
 
   useEffect(() => {
     setAmounts();
@@ -267,7 +255,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    console.log("rangeMintParams.tokenInAmount", rangeMintParams.tokenInAmount);
+    /* console.log("rangeMintParams.tokenInAmount", rangeMintParams.tokenInAmount);
     console.log(
       "rangeMintParams.tokenOutAmount",
       rangeMintParams.tokenOutAmount
@@ -277,7 +265,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     console.log(
       "Number(rangePositionData.min) < Number(rangePositionData.max)",
       Number(rangePositionData.min) < Number(rangePositionData.max)
-    );
+    ); */
     if (
       rangeMintParams.tokenInAmount &&
       rangeMintParams.tokenOutAmount &&
@@ -297,7 +285,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
       rangePositionData.max,
       rangeMintParams.tokenInAmount,
       rangeMintParams.tokenOutAmount,
-      signer
+      signer,
+      rangePositionData.id
     );
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
   }

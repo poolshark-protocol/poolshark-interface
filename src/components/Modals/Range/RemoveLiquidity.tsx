@@ -9,8 +9,9 @@ import { DyDxMath } from "../../../utils/math/dydxMath";
 import { TickMath } from "../../../utils/math/tickMath";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
+import { useAccount } from "wagmi";
 
-export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
+export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
   const [rangePoolAddress, rangePositionData, tokenIn, tokenOut] =
     useRangeLimitStore((state) => [
       state.rangePoolAddress,
@@ -20,6 +21,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
     ]);
 
   const router = useRouter();
+  const { address } = useAccount();
 
   const [sliderValue, setSliderValue] = useState(1);
   const [sliderOutput, setSliderOutput] = useState("1");

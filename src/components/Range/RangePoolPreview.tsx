@@ -94,8 +94,6 @@ export default function RangePoolPreview() {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    console.log("range mint params preview", rangeMintParams);
-    console.log("range position data preview", rangePositionData);
     if (
       rangeMintParams.tokenInAmount &&
       rangeMintParams.tokenOutAmount &&
@@ -109,6 +107,9 @@ export default function RangePoolPreview() {
   }, [rangeMintParams.tokenInAmount, tokenOut, rangePositionData]);
 
   async function updateGasFee() {
+    console.log("update gas fee");
+    console.log("range mint params", rangeMintParams);
+    console.log("range position data", rangePositionData);
     const newGasFee = await gasEstimateRangeMint(
       rangePoolAddress,
       address,
