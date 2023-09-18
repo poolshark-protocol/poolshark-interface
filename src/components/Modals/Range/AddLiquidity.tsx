@@ -108,30 +108,13 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
       tokenIn.address != undefined &&
       needsAllowanceIn,
     onSuccess(data) {
-      console.log("Success");
+      //console.log("Success");
       setNeedsAllowanceIn(false);
     },
     onError(error) {
       console.log("Error", error);
     },
-    onSettled(data, error) {
-      /* console.log(
-        "allowance check",
-        allowanceIn.lt(bnInput),
-        allowanceIn.toString()
-      );
-      console.log("Allowance Settled", {
-        data,
-        error,
-        rangePoolAddress,
-        tokenIn,
-      }); */
-    },
   });
-
-  useEffect(() => {
-    if (tokenInAllowance) setAllowanceIn(tokenInAllowance);
-  }, [tokenInAllowance]);
 
   const { data: tokenOutAllowance } = useContractRead({
     address: tokenOut.address,
@@ -146,33 +129,13 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
       tokenOut.address != undefined &&
       needsAllowanceOut,
     onSuccess(data) {
-      console.log("Success");
+      //console.log("Success");
       setNeedsAllowanceOut(false);
     },
     onError(error) {
       console.log("Error", error);
     },
-    onSettled(data, error) {
-      /* console.log(
-        "allowance check out",
-        allowanceOut.lt(amount1),
-        allowanceOut.toString()
-      );
-      console.log("Allowance Settled", {
-        data,
-        error,
-        rangePoolAddress,
-        tokenIn,
-      }); */
-    },
   });
-
-  useEffect(() => {
-    if (tokenOutAllowance) {
-      console.log("token out allowance check", tokenOutAllowance.toString());
-      setAllowanceOut(tokenOutAllowance);
-    }
-  }, [tokenOutAllowance]);
 
   useEffect(() => {
     setAmounts();
@@ -289,14 +252,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     }
   }
 
-  ////////////////////////////////Gas Fee
-
   ////////////////////////////////Mint Gas Fee
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    console.log("range mint params component", rangeMintParams);
-    console.log("range position data component", rangePositionData);
     if (
       rangeMintParams.tokenInAmount &&
       rangeMintParams.tokenOutAmount &&
