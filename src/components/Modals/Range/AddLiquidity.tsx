@@ -23,6 +23,7 @@ import { gasEstimateRangeMint } from "../../../utils/gas";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
+    poolRouterAddress,
     rangePoolAddress,
     rangePoolData,
     rangeMintParams,
@@ -44,6 +45,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     setNeedsBalanceOut,
     setMintButtonState,
   ] = useRangeLimitStore((state) => [
+    state.poolRouterAddresses,
     state.rangePoolAddress,
     state.rangePoolData,
     state.rangeMintParams,
@@ -73,8 +75,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
   const [amount0, setAmount0] = useState(BN_ZERO);
   const [amount1, setAmount1] = useState(BN_ZERO);
   const [disabled, setDisabled] = useState(false);
-  const [allowanceIn, setAllowanceIn] = useState(BN_ZERO);
-  const [allowanceOut, setAllowanceOut] = useState(BN_ZERO);
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
     Number(rangePositionData.min)
   );
@@ -95,11 +95,18 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     network: { chainId },
   } = useProvider();
 
+  ////////////////////////////////Allowances
+
   const { data: tokenInAllowance } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolAddress],
+    args: [
+      address,
+      poolRouterAddress[
+        chainIdsToNamesForGitTokenList[chainId]
+      ] as `0x${string}`,
+    ],
     chainId: 421613,
     watch: needsAllowanceIn,
     enabled:
@@ -120,7 +127,12 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolAddress],
+    args: [
+      address,
+      poolRouterAddress[
+        chainIdsToNamesForGitTokenList[chainId]
+      ] as `0x${string}`,
+    ],
     chainId: 421613,
     watch: needsAllowanceOut,
     enabled:
@@ -180,7 +192,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     }
   }, [tokenInBal, tokenOutBal]);
 
-  //////////////////////////////
+  //////////////////////////////Amounts and states
 
   // disabled messages
   useEffect(() => {
@@ -232,7 +244,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                 tokenOrder ? BN_ZERO : bnInput,
                 tokenOrder ? bnInput : BN_ZERO
               );
-        console.log("liquidity check", liquidity);
         const tokenOutAmount = JSBI.greaterThan(liquidity, ZERO)
           ? tokenOrder
             ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
@@ -256,6 +267,17 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
+    console.log("rangeMintParams.tokenInAmount", rangeMintParams.tokenInAmount);
+    console.log(
+      "rangeMintParams.tokenOutAmount",
+      rangeMintParams.tokenOutAmount
+    );
+    console.log("rangePositionData.min", rangePositionData.min);
+    console.log("rangePositionData.max", rangePositionData.max);
+    console.log(
+      "Number(rangePositionData.min) < Number(rangePositionData.max)",
+      Number(rangePositionData.min) < Number(rangePositionData.max)
+    );
     if (
       rangeMintParams.tokenInAmount &&
       rangeMintParams.tokenOutAmount &&
@@ -265,7 +287,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     ) {
       updateGasFee();
     }
-  }, [rangeMintParams.tokenInAmount, tokenOut, rangePositionData]);
+  }, [tokenInAllowance, tokenOutAllowance, rangeMintParams, bnInput]);
 
   async function updateGasFee() {
     const newGasFee = await gasEstimateRangeMint(
@@ -292,6 +314,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
   useEffect(() => {
     setMintButtonState();
   }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount]);
+
+  ////////////////////////////////
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -416,7 +440,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                       </div>
                     </div>
                   </div>
-                  {disabled === true ? (
+                  {!tokenInAllowance || !tokenOutAllowance ? (
                     <button
                       disabled={disabled}
                       className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
@@ -435,8 +459,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                     </button>
                   ) : (
                     <>
-                      {allowanceIn.gte(rangeMintParams.tokenInAmount) &&
-                      allowanceOut.gte(rangeMintParams.tokenOutAmount) ? (
+                      {tokenInAllowance.gte(rangeMintParams.tokenInAmount) &&
+                      tokenOutAllowance.gte(rangeMintParams.tokenOutAmount) ? (
                         <RangeAddLiqButton
                           poolAddress={rangePoolAddress}
                           address={address}
@@ -449,8 +473,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                           positionId={rangePositionData.id}
                           gasLimit={mintGasLimit}
                         />
-                      ) : (allowanceIn.lt(rangeMintParams.tokenInAmount) &&
-                          allowanceOut.lt(rangeMintParams.tokenOutAmount)) ||
+                      ) : (tokenInAllowance.lt(rangeMintParams.tokenInAmount) &&
+                          tokenOutAllowance.lt(
+                            rangeMintParams.tokenOutAmount
+                          )) ||
                         doubleApprove ? (
                         <RangeMintDoubleApproveButton
                           poolAddress={rangePoolAddress}
@@ -460,14 +486,14 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                           amount1={rangeMintParams.tokenOutAmount}
                         />
                       ) : !doubleApprove &&
-                        allowanceIn.lt(rangeMintParams.tokenInAmount) ? (
+                        tokenInAllowance.lt(rangeMintParams.tokenInAmount) ? (
                         <RangeMintApproveButton
                           poolAddress={rangePoolAddress}
                           approveToken={tokenIn}
                           amount={rangeMintParams.tokenInAmount}
                         />
                       ) : !doubleApprove &&
-                        allowanceOut.lt(rangeMintParams.tokenOutAmount) ? (
+                        tokenOutAllowance.lt(rangeMintParams.tokenOutAmount) ? (
                         <RangeMintApproveButton
                           poolAddress={rangePoolAddress}
                           approveToken={tokenOut}
