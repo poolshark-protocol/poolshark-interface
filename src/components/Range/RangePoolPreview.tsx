@@ -94,6 +94,8 @@ export default function RangePoolPreview() {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
+    console.log("range mint params preview", rangeMintParams);
+    console.log("range position data preview", rangePositionData);
     if (
       rangeMintParams.tokenInAmount &&
       rangeMintParams.tokenOutAmount &&

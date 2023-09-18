@@ -19,10 +19,12 @@ import { chainIdsToNamesForGitTokenList } from "../../../utils/chains";
 import RangeMintDoubleApproveButton from "../../Buttons/RangeMintDoubleApproveButton";
 import RangeMintApproveButton from "../../Buttons/RangeMintApproveButton";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
+import { gasEstimateRangeMint } from "../../../utils/gas";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
     rangePoolAddress,
+    rangePoolData,
     rangeMintParams,
     pairSelected,
     tokenIn,
@@ -40,8 +42,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     setNeedsBalanceIn,
     needsBalanceOut,
     setNeedsBalanceOut,
+    setMintButtonState,
   ] = useRangeLimitStore((state) => [
     state.rangePoolAddress,
+    state.rangePoolData,
     state.rangeMintParams,
     state.pairSelected,
     state.tokenIn,
@@ -59,9 +63,13 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     state.setNeedsBalanceIn,
     state.needsBalanceOut,
     state.setNeedsBalanceOut,
+    state.setMintButtonState,
   ]);
 
   const { bnInput, maxBalance, inputBox } = useInputBox();
+  const provider = useProvider();
+  const signer = new ethers.VoidSigner(address, provider);
+
   const [amount0, setAmount0] = useState(BN_ZERO);
   const [amount1, setAmount1] = useState(BN_ZERO);
   const [disabled, setDisabled] = useState(false);
@@ -107,7 +115,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
       console.log("Error", error);
     },
     onSettled(data, error) {
-      console.log(
+      /* console.log(
         "allowance check",
         allowanceIn.lt(bnInput),
         allowanceIn.toString()
@@ -117,7 +125,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
         error,
         rangePoolAddress,
         tokenIn,
-      });
+      }); */
     },
   });
 
@@ -145,7 +153,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
       console.log("Error", error);
     },
     onSettled(data, error) {
-      console.log(
+      /* console.log(
         "allowance check out",
         allowanceOut.lt(amount1),
         allowanceOut.toString()
@@ -155,7 +163,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
         error,
         rangePoolAddress,
         tokenIn,
-      });
+      }); */
     },
   });
 
@@ -281,6 +289,51 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     }
   }
 
+  ////////////////////////////////Gas Fee
+
+  ////////////////////////////////Mint Gas Fee
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
+
+  useEffect(() => {
+    console.log("range mint params component", rangeMintParams);
+    console.log("range position data component", rangePositionData);
+    if (
+      rangeMintParams.tokenInAmount &&
+      rangeMintParams.tokenOutAmount &&
+      rangePositionData.min &&
+      rangePositionData.max &&
+      Number(rangePositionData.min) < Number(rangePositionData.max)
+    ) {
+      updateGasFee();
+    }
+  }, [rangeMintParams.tokenInAmount, tokenOut, rangePositionData]);
+
+  async function updateGasFee() {
+    const newGasFee = await gasEstimateRangeMint(
+      rangePoolAddress,
+      address,
+      rangePositionData.min,
+      rangePositionData.max,
+      rangeMintParams.tokenInAmount,
+      rangeMintParams.tokenOutAmount,
+      signer
+    );
+    setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
+  }
+
+  ////////////////////////////////Mint Button State
+
+  // set amount in
+  useEffect(() => {
+    if (!bnInput.eq(BN_ZERO)) {
+      setTokenInAmount(bnInput);
+    }
+  }, [bnInput]);
+
+  useEffect(() => {
+    setMintButtonState();
+  }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount]);
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
@@ -405,7 +458,10 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                     </div>
                   </div>
                   {disabled === true ? (
-                    <button disabled={disabled} className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80">
+                    <button
+                      disabled={disabled}
+                      className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
+                    >
                       {buttonState === "amount" ? <>Input Amount</> : <></>}
                       {buttonState === "balance0" ? (
                         <>Insufficient {tokenIn.symbol} Balance</>
@@ -424,13 +480,14 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                         <RangeAddLiqButton
                           poolAddress={rangePoolAddress}
                           address={address}
-                          lower={BigNumber.from(rangePositionData.min)}
-                          upper={BigNumber.from(rangePositionData.max)}
+                          lower={rangePositionData.min}
+                          upper={rangePositionData.max}
                           amount0={amount0}
                           amount1={amount1}
-                          disabled={disabled}
+                          disabled={rangeMintParams.disabled}
                           setIsOpen={setIsOpen}
                           positionId={rangePositionData.id}
+                          gasLimit={mintGasLimit}
                         />
                       ) : (allowanceIn.lt(amount0) &&
                           allowanceOut.lt(amount1)) ||
