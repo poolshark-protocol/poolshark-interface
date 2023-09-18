@@ -474,7 +474,7 @@ export default function CreateCover(props: any) {
   return (
     <div className="flex flex-col space-y-8">
       <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
-      <div className="flex mb-4 items-center justify-between">
+        <div className="flex mb-4 items-center justify-between">
           <h1 className="">SELECT TOKEN & AMOUNT</h1>
           <div
             onClick={() => {
@@ -516,11 +516,12 @@ export default function CreateCover(props: any) {
           </div>
         </div>
         <div className="flex items-center justify-center w-full pt-7 pb-4">
-        <ArrowLongRightIcon
+          <ArrowLongRightIcon
             className="w-7 cursor-pointer hover:-rotate-90 rotate-90 transition-all"
             onClick={() => {
               switchDirection();
-            }}/>
+            }}
+          />
         </div>
         <span className="text-[11px] text-grey1">AMOUNT TO BUY</span>
         <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">

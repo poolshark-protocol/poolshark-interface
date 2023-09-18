@@ -278,7 +278,8 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                     zeroForOne={Boolean(coverPositionData.zeroForOne)}
                     amount={bnInput}
                     gasLimit={mintGasLimit}
-                    buttonState={coverMintParams.buttonMessage}
+                    //todo put this to store
+                    buttonState={buttonState}
                     tokenSymbol={tokenIn.symbol}
                     setIsOpen={setIsOpen}
                   />
