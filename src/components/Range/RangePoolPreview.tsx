@@ -107,6 +107,9 @@ export default function RangePoolPreview() {
   }, [rangeMintParams.tokenInAmount, tokenOut, rangePositionData]);
 
   async function updateGasFee() {
+    console.log("update gas fee");
+    console.log("range mint params", rangeMintParams);
+    console.log("range position data", rangePositionData);
     const newGasFee = await gasEstimateRangeMint(
       rangePoolAddress,
       address,

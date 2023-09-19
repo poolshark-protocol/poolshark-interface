@@ -18,6 +18,15 @@ export default function CoverPool({
   href,
 }) {
 
+  const [setCoverTokenIn, setCoverTokenOut, setCoverPoolFromVolatility] =
+  useCoverStore((state) => [
+    state.setTokenIn,
+    state.setTokenOut,
+    state.setCoverPoolFromVolatility,
+  ]);
+
+const router = useRouter();
+
   const chooseCoverPool = () => {
     const tokenIn = {
       name: tokenZero.symbol,
@@ -33,25 +42,21 @@ export default function CoverPool({
     } as tokenCover;
     setCoverTokenIn(tokenOut, tokenIn);
     setCoverTokenOut(tokenIn, tokenOut);
-    const tier = {
-      ...feeTier,
-      id: feeTier.tickSpread == "20" ? 0 : 1,
-    };
-    setCoverPoolFromVolatility(tokenIn, tokenOut, tier);
+    const vol0 = { id: 0 };
+    const vol1 = { id: 1 };
+    console.log("tickSpacing", tickSpacing);
+    setCoverPoolFromVolatility(
+      tokenIn,
+      tokenOut,
+      tickSpacing == 20 ? vol0 : vol1
+    );
     router.push({
       pathname: href,
       query: { state: "existing" },
     });
   };
 
-  const [setCoverTokenIn, setCoverTokenOut, setCoverPoolFromVolatility] =
-    useCoverStore((state) => [
-      state.setTokenIn,
-      state.setTokenOut,
-      state.setCoverPoolFromVolatility,
-    ]);
-
-  const router = useRouter();
+  
 
   return (
     <>
@@ -72,9 +77,7 @@ export default function CoverPool({
               {tokenZero.symbol} - {tokenOne.symbol}
             </span>
             <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-              {feeTier.tickSpread == "20"
-              ? "1.7"
-              : "2.4"}%
+              {feeTier.tickSpread == "20" ? "1.7" : "2.4"}%
             </span>
           </div>
           <div className=" grid-cols-3 grid items-center">

@@ -333,6 +333,13 @@ export default function AddLiquidity({}) {
 
   ////////////////////////////////Mint Button State
 
+  // set amount in
+  useEffect(() => {
+    if (!bnInput.eq(BN_ZERO)) {
+      setTokenInAmount(bnInput);
+    }
+  }, [bnInput]);
+
   useEffect(() => {
     setMintButtonState();
   }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount]);

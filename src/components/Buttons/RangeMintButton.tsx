@@ -47,7 +47,16 @@ export default function RangeMintButton({
     address: poolAddress,
     abi: rangePoolABI,
     functionName: "mintRange",
-    args: [[to, lower, upper, positionId, amount0, amount1]],
+    args: [
+      {
+        to: to,
+        lower: lower,
+        upper: upper,
+        positionId: positionId,
+        amount0: amount0,
+        amount1: amount1,
+      },
+    ],
     chainId: 421613,
     overrides: {
       gasLimit: gasLimit,
