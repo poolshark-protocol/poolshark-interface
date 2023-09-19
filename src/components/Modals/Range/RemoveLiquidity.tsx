@@ -9,19 +9,29 @@ import { DyDxMath } from "../../../utils/math/dydxMath";
 import { TickMath } from "../../../utils/math/tickMath";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
-import { useAccount } from "wagmi";
+import { useAccount, useSigner } from "wagmi";
+import { gasEstimateRangeBurn } from "../../../utils/gas";
 
 export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
-  const [rangePoolAddress, rangePositionData, tokenIn, tokenOut] =
-    useRangeLimitStore((state) => [
-      state.rangePoolAddress,
-      state.rangePositionData,
-      state.tokenIn,
-      state.tokenOut,
-    ]);
+  const [
+    rangePoolAddress,
+    rangePositionData,
+    rangeMintParams,
+    tokenIn,
+    tokenOut,
+    setMintButtonState,
+  ] = useRangeLimitStore((state) => [
+    state.rangePoolAddress,
+    state.rangePositionData,
+    state.rangeMintParams,
+    state.tokenIn,
+    state.tokenOut,
+    state.setMintButtonState,
+  ]);
 
   const router = useRouter();
   const { address } = useAccount();
+  const { data: signer } = useSigner();
 
   const [sliderValue, setSliderValue] = useState(1);
   const [sliderOutput, setSliderOutput] = useState("1");
@@ -45,10 +55,6 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
       .mul(BigNumber.from(rangePositionData.liquidity))
       .div(BigNumber.from(100));
     setBurnPercent(ethers.utils.parseUnits(sliderValue.toString(), 36));
-    console.log(
-      "new burn percent",
-      ethers.utils.parseUnits(sliderValue.toString(), 36).toString()
-    );
     setAmounts(JSBI.BigInt(tokenAmountToBurn), true);
   }, [sliderValue]);
 
@@ -94,6 +100,39 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
       console.log(error);
     }
   }
+
+  ////////////////////////////////Gas Fees Estimation
+  const [burnGasFee, setBurnGasFee] = useState("$0.00");
+  const [burnGasLimit, setBurnGasLimit] = useState(BN_ZERO);
+
+  useEffect(() => {
+    if (
+      rangePositionData.lowerTick &&
+      rangePositionData.upperTick &&
+      sliderValue &&
+      signer
+    )
+      updateGasFee();
+  }, [sliderValue, rangePoolAddress]);
+
+  async function updateGasFee() {
+    const newBurnGasFee = await gasEstimateRangeBurn(
+      rangePoolAddress,
+      address,
+      rangePositionData.positionId,
+      burnPercent,
+      signer
+    );
+    setBurnGasFee(newBurnGasFee.formattedPrice);
+    setBurnGasLimit(newBurnGasFee.gasUnits.mul(250).div(100));
+    console.log(newBurnGasFee);
+  }
+
+  ////////////////////////////////Mint Button Handler
+
+  useEffect(() => {
+    setMintButtonState();
+  }, [rangeMintParams.tokenInAmount]);
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -271,7 +310,9 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
                       router.push("/pool");
                     }
                   }}
+                  gasLimit={burnGasLimit}
                   setIsOpen={setIsOpen}
+                  disabled={rangeMintParams.disabled}
                 />
               </Dialog.Panel>
             </Transition.Child>

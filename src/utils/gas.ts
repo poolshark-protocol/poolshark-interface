@@ -214,18 +214,10 @@ export const gasEstimateRangeBurn = async (
       rangePoolABI,
       provider
     );
-    console.log("burn args", burnPercent.toString(), positionId.toString());
     const recipient = address;
-
     const gasUnits = await contract
       .connect(signer)
-      .estimateGas.burn([recipient, positionId, burnPercent]);
-    console.log(
-      "burn estimate args",
-      gasUnits.toString(),
-      burnPercent.toString(),
-      positionId.toString()
-    );
+      .estimateGas.burnRange([recipient, positionId, burnPercent]);
     const price = await fetchPrice("ethereum");
     const gasPrice = await provider.getGasPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
@@ -318,8 +310,6 @@ export const gasEstimateCoverBurn = async (
       coverPoolABI,
       provider
     );
-    console.log("new burn percent check", burnPercent.toString());
-
     const gasUnits = await contract.connect(signer).estimateGas.burn({
       to: address,
       burnPercent: burnPercent,
@@ -328,7 +318,6 @@ export const gasEstimateCoverBurn = async (
       zeroForOne: zeroForOne,
       sync: true,
     });
-    //console.log('new burn percent gas limit', gasUnits.toString(), burnPercent.toString(), lowerTick.toString(), upperTick.toString())
     const price = await fetchPrice("0x000");
     const gasPrice = await provider.getGasPrice();
     const ethUsdPrice = Number(price["data"]["bundles"]["0"]["ethPriceUSD"]);
