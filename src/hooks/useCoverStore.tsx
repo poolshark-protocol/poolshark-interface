@@ -425,9 +425,10 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         if (
           (volatilityId == 0 &&
             pool["data"]["coverPools"][i]["volatilityTier"]["tickSpread"] ==
-              20) ||
+              "20") ||
           (volatilityId == 1 &&
-            pool["data"]["coverPools"][i]["volatilityTier"]["tickSpread"] == 40)
+            pool["data"]["coverPools"][i]["volatilityTier"]["tickSpread"] ==
+              "40")
         ) {
           set(() => ({
             coverPoolAddress: pool["data"]["coverPools"][i]["id"],

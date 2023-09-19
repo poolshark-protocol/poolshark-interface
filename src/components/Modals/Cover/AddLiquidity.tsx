@@ -18,11 +18,14 @@ import { chainIdsToNamesForGitTokenList } from "../../../utils/chains";
 import { gasEstimateCoverMint } from "../../../utils/gas";
 import JSBI from "jsbi";
 import { useCoverStore } from "../../../hooks/useCoverStore";
+import { TickMath } from "../../../utils/math/tickMath";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
     coverPoolAddress,
+    coverPoolData,
     coverPositionData,
+    coverMintParams,
     tokenIn,
     setTokenInBalance,
     tokenOut,
@@ -30,9 +33,12 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     setNeedsAllowance,
     needsBalance,
     setNeedsBalance,
+    setMintButtonState,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
+    state.coverPoolData,
     state.coverPositionData,
+    state.coverMintParams,
     state.tokenIn,
     state.setTokenInBalance,
     state.tokenOut,
@@ -40,6 +46,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     state.setNeedsAllowance,
     state.needsBalance,
     state.setNeedsBalance,
+    state.setMintButtonState,
   ]);
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
@@ -49,33 +56,28 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   } = useProvider();
   const { data: signer } = useSigner();
 
-  const [allowanceIn, setAllowanceIn] = useState(BN_ZERO);
   const { isConnected } = useAccount();
   const [stateChainName, setStateChainName] = useState();
-  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
-  const [mintGasFee, setMintGasFee] = useState("$0.00");
-  const [fetchDelay, setFetchDelay] = useState(false);
   const [buttonState, setButtonState] = useState("");
   const [disabled, setDisabled] = useState(true);
 
-  const { data: tokenInAllowance } = useContractRead({
+  ////////////////////////////////Allowances
+
+  const { data: allowanceInCover } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
     args: [address, coverPoolAddress],
     chainId: 421613,
     watch: needsAllowance,
-    enabled:
-      isConnected &&
-      coverPoolAddress != undefined &&
-      tokenIn.address != undefined && needsAllowance,
+    enabled: isConnected && coverPoolAddress != "0x00" && needsAllowance,
     onSuccess(data) {
-      //console.log("Success");
       setNeedsAllowance(false);
     },
     onError(error) {
       console.log("Error", error);
     },
+    onSettled(data, error) {},
   });
 
   ////////////////////////////////Token Balances
@@ -87,7 +89,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     watch: needsBalance,
     onSuccess(data) {
       setNeedsBalance(false);
-    }
+    },
   });
 
   useEffect(() => {
@@ -102,7 +104,9 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
 
   // disabled messages
   useEffect(() => {
-    if (Number(ethers.utils.formatUnits(bnInput)) > Number(tokenIn.userBalance)) {
+    if (
+      Number(ethers.utils.formatUnits(bnInput)) > Number(tokenIn.userBalance)
+    ) {
       setButtonState("balance");
     }
     if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
@@ -122,28 +126,44 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
   }, [chainId]);
 
-  useEffect(() => {
-    if (tokenInAllowance) setAllowanceIn(tokenInAllowance);
-  }, [tokenInAllowance]);
+  ////////////////////////////////Gas Fees Estimation
+  const [mintGasFee, setMintGasFee] = useState("$0.00");
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    updateMintFee();
-  }, [bnInput]);
+    if (
+      coverPositionData.lowerTick &&
+      coverPositionData.upperTick &&
+      coverPoolData.volatilityTier &&
+      allowanceInCover &&
+      bnInput
+    )
+      updateGasFee();
+  }, [bnInput, coverPoolAddress, allowanceInCover, coverPositionData]);
 
-  async function updateMintFee() {
-    const newMintFee = await gasEstimateCoverMint(
+  async function updateGasFee() {
+    const newMintGasFee = await gasEstimateCoverMint(
       coverPoolAddress,
       address,
-      Number(coverPositionData.max),
-      Number(coverPositionData.min),
+      coverPositionData.upperTick,
+      coverPositionData.lowerTick,
       tokenIn,
       tokenOut,
       bnInput,
-      signer
+      signer,
+      coverPositionData.positionId
     );
-    setMintGasFee(newMintFee.formattedPrice);
-    setMintGasLimit(newMintFee.gasUnits.mul(130).div(100));
+    setMintGasFee(newMintGasFee.formattedPrice);
+    setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
   }
+
+  ////////////////////////////////Mint Button Handler
+
+  useEffect(() => {
+    setMintButtonState();
+  }, [coverMintParams.tokenInAmount]);
+
+  ////////////////////////////////
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -175,7 +195,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-               <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-[4px] bg-black text-white border border-grey text-left align-middle shadow-xl px-5 py-5 transition-all">
+              <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-[4px] bg-black text-white border border-grey text-left align-middle shadow-xl px-5 py-5 transition-all">
                 <div className="flex items-center justify-between px-2">
                   <h1 className="text-lg">Add Liquidity</h1>
                   <XMarkIcon
@@ -193,7 +213,12 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                         ${" "}
                         {Number(
                           tokenIn.coverUSDPrice *
-                            parseFloat(ethers.utils.formatUnits(bnInput, tokenIn.decimals))
+                            parseFloat(
+                              ethers.utils.formatUnits(
+                                bnInput,
+                                tokenIn.decimals
+                              )
+                            )
                         ).toFixed(2)}
                       </div>
                     </div>
@@ -233,7 +258,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                   </div>
                 </div>
                 {isConnected &&
-                allowanceIn.lt(bnInput) &&
+                allowanceInCover.lt(bnInput) &&
                 stateChainName === "arbitrumGoerli" ? (
                   <CoverMintApproveButton
                     poolAddress={coverPoolAddress}
@@ -243,7 +268,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                   />
                 ) : stateChainName === "arbitrumGoerli" ? (
                   <CoverAddLiqButton
-                    disabled={disabled || mintGasFee == "$0.00"}
+                    disabled={disabled}
                     toAddress={address}
                     poolAddress={coverPoolAddress}
                     address={address}
@@ -253,7 +278,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                     zeroForOne={Boolean(coverPositionData.zeroForOne)}
                     amount={bnInput}
                     gasLimit={mintGasLimit}
-                    buttonState={buttonState}
+                    buttonState={coverMintParams.buttonMessage}
                     tokenSymbol={tokenIn.symbol}
                     setIsOpen={setIsOpen}
                   />

@@ -6,10 +6,13 @@ import { BigNumber, ethers } from "ethers";
 import { BN_ZERO } from "../../../utils/math/constants";
 import { useRouter } from "next/router";
 import { useCoverStore } from "../../../hooks/useCoverStore";
+import { gasEstimateCoverBurn } from "../../../utils/gas";
+import { useSigner } from "wagmi";
 
 export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
   const [
     coverPoolAddress,
+    coverPoolData,
     coverPositionData,
     coverMintParams,
     tokenIn,
@@ -18,6 +21,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
     setMintButtonState,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
+    state.coverPoolData,
     state.coverPositionData,
     state.coverMintParams,
     state.tokenIn,
@@ -27,6 +31,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
   ]);
 
   const router = useRouter();
+  const { data: signer } = useSigner();
 
   const [burnPercent, setBurnPercent] = useState(
     ethers.utils.parseUnits("5", 37)
@@ -75,6 +80,43 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
   const handleSliderButton = (percent: number) => {
     setSliderValue(percent);
   };
+
+  ////////////////////////////////Gas Fees Estimation
+  const [burnGasFee, setBurnGasFee] = useState("$0.00");
+  const [burnGasLimit, setBurnGasLimit] = useState(BN_ZERO);
+
+  useEffect(() => {
+    if (
+      coverPositionData.lowerTick &&
+      coverPositionData.upperTick &&
+      coverPoolData.volatilityTier &&
+      sliderValue &&
+      signer
+    )
+      updateGasFee();
+  }, [sliderValue, coverPoolAddress]);
+
+  async function updateGasFee() {
+    const newBurnGasFee = await gasEstimateCoverBurn(
+      coverPoolAddress,
+      address,
+      coverPositionData.positionId,
+      burnPercent,
+      BigNumber.from(claimTick),
+      coverPositionData.zeroForOne,
+      signer
+    );
+    setBurnGasFee(newBurnGasFee.formattedPrice);
+    setBurnGasLimit(newBurnGasFee.gasUnits.mul(250).div(100));
+  }
+
+  ////////////////////////////////Mint Button Handler
+
+  useEffect(() => {
+    setMintButtonState();
+  }, [coverMintParams.tokenInAmount]);
+
+  ////////////////////////////////
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -203,7 +245,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
                   claim={BigNumber.from(claimTick ?? 0)}
                   zeroForOne={Boolean(coverPositionData.zeroForOne)}
                   burnPercent={burnPercent ?? BN_ZERO}
-                  gasLimit={coverMintParams.gasLimit.mul(250).div(100)}
+                  gasLimit={burnGasLimit}
                   closeModal={() => {
                     if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
                       router.push("/pool");

@@ -11,6 +11,7 @@ import React, { useState, useEffect } from "react";
 import { roundTick } from "../../utils/math/tickMath";
 import { BigNumber } from "ethers";
 import { useCoverStore } from "../../hooks/useCoverStore";
+import router from "next/router";
 
 export default function CoverMintButton({
   poolAddress,
@@ -27,17 +28,15 @@ export default function CoverMintButton({
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
 
-  const [
-    setNeedsRefetch,
-    setNeedsAllowance,
-    setNeedsBalance,
-  ] = useCoverStore((state) => [
-    state.setNeedsRefetch,
-    state.setNeedsAllowance,
-    state.setNeedsBalance,
-  ]);
+  const [setNeedsRefetch, setNeedsAllowance, setNeedsBalance] = useCoverStore(
+    (state) => [
+      state.setNeedsRefetch,
+      state.setNeedsAllowance,
+      state.setNeedsBalance,
+    ]
+  );
 
-  const newPositionId = 0
+  const newPositionId = 0;
 
   const { config } = usePrepareContractWrite({
     address: poolAddress,
@@ -69,7 +68,8 @@ export default function CoverMintButton({
       setNeedsRefetch(true);
       setNeedsAllowance(true);
       setNeedsBalance(true);
-      console.log("refetch setted")
+      console.log("refetch setted");
+      router.push("/cover");
     },
     onError() {
       setErrorDisplay(true);

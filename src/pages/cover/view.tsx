@@ -41,8 +41,6 @@ export default function ViewCover() {
     setTokenInCoverUSDPrice,
     setTokenOutCoverUSDPrice,
     setClaimTick,
-    setGasFee,
-    setGasLimit,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPoolData,
@@ -59,8 +57,6 @@ export default function ViewCover() {
     state.setTokenInCoverUSDPrice,
     state.setTokenOutCoverUSDPrice,
     state.setClaimTick,
-    state.setGasFee,
-    state.setGasLimit,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -105,6 +101,7 @@ export default function ViewCover() {
             )
       : undefined
   );
+
   const [poolDisplay, setPoolDisplay] = useState(
     coverPoolAddress
       ? coverPoolAddress.toString().substring(0, 6) +
@@ -118,11 +115,27 @@ export default function ViewCover() {
       : undefined
   );
 
+  useEffect(() => {
+    setPoolDisplay(
+      coverPoolAddress
+        ? coverPoolAddress.toString().substring(0, 6) +
+            "..." +
+            coverPoolAddress
+              .toString()
+              .substring(
+                coverPoolAddress.toString().length - 4,
+                coverPoolAddress.toString().length
+              )
+        : undefined
+    );
+  }, [coverPoolAddress]);
+
   const [lowerInverse, setLowerInverse] = useState(0);
   const [upperInverse, setUpperInverse] = useState(0);
   const [priceInverse, setPriceInverse] = useState(0);
 
   ////////////////////////////////Fetch Pool Data
+
   useEffect(() => {
     if (coverPoolData.token0 && coverPoolData.token1) {
       if (tokenIn.address) {
@@ -190,32 +203,43 @@ export default function ViewCover() {
 
   ////////////////////////////////Filled Amount
 
-  const { data: filledAmount } = useContractRead({
-    address: coverPoolAddress.toString(),
+  /* console.log("coverpool", coverPoolAddress);
+  console.log("address", address);
+  console.log("positionId", coverPositionData.positionId);
+  console.log("claimTick", claimTick);
+  console.log("zeroForOne", Boolean(coverPositionData.zeroForOne)); */
+
+  /* const { data: filledAmount } = useContractRead({
+    address: coverPoolAddress,
     abi: coverPoolABI,
     functionName: "snapshot",
     args: [
-      [
-        address,
-        BigNumber.from("0"),
-        Number(coverPositionData.positionId),
-        BigNumber.from(claimTick),
-        Boolean(coverPositionData.zeroForOne),
-      ],
+      {
+        to: address,
+        positionId: Number(coverPositionData.positionId),
+        burnPercent: BigNumber.from("0"),
+        claim: BigNumber.from(claimTick),
+        zeroForOne: Boolean(coverPositionData.zeroForOne),
+      },
     ],
     chainId: 421613,
     watch: true,
     enabled:
       BigNumber.from(claimTick).lt(BigNumber.from("887272")) &&
       isConnected &&
-      coverPoolAddress.toString() != "",
+      coverPoolAddress != undefined &&
+      address != undefined,
     onSuccess(data) {
-      //console.log("Success price filled amount", data);
+      console.log("Success price filled amount", data);
     },
     onError(error) {
-      console.log("Error price Cover", error);
+      console.log("coverpool", coverPoolAddress);
+      console.log("address", address);
+      console.log("Error snapshot Cover", error);
     },
-  });
+  }); */
+  //TODO new deployment
+  const filledAmount = 0;
 
   useEffect(() => {
     if (filledAmount) {
@@ -257,30 +281,23 @@ export default function ViewCover() {
     );
 
     setClaimTick(aux);
-    updateBurnFee(BigNumber.from(claimTick));
-  }
-
-  async function updateBurnFee(claim: BigNumber) {
-    const newGasFee = await gasEstimateCoverBurn(
-      coverPoolAddress.toString(),
-      address,
-      BN_ZERO,
-      BigNumber.from(coverPositionData.min),
-      claim,
-      BigNumber.from(coverPositionData.max),
-      Boolean(coverPositionData.zeroForOne),
-      signer
-    );
-
-    setGasLimit(newGasFee.gasUnits);
-    setGasFee(newGasFee.formattedPrice);
   }
 
   async function getUserCoverPositionData() {
     try {
       const data = await fetchCoverPositions(address);
-      if (data["data"])
-        setAllCoverPositions(mapUserCoverPositions(data["data"].positions));
+      if (data["data"]) {
+        const positions = data["data"].positions;
+        const positionData = mapUserCoverPositions(positions);
+        setAllCoverPositions(positionData);
+        const positionId = coverPositionData.positionId;
+        const position = positionData.find(
+          (position) => position.positionId == positionId
+        );
+        if (position != undefined) {
+          setCoverPositionData(position);
+        }
+      }
     } catch (error) {
       console.log(error);
     }
@@ -290,18 +307,10 @@ export default function ViewCover() {
     setTimeout(() => {
       if (needsRefetch == true || needsPosRefetch == true) {
         getUserCoverPositionData();
-
-        const positionId = coverPositionData.id;
-        const position = allCoverPositions.find(
-          (position) => position.id == positionId
-        );
-        if (position != undefined) {
-          setCoverPositionData(position);
-        }
         setNeedsRefetch(false);
         setNeedsPosRefetch(false);
       }
-    }, 5000);
+    }, 2000);
   }, [needsRefetch, needsPosRefetch]);
 
   ////////////////////////////////Addresses
@@ -326,6 +335,8 @@ export default function ViewCover() {
     navigator.clipboard.writeText(coverPoolAddress.toString());
     setIsPoolCopied(true);
   }
+
+  ////////////////////////////////
 
   return (
     <div className="bg-black min-h-screen  ">
@@ -363,10 +374,7 @@ export default function ViewCover() {
               </div>
               <div className="flex items-center gap-x-5">
                 <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                  {coverPositionData.volatilityTier.tickSpread == "20"
-                    ? "1.7"
-                    : "2.4"}
-                  %
+                  {coverPositionData.tickSpacing == "20" ? "1.7" : "2.4"}%
                 </span>
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
                   0.9 USDC
@@ -404,8 +412,8 @@ export default function ViewCover() {
                     {(
                       Number(
                         ethers.utils.formatUnits(
-                          coverPositionData.userFillOut.toString(),
-                          18
+                          coverPositionData.userFillOut ?? 0,
+                          tokenIn.decimals
                         )
                       ) * tokenIn.coverUSDPrice
                     ).toFixed(2)}
@@ -414,8 +422,8 @@ export default function ViewCover() {
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
                   {Number(
                     ethers.utils.formatUnits(
-                      coverPositionData.userFillOut.toString(),
-                      18
+                      coverPositionData.userFillOut ?? 0,
+                      tokenIn.decimals
                     )
                   ).toFixed(2)}
                   <div className="flex items-center gap-x-2">
