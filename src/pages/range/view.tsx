@@ -206,7 +206,7 @@ export default function ViewRange() {
 
   useEffect(() => {
     setAmounts();
-  }, [lowerPrice, upperPrice]);
+  }, [lowerPrice, upperPrice, rangePositionData]);
 
   function setAmounts() {
     try {
@@ -250,7 +250,6 @@ export default function ViewRange() {
   useEffect(() => {
     setUserLiquidityUsd(amount0Usd + amount1Usd);
   }, [amount0Usd, amount1Usd]);
-
 
   ////////////////////////Fees
 
@@ -306,35 +305,38 @@ export default function ViewRange() {
   ////////////////////////////////
   useEffect(() => {
     setTimeout(() => {
-      if (needsRefetch == true || needsPosRefetch == true) {
+      if (needsRefetch) {
+        console.log("refetching");
         getUserRangePositionData();
         setNeedsRefetch(false);
         setNeedsPosRefetch(false);
       }
     }, 2000);
-  }, [needsRefetch, needsPosRefetch]);
+  }, [needsRefetch]);
 
   async function getUserRangePositionData() {
     try {
       const data = await fetchRangePositions(address);
-      if (data["data"]) {
-        const positions = data["data"].positions;
-        const positionData = mapUserRangePositions(positions);
-        setAllRangePositions(positionData);
-        const positionId = rangePositionData.positionId;
-        const position = positionData.find(
-          (position) => position.positionId == positionId
+      if (data["data"].rangePositions) {
+        const mappedPositions = mapUserRangePositions(
+          data["data"].rangePositions
         );
+        console.log("mapped positions", mappedPositions);
+        console.log("range position data", rangePositionData);
+        const position = mappedPositions.find(
+          (position) => Number(position.id) == Number(rangePositionData.id)
+        );
+        console.log("position", position);
         if (position != undefined) {
           setRangePositionData(position);
         }
+        setAllRangePositions(mappedPositions);
       }
     } catch (error) {
       console.log(error);
     }
   }
 
-  
   ////////////////////////////////Mint Button Handler
 
   useEffect(() => {
@@ -556,14 +558,8 @@ export default function ViewRange() {
           </div>
         </div>
       </div>
-      <RemoveLiquidity
-        isOpen={isRemoveOpen}
-        setIsOpen={setIsRemoveOpen}
-      />
-      <AddLiquidity
-        isOpen={isAddOpen}
-        setIsOpen={setIsAddOpen}
-      />
+      <RemoveLiquidity isOpen={isRemoveOpen} setIsOpen={setIsRemoveOpen} />
+      <AddLiquidity isOpen={isAddOpen} setIsOpen={setIsAddOpen} />
     </div>
   );
 }

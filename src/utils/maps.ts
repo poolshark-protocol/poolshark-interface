@@ -37,7 +37,7 @@ export const getClaimTick = async (
 export function mapUserRangePositions(rangePositions) {
   const mappedRangePositions = [];
   rangePositions?.map((rangePosition) => {
-    console.log('rangePosition', );
+    console.log('rangePosition', rangePosition );
     const rangePositionData = {
       id: rangePosition.positionId,
       poolId: rangePosition.pool.id,
