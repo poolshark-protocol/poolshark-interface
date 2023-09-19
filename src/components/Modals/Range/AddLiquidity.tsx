@@ -143,12 +143,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   useEffect(() => {
     setTokenInAllowance(tokenInAllowance);
     setTokenOutAllowance(tokenOutAllowance);
-    console.log("rangePoolAddress", rangePoolAddress);
-    console.log("tokenIn.userPoolAllowance", Number(tokenIn.userPoolAllowance));
-    console.log(
-      "tokenOut.userPoolAllowance",
-      Number(tokenOut.userPoolAllowance)
-    );
   }, [tokenInAllowance, tokenOutAllowance]);
 
   ////////////////////////////////Balances
@@ -267,17 +261,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    /* console.log("rangeMintParams.tokenInAmount", rangeMintParams.tokenInAmount);
-    console.log(
-      "rangeMintParams.tokenOutAmount",
-      rangeMintParams.tokenOutAmount
-    );
-    console.log("rangePositionData.min", rangePositionData.min);
-    console.log("rangePositionData.max", rangePositionData.max);
-    console.log(
-      "Number(rangePositionData.min) < Number(rangePositionData.max)",
-      Number(rangePositionData.min) < Number(rangePositionData.max)
-    ); */
     if (
       rangeMintParams.tokenInAmount &&
       rangeMintParams.tokenOutAmount &&
@@ -290,9 +273,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   }, [tokenInAllowance, tokenOutAllowance, rangeMintParams, bnInput]);
 
   async function updateGasFee() {
-    console.log("rangePoolAddress", rangePoolAddress);
-    console.log("tokenIn.userPoolAllowance", tokenIn.userPoolAllowance);
-    console.log("tokenOut.userPoolAllowance", tokenOut.userPoolAllowance);
     const newGasFee = await gasEstimateRangeMint(
       rangePoolAddress,
       address,

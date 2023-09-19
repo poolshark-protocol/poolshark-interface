@@ -64,16 +64,7 @@ export default function RangeAddLiqButton({
     overrides: {
       gasLimit: gasLimit,
     },
-    onSuccess() {
-      console.log(
-        "params check",
-        address,
-        lower.toString(),
-        upper.toString(),
-        amount0.toString(),
-        amount1.toString()
-      );
-    },
+    onSuccess() {},
   });
 
   const { data, isSuccess, write } = useContractWrite(config);

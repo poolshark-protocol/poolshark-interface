@@ -283,17 +283,13 @@ export default function ViewRange() {
   function setFeesOwed() {
     try {
       if (snapshot) {
-        console.log("snapshot", snapshot.toString());
         const fees0 = parseFloat(
           ethers.utils.formatUnits(snapshot[2], tokenIn.decimals)
         );
         const fees1 = parseFloat(
           ethers.utils.formatUnits(snapshot[3], tokenIn.decimals)
         );
-        console.log(
-          "fees owed 1",
-          ethers.utils.formatUnits(snapshot[3], tokenIn.decimals)
-        );
+
         setAmount0Fees(fees0);
         setAmount1Fees(fees1);
       }
@@ -306,7 +302,6 @@ export default function ViewRange() {
   useEffect(() => {
     setTimeout(() => {
       if (needsRefetch) {
-        console.log("refetching");
         getUserRangePositionData();
         setNeedsRefetch(false);
         setNeedsPosRefetch(false);
@@ -321,12 +316,9 @@ export default function ViewRange() {
         const mappedPositions = mapUserRangePositions(
           data["data"].rangePositions
         );
-        console.log("mapped positions", mappedPositions);
-        console.log("range position data", rangePositionData);
         const position = mappedPositions.find(
           (position) => Number(position.id) == Number(rangePositionData.id)
         );
-        console.log("position", position);
         if (position != undefined) {
           setRangePositionData(position);
         }
