@@ -1122,7 +1122,7 @@ export default function Trade() {
                             className="w-[25px] h-[25px]"
                             src="/static/images/dai_icon.png"
                           />
-                          200 DAI
+                          {allLimitPosition.amountOut + " " + allLimitPosition.tokenOut.symbol}
                         </div>
                       </td>
                       <td className="">
@@ -1131,16 +1131,15 @@ export default function Trade() {
                             className="w-[25px] h-[25px]"
                             src="/static/images/dai_icon.png"
                           />
-                          200 DAI
+                          {allLimitPosition.amountIn + " " + allLimitPosition.tokenIn.symbol}
                         </div>
                       </td>
                       <td className="text-left text-xs">
                         <div className="flex flex-col">
                           {/* FOR EXACT PRICE   */}
                           <span>
-                            <span className="text-grey1">1 ETH =</span> 200 DAI
-                          </span>
-                  
+                            <span className="text-grey1">1 {allLimitPosition.tokenOut.symbol} =</span> 200 DAI
+                          </span>          
                           {/* FOR PRICE RANGES
                         <span className="flex flex-col">
                           <div><span className="text-grey1">FROM  1 ETH =</span> 200 DAI</div>
@@ -1173,48 +1172,55 @@ export default function Trade() {
             </tbody>
           ) : (
             <tbody className="">
-              <tr className="text-right text-xs md:text-sm">
-                <td className="">
-                  <div className="flex items-center text-sm text-grey1 gap-x-2">
-                    <img
-                      className="w-[25px] h-[25px]"
-                      src="/static/images/dai_icon.png"
-                    />
-                    200 DAI
-                  </div>
-                </td>
-                <td className="">
-                  <div className="flex items-center text-sm text-white gap-x-2">
-                    <img
-                      className="w-[25px] h-[25px]"
-                      src="/static/images/dai_icon.png"
-                    />
-                    200 DAI
-                  </div>
-                </td>
-                <td className="text-left text-xs">
-                  <div className="flex flex-col">
-                    {/* FOR EXACT PRICE   */}
-                    <span>
-                      <span className="text-grey1">1 ETH =</span> 200 DAI
-                    </span>
-
-                    {/* FOR PRICE RANGES
-                  <span className="flex flex-col">
-                    <div><span className="text-grey1">FROM  1 ETH =</span> 200 DAI</div>
-                    <div><span className="text-grey1">TO 1 ETH =</span> 200 DAI</div>
-                  </span>
-            */}
-                  </div>
-                </td>
-                <td className="">
-                  <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
-                    <span className="z-50">Not Filled</span>
-                    <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
-                  </div>
-                </td>
-                <td className="text-sm text-grey1">5d</td>
-              </tr>
+              {allLimitPositions.map((allLimitPosition) => {
+                if (allLimitPosition.id != undefined) {
+                  return (
+                    <tr className="text-right text-xs md:text-sm"
+                        key={allLimitPosition.id}
+                    >
+                      <td className="">
+                        <div className="flex items-center text-sm text-grey1 gap-x-2 text-left">
+                          <img
+                            className="w-[25px] h-[25px]"
+                            src="/static/images/dai_icon.png"
+                          />
+                          {allLimitPosition.amountOut + " " + allLimitPosition.tokenOut.symbol}
+                        </div>
+                      </td>
+                      <td className="">
+                        <div className="flex items-center text-sm text-white gap-x-2 text-left">
+                          <img
+                            className="w-[25px] h-[25px]"
+                            src="/static/images/dai_icon.png"
+                          />
+                          {allLimitPosition.amountIn + " " + allLimitPosition.tokenIn.symbol}
+                        </div>
+                      </td>
+                      <td className="text-left text-xs">
+                        <div className="flex flex-col">
+                          {/* FOR EXACT PRICE   */}
+                          <span>
+                            <span className="text-grey1">1 {allLimitPosition.tokenOut.symbol} =</span> 200 DAI
+                          </span>          
+                          {/* FOR PRICE RANGES
+                        <span className="flex flex-col">
+                          <div><span className="text-grey1">FROM  1 ETH =</span> 200 DAI</div>
+                          <div><span className="text-grey1">TO 1 ETH =</span> 200 DAI</div>
+                        </span>
+                        */}
+                        </div>
+                      </td>
+                      <td className="">
+                        <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
+                          <span className="z-50">Not Filled</span>
+                          <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
+                        </div>
+                      </td>
+                      <td className="text-sm text-grey1">5d</td>
+                    </tr>
+                  );
+                }
+              })}
             </tbody>
           )}
         </table>
