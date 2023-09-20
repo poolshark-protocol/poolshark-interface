@@ -435,6 +435,8 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
             coverPoolData: pool["data"]["coverPools"][i],
             volatilityTierId: volatilityId,
           }));
+
+          console.log("tick pool", pool["data"]["coverPools"][i]);
         }
       }
     } catch (error) {

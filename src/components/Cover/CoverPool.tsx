@@ -48,11 +48,11 @@ const router = useRouter();
     setCoverPoolFromVolatility(
       tokenIn,
       tokenOut,
-      tickSpacing == 20 ? vol0 : vol1
+      tickSpacing == "20" ? vol0 : vol1
     );
     router.push({
       pathname: href,
-      query: { state: "existing" },
+      query: { state: "existing", tickSpacing: tickSpacing },
     });
   };
 
