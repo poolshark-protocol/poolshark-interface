@@ -305,7 +305,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
                   }}
                   gasLimit={burnGasLimit}
                   setIsOpen={setIsOpen}
-                  disabled={rangeMintParams.disabled}
+                  disabled={burnGasFee === "$0.00"}
                 />
               </Dialog.Panel>
             </Transition.Child>
