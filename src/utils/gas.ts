@@ -80,18 +80,10 @@ export const gasEstimateMintLimit = async (
     );
     const price = await fetchPrice("ethereum");
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
-
-    console.log("user address mint", address);
-    console.log("range pool route mint", rangePoolRoute);
-    console.log("lower tick mint", lowerTick.toString());
-    console.log("upper tick mint", upperTick.toString());
-    console.log("bnInput", bnInput.toString());
-
     if (!rangePoolRoute || !provider) {
       setMintGasFee("$0.00");
       setMintGasLimit(BN_ZERO);
     }
-
     const recipient = address;
     const zeroForOne = token0.address.localeCompare(token1.address) < 0;
 
@@ -111,12 +103,10 @@ export const gasEstimateMintLimit = async (
       upperTick,
       zeroForOne,
     ]);
-    console.log("limit gas units", gasUnits.toString());
     const gasPrice = await provider.getGasPrice();
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
     const networkFeeUsd = networkFeeEth * Number(ethUsdPrice);
-    console.log("network fee usd limit", networkFeeUsd);
     const formattedPrice: string = networkFeeUsd.toLocaleString("en-US", {
       style: "currency",
       currency: "USD",
@@ -141,14 +131,6 @@ export const gasEstimateRangeMint = async (
   signer,
   positionId?: number
 ): Promise<gasEstimateResult> => {
-  console.log("gas estimate range mint");
-  console.log("range pool route", rangePoolRoute);
-  console.log("address", address);
-  console.log("lower tick", lowerTick.toString());
-  console.log("upper tick", upperTick.toString());
-  console.log("amount0", amount0.toString());
-  console.log("amount1", amount1.toString());
-  console.log("positionId", positionId);
   try {
     const provider = new ethers.providers.JsonRpcProvider(
       "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
@@ -158,7 +140,6 @@ export const gasEstimateRangeMint = async (
       !provider ||
       (amount0.eq(BN_ZERO) && amount1.eq(BN_ZERO))
     ) {
-      console.log("early return", rangePoolRoute, provider);
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
     const contract = new ethers.Contract(
@@ -174,7 +155,6 @@ export const gasEstimateRangeMint = async (
       amount0: amount0,
       amount1: amount1,
     });
-    //console.log('new mint gas limit', gasUnits.toString(), lowerTick.toString(), upperTick.toString())
     const price = await fetchPrice("0x000");
     const gasPrice = await provider.getGasPrice();
     const ethUsdPrice = Number(price["data"]["bundles"]["0"]["ethPriceUSD"]);
@@ -185,7 +165,6 @@ export const gasEstimateRangeMint = async (
       style: "currency",
       currency: "USD",
     });
-    //console.log('gas estimate mint', lowerTick.toString(), upperTick.toString(), gasUnits.toString())
     return { formattedPrice, gasUnits };
   } catch (error) {
     console.log("gas error", error);
@@ -213,9 +192,11 @@ export const gasEstimateRangeBurn = async (
       provider
     );
     const recipient = address;
-    const gasUnits = await contract
-      .connect(signer)
-      .estimateGas.burnRange([recipient, positionId, burnPercent]);
+    const gasUnits = await contract.connect(signer).estimateGas.burnRange({
+      to: recipient,
+      positionId: positionId,
+      burnPercent: burnPercent,
+    });
     const price = await fetchPrice("ethereum");
     const gasPrice = await provider.getGasPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
@@ -308,6 +289,7 @@ export const gasEstimateCoverBurn = async (
       coverPoolABI,
       provider
     );
+    console.log("cover burn", address, positionId, burnPercent, claimTick);
     const gasUnits = await contract.connect(signer).estimateGas.burn({
       to: address,
       burnPercent: burnPercent,

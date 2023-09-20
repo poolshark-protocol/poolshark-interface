@@ -402,7 +402,7 @@ export default function CoverExistingPool({ goBack }) {
     setMintButtonState();
   }, [tokenIn, coverMintParams.tokenInAmount]);
 
-  ////////////////////////////////
+  ////////////////////////////////Slider Value change
 
   const handleChange = (event: any) => {
     setSliderValue(event.target.value);

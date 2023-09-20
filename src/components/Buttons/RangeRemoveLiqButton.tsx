@@ -22,7 +22,7 @@ export default function RangeRemoveLiqButton({
   closeModal,
   setIsOpen,
   gasLimit,
-  disabled
+  disabled,
 }) {
   const [
     setNeedsRefetch,
@@ -43,7 +43,7 @@ export default function RangeRemoveLiqButton({
     address: poolAddress,
     abi: rangePoolABI,
     functionName: "burnRange",
-    args: [[address, positionId, burnPercent]],
+    args: [{ to: address, positionId: positionId, burnPercent: burnPercent }],
     chainId: 421613,
     overrides: {
       gasLimit: gasLimit,
