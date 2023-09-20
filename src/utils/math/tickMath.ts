@@ -5,6 +5,8 @@ import { mostSignificantBit } from "./mostSignificantBit"
 import JSBD from 'jsbd'
 import { priceToString, scale } from './priceMath'
 import { BigNumber } from 'ethers'
+import { PrecisionMath } from './precisionMath'
+import { DyDxMath } from './dydxMath'
 
 function mulShift(val: JSBI, mulBy: string): JSBI {
   return JSBI.signedRightShift(JSBI.multiply(val, JSBI.BigInt(mulBy)), JSBI.BigInt(128))
@@ -209,12 +211,10 @@ export abstract class TickMath {
    * @param sqrtRatioX96 the sqrt ratio as a Q64.96 for which to compute the tick
    */
   public static getTickAtSqrtRatio(sqrtRatioX96: JSBI): number {
-    invariant(
-      JSBI.greaterThanOrEqual(sqrtRatioX96, TickMath.MIN_SQRT_RATIO) &&
-        JSBI.lessThan(sqrtRatioX96, TickMath.MAX_SQRT_RATIO),
-      'SQRT_RATIO'
-    )
-
+    if(JSBI.lessThan(sqrtRatioX96, TickMath.MIN_SQRT_RATIO))
+      sqrtRatioX96 = TickMath.MIN_SQRT_RATIO
+    else if(JSBI.greaterThan(sqrtRatioX96, TickMath.MAX_SQRT_RATIO))
+      sqrtRatioX96 = TickMath.MAX_SQRT_RATIO
     const sqrtRatioX128 = JSBI.leftShift(sqrtRatioX96, JSBI.BigInt(32))
 
     const msb = mostSignificantBit(sqrtRatioX128)
@@ -256,4 +256,32 @@ export abstract class TickMath {
       ? tickHigh
       : tickLow
   }
+
+  public static getNewSqrtPrice(sqrtPrice: JSBI, liquidity: JSBI, amount: JSBI, zeroForOne: boolean, exactIn: boolean): JSBI {
+    if (exactIn) {
+      if (zeroForOne) {
+        const liquidityPadded = JSBI.leftShift(liquidity, JSBI.BigInt(96))
+        return PrecisionMath.mulDivRoundingUp(
+          liquidityPadded,
+          sqrtPrice,
+          JSBI.add(liquidityPadded, JSBI.multiply(sqrtPrice, amount))
+        )
+      } else {
+        return JSBI.add(sqrtPrice, JSBI.divide(JSBI.leftShift(amount, JSBI.BigInt(96)), liquidity))
+      }
+    } else {
+      if (zeroForOne) {
+        return JSBI.subtract(sqrtPrice, PrecisionMath.divRoundingUp(JSBI.leftShift(amount, JSBI.BigInt(96)), liquidity))
+      } else {
+        const liquidityPadded = JSBI.leftShift(liquidity, JSBI.BigInt(96))
+        return PrecisionMath.mulDivRoundingUp(
+          liquidityPadded,
+          sqrtPrice,
+          JSBI.subtract(liquidityPadded, JSBI.multiply(sqrtPrice, amount))
+        )
+      }
+    }
+  }
+
+
 }
