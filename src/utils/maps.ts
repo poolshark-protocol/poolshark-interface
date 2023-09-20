@@ -180,7 +180,7 @@ export function mapUserLimitPositions(limitPositions) {
       price1: limitPosition.pool.price1,
       userOwnerAddress: limitPosition.owner.replace(/"|'/g, ""),
     }
-    mappedLimitPositions.push(limitPosition);
+    mappedLimitPositions.push(limitPositionData);
   });
   return mappedLimitPositions;
 }
