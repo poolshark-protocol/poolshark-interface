@@ -69,8 +69,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     functionName: "allowance",
     args: [address, coverPoolAddress],
     chainId: 421613,
-    watch: needsAllowance,
-    enabled: isConnected && coverPoolAddress != "0x00" && needsAllowance,
+    enabled: tokenIn.address != undefined,
     onSuccess(data) {
       setNeedsAllowance(false);
     },
@@ -79,6 +78,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     },
     onSettled(data, error) {},
   });
+
 
   ////////////////////////////////Token Balances
 

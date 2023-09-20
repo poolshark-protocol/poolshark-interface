@@ -114,8 +114,9 @@ export default function CoverExistingPool({ goBack }) {
     functionName: "allowance",
     args: [address, coverPoolAddress],
     chainId: 421613,
-    watch: needsAllowance,
-    enabled: isConnected && coverPoolAddress != "0x00" && needsAllowance,
+    //watch: needsAllowance,
+    enabled: tokenIn.address != undefined,
+    //enabled: isConnected && coverPoolAddress != "0x00" && needsAllowance,
     onSuccess(data) {
       setNeedsAllowance(false);
       //console.log('Success')
@@ -434,7 +435,7 @@ export default function CoverExistingPool({ goBack }) {
     }
   }, [lowerPrice, upperPrice]);
 
-  console.log(upperPrice)
+  console.log(upperPrice);
 
   function SelectVolatility() {
     return (
@@ -531,7 +532,7 @@ export default function CoverExistingPool({ goBack }) {
   return (
     <div className="flex flex-col space-y-8">
       <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
-      <div className="flex mb-4 items-center justify-between">
+        <div className="flex mb-4 items-center justify-between">
           <h1 className="">SET A PRICE RANGE</h1>
           <div
             onClick={() => {
@@ -654,7 +655,7 @@ export default function CoverExistingPool({ goBack }) {
         </div>
       </div>
       <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
-      <div className="flex mb-4 items-center justify-between">
+        <div className="flex mb-4 items-center justify-between">
           <h1 className="">SET A PRICE RANGE</h1>
           <div
             onClick={handlePriceSwitch}
@@ -667,7 +668,7 @@ export default function CoverExistingPool({ goBack }) {
         </div>
         <div className="flex flex-col gap-y-4">
           <div className="flex md:flex-row flex-col items-center gap-5 mt-3">
-          <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
+            <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
               <span className="text-grey1 text-xs">MIN. PRICE</span>
               <span className="text-white text-3xl">
                 {priceOrder ? (

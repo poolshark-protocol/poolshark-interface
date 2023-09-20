@@ -204,9 +204,7 @@ export const gasEstimateRangeBurn = async (
     const provider = new ethers.providers.JsonRpcProvider(
       "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
     );
-
     if (!rangePoolRoute || !provider) {
-      //console.log("early return", rangePoolRoute, provider);
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
     const contract = new ethers.Contract(
