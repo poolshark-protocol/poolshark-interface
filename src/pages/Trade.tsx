@@ -1142,7 +1142,7 @@ export default function Trade() {
                         <div className="flex flex-col">
                           {/* FOR EXACT PRICE   */}
                           <span>
-                            <span className="text-grey1">1 {allLimitPosition.tokenOut.symbol} =</span> 200 DAI
+                            <span className="text-grey1">1 {allLimitPosition.tokenIn.symbol} =</span> 200 DAI
                           </span>          
                           {/* FOR PRICE RANGES
                         <span className="flex flex-col">
@@ -1205,7 +1205,7 @@ export default function Trade() {
                         <div className="flex flex-col">
                           {/* FOR EXACT PRICE   */}
                           <span>
-                            <span className="text-grey1">1 {allLimitPosition.tokenOut.symbol} =</span> 200 DAI
+                            <span className="text-grey1">1 {allLimitPosition.tokenIn.symbol} =</span> 200 DAI
                           </span>          
                           {/* FOR PRICE RANGES
                         <span className="flex flex-col">
