@@ -25,7 +25,7 @@ import { gasEstimateMintLimit, gasEstimateSwap } from "../utils/gas";
 import inputFilter from "../utils/inputFilter";
 import LimitSwapButton from "../components/Buttons/LimitSwapButton";
 import {
-  fetchRangeTokenUSDPrice,
+  fetchRangeTokenUSDPrice, logoMap,
 } from "../utils/tokens";
 import { getSwapPools } from "../utils/pools";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
@@ -1123,7 +1123,7 @@ export default function Trade() {
                         <div className="flex items-center text-sm text-grey1 gap-x-2 text-left">
                           <img
                             className="w-[25px] h-[25px]"
-                            src="/static/images/dai_icon.png"
+                            src={logoMap[allLimitPosition.tokenIn.symbol]}
                           />
                           {ethers.utils.formatEther(allLimitPosition.amountIn) + " " + allLimitPosition.tokenIn.symbol}
                         </div>
@@ -1132,7 +1132,7 @@ export default function Trade() {
                         <div className="flex items-center text-sm text-white gap-x-2 text-left">
                           <img
                             className="w-[25px] h-[25px]"
-                            src="/static/images/dai_icon.png"
+                            src={logoMap[allLimitPosition.tokenOut.symbol]}
                           />
                           {/*allLimitPosition.amountOut + " " + allLimitPosition.tokenOut.symbol*/}
                           200 DAI
@@ -1186,7 +1186,7 @@ export default function Trade() {
                         <div className="flex items-center text-sm text-grey1 gap-x-2 text-left">
                           <img
                             className="w-[25px] h-[25px]"
-                            src="/static/images/dai_icon.png"
+                            src={logoMap[allLimitPosition.tokenIn.symbol]}
                           />
                           {ethers.utils.formatEther(allLimitPosition.amountIn) + " " + allLimitPosition.tokenIn.symbol}
                         </div>
@@ -1195,7 +1195,7 @@ export default function Trade() {
                         <div className="flex items-center text-sm text-white gap-x-2 text-left">
                           <img
                             className="w-[25px] h-[25px]"
-                            src="/static/images/dai_icon.png"
+                            src={logoMap[allLimitPosition.tokenOut.symbol]}
                           />
                           {/*allLimitPosition.amountOut + " " + allLimitPosition.tokenOut.symbol*/}
                           200 DAI
