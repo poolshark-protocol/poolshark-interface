@@ -490,7 +490,6 @@ export const fetchLimitPositions = (address: string) => {
           limitPositions(where: {owner:"${address}"}) {
                 id
                 amountIn
-                amountOut
                 amountFilled
                 tokenIn{
                     id
@@ -512,32 +511,16 @@ export const fetchLimitPositions = (address: string) => {
                 owner
                 pool{
                     id
-                    token0{
-                        id
-                        name
-                        symbol
-                        decimals
-                    }
-                    token1{
-                        id
-                        name
-                        symbol
-                        decimals
-                    }
                     liquidity
                     liquidityGlobal
-                    genesisTime
                     epoch
                     feeTier{
-                        feeAmount
-                        tickSpread
+                      feeAmount
+                      tickSpacing
                     }
-                    pool0price
-                    pool1price
                     price0
                     price1
-                    pool0liquidity
-                    pool1liquidity
+                    poolPrice
                     tickSpacing
                 }
                 txnHash

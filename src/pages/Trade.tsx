@@ -233,14 +233,17 @@ export default function Trade() {
 
   useEffect(() => {
     if (address) {
+      console.log("user address", address.toLowerCase());
       getUserLimitPositionData();
     }
   }, [address]);
 
   async function getUserLimitPositionData() {
     try {
-      const data = await fetchLimitPositions(address);
-      if (data["data"].limitPositions) {
+      const data = await fetchLimitPositions(address.toLowerCase());
+      console.log("data limit", data)
+      if (data["data"]) {
+        console.log("limitPositions", data["data"]?.limitPositions)
         setAllLimitPositions(
           mapUserLimitPositions(data["data"].limitPositions)
         );
@@ -1122,7 +1125,8 @@ export default function Trade() {
                             className="w-[25px] h-[25px]"
                             src="/static/images/dai_icon.png"
                           />
-                          {allLimitPosition.amountOut + " " + allLimitPosition.tokenOut.symbol}
+                          {/*allLimitPosition.amountOut + " " + allLimitPosition.tokenOut.symbol*/}
+                          200 DAI
                         </div>
                       </td>
                       <td className="">
@@ -1184,7 +1188,8 @@ export default function Trade() {
                             className="w-[25px] h-[25px]"
                             src="/static/images/dai_icon.png"
                           />
-                          {allLimitPosition.amountOut + " " + allLimitPosition.tokenOut.symbol}
+                          {/*allLimitPosition.amountOut + " " + allLimitPosition.tokenOut.symbol*/}
+                          200 DAI
                         </div>
                       </td>
                       <td className="">
