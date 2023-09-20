@@ -211,12 +211,10 @@ export abstract class TickMath {
    * @param sqrtRatioX96 the sqrt ratio as a Q64.96 for which to compute the tick
    */
   public static getTickAtSqrtRatio(sqrtRatioX96: JSBI): number {
-    invariant(
-      JSBI.greaterThanOrEqual(sqrtRatioX96, TickMath.MIN_SQRT_RATIO) &&
-        JSBI.lessThan(sqrtRatioX96, TickMath.MAX_SQRT_RATIO),
-      'SQRT_RATIO'
-    )
-
+    if(JSBI.lessThan(sqrtRatioX96, TickMath.MIN_SQRT_RATIO))
+      sqrtRatioX96 = TickMath.MIN_SQRT_RATIO
+    else if(JSBI.greaterThan(sqrtRatioX96, TickMath.MAX_SQRT_RATIO))
+      sqrtRatioX96 = TickMath.MAX_SQRT_RATIO
     const sqrtRatioX128 = JSBI.leftShift(sqrtRatioX96, JSBI.BigInt(32))
 
     const msb = mostSignificantBit(sqrtRatioX128)
