@@ -106,26 +106,19 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
   const [burnGasLimit, setBurnGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    if (
-      rangePositionData.lowerTick &&
-      rangePositionData.upperTick &&
-      sliderValue &&
-      signer
-    )
-      updateGasFee();
+    updateGasFee();
   }, [sliderValue, rangePoolAddress]);
 
   async function updateGasFee() {
     const newBurnGasFee = await gasEstimateRangeBurn(
       rangePoolAddress,
       address,
-      rangePositionData.positionId,
+      rangePositionData.id,
       burnPercent,
       signer
     );
     setBurnGasFee(newBurnGasFee.formattedPrice);
     setBurnGasLimit(newBurnGasFee.gasUnits.mul(250).div(100));
-    console.log(newBurnGasFee);
   }
 
   ////////////////////////////////Mint Button Handler

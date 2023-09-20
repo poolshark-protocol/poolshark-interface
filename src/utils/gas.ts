@@ -191,9 +191,10 @@ export const gasEstimateRangeBurn = async (
       rangePoolABI,
       provider
     );
-    const recipient = address;
+    console.log("positionId", positionId);
+    console.log("burnPercent", burnPercent);
     const gasUnits = await contract.connect(signer).estimateGas.burnRange({
-      to: recipient,
+      to: address,
       positionId: positionId,
       burnPercent: burnPercent,
     });

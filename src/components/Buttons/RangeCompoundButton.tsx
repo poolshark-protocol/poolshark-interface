@@ -19,7 +19,7 @@ export default function RangeCompoundButton({ poolAddress, address, positionId }
   const { config } = usePrepareContractWrite({
       address: poolAddress,
       abi: rangePoolABI,
-      functionName: "burn",
+      functionName: "burnRange",
       args:[[
           address,
           positionId,
