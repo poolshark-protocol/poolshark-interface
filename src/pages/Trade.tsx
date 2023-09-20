@@ -1125,8 +1125,7 @@ export default function Trade() {
                             className="w-[25px] h-[25px]"
                             src="/static/images/dai_icon.png"
                           />
-                          {/*allLimitPosition.amountOut + " " + allLimitPosition.tokenOut.symbol*/}
-                          200 DAI
+                          {ethers.utils.formatEther(allLimitPosition.amountIn) + " " + allLimitPosition.tokenIn.symbol}
                         </div>
                       </td>
                       <td className="">
@@ -1135,7 +1134,8 @@ export default function Trade() {
                             className="w-[25px] h-[25px]"
                             src="/static/images/dai_icon.png"
                           />
-                          {allLimitPosition.amountIn + " " + allLimitPosition.tokenIn.symbol}
+                          {/*allLimitPosition.amountOut + " " + allLimitPosition.tokenOut.symbol*/}
+                          200 DAI
                         </div>
                       </td>
                       <td className="text-left text-xs">
@@ -1188,8 +1188,7 @@ export default function Trade() {
                             className="w-[25px] h-[25px]"
                             src="/static/images/dai_icon.png"
                           />
-                          {/*allLimitPosition.amountOut + " " + allLimitPosition.tokenOut.symbol*/}
-                          200 DAI
+                          {ethers.utils.formatEther(allLimitPosition.amountIn) + " " + allLimitPosition.tokenIn.symbol}
                         </div>
                       </td>
                       <td className="">
@@ -1198,7 +1197,8 @@ export default function Trade() {
                             className="w-[25px] h-[25px]"
                             src="/static/images/dai_icon.png"
                           />
-                          {allLimitPosition.amountIn + " " + allLimitPosition.tokenIn.symbol}
+                          {/*allLimitPosition.amountOut + " " + allLimitPosition.tokenOut.symbol*/}
+                          200 DAI
                         </div>
                       </td>
                       <td className="text-left text-xs">
