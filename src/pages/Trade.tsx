@@ -1113,7 +1113,8 @@ export default function Trade() {
               {allLimitPositions.map((allLimitPosition) => {
                 if (allLimitPosition.id != undefined) {
                   return (
-                    <tr className="text-right text-xs md:text-sm">
+                    <tr className="text-right text-xs md:text-sm"
+                        key={allLimitPosition.id}>
                       <td className="">
                         <div className="flex items-center text-sm text-grey1 gap-x-2 text-left">
                           <img
