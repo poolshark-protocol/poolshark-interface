@@ -154,3 +154,33 @@ export function mapCoverPools(coverPools) {
   });
   return mappedCoverPools;
 }
+
+export function mapUserLimitPositions(limitPositions) {
+  const mappedLimitPositions = [];
+  limitPositions?.map((limitPosition) => {
+    const limitPositionData = {
+      id: limitPosition.id,
+      poolId: limitPosition.pool.id,
+      amountIn: limitPosition.amountIn,
+      amountOut: limitPosition.amountOut,
+      amountFilled: limitPosition.amountFilled,
+      liquidity: limitPosition.liquidity,
+      poolLiquidity: limitPosition.pool.liquidity,
+      poolLiquidityGlobal: limitPosition.pool.liquidityGlobal,
+      min: limitPosition.min,
+      max: limitPosition.max,
+      tickSpacing: limitPosition.pool.tickSpacing,
+      epochLast: limitPosition.epochLast,
+      claimPriceLast: limitPosition.claimPriceLast,
+      tokenIn: limitPosition.tokenIn,
+      tokenOut: limitPosition.tokenOut,
+      pool0price: limitPosition.pool.pool0price,
+      pool1price: limitPosition.pool.pool1price,
+      price0: limitPosition.pool.price0,
+      price1: limitPosition.pool.price1,
+      userOwnerAddress: limitPosition.owner.replace(/"|'/g, ""),
+    }
+    mappedLimitPositions.push(limitPosition);
+  });
+  return mappedLimitPositions;
+}

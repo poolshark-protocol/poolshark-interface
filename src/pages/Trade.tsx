@@ -33,6 +33,8 @@ import { QuoteParams, SwapParams } from "../utils/types";
 import { useTradeStore } from "../hooks/useTradeStore";
 import SwapRouterButton from "../components/Buttons/SwapRouterButton";
 import JSBI from "jsbi";
+import { fetchLimitPositions } from "../utils/queries";
+import { mapUserLimitPositions } from "../utils/maps";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -223,6 +225,29 @@ export default function Trade() {
     }
     setSwapPoolAddresses(poolAddresses);
     setSwapParams(swapParams);
+  }
+
+  //////////////////////Get Pools Data
+
+  const [allLimitPositions, setAllLimitPositions] = useState([]);
+
+  useEffect(() => {
+    if (address) {
+      getUserLimitPositionData();
+    }
+  }, [address]);
+
+  async function getUserLimitPositionData() {
+    try {
+      const data = await fetchLimitPositions(address);
+      if (data["data"].limitPositions) {
+        setAllLimitPositions(
+          mapUserLimitPositions(data["data"].limitPositions)
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   ////////////////////////////////TokenUSDPrices
