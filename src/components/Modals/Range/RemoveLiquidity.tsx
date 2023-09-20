@@ -50,13 +50,14 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
   );
 
   useEffect(() => {
+    console.log("rangePositionData", rangePositionData);
     const percentInput = sliderValue;
     const tokenAmountToBurn = BigNumber.from(percentInput)
       .mul(BigNumber.from(rangePositionData.liquidity))
       .div(BigNumber.from(100));
     setBurnPercent(ethers.utils.parseUnits(sliderValue.toString(), 36));
     setAmounts(JSBI.BigInt(tokenAmountToBurn), true);
-  }, [sliderValue]);
+  }, [sliderValue, rangePositionData.liquidity]);
 
   const handleChange = (event: any) => {
     if (Number(event.target.value) != 0) {
