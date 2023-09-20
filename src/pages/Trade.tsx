@@ -1110,58 +1110,64 @@ export default function Trade() {
           </thead>
           {activeOrdersSelected ? (
             <tbody className="">
-              <tr className="text-right text-xs md:text-sm">
-                <td className="">
-                  <div className="flex items-center text-sm text-grey1 gap-x-2 text-left">
-                    <img
-                      className="w-[25px] h-[25px]"
-                      src="/static/images/dai_icon.png"
-                    />
-                    200 DAI
-                  </div>
-                </td>
-                <td className="">
-                  <div className="flex items-center text-sm text-white gap-x-2 text-left">
-                    <img
-                      className="w-[25px] h-[25px]"
-                      src="/static/images/dai_icon.png"
-                    />
-                    200 DAI
-                  </div>
-                </td>
-                <td className="text-left text-xs">
-                  <div className="flex flex-col">
-                    {/* FOR EXACT PRICE   */}
-                    <span>
-                      <span className="text-grey1">1 ETH =</span> 200 DAI
-                    </span>
-
-                    {/* FOR PRICE RANGES
-                  <span className="flex flex-col">
-                    <div><span className="text-grey1">FROM  1 ETH =</span> 200 DAI</div>
-                    <div><span className="text-grey1">TO 1 ETH =</span> 200 DAI</div>
-                  </span>
-            */}
-                  </div>
-                </td>
-                <td className="">
-                  <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
-                    <span className="z-50">Not Filled</span>
-                    <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
-                  </div>
-                </td>
-                <td className="text-sm text-grey1">5d</td>
-                <td className="text-sm text-grey1 pl-5">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    className="w-7 text-red-600 bg-red-900/30 p-1 rounded-full cursor-pointer -mr-5"
-                  >
-                    <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                  </svg>
-                </td>
-              </tr>
+              {allLimitPositions.map((allLimitPosition) => {
+                if (allLimitPosition.id != undefined) {
+                  return (
+                    <tr className="text-right text-xs md:text-sm">
+                      <td className="">
+                        <div className="flex items-center text-sm text-grey1 gap-x-2 text-left">
+                          <img
+                            className="w-[25px] h-[25px]"
+                            src="/static/images/dai_icon.png"
+                          />
+                          200 DAI
+                        </div>
+                      </td>
+                      <td className="">
+                        <div className="flex items-center text-sm text-white gap-x-2 text-left">
+                          <img
+                            className="w-[25px] h-[25px]"
+                            src="/static/images/dai_icon.png"
+                          />
+                          200 DAI
+                        </div>
+                      </td>
+                      <td className="text-left text-xs">
+                        <div className="flex flex-col">
+                          {/* FOR EXACT PRICE   */}
+                          <span>
+                            <span className="text-grey1">1 ETH =</span> 200 DAI
+                          </span>
+                  
+                          {/* FOR PRICE RANGES
+                        <span className="flex flex-col">
+                          <div><span className="text-grey1">FROM  1 ETH =</span> 200 DAI</div>
+                          <div><span className="text-grey1">TO 1 ETH =</span> 200 DAI</div>
+                        </span>
+                        */}
+                        </div>
+                      </td>
+                      <td className="">
+                        <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
+                          <span className="z-50">Not Filled</span>
+                          <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
+                        </div>
+                      </td>
+                      <td className="text-sm text-grey1">5d</td>
+                      <td className="text-sm text-grey1 pl-5">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          className="w-7 text-red-600 bg-red-900/30 p-1 rounded-full cursor-pointer -mr-5"
+                        >
+                          <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                        </svg>
+                      </td>
+                    </tr>
+                  );
+                }
+              })}
             </tbody>
           ) : (
             <tbody className="">
