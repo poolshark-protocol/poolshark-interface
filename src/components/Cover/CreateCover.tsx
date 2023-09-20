@@ -195,6 +195,7 @@ export default function CreateCover(props: any) {
   /* const handleManualVolatilityChange = async (volatility: any) => {
     setSelectedVolatility(volatility);
   }; */
+  
   ////////////////////////////////Init Position Data
 
   useEffect(() => {

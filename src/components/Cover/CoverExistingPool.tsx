@@ -114,12 +114,9 @@ export default function CoverExistingPool({ goBack }) {
     functionName: "allowance",
     args: [address, coverPoolAddress],
     chainId: 421613,
-    //watch: needsAllowance,
     enabled: tokenIn.address != undefined,
-    //enabled: isConnected && coverPoolAddress != "0x00" && needsAllowance,
     onSuccess(data) {
       setNeedsAllowance(false);
-      //console.log('Success')
     },
     onError(error) {
       console.log("Error", error);
@@ -435,70 +432,7 @@ export default function CoverExistingPool({ goBack }) {
     }
   }, [lowerPrice, upperPrice]);
 
-  console.log(upperPrice);
-
-  function SelectVolatility() {
-    return (
-      <Listbox
-        value={selectedVolatility}
-        onChange={handleManualVolatilityChange}
-      >
-        <div className="relative mt-1 w-full">
-          <Listbox.Button className="relative cursor-default rounded-lg bg-black text-white cursor-pointer border border-grey1 py-2 pl-3 w-full text-left shadow-md focus:outline-none">
-            <span className="block truncate">{selectedVolatility.tier}</span>
-            <span className="block truncate text-xs text-grey mt-1">
-              {selectedVolatility.text}
-            </span>
-            <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-              <ChevronDownIcon className="w-7 text-grey" aria-hidden="true" />
-            </span>
-          </Listbox.Button>
-          <Transition
-            as={Fragment}
-            leave="transition ease-in duration-100"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <Listbox.Options className="absolute mt-1 z-50 max-h-60 w-full overflow-auto rounded-md bg-black border border-grey1 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-              {volatilityTiers.map((volatilityTier, volatilityTierIdx) => (
-                <Listbox.Option
-                  key={volatilityTierIdx}
-                  className={({ active }) =>
-                    `relative cursor-default select-none py-2 px-4 cursor-pointer ${
-                      active ? "opacity-80 bg-dark" : "opacity-100"
-                    }`
-                  }
-                  value={volatilityTier}
-                >
-                  {({ selected }) => (
-                    <>
-                      <span
-                        className={`block truncate text-white ${
-                          selected ? "" : ""
-                        }`}
-                      >
-                        {volatilityTier.tier}
-                      </span>
-                      <span
-                        className={`block truncate text-grey text-xs mt-1 ${
-                          selected ? "" : ""
-                        }`}
-                      >
-                        {volatilityTier.text}
-                      </span>
-                    </>
-                  )}
-                </Listbox.Option>
-              ))}
-            </Listbox.Options>
-          </Transition>
-        </div>
-      </Listbox>
-    );
-  }
-
   const [expanded, setExpanded] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
 
   const Option = () => {
     if (expanded) {

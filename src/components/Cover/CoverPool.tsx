@@ -44,7 +44,6 @@ const router = useRouter();
     setCoverTokenOut(tokenIn, tokenOut);
     const vol0 = { id: 0 };
     const vol1 = { id: 1 };
-    console.log("tickSpacing", tickSpacing);
     setCoverPoolFromVolatility(
       tokenIn,
       tokenOut,
