@@ -56,10 +56,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
       setSliderOutput("");
       return;
     }
-
-    setBurnPercent(
-      ethers.utils.parseUnits(String(sliderValue), /* tokenIn.decimals */ 36)
-    );
+    setBurnPercent(ethers.utils.parseUnits(String(sliderValue), 36));
     setSliderOutput(
       ((parseFloat(amountInDisplay) * sliderValue) / 100).toPrecision(6)
     );

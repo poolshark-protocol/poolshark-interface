@@ -50,10 +50,8 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
   );
 
   useEffect(() => {
-    console.log("rangePositionData", rangePositionData);
-    const percentInput = sliderValue;
-    const tokenAmountToBurn = BigNumber.from(percentInput)
-      .mul(BigNumber.from(rangePositionData.liquidity))
+    const tokenAmountToBurn = BigNumber.from(sliderValue)
+      .mul(BigNumber.from(rangePositionData.userLiquidity))
       .div(BigNumber.from(100));
     setBurnPercent(ethers.utils.parseUnits(sliderValue.toString(), 36));
     setAmounts(JSBI.BigInt(tokenAmountToBurn), true);
