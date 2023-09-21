@@ -30,6 +30,9 @@ export default function UserCoverPool({
     setTokenOut,
     setClaimTick,
     setCoverPoolFromVolatility,
+    setNeedsAllowance,
+    setNeedsBalance,
+
   ] = useCoverStore((state) => [
     state.claimTick,
     state.tokenIn,
@@ -41,6 +44,8 @@ export default function UserCoverPool({
     state.setTokenOut,
     state.setClaimTick,
     state.setCoverPoolFromVolatility,
+    state.setNeedsAllowance,
+    state.setNeedsBalance,
   ]);
 
   const [claimPrice, setClaimPrice] = useState(0);
@@ -72,7 +77,10 @@ export default function UserCoverPool({
   };
 
   async function choosePosition() {
+    
     setCoverPositionData(coverPosition);
+    setNeedsAllowance(true);
+    setNeedsBalance(true);
     const tokenInNew = {
       name: coverPosition.tokenZero.name,
       symbol: coverPosition.tokenZero.symbol,
