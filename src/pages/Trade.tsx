@@ -1155,14 +1155,8 @@ export default function Trade() {
                       <td className="">
                         <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
                           <span className="z-50">
-                            {Math.abs(
-                              (allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol) ? 
-                                parseFloat(TickMath.getPriceStringAtTick(parseInt(allLimitPosition.max), parseInt(allLimitPosition.tickSpacing))) 
-                                : parseFloat(TickMath.getPriceStringAtTick(parseInt(allLimitPosition.min), parseInt(allLimitPosition.tickSpacing))) 
-                              - parseFloat(allLimitPosition.claimPriceLast))
-                              / Math.abs(parseFloat(TickMath.getPriceStringAtTick(parseInt(allLimitPosition.max), parseInt(allLimitPosition.tickSpacing))) 
-                                - parseFloat(TickMath.getPriceStringAtTick(parseInt(allLimitPosition.min), parseInt(allLimitPosition.tickSpacing))))
-                              )}% Filled
+                          {parseFloat(allLimitPosition.amountFilled) /
+                            parseFloat(allLimitPosition.liquidity)}% Filled
                           </span>
                           <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
                         </div>
@@ -1227,14 +1221,8 @@ export default function Trade() {
                       <td className="">
                         <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
                           <span className="z-50">
-                            {Math.abs(
-                              (allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol) ? 
-                                parseFloat(TickMath.getPriceStringAtTick(parseInt(allLimitPosition.max), parseInt(allLimitPosition.tickSpacing))) 
-                                : parseFloat(TickMath.getPriceStringAtTick(parseInt(allLimitPosition.min), parseInt(allLimitPosition.tickSpacing))) 
-                              - parseFloat(allLimitPosition.claimPriceLast))
-                              / Math.abs(parseFloat(TickMath.getPriceStringAtTick(parseInt(allLimitPosition.max), parseInt(allLimitPosition.tickSpacing))) 
-                                - parseFloat(TickMath.getPriceStringAtTick(parseInt(allLimitPosition.min), parseInt(allLimitPosition.tickSpacing))))
-                              )}% Filled
+                            {parseFloat(allLimitPosition.amountFilled) /
+                            parseFloat(allLimitPosition.liquidity)}% Filled
                           </span>
                           <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
                         </div>
