@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import {
   usePrepareContractWrite,
   useContractWrite,
@@ -7,17 +7,20 @@ import {
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
 import { useTradeStore } from "../../hooks/useTradeStore";
+import { getClaimTick } from "../../utils/maps";
 
 export default function LimitBurnButton({
   disabled,
   poolAddress,
   address,
   positionId,
-  claim,
+  epochLast,
   zeroForOne,
+  lower,
+  upper,
   burnPercent,
   gasLimit,
   closeModal,
@@ -30,6 +33,23 @@ export default function LimitBurnButton({
       state.setNeedsPosRefetch,
     ]
   );
+  const [claimTick, setClaimTick] = useState(0);
+
+  const updateClaimTick = async () => {
+    const tick = await getClaimTick(
+      poolAddress,
+      Number(lower),
+      Number(upper),
+      Boolean(zeroForOne),
+      Number(epochLast),
+      true
+    );
+    setClaimTick(tick);
+  };
+
+  useEffect(() => {
+    updateClaimTick();
+  }, []);
 
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
@@ -43,7 +63,7 @@ export default function LimitBurnButton({
         to: address,
         burnPercent: burnPercent,
         positionId: positionId,
-        claim: claim,
+        claim: BigNumber.from(claimTick),
         zeroForOne: zeroForOne,
         sync: true,
       },

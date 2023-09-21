@@ -1,28 +1,39 @@
 import { BigNumber } from "ethers";
-import { getTickIfNotZeroForOne, getTickIfZeroForOne } from "./queries";
+import { getLimitTickIfNotZeroForOne, getLimitTickIfZeroForOne, getTickIfNotZeroForOne, getTickIfZeroForOne } from "./queries";
 
 export const getClaimTick = async (
-  coverPoolAddress: string,
+  poolAddress: string,
   minLimit: number,
   maxLimit: number,
   zeroForOne: boolean,
-  epochLast: number
+  epochLast: number,
+  isCover: boolean
 ) => {
   let claimTick = zeroForOne ? maxLimit : minLimit;
   if (zeroForOne) {
-    const claimTickQuery = await getTickIfZeroForOne(
+    const claimTickQuery = isCover ? await getTickIfZeroForOne(
       maxLimit,
-      coverPoolAddress,
+      poolAddress,
       epochLast
+    ) :
+      await getLimitTickIfZeroForOne(
+        maxLimit,
+        poolAddress,
+        epochLast
     );
     const claimTickDataLength = claimTickQuery["data"]["ticks"].length;
     if (claimTickDataLength > 0)
       claimTick = claimTickQuery["data"]["ticks"][0]["index"];
   } else {
-    const claimTickQuery = await getTickIfNotZeroForOne(
+    const claimTickQuery = isCover ? await getTickIfNotZeroForOne(
       minLimit,
-      coverPoolAddress,
+      poolAddress,
       epochLast
+    ) :
+      await getLimitTickIfNotZeroForOne(
+        minLimit,
+        poolAddress,
+        epochLast
     );
     const claimTickDataLength = claimTickQuery["data"]["ticks"].length;
     if (claimTickDataLength > 0)
@@ -127,7 +138,8 @@ export function mapUserCoverPositions(coverPositions) {
       coverPosition.min,
       coverPosition.max,
       coverPosition.zeroForOne,
-      coverPosition.epochLast
+      coverPosition.epochLast,
+      true
     );
   });
   return mappedCoverPositions;
