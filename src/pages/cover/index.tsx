@@ -184,7 +184,7 @@ export default function Cover() {
               ) : (
                 <>
                     <div className="overflow-scroll">
-                      <div className="w-[1400px] lg:w-auto">
+                      <div className="w-[1050px] lg:w-auto">
                         <div className="space-y-3">
                           <div className="grid grid-cols-4 text-xs text-grey1/60 w-full mt-5 mb-2">
                             <span>Pool Name</span>
@@ -248,7 +248,7 @@ export default function Cover() {
               </span>
             </div>
             <div className="overflow-scroll">
-              <div className="w-[1400px] lg:w-auto">
+              <div className="w-[500px] lg:w-auto">
                 <div className="space-y-3 w-full">
                   <div className="grid grid-cols-2 w-full text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
                     <div className="text-left">Pool Name</div>
