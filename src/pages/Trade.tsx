@@ -1107,7 +1107,7 @@ export default function Trade() {
             <tr className="text-xs text-grey1/60 mb-3 leading-normal">
               <th className="text-left ">Sell</th>
               <th className="text-left ">Buy</th>
-              <th className="text-left">Price</th>
+              <th className="text-left">Avg. Price</th>
               <th className="text-left md:grid-cell hidden">Status</th>
               <th className="text-right md:grid-cell hidden">Age</th>
             </tr>
