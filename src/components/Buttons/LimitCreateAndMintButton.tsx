@@ -7,18 +7,18 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
+import { limitPoolABI } from "../../abis/evm/limitPool";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { TickMath } from "../../utils/math/tickMath";
-import { ethers } from "ethers";
-import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
   
-  export default function LimitCreateAndMintButton({
+  export default function LimitMintButton({
     disabled,
-    routerAddress,
+    factoryAddress,
     poolType,
     token0,
     token1,
     feeTier,
+    poolAddress,
     to,
     amount,
     mintPercent,
@@ -43,12 +43,12 @@ import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
     useEffect(() => {}, [disabled]);
   
     const { config } = usePrepareContractWrite({
-      address: routerAddress,
-      abi: poolsharkRouterABI,
+      address: factoryAddress,
+      abi: limitPoolABI,
       functionName: "createLimitPoolAndMint",
       args: [
         {
-            poolType: ethers.utils.formatBytes32String(poolType),
+            poolType: poolType,
             tokenIn: token0.address,
             tokenOut: token1.address,
             startPrice: TickMath.getSqrtRatioAtTick(upper),
@@ -62,8 +62,7 @@ import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
                 mintPercent: mintPercent,
                 lower: lower,
                 upper: upper,
-                zeroForOne: zeroForOne,
-                callbackData: ethers.utils.formatBytes32String('')
+                zeroForOne: zeroForOne
             }
         ] // limit positions
       ],
