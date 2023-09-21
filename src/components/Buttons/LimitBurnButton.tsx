@@ -37,7 +37,7 @@ export default function LimitBurnButton({
   const { config } = usePrepareContractWrite({
     address: poolAddress,
     abi: limitPoolABI,
-    functionName: "burnLimit",
+    functionName: "limitBurn",
     args: [
       {
         to: address,

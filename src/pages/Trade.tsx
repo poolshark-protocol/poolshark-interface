@@ -35,6 +35,7 @@ import SwapRouterButton from "../components/Buttons/SwapRouterButton";
 import JSBI from "jsbi";
 import { fetchLimitPositions } from "../utils/queries";
 import { mapUserLimitPositions } from "../utils/maps";
+import { getAveragePrice, getExpectedAmountOut } from "../utils/math/priceMath";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -1134,15 +1135,28 @@ export default function Trade() {
                             className="w-[25px] h-[25px]"
                             src={logoMap[allLimitPosition.tokenOut.symbol]}
                           />
-                          {/*allLimitPosition.amountOut + " " + allLimitPosition.tokenOut.symbol*/}
-                          200 DAI
+                          {parseFloat(ethers.utils.formatEther(
+                            getExpectedAmountOut(
+                              parseInt(allLimitPosition.min), 
+                              parseInt(allLimitPosition.max), 
+                              allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol), 
+                              BigNumber.from(allLimitPosition.liquidity))
+                          )).toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
                         </div>
                       </td>
                       <td className="text-left text-xs">
                         <div className="flex flex-col">
                           {/* FOR EXACT PRICE   */}
                           <span>
-                            <span className="text-grey1">1 {allLimitPosition.tokenIn.symbol} =</span> {allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol) ? parseFloat(allLimitPosition.price1).toFixed(2) : parseFloat(allLimitPosition.price0.toFixed(2))} DAI
+                            <span className="text-grey1">1 {allLimitPosition.tokenIn.symbol} = </span> 
+                              {
+                                getAveragePrice(
+                                  parseInt(allLimitPosition.min), 
+                                  parseInt(allLimitPosition.max), 
+                                  allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol), 
+                                  BigNumber.from(allLimitPosition.liquidity),
+                                  BigNumber.from(allLimitPosition.amountIn))
+                                .toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
                           </span>          
                           {/* FOR PRICE RANGES
                         <span className="flex flex-col">
@@ -1200,15 +1214,28 @@ export default function Trade() {
                             className="w-[25px] h-[25px]"
                             src={logoMap[allLimitPosition.tokenOut.symbol]}
                           />
-                          {/*allLimitPosition.amountOut + " " + allLimitPosition.tokenOut.symbol*/}
-                          200 DAI
+                          {parseFloat(ethers.utils.formatEther(
+                            getExpectedAmountOut(
+                              parseInt(allLimitPosition.min), 
+                              parseInt(allLimitPosition.max), 
+                              allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol), 
+                              BigNumber.from(allLimitPosition.liquidity))
+                          )).toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
                         </div>
                       </td>
                       <td className="text-left text-xs">
                         <div className="flex flex-col">
                           {/* FOR EXACT PRICE   */}
                           <span>
-                          <span className="text-grey1">1 {allLimitPosition.tokenIn.symbol} =</span> {allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol) ? parseFloat(allLimitPosition.price1).toFixed(2) : parseFloat(allLimitPosition.price0.toFixed(2))} DAI
+                          <span className="text-grey1">1 {allLimitPosition.tokenIn.symbol} = </span> 
+                            {
+                              getAveragePrice(
+                                parseInt(allLimitPosition.min), 
+                                parseInt(allLimitPosition.max), 
+                                allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol), 
+                                BigNumber.from(allLimitPosition.liquidity),
+                                BigNumber.from(allLimitPosition.amountIn))
+                              .toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
                           </span>          
                           {/* FOR PRICE RANGES
                         <span className="flex flex-col">
