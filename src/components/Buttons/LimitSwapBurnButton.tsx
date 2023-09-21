@@ -3,6 +3,7 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
+  useSigner,
 } from "wagmi";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
@@ -11,6 +12,8 @@ import React, { useEffect, useState } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import { getClaimTick } from "../../utils/maps";
+import { gasEstimateBurnLimit } from "../../utils/gas";
+import { BN_ZERO } from "../../utils/math/constants";
 
 export default function LimitSwapBurnButton({
   poolAddress,
@@ -22,6 +25,8 @@ export default function LimitSwapBurnButton({
   upper,
   burnPercent,
 }) {
+  const { data: signer } = useSigner();
+
   const [setNeedsRefetch, setNeedsBalanceIn, setNeedsPosRefetch] = useTradeStore(
     (state) => [
       state.setNeedsRefetch,
@@ -30,6 +35,8 @@ export default function LimitSwapBurnButton({
     ]
   );
   const [claimTick, setClaimTick] = useState(0);
+  const [gasFee, setGasFee] = useState("$0.00");
+  const [gasLimit, setGasLimit] = useState(BN_ZERO);
 
   const updateClaimTick = async () => {
     const tick = await getClaimTick(
@@ -43,8 +50,23 @@ export default function LimitSwapBurnButton({
     setClaimTick(tick);
   };
 
+  const getGasLimit = async () => {
+    const limit = await gasEstimateBurnLimit(
+      poolAddress,
+      address,
+      burnPercent,
+      positionId,
+      BigNumber.from(claimTick),
+      zeroForOne,
+      signer,
+      setGasFee,
+      setGasLimit,
+    );
+  };
+
   useEffect(() => {
     updateClaimTick();
+    getGasLimit();
   }, []);
 
   const [errorDisplay, setErrorDisplay] = useState(false);
@@ -65,9 +87,9 @@ export default function LimitSwapBurnButton({
       },
     ],
     chainId: 421613,
-    /*overrides: {
+    overrides: {
       gasLimit: gasLimit,
-    },*/
+    },
   });
 
   const { data, isSuccess, write } = useContractWrite(config);

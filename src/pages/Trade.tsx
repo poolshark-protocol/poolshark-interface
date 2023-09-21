@@ -1182,7 +1182,7 @@ export default function Trade() {
                         <LimitSwapBurnButton
                           poolAddress={allLimitPosition.poolId}
                           address={address}
-                          positionId={allLimitPosition.positionId}
+                          positionId={BigNumber.from(allLimitPosition.positionId)}
                           epochLast={allLimitPosition.epochLast}
                           zeroForOne={allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol)}
                           lower={BigNumber.from(allLimitPosition.min)}

@@ -131,6 +131,73 @@ export const gasEstimateMintLimit = async (
   }
 };
 
+export const gasEstimateBurnLimit = async (
+  limitPoolRoute: string,
+  address: string,
+  burnPercent: BigNumber,
+  positionId: BigNumber,
+  claim: BigNumber,
+  zeroForOne: boolean,
+  signer,
+  setBurnGasFee,
+  setBurnGasLimit
+): Promise<void> => {
+  try {
+    const provider = new ethers.providers.JsonRpcProvider(
+      "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
+    );
+    const price = await fetchPrice("ethereum");
+    const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
+
+    console.log("user address burn", address);
+    console.log("limit pool route burn", limitPoolRoute);
+    console.log("position id burn", positionId.toString());
+    console.log("burn pct", burnPercent.toString());
+    console.log("claim tick burn", claim.toString());
+    console.log("zeroForOne", zeroForOne.toString());
+
+    if (!limitPoolRoute || !provider) {
+      setBurnGasFee("$0.00");
+      setBurnGasLimit(BN_ZERO);
+    }
+
+    const recipient = address;
+
+    const contract = new ethers.Contract(
+      limitPoolRoute,
+      limitPoolABI,
+      provider
+    );
+
+    let gasUnits: BigNumber;
+    gasUnits = await contract.connect(signer).estimateGas.burnLimit([
+      recipient,
+      burnPercent,
+      positionId, // skip mint under 1% left after swap
+      claim,
+      zeroForOne,
+      true
+    ]);
+    console.log("limit gas units", gasUnits.toString());
+    const gasPrice = await provider.getGasPrice();
+    const networkFeeWei = gasPrice.mul(gasUnits);
+    const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
+    const networkFeeUsd = networkFeeEth * Number(ethUsdPrice);
+    console.log("network fee usd limit", networkFeeUsd);
+    const formattedPrice: string = networkFeeUsd.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
+
+    setBurnGasFee(formattedPrice);
+    setBurnGasLimit(gasUnits.mul(150).div(100));
+  } catch (error) {
+    console.log("gas error limit", error);
+    setBurnGasFee("$0.00");
+    setBurnGasLimit(BN_ZERO);
+  }
+};
+
 export const gasEstimateRangeMint = async (
   rangePoolRoute: string,
   address: string,
