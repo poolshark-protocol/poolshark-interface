@@ -171,6 +171,7 @@ export function mapUserLimitPositions(limitPositions) {
   const mappedLimitPositions = [];
   limitPositions?.map((limitPosition) => {
     const limitPositionData = {
+      timestamp: limitPosition.createdAtTimestamp,
       positionId: limitPosition.positionId,
       poolId: limitPosition.pool.id,
       amountIn: limitPosition.amountIn,

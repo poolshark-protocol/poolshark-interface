@@ -38,6 +38,7 @@ import { mapUserLimitPositions } from "../utils/maps";
 import { getAveragePrice, getExpectedAmountOut } from "../utils/math/priceMath";
 import LimitBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import LimitSwapBurnButton from "../components/Buttons/LimitSwapBurnButton";
+import timeDifference from "../utils/time";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -1182,7 +1183,7 @@ export default function Trade() {
                           <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
                         </div>
                       </td>
-                      <td className="text-sm text-grey1">5d</td>
+                      <td className="text-sm text-grey1">{timeDifference(allLimitPosition.timestamp)}</td>
                       <td className="text-sm text-grey1 pl-5">
                         <LimitSwapBurnButton
                           poolAddress={allLimitPosition.poolId}
@@ -1263,7 +1264,7 @@ export default function Trade() {
                           <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
                         </div>
                       </td>
-                      <td className="text-sm text-grey1">5d</td>
+                      <td className="text-sm text-grey1">{timeDifference(allLimitPosition.timestamp)}</td>
                     </tr>
                   );
                 }

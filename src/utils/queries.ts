@@ -490,6 +490,7 @@ export const fetchLimitPositions = (address: string) => {
           limitPositions(where: {owner:"${address}"}) {
                 id
                 positionId
+                createdAtTimestamp
                 amountIn
                 amountFilled
                 tokenIn{
