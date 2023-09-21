@@ -134,20 +134,13 @@ export default function ViewCover() {
   ////////////////////////////////Addresses
 
   useEffect(() => {
-    useCopyElementUseEffect(copyAddress0, setIs0Copied);
-    useCopyElementUseEffect(copyAddress1, setIs1Copied);
-    useCopyElementUseEffect(copyPoolAddress, setIsPoolCopied);
+    if (copyPoolAddress) {
+      const timer = setTimeout(() => {
+        setIsPoolCopied(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
   });
-
-  function copyAddress0() {
-    navigator.clipboard.writeText(tokenIn.address.toString());
-    setIs0Copied(true);
-  }
-
-  function copyAddress1() {
-    navigator.clipboard.writeText(tokenOut.address.toString());
-    setIs1Copied(true);
-  }
 
   function copyPoolAddress() {
     navigator.clipboard.writeText(coverPoolAddress.toString());
