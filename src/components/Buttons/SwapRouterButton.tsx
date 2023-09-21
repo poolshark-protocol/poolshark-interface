@@ -8,7 +8,6 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import { rangePoolABI } from "../../abis/evm/rangePool";
 import { useTradeStore as useRangeLimitStore } from "../../hooks/useTradeStore";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 

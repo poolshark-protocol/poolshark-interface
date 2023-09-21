@@ -77,12 +77,6 @@ export const coverPoolFactoryABI = [
       {
         "indexed": true,
         "internalType": "address",
-        "name": "twapSource",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "inputPool",
         "type": "address"
       },
@@ -100,9 +94,9 @@ export const coverPoolFactoryABI = [
       },
       {
         "indexed": true,
-        "internalType": "address",
-        "name": "poolImpl",
-        "type": "address"
+        "internalType": "bytes32",
+        "name": "poolType",
+        "type": "bytes32"
       },
       {
         "indexed": false,
@@ -191,6 +185,104 @@ export const coverPoolFactoryABI = [
         "internalType": "address",
         "name": "pool",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "poolToken",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "poolType",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenIn",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenOut",
+            "type": "address"
+          },
+          {
+            "internalType": "uint16",
+            "name": "feeTier",
+            "type": "uint16"
+          },
+          {
+            "internalType": "int16",
+            "name": "tickSpread",
+            "type": "int16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "twapLength",
+            "type": "uint16"
+          }
+        ],
+        "internalType": "struct ICoverPoolFactory.CoverPoolParams",
+        "name": "params",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint128",
+            "name": "amount",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint32",
+            "name": "positionId",
+            "type": "uint32"
+          },
+          {
+            "internalType": "int24",
+            "name": "lower",
+            "type": "int24"
+          },
+          {
+            "internalType": "int24",
+            "name": "upper",
+            "type": "int24"
+          },
+          {
+            "internalType": "bool",
+            "name": "zeroForOne",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct ICoverPool.MintParams[]",
+        "name": "mintCoverParams",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "createCoverPoolAndMint",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "poolToken",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -240,7 +332,12 @@ export const coverPoolFactoryABI = [
     "outputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "poolToken",
         "type": "address"
       }
     ],
