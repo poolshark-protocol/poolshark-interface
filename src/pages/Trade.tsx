@@ -36,6 +36,8 @@ import JSBI from "jsbi";
 import { fetchLimitPositions } from "../utils/queries";
 import { mapUserLimitPositions } from "../utils/maps";
 import { getAveragePrice, getExpectedAmountOut } from "../utils/math/priceMath";
+import LimitBurnButton from "../components/Buttons/LimitSwapBurnButton";
+import LimitSwapBurnButton from "../components/Buttons/LimitSwapBurnButton";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -1115,10 +1117,10 @@ export default function Trade() {
           {activeOrdersSelected ? (
             <tbody className="">
               {allLimitPositions.map((allLimitPosition) => {
-                if (allLimitPosition.id != undefined) {
+                if (allLimitPosition.positionId != undefined) {
                   return (
                     <tr className="text-right text-xs md:text-sm"
-                        key={allLimitPosition.id}
+                        key={allLimitPosition.positionId}
                     >
                       <td className="">
                         <div className="flex items-center text-sm text-grey1 gap-x-2 text-left">
@@ -1177,14 +1179,16 @@ export default function Trade() {
                       </td>
                       <td className="text-sm text-grey1">5d</td>
                       <td className="text-sm text-grey1 pl-5">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                          className="w-7 text-red-600 bg-red-900/30 p-1 rounded-full cursor-pointer -mr-5"
-                        >
-                          <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                        </svg>
+                        <LimitSwapBurnButton
+                          poolAddress={allLimitPosition.poolId}
+                          address={address}
+                          positionId={allLimitPosition.positionId}
+                          epochLast={allLimitPosition.epochLast}
+                          zeroForOne={allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol)}
+                          lower={BigNumber.from(allLimitPosition.min)}
+                          upper={BigNumber.from(allLimitPosition.max)}
+                          burnPercent={ethers.utils.parseUnits("1", 38)}
+                        />
                       </td>
                     </tr>
                   );
@@ -1194,10 +1198,10 @@ export default function Trade() {
           ) : (
             <tbody className="">
               {allLimitPositions.map((allLimitPosition) => {
-                if (allLimitPosition.id != undefined) {
+                if (allLimitPosition.positionId != undefined) {
                   return (
                     <tr className="text-right text-xs md:text-sm"
-                        key={allLimitPosition.id}
+                        key={allLimitPosition.positionId}
                     >
                       <td className="">
                         <div className="flex items-center text-sm text-grey1 gap-x-2 text-left">

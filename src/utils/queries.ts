@@ -489,6 +489,7 @@ export const fetchLimitPositions = (address: string) => {
       query($owner: String) {
           limitPositions(where: {owner:"${address}"}) {
                 id
+                positionId
                 amountIn
                 amountFilled
                 tokenIn{

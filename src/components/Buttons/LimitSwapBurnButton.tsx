@@ -12,8 +12,7 @@ import { limitPoolABI } from "../../abis/evm/limitPool";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import { getClaimTick } from "../../utils/maps";
 
-export default function LimitBurnButton({
-  disabled,
+export default function LimitSwapBurnButton({
   poolAddress,
   address,
   positionId,
@@ -22,9 +21,6 @@ export default function LimitBurnButton({
   lower,
   upper,
   burnPercent,
-  gasLimit,
-  closeModal,
-  setIsOpen,
 }) {
   const [setNeedsRefetch, setNeedsBalanceIn, setNeedsPosRefetch] = useTradeStore(
     (state) => [
@@ -57,7 +53,7 @@ export default function LimitBurnButton({
   const { config } = usePrepareContractWrite({
     address: poolAddress,
     abi: limitPoolABI,
-    functionName: "limitBurn",
+    functionName: "burnLimit",
     args: [
       {
         to: address,
@@ -69,9 +65,9 @@ export default function LimitBurnButton({
       },
     ],
     chainId: 421613,
-    overrides: {
+    /*overrides: {
       gasLimit: gasLimit,
-    },
+    },*/
   });
 
   const { data, isSuccess, write } = useContractWrite(config);
@@ -80,15 +76,11 @@ export default function LimitBurnButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
-      setTimeout(() => {
-        closeModal();
-      }, 2000);
       if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
         setNeedsRefetch(true);
       }
       setNeedsBalanceIn(true);
       setNeedsPosRefetch(true);
-      setIsOpen(false);
     },
     onError() {
       setErrorDisplay(true);
