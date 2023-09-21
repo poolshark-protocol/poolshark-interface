@@ -17,6 +17,8 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     setRangePoolAddress,
     setRangePoolData,
     setRangePositionData,
+    setNeedsAllowanceIn,
+    setNeedsAllowanceOut,
   ] = useRangeLimitStore((state) => [
     state.tokenIn,
     state.tokenOut,
@@ -25,6 +27,8 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     state.setRangePoolAddress,
     state.setRangePoolData,
     state.setRangePositionData,
+    state.setNeedsAllowanceIn,
+    state.setNeedsAllowanceOut,
   ]);
 
   const [
@@ -44,6 +48,8 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
   ]);
 
   function choosePosition() {
+    setNeedsAllowanceIn(true);
+    setNeedsAllowanceOut(true);
     const tokenInNew = {
       name: rangePosition.tokenZero.name,
       symbol: rangePosition.tokenZero.symbol,

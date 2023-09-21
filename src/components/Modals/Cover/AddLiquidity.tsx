@@ -28,6 +28,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     coverMintParams,
     tokenIn,
     setTokenInBalance,
+    setTokenInAllowance,
     tokenOut,
     needsAllowance,
     setNeedsAllowance,
@@ -41,6 +42,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     state.coverMintParams,
     state.tokenIn,
     state.setTokenInBalance,
+    state.setTokenInCoverAllowance,
     state.tokenOut,
     state.needsAllowance,
     state.setNeedsAllowance,
@@ -70,7 +72,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     args: [address, coverPoolAddress],
     chainId: 421613,
     watch: needsAllowance,
-    enabled: isConnected && coverPoolAddress != "0x00" && needsAllowance,
+    enabled: tokenIn.address != undefined,
     onSuccess(data) {
       setNeedsAllowance(false);
     },
@@ -79,6 +81,12 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     },
     onSettled(data, error) {},
   });
+
+  useEffect(() => {
+    setTokenInAllowance(allowanceInCover.toString());
+  }, [allowanceInCover]);
+
+  console.log("allowanceInCover", allowanceInCover);
 
   ////////////////////////////////Token Balances
 

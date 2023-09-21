@@ -50,13 +50,12 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
   );
 
   useEffect(() => {
-    const percentInput = sliderValue;
-    const tokenAmountToBurn = BigNumber.from(percentInput)
-      .mul(BigNumber.from(rangePositionData.liquidity))
+    const tokenAmountToBurn = BigNumber.from(sliderValue)
+      .mul(BigNumber.from(rangePositionData.userLiquidity))
       .div(BigNumber.from(100));
     setBurnPercent(ethers.utils.parseUnits(sliderValue.toString(), 36));
     setAmounts(JSBI.BigInt(tokenAmountToBurn), true);
-  }, [sliderValue]);
+  }, [sliderValue, rangePositionData.liquidity]);
 
   const handleChange = (event: any) => {
     if (Number(event.target.value) != 0) {
@@ -106,26 +105,19 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
   const [burnGasLimit, setBurnGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    if (
-      rangePositionData.lowerTick &&
-      rangePositionData.upperTick &&
-      sliderValue &&
-      signer
-    )
-      updateGasFee();
+    updateGasFee();
   }, [sliderValue, rangePoolAddress]);
 
   async function updateGasFee() {
     const newBurnGasFee = await gasEstimateRangeBurn(
       rangePoolAddress,
       address,
-      rangePositionData.positionId,
+      rangePositionData.id,
       burnPercent,
       signer
     );
     setBurnGasFee(newBurnGasFee.formattedPrice);
     setBurnGasLimit(newBurnGasFee.gasUnits.mul(250).div(100));
-    console.log(newBurnGasFee);
   }
 
   ////////////////////////////////Mint Button Handler
@@ -312,7 +304,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
                   }}
                   gasLimit={burnGasLimit}
                   setIsOpen={setIsOpen}
-                  disabled={rangeMintParams.disabled}
+                  disabled={burnGasFee === "$0.00"}
                 />
               </Dialog.Panel>
             </Transition.Child>

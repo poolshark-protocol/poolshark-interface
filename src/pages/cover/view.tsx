@@ -12,7 +12,6 @@ import CoverCollectButton from "../../components/Buttons/CoverCollectButton";
 import { BigNumber, ethers } from "ethers";
 import { TickMath } from "../../utils/math/tickMath";
 import { coverPoolABI } from "../../abis/evm/coverPool";
-import { copyElementUseEffect } from "../../utils/misc";
 import { getClaimTick, mapUserCoverPositions } from "../../utils/maps";
 import RemoveLiquidity from "../../components/Modals/Cover/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Cover/AddLiquidity";
@@ -23,6 +22,7 @@ import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import { fetchCoverPositions } from "../../utils/queries";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
+import { useCopyElementUseEffect } from "../../utils/misc";
 
 export default function ViewCover() {
   const [
@@ -60,9 +60,6 @@ export default function ViewCover() {
   ]);
 
   const { address, isConnected } = useAccount();
-  const { data: signer } = useSigner();
-
-  const router = useRouter();
 
   //cover aux
   const [priceDirection, setPriceDirection] = useState(false);
@@ -134,7 +131,23 @@ export default function ViewCover() {
   const [upperInverse, setUpperInverse] = useState(0);
   const [priceInverse, setPriceInverse] = useState(0);
 
-  ////////////////////////////////Fetch Pool Data
+  ////////////////////////////////Addresses
+
+  useEffect(() => {
+    if (copyPoolAddress) {
+      const timer = setTimeout(() => {
+        setIsPoolCopied(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  });
+
+  function copyPoolAddress() {
+    navigator.clipboard.writeText(coverPoolAddress.toString());
+    setIsPoolCopied(true);
+  }
+
+  //////////////////////////////// Pool Data
 
   useEffect(() => {
     if (coverPoolData.token0 && coverPoolData.token1) {
@@ -201,21 +214,47 @@ export default function ViewCover() {
     }
   };
 
+  ////////////////////////////////Position Data
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (needsRefetch == true || needsPosRefetch == true) {
+        getUserCoverPositionData();
+        setNeedsRefetch(false);
+        setNeedsPosRefetch(false);
+      }
+    }, 2000);
+  }, [needsRefetch, needsPosRefetch]);
+
+  async function getUserCoverPositionData() {
+    try {
+      const data = await fetchCoverPositions(address);
+      if (data["data"]) {
+        const positions = data["data"].positions;
+        const positionData = mapUserCoverPositions(positions);
+        setAllCoverPositions(positionData);
+        const positionId = coverPositionData.positionId;
+        const position = positionData.find(
+          (position) => position.positionId == positionId
+        );
+        if (position != undefined) {
+          setCoverPositionData(position);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   ////////////////////////////////Filled Amount
 
-  /* console.log("coverpool", coverPoolAddress);
-  console.log("address", address);
-  console.log("positionId", coverPositionData.positionId);
-  console.log("claimTick", claimTick);
-  console.log("zeroForOne", Boolean(coverPositionData.zeroForOne)); */
-
-  /* const { data: filledAmount } = useContractRead({
+  const { data: filledAmount } = useContractRead({
     address: coverPoolAddress,
     abi: coverPoolABI,
     functionName: "snapshot",
     args: [
       {
-        to: address,
+        owner: address,
         positionId: Number(coverPositionData.positionId),
         burnPercent: BigNumber.from("0"),
         claim: BigNumber.from(claimTick),
@@ -229,17 +268,12 @@ export default function ViewCover() {
       isConnected &&
       coverPoolAddress != undefined &&
       address != undefined,
-    onSuccess(data) {
-      console.log("Success price filled amount", data);
-    },
     onError(error) {
       console.log("coverpool", coverPoolAddress);
       console.log("address", address);
       console.log("Error snapshot Cover", error);
     },
-  }); */
-  //TODO new deployment
-  const filledAmount = 0;
+  });
 
   useEffect(() => {
     if (filledAmount) {
@@ -281,59 +315,6 @@ export default function ViewCover() {
     );
 
     setClaimTick(aux);
-  }
-
-  async function getUserCoverPositionData() {
-    try {
-      const data = await fetchCoverPositions(address);
-      if (data["data"]) {
-        const positions = data["data"].positions;
-        const positionData = mapUserCoverPositions(positions);
-        setAllCoverPositions(positionData);
-        const positionId = coverPositionData.positionId;
-        const position = positionData.find(
-          (position) => position.positionId == positionId
-        );
-        if (position != undefined) {
-          setCoverPositionData(position);
-        }
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  useEffect(() => {
-    setTimeout(() => {
-      if (needsRefetch == true || needsPosRefetch == true) {
-        getUserCoverPositionData();
-        setNeedsRefetch(false);
-        setNeedsPosRefetch(false);
-      }
-    }, 2000);
-  }, [needsRefetch, needsPosRefetch]);
-
-  ////////////////////////////////Addresses
-
-  useEffect(() => {
-    copyElementUseEffect(copyAddress0, setIs0Copied);
-    copyElementUseEffect(copyAddress1, setIs1Copied);
-    copyElementUseEffect(copyPoolAddress, setIsPoolCopied);
-  });
-
-  function copyAddress0() {
-    navigator.clipboard.writeText(tokenIn.address.toString());
-    setIs0Copied(true);
-  }
-
-  function copyAddress1() {
-    navigator.clipboard.writeText(tokenOut.address.toString());
-    setIs1Copied(true);
-  }
-
-  function copyPoolAddress() {
-    navigator.clipboard.writeText(coverPoolAddress.toString());
-    setIsPoolCopied(true);
   }
 
   ////////////////////////////////
@@ -436,7 +417,9 @@ export default function ViewCover() {
               </div>
               <div className="flex justify-between items-center mt-8">
                 <div className="flex items-center gap-x-4">
-                  <h1 className="uppercase text-white md:block hidden">Price Range</h1>
+                  <h1 className="uppercase text-white md:block hidden">
+                    Price Range
+                  </h1>
                   {parseFloat(
                     TickMath.getPriceStringAtTick(
                       Number(coverPositionData.latestTick)

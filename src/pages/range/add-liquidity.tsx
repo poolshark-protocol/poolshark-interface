@@ -132,8 +132,8 @@ export default function AddLiquidity({}) {
     functionName: "allowance",
     args: [address, rangePoolAddress],
     chainId: 421613,
-    watch: needsAllowanceIn,
-    //enabled: tokenIn.address,
+    //watch: needsAllowanceIn,
+    enabled: tokenIn.address != undefined,
     onSuccess(data) {
       //setNeedsAllowanceIn(false);
     },
@@ -148,8 +148,8 @@ export default function AddLiquidity({}) {
     functionName: "allowance",
     args: [address, rangePoolAddress],
     chainId: 421613,
-    watch: needsAllowanceOut,
-    //enabled: pairSelected && rangePoolAddress != ZERO_ADDRESS,
+    //watch: needsAllowanceOut,
+    enabled: tokenOut.address != undefined,
     onSuccess(data) {
       //setNeedsAllowanceOut(false);
     },

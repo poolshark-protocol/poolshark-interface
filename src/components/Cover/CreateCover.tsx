@@ -34,6 +34,7 @@ import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
 import TickSpacing from "../Tooltips/TickSpacing";
 import { gasEstimateCoverMint } from "../../utils/gas";
 import { volatilityTiers } from "../../utils/pools";
+import router from "next/router";
 
 export default function CreateCover(props: any) {
   const [
@@ -126,8 +127,8 @@ export default function CreateCover(props: any) {
     functionName: "allowance",
     args: [address, coverPoolAddress],
     chainId: 421613,
-    watch: needsAllowance,
-    enabled: isConnected && coverPoolAddress != "0x00" && needsAllowance,
+    //watch: needsAllowance,
+    enabled: tokenIn.address != undefined,
     onSuccess(data) {
       setNeedsAllowance(false);
     },
@@ -167,7 +168,7 @@ export default function CreateCover(props: any) {
   //////////////////////////////Cover Pool Data
   //initial volatility Tier set to 1.7% when selected from list of range pools
   const [selectedVolatility, setSelectedVolatility] = useState(
-    volatilityTiers[0]
+    router.query.tickSpacing == "20" ? volatilityTiers[0] : volatilityTiers[1]
   );
   const [selectFromEmptyFlag, setSelectFromEmptyFlag] = useState(true);
 
@@ -194,6 +195,7 @@ export default function CreateCover(props: any) {
   /* const handleManualVolatilityChange = async (volatility: any) => {
     setSelectedVolatility(volatility);
   }; */
+  
   ////////////////////////////////Init Position Data
 
   useEffect(() => {
@@ -565,7 +567,9 @@ export default function CreateCover(props: any) {
         <div className="flex md:flex-row flex-col justify-between mt-8 gap-x-16 gap-y-4">
           {volatilityTiers.map((volatilityTier, volatilityTierIdx) => (
             <div
-              onClick={() => setSelectedVolatility(volatilityTier)}
+              onClick={() => {
+                setSelectedVolatility(volatilityTier);
+              }}
               key={volatilityTierIdx}
               className={`bg-black p-4 w-full rounded-[4px] cursor-pointer transition-all ${
                 selectedVolatility === volatilityTier
