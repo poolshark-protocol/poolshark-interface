@@ -21,9 +21,14 @@ export const getClaimTick = async (
         poolAddress,
         epochLast
     );
-    const claimTickDataLength = claimTickQuery["data"]["ticks"].length;
+    const claimTickDataLength = isCover ? 
+      claimTickQuery["data"]["ticks"].length :
+      claimTickQuery["data"]["limitTicks"].length;
+
     if (claimTickDataLength > 0)
-      claimTick = claimTickQuery["data"]["ticks"][0]["index"];
+      claimTick = isCover ?
+        claimTickQuery["data"]["ticks"][0]["index"] :
+        claimTickQuery["data"]["limitTicks"][0]["index"];
   } else {
     const claimTickQuery = isCover ? await getTickIfNotZeroForOne(
       minLimit,
@@ -35,9 +40,13 @@ export const getClaimTick = async (
         poolAddress,
         epochLast
     );
-    const claimTickDataLength = claimTickQuery["data"]["ticks"].length;
+    const claimTickDataLength = isCover ?
+      claimTickQuery["data"]["ticks"].length :
+      claimTickQuery["data"]["limitTicks"].length;
     if (claimTickDataLength > 0)
-      claimTick = claimTickQuery["data"]["ticks"][0]["index"];
+      claimTick = isCover ?
+        claimTickQuery["data"]["ticks"][0]["index"] :
+        claimTickQuery["data"]["limitTicks"][0]["index"];
     if (claimTick == undefined) {
       claimTick = minLimit;
     }

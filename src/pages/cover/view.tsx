@@ -277,7 +277,8 @@ export default function ViewCover() {
       Number(coverPositionData.min),
       Number(coverPositionData.max),
       Boolean(coverPositionData.zeroForOne),
-      Number(coverPositionData.epochLast)
+      Number(coverPositionData.epochLast),
+      true
     );
 
     setClaimTick(aux);

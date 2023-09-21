@@ -265,7 +265,7 @@ export const getLimitTickIfNotZeroForOne = (
        { 
          limitTicks(
             first: 1
-            where: {index_lte:"${upper}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
+            where: {index_lte:"${upper}", pool_:{id:"${poolAddress}"},epochLast1_gt:"${epochLast}"}
           ) {
             index
             epochLast1
@@ -299,7 +299,7 @@ export const getLimitTickIfZeroForOne = (
        { 
          limitTicks(
             first: 1
-            where: {index_gte:"${lower}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
+            where: {index_gte:"${lower}", pool_:{id:"${poolAddress}"},epochLast0_gt:"${epochLast}"}
           ) {
             index
             epochLast0
