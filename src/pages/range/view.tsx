@@ -17,6 +17,7 @@ import { fetchRangePositions } from "../../utils/queries";
 import { mapUserRangePositions } from "../../utils/maps";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
+import RangeCollectButton from "../../components/Buttons/RangeCollectButton";
 
 export default function ViewRange() {
   const [
@@ -551,6 +552,11 @@ export default function ViewRange() {
                 poolAddress={rangePoolAddress}
                 address={address}
                 positionId={rangePositionData.id}
+              />
+              <RangeCollectButton
+              poolAddress={rangePoolAddress}
+              address={address}
+              positionId={rangePositionData.id}
               />
             </div>
           </div>

@@ -165,11 +165,11 @@ export default function RangePoolPreview() {
                           <h1>Pair</h1>
                         </div>
                         <div className="flex flex-col md:flex-row items-center gap-x-5 gap-y-3 mt-3 w-full">
-                          <button className="flex w-full items-center gap-x-3 bg-black border border-grey px-4 py-1.5 rounded-[4px]">
+                          <button className="flex w-full items-center gap-x-3 bg-dark border border-grey px-4 py-1.5 rounded-[4px]">
                             <img className="w-7" src={tokenIn.logoURI} />
                             {tokenIn.symbol}
                           </button>
-                          <button className="flex w-full items-center gap-x-3 bg-black border border-grey px-4 py-1.5 rounded-[4px]">
+                          <button className="flex w-full items-center gap-x-3 bg-dark border border-grey px-4 py-1.5 rounded-[4px]">
                             <img
                               className="w-7 w-full"
                               src={tokenOut.logoURI}
@@ -183,9 +183,9 @@ export default function RangePoolPreview() {
                           <h1>Fee tier</h1>
                         </div>
                         <div className="mt-3">
-                          <button className="relative cursor-default rounded-lg bg-black text-white cursor-pointer border border-grey1 py-2 pl-3 w-full text-left shadow-md focus:outline-none">
+                          <button className="relative cursor-default rounded-[4px] bg-black text-white cursor-pointer bg-dark border border-grey py-2 pl-3 w-full text-left shadow-md focus:outline-none">
                             <span className="block truncate">{(rangePoolData.feeTier.feeAmount / 10000).toFixed(2)}%</span>
-                            <span className="block truncate text-xs text-grey mt-1">
+                            <span className="block truncate text-xs text-grey">
                               {/* {fee.text} */}
                             </span>
                           </button>
@@ -196,9 +196,9 @@ export default function RangePoolPreview() {
                           <h1>Deposited amounts</h1>
                         </div>
                         <div className="mt-3 space-y-3">
-                          <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
+                        <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-[4px]">
                             <div className=" p-2 ">
-                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
+                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-[4px]">
                                 {parseFloat(
                                   ethers.utils.formatUnits(
                                     rangeMintParams.tokenInAmount,
@@ -224,8 +224,8 @@ export default function RangePoolPreview() {
                             <div className="">
                               <div className=" ml-auto">
                                 <div>
-                                  <div className="flex justify-end">
-                                    <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
+                                <div className="flex justify-end">
+                                    <button className="flex items-center gap-x-3 bg-black border border-grey px-3 py-1.5 rounded-[4px]">
                                       <div className="flex items-center gap-x-2 w-full">
                                         <img
                                           className="w-7"
@@ -242,9 +242,9 @@ export default function RangePoolPreview() {
                               </div>
                             </div>
                           </div>
-                          <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
+                          <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-[4px]">
                             <div className=" p-2 ">
-                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
+                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-[4px]">
                                 {parseFloat(
                                   ethers.utils.formatUnits(
                                     rangeMintParams.tokenOutAmount,
@@ -271,7 +271,7 @@ export default function RangePoolPreview() {
                               <div className=" ml-auto">
                                 <div>
                                   <div className="flex justify-end">
-                                    <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
+                                    <button className="flex items-center gap-x-3 bg-black border border-grey px-3 py-1.5 rounded-[4px]">
                                       <div className="flex items-center gap-x-2 w-full">
                                         <img
                                           className="w-7"
@@ -291,13 +291,13 @@ export default function RangePoolPreview() {
                         </div>
                       </div>
                     </div>
-                    <div className="md:w-1/2 mt-10">
+                    <div className="md:w-1/2">
                       <div>
                         <div className="flex justify-between items-center">
                           <h1>Price range</h1>
                         </div>
                         <div className="mt-3 space-y-3">
-                          <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
+                          <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-[4px]">
                             <span className="md:text-xs text-[10px] text-grey">
                               Min. Price
                             </span>
@@ -310,7 +310,7 @@ export default function RangePoolPreview() {
                               {tokenOut.symbol} per {tokenIn.symbol}
                             </span>
                           </div>
-                          <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
+                          <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-[4px]">
                             <span className="md:text-xs text-[10px] text-grey">
                               Max. Price
                             </span>

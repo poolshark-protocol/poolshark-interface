@@ -50,7 +50,7 @@ export default function RangeCompoundButton({ poolAddress, address, positionId }
               >
               Compound position
       </button>
-      <div className="fixed bottom-4 right-4 flex flex-col space-y-2">
+      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
     {errorDisplay && (
       <ErrorToast
         hash={data?.hash}
