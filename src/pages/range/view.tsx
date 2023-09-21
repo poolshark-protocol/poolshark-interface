@@ -53,7 +53,6 @@ export default function ViewRange() {
 
   const { address, isConnected } = useAccount();
 
-  const [snapshot, setSnapshot] = useState(undefined);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
   const [priceDirection, setPriceDirection] = useState(false);
@@ -129,7 +128,7 @@ export default function ViewRange() {
     setIsPoolCopied(true);
   }
 
-  ////////////////////////Pool
+  ////////////////////////Pool Data
 
   useEffect(() => {
     getRangePoolRatios();
@@ -178,7 +177,38 @@ export default function ViewRange() {
     }
   };
 
-  ////////////////////////Liquidity
+  ////////////////////////////////Position Data
+  useEffect(() => {
+    setTimeout(() => {
+      if (needsRefetch) {
+        getUserRangePositionData();
+        setNeedsRefetch(false);
+        setNeedsPosRefetch(false);
+      }
+    }, 2000);
+  }, [needsRefetch]);
+
+  async function getUserRangePositionData() {
+    try {
+      const data = await fetchRangePositions(address);
+      if (data["data"].rangePositions) {
+        const mappedPositions = mapUserRangePositions(
+          data["data"].rangePositions
+        );
+        const position = mappedPositions.find(
+          (position) => Number(position.id) == Number(rangePositionData.id)
+        );
+        if (position != undefined) {
+          setRangePositionData(position);
+        }
+        setAllRangePositions(mappedPositions);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  ////////////////////////Prices
 
   useEffect(() => {
     if (rangePoolData.token0 && rangePoolData.token1) {
@@ -251,78 +281,38 @@ export default function ViewRange() {
     setUserLiquidityUsd(amount0Usd + amount1Usd);
   }, [amount0Usd, amount1Usd]);
 
-  ////////////////////////Fees
+  ////////////////////////////////Snapshot
 
-  /* const { refetch: refetchSnapshot, data: feesOwed } = useContractRead({
+  const { refetch: refetchSnapshot, data: feesOwed } = useContractRead({
     address: rangePoolAddress,
     abi: rangePoolABI,
-    functionName: "snapshot",
-    args: [[address, rangePositionData.min, rangePositionData.max]],
+    functionName: "snapshotRange",
+    args: [rangePositionData.id],
     chainId: 421613,
     watch: true,
     enabled: isConnected && rangePoolAddress != ("" as string),
-    onSuccess(data) {
-      setSnapshot(data);
-      console.log("Success snapshot Range", data);
-    },
     onError(error) {
-      console.log(
-        "snapshot args",
-        address,
-        rangePositionData.min.toString(),
-        rangePositionData.max.toString()
-      );
+      console.log("snapshot args", rangePositionData.id);
       console.log("Error snapshot Range", error);
     },
-  }); */
+  });
 
   useEffect(() => {
     setFeesOwed();
-  }, [snapshot]);
+  }, [feesOwed]);
 
   function setFeesOwed() {
     try {
-      if (snapshot) {
+      if (feesOwed) {
         const fees0 = parseFloat(
-          ethers.utils.formatUnits(snapshot[2], tokenIn.decimals)
+          ethers.utils.formatUnits(feesOwed[2], tokenIn.decimals)
         );
         const fees1 = parseFloat(
-          ethers.utils.formatUnits(snapshot[3], tokenIn.decimals)
+          ethers.utils.formatUnits(feesOwed[3], tokenIn.decimals)
         );
 
         setAmount0Fees(fees0);
         setAmount1Fees(fees1);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  ////////////////////////////////
-  useEffect(() => {
-    setTimeout(() => {
-      if (needsRefetch) {
-        getUserRangePositionData();
-        setNeedsRefetch(false);
-        setNeedsPosRefetch(false);
-      }
-    }, 2000);
-  }, [needsRefetch]);
-
-  async function getUserRangePositionData() {
-    try {
-      const data = await fetchRangePositions(address);
-      if (data["data"].rangePositions) {
-        const mappedPositions = mapUserRangePositions(
-          data["data"].rangePositions
-        );
-        const position = mappedPositions.find(
-          (position) => Number(position.id) == Number(rangePositionData.id)
-        );
-        if (position != undefined) {
-          setRangePositionData(position);
-        }
-        setAllRangePositions(mappedPositions);
       }
     } catch (error) {
       console.log(error);
@@ -518,7 +508,7 @@ export default function ViewRange() {
                   <span>~${amount0Usd}</span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {amount0.toFixed(2)}
+                  {amount0Fees.toPrecision(6)}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenIn.logoURI} />
@@ -532,7 +522,7 @@ export default function ViewRange() {
                   <span>~${amount1Usd}</span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {amount1.toFixed(2)}
+                  {amount1Fees.toPrecision(6)}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenOut.logoURI} />

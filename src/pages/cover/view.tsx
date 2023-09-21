@@ -134,185 +134,6 @@ export default function ViewCover() {
   const [upperInverse, setUpperInverse] = useState(0);
   const [priceInverse, setPriceInverse] = useState(0);
 
-  ////////////////////////////////Fetch Pool Data
-
-  useEffect(() => {
-    if (coverPoolData.token0 && coverPoolData.token1) {
-      if (tokenIn.address) {
-        fetchCoverTokenUSDPrice(
-          coverPoolData,
-          tokenIn,
-          setTokenInCoverUSDPrice
-        );
-      }
-      if (tokenOut.address) {
-        fetchCoverTokenUSDPrice(
-          coverPoolData,
-          tokenOut,
-          setTokenOutCoverUSDPrice
-        );
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    getCoverPoolRatios();
-  }, [tokenIn.coverUSDPrice, tokenOut.coverUSDPrice]);
-
-  //TODO need to be set to utils
-  const getCoverPoolRatios = () => {
-    try {
-      if (coverPoolData != undefined) {
-        setLowerInverse(
-          parseFloat(
-            (
-              tokenOut.coverUSDPrice /
-              Number(
-                TickMath.getPriceStringAtTick(Number(coverPositionData.max))
-              )
-            ).toPrecision(6)
-          )
-        );
-        setUpperInverse(
-          parseFloat(
-            (
-              tokenOut.coverUSDPrice /
-              Number(
-                TickMath.getPriceStringAtTick(Number(coverPositionData.min))
-              )
-            ).toPrecision(6)
-          )
-        );
-        setPriceInverse(
-          parseFloat(
-            (
-              tokenOut.coverUSDPrice /
-              Number(
-                TickMath.getPriceStringAtTick(
-                  Number(coverPositionData.latestTick)
-                )
-              )
-            ).toPrecision(6)
-          )
-        );
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  ////////////////////////////////Filled Amount
-
-  /* console.log("coverpool", coverPoolAddress);
-  console.log("address", address);
-  console.log("positionId", coverPositionData.positionId);
-  console.log("claimTick", claimTick);
-  console.log("zeroForOne", Boolean(coverPositionData.zeroForOne)); */
-
-  /* const { data: filledAmount } = useContractRead({
-    address: coverPoolAddress,
-    abi: coverPoolABI,
-    functionName: "snapshot",
-    args: [
-      {
-        to: address,
-        positionId: Number(coverPositionData.positionId),
-        burnPercent: BigNumber.from("0"),
-        claim: BigNumber.from(claimTick),
-        zeroForOne: Boolean(coverPositionData.zeroForOne),
-      },
-    ],
-    chainId: 421613,
-    watch: true,
-    enabled:
-      BigNumber.from(claimTick).lt(BigNumber.from("887272")) &&
-      isConnected &&
-      coverPoolAddress != undefined &&
-      address != undefined,
-    onSuccess(data) {
-      console.log("Success price filled amount", data);
-    },
-    onError(error) {
-      console.log("coverpool", coverPoolAddress);
-      console.log("address", address);
-      console.log("Error snapshot Cover", error);
-    },
-  }); */
-  //TODO new deployment
-  const filledAmount = 0;
-
-  useEffect(() => {
-    if (filledAmount) {
-      setCoverFilledAmount(
-        ethers.utils.formatUnits(filledAmount[3], tokenIn.decimals)
-      );
-    }
-  }, [filledAmount]);
-
-  useEffect(() => {
-    if (coverFilledAmount && coverPositionData.userFillIn) {
-      setFillPercent(
-        Number(coverFilledAmount) /
-          Number(
-            ethers.utils.formatUnits(
-              coverPositionData.userFillIn.toString(),
-              18
-            )
-          )
-      );
-    }
-  }, [coverFilledAmount]);
-
-  ////////////////////////////////Claim Tick
-
-  useEffect(() => {
-    setTimeout(() => {
-      updateClaimTick();
-    }, 3000);
-  }, [claimTick]);
-
-  async function updateClaimTick() {
-    const aux = await getClaimTick(
-      coverPoolAddress.toString(),
-      Number(coverPositionData.min),
-      Number(coverPositionData.max),
-      Boolean(coverPositionData.zeroForOne),
-      Number(coverPositionData.epochLast)
-    );
-
-    setClaimTick(aux);
-  }
-
-  async function getUserCoverPositionData() {
-    try {
-      const data = await fetchCoverPositions(address);
-      if (data["data"]) {
-        const positions = data["data"].positions;
-        const positionData = mapUserCoverPositions(positions);
-        setAllCoverPositions(positionData);
-        const positionId = coverPositionData.positionId;
-        const position = positionData.find(
-          (position) => position.positionId == positionId
-        );
-        if (position != undefined) {
-          setCoverPositionData(position);
-        }
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  useEffect(() => {
-    setTimeout(() => {
-      if (needsRefetch == true || needsPosRefetch == true) {
-        getUserCoverPositionData();
-        setNeedsRefetch(false);
-        setNeedsPosRefetch(false);
-      }
-    }, 2000);
-  }, [needsRefetch, needsPosRefetch]);
-
   ////////////////////////////////Addresses
 
   useEffect(() => {
@@ -334,6 +155,176 @@ export default function ViewCover() {
   function copyPoolAddress() {
     navigator.clipboard.writeText(coverPoolAddress.toString());
     setIsPoolCopied(true);
+
+    //////////////////////////////// Pool Data
+
+    useEffect(() => {
+      if (coverPoolData.token0 && coverPoolData.token1) {
+        if (tokenIn.address) {
+          fetchCoverTokenUSDPrice(
+            coverPoolData,
+            tokenIn,
+            setTokenInCoverUSDPrice
+          );
+        }
+        if (tokenOut.address) {
+          fetchCoverTokenUSDPrice(
+            coverPoolData,
+            tokenOut,
+            setTokenOutCoverUSDPrice
+          );
+        }
+      }
+    }, []);
+
+    useEffect(() => {
+      getCoverPoolRatios();
+    }, [tokenIn.coverUSDPrice, tokenOut.coverUSDPrice]);
+
+    //TODO need to be set to utils
+    const getCoverPoolRatios = () => {
+      try {
+        if (coverPoolData != undefined) {
+          setLowerInverse(
+            parseFloat(
+              (
+                tokenOut.coverUSDPrice /
+                Number(
+                  TickMath.getPriceStringAtTick(Number(coverPositionData.max))
+                )
+              ).toPrecision(6)
+            )
+          );
+          setUpperInverse(
+            parseFloat(
+              (
+                tokenOut.coverUSDPrice /
+                Number(
+                  TickMath.getPriceStringAtTick(Number(coverPositionData.min))
+                )
+              ).toPrecision(6)
+            )
+          );
+          setPriceInverse(
+            parseFloat(
+              (
+                tokenOut.coverUSDPrice /
+                Number(
+                  TickMath.getPriceStringAtTick(
+                    Number(coverPositionData.latestTick)
+                  )
+                )
+              ).toPrecision(6)
+            )
+          );
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    ////////////////////////////////Position Data
+
+    useEffect(() => {
+      setTimeout(() => {
+        if (needsRefetch == true || needsPosRefetch == true) {
+          getUserCoverPositionData();
+          setNeedsRefetch(false);
+          setNeedsPosRefetch(false);
+        }
+      }, 2000);
+    }, [needsRefetch, needsPosRefetch]);
+
+    async function getUserCoverPositionData() {
+      try {
+        const data = await fetchCoverPositions(address);
+        if (data["data"]) {
+          const positions = data["data"].positions;
+          const positionData = mapUserCoverPositions(positions);
+          setAllCoverPositions(positionData);
+          const positionId = coverPositionData.positionId;
+          const position = positionData.find(
+            (position) => position.positionId == positionId
+          );
+          if (position != undefined) {
+            setCoverPositionData(position);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    ////////////////////////////////Filled Amount
+
+    const { data: filledAmount } = useContractRead({
+      address: coverPoolAddress,
+      abi: coverPoolABI,
+      functionName: "snapshot",
+      args: [
+        {
+          owner: address,
+          positionId: Number(coverPositionData.positionId),
+          burnPercent: BigNumber.from("0"),
+          claim: BigNumber.from(claimTick),
+          zeroForOne: Boolean(coverPositionData.zeroForOne),
+        },
+      ],
+      chainId: 421613,
+      watch: true,
+      enabled:
+        BigNumber.from(claimTick).lt(BigNumber.from("887272")) &&
+        isConnected &&
+        coverPoolAddress != undefined &&
+        address != undefined,
+      onError(error) {
+        console.log("coverpool", coverPoolAddress);
+        console.log("address", address);
+        console.log("Error snapshot Cover", error);
+      },
+    });
+
+    useEffect(() => {
+      if (filledAmount) {
+        setCoverFilledAmount(
+          ethers.utils.formatUnits(filledAmount[3], tokenIn.decimals)
+        );
+      }
+    }, [filledAmount]);
+
+    useEffect(() => {
+      if (coverFilledAmount && coverPositionData.userFillIn) {
+        setFillPercent(
+          Number(coverFilledAmount) /
+            Number(
+              ethers.utils.formatUnits(
+                coverPositionData.userFillIn.toString(),
+                18
+              )
+            )
+        );
+      }
+    }, [coverFilledAmount]);
+
+    ////////////////////////////////Claim Tick
+
+    useEffect(() => {
+      setTimeout(() => {
+        updateClaimTick();
+      }, 3000);
+    }, [claimTick]);
+
+    async function updateClaimTick() {
+      const aux = await getClaimTick(
+        coverPoolAddress.toString(),
+        Number(coverPositionData.min),
+        Number(coverPositionData.max),
+        Boolean(coverPositionData.zeroForOne),
+        Number(coverPositionData.epochLast)
+      );
+
+      setClaimTick(aux);
+    }
   }
 
   ////////////////////////////////
