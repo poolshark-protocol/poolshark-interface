@@ -173,7 +173,7 @@ export default function Range() {
                       Your range positions will appear here.
                     </div>
                   ) : (
-                    <div className="overflow-scroll">
+                    <div className="overflow-x-scroll lg:overflow-hidden">
                       <div className="w-[1050px] lg:w-auto">
                         <div className="space-y-3">
                           <div className="grid grid-cols-4 text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
@@ -227,7 +227,7 @@ export default function Range() {
                 Click on a pool to Add Liquidity
               </span>
             </div>
-            <div className="overflow-x-scroll">
+            <div className="overflow-x-scroll lg:overflow-hidden">
               <div className="w-[500px] lg:w-auto">
                 <div className="space-y-3 w-full">
                   <div className="grid grid-cols-2 w-full text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
