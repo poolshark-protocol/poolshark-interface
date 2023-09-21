@@ -17,6 +17,7 @@ import { fetchRangePositions } from "../../utils/queries";
 import { mapUserRangePositions } from "../../utils/maps";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
+import RangeCollectButton from "../../components/Buttons/RangeCollectButton";
 
 export default function ViewRange() {
   const [
@@ -473,7 +474,7 @@ export default function ViewRange() {
                 <div className="flex items-center gap-x-5 mt-3">
                   <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                     <span className="text-grey1 text-xs">MIN. PRICE</span>
-                    <span className="text-white text-3xl">
+                    <span className="text-white text-2xl md:text-3xl">
                       {priceDirection ? <>{lowerInverse}</> : <>{lowerPrice}</>}
                     </span>
                     <span className="text-grey1 text-[9px] text-center">
@@ -484,7 +485,7 @@ export default function ViewRange() {
                   </div>
                   <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                     <span className="text-grey1 text-xs">MAX. PRICE</span>
-                    <span className="text-white text-3xl">
+                    <span className="text-white text-2xl md:text-3xl">
                       {priceDirection ? <>{upperInverse}</> : <>{upperPrice}</>}
                     </span>
                     <span className="text-grey1 text-[9px] text-center">
@@ -545,6 +546,11 @@ export default function ViewRange() {
                 poolAddress={rangePoolAddress}
                 address={address}
                 positionId={rangePositionData.id}
+              />
+              <RangeCollectButton
+              poolAddress={rangePoolAddress}
+              address={address}
+              positionId={rangePositionData.id}
               />
             </div>
           </div>

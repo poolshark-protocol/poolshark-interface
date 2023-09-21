@@ -34,6 +34,7 @@ export default function Cover() {
   const [allCoverPositions, setAllCoverPositions] = useState([]);
   const [create, setCreate] = useState(true);
   const [allCoverPools, setAllCoverPools] = useState([]);
+  const [isPositionsLoading, setIsPositionsLoading] = useState(false);
 
   useEffect(() => {
     if (address) {
@@ -61,11 +62,13 @@ export default function Cover() {
   }, [router.query.state]);
 
   async function getUserCoverPositionData() {
+    setIsPositionsLoading(true)
     const data = await fetchCoverPositions(address);
     if (data["data"]) {
       const positions = data["data"].positions;
       const positionData = mapUserCoverPositions(positions);
       setAllCoverPositions(positionData);
+      setIsPositionsLoading(false)
     }
   }
 
@@ -157,8 +160,12 @@ export default function Cover() {
               <UserIcon />
               <h1>YOUR POSITIONS</h1>
             </div>
-            <div>
-              {isDisconnected ? (
+            <div className="text-white">
+              {isPositionsLoading ? <div>
+                loading..
+                </div>
+                : 
+                isDisconnected || allCoverPositions.length === 0 ? (
                 <div className="text-grey1 text-xs  py-10 text-center">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -176,25 +183,8 @@ export default function Cover() {
                 </div>
               ) : (
                 <>
-                  {allCoverPositions.length === 0 ? (
-                    <div className="text-grey1 text-xs  py-10 text-center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="w-10 py-4 mx-auto"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      Your cover positions will appear here.
-                    </div>
-                  ) : (
-                    <div className="overflow-scroll">
-                      <div className="w-[1400px] lg:w-auto">
+                    <div className="overflow-x-scroll lg:overflow-hidden">
+                      <div className="w-[1050px] lg:w-auto">
                         <div className="space-y-3">
                           <div className="grid grid-cols-4 text-xs text-grey1/60 w-full mt-5 mb-2">
                             <span>Pool Name</span>
@@ -243,8 +233,7 @@ export default function Cover() {
                         </div>
                       </div>
                     </div>
-                  )}
-                </>
+                </>         
               )}
             </div>
           </div>
@@ -258,8 +247,8 @@ export default function Cover() {
                 Click on a pool to Add Liquidity
               </span>
             </div>
-            <div className="overflow-scroll">
-              <div className="w-[1400px] lg:w-auto">
+            <div className="overflow-x-scroll lg:overflow-hidden">
+              <div className="w-[500px] lg:w-auto">
                 <div className="space-y-3 w-full">
                   <div className="grid grid-cols-2 w-full text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
                     <div className="text-left">Pool Name</div>

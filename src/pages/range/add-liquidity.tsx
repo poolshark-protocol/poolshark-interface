@@ -371,7 +371,7 @@ export default function AddLiquidity({}) {
         </div>
         <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
           <h1 className="mb-4">ADD LIQUIDITY</h1>
-          <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
+          <div className="border border-grey bg-black rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
             <div className="flex items-end justify-between text-[11px] text-grey1">
               <span>
                 ~$
@@ -384,7 +384,7 @@ export default function AddLiquidity({}) {
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
               {inputBox("0")}
-              <div className="flex items-center gap-x-2 w-full">
+              <div className="flex items-center gap-x-2">
                 <button
                   onClick={() =>
                     maxBalance(tokenIn.userBalance.toString(), "0")
@@ -439,7 +439,7 @@ export default function AddLiquidity({}) {
             <div className="flex items-center gap-x-3">
               <h1>SET A PRICE RANGE</h1>
               <button
-                className="text-grey1 text-xs bg-black border border-grey px-4 py-0.5 rounded-full whitespace-nowrap"
+                className="text-grey1 text-xs bg-black border border-grey px-4 py-0.5 rounded-[4px] whitespace-nowrap"
                 onClick={() => {
                   setMinInput(
                     TickMath.getPriceStringAtTick(
