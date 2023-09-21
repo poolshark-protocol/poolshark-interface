@@ -79,6 +79,8 @@ export default function Trade() {
     setNeedsBalanceOut,
     switchDirection,
     setMintButtonState,
+    needsRefetch,
+    setNeedsRefetch,
   ] = useTradeStore((s) => [
     s.poolRouterAddresses,
     s.tradePoolAddress,
@@ -110,6 +112,8 @@ export default function Trade() {
     s.setNeedsBalanceOut,
     s.switchDirection,
     s.setMintButtonState,
+    s.needsRefetch,
+    s.setNeedsRefetch,
   ]);
 
   //false when user in normal swap, true when user in limit swap
@@ -235,11 +239,12 @@ export default function Trade() {
   const [allLimitPositions, setAllLimitPositions] = useState([]);
 
   useEffect(() => {
-    if (address) {
+    if (address && needsRefetch) {
       console.log("user address", address.toLowerCase());
       getUserLimitPositionData();
+      setNeedsRefetch(false)
     }
-  }, [address]);
+  }, [address, needsRefetch]);
 
   async function getUserLimitPositionData() {
     try {

@@ -27,11 +27,10 @@ export default function LimitSwapBurnButton({
 }) {
   const { data: signer } = useSigner();
 
-  const [setNeedsRefetch, setNeedsBalanceIn, setNeedsPosRefetch] = useTradeStore(
+  const [setNeedsRefetch, setNeedsBalanceIn] = useTradeStore(
     (state) => [
       state.setNeedsRefetch,
       state.setNeedsBalanceIn,
-      state.setNeedsPosRefetch,
     ]
   );
   const [claimTick, setClaimTick] = useState(0);
@@ -102,7 +101,6 @@ export default function LimitSwapBurnButton({
         setNeedsRefetch(true);
       }
       setNeedsBalanceIn(true);
-      setNeedsPosRefetch(true);
     },
     onError() {
       setErrorDisplay(true);
