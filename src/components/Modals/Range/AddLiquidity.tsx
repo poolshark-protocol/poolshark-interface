@@ -112,7 +112,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     functionName: "allowance",
     args: [address, rangePoolAddress],
     chainId: 421613,
-    // watch: needsAllowanceIn,
+    watch: needsAllowanceIn,
     enabled: isConnected,
     onSuccess(data) {
       //console.log("Success");
@@ -129,7 +129,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     functionName: "allowance",
     args: [address, rangePoolAddress],
     chainId: 421613,
-    //watch: needsAllowanceOut,
+    watch: needsAllowanceOut,
     enabled: isConnected,
     onSuccess(data) {
       //console.log("Success");
@@ -443,12 +443,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                     </button>
                   ) : (
                     <>
-                      {tokenIn.userPoolAllowance.gte(
-                        rangeMintParams.tokenInAmount
-                      ) &&
-                      tokenOut.userPoolAllowance.gte(
-                        rangeMintParams.tokenOutAmount
-                      ) ? (
+                      {tokenInAllowance.gte(rangeMintParams.tokenInAmount) &&
+                      tokenOutAllowance.gte(rangeMintParams.tokenOutAmount) ? (
                         <RangeAddLiqButton
                           poolAddress={rangePoolAddress}
                           address={address}
@@ -461,10 +457,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                           positionId={rangePositionData.id}
                           gasLimit={mintGasLimit}
                         />
-                      ) : (tokenIn.userPoolAllowance.lt(
-                          rangeMintParams.tokenInAmount
-                        ) &&
-                          tokenOut.userPoolAllowance.lt(
+                      ) : (tokenInAllowance.lt(rangeMintParams.tokenInAmount) &&
+                          tokenOutAllowance.lt(
                             rangeMintParams.tokenOutAmount
                           )) ||
                         doubleApprove ? (
@@ -476,18 +470,14 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                           amount1={rangeMintParams.tokenOutAmount}
                         />
                       ) : !doubleApprove &&
-                        tokenIn.userPoolAllowance.lt(
-                          rangeMintParams.tokenInAmount
-                        ) ? (
+                        tokenInAllowance.lt(rangeMintParams.tokenInAmount) ? (
                         <RangeMintApproveButton
                           poolAddress={rangePoolAddress}
                           approveToken={tokenIn}
                           amount={rangeMintParams.tokenInAmount}
                         />
                       ) : !doubleApprove &&
-                        tokenOut.userPoolAllowance.lt(
-                          rangeMintParams.tokenOutAmount
-                        ) ? (
+                        tokenOutAllowance.lt(rangeMintParams.tokenOutAmount) ? (
                         <RangeMintApproveButton
                           poolAddress={rangePoolAddress}
                           approveToken={tokenOut}
