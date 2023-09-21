@@ -5,7 +5,7 @@ import { useAccount } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { TickMath } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
-import { copyElementUseEffect } from "../../utils/misc";
+import { useCopyElementUseEffect } from "../../utils/misc";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import { rangePoolABI } from "../../abis/evm/rangePool";
 import { useContractRead } from "wagmi";
@@ -69,32 +69,11 @@ export default function ViewRange() {
   const [amount1Fees, setAmount1Fees] = useState(0.0);
   const [amount0FeesUsd, setAmount0FeesUsd] = useState(0.0);
   const [amount1FeesUsd, setAmount1FeesUsd] = useState(0.0);
-  const [is0Copied, setIs0Copied] = useState(false);
-  const [is1Copied, setIs1Copied] = useState(false);
   const [isPoolCopied, setIsPoolCopied] = useState(false);
   const [lowerInverse, setLowerInverse] = useState(0);
   const [upperInverse, setUpperInverse] = useState(0);
   const [priceInverse, setPriceInverse] = useState(0);
-  const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-    tokenIn.address != ("" as string)
-      ? tokenIn.address.substring(0, 6) +
-          "..." +
-          tokenIn.address.substring(
-            tokenIn.address.length - 4,
-            tokenIn.address.length
-          )
-      : undefined
-  );
-  const [tokenOneDisplay, setTokenOneDisplay] = useState(
-    tokenOut.address != ("" as string)
-      ? tokenOut.address.substring(0, 6) +
-          "..." +
-          tokenOut.address.substring(
-            tokenOut.address.length - 4,
-            tokenOut.address.length
-          )
-      : undefined
-  );
+  
   const [poolDisplay, setPoolDisplay] = useState(
     rangePoolAddress != ("" as string)
       ? rangePoolAddress.substring(0, 6) +
@@ -109,20 +88,13 @@ export default function ViewRange() {
   ////////////////////////Addresses
 
   useEffect(() => {
-    copyElementUseEffect(copyAddress0, setIs0Copied);
-    copyElementUseEffect(copyAddress1, setIs1Copied);
-    copyElementUseEffect(copyRangePoolAddress, setIsPoolCopied);
+    if (copyRangePoolAddress) {
+      const timer = setTimeout(() => {
+        setIsPoolCopied(false)
+      }, 1500)
+      return () => clearTimeout(timer)
+    }
   }, []);
-
-  function copyAddress0() {
-    navigator.clipboard.writeText(tokenIn.address.toString());
-    setIs0Copied(true);
-  }
-
-  function copyAddress1() {
-    navigator.clipboard.writeText(tokenOut.address.toString());
-    setIs1Copied(true);
-  }
 
   function copyRangePoolAddress() {
     navigator.clipboard.writeText(rangePoolAddress.toString());
@@ -538,9 +510,9 @@ export default function ViewRange() {
                 positionId={rangePositionData.id}
               />
               <RangeCollectButton
-              poolAddress={rangePoolAddress}
-              address={address}
-              positionId={rangePositionData.id}
+                poolAddress={rangePoolAddress}
+                address={address}
+                positionId={rangePositionData.id}
               />
             </div>
           </div>

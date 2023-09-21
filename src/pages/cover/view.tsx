@@ -12,7 +12,6 @@ import CoverCollectButton from "../../components/Buttons/CoverCollectButton";
 import { BigNumber, ethers } from "ethers";
 import { TickMath } from "../../utils/math/tickMath";
 import { coverPoolABI } from "../../abis/evm/coverPool";
-import { copyElementUseEffect } from "../../utils/misc";
 import { getClaimTick, mapUserCoverPositions } from "../../utils/maps";
 import RemoveLiquidity from "../../components/Modals/Cover/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Cover/AddLiquidity";
@@ -23,6 +22,7 @@ import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import { fetchCoverPositions } from "../../utils/queries";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
+import { useCopyElementUseEffect } from "../../utils/misc";
 
 export default function ViewCover() {
   const [
@@ -137,9 +137,9 @@ export default function ViewCover() {
   ////////////////////////////////Addresses
 
   useEffect(() => {
-    copyElementUseEffect(copyAddress0, setIs0Copied);
-    copyElementUseEffect(copyAddress1, setIs1Copied);
-    copyElementUseEffect(copyPoolAddress, setIsPoolCopied);
+    useCopyElementUseEffect(copyAddress0, setIs0Copied);
+    useCopyElementUseEffect(copyAddress1, setIs1Copied);
+    useCopyElementUseEffect(copyPoolAddress, setIsPoolCopied);
   });
 
   function copyAddress0() {
@@ -325,283 +325,285 @@ export default function ViewCover() {
 
       setClaimTick(aux);
     }
-  }
 
-  ////////////////////////////////
+    ////////////////////////////////
 
-  return (
-    <div className="bg-black min-h-screen  ">
-      <Navbar />
-      <div className="flex flex-col pt-10 pb-32 md:pb-0 text-white relative min-h-[calc(100vh-76px)] container mx-auto md:px-0 px-3">
-        <div className="flex md:flex-row flex-col justify-between w-full items-start md:items-center gap-y-5">
-          <div className="flex items-center gap-x-3">
-            <div className="flex items-center">
-              <img height="50" width="50" src={tokenIn.logoURI} />
-              <img
-                height="50"
-                width="50"
-                className="ml-[-12px]"
-                src={tokenOut.logoURI}
-              />
-            </div>
-            <div className="flex flex-col gap-y-2">
-              <div className="flex items-center text-white">
-                <h1>
-                  {tokenIn.symbol}-{tokenOut.symbol}
-                </h1>
-                <a
-                  href={
-                    "https://goerli.arbiscan.io/address/" + coverPoolAddress
-                  }
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-x-3 text-grey1 group cursor-pointer"
-                >
-                  <span className="-mb-1 text-light text-xs ml-8 group-hover:underline">
-                    {poolDisplay}
-                  </span>{" "}
-                  <ExternalLinkIcon />
-                </a>
+    return (
+      <div className="bg-black min-h-screen  ">
+        <Navbar />
+        <div className="flex flex-col pt-10 pb-32 md:pb-0 text-white relative min-h-[calc(100vh-76px)] container mx-auto md:px-0 px-3">
+          <div className="flex md:flex-row flex-col justify-between w-full items-start md:items-center gap-y-5">
+            <div className="flex items-center gap-x-3">
+              <div className="flex items-center">
+                <img height="50" width="50" src={tokenIn.logoURI} />
+                <img
+                  height="50"
+                  width="50"
+                  className="ml-[-12px]"
+                  src={tokenOut.logoURI}
+                />
               </div>
-              <div className="flex items-center gap-x-5">
-                <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                  {coverPositionData.tickSpacing == "20" ? "1.7" : "2.4"}%
-                </span>
-                <div className="flex items-center gap-x-2 text-grey1 text-xs">
-                  0.9 USDC
-                  <DoubleArrowIcon />
-                  1.2 USDC
+              <div className="flex flex-col gap-y-2">
+                <div className="flex items-center text-white">
+                  <h1>
+                    {tokenIn.symbol}-{tokenOut.symbol}
+                  </h1>
+                  <a
+                    href={
+                      "https://goerli.arbiscan.io/address/" + coverPoolAddress
+                    }
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-x-3 text-grey1 group cursor-pointer"
+                  >
+                    <span className="-mb-1 text-light text-xs ml-8 group-hover:underline">
+                      {poolDisplay}
+                    </span>{" "}
+                    <ExternalLinkIcon />
+                  </a>
+                </div>
+                <div className="flex items-center gap-x-5">
+                  <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
+                    {coverPositionData.tickSpacing == "20" ? "1.7" : "2.4"}%
+                  </span>
+                  <div className="flex items-center gap-x-2 text-grey1 text-xs">
+                    0.9 USDC
+                    <DoubleArrowIcon />
+                    1.2 USDC
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="flex items-center gap-x-4">
-            <button
-              className="bg-main1 border border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
-              onClick={() => setIsAddOpen(true)}
-            >
-              Add Liquidity
-            </button>
-            <button
-              className="bg-black border border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
-              onClick={() => setIsRemoveOpen(true)}
-            >
-              Remove Liquidity
-            </button>
-          </div>
-        </div>
-        <div className="flex flex-col lg:flex-row justify-between w-full mt-8  gap-10">
-          <div className="border border-grey rounded-[4px] lg:w-1/2 w-full p-5">
-            <div className="flex justify-between">
-              <h1 className="uppercase text-white">Remaining Liquidity</h1>
+            <div className="flex items-center gap-x-4">
+              <button
+                className="bg-main1 border border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
+                onClick={() => setIsAddOpen(true)}
+              >
+                Add Liquidity
+              </button>
+              <button
+                className="bg-black border border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
+                onClick={() => setIsRemoveOpen(true)}
+              >
+                Remove Liquidity
+              </button>
             </div>
-            <div className="flex flex-col gap-y-3 mt-2">
-              <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
-                <div className="flex items-end justify-between text-[11px] text-grey1">
-                  <span>
-                    ~$
-                    {(
-                      Number(
-                        ethers.utils.formatUnits(
-                          coverPositionData.userFillOut ?? 0,
-                          tokenIn.decimals
+          </div>
+          <div className="flex flex-col lg:flex-row justify-between w-full mt-8  gap-10">
+            <div className="border border-grey rounded-[4px] lg:w-1/2 w-full p-5">
+              <div className="flex justify-between">
+                <h1 className="uppercase text-white">Remaining Liquidity</h1>
+              </div>
+              <div className="flex flex-col gap-y-3 mt-2">
+                <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
+                  <div className="flex items-end justify-between text-[11px] text-grey1">
+                    <span>
+                      ~$
+                      {(
+                        Number(
+                          ethers.utils.formatUnits(
+                            coverPositionData.userFillOut ?? 0,
+                            tokenIn.decimals
+                          )
+                        ) * tokenIn.coverUSDPrice
+                      ).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
+                    {Number(
+                      ethers.utils.formatUnits(
+                        coverPositionData.userFillOut ?? 0,
+                        tokenIn.decimals
+                      )
+                    ).toFixed(2)}
+                    <div className="flex items-center gap-x-2">
+                      <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
+                        <img height="28" width="25" src={tokenIn.logoURI} />
+                        {tokenIn.symbol}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center mt-8">
+                  <div className="flex items-center gap-x-4">
+                    <h1 className="uppercase text-white md:block hidden">
+                      Price Range
+                    </h1>
+                    {parseFloat(
+                      TickMath.getPriceStringAtTick(
+                        Number(coverPositionData.latestTick)
+                      )
+                    ) <
+                      parseFloat(
+                        TickMath.getPriceStringAtTick(
+                          Number(coverPositionData.min)
                         )
-                      ) * tokenIn.coverUSDPrice
-                    ).toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {Number(
-                    ethers.utils.formatUnits(
-                      coverPositionData.userFillOut ?? 0,
-                      tokenIn.decimals
-                    )
-                  ).toFixed(2)}
-                  <div className="flex items-center gap-x-2">
-                    <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
-                      <img height="28" width="25" src={tokenIn.logoURI} />
-                      {tokenIn.symbol}
-                    </div>
+                      ) ||
+                    parseFloat(
+                      TickMath.getPriceStringAtTick(
+                        Number(coverPositionData.latestTick)
+                      )
+                    ) >=
+                      parseFloat(
+                        TickMath.getPriceStringAtTick(
+                          Number(coverPositionData.max)
+                        )
+                      ) ? (
+                      <span className="text-yellow-600 text-xs bg-yellow-900/30 px-4 py-1 rounded-[4px]">
+                        OUT OF RANGE
+                      </span>
+                    ) : (
+                      <span className="text-green-600 text-xs bg-green-900/30 px-4 py-1 rounded-[4px]">
+                        IN RANGE
+                      </span>
+                    )}
                   </div>
-                </div>
-              </div>
-              <div className="flex justify-between items-center mt-8">
-                <div className="flex items-center gap-x-4">
-                  <h1 className="uppercase text-white md:block hidden">Price Range</h1>
-                  {parseFloat(
-                    TickMath.getPriceStringAtTick(
-                      Number(coverPositionData.latestTick)
-                    )
-                  ) <
-                    parseFloat(
-                      TickMath.getPriceStringAtTick(
-                        Number(coverPositionData.min)
-                      )
-                    ) ||
-                  parseFloat(
-                    TickMath.getPriceStringAtTick(
-                      Number(coverPositionData.latestTick)
-                    )
-                  ) >=
-                    parseFloat(
-                      TickMath.getPriceStringAtTick(
-                        Number(coverPositionData.max)
-                      )
-                    ) ? (
-                    <span className="text-yellow-600 text-xs bg-yellow-900/30 px-4 py-1 rounded-[4px]">
-                      OUT OF RANGE
-                    </span>
-                  ) : (
-                    <span className="text-green-600 text-xs bg-green-900/30 px-4 py-1 rounded-[4px]">
-                      IN RANGE
-                    </span>
-                  )}
-                </div>
-                <div
-                  onClick={() => setPriceDirection(!priceDirection)}
-                  className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
-                >
-                  {Boolean(coverPositionData.zeroForOne)
-                    ? priceDirection
-                      ? tokenOut.symbol
-                      : tokenIn.symbol
-                    : priceDirection
-                    ? tokenIn.symbol
-                    : tokenOut.symbol}{" "}
-                  per{" "}
-                  {Boolean(coverPositionData.zeroForOne)
-                    ? priceDirection
-                      ? tokenIn.symbol
-                      : tokenOut.symbol
-                    : priceDirection
-                    ? tokenOut.symbol
-                    : tokenIn.symbol}
-                  <DoubleArrowIcon />
-                </div>
-              </div>
-              <div className="flex flex-col gap-y-4">
-                <div className="flex items-center gap-x-5 mt-3">
-                  <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
-                    <span className="text-grey1 text-xs">MIN. PRICE</span>
-                    <span className="text-white text-2xl md:text-3xl">
-                      {coverPositionData.min === undefined
-                        ? ""
-                        : priceDirection
-                        ? lowerInverse
-                        : TickMath.getPriceStringAtTick(
-                            Number(coverPositionData.min)
-                          )}
-                    </span>
-                    <span className="text-grey1 text-[9px] text-center">
-                      Your position will be 100%{" "}
-                      {Boolean(coverPositionData.zeroForOne)
-                        ? priceDirection
-                          ? tokenIn.symbol
-                          : tokenOut.symbol
-                        : priceDirection
+                  <div
+                    onClick={() => setPriceDirection(!priceDirection)}
+                    className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
+                  >
+                    {Boolean(coverPositionData.zeroForOne)
+                      ? priceDirection
                         ? tokenOut.symbol
-                        : tokenIn.symbol}{" "}
-                      at this price.
-                    </span>
-                  </div>
-                  <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
-                    <span className="text-grey1 text-xs">MAX. PRICE</span>
-                    <span className="text-white text-2xl md:text-3xl">
-                      {coverPositionData.max === undefined
-                        ? ""
-                        : priceDirection
-                        ? upperInverse
-                        : TickMath.getPriceStringAtTick(
-                            Number(coverPositionData.max)
-                          )}
-                    </span>
-                    <span className="text-grey1 text-[9px] text-center">
-                      Your position will be 100%{" "}
-                      {Boolean(coverPositionData.zeroForOne)
-                        ? priceDirection
-                          ? tokenOut.symbol
-                          : tokenIn.symbol
-                        : priceDirection
+                        : tokenIn.symbol
+                      : priceDirection
+                      ? tokenIn.symbol
+                      : tokenOut.symbol}{" "}
+                    per{" "}
+                    {Boolean(coverPositionData.zeroForOne)
+                      ? priceDirection
                         ? tokenIn.symbol
-                        : tokenOut.symbol}{" "}
-                      at this price.
-                    </span>
+                        : tokenOut.symbol
+                      : priceDirection
+                      ? tokenOut.symbol
+                      : tokenIn.symbol}
+                    <DoubleArrowIcon />
                   </div>
                 </div>
-                <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
-                  <span className="text-grey1 text-xs">CURRENT. PRICE</span>
-                  <span className="text-white text-3xl text-grey1">
-                    {priceDirection
-                      ? priceInverse
-                      : TickMath.getPriceStringAtTick(
-                          Number(coverPositionData.latestTick)
-                        )}
-                  </span>
+                <div className="flex flex-col gap-y-4">
+                  <div className="flex items-center gap-x-5 mt-3">
+                    <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
+                      <span className="text-grey1 text-xs">MIN. PRICE</span>
+                      <span className="text-white text-2xl md:text-3xl">
+                        {coverPositionData.min === undefined
+                          ? ""
+                          : priceDirection
+                          ? lowerInverse
+                          : TickMath.getPriceStringAtTick(
+                              Number(coverPositionData.min)
+                            )}
+                      </span>
+                      <span className="text-grey1 text-[9px] text-center">
+                        Your position will be 100%{" "}
+                        {Boolean(coverPositionData.zeroForOne)
+                          ? priceDirection
+                            ? tokenIn.symbol
+                            : tokenOut.symbol
+                          : priceDirection
+                          ? tokenOut.symbol
+                          : tokenIn.symbol}{" "}
+                        at this price.
+                      </span>
+                    </div>
+                    <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
+                      <span className="text-grey1 text-xs">MAX. PRICE</span>
+                      <span className="text-white text-2xl md:text-3xl">
+                        {coverPositionData.max === undefined
+                          ? ""
+                          : priceDirection
+                          ? upperInverse
+                          : TickMath.getPriceStringAtTick(
+                              Number(coverPositionData.max)
+                            )}
+                      </span>
+                      <span className="text-grey1 text-[9px] text-center">
+                        Your position will be 100%{" "}
+                        {Boolean(coverPositionData.zeroForOne)
+                          ? priceDirection
+                            ? tokenOut.symbol
+                            : tokenIn.symbol
+                          : priceDirection
+                          ? tokenIn.symbol
+                          : tokenOut.symbol}{" "}
+                        at this price.
+                      </span>
+                    </div>
+                  </div>
+                  <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
+                    <span className="text-grey1 text-xs">CURRENT. PRICE</span>
+                    <span className="text-white text-3xl text-grey1">
+                      {priceDirection
+                        ? priceInverse
+                        : TickMath.getPriceStringAtTick(
+                            Number(coverPositionData.latestTick)
+                          )}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="border bg-dark border-grey rounded-[4px] lg:w-1/2 w-full p-5 h-min">
-            <div className="flex justify-between">
-              <h1 className="uppercase text-white">Filled Liquidity</h1>
-              <span className="text-grey1">
-                ${Number(coverFilledAmount).toFixed(2)}
-                <span className="text-grey">
-                  /
-                  {Number(
-                    ethers.utils.formatUnits(
-                      coverPositionData.userFillIn.toString(),
-                      18
-                    )
-                  ).toFixed(2)}
-                </span>
-              </span>
-            </div>
-            <div className="flex flex-col gap-y-3 mt-2">
-              <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
-                <div className="flex items-end justify-between text-[11px] text-grey1">
-                  <span>
-                    ~$
-                    {(
-                      Number(coverFilledAmount) * tokenOut.coverUSDPrice
+            <div className="border bg-dark border-grey rounded-[4px] lg:w-1/2 w-full p-5 h-min">
+              <div className="flex justify-between">
+                <h1 className="uppercase text-white">Filled Liquidity</h1>
+                <span className="text-grey1">
+                  ${Number(coverFilledAmount).toFixed(2)}
+                  <span className="text-grey">
+                    /
+                    {Number(
+                      ethers.utils.formatUnits(
+                        coverPositionData.userFillIn.toString(),
+                        18
+                      )
                     ).toFixed(2)}
                   </span>
-                </div>
-                <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {Number(coverFilledAmount).toFixed(2)}
-                  <div className="flex items-center gap-x-2">
-                    <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
-                      <img height="28" width="25" src={tokenOut.logoURI} />
-                      {tokenOut.symbol}
+                </span>
+              </div>
+              <div className="flex flex-col gap-y-3 mt-2">
+                <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
+                  <div className="flex items-end justify-between text-[11px] text-grey1">
+                    <span>
+                      ~$
+                      {(
+                        Number(coverFilledAmount) * tokenOut.coverUSDPrice
+                      ).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
+                    {Number(coverFilledAmount).toFixed(2)}
+                    <div className="flex items-center gap-x-2">
+                      <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
+                        <img height="28" width="25" src={tokenOut.logoURI} />
+                        {tokenOut.symbol}
+                      </div>
                     </div>
                   </div>
                 </div>
+                {/**TO-DO: PASS PROPS */}
+                <CoverCollectButton
+                  poolAddress={coverPoolAddress}
+                  address={address}
+                  positionId={coverPositionData.positionId}
+                  claim={BigNumber.from(claimTick)}
+                  zeroForOne={Boolean(coverPositionData.zeroForOne)}
+                  gasLimit={coverMintParams.gasLimit.mul(150).div(100)}
+                  gasFee={coverMintParams.gasFee}
+                />
+                {/*TO-DO: add positionOwner ternary again*/}
               </div>
-              {/**TO-DO: PASS PROPS */}
-              <CoverCollectButton
-                poolAddress={coverPoolAddress}
-                address={address}
-                positionId={coverPositionData.positionId}
-                claim={BigNumber.from(claimTick)}
-                zeroForOne={Boolean(coverPositionData.zeroForOne)}
-                gasLimit={coverMintParams.gasLimit.mul(150).div(100)}
-                gasFee={coverMintParams.gasFee}
-              />
-              {/*TO-DO: add positionOwner ternary again*/}
             </div>
           </div>
         </div>
+        <RemoveLiquidity
+          isOpen={isRemoveOpen}
+          setIsOpen={setIsRemoveOpen}
+          address={address}
+        />
+        <AddLiquidity
+          isOpen={isAddOpen}
+          setIsOpen={setIsAddOpen}
+          address={address}
+        />
       </div>
-      <RemoveLiquidity
-        isOpen={isRemoveOpen}
-        setIsOpen={setIsRemoveOpen}
-        address={address}
-      />
-      <AddLiquidity
-        isOpen={isAddOpen}
-        setIsOpen={setIsAddOpen}
-        address={address}
-      />
-    </div>
-  );
+    );
+  }
 }
