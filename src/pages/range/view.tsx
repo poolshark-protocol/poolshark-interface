@@ -207,7 +207,7 @@ export default function ViewRange() {
 
   useEffect(() => {
     setAmounts();
-  }, [lowerPrice, upperPrice]);
+  }, [lowerPrice, upperPrice, rangePositionData]);
 
   function setAmounts() {
     try {
@@ -252,42 +252,9 @@ export default function ViewRange() {
     setUserLiquidityUsd(amount0Usd + amount1Usd);
   }, [amount0Usd, amount1Usd]);
 
-  async function getUserRangePositionData() {
-    try {
-      const data = await fetchRangePositions(address);
-      if (data["data"])
-        setAllRangePositions(
-          mapUserRangePositions(data["data"].positionFractions)
-        );
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  useEffect(() => {
-    setTimeout(() => {
-      if (needsRefetch == true || needsPosRefetch == true) {
-        getUserRangePositionData();
-
-        const positionId = rangePositionData.id;
-        const position = allRangePositions.find(
-          (position) => position.id == positionId
-        );
-        console.log("new position", position);
-
-        if (position != undefined) {
-          setRangePositionData(position);
-        }
-
-        setNeedsRefetch(false);
-        setNeedsPosRefetch(false);
-      }
-    }, 5000);
-  }, [needsRefetch, needsPosRefetch]);
-
   ////////////////////////Fees
 
-  const { refetch: refetchSnapshot, data: feesOwed } = useContractRead({
+  /* const { refetch: refetchSnapshot, data: feesOwed } = useContractRead({
     address: rangePoolAddress,
     abi: rangePoolABI,
     functionName: "snapshot",
@@ -308,7 +275,7 @@ export default function ViewRange() {
       );
       console.log("Error snapshot Range", error);
     },
-  });
+  }); */
 
   useEffect(() => {
     setFeesOwed();
@@ -317,19 +284,46 @@ export default function ViewRange() {
   function setFeesOwed() {
     try {
       if (snapshot) {
-        console.log("snapshot", snapshot.toString());
         const fees0 = parseFloat(
           ethers.utils.formatUnits(snapshot[2], tokenIn.decimals)
         );
         const fees1 = parseFloat(
           ethers.utils.formatUnits(snapshot[3], tokenIn.decimals)
         );
-        console.log(
-          "fees owed 1",
-          ethers.utils.formatUnits(snapshot[3], tokenIn.decimals)
-        );
+
         setAmount0Fees(fees0);
         setAmount1Fees(fees1);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  ////////////////////////////////
+  useEffect(() => {
+    setTimeout(() => {
+      if (needsRefetch) {
+        getUserRangePositionData();
+        setNeedsRefetch(false);
+        setNeedsPosRefetch(false);
+      }
+    }, 2000);
+  }, [needsRefetch]);
+
+  async function getUserRangePositionData() {
+    try {
+      const data = await fetchRangePositions(address);
+      if (data["data"].rangePositions) {
+        const mappedPositions = mapUserRangePositions(
+          data["data"].rangePositions
+        );
+        const position = mappedPositions.find(
+          (position) => Number(position.id) == Number(rangePositionData.id)
+        );
+        if (position != undefined) {
+          setRangePositionData(position);
+        }
+        setAllRangePositions(mappedPositions);
       }
     } catch (error) {
       console.log(error);
@@ -562,16 +556,8 @@ export default function ViewRange() {
           </div>
         </div>
       </div>
-      <RemoveLiquidity
-        isOpen={isRemoveOpen}
-        setIsOpen={setIsRemoveOpen}
-        address={address}
-      />
-      <AddLiquidity
-        isOpen={isAddOpen}
-        setIsOpen={setIsAddOpen}
-        address={address}
-      />
+      <RemoveLiquidity isOpen={isRemoveOpen} setIsOpen={setIsRemoveOpen} />
+      <AddLiquidity isOpen={isAddOpen} setIsOpen={setIsAddOpen} />
     </div>
   );
 }

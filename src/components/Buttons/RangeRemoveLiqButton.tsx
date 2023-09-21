@@ -1,102 +1,76 @@
-import { ethers } from 'ethers';
+import { ethers } from "ethers";
 import {
-    usePrepareContractWrite,
-    useContractWrite,
-    useWaitForTransaction,
-    useSigner,
-} from 'wagmi';
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+  useSigner,
+} from "wagmi";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useEffect, useState } from "react";
-import { rangePoolABI } from '../../abis/evm/rangePool';
-import { gasEstimateRangeBurn } from '../../utils/gas';
-import { BN_ZERO } from '../../utils/math/constants';
-import { useRangeLimitStore } from '../../hooks/useRangeLimitStore';
+import { rangePoolABI } from "../../abis/evm/rangePool";
+import { gasEstimateRangeBurn } from "../../utils/gas";
+import { BN_ZERO } from "../../utils/math/constants";
+import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 
-export default function RangeRemoveLiqButton({poolAddress, address, positionId, burnPercent, closeModal, setIsOpen}) {
-    const [
-      setNeedsRefetch,
-      setNeedsBalanceIn,
-      setNeedsBalanceOut,
-      setNeedsPosRefetch,
-    ] = useRangeLimitStore((state) => [
-      state.setNeedsRefetch,
-      state.setNeedsBalanceIn,
-      state.setNeedsBalanceOut,
-      state.setNeedsPosRefetch,
-    ]);
+export default function RangeRemoveLiqButton({
+  poolAddress,
+  address,
+  positionId,
+  burnPercent,
+  closeModal,
+  setIsOpen,
+  gasLimit,
+  disabled
+}) {
+  const [
+    setNeedsRefetch,
+    setNeedsBalanceIn,
+    setNeedsBalanceOut,
+    setNeedsPosRefetch,
+  ] = useRangeLimitStore((state) => [
+    state.setNeedsRefetch,
+    state.setNeedsBalanceIn,
+    state.setNeedsBalanceOut,
+    state.setNeedsPosRefetch,
+  ]);
 
-    const [ errorDisplay, setErrorDisplay ] = useState(false);
-    const [ successDisplay, setSuccessDisplay ] = useState(false);
+  const [errorDisplay, setErrorDisplay] = useState(false);
+  const [successDisplay, setSuccessDisplay] = useState(false);
 
-    console.log('burn button args', burnPercent.toString(), positionId.toString())
+  const { config } = usePrepareContractWrite({
+    address: poolAddress,
+    abi: rangePoolABI,
+    functionName: "burnRange",
+    args: [[address, positionId, burnPercent]],
+    chainId: 421613,
+    overrides: {
+      gasLimit: gasLimit,
+    },
+  });
 
-    const [ fetchDelay, setFetchDelay ] = useState(false)
-    const [ gasLimit, setGasLimit ] = useState(BN_ZERO)
+  const { data, write } = useContractWrite(config);
 
-    const {data: signer} = useSigner()
-
-    useEffect(() => {
-      if (!fetchDelay) {
-        updateGasFee()
-      } else {
-        const interval = setInterval(() => {
-          updateGasFee()
-        }, 3000)
-        return () => clearInterval(interval)
+  const { isLoading } = useWaitForTransaction({
+    hash: data?.hash,
+    onSuccess() {
+      setSuccessDisplay(true);
+      setTimeout(() => {
+        closeModal();
+      }, 2000);
+      if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
+        setNeedsRefetch(true);
       }
-    }, [])
-  
-    async function updateGasFee() {
-      const newBurnGasFee = await gasEstimateRangeBurn(
-        poolAddress,
-        address,
-        positionId,
-        burnPercent,
-        signer
-      )
-      if (newBurnGasFee.gasUnits.gt(BN_ZERO)) setFetchDelay(true)
-      
-      setGasLimit(newBurnGasFee.gasUnits.mul(130).div(100))
-    }
-  
-    const { config } = usePrepareContractWrite({
-        address: poolAddress,
-        abi: rangePoolABI,
-        functionName: "burn",
-        args:[[
-            address,
-            positionId,
-            burnPercent
-        ]],
-        chainId: 421613,
-        overrides:{
-            gasLimit: gasLimit,
-        },
-    })
-
-    const { data, write } = useContractWrite(config)
-
-    const {isLoading} = useWaitForTransaction({
-      hash: data?.hash,
-      onSuccess() {
-        setSuccessDisplay(true);
-        setTimeout(() => {
-          closeModal()
-        }, 2000);
-        if (burnPercent.eq(ethers.utils.parseUnits('1', 38))) {
-          setNeedsRefetch(true);
-        }
-        setNeedsBalanceIn(true);
-        setNeedsBalanceOut(true);
-        setNeedsPosRefetch(true);
-        setIsOpen(false);
-      },
-      onError() {
-        setErrorDisplay(true);
-      },
-    });
+      setNeedsBalanceIn(true);
+      setNeedsBalanceOut(true);
+      setNeedsPosRefetch(true);
+      setIsOpen(false);
+    },
+    onError() {
+      setErrorDisplay(true);
+    },
+  });
 
     return (
         <>
@@ -124,6 +98,6 @@ export default function RangeRemoveLiqButton({poolAddress, address, positionId, 
         />
       )}
       </div>
-        </>
-    );
-  }
+    </>
+  );
+}
