@@ -164,7 +164,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
                     className="w-7 cursor-pointer"
                   />
                 </div>
-                <div className="w-full  bg-[#0C0C0C] border border-[#1C1C1C] gap-4 px-4 py-4 rounded-xl mt-6 mb-6">
+                <div className="w-full  bg-[#0C0C0C] border border-[#1C1C1C] gap-4 px-4 py-4 rounded-[4px] mt-6 mb-6">
                   <div className="flex justify-between items-center">
                     <div className="text-3xl ">{sliderValue}%</div>
                     <div className="md:flex items-center hidden md:text-base text-sm gap-x-4">
