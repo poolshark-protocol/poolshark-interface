@@ -54,7 +54,7 @@ export default function LimitSwapBurnButton({
   };
 
   const getGasLimit = async () => {
-    const limit = await gasEstimateBurnLimit(
+    await gasEstimateBurnLimit(
       poolAddress,
       address,
       burnPercent,
@@ -68,9 +68,16 @@ export default function LimitSwapBurnButton({
   };
 
   useEffect(() => {
-    updateClaimTick();
-    getGasLimit();
+    if(poolAddress && positionId && address && signer) {
+      updateClaimTick();
+    }
   }, []);
+
+  useEffect(() => {
+    if(claimTick > 0) {
+      getGasLimit();
+    }
+  }, [claimTick]);
 
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
