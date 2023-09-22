@@ -122,56 +122,6 @@ export const poolsharkRouterABI = [
       {
         "components": [
           {
-            "internalType": "address",
-            "name": "to",
-            "type": "address"
-          },
-          {
-            "internalType": "uint160",
-            "name": "priceLimit",
-            "type": "uint160"
-          },
-          {
-            "internalType": "uint128",
-            "name": "amount",
-            "type": "uint128"
-          },
-          {
-            "internalType": "bool",
-            "name": "exactIn",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "zeroForOne",
-            "type": "bool"
-          },
-          {
-            "internalType": "bytes",
-            "name": "callbackData",
-            "type": "bytes"
-          }
-        ],
-        "internalType": "struct PoolsharkStructs.SwapParams[]",
-        "name": "params",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "multiCall",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address[]",
-        "name": "pools",
-        "type": "address[]"
-      },
-      {
-        "components": [
-          {
             "internalType": "uint160",
             "name": "priceLimit",
             "type": "uint160"
