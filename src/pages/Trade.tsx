@@ -688,14 +688,14 @@ export default function Trade() {
                 <span>
                   {" "}
                   ~$
-                  {!waitingForQuote ? (
+                  {!waitingForQuote && bnInput.gt(0) ? (
                     (
                       Number(
                         ethers.utils.formatUnits(bnInput, tokenIn.decimals)
                       ) * tokenIn.USDPrice
                     ).toFixed(2)
                   ) : (
-                    <>0</>
+                    tokenIn.USDPrice
                   )}
                 </span>
                 <span>BALANCE: {tokenIn.userBalance}</span>
