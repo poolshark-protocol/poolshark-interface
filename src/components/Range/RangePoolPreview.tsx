@@ -11,7 +11,7 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { gasEstimateRangeMint } from "../../utils/gas";
 import RangeCreateAndMintButton from "../Buttons/RangeCreateAndMintButton";
-import { chainIdsToNamesForGitTokenList, chainProperties } from "../../utils/chains";
+import { chainProperties } from "../../utils/chains";
 import { feeTiers } from "../../utils/pools";
 
 export default function RangePoolPreview() {
@@ -419,7 +419,8 @@ export default function RangePoolPreview() {
                           /> 
                           : 
                           <RangeCreateAndMintButton
-                            routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
+                            disabled={rangeMintParams.disabled}
+                            factoryAddress={chainProperties['arbitrumGoerli']['routerAddress']}
                             poolType={'CONSTANT-PRODUCT'}
                             token0={tokenIn}
                             token1={tokenOut}
@@ -454,7 +455,6 @@ export default function RangePoolPreview() {
                                   )
                                 : BN_ZERO
                             }
-                            disabled={rangeMintParams.disabled}
                             buttonMessage={rangeMintParams.buttonMessage}
                             amount0={
                               tokenIn.callId === 0

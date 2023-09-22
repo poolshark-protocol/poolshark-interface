@@ -10,15 +10,15 @@ import React, { useState, useEffect } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { TickMath } from "../../utils/math/tickMath";
+import { ethers } from "ethers";
   
-  export default function LimitMintButton({
+  export default function LimitCreateAndMintButton({
     disabled,
     factoryAddress,
     poolType,
     token0,
     token1,
     feeTier,
-    poolAddress,
     to,
     amount,
     mintPercent,
@@ -48,7 +48,7 @@ import { TickMath } from "../../utils/math/tickMath";
       functionName: "createLimitPoolAndMint",
       args: [
         {
-            poolType: poolType,
+            poolType: ethers.utils.formatBytes32String(poolType),
             tokenIn: token0.address,
             tokenOut: token1.address,
             startPrice: TickMath.getSqrtRatioAtTick(upper),

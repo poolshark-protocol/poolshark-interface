@@ -20,7 +20,7 @@ import {
   maxPriceBn,
   minPriceBn,
 } from "../utils/math/tickMath";
-import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import { gasEstimateMintLimit, gasEstimateSwap } from "../utils/gas";
 import inputFilter from "../utils/inputFilter";
 import LimitSwapButton from "../components/Buttons/LimitSwapButton";
@@ -1077,7 +1077,7 @@ export default function Trade() {
                     tokenSymbol={tokenIn.symbol}
                     amount={bnInput}
                   />
-                ) : ( tradePoolData.id != ZERO_ADDRESS ?
+                ) : (tradePoolData.id != ZERO_ADDRESS ?
                   <LimitSwapButton
                     routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
                     disabled={mintGasLimit.eq(BN_ZERO)}
@@ -1094,7 +1094,7 @@ export default function Trade() {
                 :
                   <LimitCreateAndMintButton
                     disabled={mintGasLimit.eq(BN_ZERO)}
-                    routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
+                    factoryAddress={chainProperties['arbitrumGoerli']['limitPoolFactory']}
                     poolType={'CONSTANT-PRODUCT'}
                     token0={tokenIn}
                     token1={tokenOut}
