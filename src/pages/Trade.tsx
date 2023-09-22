@@ -783,7 +783,8 @@ export default function Trade() {
               <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
                 {pairSelected &&
                 !bnInput.eq(BN_ZERO) &&
-                tokenOut.address != "0x00" ? (
+                tokenOut.address != "0x00" &&
+                !isNaN(parseFloat(limitStringPriceQuote)) ? (
                   !limitTabSelected ? (
                     <div>{Number(amountOut).toPrecision(5)}</div>
                   ) : (
