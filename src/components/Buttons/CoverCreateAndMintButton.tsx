@@ -9,12 +9,12 @@ import {
   import { ConfirmingToast } from "../Toasts/Confirming";
   import React, { useState, useEffect } from "react";
   import { roundTick } from "../../utils/math/tickMath";
-  import { BigNumber } from "ethers";
+  import { BigNumber, ethers } from "ethers";
   import { useCoverStore } from "../../hooks/useCoverStore";
   import router from "next/router";
 import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
   
-  export default function CoverMintButton({
+  export default function CoverCreateAndMintButton({
     factoryAddress,
     poolType,
     token0,
@@ -22,7 +22,6 @@ import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
     feeTier,
     tickSpread,
     twapLength,
-    poolAddress,
     disabled,
     to,
     lower,
@@ -52,7 +51,7 @@ import { coverPoolFactoryABI } from "../../abis/evm/coverPoolFactory";
       functionName: "createCoverPoolAndMint",
       args: [
         {
-            poolType: poolType,
+            poolType: ethers.utils.formatBytes32String(poolType),
             tokenIn: token0.address,
             tokenOut: token1.address,
             feeTier: feeTier,

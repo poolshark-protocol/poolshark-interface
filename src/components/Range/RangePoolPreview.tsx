@@ -8,8 +8,11 @@ import RangeMintDoubleApproveButton from "../Buttons/RangeMintDoubleApproveButto
 import { useRouter } from "next/router";
 import RangeMintApproveButton from "../Buttons/RangeMintApproveButton";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { BN_ZERO } from "../../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { gasEstimateRangeMint } from "../../utils/gas";
+import RangeCreateAndMintButton from "../Buttons/RangeCreateAndMintButton";
+import { chainProperties } from "../../utils/chains";
+import { feeTiers } from "../../utils/pools";
 
 export default function RangePoolPreview() {
   const [
@@ -355,7 +358,7 @@ export default function RangePoolPreview() {
                             approveToken={tokenOut}
                             amount={rangeMintParams.tokenOutAmount}
                           />
-                        ) : (
+                        ) :  (rangePoolAddress != ZERO_ADDRESS ? 
                           <RangeMintButton
                             to={address}
                             poolAddress={rangePoolAddress}
@@ -401,7 +404,59 @@ export default function RangePoolPreview() {
                             }
                             closeModal={() => router.push("/range")}
                             gasLimit={mintGasLimit}
-                          />
+                          /> 
+                          : 
+                          <RangeCreateAndMintButton
+                            factoryAddress={chainProperties['arbitrumGoerli']['limitPoolFactory']}
+                            poolType={'CONSTANT-PRODUCT'}
+                            token0={tokenIn}
+                            token1={tokenOut}
+                            startPrice={BigNumber.from('3543191142285914205922034323214')} // 2000 token1 per token0
+                            feeTier={rangePoolData.feeTier.feeAmount}
+                            to={address}
+                            lower={
+                              rangePositionData.lowerPrice
+                                ? BigNumber.from(
+                                    TickMath.getTickAtPriceString(
+                                      rangePositionData.lowerPrice,
+                                      parseInt(
+                                        rangePoolData.feeTier
+                                          ? rangePoolData.feeTier.tickSpacing
+                                          : 20
+                                      )
+                                    )
+                                  )
+                                : BN_ZERO
+                            }
+                            upper={
+                              rangePositionData.upperPrice
+                                ? BigNumber.from(
+                                    TickMath.getTickAtPriceString(
+                                      rangePositionData.upperPrice,
+                                      parseInt(
+                                        rangePoolData.feeTier
+                                          ? rangePoolData.feeTier.tickSpacing
+                                          : 20
+                                      )
+                                    )
+                                  )
+                                : BN_ZERO
+                            }
+                            disabled={rangeMintParams.disabled}
+                            buttonMessage={rangeMintParams.buttonMessage}
+                            amount0={
+                              tokenIn.callId === 0
+                                ? rangeMintParams.tokenInAmount
+                                : rangeMintParams.tokenOutAmount
+                            }
+                            amount1={
+                              tokenIn.callId === 0
+                                ? rangeMintParams.tokenOutAmount
+                                : rangeMintParams.tokenInAmount
+                            }
+                            closeModal={() => router.push("/range")}
+                            gasLimit={mintGasLimit}
+                        /> 
                         )}
                       </div>
                     </div>

@@ -10,8 +10,9 @@ import {
   import { BN_ZERO } from "../../utils/math/constants";
   import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { rangePoolFactoryABI } from "../../abis/evm/rangePoolFactory";
+import { ethers } from "ethers";
   
-  export default function RangeMintButton({
+  export default function RangeCreateAndMintButton({
     disabled,
     buttonMessage,
     factoryAddress,
@@ -20,7 +21,6 @@ import { rangePoolFactoryABI } from "../../abis/evm/rangePoolFactory";
     token1,
     startPrice,
     feeTier,
-    poolAddress,
     to,
     lower,
     upper,
@@ -56,7 +56,7 @@ import { rangePoolFactoryABI } from "../../abis/evm/rangePoolFactory";
       functionName: "createLimitPoolAndMint",
       args: [
         {
-          poolType: poolType,
+          poolType: ethers.utils.formatBytes32String(poolType),
           tokenIn: token0.address,
           tokenOut: token1.address,
           startPrice: startPrice,
