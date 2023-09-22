@@ -601,11 +601,14 @@ export default function Trade() {
               {pairSelected
                 ? !limitTabSelected
                   ? amountOut
-                  : (
+                  : (!isNaN(parseFloat(
+                    ethers.utils.formatUnits(bnInput, tokenIn.decimals)
+                  ) * parseFloat(limitStringPriceQuote)) ? (
                       parseFloat(
                         ethers.utils.formatUnits(bnInput, tokenIn.decimals)
                       ) * parseFloat(limitStringPriceQuote)
-                    ).toPrecision(6)
+                    ).toPrecision(6) :
+                    "$0.00")
                 : "Select Token"}
             </div>
           </div>
