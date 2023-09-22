@@ -12,7 +12,7 @@ import {
   useBalance,
 } from "wagmi";
 import { BigNumber, ethers } from "ethers";
-import { chainIdsToNamesForGitTokenList } from "../utils/chains";
+import { chainIdsToNamesForGitTokenList, chainProperties } from "../utils/chains";
 import SwapRangeApproveButton from "../components/Buttons/SwapRangeApproveButton";
 import {
   TickMath,
@@ -20,7 +20,7 @@ import {
   maxPriceBn,
   minPriceBn,
 } from "../utils/math/tickMath";
-import { BN_ZERO } from "../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import { gasEstimateMintLimit, gasEstimateSwap } from "../utils/gas";
 import inputFilter from "../utils/inputFilter";
 import LimitSwapButton from "../components/Buttons/LimitSwapButton";
@@ -33,6 +33,7 @@ import { QuoteParams, SwapParams } from "../utils/types";
 import { useTradeStore } from "../hooks/useTradeStore";
 import SwapRouterButton from "../components/Buttons/SwapRouterButton";
 import JSBI from "jsbi";
+import LimitCreateAndMintButton from "../components/Buttons/LimitCreateAndMintButton";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -1027,10 +1028,27 @@ export default function Trade() {
                     tokenSymbol={tokenIn.symbol}
                     amount={bnInput}
                   />
-                ) : (
+                ) : (tradePoolData.id != ZERO_ADDRESS ?
                   <LimitSwapButton
                     disabled={mintGasLimit.eq(BN_ZERO)}
                     poolAddress={tradePoolData.id}
+                    to={address}
+                    amount={bnInput}
+                    mintPercent={ethers.utils.parseUnits("1", 24)}
+                    lower={lowerTick}
+                    upper={upperTick}
+                    closeModal={() => {}}
+                    zeroForOne={tokenOrder}
+                    gasLimit={mintGasLimit}
+                  />
+                :
+                  <LimitCreateAndMintButton
+                    disabled={mintGasLimit.eq(BN_ZERO)}
+                    factoryAddress={chainProperties['arbitrumGoerli']['limitPoolFactory']}
+                    poolType={'CONSTANT-PRODUCT'}
+                    token0={tokenIn}
+                    token1={tokenOut}
+                    feeTier={500} //TODO: handle fee tier
                     to={address}
                     amount={bnInput}
                     mintPercent={ethers.utils.parseUnits("1", 24)}
