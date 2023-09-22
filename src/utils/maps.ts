@@ -37,6 +37,7 @@ export const getClaimTick = async (
 export function mapUserRangePositions(rangePositions) {
   const mappedRangePositions = [];
   rangePositions?.map((rangePosition) => {
+    console.log("rangePosition raw", rangePosition);
     const rangePositionData = {
       id: rangePosition.positionId,
       poolId: rangePosition.pool.id,
@@ -44,6 +45,7 @@ export function mapUserRangePositions(rangePositions) {
       valueTokenZero: rangePosition.pool.token0.usdPrice,
       tokenOne: rangePosition.pool.token1,
       valueTokenOne: rangePosition.pool.token0.usdPrice,
+      pool: rangePosition.pool,
       min: rangePosition.lower,
       max: rangePosition.upper,
       price: rangePosition.pool.poolPrice,
@@ -69,7 +71,6 @@ export function mapUserRangePositions(rangePositions) {
 export function mapRangePools(rangePools) {
   const mappedRangePools = [];
   rangePools.map((rangePool) => {
-    console.log("rangePool raw ", rangePool);
     const rangePoolData = {
       poolId: rangePool.id,
       tokenOne: rangePool.token1,

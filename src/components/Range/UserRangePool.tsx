@@ -1,19 +1,23 @@
 import { useEffect, useState } from "react";
 import { TickMath } from "../../utils/math/tickMath";
-import { logoMap } from "../../utils/tokens";
+import { fetchRangeTokenUSDPrice, logoMap } from "../../utils/tokens";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import Link from "next/link";
 import { getRangePool, volatilityTiers } from "../../utils/pools";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { tokenCover } from "../../utils/types";
+import { DyDxMath } from "../../utils/math/dydxMath";
+import JSBI from "jsbi";
 
 export default function UserRangePool({ rangePosition, href, isModal }) {
   const [
     rangeTokenIn,
     rangeTokenOut,
     setRangeTokenIn,
+    setRangeTokenInUSDPrice,
     setRangeTokenOut,
+    setTokenOutRangeUSDPrice,
     setRangePoolAddress,
     setRangePoolData,
     setRangePositionData,
@@ -23,7 +27,9 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     state.tokenIn,
     state.tokenOut,
     state.setTokenIn,
+    state.setTokenInRangeUSDPrice,
     state.setTokenOut,
+    state.setTokenOutRangeUSDPrice,
     state.setRangePoolAddress,
     state.setRangePoolData,
     state.setRangePositionData,
@@ -46,6 +52,61 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     state.setCoverPositionData,
     state.setCoverPoolFromVolatility,
   ]);
+
+  const [amount0, setAmount0] = useState(0);
+  const [amount1, setAmount1] = useState(0);
+  const [totalUsdValue, setTotalUsdValue] = useState(0);
+
+  console.log("rangePosition", rangePosition);
+  ////////////////////////
+
+  useEffect(() => {
+    setAmounts();
+  }, [rangePosition]);
+
+  function setAmounts() {
+    try {
+      const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
+        Number(rangePosition.min)
+      );
+      const upperSqrtPrice = TickMath.getSqrtRatioAtTick(
+        Number(rangePosition.max)
+      );
+      const rangeSqrtPrice = JSBI.BigInt(rangePosition.price);
+      const liquidity = JSBI.BigInt(rangePosition.userLiquidity);
+      const amounts = DyDxMath.getAmountsForLiquidity(
+        lowerSqrtPrice,
+        upperSqrtPrice,
+        rangeSqrtPrice,
+        liquidity,
+        true
+      );
+      // set amount based on bnInput
+      const amount0Bn = BigNumber.from(String(amounts.token0Amount));
+      const amount1Bn = BigNumber.from(String(amounts.token1Amount));
+      setAmount0(
+        parseFloat(
+          ethers.utils.formatUnits(amount0Bn, rangePosition.tokenZero.decimals)
+        )
+      );
+      setAmount1(
+        parseFloat(
+          ethers.utils.formatUnits(amount1Bn, rangePosition.tokenOne.decimals)
+        )
+      );
+      const token0UsdValue =
+        parseFloat(
+          ethers.utils.formatUnits(amount0Bn, rangePosition.tokenZero.decimals)
+        ) * rangeTokenIn.rangeUSDPrice;
+      const token1UsdValue =
+        parseFloat(
+          ethers.utils.formatUnits(amount1Bn, rangePosition.tokenOne.decimals)
+        ) * rangeTokenOut.rangeUSDPrice;
+      setTotalUsdValue(token0UsdValue + token1UsdValue);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   function choosePosition() {
     setNeedsAllowanceIn(true);
@@ -128,11 +189,17 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
               </span>
             </div>
             <div className={`text-white text-xs text-right`}>
-              200 <span className="text-grey1">DAI</span> - 201{" "}
-              <span className="text-grey1">USDC</span>
+              {amount0.toPrecision(4)}{" "}
+              <span className="text-grey1">
+                {rangePosition.tokenZero.symbol}
+              </span>{" "}
+              - {amount1.toPrecision(4)}{" "}
+              <span className="text-grey1">
+                {rangePosition.tokenOne.symbol}
+              </span>
             </div>
             <div className="text-right text-white text-xs">
-              {!isModal && <span>$401 </span>}
+              {!isModal && <span>${totalUsdValue}</span>}
             </div>
           </div>
         </Link>
