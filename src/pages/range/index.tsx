@@ -61,7 +61,7 @@ export default function Range() {
     }
   }
 
-  //////////////////////
+  ///////////////////////////
 
   const handleSearchTermChange = (event) => {
     setSearchTerm(event.target.value);
@@ -256,18 +256,8 @@ export default function Range() {
                     )
                       return (
                         <RangePool
-                          account={address}
-                          key={allRangePool.poolId}
-                          poolId={allRangePool.poolId}
-                          tokenZero={allRangePool.tokenZero}
-                          tokenOne={allRangePool.tokenOne}
-                          liquidity={allRangePool.liquidity}
-                          auctionLenght={undefined}
-                          feeTier={allRangePool.feeTier}
-                          tickSpacing={allRangePool.tickSpacing}
-                          tvlUsd={allRangePool.tvlUsd}
-                          volumeUsd={allRangePool.volumeUsd}
-                          volumeEth={allRangePool.volumeEth}
+                          key={allRangePool.id + "rangePool"}
+                          rangePool={allRangePool}
                           href="/range/add-liquidity"
                         />
                       );

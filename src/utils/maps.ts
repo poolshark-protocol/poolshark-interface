@@ -69,6 +69,7 @@ export function mapUserRangePositions(rangePositions) {
 export function mapRangePools(rangePools) {
   const mappedRangePools = [];
   rangePools.map((rangePool) => {
+    console.log("rangePool raw ", rangePool);
     const rangePoolData = {
       poolId: rangePool.id,
       tokenOne: rangePool.token1,
@@ -77,11 +78,10 @@ export function mapRangePools(rangePools) {
       liquidity: rangePool.liquidity,
       feeTier: rangePool.feeTier.feeAmount,
       tickSpacing: rangePool.feeTier.tickSpacing,
-      tvlUsd: (parseFloat(rangePool.totalValueLockedUsd) / 1_000_000).toFixed(
-        2
-      ),
-      volumeUsd: (parseFloat(rangePool.volumeUsd) / 1_000_000).toFixed(2),
-      volumeEth: (parseFloat(rangePool.volumeEth) / 1).toFixed(2),
+      feesUsd: parseFloat(rangePool.feesUsd).toFixed(2),
+      tvlUsd: parseFloat(rangePool.totalValueLockedUsd).toFixed(2),
+      volumeUsd: parseFloat(rangePool.volumeUsd).toFixed(2),
+      volumeEth: parseFloat(rangePool.volumeEth).toFixed(2),
     };
     mappedRangePools.push(rangePoolData);
   });

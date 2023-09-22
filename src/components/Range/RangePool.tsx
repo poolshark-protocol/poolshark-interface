@@ -2,20 +2,7 @@ import { logoMap } from "../../utils/tokens";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { useRouter } from "next/router";
 
-export default function RangePool({
-  poolId,
-  account,
-  tokenOne,
-  tokenZero,
-  liquidity,
-  feeTier,
-  auctionLenght,
-  tickSpacing,
-  tvlUsd,
-  volumeUsd,
-  volumeEth,
-  href,
-}) {
+export default function RangePool({ rangePool, href }) {
   const [setRangeTokenIn, setRangeTokenOut, setRangePoolFromVolatility] =
     useRangeLimitStore((state) => [
       state.setTokenIn,
@@ -27,28 +14,30 @@ export default function RangePool({
 
   const chooseRangePool = () => {
     const tokenIn = {
-      name: tokenZero.symbol,
-      address: tokenZero.id,
-      logoURI: logoMap[tokenZero.symbol],
-      symbol: tokenZero.symbol,
+      name: rangePool.tokenZero.symbol,
+      address: rangePool.tokenZero.id,
+      logoURI: logoMap[rangePool.tokenZero.symbol],
+      symbol: rangePool.tokenZero.symbol,
     };
     const tokenOut = {
-      name: tokenOne.symbol,
-      address: tokenOne.id,
-      logoURI: logoMap[tokenOne.symbol],
-      symbol: tokenOne.symbol,
+      name: rangePool.tokenOne.symbol,
+      address: rangePool.tokenOne.id,
+      logoURI: logoMap[rangePool.tokenOne.symbol],
+      symbol: rangePool.tokenOne.symbol,
     };
     setRangeTokenIn(tokenOut, tokenIn);
     setRangeTokenOut(tokenIn, tokenOut);
     const tier = {
-      tier: feeTier,
-      id: feeTier == "500" ? 0 : feeTier == "3000" ? 1 : 2,
+      tier: rangePool.feeTier,
+      id: rangePool.feeTier == "500" ? 0 : rangePool.feeTier == "3000" ? 1 : 2,
     };
     setRangePoolFromVolatility(tokenIn, tokenOut, tier);
     router.push({
       pathname: href,
     });
   };
+
+  //console.log("rangePool mapped", rangePool);
 
   return (
     <>
@@ -58,25 +47,29 @@ export default function RangePool({
             <div className="flex items-center">
               <img
                 className="w-[25px] h-[25px]"
-                src={logoMap[tokenZero.symbol]}
+                src={logoMap[rangePool.tokenZero.symbol]}
               />
               <img
                 className="w-[25px] h-[25px] ml-[-8px]"
-                src={logoMap[tokenOne.symbol]}
+                src={logoMap[rangePool.tokenOne.symbol]}
               />
             </div>
             <span className="text-white text-xs flex items-center gap-x-1.5">
-              {tokenZero.symbol} - {tokenOne.symbol}
+              {rangePool.tokenZero.symbol} - {rangePool.tokenOne.symbol}
             </span>
             <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-              {Number(feeTier / 10000).toFixed(2)}%
+              {Number(rangePool.feeTier / 10000).toFixed(2)}%
             </span>
           </div>
           <div className=" grid-cols-3 grid items-center">
-            <div className="text-white text-right text-xs">${volumeUsd}m</div>
-            <div className="text-right text-white text-xs">${tvlUsd}m</div>
+            <div className="text-white text-right text-xs">
+              ${rangePool.volumeUsd}m
+            </div>
             <div className="text-right text-white text-xs">
-              <span>$401 </span>
+              ${rangePool.tvlUsd}m
+            </div>
+            <div className="text-right text-white text-xs">
+              <span>${rangePool.feesUsd} </span>
             </div>
           </div>
         </div>
