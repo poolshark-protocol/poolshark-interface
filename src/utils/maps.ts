@@ -17,7 +17,7 @@ export const getClaimTick = async (
       epochLast
     ) :
       await getLimitTickIfZeroForOne(
-        maxLimit,
+        minLimit,
         poolAddress,
         epochLast
     );
@@ -36,7 +36,7 @@ export const getClaimTick = async (
       epochLast
     ) :
       await getLimitTickIfNotZeroForOne(
-        minLimit,
+        maxLimit,
         poolAddress,
         epochLast
     );
