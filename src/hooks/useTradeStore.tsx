@@ -100,8 +100,8 @@ type TradeLimitAction = {
 
 const initialTradeState: TradeState = {
   poolRouterAddresses: {
-    arbitrumGoerli: "0xb6d2db5c8a7fce230fb32049d0387d0528a0cad5",
-    arbitrumMainnet: "0x379cbea9234cae9e106bc2a86b39610dc56dbae2",
+    arbitrumGoerli: "0xd2a20126829f41185853d13a6be1938b10b984f6",
+    arbitrumMainnet: "" // not deployed yet,
   },
   //trade pools
   tradePoolAddress: "0x000",
