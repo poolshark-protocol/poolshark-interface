@@ -922,7 +922,7 @@ export default function Trade() {
                   <div className="bg-dark py-3 px-5 border border-grey rounded-[4px] mt-4">
                     <div className="flex items-end justify-between text-[11px] text-grey1">
                       <span>
-                        {pairSelected
+                        {pairSelected && !isNaN(parseFloat(limitStringPriceQuote))
                           ? //switcher tokenOrder
                             limitPriceOrder
                             ? //when normal order tokenIn/tokenOut
