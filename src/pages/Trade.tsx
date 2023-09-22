@@ -753,7 +753,8 @@ export default function Trade() {
                   {pairSelected &&
                   !bnInput.eq(BN_ZERO) &&
                   tokenOut.address != "0x00" &&
-                  !waitingForQuote ? (
+                  !waitingForQuote && 
+                  !isNaN(parseFloat(limitStringPriceQuote)) ? (
                     !limitTabSelected ? (
                       //swap page
                       (amountOut * tokenOut.USDPrice).toFixed(2)
