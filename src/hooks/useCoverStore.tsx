@@ -10,10 +10,6 @@ import { getCoverPoolFromFactory } from "../utils/queries";
 import JSBI from "jsbi";
 
 type CoverState = {
-  poolRouterAddresses: {
-    arbitrumGoerli: string;
-    arbitrumMainnet: string;
-  };
   //poolAddress for current token pairs
   coverPoolAddress: `0x${string}`;
   volatilityTierId: number;
@@ -90,11 +86,6 @@ type CoverAction = {
 };
 
 const initialCoverState: CoverState = {
-  // router
-  poolRouterAddresses: {
-    arbitrumGoerli: "0xdb11885eac2a8944438322349925ac0de3159392",
-    arbitrumMainnet: "0x00",
-  },
   //pools
   coverPoolAddress: "0x00",
   volatilityTierId: 0,
@@ -146,8 +137,6 @@ const initialCoverState: CoverState = {
 };
 
 export const useCoverStore = create<CoverState & CoverAction>((set) => ({
-  //router
-  poolRouterAddresses: initialCoverState.poolRouterAddresses,
   //pool
   coverPoolAddress: initialCoverState.coverPoolAddress,
   coverPoolData: initialCoverState.coverPoolData,

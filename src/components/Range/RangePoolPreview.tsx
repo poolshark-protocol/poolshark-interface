@@ -16,7 +16,6 @@ import { feeTiers } from "../../utils/pools";
 
 export default function RangePoolPreview() {
   const [
-    poolRouters,
     rangePoolAddress,
     rangePoolData,
     rangePositionData,
@@ -30,7 +29,6 @@ export default function RangePoolPreview() {
     setNeedsAllowanceIn,
     setNeedsAllowanceOut,
   ] = useRangeLimitStore((state) => [
-    state.poolRouterAddresses,
     state.rangePoolAddress,
     state.rangePoolData,
     state.rangePositionData,
@@ -60,9 +58,7 @@ export default function RangePoolPreview() {
     functionName: "allowance",
     args: [
       address,
-      poolRouters[
-        chainIdsToNamesForGitTokenList[chainId]
-      ] as `0x${string}`
+      chainProperties['arbitrumGoerli']['routerAddress']
     ],
     chainId: 421613,
     watch: needsAllowanceIn,
@@ -81,9 +77,7 @@ export default function RangePoolPreview() {
     functionName: "allowance",
     args: [
       address,
-      poolRouters[
-        chainIdsToNamesForGitTokenList[chainId]
-      ] as `0x${string}`
+      chainProperties['arbitrumGoerli']['routerAddress']
     ],
     chainId: 421613,
     watch: needsAllowanceOut,
@@ -352,9 +346,7 @@ export default function RangePoolPreview() {
                         ) ? (
                           <RangeMintDoubleApproveButton
                             routerAddress={
-                              poolRouters[
-                                chainIdsToNamesForGitTokenList[chainId]
-                              ] as `0x${string}`
+                              chainProperties['arbitrumGoerli']['routerAddress']
                             }
                             tokenIn={tokenIn}
                             tokenOut={tokenOut}
@@ -379,6 +371,7 @@ export default function RangePoolPreview() {
                           />
                         ) :  (rangePoolAddress != ZERO_ADDRESS ? 
                           <RangeMintButton
+                            routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
                             to={address}
                             poolAddress={rangePoolAddress}
                             lower={
@@ -426,7 +419,7 @@ export default function RangePoolPreview() {
                           /> 
                           : 
                           <RangeCreateAndMintButton
-                            factoryAddress={chainProperties['arbitrumGoerli']['limitPoolFactory']}
+                            routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
                             poolType={'CONSTANT-PRODUCT'}
                             token0={tokenIn}
                             token1={tokenOut}

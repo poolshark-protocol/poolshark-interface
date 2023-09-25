@@ -13,11 +13,10 @@ import { feeTiers } from "../../utils/pools";
 import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
-import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
+import { chainProperties } from "../../utils/chains";
 
 export default function AddLiquidity({}) {
   const [
-    poolRouters,
     rangePoolAddress,
     rangePoolData,
     rangePositionData,
@@ -44,7 +43,6 @@ export default function AddLiquidity({}) {
     setNeedsBalanceIn,
     setNeedsBalanceOut,
   ] = useRangeLimitStore((state) => [
-    state.poolRouterAddresses,
     state.rangePoolAddress,
     state.rangePoolData,
     state.rangePositionData,
@@ -132,9 +130,7 @@ export default function AddLiquidity({}) {
     functionName: "allowance",
     args: [
       address,
-      poolRouters[
-        chainIdsToNamesForGitTokenList[chainId]
-      ] as `0x${string}`
+      chainProperties['arbitrumGoerli']['routerAddress']
     ],
     chainId: 421613,
     //watch: needsAllowanceIn,
@@ -153,9 +149,7 @@ export default function AddLiquidity({}) {
     functionName: "allowance",
     args: [
       address,
-      poolRouters[
-        chainIdsToNamesForGitTokenList[chainId]
-      ] as `0x${string}`
+      chainProperties['arbitrumGoerli']['routerAddress']
     ],
     chainId: 421613,
     //watch: needsAllowanceOut,

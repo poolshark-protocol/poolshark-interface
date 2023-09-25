@@ -21,13 +21,12 @@ import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
 import { gasEstimateCoverMint } from "../../utils/gas";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
+import { chainIdsToNamesForGitTokenList, chainProperties } from "../../utils/chains";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { volatilityTiers } from "../../utils/pools";
 
 export default function CoverExistingPool({ goBack }) {
   const [
-    poolRouters,
     coverPoolAddress,
     coverPoolData,
     coverPositionData,
@@ -53,7 +52,6 @@ export default function CoverExistingPool({ goBack }) {
     needsBalance,
     setNeedsBalance,
   ] = useCoverStore((state) => [
-    state.poolRouterAddresses,
     state.coverPoolAddress,
     state.coverPoolData,
     state.coverPositionData,
@@ -116,9 +114,7 @@ export default function CoverExistingPool({ goBack }) {
     functionName: "allowance",
     args: [
       address,
-      poolRouters[
-        chainIdsToNamesForGitTokenList[chainId]
-      ] as `0x${string}`
+      chainProperties['arbitrumGoerli']['routerAddress']
     ],
     chainId: 421613,
     enabled: tokenIn.address != undefined,
@@ -707,13 +703,14 @@ export default function CoverExistingPool({ goBack }) {
       {allowanceInCover ? (
         allowanceInCover.lt(coverMintParams.tokenInAmount) ? (
           <CoverMintApproveButton
-            poolAddress={coverPoolAddress}
+            routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
             approveToken={tokenIn.address}
             amount={String(coverMintParams.tokenInAmount)}
             tokenSymbol={tokenIn.symbol}
           />
         ) : (
           <CoverMintButton
+            routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
             poolAddress={coverPoolAddress}
             disabled={coverMintParams.disabled}
             buttonMessage={coverMintParams.buttonMessage}

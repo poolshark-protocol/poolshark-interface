@@ -17,7 +17,7 @@ import {
 } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
-import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
+import { chainIdsToNamesForGitTokenList, chainProperties } from "../../utils/chains";
 import { Listbox, Transition } from "@headlessui/react";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import { Fragment, useEffect, useState } from "react";
@@ -38,7 +38,6 @@ import router from "next/router";
 
 export default function CreateCover(props: any) {
   const [
-    poolRouters,
     coverPoolAddress,
     coverPoolData,
     coverPositionData,
@@ -66,7 +65,6 @@ export default function CreateCover(props: any) {
     needsBalance,
     setNeedsBalance,
   ] = useCoverStore((state) => [
-    state.poolRouterAddresses,
     state.coverPoolAddress,
     state.coverPoolData,
     state.coverPositionData,
@@ -129,9 +127,7 @@ export default function CreateCover(props: any) {
     functionName: "allowance",
     args: [
       address,
-      poolRouters[
-        chainIdsToNamesForGitTokenList[chainId]
-      ] as `0x${string}`
+      chainProperties['arbitrumGoerli']['routerAddress']
     ],
     chainId: 421613,
     //watch: needsAllowance,
@@ -704,13 +700,14 @@ export default function CreateCover(props: any) {
       {allowanceInCover ? (
         allowanceInCover.lt(coverMintParams.tokenInAmount) ? (
           <CoverMintApproveButton
-            poolAddress={coverPoolAddress}
+            routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
             approveToken={tokenIn.address}
             amount={bnInput}
             tokenSymbol={tokenIn.symbol}
           />
         ) : (
           <CoverMintButton
+            routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
             poolAddress={coverPoolAddress}
             disabled={coverMintParams.disabled}
             to={address}
