@@ -151,15 +151,13 @@ export default function Trade() {
   const [swapParams, setSwapParams] = useState(undefined);
 
   //display variable
-  const [waitingForQuote, setWaitingForQuote] = useState(false);
   const [amountOut, setAmountOut] = useState(undefined);
 
   useEffect(() => {
-    if (tokenIn.address && tokenOut.address != "0x00" && bnInput) {
-      setWaitingForQuote(true);
+    if (tokenIn.address && tokenOut.address !== "0x00") {
       updatePools();
     }
-  }, [bnInput, tokenIn.address, tokenOut.address]);
+  }, [tokenIn, tokenOut]);
 
   async function updatePools() {
     const pools = await getSwapPools(tokenIn, tokenOut, setTradePoolData);
@@ -202,7 +200,6 @@ export default function Trade() {
           tokenOut.decimals
         )
       );
-      setWaitingForQuote(false);
       updateSwapParams(poolQuotes);
     }
   }, [poolQuotes]);
@@ -407,27 +404,33 @@ export default function Trade() {
   const [upperPriceString, setUpperPriceString] = useState("0");
 
   useEffect(() => {
-    setLimitStringPriceQuote(
-      (tokenIn.USDPrice / tokenOut.USDPrice).toPrecision(6).toString()
-    );
-  }, [tokenOut.USDPrice, tokenIn.USDPrice]);
-
-  useEffect(() => {
-    var newPrice = (tokenIn.USDPrice / tokenOut.USDPrice)
-      .toPrecision(6)
-      .toString();
-    setLimitStringPriceQuote(newPrice);
-  }, [tokenOrder]);
-
-  useEffect(() => {
-    if (!limitPriceOrder) {
-      setLimitStringPriceQuote(
-        (tokenOut.USDPrice / tokenIn.USDPrice).toPrecision(6).toString()
-      );
-    } else {
+    if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
       setLimitStringPriceQuote(
         (tokenIn.USDPrice / tokenOut.USDPrice).toPrecision(6).toString()
       );
+    }
+  }, [tokenOut.USDPrice, tokenIn.USDPrice]);
+
+  useEffect(() => {
+    if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
+      var newPrice = (tokenIn.USDPrice / tokenOut.USDPrice)
+        .toPrecision(6)
+        .toString();
+      setLimitStringPriceQuote(newPrice);
+    }
+  }, [tokenOrder]);
+
+  useEffect(() => {
+    if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
+      if (!limitPriceOrder) {
+        setLimitStringPriceQuote(
+          (tokenOut.USDPrice / tokenIn.USDPrice).toPrecision(6).toString()
+        );
+      } else {
+        setLimitStringPriceQuote(
+          (tokenIn.USDPrice / tokenOut.USDPrice).toPrecision(6).toString()
+        );
+      }
     }
   }, [limitPriceOrder, tokenOrder]);
 
@@ -585,6 +588,10 @@ export default function Trade() {
   }, [bnInput]);
 
   useEffect(() => {
+    console.log(limitStringPriceQuote, "limit quote")
+  }, [limitStringPriceQuote])
+
+  useEffect(() => {
     setMintButtonState();
   }, [tradeParams.tokenInAmount, tradeParams.tokenOutAmount]);
 
@@ -691,7 +698,7 @@ export default function Trade() {
                 <span>
                   {" "}
                   ~$
-                  {!waitingForQuote && bnInput.gt(0) ? (
+                  {bnInput.gt(0) ? (
                     (
                       Number(
                         ethers.utils.formatUnits(bnInput, tokenIn.decimals)
@@ -756,7 +763,6 @@ export default function Trade() {
                   {pairSelected &&
                   !bnInput.eq(BN_ZERO) &&
                   tokenOut.address != "0x00" &&
-                  !waitingForQuote && 
                   !isNaN(parseFloat(limitStringPriceQuote)) ? (
                     !limitTabSelected ? (
                       //swap page
@@ -986,7 +992,9 @@ export default function Trade() {
                       }
                       type="text"
                       onChange={(e) => {
-                        setLimitStringPriceQuote(inputFilter(e.target.value));
+                        if (e.target.value !== "" && e.target.value !== "0") {
+                          setLimitStringPriceQuote(inputFilter(e.target.value));
+                        }
                       }}
                     />
                   </div>
