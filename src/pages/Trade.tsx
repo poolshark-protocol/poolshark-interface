@@ -344,6 +344,7 @@ export default function Trade() {
       console.log("Error allowance", error);
     },
     onSuccess(data) {
+      console.log('got allowance', allowanceInRouter.toString(), tokenIn.userRouterAllowance.toString(), bnInput.toString())
       setNeedsAllowanceIn(false);
       //console.log("Success allowance", data);
     },
