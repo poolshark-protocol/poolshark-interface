@@ -369,7 +369,7 @@ export default function RangePoolPreview() {
                             approveToken={tokenOut}
                             amount={rangeMintParams.tokenOutAmount}
                           />
-                        ) :  (//rangePoolAddress != ZERO_ADDRESS ? 
+                        ) :  ( rangePoolAddress != ZERO_ADDRESS ? 
                           <RangeMintButton
                             routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
                             to={address}
@@ -417,58 +417,58 @@ export default function RangePoolPreview() {
                             closeModal={() => router.push("/range")}
                             gasLimit={mintGasLimit}
                           /> 
-                        //   : 
-                        //   <RangeCreateAndMintButton
-                        //     routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
-                        //     poolType={'CONSTANT-PRODUCT'}
-                        //     token0={tokenIn}
-                        //     token1={tokenOut}
-                        //     startPrice={BigNumber.from('3543191142285914205922034323214')} // 2000 token1 per token0
-                        //     feeTier={rangePoolData.feeTier.feeAmount}
-                        //     to={address}
-                        //     lower={
-                        //       rangePositionData.lowerPrice
-                        //         ? BigNumber.from(
-                        //             TickMath.getTickAtPriceString(
-                        //               rangePositionData.lowerPrice,
-                        //               parseInt(
-                        //                 rangePoolData.feeTier
-                        //                   ? rangePoolData.feeTier.tickSpacing
-                        //                   : 20
-                        //               )
-                        //             )
-                        //           )
-                        //         : BN_ZERO
-                        //     }
-                        //     upper={
-                        //       rangePositionData.upperPrice
-                        //         ? BigNumber.from(
-                        //             TickMath.getTickAtPriceString(
-                        //               rangePositionData.upperPrice,
-                        //               parseInt(
-                        //                 rangePoolData.feeTier
-                        //                   ? rangePoolData.feeTier.tickSpacing
-                        //                   : 20
-                        //               )
-                        //             )
-                        //           )
-                        //         : BN_ZERO
-                        //     }
-                        //     disabled={rangeMintParams.disabled}
-                        //     buttonMessage={rangeMintParams.buttonMessage}
-                        //     amount0={
-                        //       tokenIn.callId === 0
-                        //         ? rangeMintParams.tokenInAmount
-                        //         : rangeMintParams.tokenOutAmount
-                        //     }
-                        //     amount1={
-                        //       tokenIn.callId === 0
-                        //         ? rangeMintParams.tokenOutAmount
-                        //         : rangeMintParams.tokenInAmount
-                        //     }
-                        //     closeModal={() => router.push("/range")}
-                        //     gasLimit={mintGasLimit}
-                        // /> 
+                          : 
+                          <RangeCreateAndMintButton
+                            routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
+                            poolType={'CONSTANT-PRODUCT'}
+                            token0={tokenIn}
+                            token1={tokenOut}
+                            startPrice={BigNumber.from('3543191142285914205922034323214')} //TODO: for lucas; need input box for this
+                            feeTier={rangePoolData.feeTier.feeAmount}
+                            to={address}
+                            lower={
+                              rangePositionData.lowerPrice
+                                ? BigNumber.from(
+                                    TickMath.getTickAtPriceString(
+                                      rangePositionData.lowerPrice,
+                                      parseInt(
+                                        rangePoolData.feeTier
+                                          ? rangePoolData.feeTier.tickSpacing
+                                          : 20
+                                      )
+                                    )
+                                  )
+                                : BN_ZERO
+                            }
+                            upper={
+                              rangePositionData.upperPrice
+                                ? BigNumber.from(
+                                    TickMath.getTickAtPriceString(
+                                      rangePositionData.upperPrice,
+                                      parseInt(
+                                        rangePoolData.feeTier
+                                          ? rangePoolData.feeTier.tickSpacing
+                                          : 20
+                                      )
+                                    )
+                                  )
+                                : BN_ZERO
+                            }
+                            disabled={rangeMintParams.disabled}
+                            buttonMessage={rangeMintParams.buttonMessage}
+                            amount0={
+                              tokenIn.callId === 0
+                                ? rangeMintParams.tokenInAmount
+                                : rangeMintParams.tokenOutAmount
+                            }
+                            amount1={
+                              tokenIn.callId === 0
+                                ? rangeMintParams.tokenOutAmount
+                                : rangeMintParams.tokenInAmount
+                            }
+                            closeModal={() => router.push("/range")}
+                            gasLimit={mintGasLimit}
+                        /> 
                         )}
                       </div>
                     </div>

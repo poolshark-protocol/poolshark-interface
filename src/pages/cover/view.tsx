@@ -66,6 +66,11 @@ export default function ViewCover() {
   const [fillPercent, setFillPercent] = useState(0);
   const [coverFilledAmount, setCoverFilledAmount] = useState("");
   const [allCoverPositions, setAllCoverPositions] = useState([]);
+  const volTierMap = new Map<string, any>([
+    ['1000', { id: 0, volatility: "1" }],
+    ['3000', { id: 1, volatility: "3" }],
+    ['10000', { id: 2, volatility: "24" }]
+  ]);
 
   //Display and copy flags
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -356,7 +361,7 @@ export default function ViewCover() {
               </div>
               <div className="flex items-center gap-x-5">
                 <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                  {coverPositionData.tickSpacing == "20" ? "1.7" : "2.4"}%
+                  {volTierMap.get(coverPoolData.volatilityTier.feeAmount.toString()).volatility}%
                 </span>
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
                 {coverPositionData.min === undefined
