@@ -1,6 +1,6 @@
 import { BigNumber, ethers } from "ethers";
 import { tokenCover } from "../utils/types";
-import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import {
   tokenOneAddress,
   tokenZeroAddress,
