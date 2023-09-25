@@ -1,3 +1,5 @@
+import { ZERO_ADDRESS } from "./math/constants";
+
 export const chainIdsToNamesForGitTokenList = {
     1: 'ethereum',
     5: 'goerli',
@@ -28,7 +30,7 @@ export const chainProperties = {
             decimals: 18,
         },
         chainId: '0x1',
-        routerAddress: '0x00' as `0x${string}`
+        routerAddress: ZERO_ADDRESS as `0x${string}`
     },
     goerli: {
         chainName: 'Goerli Test Network',
@@ -41,7 +43,7 @@ export const chainProperties = {
             decimals: 18,
         },
         chainId: '0x5',
-        routerAddress: '0x00' as `0x${string}`
+        routerAddress: ZERO_ADDRESS as `0x${string}`
     },
     arbitrumGoerli: {
         chainName: 'Arbitrum Goerli Test Network',
