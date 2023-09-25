@@ -359,22 +359,34 @@ export default function ViewCover() {
                   {coverPositionData.tickSpacing == "20" ? "1.7" : "2.4"}%
                 </span>
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
-                  0.9 USDC
+                {coverPositionData.min === undefined
+                        ? ""
+                        : priceDirection
+                        ? lowerInverse
+                        : TickMath.getPriceStringAtTick(
+                            Number(coverPositionData.min)
+                          )}
                   <DoubleArrowIcon />
-                  1.2 USDC
+                  {coverPositionData.max === undefined
+                        ? ""
+                        : priceDirection
+                        ? upperInverse
+                        : TickMath.getPriceStringAtTick(
+                            Number(coverPositionData.max)
+                          )}
                 </div>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-x-4">
+          <div className="flex items-center gap-x-4 w-full md:w-auto">
             <button
-              className="bg-main1 border border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
+              className="bg-main1 w-full border border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
               onClick={() => setIsAddOpen(true)}
             >
               Add Liquidity
             </button>
             <button
-              className="bg-black border border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
+              className="bg-black whitespace-nowrap w-full border border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
               onClick={() => setIsRemoveOpen(true)}
             >
               Remove Liquidity
