@@ -350,6 +350,7 @@ export default function Trade() {
       console.log("Error allowance", error);
     },
     onSuccess(data) {
+      console.log('got allowance', allowanceInRouter.toString(), tokenIn.userRouterAllowance.toString(), bnInput.toString())
       setNeedsAllowanceIn(false);
       //console.log("Success allowance", data);
     },
@@ -535,7 +536,7 @@ export default function Trade() {
   }
 
   async function updateMintFee() {
-    console.log(tokenIn.userRouterAllowance, "user router allowance")
+    if (tokenIn.userRouterAllowance.gte(bnInput))
       await gasEstimateMintLimit(
         tradePoolData.id,
         address,
