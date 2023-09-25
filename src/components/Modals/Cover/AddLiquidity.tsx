@@ -14,15 +14,12 @@ import { ethers } from "ethers";
 import { useContractRead } from "wagmi";
 import { BN_ZERO } from "../../../utils/math/constants";
 import CoverMintApproveButton from "../../Buttons/CoverMintApproveButton";
-import { chainIdsToNamesForGitTokenList } from "../../../utils/chains";
+import { chainIdsToNamesForGitTokenList, chainProperties } from "../../../utils/chains";
 import { gasEstimateCoverMint } from "../../../utils/gas";
-import JSBI from "jsbi";
 import { useCoverStore } from "../../../hooks/useCoverStore";
-import { TickMath } from "../../../utils/math/tickMath";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
-    poolRouters,
     coverPoolAddress,
     coverPoolData,
     coverPositionData,
@@ -37,7 +34,6 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     setNeedsBalance,
     setMintButtonState,
   ] = useCoverStore((state) => [
-    state.poolRouterAddresses,
     state.coverPoolAddress,
     state.coverPoolData,
     state.coverPositionData,
@@ -73,9 +69,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     functionName: "allowance",
     args: [
       address,
-      poolRouters[
-        chainIdsToNamesForGitTokenList[chainId]
-      ] as `0x${string}`
+      chainProperties['arbitrumGoerli']['routerAddress']
     ],
     chainId: 421613,
     watch: needsAllowance,
@@ -276,7 +270,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                 allowanceInCover.lt(bnInput) &&
                 stateChainName === "arbitrumGoerli" ? (
                   <CoverMintApproveButton
-                    poolAddress={coverPoolAddress}
+                    routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
                     approveToken={tokenIn.address}
                     amount={bnInput}
                     tokenSymbol={tokenIn.symbol}
@@ -286,6 +280,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                     disabled={disabled}
                     toAddress={address}
                     poolAddress={coverPoolAddress}
+                    routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
                     address={address}
                     lower={Number(coverPositionData.min)}
                     upper={Number(coverPositionData.max)}

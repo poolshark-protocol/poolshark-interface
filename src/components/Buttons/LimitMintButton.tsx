@@ -9,9 +9,12 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
+import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
+import { ethers } from "ethers";
   
   export default function LimitMintButton({
     disabled,
+    routerAddress,
     poolAddress,
     to,
     amount,
@@ -37,17 +40,21 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
     useEffect(() => {}, [disabled]);
   
     const { config } = usePrepareContractWrite({
-      address: poolAddress,
-      abi: limitPoolABI,
-      functionName: "mintLimit",
-      args: [[
-        to,
-        amount,
-        mintPercent,
-        lower,
-        upper,
-        zeroForOne
-      ]],
+      address: routerAddress,
+      abi: poolsharkRouterABI,
+      functionName: "multiMintLimit",
+      args: [
+        [poolAddress],
+        [{
+          to: to,
+          amount: amount,
+          mintPercent: mintPercent,
+          lower: lower,
+          upper: upper,
+          zeroForOne: zeroForOne,
+          callbackData: ethers.utils.formatBytes32String('')
+        }]
+      ],
       chainId: 421613,
       overrides: {
         gasLimit: gasLimit,

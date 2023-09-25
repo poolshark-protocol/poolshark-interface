@@ -9,11 +9,13 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { roundTick } from "../../utils/math/tickMath";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import router from "next/router";
+import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 
 export default function CoverMintButton({
+  routerAddress,
   poolAddress,
   disabled,
   to,
@@ -39,18 +41,20 @@ export default function CoverMintButton({
   const newPositionId = 0;
 
   const { config } = usePrepareContractWrite({
-    address: poolAddress,
-    abi: coverPoolABI,
-    functionName: "mint",
+    address: routerAddress,
+    abi: poolsharkRouterABI,
+    functionName: "multiMintCover",
     args: [
-      [
-        to,
-        amount,
-        newPositionId,
-        BigNumber.from(roundTick(Number(lower), tickSpacing)),
-        BigNumber.from(roundTick(Number(upper), tickSpacing)),
-        zeroForOne,
-      ],
+      [poolAddress],
+      [{
+        to: to,
+        amount: amount,
+        positionId: newPositionId,
+        lower: BigNumber.from(roundTick(Number(lower), tickSpacing)),
+        upper: BigNumber.from(roundTick(Number(upper), tickSpacing)),
+        zeroForOne: zeroForOne,
+        callbackData: ethers.utils.formatBytes32String('')
+      }],
     ],
     overrides: {
       gasLimit: gasLimit,

@@ -10,10 +10,13 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { BN_ZERO } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
+import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
+import { ethers } from "ethers";
 
 export default function RangeMintButton({
   disabled,
   buttonMessage,
+  routerAddress,
   poolAddress,
   to,
   lower,
@@ -44,18 +47,20 @@ export default function RangeMintButton({
   const positionId = 0; /// @dev - assume new position
 
   const { config } = usePrepareContractWrite({
-    address: poolAddress,
-    abi: rangePoolABI,
-    functionName: "mintRange",
+    address: routerAddress,
+    abi: poolsharkRouterABI,
+    functionName: "multiMintRange",
     args: [
-      {
+      [poolAddress],
+      [{
         to: to,
         lower: lower,
         upper: upper,
         positionId: positionId,
         amount0: amount0,
         amount1: amount1,
-      },
+        callbackData: ethers.utils.formatBytes32String('')
+      }],
     ],
     chainId: 421613,
     overrides: {

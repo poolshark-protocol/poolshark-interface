@@ -15,7 +15,7 @@ import { TickMath } from "../../../utils/math/tickMath";
 import { ethers, BigNumber } from "ethers";
 import JSBI from "jsbi";
 import { DyDxMath } from "../../../utils/math/dydxMath";
-import { chainIdsToNamesForGitTokenList } from "../../../utils/chains";
+import { chainIdsToNamesForGitTokenList, chainProperties } from "../../../utils/chains";
 import RangeMintDoubleApproveButton from "../../Buttons/RangeMintDoubleApproveButton";
 import RangeMintApproveButton from "../../Buttons/RangeMintApproveButton";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
@@ -23,7 +23,6 @@ import { gasEstimateRangeMint } from "../../../utils/gas";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [
-    poolRouters,
     rangePoolAddress,
     rangePoolData,
     rangeMintParams,
@@ -47,7 +46,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     setNeedsBalanceOut,
     setMintButtonState,
   ] = useRangeLimitStore((state) => [
-    state.poolRouterAddresses,
     state.rangePoolAddress,
     state.rangePoolData,
     state.rangeMintParams,
@@ -112,9 +110,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     functionName: "allowance",
     args: [
       address,
-      poolRouters[
-        chainIdsToNamesForGitTokenList[chainId]
-      ] as `0x${string}`
+      chainProperties['arbitrumGoerli']['routerAddress']
     ],
     chainId: 421613,
     watch: needsAllowanceIn,
@@ -134,9 +130,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     functionName: "allowance",
     args: [
       address,
-      poolRouters[
-        chainIdsToNamesForGitTokenList[chainId]
-      ] as `0x${string}`
+      chainProperties['arbitrumGoerli']['routerAddress']
     ],
     chainId: 421613,
     watch: needsAllowanceOut,
@@ -456,6 +450,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                       {tokenInAllowance.gte(rangeMintParams.tokenInAmount) &&
                       tokenOutAllowance.gte(rangeMintParams.tokenOutAmount) ? (
                         <RangeAddLiqButton
+                          routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
                           poolAddress={rangePoolAddress}
                           address={address}
                           lower={rangePositionData.min}
@@ -474,9 +469,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         doubleApprove ? (
                         <RangeMintDoubleApproveButton
                           routerAddress={
-                            poolRouters[
-                              chainIdsToNamesForGitTokenList[chainId]
-                            ] as `0x${string}`
+                            chainProperties['arbitrumGoerli']['routerAddress']
                           }
                           tokenIn={tokenIn}
                           tokenOut={tokenOut}
@@ -487,9 +480,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         tokenInAllowance.lt(rangeMintParams.tokenInAmount) ? (
                         <RangeMintApproveButton
                           routerAddress={
-                            poolRouters[
-                              chainIdsToNamesForGitTokenList[chainId]
-                            ] as `0x${string}`
+                            chainProperties['arbitrumGoerli']['routerAddress']
                           }
                           approveToken={tokenIn}
                           amount={rangeMintParams.tokenInAmount}
@@ -498,9 +489,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         tokenOutAllowance.lt(rangeMintParams.tokenOutAmount) ? (
                         <RangeMintApproveButton
                           routerAddress={
-                            poolRouters[
-                              chainIdsToNamesForGitTokenList[chainId]
-                            ] as `0x${string}`
+                            chainProperties['arbitrumGoerli']['routerAddress']
                           }
                           approveToken={tokenOut}
                           amount={rangeMintParams.tokenOutAmount}

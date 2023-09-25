@@ -12,10 +12,6 @@ import {
 } from "../utils/queries";
 
 type RangeLimitState = {
-  poolRouterAddresses: {
-    arbitrumGoerli: string;
-    arbitrumMainnet: string;
-  };
   //rangePoolAddress for current token pairs
   rangePoolAddress: `0x${string}`;
   //rangePoolData contains all the info about the pool
@@ -125,10 +121,6 @@ type RangeLimitAction = {
 };
 
 const initialRangeLimitState: RangeLimitState = {
-  poolRouterAddresses: {
-    arbitrumGoerli: "0xdb11885eac2a8944438322349925ac0de3159392",
-    arbitrumMainnet: "0x379cbea9234cae9e106bc2a86b39610dc56dbae2",
-  },
   //range pools
   rangePoolAddress: "0x000",
   rangePoolData: {},
@@ -199,7 +191,6 @@ const initialRangeLimitState: RangeLimitState = {
 
 export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
   (set) => ({
-    poolRouterAddresses: initialRangeLimitState.poolRouterAddresses,
     //range pool
     rangePoolAddress: initialRangeLimitState.rangePoolAddress,
     rangePoolData: initialRangeLimitState.rangePoolData,

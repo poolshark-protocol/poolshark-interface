@@ -45,7 +45,6 @@ export default function Trade() {
     useInputBox();
 
   const [
-    poolRouters,
     tradePoolAddress,
     setTradePoolAddress,
     tradePoolData,
@@ -76,7 +75,6 @@ export default function Trade() {
     switchDirection,
     setMintButtonState,
   ] = useTradeStore((s) => [
-    s.poolRouterAddresses,
     s.tradePoolAddress,
     s.setTradePoolAddress,
     s.tradePoolData,
@@ -171,7 +169,7 @@ export default function Trade() {
   }
 
   const { data: poolQuotes } = useContractRead({
-    address: poolRouters[chainIdsToNamesForGitTokenList[chainId]], //contract address,
+    address: chainProperties['arbitrumGoerli']['routerAddress'], //contract address,
     abi: poolsharkRouterABI, // contract abi,
     functionName: "multiQuote",
     args: [availablePools, quoteParams, true],
@@ -313,9 +311,7 @@ export default function Trade() {
     functionName: "allowance",
     args: [
       address,
-      poolRouters[
-        chainIdsToNamesForGitTokenList[chainId]
-      ] as `0x${string}`,
+      chainProperties['arbitrumGoerli']['routerAddress'],
     ],
     chainId: 421613,
     watch: needsAllowanceIn,
@@ -335,9 +331,7 @@ export default function Trade() {
     functionName: "allowance",
     args: [
       address,
-      poolRouters[
-        chainIdsToNamesForGitTokenList[chainId]
-      ] as `0x${string}`,
+      chainProperties['arbitrumGoerli']['routerAddress'],
     ],
     chainId: 421613,
     watch: needsAllowanceIn,
@@ -515,7 +509,7 @@ export default function Trade() {
 
   async function updateGasFee() {
     await gasEstimateSwap(
-      poolRouters[chainIdsToNamesForGitTokenList[chainId]],
+      chainProperties['arbitrumGoerli']['routerAddress'],
       swapPoolAddresses,
       swapParams,
       tokenIn,
@@ -993,9 +987,7 @@ export default function Trade() {
                     <div>
                       <SwapRouterApproveButton
                         routerAddress={
-                          poolRouters[
-                            chainIdsToNamesForGitTokenList[chainId]
-                          ]
+                          chainProperties['arbitrumGoerli']['routerAddress']
                         }
                         approveToken={tokenIn.address}
                         tokenSymbol={tokenIn.symbol}
@@ -1006,9 +998,7 @@ export default function Trade() {
                     <SwapRouterButton
                       disabled={tradeParams.disabled || needsAllowanceIn}
                       routerAddress={
-                        poolRouters[
-                          chainIdsToNamesForGitTokenList[chainId]
-                        ]
+                        chainProperties['arbitrumGoerli']['routerAddress']
                       }
                       poolAddresses={swapPoolAddresses}
                       swapParams={swapParams ?? {}}
@@ -1024,9 +1014,7 @@ export default function Trade() {
                 Number(ethers.utils.formatUnits(bnInput, 18)) ? (
                   <SwapRouterApproveButton
                     routerAddress={
-                      poolRouters[
-                        chainIdsToNamesForGitTokenList[chainId]
-                      ]
+                      chainProperties['arbitrumGoerli']['routerAddress']
                     }
                     approveToken={tokenIn.address}
                     tokenSymbol={tokenIn.symbol}
@@ -1034,6 +1022,7 @@ export default function Trade() {
                   />
                 ) : (tradePoolData.id != ZERO_ADDRESS ?
                   <LimitSwapButton
+                    routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
                     disabled={mintGasLimit.eq(BN_ZERO)}
                     poolAddress={tradePoolData.id}
                     to={address}
@@ -1048,7 +1037,7 @@ export default function Trade() {
                 :
                   <LimitCreateAndMintButton
                     disabled={mintGasLimit.eq(BN_ZERO)}
-                    factoryAddress={chainProperties['arbitrumGoerli']['limitPoolFactory']}
+                    routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
                     poolType={'CONSTANT-PRODUCT'}
                     token0={tokenIn}
                     token1={tokenOut}
