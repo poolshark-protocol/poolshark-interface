@@ -18,6 +18,8 @@ export default function Range() {
   const [searchTerm, setSearchTerm] = useState("");
   const [allRangePositions, setAllRangePositions] = useState([]);
   const [allRangePools, setAllRangePools] = useState([]);
+  const [isPositionsLoading, setIsPositionsLoading] = useState(false);
+  const [isPoolsLoading, setIsPoolsLoading] = useState(false);
 
   const [needsRefetch, setNeedsRefetch] = useRangeLimitStore((state) => [
     state.needsRefetch,
@@ -35,10 +37,12 @@ export default function Range() {
   }, []);
 
   async function getRangePoolData() {
+    setIsPoolsLoading(true);
     const data = await fetchRangePools();
     if (data["data"]) {
       const pools = data["data"].limitPools;
       setAllRangePools(mapRangePools(pools));
+      setIsPoolsLoading(false);
     }
   }
 
@@ -50,14 +54,17 @@ export default function Range() {
 
   async function getUserRangePositionData() {
     try {
+      setIsPositionsLoading(true);
       const data = await fetchRangePositions(address);
       if (data["data"].rangePositions) {
         setAllRangePositions(
           mapUserRangePositions(data["data"].rangePositions)
         );
+        setIsPositionsLoading(false);
       }
     } catch (error) {
       console.log(error);
+      setIsPositionsLoading(false);
     }
   }
 
@@ -72,7 +79,7 @@ export default function Range() {
       <Navbar />
       <div className="container mx-auto my-8 px-3 md:px-0 pb-32">
         <div className="flex lg:flex-row flex-col gap-x-8 gap-y-5 justify-between">
-          <div className="p-7 lg:h-[300px] w-full lg:w-[60%] flex flex-col justify-between bg-[url('/static/images/bg/shark1.png')]">
+          <div className="p-7 lg:h-[300px] w-full lg:w-[60%] flex flex-col justify-between bg-cover bg-[url('/static/images/bg/shark1.png')]">
             <div className="flex flex-col gap-y-3 ">
               <h1 className="uppercase text-white">
                 BECOME A LIQUIDITY PROVIDER AND EARN FEES
@@ -138,7 +145,26 @@ export default function Range() {
               <h1>YOUR POSITIONS</h1>
             </div>
             <div>
-              {isDisconnected ? (
+              {isPositionsLoading ? (
+                <div className="mt-6">
+                  <div className="lg:w-auto">
+                    <div className="space-y-3">
+                      <div className="lg:grid hidden grid-cols-4 text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
+                        <span>Pool Name</span>
+                        <span className="text-right">Price Range</span>
+                        <span className="text-right">Pool balance</span>
+                        <span className="text-right mr-4">USD Value</span>
+                      </div>
+                      {[...Array(2)].map((_, i: number) => (
+                        <div
+                          key={i}
+                          className="h-[51px] w-full bg-grey/20 animate-pulse rounded-[4px]"
+                        ></div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : isDisconnected || allRangePositions.length === 0 ? (
                 <div className="text-grey1 text-xs  py-10 text-center">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -155,65 +181,45 @@ export default function Range() {
                   Your range positions will appear here.
                 </div>
               ) : (
-                <>
-                  {allRangePositions.length === 0 ? (
-                    <div className="text-grey1 text-xs  py-10 text-center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="w-10 py-4 mx-auto"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      Your range positions will appear here.
-                    </div>
-                  ) : (
-                    <div className="mt-6">
-                      <div className="lg:w-auto">
-                        <div className="space-y-3">
-                          <div className="lg:grid hidden grid-cols-4 text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
-                            <span>Pool Name</span>
-                            <span className="text-right">Price Range</span>
-                            <span className="text-right">Pool balance</span>
-                            <span className="text-right mr-4">USD Value</span>
-                          </div>
-                          {allRangePositions.map((allRangePosition) => {
-                            if (
-                              allRangePosition.id != undefined &&
-                              (allRangePosition.tokenZero.name.toLowerCase() ===
-                                searchTerm.toLowerCase() ||
-                                allRangePosition.tokenOne.name.toLowerCase() ===
-                                  searchTerm.toLowerCase() ||
-                                allRangePosition.tokenZero.symbol.toLowerCase() ===
-                                  searchTerm.toLowerCase() ||
-                                allRangePosition.tokenOne.symbol.toLowerCase() ===
-                                  searchTerm.toLowerCase() ||
-                                allRangePosition.tokenZero.id.toLowerCase() ===
-                                  searchTerm.toLowerCase() ||
-                                allRangePosition.tokenOne.id.toLowerCase() ===
-                                  searchTerm.toLowerCase() ||
-                                searchTerm === "")
-                            ) {
-                              return (
-                                <UserRangePool
-                                  key={allRangePosition.id + "rangePosition"}
-                                  rangePosition={allRangePosition}
-                                  href={"/range/view"}
-                                  isModal={false}
-                                />
-                              );
-                            }
-                          })}
-                        </div>
+                <div className="mt-6">
+                  <div className="lg:w-auto">
+                    <div className="space-y-3">
+                      <div className="lg:grid hidden grid-cols-4 text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
+                        <span>Pool Name</span>
+                        <span className="text-right">Price Range</span>
+                        <span className="text-right">Pool balance</span>
+                        <span className="text-right mr-4">USD Value</span>
                       </div>
+                      {allRangePositions.map((allRangePosition) => {
+                        if (
+                          allRangePosition.id != undefined &&
+                          (allRangePosition.tokenZero.name.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                            allRangePosition.tokenOne.name.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePosition.tokenZero.symbol.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePosition.tokenOne.symbol.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePosition.tokenZero.id.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            allRangePosition.tokenOne.id.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                            searchTerm === "")
+                        ) {
+                          return (
+                            <UserRangePool
+                              key={allRangePosition.id + "rangePosition"}
+                              rangePosition={allRangePosition}
+                              href={"/range/view"}
+                              isModal={false}
+                            />
+                          );
+                        }
+                      })}
                     </div>
-                  )}
-                </>
+                  </div>
+                </div>
               )}
             </div>
           </div>
@@ -233,35 +239,48 @@ export default function Range() {
                   <div className="grid grid-cols-2 w-full text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
                     <div className="text-left">Pool Name</div>
                     <div className="grid md:grid-cols-3 grid-cols-1 mr-4">
-                      <span className="text-right md:table-cell hidden">Volume (24h)</span>
-                      <span className="text-right md:table-cell hidden">TVL</span>
-                      <span className="text-right md:table-cell hidden">Fees (24h)</span>
+                      <span className="text-right md:table-cell hidden">
+                        Volume (24h)
+                      </span>
+                      <span className="text-right md:table-cell hidden">
+                        TVL
+                      </span>
+                      <span className="text-right md:table-cell hidden">
+                        Fees (24h)
+                      </span>
                     </div>
                   </div>
-                  {allRangePools.map((allRangePool) => {
-                    if (
-                      allRangePool.tokenZero.name.toLowerCase() ===
-                        searchTerm.toLowerCase() ||
-                      allRangePool.tokenOne.name.toLowerCase() ===
-                        searchTerm.toLowerCase() ||
-                      allRangePool.tokenZero.symbol.toLowerCase() ===
-                        searchTerm.toLowerCase() ||
-                      allRangePool.tokenOne.symbol.toLowerCase() ===
-                        searchTerm.toLowerCase() ||
-                      allRangePool.tokenZero.id.toLowerCase() ===
-                        searchTerm.toLowerCase() ||
-                      allRangePool.tokenOne.id.toLowerCase() ===
-                        searchTerm.toLowerCase() ||
-                      searchTerm === ""
-                    )
-                      return (
-                        <RangePool
-                          key={allRangePool.poolId + "rangePool"}
-                          rangePool={allRangePool}
-                          href="/range/add-liquidity"
-                        />
-                      );
-                  })}
+                  {isPoolsLoading
+                    ? [...Array(3)].map((_, i: number) => (
+                        <div
+                          key={i}
+                          className="h-[50px] w-full bg-grey/30 animate-pulse rounded-[4px]"
+                        ></div>
+                      ))
+                    : allRangePools.map((allRangePool) => {
+                        if (
+                          allRangePool.tokenZero.name.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allRangePool.tokenOne.name.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allRangePool.tokenZero.symbol.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allRangePool.tokenOne.symbol.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allRangePool.tokenZero.id.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allRangePool.tokenOne.id.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          searchTerm === ""
+                        )
+                          return (
+                            <RangePool
+                              key={allRangePool.poolId + "rangePool"}
+                              rangePool={allRangePool}
+                              href="/range/add-liquidity"
+                            />
+                          );
+                      })}
                 </div>
               </div>
             </div>
