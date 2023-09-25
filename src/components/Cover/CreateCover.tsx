@@ -31,6 +31,7 @@ import CoverCreateAndMintButton from "../Buttons/CoverCreateAndMintButton";
 
 export default function CreateCover(props: any) {
   const [
+    poolRouters,
     coverPoolAddress,
     coverPoolData,
     coverPositionData,
@@ -58,6 +59,7 @@ export default function CreateCover(props: any) {
     needsBalance,
     setNeedsBalance,
   ] = useCoverStore((state) => [
+    state.poolRouterAddresses,
     state.coverPoolAddress,
     state.coverPoolData,
     state.coverPositionData,

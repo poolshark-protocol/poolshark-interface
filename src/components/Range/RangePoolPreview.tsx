@@ -11,11 +11,12 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { gasEstimateRangeMint } from "../../utils/gas";
 import RangeCreateAndMintButton from "../Buttons/RangeCreateAndMintButton";
-import { chainProperties } from "../../utils/chains";
+import { chainIdsToNamesForGitTokenList, chainProperties } from "../../utils/chains";
 import { feeTiers } from "../../utils/pools";
 
 export default function RangePoolPreview() {
   const [
+    poolRouters,
     rangePoolAddress,
     rangePoolData,
     rangePositionData,
@@ -29,6 +30,7 @@ export default function RangePoolPreview() {
     setNeedsAllowanceIn,
     setNeedsAllowanceOut,
   ] = useRangeLimitStore((state) => [
+    state.poolRouterAddresses,
     state.rangePoolAddress,
     state.rangePoolData,
     state.rangePositionData,

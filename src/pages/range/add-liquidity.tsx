@@ -17,6 +17,7 @@ import { chainProperties } from "../../utils/chains";
 
 export default function AddLiquidity({}) {
   const [
+    poolRouters,
     rangePoolAddress,
     rangePoolData,
     rangePositionData,
@@ -43,6 +44,7 @@ export default function AddLiquidity({}) {
     setNeedsBalanceIn,
     setNeedsBalanceOut,
   ] = useRangeLimitStore((state) => [
+    state.poolRouterAddresses,
     state.rangePoolAddress,
     state.rangePoolData,
     state.rangePositionData,

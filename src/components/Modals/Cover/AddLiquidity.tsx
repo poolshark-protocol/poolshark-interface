@@ -20,6 +20,7 @@ import { useCoverStore } from "../../../hooks/useCoverStore";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
+    poolRouters,
     coverPoolAddress,
     coverPoolData,
     coverPositionData,
@@ -34,6 +35,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     setNeedsBalance,
     setMintButtonState,
   ] = useCoverStore((state) => [
+    state.poolRouterAddresses,
     state.coverPoolAddress,
     state.coverPoolData,
     state.coverPositionData,

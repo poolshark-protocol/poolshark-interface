@@ -28,6 +28,7 @@ import { volatilityTiers } from "../../utils/pools";
 
 export default function CoverExistingPool({ goBack }) {
   const [
+    poolRouters,
     coverPoolAddress,
     coverPoolData,
     coverPositionData,
@@ -53,6 +54,7 @@ export default function CoverExistingPool({ goBack }) {
     needsBalance,
     setNeedsBalance,
   ] = useCoverStore((state) => [
+    state.poolRouterAddresses,
     state.coverPoolAddress,
     state.coverPoolData,
     state.coverPositionData,
