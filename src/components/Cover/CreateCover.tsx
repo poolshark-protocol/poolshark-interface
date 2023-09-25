@@ -705,7 +705,7 @@ export default function CreateCover(props: any) {
                   : "border border-grey"
               }`}
             >
-              <h1>{volatilityTier.tier} FEE</h1>
+              <h1>{volatilityTier.tier}</h1>
               <h2 className="text-[11px] uppercase text-grey1 mt-2">
                 {volatilityTier.text}
               </h2>
