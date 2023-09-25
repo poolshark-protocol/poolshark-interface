@@ -11,7 +11,7 @@ import React, { useState } from "react";
 import { useTradeStore as useRangeLimitStore } from "../../hooks/useTradeStore";
 
 export default function RangeMintApproveButton({
-  poolAddress,
+  routerAddress,
   approveToken,
   amount,
 }) {
@@ -26,7 +26,10 @@ export default function RangeMintApproveButton({
     address: approveToken.address,
     abi: erc20ABI,
     functionName: "approve",
-    args: [poolAddress, amount],
+    args: [
+      routerAddress,
+      amount
+    ],
     chainId: 421613,
   });
 

@@ -3,7 +3,7 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
 import useInputBox from "../../hooks/useInputBox";
-import { erc20ABI, useAccount, useBalance, useContractRead } from "wagmi";
+import { erc20ABI, useAccount, useBalance, useContractRead, useProvider } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
@@ -13,9 +13,11 @@ import { feeTiers } from "../../utils/pools";
 import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
+import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
 
 export default function AddLiquidity({}) {
   const [
+    poolRouters,
     rangePoolAddress,
     rangePoolData,
     rangePositionData,
@@ -43,6 +45,7 @@ export default function AddLiquidity({}) {
     setNeedsBalanceIn,
     setNeedsBalanceOut,
   ] = useRangeLimitStore((state) => [
+    state.poolRouterAddresses,
     state.rangePoolAddress,
     state.rangePoolData,
     state.rangePositionData,
@@ -72,6 +75,10 @@ export default function AddLiquidity({}) {
   ]);
 
   const { address, isConnected } = useAccount();
+
+  const {
+    network: { chainId },
+  } = useProvider();
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
 
@@ -130,7 +137,12 @@ export default function AddLiquidity({}) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolAddress],
+    args: [
+      address,
+      poolRouters[
+        chainIdsToNamesForGitTokenList[chainId]
+      ] as `0x${string}`
+    ],
     chainId: 421613,
     //watch: needsAllowanceIn,
     enabled: tokenIn.address != undefined,
@@ -146,7 +158,12 @@ export default function AddLiquidity({}) {
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolAddress],
+    args: [
+      address,
+      poolRouters[
+        chainIdsToNamesForGitTokenList[chainId]
+      ] as `0x${string}`
+    ],
     chainId: 421613,
     //watch: needsAllowanceOut,
     enabled: tokenOut.address != undefined,

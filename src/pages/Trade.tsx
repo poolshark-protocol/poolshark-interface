@@ -13,7 +13,7 @@ import {
 } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { chainIdsToNamesForGitTokenList, chainProperties } from "../utils/chains";
-import SwapRangeApproveButton from "../components/Buttons/SwapRangeApproveButton";
+import SwapRouterApproveButton from "../components/Buttons/SwapRouterApproveButton";
 import {
   TickMath,
   invertPrice,
@@ -45,7 +45,7 @@ export default function Trade() {
     useInputBox();
 
   const [
-    poolRouterAddress,
+    poolRouters,
     tradePoolAddress,
     setTradePoolAddress,
     tradePoolData,
@@ -171,7 +171,7 @@ export default function Trade() {
   }
 
   const { data: poolQuotes } = useContractRead({
-    address: poolRouterAddress[chainIdsToNamesForGitTokenList[chainId]], //contract address,
+    address: poolRouters[chainIdsToNamesForGitTokenList[chainId]], //contract address,
     abi: poolsharkRouterABI, // contract abi,
     functionName: "multiQuote",
     args: [availablePools, quoteParams, true],
@@ -313,7 +313,7 @@ export default function Trade() {
     functionName: "allowance",
     args: [
       address,
-      poolRouterAddress[
+      poolRouters[
         chainIdsToNamesForGitTokenList[chainId]
       ] as `0x${string}`,
     ],
@@ -335,7 +335,9 @@ export default function Trade() {
     functionName: "allowance",
     args: [
       address,
-      tradePoolData.id as `0x${string}`,
+      poolRouters[
+        chainIdsToNamesForGitTokenList[chainId]
+      ] as `0x${string}`,
     ],
     chainId: 421613,
     watch: needsAllowanceIn,
@@ -513,7 +515,7 @@ export default function Trade() {
 
   async function updateGasFee() {
     await gasEstimateSwap(
-      poolRouterAddress[chainIdsToNamesForGitTokenList[chainId]],
+      poolRouters[chainIdsToNamesForGitTokenList[chainId]],
       swapPoolAddresses,
       swapParams,
       tokenIn,
@@ -987,11 +989,11 @@ export default function Trade() {
               <>
                 {
                   //range buttons
-                  tokenIn.userPoolAllowance < bnInput ? (
+                  tokenIn.userRouterAllowance < bnInput ? (
                     <div>
-                      <SwapRangeApproveButton
-                        poolAddress={
-                          poolRouterAddress[
+                      <SwapRouterApproveButton
+                        routerAddress={
+                          poolRouters[
                             chainIdsToNamesForGitTokenList[chainId]
                           ]
                         }
@@ -1004,7 +1006,7 @@ export default function Trade() {
                     <SwapRouterButton
                       disabled={tradeParams.disabled || needsAllowanceIn}
                       routerAddress={
-                        poolRouterAddress[
+                        poolRouters[
                           chainIdsToNamesForGitTokenList[chainId]
                         ]
                       }
@@ -1018,11 +1020,13 @@ export default function Trade() {
             ) : (
               //limit tab
               <>
-                {Number(tokenIn.userPoolAllowance) <
+                {Number(tokenIn.userRouterAllowance) <
                 Number(ethers.utils.formatUnits(bnInput, 18)) ? (
-                  <SwapRangeApproveButton
-                    poolAddress={
-                      tradePoolData.id
+                  <SwapRouterApproveButton
+                    routerAddress={
+                      poolRouters[
+                        chainIdsToNamesForGitTokenList[chainId]
+                      ]
                     }
                     approveToken={tokenIn.address}
                     tokenSymbol={tokenIn.symbol}

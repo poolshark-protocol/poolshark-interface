@@ -27,6 +27,7 @@ import { volatilityTiers } from "../../utils/pools";
 
 export default function CoverExistingPool({ goBack }) {
   const [
+    poolRouters,
     coverPoolAddress,
     coverPoolData,
     coverPositionData,
@@ -52,6 +53,7 @@ export default function CoverExistingPool({ goBack }) {
     needsBalance,
     setNeedsBalance,
   ] = useCoverStore((state) => [
+    state.poolRouterAddresses,
     state.coverPoolAddress,
     state.coverPoolData,
     state.coverPositionData,
@@ -112,7 +114,12 @@ export default function CoverExistingPool({ goBack }) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, coverPoolAddress],
+    args: [
+      address,
+      poolRouters[
+        chainIdsToNamesForGitTokenList[chainId]
+      ] as `0x${string}`
+    ],
     chainId: 421613,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
