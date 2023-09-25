@@ -89,7 +89,6 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
         pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] ==
         rangePosition.pool.feeTier.feeAmount
       ) {
-        console.log("selectedPool", pool["data"]["limitPools"][i]);
         const poolData = pool["data"]["limitPools"][i];
         if (poolData.token0 && poolData.token1) {
           if (rangeTokenIn.address) {
