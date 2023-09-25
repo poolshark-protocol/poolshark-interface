@@ -267,7 +267,6 @@ export default function ViewRange() {
     watch: true,
     enabled: isConnected && rangePoolAddress != ("" as string),
     onError(error) {
-      console.log("snapshot args", rangePositionData.id);
       console.log("Error snapshot Range", error);
     },
   });

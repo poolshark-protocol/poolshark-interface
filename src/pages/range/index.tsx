@@ -256,7 +256,7 @@ export default function Range() {
                     )
                       return (
                         <RangePool
-                          key={allRangePool.id + "rangePool"}
+                          key={allRangePool.poolId + "rangePool"}
                           rangePool={allRangePool}
                           href="/range/add-liquidity"
                         />
