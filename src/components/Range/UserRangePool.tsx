@@ -157,7 +157,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
         parseFloat(
           ethers.utils.formatUnits(amount1Bn, rangePosition.tokenOne.decimals)
         ) * rangeTokenOut.rangeUSDPrice;
-      setTotalUsdValue(token0UsdValue + token1UsdValue);
+      setTotalUsdValue(parseFloat((token0UsdValue + token1UsdValue).toFixed(2)));
     } catch (error) {
       console.log(error);
     }

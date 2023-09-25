@@ -1,15 +1,9 @@
-import {
-  ArrowsRightLeftIcon,
-  ArrowLongRightIcon,
-} from "@heroicons/react/20/solid";
 import { useEffect, useState } from "react";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import Link from "next/link";
 import { logoMap } from "../../utils/tokens";
 import { TickMath } from "../../utils/math/tickMath";
 import { getClaimTick } from "../../utils/maps";
 import { tokenCover } from "../../utils/types";
-import { getCoverPool } from "../../utils/pools";
 import ArrowRightIcon from "../Icons/ArrowRightIcon";
 import router from "next/router";
 
@@ -45,6 +39,12 @@ export default function UserCoverPool({
     state.setCoverPoolFromVolatility,
     state.setNeedsAllowance,
     state.setNeedsBalance,
+  ]);
+
+  const volTierMap = new Map<string, any>([
+    ['1000', { id: 0, volatility: "1" }],
+    ['3000', { id: 1, volatility: "3" }],
+    ['10000', { id: 2, volatility: "24" }]
   ]);
 
   const [claimPrice, setClaimPrice] = useState(0);
@@ -94,17 +94,19 @@ export default function UserCoverPool({
     } as tokenCover;
     setTokenIn(tokenOutNew, tokenInNew);
     setTokenOut(tokenInNew, tokenOutNew);
-    const vol0 = { id: 0 };
-    const vol1 = { id: 1 };
+
     setCoverPoolFromVolatility(
       tokenInNew,
       tokenOutNew,
-      coverPosition.tickSpacing == "20" ? vol0 : vol1
+      volTierMap.get(coverPosition.volatilityTier.feeAmount.toString())
     );
     router.push({
       pathname: href,
     });
   }
+
+  console.log('cover position fee amount:', coverPosition.volatilityTier.feeAmount)
+  console.log('fee amount', coverPosition.volatilityTier.feeAmount ? coverPosition.volatilityTier.feeAmount.toString() : 'test')
 
   return (
     <>
@@ -127,9 +129,7 @@ export default function UserCoverPool({
                 {coverPosition.tokenOne.symbol}
               </span>
               <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                {coverPosition.volatilityTier.tickSpread == "20"
-                  ? "1.7"
-                  : "2.4"}
+                {volTierMap.get(coverPosition.volatilityTier.feeAmount.toString()).volatility}
                 %
               </span>
             </div>

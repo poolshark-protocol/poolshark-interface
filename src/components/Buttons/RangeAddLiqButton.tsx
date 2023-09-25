@@ -7,10 +7,8 @@ import {
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
-import React, { useEffect, useState } from "react";
-import { rangePoolABI } from "../../abis/evm/rangePool";
+import React, { useState } from "react";
 import { BN_ZERO } from "../../utils/math/constants";
-import { gasEstimateRangeMint } from "../../utils/gas";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { BigNumber, ethers } from "ethers";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";

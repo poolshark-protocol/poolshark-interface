@@ -105,8 +105,13 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
   const [burnGasLimit, setBurnGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    updateGasFee();
-  }, [sliderValue, rangePoolAddress]);
+    if (signer &&
+        address &&
+        rangePoolAddress &&
+        rangePositionData &&
+        burnPercent)
+      updateGasFee();
+  }, [sliderValue, rangePoolAddress, signer]);
 
   async function updateGasFee() {
     const newBurnGasFee = await gasEstimateRangeBurn(

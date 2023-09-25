@@ -1,10 +1,6 @@
 import {
-  MinusIcon,
-  PlusIcon,
   ChevronDownIcon,
   ArrowLongRightIcon,
-  ArrowLongLeftIcon,
-  InformationCircleIcon,
 } from "@heroicons/react/20/solid";
 import SelectToken from "../SelectToken";
 import {
@@ -18,23 +14,20 @@ import {
 import CoverMintButton from "../Buttons/CoverMintButton";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import { chainIdsToNamesForGitTokenList, chainProperties } from "../../utils/chains";
-import { Listbox, Transition } from "@headlessui/react";
-import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import useInputBox from "../../hooks/useInputBox";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import { BigNumber, ethers } from "ethers";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import JSBI from "jsbi";
-import { BN_ZERO, ZERO } from "../../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
 import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
-import TickSpacing from "../Tooltips/TickSpacing";
-import { gasEstimateCoverMint } from "../../utils/gas";
+import { gasEstimateCoverCreateAndMint, gasEstimateCoverMint } from "../../utils/gas";
 import { volatilityTiers } from "../../utils/pools";
 import router from "next/router";
+import CoverCreateAndMintButton from "../Buttons/CoverCreateAndMintButton";
 
 export default function CreateCover(props: any) {
   const [
@@ -169,7 +162,7 @@ export default function CreateCover(props: any) {
   }, [coverPoolData, tokenOrder]);
 
   //////////////////////////////Cover Pool Data
-  //initial volatility Tier set to 1.7% when selected from list of range pools
+  //initial volatility Tier set to 1% when selected from list of range pools
   const [selectedVolatility, setSelectedVolatility] = useState(
     router.query.tickSpacing == "20" ? volatilityTiers[0] : volatilityTiers[1]
   );
@@ -178,8 +171,9 @@ export default function CreateCover(props: any) {
   useEffect(() => {
     if (
       //updating feeTiers
-      (selectedVolatility.tickSpread == 20 && volatilityTierId != 0) ||
-      (selectedVolatility.tickSpread == 40 && volatilityTierId != 1) ||
+      (selectedVolatility.feeAmount == 1000 && volatilityTierId != 0) ||
+      (selectedVolatility.feeAmount == 3000 && volatilityTierId != 1) || 
+      (selectedVolatility.feeAmount == 10000 && volatilityTierId != 2) ||
       //updating from empty selected token
       (tokenOut.name != "Select Token" && selectFromEmptyFlag)
     ) {
@@ -366,6 +360,7 @@ export default function CreateCover(props: any) {
     )
       updateGasFee();
   }, [
+    coverPoolAddress,
     coverPositionData.lowerPrice,
     coverPositionData.upperPrice,
     coverMintParams.tokenInAmount,
@@ -375,22 +370,43 @@ export default function CreateCover(props: any) {
   ]);
 
   async function updateGasFee() {
-    const newMintGasFee = await gasEstimateCoverMint(
-      coverPoolAddress,
-      address,
-      TickMath.getTickAtPriceString(
-        coverPositionData.upperPrice,
-        parseInt(coverPoolData.volatilityTier.tickSpread)
-      ),
-      TickMath.getTickAtPriceString(
-        coverPositionData.lowerPrice,
-        parseInt(coverPoolData.volatilityTier.tickSpread)
-      ),
-      tokenIn,
-      tokenOut,
-      coverMintParams.tokenInAmount,
-      signer
-    );
+    const newMintGasFee = coverPoolAddress == ZERO_ADDRESS ?
+      await gasEstimateCoverMint(
+        coverPoolAddress,
+        address,
+        TickMath.getTickAtPriceString(
+          coverPositionData.upperPrice,
+          parseInt(coverPoolData.volatilityTier.tickSpread)
+        ),
+        TickMath.getTickAtPriceString(
+          coverPositionData.lowerPrice,
+          parseInt(coverPoolData.volatilityTier.tickSpread)
+        ),
+        tokenIn,
+        tokenOut,
+        coverMintParams.tokenInAmount,
+        signer
+      )
+    : await gasEstimateCoverCreateAndMint(
+        'PSHARK-CPROD',
+        volatilityTiers[volatilityTierId].feeAmount,
+        volatilityTiers[volatilityTierId].tickSpread,
+        volatilityTiers[volatilityTierId].twapLength,
+        coverPoolAddress,
+        address,
+        TickMath.getTickAtPriceString(
+          coverPositionData.upperPrice,
+          parseInt(coverPoolData.volatilityTier.tickSpread)
+        ),
+        TickMath.getTickAtPriceString(
+          coverPositionData.lowerPrice,
+          parseInt(coverPoolData.volatilityTier.tickSpread)
+        ),
+        tokenIn,
+        tokenOut,
+        coverMintParams.tokenInAmount,
+        signer
+      );
 
     setMintGasFee(newMintGasFee.formattedPrice);
     setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
@@ -689,7 +705,7 @@ export default function CreateCover(props: any) {
                   : "border border-grey"
               }`}
             >
-              <h1>{volatilityTier.tier} FEE</h1>
+              <h1>{volatilityTier.tier}</h1>
               <h2 className="text-[11px] uppercase text-grey1 mt-2">
                 {volatilityTier.text}
               </h2>
@@ -705,10 +721,42 @@ export default function CreateCover(props: any) {
             amount={bnInput}
             tokenSymbol={tokenIn.symbol}
           />
-        ) : (
+        ) : ( coverPoolAddress != ZERO_ADDRESS ?
           <CoverMintButton
             routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
             poolAddress={coverPoolAddress}
+            disabled={coverMintParams.disabled}
+            to={address}
+            lower={TickMath.getTickAtPriceString(
+              coverPositionData.lowerPrice ?? "0",
+              coverPoolData.volatilityTier
+                ? parseInt(coverPoolData.volatilityTier.tickSpread)
+                : 20
+            )}
+            upper={TickMath.getTickAtPriceString(
+              coverPositionData.upperPrice ?? "0",
+              coverPoolData.volatilityTier
+                ? parseInt(coverPoolData.volatilityTier.tickSpread)
+                : 20
+            )}
+            amount={bnInput}
+            zeroForOne={tokenOrder}
+            tickSpacing={
+              coverPoolData.volatilityTier
+                ? coverPoolData.volatilityTier.tickSpread
+                : 20
+            }
+            buttonMessage={coverMintParams.buttonMessage}
+            gasLimit={mintGasLimit}
+          />
+        : <CoverCreateAndMintButton
+            routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
+            poolType={'coverPoolAddress'}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            feeTier={volatilityTiers[volatilityTierId].tier}
+            tickSpread={volatilityTiers[volatilityTierId].tickSpread}
+            twapLength={volatilityTiers[volatilityTierId].twapLength}
             disabled={coverMintParams.disabled}
             to={address}
             lower={TickMath.getTickAtPriceString(

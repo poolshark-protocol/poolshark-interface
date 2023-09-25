@@ -122,6 +122,7 @@ export const getCoverPoolFromFactory = (tokenA: string, tokenB: string) => {
               volatilityTier {
                 tickSpread
                 auctionLength
+                feeAmount
               }
               token0 {
                 usdPrice
@@ -864,7 +865,7 @@ export const fetchUniV3Positions = (address: string) => {
   });
 };
 
-export const fetchPrice = (address: string) => {
+export const fetchEthPrice = () => {
   return new Promise(function (resolve) {
     const univ3Price = `
             {
