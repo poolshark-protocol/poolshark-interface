@@ -1078,7 +1078,7 @@ export default function Trade() {
                     tokenSymbol={tokenIn.symbol}
                     amount={bnInput}
                   />
-                ) : (//tradePoolData.id != ZERO_ADDRESS ?
+                ) : ( tradePoolData.id != ZERO_ADDRESS ?
                   <LimitSwapButton
                     routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
                     disabled={mintGasLimit.eq(BN_ZERO)}
@@ -1092,23 +1092,23 @@ export default function Trade() {
                     zeroForOne={tokenOrder}
                     gasLimit={mintGasLimit}
                   />
-                // :
-                //   <LimitCreateAndMintButton
-                //     disabled={mintGasLimit.eq(BN_ZERO)}
-                //     routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
-                //     poolType={'CONSTANT-PRODUCT'}
-                //     token0={tokenIn}
-                //     token1={tokenOut}
-                //     feeTier={500} //TODO: handle fee tier
-                //     to={address}
-                //     amount={bnInput}
-                //     mintPercent={ethers.utils.parseUnits("1", 24)}
-                //     lower={lowerTick}
-                //     upper={upperTick}
-                //     closeModal={() => {}}
-                //     zeroForOne={tokenOrder}
-                //     gasLimit={mintGasLimit}
-                //   />
+                :
+                  <LimitCreateAndMintButton
+                    disabled={mintGasLimit.eq(BN_ZERO)}
+                    routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
+                    poolType={'CONSTANT-PRODUCT'}
+                    token0={tokenIn}
+                    token1={tokenOut}
+                    feeTier={500} //TODO: handle fee tier
+                    to={address}
+                    amount={bnInput}
+                    mintPercent={ethers.utils.parseUnits("1", 24)}
+                    lower={lowerTick}
+                    upper={upperTick}
+                    closeModal={() => {}}
+                    zeroForOne={tokenOrder}
+                    gasLimit={mintGasLimit}
+                  />
                 )}
               </>
             )}
