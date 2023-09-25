@@ -18,9 +18,14 @@ export const getSwapPools = async (
 ) => {
   try {
     const limitPools = await fetchLimitPools();
-    const allPools = limitPools["data"]["limitPools"];
-    setSwapPoolData(allPools[0]);
-    return allPools;
+    const data = limitPools["data"];
+    if (data) {
+      const allPools = data["limitPools"];
+      setSwapPoolData(allPools[0]);
+      return allPools;
+    } else {
+      return undefined;
+    }
   } catch (error) {
     console.log(error);
   }

@@ -162,15 +162,17 @@ export default function Trade() {
     const pools = await getSwapPools(tokenIn, tokenOut, setTradePoolData);
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
-    for (let i = 0; i < pools.length; i++) {
-      const params: QuoteParams = {
-        priceLimit: tokenIn.callId == 0 ? minPriceBn : maxPriceBn,
-        amount: bnInput,
-        exactIn: true,
-        zeroForOne: tokenIn.callId == 0,
-      };
-      quoteList[i] = params;
-      poolAdresses[i] = pools[i].id;
+    if (pools) {
+      for (let i = 0; i < pools.length; i++) {
+        const params: QuoteParams = {
+          priceLimit: tokenIn.callId == 0 ? minPriceBn : maxPriceBn,
+          amount: bnInput,
+          exactIn: true,
+          zeroForOne: tokenIn.callId == 0,
+        };
+        quoteList[i] = params;
+        poolAdresses[i] = pools[i].id;
+      }
     }
     setAvailablePools(poolAdresses);
     setQuoteParams(quoteList);
@@ -270,12 +272,6 @@ export default function Trade() {
             tokenIn,
             setTokenInTradeUSDPrice
           );
-          // if cover pool fetch cover price
-          // fetchCoverTokenUSDPrice(
-          //   tradePoolData,
-          //   tokenInd,
-          //   setTokenInCoverUSDPrice
-          // );
         }
         //TODO: check if cover and/or range pools present
       }
@@ -287,12 +283,6 @@ export default function Trade() {
             tokenOut,
             setTokenOutTradeUSDPrice
           );
-          // if cover pool fetch cover price
-          // fetchCoverTokenUSDPrice(
-          //   tradePoolData,
-          //   tokenOut,
-          //   setTokenOutCoverUSDPrice
-          // );
         }
       }
     }
@@ -354,40 +344,17 @@ export default function Trade() {
       console.log("Error allowance", error);
     },
     onSuccess(data) {
-      setNeedsAllowanceIn(false);
-      //console.log("Success allowance", data);
-    },
-  });
-
-  const { data: allowanceInProxy } = useContractRead({
-    address: tokenIn.address,
-    abi: erc20ABI,
-    functionName: "allowance",
-    args: [
-      address,
-      chainProperties['arbitrumGoerli']['routerAddress'],
-    ],
-    chainId: 421613,
-    watch: needsAllowanceIn,
-    //enabled: poolRouterAddress,
-    onError(error) {
-      console.log("Error allowance", error);
-    },
-    onSuccess(data) {
+      console.log('got allowance', allowanceInRouter.toString(), tokenIn.userRouterAllowance.toString(), bnInput.toString())
       setNeedsAllowanceIn(false);
       //console.log("Success allowance", data);
     },
   });
 
   useEffect(() => {
-    if (allowanceInRouter && !limitTabSelected) {
+    if (allowanceInRouter) {
       setTokenInTradeAllowance(allowanceInRouter);
     }
-
-    else if (allowanceInProxy && limitTabSelected) {
-      setTokenInTradeAllowance(allowanceInProxy);
-    }
-  }, [allowanceInRouter, allowanceInProxy]);
+  }, [allowanceInRouter]);
 
   ////////////////////////////////FeeTiers and Slippage
   const [slippage, setSlippage] = useState("0.5");
@@ -548,32 +515,34 @@ export default function Trade() {
   }, [swapParams]);
 
   async function updateGasFee() {
-    await gasEstimateSwap(
-      chainProperties['arbitrumGoerli']['routerAddress'],
-      swapPoolAddresses,
-      swapParams,
-      tokenIn,
-      tokenOut,
-      signer,
-      isConnected,
-      setSwapGasFee,
-      setSwapGasLimit
-    );
+    if (tokenIn.userRouterAllowance.gte(bnInput))
+      await gasEstimateSwap(
+        chainProperties['arbitrumGoerli']['routerAddress'],
+        swapPoolAddresses,
+        swapParams,
+        tokenIn,
+        tokenOut,
+        signer,
+        isConnected,
+        setSwapGasFee,
+        setSwapGasLimit
+      );
   }
 
   async function updateMintFee() {
-    await gasEstimateMintLimit(
-      tradePoolData.id,
-      address,
-      lowerTick,
-      upperTick,
-      tokenIn,
-      tokenOut,
-      bnInput,
-      signer,
-      setMintFee,
-      setMintGasLimit
-    );
+    if (tokenIn.userRouterAllowance.gte(bnInput))
+      await gasEstimateMintLimit(
+        tradePoolData.id,
+        address,
+        lowerTick,
+        upperTick,
+        tokenIn,
+        tokenOut,
+        bnInput,
+        signer,
+        setMintFee,
+        setMintGasLimit
+      );
   }
 
   ////////////////////////////////Mint Button State
@@ -1033,7 +1002,7 @@ export default function Trade() {
               <>
                 {
                   //range buttons
-                  tokenIn.userRouterAllowance < bnInput ? (
+                  tokenIn.userRouterAllowance.lt(bnInput) ? (
                     <div>
                       <SwapRouterApproveButton
                         routerAddress={
@@ -1060,8 +1029,7 @@ export default function Trade() {
             ) : (
               //limit tab
               <>
-                {Number(tokenIn.userRouterAllowance) <
-                Number(ethers.utils.formatUnits(bnInput, 18)) ? (
+                {tokenIn.userRouterAllowance.gte(bnInput) ? (
                   <SwapRouterApproveButton
                     routerAddress={
                       chainProperties['arbitrumGoerli']['routerAddress']
