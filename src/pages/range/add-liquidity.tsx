@@ -20,7 +20,6 @@ export default function AddLiquidity({}) {
     rangePoolData,
     rangePositionData,
     rangeMintParams,
-    feeTierId,
     setRangePositionData,
     tokenIn,
     setTokenInAmount,
@@ -35,7 +34,7 @@ export default function AddLiquidity({}) {
     setTokenOutBalance,
     pairSelected,
     setMintButtonState,
-    setRangePoolFromVolatility,
+    setRangePoolFromFeeTier,
     needsAllowanceIn,
     needsBalanceIn,
     needsAllowanceOut,
@@ -47,7 +46,6 @@ export default function AddLiquidity({}) {
     state.rangePoolData,
     state.rangePositionData,
     state.rangeMintParams,
-    state.feeTierRangeId,
     state.setRangePositionData,
     state.tokenIn,
     state.setTokenInAmount,
@@ -62,7 +60,7 @@ export default function AddLiquidity({}) {
     state.setTokenOutBalance,
     state.pairSelected,
     state.setMintButtonState,
-    state.setRangePoolFromVolatility,
+    state.setRangePoolFromFeeTier,
     state.needsAllowanceIn,
     state.needsBalanceIn,
     state.needsAllowanceOut,
@@ -86,26 +84,21 @@ export default function AddLiquidity({}) {
     }
   }, [tokenIn]);
 
-  ////////////////////////////////Pools
-  //initial volatility Tier set to 1.7% when selected from list of range pools
-  const [selectedFeeTier, setSelectedFeeTier] = useState(
-    feeTiers[feeTierId ?? 0]
-  );
+  ////////////////////////////////Pools  
 
-  useEffect(() => {
+  /* useEffect(() => {
     updatePoolsFromStore();
-  }, [tokenIn, tokenOut, feeTierId]);
+  }, [tokenIn, tokenOut]);
 
   async function updatePoolsFromStore() {
-    setRangePoolFromVolatility(tokenIn, tokenOut, feeTierId);
-    setSelectedFeeTier(feeTiers[feeTierId]);
-  }
+    setRangePoolFromFeeTier(tokenIn, tokenOut, feeTierId);
+  } */
 
   //sames as updatePools but triggered from the html
-  const handleManualVolatilityChange = async (volatility: any) => {
-    setRangePoolFromVolatility(tokenIn, tokenOut, volatility);
+  /* const handleManualVolatilityChange = async (volatility: any) => {
+    setRangePoolFromFeeTier(tokenIn, tokenOut, volatility);
     setSelectedFeeTier(volatility);
-  };
+  }; */
 
   //this sets the default position price delta
   useEffect(() => {

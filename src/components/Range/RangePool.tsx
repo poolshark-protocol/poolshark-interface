@@ -3,11 +3,11 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { useRouter } from "next/router";
 
 export default function RangePool({ rangePool, href }) {
-  const [setRangeTokenIn, setRangeTokenOut, setRangePoolFromVolatility] =
+  const [setRangeTokenIn, setRangeTokenOut, setRangePoolFromFeeTier] =
     useRangeLimitStore((state) => [
       state.setTokenIn,
       state.setTokenOut,
-      state.setRangePoolFromVolatility,
+      state.setRangePoolFromFeeTier,
     ]);
 
   const router = useRouter();
@@ -27,17 +27,11 @@ export default function RangePool({ rangePool, href }) {
     };
     setRangeTokenIn(tokenOut, tokenIn);
     setRangeTokenOut(tokenIn, tokenOut);
-    const tier = {
-      tier: rangePool.feeTier,
-      id: rangePool.feeTier == "500" ? 0 : rangePool.feeTier == "3000" ? 1 : 2,
-    };
-    setRangePoolFromVolatility(tokenIn, tokenOut, tier);
+    setRangePoolFromFeeTier(tokenIn, tokenOut, rangePool.feeTier.feeAmount);
     router.push({
       pathname: href,
     });
   };
-
-  //console.log("rangePool mapped", rangePool);
 
   return (
     <>

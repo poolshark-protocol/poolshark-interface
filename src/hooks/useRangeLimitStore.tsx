@@ -20,7 +20,6 @@ type RangeLimitState = {
   rangePoolAddress: `0x${string}`;
   //rangePoolData contains all the info about the pool
   rangePoolData: any;
-  feeTierRangeId: number;
   rangeSlippage: string;
   //Range position data containing all the info about the position
   rangePositionData: any;
@@ -133,7 +132,6 @@ const initialRangeLimitState: RangeLimitState = {
   rangePoolAddress: "0x000",
   rangePoolData: {},
   rangePositionData: {},
-  feeTierRangeId: 0,
   rangeSlippage: "0.5",
   //
   rangeMintParams: {
@@ -203,7 +201,6 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     //range pool
     rangePoolAddress: initialRangeLimitState.rangePoolAddress,
     rangePoolData: initialRangeLimitState.rangePoolData,
-    feeTierRangeId: initialRangeLimitState.feeTierRangeId,
     rangeSlippage: initialRangeLimitState.rangeSlippage,
     //range position data
     rangePositionData: initialRangeLimitState.rangePositionData,
@@ -592,7 +589,6 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         rangePoolAddress: initialRangeLimitState.rangePoolAddress,
         rangePoolData: initialRangeLimitState.rangePoolData,
         rangeSlippage: initialRangeLimitState.rangeSlippage,
-        feeTierRangeId: initialRangeLimitState.feeTierRangeId,
         //range position data
         rangePositionData: initialRangeLimitState.rangePositionData,
         //range mint

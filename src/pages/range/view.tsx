@@ -73,7 +73,7 @@ export default function ViewRange() {
   const [lowerInverse, setLowerInverse] = useState(0);
   const [upperInverse, setUpperInverse] = useState(0);
   const [priceInverse, setPriceInverse] = useState(0);
-  
+
   const [poolDisplay, setPoolDisplay] = useState(
     rangePoolAddress != ("" as string)
       ? rangePoolAddress.substring(0, 6) +
@@ -90,9 +90,9 @@ export default function ViewRange() {
   useEffect(() => {
     if (copyRangePoolAddress) {
       const timer = setTimeout(() => {
-        setIsPoolCopied(false)
-      }, 1500)
-      return () => clearTimeout(timer)
+        setIsPoolCopied(false);
+      }, 1500);
+      return () => clearTimeout(timer);
     }
   }, []);
 
@@ -206,6 +206,8 @@ export default function ViewRange() {
     setLowerPrice(TickMath.getPriceStringAtTick(Number(rangePositionData.min)));
     setUpperPrice(TickMath.getPriceStringAtTick(Number(rangePositionData.max)));
   }, [tokenIn, tokenOut]);
+
+  ////////////////////////////////Amounts
 
   useEffect(() => {
     setAmounts();
@@ -339,9 +341,7 @@ export default function ViewRange() {
                   {(Number(rangePositionData.feeTier) / 10000).toFixed(2)}%
                 </span>
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
-                  0.9 USDC
-                  <DoubleArrowIcon />
-                  1.2 USDC
+                  Position ID: {rangePositionData.id}
                 </div>
               </div>
             </div>
