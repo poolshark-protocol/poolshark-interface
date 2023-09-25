@@ -52,15 +52,9 @@ export const rangePoolFactoryABI = [
       },
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "poolImpl",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "tokenImpl",
-        "type": "address"
+        "internalType": "bytes32",
+        "name": "poolType",
+        "type": "bytes32"
       },
       {
         "indexed": true,
@@ -93,29 +87,36 @@ export const rangePoolFactoryABI = [
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "poolType",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "tokenIn",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "tokenOut",
-        "type": "address"
-      },
-      {
-        "internalType": "uint16",
-        "name": "swapFee",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint160",
-        "name": "startPrice",
-        "type": "uint160"
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "poolType",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenIn",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenOut",
+            "type": "address"
+          },
+          {
+            "internalType": "uint160",
+            "name": "startPrice",
+            "type": "uint160"
+          },
+          {
+            "internalType": "uint16",
+            "name": "swapFee",
+            "type": "uint16"
+          }
+        ],
+        "internalType": "struct PoolsharkStructs.LimitPoolParams",
+        "name": "params",
+        "type": "tuple"
       }
     ],
     "name": "createLimitPool",

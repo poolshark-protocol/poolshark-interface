@@ -4,20 +4,17 @@ export const chainIdsToNamesForGitTokenList = {
     421613: 'arbitrumGoerli'
 };
 
-
 export const decToHex = {
     1: '0x1',
     5: '0x5',
     421613: '0x66EED'
 };
 
-
 export const supportedChainIds = {
     1: 'mainnet',
     5: 'goerli',
     421613: 'arbitrumGoerli'
 };
-
 
 export const chainProperties = {
     mainnet: {
@@ -31,6 +28,7 @@ export const chainProperties = {
             decimals: 18,
         },
         chainId: '0x1',
+        routerAddress: '0x00' as `0x${string}`
     },
     goerli: {
         chainName: 'Goerli Test Network',
@@ -43,6 +41,7 @@ export const chainProperties = {
             decimals: 18,
         },
         chainId: '0x5',
+        routerAddress: '0x00' as `0x${string}`
     },
     arbitrumGoerli: {
         chainName: 'Arbitrum Goerli Test Network',
@@ -55,6 +54,6 @@ export const chainProperties = {
             decimals: 18,
         },
         chainId: '0x66EED',
+        routerAddress: '0xdb11885eac2a8944438322349925ac0de3159392' as `0x${string}`
     },
-
 };

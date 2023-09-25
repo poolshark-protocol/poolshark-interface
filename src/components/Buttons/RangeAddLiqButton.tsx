@@ -12,9 +12,11 @@ import { rangePoolABI } from "../../abis/evm/rangePool";
 import { BN_ZERO } from "../../utils/math/constants";
 import { gasEstimateRangeMint } from "../../utils/gas";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
+import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 
 export default function RangeAddLiqButton({
+  routerAddress,
   poolAddress,
   address,
   lower,
@@ -46,18 +48,20 @@ export default function RangeAddLiqButton({
   const { data: signer } = useSigner();
 
   const { config } = usePrepareContractWrite({
-    address: poolAddress,
-    abi: rangePoolABI,
-    functionName: "mintRange",
+    address: routerAddress,
+    abi: poolsharkRouterABI,
+    functionName: "multiMintRange",
     args: [
-      {
+      [poolAddress],
+      [{
         to: address,
         lower: lower,
         upper: upper,
         positionId: positionId,
         amount0: amount0,
         amount1: amount1,
-      },
+        callbackData: ethers.utils.formatBytes32String('')
+      }],
     ],
     //args: [[address, lower, positionId, upper, amount0, amount1]],
     chainId: 421613,

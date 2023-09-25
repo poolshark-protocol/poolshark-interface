@@ -3,7 +3,7 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
 import useInputBox from "../../hooks/useInputBox";
-import { erc20ABI, useAccount, useBalance, useContractRead } from "wagmi";
+import { erc20ABI, useAccount, useBalance, useContractRead, useProvider } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
@@ -13,6 +13,7 @@ import { feeTiers } from "../../utils/pools";
 import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
+import { chainProperties } from "../../utils/chains";
 
 export default function AddLiquidity({}) {
   const [
@@ -71,6 +72,10 @@ export default function AddLiquidity({}) {
 
   const { address, isConnected } = useAccount();
 
+  const {
+    network: { chainId },
+  } = useProvider();
+
   const { bnInput, inputBox, maxBalance } = useInputBox();
 
   const [showTooltip, setShowTooltip] = useState(false);
@@ -123,7 +128,10 @@ export default function AddLiquidity({}) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolAddress],
+    args: [
+      address,
+      chainProperties['arbitrumGoerli']['routerAddress']
+    ],
     chainId: 421613,
     //watch: needsAllowanceIn,
     enabled: tokenIn.address != undefined,
@@ -139,7 +147,10 @@ export default function AddLiquidity({}) {
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolAddress],
+    args: [
+      address,
+      chainProperties['arbitrumGoerli']['routerAddress']
+    ],
     chainId: 421613,
     //watch: needsAllowanceOut,
     enabled: tokenOut.address != undefined,

@@ -10,9 +10,12 @@ import React, { useState, useEffect } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import { BN_ZERO } from "../../utils/math/constants";
+import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
+import { ethers } from "ethers";
 
 export default function LimitSwapButton({
   disabled,
+  routerAddress,
   poolAddress,
   to,
   amount,
@@ -33,10 +36,22 @@ export default function LimitSwapButton({
   useEffect(() => {}, [disabled]);
 
   const { config } = usePrepareContractWrite({
-    address: poolAddress,
-    abi: limitPoolABI,
-    functionName: "mintLimit",
-    args: [[to, amount, mintPercent, BN_ZERO, lower, upper, zeroForOne]],
+    address: routerAddress,
+    abi: poolsharkRouterABI,
+    functionName: "multiMintLimit",
+    args: [
+      [poolAddress],
+      [{
+        to: to,
+        amount: amount,
+        mintPercent: mintPercent,
+        positionId: BN_ZERO,
+        lower: lower,
+        upper: upper,
+        zeroForOne: zeroForOne,
+        callbackData: ethers.utils.formatBytes32String('')
+      }]
+    ],
     chainId: 421613,
     overrides: {
       gasLimit: gasLimit,

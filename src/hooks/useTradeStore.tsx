@@ -12,10 +12,6 @@ import {
 } from "../utils/queries";
 
 type TradeState = {
-  poolRouterAddresses: {
-    arbitrumGoerli: string;
-    arbitrumMainnet: string;
-  };
   //tradePoolAddress for current token pairs
   tradePoolAddress: `0x${string}`;
   //tradePoolData contains all the info about the pool
@@ -99,10 +95,6 @@ type TradeLimitAction = {
 };
 
 const initialTradeState: TradeState = {
-  poolRouterAddresses: {
-    arbitrumGoerli: "0xd2a20126829f41185853d13a6be1938b10b984f6",
-    arbitrumMainnet: "" // not deployed yet,
-  },
   //trade pools
   tradePoolAddress: "0x000",
   tradePoolData: {},
@@ -131,7 +123,7 @@ const initialTradeState: TradeState = {
     address: tokenZeroAddress,
     decimals: 18,
     userBalance: 0.0,
-    userPoolAllowance: BigNumber.from(0),
+    userRouterAllowance: BigNumber.from(0),
     USDPrice: 0.0,
   } as tokenSwap,
   //
@@ -143,7 +135,7 @@ const initialTradeState: TradeState = {
     address: "0x00",
     decimals: 18,
     userBalance: 0.0,
-    userPoolAllowance: BigNumber.from(0),
+    userRouterAllowance: BigNumber.from(0),
     USDPrice: 0.0,
   } as tokenSwap,
   //
@@ -159,7 +151,6 @@ const initialTradeState: TradeState = {
 };
 
 export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
-  poolRouterAddresses: initialTradeState.poolRouterAddresses,
   //trade pool
   tradePoolAddress: initialTradeState.tradePoolAddress,
   tradePoolData: initialTradeState.tradePoolData,
@@ -222,7 +213,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             decimals: tokenOut.decimals,
             USDPrice: tokenOut.USDPrice,
             userBalance: tokenOut.userBalance,
-            userPoolAllowance: tokenOut.userPoolAllowance,
+            userRouterAllowance: tokenOut.userRouterAllowance,
           },
           pairSelected: true,
         }));
@@ -253,7 +244,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   },
   setTokenInTradeAllowance: (newAllowance: BigNumber) => {
     set((state) => ({
-      tokenIn: { ...state.tokenIn, userPoolAllowance: newAllowance },
+      tokenIn: { ...state.tokenIn, userRouterAllowance: newAllowance },
     }));
   },
   setTokenInBalance: (newBalance: string) => {
@@ -291,7 +282,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             decimals: tokenIn.decimals,
             USDPrice: tokenIn.USDPrice,
             userBalance: tokenIn.userBalance,
-            userPoolAllowance: tokenIn.userPoolAllowance,
+            userRouterAllowance: tokenIn.userRouterAllowance,
           },
           tokenOut: {
             callId: tokenIn.address.localeCompare(newToken.address) < 0 ? 1 : 0,
@@ -327,7 +318,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   },
   setTokenOutTradeAllowance: (newAllowance: BigNumber) => {
     set((state) => ({
-      tokenOut: { ...state.tokenOut, userPoolAllowance: newAllowance },
+      tokenOut: { ...state.tokenOut, userRouterAllowance: newAllowance },
     }));
   },
   setMinInput: (minInput: string) => {
@@ -459,7 +450,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         decimals: state.tokenOut.decimals,
         USDPrice: state.tokenOut.USDPrice,
         userBalance: state.tokenOut.userBalance,
-        userPoolAllowance: state.tokenOut.userPoolAllowance,
+        userRouterAllowance: state.tokenOut.userRouterAllowance,
       },
       tokenOut: {
         callId: state.tokenIn.callId,
@@ -470,7 +461,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         decimals: state.tokenIn.decimals,
         USDPrice: state.tokenIn.USDPrice,
         userBalance: state.tokenIn.userBalance,
-        userPoolAllowance: state.tokenIn.userPoolAllowance,
+        userRouterAllowance: state.tokenIn.userRouterAllowance,
       },
     }));
   },

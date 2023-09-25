@@ -14,11 +14,9 @@ import { ethers } from "ethers";
 import { useContractRead } from "wagmi";
 import { BN_ZERO } from "../../../utils/math/constants";
 import CoverMintApproveButton from "../../Buttons/CoverMintApproveButton";
-import { chainIdsToNamesForGitTokenList } from "../../../utils/chains";
+import { chainIdsToNamesForGitTokenList, chainProperties } from "../../../utils/chains";
 import { gasEstimateCoverMint } from "../../../utils/gas";
-import JSBI from "jsbi";
 import { useCoverStore } from "../../../hooks/useCoverStore";
-import { TickMath } from "../../../utils/math/tickMath";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
@@ -69,7 +67,10 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, coverPoolAddress],
+    args: [
+      address,
+      chainProperties['arbitrumGoerli']['routerAddress']
+    ],
     chainId: 421613,
     watch: needsAllowance,
     enabled: tokenIn.address != undefined,
@@ -269,7 +270,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                 allowanceInCover.lt(bnInput) &&
                 stateChainName === "arbitrumGoerli" ? (
                   <CoverMintApproveButton
-                    poolAddress={coverPoolAddress}
+                    routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
                     approveToken={tokenIn.address}
                     amount={bnInput}
                     tokenSymbol={tokenIn.symbol}
@@ -279,6 +280,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                     disabled={disabled}
                     toAddress={address}
                     poolAddress={coverPoolAddress}
+                    routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
                     address={address}
                     lower={Number(coverPositionData.min)}
                     upper={Number(coverPositionData.max)}

@@ -12,15 +12,15 @@ import {
   useBalance,
 } from "wagmi";
 import { BigNumber, ethers } from "ethers";
-import { chainIdsToNamesForGitTokenList } from "../utils/chains";
-import SwapRangeApproveButton from "../components/Buttons/SwapRangeApproveButton";
+import { chainIdsToNamesForGitTokenList, chainProperties } from "../utils/chains";
+import SwapRouterApproveButton from "../components/Buttons/SwapRouterApproveButton";
 import {
   TickMath,
   invertPrice,
   maxPriceBn,
   minPriceBn,
 } from "../utils/math/tickMath";
-import { BN_ZERO } from "../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import { gasEstimateMintLimit, gasEstimateSwap } from "../utils/gas";
 import inputFilter from "../utils/inputFilter";
 import LimitSwapButton from "../components/Buttons/LimitSwapButton";
@@ -33,6 +33,7 @@ import { QuoteParams, SwapParams } from "../utils/types";
 import { useTradeStore } from "../hooks/useTradeStore";
 import SwapRouterButton from "../components/Buttons/SwapRouterButton";
 import JSBI from "jsbi";
+import LimitCreateAndMintButton from "../components/Buttons/LimitCreateAndMintButton";
 import { fetchLimitPositions } from "../utils/queries";
 import { mapUserLimitPositions } from "../utils/maps";
 import { getAveragePrice, getExpectedAmountOut } from "../utils/math/priceMath";
@@ -50,7 +51,6 @@ export default function Trade() {
     useInputBox();
 
   const [
-    poolRouterAddress,
     tradePoolAddress,
     setTradePoolAddress,
     tradePoolData,
@@ -83,7 +83,6 @@ export default function Trade() {
     needsRefetch,
     setNeedsRefetch,
   ] = useTradeStore((s) => [
-    s.poolRouterAddresses,
     s.tradePoolAddress,
     s.setTradePoolAddress,
     s.tradePoolData,
@@ -178,7 +177,7 @@ export default function Trade() {
   }
 
   const { data: poolQuotes } = useContractRead({
-    address: poolRouterAddress[chainIdsToNamesForGitTokenList[chainId]], //contract address,
+    address: chainProperties['arbitrumGoerli']['routerAddress'], //contract address,
     abi: poolsharkRouterABI, // contract abi,
     functionName: "multiQuote",
     args: [availablePools, quoteParams, true],
@@ -346,9 +345,7 @@ export default function Trade() {
     functionName: "allowance",
     args: [
       address,
-      poolRouterAddress[
-        chainIdsToNamesForGitTokenList[chainId]
-      ] as `0x${string}`,
+      chainProperties['arbitrumGoerli']['routerAddress'],
     ],
     chainId: 421613,
     watch: needsAllowanceIn,
@@ -368,7 +365,7 @@ export default function Trade() {
     functionName: "allowance",
     args: [
       address,
-      tradePoolData.id as `0x${string}`,
+      chainProperties['arbitrumGoerli']['routerAddress'],
     ],
     chainId: 421613,
     watch: needsAllowanceIn,
@@ -552,7 +549,7 @@ export default function Trade() {
 
   async function updateGasFee() {
     await gasEstimateSwap(
-      poolRouterAddress[chainIdsToNamesForGitTokenList[chainId]],
+      chainProperties['arbitrumGoerli']['routerAddress'],
       swapPoolAddresses,
       swapParams,
       tokenIn,
@@ -1036,13 +1033,11 @@ export default function Trade() {
               <>
                 {
                   //range buttons
-                  tokenIn.userPoolAllowance < bnInput ? (
+                  tokenIn.userRouterAllowance < bnInput ? (
                     <div>
-                      <SwapRangeApproveButton
-                        poolAddress={
-                          poolRouterAddress[
-                            chainIdsToNamesForGitTokenList[chainId]
-                          ]
+                      <SwapRouterApproveButton
+                        routerAddress={
+                          chainProperties['arbitrumGoerli']['routerAddress']
                         }
                         approveToken={tokenIn.address}
                         tokenSymbol={tokenIn.symbol}
@@ -1053,9 +1048,7 @@ export default function Trade() {
                     <SwapRouterButton
                       disabled={tradeParams.disabled || needsAllowanceIn}
                       routerAddress={
-                        poolRouterAddress[
-                          chainIdsToNamesForGitTokenList[chainId]
-                        ]
+                        chainProperties['arbitrumGoerli']['routerAddress']
                       }
                       poolAddresses={swapPoolAddresses}
                       swapParams={swapParams ?? {}}
@@ -1067,18 +1060,19 @@ export default function Trade() {
             ) : (
               //limit tab
               <>
-                {Number(tokenIn.userPoolAllowance) <
+                {Number(tokenIn.userRouterAllowance) <
                 Number(ethers.utils.formatUnits(bnInput, 18)) ? (
-                  <SwapRangeApproveButton
-                    poolAddress={
-                      tradePoolData.id
+                  <SwapRouterApproveButton
+                    routerAddress={
+                      chainProperties['arbitrumGoerli']['routerAddress']
                     }
                     approveToken={tokenIn.address}
                     tokenSymbol={tokenIn.symbol}
                     amount={bnInput}
                   />
-                ) : (
+                ) : (//tradePoolData.id != ZERO_ADDRESS ?
                   <LimitSwapButton
+                    routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
                     disabled={mintGasLimit.eq(BN_ZERO)}
                     poolAddress={tradePoolData.id}
                     to={address}
@@ -1090,6 +1084,23 @@ export default function Trade() {
                     zeroForOne={tokenOrder}
                     gasLimit={mintGasLimit}
                   />
+                // :
+                //   <LimitCreateAndMintButton
+                //     disabled={mintGasLimit.eq(BN_ZERO)}
+                //     routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
+                //     poolType={'CONSTANT-PRODUCT'}
+                //     token0={tokenIn}
+                //     token1={tokenOut}
+                //     feeTier={500} //TODO: handle fee tier
+                //     to={address}
+                //     amount={bnInput}
+                //     mintPercent={ethers.utils.parseUnits("1", 24)}
+                //     lower={lowerTick}
+                //     upper={upperTick}
+                //     closeModal={() => {}}
+                //     zeroForOne={tokenOrder}
+                //     gasLimit={mintGasLimit}
+                //   />
                 )}
               </>
             )}

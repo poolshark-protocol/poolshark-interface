@@ -1,21 +1,21 @@
-import { BigNumber, ethers } from "ethers";
 import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
 import { coverPoolABI } from "../../abis/evm/coverPool";
-import { coverPoolAddress } from "../../constants/contractAddresses";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import { roundTick } from "../../utils/math/tickMath";
 import { BN_ZERO } from "../../utils/math/constants";
 import { useCoverStore } from "../../hooks/useCoverStore";
+import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
+import { ethers } from "ethers";
 
 export default function CoverAddLiqButton({
   poolAddress,
+  routerAddress,
   address,
   positionId,
   lower,
@@ -35,7 +35,7 @@ export default function CoverAddLiqButton({
       state.setNeedsAllowance,
       state.setNeedsBalance,
       state.setNeedsRefetch,
-    ]);
+  ]);
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
 
@@ -43,18 +43,20 @@ export default function CoverAddLiqButton({
   console.log("cover add liq gas limit", gasLimit.toString());
 
   const { config } = usePrepareContractWrite({
-    address: poolAddress,
-    abi: coverPoolABI,
-    functionName: "mint",
+    address: routerAddress,
+    abi: poolsharkRouterABI,
+    functionName: "multiMintCover",
     args: [
-      {
+      [poolAddress],
+      [{
         positionId: positionId,
         to: toAddress,
         amount: amount,
         lower: lower,
         upper: upper,
         zeroForOne: zeroForOne,
-      },
+        callbackData: ethers.utils.formatBytes32String('')
+      }],
     ],
     enabled: amount.gt(BN_ZERO) && poolAddress != undefined,
     chainId: 421613,

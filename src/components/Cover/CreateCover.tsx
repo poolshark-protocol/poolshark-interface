@@ -17,7 +17,7 @@ import {
 } from "wagmi";
 import CoverMintButton from "../Buttons/CoverMintButton";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
-import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
+import { chainIdsToNamesForGitTokenList, chainProperties } from "../../utils/chains";
 import { Listbox, Transition } from "@headlessui/react";
 import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
 import { Fragment, useEffect, useState } from "react";
@@ -125,7 +125,10 @@ export default function CreateCover(props: any) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, coverPoolAddress],
+    args: [
+      address,
+      chainProperties['arbitrumGoerli']['routerAddress']
+    ],
     chainId: 421613,
     //watch: needsAllowance,
     enabled: tokenIn.address != undefined,
@@ -697,13 +700,14 @@ export default function CreateCover(props: any) {
       {allowanceInCover ? (
         allowanceInCover.lt(coverMintParams.tokenInAmount) ? (
           <CoverMintApproveButton
-            poolAddress={coverPoolAddress}
+            routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
             approveToken={tokenIn.address}
             amount={bnInput}
             tokenSymbol={tokenIn.symbol}
           />
         ) : (
           <CoverMintButton
+            routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
             poolAddress={coverPoolAddress}
             disabled={coverMintParams.disabled}
             to={address}

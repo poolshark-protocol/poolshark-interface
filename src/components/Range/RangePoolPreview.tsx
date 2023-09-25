@@ -8,8 +8,11 @@ import RangeMintDoubleApproveButton from "../Buttons/RangeMintDoubleApproveButto
 import { useRouter } from "next/router";
 import RangeMintApproveButton from "../Buttons/RangeMintApproveButton";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { BN_ZERO } from "../../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { gasEstimateRangeMint } from "../../utils/gas";
+import RangeCreateAndMintButton from "../Buttons/RangeCreateAndMintButton";
+import { chainIdsToNamesForGitTokenList, chainProperties } from "../../utils/chains";
+import { feeTiers } from "../../utils/pools";
 
 export default function RangePoolPreview() {
   const [
@@ -41,6 +44,9 @@ export default function RangePoolPreview() {
   ]);
 
   const { address } = useAccount();
+  const {
+    network: { chainId },
+  } = useProvider();
   const router = useRouter();
   const provider = useProvider();
   const signer = new ethers.VoidSigner(address, provider);
@@ -50,7 +56,10 @@ export default function RangePoolPreview() {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolAddress],
+    args: [
+      address,
+      chainProperties['arbitrumGoerli']['routerAddress']
+    ],
     chainId: 421613,
     watch: needsAllowanceIn,
     //enabled: tokenIn.address,
@@ -66,7 +75,10 @@ export default function RangePoolPreview() {
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolAddress],
+    args: [
+      address,
+      chainProperties['arbitrumGoerli']['routerAddress']
+    ],
     chainId: 421613,
     watch: needsAllowanceOut,
     //enabled: pairSelected && rangePoolAddress != ZERO_ADDRESS,
@@ -326,37 +338,40 @@ export default function RangePoolPreview() {
                         </div>
                       </div>
                       <div className="mt-4">
-                        {tokenIn.userPoolAllowance?.lt(
+                        {tokenIn.userRouterAllowance?.lt(
                           rangeMintParams.tokenInAmount
                         ) &&
-                        tokenOut.userPoolAllowance?.lt(
+                        tokenOut.userRouterAllowance?.lt(
                           rangeMintParams.tokenOutAmount
                         ) ? (
                           <RangeMintDoubleApproveButton
-                            poolAddress={rangePoolAddress}
+                            routerAddress={
+                              chainProperties['arbitrumGoerli']['routerAddress']
+                            }
                             tokenIn={tokenIn}
                             tokenOut={tokenOut}
                             amount0={rangeMintParams.tokenInAmount}
                             amount1={rangeMintParams.tokenOutAmount}
                           />
-                        ) : tokenIn.userPoolAllowance?.lt(
+                        ) : tokenIn.userRouterAllowance?.lt(
                             rangeMintParams.tokenInAmount
                           ) ? (
                           <RangeMintApproveButton
-                            poolAddress={rangePoolAddress}
+                          routerAddress={rangePoolAddress}
                             approveToken={tokenIn}
                             amount={rangeMintParams.tokenInAmount}
                           />
-                        ) : tokenOut.userPoolAllowance?.lt(
+                        ) : tokenOut.userRouterAllowance?.lt(
                             rangeMintParams.tokenOutAmount
                           ) ? (
                           <RangeMintApproveButton
-                            poolAddress={rangePoolAddress}
+                            routerAddress={rangePoolAddress}
                             approveToken={tokenOut}
                             amount={rangeMintParams.tokenOutAmount}
                           />
-                        ) : (
+                        ) :  (//rangePoolAddress != ZERO_ADDRESS ? 
                           <RangeMintButton
+                            routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
                             to={address}
                             poolAddress={rangePoolAddress}
                             lower={
@@ -401,7 +416,59 @@ export default function RangePoolPreview() {
                             }
                             closeModal={() => router.push("/range")}
                             gasLimit={mintGasLimit}
-                          />
+                          /> 
+                        //   : 
+                        //   <RangeCreateAndMintButton
+                        //     routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
+                        //     poolType={'CONSTANT-PRODUCT'}
+                        //     token0={tokenIn}
+                        //     token1={tokenOut}
+                        //     startPrice={BigNumber.from('3543191142285914205922034323214')} // 2000 token1 per token0
+                        //     feeTier={rangePoolData.feeTier.feeAmount}
+                        //     to={address}
+                        //     lower={
+                        //       rangePositionData.lowerPrice
+                        //         ? BigNumber.from(
+                        //             TickMath.getTickAtPriceString(
+                        //               rangePositionData.lowerPrice,
+                        //               parseInt(
+                        //                 rangePoolData.feeTier
+                        //                   ? rangePoolData.feeTier.tickSpacing
+                        //                   : 20
+                        //               )
+                        //             )
+                        //           )
+                        //         : BN_ZERO
+                        //     }
+                        //     upper={
+                        //       rangePositionData.upperPrice
+                        //         ? BigNumber.from(
+                        //             TickMath.getTickAtPriceString(
+                        //               rangePositionData.upperPrice,
+                        //               parseInt(
+                        //                 rangePoolData.feeTier
+                        //                   ? rangePoolData.feeTier.tickSpacing
+                        //                   : 20
+                        //               )
+                        //             )
+                        //           )
+                        //         : BN_ZERO
+                        //     }
+                        //     disabled={rangeMintParams.disabled}
+                        //     buttonMessage={rangeMintParams.buttonMessage}
+                        //     amount0={
+                        //       tokenIn.callId === 0
+                        //         ? rangeMintParams.tokenInAmount
+                        //         : rangeMintParams.tokenOutAmount
+                        //     }
+                        //     amount1={
+                        //       tokenIn.callId === 0
+                        //         ? rangeMintParams.tokenOutAmount
+                        //         : rangeMintParams.tokenInAmount
+                        //     }
+                        //     closeModal={() => router.push("/range")}
+                        //     gasLimit={mintGasLimit}
+                        // /> 
                         )}
                       </div>
                     </div>

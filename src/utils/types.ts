@@ -39,7 +39,7 @@ export type tokenSwap = {
   address: `0x${string}`;
   decimals: number;
   userBalance: number;
-  userPoolAllowance: BigNumber;
+  userRouterAllowance: BigNumber;
   USDPrice: number;
 };
 
@@ -51,7 +51,7 @@ export type tokenRangeLimit = {
   address: `0x${string}`;
   decimals: number;
   userBalance: number;
-  userPoolAllowance: BigNumber;
+  userRouterAllowance: BigNumber;
   rangeUSDPrice: number;
 };
 
@@ -63,6 +63,6 @@ export type tokenCover = {
   address: `0x${string}`;
   decimals: number;
   userBalance: number;
-  userPoolAllowance: number;
+  userRouterAllowance: number;
   coverUSDPrice: number;
 };

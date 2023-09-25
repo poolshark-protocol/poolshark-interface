@@ -21,7 +21,7 @@ import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
 import { gasEstimateCoverMint } from "../../utils/gas";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
+import { chainIdsToNamesForGitTokenList, chainProperties } from "../../utils/chains";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { volatilityTiers } from "../../utils/pools";
 
@@ -112,7 +112,10 @@ export default function CoverExistingPool({ goBack }) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, coverPoolAddress],
+    args: [
+      address,
+      chainProperties['arbitrumGoerli']['routerAddress']
+    ],
     chainId: 421613,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
@@ -700,13 +703,14 @@ export default function CoverExistingPool({ goBack }) {
       {allowanceInCover ? (
         allowanceInCover.lt(coverMintParams.tokenInAmount) ? (
           <CoverMintApproveButton
-            poolAddress={coverPoolAddress}
+            routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
             approveToken={tokenIn.address}
             amount={String(coverMintParams.tokenInAmount)}
             tokenSymbol={tokenIn.symbol}
           />
         ) : (
           <CoverMintButton
+            routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
             poolAddress={coverPoolAddress}
             disabled={coverMintParams.disabled}
             buttonMessage={coverMintParams.buttonMessage}

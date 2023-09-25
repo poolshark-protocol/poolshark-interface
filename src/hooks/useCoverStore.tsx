@@ -103,7 +103,7 @@ const initialCoverState: CoverState = {
     address: tokenZeroAddress,
     decimals: 18,
     userBalance: 0.0,
-    userPoolAllowance: 0.0,
+    userRouterAllowance: 0.0,
     coverUSDPrice: 0.0,
   } as tokenCover,
   //
@@ -115,7 +115,7 @@ const initialCoverState: CoverState = {
     address: tokenOneAddress,
     decimals: 18,
     userBalance: 0.0,
-    userPoolAllowance: 0.0,
+    userRouterAllowance: 0.0,
     coverUSDPrice: 0.0,
   } as tokenCover,
   //
@@ -214,7 +214,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     set((state) => ({
       tokenIn: {
         ...state.tokenIn,
-        userPoolAllowance: Number(newAllowance),
+        userRouterAllowance: Number(newAllowance),
       },
     }));
   },
@@ -293,7 +293,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     set((state) => ({
       tokenOut: {
         ...state.tokenOut,
-        userPoolAllowance: Number(newAllowance),
+        userRouterAllowance: Number(newAllowance),
       },
     }));
   },
@@ -393,7 +393,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         address: state.tokenOut.address,
         decimals: state.tokenOut.decimals,
         userBalance: state.tokenOut.userBalance,
-        userPoolAllowance: state.tokenOut.userPoolAllowance,
+        userRouterAllowance: state.tokenOut.userRouterAllowance,
         coverUSDPrice: state.tokenOut.coverUSDPrice,
       },
       tokenOut: {
@@ -407,7 +407,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         address: state.tokenIn.address,
         decimals: state.tokenIn.decimals,
         userBalance: state.tokenIn.userBalance,
-        userPoolAllowance: state.tokenIn.userPoolAllowance,
+        userRouterAllowance: state.tokenIn.userRouterAllowance,
         coverUSDPrice: state.tokenIn.coverUSDPrice,
       },
       needsAllowance: true,

@@ -7,15 +7,18 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
-import { limitPoolABI } from "../../abis/evm/limitPool";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
+import { TickMath } from "../../utils/math/tickMath";
 import { ethers } from "ethers";
+import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
   
-  export default function LimitMintButton({
+  export default function LimitCreateAndMintButton({
     disabled,
     routerAddress,
-    poolAddress,
+    poolType,
+    token0,
+    token1,
+    feeTier,
     to,
     amount,
     mintPercent,
@@ -42,18 +45,27 @@ import { ethers } from "ethers";
     const { config } = usePrepareContractWrite({
       address: routerAddress,
       abi: poolsharkRouterABI,
-      functionName: "multiMintLimit",
+      functionName: "createLimitPoolAndMint",
       args: [
-        [poolAddress],
-        [{
-          to: to,
-          amount: amount,
-          mintPercent: mintPercent,
-          lower: lower,
-          upper: upper,
-          zeroForOne: zeroForOne,
-          callbackData: ethers.utils.formatBytes32String('')
-        }]
+        {
+            poolType: ethers.utils.formatBytes32String(poolType),
+            tokenIn: token0.address,
+            tokenOut: token1.address,
+            startPrice: TickMath.getSqrtRatioAtTick(upper),
+            swapFee: feeTier
+        }, // pool params
+        [], // range positions
+        [
+            {
+                to: to,
+                amount: amount,
+                mintPercent: mintPercent,
+                lower: lower,
+                upper: upper,
+                zeroForOne: zeroForOne,
+                callbackData: ethers.utils.formatBytes32String('')
+            }
+        ] // limit positions
       ],
       chainId: 421613,
       overrides: {
