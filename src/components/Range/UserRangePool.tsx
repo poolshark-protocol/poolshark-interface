@@ -1,32 +1,43 @@
 import { useEffect, useState } from "react";
 import { TickMath } from "../../utils/math/tickMath";
-import { logoMap } from "../../utils/tokens";
+import { fetchRangeTokenUSDPrice, logoMap } from "../../utils/tokens";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import Link from "next/link";
 import { getRangePool, volatilityTiers } from "../../utils/pools";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { tokenCover } from "../../utils/types";
+import { DyDxMath } from "../../utils/math/dydxMath";
+import JSBI from "jsbi";
+import { getRangePoolFromFactory } from "../../utils/queries";
 
 export default function UserRangePool({ rangePosition, href, isModal }) {
   const [
+    rangePoolData,
     rangeTokenIn,
     rangeTokenOut,
     setRangeTokenIn,
+    setRangeTokenInUSDPrice,
     setRangeTokenOut,
+    setTokenOutRangeUSDPrice,
     setRangePoolAddress,
     setRangePoolData,
     setRangePositionData,
+    setRangePoolFromFeeTier,
     setNeedsAllowanceIn,
     setNeedsAllowanceOut,
   ] = useRangeLimitStore((state) => [
+    state.rangePoolData,
     state.tokenIn,
     state.tokenOut,
     state.setTokenIn,
+    state.setTokenInRangeUSDPrice,
     state.setTokenOut,
+    state.setTokenOutRangeUSDPrice,
     state.setRangePoolAddress,
     state.setRangePoolData,
     state.setRangePositionData,
+    state.setRangePoolFromFeeTier,
     state.setNeedsAllowanceIn,
     state.setNeedsAllowanceOut,
   ]);
@@ -46,6 +57,113 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     state.setCoverPositionData,
     state.setCoverPoolFromVolatility,
   ]);
+
+  //////////////////////////Set USD Prices
+
+  useEffect(() => {
+    getPoolForThisTile();
+  }, [rangePosition]);
+
+  async function getPoolForThisTile() {
+    const tokenInNew = {
+      name: rangePosition.tokenZero.name,
+      symbol: rangePosition.tokenZero.symbol,
+      logoURI: logoMap[rangePosition.tokenZero.symbol],
+      address: rangePosition.tokenZero.id,
+      decimals: rangePosition.tokenZero.decimals,
+    } as tokenCover;
+    const tokenOutNew = {
+      name: rangePosition.tokenOne.name,
+      symbol: rangePosition.tokenOne.symbol,
+      logoURI: logoMap[rangePosition.tokenOne.symbol],
+      address: rangePosition.tokenOne.id,
+      decimals: rangePosition.tokenOne.decimals,
+    } as tokenCover;
+    const pool = await getRangePoolFromFactory(
+      tokenInNew.address,
+      tokenOutNew.address
+    );
+    const dataLength = pool["data"]["limitPools"].length;
+    for (let i = 0; i < dataLength; i++) {
+      if (
+        pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] ==
+        rangePosition.pool.feeTier.feeAmount
+      ) {
+        const poolData = pool["data"]["limitPools"][i];
+        if (poolData.token0 && poolData.token1) {
+          if (rangeTokenIn.address) {
+            fetchRangeTokenUSDPrice(
+              poolData,
+              rangeTokenIn,
+              setRangeTokenInUSDPrice
+            );
+          }
+          if (rangeTokenOut.address) {
+            fetchRangeTokenUSDPrice(
+              poolData,
+              rangeTokenOut,
+              setTokenOutRangeUSDPrice
+            );
+          }
+        }
+      }
+    }
+  }
+
+  ////////////////////////Set Amounts
+  const [amount0, setAmount0] = useState(0);
+  const [amount1, setAmount1] = useState(0);
+  const [totalUsdValue, setTotalUsdValue] = useState(0);
+
+  useEffect(() => {
+    setAmounts();
+  }, [rangePosition, rangeTokenIn.rangeUSDPrice, rangeTokenOut.rangeUSDPrice]);
+
+  function setAmounts() {
+    try {
+      const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
+        Number(rangePosition.min)
+      );
+      const upperSqrtPrice = TickMath.getSqrtRatioAtTick(
+        Number(rangePosition.max)
+      );
+      const rangeSqrtPrice = JSBI.BigInt(rangePosition.price);
+      const liquidity = JSBI.BigInt(rangePosition.userLiquidity);
+      const amounts = DyDxMath.getAmountsForLiquidity(
+        lowerSqrtPrice,
+        upperSqrtPrice,
+        rangeSqrtPrice,
+        liquidity,
+        true
+      );
+      // set amount based on bnInput
+      const amount0Bn = BigNumber.from(String(amounts.token0Amount));
+      const amount1Bn = BigNumber.from(String(amounts.token1Amount));
+      setAmount0(
+        parseFloat(
+          ethers.utils.formatUnits(amount0Bn, rangePosition.tokenZero.decimals)
+        )
+      );
+      setAmount1(
+        parseFloat(
+          ethers.utils.formatUnits(amount1Bn, rangePosition.tokenOne.decimals)
+        )
+      );
+      const token0UsdValue =
+        parseFloat(
+          ethers.utils.formatUnits(amount0Bn, rangePosition.tokenZero.decimals)
+        ) * rangeTokenIn.rangeUSDPrice;
+      const token1UsdValue =
+        parseFloat(
+          ethers.utils.formatUnits(amount1Bn, rangePosition.tokenOne.decimals)
+        ) * rangeTokenOut.rangeUSDPrice;
+      setTotalUsdValue(token0UsdValue + token1UsdValue);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  ////////////////////////Set Position when selected
 
   function choosePosition() {
     setNeedsAllowanceIn(true);
@@ -72,11 +190,10 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     } else {
       setRangeTokenIn(tokenOutNew, tokenInNew);
       setRangeTokenOut(tokenInNew, tokenOutNew);
-      getRangePool(
-        rangeTokenIn,
-        rangeTokenOut,
-        setRangePoolAddress,
-        setRangePoolData
+      setRangePoolFromFeeTier(
+        tokenInNew,
+        tokenOutNew,
+        rangePosition.pool.feeTier.feeAmount
       );
       setRangePositionData(rangePosition);
     }
@@ -131,11 +248,17 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
             </div>
             <div className="lg:grid lg:grid-cols-2 items-center lg:block hidden">
             <div className={`text-white text-xs text-right`}>
-              200 <span className="text-grey1">DAI</span> - 201{" "}
-              <span className="text-grey1">USDC</span>
+              {amount0.toPrecision(4)}{" "}
+              <span className="text-grey1">
+                {rangePosition.tokenZero.symbol}
+              </span>{" "}
+              - {amount1.toPrecision(4)}{" "}
+              <span className="text-grey1">
+                {rangePosition.tokenOne.symbol}
+              </span>
             </div>
             <div className="text-right text-white text-xs lg:block hidden">
-              {!isModal && <span>$401 </span>}
+              {!isModal && <span>${totalUsdValue}</span>}
             </div>
             </div>
           </div>
