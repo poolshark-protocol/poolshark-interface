@@ -9,9 +9,11 @@ import { useCoverStore } from "../../hooks/useCoverStore";
 import { tokenCover } from "../../utils/types";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import JSBI from "jsbi";
+import { getRangePoolFromFactory } from "../../utils/queries";
 
 export default function UserRangePool({ rangePosition, href, isModal }) {
   const [
+    rangePoolData,
     rangeTokenIn,
     rangeTokenOut,
     setRangeTokenIn,
@@ -25,6 +27,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     setNeedsAllowanceIn,
     setNeedsAllowanceOut,
   ] = useRangeLimitStore((state) => [
+    state.rangePoolData,
     state.tokenIn,
     state.tokenOut,
     state.setTokenIn,
@@ -61,30 +64,62 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
 
   //////////////////////////Set USD Prices
 
-  /* useEffect(() => {
-    if (rangePoolData.token0 && rangePoolData.token1) {
-      if (tokenIn.address) {
-        fetchRangeTokenUSDPrice(
-          rangePoolData,
-          tokenIn,
-          setTokenInRangeUSDPrice
-        );
-      }
-      if (tokenOut.address) {
-        fetchRangeTokenUSDPrice(
-          rangePoolData,
-          tokenOut,
-          setTokenOutRangeUSDPrice
-        );
+  useEffect(() => {
+    getPoolForThisTile();
+  }, [rangePosition]);
+
+  async function getPoolForThisTile() {
+    const tokenInNew = {
+      name: rangePosition.tokenZero.name,
+      symbol: rangePosition.tokenZero.symbol,
+      logoURI: logoMap[rangePosition.tokenZero.symbol],
+      address: rangePosition.tokenZero.id,
+      decimals: rangePosition.tokenZero.decimals,
+    } as tokenCover;
+    const tokenOutNew = {
+      name: rangePosition.tokenOne.name,
+      symbol: rangePosition.tokenOne.symbol,
+      logoURI: logoMap[rangePosition.tokenOne.symbol],
+      address: rangePosition.tokenOne.id,
+      decimals: rangePosition.tokenOne.decimals,
+    } as tokenCover;
+    const pool = await getRangePoolFromFactory(
+      tokenInNew.address,
+      tokenOutNew.address
+    );
+    const dataLength = pool["data"]["limitPools"].length;
+    for (let i = 0; i < dataLength; i++) {
+      if (
+        pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] ==
+        rangePosition.pool.feeTier.feeAmount
+      ) {
+        console.log("selectedPool", pool["data"]["limitPools"][i]);
+        const poolData = pool["data"]["limitPools"][i];
+        if (poolData.token0 && poolData.token1) {
+          if (rangeTokenIn.address) {
+            fetchRangeTokenUSDPrice(
+              poolData,
+              rangeTokenIn,
+              setRangeTokenInUSDPrice
+            );
+          }
+          if (rangeTokenOut.address) {
+            fetchRangeTokenUSDPrice(
+              poolData,
+              rangeTokenOut,
+              setTokenOutRangeUSDPrice
+            );
+          }
+        }
       }
     }
-  }, []); */
+  }
 
   ////////////////////////Set Amounts
 
   useEffect(() => {
     setAmounts();
-  }, [rangePosition]);
+  }, [rangePosition, rangeTokenIn.rangeUSDPrice, rangeTokenOut.rangeUSDPrice]);
 
   function setAmounts() {
     try {
@@ -129,6 +164,8 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
       console.log(error);
     }
   }
+
+  ////////////////////////Set Position when selected
 
   function choosePosition() {
     setNeedsAllowanceIn(true);
