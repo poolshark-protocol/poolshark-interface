@@ -382,22 +382,22 @@ export default function ViewRange() {
                   {Number(rangePositionData.feeTier) / 10000}%
                 </span>
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
-                  0.9 USDC
+                {priceDirection ? <>{lowerInverse}</> : <>{lowerPrice}</>}
                   <DoubleArrowIcon />
-                  1.2 USDC
+                  {priceDirection ? <>{upperInverse}</> : <>{upperPrice}</>}
                 </div>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-x-4">
+          <div className="flex items-center gap-x-4 w-full md:w-auto">
             <button
-              className="bg-main1 border border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
+              className="bg-main1 border w-full border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
               onClick={() => setIsAddOpen(true)}
             >
               Add Liquidity
             </button>
             <button
-              className="bg-black border border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
+              className="bg-black border w-full border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
               onClick={() => setIsRemoveOpen(true)}
             >
               Remove Liquidity
@@ -479,7 +479,7 @@ export default function ViewRange() {
                 <div className="flex items-center gap-x-5 mt-3">
                   <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                     <span className="text-grey1 text-xs">MIN. PRICE</span>
-                    <span className="text-white text-3xl">
+                    <span className="text-white  md:text-3xl text-2xl">
                       {priceDirection ? <>{lowerInverse}</> : <>{lowerPrice}</>}
                     </span>
                     <span className="text-grey1 text-[9px] text-center">
@@ -490,7 +490,7 @@ export default function ViewRange() {
                   </div>
                   <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                     <span className="text-grey1 text-xs">MAX. PRICE</span>
-                    <span className="text-white text-3xl">
+                    <span className="text-white  md:text-3xl text-2xl">
                       {priceDirection ? <>{upperInverse}</> : <>{upperPrice}</>}
                     </span>
                     <span className="text-grey1 text-[9px] text-center">

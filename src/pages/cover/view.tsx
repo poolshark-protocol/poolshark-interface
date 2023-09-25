@@ -346,8 +346,8 @@ export default function ViewCover() {
   return (
     <div className="bg-black min-h-screen  ">
       <Navbar />
-      <div className="flex flex-col pt-10 text-white relative min-h-[calc(100vh-76px)] container mx-auto">
-        <div className="flex justify-between w-full items-center">
+      <div className="flex flex-col pt-10 pb-32 md:pb-0 text-white relative min-h-[calc(100vh-76px)] container mx-auto md:px-0 px-3">
+        <div className="flex md:flex-row flex-col justify-between w-full items-start md:items-center gap-y-5">
           <div className="flex items-center gap-x-3">
             <div className="flex items-center">
               <img height="50" width="50" src={tokenIn.logoURI} />
@@ -382,30 +382,42 @@ export default function ViewCover() {
                   {Number(coverPositionData.feeTier) / 10000}%
                 </span>
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
-                  0.9 USDC
+                {coverPositionData.min === undefined
+                        ? ""
+                        : priceDirection
+                        ? lowerInverse
+                        : TickMath.getPriceStringAtTick(
+                            Number(coverPositionData.min)
+                          )}
                   <DoubleArrowIcon />
-                  1.2 USDC
+                  {coverPositionData.max === undefined
+                        ? ""
+                        : priceDirection
+                        ? upperInverse
+                        : TickMath.getPriceStringAtTick(
+                            Number(coverPositionData.max)
+                          )}
                 </div>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-x-4">
+          <div className="flex items-center gap-x-4 w-full md:w-auto">
             <button
-              className="bg-main1 border border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
+              className="bg-main1 border w-full border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
               onClick={() => setIsAddOpen(true)}
             >
               Add Liquidity
             </button>
             <button
-              className="bg-black border border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
+              className="bg-black border w-full whitespace-nowrap border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
               onClick={() => setIsRemoveOpen(true)}
             >
               Remove Liquidity
             </button>
           </div>
         </div>
-        <div className="flex justify-between w-full mt-8  gap-x-10">
-          <div className="border border-grey rounded-[4px] w-1/2 p-5">
+        <div className="flex lg:flex-row flex-col justify-between w-full mt-8 gap-10">
+        <div className="border border-grey rounded-[4px] lg:w-1/2 w-full p-5">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">Remaining Liquidity</h1>
             </div>
@@ -432,7 +444,7 @@ export default function ViewCover() {
                     )
                   ).toFixed(2)}
                   <div className="flex items-center gap-x-2">
-                    <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
+                    <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenIn.logoURI} />
                       {tokenIn.symbol}
                     </div>
@@ -441,7 +453,7 @@ export default function ViewCover() {
               </div>
               <div className="flex justify-between items-center mt-8">
                 <div className="flex items-center gap-x-4">
-                  <h1 className="uppercase text-white">Price Range</h1>
+                  <h1 className="uppercase text-white md:block hidden">Price Range</h1>
                   {parseFloat(
                     TickMath.getPriceStringAtTick(
                       Number(coverPositionData.latestTick)
@@ -497,7 +509,7 @@ export default function ViewCover() {
                 <div className="flex items-center gap-x-5 mt-3">
                   <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                     <span className="text-grey1 text-xs">MIN. PRICE</span>
-                    <span className="text-white text-3xl">
+                    <span className="text-white md:text-3xl text-2xl">
                       {coverPositionData.min === undefined
                         ? ""
                         : priceDirection
@@ -506,7 +518,7 @@ export default function ViewCover() {
                             Number(coverPositionData.min)
                           )}
                     </span>
-                    <span className="text-grey1 text-[9px]">
+                    <span className="text-grey1 text-[9px] text-center">
                       Your position will be 100%{" "}
                       {Boolean(coverPositionData.zeroForOne)
                         ? priceDirection
@@ -520,7 +532,7 @@ export default function ViewCover() {
                   </div>
                   <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                     <span className="text-grey1 text-xs">MAX. PRICE</span>
-                    <span className="text-white text-3xl">
+                    <span className="text-white md:text-3xl text-2xl">
                       {coverPositionData.max === undefined
                         ? ""
                         : priceDirection
@@ -529,7 +541,7 @@ export default function ViewCover() {
                             Number(coverPositionData.max)
                           )}
                     </span>
-                    <span className="text-grey1 text-[9px]">
+                    <span className="text-grey1 text-[9px] text-center">
                       Your position will be 100%{" "}
                       {Boolean(coverPositionData.zeroForOne)
                         ? priceDirection
@@ -555,7 +567,7 @@ export default function ViewCover() {
               </div>
             </div>
           </div>
-          <div className="border bg-dark border-grey rounded-[4px] w-1/2 p-5 h-min">
+          <div className="border bg-dark border-grey rounded-[4px] lg:w-1/2 w-full p-5 h-min">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">Filled Liquidity</h1>
               <span className="text-grey1">${Number(coverFilledAmount).toFixed(2)}
@@ -570,7 +582,7 @@ export default function ViewCover() {
                       </span></span>
             </div>
             <div className="flex flex-col gap-y-3 mt-2">
-              <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
+              <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2 mb-5">
                 <div className="flex items-end justify-between text-[11px] text-grey1">
                   <span>
                     ~$
@@ -582,7 +594,7 @@ export default function ViewCover() {
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
                   {Number(coverFilledAmount).toFixed(2)}
                   <div className="flex items-center gap-x-2">
-                    <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
+                    <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenOut.logoURI} />
                       {tokenOut.symbol}
                     </div>
