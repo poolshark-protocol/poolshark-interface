@@ -16,7 +16,6 @@ import { feeTiers } from "../../utils/pools";
 
 export default function RangePoolPreview() {
   const [
-    poolRouters,
     rangePoolAddress,
     rangePoolData,
     rangePositionData,
@@ -30,7 +29,6 @@ export default function RangePoolPreview() {
     setNeedsAllowanceIn,
     setNeedsAllowanceOut,
   ] = useRangeLimitStore((state) => [
-    state.poolRouterAddresses,
     state.rangePoolAddress,
     state.rangePoolData,
     state.rangePositionData,

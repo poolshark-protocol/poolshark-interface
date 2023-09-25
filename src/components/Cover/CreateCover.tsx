@@ -14,7 +14,9 @@ import {
 import CoverMintButton from "../Buttons/CoverMintButton";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import { chainIdsToNamesForGitTokenList, chainProperties } from "../../utils/chains";
-import { useEffect, useState } from "react";
+import { Listbox, Transition } from "@headlessui/react";
+import { ConnectWalletButton } from "../Buttons/ConnectWalletButton";
+import { Fragment, useEffect, useState } from "react";
 import useInputBox from "../../hooks/useInputBox";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import { BigNumber, ethers } from "ethers";
@@ -31,7 +33,6 @@ import CoverCreateAndMintButton from "../Buttons/CoverCreateAndMintButton";
 
 export default function CreateCover(props: any) {
   const [
-    poolRouters,
     coverPoolAddress,
     coverPoolData,
     coverPositionData,
@@ -59,7 +60,6 @@ export default function CreateCover(props: any) {
     needsBalance,
     setNeedsBalance,
   ] = useCoverStore((state) => [
-    state.poolRouterAddresses,
     state.coverPoolAddress,
     state.coverPoolData,
     state.coverPositionData,

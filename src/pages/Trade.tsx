@@ -1094,7 +1094,7 @@ export default function Trade() {
                 :
                   <LimitCreateAndMintButton
                     disabled={mintGasLimit.eq(BN_ZERO)}
-                    factoryAddress={chainProperties['arbitrumGoerli']['limitPoolFactory']}
+                    routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
                     poolType={'CONSTANT-PRODUCT'}
                     token0={tokenIn}
                     token1={tokenOut}
