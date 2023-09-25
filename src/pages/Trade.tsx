@@ -343,6 +343,7 @@ export default function Trade() {
       console.log("Error allowance", error);
     },
     onSuccess(data) {
+      console.log('got allowance', allowanceInRouter.toString(), tokenIn.userRouterAllowance.toString(), bnInput.toString())
       setNeedsAllowanceIn(false);
       //console.log("Success allowance", data);
     },
@@ -1027,7 +1028,7 @@ export default function Trade() {
             ) : (
               //limit tab
               <>
-                {tokenIn.userRouterAllowance?.gte(bnInput) ? (
+                {tokenIn.userRouterAllowance?.lt(bnInput) ? (
                   <SwapRouterApproveButton
                     routerAddress={
                       chainProperties['arbitrumGoerli']['routerAddress']
