@@ -465,6 +465,7 @@ export const gasEstimateCoverMint = async (
         lower: lowerTick,
         upper: upperTick,
         zeroForOne: zeroForOne,
+        callbackData: ethers.utils.formatBytes32String('')
       }]);
     const price = await fetchPrice("0x000");
     const gasPrice = await provider.getGasPrice();
