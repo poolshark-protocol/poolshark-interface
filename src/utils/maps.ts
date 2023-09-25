@@ -64,6 +64,7 @@ export function mapUserRangePositions(rangePositions) {
       valueTokenZero: rangePosition.pool.token0.usdPrice,
       tokenOne: rangePosition.pool.token1,
       valueTokenOne: rangePosition.pool.token0.usdPrice,
+      pool: rangePosition.pool,
       min: rangePosition.lower,
       max: rangePosition.upper,
       price: rangePosition.pool.poolPrice,
@@ -97,11 +98,10 @@ export function mapRangePools(rangePools) {
       liquidity: rangePool.liquidity,
       feeTier: rangePool.feeTier.feeAmount,
       tickSpacing: rangePool.feeTier.tickSpacing,
-      tvlUsd: (parseFloat(rangePool.totalValueLockedUsd) / 1_000_000).toFixed(
-        2
-      ),
-      volumeUsd: (parseFloat(rangePool.volumeUsd) / 1_000_000).toFixed(2),
-      volumeEth: (parseFloat(rangePool.volumeEth) / 1).toFixed(2),
+      feesUsd: parseFloat(rangePool.feesUsd).toFixed(2),
+      tvlUsd: parseFloat(rangePool.totalValueLockedUsd).toFixed(2),
+      volumeUsd: parseFloat(rangePool.volumeUsd).toFixed(2),
+      volumeEth: parseFloat(rangePool.volumeEth).toFixed(2),
     };
     mappedRangePools.push(rangePoolData);
   });
