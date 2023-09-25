@@ -40,7 +40,7 @@ const wagmiClient = createClient({
 
 const apolloClient = new ApolloClient({
   cache: new InMemoryCache(),
-  uri: "https://arbitrum-goerli.graph-eu.p2pify.com/11a2725a92a3b52639c1e27b077f666d/cover-arbitrumGoerli-0",
+  uri: "https://arbitrum-goerli.graph-eu.p2pify.com/d2323ed03f18f473fc02c54f8e38a3a5/cover-arbitrumGoerli-beta2",
 })
 
 const whitelist = [
