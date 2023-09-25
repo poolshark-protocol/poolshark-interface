@@ -1,6 +1,6 @@
 import { BigNumber, ethers } from "ethers";
 import { tokenRangeLimit, tokenSwap } from "../utils/types";
-import { BN_ZERO } from "../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import {
   tokenOneAddress,
   tokenZeroAddress,
@@ -96,7 +96,7 @@ type TradeLimitAction = {
 
 const initialTradeState: TradeState = {
   //trade pools
-  tradePoolAddress: "0x000",
+  tradePoolAddress: ZERO_ADDRESS as `0x${string}`,
   tradePoolData: {},
   tradePositionData: {},
   feeTierTradeId: 0,
@@ -132,7 +132,7 @@ const initialTradeState: TradeState = {
     name: "Select Token",
     symbol: "Select Token",
     logoURI: "",
-    address: "0x00",
+    address: ZERO_ADDRESS as `0x${string}`,
     decimals: 18,
     userBalance: 0.0,
     userRouterAllowance: BigNumber.from(0),
@@ -147,7 +147,7 @@ const initialTradeState: TradeState = {
   needsAllowanceIn: true,
   needsAllowanceOut: true,
   needsBalanceIn: true,
-  needsBalanceOut: true,
+  needsBalanceOut: false,
 };
 
 export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({

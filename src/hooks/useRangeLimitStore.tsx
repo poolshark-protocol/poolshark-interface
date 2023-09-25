@@ -1,6 +1,6 @@
 import { BigNumber, ethers } from "ethers";
 import { tokenRangeLimit } from "../utils/types";
-import { BN_ZERO } from "../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import {
   tokenOneAddress,
   tokenZeroAddress,
@@ -121,7 +121,7 @@ type RangeLimitAction = {
 
 const initialRangeLimitState: RangeLimitState = {
   //range pools
-  rangePoolAddress: "0x000",
+  rangePoolAddress: ZERO_ADDRESS as `0x${string}`,
   rangePoolData: {},
   rangePositionData: {},
   rangeSlippage: "0.5",
@@ -135,7 +135,7 @@ const initialRangeLimitState: RangeLimitState = {
     buttonMessage: "",
   },
   //limit pools
-  limitPoolAddress: "0x000",
+  limitPoolAddress: ZERO_ADDRESS as `0x${string}`,
   limitPoolData: {},
   limitPositionData: {},
   feeTierLimitId: 0,

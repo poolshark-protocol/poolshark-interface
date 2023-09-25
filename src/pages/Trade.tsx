@@ -153,7 +153,7 @@ export default function Trade() {
   const [amountOut, setAmountOut] = useState(undefined);
 
   useEffect(() => {
-    if (tokenIn.address && tokenOut.address !== "0x00") {
+    if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       updatePools();
     }
   }, [tokenIn, tokenOut]);
@@ -194,7 +194,7 @@ export default function Trade() {
   });
 
   useEffect(() => {
-    if (poolQuotes) {
+    if (poolQuotes && poolQuotes[0]) {
       setAmountOut(
         ethers.utils.formatUnits(
           poolQuotes[0].amountOut.toString(),
@@ -728,7 +728,7 @@ export default function Trade() {
                   ~$
                   {pairSelected &&
                   !bnInput.eq(BN_ZERO) &&
-                  tokenOut.address != "0x00" &&
+                  tokenOut.address != ZERO_ADDRESS &&
                   !isNaN(parseFloat(limitStringPriceQuote)) ? (
                     !limitTabSelected ? (
                       //swap page
@@ -758,7 +758,7 @@ export default function Trade() {
               <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
                 {pairSelected &&
                 !bnInput.eq(BN_ZERO) &&
-                tokenOut.address != "0x00" &&
+                tokenOut.address != ZERO_ADDRESS &&
                 !isNaN(parseFloat(limitStringPriceQuote)) ? (
                   !limitTabSelected ? (
                     <div>{Number(amountOut).toPrecision(5)}</div>

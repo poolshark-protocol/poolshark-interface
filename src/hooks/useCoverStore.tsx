@@ -1,6 +1,6 @@
 import { BigNumber, ethers } from "ethers";
 import { tokenCover } from "../utils/types";
-import { BN_ZERO, ZERO } from "../utils/math/constants";
+import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import {
   tokenOneAddress,
   tokenZeroAddress,
@@ -87,7 +87,7 @@ type CoverAction = {
 
 const initialCoverState: CoverState = {
   //pools
-  coverPoolAddress: "0x00",
+  coverPoolAddress: ZERO_ADDRESS as `0x${string}`,
   volatilityTierId: 0,
   coverPoolData: {},
   coverPositionData: {},

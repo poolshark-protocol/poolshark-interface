@@ -864,7 +864,7 @@ export const fetchUniV3Positions = (address: string) => {
   });
 };
 
-export const fetchPrice = (address: string) => {
+export const fetchEthPrice = () => {
   return new Promise(function (resolve) {
     const univ3Price = `
             {
