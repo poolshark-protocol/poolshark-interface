@@ -125,8 +125,8 @@ type RangeLimitAction = {
 
 const initialRangeLimitState: RangeLimitState = {
   poolRouterAddresses: {
-    arbitrumGoerli: "0xd2a20126829f41185853d13a6be1938b10b984f6",
-    arbitrumMainnet: "", // not deployed yet
+    arbitrumGoerli: "0xdb11885eac2a8944438322349925ac0de3159392",
+    arbitrumMainnet: "0x379cbea9234cae9e106bc2a86b39610dc56dbae2",
   },
   //range pools
   rangePoolAddress: "0x000",
@@ -168,7 +168,7 @@ const initialRangeLimitState: RangeLimitState = {
     address: tokenZeroAddress,
     decimals: 18,
     userBalance: 0.0,
-    userPoolAllowance: BigNumber.from(0),
+    userRouterAllowance: BigNumber.from(0),
     rangeUSDPrice: 0.0,
   } as tokenRangeLimit,
   //
@@ -180,7 +180,7 @@ const initialRangeLimitState: RangeLimitState = {
     address: tokenOneAddress,
     decimals: 18,
     userBalance: 0.0,
-    userPoolAllowance: BigNumber.from(0),
+    userRouterAllowance: BigNumber.from(0),
     rangeUSDPrice: 0.0,
   } as tokenRangeLimit,
   //
@@ -289,7 +289,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     },
     setTokenInRangeAllowance: (newAllowance: BigNumber) => {
       set((state) => ({
-        tokenIn: { ...state.tokenIn, userPoolAllowance: newAllowance },
+        tokenIn: { ...state.tokenIn, userRouterAllowance: newAllowance },
       }));
     },
     setTokenInBalance: (newBalance: string) => {
@@ -349,7 +349,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     },
     setTokenOutRangeAllowance: (newAllowance: BigNumber) => {
       set((state) => ({
-        tokenOut: { ...state.tokenOut, userPoolAllowance: newAllowance },
+        tokenOut: { ...state.tokenOut, userRouterAllowance: newAllowance },
       }));
     },
     setMinInput: (minInput: string) => {
@@ -514,7 +514,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           decimals: state.tokenOut.decimals,
           rangeUSDPrice: state.tokenOut.rangeUSDPrice,
           userBalance: state.tokenOut.userBalance,
-          userPoolAllowance: state.tokenOut.userPoolAllowance,
+          userRouterAllowance: state.tokenOut.userRouterAllowance,
         },
         tokenOut: {
           callId:
@@ -528,7 +528,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           decimals: state.tokenIn.decimals,
           rangeUSDPrice: state.tokenIn.rangeUSDPrice,
           userBalance: state.tokenIn.userBalance,
-          userPoolAllowance: state.tokenIn.userPoolAllowance,
+          userRouterAllowance: state.tokenIn.userRouterAllowance,
         },
       }));
     },

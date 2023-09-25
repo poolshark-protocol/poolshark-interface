@@ -11,11 +11,12 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { gasEstimateRangeMint } from "../../utils/gas";
 import RangeCreateAndMintButton from "../Buttons/RangeCreateAndMintButton";
-import { chainProperties } from "../../utils/chains";
+import { chainIdsToNamesForGitTokenList, chainProperties } from "../../utils/chains";
 import { feeTiers } from "../../utils/pools";
 
 export default function RangePoolPreview() {
   const [
+    poolRouters,
     rangePoolAddress,
     rangePoolData,
     rangePositionData,
@@ -29,6 +30,7 @@ export default function RangePoolPreview() {
     setNeedsAllowanceIn,
     setNeedsAllowanceOut,
   ] = useRangeLimitStore((state) => [
+    state.poolRouterAddresses,
     state.rangePoolAddress,
     state.rangePoolData,
     state.rangePositionData,
@@ -44,6 +46,9 @@ export default function RangePoolPreview() {
   ]);
 
   const { address } = useAccount();
+  const {
+    network: { chainId },
+  } = useProvider();
   const router = useRouter();
   const provider = useProvider();
   const signer = new ethers.VoidSigner(address, provider);
@@ -53,7 +58,12 @@ export default function RangePoolPreview() {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolAddress],
+    args: [
+      address,
+      poolRouters[
+        chainIdsToNamesForGitTokenList[chainId]
+      ] as `0x${string}`
+    ],
     chainId: 421613,
     watch: needsAllowanceIn,
     //enabled: tokenIn.address,
@@ -69,7 +79,12 @@ export default function RangePoolPreview() {
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolAddress],
+    args: [
+      address,
+      poolRouters[
+        chainIdsToNamesForGitTokenList[chainId]
+      ] as `0x${string}`
+    ],
     chainId: 421613,
     watch: needsAllowanceOut,
     //enabled: pairSelected && rangePoolAddress != ZERO_ADDRESS,
@@ -329,32 +344,36 @@ export default function RangePoolPreview() {
                         </div>
                       </div>
                       <div className="mt-4">
-                        {tokenIn.userPoolAllowance?.lt(
+                        {tokenIn.userRouterAllowance?.lt(
                           rangeMintParams.tokenInAmount
                         ) &&
-                        tokenOut.userPoolAllowance?.lt(
+                        tokenOut.userRouterAllowance?.lt(
                           rangeMintParams.tokenOutAmount
                         ) ? (
                           <RangeMintDoubleApproveButton
-                            poolAddress={rangePoolAddress}
+                            routerAddress={
+                              poolRouters[
+                                chainIdsToNamesForGitTokenList[chainId]
+                              ] as `0x${string}`
+                            }
                             tokenIn={tokenIn}
                             tokenOut={tokenOut}
                             amount0={rangeMintParams.tokenInAmount}
                             amount1={rangeMintParams.tokenOutAmount}
                           />
-                        ) : tokenIn.userPoolAllowance?.lt(
+                        ) : tokenIn.userRouterAllowance?.lt(
                             rangeMintParams.tokenInAmount
                           ) ? (
                           <RangeMintApproveButton
-                            poolAddress={rangePoolAddress}
+                          routerAddress={rangePoolAddress}
                             approveToken={tokenIn}
                             amount={rangeMintParams.tokenInAmount}
                           />
-                        ) : tokenOut.userPoolAllowance?.lt(
+                        ) : tokenOut.userRouterAllowance?.lt(
                             rangeMintParams.tokenOutAmount
                           ) ? (
                           <RangeMintApproveButton
-                            poolAddress={rangePoolAddress}
+                            routerAddress={rangePoolAddress}
                             approveToken={tokenOut}
                             amount={rangeMintParams.tokenOutAmount}
                           />

@@ -23,7 +23,7 @@ import { gasEstimateRangeMint } from "../../../utils/gas";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [
-    poolRouterAddress,
+    poolRouters,
     rangePoolAddress,
     rangePoolData,
     rangeMintParams,
@@ -110,7 +110,12 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolAddress],
+    args: [
+      address,
+      poolRouters[
+        chainIdsToNamesForGitTokenList[chainId]
+      ] as `0x${string}`
+    ],
     chainId: 421613,
     watch: needsAllowanceIn,
     enabled: isConnected,
@@ -127,7 +132,12 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolAddress],
+    args: [
+      address,
+      poolRouters[
+        chainIdsToNamesForGitTokenList[chainId]
+      ] as `0x${string}`
+    ],
     chainId: 421613,
     watch: needsAllowanceOut,
     enabled: isConnected,
@@ -424,7 +434,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                       </div>
                     </div>
                   </div>
-                  {!tokenIn.userPoolAllowance || !tokenOut.userPoolAllowance ? (
+                  {!tokenIn.userRouterAllowance || !tokenOut.userRouterAllowance ? (
                     <button
                       disabled={disabled}
                       className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
@@ -463,7 +473,11 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                           )) ||
                         doubleApprove ? (
                         <RangeMintDoubleApproveButton
-                          poolAddress={rangePoolAddress}
+                          routerAddress={
+                            poolRouters[
+                              chainIdsToNamesForGitTokenList[chainId]
+                            ] as `0x${string}`
+                          }
                           tokenIn={tokenIn}
                           tokenOut={tokenOut}
                           amount0={rangeMintParams.tokenInAmount}
@@ -472,14 +486,22 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                       ) : !doubleApprove &&
                         tokenInAllowance.lt(rangeMintParams.tokenInAmount) ? (
                         <RangeMintApproveButton
-                          poolAddress={rangePoolAddress}
+                          routerAddress={
+                            poolRouters[
+                              chainIdsToNamesForGitTokenList[chainId]
+                            ] as `0x${string}`
+                          }
                           approveToken={tokenIn}
                           amount={rangeMintParams.tokenInAmount}
                         />
                       ) : !doubleApprove &&
                         tokenOutAllowance.lt(rangeMintParams.tokenOutAmount) ? (
                         <RangeMintApproveButton
-                          poolAddress={rangePoolAddress}
+                          routerAddress={
+                            poolRouters[
+                              chainIdsToNamesForGitTokenList[chainId]
+                            ] as `0x${string}`
+                          }
                           approveToken={tokenOut}
                           amount={rangeMintParams.tokenOutAmount}
                         />

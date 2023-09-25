@@ -22,6 +22,7 @@ import { TickMath } from "../../../utils/math/tickMath";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
+    poolRouters,
     coverPoolAddress,
     coverPoolData,
     coverPositionData,
@@ -36,6 +37,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     setNeedsBalance,
     setMintButtonState,
   ] = useCoverStore((state) => [
+    state.poolRouterAddresses,
     state.coverPoolAddress,
     state.coverPoolData,
     state.coverPositionData,
@@ -69,7 +71,12 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, coverPoolAddress],
+    args: [
+      address,
+      poolRouters[
+        chainIdsToNamesForGitTokenList[chainId]
+      ] as `0x${string}`
+    ],
     chainId: 421613,
     watch: needsAllowance,
     enabled: tokenIn.address != undefined,

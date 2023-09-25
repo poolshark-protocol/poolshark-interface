@@ -10,6 +10,10 @@ import { getCoverPoolFromFactory } from "../utils/queries";
 import JSBI from "jsbi";
 
 type CoverState = {
+  poolRouterAddresses: {
+    arbitrumGoerli: string;
+    arbitrumMainnet: string;
+  };
   //poolAddress for current token pairs
   coverPoolAddress: `0x${string}`;
   volatilityTierId: number;
@@ -86,6 +90,11 @@ type CoverAction = {
 };
 
 const initialCoverState: CoverState = {
+  // router
+  poolRouterAddresses: {
+    arbitrumGoerli: "0xdb11885eac2a8944438322349925ac0de3159392",
+    arbitrumMainnet: "0x00",
+  },
   //pools
   coverPoolAddress: "0x00",
   volatilityTierId: 0,
@@ -103,7 +112,7 @@ const initialCoverState: CoverState = {
     address: tokenZeroAddress,
     decimals: 18,
     userBalance: 0.0,
-    userPoolAllowance: 0.0,
+    userRouterAllowance: 0.0,
     coverUSDPrice: 0.0,
   } as tokenCover,
   //
@@ -115,7 +124,7 @@ const initialCoverState: CoverState = {
     address: tokenOneAddress,
     decimals: 18,
     userBalance: 0.0,
-    userPoolAllowance: 0.0,
+    userRouterAllowance: 0.0,
     coverUSDPrice: 0.0,
   } as tokenCover,
   //
@@ -137,6 +146,8 @@ const initialCoverState: CoverState = {
 };
 
 export const useCoverStore = create<CoverState & CoverAction>((set) => ({
+  //router
+  poolRouterAddresses: initialCoverState.poolRouterAddresses,
   //pool
   coverPoolAddress: initialCoverState.coverPoolAddress,
   coverPoolData: initialCoverState.coverPoolData,
@@ -214,7 +225,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     set((state) => ({
       tokenIn: {
         ...state.tokenIn,
-        userPoolAllowance: Number(newAllowance),
+        userRouterAllowance: Number(newAllowance),
       },
     }));
   },
@@ -293,7 +304,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     set((state) => ({
       tokenOut: {
         ...state.tokenOut,
-        userPoolAllowance: Number(newAllowance),
+        userRouterAllowance: Number(newAllowance),
       },
     }));
   },
@@ -393,7 +404,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         address: state.tokenOut.address,
         decimals: state.tokenOut.decimals,
         userBalance: state.tokenOut.userBalance,
-        userPoolAllowance: state.tokenOut.userPoolAllowance,
+        userRouterAllowance: state.tokenOut.userRouterAllowance,
         coverUSDPrice: state.tokenOut.coverUSDPrice,
       },
       tokenOut: {
@@ -407,7 +418,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         address: state.tokenIn.address,
         decimals: state.tokenIn.decimals,
         userBalance: state.tokenIn.userBalance,
-        userPoolAllowance: state.tokenIn.userPoolAllowance,
+        userRouterAllowance: state.tokenIn.userRouterAllowance,
         coverUSDPrice: state.tokenIn.coverUSDPrice,
       },
       needsAllowance: true,
