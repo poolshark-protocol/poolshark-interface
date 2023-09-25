@@ -1,13 +1,12 @@
 import { BigNumber, ethers } from "ethers";
 import { tokenCover } from "../utils/types";
-import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import {
   tokenOneAddress,
   tokenZeroAddress,
 } from "../constants/contractAddresses";
 import { create } from "zustand";
 import { getCoverPoolFromFactory } from "../utils/queries";
-import JSBI from "jsbi";
 
 type CoverState = {
   //poolAddress for current token pairs
@@ -424,11 +423,14 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       for (let i = 0; i < dataLength; i++) {
         if (
           (volatilityId == 0 &&
-            pool["data"]["coverPools"][i]["volatilityTier"]["tickSpread"] ==
-              "20") ||
+            pool["data"]["coverPools"][i]["volatilityTier"]["feeAmount"] ==
+              "1000") ||
           (volatilityId == 1 &&
-            pool["data"]["coverPools"][i]["volatilityTier"]["tickSpread"] ==
-              "40")
+            pool["data"]["coverPools"][i]["volatilityTier"]["feeAmount"] ==
+              "3000") ||
+          (volatilityId == 2 &&
+            pool["data"]["coverPools"][i]["volatilityTier"]["feeAmount"] ==
+              "10000")
         ) {
           set(() => ({
             coverPoolAddress: pool["data"]["coverPools"][i]["id"],

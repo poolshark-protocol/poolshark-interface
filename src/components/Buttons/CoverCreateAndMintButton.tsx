@@ -16,8 +16,8 @@ import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 export default function CoverCreateAndMintButton({
   routerAddress,
   poolType,
-  token0,
-  token1,
+  tokenIn,
+  tokenOut,
   feeTier,
   tickSpread,
   twapLength,
@@ -51,8 +51,8 @@ export default function CoverCreateAndMintButton({
     args: [
       {
           poolType: ethers.utils.formatBytes32String(poolType),
-          tokenIn: token0.address,
-          tokenOut: token1.address,
+          tokenIn: tokenIn.address,
+          tokenOut: tokenOut.address,
           feeTier: feeTier,
           tickSpread: tickSpread,
           twapLength: twapLength  
