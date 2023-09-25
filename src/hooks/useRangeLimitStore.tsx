@@ -102,7 +102,7 @@ type RangeLimitAction = {
   setLimitGasLimit: (gasLimit: BigNumber) => void;
   //
   switchDirection: () => void;
-  setRangePoolFromVolatility: (
+  setRangePoolFromFeeTier: (
     tokenIn: any,
     tokenOut: any,
     volatility: any
@@ -535,28 +535,21 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         },
       }));
     },
-    setRangePoolFromVolatility: async (tokenIn, tokenOut, volatility: any) => {
+    setRangePoolFromFeeTier: async (tokenIn, tokenOut, volatility: any) => {
       try {
         const pool = await getRangePoolFromFactory(
           tokenIn.address,
           tokenOut.address
         );
-        const volatilityId = volatility.id;
         const dataLength = pool["data"]["limitPools"].length;
         for (let i = 0; i < dataLength; i++) {
           if (
-            (volatilityId == 0 &&
-              pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == "500") ||
-            (volatilityId == 1 &&
-              pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] ==
-                "3000") ||
-            (volatilityId == 2 &&
-              pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == "10000")
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility
           ) {
+            console.log("selectedPool", pool["data"]["limitPools"][i]);
             set(() => ({
               rangePoolAddress: pool["data"]["limitPools"][i]["id"],
               rangePoolData: pool["data"]["limitPools"][i],
-              feeTierId: volatilityId,
             }));
           }
         }

@@ -21,6 +21,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     setRangePoolAddress,
     setRangePoolData,
     setRangePositionData,
+    setRangePoolFromFeeTier,
     setNeedsAllowanceIn,
     setNeedsAllowanceOut,
   ] = useRangeLimitStore((state) => [
@@ -33,6 +34,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     state.setRangePoolAddress,
     state.setRangePoolData,
     state.setRangePositionData,
+    state.setRangePoolFromFeeTier,
     state.setNeedsAllowanceIn,
     state.setNeedsAllowanceOut,
   ]);
@@ -57,8 +59,28 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
   const [amount1, setAmount1] = useState(0);
   const [totalUsdValue, setTotalUsdValue] = useState(0);
 
-  console.log("rangePosition", rangePosition);
-  ////////////////////////
+  //////////////////////////Set USD Prices
+
+  /* useEffect(() => {
+    if (rangePoolData.token0 && rangePoolData.token1) {
+      if (tokenIn.address) {
+        fetchRangeTokenUSDPrice(
+          rangePoolData,
+          tokenIn,
+          setTokenInRangeUSDPrice
+        );
+      }
+      if (tokenOut.address) {
+        fetchRangeTokenUSDPrice(
+          rangePoolData,
+          tokenOut,
+          setTokenOutRangeUSDPrice
+        );
+      }
+    }
+  }, []); */
+
+  ////////////////////////Set Amounts
 
   useEffect(() => {
     setAmounts();
@@ -133,11 +155,10 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     } else {
       setRangeTokenIn(tokenOutNew, tokenInNew);
       setRangeTokenOut(tokenInNew, tokenOutNew);
-      getRangePool(
-        rangeTokenIn,
-        rangeTokenOut,
-        setRangePoolAddress,
-        setRangePoolData
+      setRangePoolFromFeeTier(
+        tokenInNew,
+        tokenOutNew,
+        rangePosition.pool.feeTier.feeAmount
       );
       setRangePositionData(rangePosition);
     }
