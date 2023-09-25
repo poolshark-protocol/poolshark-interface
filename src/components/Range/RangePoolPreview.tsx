@@ -107,9 +107,6 @@ export default function RangePoolPreview() {
   }, [rangeMintParams.tokenInAmount, tokenOut, rangePositionData]);
 
   async function updateGasFee() {
-    console.log("update gas fee");
-    console.log("range mint params", rangeMintParams);
-    console.log("range position data", rangePositionData);
     const newGasFee = await gasEstimateRangeMint(
       rangePoolAddress,
       address,
@@ -187,7 +184,7 @@ export default function RangePoolPreview() {
                         </div>
                         <div className="mt-3">
                           <button className="relative cursor-default rounded-[4px] bg-black text-white cursor-pointer bg-dark border border-grey py-2 pl-3 w-full text-left shadow-md focus:outline-none">
-                            <span className="block truncate">{(rangePoolData.feeTier.feeAmount / 10000).toFixed(2)}%</span>
+                            <span className="block truncate">{(rangePoolData?.feeTier?.feeAmount / 10000).toFixed(2)}%</span>
                             <span className="block truncate text-xs text-grey">
                               {/* {fee.text} */}
                             </span>
