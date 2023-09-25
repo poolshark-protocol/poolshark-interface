@@ -58,10 +58,6 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     state.setCoverPoolFromVolatility,
   ]);
 
-  const [amount0, setAmount0] = useState(0);
-  const [amount1, setAmount1] = useState(0);
-  const [totalUsdValue, setTotalUsdValue] = useState(0);
-
   //////////////////////////Set USD Prices
 
   useEffect(() => {
@@ -116,6 +112,9 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
   }
 
   ////////////////////////Set Amounts
+  const [amount0, setAmount0] = useState(0);
+  const [amount1, setAmount1] = useState(0);
+  const [totalUsdValue, setTotalUsdValue] = useState(0);
 
   useEffect(() => {
     setAmounts();
