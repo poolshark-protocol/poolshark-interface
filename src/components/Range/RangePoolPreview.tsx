@@ -419,8 +419,7 @@ export default function RangePoolPreview() {
                           /> 
                           : 
                           <RangeCreateAndMintButton
-                            disabled={rangeMintParams.disabled}
-                            factoryAddress={chainProperties['arbitrumGoerli']['routerAddress']}
+                            routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
                             poolType={'CONSTANT-PRODUCT'}
                             token0={tokenIn}
                             token1={tokenOut}
@@ -455,6 +454,7 @@ export default function RangePoolPreview() {
                                   )
                                 : BN_ZERO
                             }
+                            disabled={rangeMintParams.disabled}
                             buttonMessage={rangeMintParams.buttonMessage}
                             amount0={
                               tokenIn.callId === 0
