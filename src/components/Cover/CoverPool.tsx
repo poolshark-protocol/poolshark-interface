@@ -60,8 +60,8 @@ const router = useRouter();
   return (
     <>
       <div className="group relative cursor-pointer" onClick={chooseCoverPool}>
-        <div className="grid grid-cols-2 items-center bg-black hover:bg-main1/40 transition-all px-4 py-3 rounded-[4px] border-grey/50 border">
-          <div className="flex items-center gap-x-6">
+      <div className="grid md:grid-cols-2 items-center bg-black hover:bg-main1/40 transition-all px-4 py-3 rounded-[4px] border-grey/50 border">
+      <div className="flex items-center md:gap-x-6 gap-x-3">
             <div className="flex items-center">
               <img
                 className="w-[25px] h-[25px]"
@@ -79,7 +79,7 @@ const router = useRouter();
               {feeTier.tickSpread == "20" ? "1.7" : "2.4"}%
             </span>
           </div>
-          <div className=" grid-cols-3 grid items-center">
+          <div className="md:grid hidden grid-cols-3 w-full justify-end text-right items-center">
             <div className="text-white text-right text-xs">${volumeUsd}m</div>
             <div className="text-right text-white text-xs">${tvlUsd}m</div>
             <div className="text-right text-white text-xs">

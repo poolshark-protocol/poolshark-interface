@@ -227,15 +227,15 @@ export default function Range() {
                 Click on a pool to Add Liquidity
               </span>
             </div>
-            <div className="overflow-x-scroll md:overflow-hidden scrollbar pb-3 lg:pb-0">
-              <div className="w-[500px] lg:w-auto">
+            <div className="pb-3 lg:pb-0">
+              <div className="w-auto">
                 <div className="space-y-3 w-full">
                   <div className="grid grid-cols-2 w-full text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
                     <div className="text-left">Pool Name</div>
-                    <div className="grid grid-cols-3">
-                      <span className="text-right">Volume (24h)</span>
-                      <span className="text-right">TVL</span>
-                      <span className="text-right mr-4">Fees (24h)</span>
+                    <div className="grid md:grid-cols-3 grid-cols-1 mr-4">
+                      <span className="text-right md:table-cell hidden">Volume (24h)</span>
+                      <span className="text-right md:table-cell hidden">TVL</span>
+                      <span className="text-right md:table-cell hidden">Fees (24h)</span>
                     </div>
                   </div>
                   {allRangePools.map((allRangePool) => {

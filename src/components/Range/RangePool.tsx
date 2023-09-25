@@ -53,8 +53,8 @@ export default function RangePool({
   return (
     <>
       <div className="group relative cursor-pointer" onClick={chooseRangePool}>
-        <div className="grid grid-cols-2 items-center bg-black hover:bg-main1/40 transition-all px-4 py-3 rounded-[4px] border-grey/50 border">
-          <div className="flex items-center gap-x-6">
+        <div className="grid md:grid-cols-2 items-center bg-black hover:bg-main1/40 transition-all px-4 py-3 rounded-[4px] border-grey/50 border">
+          <div className="flex items-center md:gap-x-6 gap-x-3">
             <div className="flex items-center">
               <img
                 className="w-[25px] h-[25px]"
@@ -65,14 +65,14 @@ export default function RangePool({
                 src={logoMap[tokenOne.symbol]}
               />
             </div>
-            <span className="text-white text-xs flex items-center gap-x-1.5">
+            <span className="text-white text-xs flex items-center gap-x-1.5 whitespace-nowrap">
               {tokenZero.symbol} - {tokenOne.symbol}
             </span>
             <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
               {Number(feeTier / 10000).toFixed(2)}%
             </span>
           </div>
-          <div className=" grid-cols-3 grid items-center">
+          <div className="md:grid hidden grid-cols-3 w-full justify-end text-right items-center">
             <div className="text-white text-right text-xs">${volumeUsd}m</div>
             <div className="text-right text-white text-xs">${tvlUsd}m</div>
             <div className="text-right text-white text-xs">
