@@ -14,12 +14,13 @@ import { BigNumber, ethers } from "ethers";
 import JSBI from "jsbi";
 import { Listbox, Transition } from "@headlessui/react";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
-import { BN_ZERO } from "../../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
+import CoverCreateAndMintButton from "../Buttons/CoverCreateAndMintButton"
 import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
-import { gasEstimateCoverMint } from "../../utils/gas";
+import { gasEstimateCoverCreateAndMint, gasEstimateCoverMint } from "../../utils/gas";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { chainIdsToNamesForGitTokenList, chainProperties } from "../../utils/chains";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
@@ -173,15 +174,16 @@ export default function CoverExistingPool({ goBack }) {
   }, [coverPoolData, tokenOrder]);
 
   //////////////////////////////Cover Pool Data
-  //initial volatility Tier set to 1.7% when selected from list of range pools
+  //initial volatility Tier set to 1% when selected from list of range pools
   const [selectedVolatility, setSelectedVolatility] = useState(
     volatilityTiers[0]
   );
 
   useEffect(() => {
     if (
-      (selectedVolatility.tickSpread == 20 && volatilityTierId != 0) ||
-      (selectedVolatility.tickSpread == 40 && volatilityTierId != 1)
+      (selectedVolatility.feeAmount == 1000 && volatilityTierId != 0) ||
+      (selectedVolatility.feeAmount == 3000 && volatilityTierId != 1) || 
+      (selectedVolatility.feeAmount == 10000 && volatilityTierId != 2) 
     )
       updatePools();
   }, [tokenIn, tokenOut, selectedVolatility]);
@@ -379,22 +381,43 @@ export default function CoverExistingPool({ goBack }) {
   }, [coverMintParams.tokenInAmount, coverPoolAddress]);
 
   async function updateGasFee() {
-    const newMintGasFee = await gasEstimateCoverMint(
-      coverPoolAddress,
-      address,
-      TickMath.getTickAtPriceString(
-        coverPositionData.upperPrice,
-        parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
-      ),
-      TickMath.getTickAtPriceString(
-        coverPositionData.lowerPrice,
-        parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
-      ),
-      tokenIn,
-      tokenOut,
-      coverMintParams.tokenInAmount,
-      signer
-    );
+    const newMintGasFee = coverPoolAddress == ZERO_ADDRESS ?
+      await gasEstimateCoverMint(
+        coverPoolAddress,
+        address,
+        TickMath.getTickAtPriceString(
+          coverPositionData.upperPrice,
+          parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
+        ),
+        TickMath.getTickAtPriceString(
+          coverPositionData.lowerPrice,
+          parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
+        ),
+        tokenIn,
+        tokenOut,
+        coverMintParams.tokenInAmount,
+        signer
+      )
+    : await gasEstimateCoverCreateAndMint(
+        'PSHARK-CPROD',
+        volatilityTiers[volatilityTierId].feeAmount,
+        volatilityTiers[volatilityTierId].tickSpread,
+        volatilityTiers[volatilityTierId].twapLength,
+        coverPoolAddress,
+        address,
+        TickMath.getTickAtPriceString(
+          coverPositionData.upperPrice,
+          parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
+        ),
+        TickMath.getTickAtPriceString(
+          coverPositionData.lowerPrice,
+          parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
+        ),
+        tokenIn,
+        tokenOut,
+        coverMintParams.tokenInAmount,
+        signer
+      );
     setMintGasFee(newMintGasFee.formattedPrice);
     setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
   }
@@ -708,7 +731,7 @@ export default function CoverExistingPool({ goBack }) {
             amount={String(coverMintParams.tokenInAmount)}
             tokenSymbol={tokenIn.symbol}
           />
-        ) : (
+        ) : ( coverPoolAddress != ZERO_ADDRESS ?
           <CoverMintButton
             routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
             poolAddress={coverPoolAddress}
@@ -744,7 +767,47 @@ export default function CoverExistingPool({ goBack }) {
             }
             gasLimit={mintGasLimit}
           />
-        )
+        : <CoverCreateAndMintButton
+            routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
+            poolType={'coverPoolAddress'}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            feeTier={volatilityTiers[volatilityTierId].tier}
+            tickSpread={volatilityTiers[volatilityTierId].tickSpread}
+            twapLength={volatilityTiers[volatilityTierId].twapLength}
+            disabled={coverMintParams.disabled}
+            buttonMessage={coverMintParams.buttonMessage}
+            to={address}
+            lower={
+              coverPositionData.lowerPrice
+                ? TickMath.getTickAtPriceString(
+                    coverPositionData.lowerPrice ?? "0",
+                    coverPoolData.volatilityTier
+                      ? parseInt(coverPoolData.volatilityTier.tickSpread)
+                      : 20
+                  )
+                : 0
+            }
+            upper={
+              coverPositionData.upperPrice
+                ? TickMath.getTickAtPriceString(
+                    coverPositionData.upperPrice ?? "0",
+                    coverPoolData.volatilityTier
+                      ? parseInt(coverPoolData.volatilityTier.tickSpread)
+                      : 20
+                  )
+                : 0
+            }
+            amount={String(coverMintParams.tokenInAmount)}
+            zeroForOne={tokenOrder}
+            tickSpacing={
+              coverPoolData.volatilityTier
+                ? coverPoolData.volatilityTier.tickSpread
+                : 20
+            }
+            gasLimit={mintGasLimit}
+          />
+      )
       ) : (
         <></>
       )}

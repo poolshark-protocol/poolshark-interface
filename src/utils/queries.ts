@@ -122,6 +122,7 @@ export const getCoverPoolFromFactory = (tokenA: string, tokenB: string) => {
               volatilityTier {
                 tickSpread
                 auctionLength
+                feeAmount
               }
               token0 {
                 usdPrice
