@@ -90,19 +90,20 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
             pathname: href,
           }}
         >
-          <div className="grid grid-cols-4 items-center bg-black px-4 py-3 rounded-[4px] border-grey border hover:bg-main1/20 cursor-pointer">
-            <div className="flex items-center gap-x-6">
+          <div className="lg:grid lg:grid-cols-2 lg:items-center left bg-black px-4 py-3 rounded-[4px] border-grey border hover:bg-main1/20 cursor-pointer">
+            <div className="grid sm:grid-cols-2 grid-rows-2 sm:grid-rows-1 items-center gap-y-2 w-full">
+            <div className="flex items-center gap-x-6 w-full ">
               <div className="flex items-center">
                 <img
-                  className="w-[25px] h-[25px]"
+                  className="w-[25px] h-[25px] aspect-square shrink-0"
                   src={logoMap[rangePosition.tokenZero.symbol]}
                 />
                 <img
-                  className="w-[25px] h-[25px] ml-[-8px]"
+                  className="w-[25px] h-[25px] ml-[-8px] aspect-square shrink-0"
                   src={logoMap[rangePosition.tokenOne.symbol]}
                 />
               </div>
-              <span className="text-white text-xs flex items-center gap-x-1.5">
+              <span className="text-white text-xs flex items-center gap-x-1.5 whitespace-nowrap">
                 {rangePosition.tokenZero.symbol} -{" "}
                 {rangePosition.tokenOne.symbol}
               </span>
@@ -112,7 +113,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
             </div>
             <div
               className={`text-white text-xs ${
-                isModal ? "text-right col-span-2" : "text-right"
+                isModal ? "lg:text-right text-left col-span-2" : "lg:text-right text-left"
               }`}
             >
               {TickMath.getPriceStringAtTick(Number(rangePosition.min))} -{" "}
@@ -127,12 +128,15 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
                   : rangePosition.tokenOne.symbol}
               </span>
             </div>
+            </div>
+            <div className="lg:grid lg:grid-cols-2 items-center lg:block hidden">
             <div className={`text-white text-xs text-right`}>
               200 <span className="text-grey1">DAI</span> - 201{" "}
               <span className="text-grey1">USDC</span>
             </div>
-            <div className="text-right text-white text-xs">
+            <div className="text-right text-white text-xs lg:block hidden">
               {!isModal && <span>$401 </span>}
+            </div>
             </div>
           </div>
         </Link>

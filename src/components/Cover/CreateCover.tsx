@@ -563,29 +563,6 @@ export default function CreateCover(props: any) {
         </div>
       </div>
       <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
-        <h1 className="mb-4">CHOOSE A VOLATILITY TIER</h1>
-        <div className="flex md:flex-row flex-col justify-between mt-8 gap-x-16 gap-y-4">
-          {volatilityTiers.map((volatilityTier, volatilityTierIdx) => (
-            <div
-              onClick={() => {
-                setSelectedVolatility(volatilityTier);
-              }}
-              key={volatilityTierIdx}
-              className={`bg-black p-4 w-full rounded-[4px] cursor-pointer transition-all ${
-                selectedVolatility === volatilityTier
-                  ? "border-grey1 border bg-grey/20"
-                  : "border border-grey"
-              }`}
-            >
-              <h1>{volatilityTier.tier} FEE</h1>
-              <h2 className="text-[11px] uppercase text-grey1 mt-2">
-                {volatilityTier.text}
-              </h2>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
         <div className="flex mb-4 items-center justify-between">
           <h1 className="">SET A PRICE RANGE</h1>
           <div
@@ -692,6 +669,29 @@ export default function CreateCover(props: any) {
               <Option />
             </div>
           </div>
+        </div>
+      </div>
+      <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
+        <h1 className="mb-4">CHOOSE A VOLATILITY TIER</h1>
+        <div className="flex md:flex-row flex-col justify-between mt-8 gap-x-16 gap-y-4">
+          {volatilityTiers.map((volatilityTier, volatilityTierIdx) => (
+            <div
+              onClick={() => {
+                setSelectedVolatility(volatilityTier);
+              }}
+              key={volatilityTierIdx}
+              className={`bg-black p-4 w-full rounded-[4px] cursor-pointer transition-all ${
+                selectedVolatility === volatilityTier
+                  ? "border-grey1 border bg-grey/20"
+                  : "border border-grey"
+              }`}
+            >
+              <h1>{volatilityTier.tier} FEE</h1>
+              <h2 className="text-[11px] uppercase text-grey1 mt-2">
+                {volatilityTier.text}
+              </h2>
+            </div>
+          ))}
         </div>
       </div>
       {allowanceInCover ? (
