@@ -32,7 +32,6 @@ export default function UserCoverPool({
     setCoverPoolFromVolatility,
     setNeedsAllowance,
     setNeedsBalance,
-
   ] = useCoverStore((state) => [
     state.claimTick,
     state.tokenIn,
@@ -62,7 +61,8 @@ export default function UserCoverPool({
       Number(coverPosition.min),
       Number(coverPosition.max),
       Boolean(coverPosition.zeroForOne),
-      Number(coverPosition.epochLast)
+      Number(coverPosition.epochLast),
+      true
     );
     setClaimTick(tick);
     setClaimPrice(parseFloat(TickMath.getPriceStringAtTick(tick)));
@@ -77,7 +77,6 @@ export default function UserCoverPool({
   };
 
   async function choosePosition() {
-    
     setCoverPositionData(coverPosition);
     setNeedsAllowance(true);
     setNeedsBalance(true);
@@ -107,55 +106,61 @@ export default function UserCoverPool({
     });
   }
 
-
   return (
     <>
-      <div onClick={choosePosition}>
-        <div className="grid grid-cols-4 items-center bg-black px-4 py-3 rounded-[4px] border-grey border">
-          <div className="flex items-center gap-x-6">
-            <div className="flex items-center">
-              <img
-                className="w-[25px] h-[25px]"
-                src={logoMap[coverPosition.tokenZero.symbol]}
-              />
-              <img
-                className="w-[25px] h-[25px] ml-[-8px]"
-                src={logoMap[coverPosition.tokenOne.symbol]}
-              />
+      <div className="relative" onClick={choosePosition}>
+        <div className="lg:grid lg:grid-cols-2 lg:items-center w-full items-center bg-black px-4 py-3 rounded-[4px] border-grey border">
+          <div className="grid sm:grid-cols-2 grid-rows-2 sm:grid-rows-1 items-center gap-y-2 w-full">
+            <div className="flex items-center gap-x-6">
+              <div className="flex items-center">
+                <img
+                  className="w-[25px] h-[25px]"
+                  src={logoMap[coverPosition.tokenZero.symbol]}
+                />
+                <img
+                  className="w-[25px] h-[25px] ml-[-8px]"
+                  src={logoMap[coverPosition.tokenOne.symbol]}
+                />
+              </div>
+              <span className="text-white text-xs flex items-center gap-x-1.5">
+                {coverPosition.tokenZero.symbol} <ArrowRightIcon />{" "}
+                {coverPosition.tokenOne.symbol}
+              </span>
+              <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
+                {coverPosition.volatilityTier.tickSpread == "20"
+                  ? "1.7"
+                  : "2.4"}
+                %
+              </span>
             </div>
-            <span className="text-white text-xs flex items-center gap-x-1.5">
-              {coverPosition.tokenZero.symbol} <ArrowRightIcon />{" "}
-              {coverPosition.tokenOne.symbol}
-            </span>
-            <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-              {coverPosition.volatilityTier.tickSpread == "20" ? "1.7" : "2.4"}%
-            </span>
+            <div className="text-white lg:text-right text-left  text-xs">
+              {TickMath.getPriceStringAtTick(Number(coverPosition.min))} -{" "}
+              {TickMath.getPriceStringAtTick(Number(coverPosition.max))}{" "}
+              <span className="text-grey1">
+                {coverPosition.zeroForOne
+                  ? coverPosition.tokenOne.symbol
+                  : coverPosition.tokenZero.symbol}{" "}
+                PER{" "}
+                {coverPosition.zeroForOne
+                  ? coverPosition.tokenZero.symbol
+                  : coverPosition.tokenOne.symbol}
+              </span>
+            </div>
           </div>
-          <div className="text-white text-right text-xs">
-            {TickMath.getPriceStringAtTick(Number(coverPosition.min))} -{" "}
-            {TickMath.getPriceStringAtTick(Number(coverPosition.max))}{" "}
-            <span className="text-grey1">
-              {coverPosition.zeroForOne
-                ? coverPosition.tokenOne.symbol
-                : coverPosition.tokenZero.symbol}{" "}
-              PER{" "}
-              {coverPosition.zeroForOne
-                ? coverPosition.tokenZero.symbol
-                : coverPosition.tokenOne.symbol}
-            </span>
-          </div>
-          <div className="flex items-center justify-end w-full">
-            <div className="flex relative bg-transparent items-center justify-center h-8 border-grey z-40 border rounded-[4px] gap-x-2 text-sm w-40">
-              <div
-                className={`bg-white h-full absolute left-0 z-0 rounded-l-[4px] opacity-10 w-[${fillPercent}%]`}
-              />
-              <div className="z-20 text-white text-xs">
-                {fillPercent}% Filled
+          <div className="lg:grid lg:grid-cols-2 items-center lg:block hidden">
+            <div className="md:flex hidden items-center justify-end w-full">
+              <div className="flex relative bg-transparent items-center justify-center h-8 border-grey z-40 border rounded-[4px] gap-x-2 text-sm w-40">
+                <div
+                  className={`bg-white h-full absolute left-0 z-0 rounded-l-[4px] opacity-10 w-[${fillPercent}%]`}
+                />
+                <div className="z-20 text-white text-xs">
+                  {fillPercent}% Filled
+                </div>
               </div>
             </div>
-          </div>
-          <div className="text-right text-white text-xs">
-            <span>$401 </span>
+            <div className="text-right text-white text-xs lg:block hidden">
+              <span>$401 </span>
+            </div>
           </div>
         </div>
       </div>

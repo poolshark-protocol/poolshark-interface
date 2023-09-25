@@ -265,7 +265,7 @@ export const getLimitTickIfNotZeroForOne = (
        { 
          limitTicks(
             first: 1
-            where: {index_lte:"${upper}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
+            where: {index_lte:"${upper}", pool_:{id:"${poolAddress}"},epochLast1_gt:"${epochLast}"}
           ) {
             index
             epochLast1
@@ -299,7 +299,7 @@ export const getLimitTickIfZeroForOne = (
        { 
          limitTicks(
             first: 1
-            where: {index_gte:"${lower}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
+            where: {index_gte:"${lower}", pool_:{id:"${poolAddress}"},epochLast0_gt:"${epochLast}"}
           ) {
             index
             epochLast0
@@ -489,8 +489,9 @@ export const fetchLimitPositions = (address: string) => {
       query($owner: String) {
           limitPositions(where: {owner:"${address}"}) {
                 id
+                positionId
+                createdAtTimestamp
                 amountIn
-                amountOut
                 amountFilled
                 tokenIn{
                     id
@@ -512,32 +513,16 @@ export const fetchLimitPositions = (address: string) => {
                 owner
                 pool{
                     id
-                    token0{
-                        id
-                        name
-                        symbol
-                        decimals
-                    }
-                    token1{
-                        id
-                        name
-                        symbol
-                        decimals
-                    }
                     liquidity
                     liquidityGlobal
-                    genesisTime
                     epoch
                     feeTier{
-                        feeAmount
-                        tickSpread
+                      feeAmount
+                      tickSpacing
                     }
-                    pool0price
-                    pool1price
                     price0
                     price1
-                    pool0liquidity
-                    pool1liquidity
+                    poolPrice
                     tickSpacing
                 }
                 txnHash

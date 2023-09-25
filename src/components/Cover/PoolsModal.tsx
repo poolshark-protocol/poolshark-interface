@@ -204,7 +204,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                         </div>
                       </div>
                     ) : (
-                      <div className="overflow-scroll">
+                      <div className="overflow-x-scroll lg:overflow-hidden scrollbar pb-3 lg:pb-0">
                         <div className="w-[900px] lg:w-auto space-y-2">
                           {allRangePositions.map((allLimitPosition) => {
                             if (

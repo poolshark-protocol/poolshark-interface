@@ -142,7 +142,7 @@ const initialTradeState: TradeState = {
   minInput: "",
   maxInput: "",
   //
-  needsRefetch: false,
+  needsRefetch: true,
   needsPosRefetch: false,
   needsAllowanceIn: true,
   needsAllowanceOut: true,
