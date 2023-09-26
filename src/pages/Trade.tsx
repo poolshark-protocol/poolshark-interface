@@ -36,7 +36,6 @@ import JSBI from "jsbi";
 import { fetchLimitPositions } from "../utils/queries";
 import { mapUserLimitPositions } from "../utils/maps";
 import { getAveragePrice, getExpectedAmountOut } from "../utils/math/priceMath";
-import LimitBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import LimitSwapBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import timeDifference from "../utils/time";
 import LimitCreateAndMintButton from "../components/Buttons/LimitCreateAndMintButton";
@@ -344,7 +343,6 @@ export default function Trade() {
       console.log("Error allowance", error);
     },
     onSuccess(data) {
-      console.log('got allowance', allowanceInRouter.toString(), tokenIn.userRouterAllowance.toString(), bnInput.toString())
       setNeedsAllowanceIn(false);
       //console.log("Success allowance", data);
     },
@@ -515,7 +513,7 @@ export default function Trade() {
   }, [swapParams]);
 
   async function updateGasFee() {
-    if (tokenIn.userRouterAllowance.gte(bnInput))
+    if (tokenIn.userRouterAllowance?.gte(bnInput))
       await gasEstimateSwap(
         chainProperties['arbitrumGoerli']['routerAddress'],
         swapPoolAddresses,
@@ -530,7 +528,7 @@ export default function Trade() {
   }
 
   async function updateMintFee() {
-    if (tokenIn.userRouterAllowance.gte(bnInput))
+    if (tokenIn.userRouterAllowance?.gte(bnInput))
       await gasEstimateMintLimit(
         tradePoolData.id,
         address,
@@ -1002,7 +1000,7 @@ export default function Trade() {
               <>
                 {
                   //range buttons
-                  tokenIn.userRouterAllowance.lt(bnInput) ? (
+                  tokenIn.userRouterAllowance?.lt(bnInput) ? (
                     <div>
                       <SwapRouterApproveButton
                         routerAddress={
@@ -1029,7 +1027,7 @@ export default function Trade() {
             ) : (
               //limit tab
               <>
-                {tokenIn.userRouterAllowance.gte(bnInput) ? (
+                {tokenIn.userRouterAllowance?.gte(bnInput) ? (
                   <SwapRouterApproveButton
                     routerAddress={
                       chainProperties['arbitrumGoerli']['routerAddress']
