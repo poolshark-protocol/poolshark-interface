@@ -123,10 +123,11 @@ export default function CreateCover(props: any) {
       chainProperties['arbitrumGoerli']['routerAddress']
     ],
     chainId: 421613,
-    //watch: needsAllowance,
+    watch: needsAllowance,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
-      setNeedsAllowance(false);
+      // setNeedsAllowance(true);
+      console.log('allowance fetched')
     },
     onError(error) {
       console.log("Error", error);
@@ -136,6 +137,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     if (allowanceInCover) {
+      console.log('allowance set', allowanceInCover.toString())
       setTokenInCoverAllowance(allowanceInCover.toString());
     }
   }, [allowanceInCover]);
@@ -355,8 +357,11 @@ export default function CreateCover(props: any) {
     if (
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
+      coverPositionData.lowerPrice > 0 &&
+      coverPositionData.upperPrice > 0 &&
       coverPoolData.volatilityTier &&
-      coverMintParams.tokenInAmount
+      coverMintParams.tokenInAmount &&
+      tokenIn.userRouterAllowance >= Number(bnInput)
     )
       updateGasFee();
   }, [
@@ -365,11 +370,14 @@ export default function CreateCover(props: any) {
     coverPositionData.upperPrice,
     coverMintParams.tokenInAmount,
     coverMintParams.tokenOutAmount,
+    tokenIn.userRouterAllowance,
     tokenIn,
     tokenOut,
   ]);
 
   async function updateGasFee() {
+    console.log('allowance check', tokenIn.userRouterAllowance, bnInput.toString())
+    console.log('tick check', coverPositionData.lowerPrice, coverPositionData.upperPrice)
     const newMintGasFee = coverPoolAddress != ZERO_ADDRESS ?
       await gasEstimateCoverMint(
         coverPoolAddress,
