@@ -17,12 +17,18 @@ import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
-import CoverCreateAndMintButton from "../Buttons/CoverCreateAndMintButton"
+import CoverCreateAndMintButton from "../Buttons/CoverCreateAndMintButton";
 import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import inputFilter from "../../utils/inputFilter";
-import { gasEstimateCoverCreateAndMint, gasEstimateCoverMint } from "../../utils/gas";
+import {
+  gasEstimateCoverCreateAndMint,
+  gasEstimateCoverMint,
+} from "../../utils/gas";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import { chainIdsToNamesForGitTokenList, chainProperties } from "../../utils/chains";
+import {
+  chainIdsToNamesForGitTokenList,
+  chainProperties,
+} from "../../utils/chains";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { volatilityTiers } from "../../utils/pools";
 
@@ -32,7 +38,6 @@ export default function CoverExistingPool({ goBack }) {
     coverPoolData,
     coverPositionData,
     coverMintParams,
-    volatilityTierId,
     setCoverPositionData,
     tokenIn,
     setTokenInCoverAllowance,
@@ -57,7 +62,6 @@ export default function CoverExistingPool({ goBack }) {
     state.coverPoolData,
     state.coverPositionData,
     state.coverMintParams,
-    state.volatilityTierId,
     state.setCoverPositionData,
     state.tokenIn,
     state.setTokenInCoverAllowance,
@@ -113,10 +117,7 @@ export default function CoverExistingPool({ goBack }) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [
-      address,
-      chainProperties['arbitrumGoerli']['routerAddress']
-    ],
+    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
     chainId: 421613,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
@@ -174,27 +175,24 @@ export default function CoverExistingPool({ goBack }) {
   }, [coverPoolData, tokenOrder]);
 
   //////////////////////////////Cover Pool Data
-  //initial volatility Tier set to 1% when selected from list of range pools
-  const [selectedVolatility, setSelectedVolatility] = useState(
-    volatilityTiers[0]
-  );
 
   useEffect(() => {
     if (
-      (selectedVolatility.feeAmount == 1000 && volatilityTierId != 0) ||
-      (selectedVolatility.feeAmount == 3000 && volatilityTierId != 1) || 
-      (selectedVolatility.feeAmount == 10000 && volatilityTierId != 2) 
-    )
-      updatePools();
-  }, [tokenIn, tokenOut, selectedVolatility]);
+      //updating from empty selected token
+      tokenOut.name != "Select Token" &&
+      !coverPoolData
+    ) {
+      updatePools("1000");
+    }
+  }, [tokenIn.name, tokenOut.name]);
 
-  async function updatePools() {
-    setCoverPoolFromVolatility(tokenIn, tokenOut, selectedVolatility);
+  async function updatePools(feeAmount: string) {
+    setCoverPoolFromVolatility(tokenIn, tokenOut, feeAmount);
   }
 
   //sames as updatePools but triggered from the html
-  const handleManualVolatilityChange = async (volatility: any) => {
-    setSelectedVolatility(volatility);
+  const handleManualVolatilityChange = async (feeAmount: string) => {
+    updatePools(feeAmount);
   };
 
   ////////////////////////////////Init Position Data
@@ -377,47 +375,49 @@ export default function CoverExistingPool({ goBack }) {
       coverPoolData.volatilityTier &&
       coverMintParams.tokenInAmount
     )
-      updateGasFee();
+      //updateGasFee();
+      () => {};
   }, [coverMintParams.tokenInAmount, coverPoolAddress]);
 
   async function updateGasFee() {
-    const newMintGasFee = coverPoolAddress == ZERO_ADDRESS ?
-      await gasEstimateCoverMint(
-        coverPoolAddress,
-        address,
-        TickMath.getTickAtPriceString(
-          coverPositionData.upperPrice,
-          parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
-        ),
-        TickMath.getTickAtPriceString(
-          coverPositionData.lowerPrice,
-          parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
-        ),
-        tokenIn,
-        tokenOut,
-        coverMintParams.tokenInAmount,
-        signer
-      )
-    : await gasEstimateCoverCreateAndMint(
-        'PSHARK-CPROD',
-        volatilityTiers[volatilityTierId].feeAmount,
-        volatilityTiers[volatilityTierId].tickSpread,
-        volatilityTiers[volatilityTierId].twapLength,
-        coverPoolAddress,
-        address,
-        TickMath.getTickAtPriceString(
-          coverPositionData.upperPrice,
-          parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
-        ),
-        TickMath.getTickAtPriceString(
-          coverPositionData.lowerPrice,
-          parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
-        ),
-        tokenIn,
-        tokenOut,
-        coverMintParams.tokenInAmount,
-        signer
-      );
+    const newMintGasFee =
+      coverPoolAddress == ZERO_ADDRESS
+        ? await gasEstimateCoverMint(
+            coverPoolAddress,
+            address,
+            TickMath.getTickAtPriceString(
+              coverPositionData.upperPrice,
+              parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
+            ),
+            TickMath.getTickAtPriceString(
+              coverPositionData.lowerPrice,
+              parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
+            ),
+            tokenIn,
+            tokenOut,
+            coverMintParams.tokenInAmount,
+            signer
+          )
+        : /* await gasEstimateCoverCreateAndMint(
+            "PSHARK-CPROD",
+            volatilityTiers[volatilityTierId].feeAmount,
+            volatilityTiers[volatilityTierId].tickSpread,
+            volatilityTiers[volatilityTierId].twapLength,
+            coverPoolAddress,
+            address,
+            TickMath.getTickAtPriceString(
+              coverPositionData.upperPrice,
+              parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
+            ),
+            TickMath.getTickAtPriceString(
+              coverPositionData.lowerPrice,
+              parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
+            ),
+            tokenIn,
+            tokenOut,
+            coverMintParams.tokenInAmount,
+            signer
+          ); */ null;
     setMintGasFee(newMintGasFee.formattedPrice);
     setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
   }
@@ -707,10 +707,15 @@ export default function CoverExistingPool({ goBack }) {
         <div className="flex md:flex-row flex-col justify-between mt-8 gap-x-16 gap-y-5">
           {volatilityTiers.map((volatilityTier, volatilityTierIdx) => (
             <div
-              onClick={() => setSelectedVolatility(volatilityTier)}
+              onClick={() => {
+                handleManualVolatilityChange(
+                  volatilityTier.feeAmount.toString()
+                );
+              }}
               key={volatilityTierIdx}
               className={`bg-black p-4 w-full rounded-[4px] cursor-pointer transition-all ${
-                selectedVolatility === volatilityTier
+                coverPoolData?.volatilityTier?.feeAmount ===
+                volatilityTier.feeAmount.toString()
                   ? "border-grey1 border bg-grey/20"
                   : "border border-grey"
               }`}
@@ -726,14 +731,14 @@ export default function CoverExistingPool({ goBack }) {
       {allowanceInCover ? (
         allowanceInCover.lt(coverMintParams.tokenInAmount) ? (
           <CoverMintApproveButton
-            routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
+            routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
             approveToken={tokenIn.address}
             amount={String(coverMintParams.tokenInAmount)}
             tokenSymbol={tokenIn.symbol}
           />
-        ) : ( coverPoolAddress != ZERO_ADDRESS ?
+        ) : coverPoolAddress != ZERO_ADDRESS ? (
           <CoverMintButton
-            routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
+            routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
             poolAddress={coverPoolAddress}
             disabled={coverMintParams.disabled}
             buttonMessage={coverMintParams.buttonMessage}
@@ -767,14 +772,15 @@ export default function CoverExistingPool({ goBack }) {
             }
             gasLimit={mintGasLimit}
           />
-        : <CoverCreateAndMintButton
-            routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
-            poolType={'coverPoolAddress'}
+        ) : (
+          <CoverCreateAndMintButton
+            routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
+            poolType={"coverPoolAddress"}
             tokenIn={tokenIn}
             tokenOut={tokenOut}
-            feeTier={volatilityTiers[volatilityTierId].tier}
+            /* feeTier={volatilityTiers[volatilityTierId].tier}
             tickSpread={volatilityTiers[volatilityTierId].tickSpread}
-            twapLength={volatilityTiers[volatilityTierId].twapLength}
+            twapLength={volatilityTiers[volatilityTierId].twapLength} */
             disabled={coverMintParams.disabled}
             buttonMessage={coverMintParams.buttonMessage}
             to={address}
@@ -807,7 +813,7 @@ export default function CoverExistingPool({ goBack }) {
             }
             gasLimit={mintGasLimit}
           />
-      )
+        )
       ) : (
         <></>
       )}
