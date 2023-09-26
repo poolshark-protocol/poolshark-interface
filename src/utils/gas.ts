@@ -447,6 +447,8 @@ export const gasEstimateCoverMint = async (
     if (!coverPoolRoute || !provider || !signer) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
+    if (inAmount.eq(BN_ZERO))
+      return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     const routerAddress = chainProperties['arbitrumGoerli']['routerAddress']
     const routerContract = new ethers.Contract(
       routerAddress,
