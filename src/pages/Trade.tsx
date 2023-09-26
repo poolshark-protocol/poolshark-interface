@@ -39,7 +39,6 @@ import { mapUserLimitPositions } from "../utils/maps";
 import { getAveragePrice, getExpectedAmountOut } from "../utils/math/priceMath";
 import LimitSwapBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import timeDifference from "../utils/time";
-import LimitCreateAndMintButton from "../components/Buttons/LimitCreateAndMintButton";
 import { DyDxMath } from "../utils/math/dydxMath";
 
 export default function Trade() {
