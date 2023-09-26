@@ -375,13 +375,17 @@ export default function CoverExistingPool({ goBack }) {
     if (
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
+      coverPositionData.lowerPrice > 0 &&
+      coverPositionData.upperPrice > 0 &&
       coverPoolData.volatilityTier &&
-      coverMintParams.tokenInAmount
+      coverMintParams.tokenInAmount &&
+      tokenIn.userRouterAllowance >= Number(coverMintParams.tokenInAmount)
     )
       updateGasFee();
-  }, [coverMintParams.tokenInAmount, coverPoolAddress]);
+  }, [coverMintParams.tokenInAmount, coverPoolAddress, coverPositionData]);
 
   async function updateGasFee() {
+    console.log('estimating gas...latest tick:', coverPoolData.latestTick, coverPoolAddress, tokenOrder)
     const newMintGasFee = coverPoolAddress != ZERO_ADDRESS ?
       await gasEstimateCoverMint(
         coverPoolAddress,
