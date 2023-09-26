@@ -166,17 +166,17 @@ export default function CreateCover(props: any) {
       //updating from empty selected token
       tokenOut.name != "Select Token"
     ) {
-      updatePools();
+      updatePools("1000");
     }
   }, [tokenIn.name, tokenOut.name]);
 
-  async function updatePools() {
-    setCoverPoolFromVolatility(tokenIn, tokenOut, "1000");
+  async function updatePools(feeAmount: string) {
+    setCoverPoolFromVolatility(tokenIn, tokenOut, feeAmount);
   }
 
   //sames as updatePools but triggered from the html
-  const handleManualVolatilityChange = async (volatility: any) => {
-    //setSelectedVolatility(volatility);
+  const handleManualVolatilityChange = async (feeAmount: string) => {
+    updatePools(feeAmount);
   };
 
   ////////////////////////////////Init Position Data
@@ -344,7 +344,8 @@ export default function CreateCover(props: any) {
       coverPoolData.volatilityTier &&
       coverMintParams.tokenInAmount
     )
-      updateGasFee();
+      //updateGasFee();
+      () => {};
   }, [
     coverPoolAddress,
     coverPositionData.lowerPrice,
@@ -683,11 +684,14 @@ export default function CreateCover(props: any) {
           {volatilityTiers.map((volatilityTier, volatilityTierIdx) => (
             <div
               onClick={() => {
-                setSelectedVolatility(volatilityTier);
+                handleManualVolatilityChange(
+                  volatilityTier.feeAmount.toString()
+                );
               }}
               key={volatilityTierIdx}
               className={`bg-black p-4 w-full rounded-[4px] cursor-pointer transition-all ${
-                selectedVolatility === volatilityTier
+                coverPoolData.volatilityTier.feeAmount ===
+                volatilityTier.feeAmount.toString()
                   ? "border-grey1 border bg-grey/20"
                   : "border border-grey"
               }`}
