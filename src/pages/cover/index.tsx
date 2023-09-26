@@ -174,7 +174,7 @@ export default function Cover() {
                             <span className="text-right">% Filled</span>
                             <span className="text-right mr-4">USD Value</span>
                           </div>
-                          {[...Array(1)].map((_, i: number) => (
+                          {[...Array(2)].map((_, i: number) => (
                           <div key={i} className="h-[58px] w-full bg-grey/20 animate-pulse rounded-[4px]">
                             </div>
                             ))}
