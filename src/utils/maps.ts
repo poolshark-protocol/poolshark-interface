@@ -58,7 +58,8 @@ export function mapUserRangePositions(rangePositions) {
   const mappedRangePositions = [];
   rangePositions?.map((rangePosition) => {
     const rangePositionData = {
-      id: rangePosition.positionId,
+      id: rangePosition.id,
+      positionId: rangePosition.positionId,
       poolId: rangePosition.pool.id,
       tokenZero: rangePosition.pool.token0,
       valueTokenZero: rangePosition.pool.token0.usdPrice,
