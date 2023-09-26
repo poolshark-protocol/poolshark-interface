@@ -117,6 +117,7 @@ export const gasEstimateMintLimit = async (
     });
     setMintGasFee(formattedPrice);
     setMintGasLimit(gasUnits.mul(150).div(100));
+    console.log("gas units", gasUnits.toString())
   } catch (error) {
     console.log("gas error limit", error);
     setMintGasFee("$0.00");
