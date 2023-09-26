@@ -40,6 +40,7 @@ import { getAveragePrice, getExpectedAmountOut } from "../utils/math/priceMath";
 import LimitBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import LimitSwapBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import timeDifference from "../utils/time";
+import { DyDxMath } from "../utils/math/dydxMath";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -580,14 +581,25 @@ export default function Trade() {
               {pairSelected
                 ? !limitTabSelected
                   ? amountOut
-                  : (!isNaN(parseFloat(
+                  : !isNaN(parseFloat(
                     ethers.utils.formatUnits(bnInput, tokenIn.decimals)
                   ) * parseFloat(limitStringPriceQuote)) ? (
                       parseFloat(
-                        ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                      ) * parseFloat(limitStringPriceQuote)
-                    ).toPrecision(6) :
-                    "$0.00")
+                        ethers.utils.formatUnits(
+                          getExpectedAmountOut(
+                            parseInt(ethers.utils.formatUnits(lowerTick, 0)),
+                            parseInt(ethers.utils.formatUnits(upperTick, 0)),
+                            limitPriceOrder,
+                            BigNumber.from(DyDxMath.getLiquidityForAmounts(
+                              limitPriceOrder ? TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))) : TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
+                              limitPriceOrder ? TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))) : TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))),
+                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))),
+                              limitPriceOrder ? BN_ZERO : bnInput,
+                              limitPriceOrder ? bnInput : BN_ZERO,
+                            ))
+                          ), tokenIn.decimals
+                    )).toPrecision(6)) :
+                    "$0.00"
                 : "Select Token"}
             </div>
           </div>
