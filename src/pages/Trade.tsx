@@ -20,12 +20,12 @@ import {
   maxPriceBn,
   minPriceBn,
 } from "../utils/math/tickMath";
-import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
+import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import { gasEstimateMintLimit, gasEstimateSwap } from "../utils/gas";
 import inputFilter from "../utils/inputFilter";
 import LimitSwapButton from "../components/Buttons/LimitSwapButton";
 import {
-  fetchRangeTokenUSDPrice, logoMap,
+  fetchRangeTokenUSDPrice, getLimitTokenUsdPrice, logoMap,
 } from "../utils/tokens";
 import { getSwapPools } from "../utils/pools";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
@@ -152,10 +152,16 @@ export default function Trade() {
   const [amountOut, setAmountOut] = useState(undefined);
 
   useEffect(() => {
+    if (tokenIn.address != "0x00" && tokenOut.address === ZERO_ADDRESS) {
+      getLimitTokenUsdPrice(tokenIn.address, setTokenInTradeUSDPrice);
+    }
+  }, [tokenIn.address]);
+
+  useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       updatePools();
     }
-  }, [tokenIn, tokenOut]);
+  }, [tokenIn.address, tokenOut.address]);
 
   async function updatePools() {
     const pools = await getSwapPools(tokenIn, tokenOut, setTradePoolData);
