@@ -20,12 +20,12 @@ import {
   maxPriceBn,
   minPriceBn,
 } from "../utils/math/tickMath";
-import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
+import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import { gasEstimateMintLimit, gasEstimateSwap } from "../utils/gas";
 import inputFilter from "../utils/inputFilter";
 import LimitSwapButton from "../components/Buttons/LimitSwapButton";
 import {
-  fetchRangeTokenUSDPrice, logoMap,
+  fetchRangeTokenUSDPrice, getLimitTokenUsdPrice, logoMap,
 } from "../utils/tokens";
 import { getSwapPools } from "../utils/pools";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
@@ -39,6 +39,7 @@ import { mapUserLimitPositions } from "../utils/maps";
 import { getAveragePrice, getExpectedAmountOut } from "../utils/math/priceMath";
 import LimitSwapBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import timeDifference from "../utils/time";
+import { DyDxMath } from "../utils/math/dydxMath";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -152,10 +153,16 @@ export default function Trade() {
   const [amountOut, setAmountOut] = useState(undefined);
 
   useEffect(() => {
+    if (tokenIn.address != "0x00" && tokenOut.address === ZERO_ADDRESS) {
+      getLimitTokenUsdPrice(tokenIn.address, setTokenInTradeUSDPrice);
+    }
+  }, [tokenIn.address]);
+
+  useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       updatePools();
     }
-  }, [tokenIn, tokenOut]);
+  }, [tokenIn.address, tokenOut.address]);
 
   async function updatePools() {
     const pools = await getSwapPools(tokenIn, tokenOut, setTradePoolData);
@@ -528,7 +535,7 @@ export default function Trade() {
   }
 
   async function updateMintFee() {
-    if (tokenIn.userRouterAllowance?.gte(bnInput))
+    console.log(tokenIn.userRouterAllowance, "user router allowance")
       await gasEstimateMintLimit(
         tradePoolData.id,
         address,
@@ -572,14 +579,29 @@ export default function Trade() {
               {pairSelected
                 ? !limitTabSelected
                   ? amountOut
-                  : (!isNaN(parseFloat(
-                    ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                  ) * parseFloat(limitStringPriceQuote)) ? (
+                  : !isNaN(parseFloat(
+                    ethers.utils.formatUnits(bnInput, tokenIn.decimals))
+                  ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
+                  && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
                       parseFloat(
-                        ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                      ) * parseFloat(limitStringPriceQuote)
-                    ).toPrecision(6) :
-                    "$0.00")
+                        ethers.utils.formatUnits(
+                          getExpectedAmountOut(
+                            parseInt(ethers.utils.formatUnits(lowerTick, 0)),
+                            parseInt(ethers.utils.formatUnits(upperTick, 0)),
+                            limitPriceOrder,
+                            BigNumber.from(String(DyDxMath.getLiquidityForAmounts(
+                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))),
+                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
+                              limitPriceOrder ? TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))) 
+                                              : TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
+                              limitPriceOrder ? BN_ZERO 
+                                              : bnInput,
+                              limitPriceOrder ? bnInput 
+                                              : BN_ZERO,
+                            ))
+                          )), tokenIn.decimals
+                    )).toFixed(2)) :
+                    "$0.00"
                 : "Select Token"}
             </div>
           </div>
@@ -669,7 +691,7 @@ export default function Trade() {
                       ) * tokenIn.USDPrice
                     ).toFixed(2)
                   ) : (
-                    <>0</>
+                    (1 * tokenIn.USDPrice).toFixed(2)
                   )}
                 </span>
                 <span>BALANCE: {tokenIn.userBalance}</span>
@@ -727,24 +749,33 @@ export default function Trade() {
                   {pairSelected &&
                   !bnInput.eq(BN_ZERO) &&
                   tokenOut.address != ZERO_ADDRESS &&
-                  !isNaN(parseFloat(limitStringPriceQuote)) ? (
+                  !isNaN(parseFloat(
+                    ethers.utils.formatUnits(bnInput, tokenIn.decimals))
+                  ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
+                  && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
                     !limitTabSelected ? (
                       //swap page
                       (amountOut * tokenOut.USDPrice).toFixed(2)
                     ) : //limit page
-                    limitPriceOrder ? (
-                      (
-                        parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                        parseFloat(limitStringPriceQuote) *
-                        tokenOut.USDPrice
-                      ).toFixed(2)
-                    ) : (
-                      (
-                        parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                        parseFloat(invertPrice(limitStringPriceQuote, false)) *
-                        tokenOut.USDPrice
-                      ).toFixed(2)
-                    )
+                    (
+                      parseFloat(
+                        ethers.utils.formatUnits(
+                          getExpectedAmountOut(
+                            parseInt(ethers.utils.formatUnits(lowerTick, 0)),
+                            parseInt(ethers.utils.formatUnits(upperTick, 0)),
+                            limitPriceOrder,
+                            BigNumber.from(String(DyDxMath.getLiquidityForAmounts(
+                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))),
+                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
+                              limitPriceOrder ? TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))) 
+                                              : TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
+                              limitPriceOrder ? BN_ZERO 
+                                              : bnInput,
+                              limitPriceOrder ? bnInput 
+                                              : BN_ZERO,
+                            ))
+                          )), tokenIn.decimals
+                    )) * tokenOut.USDPrice).toFixed(2)
                   ) : (
                     <>{(0).toFixed(2)}</>
                   )}
@@ -757,22 +788,32 @@ export default function Trade() {
                 {pairSelected &&
                 !bnInput.eq(BN_ZERO) &&
                 tokenOut.address != ZERO_ADDRESS &&
-                !isNaN(parseFloat(limitStringPriceQuote)) ? (
+                !isNaN(parseFloat(
+                  ethers.utils.formatUnits(bnInput, tokenIn.decimals))
+                ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
+                && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
                   !limitTabSelected ? (
                     <div>{Number(amountOut).toPrecision(5)}</div>
                   ) : (
                     <div>
-                      {!limitPriceOrder
-                        ? (
-                            parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                            parseFloat(
-                              invertPrice(limitStringPriceQuote, false)
-                            )
-                          ).toPrecision(6)
-                        : (
-                            parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                            parseFloat(limitStringPriceQuote)
-                          ).toPrecision(6)}
+                      {parseFloat(
+                        ethers.utils.formatUnits(
+                          getExpectedAmountOut(
+                            parseInt(ethers.utils.formatUnits(lowerTick, 0)),
+                            parseInt(ethers.utils.formatUnits(upperTick, 0)),
+                            limitPriceOrder,
+                            BigNumber.from(String(DyDxMath.getLiquidityForAmounts(
+                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))),
+                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
+                              limitPriceOrder ? TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))) 
+                                              : TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
+                              limitPriceOrder ? BN_ZERO 
+                                              : bnInput,
+                              limitPriceOrder ? bnInput 
+                                              : BN_ZERO,
+                            ))
+                          )), tokenIn.decimals
+                    )).toFixed(3)}
                     </div>
                   )
                 ) : (
@@ -1027,7 +1068,7 @@ export default function Trade() {
             ) : (
               //limit tab
               <>
-                {tokenIn.userRouterAllowance?.gte(bnInput) ? (
+                {tokenIn.userRouterAllowance?.lt(bnInput) ? (
                   <SwapRouterApproveButton
                     routerAddress={
                       chainProperties['arbitrumGoerli']['routerAddress']

@@ -117,8 +117,9 @@ export const gasEstimateMintLimit = async (
     });
     setMintGasFee(formattedPrice);
     setMintGasLimit(gasUnits.mul(150).div(100));
+    console.log("gas units", gasUnits.toString())
   } catch (error) {
-    console.log("gas error limit", error);
+    console.log("gas error limit mint", error);
     setMintGasFee("$0.00");
     setMintGasLimit(BN_ZERO);
   }
@@ -191,7 +192,7 @@ export const gasEstimateCreateAndMintLimit = async (
     setMintGasFee(formattedPrice);
     setMintGasLimit(gasUnits.mul(150).div(100));
   } catch (error) {
-    console.log("gas error limit", error);
+    console.log("gas error limit create and mint", error);
     setMintGasFee("$0.00");
     setMintGasLimit(BN_ZERO);
   }
@@ -258,7 +259,7 @@ export const gasEstimateBurnLimit = async (
     setBurnGasFee(formattedPrice);
     setBurnGasLimit(gasUnits.mul(150).div(100));
   } catch (error) {
-    console.log("gas error limit", error);
+    console.log("gas error limit burn", error);
     setBurnGasFee("$0.00");
     setBurnGasLimit(BN_ZERO);
   }
