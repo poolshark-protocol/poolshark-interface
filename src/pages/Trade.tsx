@@ -580,8 +580,9 @@ export default function Trade() {
                 ? !limitTabSelected
                   ? amountOut
                   : !isNaN(parseFloat(
-                    ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                  ) * parseFloat(limitStringPriceQuote)) ? (
+                    ethers.utils.formatUnits(bnInput, tokenIn.decimals))
+                  ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
+                  && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
                       parseFloat(
                         ethers.utils.formatUnits(
                           getExpectedAmountOut(
@@ -748,7 +749,10 @@ export default function Trade() {
                   {pairSelected &&
                   !bnInput.eq(BN_ZERO) &&
                   tokenOut.address != ZERO_ADDRESS &&
-                  !isNaN(parseFloat(limitStringPriceQuote)) ? (
+                  !isNaN(parseFloat(
+                    ethers.utils.formatUnits(bnInput, tokenIn.decimals))
+                  ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
+                  && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
                     !limitTabSelected ? (
                       //swap page
                       (amountOut * tokenOut.USDPrice).toFixed(2)
@@ -784,7 +788,10 @@ export default function Trade() {
                 {pairSelected &&
                 !bnInput.eq(BN_ZERO) &&
                 tokenOut.address != ZERO_ADDRESS &&
-                !isNaN(parseFloat(limitStringPriceQuote)) ? (
+                !isNaN(parseFloat(
+                  ethers.utils.formatUnits(bnInput, tokenIn.decimals))
+                ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
+                && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
                   !limitTabSelected ? (
                     <div>{Number(amountOut).toPrecision(5)}</div>
                   ) : (
