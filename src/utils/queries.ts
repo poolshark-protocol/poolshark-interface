@@ -865,6 +865,37 @@ export const fetchUniV3Positions = (address: string) => {
   });
 };
 
+export const fetchTokenPrice = (tokenAddress: string) => {
+  return new Promise(function (resolve) {
+    const poolsQuery = `
+            query($id: String) {
+                tokens(id: $id) {
+                    usdPrice
+                }
+            }
+        `;
+    const client = new ApolloClient({
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
+      cache: new InMemoryCache(),
+    });
+    client
+      .query({ 
+        query: gql(poolsQuery),
+        variables: {
+          id: tokenAddress,
+        },
+      })
+      .then((data) => {
+        resolve(data);
+        /* console.log(data) */
+      })
+      .catch((err) => {
+        resolve(err);
+      });
+  });
+};
+
+
 export const fetchEthPrice = () => {
   return new Promise(function (resolve) {
     const univ3Price = `
