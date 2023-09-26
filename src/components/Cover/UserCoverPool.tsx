@@ -71,21 +71,38 @@ export default function UserCoverPool({
   };
 
   const getPositionUSDValue = async () => {
+    console.log(coverPosition);
     const positionOutUSDPrice =
       Number(
         ethers.utils.formatUnits(
-          coverPosition.userFillOut ?? 0,
-          tokenIn.decimals
+          coverPosition.userFillOut,
+          coverPosition.zeroForOne
+            ? coverPosition.tokenZero.decimals
+            : coverPosition.tokenOne.decimals
         )
-      ) * tokenIn.coverUSDPrice;
+      ) *
+      Number(
+        coverPosition.zeroForOne
+          ? coverPosition.valueTokenZero
+          : coverPosition.valueTokenOne
+      );
     const positionInUSDPrice =
       Number(
         ethers.utils.formatUnits(
-          coverPosition.userFillIn ?? 0,
-          tokenOut.decimals
+          coverPosition.userFillIn,
+          coverPosition.zeroForOne
+            ? coverPosition.tokenOne.decimals
+            : coverPosition.tokenZero.decimals
         )
-      ) * tokenOut.coverUSDPrice;
-    setPositionUSDPrice((positionOutUSDPrice + positionInUSDPrice).toFixed(2));
+      ) *
+      Number(
+        coverPosition.zeroForOne
+          ? coverPosition.valueTokenOne
+          : coverPosition.valueTokenZero
+      );
+    setPositionUSDPrice(
+      Number(positionOutUSDPrice + positionInUSDPrice).toFixed(2)
+    );
   };
 
   //////////////////////////Set Position when selected
