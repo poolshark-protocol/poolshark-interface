@@ -453,6 +453,7 @@ export const gasEstimateCoverMint = async (
       poolsharkRouterABI,
       provider
     );
+    console.log('estimating cover gas')
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
     const amountIn = BigNumber.from(String(inAmount));
     const gasUnits: BigNumber = await routerContract
