@@ -17,23 +17,20 @@ export default function CoverPool({
   volumeEth,
   href,
 }) {
-
   const [setCoverTokenIn, setCoverTokenOut, setCoverPoolFromVolatility] =
-  useCoverStore((state) => [
-    state.setTokenIn,
-    state.setTokenOut,
-    state.setCoverPoolFromVolatility,
-  ]);
+    useCoverStore((state) => [
+      state.setTokenIn,
+      state.setTokenOut,
+      state.setCoverPoolFromVolatility,
+    ]);
 
-  console.log('fee tier', feeTier)
-
+  console.log("fee tier", feeTier);
 
   const volTierMap = new Map<string, any>([
-    ['1000', { id: 0, volatility: "1" }],
-    ['3000', { id: 1, volatility: "3" }],
-    ['10000', { id: 2, volatility: "24" }]
+    ["1000", { id: 0, volatility: "1" }],
+    ["3000", { id: 1, volatility: "3" }],
+    ["10000", { id: 2, volatility: "24" }],
   ]);
-  console.log('fee amount', feeTier.feeAmount)
   const router = useRouter();
 
   const chooseCoverPool = () => {
@@ -51,26 +48,19 @@ export default function CoverPool({
     } as tokenCover;
     setCoverTokenIn(tokenOut, tokenIn);
     setCoverTokenOut(tokenIn, tokenOut);
-    const vol0 = { id: 0 };
-    const vol1 = { id: 1 };
-    setCoverPoolFromVolatility(
-      tokenIn,
-      tokenOut,
-      volTierMap.get(feeTier.feeAmount.toString()).id
-    );
+    console.log("fee tier", feeTier);
+    setCoverPoolFromVolatility(tokenIn, tokenOut, feeTier.feeAmount.toString());
     router.push({
       pathname: href,
       query: { state: "existing", tickSpacing: tickSpacing },
     });
   };
 
-  
-
   return (
     <>
       <div className="group relative cursor-pointer" onClick={chooseCoverPool}>
-      <div className="grid md:grid-cols-2 items-center bg-black hover:bg-main1/40 transition-all px-4 py-3 rounded-[4px] border-grey/50 border">
-      <div className="flex items-center md:gap-x-6 gap-x-3">
+        <div className="grid md:grid-cols-2 items-center bg-black hover:bg-main1/40 transition-all px-4 py-3 rounded-[4px] border-grey/50 border">
+          <div className="flex items-center md:gap-x-6 gap-x-3">
             <div className="flex items-center">
               <img
                 className="w-[25px] h-[25px]"

@@ -42,9 +42,9 @@ export default function UserCoverPool({
   ]);
 
   const volTierMap = new Map<string, any>([
-    ['1000', { id: 0, volatility: "1" }],
-    ['3000', { id: 1, volatility: "3" }],
-    ['10000', { id: 2, volatility: "24" }]
+    ["1000", { id: 0, volatility: "1" }],
+    ["3000", { id: 1, volatility: "3" }],
+    ["10000", { id: 2, volatility: "24" }],
   ]);
 
   const [claimPrice, setClaimPrice] = useState(0);
@@ -94,19 +94,16 @@ export default function UserCoverPool({
     } as tokenCover;
     setTokenIn(tokenOutNew, tokenInNew);
     setTokenOut(tokenInNew, tokenOutNew);
-
+    console.log("fee tier", coverPosition.volatilityTier.feeAmount.toString());
     setCoverPoolFromVolatility(
       tokenInNew,
       tokenOutNew,
-      volTierMap.get(coverPosition.volatilityTier.feeAmount.toString())
+      coverPosition.volatilityTier.feeAmount.toString()
     );
     router.push({
       pathname: href,
     });
   }
-
-  console.log('cover position fee amount:', coverPosition.volatilityTier.feeAmount)
-  console.log('fee amount', coverPosition.volatilityTier.feeAmount ? coverPosition.volatilityTier.feeAmount.toString() : 'test')
 
   return (
     <>
@@ -129,7 +126,11 @@ export default function UserCoverPool({
                 {coverPosition.tokenOne.symbol}
               </span>
               <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                {volTierMap.get(coverPosition.volatilityTier.feeAmount.toString()).volatility}
+                {
+                  volTierMap.get(
+                    coverPosition.volatilityTier.feeAmount.toString()
+                  ).volatility
+                }
                 %
               </span>
             </div>
