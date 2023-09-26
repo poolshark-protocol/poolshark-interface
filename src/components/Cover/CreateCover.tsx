@@ -164,7 +164,8 @@ export default function CreateCover(props: any) {
   useEffect(() => {
     if (
       //updating from empty selected token
-      tokenOut.name != "Select Token"
+      tokenOut.name != "Select Token" &&
+      !coverPoolData
     ) {
       updatePools("1000");
     }
@@ -690,7 +691,7 @@ export default function CreateCover(props: any) {
               }}
               key={volatilityTierIdx}
               className={`bg-black p-4 w-full rounded-[4px] cursor-pointer transition-all ${
-                coverPoolData.volatilityTier.feeAmount ===
+                coverPoolData?.volatilityTier?.feeAmount ===
                 volatilityTier.feeAmount.toString()
                   ? "border-grey1 border bg-grey/20"
                   : "border border-grey"

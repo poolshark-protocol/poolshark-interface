@@ -19,8 +19,6 @@ export default function CoverPool({ pool, href }) {
 
   const router = useRouter();
 
-  console.log(pool);
-
   const chooseCoverPool = () => {
     const tokenIn = {
       name: pool.tokenZero.symbol,
@@ -66,9 +64,7 @@ export default function CoverPool({ pool, href }) {
               {pool.tokenZero.symbol} - {pool.tokenOne.symbol}
             </span>
             <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-              {/* {Number(pool.volatilityTier.tickSpread) /
-                pool.volatilityTier.feeAmount} */}
-              %
+              {pool.volatilityTier.feeAmount}%
             </span>
           </div>
           <div className="md:grid hidden grid-cols-3 w-full justify-end text-right items-center">

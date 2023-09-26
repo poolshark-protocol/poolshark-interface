@@ -421,6 +421,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
           pool["data"]["coverPools"][i]["volatilityTier"]["feeAmount"] ==
           volatility
         ) {
+          console.log("selected pool", pool["data"]["coverPools"][i]);
           set(() => ({
             coverPoolAddress: pool["data"]["coverPools"][i]["id"],
             coverPoolData: pool["data"]["coverPools"][i],
