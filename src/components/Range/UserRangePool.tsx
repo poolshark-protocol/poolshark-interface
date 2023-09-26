@@ -207,8 +207,8 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
             pathname: href,
           }}
         >
-          <div className="lg:grid lg:grid-cols-2 lg:items-center left bg-black px-4 py-3 rounded-[4px] border-grey border hover:bg-main1/20 cursor-pointer">
-            <div className="grid sm:grid-cols-2 grid-rows-2 sm:grid-rows-1 items-center gap-y-2 w-full">
+          <div className={`${isModal ? "grid-cols-3 " : "lg:grid-cols-2"} lg:grid lg:items-center left bg-black px-4 py-3 rounded-[4px] border-grey border hover:bg-main1/20 cursor-pointer`}>
+            <div className={`grid sm:grid-cols-2 grid-rows-2 sm:grid-rows-1 items-center gap-y-2 w-full ${isModal ? "col-span-2" : "col-span-1"}`}>
             <div className="flex items-center gap-x-6 w-full ">
               <div className="flex items-center">
                 <img
@@ -229,9 +229,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
               </span>
             </div>
             <div
-              className={`text-white text-xs ${
-                isModal ? "lg:text-right text-left col-span-2" : "lg:text-right text-left"
-              }`}
+              className={`text-white text-xs lg:text-right text-left whitespace-nowrap`}
             >
               {TickMath.getPriceStringAtTick(Number(rangePosition.min))} -{" "}
               {TickMath.getPriceStringAtTick(Number(rangePosition.max))}{" "}
@@ -246,7 +244,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
               </span>
             </div>
             </div>
-            <div className="lg:grid lg:grid-cols-2 items-center lg:block hidden">
+            <div className={`lg:grid items-center lg:block hidden ${isModal ? "grid-cols-1 " : "lg:grid-cols-2"}`}>
             <div className={`text-white text-xs text-right`}>
               {amount0.toPrecision(4)}{" "}
               <span className="text-grey1">
