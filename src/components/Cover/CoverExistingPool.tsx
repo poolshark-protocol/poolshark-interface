@@ -381,7 +381,7 @@ export default function CoverExistingPool({ goBack }) {
   }, [coverMintParams.tokenInAmount, coverPoolAddress]);
 
   async function updateGasFee() {
-    const newMintGasFee = coverPoolAddress == ZERO_ADDRESS ?
+    const newMintGasFee = coverPoolAddress != ZERO_ADDRESS ?
       await gasEstimateCoverMint(
         coverPoolAddress,
         address,
