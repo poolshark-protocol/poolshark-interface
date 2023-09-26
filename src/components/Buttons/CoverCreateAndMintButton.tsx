@@ -1,8 +1,8 @@
 import {
-    usePrepareContractWrite,
-    useContractWrite,
-    useWaitForTransaction,
-  } from "wagmi";
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+} from "wagmi";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
@@ -12,15 +12,15 @@ import { BigNumber, ethers } from "ethers";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import router from "next/router";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
-  
+
 export default function CoverCreateAndMintButton({
   routerAddress,
   poolType,
   tokenIn,
   tokenOut,
-  feeTier,
+  /* feeTier,
   tickSpread,
-  twapLength,
+  twapLength, */
   disabled,
   to,
   lower,
@@ -50,24 +50,24 @@ export default function CoverCreateAndMintButton({
     functionName: "createCoverPoolAndMint",
     args: [
       {
-          poolType: ethers.utils.formatBytes32String(poolType),
-          tokenIn: tokenIn.address,
-          tokenOut: tokenOut.address,
-          feeTier: feeTier,
+        poolType: ethers.utils.formatBytes32String(poolType),
+        tokenIn: tokenIn.address,
+        tokenOut: tokenOut.address,
+        /* feeTier: feeTier,
           tickSpread: tickSpread,
-          twapLength: twapLength  
+          twapLength: twapLength   */
       }, // pool params
       [
-          {
-              to: to,
-              amount: amount,
-              positionId: newPositionId,
-              lower: BigNumber.from(roundTick(Number(lower), tickSpacing)),
-              upper: BigNumber.from(roundTick(Number(upper), tickSpacing)),
-              zeroForOne: zeroForOne,
-              callbackData: ethers.utils.formatBytes32String('')
-          }
-      ] // cover positions
+        {
+          to: to,
+          amount: amount,
+          positionId: newPositionId,
+          lower: BigNumber.from(roundTick(Number(lower), tickSpacing)),
+          upper: BigNumber.from(roundTick(Number(upper), tickSpacing)),
+          zeroForOne: zeroForOne,
+          callbackData: ethers.utils.formatBytes32String(""),
+        },
+      ], // cover positions
     ],
     overrides: {
       gasLimit: gasLimit,
@@ -122,4 +122,3 @@ export default function CoverCreateAndMintButton({
     </>
   );
 }
-  

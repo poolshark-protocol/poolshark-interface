@@ -94,7 +94,6 @@ export default function UserCoverPool({
     } as tokenCover;
     setTokenIn(tokenOutNew, tokenInNew);
     setTokenOut(tokenInNew, tokenOutNew);
-    console.log("fee tier", coverPosition.volatilityTier.feeAmount.toString());
     setCoverPoolFromVolatility(
       tokenInNew,
       tokenOutNew,

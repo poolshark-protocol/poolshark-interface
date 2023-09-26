@@ -276,18 +276,8 @@ export default function Cover() {
                     )
                       return (
                         <CoverPool
-                          account={address}
                           key={allCoverPool.poolId}
-                          poolId={allCoverPool.poolId}
-                          tokenZero={allCoverPool.tokenZero}
-                          tokenOne={allCoverPool.tokenOne}
-                          liquidity={allCoverPool.liquidity}
-                          auctionLenght={undefined}
-                          feeTier={allCoverPool.feeTier}
-                          tickSpacing={allCoverPool.tickSpacing}
-                          tvlUsd={allCoverPool.tvlUsd}
-                          volumeUsd={allCoverPool.volumeUsd}
-                          volumeEth={allCoverPool.volumeEth}
+                          pool={allCoverPool}
                           href="/cover/create"
                         />
                       );

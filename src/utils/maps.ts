@@ -1,5 +1,10 @@
 import { BigNumber } from "ethers";
-import { getLimitTickIfNotZeroForOne, getLimitTickIfZeroForOne, getTickIfNotZeroForOne, getTickIfZeroForOne } from "./queries";
+import {
+  getLimitTickIfNotZeroForOne,
+  getLimitTickIfZeroForOne,
+  getTickIfNotZeroForOne,
+  getTickIfZeroForOne,
+} from "./queries";
 
 export const getClaimTick = async (
   poolAddress: string,
@@ -11,42 +16,28 @@ export const getClaimTick = async (
 ) => {
   let claimTick = zeroForOne ? maxLimit : minLimit;
   if (zeroForOne) {
-    const claimTickQuery = isCover ? await getTickIfZeroForOne(
-      maxLimit,
-      poolAddress,
-      epochLast
-    ) :
-      await getLimitTickIfZeroForOne(
-        minLimit,
-        poolAddress,
-        epochLast
-    );
-    const claimTickDataLength = isCover ? 
-      claimTickQuery["data"]["ticks"].length :
-      claimTickQuery["data"]["limitTicks"].length;
+    const claimTickQuery = isCover
+      ? await getTickIfZeroForOne(maxLimit, poolAddress, epochLast)
+      : await getLimitTickIfZeroForOne(minLimit, poolAddress, epochLast);
+    const claimTickDataLength = isCover
+      ? claimTickQuery["data"]["ticks"].length
+      : claimTickQuery["data"]["limitTicks"].length;
 
     if (claimTickDataLength > 0)
-      claimTick = isCover ?
-        claimTickQuery["data"]["ticks"][0]["index"] :
-        claimTickQuery["data"]["limitTicks"][0]["index"];
+      claimTick = isCover
+        ? claimTickQuery["data"]["ticks"][0]["index"]
+        : claimTickQuery["data"]["limitTicks"][0]["index"];
   } else {
-    const claimTickQuery = isCover ? await getTickIfNotZeroForOne(
-      minLimit,
-      poolAddress,
-      epochLast
-    ) :
-      await getLimitTickIfNotZeroForOne(
-        maxLimit,
-        poolAddress,
-        epochLast
-    );
-    const claimTickDataLength = isCover ?
-      claimTickQuery["data"]["ticks"].length :
-      claimTickQuery["data"]["limitTicks"].length;
+    const claimTickQuery = isCover
+      ? await getTickIfNotZeroForOne(minLimit, poolAddress, epochLast)
+      : await getLimitTickIfNotZeroForOne(maxLimit, poolAddress, epochLast);
+    const claimTickDataLength = isCover
+      ? claimTickQuery["data"]["ticks"].length
+      : claimTickQuery["data"]["limitTicks"].length;
     if (claimTickDataLength > 0)
-      claimTick = isCover ?
-        claimTickQuery["data"]["ticks"][0]["index"] :
-        claimTickQuery["data"]["limitTicks"][0]["index"];
+      claimTick = isCover
+        ? claimTickQuery["data"]["ticks"][0]["index"]
+        : claimTickQuery["data"]["limitTicks"][0]["index"];
     if (claimTick == undefined) {
       claimTick = minLimit;
     }
@@ -163,13 +154,12 @@ export function mapCoverPools(coverPools) {
       tokenZero: coverPool.token0,
       liquidity: coverPool.liquidity,
       auctionLenght: coverPool.volatilityTier.auctionLength,
-      feeTier: coverPool.volatilityTier,
-      tickSpacing: coverPool.volatilityTier.tickSpread,
-      tvlUsd: (parseFloat(coverPool.totalValueLockedUsd) / 1_000_000).toFixed(
-        2
-      ),
-      volumeUsd: (parseFloat(coverPool.volumeUsd) / 1_000_000).toFixed(2),
-      volumeEth: (parseFloat(coverPool.volumeEth) / 1).toFixed(2),
+      volatilityTier: coverPool.volatilityTier,
+      tickSpread: coverPool.volatilityTier.tickSpread,
+      feesUsd: parseFloat(coverPool.feesUsd).toFixed(2),
+      tvlUsd: parseFloat(coverPool.totalValueLockedUsd).toFixed(2),
+      volumeUsd: parseFloat(coverPool.volumeUsd).toFixed(2),
+      volumeEth: parseFloat(coverPool.volumeEth).toFixed(2),
     };
     mappedCoverPools.push(coverPoolData);
   });
@@ -198,7 +188,7 @@ export function mapUserLimitPositions(limitPositions) {
       price0: limitPosition.pool.price0,
       price1: limitPosition.pool.price1,
       userOwnerAddress: limitPosition.owner.replace(/"|'/g, ""),
-    }
+    };
     mappedLimitPositions.push(limitPositionData);
   });
   return mappedLimitPositions;
