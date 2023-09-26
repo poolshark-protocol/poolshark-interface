@@ -692,7 +692,7 @@ export default function CreateCover(props: any) {
       </div>
       <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
         <h1 className="mb-4">CHOOSE A VOLATILITY TIER</h1>
-        <div className="flex md:flex-row flex-col justify-between mt-8 gap-x-16 gap-y-4">
+        <div className="flex md:flex-row flex-col justify-between mt-8 gap-x-10 gap-y-4">
           {volatilityTiers.map((volatilityTier, volatilityTierIdx) => (
             <div
               onClick={() => {
