@@ -69,7 +69,7 @@ export default function CoverPool({ pool, href }) {
             </div>
             <div className="text-right text-white text-xs">${pool.tvlUsd}</div>
             <div className="text-right text-white text-xs">
-              <span>${pool.tvlUsd}</span>
+              <span>${pool.feesUsd}</span>
             </div>
           </div>
         </div>
