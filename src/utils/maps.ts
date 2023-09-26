@@ -149,7 +149,6 @@ export function mapUserCoverPositions(coverPositions) {
 export function mapCoverPools(coverPools) {
   const mappedCoverPools = [];
   coverPools.map((coverPool) => {
-    console.log("coverPool", coverPool);
     const coverPoolData = {
       poolId: coverPool.id,
       tokenOne: coverPool.token1,

@@ -66,12 +66,11 @@ export default function ViewCover() {
   const [fillPercent, setFillPercent] = useState(0);
   const [coverFilledAmount, setCoverFilledAmount] = useState("");
   const [allCoverPositions, setAllCoverPositions] = useState([]);
-  
-  
+
   const volTierMap = new Map<string, any>([
-    ['1000', { id: 0, volatility: "1" }],
-    ['3000', { id: 1, volatility: "3" }],
-    ['10000', { id: 2, volatility: "24" }]
+    ["1000", { id: 0, volatility: "1" }],
+    ["3000", { id: 1, volatility: "3" }],
+    ["10000", { id: 2, volatility: "24" }],
   ]);
 
   //Display and copy flags
@@ -276,8 +275,6 @@ export default function ViewCover() {
       coverPoolAddress != undefined &&
       address != undefined,
     onError(error) {
-      console.log("coverpool", coverPoolAddress);
-      console.log("address", address);
       console.log("Error snapshot Cover", error);
     },
   });
@@ -363,7 +360,12 @@ export default function ViewCover() {
               </div>
               <div className="flex items-center gap-x-5">
                 <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                  {volTierMap.get(coverPoolData.volatilityTier.feeAmount.toString()).volatility}%
+                  {
+                    volTierMap.get(
+                      coverPoolData.volatilityTier.feeAmount.toString()
+                    ).volatility
+                  }
+                  %
                 </span>
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
                   0.9 USDC

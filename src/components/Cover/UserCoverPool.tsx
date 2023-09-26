@@ -71,7 +71,6 @@ export default function UserCoverPool({
   };
 
   const getPositionUSDValue = async () => {
-    console.log(coverPosition);
     const positionOutUSDPrice =
       Number(
         ethers.utils.formatUnits(
