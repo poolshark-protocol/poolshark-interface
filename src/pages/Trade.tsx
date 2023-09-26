@@ -599,7 +599,7 @@ export default function Trade() {
                                               : BN_ZERO,
                             ))
                           )), tokenIn.decimals
-                    )).toPrecision(6)) :
+                    )).toFixed(2)) :
                     "$0.00"
                 : "Select Token"}
             </div>
@@ -753,19 +753,25 @@ export default function Trade() {
                       //swap page
                       (amountOut * tokenOut.USDPrice).toFixed(2)
                     ) : //limit page
-                    limitPriceOrder ? (
-                      (
-                        parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                        parseFloat(limitStringPriceQuote) *
-                        tokenOut.USDPrice
-                      ).toFixed(2)
-                    ) : (
-                      (
-                        parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                        parseFloat(invertPrice(limitStringPriceQuote, false)) *
-                        tokenOut.USDPrice
-                      ).toFixed(2)
-                    )
+                    (
+                      parseFloat(
+                        ethers.utils.formatUnits(
+                          getExpectedAmountOut(
+                            parseInt(ethers.utils.formatUnits(lowerTick, 0)),
+                            parseInt(ethers.utils.formatUnits(upperTick, 0)),
+                            limitPriceOrder,
+                            BigNumber.from(String(DyDxMath.getLiquidityForAmounts(
+                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))),
+                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
+                              limitPriceOrder ? TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))) 
+                                              : TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
+                              limitPriceOrder ? BN_ZERO 
+                                              : bnInput,
+                              limitPriceOrder ? bnInput 
+                                              : BN_ZERO,
+                            ))
+                          )), tokenIn.decimals
+                    )) * tokenOut.USDPrice).toFixed(2)
                   ) : (
                     <>{(0).toFixed(2)}</>
                   )}
@@ -783,17 +789,24 @@ export default function Trade() {
                     <div>{Number(amountOut).toPrecision(5)}</div>
                   ) : (
                     <div>
-                      {!limitPriceOrder
-                        ? (
-                            parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                            parseFloat(
-                              invertPrice(limitStringPriceQuote, false)
-                            )
-                          ).toPrecision(6)
-                        : (
-                            parseFloat(ethers.utils.formatUnits(bnInput, 18)) *
-                            parseFloat(limitStringPriceQuote)
-                          ).toPrecision(6)}
+                      {parseFloat(
+                        ethers.utils.formatUnits(
+                          getExpectedAmountOut(
+                            parseInt(ethers.utils.formatUnits(lowerTick, 0)),
+                            parseInt(ethers.utils.formatUnits(upperTick, 0)),
+                            limitPriceOrder,
+                            BigNumber.from(String(DyDxMath.getLiquidityForAmounts(
+                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))),
+                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
+                              limitPriceOrder ? TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))) 
+                                              : TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
+                              limitPriceOrder ? BN_ZERO 
+                                              : bnInput,
+                              limitPriceOrder ? bnInput 
+                                              : BN_ZERO,
+                            ))
+                          )), tokenIn.decimals
+                    )).toFixed(3)}
                     </div>
                   )
                 ) : (
