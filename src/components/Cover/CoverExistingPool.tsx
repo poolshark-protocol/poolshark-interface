@@ -118,9 +118,10 @@ export default function CoverExistingPool({ goBack }) {
       chainProperties['arbitrumGoerli']['routerAddress']
     ],
     chainId: 421613,
+    watch: needsAllowance,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
-      setNeedsAllowance(false);
+      // setNeedsAllowance(false);
     },
     onError(error) {
       console.log("Error", error);
