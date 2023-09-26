@@ -41,12 +41,6 @@ export default function UserCoverPool({
     state.setNeedsBalance,
   ]);
 
-  const volTierMap = new Map<string, any>([
-    ["1000", { id: 0, volatility: "1" }],
-    ["3000", { id: 1, volatility: "3" }],
-    ["10000", { id: 2, volatility: "24" }],
-  ]);
-
   const [claimPrice, setClaimPrice] = useState(0);
   // fill percent is % of range crossed based on price
   const [fillPercent, setFillPercent] = useState("0");
@@ -125,11 +119,9 @@ export default function UserCoverPool({
                 {coverPosition.tokenOne.symbol}
               </span>
               <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                {
-                  volTierMap.get(
-                    coverPosition.volatilityTier.feeAmount.toString()
-                  ).volatility
-                }
+                {(Number(coverPosition.pool.volatilityTier.tickSpread) / 100) *
+                  (60 /
+                    Number(coverPosition.pool.volatilityTier.auctionLength))}
                 %
               </span>
             </div>

@@ -66,6 +66,8 @@ export default function ViewCover() {
   const [fillPercent, setFillPercent] = useState(0);
   const [coverFilledAmount, setCoverFilledAmount] = useState("");
   const [allCoverPositions, setAllCoverPositions] = useState([]);
+  
+  
   const volTierMap = new Map<string, any>([
     ['1000', { id: 0, volatility: "1" }],
     ['3000', { id: 1, volatility: "3" }],

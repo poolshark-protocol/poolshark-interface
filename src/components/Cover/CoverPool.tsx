@@ -11,12 +11,6 @@ export default function CoverPool({ pool, href }) {
       state.setCoverPoolFromVolatility,
     ]);
 
-  const volTierMap = new Map<string, any>([
-    ["1000", { id: 0, volatility: "1" }],
-    ["3000", { id: 1, volatility: "3" }],
-    ["10000", { id: 2, volatility: "24" }],
-  ]);
-
   const router = useRouter();
 
   const chooseCoverPool = () => {
@@ -64,7 +58,9 @@ export default function CoverPool({ pool, href }) {
               {pool.tokenZero.symbol} - {pool.tokenOne.symbol}
             </span>
             <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-              {pool.volatilityTier.feeAmount}%
+              {(Number(pool.volatilityTier.tickSpread) / 100) *
+                (60 / Number(pool.volatilityTier.auctionLength))}
+              %
             </span>
           </div>
           <div className="md:grid hidden grid-cols-3 w-full justify-end text-right items-center">

@@ -106,6 +106,7 @@ export function mapUserCoverPositions(coverPositions) {
       id: coverPosition.id,
       positionId: coverPosition.positionId,
       poolId: coverPosition.pool.id,
+      pool: coverPosition.pool,
       tokenZero: coverPosition.zeroForOne
         ? coverPosition.pool.token0
         : coverPosition.pool.token1,
