@@ -20,7 +20,7 @@ import {
   maxPriceBn,
   minPriceBn,
 } from "../utils/math/tickMath";
-import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
+import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import { gasEstimateMintLimit, gasEstimateSwap } from "../utils/gas";
 import inputFilter from "../utils/inputFilter";
 import LimitSwapButton from "../components/Buttons/LimitSwapButton";
