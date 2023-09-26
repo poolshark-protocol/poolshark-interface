@@ -35,6 +35,7 @@ export default function Cover() {
   const [create, setCreate] = useState(true);
   const [allCoverPools, setAllCoverPools] = useState([]);
   const [isPositionsLoading, setIsPositionsLoading] = useState(false);
+  const [isPoolsLoading, setIsPoolsLoading] = useState(false);
 
   useEffect(() => {
     if (address) {
@@ -82,10 +83,12 @@ export default function Cover() {
   };
 
   async function getCoverPoolData() {
+    setIsPoolsLoading(true)
     const data = await fetchCoverPools();
     if (data["data"]) {
       const pools = data["data"].coverPools;
       setAllCoverPools(mapCoverPools(pools));
+      setIsPoolsLoading(false)
     }
   }
 
@@ -94,7 +97,7 @@ export default function Cover() {
       <Navbar create={create} setCreate={setCreate} />
       <div className="container mx-auto my-8 px-3 md:px-0  pb-32">
         <div className="flex lg:flex-row flex-col gap-x-8 gap-y-5 justify-between">
-          <div className="p-7 lg:h-[300px] w-full lg:w-[60%] flex flex-col justify-between bg-[url('/static/images/bg/shark.png')]">
+          <div className="p-7 lg:h-[300px] w-full lg:w-[60%] flex flex-col justify-between bg-cover bg-[url('/static/images/bg/shark.png')]">
             <div className="flex flex-col gap-y-3 mb-5">
               <h1 className="uppercase text-white">
                 Cover your liquidity pools
@@ -162,7 +165,22 @@ export default function Cover() {
             </div>
             <div className="text-white">
               {isPositionsLoading ? <div>
-                loading..
+                <div className="pb-3 lg:pb-0">
+                      <div className="lg:w-auto">
+                        <div className="space-y-3">
+                          <div className="lg:grid hidden grid-cols-4 text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
+                            <span>Pool Name</span>
+                            <span className="text-right">Price Range</span>
+                            <span className="text-right">% Filled</span>
+                            <span className="text-right mr-4">USD Value</span>
+                          </div>
+                          {[...Array(2)].map((_, i: number) => (
+                          <div key={i} className="h-[58px] w-full bg-grey/20 animate-pulse rounded-[4px]">
+                            </div>
+                            ))}
+                        </div>
+                      </div>
+                    </div>
                 </div>
                 : 
                 isDisconnected || allCoverPositions.length === 0 ? (
@@ -252,13 +270,19 @@ export default function Cover() {
                 <div className="space-y-3 w-full">
                   <div className="grid grid-cols-2 w-full text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
                     <div className="text-left">Pool Name</div>
-                    <div className="grid grid-cols-3">
+                    <div className="grid grid-cols-3">x
                       <span className="text-right md:table-cell hidden">Volume (24h)</span>
                       <span className="text-right md:table-cell hidden">TVL</span>
                       <span className="text-right mr-4 md:table-cell hidden">Fees (24h)</span>
                     </div>
                   </div>
-                  {allCoverPools.map((allCoverPool) => {
+                  {isPoolsLoading ? 
+                  [...Array(3)].map((_, i: number) => (
+                          <div key={i} className="h-[50px] w-full bg-grey/30 animate-pulse rounded-[4px]">
+                            </div>
+                            ))
+                            :
+                  allCoverPools.map((allCoverPool) => {
                     if (
                       allCoverPool.tokenZero.name.toLowerCase() ===
                         searchTerm.toLowerCase() ||

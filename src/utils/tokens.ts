@@ -1,5 +1,7 @@
 //eventually this functions should merge into one
 
+import { fetchTokenPrice } from "./queries";
+
 export const logoMap = {
   USDC: "/static/images/token.png",
   WETH: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
@@ -21,6 +23,18 @@ export const fetchCoverTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
     setTokenUSDPrice(
       token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice
     );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getLimitTokenUsdPrice = async (tokenAddress: string, setTokenUSDPrice) => {
+  try {
+    const tokenData = await fetchTokenPrice(tokenAddress);
+    const tokenUsdPrice = tokenData["data"]["tokens"]["0"]["usdPrice"];
+    console.log("tokenUsdPrice", tokenUsdPrice)
+
+    setTokenUSDPrice(tokenUsdPrice);
   } catch (error) {
     console.log(error);
   }
