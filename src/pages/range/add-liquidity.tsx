@@ -133,7 +133,7 @@ export default function AddLiquidity({}) {
       chainProperties['arbitrumGoerli']['routerAddress']
     ],
     chainId: 421613,
-    //watch: needsAllowanceIn,
+    watch: needsAllowanceIn,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
       //setNeedsAllowanceIn(false);
@@ -152,7 +152,7 @@ export default function AddLiquidity({}) {
       chainProperties['arbitrumGoerli']['routerAddress']
     ],
     chainId: 421613,
-    //watch: needsAllowanceOut,
+    watch: needsAllowanceOut,
     enabled: tokenOut.address != undefined,
     onSuccess(data) {
       //setNeedsAllowanceOut(false);
@@ -346,7 +346,7 @@ export default function AddLiquidity({}) {
 
   useEffect(() => {
     setMintButtonState();
-  }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount]);
+  }, [tokenIn, tokenOut, rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount]);
 
   ////////////////////////////////
 
