@@ -675,7 +675,7 @@ export default function Trade() {
                       ) * tokenIn.USDPrice
                     ).toFixed(2)
                   ) : (
-                    <>0</>
+                    (1 * tokenIn.USDPrice).toFixed(2)
                   )}
                 </span>
                 <span>BALANCE: {tokenIn.userBalance}</span>
