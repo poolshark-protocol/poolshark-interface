@@ -59,6 +59,9 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
   ]);
 
   //////////////////////////Set USD Prices
+  //Todo token in and out prices should local to the tile and not set at the store level
+  /* const [amount0, setAmount0] = useState(0);
+  const [amount1, setAmount1] = useState(0); */
 
   useEffect(() => {
     getPoolForThisTile();
@@ -157,7 +160,9 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
         parseFloat(
           ethers.utils.formatUnits(amount1Bn, rangePosition.tokenOne.decimals)
         ) * rangeTokenOut.rangeUSDPrice;
-      setTotalUsdValue(parseFloat((token0UsdValue + token1UsdValue).toFixed(2)));
+      setTotalUsdValue(
+        parseFloat((token0UsdValue + token1UsdValue).toFixed(2))
+      );
     } catch (error) {
       console.log(error);
     }
@@ -209,57 +214,59 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
         >
           <div className="lg:grid lg:grid-cols-2 lg:items-center left bg-black px-4 py-3 rounded-[4px] border-grey border hover:bg-main1/20 cursor-pointer">
             <div className="grid sm:grid-cols-2 grid-rows-2 sm:grid-rows-1 items-center gap-y-2 w-full">
-            <div className="flex items-center gap-x-6 w-full ">
-              <div className="flex items-center">
-                <img
-                  className="w-[25px] h-[25px] aspect-square shrink-0"
-                  src={logoMap[rangePosition.tokenZero.symbol]}
-                />
-                <img
-                  className="w-[25px] h-[25px] ml-[-8px] aspect-square shrink-0"
-                  src={logoMap[rangePosition.tokenOne.symbol]}
-                />
+              <div className="flex items-center gap-x-6 w-full ">
+                <div className="flex items-center">
+                  <img
+                    className="w-[25px] h-[25px] aspect-square shrink-0"
+                    src={logoMap[rangePosition.tokenZero.symbol]}
+                  />
+                  <img
+                    className="w-[25px] h-[25px] ml-[-8px] aspect-square shrink-0"
+                    src={logoMap[rangePosition.tokenOne.symbol]}
+                  />
+                </div>
+                <span className="text-white text-xs flex items-center gap-x-1.5 whitespace-nowrap">
+                  {rangePosition.tokenZero.symbol} -{" "}
+                  {rangePosition.tokenOne.symbol}
+                </span>
+                <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
+                  {Number(Number(rangePosition.feeTier) / 10000).toFixed(2)}%
+                </span>
               </div>
-              <span className="text-white text-xs flex items-center gap-x-1.5 whitespace-nowrap">
-                {rangePosition.tokenZero.symbol} -{" "}
-                {rangePosition.tokenOne.symbol}
-              </span>
-              <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                {Number(Number(rangePosition.feeTier) / 10000).toFixed(2)}%
-              </span>
-            </div>
-            <div
-              className={`text-white text-xs ${
-                isModal ? "lg:text-right text-left col-span-2" : "lg:text-right text-left"
-              }`}
-            >
-              {TickMath.getPriceStringAtTick(Number(rangePosition.min))} -{" "}
-              {TickMath.getPriceStringAtTick(Number(rangePosition.max))}{" "}
-              <span className="text-grey1">
-                {rangePosition.zeroForOne
-                  ? rangePosition.tokenOne.symbol
-                  : rangePosition.tokenZero.symbol}{" "}
-                PER{" "}
-                {rangePosition.zeroForOne
-                  ? rangePosition.tokenZero.symbol
-                  : rangePosition.tokenOne.symbol}
-              </span>
-            </div>
+              <div
+                className={`text-white text-xs ${
+                  isModal
+                    ? "lg:text-right text-left col-span-2"
+                    : "lg:text-right text-left"
+                }`}
+              >
+                {TickMath.getPriceStringAtTick(Number(rangePosition.min))} -{" "}
+                {TickMath.getPriceStringAtTick(Number(rangePosition.max))}{" "}
+                <span className="text-grey1">
+                  {rangePosition.zeroForOne
+                    ? rangePosition.tokenOne.symbol
+                    : rangePosition.tokenZero.symbol}{" "}
+                  PER{" "}
+                  {rangePosition.zeroForOne
+                    ? rangePosition.tokenZero.symbol
+                    : rangePosition.tokenOne.symbol}
+                </span>
+              </div>
             </div>
             <div className="lg:grid lg:grid-cols-2 items-center lg:block hidden">
-            <div className={`text-white text-xs text-right`}>
-              {amount0.toPrecision(4)}{" "}
-              <span className="text-grey1">
-                {rangePosition.tokenZero.symbol}
-              </span>{" "}
-              - {amount1.toPrecision(4)}{" "}
-              <span className="text-grey1">
-                {rangePosition.tokenOne.symbol}
-              </span>
-            </div>
-            <div className="text-right text-white text-xs lg:block hidden">
-              {!isModal && <span>${totalUsdValue}</span>}
-            </div>
+              <div className={`text-white text-xs text-right`}>
+                {amount0.toPrecision(4)}{" "}
+                <span className="text-grey1">
+                  {rangePosition.tokenZero.symbol}
+                </span>{" "}
+                - {amount1.toPrecision(4)}{" "}
+                <span className="text-grey1">
+                  {rangePosition.tokenOne.symbol}
+                </span>
+              </div>
+              <div className="text-right text-white text-xs lg:block hidden">
+                {!isModal && <span>${totalUsdValue}</span>}
+              </div>
             </div>
           </div>
         </Link>

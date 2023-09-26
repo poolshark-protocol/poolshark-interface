@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import { logoMap } from "../../utils/tokens";
+import { fetchCoverTokenUSDPrice, logoMap } from "../../utils/tokens";
 import { TickMath } from "../../utils/math/tickMath";
 import { getClaimTick } from "../../utils/maps";
 import { tokenCover } from "../../utils/types";
 import ArrowRightIcon from "../Icons/ArrowRightIcon";
 import router from "next/router";
+import { getCoverPoolFromFactory } from "../../utils/queries";
+import { ethers } from "ethers";
 
 export default function UserCoverPool({
   coverPosition,
@@ -14,12 +16,9 @@ export default function UserCoverPool({
   href,
 }) {
   const [
-    claimTick,
     tokenIn,
     tokenOut,
-    setCoverPoolData,
     setCoverPositionData,
-    setCoverPoolAddress,
     setTokenIn,
     setTokenOut,
     setClaimTick,
@@ -27,12 +26,9 @@ export default function UserCoverPool({
     setNeedsAllowance,
     setNeedsBalance,
   ] = useCoverStore((state) => [
-    state.claimTick,
     state.tokenIn,
     state.tokenOut,
-    state.setCoverPoolData,
     state.setCoverPositionData,
-    state.setCoverPoolAddress,
     state.setTokenIn,
     state.setTokenOut,
     state.setClaimTick,
@@ -41,13 +37,17 @@ export default function UserCoverPool({
     state.setNeedsBalance,
   ]);
 
+  ///////////////////////////Claim Tick and filled Percent for Tile & set position USD price
+
   const [claimPrice, setClaimPrice] = useState(0);
   // fill percent is % of range crossed based on price
   const [fillPercent, setFillPercent] = useState("0");
+  const [positionUSDPrice, setPositionUSDPrice] = useState("0");
 
   useEffect(() => {
     updateClaimTick();
-  }, []);
+    getPositionUSDValue();
+  }, [coverPosition]);
 
   const updateClaimTick = async () => {
     const tick = await getClaimTick(
@@ -69,6 +69,26 @@ export default function UserCoverPool({
       ).toPrecision(3)
     );
   };
+
+  const getPositionUSDValue = async () => {
+    const positionOutUSDPrice =
+      Number(
+        ethers.utils.formatUnits(
+          coverPosition.userFillOut ?? 0,
+          tokenIn.decimals
+        )
+      ) * tokenIn.coverUSDPrice;
+    const positionInUSDPrice =
+      Number(
+        ethers.utils.formatUnits(
+          coverPosition.userFillIn ?? 0,
+          tokenOut.decimals
+        )
+      ) * tokenOut.coverUSDPrice;
+    setPositionUSDPrice((positionOutUSDPrice + positionInUSDPrice).toFixed(2));
+  };
+
+  //////////////////////////Set Position when selected
 
   async function choosePosition() {
     setCoverPositionData(coverPosition);
@@ -151,7 +171,7 @@ export default function UserCoverPool({
               </div>
             </div>
             <div className="text-right text-white text-xs lg:block hidden">
-              <span>$401 </span>
+              <span>${positionUSDPrice}</span>
             </div>
           </div>
         </div>
