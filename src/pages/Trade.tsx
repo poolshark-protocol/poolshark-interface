@@ -591,11 +591,10 @@ export default function Trade() {
                             parseInt(ethers.utils.formatUnits(upperTick, 0)),
                             limitPriceOrder,
                             BigNumber.from(String(DyDxMath.getLiquidityForAmounts(
+                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))),
+                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
                               limitPriceOrder ? TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))) 
                                               : TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
-                              limitPriceOrder ? TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))) 
-                                              : TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))),
-                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))),
                               limitPriceOrder ? BN_ZERO 
                                               : bnInput,
                               limitPriceOrder ? bnInput 
