@@ -4,6 +4,7 @@ import JSBI from "jsbi";
 import invariant from "tiny-invariant";
 import { DyDxMath } from "./dydxMath";
 import { TickMath } from "./tickMath";
+import { BN_ZERO } from "./constants";
 
 export function priceToString(price: Decimal): string {
     if (scale(price) < 3) return Number.parseFloat(price.toPrecision(5)).toString()
@@ -52,6 +53,45 @@ export function getAveragePrice(lowerTick: number, upperTick: number, zeroForOne
     }
     // convert sqrt price to price string
     return parseFloat(TickMath.getPriceStringAtSqrtPrice(newSqrtPrice))
+}
+
+/**
+ * Returns the expected amount out when the range is 100% crossed
+ * @param lowerTick the lower tick of the price range
+ * @param upperTick the upper tick of the price range
+ * @param zeroForOne true if token0 => token1; false if token1 => token0
+ * @param amountIn the amount of token deposited into the LP position
+ */
+export function getExpectedAmountOutFromInput(lowerTick: number, upperTick: number, zeroForOne: boolean, amountIn: BigNumber): BigNumber {
+    if(
+        lowerTick < upperTick ||
+        TickMath.MIN_TICK > lowerTick ||
+        TickMath.MAX_TICK < lowerTick ||
+        TickMath.MIN_TICK > upperTick || 
+        TickMath.MAX_TICK < upperTick,
+        'INVALID_TICK_RANGE'
+    )
+    console.log('inside expect amount out', amountIn.toString(), lowerTick.toString(), upperTick.toString())
+    if (!amountIn || amountIn.eq(BN_ZERO)) return BN_ZERO
+    const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(lowerTick))
+    const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(upperTick))
+    const liquidityAmount = BigNumber.from(String(DyDxMath.getLiquidityForAmounts(
+        lowerSqrtPrice,
+        upperSqrtPrice,
+        zeroForOne ? lowerSqrtPrice
+                   : upperSqrtPrice,
+        zeroForOne ? BN_ZERO
+                   : amountIn,
+        zeroForOne ? amountIn 
+                   : BN_ZERO
+    )))
+    console.log('liquidity amount', liquidityAmount)
+    return getExpectedAmountOut(
+        lowerTick,
+        upperTick,
+        zeroForOne,
+        liquidityAmount
+    )
 }
 
 /**

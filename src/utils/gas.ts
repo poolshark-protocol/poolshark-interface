@@ -221,7 +221,8 @@ export const gasEstimateBurnLimit = async (
     console.log("position id burn", positionId.toString());
     console.log("burn pct", burnPercent.toString());
     console.log("claim tick burn", claim.toString());
-    console.log("zeroForOne", zeroForOne.toString());
+    console.log("zeroForOne", zeroForOne);
+    console.log('signer', signer.address)
 
     if (!limitPoolRoute || !provider) {
       setBurnGasFee("$0.00");
@@ -237,14 +238,13 @@ export const gasEstimateBurnLimit = async (
     );
 
     let gasUnits: BigNumber;
-    gasUnits = await contract.connect(signer).estimateGas.burnLimit([
-      recipient,
-      burnPercent,
-      positionId, // skip mint under 1% left after swap
-      claim,
-      zeroForOne,
-      true
-    ]);
+    gasUnits = await contract.connect(signer).estimateGas.burnLimit({
+      to: recipient,
+      burnPercent: burnPercent,
+      positionId: positionId,
+      claim: claim,
+      zeroForOne: zeroForOne
+    });
     console.log("limit gas units", gasUnits.toString());
     const gasPrice = await provider.getGasPrice();
     const networkFeeWei = gasPrice.mul(gasUnits);
