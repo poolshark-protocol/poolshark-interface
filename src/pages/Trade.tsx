@@ -153,6 +153,12 @@ export default function Trade() {
   const [amountOut, setAmountOut] = useState(undefined);
 
   useEffect(() => {
+    if (tokenIn.address != "0x00" && tokenOut.address === ZERO_ADDRESS) {
+      getLimitTokenUsdPrice(tokenIn.address, setTokenInTradeUSDPrice);
+    }
+  }, [tokenIn.address]);
+
+  useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       updatePools();
     }
