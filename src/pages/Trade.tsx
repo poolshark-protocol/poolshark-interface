@@ -535,7 +535,7 @@ export default function Trade() {
   }
 
   async function updateMintFee() {
-    if (tokenIn.userRouterAllowance?.gte(bnInput))
+    console.log(tokenIn.userRouterAllowance, "user router allowance")
       await gasEstimateMintLimit(
         tradePoolData.id,
         address,
@@ -1061,7 +1061,7 @@ export default function Trade() {
             ) : (
               //limit tab
               <>
-                {tokenIn.userRouterAllowance?.gte(bnInput) ? (
+                {tokenIn.userRouterAllowance?.lt(bnInput) ? (
                   <SwapRouterApproveButton
                     routerAddress={
                       chainProperties['arbitrumGoerli']['routerAddress']
