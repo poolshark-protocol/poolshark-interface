@@ -153,6 +153,16 @@ export default function ViewCover() {
     setIsPoolCopied(true);
   }
 
+  ////////////////////////////////Token Order
+  const [tokenOrder, setTokenOrder] = useState(true);
+  const [priceOrder, setPriceOrder] = useState(true);
+
+  useEffect(() => {
+    if (tokenIn.address && tokenOut.address) {
+      setTokenOrder(tokenIn.callId == 0);
+    }
+  }, [tokenIn, tokenOut]);
+
   //////////////////////////////// Pool Data
 
   useEffect(() => {
@@ -368,21 +378,21 @@ export default function ViewCover() {
                   %
                 </span>
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
-                {coverPositionData.min === undefined
-                        ? ""
-                        : priceDirection
-                        ? lowerInverse
-                        : TickMath.getPriceStringAtTick(
-                            Number(coverPositionData.min)
-                          )}
+                  {coverPositionData.min === undefined
+                    ? ""
+                    : priceDirection
+                    ? lowerInverse
+                    : TickMath.getPriceStringAtTick(
+                        Number(coverPositionData.min)
+                      )}
                   <DoubleArrowIcon />
                   {coverPositionData.max === undefined
-                        ? ""
-                        : priceDirection
-                        ? upperInverse
-                        : TickMath.getPriceStringAtTick(
-                            Number(coverPositionData.max)
-                          )}
+                    ? ""
+                    : priceDirection
+                    ? upperInverse
+                    : TickMath.getPriceStringAtTick(
+                        Number(coverPositionData.max)
+                      )}
                 </div>
               </div>
             </div>
@@ -416,7 +426,7 @@ export default function ViewCover() {
                       Number(
                         ethers.utils.formatUnits(
                           coverPositionData.userFillOut ?? 0,
-                          tokenIn.decimals
+                          tokenOrder ? tokenIn.decimals : tokenOut.decimals
                         )
                       ) * tokenIn.coverUSDPrice
                     ).toFixed(2)}
@@ -426,7 +436,7 @@ export default function ViewCover() {
                   {Number(
                     ethers.utils.formatUnits(
                       coverPositionData.userFillOut ?? 0,
-                      tokenIn.decimals
+                      tokenOrder ? tokenIn.decimals : tokenOut.decimals
                     )
                   ).toFixed(2)}
                   <div className="flex items-center gap-x-2">
@@ -565,7 +575,7 @@ export default function ViewCover() {
                   {Number(
                     ethers.utils.formatUnits(
                       coverPositionData.userFillIn.toString(),
-                      18
+                      tokenOrder ? tokenOut.decimals : tokenIn.decimals
                     )
                   ).toFixed(2)}
                 </span>
