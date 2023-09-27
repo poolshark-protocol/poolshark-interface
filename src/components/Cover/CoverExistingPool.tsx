@@ -276,7 +276,14 @@ export default function CoverExistingPool({ goBack }) {
 
   useEffect(() => {
     updateCoverAmounts();
-  }, [sliderValue, lowerPrice, upperPrice, tokenOrder]);
+  }, [
+    coverPoolData,
+    coverPositionData,
+    sliderValue,
+    lowerPrice,
+    upperPrice,
+    tokenOrder,
+  ]);
 
   function updateCoverAmounts() {
     if (
