@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
-import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import { useState, useEffect, Fragment } from "react";
+import { ChevronDownIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import SelectToken from "../components/SelectToken";
 import useInputBox from "../hooks/useInputBox";
+import { Transition, Dialog } from "@headlessui/react";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import {
   erc20ABI,
@@ -12,7 +13,10 @@ import {
   useBalance,
 } from "wagmi";
 import { BigNumber, ethers } from "ethers";
-import { chainIdsToNamesForGitTokenList, chainProperties } from "../utils/chains";
+import {
+  chainIdsToNamesForGitTokenList,
+  chainProperties,
+} from "../utils/chains";
 import SwapRouterApproveButton from "../components/Buttons/SwapRouterApproveButton";
 import {
   TickMath,
@@ -25,7 +29,9 @@ import { gasEstimateMintLimit, gasEstimateSwap } from "../utils/gas";
 import inputFilter from "../utils/inputFilter";
 import LimitSwapButton from "../components/Buttons/LimitSwapButton";
 import {
-  fetchRangeTokenUSDPrice, getLimitTokenUsdPrice, logoMap,
+  fetchRangeTokenUSDPrice,
+  getLimitTokenUsdPrice,
+  logoMap,
 } from "../utils/tokens";
 import { getSwapPools } from "../utils/pools";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
@@ -185,7 +191,7 @@ export default function Trade() {
   }
 
   const { data: poolQuotes } = useContractRead({
-    address: chainProperties['arbitrumGoerli']['routerAddress'], //contract address,
+    address: chainProperties["arbitrumGoerli"]["routerAddress"], //contract address,
     abi: poolsharkRouterABI, // contract abi,
     functionName: "multiQuote",
     args: [availablePools, quoteParams, true],
@@ -247,16 +253,16 @@ export default function Trade() {
     if (address && needsRefetch) {
       console.log("user address", address.toLowerCase());
       getUserLimitPositionData();
-      setNeedsRefetch(false)
+      setNeedsRefetch(false);
     }
   }, [address, needsRefetch]);
 
   async function getUserLimitPositionData() {
     try {
       const data = await fetchLimitPositions(address.toLowerCase());
-      console.log("data limit", data)
+      console.log("data limit", data);
       if (data["data"]) {
-        console.log("limitPositions", data["data"]?.limitPositions)
+        console.log("limitPositions", data["data"]?.limitPositions);
         setAllLimitPositions(
           mapUserLimitPositions(data["data"].limitPositions)
         );
@@ -339,10 +345,7 @@ export default function Trade() {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [
-      address,
-      chainProperties['arbitrumGoerli']['routerAddress'],
-    ],
+    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
     chainId: 421613,
     watch: needsAllowanceIn,
     //enabled: poolRouterAddress,
@@ -522,7 +525,7 @@ export default function Trade() {
   async function updateGasFee() {
     if (tokenIn.userRouterAllowance?.gte(bnInput))
       await gasEstimateSwap(
-        chainProperties['arbitrumGoerli']['routerAddress'],
+        chainProperties["arbitrumGoerli"]["routerAddress"],
         swapPoolAddresses,
         swapParams,
         tokenIn,
@@ -535,19 +538,19 @@ export default function Trade() {
   }
 
   async function updateMintFee() {
-    console.log(tokenIn.userRouterAllowance, "user router allowance")
-      await gasEstimateMintLimit(
-        tradePoolData.id,
-        address,
-        lowerTick,
-        upperTick,
-        tokenIn,
-        tokenOut,
-        bnInput,
-        signer,
-        setMintFee,
-        setMintGasLimit
-      );
+    console.log(tokenIn.userRouterAllowance, "user router allowance");
+    await gasEstimateMintLimit(
+      tradePoolData.id,
+      address,
+      lowerTick,
+      upperTick,
+      tokenIn,
+      tokenOut,
+      bnInput,
+      signer,
+      setMintFee,
+      setMintGasLimit
+    );
   }
 
   ////////////////////////////////Mint Button State
@@ -559,8 +562,8 @@ export default function Trade() {
   }, [bnInput]);
 
   useEffect(() => {
-    console.log(limitStringPriceQuote, "limit quote")
-  }, [limitStringPriceQuote])
+    console.log(limitStringPriceQuote, "limit quote");
+  }, [limitStringPriceQuote]);
 
   useEffect(() => {
     setMintButtonState();
@@ -579,29 +582,53 @@ export default function Trade() {
               {pairSelected
                 ? !limitTabSelected
                   ? amountOut
-                  : !isNaN(parseFloat(
-                    ethers.utils.formatUnits(bnInput, tokenIn.decimals))
-                  ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
-                  && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
+                  : !isNaN(
                       parseFloat(
-                        ethers.utils.formatUnits(
-                          getExpectedAmountOut(
-                            parseInt(ethers.utils.formatUnits(lowerTick, 0)),
-                            parseInt(ethers.utils.formatUnits(upperTick, 0)),
-                            limitPriceOrder,
-                            BigNumber.from(String(DyDxMath.getLiquidityForAmounts(
-                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))),
-                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
-                              limitPriceOrder ? TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))) 
-                                              : TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
-                              limitPriceOrder ? BN_ZERO 
-                                              : bnInput,
-                              limitPriceOrder ? bnInput 
-                                              : BN_ZERO,
-                            ))
-                          )), tokenIn.decimals
-                    )).toFixed(2)) :
-                    "$0.00"
+                        ethers.utils.formatUnits(bnInput, tokenIn.decimals)
+                      )
+                    ) &&
+                    !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0))) &&
+                    !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))
+                  ? parseFloat(
+                      ethers.utils.formatUnits(
+                        getExpectedAmountOut(
+                          parseInt(ethers.utils.formatUnits(lowerTick, 0)),
+                          parseInt(ethers.utils.formatUnits(upperTick, 0)),
+                          limitPriceOrder,
+                          BigNumber.from(
+                            String(
+                              DyDxMath.getLiquidityForAmounts(
+                                TickMath.getSqrtRatioAtTick(
+                                  parseInt(
+                                    ethers.utils.formatUnits(lowerTick, 0)
+                                  )
+                                ),
+                                TickMath.getSqrtRatioAtTick(
+                                  parseInt(
+                                    ethers.utils.formatUnits(upperTick, 0)
+                                  )
+                                ),
+                                limitPriceOrder
+                                  ? TickMath.getSqrtRatioAtTick(
+                                      parseInt(
+                                        ethers.utils.formatUnits(lowerTick, 0)
+                                      )
+                                    )
+                                  : TickMath.getSqrtRatioAtTick(
+                                      parseInt(
+                                        ethers.utils.formatUnits(upperTick, 0)
+                                      )
+                                    ),
+                                limitPriceOrder ? BN_ZERO : bnInput,
+                                limitPriceOrder ? bnInput : BN_ZERO
+                              )
+                            )
+                          )
+                        ),
+                        tokenIn.decimals
+                      )
+                    ).toFixed(2)
+                  : "$0.00"
                 : "Select Token"}
             </div>
           </div>
@@ -618,8 +645,7 @@ export default function Trade() {
               <div className="text-xs text-[#4C4C4C]">
                 Minimum received after slippage ({slippage}%)
               </div>
-              <div className="ml-auto text-xs">
-              </div>
+              <div className="ml-auto text-xs"></div>
             </div>
           ) : (
             <></>
@@ -645,6 +671,78 @@ export default function Trade() {
       );
     }
   };
+
+  ///////////////////////
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  const Settings = () => {
+    if (isSettingsOpen) {
+      return (
+        <Transition appear show={isSettingsOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-50"
+          onClose={() => setIsSettingsOpen(false)}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-50" />
+          </Transition.Child>
+  
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-[4px] bg-black text-white border border-grey text-left align-middle shadow-xl px-5 py-5 transition-all">
+                  <div className="flex items-center justify-between px-2 mb-5">
+                    <h1 className="text-lg">Change Slippage</h1>
+                    <XMarkIcon
+                      onClick={() => setIsSettingsOpen(false)}
+                      className="w-7 cursor-pointer"
+                    />
+                  </div>
+                  <div className="flex md:flex-row flex-col items-center gap-3">
+                  <input className="bg-dark md:w-auto w-full border-grey border h-10 outline-none px-2 text-sm" placeholder="0.05%"/>
+                  <div className="flex flex-row items-center gap-x-3 w-full">
+                  <div className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full">
+                    0.1%
+                  </div>
+                  <div className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full">
+                    0.5%
+                  </div>
+                  <div className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full">
+                    1%
+                  </div>
+                  </div>
+                  </div>
+                  <button className="w-full mt-8 py-2 disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80">Confirm Slippage</button>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+      );
+    }
+  };
+
+
+
+
   return (
     <div className="min-h-[calc(100vh-160px)] w-[43rem] px-3 md:px-0">
       <div className="flex w-full mt-[10vh] justify-center mb-20 ">
@@ -678,21 +776,33 @@ export default function Trade() {
             </button>
           </div>
           <div className="p-4">
-            <span className="text-[11px] text-grey1">FROM</span>
+            <div className="flex items-center justify-between w-full">
+              <span className="text-[11px] text-grey1">FROM</span>
+              <div className="cursor-pointer" onClick={() => setIsSettingsOpen(true)}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className="w-5 h-5 hover:opacity-60"
+              >
+                <path d="M10 3.75a2 2 0 10-4 0 2 2 0 004 0zM17.25 4.5a.75.75 0 000-1.5h-5.5a.75.75 0 000 1.5h5.5zM5 3.75a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5a.75.75 0 01.75.75zM4.25 17a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5zM17.25 17a.75.75 0 000-1.5h-5.5a.75.75 0 000 1.5h5.5zM9 10a.75.75 0 01-.75.75h-5.5a.75.75 0 010-1.5h5.5A.75.75 0 019 10zM17.25 10.75a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5zM14 10a2 2 0 10-4 0 2 2 0 004 0zM10 16.25a2 2 0 10-4 0 2 2 0 004 0z" />
+              </svg>
+              </div>
+              <Settings />
+            </div>
+
             <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
               <div className="flex items-end justify-between text-[11px] text-grey1">
                 <span>
                   {" "}
                   ~$
-                  {bnInput.gt(0) ? (
-                    (
-                      Number(
-                        ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                      ) * tokenIn.USDPrice
-                    ).toFixed(2)
-                  ) : (
-                    (1 * tokenIn.USDPrice).toFixed(2)
-                  )}
+                  {bnInput.gt(0)
+                    ? (
+                        Number(
+                          ethers.utils.formatUnits(bnInput, tokenIn.decimals)
+                        ) * tokenIn.USDPrice
+                      ).toFixed(2)
+                    : (1 * tokenIn.USDPrice).toFixed(2)}
                 </span>
                 <span>BALANCE: {tokenIn.userBalance}</span>
               </div>
@@ -749,33 +859,66 @@ export default function Trade() {
                   {pairSelected &&
                   !bnInput.eq(BN_ZERO) &&
                   tokenOut.address != ZERO_ADDRESS &&
-                  !isNaN(parseFloat(
-                    ethers.utils.formatUnits(bnInput, tokenIn.decimals))
-                  ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
-                  && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
+                  !isNaN(
+                    parseFloat(
+                      ethers.utils.formatUnits(bnInput, tokenIn.decimals)
+                    )
+                  ) &&
+                  !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0))) &&
+                  !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0))) ? (
                     !limitTabSelected ? (
                       //swap page
                       (amountOut * tokenOut.USDPrice).toFixed(2)
-                    ) : //limit page
-                    (
-                      parseFloat(
-                        ethers.utils.formatUnits(
-                          getExpectedAmountOut(
-                            parseInt(ethers.utils.formatUnits(lowerTick, 0)),
-                            parseInt(ethers.utils.formatUnits(upperTick, 0)),
-                            limitPriceOrder,
-                            BigNumber.from(String(DyDxMath.getLiquidityForAmounts(
-                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))),
-                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
-                              limitPriceOrder ? TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))) 
-                                              : TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
-                              limitPriceOrder ? BN_ZERO 
-                                              : bnInput,
-                              limitPriceOrder ? bnInput 
-                                              : BN_ZERO,
-                            ))
-                          )), tokenIn.decimals
-                    )) * tokenOut.USDPrice).toFixed(2)
+                    ) : (
+                      //limit page
+                      (
+                        parseFloat(
+                          ethers.utils.formatUnits(
+                            getExpectedAmountOut(
+                              parseInt(ethers.utils.formatUnits(lowerTick, 0)),
+                              parseInt(ethers.utils.formatUnits(upperTick, 0)),
+                              limitPriceOrder,
+                              BigNumber.from(
+                                String(
+                                  DyDxMath.getLiquidityForAmounts(
+                                    TickMath.getSqrtRatioAtTick(
+                                      parseInt(
+                                        ethers.utils.formatUnits(lowerTick, 0)
+                                      )
+                                    ),
+                                    TickMath.getSqrtRatioAtTick(
+                                      parseInt(
+                                        ethers.utils.formatUnits(upperTick, 0)
+                                      )
+                                    ),
+                                    limitPriceOrder
+                                      ? TickMath.getSqrtRatioAtTick(
+                                          parseInt(
+                                            ethers.utils.formatUnits(
+                                              lowerTick,
+                                              0
+                                            )
+                                          )
+                                        )
+                                      : TickMath.getSqrtRatioAtTick(
+                                          parseInt(
+                                            ethers.utils.formatUnits(
+                                              upperTick,
+                                              0
+                                            )
+                                          )
+                                        ),
+                                    limitPriceOrder ? BN_ZERO : bnInput,
+                                    limitPriceOrder ? bnInput : BN_ZERO
+                                  )
+                                )
+                              )
+                            ),
+                            tokenIn.decimals
+                          )
+                        ) * tokenOut.USDPrice
+                      ).toFixed(2)
+                    )
                   ) : (
                     <>{(0).toFixed(2)}</>
                   )}
@@ -788,10 +931,13 @@ export default function Trade() {
                 {pairSelected &&
                 !bnInput.eq(BN_ZERO) &&
                 tokenOut.address != ZERO_ADDRESS &&
-                !isNaN(parseFloat(
-                  ethers.utils.formatUnits(bnInput, tokenIn.decimals))
-                ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
-                && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
+                !isNaN(
+                  parseFloat(
+                    ethers.utils.formatUnits(bnInput, tokenIn.decimals)
+                  )
+                ) &&
+                !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0))) &&
+                !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0))) ? (
                   !limitTabSelected ? (
                     <div>{Number(amountOut).toPrecision(5)}</div>
                   ) : (
@@ -802,18 +948,39 @@ export default function Trade() {
                             parseInt(ethers.utils.formatUnits(lowerTick, 0)),
                             parseInt(ethers.utils.formatUnits(upperTick, 0)),
                             limitPriceOrder,
-                            BigNumber.from(String(DyDxMath.getLiquidityForAmounts(
-                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))),
-                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
-                              limitPriceOrder ? TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))) 
-                                              : TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
-                              limitPriceOrder ? BN_ZERO 
-                                              : bnInput,
-                              limitPriceOrder ? bnInput 
-                                              : BN_ZERO,
-                            ))
-                          )), tokenIn.decimals
-                    )).toFixed(3)}
+                            BigNumber.from(
+                              String(
+                                DyDxMath.getLiquidityForAmounts(
+                                  TickMath.getSqrtRatioAtTick(
+                                    parseInt(
+                                      ethers.utils.formatUnits(lowerTick, 0)
+                                    )
+                                  ),
+                                  TickMath.getSqrtRatioAtTick(
+                                    parseInt(
+                                      ethers.utils.formatUnits(upperTick, 0)
+                                    )
+                                  ),
+                                  limitPriceOrder
+                                    ? TickMath.getSqrtRatioAtTick(
+                                        parseInt(
+                                          ethers.utils.formatUnits(lowerTick, 0)
+                                        )
+                                      )
+                                    : TickMath.getSqrtRatioAtTick(
+                                        parseInt(
+                                          ethers.utils.formatUnits(upperTick, 0)
+                                        )
+                                      ),
+                                  limitPriceOrder ? BN_ZERO : bnInput,
+                                  limitPriceOrder ? bnInput : BN_ZERO
+                                )
+                              )
+                            )
+                          ),
+                          tokenIn.decimals
+                        )
+                      ).toFixed(3)}
                     </div>
                   )
                 ) : (
@@ -929,7 +1096,7 @@ export default function Trade() {
                           type="text"
                           onChange={(e) => {
                             setUpperPriceString(inputFilter(e.target.value));
-                          }} 
+                          }}
                         />
                       </div>
                     </div>
@@ -938,7 +1105,8 @@ export default function Trade() {
                   <div className="bg-dark py-3 px-5 border border-grey rounded-[4px] mt-4">
                     <div className="flex items-end justify-between text-[11px] text-grey1">
                       <span>
-                        {pairSelected && !isNaN(parseFloat(limitStringPriceQuote))
+                        {pairSelected &&
+                        !isNaN(parseFloat(limitStringPriceQuote))
                           ? //switcher tokenOrder
                             limitPriceOrder
                             ? //when normal order tokenIn/tokenOut
@@ -1045,7 +1213,7 @@ export default function Trade() {
                     <div>
                       <SwapRouterApproveButton
                         routerAddress={
-                          chainProperties['arbitrumGoerli']['routerAddress']
+                          chainProperties["arbitrumGoerli"]["routerAddress"]
                         }
                         approveToken={tokenIn.address}
                         tokenSymbol={tokenIn.symbol}
@@ -1056,7 +1224,7 @@ export default function Trade() {
                     <SwapRouterButton
                       disabled={tradeParams.disabled || needsAllowanceIn}
                       routerAddress={
-                        chainProperties['arbitrumGoerli']['routerAddress']
+                        chainProperties["arbitrumGoerli"]["routerAddress"]
                       }
                       poolAddresses={swapPoolAddresses}
                       swapParams={swapParams ?? {}}
@@ -1071,15 +1239,17 @@ export default function Trade() {
                 {tokenIn.userRouterAllowance?.lt(bnInput) ? (
                   <SwapRouterApproveButton
                     routerAddress={
-                      chainProperties['arbitrumGoerli']['routerAddress']
+                      chainProperties["arbitrumGoerli"]["routerAddress"]
                     }
                     approveToken={tokenIn.address}
                     tokenSymbol={tokenIn.symbol}
                     amount={bnInput}
                   />
-                ) : ( tradePoolData.id != ZERO_ADDRESS ?
+                ) : tradePoolData.id != ZERO_ADDRESS ? (
                   <LimitSwapButton
-                    routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
+                    routerAddress={
+                      chainProperties["arbitrumGoerli"]["routerAddress"]
+                    }
                     disabled={mintGasLimit.eq(BN_ZERO)}
                     poolAddress={tradePoolData.id}
                     to={address}
@@ -1091,11 +1261,13 @@ export default function Trade() {
                     zeroForOne={tokenOrder}
                     gasLimit={mintGasLimit}
                   />
-                :
+                ) : (
                   <LimitCreateAndMintButton
                     disabled={mintGasLimit.eq(BN_ZERO)}
-                    routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
-                    poolType={'CONSTANT-PRODUCT'}
+                    routerAddress={
+                      chainProperties["arbitrumGoerli"]["routerAddress"]
+                    }
+                    poolType={"CONSTANT-PRODUCT"}
                     token0={tokenIn}
                     token1={tokenOut}
                     feeTier={500} //TODO: handle fee tier
@@ -1156,8 +1328,9 @@ export default function Trade() {
               {allLimitPositions.map((allLimitPosition) => {
                 if (allLimitPosition.positionId != undefined) {
                   return (
-                    <tr className="text-right text-xs md:text-sm"
-                        key={allLimitPosition.positionId}
+                    <tr
+                      className="text-right text-xs md:text-sm"
+                      key={allLimitPosition.positionId}
                     >
                       <td className="">
                         <div className="flex items-center text-sm text-grey1 gap-x-2 text-left">
@@ -1165,7 +1338,9 @@ export default function Trade() {
                             className="w-[25px] h-[25px]"
                             src={logoMap[allLimitPosition.tokenIn.symbol]}
                           />
-                          {ethers.utils.formatEther(allLimitPosition.amountIn) + " " + allLimitPosition.tokenIn.symbol}
+                          {ethers.utils.formatEther(allLimitPosition.amountIn) +
+                            " " +
+                            allLimitPosition.tokenIn.symbol}
                         </div>
                       </td>
                       <td className="">
@@ -1174,29 +1349,41 @@ export default function Trade() {
                             className="w-[25px] h-[25px]"
                             src={logoMap[allLimitPosition.tokenOut.symbol]}
                           />
-                          {parseFloat(ethers.utils.formatEther(
-                            getExpectedAmountOut(
-                              parseInt(allLimitPosition.min), 
-                              parseInt(allLimitPosition.max), 
-                              allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol), 
-                              BigNumber.from(allLimitPosition.liquidity))
-                          )).toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
+                          {parseFloat(
+                            ethers.utils.formatEther(
+                              getExpectedAmountOut(
+                                parseInt(allLimitPosition.min),
+                                parseInt(allLimitPosition.max),
+                                allLimitPosition.tokenIn.symbol.localeCompare(
+                                  allLimitPosition.tokenOut.symbol
+                                ),
+                                BigNumber.from(allLimitPosition.liquidity)
+                              )
+                            )
+                          ).toFixed(3) +
+                            " " +
+                            allLimitPosition.tokenOut.symbol}
                         </div>
                       </td>
                       <td className="text-left text-xs">
                         <div className="flex flex-col">
                           {/* FOR EXACT PRICE   */}
                           <span>
-                            <span className="text-grey1">1 {allLimitPosition.tokenIn.symbol} = </span> 
-                              {
-                                getAveragePrice(
-                                  parseInt(allLimitPosition.min), 
-                                  parseInt(allLimitPosition.max), 
-                                  allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol), 
-                                  BigNumber.from(allLimitPosition.liquidity),
-                                  BigNumber.from(allLimitPosition.amountIn))
-                                .toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
-                          </span>          
+                            <span className="text-grey1">
+                              1 {allLimitPosition.tokenIn.symbol} ={" "}
+                            </span>
+                            {getAveragePrice(
+                              parseInt(allLimitPosition.min),
+                              parseInt(allLimitPosition.max),
+                              allLimitPosition.tokenIn.symbol.localeCompare(
+                                allLimitPosition.tokenOut.symbol
+                              ),
+                              BigNumber.from(allLimitPosition.liquidity),
+                              BigNumber.from(allLimitPosition.amountIn)
+                            ).toFixed(3) +
+                              " " +
+                              allLimitPosition.tokenOut.symbol}
+                          </span>
                           {/* FOR PRICE RANGES
                         <span className="flex flex-col">
                           <div><span className="text-grey1">FROM  1 ETH =</span> 200 DAI</div>
@@ -1208,20 +1395,27 @@ export default function Trade() {
                       <td className="">
                         <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
                           <span className="z-50">
-                          {parseFloat(allLimitPosition.amountFilled) /
-                            parseFloat(allLimitPosition.liquidity)}% Filled
+                            {parseFloat(allLimitPosition.amountFilled) /
+                              parseFloat(allLimitPosition.liquidity)}
+                            % Filled
                           </span>
                           <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
                         </div>
                       </td>
-                      <td className="text-sm text-grey1">{timeDifference(allLimitPosition.timestamp)}</td>
+                      <td className="text-sm text-grey1">
+                        {timeDifference(allLimitPosition.timestamp)}
+                      </td>
                       <td className="text-sm text-grey1 pl-5">
                         <LimitSwapBurnButton
                           poolAddress={allLimitPosition.poolId}
                           address={address}
-                          positionId={BigNumber.from(allLimitPosition.positionId)}
+                          positionId={BigNumber.from(
+                            allLimitPosition.positionId
+                          )}
                           epochLast={allLimitPosition.epochLast}
-                          zeroForOne={allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol)}
+                          zeroForOne={allLimitPosition.tokenIn.symbol.localeCompare(
+                            allLimitPosition.tokenOut.symbol
+                          )}
                           lower={BigNumber.from(allLimitPosition.min)}
                           upper={BigNumber.from(allLimitPosition.max)}
                           burnPercent={ethers.utils.parseUnits("1", 38)}
@@ -1237,8 +1431,9 @@ export default function Trade() {
               {allLimitPositions.map((allLimitPosition) => {
                 if (allLimitPosition.positionId != undefined) {
                   return (
-                    <tr className="text-right text-xs md:text-sm"
-                        key={allLimitPosition.positionId}
+                    <tr
+                      className="text-right text-xs md:text-sm"
+                      key={allLimitPosition.positionId}
                     >
                       <td className="">
                         <div className="flex items-center text-sm text-grey1 gap-x-2 text-left">
@@ -1246,7 +1441,9 @@ export default function Trade() {
                             className="w-[25px] h-[25px]"
                             src={logoMap[allLimitPosition.tokenIn.symbol]}
                           />
-                          {ethers.utils.formatEther(allLimitPosition.amountIn) + " " + allLimitPosition.tokenIn.symbol}
+                          {ethers.utils.formatEther(allLimitPosition.amountIn) +
+                            " " +
+                            allLimitPosition.tokenIn.symbol}
                         </div>
                       </td>
                       <td className="">
@@ -1255,29 +1452,41 @@ export default function Trade() {
                             className="w-[25px] h-[25px]"
                             src={logoMap[allLimitPosition.tokenOut.symbol]}
                           />
-                          {parseFloat(ethers.utils.formatEther(
-                            getExpectedAmountOut(
-                              parseInt(allLimitPosition.min), 
-                              parseInt(allLimitPosition.max), 
-                              allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol), 
-                              BigNumber.from(allLimitPosition.liquidity))
-                          )).toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
+                          {parseFloat(
+                            ethers.utils.formatEther(
+                              getExpectedAmountOut(
+                                parseInt(allLimitPosition.min),
+                                parseInt(allLimitPosition.max),
+                                allLimitPosition.tokenIn.symbol.localeCompare(
+                                  allLimitPosition.tokenOut.symbol
+                                ),
+                                BigNumber.from(allLimitPosition.liquidity)
+                              )
+                            )
+                          ).toFixed(3) +
+                            " " +
+                            allLimitPosition.tokenOut.symbol}
                         </div>
                       </td>
                       <td className="text-left text-xs">
                         <div className="flex flex-col">
                           {/* FOR EXACT PRICE   */}
                           <span>
-                          <span className="text-grey1">1 {allLimitPosition.tokenIn.symbol} = </span> 
-                            {
-                              getAveragePrice(
-                                parseInt(allLimitPosition.min), 
-                                parseInt(allLimitPosition.max), 
-                                allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol), 
-                                BigNumber.from(allLimitPosition.liquidity),
-                                BigNumber.from(allLimitPosition.amountIn))
-                              .toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
-                          </span>          
+                            <span className="text-grey1">
+                              1 {allLimitPosition.tokenIn.symbol} ={" "}
+                            </span>
+                            {getAveragePrice(
+                              parseInt(allLimitPosition.min),
+                              parseInt(allLimitPosition.max),
+                              allLimitPosition.tokenIn.symbol.localeCompare(
+                                allLimitPosition.tokenOut.symbol
+                              ),
+                              BigNumber.from(allLimitPosition.liquidity),
+                              BigNumber.from(allLimitPosition.amountIn)
+                            ).toFixed(3) +
+                              " " +
+                              allLimitPosition.tokenOut.symbol}
+                          </span>
                           {/* FOR PRICE RANGES
                         <span className="flex flex-col">
                           <div><span className="text-grey1">FROM  1 ETH =</span> 200 DAI</div>
@@ -1290,12 +1499,15 @@ export default function Trade() {
                         <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
                           <span className="z-50">
                             {parseFloat(allLimitPosition.amountFilled) /
-                            parseFloat(allLimitPosition.liquidity)}% Filled
+                              parseFloat(allLimitPosition.liquidity)}
+                            % Filled
                           </span>
                           <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
                         </div>
                       </td>
-                      <td className="text-sm text-grey1">{timeDifference(allLimitPosition.timestamp)}</td>
+                      <td className="text-sm text-grey1">
+                        {timeDifference(allLimitPosition.timestamp)}
+                      </td>
                     </tr>
                   );
                 }
