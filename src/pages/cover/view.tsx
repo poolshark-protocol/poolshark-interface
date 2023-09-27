@@ -66,10 +66,11 @@ export default function ViewCover() {
   const [fillPercent, setFillPercent] = useState(0);
   const [coverFilledAmount, setCoverFilledAmount] = useState("");
   const [allCoverPositions, setAllCoverPositions] = useState([]);
+
   const volTierMap = new Map<string, any>([
-    ['1000', { id: 0, volatility: "1" }],
-    ['3000', { id: 1, volatility: "3" }],
-    ['10000', { id: 2, volatility: "24" }]
+    ["1000", { id: 0, volatility: "1" }],
+    ["3000", { id: 1, volatility: "3" }],
+    ["10000", { id: 2, volatility: "24" }],
   ]);
 
   //Display and copy flags
@@ -151,6 +152,16 @@ export default function ViewCover() {
     navigator.clipboard.writeText(coverPoolAddress.toString());
     setIsPoolCopied(true);
   }
+
+  ////////////////////////////////Token Order
+  const [tokenOrder, setTokenOrder] = useState(true);
+  const [priceOrder, setPriceOrder] = useState(true);
+
+  useEffect(() => {
+    if (tokenIn.address && tokenOut.address) {
+      setTokenOrder(tokenIn.callId == 0);
+    }
+  }, [tokenIn, tokenOut]);
 
   //////////////////////////////// Pool Data
 
@@ -274,8 +285,6 @@ export default function ViewCover() {
       coverPoolAddress != undefined &&
       address != undefined,
     onError(error) {
-      console.log("coverpool", coverPoolAddress);
-      console.log("address", address);
       console.log("Error snapshot Cover", error);
     },
   });
@@ -361,24 +370,29 @@ export default function ViewCover() {
               </div>
               <div className="flex items-center gap-x-5">
                 <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                  {volTierMap.get(coverPoolData.volatilityTier.feeAmount.toString()).volatility}%
+                  {
+                    volTierMap.get(
+                      coverPoolData.volatilityTier.feeAmount.toString()
+                    ).volatility
+                  }
+                  %
                 </span>
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
-                {coverPositionData.min === undefined
-                        ? ""
-                        : priceDirection
-                        ? lowerInverse
-                        : TickMath.getPriceStringAtTick(
-                            Number(coverPositionData.min)
-                          )}
+                  {coverPositionData.min === undefined
+                    ? ""
+                    : priceDirection
+                    ? lowerInverse
+                    : TickMath.getPriceStringAtTick(
+                        Number(coverPositionData.min)
+                      )}
                   <DoubleArrowIcon />
                   {coverPositionData.max === undefined
-                        ? ""
-                        : priceDirection
-                        ? upperInverse
-                        : TickMath.getPriceStringAtTick(
-                            Number(coverPositionData.max)
-                          )}
+                    ? ""
+                    : priceDirection
+                    ? upperInverse
+                    : TickMath.getPriceStringAtTick(
+                        Number(coverPositionData.max)
+                      )}
                 </div>
               </div>
             </div>
@@ -412,7 +426,7 @@ export default function ViewCover() {
                       Number(
                         ethers.utils.formatUnits(
                           coverPositionData.userFillOut ?? 0,
-                          tokenIn.decimals
+                          tokenOrder ? tokenIn.decimals : tokenOut.decimals
                         )
                       ) * tokenIn.coverUSDPrice
                     ).toFixed(2)}
@@ -422,7 +436,7 @@ export default function ViewCover() {
                   {Number(
                     ethers.utils.formatUnits(
                       coverPositionData.userFillOut ?? 0,
-                      tokenIn.decimals
+                      tokenOrder ? tokenIn.decimals : tokenOut.decimals
                     )
                   ).toFixed(2)}
                   <div className="flex items-center gap-x-2">
@@ -561,7 +575,7 @@ export default function ViewCover() {
                   {Number(
                     ethers.utils.formatUnits(
                       coverPositionData.userFillIn.toString(),
-                      18
+                      tokenOrder ? tokenOut.decimals : tokenIn.decimals
                     )
                   ).toFixed(2)}
                 </span>

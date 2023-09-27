@@ -262,7 +262,7 @@ export default function ViewRange() {
     address: rangePoolAddress,
     abi: rangePoolABI,
     functionName: "snapshotRange",
-    args: [rangePositionData.id],
+    args: [rangePositionData.positionId],
     chainId: 421613,
     watch: true,
     enabled: isConnected && rangePoolAddress != ("" as string),
@@ -340,7 +340,7 @@ export default function ViewRange() {
                   {(Number(rangePositionData.feeTier) / 10000).toFixed(2)}%
                 </span>
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
-                  Position ID: {rangePositionData.id}
+                  Position ID: {rangePositionData.positionId}
                 </div>
               </div>
             </div>
@@ -506,12 +506,12 @@ export default function ViewRange() {
               <RangeCompoundButton
                 poolAddress={rangePoolAddress}
                 address={address}
-                positionId={rangePositionData.id}
+                positionId={rangePositionData.positionId}
               />
               <RangeCollectButton
                 poolAddress={rangePoolAddress}
                 address={address}
-                positionId={rangePositionData.id}
+                positionId={rangePositionData.positionId}
               />
             </div>
           </div>

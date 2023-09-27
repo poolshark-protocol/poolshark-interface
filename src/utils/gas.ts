@@ -117,7 +117,6 @@ export const gasEstimateMintLimit = async (
     });
     setMintGasFee(formattedPrice);
     setMintGasLimit(gasUnits.mul(150).div(100));
-    console.log("gas units", gasUnits.toString())
   } catch (error) {
     console.log("gas error limit mint", error);
     setMintGasFee("$0.00");
@@ -215,14 +214,6 @@ export const gasEstimateBurnLimit = async (
     );
     const price = await fetchEthPrice()
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
-
-    console.log("user address burn", address);
-    console.log("limit pool route burn", limitPoolRoute);
-    console.log("position id burn", positionId.toString());
-    console.log("burn pct", burnPercent.toString());
-    console.log("claim tick burn", claim.toString());
-    console.log("zeroForOne", zeroForOne.toString());
-
     if (!limitPoolRoute || !provider) {
       setBurnGasFee("$0.00");
       setBurnGasLimit(BN_ZERO);
@@ -245,12 +236,10 @@ export const gasEstimateBurnLimit = async (
       zeroForOne,
       true
     ]);
-    console.log("limit gas units", gasUnits.toString());
     const gasPrice = await provider.getGasPrice();
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
     const networkFeeUsd = networkFeeEth * Number(ethUsdPrice);
-    console.log("network fee usd limit", networkFeeUsd);
     const formattedPrice: string = networkFeeUsd.toLocaleString("en-US", {
       style: "currency",
       currency: "USD",
@@ -447,6 +436,8 @@ export const gasEstimateCoverMint = async (
     if (!coverPoolRoute || !provider || !signer) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
+    if (inAmount.eq(BN_ZERO))
+      return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     const routerAddress = chainProperties['arbitrumGoerli']['routerAddress']
     const routerContract = new ethers.Contract(
       routerAddress,
@@ -579,7 +570,6 @@ export const gasEstimateCoverBurn = async (
       coverPoolABI,
       provider
     );
-    console.log("cover burn", address, positionId, burnPercent, claimTick);
     const gasUnits = await contract.connect(signer).estimateGas.burn({
       to: address,
       burnPercent: burnPercent,
