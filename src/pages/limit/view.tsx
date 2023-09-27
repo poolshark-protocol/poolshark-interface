@@ -12,7 +12,7 @@ import CoverCollectButton from "../../components/Buttons/CoverCollectButton";
 import { BigNumber, ethers } from "ethers";
 import { TickMath } from "../../utils/math/tickMath";
 import { coverPoolABI } from "../../abis/evm/coverPool";
-import { copyElementUseEffect } from "../../utils/misc";
+import { useCopyElementUseEffect } from "../../utils/misc";
 import { getClaimTick, mapUserCoverPositions } from "../../utils/maps";
 import RemoveLiquidity from "../../components/Modals/Limit/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Limit/AddLiquidity";
@@ -266,14 +266,15 @@ export default function ViewLimit() {
       Number(coverPositionData.min),
       Number(coverPositionData.max),
       Boolean(coverPositionData.zeroForOne),
-      Number(coverPositionData.epochLast)
+      Number(coverPositionData.epochLast),
+      true
     );
 
     setClaimTick(aux);
-    updateBurnFee(BigNumber.from(claimTick));
+    //updateBurnFee(BigNumber.from(claimTick));
   }
 
-  async function updateBurnFee(claim: BigNumber) {
+  /*async function updateBurnFee(claim: BigNumber) {
     const newGasFee = await gasEstimateCoverBurn(
       coverPoolAddress.toString(),
       address,
@@ -287,7 +288,7 @@ export default function ViewLimit() {
 
     setGasLimit(newGasFee.gasUnits);
     setGasFee(newGasFee.formattedPrice);
-  }
+  }*/
 
   async function getUserCoverPositionData() {
     try {
@@ -322,11 +323,11 @@ export default function ViewLimit() {
 
   ////////////////////////////////Addresses
 
-  useEffect(() => {
-    copyElementUseEffect(copyAddress0, setIs0Copied);
-    copyElementUseEffect(copyAddress1, setIs1Copied);
-    copyElementUseEffect(copyPoolAddress, setIsPoolCopied);
-  });
+  /*useEffect(() => {
+    useCopyElementUseEffect(copyAddress0, setIs0Copied);
+    useCopyElementUseEffect(copyAddress1, setIs1Copied);
+    useCopyElementUseEffect(copyPoolAddress, setIsPoolCopied);
+  }, []);
 
   function copyAddress0() {
     navigator.clipboard.writeText(tokenIn.address.toString());
@@ -341,7 +342,7 @@ export default function ViewLimit() {
   function copyPoolAddress() {
     navigator.clipboard.writeText(coverPoolAddress.toString());
     setIsPoolCopied(true);
-  }
+  }*/
 
   return (
     <div className="bg-black min-h-screen  ">

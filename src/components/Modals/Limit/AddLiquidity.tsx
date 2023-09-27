@@ -10,7 +10,7 @@ import {
 } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import CoverAddLiqButton from "../../Buttons/CoverAddLiqButton";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { useContractRead } from "wagmi";
 import { BN_ZERO } from "../../../utils/math/constants";
 import CoverMintApproveButton from "../../Buttons/CoverMintApproveButton";
@@ -147,13 +147,14 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
       Number(coverPositionData.min),
       tokenIn,
       tokenOut,
-      JSBI.BigInt(bnInput.toString()),
+      BigNumber.from(JSBI.BigInt(String(bnInput))), // Convert JSBI to BigNumber
       signer
     );
 
     setMintGasFee(newMintFee.formattedPrice);
     setMintGasLimit(newMintFee.gasUnits.mul(130).div(100));
   }
+
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -247,7 +248,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                 allowanceIn.lt(bnInput) &&
                 stateChainName === "arbitrumGoerli" ? (
                   <CoverMintApproveButton
-                    poolAddress={coverPoolAddress}
+                    routerAddress={coverPoolAddress}
                     approveToken={tokenIn.address}
                     amount={bnInput}
                     tokenSymbol={tokenIn.symbol}
@@ -257,6 +258,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                     disabled={disabled || mintGasFee == "$0.00"}
                     toAddress={address}
                     poolAddress={coverPoolAddress}
+                    routerAddress={coverPoolAddress}
                     address={address}
                     lower={Number(coverPositionData.min)}
                     upper={Number(coverPositionData.max)}
