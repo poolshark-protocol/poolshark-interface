@@ -341,10 +341,6 @@ export default function CreateCover(props: any) {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    console.log("coverPositionData", coverPositionData);
-    console.log("coverMintParams", coverMintParams);
-    console.log("tokenIn", tokenIn);
-    console.log("coverPoolData", coverPoolData);
     if (
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&

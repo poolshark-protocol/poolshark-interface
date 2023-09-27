@@ -304,7 +304,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
                   burnPercent={burnPercent}
                   closeModal={() => {
                     if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
-                      router.push("/pool");
+                      router.push("/range");
                     }
                   }}
                   gasLimit={burnGasLimit}

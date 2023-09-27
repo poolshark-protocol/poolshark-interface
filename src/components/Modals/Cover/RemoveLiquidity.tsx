@@ -91,7 +91,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
       signer
     )
       updateGasFee();
-  }, [sliderValue, coverPoolAddress]);
+  }, [burnPercent, coverPoolAddress]);
 
   async function updateGasFee() {
     const newBurnGasFee = await gasEstimateCoverBurn(
@@ -245,7 +245,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
                   gasLimit={burnGasLimit}
                   closeModal={() => {
                     if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
-                      router.push("/pool");
+                      router.push("/cover");
                     }
                   }}
                   setIsOpen={setIsOpen}
