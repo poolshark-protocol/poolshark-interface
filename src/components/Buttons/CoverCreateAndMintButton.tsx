@@ -18,9 +18,9 @@ export default function CoverCreateAndMintButton({
   poolType,
   tokenIn,
   tokenOut,
-  /* feeTier,
+  feeTier,
   tickSpread,
-  twapLength, */
+  twapLength,
   disabled,
   to,
   lower,

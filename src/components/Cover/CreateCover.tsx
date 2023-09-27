@@ -486,6 +486,8 @@ export default function CreateCover(props: any) {
     }
   }, [lowerPrice, upperPrice]);
 
+  console.log("coverPositionData", coverPositionData);
+
   return (
     <div className="flex flex-col space-y-8">
       <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
@@ -752,9 +754,9 @@ export default function CreateCover(props: any) {
             poolType={"coverPoolAddress"}
             tokenIn={tokenIn}
             tokenOut={tokenOut}
-            /*  feeTier={volatilityTiers[volatilityTierId].tier}
-            tickSpread={volatilityTiers[volatilityTierId].tickSpread}
-            twapLength={volatilityTiers[volatilityTierId].twapLength} */
+            feeTier={coverPoolData.volatilityTier.tier}
+            tickSpread={coverPoolData.volatilityTier.tickSpread}
+            twapLength={coverPoolData.volatilityTier.twapLength}
             disabled={coverMintParams.disabled}
             to={address}
             lower={TickMath.getTickAtPriceString(

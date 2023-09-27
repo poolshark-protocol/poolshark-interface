@@ -782,9 +782,9 @@ export default function CoverExistingPool({ goBack }) {
             poolType={"coverPoolAddress"}
             tokenIn={tokenIn}
             tokenOut={tokenOut}
-            /* feeTier={volatilityTiers[volatilityTierId].tier}
-            tickSpread={volatilityTiers[volatilityTierId].tickSpread}
-            twapLength={volatilityTiers[volatilityTierId].twapLength} */
+            feeTier={coverPoolData.volatilityTier.tier}
+            tickSpread={coverPoolData.volatilityTier.tickSpread}
+            twapLength={coverPoolData.volatilityTier.twapLength}
             disabled={coverMintParams.disabled}
             buttonMessage={coverMintParams.buttonMessage}
             to={address}
