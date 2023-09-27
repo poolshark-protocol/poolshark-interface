@@ -125,7 +125,7 @@ export default function CreateCover(props: any) {
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
       // setNeedsAllowance(true);
-      console.log("allowance fetched");
+      //console.log("allowance fetched");
     },
     onError(error) {
       console.log("Error", error);
@@ -135,7 +135,6 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     if (allowanceInCover) {
-      console.log("allowance set", allowanceInCover.toString());
       setTokenInCoverAllowance(allowanceInCover.toString());
     }
   }, [allowanceInCover]);
@@ -484,8 +483,6 @@ export default function CreateCover(props: any) {
       setMaxInput(upperPrice);
     }
   }, [lowerPrice, upperPrice]);
-
-  console.log("coverPositionData", coverPositionData);
 
   return (
     <div className="flex flex-col space-y-8">

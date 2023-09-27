@@ -132,7 +132,6 @@ export default function CoverExistingPool({ goBack }) {
 
   useEffect(() => {
     if (allowanceInCover) {
-      console.log("allowance set");
       setTokenInCoverAllowance(allowanceInCover.toString());
     }
   }, [allowanceInCover]);
