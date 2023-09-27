@@ -11,7 +11,6 @@ import { getCoverPoolFromFactory } from "../utils/queries";
 type CoverState = {
   //poolAddress for current token pairs
   coverPoolAddress: `0x${string}`;
-  volatilityTierId: number;
   coverPoolData: any;
   //tickSpacing
   //claimTick
@@ -87,7 +86,6 @@ type CoverAction = {
 const initialCoverState: CoverState = {
   //pools
   coverPoolAddress: ZERO_ADDRESS as `0x${string}`,
-  volatilityTierId: 0,
   coverPoolData: {},
   coverPositionData: {},
   coverSwapSlippage: "0.5",
@@ -141,7 +139,6 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   coverPoolData: initialCoverState.coverPoolData,
   coverPositionData: initialCoverState.coverPositionData,
   coverSwapSlippage: initialCoverState.coverSwapSlippage,
-  volatilityTierId: initialCoverState.volatilityTierId,
   pairSelected: initialCoverState.pairSelected,
   //tokenIn
   tokenIn: initialCoverState.tokenIn,
@@ -418,24 +415,15 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         tokenIn.address,
         tokenOut.address
       );
-      const volatilityId = volatility.id;
       const dataLength = pool["data"]["coverPools"].length;
       for (let i = 0; i < dataLength; i++) {
         if (
-          (volatilityId == 0 &&
-            pool["data"]["coverPools"][i]["volatilityTier"]["feeAmount"] ==
-              "1000") ||
-          (volatilityId == 1 &&
-            pool["data"]["coverPools"][i]["volatilityTier"]["feeAmount"] ==
-              "3000") ||
-          (volatilityId == 2 &&
-            pool["data"]["coverPools"][i]["volatilityTier"]["feeAmount"] ==
-              "10000")
+          pool["data"]["coverPools"][i]["volatilityTier"]["feeAmount"] ==
+          volatility
         ) {
           set(() => ({
             coverPoolAddress: pool["data"]["coverPools"][i]["id"],
             coverPoolData: pool["data"]["coverPools"][i],
-            volatilityTierId: volatilityId,
           }));
         }
       }

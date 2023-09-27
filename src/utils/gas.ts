@@ -120,7 +120,6 @@ export const gasEstimateMintLimit = async (
     });
     setMintGasFee(formattedPrice);
     setMintGasLimit(gasUnits.mul(150).div(100));
-    console.log("gas units", gasUnits.toString())
   } catch (error) {
     console.log("gas error limit mint", error);
     setMintGasFee("$0.00");
@@ -440,6 +439,8 @@ export const gasEstimateCoverMint = async (
     if (!coverPoolRoute || !provider || !signer) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
+    if (inAmount.eq(BN_ZERO))
+      return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     const routerAddress = chainProperties['arbitrumGoerli']['routerAddress']
     const routerContract = new ethers.Contract(
       routerAddress,
@@ -572,7 +573,6 @@ export const gasEstimateCoverBurn = async (
       coverPoolABI,
       provider
     );
-    console.log("cover burn", address, positionId, burnPercent, claimTick);
     const gasUnits = await contract.connect(signer).estimateGas.burn({
       to: address,
       burnPercent: burnPercent,

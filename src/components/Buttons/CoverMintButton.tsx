@@ -46,15 +46,17 @@ export default function CoverMintButton({
     functionName: "multiMintCover",
     args: [
       [poolAddress],
-      [{
-        to: to,
-        amount: amount,
-        positionId: newPositionId,
-        lower: BigNumber.from(roundTick(Number(lower), tickSpacing)),
-        upper: BigNumber.from(roundTick(Number(upper), tickSpacing)),
-        zeroForOne: zeroForOne,
-        callbackData: ethers.utils.formatBytes32String('')
-      }],
+      [
+        {
+          to: to,
+          amount: amount,
+          positionId: newPositionId,
+          lower: BigNumber.from(roundTick(Number(lower), tickSpacing)),
+          upper: BigNumber.from(roundTick(Number(upper), tickSpacing)),
+          zeroForOne: zeroForOne,
+          callbackData: ethers.utils.formatBytes32String(""),
+        },
+      ],
     ],
     overrides: {
       gasLimit: gasLimit,
@@ -72,11 +74,7 @@ export default function CoverMintButton({
       setNeedsRefetch(true);
       setNeedsAllowance(true);
       setNeedsBalance(true);
-      console.log("refetch setted");
-      router.push("/cover");
-    },
-    onError() {
-      setErrorDisplay(true);
++      router.push("/cover");
     },
   });
 

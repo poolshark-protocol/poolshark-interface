@@ -209,7 +209,7 @@ export default function Range() {
                         ) {
                           return (
                             <UserRangePool
-                              key={allRangePosition.id + "rangePosition"}
+                              key={allRangePosition.id}
                               rangePosition={allRangePosition}
                               href={"/range/view"}
                               isModal={false}
