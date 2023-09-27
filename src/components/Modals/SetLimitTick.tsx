@@ -50,7 +50,7 @@ export default function SetLimitTick({ isOpen, setIsOpen }) {
                   <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px] mb-3">
                     <h1 className="mb-4">CHOOSE A PRICE TICK SIZE TIER</h1>
                     <div className="flex md:flex-row flex-col justify-between mt-3 gap-x-16 gap-y-4">
-                      {volatilityTiers.map(
+                      {/*volatilityTiers.map(
                         (volatilityTier, volatilityTierIdx) => (
                           <div
                             onClick={() =>
@@ -69,7 +69,7 @@ export default function SetLimitTick({ isOpen, setIsOpen }) {
                             </h2>
                           </div>
                         )
-                      )}
+                          )*/}
                     </div>
                   </div>
                   <button className="w-full py-4 mx-auto text-center transition rounded-full  border border-main bg-main1 uppercase text-sm cursor-pointer">Create Limit Pool</button>

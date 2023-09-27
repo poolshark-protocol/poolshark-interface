@@ -1317,10 +1317,10 @@ export default function Trade() {
           </div>
         )}*/}
       </div>
-      <SetLimitTick
+      {/*<SetLimitTick
       isOpen={isOpen}
       setIsOpen={setIsOpen}
-      />
+      />*/}
     </div>
   );
 }
