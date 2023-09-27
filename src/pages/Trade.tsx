@@ -40,6 +40,8 @@ import { getAveragePrice, getExpectedAmountOut } from "../utils/math/priceMath";
 import LimitSwapBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import timeDifference from "../utils/time";
 import { DyDxMath } from "../utils/math/dydxMath";
+import { coinRaw } from "../utils/types";
+import SetLimitTick from "../components/Modals/SetLimitTick";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -115,6 +117,9 @@ export default function Trade() {
     s.needsRefetch,
     s.setNeedsRefetch,
   ]);
+
+  //set Limit Fee tier Modal
+  const [isOpen, setIsOpen] = useState(false);
 
   //false when user in normal swap, true when user in limit swap
   const [limitTabSelected, setLimitTabSelected] = useState(false);
@@ -1111,6 +1116,7 @@ export default function Trade() {
                 )}
               </>
             )}
+            <button onClick={() => setIsOpen(true)} className="w-full py-4 mx-auto text-center transition rounded-full  border border-main bg-main1 uppercase text-sm cursor-pointer">Create Limit Pool</button>
           </div>
         </div>
       </div>
@@ -1311,6 +1317,10 @@ export default function Trade() {
           </div>
         )}*/}
       </div>
+      <SetLimitTick
+      isOpen={isOpen}
+      setIsOpen={setIsOpen}
+      />
     </div>
   );
 }
