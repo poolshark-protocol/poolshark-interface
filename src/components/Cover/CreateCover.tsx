@@ -479,8 +479,7 @@ export default function CreateCover(props: any) {
   }, [maxInput, minInput]);
 
   useEffect(() => {
-    if (lowerPrice !== "0" && upperPrice !== "0" && loadingPrices) {
-      setLoadingPrices(false);
+    if (lowerPrice !== "0" && upperPrice !== "0") {
       setMinInput(lowerPrice);
       setMaxInput(upperPrice);
     }
@@ -754,9 +753,9 @@ export default function CreateCover(props: any) {
             poolType={"coverPoolAddress"}
             tokenIn={tokenIn}
             tokenOut={tokenOut}
-            feeTier={coverPoolData.volatilityTier.tier}
-            tickSpread={coverPoolData.volatilityTier.tickSpread}
-            twapLength={coverPoolData.volatilityTier.twapLength}
+            feeTier={coverPoolData.volatilityTier?.tier}
+            tickSpread={coverPoolData.volatilityTier?.tickSpread}
+            twapLength={coverPoolData.volatilityTier?.twapLength}
             disabled={coverMintParams.disabled}
             to={address}
             lower={TickMath.getTickAtPriceString(

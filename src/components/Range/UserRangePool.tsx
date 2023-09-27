@@ -191,7 +191,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
       setCoverTokenIn(tokenOutNew, tokenInNew);
       setCoverTokenOut(tokenInNew, tokenOutNew);
       setRangePositionData(rangePosition);
-      setCoverPoolFromVolatility(tokenInNew, tokenOutNew, volatilityTiers[0]);
+      setCoverPoolFromVolatility(tokenInNew, tokenOutNew, "1000");
     } else {
       setRangeTokenIn(tokenOutNew, tokenInNew);
       setRangeTokenOut(tokenInNew, tokenOutNew);

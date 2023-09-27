@@ -224,8 +224,6 @@ export default function CoverExistingPool({ goBack }) {
     setCoverPositionData({
       ...coverPositionData,
       tickAtPrice: tickAtPrice,
-      lowerPrice: lowerPrice,
-      upperPrice: upperPrice,
     });
   }
 
@@ -441,7 +439,6 @@ export default function CoverExistingPool({ goBack }) {
   //////////////////////////////// Switch Price denomination
   const [minInput, setMinInput] = useState(lowerPrice);
   const [maxInput, setMaxInput] = useState(upperPrice);
-  const [loadingPrices, setLoadingPrices] = useState(true);
 
   const handlePriceSwitch = () => {
     setPriceOrder(!priceOrder);
@@ -455,12 +452,11 @@ export default function CoverExistingPool({ goBack }) {
   }, [maxInput, minInput]);
 
   useEffect(() => {
-    if (lowerPrice !== "0" && upperPrice !== "0" && loadingPrices) {
-      setLoadingPrices(false);
+    if (lowerPrice !== "0" && upperPrice !== "0") {
       setMinInput(lowerPrice);
       setMaxInput(upperPrice);
     }
-  }, [lowerPrice, upperPrice]);
+  }, [coverPositionData.lowerPrice, coverPositionData.upperPrice]);
 
   const [expanded, setExpanded] = useState(false);
 
@@ -782,9 +778,9 @@ export default function CoverExistingPool({ goBack }) {
             poolType={"coverPoolAddress"}
             tokenIn={tokenIn}
             tokenOut={tokenOut}
-            feeTier={coverPoolData.volatilityTier.tier}
-            tickSpread={coverPoolData.volatilityTier.tickSpread}
-            twapLength={coverPoolData.volatilityTier.twapLength}
+            feeTier={coverPoolData.volatilityTier?.tier}
+            tickSpread={coverPoolData.volatilityTier?.tickSpread}
+            twapLength={coverPoolData.volatilityTier?.twapLength}
             disabled={coverMintParams.disabled}
             buttonMessage={coverMintParams.buttonMessage}
             to={address}
