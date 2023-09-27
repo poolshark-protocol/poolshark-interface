@@ -53,9 +53,15 @@ export default function CoverCreate() {
   return (
     <div className="bg-black min-h-screen  ">
       <Navbar />
-      <div className="text-white flex flex-col mx-auto max-w-2xl  justify-center py-10 px-3 md:px-0 pb-32">
-          <h1 className="uppercase">{state === "existing" ? "Create Cover Pool" : "Select an Option"}</h1>
-          {state !== "existing" &&
+      <div className={`text-white flex flex-col mx-auto max-w-2xl  justify-center py-10 px-3 md:px-0 pb-32 flex-col w-full `}>
+        <h1 className="uppercase">
+          {state === "existing"
+            ? "Create Cover Position"
+            : shifted === "createCover"
+            ? "Create Custom Cover Position"
+            : "Select an Option"}
+        </h1>
+        {shifted === "initial" ? (
           <div className="mt-6 rounded-[4px] overflow-hidden border border-grey/70">
             <div className="bg-[url('/static/images/bg/shark2.png')] bg-no-repeat bg-cover w-full flex items-center justify-center">
               <a href="#create">
@@ -63,7 +69,7 @@ export default function CoverCreate() {
                   onClick={() => setIsOpen(true)}
                   className="px-24 py-6 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition mx-auto my-12 border border-main bg-main1/50 uppercase backdrop-blur shadow-lg text-sm disabled:opacity-50 hover:opacity-80"
                 >
-                  COVER EXISTING POOL
+                  COVER A RANGE POSITION
                 </button>
               </a>
             </div>
@@ -73,12 +79,31 @@ export default function CoverCreate() {
                   onClick={() => setIsShifted("createCover")}
                   className="px-24 py-6 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition mx-auto my-12 border border-grey bg-black/50 backdrop-blur uppercase shadow-lg text-sm disabled:opacity-50 hover:opacity-80"
                 >
-                  CREATE CUSTOM COVER
+                  CREATE CUSTOM COVER POOL
                 </button>
               </a>
             </div>
           </div>
-}
+        ):
+        <div className="rounded-[4px] flex overflow-hidden w-full mt-6">
+          <a href="#create" className="w-full">
+                <button
+                  onClick={() => setIsOpen(true)}
+                  className={`px-10 w-full py-2 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition mx-auto uppercase backdrop-blur shadow-lg text-sm disabled:opacity-50 hover:opacity-80 ${shifted === "createCover" ? "bg-black/50 border-grey border" : "bg-main1/50 border border-main"}`}
+                >
+                  COVER A RANGE POSITION
+                </button>
+                </a>
+                <a href="#create" className="w-full">
+                <button
+                  onClick={() => setIsShifted("createCover")}
+                  className={`px-10 w-full py-2 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition mx-auto uppercase backdrop-blur shadow-lg text-sm disabled:opacity-50 hover:opacity-80 ${shifted === "createCover" ? "bg-main1/50 border border-main" : "bg-black/50 border-grey border"}`}
+                >
+                  CREATE CUSTOM COVER POOL
+                </button>
+                </a>
+          </div>
+        }
         <div id="create">
           {selectedPool != undefined && state == "existing" ? (
             <CreateCover query={router.query} goBack={handleDiselectPool} />

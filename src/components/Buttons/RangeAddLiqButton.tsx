@@ -1,111 +1,93 @@
 import {
-    usePrepareContractWrite,
-    useContractWrite,
-    useWaitForTransaction,
-    useSigner,
-} from 'wagmi';
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+  useSigner,
+} from "wagmi";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
-import React, { useEffect, useState } from "react";
-import { rangePoolABI } from '../../abis/evm/rangePool';
-import { BN_ZERO } from '../../utils/math/constants';
-import { gasEstimateRangeMint } from '../../utils/gas';
-import { useRangeLimitStore } from '../../hooks/useRangeLimitStore';
-import { BigNumber } from 'ethers';
+import React, { useState } from "react";
+import { BN_ZERO } from "../../utils/math/constants";
+import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
+import { BigNumber, ethers } from "ethers";
+import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 
-export default function RangeAddLiqButton({poolAddress, address, lower, upper, positionId, amount0, amount1, disabled, setIsOpen}) {
-    const [
-      setNeedsAllowanceIn,
-      setNeedsAllowanceOut,
-      setNeedsBalanceIn,
-      setNeedsBalanceOut,
-      setNeedsRefetch,
-    ] = useRangeLimitStore((state) => [
-      state.setNeedsAllowanceIn,
-      state.setNeedsAllowanceOut,
-      state.setNeedsBalanceIn,
-      state.setNeedsBalanceOut,
-      state.setNeedsRefetch,
-    ])
-    const [ errorDisplay, setErrorDisplay ] = useState(false);
-    const [ successDisplay, setSuccessDisplay ] = useState(false);
-    const [ fetchDelay, setFetchDelay ] = useState(false)
-    const [ gasLimit, setGasLimit ] = useState(BN_ZERO)
+export default function RangeAddLiqButton({
+  routerAddress,
+  poolAddress,
+  address,
+  lower,
+  upper,
+  positionId,
+  amount0,
+  amount1,
+  disabled,
+  setIsOpen,
+  gasLimit,
+}) {
+  const [
+    setNeedsAllowanceIn,
+    setNeedsAllowanceOut,
+    setNeedsBalanceIn,
+    setNeedsBalanceOut,
+    setNeedsRefetch,
+  ] = useRangeLimitStore((state) => [
+    state.setNeedsAllowanceIn,
+    state.setNeedsAllowanceOut,
+    state.setNeedsBalanceIn,
+    state.setNeedsBalanceOut,
+    state.setNeedsRefetch,
+  ]);
+  const [errorDisplay, setErrorDisplay] = useState(false);
+  const [successDisplay, setSuccessDisplay] = useState(false);
+  const [fetchDelay, setFetchDelay] = useState(false);
 
-    const {data: signer} = useSigner()
+  const { data: signer } = useSigner();
 
-    useEffect(() => {
-      if (!fetchDelay) {
-        updateGasFee()
-      } else {
-        const interval = setInterval(() => {
-          updateGasFee()
-        }, 3000)
-        return () => clearInterval(interval)
+  const { config } = usePrepareContractWrite({
+    address: routerAddress,
+    abi: poolsharkRouterABI,
+    functionName: "multiMintRange",
+    args: [
+      [poolAddress],
+      [{
+        to: address,
+        lower: lower,
+        upper: upper,
+        positionId: positionId,
+        amount0: amount0,
+        amount1: amount1,
+        callbackData: ethers.utils.formatBytes32String('')
+      }],
+    ],
+    //args: [[address, lower, positionId, upper, amount0, amount1]],
+    chainId: 421613,
+    overrides: {
+      gasLimit: gasLimit,
+    },
+    onSuccess() {},
+  });
+
+  const { data, isSuccess, write } = useContractWrite(config);
+
+  const { isLoading } = useWaitForTransaction({
+    hash: data?.hash,
+    onSuccess() {
+      setSuccessDisplay(true);
+      setNeedsAllowanceIn(true);
+      setNeedsBalanceIn(true);
+      setNeedsRefetch(true);
+      if (amount1.gt(BigNumber.from(0))) {
+        setNeedsAllowanceOut(true);
+        setNeedsBalanceOut(true);
       }
-    }, [])
-  
-    async function updateGasFee() {
-      const newBurnGasFee = await gasEstimateRangeMint(
-        poolAddress,
-        address,
-        lower,
-        upper,
-        amount0,
-        amount1,
-        signer,
-        positionId
-      )
-      if (newBurnGasFee.gasUnits.gt(BN_ZERO)) setFetchDelay(true)
-      
-      setGasLimit(newBurnGasFee.gasUnits.mul(130).div(100))
-    }
-  
-    const { config } = usePrepareContractWrite({
-      address: poolAddress,
-      abi: rangePoolABI,
-      functionName: 'mint',
-      args: [[
-        address,
-        lower,
-        upper,
-        amount0,
-        amount1
-      ]],
-      chainId: 421613,
-      overrides: {
-        gasLimit: gasLimit,
-      },
-      onSuccess() {
-        console.log('params check', address,
-        lower.toString(),
-        upper.toString(),
-        amount0.toString(),
-        amount1.toString())
-      },
-    })
-
-    const { data, isSuccess, write } = useContractWrite(config)
-
-    const {isLoading} = useWaitForTransaction({
-      hash: data?.hash,
-      onSuccess() {
-        setSuccessDisplay(true);
-        setNeedsAllowanceIn(true);
-        setNeedsBalanceIn(true);
-        setNeedsRefetch(true);
-        if (amount1.gt(BigNumber.from(0))) {
-          setNeedsAllowanceOut(true);
-          setNeedsBalanceOut(true);
-        }
-        setIsOpen(false);
-      },
-      onError() {
-        setErrorDisplay(true);
-      },
-    });
-
+      setIsOpen(false);
+    },
+    onError() {
+      setErrorDisplay(true);
+    },
+  });
     return (
         <>
         <button 
@@ -117,7 +99,7 @@ export default function RangeAddLiqButton({poolAddress, address, lower, upper, p
                 >
                 Add liquidity
         </button>
-        <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
+        <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
       {errorDisplay && (
         <ErrorToast
           hash={data?.hash}
@@ -134,6 +116,6 @@ export default function RangeAddLiqButton({poolAddress, address, lower, upper, p
         />
       )}
       </div>
-        </>
-    );
-  }
+    </>
+  );
+}

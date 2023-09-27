@@ -9,10 +9,13 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { roundTick } from "../../utils/math/tickMath";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { useCoverStore } from "../../hooks/useCoverStore";
+import router from "next/router";
+import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 
 export default function CoverMintButton({
+  routerAddress,
   poolAddress,
   disabled,
   to,
@@ -27,31 +30,31 @@ export default function CoverMintButton({
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
 
-  const [
-    setNeedsRefetch,
-    setNeedsAllowance,
-    setNeedsBalance,
-  ] = useCoverStore((state) => [
-    state.setNeedsRefetch,
-    state.setNeedsAllowance,
-    state.setNeedsBalance,
-  ]);
+  const [setNeedsRefetch, setNeedsAllowance, setNeedsBalance] = useCoverStore(
+    (state) => [
+      state.setNeedsRefetch,
+      state.setNeedsAllowance,
+      state.setNeedsBalance,
+    ]
+  );
 
-  const newPositionId = 0
+  const newPositionId = 0;
 
   const { config } = usePrepareContractWrite({
-    address: poolAddress,
-    abi: coverPoolABI,
-    functionName: "mint",
+    address: routerAddress,
+    abi: poolsharkRouterABI,
+    functionName: "multiMintCover",
     args: [
-      [
-        to,
-        amount,
-        newPositionId,
-        BigNumber.from(roundTick(Number(lower), tickSpacing)),
-        BigNumber.from(roundTick(Number(upper), tickSpacing)),
-        zeroForOne,
-      ],
+      [poolAddress],
+      [{
+        to: to,
+        amount: amount,
+        positionId: newPositionId,
+        lower: BigNumber.from(roundTick(Number(lower), tickSpacing)),
+        upper: BigNumber.from(roundTick(Number(upper), tickSpacing)),
+        zeroForOne: zeroForOne,
+        callbackData: ethers.utils.formatBytes32String('')
+      }],
     ],
     overrides: {
       gasLimit: gasLimit,
@@ -69,7 +72,8 @@ export default function CoverMintButton({
       setNeedsRefetch(true);
       setNeedsAllowance(true);
       setNeedsBalance(true);
-      console.log("refetch setted")
+      console.log("refetch setted");
+      router.push("/cover");
     },
     onError() {
       setErrorDisplay(true);
@@ -79,13 +83,13 @@ export default function CoverMintButton({
   return (
     <>
       <button
-        disabled={disabled || gasLimit.lte(BigNumber.from(0))}
+        disabled={disabled}
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
         onClick={() => write?.()}
       >
         {buttonMessage}
       </button>
-      <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
+      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
         {errorDisplay && (
           <ErrorToast
             hash={data?.hash}

@@ -1,96 +1,123 @@
-import { BigNumber, ethers } from 'ethers';
 import {
-    usePrepareContractWrite,
-    useContractWrite,
-    useWaitForTransaction,
-} from 'wagmi';
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+} from "wagmi";
 import { coverPoolABI } from "../../abis/evm/coverPool";
-import { coverPoolAddress } from "../../constants/contractAddresses";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import { roundTick } from '../../utils/math/tickMath';
-import { BN_ZERO } from '../../utils/math/constants';
-import { useCoverStore } from '../../hooks/useCoverStore';
+import { BN_ZERO } from "../../utils/math/constants";
+import { useCoverStore } from "../../hooks/useCoverStore";
+import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
+import { ethers } from "ethers";
 
-export default function CoverAddLiqButton({poolAddress, address, positionId, lower, upper, zeroForOne, amount, toAddress, gasLimit, buttonState, disabled, tokenSymbol, setIsOpen}) {
-    const [ setNeedsAllowance, setNeedsBalance, setNeedsRefetch ] = useCoverStore((state) => [
+export default function CoverAddLiqButton({
+  poolAddress,
+  routerAddress,
+  address,
+  positionId,
+  lower,
+  upper,
+  zeroForOne,
+  amount,
+  toAddress,
+  gasLimit,
+  buttonState,
+  disabled,
+  tokenSymbol,
+  setIsOpen,
+}) {
+  const [coverPoolData, setNeedsAllowance, setNeedsBalance, setNeedsRefetch] =
+    useCoverStore((state) => [
+      state.coverPoolData,
       state.setNeedsAllowance,
       state.setNeedsBalance,
       state.setNeedsRefetch,
-    ]);
-    const [ errorDisplay, setErrorDisplay ] = useState(false);
-    const [ successDisplay, setSuccessDisplay ] = useState(false);
+  ]);
+  const [errorDisplay, setErrorDisplay] = useState(false);
+  const [successDisplay, setSuccessDisplay] = useState(false);
 
-    console.log('cover add liq gas limit', gasLimit.toString())
   
-    const { config } = usePrepareContractWrite({
-      address: poolAddress,
-      abi: coverPoolABI,
-      functionName: 'mint',
-      args: [
-        [
-          toAddress,
-          amount,
-          positionId,
-          Number(lower),
-          Number(upper),
-          zeroForOne,
-        ],
-      ],
-      enabled: amount.gt(BN_ZERO) && poolAddress != undefined,
-      chainId: 421613,
-      overrides: {
-        gasLimit: gasLimit,
-      },
-    })
+  console.log("cover add liq gas limit", gasLimit.toString());
 
-    const { data, isSuccess, write } = useContractWrite(config)
+  const { config } = usePrepareContractWrite({
+    address: routerAddress,
+    abi: poolsharkRouterABI,
+    functionName: "multiMintCover",
+    args: [
+      [poolAddress],
+      [{
+        positionId: positionId,
+        to: toAddress,
+        amount: amount,
+        lower: lower,
+        upper: upper,
+        zeroForOne: zeroForOne,
+        callbackData: ethers.utils.formatBytes32String('')
+      }],
+    ],
+    enabled: amount.gt(BN_ZERO) && poolAddress != undefined,
+    chainId: 421613,
+    overrides: {
+      gasLimit: gasLimit,
+    },
+  });
 
-    const {isLoading} = useWaitForTransaction({
-      hash: data?.hash,
-      onSuccess() {
-        setSuccessDisplay(true);
-        setNeedsAllowance(true);
-        setNeedsBalance(true);
-        setIsOpen(false);
-        setNeedsRefetch(true);
-      },
-      onError() {
-        setErrorDisplay(true);
-      },
-    });
+  const { data, isSuccess, write } = useContractWrite(config);
 
-    return (
-        <>
-        <button disabled={disabled} className="disabled:opacity-50 text-sm md:text-base disabled:cursor-not-allowed w-full py-4 mx-auto  text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
-            onClick={() => {
-              address ?  write?.() : null
-            }}
-                >
-                {disabled ? <>
-        {buttonState === 'amount' ? <>Input Amount</> : <></>}
-        {buttonState === 'balance' ? <>Insufficient {tokenSymbol} Balance</> : <></>}
-        </> : <> Add Liquidity</>}
-        </button>
-        <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
-      {errorDisplay && (
-        <ErrorToast
-          hash={data?.hash}
-          errorDisplay={errorDisplay}
-          setErrorDisplay={setErrorDisplay}
-        />
-      )}
-      {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-      {successDisplay && (
-        <SuccessToast
-          hash={data?.hash}
-          successDisplay={successDisplay}
-          setSuccessDisplay={setSuccessDisplay}
-        />
-      )}
+  const { isLoading } = useWaitForTransaction({
+    hash: data?.hash,
+    onSuccess() {
+      setSuccessDisplay(true);
+      setNeedsAllowance(true);
+      setNeedsBalance(true);
+      setIsOpen(false);
+      setNeedsRefetch(true);
+    },
+    onError() {
+      setErrorDisplay(true);
+    },
+  });
+
+  return (
+    <>
+      <button
+        disabled={disabled}
+        className="disabled:opacity-50 text-sm md:text-base disabled:cursor-not-allowed w-full py-4 mx-auto  text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        onClick={() => write?.()}
+      >
+        {disabled ? (
+          <>
+            {buttonState === "amount" ? <>Input Amount</> : <></>}
+            {buttonState === "balance" ? (
+              <>Insufficient {tokenSymbol} Balance</>
+            ) : (
+              <></>
+            )}
+          </>
+        ) : (
+          <> Add Liquidity</>
+        )}
+      </button>
+      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
+        {errorDisplay && (
+          <ErrorToast
+            hash={data?.hash}
+            errorDisplay={errorDisplay}
+            setErrorDisplay={setErrorDisplay}
+          />
+        )}
+        {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
+        {successDisplay && (
+          <SuccessToast
+            hash={data?.hash}
+            successDisplay={successDisplay}
+            setSuccessDisplay={setSuccessDisplay}
+          />
+        )}
       </div>
-        </>
-    );
-  }
+    </>
+  );
+}

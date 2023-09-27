@@ -14,9 +14,7 @@ import Link from "next/link";
 import PoolIcon from "../../components/Icons/PoolIcon";
 import CoverPool from "../../components/Cover/CoverPool";
 import { fetchCoverPools } from "../../utils/queries";
-import {
-  mapCoverPools,
-} from "../../utils/maps";
+import { mapCoverPools } from "../../utils/maps";
 
 export default function Cover() {
   const [needsRefetch, setNeedsRefetch] = useCoverStore((state) => [
@@ -36,6 +34,8 @@ export default function Cover() {
   const [allCoverPositions, setAllCoverPositions] = useState([]);
   const [create, setCreate] = useState(true);
   const [allCoverPools, setAllCoverPools] = useState([]);
+  const [isPositionsLoading, setIsPositionsLoading] = useState(false);
+  const [isPoolsLoading, setIsPoolsLoading] = useState(false);
 
   useEffect(() => {
     if (address) {
@@ -48,14 +48,11 @@ export default function Cover() {
   }, []);
 
   useEffect(() => {
-    console.log("refetching");
     if (needsRefetch == true) {
       setTimeout(() => {
         getUserCoverPositionData();
-        console.log("refetched");
-
         setNeedsRefetch(false);
-      }, 5000);
+      }, 1000);
     }
   }, [needsRefetch]);
 
@@ -66,11 +63,13 @@ export default function Cover() {
   }, [router.query.state]);
 
   async function getUserCoverPositionData() {
+    setIsPositionsLoading(true)
     const data = await fetchCoverPositions(address);
     if (data["data"]) {
       const positions = data["data"].positions;
       const positionData = mapUserCoverPositions(positions);
       setAllCoverPositions(positionData);
+      setIsPositionsLoading(false)
     }
   }
 
@@ -84,10 +83,12 @@ export default function Cover() {
   };
 
   async function getCoverPoolData() {
+    setIsPoolsLoading(true)
     const data = await fetchCoverPools();
     if (data["data"]) {
       const pools = data["data"].coverPools;
       setAllCoverPools(mapCoverPools(pools));
+      setIsPoolsLoading(false)
     }
   }
 
@@ -96,7 +97,7 @@ export default function Cover() {
       <Navbar create={create} setCreate={setCreate} />
       <div className="container mx-auto my-8 px-3 md:px-0  pb-32">
         <div className="flex lg:flex-row flex-col gap-x-8 gap-y-5 justify-between">
-          <div className="p-7 lg:h-[300px] w-full lg:w-[60%] flex flex-col justify-between bg-[url('/static/images/bg/shark.png')]">
+          <div className="p-7 lg:h-[300px] w-full lg:w-[60%] flex flex-col justify-between bg-cover bg-[url('/static/images/bg/shark.png')]">
             <div className="flex flex-col gap-y-3 mb-5">
               <h1 className="uppercase text-white">
                 Cover your liquidity pools
@@ -162,8 +163,27 @@ export default function Cover() {
               <UserIcon />
               <h1>YOUR POSITIONS</h1>
             </div>
-            <div>
-              {isDisconnected ? (
+            <div className="text-white">
+              {isPositionsLoading ? <div>
+                <div className="pb-3 lg:pb-0">
+                      <div className="lg:w-auto">
+                        <div className="space-y-3">
+                          <div className="lg:grid hidden grid-cols-4 text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
+                            <span>Pool Name</span>
+                            <span className="text-right">Price Range</span>
+                            <span className="text-right">% Filled</span>
+                            <span className="text-right mr-4">USD Value</span>
+                          </div>
+                          {[...Array(2)].map((_, i: number) => (
+                          <div key={i} className="h-[58px] w-full bg-grey/20 animate-pulse rounded-[4px]">
+                            </div>
+                            ))}
+                        </div>
+                      </div>
+                    </div>
+                </div>
+                : 
+                isDisconnected || allCoverPositions.length === 0 ? (
                 <div className="text-grey1 text-xs  py-10 text-center">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -181,27 +201,10 @@ export default function Cover() {
                 </div>
               ) : (
                 <>
-                  {allCoverPositions.length === 0 ? (
-                    <div className="text-grey1 text-xs  py-10 text-center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="w-10 py-4 mx-auto"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      Your cover positions will appear here.
-                    </div>
-                  ) : (
-                    <div className="overflow-scroll">
-                      <div className="w-[1400px] lg:w-auto">
+                    <div className="pb-3 lg:pb-0">
+                      <div className="lg:w-auto">
                         <div className="space-y-3">
-                          <div className="grid grid-cols-4 text-xs text-grey1/60 w-full mt-5 mb-2">
+                          <div className="lg:grid hidden grid-cols-4 text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
                             <span>Pool Name</span>
                             <span className="text-right">Price Range</span>
                             <span className="text-right">% Filled</span>
@@ -248,8 +251,7 @@ export default function Cover() {
                         </div>
                       </div>
                     </div>
-                  )}
-                </>
+                </>         
               )}
             </div>
           </div>
@@ -263,47 +265,53 @@ export default function Cover() {
                 Click on a pool to Add Liquidity
               </span>
             </div>
-            <div className="overflow-scroll">
-              <div className="w-[1400px] lg:w-auto">
+            <div className="pb-3 lg:pb-0">
+              <div className="w-auto">
                 <div className="space-y-3 w-full">
                   <div className="grid grid-cols-2 w-full text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
                     <div className="text-left">Pool Name</div>
-                    <div className="grid grid-cols-3">
-                      <span className="text-right">Volume (24h)</span>
-                      <span className="text-right">TVL</span>
-                      <span className="text-right mr-4">Fees (24h)</span>
+                    <div className="grid grid-cols-3">x
+                      <span className="text-right md:table-cell hidden">Volume (24h)</span>
+                      <span className="text-right md:table-cell hidden">TVL</span>
+                      <span className="text-right mr-4 md:table-cell hidden">Fees (24h)</span>
                     </div>
                   </div>
-                  {allCoverPools.map((allRangePool) => {
+                  {isPoolsLoading ? 
+                  [...Array(3)].map((_, i: number) => (
+                          <div key={i} className="h-[50px] w-full bg-grey/30 animate-pulse rounded-[4px]">
+                            </div>
+                            ))
+                            :
+                  allCoverPools.map((allCoverPool) => {
                     if (
-                      allRangePool.tokenZero.name.toLowerCase() ===
+                      allCoverPool.tokenZero.name.toLowerCase() ===
                         searchTerm.toLowerCase() ||
-                      allRangePool.tokenOne.name.toLowerCase() ===
+                      allCoverPool.tokenOne.name.toLowerCase() ===
                         searchTerm.toLowerCase() ||
-                      allRangePool.tokenZero.symbol.toLowerCase() ===
+                      allCoverPool.tokenZero.symbol.toLowerCase() ===
                         searchTerm.toLowerCase() ||
-                      allRangePool.tokenOne.symbol.toLowerCase() ===
+                      allCoverPool.tokenOne.symbol.toLowerCase() ===
                         searchTerm.toLowerCase() ||
-                      allRangePool.tokenZero.id.toLowerCase() ===
+                      allCoverPool.tokenZero.id.toLowerCase() ===
                         searchTerm.toLowerCase() ||
-                      allRangePool.tokenOne.id.toLowerCase() ===
+                      allCoverPool.tokenOne.id.toLowerCase() ===
                         searchTerm.toLowerCase() ||
                       searchTerm === ""
                     )
                       return (
                         <CoverPool
                           account={address}
-                          key={allRangePool.poolId}
-                          poolId={allRangePool.poolId}
-                          tokenZero={allRangePool.tokenZero}
-                          tokenOne={allRangePool.tokenOne}
-                          liquidity={allRangePool.liquidity}
+                          key={allCoverPool.poolId}
+                          poolId={allCoverPool.poolId}
+                          tokenZero={allCoverPool.tokenZero}
+                          tokenOne={allCoverPool.tokenOne}
+                          liquidity={allCoverPool.liquidity}
                           auctionLenght={undefined}
-                          feeTier={allRangePool.feeTier}
-                          tickSpacing={allRangePool.tickSpacing}
-                          tvlUsd={allRangePool.tvlUsd}
-                          volumeUsd={allRangePool.volumeUsd}
-                          volumeEth={allRangePool.volumeEth}
+                          feeTier={allCoverPool.feeTier}
+                          tickSpacing={allCoverPool.tickSpacing}
+                          tvlUsd={allCoverPool.tvlUsd}
+                          volumeUsd={allCoverPool.volumeUsd}
+                          volumeEth={allCoverPool.volumeEth}
                           href="/cover/create"
                         />
                       );

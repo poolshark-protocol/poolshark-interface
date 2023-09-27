@@ -11,7 +11,7 @@ import React, { useState } from 'react'
 import { useCoverStore } from '../../hooks/useCoverStore'
 
 export default function CoverMintApproveButton({
-  poolAddress,
+  routerAddress,
   approveToken,
   amount,
   tokenSymbol
@@ -27,8 +27,8 @@ export default function CoverMintApproveButton({
     address: approveToken,
     abi: erc20ABI,
     functionName: 'approve',
-    args: [poolAddress, amount],
-    enabled: approveToken != undefined && poolAddress != undefined,
+    args: [routerAddress, amount],
+    enabled: approveToken != undefined && routerAddress != undefined,
     chainId: 421613,
   })
 
@@ -53,7 +53,7 @@ export default function CoverMintApproveButton({
       >
       <> Approve {tokenSymbol}</>
       </div>
-      <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
+      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
         {errorDisplay && (
           <ErrorToast
             hash={data?.hash}

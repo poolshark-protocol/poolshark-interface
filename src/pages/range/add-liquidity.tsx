@@ -3,7 +3,7 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
 import useInputBox from "../../hooks/useInputBox";
-import { erc20ABI, useAccount, useBalance, useContractRead } from "wagmi";
+import { erc20ABI, useAccount, useBalance, useContractRead, useProvider } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
@@ -13,6 +13,7 @@ import { feeTiers } from "../../utils/pools";
 import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
+import { chainProperties } from "../../utils/chains";
 
 export default function AddLiquidity({}) {
   const [
@@ -20,7 +21,6 @@ export default function AddLiquidity({}) {
     rangePoolData,
     rangePositionData,
     rangeMintParams,
-    feeTierId,
     setRangePositionData,
     tokenIn,
     setTokenInAmount,
@@ -35,7 +35,7 @@ export default function AddLiquidity({}) {
     setTokenOutBalance,
     pairSelected,
     setMintButtonState,
-    setRangePoolFromVolatility,
+    setRangePoolFromFeeTier,
     needsAllowanceIn,
     needsBalanceIn,
     needsAllowanceOut,
@@ -47,7 +47,6 @@ export default function AddLiquidity({}) {
     state.rangePoolData,
     state.rangePositionData,
     state.rangeMintParams,
-    state.feeTierRangeId,
     state.setRangePositionData,
     state.tokenIn,
     state.setTokenInAmount,
@@ -62,7 +61,7 @@ export default function AddLiquidity({}) {
     state.setTokenOutBalance,
     state.pairSelected,
     state.setMintButtonState,
-    state.setRangePoolFromVolatility,
+    state.setRangePoolFromFeeTier,
     state.needsAllowanceIn,
     state.needsBalanceIn,
     state.needsAllowanceOut,
@@ -72,6 +71,10 @@ export default function AddLiquidity({}) {
   ]);
 
   const { address, isConnected } = useAccount();
+
+  const {
+    network: { chainId },
+  } = useProvider();
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
 
@@ -87,25 +90,20 @@ export default function AddLiquidity({}) {
   }, [tokenIn]);
 
   ////////////////////////////////Pools
-  //initial volatility Tier set to 1.7% when selected from list of range pools
-  const [selectedFeeTier, setSelectedFeeTier] = useState(
-    feeTiers[feeTierId ?? 0]
-  );
 
-  useEffect(() => {
+  /* useEffect(() => {
     updatePoolsFromStore();
-  }, [tokenIn, tokenOut, feeTierId]);
+  }, [tokenIn, tokenOut]);
 
   async function updatePoolsFromStore() {
-    setRangePoolFromVolatility(tokenIn, tokenOut, feeTierId);
-    setSelectedFeeTier(feeTiers[feeTierId]);
-  }
+    setRangePoolFromFeeTier(tokenIn, tokenOut, feeTierId);
+  } */
 
   //sames as updatePools but triggered from the html
-  const handleManualVolatilityChange = async (volatility: any) => {
-    setRangePoolFromVolatility(tokenIn, tokenOut, volatility);
+  /* const handleManualVolatilityChange = async (volatility: any) => {
+    setRangePoolFromFeeTier(tokenIn, tokenOut, volatility);
     setSelectedFeeTier(volatility);
-  };
+  }; */
 
   //this sets the default position price delta
   useEffect(() => {
@@ -130,10 +128,13 @@ export default function AddLiquidity({}) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolAddress],
+    args: [
+      address,
+      chainProperties['arbitrumGoerli']['routerAddress']
+    ],
     chainId: 421613,
-    watch: needsAllowanceIn,
-    //enabled: tokenIn.address,
+    //watch: needsAllowanceIn,
+    enabled: tokenIn.address != undefined,
     onSuccess(data) {
       //setNeedsAllowanceIn(false);
     },
@@ -146,10 +147,13 @@ export default function AddLiquidity({}) {
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolAddress],
+    args: [
+      address,
+      chainProperties['arbitrumGoerli']['routerAddress']
+    ],
     chainId: 421613,
-    watch: needsAllowanceOut,
-    //enabled: pairSelected && rangePoolAddress != ZERO_ADDRESS,
+    //watch: needsAllowanceOut,
+    enabled: tokenOut.address != undefined,
     onSuccess(data) {
       //setNeedsAllowanceOut(false);
     },
@@ -329,10 +333,16 @@ export default function AddLiquidity({}) {
   useEffect(() => {
     setUpperPrice(invertPrice(maxInput, tokenOrder));
     setLowerPrice(invertPrice(minInput, tokenOrder));
-  }, [maxInput, minInput])
-
+  }, [maxInput, minInput]);
 
   ////////////////////////////////Mint Button State
+
+  // set amount in
+  useEffect(() => {
+    if (!bnInput.eq(BN_ZERO)) {
+      setTokenInAmount(bnInput);
+    }
+  }, [bnInput]);
 
   useEffect(() => {
     setMintButtonState();
@@ -358,14 +368,14 @@ export default function AddLiquidity({}) {
                 {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
               </span>
               <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                {(rangePoolData.feeTier.feeAmount / 10000).toFixed(2)}%
+                {(rangePoolData?.feeTier?.feeAmount / 10000).toFixed(2)}%
               </span>
             </div>
           </div>
         </div>
         <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
           <h1 className="mb-4">ADD LIQUIDITY</h1>
-          <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
+          <div className="border border-grey bg-black rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
             <div className="flex items-end justify-between text-[11px] text-grey1">
               <span>
                 ~$
@@ -378,7 +388,7 @@ export default function AddLiquidity({}) {
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
               {inputBox("0")}
-              <div className="flex items-center gap-x-2 w-full">
+              <div className="flex items-center gap-x-2">
                 <button
                   onClick={() =>
                     maxBalance(tokenIn.userBalance.toString(), "0")
@@ -433,7 +443,7 @@ export default function AddLiquidity({}) {
             <div className="flex items-center gap-x-3">
               <h1>SET A PRICE RANGE</h1>
               <button
-                className="text-grey1 text-xs bg-black border border-grey px-4 py-0.5 rounded-full whitespace-nowrap"
+                className="text-grey1 text-xs bg-black border border-grey px-4 py-0.5 rounded-[4px] whitespace-nowrap"
                 onClick={() => {
                   setMinInput(
                     TickMath.getPriceStringAtTick(
@@ -470,76 +480,53 @@ export default function AddLiquidity({}) {
               <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                 <span className="text-grey1 text-xs">MIN. PRICE</span>
                 <span className="text-white text-3xl">
-                  {tokenOrder ?
-                  <input
-                  autoComplete="off"
-                  className="bg-black py-2 outline-none text-center w-full"
-                  placeholder="0"
-                  id="minInput"
-                  type="text"
-                  value={minInput}
-                  onChange={(e) =>
-                    setMinInput(
-                      inputFilter(
-                        e.target.value
-                      )
-                    )
-                  }
-                /> :
-                <input
-                  autoComplete="off"
-                  className="bg-black py-2 outline-none text-center w-full"
-                  placeholder="0"
-                  id="minInput"
-                  type="text"
-                  value={maxInput}
-                  onChange={(e) =>
-                    setMaxInput(
-                      inputFilter(
-                        e.target.value
-                      )
-                    )
-                  }
-                />
-                  }
-                  
+                  {tokenOrder ? (
+                    <input
+                      autoComplete="off"
+                      className="bg-black py-2 outline-none text-center w-full"
+                      placeholder="0"
+                      id="minInput"
+                      type="text"
+                      value={minInput}
+                      onChange={(e) => setMinInput(inputFilter(e.target.value))}
+                    />
+                  ) : (
+                    <input
+                      autoComplete="off"
+                      className="bg-black py-2 outline-none text-center w-full"
+                      placeholder="0"
+                      id="minInput"
+                      type="text"
+                      value={maxInput}
+                      onChange={(e) => setMaxInput(inputFilter(e.target.value))}
+                    />
+                  )}
                 </span>
               </div>
               <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                 <span className="text-grey1 text-xs">MAX. PRICE</span>
                 <span className="text-white text-3xl">
-                {tokenOrder ?
-                  <input
-                  autoComplete="off"
-                  className="bg-black py-2 outline-none text-center w-full"
-                  placeholder="0"
-                  id="minInput"
-                  type="text"
-                  value={maxInput}
-                  onChange={(e) =>
-                    setMaxInput(
-                      inputFilter(
-                        e.target.value
-                      )
-                    )
-                  }
-                />:
-                <input
-                  autoComplete="off"
-                  className="bg-black py-2 outline-none text-center w-full"
-                  placeholder="0"
-                  id="minInput"
-                  type="text"
-                  value={minInput}
-                  onChange={(e) =>
-                    setMinInput(
-                      inputFilter(
-                        e.target.value
-                      )
-                    )
-                  }
-                />
-                  }
+                  {tokenOrder ? (
+                    <input
+                      autoComplete="off"
+                      className="bg-black py-2 outline-none text-center w-full"
+                      placeholder="0"
+                      id="minInput"
+                      type="text"
+                      value={maxInput}
+                      onChange={(e) => setMaxInput(inputFilter(e.target.value))}
+                    />
+                  ) : (
+                    <input
+                      autoComplete="off"
+                      className="bg-black py-2 outline-none text-center w-full"
+                      placeholder="0"
+                      id="minInput"
+                      type="text"
+                      value={minInput}
+                      onChange={(e) => setMinInput(inputFilter(e.target.value))}
+                    />
+                  )}
                 </span>
               </div>
             </div>
@@ -557,7 +544,7 @@ export default function AddLiquidity({}) {
               </div>
             </div>
           </div>
-          <RangePoolPreview fee={selectedFeeTier} />
+          <RangePoolPreview />
         </div>
       </div>
     </div>

@@ -2,13 +2,34 @@ import { ZERO_ADDRESS } from "./math/constants";
 import { TickMath } from "./math/tickMath";
 import {
   fetchCoverPools,
-  fetchRangePools,
+  fetchRangePools as fetchLimitPools,
   getCoverPoolFromFactory,
   getRangePoolFromFactory,
 } from "./queries";
-import { tokenCover, tokenRangeLimit } from "./types";
+import { tokenCover, tokenRangeLimit, tokenSwap } from "./types";
 
 //TODO@retraca enable this componnent to directly u0pdate zustand states
+
+//Grab pool with most liquidity
+export const getSwapPools = async (
+  tokenIn: tokenSwap,
+  tokenOut: tokenSwap,
+  setSwapPoolData
+) => {
+  try {
+    const limitPools = await fetchLimitPools();
+    const data = limitPools["data"];
+    if (data) {
+      const allPools = data["limitPools"];
+      setSwapPoolData(allPools[0]);
+      return allPools;
+    } else {
+      return undefined;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 export const getRangePool = async (
   tokenIn: tokenRangeLimit,
@@ -270,7 +291,7 @@ export const getFeeTier = async (
       coverData["data"]["coverPools"]["0"]["volatilityTier"]["feeAmount"];
     setCoverSlippage((parseFloat(feeTier) / 10000).toString());
   }
-  const data = await fetchRangePools();
+  const data = await fetchLimitPools();
   const rangePoolAddress = data["data"]["limitPools"]["0"]["id"];
 
   if (rangePoolAddress === rangePoolRoute) {
@@ -282,8 +303,8 @@ export const getFeeTier = async (
 export const feeTiers = [
   {
     id: 0,
-    tier: "0.05%",
-    tierId: 500,
+    tier: "0.1%",
+    tierId: 1000,
     text: "Best for stable pairs",
     unavailable: false,
   },
@@ -306,16 +327,32 @@ export const feeTiers = [
 export const volatilityTiers = [
   {
     id: 0,
-    tier: "1.7% per min",
+    tier: "1% per min",
     text: "Less Volatility",
     unavailable: false,
+    feeAmount: 1000,
     tickSpread: 20,
+    twapLength: 12,
+    auctionLength: 12
   },
   {
     id: 1,
-    tier: "2.4% per min",
+    tier: "3% per min",
+    text: "More Volatility",
+    unavailable: false,
+    feeAmount: 3000,
+    tickSpread: 60,
+    twapLength: 12,
+    auctionLength: 12
+  },
+  {
+    id: 2,
+    tier: "24% per min",
     text: "Most Volatility",
     unavailable: false,
-    tickSpread: 40,
+    feeAmount: 10000,
+    tickSpread: 60,
+    twapLength: 12,
+    auctionLength: 5
   },
 ];

@@ -15,6 +15,22 @@ export type coinRaw = {
   balance: number;
 };
 
+export type QuoteParams = {
+  priceLimit: BigNumber;
+  amount: BigNumber;
+  exactIn: boolean;
+  zeroForOne: boolean;
+}
+
+export type SwapParams = {
+  to: string;
+  priceLimit: BigNumber;
+  amount: BigNumber;
+  exactIn: boolean;
+  zeroForOne: boolean;
+  callbackData: string
+}
+
 export type tokenSwap = {
   callId: number;
   name: string;
@@ -22,6 +38,9 @@ export type tokenSwap = {
   logoURI: string;
   address: `0x${string}`;
   decimals: number;
+  userBalance: number;
+  userRouterAllowance: BigNumber;
+  USDPrice: number;
 };
 
 export type tokenRangeLimit = {
@@ -32,7 +51,7 @@ export type tokenRangeLimit = {
   address: `0x${string}`;
   decimals: number;
   userBalance: number;
-  userPoolAllowance: BigNumber;
+  userRouterAllowance: BigNumber;
   rangeUSDPrice: number;
 };
 
@@ -44,6 +63,6 @@ export type tokenCover = {
   address: `0x${string}`;
   decimals: number;
   userBalance: number;
-  userPoolAllowance: number;
+  userRouterAllowance: number;
   coverUSDPrice: number;
 };

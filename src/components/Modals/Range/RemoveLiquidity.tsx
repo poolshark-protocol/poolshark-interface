@@ -9,17 +9,29 @@ import { DyDxMath } from "../../../utils/math/dydxMath";
 import { TickMath } from "../../../utils/math/tickMath";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
+import { useAccount, useSigner } from "wagmi";
+import { gasEstimateRangeBurn } from "../../../utils/gas";
 
-export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
-  const [rangePoolAddress, rangePositionData, tokenIn, tokenOut] =
-    useRangeLimitStore((state) => [
-      state.rangePoolAddress,
-      state.rangePositionData,
-      state.tokenIn,
-      state.tokenOut,
-    ]);
+export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
+  const [
+    rangePoolAddress,
+    rangePositionData,
+    rangeMintParams,
+    tokenIn,
+    tokenOut,
+    setMintButtonState,
+  ] = useRangeLimitStore((state) => [
+    state.rangePoolAddress,
+    state.rangePositionData,
+    state.rangeMintParams,
+    state.tokenIn,
+    state.tokenOut,
+    state.setMintButtonState,
+  ]);
 
   const router = useRouter();
+  const { address } = useAccount();
+  const { data: signer } = useSigner();
 
   const [sliderValue, setSliderValue] = useState(1);
   const [sliderOutput, setSliderOutput] = useState("1");
@@ -38,17 +50,12 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
   );
 
   useEffect(() => {
-    const percentInput = sliderValue;
-    const tokenAmountToBurn = BigNumber.from(percentInput)
-      .mul(BigNumber.from(rangePositionData.liquidity))
+    const tokenAmountToBurn = BigNumber.from(sliderValue)
+      .mul(BigNumber.from(rangePositionData.userLiquidity))
       .div(BigNumber.from(100));
     setBurnPercent(ethers.utils.parseUnits(sliderValue.toString(), 36));
-    console.log(
-      "new burn percent",
-      ethers.utils.parseUnits(sliderValue.toString(), 36).toString()
-    );
     setAmounts(JSBI.BigInt(tokenAmountToBurn), true);
-  }, [sliderValue]);
+  }, [sliderValue, rangePositionData.liquidity]);
 
   const handleChange = (event: any) => {
     if (Number(event.target.value) != 0) {
@@ -93,6 +100,37 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
     }
   }
 
+  ////////////////////////////////Gas Fees Estimation
+  const [burnGasFee, setBurnGasFee] = useState("$0.00");
+  const [burnGasLimit, setBurnGasLimit] = useState(BN_ZERO);
+
+  useEffect(() => {
+    if (signer &&
+        address &&
+        rangePoolAddress &&
+        rangePositionData &&
+        burnPercent)
+      updateGasFee();
+  }, [sliderValue, rangePoolAddress, signer]);
+
+  async function updateGasFee() {
+    const newBurnGasFee = await gasEstimateRangeBurn(
+      rangePoolAddress,
+      address,
+      rangePositionData.id,
+      burnPercent,
+      signer
+    );
+    setBurnGasFee(newBurnGasFee.formattedPrice);
+    setBurnGasLimit(newBurnGasFee.gasUnits.mul(250).div(100));
+  }
+
+  ////////////////////////////////Mint Button Handler
+
+  useEffect(() => {
+    setMintButtonState();
+  }, [rangeMintParams.tokenInAmount]);
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
@@ -131,7 +169,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                     className="w-7 cursor-pointer"
                   />
                 </div>
-                <div className="w-full  bg-[#0C0C0C] border border-[#1C1C1C] gap-4 px-4 py-4 rounded-xl mt-6 mb-6">
+                <div className="w-full  bg-[#0C0C0C] border border-[#1C1C1C] gap-4 px-4 py-4 rounded-[4px] mt-6 mb-6">
                   <div className="flex justify-between items-center">
                     <div className="text-3xl ">{sliderValue}%</div>
                     <div className="md:flex items-center hidden md:text-base text-sm gap-x-4">
@@ -269,7 +307,9 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                       router.push("/pool");
                     }
                   }}
+                  gasLimit={burnGasLimit}
                   setIsOpen={setIsOpen}
+                  disabled={burnGasFee === "$0.00"}
                 />
               </Dialog.Panel>
             </Transition.Child>

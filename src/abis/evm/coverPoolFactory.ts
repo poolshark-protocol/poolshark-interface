@@ -77,12 +77,6 @@ export const coverPoolFactoryABI = [
       {
         "indexed": true,
         "internalType": "address",
-        "name": "twapSource",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "inputPool",
         "type": "address"
       },
@@ -100,9 +94,9 @@ export const coverPoolFactoryABI = [
       },
       {
         "indexed": true,
-        "internalType": "address",
-        "name": "poolImpl",
-        "type": "address"
+        "internalType": "bytes32",
+        "name": "poolType",
+        "type": "bytes32"
       },
       {
         "indexed": false,
@@ -191,6 +185,11 @@ export const coverPoolFactoryABI = [
         "internalType": "address",
         "name": "pool",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "poolToken",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -240,7 +239,12 @@ export const coverPoolFactoryABI = [
     "outputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "poolToken",
         "type": "address"
       }
     ],

@@ -2,9 +2,14 @@ import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useState, useEffect } from "react";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import UserRangePool from "../Range/UserRangePool";
-import { fetchLimitPositions, fetchUniV3Positions } from "../../utils/queries";
+import {
+  fetchLimitPositions,
+  fetchRangePositions,
+  fetchUniV3Positions,
+} from "../../utils/queries";
 import { useAccount } from "wagmi";
 import { BigNumber } from "ethers";
+import { mapUserRangePositions } from "../../utils/maps";
 
 export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
   const { address } = useAccount();
@@ -16,17 +21,23 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
   };
 
   const [limitPositions, setLimitPositions] = useState([]);
-  const [allLimitPositions, setAllLimitPositions] = useState([]);
+  const [allRangePositions, setAllRangePositions] = useState([]);
+
+  useEffect(() => {
+    if (address != undefined) getUserLimitPositionData();
+  }, [address]);
 
   async function getUserLimitPositionData() {
-    const data = await fetchLimitPositions(address);
+    //this should be range positions
+    const data = await fetchRangePositions(address);
+    console.log("data", data);
     if (data["data"]) {
-      const positions = data["data"].positionFractions;
-      setLimitPositions(positions);
+      const positions = data["data"].rangePositions;
+      setAllRangePositions(mapUserRangePositions(positions));
     }
   }
 
-  function mapUserLimitPositions() {
+  /* function mapUserLimitPositions() {
     const mappedLimitPositions = [];
     limitPositions.map((limitPosition) => {
       const limitPositionData = {
@@ -60,17 +71,10 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
       };
       mappedLimitPositions.push(limitPositionData);
     });
-    setAllLimitPositions(mappedLimitPositions);
-  }
+    setAllRangePositions(mappedLimitPositions);
+  } */
 
   //async so needs to be wrapped
-  useEffect(() => {
-    if (address != undefined) getUserLimitPositionData();
-  }, [address]);
-
-  useEffect(() => {
-    mapUserLimitPositions();
-  }, [limitPositions]);
 
   /*const [uniV3Positions, setUniV3Positions] = useState([])
   const [allUniV3Positions, setAllUniV3Positions] = useState([])
@@ -177,9 +181,11 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                   />
                 </div>
                 <div>
-                  <h1 className="mb-3 text-xs uppercase">Poolshark Positions</h1>
+                  <h1 className="mb-3 text-xs uppercase">
+                    Poolshark Positions
+                  </h1>
                   <div>
-                    {allLimitPositions.length === 0 ? (
+                    {allRangePositions.length === 0 ? (
                       <div className="space-y-2">
                         <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
                           <svg
@@ -198,41 +204,42 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                         </div>
                       </div>
                     ) : (
-                      <div className="overflow-scroll">
-                      <div className="w-[900px] lg:w-auto space-y-2">
-                        {allLimitPositions.map((allLimitPosition) => {
-                          if (
-                            allLimitPosition.userOwnerAddress ===
-                              address?.toLowerCase() &&
-                            (allLimitPosition.tokenZero.name === searchTerm ||
-                              allLimitPosition.tokenOne.name === searchTerm ||
-                              allLimitPosition.tokenZero.symbol ===
-                                searchTerm ||
-                              allLimitPosition.tokenOne.symbol === searchTerm ||
-                              allLimitPosition.tokenZero.id === searchTerm ||
-                              allLimitPosition.tokenOne.id === searchTerm ||
-                              searchTerm === "")
-                          ) {
-                            return (
-                              <div
-                                onClick={() => {
-                                  setIsOpen(false);
-                                  //prefill('exisingPool')
-                                  setParams(allLimitPosition);
-                                }}
-                                key={allLimitPosition.id + "click"}
-                              >
-                                <UserRangePool
-                                  key={allLimitPosition.id}
-                                  rangePosition={allLimitPosition}
-                                  href={"/cover/create"}
-                                  isModal={true}
-                                />
-                              </div>
-                            );
-                          }
-                        })}
-                      </div>
+                      <div className="pb-3 lg:pb-0">
+                        <div className="w-auto space-y-2">
+                          {allRangePositions.map((allLimitPosition) => {
+                            if (
+                              allLimitPosition.userOwnerAddress ===
+                                address?.toLowerCase() &&
+                              (allLimitPosition.tokenZero.name === searchTerm ||
+                                allLimitPosition.tokenOne.name === searchTerm ||
+                                allLimitPosition.tokenZero.symbol ===
+                                  searchTerm ||
+                                allLimitPosition.tokenOne.symbol ===
+                                  searchTerm ||
+                                allLimitPosition.tokenZero.id === searchTerm ||
+                                allLimitPosition.tokenOne.id === searchTerm ||
+                                searchTerm === "")
+                            ) {
+                              return (
+                                <div
+                                  onClick={() => {
+                                    setIsOpen(false);
+                                    //prefill('exisingPool')
+                                    setParams(allLimitPosition);
+                                  }}
+                                  key={allLimitPosition.id + "click"}
+                                >
+                                  <UserRangePool
+                                    key={allLimitPosition.id}
+                                    rangePosition={allLimitPosition}
+                                    href={"/cover/create"}
+                                    isModal={true}
+                                  />
+                                </div>
+                              );
+                            }
+                          })}
+                        </div>
                       </div>
                     )}
                   </div>

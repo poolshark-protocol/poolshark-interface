@@ -3,21 +3,24 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { rangePoolABI } from "../../abis/evm/rangePool";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { BN_ZERO } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { ethers } from "ethers";
-
-export default function RangeMintButton({
+import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
+  
+export default function RangeCreateAndMintButton({
   disabled,
   buttonMessage,
   routerAddress,
-  poolAddress,
+  poolType,
+  token0,
+  token1,
+  startPrice,
+  feeTier,
   to,
   lower,
   upper,
@@ -44,23 +47,33 @@ export default function RangeMintButton({
 
   useEffect(() => {}, [disabled]);
 
-  const positionId = 0; /// @dev - assume new position
+  // creates new position every time
+  const positionId = 0;
 
   const { config } = usePrepareContractWrite({
     address: routerAddress,
     abi: poolsharkRouterABI,
-    functionName: "multiMintRange",
+    functionName: "createLimitPoolAndMint",
     args: [
-      [poolAddress],
-      [{
-        to: to,
-        lower: lower,
-        upper: upper,
-        positionId: positionId,
-        amount0: amount0,
-        amount1: amount1,
-        callbackData: ethers.utils.formatBytes32String('')
-      }],
+      {
+        poolType: ethers.utils.formatBytes32String(poolType),
+        tokenIn: token0.address,
+        tokenOut: token1.address,
+        startPrice: startPrice,
+        swapFee: feeTier  
+      }, // pool params
+      [
+          {
+              to: to,
+              lower: lower,
+              upper: upper,
+              positionId: positionId,
+              amount0: amount0,
+              amount1: amount1,
+              callbackData: ethers.utils.formatBytes32String('')
+          }
+      ], // range positions
+      [] // limit positions
     ],
     chainId: 421613,
     overrides: {
@@ -123,3 +136,4 @@ export default function RangeMintButton({
     </>
   );
 }
+  

@@ -18,6 +18,24 @@ export default function CoverPool({
   href,
 }) {
 
+  const [setCoverTokenIn, setCoverTokenOut, setCoverPoolFromVolatility] =
+  useCoverStore((state) => [
+    state.setTokenIn,
+    state.setTokenOut,
+    state.setCoverPoolFromVolatility,
+  ]);
+
+  console.log('fee tier', feeTier)
+
+
+  const volTierMap = new Map<string, any>([
+    ['1000', { id: 0, volatility: "1" }],
+    ['3000', { id: 1, volatility: "3" }],
+    ['10000', { id: 2, volatility: "24" }]
+  ]);
+  console.log('fee amount', feeTier.feeAmount)
+  const router = useRouter();
+
   const chooseCoverPool = () => {
     const tokenIn = {
       name: tokenZero.symbol,
@@ -33,31 +51,26 @@ export default function CoverPool({
     } as tokenCover;
     setCoverTokenIn(tokenOut, tokenIn);
     setCoverTokenOut(tokenIn, tokenOut);
-    const tier = {
-      ...feeTier,
-      id: feeTier.tickSpread == "20" ? 0 : 1,
-    };
-    setCoverPoolFromVolatility(tokenIn, tokenOut, tier);
+    const vol0 = { id: 0 };
+    const vol1 = { id: 1 };
+    setCoverPoolFromVolatility(
+      tokenIn,
+      tokenOut,
+      volTierMap.get(feeTier.feeAmount.toString()).id
+    );
     router.push({
       pathname: href,
-      query: { state: "existing" },
+      query: { state: "existing", tickSpacing: tickSpacing },
     });
   };
 
-  const [setCoverTokenIn, setCoverTokenOut, setCoverPoolFromVolatility] =
-    useCoverStore((state) => [
-      state.setTokenIn,
-      state.setTokenOut,
-      state.setCoverPoolFromVolatility,
-    ]);
-
-  const router = useRouter();
+  
 
   return (
     <>
       <div className="group relative cursor-pointer" onClick={chooseCoverPool}>
-        <div className="grid grid-cols-2 items-center bg-black hover:bg-main1/40 transition-all px-4 py-3 rounded-[4px] border-grey/50 border">
-          <div className="flex items-center gap-x-6">
+      <div className="grid md:grid-cols-2 items-center bg-black hover:bg-main1/40 transition-all px-4 py-3 rounded-[4px] border-grey/50 border">
+      <div className="flex items-center md:gap-x-6 gap-x-3">
             <div className="flex items-center">
               <img
                 className="w-[25px] h-[25px]"
@@ -72,12 +85,10 @@ export default function CoverPool({
               {tokenZero.symbol} - {tokenOne.symbol}
             </span>
             <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-              {feeTier.tickSpread == "20"
-              ? "1.7"
-              : "2.4"}%
+              {volTierMap.get(feeTier.feeAmount.toString()).volatility}%
             </span>
           </div>
-          <div className=" grid-cols-3 grid items-center">
+          <div className="md:grid hidden grid-cols-3 w-full justify-end text-right items-center">
             <div className="text-white text-right text-xs">${volumeUsd}m</div>
             <div className="text-right text-white text-xs">${tvlUsd}m</div>
             <div className="text-right text-white text-xs">

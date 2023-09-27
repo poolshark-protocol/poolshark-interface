@@ -12,7 +12,7 @@ import { BigNumber } from 'ethers'
 import { useRangeLimitStore } from '../../hooks/useRangeLimitStore'
 
 export default function RangeMintDoubleApproveButton({
-  poolAddress,
+  routerAddress,
   tokenIn,
   tokenOut,
   amount0,
@@ -37,7 +37,7 @@ export default function RangeMintDoubleApproveButton({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'approve',
-    args: [poolAddress, amount0],
+    args: [routerAddress, amount0],
     chainId: 421613,
     overrides: {
       gasLimit: gasLimit
@@ -48,7 +48,7 @@ export default function RangeMintDoubleApproveButton({
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: 'approve',
-    args: [poolAddress, amount1],
+    args: [routerAddress, amount1],
     chainId: 421613,
     overrides: {
       gasLimit: gasLimit
@@ -103,7 +103,7 @@ export default function RangeMintDoubleApproveButton({
       >
         Approve Both Tokens
       </div>
-      <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
+      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
         {errorDisplay0 && (
           <ErrorToast
             key={dataT0?.hash + 'doubleApprove_error'}

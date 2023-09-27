@@ -5,7 +5,7 @@ import { useAccount } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { TickMath } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
-import { copyElementUseEffect } from "../../utils/misc";
+import { useCopyElementUseEffect } from "../../utils/misc";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import { rangePoolABI } from "../../abis/evm/rangePool";
 import { useContractRead } from "wagmi";
@@ -17,6 +17,7 @@ import { fetchRangePositions } from "../../utils/queries";
 import { mapUserRangePositions } from "../../utils/maps";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
+import RangeCollectButton from "../../components/Buttons/RangeCollectButton";
 
 export default function ViewRange() {
   const [
@@ -53,7 +54,6 @@ export default function ViewRange() {
 
   const { address, isConnected } = useAccount();
 
-  const [snapshot, setSnapshot] = useState(undefined);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
   const [priceDirection, setPriceDirection] = useState(false);
@@ -69,32 +69,11 @@ export default function ViewRange() {
   const [amount1Fees, setAmount1Fees] = useState(0.0);
   const [amount0FeesUsd, setAmount0FeesUsd] = useState(0.0);
   const [amount1FeesUsd, setAmount1FeesUsd] = useState(0.0);
-  const [is0Copied, setIs0Copied] = useState(false);
-  const [is1Copied, setIs1Copied] = useState(false);
   const [isPoolCopied, setIsPoolCopied] = useState(false);
   const [lowerInverse, setLowerInverse] = useState(0);
   const [upperInverse, setUpperInverse] = useState(0);
   const [priceInverse, setPriceInverse] = useState(0);
-  const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-    tokenIn.address != ("" as string)
-      ? tokenIn.address.substring(0, 6) +
-          "..." +
-          tokenIn.address.substring(
-            tokenIn.address.length - 4,
-            tokenIn.address.length
-          )
-      : undefined
-  );
-  const [tokenOneDisplay, setTokenOneDisplay] = useState(
-    tokenOut.address != ("" as string)
-      ? tokenOut.address.substring(0, 6) +
-          "..." +
-          tokenOut.address.substring(
-            tokenOut.address.length - 4,
-            tokenOut.address.length
-          )
-      : undefined
-  );
+
   const [poolDisplay, setPoolDisplay] = useState(
     rangePoolAddress != ("" as string)
       ? rangePoolAddress.substring(0, 6) +
@@ -109,27 +88,20 @@ export default function ViewRange() {
   ////////////////////////Addresses
 
   useEffect(() => {
-    copyElementUseEffect(copyAddress0, setIs0Copied);
-    copyElementUseEffect(copyAddress1, setIs1Copied);
-    copyElementUseEffect(copyRangePoolAddress, setIsPoolCopied);
+    if (copyRangePoolAddress) {
+      const timer = setTimeout(() => {
+        setIsPoolCopied(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
   }, []);
-
-  function copyAddress0() {
-    navigator.clipboard.writeText(tokenIn.address.toString());
-    setIs0Copied(true);
-  }
-
-  function copyAddress1() {
-    navigator.clipboard.writeText(tokenOut.address.toString());
-    setIs1Copied(true);
-  }
 
   function copyRangePoolAddress() {
     navigator.clipboard.writeText(rangePoolAddress.toString());
     setIsPoolCopied(true);
   }
 
-  ////////////////////////Pool
+  ////////////////////////Pool Data
 
   useEffect(() => {
     getRangePoolRatios();
@@ -178,7 +150,38 @@ export default function ViewRange() {
     }
   };
 
-  ////////////////////////Liquidity
+  ////////////////////////////////Position Data
+  useEffect(() => {
+    setTimeout(() => {
+      if (needsRefetch) {
+        getUserRangePositionData();
+        setNeedsRefetch(false);
+        setNeedsPosRefetch(false);
+      }
+    }, 2000);
+  }, [needsRefetch]);
+
+  async function getUserRangePositionData() {
+    try {
+      const data = await fetchRangePositions(address);
+      if (data["data"].rangePositions) {
+        const mappedPositions = mapUserRangePositions(
+          data["data"].rangePositions
+        );
+        const position = mappedPositions.find(
+          (position) => Number(position.id) == Number(rangePositionData.id)
+        );
+        if (position != undefined) {
+          setRangePositionData(position);
+        }
+        setAllRangePositions(mappedPositions);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  ////////////////////////Prices
 
   useEffect(() => {
     if (rangePoolData.token0 && rangePoolData.token1) {
@@ -204,9 +207,11 @@ export default function ViewRange() {
     setUpperPrice(TickMath.getPriceStringAtTick(Number(rangePositionData.max)));
   }, [tokenIn, tokenOut]);
 
+  ////////////////////////////////Amounts
+
   useEffect(() => {
     setAmounts();
-  }, [lowerPrice, upperPrice]);
+  }, [lowerPrice, upperPrice, rangePositionData]);
 
   function setAmounts() {
     try {
@@ -251,82 +256,35 @@ export default function ViewRange() {
     setUserLiquidityUsd(amount0Usd + amount1Usd);
   }, [amount0Usd, amount1Usd]);
 
-  async function getUserRangePositionData() {
-    try {
-      const data = await fetchRangePositions(address);
-      if (data["data"])
-        setAllRangePositions(
-          mapUserRangePositions(data["data"].positionFractions)
-        );
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  useEffect(() => {
-    setTimeout(() => {
-      if (needsRefetch == true || needsPosRefetch == true) {
-        getUserRangePositionData();
-
-        const positionId = rangePositionData.id;
-        const position = allRangePositions.find(
-          (position) => position.id == positionId
-        );
-        console.log("new position", position);
-
-        if (position != undefined) {
-          setRangePositionData(position);
-        }
-
-        setNeedsRefetch(false);
-        setNeedsPosRefetch(false);
-      }
-    }, 5000);
-  }, [needsRefetch, needsPosRefetch]);
-
-  ////////////////////////Fees
+  ////////////////////////////////Snapshot
 
   const { refetch: refetchSnapshot, data: feesOwed } = useContractRead({
     address: rangePoolAddress,
     abi: rangePoolABI,
-    functionName: "snapshot",
-    args: [[address, rangePositionData.min, rangePositionData.max]],
+    functionName: "snapshotRange",
+    args: [rangePositionData.id],
     chainId: 421613,
     watch: true,
     enabled: isConnected && rangePoolAddress != ("" as string),
-    onSuccess(data) {
-      setSnapshot(data);
-      console.log("Success snapshot Range", data);
-    },
     onError(error) {
-      console.log(
-        "snapshot args",
-        address,
-        rangePositionData.min.toString(),
-        rangePositionData.max.toString()
-      );
       console.log("Error snapshot Range", error);
     },
   });
 
   useEffect(() => {
     setFeesOwed();
-  }, [snapshot]);
+  }, [feesOwed]);
 
   function setFeesOwed() {
     try {
-      if (snapshot) {
-        console.log("snapshot", snapshot.toString());
+      if (feesOwed) {
         const fees0 = parseFloat(
-          ethers.utils.formatUnits(snapshot[2], tokenIn.decimals)
+          ethers.utils.formatUnits(feesOwed[2], tokenIn.decimals)
         );
         const fees1 = parseFloat(
-          ethers.utils.formatUnits(snapshot[3], tokenIn.decimals)
+          ethers.utils.formatUnits(feesOwed[3], tokenIn.decimals)
         );
-        console.log(
-          "fees owed 1",
-          ethers.utils.formatUnits(snapshot[3], tokenIn.decimals)
-        );
+
         setAmount0Fees(fees0);
         setAmount1Fees(fees1);
       }
@@ -379,25 +337,23 @@ export default function ViewRange() {
               </div>
               <div className="flex items-center gap-x-5">
                 <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                  {Number(rangePositionData.feeTier) / 10000}%
+                  {(Number(rangePositionData.feeTier) / 10000).toFixed(2)}%
                 </span>
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
-                  0.9 USDC
-                  <DoubleArrowIcon />
-                  1.2 USDC
+                  Position ID: {rangePositionData.id}
                 </div>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-x-4">
+          <div className="flex items-center gap-x-4 w-full md:w-auto">
             <button
-              className="bg-main1 border border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
+              className="bg-main1 border w-full border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
               onClick={() => setIsAddOpen(true)}
             >
               Add Liquidity
             </button>
             <button
-              className="bg-black border border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
+              className="bg-black border whitespace-nowrap w-full border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
               onClick={() => setIsRemoveOpen(true)}
             >
               Remove Liquidity
@@ -479,7 +435,7 @@ export default function ViewRange() {
                 <div className="flex items-center gap-x-5 mt-3">
                   <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                     <span className="text-grey1 text-xs">MIN. PRICE</span>
-                    <span className="text-white text-3xl">
+                    <span className="text-white text-2xl md:text-3xl">
                       {priceDirection ? <>{lowerInverse}</> : <>{lowerPrice}</>}
                     </span>
                     <span className="text-grey1 text-[9px] text-center">
@@ -490,7 +446,7 @@ export default function ViewRange() {
                   </div>
                   <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                     <span className="text-grey1 text-xs">MAX. PRICE</span>
-                    <span className="text-white text-3xl">
+                    <span className="text-white text-2xl md:text-3xl">
                       {priceDirection ? <>{upperInverse}</> : <>{upperPrice}</>}
                     </span>
                     <span className="text-grey1 text-[9px] text-center">
@@ -524,7 +480,7 @@ export default function ViewRange() {
                   <span>~${amount0Usd}</span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {amount0.toFixed(2)}
+                  {amount0Fees.toPrecision(6)}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenIn.logoURI} />
@@ -538,7 +494,7 @@ export default function ViewRange() {
                   <span>~${amount1Usd}</span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {amount1.toFixed(2)}
+                  {amount1Fees.toPrecision(6)}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenOut.logoURI} />
@@ -552,20 +508,17 @@ export default function ViewRange() {
                 address={address}
                 positionId={rangePositionData.id}
               />
+              <RangeCollectButton
+                poolAddress={rangePoolAddress}
+                address={address}
+                positionId={rangePositionData.id}
+              />
             </div>
           </div>
         </div>
       </div>
-      <RemoveLiquidity
-        isOpen={isRemoveOpen}
-        setIsOpen={setIsRemoveOpen}
-        address={address}
-      />
-      <AddLiquidity
-        isOpen={isAddOpen}
-        setIsOpen={setIsAddOpen}
-        address={address}
-      />
+      <RemoveLiquidity isOpen={isRemoveOpen} setIsOpen={setIsRemoveOpen} />
+      <AddLiquidity isOpen={isAddOpen} setIsOpen={setIsAddOpen} />
     </div>
   );
 }

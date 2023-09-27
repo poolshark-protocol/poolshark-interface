@@ -8,10 +8,14 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
-import { useSwapStore } from "../../hooks/useSwapStore";
+import { useTradeStore } from "../../hooks/useTradeStore";
+import { BN_ZERO } from "../../utils/math/constants";
+import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
+import { ethers } from "ethers";
 
 export default function LimitSwapButton({
   disabled,
+  routerAddress,
   poolAddress,
   to,
   amount,
@@ -22,12 +26,9 @@ export default function LimitSwapButton({
   closeModal,
   gasLimit,
 }) {
-  const [
-    setNeedsRangeAllowanceIn,
-    setNeedsRangeBalanceIn,
-  ] = useSwapStore((state) => [
-    state.setNeedsRangeAllowanceIn,
-    state.setNeedsRangeBalanceIn,
+  const [setNeedsAllowanceIn, setNeedsBalanceIn] = useTradeStore((state) => [
+    state.setNeedsAllowanceIn,
+    state.setNeedsBalanceIn,
   ]);
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
@@ -35,17 +36,22 @@ export default function LimitSwapButton({
   useEffect(() => {}, [disabled]);
 
   const { config } = usePrepareContractWrite({
-    address: poolAddress,
-    abi: limitPoolABI,
-    functionName: "mintLimit",
-    args: [[
-      to,
-      amount,
-      mintPercent,
-      lower,
-      upper,
-      zeroForOne
-    ]],
+    address: routerAddress,
+    abi: poolsharkRouterABI,
+    functionName: "multiMintLimit",
+    args: [
+      [poolAddress],
+      [{
+        to: to,
+        amount: amount,
+        mintPercent: mintPercent,
+        positionId: BN_ZERO,
+        lower: lower,
+        upper: upper,
+        zeroForOne: zeroForOne,
+        callbackData: ethers.utils.formatBytes32String('')
+      }]
+    ],
     chainId: 421613,
     overrides: {
       gasLimit: gasLimit,
@@ -65,11 +71,11 @@ export default function LimitSwapButton({
       setTimeout(() => {
         closeModal();
       }, 2000);
-      setNeedsRangeAllowanceIn(true);
+      setNeedsAllowanceIn(true);
       // if (amount1.gt(BN_ZERO)) {
       //   setNeedsAllowanceOut(true);
       // }
-      setNeedsRangeBalanceIn(true);
+      setNeedsBalanceIn(true);
     },
     onError() {
       setErrorDisplay(true);
@@ -85,7 +91,7 @@ export default function LimitSwapButton({
       >
         Mint Position
       </button>
-      <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
+      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
         {errorDisplay && (
           <ErrorToast
             hash={data?.hash}

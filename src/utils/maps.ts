@@ -1,32 +1,52 @@
 import { BigNumber } from "ethers";
-import { getTickIfNotZeroForOne, getTickIfZeroForOne } from "./queries";
+import { getLimitTickIfNotZeroForOne, getLimitTickIfZeroForOne, getTickIfNotZeroForOne, getTickIfZeroForOne } from "./queries";
 
 export const getClaimTick = async (
-  coverPoolAddress: string,
+  poolAddress: string,
   minLimit: number,
   maxLimit: number,
   zeroForOne: boolean,
-  epochLast: number
+  epochLast: number,
+  isCover: boolean
 ) => {
   let claimTick = zeroForOne ? maxLimit : minLimit;
   if (zeroForOne) {
-    const claimTickQuery = await getTickIfZeroForOne(
+    const claimTickQuery = isCover ? await getTickIfZeroForOne(
       maxLimit,
-      coverPoolAddress,
+      poolAddress,
       epochLast
+    ) :
+      await getLimitTickIfZeroForOne(
+        minLimit,
+        poolAddress,
+        epochLast
     );
-    const claimTickDataLength = claimTickQuery["data"]["ticks"].length;
+    const claimTickDataLength = isCover ? 
+      claimTickQuery["data"]["ticks"].length :
+      claimTickQuery["data"]["limitTicks"].length;
+
     if (claimTickDataLength > 0)
-      claimTick = claimTickQuery["data"]["ticks"][0]["index"];
+      claimTick = isCover ?
+        claimTickQuery["data"]["ticks"][0]["index"] :
+        claimTickQuery["data"]["limitTicks"][0]["index"];
   } else {
-    const claimTickQuery = await getTickIfNotZeroForOne(
+    const claimTickQuery = isCover ? await getTickIfNotZeroForOne(
       minLimit,
-      coverPoolAddress,
+      poolAddress,
       epochLast
+    ) :
+      await getLimitTickIfNotZeroForOne(
+        maxLimit,
+        poolAddress,
+        epochLast
     );
-    const claimTickDataLength = claimTickQuery["data"]["ticks"].length;
+    const claimTickDataLength = isCover ?
+      claimTickQuery["data"]["ticks"].length :
+      claimTickQuery["data"]["limitTicks"].length;
     if (claimTickDataLength > 0)
-      claimTick = claimTickQuery["data"]["ticks"][0]["index"];
+      claimTick = isCover ?
+        claimTickQuery["data"]["ticks"][0]["index"] :
+        claimTickQuery["data"]["limitTicks"][0]["index"];
     if (claimTick == undefined) {
       claimTick = minLimit;
     }
@@ -44,6 +64,7 @@ export function mapUserRangePositions(rangePositions) {
       valueTokenZero: rangePosition.pool.token0.usdPrice,
       tokenOne: rangePosition.pool.token1,
       valueTokenOne: rangePosition.pool.token0.usdPrice,
+      pool: rangePosition.pool,
       min: rangePosition.lower,
       max: rangePosition.upper,
       price: rangePosition.pool.poolPrice,
@@ -77,11 +98,10 @@ export function mapRangePools(rangePools) {
       liquidity: rangePool.liquidity,
       feeTier: rangePool.feeTier.feeAmount,
       tickSpacing: rangePool.feeTier.tickSpacing,
-      tvlUsd: (parseFloat(rangePool.totalValueLockedUsd) / 1_000_000).toFixed(
-        2
-      ),
-      volumeUsd: (parseFloat(rangePool.volumeUsd) / 1_000_000).toFixed(2),
-      volumeEth: (parseFloat(rangePool.volumeEth) / 1).toFixed(2),
+      feesUsd: parseFloat(rangePool.feesUsd).toFixed(2),
+      tvlUsd: parseFloat(rangePool.totalValueLockedUsd).toFixed(2),
+      volumeUsd: parseFloat(rangePool.volumeUsd).toFixed(2),
+      volumeEth: parseFloat(rangePool.volumeEth).toFixed(2),
     };
     mappedRangePools.push(rangePoolData);
   });
@@ -93,6 +113,7 @@ export function mapUserCoverPositions(coverPositions) {
   coverPositions.map((coverPosition) => {
     const coverPositionData = {
       id: coverPosition.id,
+      positionId: coverPosition.positionId,
       poolId: coverPosition.pool.id,
       tokenZero: coverPosition.zeroForOne
         ? coverPosition.pool.token0
@@ -114,7 +135,7 @@ export function mapUserCoverPositions(coverPositions) {
       latestTick: coverPosition.pool.latestTick,
       liquidity: coverPosition.liquidity,
       auctionLength: coverPosition.pool.auctionLength,
-      feeTier: coverPosition.pool.volatilityTier.feeAmount,
+      volatilityTier: coverPosition.pool.volatilityTier,
       tickSpacing: coverPosition.pool.volatilityTier.tickSpread,
       userOwnerAddress: coverPosition.owner.replace(/"|'/g, ""),
     };
@@ -126,7 +147,8 @@ export function mapUserCoverPositions(coverPositions) {
       coverPosition.min,
       coverPosition.max,
       coverPosition.zeroForOne,
-      coverPosition.epochLast
+      coverPosition.epochLast,
+      true
     );
   });
   return mappedCoverPositions;
@@ -152,4 +174,32 @@ export function mapCoverPools(coverPools) {
     mappedCoverPools.push(coverPoolData);
   });
   return mappedCoverPools;
+}
+
+export function mapUserLimitPositions(limitPositions) {
+  const mappedLimitPositions = [];
+  limitPositions?.map((limitPosition) => {
+    const limitPositionData = {
+      timestamp: limitPosition.createdAtTimestamp,
+      positionId: limitPosition.positionId,
+      poolId: limitPosition.pool.id,
+      amountIn: limitPosition.amountIn,
+      amountFilled: limitPosition.amountFilled,
+      claimPriceLast: limitPosition.claimPriceLast,
+      liquidity: limitPosition.liquidity,
+      poolLiquidity: limitPosition.pool.liquidity,
+      poolLiquidityGlobal: limitPosition.pool.liquidityGlobal,
+      min: limitPosition.lower,
+      max: limitPosition.upper,
+      tickSpacing: limitPosition.pool.tickSpacing,
+      epochLast: limitPosition.epochLast,
+      tokenIn: limitPosition.tokenIn,
+      tokenOut: limitPosition.tokenOut,
+      price0: limitPosition.pool.price0,
+      price1: limitPosition.pool.price1,
+      userOwnerAddress: limitPosition.owner.replace(/"|'/g, ""),
+    }
+    mappedLimitPositions.push(limitPositionData);
+  });
+  return mappedLimitPositions;
 }

@@ -35,7 +35,7 @@ html,
 body {
   padding: 0;
   margin: 0;
-  background: rgb(3, 1, 16);
+  background: black;
   scroll-behavior: smooth;
 }
 
@@ -121,3 +121,29 @@ font-weight: 500 !important
   border: 1px solid #1C1C1C !important
 }
 
+
+
+
+/* width */
+.scrollbar::-webkit-scrollbar {
+  height: 6px;
+  padding: 2px;
+}
+
+/* Track */
+.scrollbar::-webkit-scrollbar-track {
+  background: #0C0C0C;
+  border: 1px solid #FFFFFF1A;
+  border-radius: 100px;
+}
+
+/* Handle */
+.scrollbar::-webkit-scrollbar-thumb {
+  background: #FFFFFF66;
+  border-radius: 100px;
+}
+
+/* Handle on hover */
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

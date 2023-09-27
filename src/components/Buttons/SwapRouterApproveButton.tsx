@@ -2,60 +2,63 @@ import {
   useWaitForTransaction,
   usePrepareContractWrite,
   useContractWrite,
-} from 'wagmi'
-import { erc20ABI } from 'wagmi'
-import { SuccessToast } from '../Toasts/Success'
-import { ErrorToast } from '../Toasts/Error'
-import { ConfirmingToast } from '../Toasts/Confirming'
-import React, { useState } from 'react'
-import { useSwapStore as useCoverStore } from '../../hooks/useSwapStore'
+} from "wagmi";
+import { erc20ABI } from "wagmi";
+import { SuccessToast } from "../Toasts/Success";
+import { ErrorToast } from "../Toasts/Error";
+import { ConfirmingToast } from "../Toasts/Confirming";
+import React, { useState } from "react";
+import {
+  useTradeStore as useRangeLimitStore,
+  useTradeStore,
+} from "../../hooks/useTradeStore";
 
-export default function SwapCoverApproveButton({
-  poolAddress,
+export default function SwapRouterApproveButton({
+  routerAddress,
   approveToken,
-  disabled,
-  amount,
   tokenSymbol,
+  amount,
 }) {
-  const [errorDisplay, setErrorDisplay] = useState(false)
-  const [successDisplay, setSuccessDisplay] = useState(false)
+  const [errorDisplay, setErrorDisplay] = useState(false);
+  const [successDisplay, setSuccessDisplay] = useState(false);
 
-  const [
-    setNeedsCoverAllowance,
-  ] = useCoverStore((state) => [
-    state.setNeedsCoverAllowance,
-  ])
+  const [setNeedsAllowanceIn] = useTradeStore((state) => [
+    state.setNeedsAllowanceIn,
+  ]);
 
   const { config } = usePrepareContractWrite({
     address: approveToken,
     abi: erc20ABI,
-    functionName: 'approve',
-    args: [poolAddress, amount],
+    functionName: "approve",
+    args: [
+      routerAddress,
+      amount
+    ],
     chainId: 421613,
-  })
+  });
 
-  const { data, isSuccess, write } = useContractWrite(config)
+  const { data, isSuccess, write } = useContractWrite(config);
 
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      setSuccessDisplay(true)
-      setNeedsCoverAllowance(true)
+      setSuccessDisplay(true);
+      setNeedsAllowanceIn(true);
     },
     onError() {
-      setErrorDisplay(true)
+      setErrorDisplay(true);
     },
-  })
+  });
 
   return (
     <>
       <div
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
-        onClick={(address) => (address && !disabled ? write?.() : null)}
+        onClick={(address) => (address ? write?.() : null)}
       >
         Approve {tokenSymbol}
       </div>
-      <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
+      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
         {errorDisplay && (
           <ErrorToast
             hash={data?.hash}
@@ -73,5 +76,5 @@ export default function SwapCoverApproveButton({
         )}
       </div>
     </>
-  )
+  );
 }

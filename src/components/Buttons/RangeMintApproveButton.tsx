@@ -2,49 +2,53 @@ import {
   useWaitForTransaction,
   usePrepareContractWrite,
   useContractWrite,
-} from 'wagmi'
-import { erc20ABI } from 'wagmi'
-import { SuccessToast } from '../Toasts/Success'
-import { ErrorToast } from '../Toasts/Error'
-import { ConfirmingToast } from '../Toasts/Confirming'
-import React, { useState } from 'react'
-import { useSwapStore as useRangeLimitStore } from '../../hooks/useSwapStore'
+} from "wagmi";
+import { erc20ABI } from "wagmi";
+import { SuccessToast } from "../Toasts/Success";
+import { ErrorToast } from "../Toasts/Error";
+import { ConfirmingToast } from "../Toasts/Confirming";
+import React, { useState } from "react";
+import { useTradeStore as useRangeLimitStore } from "../../hooks/useTradeStore";
 
-export default function RangeMintApproveButton({ poolAddress, approveToken, amount }) {
-  const [errorDisplay, setErrorDisplay] = useState(false)
-  const [successDisplay, setSuccessDisplay] = useState(false)
+export default function RangeMintApproveButton({
+  routerAddress,
+  approveToken,
+  amount,
+}) {
+  const [errorDisplay, setErrorDisplay] = useState(false);
+  const [successDisplay, setSuccessDisplay] = useState(false);
 
-  const [
-    setNeedsRangeAllowanceIn,
-  ] = useRangeLimitStore((state) => [
-    state.setNeedsRangeAllowanceIn,
-  ])
+  const [setNeedsAllowanceIn] = useRangeLimitStore((state) => [
+    state.setNeedsAllowanceIn,
+  ]);
 
   const { config: t0 } = usePrepareContractWrite({
     address: approveToken.address,
     abi: erc20ABI,
-    functionName: 'approve',
-    args: [poolAddress, amount],
+    functionName: "approve",
+    args: [
+      routerAddress,
+      amount
+    ],
     chainId: 421613,
-  })
+  });
 
   const {
     data: dataT0,
     isSuccess: isSuccesT0,
     write: writeT0,
-  } = useContractWrite(t0)
+  } = useContractWrite(t0);
 
   const { isLoading: isLoadingT0 } = useWaitForTransaction({
     hash: dataT0?.hash,
     onSuccess() {
-      setSuccessDisplay(true)
-      setNeedsRangeAllowanceIn(true)
+      setSuccessDisplay(true);
+      setNeedsAllowanceIn(true);
     },
     onError() {
-      setErrorDisplay(true)
+      setErrorDisplay(true);
     },
-  })
-
+  });
 
   return (
     <>
@@ -54,21 +58,21 @@ export default function RangeMintApproveButton({ poolAddress, approveToken, amou
       >
         Approve {approveToken.symbol}
       </div>
-      <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
+      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
         <ErrorToast
-          key={dataT0?.hash + 'error'}
+          key={dataT0?.hash + "error"}
           hash={dataT0?.hash}
           errorDisplay={errorDisplay}
           setErrorDisplay={setErrorDisplay}
         />
         {isLoadingT0 ? <ConfirmingToast hash={dataT0?.hash} /> : <></>}
         <SuccessToast
-          key={dataT0?.hash + 'success'}
+          key={dataT0?.hash + "success"}
           hash={dataT0?.hash}
           successDisplay={successDisplay}
           setSuccessDisplay={setSuccessDisplay}
         />
       </div>
     </>
-  )
+  );
 }
