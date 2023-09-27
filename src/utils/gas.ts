@@ -236,7 +236,7 @@ export const gasEstimateBurnLimit = async (
       to: recipient,
       positionId: Number(positionId),
       claim: claim,
-      zeroForOne: false,
+      zeroForOne: zeroForOne,
       burnPercent: burnPercent
     });
     const gasPrice = await provider.getGasPrice();
