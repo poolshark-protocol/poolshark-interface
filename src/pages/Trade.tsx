@@ -147,7 +147,7 @@ export default function Trade() {
 
   //swap call variables
   const [swapPoolAddresses, setSwapPoolAddresses] = useState<string[]>([]);
-  const [swapParams, setSwapParams] = useState(undefined);
+  const [swapParams, setSwapParams] = useState<any[]>([]);
 
   //display variable
   const [amountOut, setAmountOut] = useState(undefined);
@@ -190,7 +190,7 @@ export default function Trade() {
     functionName: "multiQuote",
     args: [availablePools, quoteParams, true],
     chainId: 421613,
-    enabled: availablePools && quoteParams,
+    enabled: availablePools != undefined && quoteParams != undefined,
     onError(error) {
       console.log("Error multiquote", error);
     },
@@ -245,7 +245,6 @@ export default function Trade() {
 
   useEffect(() => {
     if (address && needsRefetch) {
-      console.log("user address", address.toLowerCase());
       getUserLimitPositionData();
       setNeedsRefetch(false)
     }
@@ -254,15 +253,13 @@ export default function Trade() {
   async function getUserLimitPositionData() {
     try {
       const data = await fetchLimitPositions(address.toLowerCase());
-      console.log("data limit", data)
       if (data["data"]) {
-        console.log("limitPositions", data["data"]?.limitPositions)
         setAllLimitPositions(
           mapUserLimitPositions(data["data"].limitPositions)
         );
       }
     } catch (error) {
-      console.log(error);
+      console.log('limit error', error);
     }
   }
 
@@ -535,7 +532,7 @@ export default function Trade() {
   }
 
   async function updateMintFee() {
-    console.log(tokenIn.userRouterAllowance, "user router allowance")
+    if (tokenIn.userRouterAllowance?.gte(bnInput))
       await gasEstimateMintLimit(
         tradePoolData.id,
         address,
@@ -557,10 +554,6 @@ export default function Trade() {
       setTokenInAmount(bnInput);
     }
   }, [bnInput]);
-
-  useEffect(() => {
-    console.log(limitStringPriceQuote, "limit quote")
-  }, [limitStringPriceQuote])
 
   useEffect(() => {
     setMintButtonState();

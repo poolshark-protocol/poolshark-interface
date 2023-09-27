@@ -57,7 +57,7 @@ export const gasEstimateSwap = async (
     setGasFee(formattedPrice);
     setGasLimit(gasUnits.mul(150).div(100));
   } catch (error) {
-    console.log("gas error", error);
+    console.log("gas error swap split", error);
     setGasFee("$0.00");
     setGasLimit(BigNumber.from(1000000));
   }
