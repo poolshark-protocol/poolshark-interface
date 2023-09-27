@@ -718,13 +718,13 @@ export default function Trade() {
                   <div className="flex md:flex-row flex-col items-center gap-3">
                   <input className="bg-dark md:w-auto w-full border-grey border h-10 outline-none px-2 text-sm" placeholder="0.05%"/>
                   <div className="flex flex-row items-center gap-x-3 w-full">
-                  <div className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full">
+                  <div className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full cursor-pointer">
                     0.1%
                   </div>
-                  <div className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full">
+                  <div className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full cursor-pointer">
                     0.5%
                   </div>
-                  <div className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full">
+                  <div className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full cursor-pointer">
                     1%
                   </div>
                   </div>
