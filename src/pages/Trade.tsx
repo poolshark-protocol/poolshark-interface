@@ -36,7 +36,7 @@ import JSBI from "jsbi";
 import LimitCreateAndMintButton from "../components/Buttons/LimitCreateAndMintButton";
 import { fetchLimitPositions } from "../utils/queries";
 import { mapUserLimitPositions } from "../utils/maps";
-import { getAveragePrice, getExpectedAmountOut } from "../utils/math/priceMath";
+import { getAveragePrice, getExpectedAmountOut, getExpectedAmountOutFromInput } from "../utils/math/priceMath";
 import LimitSwapBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import timeDifference from "../utils/time";
 import { DyDxMath } from "../utils/math/dydxMath";
@@ -517,7 +517,7 @@ export default function Trade() {
         updateMintFee();
       }
     }
-  }, [swapParams]);
+  }, [swapParams, tokenIn]);
 
   async function updateGasFee() {
     if (tokenIn.userRouterAllowance?.gte(bnInput))
@@ -760,21 +760,13 @@ export default function Trade() {
                     (
                       parseFloat(
                         ethers.utils.formatUnits(
-                          getExpectedAmountOut(
-                            parseInt(ethers.utils.formatUnits(lowerTick, 0)),
-                            parseInt(ethers.utils.formatUnits(upperTick, 0)),
+                          getExpectedAmountOutFromInput(
+                            Number(lowerTick),
+                            Number(upperTick),
                             limitPriceOrder,
-                            BigNumber.from(String(DyDxMath.getLiquidityForAmounts(
-                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))),
-                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
-                              limitPriceOrder ? TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))) 
-                                              : TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
-                              limitPriceOrder ? BN_ZERO 
-                                              : bnInput,
-                              limitPriceOrder ? bnInput 
-                                              : BN_ZERO,
-                            ))
-                          )), tokenIn.decimals
+                            bnInput
+                          )
+                          , tokenIn.decimals
                     )) * tokenOut.USDPrice).toFixed(2)
                   ) : (
                     <>{(0).toFixed(2)}</>
@@ -798,21 +790,12 @@ export default function Trade() {
                     <div>
                       {parseFloat(
                         ethers.utils.formatUnits(
-                          getExpectedAmountOut(
-                            parseInt(ethers.utils.formatUnits(lowerTick, 0)),
-                            parseInt(ethers.utils.formatUnits(upperTick, 0)),
+                          getExpectedAmountOutFromInput(
+                            Number(lowerTick),
+                            Number(upperTick),
                             limitPriceOrder,
-                            BigNumber.from(String(DyDxMath.getLiquidityForAmounts(
-                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))),
-                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
-                              limitPriceOrder ? TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))) 
-                                              : TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
-                              limitPriceOrder ? BN_ZERO 
-                                              : bnInput,
-                              limitPriceOrder ? bnInput 
-                                              : BN_ZERO,
-                            ))
-                          )), tokenIn.decimals
+                            bnInput
+                          ), tokenIn.decimals
                     )).toFixed(3)}
                     </div>
                   )
@@ -1178,7 +1161,7 @@ export default function Trade() {
                             getExpectedAmountOut(
                               parseInt(allLimitPosition.min), 
                               parseInt(allLimitPosition.max), 
-                              allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol), 
+                              allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
                               BigNumber.from(allLimitPosition.liquidity))
                           )).toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
                         </div>
@@ -1192,7 +1175,7 @@ export default function Trade() {
                                 getAveragePrice(
                                   parseInt(allLimitPosition.min), 
                                   parseInt(allLimitPosition.max), 
-                                  allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol), 
+                                  allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
                                   BigNumber.from(allLimitPosition.liquidity),
                                   BigNumber.from(allLimitPosition.amountIn))
                                 .toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
@@ -1221,7 +1204,7 @@ export default function Trade() {
                           address={address}
                           positionId={BigNumber.from(allLimitPosition.positionId)}
                           epochLast={allLimitPosition.epochLast}
-                          zeroForOne={allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol)}
+                          zeroForOne={allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0}
                           lower={BigNumber.from(allLimitPosition.min)}
                           upper={BigNumber.from(allLimitPosition.max)}
                           burnPercent={ethers.utils.parseUnits("1", 38)}
@@ -1259,7 +1242,7 @@ export default function Trade() {
                             getExpectedAmountOut(
                               parseInt(allLimitPosition.min), 
                               parseInt(allLimitPosition.max), 
-                              allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol), 
+                              allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
                               BigNumber.from(allLimitPosition.liquidity))
                           )).toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
                         </div>
@@ -1273,7 +1256,7 @@ export default function Trade() {
                               getAveragePrice(
                                 parseInt(allLimitPosition.min), 
                                 parseInt(allLimitPosition.max), 
-                                allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol), 
+                                allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
                                 BigNumber.from(allLimitPosition.liquidity),
                                 BigNumber.from(allLimitPosition.amountIn))
                               .toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
