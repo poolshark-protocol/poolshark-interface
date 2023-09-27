@@ -404,9 +404,9 @@ export default function CoverExistingPool({ goBack }) {
           )
         : await gasEstimateCoverCreateAndMint(
             "PSHARK-CPROD",
-            coverPositionData.pool.volatilityTier.feeAmount,
-            coverPositionData.pool.volatilityTier.tickSpread,
-            coverPositionData.pool.volatilityTier.twapLength,
+            coverPoolData.volatilityTier.feeAmount,
+            coverPoolData.volatilityTier.tickSpread,
+            coverPoolData.volatilityTier.twapLength,
             coverPoolAddress,
             address,
             TickMath.getTickAtPriceString(

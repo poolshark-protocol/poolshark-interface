@@ -341,6 +341,10 @@ export default function CreateCover(props: any) {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
+    console.log("coverPositionData", coverPositionData);
+    console.log("coverMintParams", coverMintParams);
+    console.log("tokenIn", tokenIn);
+    console.log("coverPoolData", coverPoolData);
     if (
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
@@ -350,8 +354,7 @@ export default function CreateCover(props: any) {
       coverMintParams.tokenInAmount &&
       tokenIn.userRouterAllowance >= Number(bnInput)
     )
-      //updateGasFee();
-      () => {};
+      updateGasFee();
   }, [
     coverPoolAddress,
     coverPositionData.lowerPrice,
@@ -364,16 +367,6 @@ export default function CreateCover(props: any) {
   ]);
 
   async function updateGasFee() {
-    console.log(
-      "allowance check",
-      tokenIn.userRouterAllowance,
-      bnInput.toString()
-    );
-    console.log(
-      "tick check",
-      coverPositionData.lowerPrice,
-      coverPositionData.upperPrice
-    );
     const newMintGasFee =
       coverPoolAddress != ZERO_ADDRESS
         ? await gasEstimateCoverMint(
@@ -394,9 +387,9 @@ export default function CreateCover(props: any) {
           )
         : await gasEstimateCoverCreateAndMint(
             "PSHARK-CPROD",
-            coverPositionData.pool.volatilityTier.feeAmount,
-            coverPositionData.pool.volatilityTier.tickSpread,
-            coverPositionData.pool.volatilityTier.twapLength,
+            coverPoolData.volatilityTier.feeAmount,
+            coverPoolData.volatilityTier.tickSpread,
+            coverPoolData.volatilityTier.twapLength,
             coverPoolAddress,
             address,
             TickMath.getTickAtPriceString(
