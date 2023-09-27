@@ -85,7 +85,6 @@ export const gasEstimateMintLimit = async (
       setMintGasFee("$0.00");
       setMintGasLimit(BN_ZERO);
     }
-    const recipient = address;
     const zeroForOne = token0.address.localeCompare(token1.address) < 0;
 
     const routerAddress = chainProperties['arbitrumGoerli']['routerAddress']
@@ -94,19 +93,23 @@ export const gasEstimateMintLimit = async (
       poolsharkRouterABI,
       provider
     );
+    console.log('estimating mint gas')
 
     let gasUnits: BigNumber;
     gasUnits = await routerContract.connect(signer).estimateGas.multiMintLimit(
     [rangePoolRoute],
     [{
-      to: recipient,
+      to: address,
       amount: bnInput,
       mintPercent: ethers.utils.parseUnits("1", 24), // skip mint under 1% left after swap
       positionId: BN_ZERO,
       lower: lowerTick,
       upper: upperTick,
       zeroForOne: zeroForOne,
+      callbackData: ethers.utils.formatBytes32String('')
     }]);
+
+    console.log('mint gas units: ', gasUnits.toString())
     const gasPrice = await provider.getGasPrice();
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
