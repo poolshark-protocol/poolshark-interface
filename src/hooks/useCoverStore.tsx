@@ -7,6 +7,7 @@ import {
 } from "../constants/contractAddresses";
 import { create } from "zustand";
 import { getCoverPoolFromFactory } from "../utils/queries";
+import { volatilityTiers } from "../utils/pools";
 
 type CoverState = {
   //poolAddress for current token pairs
@@ -22,6 +23,7 @@ type CoverState = {
   tokenOut: tokenCover;
   //true if both tokens selected, false if only one token selected
   pairSelected: boolean;
+  volatilitySelected: number;
   coverMintParams: {
     tokenInAmount: BigNumber;
     tokenOutAmount: BigNumber;
@@ -91,6 +93,7 @@ const initialCoverState: CoverState = {
   coverSwapSlippage: "0.5",
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
   pairSelected: true,
+  volatilitySelected: 0,
   //
   tokenIn: {
     callId: 0,
@@ -140,6 +143,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   coverPositionData: initialCoverState.coverPositionData,
   coverSwapSlippage: initialCoverState.coverSwapSlippage,
   pairSelected: initialCoverState.pairSelected,
+  volatilitySelected: initialCoverState.volatilitySelected,
   //tokenIn
   tokenIn: initialCoverState.tokenIn,
   //tokenOut
@@ -376,6 +380,11 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       needsBalance: needsBalance,
     }));
   },
+  setVolatilitySelected: (selectedIdx: number) => {
+    set(() => ({
+      volatilitySelected: selectedIdx,
+    }));
+  },
   switchDirection: () => {
     set((state) => ({
       tokenIn: {
@@ -424,6 +433,13 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
           set(() => ({
             coverPoolAddress: pool["data"]["coverPools"][i]["id"],
             coverPoolData: pool["data"]["coverPools"][i],
+          }));
+        }
+      }
+      for (let idx=0; idx < volatilityTiers.length; idx++) {
+        if (volatilityTiers[idx].feeAmount == Number(volatility)) {
+          set(() => ({
+            volatilitySelected: idx,
           }));
         }
       }

@@ -482,10 +482,7 @@ export const gasEstimateCoverMint = async (
 
 export const gasEstimateCoverCreateAndMint = async (
   poolType: string,
-  feeAmount: number,
-  tickSpread: number,
-  twapLength: number,
-  coverPoolRoute: string,
+  volatilityTier: any,
   address: string,
   upperTick: number,
   lowerTick: number,
@@ -499,7 +496,7 @@ export const gasEstimateCoverCreateAndMint = async (
     const provider = new ethers.providers.JsonRpcProvider(
       "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
     );
-    if (!coverPoolRoute || !provider || !signer) {
+    if (!provider || !signer) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
     const routerAddress = chainProperties['arbitrumGoerli']['routerAddress']
@@ -517,9 +514,9 @@ export const gasEstimateCoverCreateAndMint = async (
           poolType: ethers.utils.formatBytes32String(poolType),
           tokenIn: tokenIn.address,
           tokenOut: tokenOut.address,
-          feeTier: feeAmount,
-          tickSpread: tickSpread,
-          twapLength: twapLength  
+          feeTier: volatilityTier.feeAmount,
+          tickSpread: volatilityTier.tickSpread,
+          twapLength: volatilityTier.twapLength 
       }, // pool params
       [
           {
