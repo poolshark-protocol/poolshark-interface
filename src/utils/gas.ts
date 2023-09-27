@@ -219,15 +219,7 @@ export const gasEstimateBurnLimit = async (
     const price = await fetchEthPrice()
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
 
-    console.log("user address burn", address);
-    console.log("limit pool route burn", limitPoolRoute);
-    console.log("position id burn", positionId.toString());
-    console.log("burn pct", burnPercent.toString());
-    console.log("claim tick burn", claim.toString());
-    console.log("zeroForOne", zeroForOne);
-    console.log('signer', signer.address)
-
-    if (!limitPoolRoute || !provider) {
+    if (!limitPoolRoute || !provider || signer == undefined) {
       setBurnGasFee("$0.00");
       setBurnGasLimit(BN_ZERO);
     }
@@ -243,17 +235,15 @@ export const gasEstimateBurnLimit = async (
     let gasUnits: BigNumber;
     gasUnits = await contract.connect(signer).estimateGas.burnLimit({
       to: recipient,
-      burnPercent: burnPercent,
-      positionId: positionId,
+      positionId: Number(positionId),
       claim: claim,
-      zeroForOne: zeroForOne
+      zeroForOne: false,
+      burnPercent: burnPercent
     });
-    console.log("limit gas units", gasUnits.toString());
     const gasPrice = await provider.getGasPrice();
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
     const networkFeeUsd = networkFeeEth * Number(ethUsdPrice);
-    console.log("network fee usd limit", networkFeeUsd);
     const formattedPrice: string = networkFeeUsd.toLocaleString("en-US", {
       style: "currency",
       currency: "USD",

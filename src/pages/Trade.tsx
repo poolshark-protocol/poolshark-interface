@@ -1161,7 +1161,7 @@ export default function Trade() {
                             getExpectedAmountOut(
                               parseInt(allLimitPosition.min), 
                               parseInt(allLimitPosition.max), 
-                              allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol), 
+                              allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
                               BigNumber.from(allLimitPosition.liquidity))
                           )).toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
                         </div>
@@ -1175,7 +1175,7 @@ export default function Trade() {
                                 getAveragePrice(
                                   parseInt(allLimitPosition.min), 
                                   parseInt(allLimitPosition.max), 
-                                  allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol), 
+                                  allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
                                   BigNumber.from(allLimitPosition.liquidity),
                                   BigNumber.from(allLimitPosition.amountIn))
                                 .toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
@@ -1204,7 +1204,7 @@ export default function Trade() {
                           address={address}
                           positionId={BigNumber.from(allLimitPosition.positionId)}
                           epochLast={allLimitPosition.epochLast}
-                          zeroForOne={allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol)}
+                          zeroForOne={allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0}
                           lower={BigNumber.from(allLimitPosition.min)}
                           upper={BigNumber.from(allLimitPosition.max)}
                           burnPercent={ethers.utils.parseUnits("1", 38)}
@@ -1242,7 +1242,7 @@ export default function Trade() {
                             getExpectedAmountOut(
                               parseInt(allLimitPosition.min), 
                               parseInt(allLimitPosition.max), 
-                              allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol), 
+                              allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
                               BigNumber.from(allLimitPosition.liquidity))
                           )).toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
                         </div>
@@ -1256,7 +1256,7 @@ export default function Trade() {
                               getAveragePrice(
                                 parseInt(allLimitPosition.min), 
                                 parseInt(allLimitPosition.max), 
-                                allLimitPosition.tokenIn.symbol.localeCompare(allLimitPosition.tokenOut.symbol), 
+                                allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
                                 BigNumber.from(allLimitPosition.liquidity),
                                 BigNumber.from(allLimitPosition.amountIn))
                               .toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
