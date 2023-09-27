@@ -285,7 +285,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
       rangeMintParams.tokenInAmount,
       rangeMintParams.tokenOutAmount,
       signer,
-      rangePositionData.id
+      rangePositionData.positionId
     );
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
   }
@@ -459,7 +459,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                           amount1={rangeMintParams.tokenOutAmount}
                           disabled={rangeMintParams.disabled}
                           setIsOpen={setIsOpen}
-                          positionId={rangePositionData.id}
+                          positionId={rangePositionData.positionId}
                           gasLimit={mintGasLimit}
                         />
                       ) : (tokenInAllowance.lt(rangeMintParams.tokenInAmount) &&

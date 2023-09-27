@@ -447,12 +447,15 @@ export const gasEstimateCoverMint = async (
     if (!coverPoolRoute || !provider || !signer) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
+    if (inAmount.eq(BN_ZERO))
+      return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     const routerAddress = chainProperties['arbitrumGoerli']['routerAddress']
     const routerContract = new ethers.Contract(
       routerAddress,
       poolsharkRouterABI,
       provider
     );
+    console.log('estimating cover gas', lowerTick, upperTick)
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
     const amountIn = BigNumber.from(String(inAmount));
     const gasUnits: BigNumber = await routerContract

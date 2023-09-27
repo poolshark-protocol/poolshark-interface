@@ -119,9 +119,10 @@ export default function CoverExistingPool({ goBack }) {
     functionName: "allowance",
     args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
     chainId: 421613,
+    watch: needsAllowance,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
-      setNeedsAllowance(false);
+      // setNeedsAllowance(false);
     },
     onError(error) {
       console.log("Error", error);
@@ -131,6 +132,7 @@ export default function CoverExistingPool({ goBack }) {
 
   useEffect(() => {
     if (allowanceInCover) {
+      console.log("allowance set");
       setTokenInCoverAllowance(allowanceInCover.toString());
     }
   }, [allowanceInCover]);
@@ -372,16 +374,18 @@ export default function CoverExistingPool({ goBack }) {
     if (
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
+      coverPositionData.lowerPrice > 0 &&
+      coverPositionData.upperPrice > 0 &&
       coverPoolData.volatilityTier &&
-      coverMintParams.tokenInAmount
+      coverMintParams.tokenInAmount &&
+      tokenIn.userRouterAllowance >= Number(coverMintParams.tokenInAmount)
     )
-      //updateGasFee();
-      () => {};
-  }, [coverMintParams.tokenInAmount, coverPoolAddress]);
+      updateGasFee();
+  }, [coverMintParams.tokenInAmount, coverPoolAddress, coverPositionData]);
 
   async function updateGasFee() {
     const newMintGasFee =
-      coverPoolAddress == ZERO_ADDRESS
+      coverPoolAddress != ZERO_ADDRESS
         ? await gasEstimateCoverMint(
             coverPoolAddress,
             address,
@@ -398,11 +402,11 @@ export default function CoverExistingPool({ goBack }) {
             coverMintParams.tokenInAmount,
             signer
           )
-        : /* await gasEstimateCoverCreateAndMint(
+        : await gasEstimateCoverCreateAndMint(
             "PSHARK-CPROD",
-            volatilityTiers[volatilityTierId].feeAmount,
-            volatilityTiers[volatilityTierId].tickSpread,
-            volatilityTiers[volatilityTierId].twapLength,
+            coverPositionData.pool.volatilityTier.feeAmount,
+            coverPositionData.pool.volatilityTier.tickSpread,
+            coverPositionData.pool.volatilityTier.twapLength,
             coverPoolAddress,
             address,
             TickMath.getTickAtPriceString(
@@ -417,7 +421,7 @@ export default function CoverExistingPool({ goBack }) {
             tokenOut,
             coverMintParams.tokenInAmount,
             signer
-          ); */ null;
+          );
     setMintGasFee(newMintGasFee.formattedPrice);
     setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
   }
