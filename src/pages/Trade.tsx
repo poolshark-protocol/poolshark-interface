@@ -514,7 +514,7 @@ export default function Trade() {
         updateMintFee();
       }
     }
-  }, [swapParams, tokenIn]);
+  }, [swapParams, tokenIn, tokenOut, bnInput]);
 
   async function updateGasFee() {
     if (tokenIn.userRouterAllowance?.gte(bnInput))
