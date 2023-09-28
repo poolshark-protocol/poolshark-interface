@@ -6,7 +6,7 @@ import {
   ExclamationTriangleIcon,
 } from "@heroicons/react/20/solid";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
+import router from "next/router";
 import { useAccount, useContractRead, useSigner } from "wagmi";
 import CoverCollectButton from "../../components/Buttons/CoverCollectButton";
 import { BigNumber, ethers } from "ethers";
@@ -234,13 +234,17 @@ export default function ViewCover() {
 
   useEffect(() => {
     setTimeout(() => {
-      if (needsRefetch == true || needsPosRefetch == true) {
+      if (
+        needsRefetch == true ||
+        needsPosRefetch == true ||
+        coverPositionData.positionId == undefined
+      ) {
         getUserCoverPositionData();
         setNeedsRefetch(false);
         setNeedsPosRefetch(false);
       }
-    }, 2000);
-  }, [needsRefetch, needsPosRefetch]);
+    }, 1000);
+  }, [needsRefetch, needsPosRefetch, coverPositionData.positionId]);
 
   async function getUserCoverPositionData() {
     try {
@@ -249,7 +253,8 @@ export default function ViewCover() {
         const positions = data["data"].positions;
         const positionData = mapUserCoverPositions(positions);
         setAllCoverPositions(positionData);
-        const positionId = coverPositionData.positionId;
+        const positionId =
+          coverPositionData.positionId ?? router.query.positionId;
         const position = positionData.find(
           (position) => position.positionId == positionId
         );
@@ -315,8 +320,8 @@ export default function ViewCover() {
 
   useEffect(() => {
     setTimeout(() => {
-      updateClaimTick();
-    }, 3000);
+      //updateClaimTick();
+    }, 1000);
   }, [claimTick]);
 
   async function updateClaimTick() {
@@ -328,7 +333,6 @@ export default function ViewCover() {
       Number(coverPositionData.epochLast),
       true
     );
-
     setClaimTick(aux);
   }
 
@@ -372,8 +376,8 @@ export default function ViewCover() {
                 <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
                   {
                     volTierMap.get(
-                      coverPoolData.volatilityTier.feeAmount.toString()
-                    ).volatility
+                      coverPoolData.volatilityTier?.feeAmount?.toString()
+                    )?.volatility
                   }
                   %
                 </span>
@@ -452,34 +456,38 @@ export default function ViewCover() {
                   <h1 className="uppercase text-white md:block hidden">
                     Price Range
                   </h1>
-                  {parseFloat(
-                    TickMath.getPriceStringAtTick(
-                      Number(coverPositionData.latestTick)
-                    )
-                  ) <
+                  {coverPositionData.min &&
+                  coverPositionData.max &&
+                  coverPositionData.latestTick ? (
                     parseFloat(
                       TickMath.getPriceStringAtTick(
-                        Number(coverPositionData.min)
+                        Number(coverPositionData.latestTick)
                       )
-                    ) ||
-                  parseFloat(
-                    TickMath.getPriceStringAtTick(
-                      Number(coverPositionData.latestTick)
-                    )
-                  ) >=
+                    ) <
+                      parseFloat(
+                        TickMath.getPriceStringAtTick(
+                          Number(coverPositionData.min)
+                        )
+                      ) ||
                     parseFloat(
                       TickMath.getPriceStringAtTick(
-                        Number(coverPositionData.max)
+                        Number(coverPositionData.latestTick)
                       )
-                    ) ? (
-                    <span className="text-yellow-600 text-xs bg-yellow-900/30 px-4 py-1 rounded-[4px]">
-                      OUT OF RANGE
-                    </span>
-                  ) : (
-                    <span className="text-green-600 text-xs bg-green-900/30 px-4 py-1 rounded-[4px]">
-                      IN RANGE
-                    </span>
-                  )}
+                    ) >=
+                      parseFloat(
+                        TickMath.getPriceStringAtTick(
+                          Number(coverPositionData.max)
+                        )
+                      ) ? (
+                      <span className="text-yellow-600 text-xs bg-yellow-900/30 px-4 py-1 rounded-[4px]">
+                        OUT OF RANGE
+                      </span>
+                    ) : (
+                      <span className="text-green-600 text-xs bg-green-900/30 px-4 py-1 rounded-[4px]">
+                        IN RANGE
+                      </span>
+                    )
+                  ) : null}
                 </div>
                 <div
                   onClick={() => setPriceDirection(!priceDirection)}
@@ -555,11 +563,13 @@ export default function ViewCover() {
                 <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                   <span className="text-grey1 text-xs">CURRENT. PRICE</span>
                   <span className="text-white text-3xl text-grey1">
-                    {priceDirection
-                      ? priceInverse
-                      : TickMath.getPriceStringAtTick(
-                          Number(coverPositionData.latestTick)
-                        )}
+                    {coverPositionData.latestTick
+                      ? priceDirection
+                        ? priceInverse
+                        : TickMath.getPriceStringAtTick(
+                            Number(coverPositionData?.latestTick)
+                          )
+                      : ""}
                   </span>
                 </div>
               </div>
@@ -568,18 +578,20 @@ export default function ViewCover() {
           <div className="border bg-dark border-grey rounded-[4px] lg:w-1/2 w-full p-5 h-min">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">Filled Liquidity</h1>
-              <span className="text-grey1">
-                ${Number(coverFilledAmount).toFixed(2)}
-                <span className="text-grey">
-                  /
-                  {Number(
-                    ethers.utils.formatUnits(
-                      coverPositionData.userFillIn.toString(),
-                      tokenOrder ? tokenOut.decimals : tokenIn.decimals
-                    )
-                  ).toFixed(2)}
+              {coverPositionData.userFillIn ? (
+                <span className="text-grey1">
+                  ${Number(coverFilledAmount).toFixed(2)}
+                  <span className="text-grey">
+                    /
+                    {Number(
+                      ethers.utils.formatUnits(
+                        coverPositionData.userFillIn.toString(),
+                        tokenOrder ? tokenOut.decimals : tokenIn.decimals
+                      )
+                    ).toFixed(2)}
+                  </span>
                 </span>
-              </span>
+              ) : null}
             </div>
             <div className="flex flex-col gap-y-3 mt-2">
               <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
@@ -616,16 +628,20 @@ export default function ViewCover() {
           </div>
         </div>
       </div>
-      <RemoveLiquidity
-        isOpen={isRemoveOpen}
-        setIsOpen={setIsRemoveOpen}
-        address={address}
-      />
-      <AddLiquidity
-        isOpen={isAddOpen}
-        setIsOpen={setIsAddOpen}
-        address={address}
-      />
+      {coverPositionData.userFillIn ? (
+        <>
+          <RemoveLiquidity
+            isOpen={isRemoveOpen}
+            setIsOpen={setIsRemoveOpen}
+            address={address}
+          />
+          <AddLiquidity
+            isOpen={isAddOpen}
+            setIsOpen={setIsAddOpen}
+            address={address}
+          />
+        </>
+      ) : null}
     </div>
   );
 }

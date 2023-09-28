@@ -37,41 +37,50 @@ export default function Cover() {
   const [isPositionsLoading, setIsPositionsLoading] = useState(false);
   const [isPoolsLoading, setIsPoolsLoading] = useState(false);
 
+  ///////////////////////////Positions
+
   useEffect(() => {
     if (address) {
-      getUserCoverPositionData();
+      setTimeout(() => {
+        getUserCoverPositionData();
+      }, 1000);
     }
-  }, [address]);
+  }, []);
+
+  async function getUserCoverPositionData() {
+    setIsPositionsLoading(true);
+    const data = await fetchCoverPositions(address);
+    if (data["data"]) {
+      const positions = data["data"].positions;
+      const positionData = mapUserCoverPositions(positions);
+      setAllCoverPositions(positionData);
+      setIsPositionsLoading(false);
+    }
+  }
+
+  ///////////////////////////Pools
 
   useEffect(() => {
     getCoverPoolData();
   }, []);
 
-  useEffect(() => {
-    if (needsRefetch == true) {
-      setTimeout(() => {
-        getUserCoverPositionData();
-        setNeedsRefetch(false);
-      }, 1000);
+  async function getCoverPoolData() {
+    setIsPoolsLoading(true);
+    const data = await fetchCoverPools();
+    if (data["data"]) {
+      const pools = data["data"].coverPools;
+      setAllCoverPools(mapCoverPools(pools));
+      setIsPoolsLoading(false);
     }
-  }, [needsRefetch]);
+  }
+
+  ///////////////////////////Search
 
   useEffect(() => {
     if (state === "existing" && router.query.state === "nav") {
       setState("initial");
     }
   }, [router.query.state]);
-
-  async function getUserCoverPositionData() {
-    setIsPositionsLoading(true)
-    const data = await fetchCoverPositions(address);
-    if (data["data"]) {
-      const positions = data["data"].positions;
-      const positionData = mapUserCoverPositions(positions);
-      setAllCoverPositions(positionData);
-      setIsPositionsLoading(false)
-    }
-  }
 
   const handleSearchTermChange = (event) => {
     setSearchTerm(event.target.value);
@@ -81,16 +90,6 @@ export default function Cover() {
     setState(state);
     setSelectedPool(undefined);
   };
-
-  async function getCoverPoolData() {
-    setIsPoolsLoading(true)
-    const data = await fetchCoverPools();
-    if (data["data"]) {
-      const pools = data["data"].coverPools;
-      setAllCoverPools(mapCoverPools(pools));
-      setIsPoolsLoading(false)
-    }
-  }
 
   return (
     <div className="min-h-screen bg-black">
@@ -164,26 +163,28 @@ export default function Cover() {
               <h1>YOUR POSITIONS</h1>
             </div>
             <div className="text-white">
-              {isPositionsLoading ? <div>
-                <div className="pb-3 lg:pb-0">
-                      <div className="lg:w-auto">
-                        <div className="space-y-3">
-                          <div className="lg:grid hidden grid-cols-4 text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
-                            <span>Pool Name</span>
-                            <span className="text-right">Price Range</span>
-                            <span className="text-right">% Filled</span>
-                            <span className="text-right mr-4">USD Value</span>
-                          </div>
-                          {[...Array(2)].map((_, i: number) => (
-                          <div key={i} className="h-[58px] w-full bg-grey/20 animate-pulse rounded-[4px]">
-                            </div>
-                            ))}
+              {isPositionsLoading ? (
+                <div>
+                  <div className="pb-3 lg:pb-0">
+                    <div className="lg:w-auto">
+                      <div className="space-y-3">
+                        <div className="lg:grid hidden grid-cols-4 text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
+                          <span>Pool Name</span>
+                          <span className="text-right">Price Range</span>
+                          <span className="text-right">% Filled</span>
+                          <span className="text-right mr-4">USD Value</span>
                         </div>
+                        {[...Array(2)].map((_, i: number) => (
+                          <div
+                            key={i}
+                            className="h-[58px] w-full bg-grey/20 animate-pulse rounded-[4px]"
+                          ></div>
+                        ))}
                       </div>
                     </div>
+                  </div>
                 </div>
-                : 
-                isDisconnected || allCoverPositions.length === 0 ? (
+              ) : isDisconnected || allCoverPositions.length === 0 ? (
                 <div className="text-grey1 text-xs  py-10 text-center">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -201,57 +202,57 @@ export default function Cover() {
                 </div>
               ) : (
                 <>
-                    <div className="pb-3 lg:pb-0">
-                      <div className="lg:w-auto">
-                        <div className="space-y-3">
-                          <div className="lg:grid hidden grid-cols-4 text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
-                            <span>Pool Name</span>
-                            <span className="text-right">Price Range</span>
-                            <span className="text-right">% Filled</span>
-                            <span className="text-right mr-4">USD Value</span>
-                          </div>
-                          {allCoverPositions.map((allCoverPosition) => {
-                            if (
-                              allCoverPosition.id != undefined &&
-                              allCoverPosition.userOwnerAddress ===
-                                address?.toLowerCase() &&
-                              (allCoverPosition.tokenZero.name.toLowerCase() ===
-                                searchTerm.toLowerCase() ||
-                                allCoverPosition.tokenOne.name.toLowerCase() ===
-                                  searchTerm.toLowerCase() ||
-                                allCoverPosition.tokenZero.symbol.toLowerCase() ===
-                                  searchTerm.toLowerCase() ||
-                                allCoverPosition.tokenOne.symbol.toLowerCase() ===
-                                  searchTerm.toLowerCase() ||
-                                allCoverPosition.tokenZero.id.toLowerCase() ===
-                                  searchTerm.toLowerCase() ||
-                                allCoverPosition.tokenOne.id.toLowerCase() ===
-                                  searchTerm.toLowerCase() ||
-                                searchTerm === "")
-                            ) {
-                              return (
-                                <UserCoverPool
-                                  key={allCoverPosition.id + "coverPosition"}
-                                  coverPosition={allCoverPosition}
-                                  lowerPrice={parseFloat(
-                                    TickMath.getPriceStringAtTick(
-                                      allCoverPosition.lowerTick
-                                    )
-                                  )}
-                                  upperPrice={parseFloat(
-                                    TickMath.getPriceStringAtTick(
-                                      allCoverPosition.upperTick
-                                    )
-                                  )}
-                                  href={"/cover/view"}
-                                />
-                              );
-                            }
-                          })}
+                  <div className="pb-3 lg:pb-0">
+                    <div className="lg:w-auto">
+                      <div className="space-y-3">
+                        <div className="lg:grid hidden grid-cols-4 text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
+                          <span>Pool Name</span>
+                          <span className="text-right">Price Range</span>
+                          <span className="text-right">% Filled</span>
+                          <span className="text-right mr-4">USD Value</span>
                         </div>
+                        {allCoverPositions.map((allCoverPosition) => {
+                          if (
+                            allCoverPosition.id != undefined &&
+                            allCoverPosition.userOwnerAddress ===
+                              address?.toLowerCase() &&
+                            (allCoverPosition.tokenZero.name.toLowerCase() ===
+                              searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenOne.name.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenZero.symbol.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenOne.symbol.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenZero.id.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              allCoverPosition.tokenOne.id.toLowerCase() ===
+                                searchTerm.toLowerCase() ||
+                              searchTerm === "")
+                          ) {
+                            return (
+                              <UserCoverPool
+                                key={allCoverPosition.id + "coverPosition"}
+                                coverPosition={allCoverPosition}
+                                lowerPrice={parseFloat(
+                                  TickMath.getPriceStringAtTick(
+                                    allCoverPosition.lowerTick
+                                  )
+                                )}
+                                upperPrice={parseFloat(
+                                  TickMath.getPriceStringAtTick(
+                                    allCoverPosition.upperTick
+                                  )
+                                )}
+                                href={"/cover/view"}
+                              />
+                            );
+                          }
+                        })}
                       </div>
                     </div>
-                </>         
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -270,42 +271,50 @@ export default function Cover() {
                 <div className="space-y-3 w-full">
                   <div className="grid grid-cols-2 w-full text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
                     <div className="text-left">Pool Name</div>
-                    <div className="grid grid-cols-3">x
-                      <span className="text-right md:table-cell hidden">Volume (24h)</span>
-                      <span className="text-right md:table-cell hidden">TVL</span>
-                      <span className="text-right mr-4 md:table-cell hidden">Fees (24h)</span>
+                    <div className="grid grid-cols-3">
+                      x
+                      <span className="text-right md:table-cell hidden">
+                        Volume (24h)
+                      </span>
+                      <span className="text-right md:table-cell hidden">
+                        TVL
+                      </span>
+                      <span className="text-right mr-4 md:table-cell hidden">
+                        Fees (24h)
+                      </span>
                     </div>
                   </div>
-                  {isPoolsLoading ? 
-                  [...Array(3)].map((_, i: number) => (
-                          <div key={i} className="h-[50px] w-full bg-grey/30 animate-pulse rounded-[4px]">
-                            </div>
-                            ))
-                            :
-                  allCoverPools.map((allCoverPool) => {
-                    if (
-                      allCoverPool.tokenZero.name.toLowerCase() ===
-                        searchTerm.toLowerCase() ||
-                      allCoverPool.tokenOne.name.toLowerCase() ===
-                        searchTerm.toLowerCase() ||
-                      allCoverPool.tokenZero.symbol.toLowerCase() ===
-                        searchTerm.toLowerCase() ||
-                      allCoverPool.tokenOne.symbol.toLowerCase() ===
-                        searchTerm.toLowerCase() ||
-                      allCoverPool.tokenZero.id.toLowerCase() ===
-                        searchTerm.toLowerCase() ||
-                      allCoverPool.tokenOne.id.toLowerCase() ===
-                        searchTerm.toLowerCase() ||
-                      searchTerm === ""
-                    )
-                      return (
-                        <CoverPool
-                          key={allCoverPool.poolId}
-                          pool={allCoverPool}
-                          href="/cover/create"
-                        />
-                      );
-                  })}
+                  {isPoolsLoading
+                    ? [...Array(3)].map((_, i: number) => (
+                        <div
+                          key={i}
+                          className="h-[50px] w-full bg-grey/30 animate-pulse rounded-[4px]"
+                        ></div>
+                      ))
+                    : allCoverPools.map((allCoverPool) => {
+                        if (
+                          allCoverPool.tokenZero.name.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPool.tokenOne.name.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPool.tokenZero.symbol.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPool.tokenOne.symbol.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPool.tokenZero.id.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          allCoverPool.tokenOne.id.toLowerCase() ===
+                            searchTerm.toLowerCase() ||
+                          searchTerm === ""
+                        )
+                          return (
+                            <CoverPool
+                              key={allCoverPool.poolId}
+                              pool={allCoverPool}
+                              href="/cover/create"
+                            />
+                          );
+                      })}
                 </div>
               </div>
             </div>
