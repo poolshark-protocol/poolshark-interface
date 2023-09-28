@@ -36,7 +36,6 @@ export function getAveragePrice(lowerTick: number, upperTick: number, zeroForOne
         upperTick < TickMath.MIN_TICK ||
         upperTick > TickMath.MAX_TICK
     ) {
-        console.log('average price returning zero', lowerTick, upperTick)
         return 0;
     }
 
@@ -72,10 +71,8 @@ export function getExpectedAmountOutFromInput(lowerTick: number, upperTick: numb
         TickMath.MIN_TICK > upperTick || 
         TickMath.MAX_TICK < upperTick
     ) {
-        console.log('from input returning zero', lowerTick, upperTick)
         return BN_ZERO
     }
-    console.log('inside expect amount out', amountIn.toString(), lowerTick.toString(), upperTick.toString())
     if (!amountIn || amountIn.eq(BN_ZERO)) return BN_ZERO
     const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(lowerTick))
     const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(upperTick))
@@ -89,7 +86,6 @@ export function getExpectedAmountOutFromInput(lowerTick: number, upperTick: numb
         zeroForOne ? amountIn 
                    : BN_ZERO
     )))
-    console.log('liquidity amount', liquidityAmount)
     return getExpectedAmountOut(
         lowerTick,
         upperTick,
@@ -113,7 +109,6 @@ export function getExpectedAmountOut(lowerTick: number, upperTick: number, zeroF
         upperTick < TickMath.MIN_TICK ||
         upperTick > TickMath.MAX_TICK
     ) {
-        console.log('amount out returning zero')
         return BN_ZERO;
     }
     const liquidityAmount = JSBI.BigInt(liquidity.toString())
