@@ -30,13 +30,13 @@ export function precision(price: JSBD): number {
  */
 export function getAveragePrice(lowerTick: number, upperTick: number, zeroForOne: boolean, liquidity: BigNumber, amountIn: BigNumber): number {
     if(
-        lowerTick <= upperTick ||
+        lowerTick >= upperTick ||
         lowerTick < TickMath.MIN_TICK ||
         lowerTick > TickMath.MAX_TICK ||
         upperTick < TickMath.MIN_TICK ||
         upperTick > TickMath.MAX_TICK
     ) {
-        console.log('returning zero')
+        console.log('average price returning zero', lowerTick, upperTick)
         return 0;
     }
 
