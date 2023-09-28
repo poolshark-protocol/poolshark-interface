@@ -29,14 +29,16 @@ export function precision(price: JSBD): number {
  * @param amountIn the amount of token deposited into the LP position
  */
 export function getAveragePrice(lowerTick: number, upperTick: number, zeroForOne: boolean, liquidity: BigNumber, amountIn: BigNumber): number {
-    invariant(
+    if(
         lowerTick <= upperTick ||
-        TickMath.MIN_TICK > lowerTick ||
-        TickMath.MAX_TICK < lowerTick ||
-        TickMath.MIN_TICK > upperTick || 
-        TickMath.MAX_TICK < upperTick,
-        'INVALID_TICK_RANGE'
-    )
+        lowerTick < TickMath.MIN_TICK ||
+        lowerTick > TickMath.MAX_TICK ||
+        upperTick < TickMath.MIN_TICK ||
+        upperTick > TickMath.MAX_TICK
+    ) {
+        console.log('returning zero')
+        return 0;
+    }
 
     const amount = JSBI.BigInt(amountIn.div(2).toString())
     const liquidityAmount = JSBI.BigInt(liquidity.toString())
@@ -64,13 +66,15 @@ export function getAveragePrice(lowerTick: number, upperTick: number, zeroForOne
  */
 export function getExpectedAmountOutFromInput(lowerTick: number, upperTick: number, zeroForOne: boolean, amountIn: BigNumber): BigNumber {
     if(
-        lowerTick < upperTick ||
+        lowerTick >= upperTick ||
         TickMath.MIN_TICK > lowerTick ||
         TickMath.MAX_TICK < lowerTick ||
         TickMath.MIN_TICK > upperTick || 
-        TickMath.MAX_TICK < upperTick,
-        'INVALID_TICK_RANGE'
-    )
+        TickMath.MAX_TICK < upperTick
+    ) {
+        console.log('from input returning zero', lowerTick, upperTick)
+        return BN_ZERO
+    }
     console.log('inside expect amount out', amountIn.toString(), lowerTick.toString(), upperTick.toString())
     if (!amountIn || amountIn.eq(BN_ZERO)) return BN_ZERO
     const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(lowerTick))
@@ -102,14 +106,16 @@ export function getExpectedAmountOutFromInput(lowerTick: number, upperTick: numb
  * @param amountIn the amount of token deposited into the LP position
  */
 export function getExpectedAmountOut(lowerTick: number, upperTick: number, zeroForOne: boolean, liquidity: BigNumber): BigNumber {
-    invariant(
-    lowerTick <= upperTick ||
-    TickMath.MIN_TICK > lowerTick ||
-    TickMath.MAX_TICK < lowerTick ||
-    TickMath.MIN_TICK > upperTick || 
-    TickMath.MAX_TICK < upperTick,
-    'INVALID_TICK_RANGE'
-    )
+    if(
+        lowerTick >= upperTick ||
+        lowerTick < TickMath.MIN_TICK ||
+        lowerTick > TickMath.MAX_TICK ||
+        upperTick < TickMath.MIN_TICK ||
+        upperTick > TickMath.MAX_TICK
+    ) {
+        console.log('amount out returning zero')
+        return BN_ZERO;
+    }
     const liquidityAmount = JSBI.BigInt(liquidity.toString())
     const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
     const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)

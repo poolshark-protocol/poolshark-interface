@@ -402,22 +402,23 @@ export default function Trade() {
 
   useEffect(() => {
     const tickSpacing = tradePoolData?.feeTier?.tickSpacing;
-
-    setLowerTick(
-      BigNumber.from(
-        TickMath.getTickAtPriceString(lowerPriceString, tickSpacing)
-      )
+    if (!isNaN(parseFloat(lowerPriceString)))
+      setLowerTick(
+        BigNumber.from(
+          TickMath.getTickAtPriceString(lowerPriceString, tickSpacing)
+        )
     );
   }, [lowerPriceString]);
 
   useEffect(() => {
     const tickSpacing = tradePoolData?.feeTier?.tickSpacing;
-
-    setUpperTick(
-      BigNumber.from(
-        TickMath.getTickAtPriceString(upperPriceString, tickSpacing)
-      )
-    );
+    
+    if (!isNaN(parseFloat(upperPriceString)))
+      setUpperTick(
+        BigNumber.from(
+          TickMath.getTickAtPriceString(upperPriceString, tickSpacing)
+        )
+      );
   }, [upperPriceString]);
 
   ////////////////////////////////Limit Ticks
