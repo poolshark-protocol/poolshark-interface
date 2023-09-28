@@ -194,21 +194,24 @@ export const getLimitPoolFromFactory = (tokenA: string, tokenB: string) => {
   });
 };
 
-export const getTickIfZeroForOne = (
+export const getCoverTickIfZeroForOne = (
+  lower: number,
   upper: number,
   poolAddress: string,
   epochLast: number
 ) => {
   return new Promise(function (resolve) {
     const getTicks = `
-       { 
-         ticks(
-            first: 1
-            where: {index_lte:"${upper}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
-          ) {
-            index
-          }
+      { 
+        ticks(
+          first: 1
+          where: {index_gte:"${lower}", index_lte:"${upper}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
+          orderBy: index
+          orderDirection: asc
+        ) {
+          index
         }
+      }
         `;
     //console.log('pool address', poolAddress)
     const client = new ApolloClient({
@@ -227,21 +230,24 @@ export const getTickIfZeroForOne = (
   });
 };
 
-export const getTickIfNotZeroForOne = (
+export const getCoverTickIfNotZeroForOne = (
   lower: number,
+  upper: number,
   poolAddress: string,
   epochLast: number
 ) => {
   return new Promise(function (resolve) {
     const getTicks = `
-       { 
-         ticks(
-            first: 1
-            where: {index_gte:"${lower}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
-          ) {
-            index
-          }
+      { 
+        ticks(
+          first: 1
+          where: {index_gte:"${lower}", index_lte:"${upper}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
+          orderBy: index
+          orderDirection: dsec
+        ) {
+          index
         }
+      }
         `;
     //console.log(getTicks)
     //console.log('pool address', poolAddress)
@@ -262,21 +268,24 @@ export const getTickIfNotZeroForOne = (
 };
 
 export const getLimitTickIfNotZeroForOne = (
+  lower: number,
   upper: number,
   poolAddress: string,
   epochLast: number
 ) => {
   return new Promise(function (resolve) {
     const getTicks = `
-       { 
-         limitTicks(
-            first: 1
-            where: {index_lte:"${upper}", pool_:{id:"${poolAddress}"},epochLast1_gt:"${epochLast}"}
-          ) {
-            index
-            epochLast1
-          }
+      { 
+        limitTicks(
+          first: 1
+          where: {index_gte:"${lower}", index_lte:"${upper}", pool_:{id:"${poolAddress}"}, epochLast1_gt:"${epochLast}"}
+          orderBy: index
+          orderDirection: asc
+        ) {
+          index
+          epochLast1
         }
+      }
         `;
     //console.log('pool address', poolAddress)
     const client = new ApolloClient({
@@ -297,20 +306,24 @@ export const getLimitTickIfNotZeroForOne = (
 
 export const getLimitTickIfZeroForOne = (
   lower: number,
+  upper: number,
   poolAddress: string,
   epochLast: number
 ) => {
+  console.log('getting limit tick zeroforone', epochLast, upper)
   return new Promise(function (resolve) {
     const getTicks = `
-       { 
-         limitTicks(
-            first: 1
-            where: {index_gte:"${lower}", pool_:{id:"${poolAddress}"},epochLast0_gt:"${epochLast}"}
-          ) {
-            index
-            epochLast0
-          }
+      { 
+        limitTicks(
+          first: 1
+          where: {index_gte:"${lower}", index_lte:"${upper}", pool_:{id:"${poolAddress}"}, epochLast0_gt:"${epochLast}"}
+          orderBy: index
+          orderDirection: desc
+        ) {
+          index
+          epochLast0
         }
+      }
         `;
     //console.log(getTicks)
     //console.log('pool address', poolAddress)
