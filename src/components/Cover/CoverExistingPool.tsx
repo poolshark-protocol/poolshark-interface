@@ -408,10 +408,8 @@ export default function CoverExistingPool({ goBack }) {
           )
         : await gasEstimateCoverCreateAndMint(
             "PSHARK-CPROD",
-            coverPoolData.volatilityTier.feeAmount,
-            coverPoolData.volatilityTier.tickSpread,
-            coverPoolData.volatilityTier.twapLength,
-            coverPoolAddress,
+            coverPoolData.volatilityTier ? coverPoolData.volatilityTier
+                                         : volatilityTiers[0],
             address,
             TickMath.getTickAtPriceString(
               coverPositionData.upperPrice,
@@ -514,8 +512,8 @@ export default function CoverExistingPool({ goBack }) {
         <div className="flex justify-between md:justify-start gap-x-4 items-center">
           <button className="flex w-full items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
             <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
-              <img className="md:w-7 w-6" src={tokenIn.logoURI} />
-              {tokenIn.symbol}
+              <img className="md:w-7 w-6" src={(tokenOrder ? tokenOut : tokenIn).logoURI} />
+              {(tokenOrder ? tokenOut : tokenIn).symbol}
             </div>
           </button>
           <ArrowLongRightIcon
@@ -526,8 +524,8 @@ export default function CoverExistingPool({ goBack }) {
           />
           <button className="flex w-full items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
             <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
-              <img className="md:w-7 w-6" src={tokenOut.logoURI} />
-              {tokenOut.symbol}
+              <img className="md:w-7 w-6" src={(tokenOrder ? tokenIn : tokenOut).logoURI} />
+              {(tokenOrder ? tokenIn : tokenOut).symbol}
             </div>
           </button>
         </div>
@@ -781,12 +779,11 @@ export default function CoverExistingPool({ goBack }) {
         ) : (
           <CoverCreateAndMintButton
             routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
-            poolType={"coverPoolAddress"}
+            poolType={"PSHARK-CPROD"}
             tokenIn={tokenIn}
             tokenOut={tokenOut}
-            feeTier={coverPoolData.volatilityTier?.tier}
-            tickSpread={coverPoolData.volatilityTier?.tickSpread}
-            twapLength={coverPoolData.volatilityTier?.twapLength}
+            volTier={coverPoolData.volatilityTier ? coverPoolData.volatilityTier 
+                                                  : volatilityTiers[0]}
             disabled={coverMintParams.disabled}
             buttonMessage={coverMintParams.buttonMessage}
             to={address}

@@ -382,10 +382,8 @@ export default function CreateCover(props: any) {
           )
         : await gasEstimateCoverCreateAndMint(
             "PSHARK-CPROD",
-            coverPoolData.volatilityTier.feeAmount,
-            coverPoolData.volatilityTier.tickSpread,
-            coverPoolData.volatilityTier.twapLength,
-            coverPoolAddress,
+            coverPoolData.volatilityTier ? coverPoolData.volatilityTier
+                                         : volatilityTiers[0],
             address,
             TickMath.getTickAtPriceString(
               coverPositionData.upperPrice,
@@ -580,8 +578,8 @@ export default function CreateCover(props: any) {
             onClick={handlePriceSwitch}
             className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
           >
-            {priceOrder ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>} per{" "}
-            {priceOrder ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>}{" "}
+            {priceOrder ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>} per{" "}
+            {priceOrder ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>}{" "}
             <DoubleArrowIcon />
           </div>
         </div>
@@ -694,7 +692,7 @@ export default function CreateCover(props: any) {
               }}
               key={volatilityTierIdx}
               className={`bg-black p-4 w-full rounded-[4px] cursor-pointer transition-all ${
-                coverPoolData?.volatilityTier?.feeAmount ===
+                coverPoolData?.volatilityTier?.feeAmount.toString() ===
                 volatilityTier.feeAmount.toString()
                   ? "border-grey1 border bg-grey/20"
                   : "border border-grey"
@@ -747,12 +745,11 @@ export default function CreateCover(props: any) {
         ) : (
           <CoverCreateAndMintButton
             routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
-            poolType={"coverPoolAddress"}
+            poolType={"PSHARK-CPROD"}
             tokenIn={tokenIn}
             tokenOut={tokenOut}
-            feeTier={coverPoolData.volatilityTier?.tier}
-            tickSpread={coverPoolData.volatilityTier?.tickSpread}
-            twapLength={coverPoolData.volatilityTier?.twapLength}
+            volTier={coverPoolData.volatilityTier ? coverPoolData.volatilityTier 
+                                                  : volatilityTiers[0]}
             disabled={coverMintParams.disabled}
             to={address}
             lower={TickMath.getTickAtPriceString(

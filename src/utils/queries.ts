@@ -131,6 +131,11 @@ export const getCoverPoolFromFactory = (tokenA: string, tokenB: string) => {
                 usdPrice
               }
             }
+            volatilityTiers(first: 5) {
+              tickSpread
+              auctionLength
+              feeAmount
+            }
           }
          `;
     //console.log('query:', getPool)
