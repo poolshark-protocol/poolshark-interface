@@ -23,7 +23,6 @@ type CoverState = {
   tokenOut: tokenCover;
   //true if both tokens selected, false if only one token selected
   pairSelected: boolean;
-  volatilitySelected: number;
   coverMintParams: {
     tokenInAmount: BigNumber;
     tokenOutAmount: BigNumber;
@@ -88,12 +87,18 @@ type CoverAction = {
 const initialCoverState: CoverState = {
   //pools
   coverPoolAddress: ZERO_ADDRESS as `0x${string}`,
-  coverPoolData: {},
+  coverPoolData: {
+    volatilityTier: {
+      feeAmount: 1000,
+      tickSpread: 20,
+      twapLength: 12,
+      auctionLength: 12
+    }
+  },
   coverPositionData: {},
   coverSwapSlippage: "0.5",
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
   pairSelected: true,
-  volatilitySelected: 0,
   //
   tokenIn: {
     callId: 0,
@@ -143,7 +148,6 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   coverPositionData: initialCoverState.coverPositionData,
   coverSwapSlippage: initialCoverState.coverSwapSlippage,
   pairSelected: initialCoverState.pairSelected,
-  volatilitySelected: initialCoverState.volatilitySelected,
   //tokenIn
   tokenIn: initialCoverState.tokenIn,
   //tokenOut
@@ -380,11 +384,6 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       needsBalance: needsBalance,
     }));
   },
-  setVolatilitySelected: (selectedIdx: number) => {
-    set(() => ({
-      volatilitySelected: selectedIdx,
-    }));
-  },
   switchDirection: () => {
     set((state) => ({
       tokenIn: {
@@ -424,25 +423,36 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         tokenIn.address,
         tokenOut.address
       );
-      const dataLength = pool["data"]["coverPools"].length;
+      let dataLength = pool["data"]["coverPools"].length;
+      let matchedVolatility = false;
       for (let i = 0; i < dataLength; i++) {
         if (
           pool["data"]["coverPools"][i]["volatilityTier"]["feeAmount"] ==
           volatility
         ) {
+          matchedVolatility = true;
           set(() => ({
             coverPoolAddress: pool["data"]["coverPools"][i]["id"],
             coverPoolData: pool["data"]["coverPools"][i],
           }));
         }
       }
-      for (let idx=0; idx < volatilityTiers.length; idx++) {
-        if (volatilityTiers[idx].feeAmount == Number(volatility)) {
-          set(() => ({
-            volatilitySelected: idx,
-          }));
+      dataLength = pool["data"]["volatilityTiers"].length
+      if (!matchedVolatility && dataLength > 0)
+        for (let idx=0; idx < dataLength; idx++) {
+          if (pool["data"]["volatilityTiers"]["feeAmount"] == Number(volatility)) {
+            set(() => ({
+              coverPoolAddress: ZERO_ADDRESS as `0x${string}`,
+              coverPoolData: {
+                volatilityTier: {
+                  feeAmount: pool["data"]["volatilityTiers"]["feeAmount"],
+                  tickSpread: pool["data"]["volatilityTiers"]["tickSpread"],
+                  twapLength: pool["data"]["volatilityTiers"]["twapLength"]
+                },
+              }
+            }));
+          }
         }
-      }
     } catch (error) {
       console.log(error);
     }

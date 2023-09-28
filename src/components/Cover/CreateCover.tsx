@@ -50,7 +50,6 @@ export default function CreateCover(props: any) {
     setTokenOutCoverUSDPrice,
     //setCoverAmountOut,
     pairSelected,
-    volatilitySelected,
     switchDirection,
     setCoverPoolFromVolatility,
     setMintButtonState,
@@ -77,7 +76,6 @@ export default function CreateCover(props: any) {
     state.setTokenOutCoverUSDPrice,
     //state.setCoverAmountOut,
     state.pairSelected,
-    state.volatilitySelected,
     state.switchDirection,
     state.setCoverPoolFromVolatility,
     state.setMintButtonState,
@@ -384,7 +382,8 @@ export default function CreateCover(props: any) {
           )
         : await gasEstimateCoverCreateAndMint(
             "PSHARK-CPROD",
-            volatilityTiers[volatilitySelected],
+            coverPoolData.volatilityTier ? coverPoolData.volatilityTier
+                                         : volatilityTiers[0],
             address,
             TickMath.getTickAtPriceString(
               coverPositionData.upperPrice,
@@ -749,7 +748,8 @@ export default function CreateCover(props: any) {
             poolType={"PSHARK-CPROD"}
             tokenIn={tokenIn}
             tokenOut={tokenOut}
-            volTier={volatilityTiers[volatilitySelected]}
+            volTier={coverPoolData.volatilityTier ? coverPoolData.volatilityTier 
+                                                  : volatilityTiers[0]}
             disabled={coverMintParams.disabled}
             to={address}
             lower={TickMath.getTickAtPriceString(

@@ -49,7 +49,6 @@ export default function CoverExistingPool({ goBack }) {
     /* setCoverAmountIn,
     setCoverAmountOut, */
     pairSelected,
-    volatilitySelected,
     switchDirection,
     setCoverPoolFromVolatility,
     needsAllowance,
@@ -74,7 +73,6 @@ export default function CoverExistingPool({ goBack }) {
     /* state.setCoverAmountIn,
     state.setCoverAmountOut, */
     state.pairSelected,
-    state.volatilitySelected,
     state.switchDirection,
     state.setCoverPoolFromVolatility,
     state.needsAllowance,
@@ -410,7 +408,8 @@ export default function CoverExistingPool({ goBack }) {
           )
         : await gasEstimateCoverCreateAndMint(
             "PSHARK-CPROD",
-            volatilityTiers[volatilitySelected],
+            coverPoolData.volatilityTier ? coverPoolData.volatilityTier
+                                         : volatilityTiers[0],
             address,
             TickMath.getTickAtPriceString(
               coverPositionData.upperPrice,
@@ -719,7 +718,7 @@ export default function CoverExistingPool({ goBack }) {
               }}
               key={volatilityTierIdx}
               className={`bg-black p-4 w-full rounded-[4px] cursor-pointer transition-all ${
-                volatilityTiers[volatilitySelected].feeAmount.toString() ===
+                coverPoolData?.feeAmount?.toString() ===
                 volatilityTier.feeAmount.toString()
                   ? "border-grey1 border bg-grey/20"
                   : "border border-grey"
@@ -783,7 +782,8 @@ export default function CoverExistingPool({ goBack }) {
             poolType={"PSHARK-CPROD"}
             tokenIn={tokenIn}
             tokenOut={tokenOut}
-            volTier={volatilityTiers[volatilitySelected]}
+            volTier={coverPoolData.volatilityTier ? coverPoolData.volatilityTier 
+                                                  : volatilityTiers[0]}
             disabled={coverMintParams.disabled}
             buttonMessage={coverMintParams.buttonMessage}
             to={address}
