@@ -4,7 +4,6 @@ import { coverPoolABI } from "../abis/evm/coverPool";
 import { SwapParams, tokenCover, tokenRangeLimit, tokenSwap } from "./types";
 import { TickMath, roundTick } from "./math/tickMath";
 import { fetchEthPrice } from "./queries";
-import JSBI from "jsbi";
 import { BN_ZERO } from "./math/constants";
 import { limitPoolABI } from "../abis/evm/limitPool";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
@@ -57,7 +56,8 @@ export const gasEstimateSwap = async (
     setGasFee(formattedPrice);
     setGasLimit(gasUnits.mul(150).div(100));
   } catch (error) {
-    console.log("gas error", error);
+    console.log("gas error swap split", error);
+    console.log('gas error params', swapParams, poolAddresses);
     setGasFee("$0.00");
     setGasLimit(BigNumber.from(1000000));
   }
