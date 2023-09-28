@@ -138,7 +138,6 @@ export const getCoverPoolFromFactory = (tokenA: string, tokenB: string) => {
             }
           }
          `;
-    //console.log('query:', getPool)
     const client = new ApolloClient({
       uri: "https://arbitrum-goerli.graph-eu.p2pify.com/d2323ed03f18f473fc02c54f8e38a3a5/cover-arbitrumGoerli-beta2",
       cache: new InMemoryCache(),
@@ -310,7 +309,6 @@ export const getLimitTickIfZeroForOne = (
   poolAddress: string,
   epochLast: number
 ) => {
-  console.log('getting limit tick zeroforone', epochLast, upper)
   return new Promise(function (resolve) {
     const getTicks = `
       { 
@@ -325,8 +323,6 @@ export const getLimitTickIfZeroForOne = (
         }
       }
         `;
-    //console.log(getTicks)
-    //console.log('pool address', poolAddress)
     const client = new ApolloClient({
       uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
       cache: new InMemoryCache(),

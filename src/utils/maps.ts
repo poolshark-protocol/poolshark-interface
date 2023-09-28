@@ -19,7 +19,7 @@ export const getClaimTick = async (
   if (zeroForOne) {
     // run claim tick query
     const claimTickQuery = isCover
-      ? await getCoverTickIfZeroForOne(maxLimit, poolAddress, epochLast)
+      ? await getCoverTickIfZeroForOne(minLimit, maxLimit, poolAddress, epochLast)
       : await getLimitTickIfZeroForOne(minLimit, maxLimit, poolAddress, epochLast);
     // check data length
     const claimTickDataLength = isCover
@@ -36,7 +36,7 @@ export const getClaimTick = async (
   } else {
     // run claim tick query
     const claimTickQuery = isCover
-      ? await getCoverTickIfNotZeroForOne(minLimit, poolAddress, epochLast)
+      ? await getCoverTickIfNotZeroForOne(minLimit, maxLimit, poolAddress, epochLast)
       : await getLimitTickIfNotZeroForOne(minLimit, maxLimit, poolAddress, epochLast);
     // check data length
     const claimTickDataLength = isCover
@@ -51,8 +51,6 @@ export const getClaimTick = async (
       claimTick = isCover ? minLimit : maxLimit
     }
   }
-  console.log('getting claim tick for', minLimit, maxLimit, claimTick, zeroForOne)
-  console.log('getting claim tick for', poolAddress)
   return claimTick;
 };
 
