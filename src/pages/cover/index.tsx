@@ -37,30 +37,15 @@ export default function Cover() {
   const [isPositionsLoading, setIsPositionsLoading] = useState(false);
   const [isPoolsLoading, setIsPoolsLoading] = useState(false);
 
+  ///////////////////////////Positions
+
   useEffect(() => {
     if (address) {
-      getUserCoverPositionData();
-    }
-  }, [address]);
-
-  useEffect(() => {
-    getCoverPoolData();
-  }, []);
-
-  useEffect(() => {
-    if (needsRefetch == true) {
       setTimeout(() => {
         getUserCoverPositionData();
-        setNeedsRefetch(false);
       }, 1000);
     }
-  }, [needsRefetch]);
-
-  useEffect(() => {
-    if (state === "existing" && router.query.state === "nav") {
-      setState("initial");
-    }
-  }, [router.query.state]);
+  }, []);
 
   async function getUserCoverPositionData() {
     setIsPositionsLoading(true);
@@ -73,14 +58,11 @@ export default function Cover() {
     }
   }
 
-  const handleSearchTermChange = (event) => {
-    setSearchTerm(event.target.value);
-  };
+  ///////////////////////////Pools
 
-  const handleDiselectPool = (state) => {
-    setState(state);
-    setSelectedPool(undefined);
-  };
+  useEffect(() => {
+    getCoverPoolData();
+  }, []);
 
   async function getCoverPoolData() {
     setIsPoolsLoading(true);
@@ -91,6 +73,23 @@ export default function Cover() {
       setIsPoolsLoading(false);
     }
   }
+
+  ///////////////////////////Search
+
+  useEffect(() => {
+    if (state === "existing" && router.query.state === "nav") {
+      setState("initial");
+    }
+  }, [router.query.state]);
+
+  const handleSearchTermChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleDiselectPool = (state) => {
+    setState(state);
+    setSelectedPool(undefined);
+  };
 
   return (
     <div className="min-h-screen bg-black">
