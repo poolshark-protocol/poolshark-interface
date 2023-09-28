@@ -153,7 +153,7 @@ export default function Trade() {
   const [amountOut, setAmountOut] = useState(undefined);
 
   useEffect(() => {
-    if (tokenIn.address != "0x00" && tokenOut.address === ZERO_ADDRESS) {
+    if (tokenIn.address != ZERO_ADDRESS && tokenOut.address === ZERO_ADDRESS) {
       getLimitTokenUsdPrice(tokenIn.address, setTokenInTradeUSDPrice);
     }
   }, [tokenIn.address]);
@@ -162,7 +162,7 @@ export default function Trade() {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       updatePools();
     }
-  }, [tokenIn.address, tokenOut.address]);
+  }, [tokenIn.address, tokenOut.address, bnInput]);
 
   async function updatePools() {
     const pools = await getSwapPools(tokenIn, tokenOut, setTradePoolData);
@@ -195,7 +195,7 @@ export default function Trade() {
       console.log("Error multiquote", error);
     },
     onSuccess(data) {
-      //console.log("Success multiquote", data);
+      console.log("Success multiquote", data);
     },
   });
 
@@ -578,21 +578,12 @@ export default function Trade() {
                   && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
                       parseFloat(
                         ethers.utils.formatUnits(
-                          getExpectedAmountOut(
-                            parseInt(ethers.utils.formatUnits(lowerTick, 0)),
-                            parseInt(ethers.utils.formatUnits(upperTick, 0)),
+                          getExpectedAmountOutFromInput(
+                            Number(lowerTick),
+                            Number(upperTick),
                             limitPriceOrder,
-                            BigNumber.from(String(DyDxMath.getLiquidityForAmounts(
-                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))),
-                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
-                              limitPriceOrder ? TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))) 
-                                              : TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
-                              limitPriceOrder ? BN_ZERO 
-                                              : bnInput,
-                              limitPriceOrder ? bnInput 
-                                              : BN_ZERO,
-                            ))
-                          )), tokenIn.decimals
+                            bnInput
+                          ), tokenIn.decimals
                     )).toFixed(2)) :
                     "$0.00"
                 : "Select Token"}
