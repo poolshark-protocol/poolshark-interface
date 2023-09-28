@@ -718,7 +718,7 @@ export default function CoverExistingPool({ goBack }) {
               }}
               key={volatilityTierIdx}
               className={`bg-black p-4 w-full rounded-[4px] cursor-pointer transition-all ${
-                coverPoolData?.feeAmount?.toString() ===
+                coverPoolData?.volatilityTier?.feeAmount ===
                 volatilityTier.feeAmount.toString()
                   ? "border-grey1 border bg-grey/20"
                   : "border border-grey"
