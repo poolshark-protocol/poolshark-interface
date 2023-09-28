@@ -517,7 +517,7 @@ export default function Trade() {
         updateMintFee();
       }
     }
-  }, [swapParams, tokenIn]);
+  }, [swapParams, tokenIn, tokenOut, bnInput]);
 
   async function updateGasFee() {
     if (tokenIn.userRouterAllowance?.gte(bnInput))
@@ -535,7 +535,7 @@ export default function Trade() {
   }
 
   async function updateMintFee() {
-    console.log(tokenIn.userRouterAllowance, "user router allowance")
+    if (tokenIn.userRouterAllowance?.gte(bnInput))
       await gasEstimateMintLimit(
         tradePoolData.id,
         address,
