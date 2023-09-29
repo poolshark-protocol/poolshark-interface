@@ -1,24 +1,24 @@
 import { Transition, Dialog } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import CoverRemoveLiqButton from "../../Buttons/CoverRemoveLiqButton";
+import LimitRemoveLiqButton from "../../Buttons/LimitRemoveLiqButton";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO } from "../../../utils/math/constants";
 import { useRouter } from "next/router";
-import { useCoverStore } from "../../../hooks/useCoverStore";
+import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 
 export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
   const [
-    coverPoolAddress,
-    coverPositionData,
-    coverMintParams,
+    limitPoolAddress,
+    limitPositionData,
+    limitMintParams,
     tokenIn,
     claimTick,
     setMintButtonState,
-  ] = useCoverStore((state) => [
-    state.coverPoolAddress,
-    state.coverPositionData,
-    state.coverMintParams,
+  ] = useRangeLimitStore((state) => [
+    state.limitPoolAddress,
+    state.limitPositionData,
+    state.limitMintParams,
     state.tokenIn,
     state.claimTick,
     state.setMintButtonState,
@@ -33,7 +33,7 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
   const [sliderOutput, setSliderOutput] = useState("1");
   const [amountInDisplay, setAmountInDisplay] = useState(
     ethers.utils.formatUnits(
-      BigNumber.from(coverPositionData.userFillOut) ?? BN_ZERO,
+      BigNumber.from(limitPositionData.userFillOut) ?? BN_ZERO,
       18
     )
   );
@@ -55,7 +55,7 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
 
   useEffect(() => {
     setMintButtonState();
-    console.log(coverMintParams.disabled, "disabled");
+    console.log(limitMintParams.disabled, "disabled");
   }, [burnPercent]);
 
   const handleChange = (event: any) => {
@@ -162,7 +162,7 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
                       <div className="flex text-xs text-[#4C4C4C]">
                         $
                         {(
-                          tokenIn.coverUSDPrice * parseFloat(sliderOutput)
+                          tokenIn.USDPrice * parseFloat(sliderOutput)
                         ).toFixed(2)}
                       </div>
                     </div>
@@ -190,15 +190,16 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
                     </div>
                   </div>
                 </div>
-                <CoverRemoveLiqButton
-                  disabled={coverMintParams.disabled}
-                  poolAddress={coverPoolAddress}
+                <LimitRemoveLiqButton
+                  disabled={limitMintParams.disabled}
+                  poolAddress={limitPoolAddress}
                   address={address}
-                  positionId={Number(coverPositionData.positionId)}
-                  claim={BigNumber.from(claimTick)}
-                  zeroForOne={Boolean(coverPositionData.zeroForOne)}
+                  positionId={Number(limitPositionData.positionId)}
+                  zeroForOne={Boolean(limitPositionData.zeroForOne)}
                   burnPercent={burnPercent}
-                  gasLimit={coverMintParams.gasLimit.mul(250).div(100)}
+                  epochLast={Number(limitPositionData.epochLast)}
+                  lower={BigNumber.from(limitPositionData.min)}
+                  upper={BigNumber.from(limitPositionData.max)}
                   closeModal={() => {
                     if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
                       router.push("/pool");
