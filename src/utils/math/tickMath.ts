@@ -155,10 +155,21 @@ export abstract class TickMath {
   }
 
   public static getTickAtPriceString(priceString: string, tickSpacing?: number): number {
-    let sqrtPrice = this.getSqrtPriceAtPriceString(priceString)
-    if (JSBI.lessThan(sqrtPrice, this.MIN_SQRT_RATIO)){ return this.MIN_TICK}
-    if (JSBI.greaterThan(sqrtPrice, this.MAX_SQRT_RATIO)) return this.MAX_TICK
-    let tick = this.getTickAtSqrtRatio(sqrtPrice)
+    const price = parseFloat(priceString)
+    if (isNaN(price)) return this.MIN_TICK
+    const minPrice = parseFloat(this.getPriceStringAtTick(this.MIN_TICK))
+    const maxPrice = parseFloat(this.getPriceStringAtTick(this.MAX_TICK))
+    let tick;
+    if (price <= minPrice) {
+      tick = this.MIN_TICK
+    } else if (price >= maxPrice) {
+      tick = this.MAX_TICK
+    } else {
+      let sqrtPrice = this.getSqrtPriceAtPriceString(priceString)
+      if (JSBI.lessThan(sqrtPrice, this.MIN_SQRT_RATIO)){ return this.MIN_TICK}
+      if (JSBI.greaterThan(sqrtPrice, this.MAX_SQRT_RATIO)) return this.MAX_TICK
+      tick = this.getTickAtSqrtRatio(sqrtPrice)
+    }
     if (tickSpacing){
       return roundTick(tick, tickSpacing)
     } 
