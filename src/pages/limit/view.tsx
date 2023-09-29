@@ -163,7 +163,7 @@ export default function ViewLimit() {
               tokenOut.rangeUSDPrice /
               Number(
                 TickMath.getPriceStringAtTick(
-                  Number(limitPositionData.latestTick)
+                  Number(limitPositionData.epochLast)
                 )
               )
             ).toPrecision(6)
@@ -395,7 +395,7 @@ export default function ViewLimit() {
                   <h1 className="uppercase text-white">Price Range</h1>
                   {parseFloat(
                     TickMath.getPriceStringAtTick(
-                      Number(limitPositionData.latestTick)
+                      Number(limitPositionData.epochLast)
                     )
                   ) <
                     parseFloat(
@@ -405,7 +405,7 @@ export default function ViewLimit() {
                     ) ||
                   parseFloat(
                     TickMath.getPriceStringAtTick(
-                      Number(limitPositionData.latestTick)
+                      Number(limitPositionData.epochLast)
                     )
                   ) >=
                     parseFloat(
@@ -499,7 +499,7 @@ export default function ViewLimit() {
                     {priceDirection
                       ? priceInverse
                       : TickMath.getPriceStringAtTick(
-                          Number(limitPositionData.latestTick)
+                          Number(limitPositionData.epochLast)
                         )}
                   </span>
                 </div>
