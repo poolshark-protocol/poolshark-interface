@@ -333,7 +333,7 @@ export const volatilityTiers = [
     feeAmount: 1000,
     tickSpread: 20,
     twapLength: 12,
-    auctionLength: 12
+    auctionLength: 12,
   },
   {
     id: 1,
@@ -343,7 +343,7 @@ export const volatilityTiers = [
     feeAmount: 3000,
     tickSpread: 60,
     twapLength: 12,
-    auctionLength: 12
+    auctionLength: 12,
   },
   {
     id: 2,
@@ -353,6 +353,6 @@ export const volatilityTiers = [
     feeAmount: 10000,
     tickSpread: 60,
     twapLength: 12,
-    auctionLength: 5
+    auctionLength: 5,
   },
 ];

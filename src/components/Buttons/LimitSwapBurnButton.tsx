@@ -27,10 +27,11 @@ export default function LimitSwapBurnButton({
 }) {
   const { data: signer } = useSigner();
 
-  const [setNeedsRefetch, setNeedsBalanceIn] = useTradeStore(
+  const [setNeedsRefetch, setNeedsBalanceIn, setNeedsBalanceOut] = useTradeStore(
     (state) => [
       state.setNeedsRefetch,
       state.setNeedsBalanceIn,
+      state.setNeedsBalanceOut,
     ]
   );
   const [claimTick, setClaimTick] = useState(0);
@@ -74,10 +75,10 @@ export default function LimitSwapBurnButton({
   }, []);
 
   useEffect(() => {
-    if(claimTick > 0) {
+    if(claimTick > 0 && signer) {
       getGasLimit();
     }
-  }, [claimTick]);
+  }, [claimTick, signer]);
 
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
@@ -109,9 +110,14 @@ export default function LimitSwapBurnButton({
     onSuccess() {
       setSuccessDisplay(true);
       if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
-        setNeedsRefetch(true);
+        setTimeout(() => {
+          setNeedsRefetch(true);
+        }, 1000);
       }
-      setNeedsBalanceIn(true);
+      setTimeout(() => {
+        setNeedsBalanceIn(true);
+        setNeedsBalanceOut(true);
+      }, 1000);
     },
     onError() {
       setErrorDisplay(true);

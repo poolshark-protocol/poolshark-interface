@@ -34,6 +34,7 @@ export default function SwapRouterButton({
     abi: poolsharkRouterABI,
     functionName: "multiSwapSplit",
     args: [poolAddresses, swapParams],
+    enabled: poolAddresses.length > 0 && swapParams.length > 0,
     chainId: 421613,
     overrides: {
       gasLimit: gasLimit,

@@ -4,7 +4,6 @@ import { coverPoolABI } from "../abis/evm/coverPool";
 import { SwapParams, tokenCover, tokenRangeLimit, tokenSwap } from "./types";
 import { TickMath, roundTick } from "./math/tickMath";
 import { fetchEthPrice } from "./queries";
-import JSBI from "jsbi";
 import { BN_ZERO } from "./math/constants";
 import { limitPoolABI } from "../abis/evm/limitPool";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
@@ -57,7 +56,8 @@ export const gasEstimateSwap = async (
     setGasFee(formattedPrice);
     setGasLimit(gasUnits.mul(150).div(100));
   } catch (error) {
-    console.log("gas error", error);
+    console.log("gas error swap split", error);
+    console.log('gas error params', swapParams, poolAddresses);
     setGasFee("$0.00");
     setGasLimit(BigNumber.from(1000000));
   }
@@ -85,7 +85,6 @@ export const gasEstimateMintLimit = async (
       setMintGasFee("$0.00");
       setMintGasLimit(BN_ZERO);
     }
-    const recipient = address;
     const zeroForOne = token0.address.localeCompare(token1.address) < 0;
 
     const routerAddress = chainProperties['arbitrumGoerli']['routerAddress']
@@ -94,19 +93,23 @@ export const gasEstimateMintLimit = async (
       poolsharkRouterABI,
       provider
     );
+    console.log('estimating mint gas')
 
     let gasUnits: BigNumber;
     gasUnits = await routerContract.connect(signer).estimateGas.multiMintLimit(
     [rangePoolRoute],
     [{
-      to: recipient,
+      to: address,
       amount: bnInput,
       mintPercent: ethers.utils.parseUnits("1", 24), // skip mint under 1% left after swap
       positionId: BN_ZERO,
       lower: lowerTick,
       upper: upperTick,
       zeroForOne: zeroForOne,
+      callbackData: ethers.utils.formatBytes32String('')
     }]);
+
+    console.log('mint gas units: ', gasUnits.toString())
     const gasPrice = await provider.getGasPrice();
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
@@ -117,7 +120,6 @@ export const gasEstimateMintLimit = async (
     });
     setMintGasFee(formattedPrice);
     setMintGasLimit(gasUnits.mul(150).div(100));
-    console.log("gas units", gasUnits.toString())
   } catch (error) {
     console.log("gas error limit mint", error);
     setMintGasFee("$0.00");
@@ -216,14 +218,7 @@ export const gasEstimateBurnLimit = async (
     const price = await fetchEthPrice()
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
 
-    console.log("user address burn", address);
-    console.log("limit pool route burn", limitPoolRoute);
-    console.log("position id burn", positionId.toString());
-    console.log("burn pct", burnPercent.toString());
-    console.log("claim tick burn", claim.toString());
-    console.log("zeroForOne", zeroForOne.toString());
-
-    if (!limitPoolRoute || !provider) {
+    if (!limitPoolRoute || !provider || signer == undefined) {
       setBurnGasFee("$0.00");
       setBurnGasLimit(BN_ZERO);
     }
@@ -237,20 +232,17 @@ export const gasEstimateBurnLimit = async (
     );
 
     let gasUnits: BigNumber;
-    gasUnits = await contract.connect(signer).estimateGas.burnLimit([
-      recipient,
-      burnPercent,
-      positionId, // skip mint under 1% left after swap
-      claim,
-      zeroForOne,
-      true
-    ]);
-    console.log("limit gas units", gasUnits.toString());
+    gasUnits = await contract.connect(signer).estimateGas.burnLimit({
+      to: recipient,
+      positionId: Number(positionId),
+      claim: claim,
+      zeroForOne: zeroForOne,
+      burnPercent: burnPercent
+    });
     const gasPrice = await provider.getGasPrice();
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
     const networkFeeUsd = networkFeeEth * Number(ethUsdPrice);
-    console.log("network fee usd limit", networkFeeUsd);
     const formattedPrice: string = networkFeeUsd.toLocaleString("en-US", {
       style: "currency",
       currency: "USD",
@@ -447,6 +439,8 @@ export const gasEstimateCoverMint = async (
     if (!coverPoolRoute || !provider || !signer) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
+    if (inAmount.eq(BN_ZERO))
+      return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     const routerAddress = chainProperties['arbitrumGoerli']['routerAddress']
     const routerContract = new ethers.Contract(
       routerAddress,
@@ -488,10 +482,7 @@ export const gasEstimateCoverMint = async (
 
 export const gasEstimateCoverCreateAndMint = async (
   poolType: string,
-  feeAmount: number,
-  tickSpread: number,
-  twapLength: number,
-  coverPoolRoute: string,
+  volatilityTier: any,
   address: string,
   upperTick: number,
   lowerTick: number,
@@ -505,7 +496,7 @@ export const gasEstimateCoverCreateAndMint = async (
     const provider = new ethers.providers.JsonRpcProvider(
       "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
     );
-    if (!coverPoolRoute || !provider || !signer) {
+    if (!provider || !signer) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
     const routerAddress = chainProperties['arbitrumGoerli']['routerAddress']
@@ -523,9 +514,9 @@ export const gasEstimateCoverCreateAndMint = async (
           poolType: ethers.utils.formatBytes32String(poolType),
           tokenIn: tokenIn.address,
           tokenOut: tokenOut.address,
-          feeTier: feeAmount,
-          tickSpread: tickSpread,
-          twapLength: twapLength  
+          feeTier: volatilityTier.feeAmount,
+          tickSpread: volatilityTier.tickSpread,
+          twapLength: volatilityTier.twapLength 
       }, // pool params
       [
           {
@@ -579,7 +570,6 @@ export const gasEstimateCoverBurn = async (
       coverPoolABI,
       provider
     );
-    console.log("cover burn", address, positionId, burnPercent, claimTick);
     const gasUnits = await contract.connect(signer).estimateGas.burn({
       to: address,
       burnPercent: burnPercent,

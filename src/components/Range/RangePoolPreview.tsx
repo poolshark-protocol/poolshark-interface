@@ -112,7 +112,9 @@ export default function RangePoolPreview() {
       rangePositionData.lowerPrice &&
       rangePositionData.upperPrice &&
       Number(rangePositionData.lowerPrice) <
-        Number(rangePositionData.upperPrice)
+        Number(rangePositionData.upperPrice) && 
+      allowanceInRange?.gte(rangeMintParams.tokenInAmount) && 
+      allowanceOutRange?.gte(rangeMintParams.tokenOutAmount)
     ) {
       updateGasFee();
     }
@@ -357,7 +359,7 @@ export default function RangePoolPreview() {
                             rangeMintParams.tokenInAmount
                           ) ? (
                           <RangeMintApproveButton
-                          routerAddress={rangePoolAddress}
+                          routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
                             approveToken={tokenIn}
                             amount={rangeMintParams.tokenInAmount}
                           />
@@ -365,7 +367,7 @@ export default function RangePoolPreview() {
                             rangeMintParams.tokenOutAmount
                           ) ? (
                           <RangeMintApproveButton
-                            routerAddress={rangePoolAddress}
+                            routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
                             approveToken={tokenOut}
                             amount={rangeMintParams.tokenOutAmount}
                           />
@@ -424,7 +426,7 @@ export default function RangePoolPreview() {
                             token0={tokenIn}
                             token1={tokenOut}
                             startPrice={BigNumber.from('3543191142285914205922034323214')} //TODO: for lucas; need input box for this
-                            feeTier={rangePoolData.feeTier.feeAmount}
+                            feeTier={rangePoolData.feeTier ? rangePoolData.feeTier.feeAmount : 3000}
                             to={address}
                             lower={
                               rangePositionData.lowerPrice

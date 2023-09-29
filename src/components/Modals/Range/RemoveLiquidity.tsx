@@ -117,7 +117,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
     const newBurnGasFee = await gasEstimateRangeBurn(
       rangePoolAddress,
       address,
-      rangePositionData.id,
+      rangePositionData.positionId,
       burnPercent,
       signer
     );
@@ -300,11 +300,11 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
                 <RangeRemoveLiqButton
                   poolAddress={rangePoolAddress}
                   address={address}
-                  positionId={rangePositionData.id}
+                  positionId={rangePositionData.positionId}
                   burnPercent={burnPercent}
                   closeModal={() => {
                     if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
-                      router.push("/pool");
+                      router.push("/range");
                     }
                   }}
                   gasLimit={burnGasLimit}

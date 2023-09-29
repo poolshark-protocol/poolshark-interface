@@ -10,7 +10,7 @@ function CoinListItem({ chooseToken, coin }) {
       data-name={coin.name}
       data-logouri={coin.logoURI}
       data-symbol={coin.symbol}
-      key={coin.name}
+      key={coin.address}
       data-decimals={coin.decimals}
       data-address={coin.id}
     >
