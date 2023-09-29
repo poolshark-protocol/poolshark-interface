@@ -18,6 +18,7 @@ import { mapUserRangePositions } from "../../utils/maps";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import RangeCollectButton from "../../components/Buttons/RangeCollectButton";
+import router from "next/router";
 
 export default function ViewRange() {
   const [
@@ -33,6 +34,7 @@ export default function ViewRange() {
     needsPosRefetch,
     setNeedsRefetch,
     setNeedsPosRefetch,
+    setRangePoolFromFeeTier,
     setRangePositionData,
     setMintButtonState,
   ] = useRangeLimitStore((state) => [
@@ -48,6 +50,7 @@ export default function ViewRange() {
     state.needsPosRefetch,
     state.setNeedsRefetch,
     state.setNeedsPosRefetch,
+    state.setRangePoolFromFeeTier,
     state.setRangePositionData,
     state.setMintButtonState,
   ]);
@@ -104,6 +107,10 @@ export default function ViewRange() {
   ////////////////////////Pool Data
 
   useEffect(() => {
+    setRangePoolFromFeeTier(tokenIn, tokenOut, router.query.feeTier);
+  }, [router.query.feeTier]);
+
+  useEffect(() => {
     getRangePoolRatios();
   }, [amount0, amount1, amount0Fees, amount1Fees]);
 
@@ -152,14 +159,17 @@ export default function ViewRange() {
 
   ////////////////////////////////Position Data
   useEffect(() => {
-    setTimeout(() => {
-      if (needsRefetch) {
-        getUserRangePositionData();
-        setNeedsRefetch(false);
-        setNeedsPosRefetch(false);
-      }
-    }, 2000);
-  }, [needsRefetch]);
+    if (
+      rangePositionData.positionId == undefined ||
+      needsPosRefetch ||
+      needsRefetch
+    ) {
+      console.log("refetching");
+      getUserRangePositionData();
+      setNeedsRefetch(false);
+      setNeedsPosRefetch(false);
+    }
+  }, [needsRefetch, needsPosRefetch, rangePositionData.positionId]);
 
   async function getUserRangePositionData() {
     try {
@@ -168,13 +178,16 @@ export default function ViewRange() {
         const mappedPositions = mapUserRangePositions(
           data["data"].rangePositions
         );
+        setAllRangePositions(mappedPositions);
+        const positionId =
+          rangePositionData.positionId ?? router.query.positionId;
+        console.log(positionId);
         const position = mappedPositions.find(
-          (position) => Number(position.id) == Number(rangePositionData.id)
+          (position) => position.positionId == positionId
         );
         if (position != undefined) {
           setRangePositionData(position);
         }
-        setAllRangePositions(mappedPositions);
       }
     } catch (error) {
       console.log(error);
@@ -203,15 +216,21 @@ export default function ViewRange() {
   }, []);
 
   useEffect(() => {
-    setLowerPrice(TickMath.getPriceStringAtTick(Number(rangePositionData.min)));
-    setUpperPrice(TickMath.getPriceStringAtTick(Number(rangePositionData.max)));
-  }, [tokenIn, tokenOut]);
+    if (rangePositionData.min && rangePositionData.max) {
+      setLowerPrice(
+        TickMath.getPriceStringAtTick(Number(rangePositionData.min))
+      );
+      setUpperPrice(
+        TickMath.getPriceStringAtTick(Number(rangePositionData.max))
+      );
+    }
+  }, [tokenIn, tokenOut, rangePositionData.min, rangePositionData.max]);
 
   ////////////////////////////////Amounts
 
   useEffect(() => {
     setAmounts();
-  }, [lowerPrice, upperPrice, rangePositionData]);
+  }, [lowerPrice, upperPrice, rangePositionData, rangePoolData]);
 
   function setAmounts() {
     try {
@@ -265,9 +284,9 @@ export default function ViewRange() {
     args: [rangePositionData.positionId],
     chainId: 421613,
     watch: true,
-    enabled: isConnected && rangePoolAddress != ("" as string),
+    enabled: isConnected,
     onError(error) {
-      console.log("Error snapshot Range", error);
+      //console.log("Error snapshot Range", error);
     },
   });
 
@@ -459,11 +478,13 @@ export default function ViewRange() {
                 <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                   <span className="text-grey1 text-xs">CURRENT. PRICE</span>
                   <span className="text-white text-3xl text-grey1">
-                    {rangePositionData.price != undefined && priceDirection
-                      ? priceInverse
-                      : TickMath.getPriceStringAtSqrtPrice(
-                          JSBI.BigInt(rangePositionData.price)
-                        )}
+                    {rangePositionData.price
+                      ? priceDirection
+                        ? priceInverse
+                        : TickMath.getPriceStringAtSqrtPrice(
+                            JSBI.BigInt(rangePositionData.price)
+                          )
+                      : null}
                   </span>
                 </div>
               </div>
@@ -517,8 +538,12 @@ export default function ViewRange() {
           </div>
         </div>
       </div>
-      <RemoveLiquidity isOpen={isRemoveOpen} setIsOpen={setIsRemoveOpen} />
-      <AddLiquidity isOpen={isAddOpen} setIsOpen={setIsAddOpen} />
+      {rangePositionData.price ? (
+        <>
+          <RemoveLiquidity isOpen={isRemoveOpen} setIsOpen={setIsRemoveOpen} />
+          <AddLiquidity isOpen={isAddOpen} setIsOpen={setIsAddOpen} />
+        </>
+      ) : null}
     </div>
   );
 }

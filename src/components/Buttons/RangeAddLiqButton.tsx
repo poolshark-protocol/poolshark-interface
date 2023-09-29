@@ -32,12 +32,14 @@ export default function RangeAddLiqButton({
     setNeedsBalanceIn,
     setNeedsBalanceOut,
     setNeedsRefetch,
+    setNeedsPosRefetch,
   ] = useRangeLimitStore((state) => [
     state.setNeedsAllowanceIn,
     state.setNeedsAllowanceOut,
     state.setNeedsBalanceIn,
     state.setNeedsBalanceOut,
     state.setNeedsRefetch,
+    state.setNeedsPosRefetch,
   ]);
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
@@ -51,15 +53,17 @@ export default function RangeAddLiqButton({
     functionName: "multiMintRange",
     args: [
       [poolAddress],
-      [{
-        to: address,
-        lower: lower,
-        upper: upper,
-        positionId: positionId,
-        amount0: amount0,
-        amount1: amount1,
-        callbackData: ethers.utils.formatBytes32String('')
-      }],
+      [
+        {
+          to: address,
+          lower: lower,
+          upper: upper,
+          positionId: positionId,
+          amount0: amount0,
+          amount1: amount1,
+          callbackData: ethers.utils.formatBytes32String(""),
+        },
+      ],
     ],
     //args: [[address, lower, positionId, upper, amount0, amount1]],
     chainId: 421613,
@@ -74,10 +78,14 @@ export default function RangeAddLiqButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
+      console.log("success");
       setSuccessDisplay(true);
       setNeedsAllowanceIn(true);
       setNeedsBalanceIn(true);
-      setNeedsRefetch(true);
+      setTimeout(() => {
+        setNeedsRefetch(true);
+        setNeedsPosRefetch(true);
+      }, 2500);
       if (amount1.gt(BigNumber.from(0))) {
         setNeedsAllowanceOut(true);
         setNeedsBalanceOut(true);
@@ -88,33 +96,33 @@ export default function RangeAddLiqButton({
       setErrorDisplay(true);
     },
   });
-    return (
-        <>
-        <button 
-            disabled={gasLimit.lte(BN_ZERO) || disabled} 
-            className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
-            onClick={() => {
-              address ?  write?.() : null
-            }}
-                >
-                Add liquidity
-        </button>
-        <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
-      {errorDisplay && (
-        <ErrorToast
-          hash={data?.hash}
-          errorDisplay={errorDisplay}
-          setErrorDisplay={setErrorDisplay}
-        />
-      )}
-      {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-      {successDisplay && (
-        <SuccessToast
-          hash={data?.hash}
-          successDisplay={successDisplay}
-          setSuccessDisplay={setSuccessDisplay}
-        />
-      )}
+  return (
+    <>
+      <button
+        disabled={gasLimit.lte(BN_ZERO) || disabled}
+        className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
+        onClick={() => {
+          address ? write?.() : null;
+        }}
+      >
+        Add liquidity
+      </button>
+      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
+        {errorDisplay && (
+          <ErrorToast
+            hash={data?.hash}
+            errorDisplay={errorDisplay}
+            setErrorDisplay={setErrorDisplay}
+          />
+        )}
+        {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
+        {successDisplay && (
+          <SuccessToast
+            hash={data?.hash}
+            successDisplay={successDisplay}
+            setSuccessDisplay={setSuccessDisplay}
+          />
+        )}
       </div>
     </>
   );

@@ -10,6 +10,7 @@ import { tokenCover } from "../../utils/types";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import JSBI from "jsbi";
 import { getRangePoolFromFactory } from "../../utils/queries";
+import router from "next/router";
 
 export default function UserRangePool({ rangePosition, href, isModal }) {
   const [
@@ -202,82 +203,83 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
       );
       setRangePositionData(rangePosition);
     }
+    router.push({
+      pathname: href,
+      query: {
+        positionId: rangePosition.positionId,
+        feeTier: rangePosition.pool.feeTier.feeAmount,
+      },
+    });
   }
 
   return (
     <>
       <div onClick={choosePosition}>
-        <Link
-          href={{
-            pathname: href,
-          }}
+        <div
+          className={`${
+            isModal ? "grid-cols-3 " : "lg:grid-cols-2"
+          } lg:grid lg:items-center left bg-black px-4 py-3 rounded-[4px] border-grey border hover:bg-main1/20 cursor-pointer`}
         >
           <div
-            className={`${
-              isModal ? "grid-cols-3 " : "lg:grid-cols-2"
-            } lg:grid lg:items-center left bg-black px-4 py-3 rounded-[4px] border-grey border hover:bg-main1/20 cursor-pointer`}
+            className={`grid sm:grid-cols-2 grid-rows-2 sm:grid-rows-1 items-center gap-y-2 w-full ${
+              isModal ? "col-span-2" : "col-span-1"
+            }`}
           >
-            <div
-              className={`grid sm:grid-cols-2 grid-rows-2 sm:grid-rows-1 items-center gap-y-2 w-full ${
-                isModal ? "col-span-2" : "col-span-1"
-              }`}
-            >
-              <div className="flex items-center gap-x-6 w-full ">
-                <div className="flex items-center">
-                  <img
-                    className="w-[25px] h-[25px] aspect-square shrink-0"
-                    src={logoMap[rangePosition.tokenZero.symbol]}
-                  />
-                  <img
-                    className="w-[25px] h-[25px] ml-[-8px] aspect-square shrink-0"
-                    src={logoMap[rangePosition.tokenOne.symbol]}
-                  />
-                </div>
-                <span className="text-white text-xs flex items-center gap-x-1.5 whitespace-nowrap">
-                  {rangePosition.tokenZero.symbol} -{" "}
-                  {rangePosition.tokenOne.symbol}
-                </span>
-                <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                  {Number(Number(rangePosition.feeTier) / 10000).toFixed(2)}%
-                </span>
+            <div className="flex items-center gap-x-6 w-full ">
+              <div className="flex items-center">
+                <img
+                  className="w-[25px] h-[25px] aspect-square shrink-0"
+                  src={logoMap[rangePosition.tokenZero.symbol]}
+                />
+                <img
+                  className="w-[25px] h-[25px] ml-[-8px] aspect-square shrink-0"
+                  src={logoMap[rangePosition.tokenOne.symbol]}
+                />
               </div>
-              <div
-                className={`text-white text-xs lg:text-right text-left whitespace-nowrap`}
-              >
-                {TickMath.getPriceStringAtTick(Number(rangePosition.min))} -{" "}
-                {TickMath.getPriceStringAtTick(Number(rangePosition.max))}{" "}
-                <span className="text-grey1">
-                  {rangePosition.zeroForOne
-                    ? rangePosition.tokenOne.symbol
-                    : rangePosition.tokenZero.symbol}{" "}
-                  PER{" "}
-                  {rangePosition.zeroForOne
-                    ? rangePosition.tokenZero.symbol
-                    : rangePosition.tokenOne.symbol}
-                </span>
-              </div>
+              <span className="text-white text-xs flex items-center gap-x-1.5 whitespace-nowrap">
+                {rangePosition.tokenZero.symbol} -{" "}
+                {rangePosition.tokenOne.symbol}
+              </span>
+              <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
+                {Number(Number(rangePosition.feeTier) / 10000).toFixed(2)}%
+              </span>
             </div>
             <div
-              className={`lg:grid items-center lg:block hidden ${
-                isModal ? "grid-cols-1 " : "lg:grid-cols-2"
-              }`}
+              className={`text-white text-xs lg:text-right text-left whitespace-nowrap`}
             >
-              <div className={`text-white text-xs text-right`}>
-                {amount0.toPrecision(4)}{" "}
-                <span className="text-grey1">
-                  {rangePosition.tokenZero.symbol}
-                </span>{" "}
-                - {amount1.toPrecision(4)}{" "}
-                <span className="text-grey1">
-                  {rangePosition.tokenOne.symbol}
-                </span>
-              </div>
-              <div className="text-right text-white text-xs lg:block hidden">
-                {!isModal && <span>${totalUsdValue}</span>}
-              </div>
+              {TickMath.getPriceStringAtTick(Number(rangePosition.min))} -{" "}
+              {TickMath.getPriceStringAtTick(Number(rangePosition.max))}{" "}
+              <span className="text-grey1">
+                {rangePosition.zeroForOne
+                  ? rangePosition.tokenOne.symbol
+                  : rangePosition.tokenZero.symbol}{" "}
+                PER{" "}
+                {rangePosition.zeroForOne
+                  ? rangePosition.tokenZero.symbol
+                  : rangePosition.tokenOne.symbol}
+              </span>
             </div>
           </div>
-        </Link>
+          <div
+            className={`lg:grid items-center lg:block hidden ${
+              isModal ? "grid-cols-1 " : "lg:grid-cols-2"
+            }`}
+          >
+            <div className={`text-white text-xs text-right`}>
+              {amount0.toPrecision(4)}{" "}
+              <span className="text-grey1">
+                {rangePosition.tokenZero.symbol}
+              </span>{" "}
+              - {amount1.toPrecision(4)}{" "}
+              <span className="text-grey1">
+                {rangePosition.tokenOne.symbol}
+              </span>
+            </div>
+            <div className="text-right text-white text-xs lg:block hidden">
+              {!isModal && <span>${totalUsdValue}</span>}
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );
