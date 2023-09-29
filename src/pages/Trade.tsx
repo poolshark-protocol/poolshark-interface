@@ -346,7 +346,7 @@ export default function Trade() {
     ],
     chainId: 421613,
     watch: needsAllowanceIn,
-    //enabled: poolRouterAddress,
+    enabled: tokenIn.address != ZERO_ADDRESS,
     onError(error) {
       console.log("Error allowance", error);
     },
