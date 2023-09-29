@@ -75,7 +75,6 @@ export default function CoverMintButton({
       setNeedsRefetch(true);
       setNeedsAllowance(true);
       setNeedsBalance(true);
-+      router.push("/cover");
     },
   });
 

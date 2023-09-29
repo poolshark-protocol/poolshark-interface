@@ -178,9 +178,7 @@ export default function UserCoverPool({
           <div className="lg:grid lg:grid-cols-2 items-center lg:block hidden">
             <div className="md:flex hidden items-center justify-end w-full">
               <div className="flex relative bg-transparent items-center justify-center h-8 border-grey z-40 border rounded-[4px] gap-x-2 text-sm w-40">
-                <div
-                  className={`bg-white h-full absolute left-0 z-0 rounded-l-[4px] opacity-10 w-[${fillPercent}%]`}
-                />
+                <div className={`bg-white h-full absolute left-0 z-0 rounded-l-[4px] opacity-10 w-[${parseInt(fillPercent)}%]`}/>
                 <div className="z-20 text-white text-xs">
                   {fillPercent}% Filled
                 </div>
