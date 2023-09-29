@@ -14,7 +14,7 @@ import { BigNumber, ethers } from "ethers";
 import { useContractRead } from "wagmi";
 import { BN_ZERO } from "../../../utils/math/constants";
 import SwapRouterApproveButton from "../../Buttons/SwapRouterApproveButton";
-import { chainIdsToNamesForGitTokenList } from "../../../utils/chains";
+import { chainIdsToNamesForGitTokenList, chainProperties } from "../../../utils/chains";
 import { gasEstimateMintLimit } from "../../../utils/gas";
 import JSBI from "jsbi";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
@@ -257,7 +257,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                     disabled={disabled || mintGasFee == "$0.00"}
                     to={address}
                     poolAddress={limitPoolAddress}
-                    routerAddress={limitPoolAddress}
+                    routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
                     lower={Number(limitPositionData.min)}
                     upper={Number(limitPositionData.max)}
                     positionId={Number(limitPositionData.positionId)}
