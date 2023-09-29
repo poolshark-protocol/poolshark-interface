@@ -380,7 +380,7 @@ export default function AddLiquidity({}) {
               <span>
                 ~$
                 {(
-                  tokenIn.rangeUSDPrice *
+                  tokenIn.USDPrice *
                   Number(ethers.utils.formatUnits(bnInput, tokenIn.decimals))
                 ).toFixed(2)}
               </span>
@@ -412,7 +412,7 @@ export default function AddLiquidity({}) {
               <span>
                 ~$
                 {(
-                  Number(tokenOut.rangeUSDPrice) *
+                  Number(tokenOut.USDPrice) *
                   Number(
                     ethers.utils.formatUnits(rangeMintParams.tokenOutAmount, 18)
                   )

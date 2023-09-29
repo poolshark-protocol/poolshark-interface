@@ -131,7 +131,7 @@ export default function ViewLimit() {
 
   useEffect(() => {
     getLimitPoolRatios();
-  }, [tokenIn.rangeUSDPrice, tokenOut.rangeUSDPrice]);
+  }, [tokenIn.USDPrice, tokenOut.USDPrice]);
 
   //TODO need to be set to utils
   const getLimitPoolRatios = () => {
@@ -140,7 +140,7 @@ export default function ViewLimit() {
         setLowerInverse(
           parseFloat(
             (
-              tokenOut.rangeUSDPrice /
+              tokenOut.USDPrice /
               Number(
                 TickMath.getPriceStringAtTick(Number(limitPositionData.max))
               )
@@ -150,7 +150,7 @@ export default function ViewLimit() {
         setUpperInverse(
           parseFloat(
             (
-              tokenOut.rangeUSDPrice /
+              tokenOut.USDPrice /
               Number(
                 TickMath.getPriceStringAtTick(Number(limitPositionData.min))
               )
@@ -160,7 +160,7 @@ export default function ViewLimit() {
         setPriceInverse(
           parseFloat(
             (
-              tokenOut.rangeUSDPrice /
+              tokenOut.USDPrice /
               Number(
                 TickMath.getPriceStringAtTick(
                   Number(limitPositionData.epochLast)
@@ -371,7 +371,7 @@ export default function ViewLimit() {
                           limitPositionData.userFillOut.toString(),
                           18
                         )
-                      ) * tokenIn.rangeUSDPrice
+                      ) * tokenIn.USDPrice
                     ).toFixed(2)}
                   </span>
                 </div>
@@ -526,7 +526,7 @@ export default function ViewLimit() {
                   <span>
                     ~$
                     {(
-                      Number(limitFilledAmount) * tokenOut.rangeUSDPrice
+                      Number(limitFilledAmount) * tokenOut.USDPrice
                     ).toFixed(2)}
                   </span>
                 </div>

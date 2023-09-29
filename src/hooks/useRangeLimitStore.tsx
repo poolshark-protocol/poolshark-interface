@@ -165,7 +165,7 @@ const initialRangeLimitState: RangeLimitState = {
     decimals: 18,
     userBalance: 0.0,
     userRouterAllowance: BigNumber.from(0),
-    rangeUSDPrice: 0.0,
+    USDPrice: 0.0,
   } as tokenRangeLimit,
   //
   tokenOut: {
@@ -177,7 +177,7 @@ const initialRangeLimitState: RangeLimitState = {
     decimals: 18,
     userBalance: 0.0,
     userRouterAllowance: BigNumber.from(0),
-    rangeUSDPrice: 0.0,
+    USDPrice: 0.0,
   } as tokenRangeLimit,
   //
   minInput: "",
@@ -283,7 +283,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     },
     setTokenInRangeUSDPrice: (newPrice: number) => {
       set((state) => ({
-        tokenIn: { ...state.tokenIn, rangeUSDPrice: newPrice },
+        tokenIn: { ...state.tokenIn, USDPrice: newPrice },
       }));
     },
     setTokenInRangeAllowance: (newAllowance: BigNumber) => {
@@ -298,7 +298,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     },
     setTokenOutRangeUSDPrice: (newPrice: number) => {
       set((state) => ({
-        tokenOut: { ...state.tokenOut, rangeUSDPrice: newPrice },
+        tokenOut: { ...state.tokenOut, USDPrice: newPrice },
       }));
     },
     setTokenOut: (tokenIn, newToken: tokenRangeLimit) => {
@@ -511,7 +511,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           logoURI: state.tokenOut.logoURI,
           address: state.tokenOut.address,
           decimals: state.tokenOut.decimals,
-          rangeUSDPrice: state.tokenOut.rangeUSDPrice,
+          USDPrice: state.tokenOut.USDPrice,
           userBalance: state.tokenOut.userBalance,
           userRouterAllowance: state.tokenOut.userRouterAllowance,
         },
@@ -525,7 +525,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           logoURI: state.tokenIn.logoURI,
           address: state.tokenIn.address,
           decimals: state.tokenIn.decimals,
-          rangeUSDPrice: state.tokenIn.rangeUSDPrice,
+          USDPrice: state.tokenIn.USDPrice,
           userBalance: state.tokenIn.userBalance,
           userRouterAllowance: state.tokenIn.userRouterAllowance,
         },

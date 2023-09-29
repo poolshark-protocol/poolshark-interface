@@ -215,7 +215,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
                       ~$
                       {tokenOrder
                         ? Number(
-                            tokenIn.rangeUSDPrice *
+                            tokenIn.USDPrice *
                               parseFloat(
                                 ethers.utils.formatUnits(
                                   amount0,
@@ -224,7 +224,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
                               )
                           ).toFixed(2)
                         : Number(
-                            tokenOut.rangeUSDPrice *
+                            tokenOut.USDPrice *
                               parseFloat(
                                 ethers.utils.formatUnits(
                                   amount1,
@@ -256,7 +256,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
                       ~$
                       {tokenOrder
                         ? Number(
-                            tokenOut.rangeUSDPrice *
+                            tokenOut.USDPrice *
                               parseFloat(
                                 ethers.utils.formatUnits(
                                   amount1,
@@ -265,7 +265,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
                               )
                           ).toFixed(2)
                         : Number(
-                            tokenIn.rangeUSDPrice *
+                            tokenIn.USDPrice *
                               parseFloat(
                                 ethers.utils.formatUnits(
                                   amount0,

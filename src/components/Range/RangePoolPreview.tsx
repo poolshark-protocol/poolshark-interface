@@ -224,7 +224,7 @@ export default function RangePoolPreview() {
                                 <div className="flex text-xs text-[#4C4C4C]">
                                   $
                                   {(
-                                    Number(tokenIn.rangeUSDPrice) *
+                                    Number(tokenIn.USDPrice) *
                                     Number(
                                       ethers.utils.formatUnits(
                                         rangeMintParams.tokenInAmount,
@@ -270,7 +270,7 @@ export default function RangePoolPreview() {
                                 <div className="flex text-xs text-[#4C4C4C]">
                                   $
                                   {(
-                                    Number(tokenOut.rangeUSDPrice) *
+                                    Number(tokenOut.USDPrice) *
                                     Number(
                                       ethers.utils.formatUnits(
                                         rangeMintParams.tokenOutAmount,

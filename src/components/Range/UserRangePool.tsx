@@ -120,7 +120,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
 
   useEffect(() => {
     setAmounts();
-  }, [rangePosition, rangeTokenIn.rangeUSDPrice, rangeTokenOut.rangeUSDPrice]);
+  }, [rangePosition, rangeTokenIn.USDPrice, rangeTokenOut.USDPrice]);
 
   function setAmounts() {
     try {
@@ -155,11 +155,11 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
       const token0UsdValue =
         parseFloat(
           ethers.utils.formatUnits(amount0Bn, rangePosition.tokenZero.decimals)
-        ) * rangeTokenIn.rangeUSDPrice;
+        ) * rangeTokenIn.USDPrice;
       const token1UsdValue =
         parseFloat(
           ethers.utils.formatUnits(amount1Bn, rangePosition.tokenOne.decimals)
-        ) * rangeTokenOut.rangeUSDPrice;
+        ) * rangeTokenOut.USDPrice;
       setTotalUsdValue(
         parseFloat((token0UsdValue + token1UsdValue).toFixed(2))
       );

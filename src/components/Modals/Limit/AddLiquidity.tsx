@@ -9,20 +9,20 @@ import {
   useBalance,
 } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
-import CoverAddLiqButton from "../../Buttons/CoverAddLiqButton";
+import LimitAddLiqButton from "../../Buttons/LimitAddLiqButton";
 import { BigNumber, ethers } from "ethers";
 import { useContractRead } from "wagmi";
 import { BN_ZERO } from "../../../utils/math/constants";
-import CoverMintApproveButton from "../../Buttons/CoverMintApproveButton";
+import SwapRouterApproveButton from "../../Buttons/SwapRouterApproveButton";
 import { chainIdsToNamesForGitTokenList } from "../../../utils/chains";
-import { gasEstimateCoverMint } from "../../../utils/gas";
+import { gasEstimateMintLimit } from "../../../utils/gas";
 import JSBI from "jsbi";
-import { useCoverStore } from "../../../hooks/useCoverStore";
+import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
-    coverPoolAddress,
-    coverPositionData,
+    limitPoolAddress,
+    limitPositionData,
     tokenIn,
     setTokenInBalance,
     tokenOut,
@@ -30,16 +30,16 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
     setNeedsAllowance,
     needsBalance,
     setNeedsBalance,
-  ] = useCoverStore((state) => [
-    state.coverPoolAddress,
-    state.coverPositionData,
+  ] = useRangeLimitStore((state) => [
+    state.limitPoolAddress,
+    state.limitPositionData,
     state.tokenIn,
     state.setTokenInBalance,
     state.tokenOut,
-    state.needsAllowance,
-    state.setNeedsAllowance,
-    state.needsBalance,
-    state.setNeedsBalance,
+    state.needsAllowanceIn,
+    state.setNeedsAllowanceIn,
+    state.needsBalanceIn,
+    state.setNeedsBalanceIn,
   ]);
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
@@ -62,12 +62,12 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, coverPoolAddress],
+    args: [address, limitPoolAddress],
     chainId: 421613,
     watch: needsAllowance,
     enabled:
       isConnected &&
-      coverPoolAddress != undefined &&
+      limitPoolAddress != undefined &&
       tokenIn.address != undefined && needsAllowance,
     onSuccess(data) {
       console.log("Success");
@@ -81,7 +81,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
       console.log("Allowance Settled", {
         data,
         error,
-        coverPoolAddress,
+        limitPoolAddress,
         tokenIn,
       });
     },
@@ -140,19 +140,18 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   }, [bnInput]);
 
   async function updateMintFee() {
-    const newMintFee = await gasEstimateCoverMint(
-      coverPoolAddress,
+    await gasEstimateMintLimit(
+      limitPoolAddress,
       address,
-      Number(coverPositionData.max),
-      Number(coverPositionData.min),
+      BigNumber.from(limitPositionData.min),
+      BigNumber.from(limitPositionData.max),
       tokenIn,
       tokenOut,
       BigNumber.from(JSBI.BigInt(String(bnInput))), // Convert JSBI to BigNumber
-      signer
+      signer,
+      setMintGasFee,
+      setMintGasLimit
     );
-
-    setMintGasFee(newMintFee.formattedPrice);
-    setMintGasLimit(newMintFee.gasUnits.mul(130).div(100));
   }
 
 
@@ -203,7 +202,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                       <div className="flex text-xs text-[#4C4C4C]">
                         ${" "}
                         {Number(
-                          tokenIn.coverUSDPrice *
+                          tokenIn.USDPrice *
                             parseFloat(ethers.utils.formatUnits(bnInput, tokenIn.decimals))
                         ).toFixed(2)}
                       </div>
@@ -247,23 +246,23 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                 {isConnected &&
                 allowanceIn.lt(bnInput) &&
                 stateChainName === "arbitrumGoerli" ? (
-                  <CoverMintApproveButton
-                    routerAddress={coverPoolAddress}
+                  <SwapRouterApproveButton
+                    routerAddress={limitPoolAddress}
                     approveToken={tokenIn.address}
                     amount={bnInput}
                     tokenSymbol={tokenIn.symbol}
                   />
                 ) : stateChainName === "arbitrumGoerli" ? (
-                  <CoverAddLiqButton
+                  <LimitAddLiqButton
                     disabled={disabled || mintGasFee == "$0.00"}
-                    toAddress={address}
-                    poolAddress={coverPoolAddress}
-                    routerAddress={coverPoolAddress}
-                    address={address}
-                    lower={Number(coverPositionData.min)}
-                    upper={Number(coverPositionData.max)}
-                    positionId={Number(coverPositionData.positionId)}
-                    zeroForOne={Boolean(coverPositionData.zeroForOne)}
+                    to={address}
+                    poolAddress={limitPoolAddress}
+                    routerAddress={limitPoolAddress}
+                    lower={Number(limitPositionData.min)}
+                    upper={Number(limitPositionData.max)}
+                    positionId={Number(limitPositionData.positionId)}
+                    mintPercent={ethers.utils.parseUnits("1", 24)}
+                    zeroForOne={Boolean(limitPositionData.zeroForOne)}
                     amount={bnInput}
                     gasLimit={mintGasLimit}
                     buttonState={buttonState}
