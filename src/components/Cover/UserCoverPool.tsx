@@ -137,7 +137,7 @@ export default function UserCoverPool({
   return (
     <>
       <div className="relative" onClick={choosePosition}>
-        <div className="lg:grid lg:grid-cols-2 lg:items-center w-full items-center bg-black px-4 py-3 rounded-[4px] border-grey border">
+        <div className="lg:grid lg:grid-cols-2 lg:items-center w-full items-center bg-black px-4 py-3 rounded-[4px] border-grey border hover:bg-main1/20 cursor-pointer">
           <div className="grid sm:grid-cols-2 grid-rows-2 sm:grid-rows-1 items-center gap-y-2 w-full">
             <div className="flex items-center gap-x-6">
               <div className="flex items-center">
