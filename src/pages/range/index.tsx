@@ -62,6 +62,9 @@ export default function Range() {
         );
         setIsPositionsLoading(false);
       }
+      setTimeout(() => {
+        getUserRangePositionData();
+      }, 10000);
     } catch (error) {
       console.log(error);
       setIsPositionsLoading(false);

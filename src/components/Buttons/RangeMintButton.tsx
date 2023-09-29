@@ -80,16 +80,16 @@ export default function RangeMintButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
+      setNeedsBalanceIn(true);
+      setNeedsBalanceOut(true);
+      setNeedsAllowanceIn(true);
       closeModal();
       setTimeout(() => {
         setNeedsRefetch(true);
       }, 2500);
-      setNeedsAllowanceIn(true);
       if (amount1.gt(BN_ZERO)) {
         setNeedsAllowanceOut(true);
       }
-      setNeedsBalanceIn(true);
-      setNeedsBalanceOut(true);
     },
     onError() {
       setErrorDisplay(true);

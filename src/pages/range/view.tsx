@@ -241,7 +241,6 @@ export default function ViewRange() {
         Number(rangePositionData.userLiquidity) > 0 &&
         parseFloat(lowerPrice) < parseFloat(upperPrice)
       ) {
-        console.log("setting amounts");
         const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
           Number(rangePositionData.min)
         );

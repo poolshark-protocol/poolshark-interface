@@ -113,10 +113,13 @@ export default function AddLiquidity({}) {
   }; */
 
   useEffect(() => {
-    if (!rangePoolData.poolPrice) {
+    if (
+      !rangePoolData.poolPrice ||
+      Number(rangePoolData.feeTier.feeAmount) != Number(router.query.feeTier)
+    ) {
       setRangePoolFromFeeTier(tokenIn, tokenOut, router.query.feeTier);
     }
-  }, [router.query.feeTier]);
+  }, [router.query.feeTier, rangePoolData]);
 
   //this sets the default position price delta
   useEffect(() => {
@@ -125,14 +128,8 @@ export default function AddLiquidity({}) {
       const tickAtPrice = rangePoolData.tickAtPrice;
       setRangePrice(TickMath.getPriceStringAtSqrtPrice(price));
       setRangeSqrtPrice(price);
-      const positionData = rangePositionData;
-      if (isNaN(parseFloat(minInput)) || parseFloat(minInput) <= 0) {
-        setMinInput(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
-      }
-      if (isNaN(parseFloat(maxInput)) || parseFloat(maxInput) <= 0) {
-        setMaxInput(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
-      }
-      setRangePositionData(positionData);
+      setMinInput(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
+      setMaxInput(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
     }
   }, [rangePoolData]);
 
@@ -254,7 +251,7 @@ export default function AddLiquidity({}) {
     ) {
       tokenOutAmountMath();
     }
-  }, [bnInput, rangePoolAddress, tokenOrder]);
+  }, [bnInput, tokenOrder, lowerPrice, upperPrice]);
 
   function tokenOutAmountMath() {
     try {
