@@ -675,71 +675,6 @@ export default function Trade() {
   ///////////////////////
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const Settings = () => {
-    if (isSettingsOpen) {
-      return (
-        <Transition appear show={isSettingsOpen} as={Fragment}>
-        <Dialog
-          as="div"
-          className="relative z-50"
-          onClose={() => setIsSettingsOpen(false)}
-        >
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black bg-opacity-50" />
-          </Transition.Child>
-  
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-[4px] bg-black text-white border border-grey text-left align-middle shadow-xl px-5 py-5 transition-all">
-                  <div className="flex items-center justify-between px-2 mb-5">
-                    <h1 className="text-lg">Change Slippage</h1>
-                    <XMarkIcon
-                      onClick={() => setIsSettingsOpen(false)}
-                      className="w-7 cursor-pointer"
-                    />
-                  </div>
-                  <div className="flex md:flex-row flex-col items-center gap-3">
-                  <input className="bg-dark md:w-auto w-full border-grey border h-10 outline-none px-2 text-sm" placeholder="0.05%"/>
-                  <div className="flex flex-row items-center gap-x-3 w-full">
-                  <div className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full cursor-pointer">
-                    0.1%
-                  </div>
-                  <div className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full cursor-pointer">
-                    0.5%
-                  </div>
-                  <div className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full cursor-pointer">
-                    1%
-                  </div>
-                  </div>
-                  </div>
-                  <button className="w-full mt-8 py-2 disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80">Confirm Slippage</button>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition>
-      );
-    }
-  };
-
 
 
 
@@ -788,7 +723,6 @@ export default function Trade() {
                 <path d="M10 3.75a2 2 0 10-4 0 2 2 0 004 0zM17.25 4.5a.75.75 0 000-1.5h-5.5a.75.75 0 000 1.5h5.5zM5 3.75a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5a.75.75 0 01.75.75zM4.25 17a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5zM17.25 17a.75.75 0 000-1.5h-5.5a.75.75 0 000 1.5h5.5zM9 10a.75.75 0 01-.75.75h-5.5a.75.75 0 010-1.5h5.5A.75.75 0 019 10zM17.25 10.75a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5zM14 10a2 2 0 10-4 0 2 2 0 004 0zM10 16.25a2 2 0 10-4 0 2 2 0 004 0z" />
               </svg>
               </div>
-              <Settings />
             </div>
 
             <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
@@ -1523,6 +1457,67 @@ export default function Trade() {
           </div>
         )}*/}
       </div>
+      <Transition appear show={isSettingsOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-50"
+          onClose={() => setIsSettingsOpen(false)}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-50" />
+          </Transition.Child>
+  
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-[4px] bg-black text-white border border-grey text-left align-middle shadow-xl px-5 py-5 transition-all">
+                  <div className="flex items-center justify-between px-2 mb-5">
+                    <h1 className="text-lg">Change Slippage</h1>
+                    <XMarkIcon
+                      onClick={() => setIsSettingsOpen(false)}
+                      className="w-7 cursor-pointer"
+                    />
+                  </div>
+                  <div className="flex md:flex-row flex-col items-center gap-3">
+                    <div className="relative">
+                  <input value={slippage} onChange={(e) => setSlippage(e.target.value)} className="bg-dark md:w-auto w-full border-grey border h-10 outline-none px-2 text-sm" placeholder="0.05"/>
+                  <span className="absolute mt-2 -ml-8">%</span>
+                  </div>
+                  <div className="flex flex-row items-center gap-x-3 w-full">
+                  <div onClick={() => setSlippage("0.1")} className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full cursor-pointer">
+                    0.1%
+                  </div>
+                  <div onClick={() => setSlippage("0.5")} className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full cursor-pointer">
+                    0.5%
+                  </div>
+                  <div onClick={() => setSlippage("1")} className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full cursor-pointer">
+                    1%
+                  </div>
+                  </div>
+                  </div>
+                  <button className="w-full mt-8 py-2 disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80">Confirm Slippage</button>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
     </div>
   );
 }
