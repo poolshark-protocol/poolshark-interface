@@ -60,6 +60,8 @@ type RangeLimitState = {
   needsAllowanceOut: boolean;
   needsBalanceIn: boolean;
   needsBalanceOut: boolean;
+  //Claim tick
+  claimTick: number;
 };
 
 type RangeLimitAction = {
@@ -117,6 +119,8 @@ type RangeLimitAction = {
   setNeedsAllowanceOut: (needsAllowance: boolean) => void;
   setNeedsBalanceIn: (needsBalance: boolean) => void;
   setNeedsBalanceOut: (needsBalance: boolean) => void;
+  //
+  setClaimTick: (claimTick: number) => void;
 };
 
 const initialRangeLimitState: RangeLimitState = {
@@ -185,6 +189,8 @@ const initialRangeLimitState: RangeLimitState = {
   needsAllowanceOut: true,
   needsBalanceIn: true,
   needsBalanceOut: true,
+  //
+  claimTick: 0,
 };
 
 export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
@@ -221,6 +227,8 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     needsAllowanceOut: initialRangeLimitState.needsAllowanceOut,
     needsBalanceIn: initialRangeLimitState.needsBalanceIn,
     needsBalanceOut: initialRangeLimitState.needsBalanceOut,
+    //claim tick
+    claimTick: initialRangeLimitState.claimTick,
     //actions
     setPairSelected: (pairSelected: boolean) => {
       set(() => ({
@@ -573,6 +581,11 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         console.log(error);
       }
     },
+    setClaimTick: (claimTick: number) => {
+      set(() => ({
+        claimTick: claimTick,
+      }));
+    },
     resetRangeLimitParams: () => {
       set({
         //range pool & pair
@@ -607,6 +620,8 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         needsBalanceOut: initialRangeLimitState.needsBalanceOut,
         needsRefetch: initialRangeLimitState.needsRefetch,
         needsPosRefetch: initialRangeLimitState.needsPosRefetch,
+        //claim tick
+        claimTick: initialRangeLimitState.claimTick,
       });
     },
   })

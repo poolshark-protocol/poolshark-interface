@@ -321,29 +321,6 @@ export default function ViewLimit() {
     }, 5000);
   }, [needsRefetch, needsPosRefetch]);
 
-  ////////////////////////////////Addresses
-
-  /*useEffect(() => {
-    useCopyElementUseEffect(copyAddress0, setIs0Copied);
-    useCopyElementUseEffect(copyAddress1, setIs1Copied);
-    useCopyElementUseEffect(copyPoolAddress, setIsPoolCopied);
-  }, []);
-
-  function copyAddress0() {
-    navigator.clipboard.writeText(tokenIn.address.toString());
-    setIs0Copied(true);
-  }
-
-  function copyAddress1() {
-    navigator.clipboard.writeText(tokenOut.address.toString());
-    setIs1Copied(true);
-  }
-
-  function copyPoolAddress() {
-    navigator.clipboard.writeText(coverPoolAddress.toString());
-    setIsPoolCopied(true);
-  }*/
-
   return (
     <div className="bg-black min-h-screen  ">
       <Navbar />
