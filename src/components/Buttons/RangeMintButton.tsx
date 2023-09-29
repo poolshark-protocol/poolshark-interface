@@ -52,15 +52,17 @@ export default function RangeMintButton({
     functionName: "multiMintRange",
     args: [
       [poolAddress],
-      [{
-        to: to,
-        lower: lower,
-        upper: upper,
-        positionId: positionId,
-        amount0: amount0,
-        amount1: amount1,
-        callbackData: ethers.utils.formatBytes32String('')
-      }],
+      [
+        {
+          to: to,
+          lower: lower,
+          upper: upper,
+          positionId: positionId,
+          amount0: amount0,
+          amount1: amount1,
+          callbackData: ethers.utils.formatBytes32String(""),
+        },
+      ],
     ],
     chainId: 421613,
     overrides: {
@@ -78,10 +80,10 @@ export default function RangeMintButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
+      closeModal();
       setTimeout(() => {
-        closeModal();
-      }, 2000);
-      setNeedsRefetch(true);
+        setNeedsRefetch(true);
+      }, 2500);
       setNeedsAllowanceIn(true);
       if (amount1.gt(BN_ZERO)) {
         setNeedsAllowanceOut(true);

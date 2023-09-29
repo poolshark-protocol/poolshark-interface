@@ -50,7 +50,7 @@ export default function Range() {
     if (address) {
       getUserRangePositionData();
     }
-  }, [address]);
+  }, [address, needsRefetch]);
 
   async function getUserRangePositionData() {
     try {
