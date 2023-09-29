@@ -78,6 +78,8 @@ export default function CoverMintButton({
     },
   });
 
+  console.log(successDisplay)
+
   return (
     <>
       <button

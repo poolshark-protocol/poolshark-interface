@@ -14,8 +14,6 @@ export default function PositionMintModal({
   useEffect(() => {
     if (errorDisplay || isLoading || successDisplay) {
       setIsOpen(true);
-    } else {
-      false
     }
   }, [successDisplay, isLoading, errorDisplay]);
 
@@ -72,7 +70,7 @@ export default function PositionMintModal({
                     width="100"
                     height="100"
                     viewBox="0 0 100 100"
-                    className="mx-auto hidden"
+                    className="mx-auto"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                   >
