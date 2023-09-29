@@ -320,12 +320,16 @@ export default function Trade() {
   useEffect(() => {
     if (isConnected) {
       setTokenInBalance(
-        parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+        !isNaN(parseFloat(tokenInBal?.formatted.toString())) ?
+          parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+        : '0'
       );
     }
     if (tokenOutBal) {
       setTokenOutBalance(
-        parseFloat(tokenOutBal?.formatted.toString()).toFixed(2)
+        !isNaN(parseFloat(tokenOutBal?.formatted.toString())) ?
+          parseFloat(tokenOutBal?.formatted.toString()).toFixed(2)
+        : '0'
       );
     }
   }, [tokenInBal, tokenOutBal]);
