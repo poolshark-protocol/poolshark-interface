@@ -251,7 +251,7 @@ export const gasEstimateBurnLimit = async (
     setBurnGasFee(formattedPrice);
     setBurnGasLimit(gasUnits.mul(150).div(100));
   } catch (error) {
-    console.log("gas error limit burn", error);
+    console.log("gas error limit burn", positionId.toString(), claim.toString(), error);
     setBurnGasFee("$0.00");
     setBurnGasLimit(BN_ZERO);
   }
