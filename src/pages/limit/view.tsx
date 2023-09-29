@@ -1,35 +1,26 @@
 import Navbar from "../../components/Navbar";
-import {
-  ArrowTopRightOnSquareIcon,
-  ArrowsRightLeftIcon,
-  ArrowLongRightIcon,
-  ExclamationTriangleIcon,
-} from "@heroicons/react/20/solid";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useAccount, useContractRead, useSigner } from "wagmi";
-import CoverCollectButton from "../../components/Buttons/CoverCollectButton";
+import LimitCollectButton from "../../components/Buttons/LimitCollectButton";
 import { BigNumber, ethers } from "ethers";
 import { TickMath } from "../../utils/math/tickMath";
-import { coverPoolABI } from "../../abis/evm/coverPool";
-import { useCopyElementUseEffect } from "../../utils/misc";
-import { getClaimTick, mapUserCoverPositions } from "../../utils/maps";
+import { limitPoolABI } from "../../abis/evm/limitPool";
+import { getClaimTick, mapUserLimitPositions } from "../../utils/maps";
 import RemoveLiquidity from "../../components/Modals/Limit/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Limit/AddLiquidity";
-import { BN_ZERO } from "../../utils/math/constants";
-import { gasEstimateCoverBurn } from "../../utils/gas";
-import { useCoverStore } from "../../hooks/useCoverStore";
-import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
-import { fetchCoverPositions } from "../../utils/queries";
+import { fetchLimitTokenUSDPrice } from "../../utils/tokens";
+import { fetchLimitPositions } from "../../utils/queries";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
+import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 
 export default function ViewLimit() {
   const [
-    coverPoolAddress,
-    coverPoolData,
-    coverPositionData,
-    coverMintParams,
+    limitPoolAddress,
+    limitPoolData,
+    limitPositionData,
+    limitMintParams,
     tokenIn,
     tokenOut,
     needsRefetch,
@@ -37,17 +28,15 @@ export default function ViewLimit() {
     claimTick,
     setNeedsRefetch,
     setNeedsPosRefetch,
-    setCoverPositionData,
-    setTokenInCoverUSDPrice,
-    setTokenOutCoverUSDPrice,
+    setLimitPositionData,
+    setTokenInLimitUSDPrice,
+    setTokenOutLimitUSDPrice,
     setClaimTick,
-    setGasFee,
-    setGasLimit,
-  ] = useCoverStore((state) => [
-    state.coverPoolAddress,
-    state.coverPoolData,
-    state.coverPositionData,
-    state.coverMintParams,
+  ] = useRangeLimitStore((state) => [
+    state.limitPoolAddress,
+    state.limitPoolData,
+    state.limitPositionData,
+    state.limitMintParams,
     state.tokenIn,
     state.tokenOut,
     state.needsRefetch,
@@ -55,12 +44,10 @@ export default function ViewLimit() {
     state.claimTick,
     state.setNeedsRefetch,
     state.setNeedsPosRefetch,
-    state.setCoverPositionData,
-    state.setTokenInCoverUSDPrice,
-    state.setTokenOutCoverUSDPrice,
+    state.setLimitPositionData,
+    state.setTokenInRangeUSDPrice,
+    state.setTokenOutRangeUSDPrice,
     state.setClaimTick,
-    state.setGasFee,
-    state.setGasLimit,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -68,11 +55,11 @@ export default function ViewLimit() {
 
   const router = useRouter();
 
-  //cover aux
+  //limit aux
   const [priceDirection, setPriceDirection] = useState(false);
   const [fillPercent, setFillPercent] = useState(0);
-  const [coverFilledAmount, setCoverFilledAmount] = useState("");
-  const [allCoverPositions, setAllCoverPositions] = useState([]);
+  const [limitFilledAmount, setLimitFilledAmount] = useState("");
+  const [allLimitPositions, setAllLimitPositions] = useState([]);
 
   //Display and copy flags
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -106,14 +93,14 @@ export default function ViewLimit() {
       : undefined
   );
   const [poolDisplay, setPoolDisplay] = useState(
-    coverPoolAddress
-      ? coverPoolAddress.toString().substring(0, 6) +
+    limitPoolAddress
+      ? limitPoolAddress.toString().substring(0, 6) +
           "..." +
-          coverPoolAddress
+          limitPoolAddress
             .toString()
             .substring(
-              coverPoolAddress.toString().length - 4,
-              coverPoolAddress.toString().length
+              limitPoolAddress.toString().length - 4,
+              limitPoolAddress.toString().length
             )
       : undefined
   );
@@ -124,38 +111,38 @@ export default function ViewLimit() {
 
   ////////////////////////////////Fetch Pool Data
   useEffect(() => {
-    if (coverPoolData.token0 && coverPoolData.token1) {
+    if (limitPoolData.token0 && limitPoolData.token1) {
       if (tokenIn.address) {
-        fetchCoverTokenUSDPrice(
-          coverPoolData,
+        fetchLimitTokenUSDPrice(
+          limitPoolData,
           tokenIn,
-          setTokenInCoverUSDPrice
+          setTokenInLimitUSDPrice
         );
       }
       if (tokenOut.address) {
-        fetchCoverTokenUSDPrice(
-          coverPoolData,
+        fetchLimitTokenUSDPrice(
+          limitPoolData,
           tokenOut,
-          setTokenOutCoverUSDPrice
+          setTokenOutLimitUSDPrice
         );
       }
     }
   }, []);
 
   useEffect(() => {
-    getCoverPoolRatios();
-  }, [tokenIn.coverUSDPrice, tokenOut.coverUSDPrice]);
+    getLimitPoolRatios();
+  }, [tokenIn.rangeUSDPrice, tokenOut.rangeUSDPrice]);
 
   //TODO need to be set to utils
-  const getCoverPoolRatios = () => {
+  const getLimitPoolRatios = () => {
     try {
-      if (coverPoolData != undefined) {
+      if (limitPoolData != undefined) {
         setLowerInverse(
           parseFloat(
             (
-              tokenOut.coverUSDPrice /
+              tokenOut.rangeUSDPrice /
               Number(
-                TickMath.getPriceStringAtTick(Number(coverPositionData.max))
+                TickMath.getPriceStringAtTick(Number(limitPositionData.max))
               )
             ).toPrecision(6)
           )
@@ -163,9 +150,9 @@ export default function ViewLimit() {
         setUpperInverse(
           parseFloat(
             (
-              tokenOut.coverUSDPrice /
+              tokenOut.rangeUSDPrice /
               Number(
-                TickMath.getPriceStringAtTick(Number(coverPositionData.min))
+                TickMath.getPriceStringAtTick(Number(limitPositionData.min))
               )
             ).toPrecision(6)
           )
@@ -173,10 +160,10 @@ export default function ViewLimit() {
         setPriceInverse(
           parseFloat(
             (
-              tokenOut.coverUSDPrice /
+              tokenOut.rangeUSDPrice /
               Number(
                 TickMath.getPriceStringAtTick(
-                  Number(coverPositionData.latestTick)
+                  Number(limitPositionData.latestTick)
                 )
               )
             ).toPrecision(6)
@@ -191,16 +178,16 @@ export default function ViewLimit() {
   ////////////////////////////////Filled Amount
 
   const { data: filledAmount } = useContractRead({
-    address: coverPoolAddress.toString(),
-    abi: coverPoolABI,
+    address: limitPoolAddress.toString(),
+    abi: limitPoolABI,
     functionName: "snapshot",
     args: [
       [
         address,
         BigNumber.from("0"),
-        Number(coverPositionData.positionId),
+        Number(limitPositionData.positionId),
         BigNumber.from(claimTick),
-        Boolean(coverPositionData.zeroForOne),
+        Boolean(limitPositionData.zeroForOne),
       ],
     ],
     chainId: 421613,
@@ -208,49 +195,49 @@ export default function ViewLimit() {
     enabled:
       BigNumber.from(claimTick).lt(BigNumber.from("887272")) &&
       isConnected &&
-      coverPoolAddress.toString() != "",
+      limitPoolAddress.toString() != "",
     onSuccess(data) {
       console.log("Success price filled amount", data);
     },
     onError(error) {
-      console.log("Error price Cover", error);
+      console.log("Error price Limit", error);
       console.log(
         "claim tick snapshot args",
         address,
         BigNumber.from("0").toString(),
-        coverPositionData.min.toString(),
-        coverPositionData.max.toString(),
+        limitPositionData.min.toString(),
+        limitPositionData.max.toString(),
         claimTick.toString(),
-        Boolean(coverPositionData.zeroForOne),
+        Boolean(limitPositionData.zeroForOne),
         router.isReady
       );
     },
     onSettled(data, error) {
-      //console.log('Settled price Cover', { data, error })
+      //console.log('Settled price Limit', { data, error })
     },
   });
 
   useEffect(() => {
     if (filledAmount) {
-      setCoverFilledAmount(
+      setLimitFilledAmount(
         ethers.utils.formatUnits(filledAmount[3], tokenIn.decimals)
       );
     }
   }, [filledAmount]);
 
   useEffect(() => {
-    if (coverFilledAmount && coverPositionData.userFillIn) {
+    if (limitFilledAmount && limitPositionData.userFillIn) {
       setFillPercent(
-        Number(coverFilledAmount) /
+        Number(limitFilledAmount) /
           Number(
             ethers.utils.formatUnits(
-              coverPositionData.userFillIn.toString(),
+              limitPositionData.userFillIn.toString(),
               18
             )
           )
       );
     }
-  }, [coverFilledAmount]);
+  }, [limitFilledAmount]);
 
   ////////////////////////////////Claim Tick
 
@@ -262,57 +249,43 @@ export default function ViewLimit() {
 
   async function updateClaimTick() {
     const aux = await getClaimTick(
-      coverPoolAddress.toString(),
-      Number(coverPositionData.min),
-      Number(coverPositionData.max),
-      Boolean(coverPositionData.zeroForOne),
-      Number(coverPositionData.epochLast),
+      limitPoolAddress.toString(),
+      Number(limitPositionData.min),
+      Number(limitPositionData.max),
+      Boolean(limitPositionData.zeroForOne),
+      Number(limitPositionData.epochLast),
       true
     );
 
     setClaimTick(aux);
-    //updateBurnFee(BigNumber.from(claimTick));
   }
 
-  /*async function updateBurnFee(claim: BigNumber) {
-    const newGasFee = await gasEstimateCoverBurn(
-      coverPoolAddress.toString(),
-      address,
-      BN_ZERO,
-      BigNumber.from(coverPositionData.min),
-      claim,
-      BigNumber.from(coverPositionData.max),
-      Boolean(coverPositionData.zeroForOne),
-      signer
-    );
-
-    setGasLimit(newGasFee.gasUnits);
-    setGasFee(newGasFee.formattedPrice);
-  }*/
-
-  async function getUserCoverPositionData() {
+  async function getUserLimitPositionData() {
     try {
-      const data = await fetchCoverPositions(address);
-      if (data["data"])
-        setAllCoverPositions(mapUserCoverPositions(data["data"].positions));
+      const data = await fetchLimitPositions(address.toLowerCase());
+      if (data["data"]) {
+        setAllLimitPositions(
+          mapUserLimitPositions(data["data"].limitPositions)
+        );
+      }
     } catch (error) {
-      console.log(error);
+      console.log('limit error', error);
     }
   }
 
   useEffect(() => {
     setTimeout(() => {
       if (needsRefetch == true || needsPosRefetch == true) {
-        getUserCoverPositionData();
+        getUserLimitPositionData();
 
-        const positionId = coverPositionData.id;
-        const position = allCoverPositions.find(
+        const positionId = limitPositionData.id;
+        const position = allLimitPositions.find(
           (position) => position.id == positionId
         );
         console.log("new position", position);
 
         if (position != undefined) {
-          setCoverPositionData(position);
+          setLimitPositionData(position);
         }
 
         setNeedsRefetch(false);
@@ -343,7 +316,7 @@ export default function ViewLimit() {
                 </h1>
                 <a
                   href={
-                    "https://goerli.arbiscan.io/address/" + coverPoolAddress
+                    "https://goerli.arbiscan.io/address/" + limitPoolAddress
                   }
                   target="_blank"
                   rel="noreferrer"
@@ -357,7 +330,7 @@ export default function ViewLimit() {
               </div>
               <div className="flex items-center gap-x-5">
                 <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                  {Number(coverPositionData.feeTier) / 10000}%
+                  {Number(limitPositionData.feeTier) / 10000}%
                 </span>
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
                   0.9 USDC
@@ -395,17 +368,17 @@ export default function ViewLimit() {
                     {(
                       Number(
                         ethers.utils.formatUnits(
-                          coverPositionData.userFillOut.toString(),
+                          limitPositionData.userFillOut.toString(),
                           18
                         )
-                      ) * tokenIn.coverUSDPrice
+                      ) * tokenIn.rangeUSDPrice
                     ).toFixed(2)}
                   </span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
                   {Number(
                     ethers.utils.formatUnits(
-                      coverPositionData.userFillOut.toString(),
+                      limitPositionData.userFillOut.toString(),
                       18
                     )
                   ).toFixed(2)}
@@ -422,22 +395,22 @@ export default function ViewLimit() {
                   <h1 className="uppercase text-white">Price Range</h1>
                   {parseFloat(
                     TickMath.getPriceStringAtTick(
-                      Number(coverPositionData.latestTick)
+                      Number(limitPositionData.latestTick)
                     )
                   ) <
                     parseFloat(
                       TickMath.getPriceStringAtTick(
-                        Number(coverPositionData.min)
+                        Number(limitPositionData.min)
                       )
                     ) ||
                   parseFloat(
                     TickMath.getPriceStringAtTick(
-                      Number(coverPositionData.latestTick)
+                      Number(limitPositionData.latestTick)
                     )
                   ) >=
                     parseFloat(
                       TickMath.getPriceStringAtTick(
-                        Number(coverPositionData.max)
+                        Number(limitPositionData.max)
                       )
                     ) ? (
                     <span className="text-yellow-600 text-xs bg-yellow-900/30 px-4 py-1 rounded-[4px]">
@@ -453,7 +426,7 @@ export default function ViewLimit() {
                   onClick={() => setPriceDirection(!priceDirection)}
                   className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
                 >
-                  {Boolean(coverPositionData.zeroForOne)
+                  {Boolean(limitPositionData.zeroForOne)
                     ? priceDirection
                       ? tokenOut.symbol
                       : tokenIn.symbol
@@ -461,7 +434,7 @@ export default function ViewLimit() {
                     ? tokenIn.symbol
                     : tokenOut.symbol}{" "}
                   per{" "}
-                  {Boolean(coverPositionData.zeroForOne)
+                  {Boolean(limitPositionData.zeroForOne)
                     ? priceDirection
                       ? tokenIn.symbol
                       : tokenOut.symbol
@@ -476,17 +449,17 @@ export default function ViewLimit() {
                   <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                     <span className="text-grey1 text-xs">MIN. PRICE</span>
                     <span className="text-white text-3xl">
-                      {coverPositionData.min === undefined
+                      {limitPositionData.min === undefined
                         ? ""
                         : priceDirection
                         ? lowerInverse
                         : TickMath.getPriceStringAtTick(
-                            Number(coverPositionData.min)
+                            Number(limitPositionData.min)
                           )}
                     </span>
                     <span className="text-grey1 text-[9px]">
                       Your position will be 100%{" "}
-                      {Boolean(coverPositionData.zeroForOne)
+                      {Boolean(limitPositionData.zeroForOne)
                         ? priceDirection
                           ? tokenIn.symbol
                           : tokenOut.symbol
@@ -499,17 +472,17 @@ export default function ViewLimit() {
                   <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                     <span className="text-grey1 text-xs">MAX. PRICE</span>
                     <span className="text-white text-3xl">
-                      {coverPositionData.max === undefined
+                      {limitPositionData.max === undefined
                         ? ""
                         : priceDirection
                         ? upperInverse
                         : TickMath.getPriceStringAtTick(
-                            Number(coverPositionData.max)
+                            Number(limitPositionData.max)
                           )}
                     </span>
                     <span className="text-grey1 text-[9px]">
                       Your position will be 100%{" "}
-                      {Boolean(coverPositionData.zeroForOne)
+                      {Boolean(limitPositionData.zeroForOne)
                         ? priceDirection
                           ? tokenOut.symbol
                           : tokenIn.symbol
@@ -526,7 +499,7 @@ export default function ViewLimit() {
                     {priceDirection
                       ? priceInverse
                       : TickMath.getPriceStringAtTick(
-                          Number(coverPositionData.latestTick)
+                          Number(limitPositionData.latestTick)
                         )}
                   </span>
                 </div>
@@ -536,12 +509,12 @@ export default function ViewLimit() {
           <div className="border bg-dark border-grey rounded-[4px] w-1/2 p-5 h-min">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">Filled Liquidity</h1>
-              <span className="text-grey1">${Number(coverFilledAmount).toFixed(2)}
+              <span className="text-grey1">${Number(limitFilledAmount).toFixed(2)}
                       <span className="text-grey">
                         /
                         {Number(
                           ethers.utils.formatUnits(
-                            coverPositionData.userFillIn.toString(),
+                            limitPositionData.userFillIn.toString(),
                             18
                           )
                         ).toFixed(2)}
@@ -553,12 +526,12 @@ export default function ViewLimit() {
                   <span>
                     ~$
                     {(
-                      Number(coverFilledAmount) * tokenOut.coverUSDPrice
+                      Number(limitFilledAmount) * tokenOut.rangeUSDPrice
                     ).toFixed(2)}
                   </span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {Number(coverFilledAmount).toFixed(2)}
+                  {Number(limitFilledAmount).toFixed(2)}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
                       <img height="28" width="25" src={tokenOut.logoURI} />
@@ -568,14 +541,14 @@ export default function ViewLimit() {
                 </div>
               </div>
               {/**TO-DO: PASS PROPS */}
-              <CoverCollectButton
-                poolAddress={coverPoolAddress}
+              <LimitCollectButton
+                poolAddress={limitPoolAddress}
                 address={address}
-                positionId={coverPositionData.positionId}
+                positionId={limitPositionData.positionId}
                 claim={BigNumber.from(claimTick)}
-                zeroForOne={Boolean(coverPositionData.zeroForOne)}
-                gasLimit={coverMintParams.gasLimit.mul(150).div(100)}
-                gasFee={coverMintParams.gasFee}
+                zeroForOne={Boolean(limitPositionData.zeroForOne)}
+                gasLimit={limitMintParams.gasLimit.mul(150).div(100)}
+                gasFee={limitMintParams.gasFee}
               />
               {/*TO-DO: add positionOwner ternary again*/}
             </div>

@@ -18,6 +18,16 @@ export const fetchRangeTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
   }
 };
 
+export const fetchLimitTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
+  try {
+    setTokenUSDPrice(
+      token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const fetchCoverTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
   try {
     setTokenUSDPrice(
