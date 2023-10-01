@@ -31,6 +31,7 @@ import {
 } from "../../utils/chains";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { volatilityTiers } from "../../utils/pools";
+import { coverPoolABI } from "../../abis/evm/coverPool";
 
 export default function CoverExistingPool({ goBack }) {
   const [
@@ -48,6 +49,8 @@ export default function CoverExistingPool({ goBack }) {
     setTokenOutCoverUSDPrice,
     /* setCoverAmountIn,
     setCoverAmountOut, */
+    latestTick,
+    setLatestTick,
     pairSelected,
     switchDirection,
     setCoverPoolFromVolatility,
@@ -72,6 +75,8 @@ export default function CoverExistingPool({ goBack }) {
     state.setTokenOutCoverUSDPrice,
     /* state.setCoverAmountIn,
     state.setCoverAmountOut, */
+    state.latestTick,
+    state.setLatestTick,
     state.pairSelected,
     state.switchDirection,
     state.setCoverPoolFromVolatility,
@@ -154,6 +159,28 @@ export default function CoverExistingPool({ goBack }) {
     }
   }, [tokenInBal]);
 
+  ////////////////////////////////Latest Tick
+  const { data: newLatestTick } = useContractRead({
+    address: coverPoolAddress,
+    abi: coverPoolABI,
+    functionName: "syncLatestTick",
+    chainId: 421613,
+    enabled: coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS,
+    onSuccess(data) {
+      // setNeedsAllowance(false);
+    },
+    onError(error) {
+      console.log("Error syncLatestTick", error);
+    },
+    onSettled(data, error) {},
+  });
+
+  useEffect(() => {
+    if (newLatestTick) {
+      setLatestTick(parseInt(newLatestTick.toString()))
+    }
+  }, [newLatestTick]);
+
   ////////////////////////////////Token Prices
 
   useEffect(() => {
@@ -200,13 +227,13 @@ export default function CoverExistingPool({ goBack }) {
 
   //positionData set at pool data change
   useEffect(() => {
-    if (coverPoolData.latestTick) {
+    if (latestTick) {
       updatePositionData();
     }
-  }, [coverPoolData, tokenOrder]);
+  }, [coverPoolData, tokenOrder, latestTick]);
 
   async function updatePositionData() {
-    const tickAtPrice = Number(coverPoolData.latestTick);
+    const tickAtPrice = Number(latestTick);
     const tickSpread = Number(coverPoolData.volatilityTier.tickSpread);
     const lowerPrice = TickMath.getPriceStringAtTick(
       tokenOrder
@@ -350,8 +377,8 @@ export default function CoverExistingPool({ goBack }) {
     if (
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
-      coverPoolData.latestTick &&
-      coverPoolData.volatilityTier.tickSpread
+      coverPoolData.volatilityTier.tickSpread &&
+      latestTick
     )
       changeValidBounds();
   }, [coverPositionData.lowerPrice, coverPositionData.upperPrice]);
@@ -360,7 +387,7 @@ export default function CoverExistingPool({ goBack }) {
     if (coverPositionData.lowerPrice && coverPositionData.upperPrice) {
       setValidBounds(
         BigNumber.from(parseInt(coverPositionData.lowerPrice)).lt(
-          BigNumber.from(parseInt(coverPoolData.latestTick)).sub(
+          BigNumber.from(latestTick).sub(
             BigNumber.from(parseInt(coverPoolData.volatilityTier.tickSpread))
           )
         )
@@ -681,12 +708,12 @@ export default function CoverExistingPool({ goBack }) {
                   ? "?" + " " + tokenOut.symbol
                   : (tokenOrder
                       ? TickMath.getPriceStringAtTick(
-                          parseInt(coverPoolData.latestTick),
+                          parseInt(latestTick),
                           parseInt(coverPoolData.volatilityTier.tickSpread)
                         )
                       : invertPrice(
                           TickMath.getPriceStringAtTick(
-                            parseInt(coverPoolData.latestTick),
+                            parseInt(latestTick),
                             parseInt(coverPoolData.volatilityTier.tickSpread)
                           ),
                           false
