@@ -204,7 +204,7 @@ export const getCoverTickIfZeroForOne = (
       { 
         ticks(
           first: 1
-          where: {index_gte:"${lower}", index_lte:"${upper}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
+          where: {index_gte:"${lower}", index_lte:"${upper}", pool_:{id:"${poolAddress}"}, epochLast0_gt:"${epochLast}"}
           orderBy: index
           orderDirection: asc
         ) {
@@ -240,7 +240,7 @@ export const getCoverTickIfNotZeroForOne = (
       { 
         ticks(
           first: 1
-          where: {index_gte:"${lower}", index_lte:"${upper}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
+          where: {index_gte:"${lower}", index_lte:"${upper}", pool_:{id:"${poolAddress}"},epochLast1_gt:"${epochLast}"}
           orderBy: index
           orderDirection: dsec
         ) {
@@ -282,7 +282,6 @@ export const getLimitTickIfNotZeroForOne = (
           orderDirection: asc
         ) {
           index
-          epochLast1
         }
       }
         `;
@@ -319,7 +318,6 @@ export const getLimitTickIfZeroForOne = (
           orderDirection: desc
         ) {
           index
-          epochLast0
         }
       }
         `;
