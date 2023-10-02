@@ -379,7 +379,10 @@ export default function ViewLimit() {
               <div className="flex justify-between items-center mt-8">
                 <div className="flex items-center gap-x-4">
                   <h1 className="uppercase text-white">Price Range</h1>
-                  {parseFloat(
+                  {limitPositionData.min &&
+                  limitPositionData.max &&
+                  limitPoolData.poolPrice ? (
+                    parseFloat(
                     TickMath.getPriceStringAtSqrtPrice(
                       JSBI.BigInt(Number(limitPoolData.poolPrice))
                     )
@@ -406,7 +409,7 @@ export default function ViewLimit() {
                     <span className="text-green-600 text-xs bg-green-900/30 px-4 py-1 rounded-[4px]">
                       IN RANGE
                     </span>
-                  )}
+                  )) : null}
                 </div>
                 <div
                   onClick={() => setPriceDirection(!priceDirection)}
@@ -552,6 +555,7 @@ export default function ViewLimit() {
           isOpen={isRemoveOpen}
           setIsOpen={setIsRemoveOpen}
           address={address}
+          currentAmountOut={currentAmountOut}
         />
         <AddLiquidity
           isOpen={isAddOpen}

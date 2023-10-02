@@ -7,7 +7,7 @@ import { BN_ZERO } from "../../../utils/math/constants";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 
-export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
+export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address, currentAmountOut }) {
   const [
     limitPoolAddress,
     limitPositionData,
@@ -33,7 +33,8 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
   const [sliderOutput, setSliderOutput] = useState("1");
   const [amountInDisplay, setAmountInDisplay] = useState(
     ethers.utils.formatUnits(
-      BigNumber.from(limitPositionData.userFillOut) ?? BN_ZERO,
+      currentAmountOut != "" ?
+      BigNumber.from(currentAmountOut) : BN_ZERO,
       18
     )
   );

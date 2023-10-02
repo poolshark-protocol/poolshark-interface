@@ -56,23 +56,23 @@ export default function UserLimitPool({
         setNeedsAllowanceIn(true);
         setNeedsBalanceIn(true);
         const tokenInNew = {
-            name: limitPosition.tokenZero.name,
-            symbol: limitPosition.tokenZero.symbol,
-            logoURI: logoMap[limitPosition.tokenZero.symbol],
-            address: limitPosition.tokenZero.id,
+            name: limitPosition.tokenIn.name,
+            symbol: limitPosition.tokenIn.symbol,
+            logoURI: logoMap[limitPosition.tokenIn.symbol],
+            address: limitPosition.tokenIn.id,
         } as tokenRangeLimit;
         const tokenOutNew = {
-            name: limitPosition.tokenOne.name,
-            symbol: limitPosition.tokenOne.symbol,
-            logoURI: logoMap[limitPosition.tokenOne.symbol],
-            address: limitPosition.tokenOne.id,
+            name: limitPosition.tokenOut.name,
+            symbol: limitPosition.tokenOut.symbol,
+            logoURI: logoMap[limitPosition.tokenOut.symbol],
+            address: limitPosition.tokenOut.id,
         } as tokenRangeLimit;
         setTokenIn(tokenOutNew, tokenInNew);
         setTokenOut(tokenInNew, tokenOutNew);
         setLimitPoolFromVolatility(
             tokenInNew,
             tokenOutNew,
-            limitPosition.volatilityTier.feeAmount.toString()
+            limitPosition.feeTier,
         );
         router.push({
             pathname: href,

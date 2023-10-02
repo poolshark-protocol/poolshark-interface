@@ -147,7 +147,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
       BigNumber.from(limitPositionData.max),
       tokenIn,
       tokenOut,
-      BigNumber.from(JSBI.BigInt(String(bnInput))), // Convert JSBI to BigNumber
+      bnInput,
       signer,
       setMintGasFee,
       setMintGasLimit
