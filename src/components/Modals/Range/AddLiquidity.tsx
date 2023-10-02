@@ -264,7 +264,9 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   useEffect(() => {
     if (
       rangeMintParams.tokenInAmount &&
+      rangeMintParams.tokenInAmount != BN_ZERO &&
       rangeMintParams.tokenOutAmount &&
+      rangeMintParams.tokenOutAmount != BN_ZERO &&
       rangePositionData.min &&
       rangePositionData.max &&
       Number(rangePositionData.min) < Number(rangePositionData.max)

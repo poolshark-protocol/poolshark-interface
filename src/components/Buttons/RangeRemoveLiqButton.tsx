@@ -60,9 +60,9 @@ export default function RangeRemoveLiqButton({
       setTimeout(() => {
         setNeedsRefetch(true);
         setNeedsPosRefetch(true);
-      }, 2500);
-      closeModal();
-      setIsOpen(false);
+        closeModal();
+        setIsOpen(false);
+      }, 2000);
     },
     onError() {
       setErrorDisplay(true);

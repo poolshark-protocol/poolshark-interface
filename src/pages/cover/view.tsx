@@ -15,7 +15,7 @@ import { coverPoolABI } from "../../abis/evm/coverPool";
 import { getClaimTick, mapUserCoverPositions } from "../../utils/maps";
 import RemoveLiquidity from "../../components/Modals/Cover/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Cover/AddLiquidity";
-import { BN_ZERO } from "../../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { gasEstimateCoverBurn } from "../../utils/gas";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
@@ -34,12 +34,14 @@ export default function ViewCover() {
     tokenOut,
     needsRefetch,
     needsPosRefetch,
+    latestTick,
     claimTick,
     setNeedsRefetch,
     setNeedsPosRefetch,
     setCoverPositionData,
     setTokenInCoverUSDPrice,
     setTokenOutCoverUSDPrice,
+    setLatestTick,
     setClaimTick,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
@@ -50,12 +52,14 @@ export default function ViewCover() {
     state.tokenOut,
     state.needsRefetch,
     state.needsPosRefetch,
+    state.latestTick,
     state.claimTick,
     state.setNeedsRefetch,
     state.setNeedsPosRefetch,
     state.setCoverPositionData,
     state.setTokenInCoverUSDPrice,
     state.setTokenOutCoverUSDPrice,
+    state.setLatestTick,
     state.setClaimTick,
   ]);
 
@@ -301,22 +305,44 @@ export default function ViewCover() {
     }
   }, [filledAmount]);
 
+  ////////////////////////////////Latest Tick
+
+  const { data: newLatestTick } = useContractRead({
+    address: coverPoolAddress,
+    abi: coverPoolABI,
+    functionName: "syncLatestTick",
+    chainId: 421613,
+    enabled: coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS,
+    onSuccess(data) {
+      // setNeedsAllowance(false);
+    },
+    onError(error) {
+      console.log("Error syncLatestTick", error);
+    },
+    onSettled(data, error) {},
+  });
+
   ////////////////////////////////Claim Tick
 
   useEffect(() => {
-    setTimeout(() => {
-      //updateClaimTick();
-    }, 1000);
-  }, [claimTick]);
+    if (newLatestTick) {
+      const latest = parseInt(newLatestTick.toString())
+      updateClaimTick(latest)
+      setLatestTick(latest)
+    }
+  }, [newLatestTick]);
 
-  async function updateClaimTick() {
+  ////////////////////////////////Claim Tick
+
+  async function updateClaimTick(latestTick: number) {
     const aux = await getClaimTick(
       coverPoolAddress.toString(),
       Number(coverPositionData.min),
       Number(coverPositionData.max),
       Boolean(coverPositionData.zeroForOne),
       Number(coverPositionData.epochLast),
-      true
+      true,
+      latestTick
     );
     setClaimTick(aux);
   }

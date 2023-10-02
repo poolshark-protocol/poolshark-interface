@@ -23,6 +23,7 @@ type CoverState = {
   tokenOut: tokenCover;
   //true if both tokens selected, false if only one token selected
   pairSelected: boolean;
+  latestTick: number;
   coverMintParams: {
     tokenInAmount: BigNumber;
     tokenOutAmount: BigNumber;
@@ -60,6 +61,8 @@ type CoverAction = {
   setTokenOutBalance: (balance: string) => void;
   setTokenOutCoverAllowance: (allowance: string) => void;
   //setCoverAmountOut: (amount: JSBI) => void;
+  //Latest tick
+  setLatestTick: (tick: number) => void;
   //Claim tick
   setClaimTick: (tick: number) => void;
   setMinTick: (coverPositionData, tick: BigNumber) => void;
@@ -123,6 +126,7 @@ const initialCoverState: CoverState = {
     userRouterAllowance: 0.0,
     coverUSDPrice: 0.0,
   } as tokenCover,
+  latestTick: 0,
   //
   claimTick: 0,
   //
@@ -153,6 +157,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   //tokenOut
   tokenOut: initialCoverState.tokenOut,
   //tick
+  latestTick: initialCoverState.latestTick,
   claimTick: initialCoverState.claimTick,
   coverMintParams: initialCoverState.coverMintParams,
   needsRefetch: initialCoverState.needsRefetch,
@@ -327,6 +332,11 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   setCoverSlippage: (coverSlippage: string) => {
     set(() => ({
       coverSwapSlippage: coverSlippage,
+    }));
+  },
+  setLatestTick: (latestTick: number) => {
+    set(() => ({
+      latestTick: latestTick,
     }));
   },
   setClaimTick: (claimTick: number) => {

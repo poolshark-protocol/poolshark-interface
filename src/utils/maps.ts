@@ -12,10 +12,11 @@ export const getClaimTick = async (
   maxLimit: number,
   zeroForOne: boolean,
   epochLast: number,
-  isCover: boolean
+  isCover: boolean,
+  latestTick?: number
 ) => {
   // default to start tick
-  let claimTick;
+  let claimTick: number;
   if (zeroForOne) {
     // run claim tick query
     const claimTickQuery = isCover
@@ -26,11 +27,23 @@ export const getClaimTick = async (
       ? claimTickQuery["data"]["ticks"].length
       : claimTickQuery["data"]["limitTicks"].length;
     // set claim tick if found
-    if (claimTickDataLength > 0)
+    if (claimTickDataLength > 0) {
       claimTick = isCover
         ? claimTickQuery["data"]["ticks"][0]["index"]
         : claimTickQuery["data"]["limitTicks"][0]["index"];
-    else {
+      // handle latest tick for cover positions
+      if (isCover && latestTick) {
+        // if latest further than claim tick
+        if (latestTick < claimTick) {
+          // if latest is past position bounds
+          if (latestTick <= minLimit) {
+            claimTick = minLimit
+          } else {
+            claimTick = latestTick
+          }
+        }
+      }
+    } else {
       claimTick = isCover ? maxLimit : minLimit
     }
   } else {
@@ -43,11 +56,23 @@ export const getClaimTick = async (
       ? claimTickQuery["data"]["ticks"].length
       : claimTickQuery["data"]["limitTicks"].length;
     // set claim tick if found
-    if (claimTickDataLength > 0)
+    if (claimTickDataLength > 0) {
       claimTick = isCover
         ? claimTickQuery["data"]["ticks"][0]["index"]
         : claimTickQuery["data"]["limitTicks"][0]["index"];
-    else {
+      // handle latest tick for cover positions
+      if (isCover && latestTick) {
+        // if latest further than claim tick
+        if (latestTick > claimTick) {
+          // if latest is past position bounds
+          if (latestTick >= maxLimit) {
+            claimTick = maxLimit
+          } else {
+            claimTick = latestTick
+          }
+        }
+      }
+    } else {
       claimTick = isCover ? minLimit : maxLimit
     }
   }

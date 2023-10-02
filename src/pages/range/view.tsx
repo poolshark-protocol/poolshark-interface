@@ -164,7 +164,6 @@ export default function ViewRange() {
       needsPosRefetch ||
       needsRefetch
     ) {
-      console.log("refetching");
       getUserRangePositionData();
       setNeedsRefetch(false);
       setNeedsPosRefetch(false);
@@ -181,7 +180,6 @@ export default function ViewRange() {
         setAllRangePositions(mappedPositions);
         const positionId =
           rangePositionData.positionId ?? router.query.positionId;
-        console.log(positionId);
         const position = mappedPositions.find(
           (position) => position.positionId == positionId
         );
@@ -284,7 +282,7 @@ export default function ViewRange() {
     args: [rangePositionData.positionId],
     chainId: 421613,
     watch: true,
-    enabled: isConnected,
+    enabled: isConnected && rangePositionData.positionId != undefined,
     onError(error) {
       //console.log("Error snapshot Range", error);
     },
@@ -493,15 +491,17 @@ export default function ViewRange() {
           <div className="border bg-dark border-grey rounded-[4px] lg:w-1/2 w-full p-5 h-min">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">Earned Fees</h1>
-              <span className="text-grey1">${userLiquidityUsd.toFixed(2)}</span>
+              <span className="text-grey1">
+                ${(amount0FeesUsd + amount1FeesUsd).toFixed(2)}
+              </span>
             </div>
             <div className="flex flex-col gap-y-3 mt-2">
               <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
                 <div className="flex items-end justify-between text-[11px] text-grey1">
-                  <span>~${amount0Usd}</span>
+                  <span>~${amount0FeesUsd.toFixed(2)}</span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {amount0Fees.toPrecision(6)}
+                  {amount0Fees.toFixed(2)}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenIn.logoURI} />
@@ -512,10 +512,10 @@ export default function ViewRange() {
               </div>
               <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2 mb-5">
                 <div className="flex items-end justify-between text-[11px] text-grey1">
-                  <span>~${amount1Usd}</span>
+                  <span>~${amount1FeesUsd.toFixed(2)}</span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {amount1Fees.toPrecision(6)}
+                  {amount1Fees.toFixed(2)}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenOut.logoURI} />
