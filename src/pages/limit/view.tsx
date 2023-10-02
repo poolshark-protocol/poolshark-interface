@@ -278,9 +278,9 @@ export default function ViewLimit() {
       if (needsRefetch == true || needsPosRefetch == true) {
         getUserLimitPositionData();
 
-        const positionId = limitPositionData.id;
+        const positionId = limitPositionData.positionId;
         const position = allLimitPositions.find(
-          (position) => position.id == positionId
+          (position) => position.positionId == positionId
         );
         console.log("new position", position);
 
