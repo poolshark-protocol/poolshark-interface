@@ -14,11 +14,12 @@ import { fetchLimitPositions } from "../../utils/queries";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
+import JSBI from "jsbi";
+import { useTradeStore } from "../../hooks/useTradeStore";
 
 export default function ViewLimit() {
   const [
     limitPoolAddress,
-    limitPoolData,
     limitPositionData,
     limitMintParams,
     tokenIn,
@@ -34,7 +35,6 @@ export default function ViewLimit() {
     setClaimTick,
   ] = useRangeLimitStore((state) => [
     state.limitPoolAddress,
-    state.limitPoolData,
     state.limitPositionData,
     state.limitMintParams,
     state.tokenIn,
@@ -49,6 +49,8 @@ export default function ViewLimit() {
     state.setTokenOutRangeUSDPrice,
     state.setClaimTick,
   ]);
+
+  const [limitPoolData] = useTradeStore((state) => [state.tradePoolData]);
 
   const { address, isConnected } = useAccount();
   const { data: signer } = useSigner();
@@ -162,8 +164,8 @@ export default function ViewLimit() {
             (
               tokenOut.USDPrice /
               Number(
-                TickMath.getPriceStringAtTick(
-                  Number(limitPositionData.epochLast)
+                TickMath.getPriceStringAtSqrtPrice(
+                  JSBI.BigInt(Number(limitPoolData.poolPrice))
                 )
               )
             ).toPrecision(6)
@@ -394,8 +396,8 @@ export default function ViewLimit() {
                 <div className="flex items-center gap-x-4">
                   <h1 className="uppercase text-white">Price Range</h1>
                   {parseFloat(
-                    TickMath.getPriceStringAtTick(
-                      Number(limitPositionData.epochLast)
+                    TickMath.getPriceStringAtSqrtPrice(
+                      JSBI.BigInt(Number(limitPoolData.poolPrice))
                     )
                   ) <
                     parseFloat(
@@ -404,8 +406,8 @@ export default function ViewLimit() {
                       )
                     ) ||
                   parseFloat(
-                    TickMath.getPriceStringAtTick(
-                      Number(limitPositionData.epochLast)
+                    TickMath.getPriceStringAtSqrtPrice(
+                      JSBI.BigInt(Number(limitPoolData.poolPrice))
                     )
                   ) >=
                     parseFloat(
@@ -496,11 +498,13 @@ export default function ViewLimit() {
                 <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                   <span className="text-grey1 text-xs">CURRENT. PRICE</span>
                   <span className="text-white text-3xl text-grey1">
-                    {priceDirection
-                      ? priceInverse
-                      : TickMath.getPriceStringAtTick(
-                          Number(limitPositionData.epochLast)
-                        )}
+                    {limitPoolData?.poolPrice ?
+                      priceDirection
+                        ? priceInverse
+                        : TickMath.getPriceStringAtSqrtPrice(
+                            JSBI.BigInt(Number(limitPoolData.poolPrice))
+                          )
+                        : ""}
                   </span>
                 </div>
               </div>
@@ -514,7 +518,7 @@ export default function ViewLimit() {
                         /
                         {Number(
                           ethers.utils.formatUnits(
-                            limitPositionData.userFillIn.toString(),
+                            limitPositionData.amountIn.toString(),
                             18
                           )
                         ).toFixed(2)}
