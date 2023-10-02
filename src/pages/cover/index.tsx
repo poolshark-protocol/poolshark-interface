@@ -102,9 +102,9 @@ export default function Cover() {
                 Cover your liquidity pools
               </h1>
               <p className="text-sm text-white/40 font-light">
-                Creave a Cover Pool to mitigate your impermanent loss, take a
-                bullish entry or reduce risk and losses. Its easy and only takes
-                a few minutes
+                Creave a Cover Position to protect your upside or prevent any downside similar to a stop-loss.
+                Cover Pools track other liquidity pools and will unlock your liquidity once the price reaches your limit.
+                <br/>
               </p>
             </div>
             <Link href="/cover/create">
@@ -121,16 +121,16 @@ export default function Cover() {
               <h1 className="uppercase text-white">How it works</h1>
               <p className="text-sm text-grey3 font-light">
                 Cover Pools allow you to create positions to increase exposure
-                to a specific token conditional on it increasing in price on a
-                given pair.
+                to a specific token as the price moves.
                 <br />
                 <br />
                 <span className="text-xs">
                   - If the ETH price <b>increases</b>, the pool <b>sells DAI</b>{" "}
-                  and increases the amount of <b>ETH exposure</b>
+                  to <b>buy ETH</b>.
+                  <br/>
                   <br />- If the ETH price <b>decreases</b>, the pool{" "}
-                  <b>sells ETH</b> and increases the amount of{" "}
-                  <b>DAI exposure</b>
+                  <b>sells ETH</b> to {" "}
+                  <b>buy DAI</b>.
                 </span>
               </p>
             </div>
