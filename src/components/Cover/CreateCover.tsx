@@ -375,7 +375,8 @@ export default function CreateCover(props: any) {
       coverPositionData.upperPrice > 0 &&
       coverPoolData.volatilityTier &&
       coverMintParams.tokenInAmount &&
-      tokenIn.userRouterAllowance >= Number(bnInput)
+      tokenIn.userRouterAllowance &&
+      tokenIn.userRouterAllowance >= parseInt(bnInput.toString())
     )
       updateGasFee();
   }, [

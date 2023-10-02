@@ -409,7 +409,8 @@ export default function CoverExistingPool({ goBack }) {
       coverPositionData.upperPrice > 0 &&
       coverPoolData.volatilityTier &&
       coverMintParams.tokenInAmount &&
-      tokenIn.userRouterAllowance >= Number(coverMintParams.tokenInAmount)
+      tokenIn.userRouterAllowance &&
+      tokenIn.userRouterAllowance >= parseInt(coverMintParams.tokenInAmount.toString())
     )
       updateGasFee();
   }, [coverMintParams.tokenInAmount, coverPoolAddress, coverPositionData]);

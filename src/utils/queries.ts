@@ -139,7 +139,7 @@ export const getCoverPoolFromFactory = (tokenA: string, tokenB: string) => {
           }
          `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/d2323ed03f18f473fc02c54f8e38a3a5/cover-arbitrumGoerli-beta2",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
       cache: new InMemoryCache(),
     });
     client
@@ -214,7 +214,7 @@ export const getCoverTickIfZeroForOne = (
         `;
     //console.log('pool address', poolAddress)
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/d2323ed03f18f473fc02c54f8e38a3a5/cover-arbitrumGoerli-beta2",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
       cache: new InMemoryCache(),
     });
     client
@@ -251,7 +251,7 @@ export const getCoverTickIfNotZeroForOne = (
     //console.log(getTicks)
     //console.log('pool address', poolAddress)
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/d2323ed03f18f473fc02c54f8e38a3a5/cover-arbitrumGoerli-beta2",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
       cache: new InMemoryCache(),
     });
     client
@@ -395,7 +395,7 @@ export const fetchCoverPositions = (address: string) => {
         }
     `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/d2323ed03f18f473fc02c54f8e38a3a5/cover-arbitrumGoerli-beta2",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
       cache: new InMemoryCache(),
     });
     client
@@ -455,7 +455,7 @@ export const fetchCoverPools = () => {
             }
         `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/d2323ed03f18f473fc02c54f8e38a3a5/cover-arbitrumGoerli-beta2",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
       cache: new InMemoryCache(),
     });
     client
@@ -481,7 +481,7 @@ export const fetchCoverPoolMetrics = () => {
             }
         `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/d2323ed03f18f473fc02c54f8e38a3a5/cover-arbitrumGoerli-beta2",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
       cache: new InMemoryCache(),
     });
     client
