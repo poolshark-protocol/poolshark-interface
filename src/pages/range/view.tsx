@@ -498,7 +498,10 @@ export default function ViewRange() {
             <div className="flex flex-col gap-y-3 mt-2">
               <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
                 <div className="flex items-end justify-between text-[11px] text-grey1">
-                  <span>~${amount0Usd}</span>
+                  <span>
+                    ~$
+                    {amount0FeesUsd}
+                  </span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
                   {amount0Fees.toPrecision(6)}
@@ -512,7 +515,7 @@ export default function ViewRange() {
               </div>
               <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2 mb-5">
                 <div className="flex items-end justify-between text-[11px] text-grey1">
-                  <span>~${amount1Usd}</span>
+                  <span>~${amount1FeesUsd}</span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
                   {amount1Fees.toPrecision(6)}
