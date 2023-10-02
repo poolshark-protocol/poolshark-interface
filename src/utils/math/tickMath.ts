@@ -103,11 +103,13 @@ export abstract class TickMath {
   public static MAX_SQRT_RATIO: JSBI = JSBI.BigInt('1461446703485210103287273052203988822378723970342')
 
   public static getPriceStringAtTick(tick: number, tickSpacing?: number): string {
+    if (!tick) return '0.00'
     // round the tick based on tickSpacing
     let roundedTick = tick
     if (tickSpacing) roundedTick = roundTick(Number(tick), tickSpacing)
     // divide and return formatted string
-    return this.getPriceStringAtSqrtPrice(this.getSqrtRatioAtTick(roundedTick))
+    const priceString = this.getPriceStringAtSqrtPrice(this.getSqrtRatioAtTick(roundedTick))
+    return priceString
   }
 
   public static getSqrtPriceAtPriceString(priceString: string, scaleFactor?: number, tickSpacing?: number): JSBI {

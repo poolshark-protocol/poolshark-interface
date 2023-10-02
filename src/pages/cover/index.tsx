@@ -273,13 +273,12 @@ export default function Cover() {
                     <div className="text-left">Pool Name</div>
                     <div className="grid grid-cols-3">
                       <span className="text-right md:table-cell hidden">
-                        Volume (24h)
                       </span>
                       <span className="text-right md:table-cell hidden">
-                        TVL
+                      Volume (24h)  
                       </span>
                       <span className="text-right mr-4 md:table-cell hidden">
-                        Fees (24h)
+                        TVL
                       </span>
                     </div>
                   </div>
