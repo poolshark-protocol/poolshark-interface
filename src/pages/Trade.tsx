@@ -187,15 +187,12 @@ export default function Trade() {
       console.log("Error multiquote", error);
     },
     onSuccess(data) {
-      console.log("multiquote params", quoteParams);
-      console.log("multiquote pools", availablePools);
-      console.log("Success multiquote", data);
+      // console.log("Success multiquote", data);
     },
   });
 
   useEffect(() => {
     if (poolQuotes && poolQuotes[0]) {
-      console.log('pool quotes 0', poolQuotes[0].amountOut.toString(), poolQuotes[0].pool)
       setAmountOut(
         ethers.utils.formatUnits(
           poolQuotes[0].amountOut.toString(),
@@ -210,7 +207,6 @@ export default function Trade() {
     const poolAddresses: string[] = [];
     const paramsList: SwapParams[] = [];
     for (let i = 0; i < poolQuotes.length; i++) {
-      console.log('pool quotes array', poolQuotes)
       if(poolQuotes[i].pool != ZERO_ADDRESS) {
         poolAddresses.push(poolQuotes[i].pool);
         const basePrice: number = parseFloat(
@@ -219,7 +215,6 @@ export default function Trade() {
         const priceDiff = basePrice * (parseFloat(slippage) / 100);
         const limitPrice = tokenIn.callId == 0 ? basePrice - priceDiff
                                                : basePrice + priceDiff;
-        console.log('limitprice', limitPrice, tokenIn.callId == 0)
         const limitPriceJsbi: JSBI = TickMath.getSqrtPriceAtPriceString(
           limitPrice.toString()
         );
@@ -235,8 +230,6 @@ export default function Trade() {
         paramsList.push(params);
       }
     }
-    console.log('pool addresses array', poolAddresses)
-    console.log('swap params array', paramsList)
     setSwapPoolAddresses(poolAddresses);
     setSwapParams(paramsList);
   }
