@@ -132,14 +132,6 @@ export default function Trade() {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
   }, [chainId]);
 
-  ////////////////////////////////TokenOrder
-  //we should stop using tokenOrder and instead use tokenIn.callId==0
-  const [tokenOrder, setTokenOrder] = useState(true);
-
-  /* useEffect(() => {
-    setTokenOrder(tokenIn.callId == 0);
-  }, [tokenIn, tokenOut]); */
-
   ////////////////////////////////Pools
   //quoting variables
   const [availablePools, setAvailablePools] = useState(undefined);
@@ -195,7 +187,7 @@ export default function Trade() {
       console.log("Error multiquote", error);
     },
     onSuccess(data) {
-      console.log("Success multiquote", data);
+      // console.log("Success multiquote", data);
     },
   });
 
@@ -213,30 +205,33 @@ export default function Trade() {
 
   function updateSwapParams(poolQuotes: any) {
     const poolAddresses: string[] = [];
-    const swapParams: SwapParams[] = [];
+    const paramsList: SwapParams[] = [];
     for (let i = 0; i < poolQuotes.length; i++) {
-      poolAddresses.push(poolQuotes[i].pool);
-      const basePrice: Number = Number(
-        TickMath.getPriceStringAtSqrtPrice(poolQuotes[i].priceAfter)
-      );
-      const limitPrice: Number =
-        (Number(basePrice) * (1 + parseFloat(slippage) * 100)) / 10000;
-      const limitPriceJsbi: JSBI = TickMath.getSqrtPriceAtPriceString(
-        limitPrice.toString()
-      );
-      const priceLimitBn = BigNumber.from(String(limitPriceJsbi));
-      const params: SwapParams = {
-        to: address,
-        priceLimit: priceLimitBn,
-        amount: bnInput,
-        exactIn: true,
-        zeroForOne: tokenIn.callId == 0,
-        callbackData: ethers.utils.formatBytes32String(""),
-      };
-      swapParams.push(params);
+      if(poolQuotes[i].pool != ZERO_ADDRESS) {
+        poolAddresses.push(poolQuotes[i].pool);
+        const basePrice: number = parseFloat(
+          TickMath.getPriceStringAtSqrtPrice(poolQuotes[i].priceAfter)
+        );
+        const priceDiff = basePrice * (parseFloat(slippage) / 100);
+        const limitPrice = tokenIn.callId == 0 ? basePrice - priceDiff
+                                               : basePrice + priceDiff;
+        const limitPriceJsbi: JSBI = TickMath.getSqrtPriceAtPriceString(
+          limitPrice.toString()
+        );
+        const priceLimitBn = BigNumber.from(String(limitPriceJsbi));
+        const params: SwapParams = {
+          to: address,
+          priceLimit: priceLimitBn,
+          amount: bnInput,
+          exactIn: true,
+          zeroForOne: tokenIn.callId == 0,
+          callbackData: ethers.utils.formatBytes32String(""),
+        };
+        paramsList.push(params);
+      }
     }
     setSwapPoolAddresses(poolAddresses);
-    setSwapParams(swapParams);
+    setSwapParams(paramsList);
   }
 
   //////////////////////Get Pools Data
@@ -388,7 +383,7 @@ export default function Trade() {
         .toString();
       setLimitStringPriceQuote(newPrice);
     }
-  }, [tokenOrder]);
+  }, [tokenIn.callId == 0]);
 
   useEffect(() => {
     if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
@@ -402,7 +397,7 @@ export default function Trade() {
         );
       }
     }
-  }, [limitPriceOrder, tokenOrder]);
+  }, [limitPriceOrder, tokenIn.callId == 0]);
 
   useEffect(() => {
     const tickSpacing = tradePoolData?.feeTier?.tickSpacing;
@@ -453,7 +448,7 @@ export default function Trade() {
           (parseFloat(limitStringPriceQuote) *
             parseFloat((parseFloat(slippage) * 100).toFixed(6))) /
           10000;
-        if (tokenOrder) {
+        if (tokenIn.callId == 0) {
           const endPrice =
             parseFloat(limitStringPriceQuote) - -limitPriceTolerance;
           setLowerTick(
@@ -481,7 +476,7 @@ export default function Trade() {
           );
         }
       } else {
-        if (tokenOrder) {
+        if (tokenIn.callId == 0) {
           const endTick =
             TickMath.getTickAtPriceString(limitStringPriceQuote, tickSpacing) -
             -tickSpacing;
@@ -838,7 +833,7 @@ export default function Trade() {
                     onClick={() => setLimitPriceOrder(!limitPriceOrder)}
                   >
                     <span className="text-grey1 group-hover:text-white transition-all">
-                      {tokenOrder && pairSelected === false ? (
+                      {tokenIn.callId == 0 && pairSelected === false ? (
                         <div>{tokenIn.symbol} per ?</div>
                       ) : (
                         <div>
@@ -911,7 +906,7 @@ export default function Trade() {
                     <div className="flex items-end justify-between text-[11px] text-grey1">
                       <span>
                         {pairSelected && !isNaN(parseFloat(limitStringPriceQuote))
-                          ? //switcher tokenOrder
+                          ? //switcher tokenIn.callId == 0
                             limitPriceOrder
                             ? //when normal order tokenIn/tokenOut
                               (parseFloat(limitStringPriceQuote) /
@@ -990,7 +985,7 @@ export default function Trade() {
                   {!pairSelected
                     ? " ?"
                     : //range price
-                      (tokenOrder
+                      (tokenIn.callId == 0
                         ? rangePrice.toPrecision(5)
                         : invertPrice(rangePrice.toPrecision(5), false)) +
                       " " +
@@ -1060,7 +1055,7 @@ export default function Trade() {
                     lower={lowerTick}
                     upper={upperTick}
                     closeModal={() => {}}
-                    zeroForOne={tokenOrder}
+                    zeroForOne={tokenIn.callId == 0}
                     gasLimit={mintGasLimit}
                   />
                 :
@@ -1077,7 +1072,7 @@ export default function Trade() {
                     lower={lowerTick}
                     upper={upperTick}
                     closeModal={() => {}}
-                    zeroForOne={tokenOrder}
+                    zeroForOne={tokenIn.callId == 0}
                     gasLimit={mintGasLimit}
                   />
                 )}

@@ -15,7 +15,10 @@ import { TickMath } from "../../../utils/math/tickMath";
 import { ethers, BigNumber } from "ethers";
 import JSBI from "jsbi";
 import { DyDxMath } from "../../../utils/math/dydxMath";
-import { chainIdsToNamesForGitTokenList, chainProperties } from "../../../utils/chains";
+import {
+  chainIdsToNamesForGitTokenList,
+  chainProperties,
+} from "../../../utils/chains";
 import RangeMintDoubleApproveButton from "../../Buttons/RangeMintDoubleApproveButton";
 import RangeMintApproveButton from "../../Buttons/RangeMintApproveButton";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
@@ -108,10 +111,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [
-      address,
-      chainProperties['arbitrumGoerli']['routerAddress']
-    ],
+    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
     chainId: 421613,
     watch: needsAllowanceIn,
     enabled: isConnected,
@@ -128,10 +128,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [
-      address,
-      chainProperties['arbitrumGoerli']['routerAddress']
-    ],
+    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
     chainId: 421613,
     watch: needsAllowanceOut,
     enabled: isConnected,
@@ -428,7 +425,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                       </div>
                     </div>
                   </div>
-                  {!tokenIn.userRouterAllowance || !tokenOut.userRouterAllowance ? (
+                  {!tokenInAllowance || !tokenOutAllowance ? (
                     <button
                       disabled={disabled}
                       className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
@@ -447,10 +444,12 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                     </button>
                   ) : (
                     <>
-                      {tokenInAllowance.gte(rangeMintParams.tokenInAmount) &&
-                      tokenOutAllowance.gte(rangeMintParams.tokenOutAmount) ? (
+                      {tokenInAllowance?.gte(rangeMintParams.tokenInAmount) &&
+                      tokenOutAllowance?.gte(rangeMintParams.tokenOutAmount) ? (
                         <RangeAddLiqButton
-                          routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
+                          routerAddress={
+                            chainProperties["arbitrumGoerli"]["routerAddress"]
+                          }
                           poolAddress={rangePoolAddress}
                           address={address}
                           lower={rangePositionData.min}
@@ -469,7 +468,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         doubleApprove ? (
                         <RangeMintDoubleApproveButton
                           routerAddress={
-                            chainProperties['arbitrumGoerli']['routerAddress']
+                            chainProperties["arbitrumGoerli"]["routerAddress"]
                           }
                           tokenIn={tokenIn}
                           tokenOut={tokenOut}
@@ -480,7 +479,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         tokenInAllowance.lt(rangeMintParams.tokenInAmount) ? (
                         <RangeMintApproveButton
                           routerAddress={
-                            chainProperties['arbitrumGoerli']['routerAddress']
+                            chainProperties["arbitrumGoerli"]["routerAddress"]
                           }
                           approveToken={tokenIn}
                           amount={rangeMintParams.tokenInAmount}
@@ -489,7 +488,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         tokenOutAllowance.lt(rangeMintParams.tokenOutAmount) ? (
                         <RangeMintApproveButton
                           routerAddress={
-                            chainProperties['arbitrumGoerli']['routerAddress']
+                            chainProperties["arbitrumGoerli"]["routerAddress"]
                           }
                           approveToken={tokenOut}
                           amount={rangeMintParams.tokenOutAmount}
