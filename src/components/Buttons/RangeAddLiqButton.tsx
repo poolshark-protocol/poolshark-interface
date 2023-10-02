@@ -78,7 +78,6 @@ export default function RangeAddLiqButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      console.log("success");
       setSuccessDisplay(true);
       setNeedsAllowanceIn(true);
       setNeedsBalanceIn(true);

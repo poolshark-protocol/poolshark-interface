@@ -282,7 +282,7 @@ export default function ViewRange() {
     args: [rangePositionData.positionId],
     chainId: 421613,
     watch: true,
-    enabled: isConnected,
+    enabled: isConnected && rangePositionData.positionId != undefined,
     onError(error) {
       //console.log("Error snapshot Range", error);
     },
