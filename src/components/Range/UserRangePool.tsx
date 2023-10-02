@@ -196,12 +196,13 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     } else {
       setRangeTokenIn(tokenOutNew, tokenInNew);
       setRangeTokenOut(tokenInNew, tokenOutNew);
+      setRangePositionData(rangePosition);
+      //async setter should be last
       setRangePoolFromFeeTier(
         tokenInNew,
         tokenOutNew,
         rangePosition.pool.feeTier.feeAmount
       );
-      setRangePositionData(rangePosition);
     }
     router.push({
       pathname: href,
