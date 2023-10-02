@@ -180,7 +180,7 @@ export default function ViewLimit() {
   const { data: filledAmount } = useContractRead({
     address: limitPoolAddress.toString(),
     abi: limitPoolABI,
-    functionName: "snapshot",
+    functionName: "snapshotLimit",
     args: [
       [
         address,
@@ -231,7 +231,7 @@ export default function ViewLimit() {
         Number(limitFilledAmount) /
           Number(
             ethers.utils.formatUnits(
-              limitPositionData.userFillIn.toString(),
+              limitPositionData.amountIn.toString(),
               18
             )
           )
@@ -291,7 +291,7 @@ export default function ViewLimit() {
         setNeedsRefetch(false);
         setNeedsPosRefetch(false);
       }
-    }, 5000);
+    }, 2000);
   }, [needsRefetch, needsPosRefetch]);
 
   return (
