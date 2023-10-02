@@ -94,7 +94,7 @@ export const getRangePoolFromFactory = (
         }
         `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/b186d77afc6626a1269b519ee3367053/staging-limit-arbitrumGoerli",
       cache: new InMemoryCache(),
     });
     client
@@ -177,7 +177,7 @@ export const getLimitPoolFromFactory = (tokenA: string, tokenB: string) => {
          `;
     //console.log('query:', getPool)
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/b186d77afc6626a1269b519ee3367053/staging-limit-arbitrumGoerli",
       cache: new InMemoryCache(),
     });
     client
@@ -287,7 +287,7 @@ export const getLimitTickIfNotZeroForOne = (
         `;
     //console.log('pool address', poolAddress)
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/b186d77afc6626a1269b519ee3367053/staging-limit-arbitrumGoerli",
       cache: new InMemoryCache(),
     });
     client
@@ -322,7 +322,7 @@ export const getLimitTickIfZeroForOne = (
       }
         `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/b186d77afc6626a1269b519ee3367053/staging-limit-arbitrumGoerli",
       cache: new InMemoryCache(),
     });
     client
@@ -543,7 +543,7 @@ export const fetchLimitPositions = (address: string) => {
         }
     `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/b186d77afc6626a1269b519ee3367053/staging-limit-arbitrumGoerli",
       cache: new InMemoryCache(),
     });
     client
@@ -610,7 +610,7 @@ export const fetchLimitPools = () => {
             }
         `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/b186d77afc6626a1269b519ee3367053/staging-limit-arbitrumGoerli",
       cache: new InMemoryCache(),
     });
     client
@@ -636,7 +636,7 @@ export const fetchLimitPoolMetrics = () => {
             }
         `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/b186d77afc6626a1269b519ee3367053/staging-limit-arbitrumGoerli",
       cache: new InMemoryCache(),
     });
     client
@@ -698,7 +698,7 @@ export const fetchRangePools = () => {
             }
         `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/b186d77afc6626a1269b519ee3367053/staging-limit-arbitrumGoerli",
       cache: new InMemoryCache(),
     });
     client
@@ -762,7 +762,7 @@ export const fetchRangePositions = (address: string) => {
   }
     `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/b186d77afc6626a1269b519ee3367053/staging-limit-arbitrumGoerli",
       cache: new InMemoryCache(),
     });
     client
@@ -887,7 +887,7 @@ export const fetchTokenPrice = (tokenAddress: string) => {
             }
         `;
     const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/b186d77afc6626a1269b519ee3367053/staging-limit-arbitrumGoerli",
       cache: new InMemoryCache(),
     });
     client

@@ -2,6 +2,7 @@ import { logoMap } from "../../utils/tokens";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { useRouter } from "next/router";
 import { tokenCover } from "../../utils/types";
+import { formatUsdValue } from "../../utils/math/valueMath";
 
 export default function CoverPool({ pool, href }) {
   const [setCoverTokenIn, setCoverTokenOut, setCoverPoolFromVolatility] =
@@ -65,11 +66,11 @@ export default function CoverPool({ pool, href }) {
           </div>
           <div className="md:grid hidden grid-cols-3 w-full justify-end text-right items-center">
             <div className="text-white text-right text-xs">
-              ${pool.volumeUsd}
+              ${formatUsdValue(pool.volumeUsd)}
             </div>
-            <div className="text-right text-white text-xs">${pool.tvlUsd}</div>
+            <div className="text-right text-white text-xs">${formatUsdValue(pool.tvlUsd)}</div>
             <div className="text-right text-white text-xs">
-              <span>${pool.feesUsd}</span>
+              <span>${formatUsdValue(pool.feesUsd)}</span>
             </div>
           </div>
         </div>
