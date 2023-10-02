@@ -81,7 +81,7 @@ export default function LimitSwapBurnButton({
     if(claimTick > 0 && signer) {
       getGasLimit();
     }
-  }, [claimTick, signer]);
+  }, [claimTick, signer, burnPercent]);
 
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
