@@ -105,11 +105,13 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
   const [burnGasLimit, setBurnGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    if (signer &&
-        address &&
-        rangePoolAddress &&
-        rangePositionData &&
-        burnPercent)
+    if (
+      signer &&
+      address &&
+      rangePoolAddress &&
+      rangePositionData &&
+      burnPercent
+    )
       updateGasFee();
   }, [sliderValue, rangePoolAddress, signer]);
 
@@ -303,6 +305,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
                   positionId={rangePositionData.positionId}
                   burnPercent={burnPercent}
                   closeModal={() => {
+                    //if (burnPercent==BigNumber.from('0x4b3b4ca85a86c47a098a224000000000')) {
                     if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
                       router.push("/range");
                     }

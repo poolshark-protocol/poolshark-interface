@@ -322,12 +322,16 @@ export default function Trade() {
   useEffect(() => {
     if (isConnected) {
       setTokenInBalance(
-        parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+        !isNaN(parseFloat(tokenInBal?.formatted.toString())) ?
+          parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+        : '0'
       );
     }
     if (tokenOutBal) {
       setTokenOutBalance(
-        parseFloat(tokenOutBal?.formatted.toString()).toFixed(2)
+        !isNaN(parseFloat(tokenOutBal?.formatted.toString())) ?
+          parseFloat(tokenOutBal?.formatted.toString()).toFixed(2)
+        : '0'
       );
     }
   }, [tokenInBal, tokenOutBal]);
@@ -344,7 +348,7 @@ export default function Trade() {
     ],
     chainId: 421613,
     watch: needsAllowanceIn,
-    //enabled: poolRouterAddress,
+    enabled: tokenIn.address != ZERO_ADDRESS,
     onError(error) {
       console.log("Error allowance", error);
     },
@@ -404,22 +408,23 @@ export default function Trade() {
 
   useEffect(() => {
     const tickSpacing = tradePoolData?.feeTier?.tickSpacing;
-
-    setLowerTick(
-      BigNumber.from(
-        TickMath.getTickAtPriceString(lowerPriceString, tickSpacing)
-      )
+    if (!isNaN(parseFloat(lowerPriceString)))
+      setLowerTick(
+        BigNumber.from(
+          TickMath.getTickAtPriceString(lowerPriceString, tickSpacing)
+        )
     );
   }, [lowerPriceString]);
 
   useEffect(() => {
     const tickSpacing = tradePoolData?.feeTier?.tickSpacing;
-
-    setUpperTick(
-      BigNumber.from(
-        TickMath.getTickAtPriceString(upperPriceString, tickSpacing)
-      )
-    );
+    
+    if (!isNaN(parseFloat(upperPriceString)))
+      setUpperTick(
+        BigNumber.from(
+          TickMath.getTickAtPriceString(upperPriceString, tickSpacing)
+        )
+      );
   }, [upperPriceString]);
 
   ////////////////////////////////Limit Ticks

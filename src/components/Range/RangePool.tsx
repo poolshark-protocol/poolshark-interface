@@ -30,6 +30,9 @@ export default function RangePool({ rangePool, href }) {
     setRangePoolFromFeeTier(tokenIn, tokenOut, rangePool.feeTier);
     router.push({
       pathname: href,
+      query: {
+        feeTier: rangePool.feeTier,
+      },
     });
   };
 

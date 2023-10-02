@@ -50,7 +50,7 @@ export default function Range() {
     if (address) {
       getUserRangePositionData();
     }
-  }, [address]);
+  }, [address, needsRefetch]);
 
   async function getUserRangePositionData() {
     try {
@@ -62,6 +62,9 @@ export default function Range() {
         );
         setIsPositionsLoading(false);
       }
+      setTimeout(() => {
+        getUserRangePositionData();
+      }, 10000);
     } catch (error) {
       console.log(error);
       setIsPositionsLoading(false);

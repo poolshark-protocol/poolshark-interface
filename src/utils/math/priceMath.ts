@@ -29,14 +29,15 @@ export function precision(price: JSBD): number {
  * @param amountIn the amount of token deposited into the LP position
  */
 export function getAveragePrice(lowerTick: number, upperTick: number, zeroForOne: boolean, liquidity: BigNumber, amountIn: BigNumber): number {
-    invariant(
-        lowerTick <= upperTick ||
-        TickMath.MIN_TICK > lowerTick ||
-        TickMath.MAX_TICK < lowerTick ||
-        TickMath.MIN_TICK > upperTick || 
-        TickMath.MAX_TICK < upperTick,
-        'INVALID_TICK_RANGE'
-    )
+    if(
+        lowerTick >= upperTick ||
+        lowerTick < TickMath.MIN_TICK ||
+        lowerTick > TickMath.MAX_TICK ||
+        upperTick < TickMath.MIN_TICK ||
+        upperTick > TickMath.MAX_TICK
+    ) {
+        return 0;
+    }
 
     const amount = JSBI.BigInt(amountIn.div(2).toString())
     const liquidityAmount = JSBI.BigInt(liquidity.toString())
@@ -64,14 +65,14 @@ export function getAveragePrice(lowerTick: number, upperTick: number, zeroForOne
  */
 export function getExpectedAmountOutFromInput(lowerTick: number, upperTick: number, zeroForOne: boolean, amountIn: BigNumber): BigNumber {
     if(
-        lowerTick < upperTick ||
+        lowerTick >= upperTick ||
         TickMath.MIN_TICK > lowerTick ||
         TickMath.MAX_TICK < lowerTick ||
         TickMath.MIN_TICK > upperTick || 
-        TickMath.MAX_TICK < upperTick,
-        'INVALID_TICK_RANGE'
-    )
-    console.log('inside expect amount out', amountIn.toString(), lowerTick.toString(), upperTick.toString())
+        TickMath.MAX_TICK < upperTick
+    ) {
+        return BN_ZERO
+    }
     if (!amountIn || amountIn.eq(BN_ZERO)) return BN_ZERO
     const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(lowerTick))
     const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(upperTick))
@@ -85,7 +86,6 @@ export function getExpectedAmountOutFromInput(lowerTick: number, upperTick: numb
         zeroForOne ? amountIn 
                    : BN_ZERO
     )))
-    console.log('liquidity amount', liquidityAmount)
     return getExpectedAmountOut(
         lowerTick,
         upperTick,
@@ -102,14 +102,15 @@ export function getExpectedAmountOutFromInput(lowerTick: number, upperTick: numb
  * @param amountIn the amount of token deposited into the LP position
  */
 export function getExpectedAmountOut(lowerTick: number, upperTick: number, zeroForOne: boolean, liquidity: BigNumber): BigNumber {
-    invariant(
-    lowerTick <= upperTick ||
-    TickMath.MIN_TICK > lowerTick ||
-    TickMath.MAX_TICK < lowerTick ||
-    TickMath.MIN_TICK > upperTick || 
-    TickMath.MAX_TICK < upperTick,
-    'INVALID_TICK_RANGE'
-    )
+    if(
+        lowerTick >= upperTick ||
+        lowerTick < TickMath.MIN_TICK ||
+        lowerTick > TickMath.MAX_TICK ||
+        upperTick < TickMath.MIN_TICK ||
+        upperTick > TickMath.MAX_TICK
+    ) {
+        return BN_ZERO;
+    }
     const liquidityAmount = JSBI.BigInt(liquidity.toString())
     const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
     const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)

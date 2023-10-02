@@ -9,7 +9,7 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
 import { useTradeStore } from "../../hooks/useTradeStore";
-import { BN_ZERO } from "../../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { ethers } from "ethers";
 
@@ -54,6 +54,7 @@ export default function LimitSwapButton({
       }]
     ],
     chainId: 421613,
+    enabled: poolAddress && poolAddress != ZERO_ADDRESS,
     overrides: {
       gasLimit: gasLimit,
     },
