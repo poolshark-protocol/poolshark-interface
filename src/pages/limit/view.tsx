@@ -180,7 +180,7 @@ export default function ViewLimit() {
   ////////////////////////////////Filled Amount
 
   const { data: filledAmount } = useContractRead({
-    address: limitPoolAddress.toString(),
+    address: limitPoolAddress,
     abi: limitPoolABI,
     functionName: "snapshotLimit",
     args: [
