@@ -26,15 +26,10 @@ export default function Range() {
     state.setNeedsRefetch,
   ]);
 
-  const [needsCoverRefetch, setNeedsCoverRefetch] = useCoverStore((state) => [
-    state.needsRefetch,
-    state.setNeedsRefetch,
-  ]);
-
   //////////////////////Get Pools Data
   useEffect(() => {
     getRangePoolData();
-  }, []);
+  }, [needsRefetch]);
 
   async function getRangePoolData() {
     setIsPoolsLoading(true);
@@ -64,7 +59,7 @@ export default function Range() {
       }
       setTimeout(() => {
         getUserRangePositionData();
-      }, 10000);
+      }, 30000);
     } catch (error) {
       console.log(error);
       setIsPositionsLoading(false);

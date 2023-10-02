@@ -237,7 +237,9 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
                     </span>
                   </div>
                   <div className="flex items-end justify-between mt-2 mb-3">
-                    <span className="text-3xl">{sliderOutput}</span>
+                    <span className="text-3xl">
+                      {Number(sliderOutput).toPrecision()}
+                    </span>
                     <div className="flex items-center gap-x-2">
                       <button
                         onClick={() => handleSliderButton(100)}
@@ -283,7 +285,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
                         tokenOrder
                           ? ethers.utils.formatUnits(amount1, tokenIn.decimals)
                           : ethers.utils.formatUnits(amount0, tokenIn.decimals)
-                      ).toFixed(2)}
+                      ).toPrecision(5)}
                     </span>
                     <div className="flex items-center gap-x-2">
                       <button

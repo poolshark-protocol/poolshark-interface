@@ -28,12 +28,14 @@ export default function RangeMintButton({
 }) {
   const [
     setNeedsRefetch,
+    setNeedsPosRefetch,
     setNeedsAllowanceIn,
     setNeedsAllowanceOut,
     setNeedsBalanceIn,
     setNeedsBalanceOut,
   ] = useRangeLimitStore((state) => [
     state.setNeedsRefetch,
+    state.setNeedsPosRefetch,
     state.setNeedsAllowanceIn,
     state.setNeedsAllowanceOut,
     state.setNeedsBalanceIn,
@@ -86,6 +88,7 @@ export default function RangeMintButton({
       closeModal();
       setTimeout(() => {
         setNeedsRefetch(true);
+        setNeedsPosRefetch(true);
       }, 2500);
       if (amount1.gt(BN_ZERO)) {
         setNeedsAllowanceOut(true);
