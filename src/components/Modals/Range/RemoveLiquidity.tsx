@@ -33,7 +33,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
   const { address } = useAccount();
   const { data: signer } = useSigner();
 
-  const [sliderValue, setSliderValue] = useState(1);
+  const [sliderValue, setSliderValue] = useState(50);
   const [sliderOutput, setSliderOutput] = useState("1");
   const [burnPercent, setBurnPercent] = useState(BN_ZERO);
   const [amount0, setAmount0] = useState(BN_ZERO);
@@ -108,16 +108,17 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
     if (
       signer &&
       address &&
-      rangePoolAddress &&
-      rangePositionData &&
-      burnPercent
-    )
+      rangePositionData.poolId &&
+      rangePositionData.positionId &&
+      burnPercent != BN_ZERO
+    ) {
       updateGasFee();
-  }, [sliderValue, rangePoolAddress, signer]);
+    }
+  }, [sliderValue]);
 
   async function updateGasFee() {
     const newBurnGasFee = await gasEstimateRangeBurn(
-      rangePoolAddress,
+      rangePositionData.poolId,
       address,
       rangePositionData.positionId,
       burnPercent,

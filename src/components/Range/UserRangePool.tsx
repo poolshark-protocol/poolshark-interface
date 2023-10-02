@@ -267,11 +267,11 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
             }`}
           >
             <div className={`text-white text-xs text-right`}>
-              {amount0.toPrecision(4)}{" "}
+              {amount0.toFixed(4)}{" "}
               <span className="text-grey1">
                 {rangePosition.tokenZero.symbol}
               </span>{" "}
-              - {amount1.toPrecision(4)}{" "}
+              - {amount1.toFixed(4)}{" "}
               <span className="text-grey1">
                 {rangePosition.tokenOne.symbol}
               </span>
