@@ -54,7 +54,7 @@ export default function LimitSwapButton({
       }]
     ],
     chainId: 421613,
-    enabled: poolAddress && poolAddress != ZERO_ADDRESS,
+    enabled: poolAddress != undefined && poolAddress != ZERO_ADDRESS,
     overrides: {
       gasLimit: gasLimit,
     },
