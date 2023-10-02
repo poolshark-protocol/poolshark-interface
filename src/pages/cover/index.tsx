@@ -102,7 +102,7 @@ export default function Cover() {
                 Cover your liquidity pools
               </h1>
               <p className="text-sm text-white/40 font-light">
-                Creave a Cover Position to protect your upside or prevent any downside similar to a stop-loss.
+                Create a Cover Position to protect your profits or exit before downside similar to a stop-loss.
                 Cover Pools track other liquidity pools and will unlock your liquidity once the price reaches your limit.
                 <br/>
               </p>
@@ -112,7 +112,7 @@ export default function Cover() {
                 className="px-12 py-3 text-white w-min whitespace-nowrap cursor-pointer text-center transition border border-main bg-main1 uppercase text-sm
                 hover:opacity-80"
               >
-                CREATE COVER POOL
+                CREATE COVER POSITION
               </button>
             </Link>
           </div>
