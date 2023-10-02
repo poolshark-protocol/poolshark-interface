@@ -7,12 +7,11 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
-import { limitPoolABI } from "../../abis/evm/limitPool";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { ethers } from "ethers";
   
-  export default function LimitMintButton({
+  export default function LimitAddLiqButton({
     disabled,
     routerAddress,
     poolAddress,
@@ -21,9 +20,12 @@ import { ethers } from "ethers";
     mintPercent,
     lower,
     upper,
+    positionId,
     zeroForOne,
-    closeModal,
     gasLimit,
+    setIsOpen,
+    buttonState,
+    tokenSymbol,
   }) {
     const [
       setNeedsRefetch,
@@ -49,6 +51,7 @@ import { ethers } from "ethers";
           to: to,
           amount: amount,
           mintPercent: mintPercent,
+          positionId: positionId,
           lower: lower,
           upper: upper,
           zeroForOne: zeroForOne,
@@ -72,14 +75,13 @@ import { ethers } from "ethers";
       onSuccess() {
         setSuccessDisplay(true);
         setTimeout(() => {
-          closeModal();
+          setNeedsRefetch(true);
+          setIsOpen(false);
         }, 2000);
-        setNeedsRefetch(true);
-        setNeedsAllowanceIn(true);
-        // if (amount1.gt(BN_ZERO)) {
-        //   setNeedsAllowanceOut(true);
-        // }
-        setNeedsBalanceIn(true);
+        setTimeout(() => {
+          setNeedsAllowanceIn(true);
+          setNeedsBalanceIn(true);
+        }, 1000);
       },
       onError() {
         setErrorDisplay(true);
@@ -88,13 +90,24 @@ import { ethers } from "ethers";
   
     return (
       <>
-        <button
-          disabled={disabled /* || gasLimit.lte(BN_ZERO) */}
-          className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
-          onClick={() => write?.()}
-        >
-          Mint Position
-        </button>
+      <button
+        disabled={disabled}
+        className="disabled:opacity-50 text-sm md:text-base disabled:cursor-not-allowed w-full py-4 mx-auto  text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        onClick={() => write?.()}
+      >
+        {disabled ? (
+          <>
+            {buttonState === "amount" ? <>Input Amount</> : <></>}
+            {buttonState === "balance" ? (
+              <>Insufficient {tokenSymbol} Balance</>
+            ) : (
+              <></>
+            )}
+          </>
+        ) : (
+          <> Add Liquidity</>
+        )}
+      </button>
         <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
           {errorDisplay && (
             <ErrorToast
