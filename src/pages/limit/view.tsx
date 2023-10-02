@@ -61,6 +61,7 @@ export default function ViewLimit() {
   const [priceDirection, setPriceDirection] = useState(false);
   const [fillPercent, setFillPercent] = useState(0);
   const [limitFilledAmount, setLimitFilledAmount] = useState("");
+  const [currentAmountOut, setCurrentAmountOut] = useState("");
   const [allLimitPositions, setAllLimitPositions] = useState([]);
 
   //Display and copy flags
@@ -222,13 +223,17 @@ export default function ViewLimit() {
   useEffect(() => {
     if (filledAmount) {
       setLimitFilledAmount(
-        ethers.utils.formatUnits(filledAmount[3], tokenIn.decimals)
+        ethers.utils.formatUnits(filledAmount[0], tokenIn.decimals)
       );
+
+      setCurrentAmountOut(
+        ethers.utils.formatUnits(filledAmount[1], tokenOut.decimals)
+      )
     }
   }, [filledAmount]);
 
   useEffect(() => {
-    if (limitFilledAmount && limitPositionData.userFillIn) {
+    if (limitFilledAmount && limitPositionData.amountIn) {
       setFillPercent(
         Number(limitFilledAmount) /
           Number(
@@ -369,20 +374,14 @@ export default function ViewLimit() {
                     ~$
                     {(
                       Number(
-                        ethers.utils.formatUnits(
-                          limitPositionData.userFillOut.toString(),
-                          18
-                        )
+                          currentAmountOut
                       ) * tokenIn.USDPrice
                     ).toFixed(2)}
                   </span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
                   {Number(
-                    ethers.utils.formatUnits(
-                      limitPositionData.userFillOut.toString(),
-                      18
-                    )
+                      currentAmountOut
                   ).toFixed(2)}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
@@ -513,16 +512,19 @@ export default function ViewLimit() {
           <div className="border bg-dark border-grey rounded-[4px] w-1/2 p-5 h-min">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">Filled Liquidity</h1>
-              <span className="text-grey1">${Number(limitFilledAmount).toFixed(2)}
-                      <span className="text-grey">
-                        /
-                        {Number(
-                          ethers.utils.formatUnits(
-                            limitPositionData.amountIn.toString(),
-                            18
-                          )
-                        ).toFixed(2)}
-                      </span></span>
+              {limitPositionData.amountIn ? (
+                <span className="text-grey1">${Number(limitFilledAmount).toFixed(2)}
+                  <span className="text-grey">
+                    /
+                    {Number(
+                      ethers.utils.formatUnits(
+                        limitPositionData.amountIn.toString(),
+                        18
+                      )
+                    ).toFixed(2)}
+                  </span>
+                </span>) : null
+              }
             </div>
             <div className="flex flex-col gap-y-3 mt-2">
               <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
@@ -559,16 +561,19 @@ export default function ViewLimit() {
           </div>
         </div>
       </div>
-      <RemoveLiquidity
-        isOpen={isRemoveOpen}
-        setIsOpen={setIsRemoveOpen}
-        address={address}
-      />
-      <AddLiquidity
-        isOpen={isAddOpen}
-        setIsOpen={setIsAddOpen}
-        address={address}
-      />
+      {limitPositionData.amountIn ?
+        <>
+        <RemoveLiquidity
+          isOpen={isRemoveOpen}
+          setIsOpen={setIsRemoveOpen}
+          address={address}
+        />
+        <AddLiquidity
+          isOpen={isAddOpen}
+          setIsOpen={setIsAddOpen}
+          address={address}
+        />
+        </> : null}
     </div>
   );
 }
