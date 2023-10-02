@@ -78,19 +78,18 @@ export default function RangeAddLiqButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      console.log("success");
       setSuccessDisplay(true);
       setNeedsAllowanceIn(true);
       setNeedsBalanceIn(true);
       setTimeout(() => {
         setNeedsRefetch(true);
         setNeedsPosRefetch(true);
+        setIsOpen(false);
       }, 2500);
       if (amount1.gt(BigNumber.from(0))) {
         setNeedsAllowanceOut(true);
         setNeedsBalanceOut(true);
       }
-      setIsOpen(false);
     },
     onError() {
       setErrorDisplay(true);
