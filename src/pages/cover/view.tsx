@@ -63,7 +63,6 @@ export default function ViewCover() {
 
   //cover aux
   const [priceDirection, setPriceDirection] = useState(false);
-  const [fillPercent, setFillPercent] = useState(0);
   const [coverFilledAmount, setCoverFilledAmount] = useState("");
   const [allCoverPositions, setAllCoverPositions] = useState([]);
 
@@ -301,20 +300,6 @@ export default function ViewCover() {
       );
     }
   }, [filledAmount]);
-
-  useEffect(() => {
-    if (coverFilledAmount && coverPositionData.userFillIn) {
-      setFillPercent(
-        Number(coverFilledAmount) /
-          Number(
-            ethers.utils.formatUnits(
-              coverPositionData.userFillIn.toString(),
-              18
-            )
-          )
-      );
-    }
-  }, [coverFilledAmount]);
 
   ////////////////////////////////Claim Tick
 

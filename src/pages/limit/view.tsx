@@ -59,7 +59,6 @@ export default function ViewLimit() {
 
   //limit aux
   const [priceDirection, setPriceDirection] = useState(false);
-  const [fillPercent, setFillPercent] = useState(0);
   const [limitFilledAmount, setLimitFilledAmount] = useState("");
   const [currentAmountOut, setCurrentAmountOut] = useState("");
   const [allLimitPositions, setAllLimitPositions] = useState([]);
@@ -231,20 +230,6 @@ export default function ViewLimit() {
       )
     }
   }, [filledAmount]);
-
-  useEffect(() => {
-    if (limitFilledAmount && limitPositionData.amountIn) {
-      setFillPercent(
-        Number(limitFilledAmount) /
-          Number(
-            ethers.utils.formatUnits(
-              limitPositionData.amountIn.toString(),
-              18
-            )
-          )
-      );
-    }
-  }, [limitFilledAmount]);
 
   ////////////////////////////////Claim Tick
 
