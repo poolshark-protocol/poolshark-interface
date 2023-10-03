@@ -413,7 +413,12 @@ export default function CoverExistingPool({ goBack }) {
       tokenIn.userRouterAllowance >= parseInt(coverMintParams.tokenInAmount.toString())
     )
       updateGasFee();
-  }, [coverMintParams.tokenInAmount, coverPoolAddress, coverPositionData]);
+  }, [
+    coverMintParams.tokenInAmount,
+    coverPoolAddress,
+    coverPositionData,
+    tokenIn
+  ]);
 
   async function updateGasFee() {
     const newMintGasFee =
