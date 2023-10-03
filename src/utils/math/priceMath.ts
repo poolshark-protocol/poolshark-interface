@@ -3,8 +3,9 @@ import JSBD, { Decimal } from "jsbd";
 import JSBI from "jsbi";
 import invariant from "tiny-invariant";
 import { DyDxMath } from "./dydxMath";
-import { TickMath } from "./tickMath";
+import { TickMath, invertPrice } from "./tickMath";
 import { BN_ZERO } from "./constants";
+import { tokenSwap } from "../types";
 
 export function priceToString(price: Decimal): string {
     if (scale(price) < 3) return Number.parseFloat(price.toPrecision(5)).toString()
@@ -19,6 +20,58 @@ export function scale(price: JSBD): number {
 export function precision(price: JSBD): number {
     let stringArr = price.toString().split('.')
     return stringArr[1].length
+}
+
+export function getMarketPriceAboveBelowString(limitStringPriceQuote: string, pairSelected: boolean, limitPriceOrder: boolean, tokenIn: tokenSwap, tokenOut: tokenSwap): string {
+    if (parseFloat(limitStringPriceQuote) == 0) return '0.00% above Market Price'
+    const priceString = pairSelected && !isNaN(parseFloat(limitStringPriceQuote))
+    ? //switcher tokenIn.callId == 0
+      limitPriceOrder == (tokenIn.callId == 0)
+      ? //when normal order tokenIn/tokenOut
+        (parseFloat(limitStringPriceQuote) /
+          (tokenIn.USDPrice / tokenOut.USDPrice) -
+          1) *
+          100 >
+        0
+        ? (
+            (parseFloat(limitStringPriceQuote) /
+              (tokenIn.USDPrice / tokenOut.USDPrice) -
+              1) *
+            100
+          ).toFixed(2) + "% above Market Price"
+        : Math.abs(
+            (parseFloat(limitStringPriceQuote) /
+              (tokenIn.USDPrice / tokenOut.USDPrice) -
+              1) *
+              100
+          ).toFixed(2) + "% below Market Price"
+      : //when inverted order tokenOut/tokenIn
+      (parseFloat(
+          invertPrice(limitStringPriceQuote, false)
+        ) /
+          (tokenIn.USDPrice / tokenOut.USDPrice) -
+          1) *
+          100 >
+        0
+      ? (
+          (parseFloat(
+            invertPrice(limitStringPriceQuote, false)
+          ) /
+            (tokenIn.USDPrice / tokenOut.USDPrice) -
+            1) *
+          100
+        ).toFixed(2) + "% above Market Price"
+      : Math.abs(
+          (parseFloat(
+            invertPrice(limitStringPriceQuote, false)
+          ) /
+            (tokenIn.USDPrice / tokenOut.USDPrice) -
+            1) *
+            100
+        ).toFixed(2) + "% below Market Price"
+    : "0.00% above Market Price"
+    console.log('price string')
+    return priceString
 }
 
 /**

@@ -36,7 +36,7 @@ import JSBI from "jsbi";
 import LimitCreateAndMintButton from "../components/Buttons/LimitCreateAndMintButton";
 import { fetchLimitPositions } from "../utils/queries";
 import { mapUserLimitPositions } from "../utils/maps";
-import { getAveragePrice, getExpectedAmountOut, getExpectedAmountOutFromInput } from "../utils/math/priceMath";
+import { getAveragePrice, getExpectedAmountOut, getExpectedAmountOutFromInput, getMarketPriceAboveBelowString } from "../utils/math/priceMath";
 import LimitSwapBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import timeDifference from "../utils/time";
 import { DyDxMath } from "../utils/math/dydxMath";
@@ -78,6 +78,8 @@ export default function Trade() {
     setNeedsBalanceIn,
     needsBalanceOut,
     setNeedsBalanceOut,
+    limitPriceString,
+    setLimitPriceString,
     switchDirection,
     setMintButtonState,
     needsRefetch,
@@ -110,6 +112,8 @@ export default function Trade() {
     s.setNeedsBalanceIn,
     s.needsBalanceOut,
     s.setNeedsBalanceOut,
+    s.limitPriceString,
+    s.setLimitPriceString,
     s.switchDirection,
     s.setMintButtonState,
     s.needsRefetch,
@@ -364,35 +368,23 @@ export default function Trade() {
 
   ////////////////////////////////Limit Price Switch
   const [limitPriceOrder, setLimitPriceOrder] = useState(true);
-  const [limitStringPriceQuote, setLimitStringPriceQuote] = useState("0");
+  // const [limitStringPriceQuote, setLimitStringPriceQuote] = useState("0");
   const [lowerPriceString, setLowerPriceString] = useState("0");
   const [upperPriceString, setUpperPriceString] = useState("0");
 
   useEffect(() => {
     if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
-      console.log('setting new price')
+      console.log('setting new price', limitPriceOrder, tokenIn.callId == 0)
+      console.log('usd prices', tokenIn.USDPrice, tokenOut.USDPrice)
       var newPrice = (limitPriceOrder == (tokenIn.callId == 0)
                                       ? (tokenIn.USDPrice / tokenOut.USDPrice)
                                       : (tokenOut.USDPrice / tokenIn.USDPrice))
         .toPrecision(6)
         .toString();
-      setLimitStringPriceQuote(newPrice);
+      console.log('new price', newPrice)
+      setLimitPriceString(newPrice);
     }
   }, [limitPriceOrder, tokenIn, tokenOut]);
-
-  useEffect(() => {
-    if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
-      if (!limitPriceOrder) {
-        setLimitStringPriceQuote(
-          (tokenOut.USDPrice / tokenIn.USDPrice).toPrecision(6).toString()
-        );
-      } else {
-        setLimitStringPriceQuote(
-          (tokenIn.USDPrice / tokenOut.USDPrice).toPrecision(6).toString()
-        );
-      }
-    }
-  }, [limitPriceOrder]);
 
   useEffect(() => {
     const tickSpacing = tradePoolData?.feeTier?.tickSpacing;
@@ -422,33 +414,34 @@ export default function Trade() {
   useEffect(() => {
     if (
       slippage &&
-      limitStringPriceQuote &&
+      limitPriceString &&
       tradePoolData?.feeTier?.tickSpacing
     ) {
       updateLimitTicks();
     }
-  }, [limitStringPriceQuote, slippage]);
+  }, [limitPriceString, slippage]);
 
   function updateLimitTicks() {
     const tickSpacing = tradePoolData.feeTier.tickSpacing;
+    const priceString = invertPrice(limitPriceString, limitPriceOrder)
     if (
-      isFinite(parseFloat(limitStringPriceQuote)) &&
-      parseFloat(limitStringPriceQuote) > 0
+      isFinite(parseFloat(limitPriceString)) &&
+      parseFloat(priceString) > 0
     ) {
       if (
         parseFloat(slippage) * 100 > tickSpacing &&
-        parseFloat(limitStringPriceQuote) > 0
+        parseFloat(priceString) > 0
       ) {
         const limitPriceTolerance =
-          (parseFloat(limitStringPriceQuote) *
+          (parseFloat(priceString) *
             parseFloat((parseFloat(slippage) * 100).toFixed(6))) /
           10000;
         if (tokenIn.callId == 0) {
           const endPrice =
-            parseFloat(limitStringPriceQuote) - -limitPriceTolerance;
+            parseFloat(priceString) - -limitPriceTolerance;
           setLowerTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(limitStringPriceQuote, tickSpacing)
+              TickMath.getTickAtPriceString(priceString, tickSpacing)
             )
           );
           setUpperTick(
@@ -458,7 +451,7 @@ export default function Trade() {
           );
         } else {
           const endPrice =
-            parseFloat(limitStringPriceQuote) - limitPriceTolerance;
+            parseFloat(priceString) - limitPriceTolerance;
           setLowerTick(
             BigNumber.from(
               TickMath.getTickAtPriceString(String(endPrice), tickSpacing)
@@ -466,29 +459,29 @@ export default function Trade() {
           );
           setUpperTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(limitStringPriceQuote, tickSpacing)
+              TickMath.getTickAtPriceString(priceString, tickSpacing)
             )
           );
         }
       } else {
         if (tokenIn.callId == 0) {
           const endTick =
-            TickMath.getTickAtPriceString(limitStringPriceQuote, tickSpacing) -
+            TickMath.getTickAtPriceString(priceString, tickSpacing) -
             -tickSpacing;
           setLowerTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(limitStringPriceQuote, tickSpacing)
+              TickMath.getTickAtPriceString(priceString, tickSpacing)
             )
           );
           setUpperTick(BigNumber.from(String(endTick)));
         } else {
           const endTick =
-            TickMath.getTickAtPriceString(limitStringPriceQuote, tickSpacing) -
+            TickMath.getTickAtPriceString(priceString, tickSpacing) -
             tickSpacing;
           setLowerTick(BigNumber.from(String(endTick)));
           setUpperTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(limitStringPriceQuote, tickSpacing)
+              TickMath.getTickAtPriceString(priceString, tickSpacing)
             )
           );
         }
@@ -900,52 +893,7 @@ export default function Trade() {
                   <div className="bg-dark py-3 px-5 border border-grey rounded-[4px] mt-4">
                     <div className="flex items-end justify-between text-[11px] text-grey1">
                       <span>
-                        {pairSelected && !isNaN(parseFloat(limitStringPriceQuote))
-                          ? //switcher tokenIn.callId == 0
-                            limitPriceOrder == (tokenIn.callId == 0)
-                            ? //when normal order tokenIn/tokenOut
-                              (parseFloat(limitStringPriceQuote) /
-                                (tokenIn.USDPrice / tokenOut.USDPrice) -
-                                1) *
-                                100 >
-                              0
-                              ? (
-                                  (parseFloat(limitStringPriceQuote) /
-                                    (tokenIn.USDPrice / tokenOut.USDPrice) -
-                                    1) *
-                                  100
-                                ).toFixed(2) + "% above Market Price"
-                              : Math.abs(
-                                  (parseFloat(limitStringPriceQuote) /
-                                    (tokenIn.USDPrice / tokenOut.USDPrice) -
-                                    1) *
-                                    100
-                                ).toFixed(2) + "% below Market Price"
-                            : //when inverted order tokenOut/tokenIn
-                            (parseFloat(
-                                invertPrice(limitStringPriceQuote, false)
-                              ) /
-                                (tokenIn.USDPrice / tokenOut.USDPrice) -
-                                1) *
-                                100 >
-                              0
-                            ? (
-                                (parseFloat(
-                                  invertPrice(limitStringPriceQuote, false)
-                                ) /
-                                  (tokenIn.USDPrice / tokenOut.USDPrice) -
-                                  1) *
-                                100
-                              ).toFixed(2) + "% above Market Price"
-                            : Math.abs(
-                                (parseFloat(
-                                  invertPrice(limitStringPriceQuote, false)
-                                ) /
-                                  (tokenIn.USDPrice / tokenOut.USDPrice) -
-                                  1) *
-                                  100
-                              ).toFixed(2) + "% below Market Price"
-                          : "0.00% above Market Price"}
+                        {getMarketPriceAboveBelowString(limitPriceString, pairSelected, limitPriceOrder, tokenIn, tokenOut)}
                       </span>
                     </div>
                     <input
@@ -953,14 +901,12 @@ export default function Trade() {
                       className="bg-dark outline-none text-3xl my-3 w-60 md:w-auto"
                       placeholder="0"
                       value={
-                        !isNaN(parseFloat(limitStringPriceQuote))
-                          ? limitStringPriceQuote
-                          : 0
+                        limitPriceString
                       }
                       type="text"
                       onChange={(e) => {
                         if (e.target.value !== "" && e.target.value !== "0") {
-                          setLimitStringPriceQuote(inputFilter(e.target.value));
+                          setLimitPriceString(inputFilter(e.target.value));
                         }
                       }}
                     />
@@ -1140,7 +1086,7 @@ export default function Trade() {
                             getExpectedAmountOut(
                               parseInt(allLimitPosition.min), 
                               parseInt(allLimitPosition.max), 
-                              tokenIn.callId == 0, 
+                              allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
                               BigNumber.from(allLimitPosition.liquidity))
                           )).toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
                         </div>
@@ -1154,7 +1100,7 @@ export default function Trade() {
                                 getAveragePrice(
                                   parseInt(allLimitPosition.min), 
                                   parseInt(allLimitPosition.max), 
-                                  tokenIn.callId == 0, 
+                                  allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
                                   BigNumber.from(allLimitPosition.liquidity),
                                   BigNumber.from(allLimitPosition.amountIn))
                                 .toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
