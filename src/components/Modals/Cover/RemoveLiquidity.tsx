@@ -58,9 +58,18 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
     }
     setBurnPercent(ethers.utils.parseUnits(String(sliderValue), 36));
     setSliderOutput(
-      ((parseFloat(amountInDisplay) * sliderValue) / 100).toPrecision(6)
+      (
+        (parseFloat(
+          ethers.utils.formatUnits(
+            BigNumber.from(coverPositionData.userFillOut) ?? BN_ZERO,
+            tokenIn.decimals
+          )
+        ) *
+          sliderValue) /
+        100
+      ).toPrecision(6)
     );
-  }, [sliderValue]);
+  }, [sliderValue, coverPositionData.userFillOut]);
 
   useEffect(() => {
     setMintButtonState();
