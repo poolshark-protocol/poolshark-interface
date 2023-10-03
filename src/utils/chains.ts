@@ -56,7 +56,7 @@ export const chainProperties = {
             decimals: 18,
         },
         chainId: '0x66EED',
-        routerAddress: '0xbe033a8649376bf3ac06cae9439c2612b582532c' as `0x${string}`,
+        routerAddress: '0x4fcc1316ee3fc3069e72f79a729a147bbabad720' as `0x${string}`,
         coverPoolFactory: '0x479C2Df7eD63ea26146Ac2092C55047C3928A5A6',
         limitPoolFactory: '0xbd6d010bcecc7440a72889546411e0edbb333ea2'
     },
