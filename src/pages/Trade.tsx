@@ -370,20 +370,15 @@ export default function Trade() {
 
   useEffect(() => {
     if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
-      setLimitStringPriceQuote(
-        (tokenIn.USDPrice / tokenOut.USDPrice).toPrecision(6).toString()
-      );
-    }
-  }, [tokenOut.USDPrice, tokenIn.USDPrice]);
-
-  useEffect(() => {
-    if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
-      var newPrice = (tokenIn.USDPrice / tokenOut.USDPrice)
+      console.log('setting new price')
+      var newPrice = (limitPriceOrder == (tokenIn.callId == 0)
+                                      ? (tokenIn.USDPrice / tokenOut.USDPrice)
+                                      : (tokenOut.USDPrice / tokenIn.USDPrice))
         .toPrecision(6)
         .toString();
       setLimitStringPriceQuote(newPrice);
     }
-  }, [tokenIn.callId == 0]);
+  }, [limitPriceOrder, tokenIn, tokenOut]);
 
   useEffect(() => {
     if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
@@ -397,7 +392,7 @@ export default function Trade() {
         );
       }
     }
-  }, [limitPriceOrder, tokenIn.callId == 0]);
+  }, [limitPriceOrder]);
 
   useEffect(() => {
     const tickSpacing = tradePoolData?.feeTier?.tickSpacing;
@@ -581,7 +576,7 @@ export default function Trade() {
                           getExpectedAmountOutFromInput(
                             Number(lowerTick),
                             Number(upperTick),
-                            limitPriceOrder,
+                            tokenIn.callId == 0,
                             bnInput
                           ), tokenIn.decimals
                     )).toFixed(2)) :
@@ -747,7 +742,7 @@ export default function Trade() {
                           getExpectedAmountOutFromInput(
                             Number(lowerTick),
                             Number(upperTick),
-                            limitPriceOrder,
+                            tokenIn.callId == 0,
                             bnInput
                           )
                           , tokenIn.decimals
@@ -777,7 +772,7 @@ export default function Trade() {
                           getExpectedAmountOutFromInput(
                             Number(lowerTick),
                             Number(upperTick),
-                            limitPriceOrder,
+                            tokenIn.callId == 0,
                             bnInput
                           ), tokenIn.decimals
                     )).toFixed(3)}
@@ -838,7 +833,7 @@ export default function Trade() {
                       ) : (
                         <div>
                           {" "}
-                          {limitPriceOrder
+                          {limitPriceOrder == (tokenIn.callId == 0)
                             ? tokenOut.symbol + " per " + tokenIn.symbol
                             : tokenIn.symbol + " per " + tokenOut.symbol}
                         </div>
@@ -907,7 +902,7 @@ export default function Trade() {
                       <span>
                         {pairSelected && !isNaN(parseFloat(limitStringPriceQuote))
                           ? //switcher tokenIn.callId == 0
-                            limitPriceOrder
+                            limitPriceOrder == (tokenIn.callId == 0)
                             ? //when normal order tokenIn/tokenOut
                               (parseFloat(limitStringPriceQuote) /
                                 (tokenIn.USDPrice / tokenOut.USDPrice) -
@@ -1159,7 +1154,7 @@ export default function Trade() {
                                 getAveragePrice(
                                   parseInt(allLimitPosition.min), 
                                   parseInt(allLimitPosition.max), 
-                                  allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
+                                  tokenIn.callId == 0, 
                                   BigNumber.from(allLimitPosition.liquidity),
                                   BigNumber.from(allLimitPosition.amountIn))
                                 .toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
