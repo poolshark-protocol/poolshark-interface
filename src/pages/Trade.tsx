@@ -1140,7 +1140,7 @@ export default function Trade() {
                             getExpectedAmountOut(
                               parseInt(allLimitPosition.min), 
                               parseInt(allLimitPosition.max), 
-                              allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
+                              tokenIn.callId == 0, 
                               BigNumber.from(allLimitPosition.liquidity))
                           )).toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
                         </div>
