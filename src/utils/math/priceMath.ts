@@ -23,54 +23,22 @@ export function precision(price: JSBD): number {
 }
 
 export function getMarketPriceAboveBelowString(limitStringPriceQuote: string, pairSelected: boolean, limitPriceOrder: boolean, tokenIn: tokenSwap, tokenOut: tokenSwap): string {
-    if (parseFloat(limitStringPriceQuote) == 0) return '0.00% above Market Price'
-    const priceString = pairSelected && !isNaN(parseFloat(limitStringPriceQuote))
-    ? //switcher tokenIn.callId == 0
-      limitPriceOrder == (tokenIn.callId == 0)
-      ? //when normal order tokenIn/tokenOut
-        (parseFloat(limitStringPriceQuote) /
-          (tokenIn.USDPrice / tokenOut.USDPrice) -
-          1) *
-          100 >
-        0
-        ? (
-            (parseFloat(limitStringPriceQuote) /
-              (tokenIn.USDPrice / tokenOut.USDPrice) -
-              1) *
-            100
-          ).toFixed(2) + "% above Market Price"
-        : Math.abs(
-            (parseFloat(limitStringPriceQuote) /
-              (tokenIn.USDPrice / tokenOut.USDPrice) -
-              1) *
-              100
-          ).toFixed(2) + "% below Market Price"
-      : //when inverted order tokenOut/tokenIn
-      (parseFloat(
-          invertPrice(limitStringPriceQuote, false)
-        ) /
-          (tokenIn.USDPrice / tokenOut.USDPrice) -
-          1) *
-          100 >
-        0
-      ? (
-          (parseFloat(
-            invertPrice(limitStringPriceQuote, false)
-          ) /
-            (tokenIn.USDPrice / tokenOut.USDPrice) -
-            1) *
-          100
-        ).toFixed(2) + "% above Market Price"
-      : Math.abs(
-          (parseFloat(
-            invertPrice(limitStringPriceQuote, false)
-          ) /
-            (tokenIn.USDPrice / tokenOut.USDPrice) -
-            1) *
-            100
-        ).toFixed(2) + "% below Market Price"
-    : "0.00% above Market Price"
-    console.log('price string')
+    if (parseFloat(limitStringPriceQuote) == 0) return '0.00% abovee Market Price'
+    const basePrice = limitPriceOrder == (tokenIn.callId == 0)
+                        ? tokenIn.USDPrice / tokenOut.USDPrice
+                        : tokenOut.USDPrice / tokenIn.USDPrice
+    const limitPrice = parseFloat(limitStringPriceQuote) 
+    let priceString
+    if(pairSelected && !isNaN(parseFloat(limitStringPriceQuote))) {
+        const percentDiff = parseFloat((limitPrice / basePrice * 100).toFixed(2))
+        if (percentDiff >= 100) {
+            priceString = (percentDiff - 100).toFixed(2) + "% above Market Price"
+        } else {
+            priceString = (100 - percentDiff).toFixed(2) + "% below Market Price"
+        }
+    } else {
+        priceString = "0.00% above Market Price"
+    }
     return priceString
 }
 

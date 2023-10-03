@@ -374,37 +374,40 @@ export default function Trade() {
 
   useEffect(() => {
     if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
-      console.log('setting new price', limitPriceOrder, tokenIn.callId == 0)
-      console.log('usd prices', tokenIn.USDPrice, tokenOut.USDPrice)
       var newPrice = (limitPriceOrder == (tokenIn.callId == 0)
                                       ? (tokenIn.USDPrice / tokenOut.USDPrice)
                                       : (tokenOut.USDPrice / tokenIn.USDPrice))
         .toPrecision(6)
         .toString();
-      console.log('new price', newPrice)
       setLimitPriceString(newPrice);
     }
   }, [limitPriceOrder, tokenIn, tokenOut]);
 
   useEffect(() => {
     const tickSpacing = tradePoolData?.feeTier?.tickSpacing;
-    if (!isNaN(parseFloat(lowerPriceString)))
+
+    if (!isNaN(parseFloat(lowerPriceString))) {
+      const priceString = invertPrice(lowerPriceString, limitPriceOrder)
       setLowerTick(
         BigNumber.from(
-          TickMath.getTickAtPriceString(lowerPriceString, tickSpacing)
+          TickMath.getTickAtPriceString(priceString, tickSpacing)
         )
-    );
+      );
+    }
+
   }, [lowerPriceString]);
 
   useEffect(() => {
     const tickSpacing = tradePoolData?.feeTier?.tickSpacing;
-    
-    if (!isNaN(parseFloat(upperPriceString)))
+
+    if (!isNaN(parseFloat(upperPriceString))) {
+      const priceString = invertPrice(upperPriceString, limitPriceOrder)
       setUpperTick(
         BigNumber.from(
-          TickMath.getTickAtPriceString(upperPriceString, tickSpacing)
+          TickMath.getTickAtPriceString(priceString, tickSpacing)
         )
       );
+    }
   }, [upperPriceString]);
 
   ////////////////////////////////Limit Ticks
