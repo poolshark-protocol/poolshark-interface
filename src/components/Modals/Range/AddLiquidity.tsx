@@ -23,6 +23,7 @@ import RangeMintDoubleApproveButton from "../../Buttons/RangeMintDoubleApproveBu
 import RangeMintApproveButton from "../../Buttons/RangeMintApproveButton";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { gasEstimateRangeMint } from "../../../utils/gas";
+import { Router, useRouter } from "next/router";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [
@@ -74,6 +75,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   ]);
 
   const { bnInput, maxBalance, inputBox } = useInputBox();
+  const router = useRouter();
   const provider = useProvider();
   const { address } = useAccount();
   const signer = new ethers.VoidSigner(address, provider);
@@ -113,7 +115,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     functionName: "allowance",
     args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
     chainId: 421613,
-    watch: needsAllowanceIn,
+    watch: needsAllowanceIn && router.isReady,
     enabled: isConnected,
     onSuccess(data) {
       //console.log("Success");
@@ -130,7 +132,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     functionName: "allowance",
     args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
     chainId: 421613,
-    watch: needsAllowanceOut,
+    watch: needsAllowanceOut && router.isReady,
     enabled: isConnected,
     onSuccess(data) {
       //console.log("Success");
@@ -142,6 +144,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   });
 
   useEffect(() => {
+    console.log("tokenInAllowance", tokenInAllowance);
+    console.log("tokenOutAllowance", tokenOutAllowance);
     setTokenInAllowance(tokenInAllowance);
     setTokenOutAllowance(tokenOutAllowance);
   }, [tokenInAllowance, tokenOutAllowance]);
