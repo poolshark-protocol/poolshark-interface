@@ -466,8 +466,8 @@ export default function AddLiquidity({}) {
               </div>
             </div>
           </div>
-          <div className="flex justify-between items-center mb-4 mt-10">
-            <div className="flex items-center gap-x-3">
+          <div className="flex justify-between md:items-center items-start mb-4 mt-10">
+            <div className="flex  md:flex-row flex-col md:items-center  gap-3">
               <h1>SET A PRICE RANGE</h1>
               <button
                 className="text-grey1 text-xs bg-black border border-grey px-4 py-0.5 rounded-[4px] whitespace-nowrap"
@@ -497,8 +497,8 @@ export default function AddLiquidity({}) {
               onClick={handlePriceSwitch}
               className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
             >
-              {tokenOrder ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>} per{" "}
-              {tokenOrder ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>}{" "}
+              <span className="whitespace-nowrap">{tokenOrder ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>} per{" "}
+              {tokenOrder ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>}</span>{" "}
               <DoubleArrowIcon />
             </div>
           </div>
@@ -577,7 +577,7 @@ export default function AddLiquidity({}) {
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
                     fill="currentColor"
-                    className="md:w-9 w-14"
+                    className="md:w-9 w-12"
                   >
                     <path
                       fill-rule="evenodd"
@@ -585,8 +585,7 @@ export default function AddLiquidity({}) {
                       clip-rule="evenodd"
                     />
                   </svg>
-                  Your position will be 100% {tokenIn.symbol} with this price range and your
-                  position will not earn fees or be used in trades until the
+                  Your position will not earn fees or be used in trades until the
                   market price moves into your range.
                 </div>
               )}
