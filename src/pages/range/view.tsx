@@ -18,6 +18,7 @@ import { mapUserRangePositions } from "../../utils/maps";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import RangeCollectButton from "../../components/Buttons/RangeCollectButton";
+import router from "next/router";
 
 export default function ViewRange() {
   const [
@@ -33,6 +34,7 @@ export default function ViewRange() {
     needsPosRefetch,
     setNeedsRefetch,
     setNeedsPosRefetch,
+    setRangePoolFromFeeTier,
     setRangePositionData,
     setMintButtonState,
   ] = useRangeLimitStore((state) => [
@@ -48,6 +50,7 @@ export default function ViewRange() {
     state.needsPosRefetch,
     state.setNeedsRefetch,
     state.setNeedsPosRefetch,
+    state.setRangePoolFromFeeTier,
     state.setRangePositionData,
     state.setMintButtonState,
   ]);
@@ -104,6 +107,10 @@ export default function ViewRange() {
   ////////////////////////Pool Data
 
   useEffect(() => {
+    setRangePoolFromFeeTier(tokenIn, tokenOut, router.query.feeTier);
+  }, [router.query.feeTier]);
+
+  useEffect(() => {
     getRangePoolRatios();
   }, [amount0, amount1, amount0Fees, amount1Fees]);
 
@@ -152,14 +159,16 @@ export default function ViewRange() {
 
   ////////////////////////////////Position Data
   useEffect(() => {
-    setTimeout(() => {
-      if (needsRefetch) {
-        getUserRangePositionData();
-        setNeedsRefetch(false);
-        setNeedsPosRefetch(false);
-      }
-    }, 2000);
-  }, [needsRefetch]);
+    if (
+      rangePositionData.positionId == undefined ||
+      needsPosRefetch ||
+      needsRefetch
+    ) {
+      getUserRangePositionData();
+      setNeedsRefetch(false);
+      setNeedsPosRefetch(false);
+    }
+  }, [needsRefetch, needsPosRefetch, rangePositionData.positionId]);
 
   async function getUserRangePositionData() {
     try {
@@ -168,13 +177,15 @@ export default function ViewRange() {
         const mappedPositions = mapUserRangePositions(
           data["data"].rangePositions
         );
+        setAllRangePositions(mappedPositions);
+        const positionId =
+          rangePositionData.positionId ?? router.query.positionId;
         const position = mappedPositions.find(
-          (position) => Number(position.id) == Number(rangePositionData.id)
+          (position) => position.positionId == positionId
         );
         if (position != undefined) {
           setRangePositionData(position);
         }
-        setAllRangePositions(mappedPositions);
       }
     } catch (error) {
       console.log(error);
@@ -203,15 +214,21 @@ export default function ViewRange() {
   }, []);
 
   useEffect(() => {
-    setLowerPrice(TickMath.getPriceStringAtTick(Number(rangePositionData.min)));
-    setUpperPrice(TickMath.getPriceStringAtTick(Number(rangePositionData.max)));
-  }, [tokenIn, tokenOut]);
+    if (rangePositionData.min && rangePositionData.max) {
+      setLowerPrice(
+        TickMath.getPriceStringAtTick(Number(rangePositionData.min))
+      );
+      setUpperPrice(
+        TickMath.getPriceStringAtTick(Number(rangePositionData.max))
+      );
+    }
+  }, [tokenIn, tokenOut, rangePositionData.min, rangePositionData.max]);
 
   ////////////////////////////////Amounts
 
   useEffect(() => {
     setAmounts();
-  }, [lowerPrice, upperPrice, rangePositionData]);
+  }, [lowerPrice, upperPrice, rangePositionData, rangePoolData]);
 
   function setAmounts() {
     try {
@@ -265,9 +282,9 @@ export default function ViewRange() {
     args: [rangePositionData.positionId],
     chainId: 421613,
     watch: true,
-    enabled: isConnected && rangePoolAddress != ("" as string),
+    enabled: isConnected && rangePositionData.positionId != undefined,
     onError(error) {
-      console.log("Error snapshot Range", error);
+      //console.log("Error snapshot Range", error);
     },
   });
 
@@ -459,11 +476,13 @@ export default function ViewRange() {
                 <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                   <span className="text-grey1 text-xs">CURRENT. PRICE</span>
                   <span className="text-white text-3xl text-grey1">
-                    {rangePositionData.price != undefined && priceDirection
-                      ? priceInverse
-                      : TickMath.getPriceStringAtSqrtPrice(
-                          JSBI.BigInt(rangePositionData.price)
-                        )}
+                    {rangePositionData.price
+                      ? priceDirection
+                        ? priceInverse
+                        : TickMath.getPriceStringAtSqrtPrice(
+                            JSBI.BigInt(rangePositionData.price)
+                          )
+                      : null}
                   </span>
                 </div>
               </div>
@@ -472,15 +491,17 @@ export default function ViewRange() {
           <div className="border bg-dark border-grey rounded-[4px] lg:w-1/2 w-full p-5 h-min">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">Earned Fees</h1>
-              <span className="text-grey1">${userLiquidityUsd.toFixed(2)}</span>
+              <span className="text-grey1">
+                ${(amount0FeesUsd + amount1FeesUsd).toFixed(2)}
+              </span>
             </div>
             <div className="flex flex-col gap-y-3 mt-2">
               <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
                 <div className="flex items-end justify-between text-[11px] text-grey1">
-                  <span>~${amount0Usd}</span>
+                  <span>~${amount0FeesUsd.toFixed(2)}</span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {amount0Fees.toPrecision(6)}
+                  {amount0Fees.toFixed(2)}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenIn.logoURI} />
@@ -491,10 +512,10 @@ export default function ViewRange() {
               </div>
               <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2 mb-5">
                 <div className="flex items-end justify-between text-[11px] text-grey1">
-                  <span>~${amount1Usd}</span>
+                  <span>~${amount1FeesUsd.toFixed(2)}</span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {amount1Fees.toPrecision(6)}
+                  {amount1Fees.toFixed(2)}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenOut.logoURI} />
@@ -517,8 +538,12 @@ export default function ViewRange() {
           </div>
         </div>
       </div>
-      <RemoveLiquidity isOpen={isRemoveOpen} setIsOpen={setIsRemoveOpen} />
-      <AddLiquidity isOpen={isAddOpen} setIsOpen={setIsAddOpen} />
+      {rangePositionData.price ? (
+        <>
+          <RemoveLiquidity isOpen={isRemoveOpen} setIsOpen={setIsRemoveOpen} />
+          <AddLiquidity isOpen={isAddOpen} setIsOpen={setIsAddOpen} />
+        </>
+      ) : null}
     </div>
   );
 }

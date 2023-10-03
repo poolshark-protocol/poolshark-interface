@@ -132,14 +132,6 @@ export default function Trade() {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
   }, [chainId]);
 
-  ////////////////////////////////TokenOrder
-  //we should stop using tokenOrder and instead use tokenIn.callId==0
-  const [tokenOrder, setTokenOrder] = useState(true);
-
-  /* useEffect(() => {
-    setTokenOrder(tokenIn.callId == 0);
-  }, [tokenIn, tokenOut]); */
-
   ////////////////////////////////Pools
   //quoting variables
   const [availablePools, setAvailablePools] = useState(undefined);
@@ -147,13 +139,13 @@ export default function Trade() {
 
   //swap call variables
   const [swapPoolAddresses, setSwapPoolAddresses] = useState<string[]>([]);
-  const [swapParams, setSwapParams] = useState(undefined);
+  const [swapParams, setSwapParams] = useState<any[]>([]);
 
   //display variable
   const [amountOut, setAmountOut] = useState(undefined);
 
   useEffect(() => {
-    if (tokenIn.address != "0x00" && tokenOut.address === ZERO_ADDRESS) {
+    if (tokenIn.address != ZERO_ADDRESS && tokenOut.address === ZERO_ADDRESS) {
       getLimitTokenUsdPrice(tokenIn.address, setTokenInTradeUSDPrice);
     }
   }, [tokenIn.address]);
@@ -162,7 +154,7 @@ export default function Trade() {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       updatePools();
     }
-  }, [tokenIn.address, tokenOut.address]);
+  }, [tokenIn.address, tokenOut.address, bnInput]);
 
   async function updatePools() {
     const pools = await getSwapPools(tokenIn, tokenOut, setTradePoolData);
@@ -190,12 +182,12 @@ export default function Trade() {
     functionName: "multiQuote",
     args: [availablePools, quoteParams, true],
     chainId: 421613,
-    enabled: availablePools && quoteParams,
+    enabled: availablePools != undefined && quoteParams != undefined,
     onError(error) {
       console.log("Error multiquote", error);
     },
     onSuccess(data) {
-      //console.log("Success multiquote", data);
+      // console.log("Success multiquote", data);
     },
   });
 
@@ -213,30 +205,33 @@ export default function Trade() {
 
   function updateSwapParams(poolQuotes: any) {
     const poolAddresses: string[] = [];
-    const swapParams: SwapParams[] = [];
+    const paramsList: SwapParams[] = [];
     for (let i = 0; i < poolQuotes.length; i++) {
-      poolAddresses.push(poolQuotes[i].pool);
-      const basePrice: Number = Number(
-        TickMath.getPriceStringAtSqrtPrice(poolQuotes[i].priceAfter)
-      );
-      const limitPrice: Number =
-        (Number(basePrice) * (1 + parseFloat(slippage) * 100)) / 10000;
-      const limitPriceJsbi: JSBI = TickMath.getSqrtPriceAtPriceString(
-        limitPrice.toString()
-      );
-      const priceLimitBn = BigNumber.from(String(limitPriceJsbi));
-      const params: SwapParams = {
-        to: address,
-        priceLimit: priceLimitBn,
-        amount: bnInput,
-        exactIn: true,
-        zeroForOne: tokenIn.callId == 0,
-        callbackData: ethers.utils.formatBytes32String(""),
-      };
-      swapParams.push(params);
+      if(poolQuotes[i].pool != ZERO_ADDRESS) {
+        poolAddresses.push(poolQuotes[i].pool);
+        const basePrice: number = parseFloat(
+          TickMath.getPriceStringAtSqrtPrice(poolQuotes[i].priceAfter)
+        );
+        const priceDiff = basePrice * (parseFloat(slippage) / 100);
+        const limitPrice = tokenIn.callId == 0 ? basePrice - priceDiff
+                                               : basePrice + priceDiff;
+        const limitPriceJsbi: JSBI = TickMath.getSqrtPriceAtPriceString(
+          limitPrice.toString()
+        );
+        const priceLimitBn = BigNumber.from(String(limitPriceJsbi));
+        const params: SwapParams = {
+          to: address,
+          priceLimit: priceLimitBn,
+          amount: bnInput,
+          exactIn: true,
+          zeroForOne: tokenIn.callId == 0,
+          callbackData: ethers.utils.formatBytes32String(""),
+        };
+        paramsList.push(params);
+      }
     }
     setSwapPoolAddresses(poolAddresses);
-    setSwapParams(swapParams);
+    setSwapParams(paramsList);
   }
 
   //////////////////////Get Pools Data
@@ -244,8 +239,7 @@ export default function Trade() {
   const [allLimitPositions, setAllLimitPositions] = useState([]);
 
   useEffect(() => {
-    if (address && needsRefetch) {
-      console.log("user address", address.toLowerCase());
+    if (address && needsRefetch === true) {
       getUserLimitPositionData();
       setNeedsRefetch(false)
     }
@@ -254,15 +248,13 @@ export default function Trade() {
   async function getUserLimitPositionData() {
     try {
       const data = await fetchLimitPositions(address.toLowerCase());
-      console.log("data limit", data)
       if (data["data"]) {
-        console.log("limitPositions", data["data"]?.limitPositions)
         setAllLimitPositions(
           mapUserLimitPositions(data["data"].limitPositions)
         );
       }
     } catch (error) {
-      console.log(error);
+      console.log('limit error', error);
     }
   }
 
@@ -323,12 +315,16 @@ export default function Trade() {
   useEffect(() => {
     if (isConnected) {
       setTokenInBalance(
-        parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+        !isNaN(parseFloat(tokenInBal?.formatted.toString())) ?
+          parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+        : '0'
       );
     }
     if (tokenOutBal) {
       setTokenOutBalance(
-        parseFloat(tokenOutBal?.formatted.toString()).toFixed(2)
+        !isNaN(parseFloat(tokenOutBal?.formatted.toString())) ?
+          parseFloat(tokenOutBal?.formatted.toString()).toFixed(2)
+        : '0'
       );
     }
   }, [tokenInBal, tokenOutBal]);
@@ -345,7 +341,7 @@ export default function Trade() {
     ],
     chainId: 421613,
     watch: needsAllowanceIn,
-    //enabled: poolRouterAddress,
+    enabled: tokenIn.address != ZERO_ADDRESS,
     onError(error) {
       console.log("Error allowance", error);
     },
@@ -387,7 +383,7 @@ export default function Trade() {
         .toString();
       setLimitStringPriceQuote(newPrice);
     }
-  }, [tokenOrder]);
+  }, [tokenIn.callId == 0]);
 
   useEffect(() => {
     if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
@@ -401,26 +397,27 @@ export default function Trade() {
         );
       }
     }
-  }, [limitPriceOrder, tokenOrder]);
+  }, [limitPriceOrder, tokenIn.callId == 0]);
 
   useEffect(() => {
     const tickSpacing = tradePoolData?.feeTier?.tickSpacing;
-
-    setLowerTick(
-      BigNumber.from(
-        TickMath.getTickAtPriceString(lowerPriceString, tickSpacing)
-      )
+    if (!isNaN(parseFloat(lowerPriceString)))
+      setLowerTick(
+        BigNumber.from(
+          TickMath.getTickAtPriceString(lowerPriceString, tickSpacing)
+        )
     );
   }, [lowerPriceString]);
 
   useEffect(() => {
     const tickSpacing = tradePoolData?.feeTier?.tickSpacing;
-
-    setUpperTick(
-      BigNumber.from(
-        TickMath.getTickAtPriceString(upperPriceString, tickSpacing)
-      )
-    );
+    
+    if (!isNaN(parseFloat(upperPriceString)))
+      setUpperTick(
+        BigNumber.from(
+          TickMath.getTickAtPriceString(upperPriceString, tickSpacing)
+        )
+      );
   }, [upperPriceString]);
 
   ////////////////////////////////Limit Ticks
@@ -451,7 +448,7 @@ export default function Trade() {
           (parseFloat(limitStringPriceQuote) *
             parseFloat((parseFloat(slippage) * 100).toFixed(6))) /
           10000;
-        if (tokenOrder) {
+        if (tokenIn.callId == 0) {
           const endPrice =
             parseFloat(limitStringPriceQuote) - -limitPriceTolerance;
           setLowerTick(
@@ -479,7 +476,7 @@ export default function Trade() {
           );
         }
       } else {
-        if (tokenOrder) {
+        if (tokenIn.callId == 0) {
           const endTick =
             TickMath.getTickAtPriceString(limitStringPriceQuote, tickSpacing) -
             -tickSpacing;
@@ -517,7 +514,7 @@ export default function Trade() {
         updateMintFee();
       }
     }
-  }, [swapParams, tokenIn]);
+  }, [swapParams, tokenIn, tokenOut, bnInput]);
 
   async function updateGasFee() {
     if (tokenIn.userRouterAllowance?.gte(bnInput))
@@ -535,7 +532,7 @@ export default function Trade() {
   }
 
   async function updateMintFee() {
-    console.log(tokenIn.userRouterAllowance, "user router allowance")
+    if (tokenIn.userRouterAllowance?.gte(bnInput))
       await gasEstimateMintLimit(
         tradePoolData.id,
         address,
@@ -557,10 +554,6 @@ export default function Trade() {
       setTokenInAmount(bnInput);
     }
   }, [bnInput]);
-
-  useEffect(() => {
-    console.log(limitStringPriceQuote, "limit quote")
-  }, [limitStringPriceQuote])
 
   useEffect(() => {
     setMintButtonState();
@@ -585,21 +578,12 @@ export default function Trade() {
                   && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
                       parseFloat(
                         ethers.utils.formatUnits(
-                          getExpectedAmountOut(
-                            parseInt(ethers.utils.formatUnits(lowerTick, 0)),
-                            parseInt(ethers.utils.formatUnits(upperTick, 0)),
+                          getExpectedAmountOutFromInput(
+                            Number(lowerTick),
+                            Number(upperTick),
                             limitPriceOrder,
-                            BigNumber.from(String(DyDxMath.getLiquidityForAmounts(
-                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))),
-                              TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
-                              limitPriceOrder ? TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(lowerTick, 0))) 
-                                              : TickMath.getSqrtRatioAtTick(parseInt(ethers.utils.formatUnits(upperTick, 0))),
-                              limitPriceOrder ? BN_ZERO 
-                                              : bnInput,
-                              limitPriceOrder ? bnInput 
-                                              : BN_ZERO,
-                            ))
-                          )), tokenIn.decimals
+                            bnInput
+                          ), tokenIn.decimals
                     )).toFixed(2)) :
                     "$0.00"
                 : "Select Token"}
@@ -849,7 +833,7 @@ export default function Trade() {
                     onClick={() => setLimitPriceOrder(!limitPriceOrder)}
                   >
                     <span className="text-grey1 group-hover:text-white transition-all">
-                      {tokenOrder && pairSelected === false ? (
+                      {tokenIn.callId == 0 && pairSelected === false ? (
                         <div>{tokenIn.symbol} per ?</div>
                       ) : (
                         <div>
@@ -922,7 +906,7 @@ export default function Trade() {
                     <div className="flex items-end justify-between text-[11px] text-grey1">
                       <span>
                         {pairSelected && !isNaN(parseFloat(limitStringPriceQuote))
-                          ? //switcher tokenOrder
+                          ? //switcher tokenIn.callId == 0
                             limitPriceOrder
                             ? //when normal order tokenIn/tokenOut
                               (parseFloat(limitStringPriceQuote) /
@@ -1001,7 +985,7 @@ export default function Trade() {
                   {!pairSelected
                     ? " ?"
                     : //range price
-                      (tokenOrder
+                      (tokenIn.callId == 0
                         ? rangePrice.toPrecision(5)
                         : invertPrice(rangePrice.toPrecision(5), false)) +
                       " " +
@@ -1071,7 +1055,7 @@ export default function Trade() {
                     lower={lowerTick}
                     upper={upperTick}
                     closeModal={() => {}}
-                    zeroForOne={tokenOrder}
+                    zeroForOne={tokenIn.callId == 0}
                     gasLimit={mintGasLimit}
                   />
                 :
@@ -1088,7 +1072,7 @@ export default function Trade() {
                     lower={lowerTick}
                     upper={upperTick}
                     closeModal={() => {}}
-                    zeroForOne={tokenOrder}
+                    zeroForOne={tokenIn.callId == 0}
                     gasLimit={mintGasLimit}
                   />
                 )}

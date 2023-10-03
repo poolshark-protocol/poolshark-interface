@@ -9,7 +9,7 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
 import { useTradeStore } from "../../hooks/useTradeStore";
-import { BN_ZERO } from "../../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { ethers } from "ethers";
 
@@ -26,7 +26,8 @@ export default function LimitSwapButton({
   closeModal,
   gasLimit,
 }) {
-  const [setNeedsAllowanceIn, setNeedsBalanceIn] = useTradeStore((state) => [
+  const [setNeedsRefetch,setNeedsAllowanceIn, setNeedsBalanceIn] = useTradeStore((state) => [
+    state.setNeedsRefetch,
     state.setNeedsAllowanceIn,
     state.setNeedsBalanceIn,
   ]);
@@ -53,6 +54,7 @@ export default function LimitSwapButton({
       }]
     ],
     chainId: 421613,
+    enabled: poolAddress != undefined && poolAddress != ZERO_ADDRESS,
     overrides: {
       gasLimit: gasLimit,
     },
@@ -69,13 +71,17 @@ export default function LimitSwapButton({
     onSuccess() {
       setSuccessDisplay(true);
       setTimeout(() => {
+        setNeedsRefetch(true);
         closeModal();
       }, 2000);
-      setNeedsAllowanceIn(true);
+      
+      setTimeout(() => {
+        setNeedsAllowanceIn(true);
+        setNeedsBalanceIn(true);
+      }, 1000);
       // if (amount1.gt(BN_ZERO)) {
       //   setNeedsAllowanceOut(true);
       // }
-      setNeedsBalanceIn(true);
     },
     onError() {
       setErrorDisplay(true);

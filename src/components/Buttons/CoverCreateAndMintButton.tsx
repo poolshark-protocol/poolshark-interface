@@ -19,9 +19,7 @@ export default function CoverCreateAndMintButton({
   poolType,
   tokenIn,
   tokenOut,
-  feeTier,
-  tickSpread,
-  twapLength,
+  volTier,
   disabled,
   to,
   lower,
@@ -54,9 +52,9 @@ export default function CoverCreateAndMintButton({
         poolType: ethers.utils.formatBytes32String(poolType),
         tokenIn: tokenIn.address,
         tokenOut: tokenOut.address,
-        /* feeTier: feeTier,
-          tickSpread: tickSpread,
-          twapLength: twapLength   */
+        feeTier: volTier.feeAmount,
+        tickSpread: volTier.tickSpread,
+        twapLength: volTier.twapLength
       }, // pool params
       [
         {

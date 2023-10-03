@@ -2,8 +2,8 @@ import { BigNumber } from "ethers";
 import {
   getLimitTickIfNotZeroForOne,
   getLimitTickIfZeroForOne,
-  getTickIfNotZeroForOne,
-  getTickIfZeroForOne,
+  getCoverTickIfNotZeroForOne,
+  getCoverTickIfZeroForOne,
 } from "./queries";
 
 export const getClaimTick = async (
@@ -12,34 +12,68 @@ export const getClaimTick = async (
   maxLimit: number,
   zeroForOne: boolean,
   epochLast: number,
-  isCover: boolean
+  isCover: boolean,
+  latestTick?: number
 ) => {
-  let claimTick = zeroForOne ? maxLimit : minLimit;
+  // default to start tick
+  let claimTick: number;
   if (zeroForOne) {
+    // run claim tick query
     const claimTickQuery = isCover
-      ? await getTickIfZeroForOne(maxLimit, poolAddress, epochLast)
-      : await getLimitTickIfZeroForOne(minLimit, poolAddress, epochLast);
+      ? await getCoverTickIfZeroForOne(minLimit, maxLimit, poolAddress, epochLast)
+      : await getLimitTickIfZeroForOne(minLimit, maxLimit, poolAddress, epochLast);
+    // check data length
     const claimTickDataLength = isCover
       ? claimTickQuery["data"]["ticks"].length
       : claimTickQuery["data"]["limitTicks"].length;
-
-    if (claimTickDataLength > 0)
+    // set claim tick if found
+    if (claimTickDataLength > 0) {
       claimTick = isCover
         ? claimTickQuery["data"]["ticks"][0]["index"]
         : claimTickQuery["data"]["limitTicks"][0]["index"];
+      // handle latest tick for cover positions
+      if (isCover && latestTick) {
+        // if latest further than claim tick
+        if (latestTick < claimTick) {
+          // if latest is past position bounds
+          if (latestTick <= minLimit) {
+            claimTick = minLimit
+          } else {
+            claimTick = latestTick
+          }
+        }
+      }
+    } else {
+      claimTick = isCover ? maxLimit : minLimit
+    }
   } else {
+    // run claim tick query
     const claimTickQuery = isCover
-      ? await getTickIfNotZeroForOne(minLimit, poolAddress, epochLast)
-      : await getLimitTickIfNotZeroForOne(maxLimit, poolAddress, epochLast);
+      ? await getCoverTickIfNotZeroForOne(minLimit, maxLimit, poolAddress, epochLast)
+      : await getLimitTickIfNotZeroForOne(minLimit, maxLimit, poolAddress, epochLast);
+    // check data length
     const claimTickDataLength = isCover
       ? claimTickQuery["data"]["ticks"].length
       : claimTickQuery["data"]["limitTicks"].length;
-    if (claimTickDataLength > 0)
+    // set claim tick if found
+    if (claimTickDataLength > 0) {
       claimTick = isCover
         ? claimTickQuery["data"]["ticks"][0]["index"]
         : claimTickQuery["data"]["limitTicks"][0]["index"];
-    if (claimTick == undefined) {
-      claimTick = minLimit;
+      // handle latest tick for cover positions
+      if (isCover && latestTick) {
+        // if latest further than claim tick
+        if (latestTick > claimTick) {
+          // if latest is past position bounds
+          if (latestTick >= maxLimit) {
+            claimTick = maxLimit
+          } else {
+            claimTick = latestTick
+          }
+        }
+      }
+    } else {
+      claimTick = isCover ? minLimit : maxLimit
     }
   }
   return claimTick;

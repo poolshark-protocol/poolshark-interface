@@ -3,7 +3,13 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
 import useInputBox from "../../hooks/useInputBox";
-import { erc20ABI, useAccount, useBalance, useContractRead, useProvider } from "wagmi";
+import {
+  erc20ABI,
+  useAccount,
+  useBalance,
+  useContractRead,
+  useProvider,
+} from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
@@ -14,6 +20,7 @@ import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import { chainProperties } from "../../utils/chains";
+import router from "next/router";
 
 export default function AddLiquidity({}) {
   const [
@@ -105,6 +112,15 @@ export default function AddLiquidity({}) {
     setSelectedFeeTier(volatility);
   }; */
 
+  useEffect(() => {
+    if (
+      !rangePoolData.poolPrice ||
+      Number(rangePoolData.feeTier.feeAmount) != Number(router.query.feeTier)
+    ) {
+      setRangePoolFromFeeTier(tokenIn, tokenOut, router.query.feeTier);
+    }
+  }, [router.query.feeTier, rangePoolData]);
+
   //this sets the default position price delta
   useEffect(() => {
     if (rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
@@ -112,14 +128,8 @@ export default function AddLiquidity({}) {
       const tickAtPrice = rangePoolData.tickAtPrice;
       setRangePrice(TickMath.getPriceStringAtSqrtPrice(price));
       setRangeSqrtPrice(price);
-      const positionData = rangePositionData;
-      if (isNaN(parseFloat(minInput)) || parseFloat(minInput) <= 0) {
-        setMinInput(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
-      }
-      if (isNaN(parseFloat(maxInput)) || parseFloat(maxInput) <= 0) {
-        setMaxInput(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
-      }
-      setRangePositionData(positionData);
+      setMinInput(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
+      setMaxInput(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
     }
   }, [rangePoolData]);
 
@@ -128,10 +138,7 @@ export default function AddLiquidity({}) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [
-      address,
-      chainProperties['arbitrumGoerli']['routerAddress']
-    ],
+    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
     chainId: 421613,
     watch: needsAllowanceIn,
     enabled: tokenIn.address != undefined,
@@ -147,10 +154,7 @@ export default function AddLiquidity({}) {
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [
-      address,
-      chainProperties['arbitrumGoerli']['routerAddress']
-    ],
+    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
     chainId: 421613,
     watch: needsAllowanceOut,
     enabled: tokenOut.address != undefined,
@@ -247,7 +251,7 @@ export default function AddLiquidity({}) {
     ) {
       tokenOutAmountMath();
     }
-  }, [bnInput, rangePoolAddress, tokenOrder]);
+  }, [bnInput, tokenOrder, lowerPrice, upperPrice]);
 
   function tokenOutAmountMath() {
     try {
@@ -346,7 +350,12 @@ export default function AddLiquidity({}) {
 
   useEffect(() => {
     setMintButtonState();
-  }, [tokenIn, tokenOut, rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount]);
+  }, [
+    tokenIn,
+    tokenOut,
+    rangeMintParams.tokenInAmount,
+    rangeMintParams.tokenOutAmount,
+  ]);
 
   ////////////////////////////////
 
@@ -362,7 +371,6 @@ export default function AddLiquidity({}) {
                 <img className="md:w-6 w-6" src={tokenIn?.logoURI} />
                 <img className="md:w-6 w-6 -ml-2" src={tokenOut?.logoURI} />
               </div>
-
               <span className="text-white text-xs">
                 {tokenOrder ? tokenOut.symbol : tokenIn.symbol} -{" "}
                 {tokenOrder ? tokenIn.symbol : tokenOut.symbol}

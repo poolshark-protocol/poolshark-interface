@@ -7,6 +7,7 @@ import {
 } from "../constants/contractAddresses";
 import { create } from "zustand";
 import { getCoverPoolFromFactory } from "../utils/queries";
+import { volatilityTiers } from "../utils/pools";
 
 type CoverState = {
   //poolAddress for current token pairs
@@ -22,6 +23,7 @@ type CoverState = {
   tokenOut: tokenCover;
   //true if both tokens selected, false if only one token selected
   pairSelected: boolean;
+  latestTick: number;
   coverMintParams: {
     tokenInAmount: BigNumber;
     tokenOutAmount: BigNumber;
@@ -59,6 +61,8 @@ type CoverAction = {
   setTokenOutBalance: (balance: string) => void;
   setTokenOutCoverAllowance: (allowance: string) => void;
   //setCoverAmountOut: (amount: JSBI) => void;
+  //Latest tick
+  setLatestTick: (tick: number) => void;
   //Claim tick
   setClaimTick: (tick: number) => void;
   setMinTick: (coverPositionData, tick: BigNumber) => void;
@@ -86,7 +90,14 @@ type CoverAction = {
 const initialCoverState: CoverState = {
   //pools
   coverPoolAddress: ZERO_ADDRESS as `0x${string}`,
-  coverPoolData: {},
+  coverPoolData: {
+    volatilityTier: {
+      feeAmount: 1000,
+      tickSpread: 20,
+      twapLength: 12,
+      auctionLength: 12
+    }
+  },
   coverPositionData: {},
   coverSwapSlippage: "0.5",
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
@@ -115,6 +126,7 @@ const initialCoverState: CoverState = {
     userRouterAllowance: 0.0,
     coverUSDPrice: 0.0,
   } as tokenCover,
+  latestTick: 0,
   //
   claimTick: 0,
   //
@@ -145,6 +157,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   //tokenOut
   tokenOut: initialCoverState.tokenOut,
   //tick
+  latestTick: initialCoverState.latestTick,
   claimTick: initialCoverState.claimTick,
   coverMintParams: initialCoverState.coverMintParams,
   needsRefetch: initialCoverState.needsRefetch,
@@ -321,6 +334,11 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       coverSwapSlippage: coverSlippage,
     }));
   },
+  setLatestTick: (latestTick: number) => {
+    set(() => ({
+      latestTick: latestTick,
+    }));
+  },
   setClaimTick: (claimTick: number) => {
     set(() => ({
       claimTick: claimTick,
@@ -415,18 +433,36 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         tokenIn.address,
         tokenOut.address
       );
-      const dataLength = pool["data"]["coverPools"].length;
+      let dataLength = pool["data"]["coverPools"].length;
+      let matchedVolatility = false;
       for (let i = 0; i < dataLength; i++) {
         if (
           pool["data"]["coverPools"][i]["volatilityTier"]["feeAmount"] ==
           volatility
         ) {
+          matchedVolatility = true;
           set(() => ({
             coverPoolAddress: pool["data"]["coverPools"][i]["id"],
             coverPoolData: pool["data"]["coverPools"][i],
           }));
         }
       }
+      dataLength = pool["data"]["volatilityTiers"].length
+      if (!matchedVolatility && dataLength > 0)
+        for (let idx=0; idx < dataLength; idx++) {
+          if (pool["data"]["volatilityTiers"]["feeAmount"] == Number(volatility)) {
+            set(() => ({
+              coverPoolAddress: ZERO_ADDRESS as `0x${string}`,
+              coverPoolData: {
+                volatilityTier: {
+                  feeAmount: pool["data"]["volatilityTiers"]["feeAmount"],
+                  tickSpread: pool["data"]["volatilityTiers"]["tickSpread"],
+                  twapLength: pool["data"]["volatilityTiers"]["twapLength"]
+                },
+              }
+            }));
+          }
+        }
     } catch (error) {
       console.log(error);
     }

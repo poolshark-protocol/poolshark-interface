@@ -33,7 +33,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
   const { address } = useAccount();
   const { data: signer } = useSigner();
 
-  const [sliderValue, setSliderValue] = useState(1);
+  const [sliderValue, setSliderValue] = useState(50);
   const [sliderOutput, setSliderOutput] = useState("1");
   const [burnPercent, setBurnPercent] = useState(BN_ZERO);
   const [amount0, setAmount0] = useState(BN_ZERO);
@@ -105,17 +105,20 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
   const [burnGasLimit, setBurnGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    if (signer &&
-        address &&
-        rangePoolAddress &&
-        rangePositionData &&
-        burnPercent)
+    if (
+      signer &&
+      address &&
+      rangePositionData.poolId &&
+      rangePositionData.positionId &&
+      burnPercent != BN_ZERO
+    ) {
       updateGasFee();
-  }, [sliderValue, rangePoolAddress, signer]);
+    }
+  }, [sliderValue]);
 
   async function updateGasFee() {
     const newBurnGasFee = await gasEstimateRangeBurn(
-      rangePoolAddress,
+      rangePositionData.poolId,
       address,
       rangePositionData.positionId,
       burnPercent,
@@ -235,7 +238,9 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
                     </span>
                   </div>
                   <div className="flex items-end justify-between mt-2 mb-3">
-                    <span className="text-3xl">{sliderOutput}</span>
+                    <span className="text-3xl">
+                      {Number(sliderOutput).toPrecision()}
+                    </span>
                     <div className="flex items-center gap-x-2">
                       <button
                         onClick={() => handleSliderButton(100)}
@@ -281,7 +286,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
                         tokenOrder
                           ? ethers.utils.formatUnits(amount1, tokenIn.decimals)
                           : ethers.utils.formatUnits(amount0, tokenIn.decimals)
-                      ).toFixed(2)}
+                      ).toPrecision(5)}
                     </span>
                     <div className="flex items-center gap-x-2">
                       <button
@@ -303,6 +308,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
                   positionId={rangePositionData.positionId}
                   burnPercent={burnPercent}
                   closeModal={() => {
+                    //if (burnPercent==BigNumber.from('0x4b3b4ca85a86c47a098a224000000000')) {
                     if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
                       router.push("/range");
                     }
