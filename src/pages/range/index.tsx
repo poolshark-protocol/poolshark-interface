@@ -11,6 +11,7 @@ import UserIcon from "../../components/Icons/UserIcon";
 import UserRangePool from "../../components/Range/UserRangePool";
 import PoolIcon from "../../components/Icons/PoolIcon";
 import RangePool from "../../components/Range/RangePool";
+import { useRouter } from "next/router";
 
 export default function Range() {
   const { address, isDisconnected } = useAccount();
@@ -26,10 +27,12 @@ export default function Range() {
     state.setNeedsRefetch,
   ]);
 
+  const router = useRouter();
+
   //////////////////////Get Pools Data
   useEffect(() => {
     getRangePoolData();
-  }, [needsRefetch]);
+  }, [needsRefetch, router.isReady]);
 
   async function getRangePoolData() {
     setIsPoolsLoading(true);

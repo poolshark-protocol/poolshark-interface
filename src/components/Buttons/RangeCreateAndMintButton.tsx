@@ -110,6 +110,8 @@ export default function RangeCreateAndMintButton({
 
     onError() {
       setErrorDisplay(true);
+      setNeedsRefetch(false);
+      setNeedsPosRefetch(false);
     },
   });
 

@@ -97,6 +97,8 @@ export default function RangeMintButton({
     },
     onError() {
       setErrorDisplay(true);
+      setNeedsRefetch(false);
+      setNeedsPosRefetch(false);
     },
   });
 
