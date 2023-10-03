@@ -102,8 +102,8 @@ export default function Cover() {
                 Cover your liquidity pools
               </h1>
               <p className="text-sm text-white/40 font-light">
-                Create a Cover Position to protect your profits or exit before downside similar to a stop-loss.
-                Cover Pools track other liquidity pools and will unlock your liquidity once the price reaches your limit.
+                Create a Cover Position to protect your profits from downside similar to a stop-loss.
+                Cover Pools auction off your liquidity once the price range you set is entered.
                 <br/>
               </p>
             </div>
