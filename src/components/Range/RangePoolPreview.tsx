@@ -88,8 +88,6 @@ export default function RangePoolPreview() {
   });
 
   useEffect(() => {
-    console.log("allowanceInRange", allowanceInRange);
-    console.log("allowanceOutRange", allowanceOutRange);
     setTokenInAllowance(allowanceInRange);
     setTokenOutAllowance(allowanceOutRange);
   }, [allowanceInRange, allowanceOutRange]);

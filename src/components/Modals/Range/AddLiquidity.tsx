@@ -144,8 +144,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   });
 
   useEffect(() => {
-    console.log("tokenInAllowance", tokenInAllowance);
-    console.log("tokenOutAllowance", tokenOutAllowance);
     setTokenInAllowance(tokenInAllowance);
     setTokenOutAllowance(tokenOutAllowance);
   }, [tokenInAllowance, tokenOutAllowance]);
