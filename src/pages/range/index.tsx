@@ -83,8 +83,9 @@ export default function Range() {
                 BECOME A LIQUIDITY PROVIDER AND EARN FEES
               </h1>
               <p className="text-sm text-white/40 font-light">
-                Lorem ipsum dolor sit amet consectetur adipiscing elit nascetur
-                purus, habitant mattis cum eros senectus fusce suscipit tempor
+                Provide liquidity and support the leading directional liquidity platform.
+
+                One of the main advantages of providing liquidity to an AMM is the capital efficiency it offers. Preventing idle money allows LPs bootstrapping liquidity for a token pair to be able to earn fees.
               </p>
             </div>
             {/*
@@ -100,17 +101,18 @@ export default function Range() {
             <div className="flex flex-col gap-y-3 ">
               <h1 className="uppercase text-white">How it works</h1>
               <p className="text-sm text-grey3 font-light">
-                Range Pools are similar to what users have come to expect from
-                AMMs while bounding liquidity between a price range.
+                Range Pools are a custom implementation of range-bound liquidity. Range includes a dynamic fee system to increase fee revenue.
+                <br/>
+                LPs earn more fees on large price swings to reduce loss to arbitrageurs.
                 <br />
                 <br />
                 <span className="text-xs">
-                  LPs can provide their liquidity to a specific price range,
-                  resulting in a higher concentration of liquidity and less
-                  slippage for swappers in comparison to AMM without price
-                  bounds. This is due to being able to have more liquidity
-                  within a specific range by not providing to the Full Range of
-                  a constant product curve.
+                Tighter ranges increase fee revenue.
+                </span>
+                <br />
+                <br />
+                <span className="text-xs">
+                Wider ranges decrease LVR risk.
                 </span>
               </p>
             </div>
