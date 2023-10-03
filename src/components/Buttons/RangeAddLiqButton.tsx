@@ -93,6 +93,8 @@ export default function RangeAddLiqButton({
     },
     onError() {
       setErrorDisplay(true);
+      setNeedsRefetch(false);
+      setNeedsPosRefetch(false);
     },
   });
   return (
