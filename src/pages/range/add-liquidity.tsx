@@ -359,6 +359,25 @@ export default function AddLiquidity({}) {
 
   ////////////////////////////////
 
+  const [rangeWarning, setRangeWarning] = useState(false);
+
+  useEffect(() => {
+    if ( tokenOrder ?
+      (Number(minInput) > Number(rangePrice) ||
+      Number(maxInput) < Number(rangePrice)) : (
+        Number(minInput) < Number(invertPrice(rangePrice, tokenOrder)) ||
+      Number(maxInput) > Number(invertPrice(rangePrice, tokenOrder)))
+      )
+     {
+      setRangeWarning(true);
+    } else {
+      setRangeWarning(false)
+    }
+  }, [minInput, rangePrice, maxInput]);
+  
+
+  ////////////////////////////////
+
   return (
     <div className="bg-black min-h-screen  ">
       <Navbar />
@@ -538,18 +557,39 @@ export default function AddLiquidity({}) {
                 </span>
               </div>
             </div>
-            <div className="flex items-center justify-between w-full text-xs  text-[#C9C9C9] mb-8">
-              <div className="text-xs text-[#4C4C4C]">Market Price</div>
-              <div className="uppercase">
-                1 {tokenIn.symbol} ={" "}
-                {!isNaN(parseFloat(rangePrice))
-                  ? parseFloat(invertPrice(rangePrice, tokenOrder)).toPrecision(
-                      5
-                    ) +
-                    " " +
-                    tokenOut.symbol
-                  : "?" + " " + tokenOut.symbol}
+            <div className="mb-8 flex-col flex gap-y-8">
+              <div className="flex items-center justify-between w-full text-xs  text-[#C9C9C9]">
+                <div className="text-xs text-[#4C4C4C]">Market Price</div>
+                <div className="uppercase">
+                  1 {tokenIn.symbol} ={" "}
+                  {!isNaN(parseFloat(rangePrice))
+                    ? parseFloat(
+                        invertPrice(rangePrice, tokenOrder)
+                      ).toPrecision(5) +
+                      " " +
+                      tokenOut.symbol
+                    : "?" + " " + tokenOut.symbol}
+                </div>
               </div>
+              {rangeWarning && (
+                <div className=" text-yellow-600 bg-yellow-900/30 text-[10px] md:text-[11px] flex items-center md:gap-x-5 gap-x-3 p-2 rounded-[8px]">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="md:w-9 w-14"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                  Your position will be 100% {tokenIn.symbol} with this price range and your
+                  position will not earn fees or be used in trades until the
+                  market price moves into your range.
+                </div>
+              )}
             </div>
           </div>
           <RangePoolPreview />
