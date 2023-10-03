@@ -101,7 +101,7 @@ export default function Range() {
             <div className="flex flex-col gap-y-3 ">
               <h1 className="uppercase text-white">How it works</h1>
               <p className="text-sm text-grey3 font-light">
-                Range Pools are a custom implementation of concentrated liquidity with a dynamic fee system to increase fee revenue.
+                Range Pools are a custom implementation of range-bound liquidity. Range includes a dynamic fee system to increase fee revenue.
                 <br/>
                 LPs earn more fees on large price swings to reduce loss to arbitrageurs.
                 <br />
