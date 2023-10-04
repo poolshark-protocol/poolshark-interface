@@ -17,6 +17,7 @@ export default function UserLimitPool({
     const [
         tokenIn,
         setLimitPositionData,
+        setLimitPoolAddress,
         setTokenIn,
         setTokenOut,
         setClaimTick,
@@ -26,6 +27,7 @@ export default function UserLimitPool({
     ] = useRangeLimitStore((state) => [
         state.tokenIn,
         state.setLimitPositionData,
+        state.setLimitPoolAddress,
         state.setTokenIn,
         state.setTokenOut,
         state.setClaimTick,
@@ -55,6 +57,7 @@ export default function UserLimitPool({
 
     async function choosePosition() {
         setLimitPositionData(limitPosition);
+        setLimitPoolAddress(limitPosition.poolId);
         setNeedsAllowanceIn(true);
         setNeedsBalanceIn(true);
         const tokenInNew = {
