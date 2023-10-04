@@ -129,8 +129,7 @@ export default function CreateCover(props: any) {
     watch: needsAllowance,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
-      // setNeedsAllowance(true);
-      //console.log("allowance fetched");
+      // setNeedsAllowance(false);
     },
     onError(error) {
       console.log("Error", error);
@@ -428,9 +427,10 @@ export default function CreateCover(props: any) {
             coverMintParams.tokenInAmount,
             signer
           );
-    console.log("newMintGasFee", newMintGasFee);
-    setMintGasFee(newMintGasFee.formattedPrice);
-    setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
+    if (newMintGasFee.formattedPrice != mintGasFee) {
+      setMintGasFee(newMintGasFee.formattedPrice);
+      setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
+    }
   }
 
   ////////////////////////////////Token Balances
