@@ -77,7 +77,7 @@ export default function UserLimitPool({
         setLimitPoolFromVolatility(
             tokenInNew,
             tokenOutNew,
-            limitPosition.feeTier,
+            limitPosition.feeTier.toString(),
         );
         router.push({
             pathname: href,

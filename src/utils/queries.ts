@@ -82,6 +82,8 @@ export const getRangePoolFromFactory = (
             poolPrice
             tickAtPrice
             feeTier {
+              id
+              feeAmount
               tickSpacing
             }
             token0 {
@@ -164,6 +166,7 @@ export const getLimitPoolFromFactory = (tokenA: string, tokenB: string) => {
             limitPools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
               id
               feeTier {
+                id
                 feeAmount
                 tickSpacing
               }
@@ -530,6 +533,7 @@ export const fetchLimitPositions = (address: string) => {
                     liquidityGlobal
                     epoch
                     feeTier{
+                      id
                       feeAmount
                       tickSpacing
                     }
@@ -586,6 +590,7 @@ export const fetchLimitPools = () => {
                     liquidity
                     liquidityGlobal
                     feeTier{
+                        id
                         feeAmount
                         tickSpacing
                     }
@@ -674,6 +679,7 @@ export const fetchRangePools = () => {
                     feesEth
                     feesUsd
                     feeTier{
+                        id
                         tickSpacing
                         feeAmount
                     }
@@ -744,6 +750,7 @@ export const fetchRangePositions = (address: string) => {
               poolPrice
               liquidity
               feeTier{
+                  id
                   feeAmount
                   tickSpacing
               }
