@@ -380,7 +380,13 @@ export default function Trade() {
         .toString();
       setLimitPriceString(newPrice);
     }
-  }, [limitPriceOrder, tokenIn, tokenOut]);
+  }, [tokenIn, tokenOut]);
+
+  useEffect(() => {
+    if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
+      setLimitPriceString(invertPrice(limitPriceString, false));
+    }
+  }, [limitPriceOrder]);
 
   useEffect(() => {
     const tickSpacing = tradePoolData?.feeTier?.tickSpacing;
