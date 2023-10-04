@@ -40,12 +40,8 @@ export default function Cover() {
   ///////////////////////////Positions
 
   useEffect(() => {
-    if (address) {
-      setTimeout(() => {
-        getUserCoverPositionData();
-      }, 1000);
-    }
-  }, []);
+    getUserCoverPositionData();
+  }, [needsRefetch, router.isReady]);
 
   async function getUserCoverPositionData() {
     setIsPositionsLoading(true);
@@ -56,6 +52,9 @@ export default function Cover() {
       setAllCoverPositions(positionData);
       setIsPositionsLoading(false);
     }
+    setTimeout(() => {
+      getUserCoverPositionData();
+    }, 30000);
   }
 
   ///////////////////////////Pools
@@ -102,9 +101,10 @@ export default function Cover() {
                 Cover your liquidity pools
               </h1>
               <p className="text-sm text-white/40 font-light">
-                Create a Cover Position to protect your profits from downside similar to a stop-loss.
-                Cover Pools auction off your liquidity once the price range you set is entered.
-                <br/>
+                Create a Cover Position to protect your profits from downside
+                similar to a stop-loss. Cover Pools auction off your liquidity
+                once the price range you set is entered.
+                <br />
               </p>
             </div>
             <Link href="/cover/create">
@@ -127,10 +127,9 @@ export default function Cover() {
                 <span className="text-xs">
                   - If the ETH price <b>increases</b>, the pool <b>sells DAI</b>{" "}
                   to <b>buy ETH</b>.
-                  <br/>
+                  <br />
                   <br />- If the ETH price <b>decreases</b>, the pool{" "}
-                  <b>sells ETH</b> to {" "}
-                  <b>buy DAI</b>.
+                  <b>sells ETH</b> to <b>buy DAI</b>.
                 </span>
               </p>
             </div>
@@ -272,10 +271,9 @@ export default function Cover() {
                   <div className="grid grid-cols-2 w-full text-xs text-grey1/60 w-full mt-5 mb-2 uppercase">
                     <div className="text-left">Pool Name</div>
                     <div className="grid grid-cols-3">
+                      <span className="text-right md:table-cell hidden"></span>
                       <span className="text-right md:table-cell hidden">
-                      </span>
-                      <span className="text-right md:table-cell hidden">
-                      Volume (24h)  
+                        Volume (24h)
                       </span>
                       <span className="text-right mr-4 md:table-cell hidden">
                         TVL

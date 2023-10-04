@@ -498,10 +498,10 @@ export default function RangePoolPreview() {
       </Transition>
       <button
         onClick={() => setIsOpen(true)}
-        //disabled={rangeMintParams.disabled}
+        disabled={rangeMintParams.disabled}
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
       >
-        <>Preview</>
+        <>{rangeMintParams.disabled ? rangeMintParams.buttonMessage : "Preview"}</>
       </button>
     </div>
   );

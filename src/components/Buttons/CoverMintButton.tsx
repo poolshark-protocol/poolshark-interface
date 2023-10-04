@@ -32,13 +32,17 @@ export default function CoverMintButton({
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
 
-  const [setNeedsRefetch, setNeedsAllowance, setNeedsBalance] = useCoverStore(
-    (state) => [
-      state.setNeedsRefetch,
-      state.setNeedsAllowance,
-      state.setNeedsBalance,
-    ]
-  );
+  const [
+    setNeedsRefetch,
+    setNeedsPosRefetch,
+    setNeedsAllowance,
+    setNeedsBalance,
+  ] = useCoverStore((state) => [
+    state.setNeedsRefetch,
+    state.setNeedsPosRefetch,
+    state.setNeedsAllowance,
+    state.setNeedsBalance,
+  ]);
 
   const newPositionId = 0;
 
@@ -73,13 +77,15 @@ export default function CoverMintButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
-      setNeedsRefetch(true);
       setNeedsAllowance(true);
       setNeedsBalance(true);
+      setTimeout(() => {
+        setNeedsRefetch(true);
+        setNeedsPosRefetch(true);
+      }, 1000);
     },
   });
 
-  console.log(successDisplay)
 
   return (
     <>
@@ -90,7 +96,13 @@ export default function CoverMintButton({
       >
         {buttonMessage}
       </button>
-      <PositionMintModal errorDisplay={errorDisplay} hash={data?.hash} isLoading={isLoading} successDisplay={successDisplay} type={"cover"}/>
+      <PositionMintModal
+        errorDisplay={errorDisplay}
+        hash={data?.hash}
+        isLoading={isLoading}
+        successDisplay={successDisplay}
+        type={"cover"}
+      />
     </>
   );
 }
