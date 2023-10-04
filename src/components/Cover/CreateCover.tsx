@@ -184,7 +184,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     if (newLatestTick) {
-      setLatestTick(parseInt(newLatestTick.toString()))
+      setLatestTick(parseInt(newLatestTick.toString()));
     }
   }, [newLatestTick]);
 
@@ -411,8 +411,9 @@ export default function CreateCover(props: any) {
           )
         : await gasEstimateCoverCreateAndMint(
             "PSHARK-CPROD",
-            coverPoolData.volatilityTier ? coverPoolData.volatilityTier
-                                         : volatilityTiers[0],
+            coverPoolData.volatilityTier
+              ? coverPoolData.volatilityTier
+              : volatilityTiers[0],
             address,
             TickMath.getTickAtPriceString(
               coverPositionData.upperPrice,
@@ -427,7 +428,7 @@ export default function CreateCover(props: any) {
             coverMintParams.tokenInAmount,
             signer
           );
-
+    console.log("newMintGasFee", newMintGasFee);
     setMintGasFee(newMintGasFee.formattedPrice);
     setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
   }
@@ -777,8 +778,11 @@ export default function CreateCover(props: any) {
             poolType={"PSHARK-CPROD"}
             tokenIn={tokenIn}
             tokenOut={tokenOut}
-            volTier={coverPoolData.volatilityTier ? coverPoolData.volatilityTier 
-                                                  : volatilityTiers[0]}
+            volTier={
+              coverPoolData.volatilityTier
+                ? coverPoolData.volatilityTier
+                : volatilityTiers[0]
+            }
             disabled={coverMintParams.disabled}
             to={address}
             lower={TickMath.getTickAtPriceString(
