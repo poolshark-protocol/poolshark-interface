@@ -483,7 +483,7 @@ export default function ViewLimit() {
                   </div>
                 </div>
                 <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
-                  <span className="text-grey1 text-xs">CURRENT. PRICE</span>
+                  <span className="text-grey1 text-xs">CURRENT PRICE</span>
                   <span className="text-white text-3xl text-grey1">
                     {limitPoolData?.poolPrice ?
                       priceDirection
