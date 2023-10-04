@@ -246,7 +246,7 @@ export default function ViewLimit() {
       Number(limitPositionData.max),
       Boolean(limitPositionData.zeroForOne),
       Number(limitPositionData.epochLast),
-      true
+      false
     );
 
     setClaimTick(aux);
