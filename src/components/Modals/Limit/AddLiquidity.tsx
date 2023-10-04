@@ -265,7 +265,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                       routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
                       lower={Number(limitPositionData.min)}
                       upper={Number(limitPositionData.max)}
-                      positionId={Number(limitPositionData.positionId)}
+                      positionId={BigNumber.from(limitPositionData.positionId)}
                       mintPercent={ethers.utils.parseUnits("1", 24)}
                       zeroForOne={tokenIn.callId == 0}
                       amount={bnInput}
