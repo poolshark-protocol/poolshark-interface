@@ -211,7 +211,12 @@ export default function ViewLimit() {
   }, [filledAmount]);
 
   ////////////////////////////////Claim Tick
-
+  useEffect(() => {
+    if (limitPositionData != undefined) {
+      updateClaimTick();
+    }
+  }, []);
+  
   useEffect(() => {
     setTimeout(() => {
       updateClaimTick();
