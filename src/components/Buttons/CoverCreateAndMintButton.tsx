@@ -12,6 +12,7 @@ import { BigNumber, ethers } from "ethers";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import router from "next/router";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
+import PositionMintModal from "../Modals/PositionMint";
 
 export default function CoverCreateAndMintButton({
   routerAddress,
@@ -100,23 +101,7 @@ export default function CoverCreateAndMintButton({
       >
         {buttonMessage}
       </button>
-      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
-        {errorDisplay && (
-          <ErrorToast
-            hash={data?.hash}
-            errorDisplay={errorDisplay}
-            setErrorDisplay={setErrorDisplay}
-          />
-        )}
-        {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-        {successDisplay && (
-          <SuccessToast
-            hash={data?.hash}
-            successDisplay={successDisplay}
-            setSuccessDisplay={setSuccessDisplay}
-          />
-        )}
-      </div>
+      <PositionMintModal errorDisplay={errorDisplay} hash={data?.hash} isLoading={isLoading} successDisplay={successDisplay} type={"cover"}/>
     </>
   );
 }

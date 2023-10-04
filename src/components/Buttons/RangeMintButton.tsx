@@ -12,6 +12,7 @@ import { BN_ZERO } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { ethers } from "ethers";
+import PositionMintModal from "../Modals/PositionMint";
 
 export default function RangeMintButton({
   disabled,
@@ -96,6 +97,8 @@ export default function RangeMintButton({
     },
     onError() {
       setErrorDisplay(true);
+      setNeedsRefetch(false);
+      setNeedsPosRefetch(false);
     },
   });
 
@@ -108,23 +111,7 @@ export default function RangeMintButton({
       >
         {buttonMessage}
       </button>
-      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
-        {errorDisplay && (
-          <ErrorToast
-            hash={data?.hash}
-            errorDisplay={errorDisplay}
-            setErrorDisplay={setErrorDisplay}
-          />
-        )}
-        {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-        {successDisplay && (
-          <SuccessToast
-            hash={data?.hash}
-            successDisplay={successDisplay}
-            setSuccessDisplay={setSuccessDisplay}
-          />
-        )}
-      </div>
+      <PositionMintModal errorDisplay={errorDisplay} hash={data?.hash} isLoading={isLoading} successDisplay={successDisplay} type={"range"}/>
     </>
   );
 }
