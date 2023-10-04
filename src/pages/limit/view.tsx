@@ -15,12 +15,13 @@ import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import JSBI from "jsbi";
+import { useTradeStore } from "../../hooks/useTradeStore";
 
 export default function ViewLimit() {
   const [
     limitPoolAddress,
-    limitPoolData,
     limitPositionData,
+    limitPoolData,
     limitMintParams,
     tokenIn,
     tokenOut,
@@ -35,8 +36,8 @@ export default function ViewLimit() {
     setClaimTick,
   ] = useRangeLimitStore((state) => [
     state.limitPoolAddress,
-    state.limitPoolData,
     state.limitPositionData,
+    state.limitPoolData,
     state.limitMintParams,
     state.tokenIn,
     state.tokenOut,
@@ -65,34 +66,7 @@ export default function ViewLimit() {
   //Display and copy flags
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
-  const [is0Copied, setIs0Copied] = useState(false);
-  const [is1Copied, setIs1Copied] = useState(false);
-  const [isPoolCopied, setIsPoolCopied] = useState(false);
 
-  const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-    tokenIn.address
-      ? tokenIn.address.toString().substring(0, 6) +
-          "..." +
-          tokenIn.address
-            .toString()
-            .substring(
-              tokenIn.address.toString().length - 4,
-              tokenIn.address.toString().length
-            )
-      : undefined
-  );
-  const [tokenOneDisplay, setTokenOneDisplay] = useState(
-    tokenOut.address
-      ? tokenOut.address.toString().substring(0, 6) +
-          "..." +
-          tokenOut.address
-            .toString()
-            .substring(
-              tokenOut.address.toString().length - 4,
-              tokenOut.address.toString().length
-            )
-      : undefined
-  );
   const [poolDisplay, setPoolDisplay] = useState(
     limitPoolAddress
       ? limitPoolAddress.toString().substring(0, 6) +
@@ -136,6 +110,7 @@ export default function ViewLimit() {
 
   //TODO need to be set to utils
   const getLimitPoolRatios = () => {
+    console.log("limit pool data", limitPoolData);
     try {
       if (limitPoolData != undefined) {
         setLowerInverse(
