@@ -141,18 +141,20 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   }, [bnInput]);
 
   async function updateMintFee() {
-    await gasEstimateMintLimit(
-      limitPoolAddress,
-      address,
-      BigNumber.from(limitPositionData.min),
-      BigNumber.from(limitPositionData.max),
-      tokenIn,
-      tokenOut,
-      bnInput,
-      signer,
-      setMintGasFee,
-      setMintGasLimit
-    );
+    if (bnInput.gt(BN_ZERO) && signer) {
+      await gasEstimateMintLimit(
+        limitPoolAddress,
+        address,
+        BigNumber.from(limitPositionData.min),
+        BigNumber.from(limitPositionData.max),
+        tokenIn,
+        tokenOut,
+        bnInput,
+        signer,
+        setMintGasFee,
+        setMintGasLimit
+      );
+    }
   }
 
 

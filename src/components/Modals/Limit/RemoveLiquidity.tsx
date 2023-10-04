@@ -34,7 +34,7 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address, curre
   const [amountInDisplay, setAmountInDisplay] = useState(
     ethers.utils.formatUnits(
       currentAmountOut != "" ?
-      BigNumber.from(currentAmountOut) : BN_ZERO,
+        currentAmountOut : BN_ZERO,
       18
     )
   );

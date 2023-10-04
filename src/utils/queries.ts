@@ -165,16 +165,39 @@ export const getLimitPoolFromFactory = (tokenA: string, tokenB: string) => {
         {
             limitPools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
               id
-              feeTier {
-                id
-                feeAmount
-                tickSpacing
+              epoch
+              token0{
+                  id
+                  name
+                  symbol
+                  decimals
+              }
+              token1{
+                  id
+                  name
+                  symbol
+                  decimals
+              }
+              liquidity
+              liquidityGlobal
+              feeTier{
+                  id
+                  feeAmount
+                  tickSpacing
               }
               tickSpacing
-              pool0price
-              pool1price
               price0
               price1
+              feesEth
+              feesUsd
+              volumeEth
+              volumeToken0
+              volumeToken1
+              volumeUsd
+              totalValueLockedEth
+              totalValueLocked0
+              totalValueLocked1
+              totalValueLockedUsd
             }
           }
          `;
@@ -572,8 +595,6 @@ export const fetchLimitPools = () => {
             query($id: String) {
                 limitPools(id: $id) {
                     id
-                    inputPool
-                    genesisTime
                     epoch
                     token0{
                         id
@@ -597,10 +618,6 @@ export const fetchLimitPools = () => {
                     tickSpacing
                     price0
                     price1
-                    pool0price
-                    pool1price
-                    pool0liquidity
-                    pool1liquidity
                     feesEth
                     feesUsd
                     volumeEth
