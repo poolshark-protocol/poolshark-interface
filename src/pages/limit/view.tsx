@@ -466,7 +466,7 @@ export default function ViewLimit() {
                         : TickMath.getPriceStringAtSqrtPrice(
                             JSBI.BigInt(Number(limitPoolData.poolPrice))
                           )
-                        : ""}
+                        : "0.00"}
                   </span>
                 </div>
               </div>
