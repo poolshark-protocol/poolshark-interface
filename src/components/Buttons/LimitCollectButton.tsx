@@ -10,6 +10,7 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BigNumber } from "ethers";
 import { useRangeLimitStore } from '../../hooks/useRangeLimitStore';
+import { BN_ZERO } from '../../utils/math/constants';
 
 export default function LimitCollectButton({ poolAddress, address, positionId, claim, zeroForOne, gasLimit, gasFee }) {
 
@@ -36,7 +37,7 @@ export default function LimitCollectButton({ poolAddress, address, positionId, c
           zeroForOne
       ]],
       chainId: 421613,
-      overrides:{
+      overrides: {
           gasLimit: gasLimit
       },
   })

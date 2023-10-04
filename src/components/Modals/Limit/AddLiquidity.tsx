@@ -52,8 +52,10 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   const [allowanceIn, setAllowanceIn] = useState(BN_ZERO);
   const { isConnected } = useAccount();
   const [stateChainName, setStateChainName] = useState();
+
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
   const [mintGasFee, setMintGasFee] = useState("$0.00");
+  
   const [fetchDelay, setFetchDelay] = useState(false);
   const [buttonState, setButtonState] = useState("");
   const [disabled, setDisabled] = useState(true);
@@ -156,7 +158,6 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
       );
     }
   }
-
 
   return (
     <Transition appear show={isOpen} as={Fragment}>

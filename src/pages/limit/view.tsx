@@ -16,6 +16,8 @@ import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import JSBI from "jsbi";
 import { useTradeStore } from "../../hooks/useTradeStore";
+import { BN_ZERO } from "../../utils/math/constants";
+import { gasEstimateBurnLimit } from "../../utils/gas";
 
 export default function ViewLimit() {
   const [
@@ -87,6 +89,9 @@ export default function ViewLimit() {
   const [lowerInverse, setLowerInverse] = useState(0);
   const [upperInverse, setUpperInverse] = useState(0);
   const [priceInverse, setPriceInverse] = useState(0);
+
+  const [collectGasLimit, setCollectGasLimit] = useState(BN_ZERO);
+  const [collectGasFee, setCollectGasFee] = useState("$0.00");
 
   ////////////////////////////////Fetch Pool Data
   useEffect(() => {
@@ -223,6 +228,7 @@ export default function ViewLimit() {
     setTimeout(() => {
       updateClaimTick();
     }, 3000);
+    updateCollectFee();
   }, [claimTick]);
 
   async function updateClaimTick() {
@@ -271,6 +277,23 @@ export default function ViewLimit() {
       }
     }, 2000);
   }, [needsRefetch, needsPosRefetch]);
+
+  ////////////////////////////////Collect Gas
+  async function updateCollectFee() {
+    if (signer) {
+      await gasEstimateBurnLimit(
+        limitPoolAddress,
+        address,
+        BigNumber.from(0),
+        limitPositionData.positionId,
+        BigNumber.from(claimTick),
+        tokenIn.callId == 0,
+        signer,
+        setCollectGasFee,
+        setCollectGasLimit,
+      );
+    }
+  }
 
   return (
     <div className="bg-black min-h-screen  ">
@@ -539,8 +562,8 @@ export default function ViewLimit() {
                 positionId={limitPositionData.positionId}
                 claim={BigNumber.from(claimTick)}
                 zeroForOne={tokenIn.callId == 0}
-                gasLimit={limitMintParams.gasLimit.mul(150).div(100)}
-                gasFee={limitMintParams.gasFee}
+                gasLimit={collectGasLimit}
+                gasFee={collectGasFee}
               />
               {/*TO-DO: add positionOwner ternary again*/}
             </div>
