@@ -368,7 +368,6 @@ export default function Trade() {
 
   ////////////////////////////////Limit Price Switch
   const [limitPriceOrder, setLimitPriceOrder] = useState(true);
-  // const [limitStringPriceQuote, setLimitStringPriceQuote] = useState("0");
   const [lowerPriceString, setLowerPriceString] = useState("0");
   const [upperPriceString, setUpperPriceString] = useState("0");
 
@@ -394,7 +393,6 @@ export default function Trade() {
         )
       );
     }
-
   }, [lowerPriceString]);
 
   useEffect(() => {

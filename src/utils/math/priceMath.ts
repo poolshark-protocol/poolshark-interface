@@ -23,7 +23,7 @@ export function precision(price: JSBD): number {
 }
 
 export function getMarketPriceAboveBelowString(limitStringPriceQuote: string, pairSelected: boolean, limitPriceOrder: boolean, tokenIn: tokenSwap, tokenOut: tokenSwap): string {
-    if (parseFloat(limitStringPriceQuote) == 0) return '0.00% abovee Market Price'
+    if (parseFloat(limitStringPriceQuote) == 0) return '0.00% above Market Price'
     const basePrice = limitPriceOrder == (tokenIn.callId == 0)
                         ? tokenIn.USDPrice / tokenOut.USDPrice
                         : tokenOut.USDPrice / tokenIn.USDPrice
