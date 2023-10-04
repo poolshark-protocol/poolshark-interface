@@ -177,7 +177,7 @@ export default function CoverExistingPool({ goBack }) {
 
   useEffect(() => {
     if (newLatestTick) {
-      setLatestTick(parseInt(newLatestTick.toString()))
+      setLatestTick(parseInt(newLatestTick.toString()));
     }
   }, [newLatestTick]);
 
@@ -410,14 +410,15 @@ export default function CoverExistingPool({ goBack }) {
       coverPoolData.volatilityTier &&
       coverMintParams.tokenInAmount &&
       tokenIn.userRouterAllowance &&
-      tokenIn.userRouterAllowance >= parseInt(coverMintParams.tokenInAmount.toString())
+      tokenIn.userRouterAllowance >=
+        parseInt(coverMintParams.tokenInAmount.toString())
     )
       updateGasFee();
   }, [
     coverMintParams.tokenInAmount,
     coverPoolAddress,
     coverPositionData,
-    tokenIn
+    tokenIn,
   ]);
 
   async function updateGasFee() {
@@ -441,8 +442,9 @@ export default function CoverExistingPool({ goBack }) {
           )
         : await gasEstimateCoverCreateAndMint(
             "PSHARK-CPROD",
-            coverPoolData.volatilityTier ? coverPoolData.volatilityTier
-                                         : volatilityTiers[0],
+            coverPoolData.volatilityTier
+              ? coverPoolData.volatilityTier
+              : volatilityTiers[0],
             address,
             TickMath.getTickAtPriceString(
               coverPositionData.upperPrice,
@@ -457,8 +459,10 @@ export default function CoverExistingPool({ goBack }) {
             coverMintParams.tokenInAmount,
             signer
           );
-    setMintGasFee(newMintGasFee.formattedPrice);
-    setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
+    if (newMintGasFee.formattedPrice != mintGasFee) {
+      setMintGasFee(newMintGasFee.formattedPrice);
+      setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
+    }
   }
 
   ////////////////////////////////Mint Button Handler
@@ -545,7 +549,10 @@ export default function CoverExistingPool({ goBack }) {
         <div className="flex justify-between md:justify-start gap-x-4 items-center">
           <button className="flex w-full items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
             <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
-              <img className="md:w-7 w-6" src={(tokenOrder ? tokenOut : tokenIn).logoURI} />
+              <img
+                className="md:w-7 w-6"
+                src={(tokenOrder ? tokenOut : tokenIn).logoURI}
+              />
               {(tokenOrder ? tokenOut : tokenIn).symbol}
             </div>
           </button>
@@ -557,7 +564,10 @@ export default function CoverExistingPool({ goBack }) {
           />
           <button className="flex w-full items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
             <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
-              <img className="md:w-7 w-6" src={(tokenOrder ? tokenIn : tokenOut).logoURI} />
+              <img
+                className="md:w-7 w-6"
+                src={(tokenOrder ? tokenIn : tokenOut).logoURI}
+              />
               {(tokenOrder ? tokenIn : tokenOut).symbol}
             </div>
           </button>
@@ -815,8 +825,11 @@ export default function CoverExistingPool({ goBack }) {
             poolType={"PSHARK-CPROD"}
             tokenIn={tokenIn}
             tokenOut={tokenOut}
-            volTier={coverPoolData.volatilityTier ? coverPoolData.volatilityTier 
-                                                  : volatilityTiers[0]}
+            volTier={
+              coverPoolData.volatilityTier
+                ? coverPoolData.volatilityTier
+                : volatilityTiers[0]
+            }
             disabled={coverMintParams.disabled}
             buttonMessage={coverMintParams.buttonMessage}
             to={address}

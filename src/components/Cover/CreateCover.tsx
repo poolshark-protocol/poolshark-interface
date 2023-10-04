@@ -129,8 +129,7 @@ export default function CreateCover(props: any) {
     watch: needsAllowance,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
-      // setNeedsAllowance(true);
-      //console.log("allowance fetched");
+      // setNeedsAllowance(false);
     },
     onError(error) {
       console.log("Error", error);
@@ -184,7 +183,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     if (newLatestTick) {
-      setLatestTick(parseInt(newLatestTick.toString()))
+      setLatestTick(parseInt(newLatestTick.toString()));
     }
   }, [newLatestTick]);
 
@@ -411,8 +410,9 @@ export default function CreateCover(props: any) {
           )
         : await gasEstimateCoverCreateAndMint(
             "PSHARK-CPROD",
-            coverPoolData.volatilityTier ? coverPoolData.volatilityTier
-                                         : volatilityTiers[0],
+            coverPoolData.volatilityTier
+              ? coverPoolData.volatilityTier
+              : volatilityTiers[0],
             address,
             TickMath.getTickAtPriceString(
               coverPositionData.upperPrice,
@@ -427,9 +427,10 @@ export default function CreateCover(props: any) {
             coverMintParams.tokenInAmount,
             signer
           );
-
-    setMintGasFee(newMintGasFee.formattedPrice);
-    setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
+    if (newMintGasFee.formattedPrice != mintGasFee) {
+      setMintGasFee(newMintGasFee.formattedPrice);
+      setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
+    }
   }
 
   ////////////////////////////////Token Balances
@@ -777,8 +778,11 @@ export default function CreateCover(props: any) {
             poolType={"PSHARK-CPROD"}
             tokenIn={tokenIn}
             tokenOut={tokenOut}
-            volTier={coverPoolData.volatilityTier ? coverPoolData.volatilityTier 
-                                                  : volatilityTiers[0]}
+            volTier={
+              coverPoolData.volatilityTier
+                ? coverPoolData.volatilityTier
+                : volatilityTiers[0]
+            }
             disabled={coverMintParams.disabled}
             to={address}
             lower={TickMath.getTickAtPriceString(
