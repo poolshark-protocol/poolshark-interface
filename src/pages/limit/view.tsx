@@ -15,11 +15,11 @@ import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import JSBI from "jsbi";
-import { useTradeStore } from "../../hooks/useTradeStore";
 
 export default function ViewLimit() {
   const [
     limitPoolAddress,
+    limitPoolData,
     limitPositionData,
     limitMintParams,
     tokenIn,
@@ -35,6 +35,7 @@ export default function ViewLimit() {
     setClaimTick,
   ] = useRangeLimitStore((state) => [
     state.limitPoolAddress,
+    state.limitPoolData,
     state.limitPositionData,
     state.limitMintParams,
     state.tokenIn,
@@ -49,8 +50,6 @@ export default function ViewLimit() {
     state.setTokenOutRangeUSDPrice,
     state.setClaimTick,
   ]);
-
-  const [limitPoolData] = useTradeStore((state) => [state.tradePoolData]);
 
   const { address, isConnected } = useAccount();
   const { data: signer } = useSigner();

@@ -10,12 +10,12 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useEffect, useState } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
-import { useTradeStore } from "../../hooks/useTradeStore";
 import { getClaimTick } from "../../utils/maps";
 import { gasEstimateBurnLimit } from "../../utils/gas";
 import { BN_ZERO } from "../../utils/math/constants";
+import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 
-export default function LimitSwapBurnButton({
+export default function LimitRemoveLiqButton({
   poolAddress,
   address,
   positionId,
@@ -30,7 +30,7 @@ export default function LimitSwapBurnButton({
 }) {
   const { data: signer } = useSigner();
 
-  const [setNeedsRefetch, setNeedsBalanceIn, setNeedsBalanceOut] = useTradeStore(
+  const [setNeedsRefetch, setNeedsBalanceIn, setNeedsBalanceOut] = useRangeLimitStore(
     (state) => [
       state.setNeedsRefetch,
       state.setNeedsBalanceIn,
