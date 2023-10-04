@@ -223,6 +223,7 @@ export function mapUserLimitPositions(limitPositions) {
       tokenOut: limitPosition.tokenOut,
       price0: limitPosition.pool.price0,
       price1: limitPosition.pool.price1,
+      feeTier: limitPosition.pool.feeTier.feeAmount,
       userOwnerAddress: limitPosition.owner.replace(/"|'/g, ""),
     };
     mappedLimitPositions.push(limitPositionData);

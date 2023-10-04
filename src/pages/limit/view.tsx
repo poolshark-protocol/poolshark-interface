@@ -355,12 +355,14 @@ export default function ViewLimit() {
               <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
                 <div className="flex items-end justify-between text-[11px] text-grey1">
                   <span>
-                    ~$
-                    {(
-                      Number(
-                          currentAmountOut
-                      ) * tokenIn.USDPrice
-                    ).toFixed(2)}
+                  ~$
+                    {!isNaN(Number(currentAmountOut)) && !isNaN(tokenOut.USDPrice) ? (
+                      (
+                        Number(
+                            currentAmountOut
+                        ) * tokenIn.USDPrice
+                      ).toFixed(2)
+                    ) : ("0.00")}
                   </span>
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
@@ -499,7 +501,7 @@ export default function ViewLimit() {
           <div className="border bg-dark border-grey rounded-[4px] w-1/2 p-5 h-min">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">Filled Liquidity</h1>
-              {limitPositionData.amountIn ? (
+              {!isNaN(limitPositionData.amountIn) && !isNaN(Number(limitFilledAmount)) ? (
                 <span className="text-grey1">${Number(limitFilledAmount).toFixed(2)}
                   <span className="text-grey">
                     /
@@ -510,18 +512,28 @@ export default function ViewLimit() {
                       )
                     ).toFixed(2)}
                   </span>
-                </span>) : null
+                </span>) : (
+                  <span className="text-grey1">$0.00
+                    <span className="text-grey">
+                      /0.00
+                    </span>
+                  </span>)
               }
             </div>
             <div className="flex flex-col gap-y-3 mt-2">
               <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
                 <div className="flex items-end justify-between text-[11px] text-grey1">
-                  <span>
-                    ~$
-                    {(
-                      Number(limitFilledAmount) * tokenOut.USDPrice
-                    ).toFixed(2)}
-                  </span>
+                  {!isNaN(Number(limitFilledAmount)) && !isNaN(tokenOut.USDPrice) ? (
+                    <span>
+                      ~$
+                      {(
+                        Number(limitFilledAmount) * tokenOut.USDPrice
+                      ).toFixed(2)}
+                    </span>) :
+                    <span>
+                      ~$0.00
+                    </span>
+                  }
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
                   {Number(limitFilledAmount).toFixed(2)}
