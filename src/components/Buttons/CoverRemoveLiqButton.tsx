@@ -10,6 +10,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { useCoverStore } from "../../hooks/useCoverStore";
+import { BN_ZERO } from "../../utils/math/constants";
 
 export default function CoverRemoveLiqButton({
   disabled,
@@ -61,8 +62,11 @@ export default function CoverRemoveLiqButton({
     onSuccess() {
       setSuccessDisplay(true);
       setTimeout(() => {
+        setNeedsRefetch(true);
+        setNeedsPosRefetch(true);
+        setIsOpen(false);
         closeModal();
-      }, 2000);
+      }, 1000);
       if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
         setNeedsRefetch(true);
       }
@@ -78,7 +82,7 @@ export default function CoverRemoveLiqButton({
   return (
     <>
       <button
-        disabled={disabled}
+        disabled={disabled || gasLimit.lte(BN_ZERO)}
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
         onClick={() => {
           address ? write?.() : null;
