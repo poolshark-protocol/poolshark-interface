@@ -247,7 +247,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                 allowanceIn.lt(bnInput) &&
                 stateChainName === "arbitrumGoerli" ? (
                   <SwapRouterApproveButton
-                    routerAddress={limitPoolAddress}
+                    routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
                     approveToken={tokenIn.address}
                     amount={bnInput}
                     tokenSymbol={tokenIn.symbol}
