@@ -62,21 +62,22 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, limitPoolAddress],
+    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
     chainId: 421613,
     watch: needsAllowance,
     enabled:
       isConnected &&
-      limitPoolAddress != undefined &&
       tokenIn.address != undefined && needsAllowance,
     onSuccess(data) {
       console.log("Success");
       setNeedsAllowance(false);
+      console.log("Allowance", data);
     },
     onError(error) {
-      console.log("Error", error);
+      console.log("Error allowance", error);
     },
     onSettled(data, error) {
+      console.log("current allowance", allowanceIn)
       console.log("allowance check", allowanceIn.lt(bnInput));
       console.log("Allowance Settled", {
         data,
@@ -243,33 +244,32 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                     </div>
                   </div>
                 </div>
-                {isConnected &&
-                allowanceIn.lt(bnInput) &&
-                stateChainName === "arbitrumGoerli" ? (
-                  <SwapRouterApproveButton
-                    routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
-                    approveToken={tokenIn.address}
-                    amount={bnInput}
-                    tokenSymbol={tokenIn.symbol}
-                  />
-                ) : stateChainName === "arbitrumGoerli" ? (
-                  <LimitAddLiqButton
-                    disabled={disabled || mintGasFee == "$0.00"}
-                    to={address}
-                    poolAddress={limitPoolAddress}
-                    routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
-                    lower={Number(limitPositionData.min)}
-                    upper={Number(limitPositionData.max)}
-                    positionId={Number(limitPositionData.positionId)}
-                    mintPercent={ethers.utils.parseUnits("1", 24)}
-                    zeroForOne={tokenIn.callId == 0}
-                    amount={bnInput}
-                    gasLimit={mintGasLimit}
-                    buttonState={buttonState}
-                    tokenSymbol={tokenIn.symbol}
-                    setIsOpen={setIsOpen}
-                  />
-                ) : null}
+                {isConnected && stateChainName === "arbitrumGoerli" ? (
+                  allowanceIn.lt(bnInput) ? (
+                    <SwapRouterApproveButton
+                      routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
+                      approveToken={tokenIn.address}
+                      amount={bnInput}
+                      tokenSymbol={tokenIn.symbol}
+                    />
+                  ) : (
+                    <LimitAddLiqButton
+                      disabled={disabled || mintGasFee == "$0.00"}
+                      to={address}
+                      poolAddress={limitPoolAddress}
+                      routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
+                      lower={Number(limitPositionData.min)}
+                      upper={Number(limitPositionData.max)}
+                      positionId={Number(limitPositionData.positionId)}
+                      mintPercent={ethers.utils.parseUnits("1", 24)}
+                      zeroForOne={tokenIn.callId == 0}
+                      amount={bnInput}
+                      gasLimit={mintGasLimit}
+                      buttonState={buttonState}
+                      tokenSymbol={tokenIn.symbol}
+                      setIsOpen={setIsOpen}
+                    />
+                )) : null}
               </Dialog.Panel>
             </Transition.Child>
           </div>
