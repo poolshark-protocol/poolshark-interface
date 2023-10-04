@@ -280,7 +280,7 @@ export default function ViewCover() {
       {
         owner: address,
         positionId: Number(coverPositionData.positionId),
-        burnPercent: BigNumber.from("0"),
+        burnPercent: ethers.utils.parseUnits("1", 38),
         claim: BigNumber.from(claimTick),
         zeroForOne: Boolean(coverPositionData.zeroForOne),
       },
