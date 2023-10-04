@@ -57,7 +57,7 @@ export const getRangePoolFromFactory = (
           basePrices(where:{id: "eth"}){
             USD
           }
-          limitPools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
+          rangePools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
             id
             poolPrice
             tickAtPrice
@@ -171,12 +171,14 @@ export const getLimitPoolFromFactory = (tokenA: string, tokenB: string) => {
                   name
                   symbol
                   decimals
+                  usdPrice
               }
               token1{
                   id
                   name
                   symbol
                   decimals
+                  usdPrice
               }
               liquidity
               liquidityGlobal
@@ -602,12 +604,14 @@ export const fetchLimitPools = () => {
                         name
                         symbol
                         decimals
+                        usdPrice
                     }
                     token1{
                         id
                         name
                         symbol
                         decimals
+                        usdPrice
                     }
                     liquidity
                     liquidityGlobal

@@ -115,6 +115,8 @@ export default function ViewLimit() {
   //TODO need to be set to utils
   const getLimitPoolRatios = () => {
     console.log("limit pool data", limitPoolData);
+    console.log("token in USD price", tokenIn.USDPrice);
+    console.log("token out USD price", tokenOut.USDPrice);
     try {
       if (limitPoolData != undefined) {
         setLowerInverse(
@@ -216,7 +218,7 @@ export default function ViewLimit() {
       updateClaimTick();
     }
   }, []);
-  
+
   useEffect(() => {
     setTimeout(() => {
       updateClaimTick();
