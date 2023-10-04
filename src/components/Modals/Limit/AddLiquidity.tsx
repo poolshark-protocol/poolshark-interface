@@ -262,7 +262,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                     upper={Number(limitPositionData.max)}
                     positionId={Number(limitPositionData.positionId)}
                     mintPercent={ethers.utils.parseUnits("1", 24)}
-                    zeroForOne={Boolean(limitPositionData.zeroForOne)}
+                    zeroForOne={tokenIn.callId == 0}
                     amount={bnInput}
                     gasLimit={mintGasLimit}
                     buttonState={buttonState}

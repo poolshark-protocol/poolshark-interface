@@ -196,7 +196,7 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address, curre
                   poolAddress={limitPoolAddress}
                   address={address}
                   positionId={Number(limitPositionData.positionId)}
-                  zeroForOne={Boolean(limitPositionData.zeroForOne)}
+                  zeroForOne={tokenIn.callId == 0}
                   burnPercent={burnPercent}
                   epochLast={Number(limitPositionData.epochLast)}
                   lower={BigNumber.from(limitPositionData.min)}

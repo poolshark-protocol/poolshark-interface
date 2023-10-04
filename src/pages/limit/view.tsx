@@ -178,7 +178,6 @@ export default function ViewLimit() {
   };
 
   ////////////////////////////////Filled Amount
-
   const { data: filledAmount } = useContractRead({
     address: limitPoolAddress,
     abi: limitPoolABI,
@@ -189,7 +188,7 @@ export default function ViewLimit() {
         BigNumber.from("0"),
         Number(limitPositionData.positionId),
         BigNumber.from(claimTick),
-        Boolean(limitPositionData.zeroForOne),
+        tokenIn.callId == 0,
       ],
     ],
     chainId: 421613,
@@ -210,7 +209,7 @@ export default function ViewLimit() {
         limitPositionData.min.toString(),
         limitPositionData.max.toString(),
         claimTick.toString(),
-        Boolean(limitPositionData.zeroForOne),
+        tokenIn.callId == 0,
         router.isReady
       );
     },
@@ -244,7 +243,7 @@ export default function ViewLimit() {
       limitPoolAddress.toString(),
       Number(limitPositionData.min),
       Number(limitPositionData.max),
-      Boolean(limitPositionData.zeroForOne),
+      tokenIn.callId == 0,
       Number(limitPositionData.epochLast),
       false
     );
@@ -415,7 +414,7 @@ export default function ViewLimit() {
                   onClick={() => setPriceDirection(!priceDirection)}
                   className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
                 >
-                  {Boolean(limitPositionData.zeroForOne)
+                  {tokenIn.callId == 0
                     ? priceDirection
                       ? tokenOut.symbol
                       : tokenIn.symbol
@@ -423,7 +422,7 @@ export default function ViewLimit() {
                     ? tokenIn.symbol
                     : tokenOut.symbol}{" "}
                   per{" "}
-                  {Boolean(limitPositionData.zeroForOne)
+                  {tokenIn.callId == 0
                     ? priceDirection
                       ? tokenIn.symbol
                       : tokenOut.symbol
@@ -448,7 +447,7 @@ export default function ViewLimit() {
                     </span>
                     <span className="text-grey1 text-[9px]">
                       Your position will be 100%{" "}
-                      {Boolean(limitPositionData.zeroForOne)
+                      {tokenIn.callId == 0
                         ? priceDirection
                           ? tokenIn.symbol
                           : tokenOut.symbol
@@ -471,7 +470,7 @@ export default function ViewLimit() {
                     </span>
                     <span className="text-grey1 text-[9px]">
                       Your position will be 100%{" "}
-                      {Boolean(limitPositionData.zeroForOne)
+                      {tokenIn.callId == 0
                         ? priceDirection
                           ? tokenOut.symbol
                           : tokenIn.symbol
@@ -540,7 +539,7 @@ export default function ViewLimit() {
                 address={address}
                 positionId={limitPositionData.positionId}
                 claim={BigNumber.from(claimTick)}
-                zeroForOne={Boolean(limitPositionData.zeroForOne)}
+                zeroForOne={tokenIn.callId == 0}
                 gasLimit={limitMintParams.gasLimit.mul(150).div(100)}
                 gasFee={limitMintParams.gasFee}
               />

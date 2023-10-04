@@ -15,6 +15,7 @@ export default function UserLimitPool({
     href,
 }) {
     const [
+        tokenIn,
         setLimitPositionData,
         setTokenIn,
         setTokenOut,
@@ -23,6 +24,7 @@ export default function UserLimitPool({
         setNeedsAllowanceIn,
         setNeedsBalanceIn,
     ] = useRangeLimitStore((state) => [
+        state.tokenIn,
         state.setLimitPositionData,
         state.setTokenIn,
         state.setTokenOut,
@@ -42,7 +44,7 @@ export default function UserLimitPool({
             limitPosition.poolId,
             Number(limitPosition.min),
             Number(limitPosition.max),
-            Boolean(limitPosition.zeroForOne),
+            tokenIn.callId == 0,
             Number(limitPosition.epochLast),
             false
         );
