@@ -201,11 +201,13 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                     </div>
                     <div className="flex">
                       <div className="flex text-xs text-[#4C4C4C]">
-                        ${" "}
-                        {Number(
-                          tokenIn.USDPrice *
-                            parseFloat(ethers.utils.formatUnits(bnInput, tokenIn.decimals))
-                        ).toFixed(2)}
+                        $
+                        {!isNaN(tokenIn.USDPrice) && !isNaN(parseFloat(ethers.utils.formatUnits(bnInput, tokenIn.decimals))) ?
+                          Number(
+                            tokenIn.USDPrice *
+                              parseFloat(ethers.utils.formatUnits(bnInput, tokenIn.decimals))
+                          ).toFixed(2)
+                        : "0.00"}
                       </div>
                     </div>
                   </div>

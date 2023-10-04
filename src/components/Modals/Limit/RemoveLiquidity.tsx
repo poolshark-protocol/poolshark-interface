@@ -162,9 +162,11 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address, curre
                     <div className="flex">
                       <div className="flex text-xs text-[#4C4C4C]">
                         $
-                        {(
-                          tokenIn.USDPrice * parseFloat(sliderOutput)
-                        ).toFixed(2)}
+                        {!isNaN(tokenIn.USDPrice) && !isNaN(parseFloat(sliderOutput)) ?
+                          (
+                            tokenIn.USDPrice * parseFloat(sliderOutput)
+                          ).toFixed(2) :
+                        "0.00"}
                       </div>
                     </div>
                   </div>
