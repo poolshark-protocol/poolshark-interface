@@ -188,6 +188,7 @@ export const getLimitPoolFromFactory = (tokenA: string, tokenB: string) => {
               tickSpacing
               price0
               price1
+              poolPrice
               feesEth
               feesUsd
               volumeEth
@@ -618,6 +619,7 @@ export const fetchLimitPools = () => {
                     tickSpacing
                     price0
                     price1
+                    poolPrice
                     feesEth
                     feesUsd
                     volumeEth
