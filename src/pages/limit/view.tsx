@@ -28,6 +28,8 @@ export default function ViewLimit() {
     needsRefetch,
     needsPosRefetch,
     claimTick,
+    needsSnapshot,
+    setNeedsSnapshot,
     setNeedsRefetch,
     setNeedsPosRefetch,
     setLimitPositionData,
@@ -44,6 +46,8 @@ export default function ViewLimit() {
     state.needsRefetch,
     state.needsPosRefetch,
     state.claimTick,
+    state.needsSnapshot,
+    state.setNeedsSnapshot,
     state.setNeedsRefetch,
     state.setNeedsPosRefetch,
     state.setLimitPositionData,
@@ -166,13 +170,15 @@ export default function ViewLimit() {
       ],
     ],
     chainId: 421613,
-    watch: true,
+    watch: needsSnapshot,
     enabled:
       BigNumber.from(claimTick).lt(BigNumber.from("887272")) &&
       isConnected &&
-      limitPoolAddress.toString() != "",
+      limitPoolAddress.toString() != "" &&
+      needsSnapshot == true,
     onSuccess(data) {
       console.log("Success price filled amount", data);
+      setNeedsSnapshot(false)
     },
     onError(error) {
       console.log("Error price Limit", error);

@@ -30,11 +30,12 @@ export default function LimitRemoveLiqButton({
 }) {
   const { data: signer } = useSigner();
 
-  const [setNeedsRefetch, setNeedsBalanceIn, setNeedsBalanceOut] = useRangeLimitStore(
+  const [setNeedsRefetch, setNeedsBalanceIn, setNeedsBalanceOut, setNeedsSnapshot] = useRangeLimitStore(
     (state) => [
       state.setNeedsRefetch,
       state.setNeedsBalanceIn,
       state.setNeedsBalanceOut,
+      state.setNeedsSnapshot,
     ]
   );
   const [claimTick, setClaimTick] = useState(0);
@@ -120,6 +121,7 @@ export default function LimitRemoveLiqButton({
       setTimeout(() => {
         setNeedsBalanceIn(true);
         setNeedsBalanceOut(true);
+        setNeedsSnapshot(true);
         setIsOpen(false);
         closeModal();
       }, 1000);

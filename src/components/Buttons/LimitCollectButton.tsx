@@ -17,9 +17,11 @@ export default function LimitCollectButton({ poolAddress, address, positionId, c
   const [ successDisplay, setSuccessDisplay ] = useState(false);
 
   const [
-    setNeedsBalanceIn
+    setNeedsBalanceIn,
+    setNeedsSnapshot,
   ] = useRangeLimitStore((state) => [
     state.setNeedsBalanceIn,
+    state.setNeedsSnapshot,
   ])
 
   const { config } = usePrepareContractWrite({
@@ -45,7 +47,8 @@ export default function LimitCollectButton({ poolAddress, address, positionId, c
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
-      setNeedsBalanceIn(true)
+      setNeedsBalanceIn(true);
+      setNeedsSnapshot(true);
     },
     onError() {
       setErrorDisplay(true);

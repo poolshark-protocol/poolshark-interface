@@ -31,10 +31,12 @@ import { ethers } from "ethers";
       setNeedsRefetch,
       setNeedsAllowanceIn,
       setNeedsBalanceIn,
+      setNeedsSnapshot,
     ] = useRangeLimitStore((state) => [
       state.setNeedsRefetch,
       state.setNeedsAllowanceIn,
       state.setNeedsBalanceIn,
+      state.setNeedsSnapshot,
     ]);
     const [errorDisplay, setErrorDisplay] = useState(false);
     const [successDisplay, setSuccessDisplay] = useState(false);
@@ -74,14 +76,13 @@ import { ethers } from "ethers";
       hash: data?.hash,
       onSuccess() {
         setSuccessDisplay(true);
+        setNeedsSnapshot(true);
+        setNeedsAllowanceIn(true);
+          setNeedsBalanceIn(true);
         setTimeout(() => {
           setNeedsRefetch(true);
           setIsOpen(false);
         }, 2000);
-        setTimeout(() => {
-          setNeedsAllowanceIn(true);
-          setNeedsBalanceIn(true);
-        }, 1000);
       },
       onError() {
         setErrorDisplay(true);
