@@ -38,12 +38,6 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
   );
   const [sliderValue, setSliderValue] = useState(1);
   const [sliderOutput, setSliderOutput] = useState("1");
-  const [amountInDisplay, setAmountInDisplay] = useState(
-    ethers.utils.formatUnits(
-      BigNumber.from(coverPositionData.userFillOut) ?? BN_ZERO,
-      tokenIn.decimals
-    )
-  );
 
   useEffect(() => {
     setTokenInAmount(

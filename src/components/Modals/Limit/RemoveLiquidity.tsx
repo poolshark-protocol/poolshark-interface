@@ -31,13 +31,6 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address, curre
   );
   const [sliderValue, setSliderValue] = useState(1);
   const [sliderOutput, setSliderOutput] = useState("1");
-  const [amountInDisplay, setAmountInDisplay] = useState(
-    ethers.utils.formatUnits(
-      currentAmountOut != "" ?
-        currentAmountOut : BN_ZERO,
-      18
-    )
-  );
 
   useEffect(() => {
     if (sliderValue == 0) {
@@ -50,7 +43,17 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address, curre
       ethers.utils.parseUnits(String(sliderValue), 36).toString()
     );
     setSliderOutput(
-      ((parseFloat(amountInDisplay) * sliderValue) / 100).toPrecision(6)
+      (
+        (parseFloat(
+          ethers.utils.formatUnits(
+            currentAmountOut != "" ?
+            currentAmountOut : BN_ZERO,
+            tokenIn.decimals
+          )
+        ) *
+          sliderValue) /
+        100
+      ).toPrecision(6)
     );
   }, [sliderValue]);
 
