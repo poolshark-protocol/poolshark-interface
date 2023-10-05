@@ -84,7 +84,8 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   });
 
   useEffect(() => {
-    setTokenInAllowance(allowanceInCover.toString());
+    if (isConnected && allowanceInCover)
+      setTokenInAllowance(allowanceInCover.toString());
   }, [allowanceInCover]);
 
   ////////////////////////////////Token Balances
@@ -100,7 +101,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   });
 
   useEffect(() => {
-    if (isConnected) {
+    if (isConnected && tokenInBal) {
       setTokenInBalance(
         parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
       );
@@ -265,7 +266,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                   </div>
                 </div>
                 {isConnected &&
-                allowanceInCover.lt(bnInput) &&
+                allowanceInCover?.lt(bnInput) &&
                 stateChainName === "arbitrumGoerli" ? (
                   <CoverMintApproveButton
                     routerAddress={

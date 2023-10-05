@@ -129,8 +129,7 @@ export default function CreateCover(props: any) {
     watch: needsAllowance,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
-      // setNeedsAllowance(true);
-      //console.log("allowance fetched");
+      // setNeedsAllowance(false);
     },
     onError(error) {
       console.log("Error", error);
@@ -184,7 +183,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     if (newLatestTick) {
-      setLatestTick(parseInt(newLatestTick.toString()))
+      setLatestTick(parseInt(newLatestTick.toString()));
     }
   }, [newLatestTick]);
 
@@ -227,7 +226,8 @@ export default function CreateCover(props: any) {
       tickSpread
     );
     const upperPrice = TickMath.getPriceStringAtTick(
-      tokenOrder ? tickAtPrice - tickSpread * 6 : tickAtPrice + tickSpread * 18,
+      tokenOrder ? tickAtPrice - tickSpread * 6 
+                 : tickAtPrice + tickSpread * 18,
       tickSpread
     );
     setLowerPrice(lowerPrice);
@@ -238,8 +238,6 @@ export default function CreateCover(props: any) {
       lowerPrice: lowerPrice,
       upperPrice: upperPrice,
     });
-    setMinInput(lowerPrice);
-    setMaxInput(upperPrice);
   }
 
   ////////////////////////////////Position Price Delta
@@ -247,6 +245,7 @@ export default function CreateCover(props: any) {
   const [upperPrice, setUpperPrice] = useState("0");
 
   useEffect(() => {
+    console.log('setting position data')
     setCoverPositionData({
       ...coverPositionData,
       lowerPrice: lowerPrice,
@@ -411,8 +410,9 @@ export default function CreateCover(props: any) {
           )
         : await gasEstimateCoverCreateAndMint(
             "PSHARK-CPROD",
-            coverPoolData.volatilityTier ? coverPoolData.volatilityTier
-                                         : volatilityTiers[0],
+            coverPoolData.volatilityTier
+              ? coverPoolData.volatilityTier
+              : volatilityTiers[0],
             address,
             TickMath.getTickAtPriceString(
               coverPositionData.upperPrice,
@@ -427,9 +427,10 @@ export default function CreateCover(props: any) {
             coverMintParams.tokenInAmount,
             signer
           );
-
-    setMintGasFee(newMintGasFee.formattedPrice);
-    setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
+    if (newMintGasFee.formattedPrice != mintGasFee) {
+      setMintGasFee(newMintGasFee.formattedPrice);
+      setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
+    }
   }
 
   ////////////////////////////////Token Balances
@@ -490,26 +491,11 @@ export default function CreateCover(props: any) {
 
   /////////////////////Logic for switching price denomination
 
-  const [minInput, setMinInput] = useState(lowerPrice);
-  const [maxInput, setMaxInput] = useState(upperPrice);
-
   const handlePriceSwitch = () => {
+    setLowerPrice(invertPrice(lowerPrice, false));
+    setUpperPrice(invertPrice(upperPrice, false));
     setPriceOrder(!priceOrder);
-    setMaxInput(invertPrice(maxInput, false));
-    setMinInput(invertPrice(minInput, false));
   };
-
-  useEffect(() => {
-    setUpperPrice(invertPrice(maxInput, priceOrder));
-    setLowerPrice(invertPrice(minInput, priceOrder));
-  }, [maxInput, minInput]);
-
-  useEffect(() => {
-    if (lowerPrice !== "0" && upperPrice !== "0") {
-      setMinInput(lowerPrice);
-      setMaxInput(upperPrice);
-    }
-  }, [lowerPrice, upperPrice]);
 
   return (
     <div className="flex flex-col space-y-8">
@@ -617,25 +603,15 @@ export default function CreateCover(props: any) {
             <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
               <span className="text-grey1 text-xs">MIN. PRICE</span>
               <span className="text-white text-3xl">
-                {priceOrder ? (
+                {(
                   <input
                     autoComplete="off"
                     className="bg-black py-2 outline-none text-center w-full"
                     placeholder="0"
                     id="minInput"
                     type="text"
-                    value={minInput}
-                    onChange={(e) => setMinInput(inputFilter(e.target.value))}
-                  />
-                ) : (
-                  <input
-                    autoComplete="off"
-                    className="bg-black py-2 outline-none text-center w-full"
-                    placeholder="0"
-                    id="minInput"
-                    type="text"
-                    value={maxInput}
-                    onChange={(e) => setMaxInput(inputFilter(e.target.value))}
+                    value={lowerPrice}
+                    onChange={(e) => setLowerPrice(inputFilter(e.target.value))}
                   />
                 )}
               </span>
@@ -643,25 +619,15 @@ export default function CreateCover(props: any) {
             <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
               <span className="text-grey1 text-xs">MAX. PRICE</span>
               <span className="text-white text-3xl">
-                {priceOrder ? (
+                {(
                   <input
                     autoComplete="off"
                     className="bg-black py-2 outline-none text-center w-full"
                     placeholder="0"
-                    id="minInput"
+                    id="maxInput"
                     type="text"
-                    value={maxInput}
-                    onChange={(e) => setMaxInput(inputFilter(e.target.value))}
-                  />
-                ) : (
-                  <input
-                    autoComplete="off"
-                    className="bg-black py-2 outline-none text-center w-full"
-                    placeholder="0"
-                    id="minInput"
-                    type="text"
-                    value={minInput}
-                    onChange={(e) => setMinInput(inputFilter(e.target.value))}
+                    value={upperPrice}
+                    onChange={(e) => setUpperPrice(inputFilter(e.target.value))}
                   />
                 )}
               </span>
@@ -673,13 +639,14 @@ export default function CreateCover(props: any) {
               onClick={() => setExpanded(!expanded)}
             >
               <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                {1} {tokenIn.symbol} =
+                {1} {priceOrder ? tokenIn.symbol : tokenOut.symbol} =
                 {" " +
-                  (tokenOut.coverUSDPrice / tokenIn.coverUSDPrice).toPrecision(
+                  (priceOrder ? tokenIn.coverUSDPrice / tokenOut.coverUSDPrice
+                              : tokenOut.coverUSDPrice / tokenIn.coverUSDPrice).toPrecision(
                     5
                   ) +
                   " " +
-                  tokenOut.symbol}
+                  (priceOrder ? tokenOut.symbol : tokenIn.symbol)}
                 {/* {!tokenIn.coverUSDPrice
                   ? "?" + " " + tokenOut.symbol
                   : (tokenOrder
@@ -777,8 +744,11 @@ export default function CreateCover(props: any) {
             poolType={"PSHARK-CPROD"}
             tokenIn={tokenIn}
             tokenOut={tokenOut}
-            volTier={coverPoolData.volatilityTier ? coverPoolData.volatilityTier 
-                                                  : volatilityTiers[0]}
+            volTier={
+              coverPoolData.volatilityTier
+                ? coverPoolData.volatilityTier
+                : volatilityTiers[0]
+            }
             disabled={coverMintParams.disabled}
             to={address}
             lower={TickMath.getTickAtPriceString(

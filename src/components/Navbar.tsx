@@ -21,6 +21,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
       <div className="relative flex items-center justify-between h-16 w-full container mx-auto md:px-0 px-3">
         <div className="lg:grid flex justify-between items-center grid-cols-3 w-full mx-auto">
           <div className="flex items-center justify-start flex-shrink-0">
+          <Link href="/">
             <Image
               src="/static/images/logo.png"
               width={70}
@@ -28,6 +29,7 @@ export default function Navbar({ create, setCreate }: NavOptions) {
               quality="90"
               objectFit="contain"
             />
+            </Link>
           </div>
           <div className="hidden m-auto flex justify-start md:block bg-black">
             <div className="flex gap-x-2">
