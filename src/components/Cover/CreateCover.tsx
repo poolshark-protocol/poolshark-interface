@@ -214,29 +214,30 @@ export default function CreateCover(props: any) {
     if (latestTick && coverPoolData.volatilityTier) {
       updatePositionData();
     }
-  }, [tokenIn, tokenOut, coverPoolData, tokenOrder]);
+  }, [tokenIn.address, tokenOut.address, coverPoolData, latestTick]);
 
   async function updatePositionData() {
     const tickAtPrice = Number(latestTick);
     const tickSpread = Number(coverPoolData.volatilityTier.tickSpread);
-    const lowerPrice = TickMath.getPriceStringAtTick(
+    const priceLower = TickMath.getPriceStringAtTick(
       tokenOrder
         ? tickAtPrice + -tickSpread * 16
         : tickAtPrice + tickSpread * 8,
       tickSpread
     );
-    const upperPrice = TickMath.getPriceStringAtTick(
+    const priceUpper = TickMath.getPriceStringAtTick(
       tokenOrder ? tickAtPrice - tickSpread * 6 
                  : tickAtPrice + tickSpread * 18,
       tickSpread
     );
-    setLowerPrice(lowerPrice);
-    setUpperPrice(upperPrice);
+    console.log('updating position data')
+    setLowerPrice(invertPrice(priceOrder ? priceLower : priceUpper, priceOrder));
+    setUpperPrice(invertPrice(priceOrder ? priceUpper : priceLower, priceOrder));
     setCoverPositionData({
       ...coverPositionData,
       tickAtPrice: tickAtPrice,
-      lowerPrice: lowerPrice,
-      upperPrice: upperPrice,
+      lowerPrice: priceLower,
+      upperPrice: priceUpper,
     });
   }
 
@@ -246,10 +247,12 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     console.log('setting position data')
+    console.log('lower price', invertPrice(priceOrder ? lowerPrice : upperPrice, priceOrder))
+    console.log('upper price', invertPrice(priceOrder ? upperPrice : lowerPrice, priceOrder))
     setCoverPositionData({
       ...coverPositionData,
-      lowerPrice: lowerPrice,
-      upperPrice: upperPrice,
+      lowerPrice: invertPrice(priceOrder ? lowerPrice : upperPrice, priceOrder),
+      upperPrice: invertPrice(priceOrder ? upperPrice : lowerPrice, priceOrder),
     });
   }, [lowerPrice, upperPrice]);
 
@@ -489,12 +492,13 @@ export default function CreateCover(props: any) {
     }
   };
 
-  /////////////////////Logic for switching price denomination
+  ///////////////////// Switch Price denomination
 
   const handlePriceSwitch = () => {
-    setLowerPrice(invertPrice(lowerPrice, false));
-    setUpperPrice(invertPrice(upperPrice, false));
+    console.log('handle price switch')
     setPriceOrder(!priceOrder);
+    setLowerPrice(invertPrice(upperPrice, false));
+    setUpperPrice(invertPrice(lowerPrice, false));
   };
 
   return (
@@ -641,8 +645,8 @@ export default function CreateCover(props: any) {
               <div className="flex-none text-xs uppercase text-[#C9C9C9]">
                 {1} {priceOrder ? tokenIn.symbol : tokenOut.symbol} =
                 {" " +
-                  (priceOrder ? tokenIn.coverUSDPrice / tokenOut.coverUSDPrice
-                              : tokenOut.coverUSDPrice / tokenIn.coverUSDPrice).toPrecision(
+                  parseFloat(priceOrder ? TickMath.getPriceStringAtTick(latestTick)
+                              : invertPrice(TickMath.getPriceStringAtTick(latestTick), false)).toPrecision(
                     5
                   ) +
                   " " +

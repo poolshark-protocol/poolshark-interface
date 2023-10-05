@@ -227,29 +227,31 @@ export default function CoverExistingPool({ goBack }) {
 
   //positionData set at pool data change
   useEffect(() => {
-    if (latestTick) {
+    if (latestTick && coverPoolData.volatilityTier) {
       updatePositionData();
     }
-  }, [coverPoolData, tokenOrder, latestTick]);
+  }, [tokenIn.address, tokenOut.address, coverPoolData, latestTick]);
 
   async function updatePositionData() {
     const tickAtPrice = Number(latestTick);
     const tickSpread = Number(coverPoolData.volatilityTier.tickSpread);
-    const lowerPrice = TickMath.getPriceStringAtTick(
+    const priceLower = TickMath.getPriceStringAtTick(
       tokenOrder
         ? tickAtPrice + -tickSpread * 16
         : tickAtPrice + tickSpread * 8,
       tickSpread
     );
-    const upperPrice = TickMath.getPriceStringAtTick(
+    const priceUpper = TickMath.getPriceStringAtTick(
       tokenOrder ? tickAtPrice - tickSpread * 6 : tickAtPrice + tickSpread * 18,
       tickSpread
     );
-    setLowerPrice(lowerPrice);
-    setUpperPrice(upperPrice);
+    setLowerPrice(invertPrice(priceOrder ? priceLower : priceUpper, priceOrder));
+    setUpperPrice(invertPrice(priceOrder ? priceUpper : priceLower, priceOrder));
     setCoverPositionData({
       ...coverPositionData,
       tickAtPrice: tickAtPrice,
+      lowerPrice: priceLower,
+      upperPrice: priceUpper,
     });
   }
 
@@ -260,37 +262,37 @@ export default function CoverExistingPool({ goBack }) {
   useEffect(() => {
     setCoverPositionData({
       ...coverPositionData,
-      lowerPrice: lowerPrice,
-      upperPrice: upperPrice,
+      lowerPrice: invertPrice(priceOrder ? lowerPrice : upperPrice, priceOrder),
+      upperPrice: invertPrice(priceOrder ? upperPrice : lowerPrice, priceOrder),
     });
   }, [lowerPrice, upperPrice]);
 
-  const changePrice = (direction: string, inputId: string) => {
-    if (!coverPoolData.volatilityTier.tickSpread) return;
-    const currentTick =
-      inputId == "minInput"
-        ? TickMath.getTickAtPriceString(coverPositionData.lowerPrice)
-        : TickMath.getTickAtPriceString(coverPositionData.upperPrice);
-    const increment = parseInt(coverPoolData.volatilityTier.tickSpread);
-    const adjustment =
-      direction == "plus" || direction == "minus"
-        ? direction == "plus"
-          ? -increment
-          : increment
-        : 0;
-    const newTick = roundTick(currentTick - adjustment, increment);
-    const newPriceString = TickMath.getPriceStringAtTick(
-      parseFloat(newTick.toString())
-    );
-    (document.getElementById(inputId) as HTMLInputElement).value =
-      parseFloat(newPriceString).toFixed(6);
-    if (inputId === "minInput") {
-      setLowerPrice(newPriceString);
-    }
-    if (inputId === "maxInput") {
-      setUpperPrice(newPriceString);
-    }
-  };
+  // const changePrice = (direction: string, inputId: string) => {
+  //   if (!coverPoolData.volatilityTier.tickSpread) return;
+  //   const currentTick =
+  //     inputId == "minInput"
+  //       ? TickMath.getTickAtPriceString(coverPositionData.lowerPrice)
+  //       : TickMath.getTickAtPriceString(coverPositionData.upperPrice);
+  //   const increment = parseInt(coverPoolData.volatilityTier.tickSpread);
+  //   const adjustment =
+  //     direction == "plus" || direction == "minus"
+  //       ? direction == "plus"
+  //         ? -increment
+  //         : increment
+  //       : 0;
+  //   const newTick = roundTick(currentTick - adjustment, increment);
+  //   const newPriceString = TickMath.getPriceStringAtTick(
+  //     parseFloat(newTick.toString())
+  //   );
+  //   (document.getElementById(inputId) as HTMLInputElement).value =
+  //     parseFloat(newPriceString).toFixed(6);
+  //   if (inputId === "minInput") {
+  //     setLowerPrice(newPriceString);
+  //   }
+  //   if (inputId === "maxInput") {
+  //     setUpperPrice(newPriceString);
+  //   }
+  // };
 
   ////////////////////////////////Position Amount Calculations
   const [sliderValue, setSliderValue] = useState(50);
@@ -478,26 +480,12 @@ export default function CoverExistingPool({ goBack }) {
   };
 
   //////////////////////////////// Switch Price denomination
-  const [minInput, setMinInput] = useState(lowerPrice);
-  const [maxInput, setMaxInput] = useState(upperPrice);
 
   const handlePriceSwitch = () => {
     setPriceOrder(!priceOrder);
-    setMaxInput(invertPrice(maxInput, false));
-    setMinInput(invertPrice(minInput, false));
+    setLowerPrice(invertPrice(upperPrice, false));
+    setUpperPrice(invertPrice(lowerPrice, false));
   };
-
-  useEffect(() => {
-    setUpperPrice(invertPrice(maxInput, priceOrder));
-    setLowerPrice(invertPrice(minInput, priceOrder));
-  }, [maxInput, minInput]);
-
-  useEffect(() => {
-    if (lowerPrice !== "0" && upperPrice !== "0") {
-      setMinInput(lowerPrice);
-      setMaxInput(upperPrice);
-    }
-  }, [coverPositionData.lowerPrice, coverPositionData.upperPrice]);
 
   const [expanded, setExpanded] = useState(false);
 
@@ -647,8 +635,8 @@ export default function CoverExistingPool({ goBack }) {
             onClick={handlePriceSwitch}
             className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
           >
-            {priceOrder ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>} per{" "}
-            {priceOrder ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>}{" "}
+            {priceOrder ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>} per{" "}
+            {priceOrder ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>}{" "}
             <DoubleArrowIcon />
           </div>
         </div>
@@ -657,25 +645,15 @@ export default function CoverExistingPool({ goBack }) {
             <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
               <span className="text-grey1 text-xs">MIN. PRICE</span>
               <span className="text-white text-3xl">
-                {priceOrder ? (
+                {(
                   <input
                     autoComplete="off"
                     className="bg-black py-2 outline-none text-center w-full"
                     placeholder="0"
                     id="minInput"
                     type="text"
-                    value={minInput}
-                    onChange={(e) => setMinInput(inputFilter(e.target.value))}
-                  />
-                ) : (
-                  <input
-                    autoComplete="off"
-                    className="bg-black py-2 outline-none text-center w-full"
-                    placeholder="0"
-                    id="minInput"
-                    type="text"
-                    value={maxInput}
-                    onChange={(e) => setMaxInput(inputFilter(e.target.value))}
+                    value={lowerPrice}
+                    onChange={(e) => setLowerPrice(inputFilter(e.target.value))}
                   />
                 )}
               </span>
@@ -683,25 +661,15 @@ export default function CoverExistingPool({ goBack }) {
             <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
               <span className="text-grey1 text-xs">MAX. PRICE</span>
               <span className="text-white text-3xl">
-                {priceOrder ? (
+                {(
                   <input
                     autoComplete="off"
                     className="bg-black py-2 outline-none text-center w-full"
                     placeholder="0"
-                    id="minInput"
+                    id="maxInput"
                     type="text"
-                    value={maxInput}
-                    onChange={(e) => setMaxInput(inputFilter(e.target.value))}
-                  />
-                ) : (
-                  <input
-                    autoComplete="off"
-                    className="bg-black py-2 outline-none text-center w-full"
-                    placeholder="0"
-                    id="minInput"
-                    type="text"
-                    value={minInput}
-                    onChange={(e) => setMinInput(inputFilter(e.target.value))}
+                    value={upperPrice}
+                    onChange={(e) => setUpperPrice(inputFilter(e.target.value))}
                   />
                 )}
               </span>
@@ -713,29 +681,13 @@ export default function CoverExistingPool({ goBack }) {
               onClick={() => setExpanded(!expanded)}
             >
               <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                {1} {tokenIn.symbol} =
+                {1} {priceOrder ? tokenIn.symbol : tokenOut.symbol} =
                 {" " +
-                  (tokenOut.coverUSDPrice / tokenIn.coverUSDPrice).toPrecision(
-                    5
-                  ) +
-                  " " +
-                  tokenOut.symbol}
-                {/* {!tokenIn.coverUSDPrice
-                  ? "?" + " " + tokenOut.symbol
-                  : (tokenOrder
-                      ? TickMath.getPriceStringAtTick(
-                          parseInt(latestTick),
-                          parseInt(coverPoolData.volatilityTier.tickSpread)
-                        )
-                      : invertPrice(
-                          TickMath.getPriceStringAtTick(
-                            parseInt(latestTick),
-                            parseInt(coverPoolData.volatilityTier.tickSpread)
-                          ),
-                          false
-                        )) +
-                    " " +
-                    tokenOut.symbol} */}
+                  parseFloat(priceOrder ? TickMath.getPriceStringAtTick(latestTick)
+                                        : invertPrice(TickMath.getPriceStringAtTick(latestTick), false)
+                            ).toPrecision(5) +
+                            " " +
+                            tokenOut.symbol}
               </div>
               <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
                 <button>
