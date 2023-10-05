@@ -3,8 +3,9 @@ import JSBD, { Decimal } from "jsbd";
 import JSBI from "jsbi";
 import invariant from "tiny-invariant";
 import { DyDxMath } from "./dydxMath";
-import { TickMath } from "./tickMath";
+import { TickMath, invertPrice } from "./tickMath";
 import { BN_ZERO } from "./constants";
+import { tokenSwap } from "../types";
 
 export function priceToString(price: Decimal): string {
     if (scale(price) < 3) return Number.parseFloat(price.toPrecision(5)).toString()
@@ -19,6 +20,26 @@ export function scale(price: JSBD): number {
 export function precision(price: JSBD): number {
     let stringArr = price.toString().split('.')
     return stringArr[1].length
+}
+
+export function getMarketPriceAboveBelowString(limitStringPriceQuote: string, pairSelected: boolean, limitPriceOrder: boolean, tokenIn: tokenSwap, tokenOut: tokenSwap): string {
+    if (parseFloat(limitStringPriceQuote) == 0) return '0.00% above Market Price'
+    const basePrice = limitPriceOrder == (tokenIn.callId == 0)
+                        ? tokenIn.USDPrice / tokenOut.USDPrice
+                        : tokenOut.USDPrice / tokenIn.USDPrice
+    const limitPrice = parseFloat(limitStringPriceQuote) 
+    let priceString
+    if(pairSelected && !isNaN(parseFloat(limitStringPriceQuote))) {
+        const percentDiff = parseFloat((limitPrice / basePrice * 100).toFixed(2))
+        if (percentDiff >= 100) {
+            priceString = (percentDiff - 100).toFixed(2) + "% above Market Price"
+        } else {
+            priceString = (100 - percentDiff).toFixed(2) + "% below Market Price"
+        }
+    } else {
+        priceString = "0.00% above Market Price"
+    }
+    return priceString
 }
 
 /**

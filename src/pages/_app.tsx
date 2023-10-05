@@ -21,7 +21,7 @@ const { chains, provider } = configureChains(
   [
     jsonRpcProvider({
       rpc: (chain) => ({
-        http: `https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594`,
+        http: `https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/`,
       }),
     }),
   ],
