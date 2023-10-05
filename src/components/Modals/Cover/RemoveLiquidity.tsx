@@ -46,10 +46,6 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
   }, [sliderOutput]);
 
   useEffect(() => {
-    if (sliderValue == 0) {
-      setSliderOutput("");
-      return;
-    }
     setBurnPercent(ethers.utils.parseUnits(String(sliderValue), 36));
     setSliderOutput(
       (
@@ -73,7 +69,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
     if (Number(event.target.value) != 0) {
       setSliderValue(event.target.value);
     } else {
-      setSliderValue(0);
+      setSliderValue(1);
     }
   };
 

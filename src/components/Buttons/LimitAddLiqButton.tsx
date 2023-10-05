@@ -78,7 +78,7 @@ import { ethers } from "ethers";
         setSuccessDisplay(true);
         setNeedsSnapshot(true);
         setNeedsAllowanceIn(true);
-          setNeedsBalanceIn(true);
+        setNeedsBalanceIn(true);
         setTimeout(() => {
           setNeedsRefetch(true);
           setIsOpen(false);

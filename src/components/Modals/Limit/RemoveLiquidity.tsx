@@ -3,7 +3,6 @@ import { Fragment, useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import LimitRemoveLiqButton from "../../Buttons/LimitRemoveLiqButton";
 import { BigNumber, ethers } from "ethers";
-import { BN_ZERO } from "../../../utils/math/constants";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 
@@ -33,10 +32,6 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address, curre
   const [sliderOutput, setSliderOutput] = useState("1");
 
   useEffect(() => {
-    if (sliderValue == 0) {
-      setSliderOutput("");
-      return;
-    }
     setBurnPercent(ethers.utils.parseUnits(String(sliderValue), 36));
     console.log(
       "setting burn percent",
@@ -45,11 +40,7 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address, curre
     setSliderOutput(
       (
         (parseFloat(
-          ethers.utils.formatUnits(
-            currentAmountOut != "" ?
-            currentAmountOut : BN_ZERO,
-            tokenIn.decimals
-          )
+            currentAmountOut
         ) *
           sliderValue) /
         100
@@ -66,7 +57,7 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address, curre
     if (Number(event.target.value) != 0) {
       setSliderValue(event.target.value);
     } else {
-      setSliderValue(0);
+      setSliderValue(1);
     }
   };
 
@@ -197,7 +188,6 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address, curre
                   </div>
                 </div>
                 <LimitRemoveLiqButton
-                  disabled={limitMintParams.disabled}
                   poolAddress={limitPoolAddress}
                   address={address}
                   positionId={Number(limitPositionData.positionId)}
