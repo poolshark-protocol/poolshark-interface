@@ -371,8 +371,16 @@ export default function Trade() {
   const [lowerPriceString, setLowerPriceString] = useState("0");
   const [upperPriceString, setUpperPriceString] = useState("0");
 
+  const handlePriceSwitch = () => {
+    setLimitPriceOrder(!limitPriceOrder);
+    setLimitPriceString(invertPrice(limitPriceString, false));
+    setLowerPriceString(invertPrice(upperPriceString, false));
+    setUpperPriceString(invertPrice(lowerPriceString, false));
+  };
+
   useEffect(() => {
     if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
+
       var newPrice = (limitPriceOrder == (tokenIn.callId == 0)
                                       ? (tokenIn.USDPrice / tokenOut.USDPrice)
                                       : (tokenOut.USDPrice / tokenIn.USDPrice))
@@ -380,39 +388,34 @@ export default function Trade() {
         .toString();
       setLimitPriceString(newPrice);
     }
-  }, [tokenIn, tokenOut]);
+  }, [tokenIn.USDPrice, tokenOut.USDPrice]);
 
   useEffect(() => {
-    if (tokenIn.USDPrice != 0 && tokenOut.USDPrice != 0) {
-      setLimitPriceString(invertPrice(limitPriceString, false));
+    if (priceRangeSelected) {
+      const tickSpacing = tradePoolData?.feeTier?.tickSpacing;
+      if (!isNaN(parseFloat(lowerPriceString))) {
+        if (limitPriceOrder) {}
+        const priceLower = invertPrice(limitPriceOrder ? lowerPriceString 
+                                                      : upperPriceString,
+                                      limitPriceOrder)
+        setLowerTick(
+          BigNumber.from(
+            TickMath.getTickAtPriceString(priceLower, tickSpacing)
+          )
+        );
+      }
+      if (!isNaN(parseFloat(upperPriceString))) {
+        const priceUpper = invertPrice(limitPriceOrder ? upperPriceString 
+                                                      : lowerPriceString,
+                                      limitPriceOrder)
+        setUpperTick(
+          BigNumber.from(
+            TickMath.getTickAtPriceString(priceUpper, tickSpacing)
+          )
+        );
+      }
     }
-  }, [limitPriceOrder]);
-
-  useEffect(() => {
-    const tickSpacing = tradePoolData?.feeTier?.tickSpacing;
-
-    if (!isNaN(parseFloat(lowerPriceString))) {
-      const priceString = invertPrice(lowerPriceString, limitPriceOrder)
-      setLowerTick(
-        BigNumber.from(
-          TickMath.getTickAtPriceString(priceString, tickSpacing)
-        )
-      );
-    }
-  }, [lowerPriceString]);
-
-  useEffect(() => {
-    const tickSpacing = tradePoolData?.feeTier?.tickSpacing;
-
-    if (!isNaN(parseFloat(upperPriceString))) {
-      const priceString = invertPrice(upperPriceString, limitPriceOrder)
-      setUpperTick(
-        BigNumber.from(
-          TickMath.getTickAtPriceString(priceString, tickSpacing)
-        )
-      );
-    }
-  }, [upperPriceString]);
+  }, [lowerPriceString, upperPriceString, priceRangeSelected]);
 
   ////////////////////////////////Limit Ticks
   const [lowerTick, setLowerTick] = useState(BN_ZERO);
@@ -420,13 +423,14 @@ export default function Trade() {
 
   useEffect(() => {
     if (
+      !priceRangeSelected &&
       slippage &&
       limitPriceString &&
       tradePoolData?.feeTier?.tickSpacing
     ) {
       updateLimitTicks();
     }
-  }, [limitPriceString, slippage]);
+  }, [limitPriceString, slippage, priceRangeSelected]);
 
   function updateLimitTicks() {
     const tickSpacing = tradePoolData.feeTier.tickSpacing;
@@ -509,7 +513,7 @@ export default function Trade() {
         updateMintFee();
       }
     }
-  }, [swapParams, tokenIn, tokenOut, bnInput]);
+  }, [swapParams, tokenIn, tokenOut, bnInput, lowerTick, upperTick]);
 
   async function updateGasFee() {
     if (tokenIn.userRouterAllowance?.gte(bnInput))
@@ -825,7 +829,7 @@ export default function Trade() {
                   </div>
                   <span
                     className=" text-xs flex items-center gap-x-2 group cursor-pointer"
-                    onClick={() => setLimitPriceOrder(!limitPriceOrder)}
+                    onClick={handlePriceSwitch}
                   >
                     <span className="text-grey1 group-hover:text-white transition-all">
                       {tokenIn.callId == 0 && pairSelected === false ? (
