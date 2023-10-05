@@ -674,7 +674,7 @@ export const fetchLimitPoolMetrics = () => {
   });
 };
 
-export const fetchRangePools = (tokenIn: tokenSwap, tokenOut: tokenSwap) => {
+export const fetchRangePools = () => {
   return new Promise(function (resolve) {
     const poolsQuery = `
             query($id: String) {

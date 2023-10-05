@@ -1,8 +1,6 @@
 import { ZERO_ADDRESS } from "./math/constants";
 import { TickMath } from "./math/tickMath";
 import {
-  fetchCoverPools,
-  fetchRangePools as fetchLimitPools,
   getCoverPoolFromFactory,
   getLimitPoolFromFactory,
   getRangePoolFromFactory,
