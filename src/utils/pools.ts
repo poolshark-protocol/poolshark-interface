@@ -4,6 +4,7 @@ import {
   fetchCoverPools,
   fetchRangePools as fetchLimitPools,
   getCoverPoolFromFactory,
+  getLimitPoolFromFactory,
   getRangePoolFromFactory,
 } from "./queries";
 import { tokenCover, tokenRangeLimit, tokenSwap } from "./types";
@@ -17,7 +18,7 @@ export const getSwapPools = async (
   setSwapPoolData
 ) => {
   try {
-    const limitPools = await fetchLimitPools();
+    const limitPools = await getLimitPoolFromFactory(tokenIn.address, tokenOut.address);
     const data = limitPools["data"];
     if (data) {
       const allPools = data["limitPools"];

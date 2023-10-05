@@ -212,10 +212,22 @@ export default function Trade() {
     const paramsList: SwapParams[] = [];
     for (let i = 0; i < poolQuotes.length; i++) {
       if(poolQuotes[i].pool != ZERO_ADDRESS) {
+        // push pool address for swap
         poolAddresses.push(poolQuotes[i].pool);
+
+        // set base price from quote
         const basePrice: number = parseFloat(
           TickMath.getPriceStringAtSqrtPrice(poolQuotes[i].priceAfter)
         );
+        
+        // set price impact
+        if(poolQuotes[i].pool.toLowerCase() == tradePoolData.id) {
+          const currentPrice: number = parseFloat(
+            TickMath.getPriceStringAtSqrtPrice(tradePoolData.poolPrice)
+          )
+          setPriceImpact((Math.abs(basePrice - currentPrice) * 100 / currentPrice).toFixed(2))
+        }
+
         const priceDiff = basePrice * (parseFloat(slippage) / 100);
         const limitPrice = tokenIn.callId == 0 ? basePrice - priceDiff
                                                : basePrice + priceDiff;
@@ -363,6 +375,7 @@ export default function Trade() {
 
   ////////////////////////////////FeeTiers and Slippage
   const [slippage, setSlippage] = useState("0.5");
+  const [priceImpact, setPriceImpact] = useState("0.00")
 
   //i receive the price afte from the multiquote and then i will add and subtract the slippage from it
 
@@ -528,6 +541,9 @@ export default function Trade() {
         setSwapGasFee,
         setSwapGasLimit
       );
+    else {
+      setSwapGasLimit(BN_ZERO)
+    }
   }
 
   async function updateMintFee() {
@@ -570,7 +586,7 @@ export default function Trade() {
             <div className="ml-auto text-xs">
               {pairSelected
                 ? !limitTabSelected
-                  ? amountOut
+                  ? parseFloat(amountOut).toPrecision(6)
                   : !isNaN(parseFloat(
                     ethers.utils.formatUnits(bnInput, tokenIn.decimals))
                   ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
@@ -611,14 +627,11 @@ export default function Trade() {
             <div className="flex p-1">
               <div className="text-xs text-[#4C4C4C]">Price Impact</div>
               <div className="ml-auto text-xs">
-                {/* {pairSelected
-                  ? rangePriceAfter
-                    ? (
-                        Math.abs((rangePrice - rangePriceAfter) * 100) /
-                        rangePrice
-                      ).toFixed(2) + "%"
+                {pairSelected
+                  ? priceImpact
+                    ? priceImpact + "%"
                     : "0.00%"
-                  : "Select Token"} */}
+                  : "Select Token"}
               </div>
             </div>
           ) : (
@@ -768,7 +781,7 @@ export default function Trade() {
                 ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
                 && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
                   !limitTabSelected ? (
-                    <div>{Number(amountOut).toPrecision(5)}</div>
+                    <div>{Number(amountOut).toPrecision(6)}</div>
                   ) : (
                     <div>
                       {parseFloat(
