@@ -36,7 +36,7 @@ import JSBI from "jsbi";
 import LimitCreateAndMintButton from "../components/Buttons/LimitCreateAndMintButton";
 import { fetchLimitPositions } from "../utils/queries";
 import { mapUserLimitPositions } from "../utils/maps";
-import { getAveragePrice, getExpectedAmountOut, getExpectedAmountOutFromInput, getMarketPriceAboveBelowString } from "../utils/math/priceMath";
+import { displayPoolPrice, getAveragePrice, getExpectedAmountOut, getExpectedAmountOutFromInput, getMarketPriceAboveBelowString } from "../utils/math/priceMath";
 import LimitSwapBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import timeDifference from "../utils/time";
 import { DyDxMath } from "../utils/math/dydxMath";
@@ -945,17 +945,14 @@ export default function Trade() {
                 className="flex px-2 cursor-pointer py-2 rounded-[4px]"
                 onClick={() => setExpanded(!expanded)}
               >
-                {/* <div className="flex-none text-xs uppercase text-[#C9C9C9]">
+                <div className="flex-none text-xs uppercase text-[#C9C9C9]">
                   1 {tokenIn.symbol} ={" "}
                   {!pairSelected
                     ? " ?"
-                    : //range price
-                      (tokenIn.callId == 0
-                        ? rangePrice.toPrecision(5)
-                        : invertPrice(rangePrice.toPrecision(5), false)) +
+                    : displayPoolPrice(tradePoolData.poolPrice, tokenIn.callId == 0) +
                       " " +
                       tokenOut.symbol}
-                </div> */}
+                </div>
                 <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
                   <button>
                     <ChevronDownIcon className="w-4 h-4" />
@@ -986,7 +983,7 @@ export default function Trade() {
                     </div>
                   ) : (
                     <SwapRouterButton
-                      disabled={tradeParams.disabled || needsAllowanceIn}
+                      disabled={tradeParams.disabled || needsAllowanceIn || swapGasLimit.eq(BN_ZERO)}
                       routerAddress={
                         chainProperties['arbitrumGoerli']['routerAddress']
                       }

@@ -22,6 +22,11 @@ export function precision(price: JSBD): number {
     return stringArr[1].length
 }
 
+export function displayPoolPrice(poolPrice: any, tokenOrder: boolean): string {
+    console.log('input pool price', TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(poolPrice)))
+    return invertPrice(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(poolPrice)), tokenOrder)
+}
+
 export function getMarketPriceAboveBelowString(limitStringPriceQuote: string, pairSelected: boolean, limitPriceOrder: boolean, tokenIn: tokenSwap, tokenOut: tokenSwap): string {
     if (parseFloat(limitStringPriceQuote) == 0) return '0.00% above Market Price'
     const basePrice = limitPriceOrder == (tokenIn.callId == 0)

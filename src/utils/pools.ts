@@ -278,29 +278,6 @@ export const getCoverPoolInfo = async (
   }
 };
 
-export const getFeeTier = async (
-  rangePoolRoute: string,
-  coverPoolRoute: string,
-  setRangeSlippage,
-  setCoverSlippage
-) => {
-  const coverData = await fetchCoverPools();
-  const coverPoolAddress = coverData["data"]["coverPools"]["0"]["id"];
-
-  if (coverPoolAddress === coverPoolRoute) {
-    const feeTier =
-      coverData["data"]["coverPools"]["0"]["volatilityTier"]["feeAmount"];
-    setCoverSlippage((parseFloat(feeTier) / 10000).toString());
-  }
-  const data = await fetchLimitPools();
-  const rangePoolAddress = data["data"]["limitPools"]["0"]["id"];
-
-  if (rangePoolAddress === rangePoolRoute) {
-    const feeTier = data["data"]["limitPools"]["0"]["feeTier"]["feeAmount"];
-    setRangeSlippage((parseFloat(feeTier) / 10000).toString());
-  }
-};
-
 export const feeTiers = [
   {
     id: 0,
