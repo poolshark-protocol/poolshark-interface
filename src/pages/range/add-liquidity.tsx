@@ -15,7 +15,6 @@ import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import inputFilter from "../../utils/inputFilter";
 import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
-import { feeTiers } from "../../utils/pools";
 import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
@@ -266,7 +265,6 @@ export default function AddLiquidity({}) {
   };
 
   const handleBalanceMax = (isTokenIn: boolean) => {
-    console.log('balance max function')
     const token = isTokenIn ? tokenIn : tokenOut
     const value = token.userBalance.toString()
     const bnValue = ethers.utils.parseUnits(value, token.decimals)
@@ -279,7 +277,6 @@ export default function AddLiquidity({}) {
     try {
         const isToken0 = amountInSet ? tokenIn.callId == 0
                                      : tokenOut.callId == 0
-        console.log('token 0 bool', isToken0)
         const inputBn = amountSet
         const lower = TickMath.getTickAtPriceString(
           lowerPrice,
