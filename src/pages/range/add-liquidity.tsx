@@ -371,7 +371,6 @@ export default function AddLiquidity({}) {
     const priceUpper = parseFloat(upperPrice)
     const priceRange = parseFloat(rangePrice)
     if (!isNaN(priceLower) && !isNaN(priceUpper) && !isNaN(priceRange) ) {
-      console.log('price check', lowerPrice, upperPrice, rangePrice, parseFloat(lowerPrice) > parseFloat(rangePrice))
       if (priceLower > 0 && priceUpper > 0) {
         if ( (priceLower <= priceRange && priceUpper <= priceRange) ||
              (priceLower >= priceRange && priceUpper >= priceRange)
@@ -400,8 +399,8 @@ export default function AddLiquidity({}) {
                 <img className="md:w-6 w-6 -ml-2" src={tokenOut?.logoURI} />
               </div>
               <span className="text-white text-xs">
-                {tokenOrder ? tokenOut.symbol : tokenIn.symbol} -{" "}
-                {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
+                {tokenOrder ? tokenIn.symbol : tokenOut.symbol} -{" "}
+                {tokenOrder ? tokenOut.symbol : tokenIn.symbol}
               </span>
               <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
                 {(rangePoolData?.feeTier?.feeAmount / 10000).toFixed(2)}%
