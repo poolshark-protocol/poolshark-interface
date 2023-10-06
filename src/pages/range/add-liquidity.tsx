@@ -265,6 +265,16 @@ export default function AddLiquidity({}) {
     }
   };
 
+  const handleBalanceMax = (isTokenIn: boolean) => {
+    console.log('balance max function')
+    const token = isTokenIn ? tokenIn : tokenOut
+    const value = token.userBalance.toString()
+    const bnValue = ethers.utils.parseUnits(value, token.decimals)
+    isTokenIn ? setDisplay(value) : setDisplay2(value)
+    setAmounts(isTokenIn, bnValue)
+    setAmountInSetLast(isTokenIn)
+  }
+
   function setAmounts(amountInSet: boolean, amountSet: BigNumber) {
     try {
         const isToken0 = amountInSet ? tokenIn.callId == 0
@@ -324,7 +334,7 @@ export default function AddLiquidity({}) {
               : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
             : ZERO;
           const outputBn = BigNumber.from(String(outputJsbi))
-          // set amount based on bnInput
+          // set amount based on inputBn
           if (amountInSet) {
             setTokenInAmount(inputBn);
             setTokenOutAmount(outputBn);
@@ -350,34 +360,6 @@ export default function AddLiquidity({}) {
   }
 
   ////////////////////////////////Gas Fee
-
-  //set lower and upper price
-  /* const changePrice = (direction: string, inputId: string) => {
-    if (!rangePoolData.feeTier.tickSpacing) return;
-    const currentTick =
-      inputId == "minInput"
-        ? TickMath.getTickAtPriceString(rangePositionData.lowerPrice)
-        : TickMath.getTickAtPriceString(rangePositionData.upperPrice);
-    const increment = parseInt(rangePoolData.feeTier.tickSpacing);
-    const adjustment =
-      direction == "plus" || direction == "minus"
-        ? direction == "plus"
-          ? -increment
-          : increment
-        : 0;
-    const newTick = roundTick(currentTick - adjustment, increment);
-    const newPriceString = TickMath.getPriceStringAtTick(
-      parseFloat(newTick.toString())
-    );
-    (document.getElementById(inputId) as HTMLInputElement).value =
-      parseFloat(newPriceString).toFixed(6);
-    if (inputId === "minInput") {
-      setLowerPrice(newPriceString);
-    }
-    if (inputId === "maxInput") {
-      setUpperPrice(newPriceString);
-    }
-  }; */
 
   const [minInput, setMinInput] = useState("");
   const [maxInput, setMaxInput] = useState("");
@@ -467,7 +449,7 @@ export default function AddLiquidity({}) {
               <div className="flex items-center gap-x-2">
                 <button
                   onClick={() =>
-                    maxBalance(tokenIn.userBalance.toString(), "0")
+                    handleBalanceMax(true)
                   }
                   className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border md:block hidden"
                 >
@@ -499,6 +481,14 @@ export default function AddLiquidity({}) {
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
               {inputBox2("0", "tokenOut", handleInput1)}
               <div className="flex items-center gap-x-2 ">
+                <button
+                  onClick={() =>
+                    handleBalanceMax(false)
+                  }
+                  className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border md:block hidden"
+                >
+                  MAX
+                </button>
                 <button className="flex w-full items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
                   <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
                     <img className="md:w-7 w-6" src={tokenOut.logoURI} />
