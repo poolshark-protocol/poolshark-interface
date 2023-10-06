@@ -87,6 +87,7 @@ export default function AddLiquidity({}) {
   const { inputBox, maxBalance, setDisplay } = useInputBox();
   const { maxBalance: maxBalance2, inputBox: inputBox2, setDisplay: setDisplay2 } = useInputBox();
   const [showTooltip, setShowTooltip] = useState(false);
+  const [amountInSetLast, setAmountInSetLast] = useState(true)
 
   ////////////////////////////////TokenOrder
   const [tokenOrder, setTokenOrder] = useState(true);
@@ -124,7 +125,7 @@ export default function AddLiquidity({}) {
 
   //this sets the default position price delta
   useEffect(() => {
-    if (rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
+    if (!rangeSqrtPrice && rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
       const price = JSBI.BigInt(rangePoolData.poolPrice);
       const tickAtPrice = rangePoolData.tickAtPrice;
       setRangePrice(TickMath.getPriceStringAtSqrtPrice(price));
@@ -242,6 +243,11 @@ export default function AddLiquidity({}) {
       lowerPrice: lowerPrice,
       upperPrice: upperPrice,
     });
+    setAmounts(
+      amountInSetLast,
+      amountInSetLast ? rangeMintParams.tokenInAmount
+                      : rangeMintParams.tokenOutAmount
+    )
   }, [lowerPrice, upperPrice]);
 
   const handleInput1 = (e) => {
@@ -250,9 +256,11 @@ export default function AddLiquidity({}) {
       console.log()
       setDisplay(value)
       setAmounts(true, bnValue)
+      setAmountInSetLast(true)
     } else if (name === "tokenOut") {
       setDisplay2(value)
       setAmounts(false, bnValue)
+      setAmountInSetLast(false)
     }
   };
 
@@ -336,7 +344,8 @@ export default function AddLiquidity({}) {
             setTokenInAmount(inputBn);
             setTokenOutAmount(outputBn);
             console.log('setting display 2', parseFloat(ethers.utils.formatUnits(outputBn, tokenOut.decimals)).toPrecision(6))
-            setDisplay2(parseFloat(ethers.utils.formatUnits(outputBn, tokenOut.decimals)).toPrecision(6))
+            const displayValue = parseFloat(ethers.utils.formatUnits(outputBn, tokenOut.decimals)).toPrecision(6)
+            setDisplay2(parseFloat(displayValue) > 0 ? displayValue : '')
           } else {
             setTokenInAmount(BigNumber.from(String(outputJsbi)));
             setTokenOutAmount(inputBn);
@@ -346,9 +355,9 @@ export default function AddLiquidity({}) {
           setTokenInAmount(BN_ZERO);
           setTokenOutAmount(BN_ZERO);
           if (amountInSet) {
-            setDisplay2('0')
+            setDisplay2('')
           } else {
-            setDisplay('0')
+            setDisplay('')
           }
         }
     } catch (error) {

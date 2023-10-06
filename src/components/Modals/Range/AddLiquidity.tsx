@@ -398,7 +398,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                 <div className="flex items-center justify-between px-2 mb-5">
                   <h1 className="">Add Liquidity</h1>
                   <XMarkIcon
-                    onClick={setIsOpen(false)}
+                    onClick={() => setIsOpen(false)}
                     className="w-7 cursor-pointer"
                   />
                 </div>
