@@ -104,6 +104,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   } = useProvider();
 
   useEffect(() => {
+    setTokenInAmount(BN_ZERO)
+    setTokenOutAmount(BN_ZERO)
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
   }, [chainId]);
 

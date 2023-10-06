@@ -132,6 +132,8 @@ export default function AddLiquidity({}) {
       setRangeSqrtPrice(price);
       setMinInput(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
       setMaxInput(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
+      setTokenInAmount(BN_ZERO)
+      setTokenOutAmount(BN_ZERO)
     }
   }, [rangePoolData]);
 
