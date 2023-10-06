@@ -222,9 +222,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   ////////////////////////////////Amounts
 
   const handleInput1 = (e) => {
-    console.log('balance state', tokenIn.address, tokenOut.address, needsBalanceIn)
-    setNeedsBalanceIn(true)
-    setNeedsBalanceOut(true)
     const [name, value, bnValue] = inputHandler(e)
     if (name === "tokenIn") {
       console.log()
@@ -365,10 +362,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   //   setBnInput(ethers.utils.parseUnits)
   // };
 
-  // const handleInput2 = (str: string) => {
-  //   console.log('handling input 2: ', str)
-  // };
-
   ////////////////////////////////
 
   return (
@@ -376,7 +369,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
       <Dialog
         as="div"
         className="relative z-50"
-        onClose={() => setIsOpen(false)}
+        onClose={setIsOpen(false)}
       >
         <Transition.Child
           as={Fragment}
@@ -405,7 +398,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                 <div className="flex items-center justify-between px-2 mb-5">
                   <h1 className="">Add Liquidity</h1>
                   <XMarkIcon
-                    onClick={() => setIsOpen(false)}
+                    onClick={setIsOpen(false)}
                     className="w-7 cursor-pointer"
                   />
                 </div>
