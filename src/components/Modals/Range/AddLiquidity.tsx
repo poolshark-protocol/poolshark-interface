@@ -157,7 +157,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     watch: needsBalanceIn,
     chainId: 421613,
     onSuccess(data) {
-      console.log('balance0 fetched', tokenInBal)
       setNeedsBalanceIn(false);
     },
   });
@@ -234,19 +233,14 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   };
 
   function setAmounts(amountInSet: boolean, amountSet: BigNumber) {
-    console.log('token input amount', amountInSet, amountSet.toString())
     try {
         const isToken0 = amountInSet ? tokenIn.callId == 0
                                      : tokenOut.callId == 0
-        console.log('token 0 bool', isToken0)
         const inputBn = amountSet
-        console.log('token input bn', inputBn.toString())
-        console.log('token range', String(lowerSqrtPrice), String(upperSqrtPrice), String(rangeSqrtPrice))
         if (amountSet.gt(BN_ZERO)) {
           let liquidity = ZERO;
           if(JSBI.greaterThanOrEqual(rangeSqrtPrice, lowerSqrtPrice) &&
              JSBI.lessThan(rangeSqrtPrice, upperSqrtPrice)) {
-              console.log('token liquidity set', isToken0)
               liquidity = DyDxMath.getLiquidityForAmounts(
                 isToken0 ? rangeSqrtPrice : lowerSqrtPrice,
                 isToken0 ? upperSqrtPrice : rangeSqrtPrice,
@@ -280,15 +274,13 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                 // warn the user the input is invalid
               }
           }
-          console.log('token liquidity amount', String(liquidity))
           const outputJsbi = JSBI.greaterThan(liquidity, ZERO)
             ? isToken0
               ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
               : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
             : ZERO;
           const outputBn = BigNumber.from(String(outputJsbi))
-          // set amount based on bnInput
-          console.log('token output amount', String(outputJsbi))
+          // set amount based on inputBn
           if (amountInSet) {
             setTokenInAmount(inputBn);
             setTokenOutAmount(outputBn);
@@ -303,9 +295,9 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
           setTokenInAmount(BN_ZERO);
           setTokenOutAmount(BN_ZERO);
           if (amountInSet) {
-            setDisplay2('0')
+            setDisplay2('')
           } else {
-            setDisplay('0')
+            setDisplay('')
           }
           setDisabled(true);
         }
@@ -347,20 +339,9 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
 
   ////////////////////////////////Mint Button State
 
-  // set amount in
-  // useEffect(() => {
-  //   if (!bnInput.eq(BN_ZERO)) {
-  //     setTokenInAmount(bnInput);
-  //   }
-  // }, [bnInput]);
-
   useEffect(() => {
     setMintButtonState();
   }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount]);
-
-  // const handleInput1 = (str: string) => {
-  //   setBnInput(ethers.utils.parseUnits)
-  // };
 
   ////////////////////////////////
 
@@ -369,7 +350,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
       <Dialog
         as="div"
         className="relative z-50"
-        onClose={setIsOpen(false)}
+        onClose={() => setIsOpen(false)}
       >
         <Transition.Child
           as={Fragment}

@@ -253,7 +253,6 @@ export default function AddLiquidity({}) {
   const handleInput1 = (e) => {
     const [name, value, bnValue] = inputHandler(e)
     if (name === "tokenIn") {
-      console.log()
       setDisplay(value)
       setAmounts(true, bnValue)
       setAmountInSetLast(true)
@@ -264,18 +263,7 @@ export default function AddLiquidity({}) {
     }
   };
 
-  // useEffect(() => {
-  //   if (
-  //     rangePositionData.lowerPrice &&
-  //     rangePositionData.upperPrice &&
-  //     rangePoolData.feeTier
-  //   ) {
-  //     tokenOutAmountMath();
-  //   }
-  // }, [bnInput, tokenOrder, lowerPrice, upperPrice]);
-
   function setAmounts(amountInSet: boolean, amountSet: BigNumber) {
-    console.log('token input amount', amountInSet, amountSet.toString())
     try {
         const isToken0 = amountInSet ? tokenIn.callId == 0
                                      : tokenOut.callId == 0
@@ -291,13 +279,10 @@ export default function AddLiquidity({}) {
         );
         const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lower);
         const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upper);
-        console.log('token input bn', inputBn.toString())
-        console.log('token range', String(lowerSqrtPrice), String(upperSqrtPrice), String(rangeSqrtPrice))
         if (amountSet.gt(BN_ZERO)) {
           let liquidity = ZERO;
           if(JSBI.greaterThanOrEqual(rangeSqrtPrice, lowerSqrtPrice) &&
              JSBI.lessThan(rangeSqrtPrice, upperSqrtPrice)) {
-              console.log('token liquidity set', isToken0)
               liquidity = DyDxMath.getLiquidityForAmounts(
                 isToken0 ? rangeSqrtPrice : lowerSqrtPrice,
                 isToken0 ? upperSqrtPrice : rangeSqrtPrice,
@@ -331,7 +316,6 @@ export default function AddLiquidity({}) {
                 // warn the user the input is invalid
               }
           }
-          console.log('token liquidity amount', String(liquidity))
           const outputJsbi = JSBI.greaterThan(liquidity, ZERO)
             ? isToken0
               ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
@@ -339,11 +323,9 @@ export default function AddLiquidity({}) {
             : ZERO;
           const outputBn = BigNumber.from(String(outputJsbi))
           // set amount based on bnInput
-          console.log('token output amount', String(outputJsbi))
           if (amountInSet) {
             setTokenInAmount(inputBn);
             setTokenOutAmount(outputBn);
-            console.log('setting display 2', parseFloat(ethers.utils.formatUnits(outputBn, tokenOut.decimals)).toPrecision(6))
             const displayValue = parseFloat(ethers.utils.formatUnits(outputBn, tokenOut.decimals)).toPrecision(6)
             setDisplay2(parseFloat(displayValue) > 0 ? displayValue : '')
           } else {
