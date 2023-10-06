@@ -84,8 +84,8 @@ export default function AddLiquidity({}) {
     network: { chainId },
   } = useProvider();
 
-  const { inputBox, maxBalance, setDisplay } = useInputBox();
-  const { maxBalance: maxBalance2, inputBox: inputBox2, setDisplay: setDisplay2 } = useInputBox();
+  const { inputBox: inputBoxIn, setDisplay: setDisplayIn } = useInputBox();
+  const { inputBox: inputBoxOut, setDisplay: setDisplayOut } = useInputBox();
   const [showTooltip, setShowTooltip] = useState(false);
   const [amountInSetLast, setAmountInSetLast] = useState(true)
 
@@ -252,14 +252,14 @@ export default function AddLiquidity({}) {
     )
   }, [lowerPrice, upperPrice]);
 
-  const handleInput1 = (e) => {
+  const handleInputBox = (e) => {
     const [name, value, bnValue] = inputHandler(e)
     if (name === "tokenIn") {
-      setDisplay(value)
+      setDisplayIn(value)
       setAmounts(true, bnValue)
       setAmountInSetLast(true)
     } else if (name === "tokenOut") {
-      setDisplay2(value)
+      setDisplayOut(value)
       setAmounts(false, bnValue)
       setAmountInSetLast(false)
     }
@@ -270,7 +270,7 @@ export default function AddLiquidity({}) {
     const token = isTokenIn ? tokenIn : tokenOut
     const value = token.userBalance.toString()
     const bnValue = ethers.utils.parseUnits(value, token.decimals)
-    isTokenIn ? setDisplay(value) : setDisplay2(value)
+    isTokenIn ? setDisplayIn(value) : setDisplayOut(value)
     setAmounts(isTokenIn, bnValue)
     setAmountInSetLast(isTokenIn)
   }
@@ -339,19 +339,19 @@ export default function AddLiquidity({}) {
             setTokenInAmount(inputBn);
             setTokenOutAmount(outputBn);
             const displayValue = parseFloat(ethers.utils.formatUnits(outputBn, tokenOut.decimals)).toPrecision(6)
-            setDisplay2(parseFloat(displayValue) > 0 ? displayValue : '')
+            setDisplayOut(parseFloat(displayValue) > 0 ? displayValue : '')
           } else {
             setTokenInAmount(BigNumber.from(String(outputJsbi)));
             setTokenOutAmount(inputBn);
-            setDisplay(parseFloat(ethers.utils.formatUnits(outputBn, tokenIn.decimals)).toPrecision(6))
+            setDisplayIn(parseFloat(ethers.utils.formatUnits(outputBn, tokenIn.decimals)).toPrecision(6))
           }
         } else {
           setTokenInAmount(BN_ZERO);
           setTokenOutAmount(BN_ZERO);
           if (amountInSet) {
-            setDisplay2('')
+            setDisplayOut('')
           } else {
-            setDisplay('')
+            setDisplayIn('')
           }
         }
     } catch (error) {
@@ -445,7 +445,7 @@ export default function AddLiquidity({}) {
               <span>BALANCE: {tokenIn.userBalance ?? 0}</span>
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-              {inputBox("0", "tokenIn", handleInput1)}
+              {inputBoxIn("0", "tokenIn", handleInputBox)}
               <div className="flex items-center gap-x-2">
                 <button
                   onClick={() =>
@@ -479,7 +479,7 @@ export default function AddLiquidity({}) {
               <span>BALANCE: {tokenOut.userBalance ?? 0}</span>
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-              {inputBox2("0", "tokenOut", handleInput1)}
+              {inputBoxOut("0", "tokenOut", handleInputBox)}
               <div className="flex items-center gap-x-2 ">
                 <button
                   onClick={() =>
