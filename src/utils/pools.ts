@@ -356,3 +356,7 @@ export const volatilityTiers = [
     auctionLength: 5,
   },
 ];
+
+export const limitPoolTypeIds = {
+  'constant-product': 0
+}

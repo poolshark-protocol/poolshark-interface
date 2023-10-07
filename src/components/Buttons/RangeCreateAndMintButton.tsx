@@ -18,7 +18,7 @@ export default function RangeCreateAndMintButton({
   disabled,
   buttonMessage,
   routerAddress,
-  poolType,
+  poolTypeId,
   token0,
   token1,
   startPrice,
@@ -60,7 +60,7 @@ export default function RangeCreateAndMintButton({
     functionName: "createLimitPoolAndMint",
     args: [
       {
-        poolType: ethers.utils.formatBytes32String(poolType),
+        poolType: poolTypeId,
         tokenIn: token0.address,
         tokenOut: token1.address,
         startPrice: startPrice,
