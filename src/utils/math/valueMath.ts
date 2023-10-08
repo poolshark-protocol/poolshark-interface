@@ -25,7 +25,7 @@ export function inputHandler(e): [string, string, BigNumber] {
     } else {
         return [
             e.target.name,
-            e.target.value,
+            result,
             ethers.utils.parseUnits(result, 18)
         ];
     }

@@ -20,7 +20,7 @@ import {
   maxPriceBn,
   minPriceBn,
 } from "../utils/math/tickMath";
-import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import { gasEstimateMintLimit, gasEstimateSwap } from "../utils/gas";
 import inputFilter from "../utils/inputFilter";
 import LimitSwapButton from "../components/Buttons/LimitSwapButton";
@@ -39,7 +39,6 @@ import { mapUserLimitPositions } from "../utils/maps";
 import { getAveragePrice, getExpectedAmountOut, getExpectedAmountOutFromInput, getMarketPriceAboveBelowString } from "../utils/math/priceMath";
 import LimitSwapBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import timeDifference from "../utils/time";
-import { DyDxMath } from "../utils/math/dydxMath";
 import { inputHandler } from "../utils/math/valueMath";
 
 export default function Trade() {
@@ -48,9 +47,9 @@ export default function Trade() {
   const {
     network: { chainId },
   } = useProvider();
-  const { inputBox, setDisplay: setDisplayIn, maxBalance } =
+  const { inputBox: inputBoxIn, display: displayIn, setDisplay: setDisplayIn, maxBalance } =
     useInputBox();
-  const { display: displayOut, setDisplay: setDisplayOut } =
+  const { inputBox: inputBoxOut, display: displayOut, setDisplay: setDisplayOut } =
     useInputBox();
 
   const [
@@ -151,13 +150,24 @@ export default function Trade() {
   //display variable
   const [amountIn, setAmountIn] = useState(BN_ZERO);
   const [amountOut, setAmountOut] = useState(BN_ZERO);
+  const [exactIn, setExactIn] = useState(true)
 
   const handleInputBox = (e) => {
     const [name, value, bnValue] = inputHandler(e)
     if (name === "tokenIn") {
-      setDisplayIn(value)
-      setAmountIn(bnValue)
+      if (value != displayIn) {
+        setDisplayIn(value)
+        setAmountIn(bnValue)
+        setExactIn(true)
+        updatePools(bnValue, true)
+      }
     } else if (name === "tokenOut") {
+      if (value != displayOut) {
+        setDisplayOut(value)
+        setAmountOut(bnValue)
+        setExactIn(false)
+        updatePools(bnValue, false)
+      }
     }
   };
 
@@ -169,11 +179,11 @@ export default function Trade() {
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
-      updatePools();
+      updatePools(exactIn ? amountIn : amountOut, exactIn);
     }
-  }, [tokenIn.address, tokenOut.address, amountIn]);
+  }, [tokenIn.address, tokenOut.address]);
 
-  async function updatePools() {
+  async function updatePools(amount: BigNumber, isAmountIn: boolean) {
     const pools = await getSwapPools(tokenIn, tokenOut, setTradePoolData);
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
@@ -181,8 +191,8 @@ export default function Trade() {
       for (let i = 0; i < pools.length; i++) {
         const params: QuoteParams = {
           priceLimit: tokenIn.callId == 0 ? minPriceBn : maxPriceBn,
-          amount: amountIn,
-          exactIn: true,
+          amount: amount,
+          exactIn: isAmountIn,
           zeroForOne: tokenIn.callId == 0,
         };
         quoteList[i] = params;
@@ -210,16 +220,27 @@ export default function Trade() {
 
   useEffect(() => {
     if (poolQuotes && poolQuotes[0]) {
-      console.log('pool quote', poolQuotes[0].amountOut.toString(), ethers.utils.formatUnits(poolQuotes[0].amountOut.toString(), tokenOut.decimals))
-      setAmountOut(
-        poolQuotes[0].amountOut
-      );
-      setDisplayOut(
-        ethers.utils.formatUnits(
-          poolQuotes[0].amountOut.toString(),
-          tokenOut.decimals
+      if (exactIn) {
+        setAmountOut(
+          poolQuotes[0].amountOut
+        );
+        setDisplayOut(
+          parseFloat(ethers.utils.formatUnits(
+            poolQuotes[0].amountOut.toString(),
+            tokenOut.decimals
+          )).toPrecision(6)
         )
-      )
+      } else {
+        setAmountIn(
+          poolQuotes[0].amountIn
+        )
+        setDisplayIn(
+          parseFloat(ethers.utils.formatUnits(
+            poolQuotes[0].amountIn.toString(),
+            tokenOut.decimals
+          )).toPrecision(6)
+        )
+      }
       updateSwapParams(poolQuotes);
     }
   }, [poolQuotes]);
@@ -243,8 +264,8 @@ export default function Trade() {
         const params: SwapParams = {
           to: address,
           priceLimit: priceLimitBn,
-          amount: amountIn,
-          exactIn: true,
+          amount: exactIn ? amountIn : amountOut,
+          exactIn: exactIn,
           zeroForOne: tokenIn.callId == 0,
           callbackData: ethers.utils.formatBytes32String(""),
         };
@@ -587,7 +608,7 @@ export default function Trade() {
             <div className="ml-auto text-xs">
               {pairSelected
                 ? !limitTabSelected
-                  ? ethers.utils.formatUnits(amountOut, 0)
+                  ? ethers.utils.formatUnits(amountOut, tokenOut.decimals)
                   : !isNaN(parseFloat(
                     ethers.utils.formatUnits(amountIn, tokenIn.decimals))
                   ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
@@ -697,7 +718,7 @@ export default function Trade() {
                 <span>BALANCE: {tokenIn.userBalance}</span>
               </div>
               <div className="flex items-end justify-between mt-2 mb-3">
-                {inputBox("0", "tokenIn", handleInputBox)}
+                {inputBoxIn("0", "tokenIn", handleInputBox)}
                 <div className="flex items-center gap-x-2">
                   {isConnected && stateChainName === "arbitrumGoerli" ? (
                     <button
@@ -785,7 +806,7 @@ export default function Trade() {
                 ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
                 && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
                   !limitTabSelected ? (
-                    <div>{parseFloat(displayOut).toPrecision(5)}</div>
+                    <div>{inputBoxOut("0", "tokenOut", handleInputBox)}</div>
                   ) : (
                     <div>
                       {parseFloat(
