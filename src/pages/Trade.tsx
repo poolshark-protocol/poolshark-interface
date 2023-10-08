@@ -40,6 +40,7 @@ import { getAveragePrice, getExpectedAmountOut, getExpectedAmountOutFromInput, g
 import LimitSwapBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import timeDifference from "../utils/time";
 import { DyDxMath } from "../utils/math/dydxMath";
+import { inputHandler } from "../utils/math/valueMath";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -47,10 +48,10 @@ export default function Trade() {
   const {
     network: { chainId },
   } = useProvider();
-  const { inputBox, setDisplay, maxBalance } =
+  const { inputBox, setDisplay: setDisplayIn, maxBalance } =
     useInputBox();
-  // const { inputBox2, setDisplay2 } =
-  //   useInputBox();
+  const { display: displayOut, setDisplay: setDisplayOut } =
+    useInputBox();
 
   const [
     tradePoolAddress,
@@ -148,8 +149,17 @@ export default function Trade() {
   const [swapParams, setSwapParams] = useState<any[]>([]);
 
   //display variable
-  const [amountIn, setAmountIn] = useState(undefined);
-  const [amountOut, setAmountOut] = useState(undefined);
+  const [amountIn, setAmountIn] = useState(BN_ZERO);
+  const [amountOut, setAmountOut] = useState(BN_ZERO);
+
+  const handleInputBox = (e) => {
+    const [name, value, bnValue] = inputHandler(e)
+    if (name === "tokenIn") {
+      setDisplayIn(value)
+      setAmountIn(bnValue)
+    } else if (name === "tokenOut") {
+    }
+  };
 
   useEffect(() => {
     if (tokenIn.address != ZERO_ADDRESS && tokenOut.address === ZERO_ADDRESS) {
@@ -200,12 +210,16 @@ export default function Trade() {
 
   useEffect(() => {
     if (poolQuotes && poolQuotes[0]) {
+      console.log('pool quote', poolQuotes[0].amountOut.toString(), ethers.utils.formatUnits(poolQuotes[0].amountOut.toString(), tokenOut.decimals))
       setAmountOut(
+        poolQuotes[0].amountOut
+      );
+      setDisplayOut(
         ethers.utils.formatUnits(
           poolQuotes[0].amountOut.toString(),
           tokenOut.decimals
         )
-      );
+      )
       updateSwapParams(poolQuotes);
     }
   }, [poolQuotes]);
@@ -573,7 +587,7 @@ export default function Trade() {
             <div className="ml-auto text-xs">
               {pairSelected
                 ? !limitTabSelected
-                  ? amountOut
+                  ? ethers.utils.formatUnits(amountOut, 0)
                   : !isNaN(parseFloat(
                     ethers.utils.formatUnits(amountIn, tokenIn.decimals))
                   ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
@@ -683,7 +697,7 @@ export default function Trade() {
                 <span>BALANCE: {tokenIn.userBalance}</span>
               </div>
               <div className="flex items-end justify-between mt-2 mb-3">
-                {inputBox("0")}
+                {inputBox("0", "tokenIn", handleInputBox)}
                 <div className="flex items-center gap-x-2">
                   {isConnected && stateChainName === "arbitrumGoerli" ? (
                     <button
@@ -741,7 +755,7 @@ export default function Trade() {
                   && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
                     !limitTabSelected ? (
                       //swap page
-                      (amountOut * tokenOut.USDPrice).toFixed(2)
+                      (parseFloat(displayOut) * tokenOut.USDPrice).toFixed(2)
                     ) : //limit page
                     (
                       parseFloat(
@@ -771,7 +785,7 @@ export default function Trade() {
                 ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
                 && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
                   !limitTabSelected ? (
-                    <div>{Number(amountOut).toPrecision(5)}</div>
+                    <div>{parseFloat(displayOut).toPrecision(5)}</div>
                   ) : (
                     <div>
                       {parseFloat(
