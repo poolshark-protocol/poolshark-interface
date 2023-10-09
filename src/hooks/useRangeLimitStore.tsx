@@ -191,7 +191,7 @@ const initialRangeLimitState: RangeLimitState = {
   needsAllowanceOut: true,
   needsBalanceIn: true,
   needsBalanceOut: true,
-  needsSnapshot: false,
+  needsSnapshot: true,
   //
   claimTick: 0,
 };
