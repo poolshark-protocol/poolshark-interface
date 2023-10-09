@@ -391,7 +391,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                       <span>
                         ~$
                         {Number(
-                              tokenIn.rangeUSDPrice *
+                              tokenIn.USDPrice *
                                 parseFloat(
                                   ethers.utils.formatUnits(
                                     rangeMintParams.tokenInAmount,
