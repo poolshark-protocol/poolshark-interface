@@ -3,7 +3,7 @@ import { Transition, Dialog } from "@headlessui/react";
 import RangeMintButton from "../Buttons/RangeMintButton";
 import { BigNumber, ethers } from "ethers";
 import { erc20ABI, useAccount, useContractRead, useProvider } from "wagmi";
-import { TickMath } from "../../utils/math/tickMath";
+import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import RangeMintDoubleApproveButton from "../Buttons/RangeMintDoubleApproveButton";
 import { useRouter } from "next/router";
 import RangeMintApproveButton from "../Buttons/RangeMintApproveButton";
@@ -26,6 +26,7 @@ export default function RangePoolPreview() {
     tokenIn,
     setTokenInAllowance,
     tokenOut,
+    priceOrder,
     setTokenOutAllowance,
     needsAllowanceIn,
     needsAllowanceOut,
@@ -39,6 +40,7 @@ export default function RangePoolPreview() {
     state.tokenIn,
     state.setTokenInRangeAllowance,
     state.tokenOut,
+    state.priceOrder,
     state.setTokenOutRangeAllowance,
     state.needsAllowanceIn,
     state.needsAllowanceOut,
@@ -318,11 +320,11 @@ export default function RangePoolPreview() {
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {rangePositionData.lowerPrice}
+                                {invertPrice(priceOrder ? rangePositionData.lowerPrice : rangePositionData.upperPrice, priceOrder)}
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">
-                              {tokenOut.symbol} per {tokenIn.symbol}
+                              {(priceOrder ? tokenOut : tokenIn).symbol} per {(priceOrder ? tokenIn : tokenOut).symbol}
                             </span>
                           </div>
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-[4px]">
@@ -331,11 +333,11 @@ export default function RangePoolPreview() {
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {rangePositionData.upperPrice}
+                                {invertPrice(priceOrder ? rangePositionData.upperPrice : rangePositionData.lowerPrice, priceOrder)}
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">
-                              {tokenOut.symbol} per {tokenIn.symbol}
+                              {(priceOrder ? tokenOut : tokenIn).symbol} per {(priceOrder ? tokenIn : tokenOut).symbol}
                             </span>
                           </div>
                         </div>

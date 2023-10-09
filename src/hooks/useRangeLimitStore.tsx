@@ -53,6 +53,8 @@ type RangeLimitState = {
   //min and max price input
   minInput: string;
   maxInput: string;
+  //price order
+  priceOrder: boolean;
   //refresh
   needsRefetch: boolean;
   needsPosRefetch: boolean;
@@ -114,6 +116,7 @@ type RangeLimitAction = {
   //
   setMintButtonState: () => void;
   //
+  setPriceOrder: (priceOrder: boolean) => void;
   setNeedsRefetch: (needsRefetch: boolean) => void;
   setNeedsPosRefetch: (needsPosRefetch: boolean) => void;
   setNeedsAllowanceIn: (needsAllowance: boolean) => void;
@@ -184,6 +187,7 @@ const initialRangeLimitState: RangeLimitState = {
   //
   minInput: "",
   maxInput: "",
+  priceOrder: true,
   //
   needsRefetch: false,
   needsPosRefetch: false,
@@ -223,6 +227,8 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     //input amounts
     minInput: initialRangeLimitState.minInput,
     maxInput: initialRangeLimitState.maxInput,
+    //price order
+    priceOrder: initialRangeLimitState.priceOrder,
     //refresh
     needsRefetch: initialRangeLimitState.needsRefetch,
     needsPosRefetch: initialRangeLimitState.needsPosRefetch,
@@ -363,6 +369,11 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     setMaxInput: (maxInput: string) => {
       set(() => ({
         maxInput: maxInput,
+      }));
+    },
+    setPriceOrder: (priceOrder: boolean) => {
+      set(() => ({
+        priceOrder: priceOrder,
       }));
     },
     setRangePoolAddress: (rangePoolAddress: `0x${string}`) => {
