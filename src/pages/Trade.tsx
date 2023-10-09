@@ -246,11 +246,18 @@ export default function Trade() {
   const [allLimitPositions, setAllLimitPositions] = useState([]);
 
   useEffect(() => {
+    if (address) {
+      getUserLimitPositionData();
+      setNeedsRefetch(false);
+    }
+  }, []);
+
+  useEffect(() => {
     if (address && needsRefetch === true) {
       getUserLimitPositionData();
       setNeedsRefetch(false)
     }
-  }, [address, needsRefetch]);
+  }, [needsRefetch]);
 
   async function getUserLimitPositionData() {
     try {
