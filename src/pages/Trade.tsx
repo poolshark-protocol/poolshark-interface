@@ -155,18 +155,41 @@ export default function Trade() {
   const handleInputBox = (e) => {
     const [name, value, bnValue] = inputHandler(e)
     if (name === "tokenIn") {
-      if (value != displayIn) {
+      console.log('bn value', bnValue.toString(), value, bnValue.gt(BN_ZERO), !bnValue.eq(amountIn))
+      if (!bnValue.eq(amountIn)) {
         setDisplayIn(value)
         setAmountIn(bnValue)
+        if (bnValue.gt(BN_ZERO)) {
+          updatePools(bnValue, true)
+        } else {
+          console.log('setting display out', value, bnValue.toString())
+          setDisplayOut('')
+          setAmountOut(BN_ZERO)
+        }
         setExactIn(true)
-        updatePools(bnValue, true)
+      } else {
+        setDisplayIn(value)
+        if (bnValue.eq(BN_ZERO)) {
+          setDisplayOut(value)
+        }
       }
     } else if (name === "tokenOut") {
+      console.log('token out triggered')
       if (value != displayOut) {
         setDisplayOut(value)
         setAmountOut(bnValue)
+        if (bnValue.gt(BN_ZERO)) {
+          updatePools(bnValue, false)
+        } else {
+          setDisplayIn('')
+          setAmountIn(BN_ZERO)
+        }
         setExactIn(false)
-        updatePools(bnValue, false)
+      } else {
+        setDisplayOut(value)
+        if (bnValue.eq(BN_ZERO)) {
+          setDisplayIn(value)
+        }
       }
     }
   };
@@ -184,6 +207,7 @@ export default function Trade() {
   }, [tokenIn.address, tokenOut.address]);
 
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {
+    console.log('updating pools')
     const pools = await getSwapPools(tokenIn, tokenOut, setTradePoolData);
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
@@ -214,7 +238,7 @@ export default function Trade() {
       console.log("Error multiquote", error);
     },
     onSuccess(data) {
-      // console.log("Success multiquote", data);
+      console.log("Success multiquote", data);
     },
   });
 
@@ -243,7 +267,7 @@ export default function Trade() {
       }
       updateSwapParams(poolQuotes);
     }
-  }, [poolQuotes]);
+  }, [poolQuotes, quoteParams]);
 
   function updateSwapParams(poolQuotes: any) {
     const poolAddresses: string[] = [];
@@ -389,7 +413,7 @@ export default function Trade() {
     },
     onSuccess(data) {
       setNeedsAllowanceIn(false);
-      //console.log("Success allowance", data);
+      console.log("Success allowance", tokenIn.symbol, tokenIn.address, data.toString());
     },
   });
 
@@ -551,7 +575,7 @@ export default function Trade() {
         updateMintFee();
       }
     }
-  }, [swapParams, tokenIn, tokenOut, amountIn, lowerTick, upperTick]);
+  }, [swapParams, tokenIn, tokenOut, lowerTick, upperTick]);
 
   async function updateGasFee() {
     if (tokenIn.userRouterAllowance?.gte(amountIn))
@@ -705,14 +729,14 @@ export default function Trade() {
                 <span>
                   {" "}
                   ~$
-                  {amountIn.gt(0) ? (
+                  {!isNaN(parseInt(amountIn.toString())) ? (
                     (
                       Number(
                         ethers.utils.formatUnits(amountIn, tokenIn.decimals)
                       ) * tokenIn.USDPrice
                     ).toFixed(2)
                   ) : (
-                    (1 * tokenIn.USDPrice).toFixed(2)
+                    (0).toFixed(2)
                   )}
                 </span>
                 <span>BALANCE: {tokenIn.userBalance}</span>
@@ -798,16 +822,18 @@ export default function Trade() {
                 </span>
               </div>
               <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                {pairSelected &&
+                {
+                  !limitTabSelected ? (
+                    <div>{inputBoxOut("0", "tokenOut", handleInputBox)}</div>
+                  ) : 
+                  pairSelected &&
                 !amountIn.eq(BN_ZERO) &&
                 tokenOut.address != ZERO_ADDRESS &&
                 !isNaN(parseFloat(
                   ethers.utils.formatUnits(amountIn, tokenIn.decimals))
                 ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
-                && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
-                  !limitTabSelected ? (
-                    <div>{inputBoxOut("0", "tokenOut", handleInputBox)}</div>
-                  ) : (
+                && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0))) ?
+                  (
                     <div>
                       {parseFloat(
                         ethers.utils.formatUnits(
@@ -819,10 +845,10 @@ export default function Trade() {
                           ), tokenIn.decimals
                     )).toFixed(3)}
                     </div>
+                  ) : (
+                    <div>0</div>
                   )
-                ) : (
-                  <div>0</div>
-                )}
+                }
                 <div className="flex items-center gap-x-2">
                   <SelectToken
                     key={"out"}
