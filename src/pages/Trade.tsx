@@ -156,7 +156,11 @@ export default function Trade() {
     const [name, value, bnValue] = inputHandler(e)
     if (name === "tokenIn") {
       console.log('bn value', bnValue.toString(), value, bnValue.gt(BN_ZERO), !bnValue.eq(amountIn))
-      if (!bnValue.eq(amountIn)) {
+      if (!pairSelected) {
+        setDisplayIn(value)
+        setDisplayOut('')
+        setAmountIn(bnValue)
+      } else if (!bnValue.eq(amountIn)) {
         setDisplayIn(value)
         setAmountIn(bnValue)
         if (bnValue.gt(BN_ZERO)) {
