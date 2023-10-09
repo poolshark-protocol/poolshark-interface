@@ -467,7 +467,7 @@ export default function AddLiquidity({}) {
               <span>
                 ~$
                 {(
-                  Number(tokenOut.rangeUSDPrice) *
+                  Number(tokenOut.USDPrice) *
                   Number(
                     ethers.utils.formatUnits(rangeMintParams.tokenOutAmount, 18)
                   )

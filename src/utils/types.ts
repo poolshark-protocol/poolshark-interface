@@ -52,7 +52,7 @@ export type tokenRangeLimit = {
   decimals: number;
   userBalance: number;
   userRouterAllowance: BigNumber;
-  rangeUSDPrice: number;
+  USDPrice: number;
 };
 
 export type tokenCover = {
