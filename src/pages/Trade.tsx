@@ -516,14 +516,14 @@ export default function Trade() {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    if (!bnInput.eq(BN_ZERO)) {
+    if (!bnInput.eq(BN_ZERO) && !needsAllowanceIn) {
       if (!limitTabSelected) {
         updateGasFee();
       } else {
         updateMintFee();
       }
     }
-  }, [swapParams, tokenIn, tokenOut, bnInput, lowerTick, upperTick]);
+  }, [swapParams, tokenIn, tokenOut, bnInput, lowerTick, upperTick, needsAllowanceIn]);
 
   async function updateGasFee() {
     if (tokenIn.userRouterAllowance?.gte(bnInput))
