@@ -338,7 +338,7 @@ export default function AddLiquidity({}) {
             const displayValue = parseFloat(ethers.utils.formatUnits(outputBn, tokenOut.decimals)).toPrecision(6)
             setDisplayOut(parseFloat(displayValue) > 0 ? displayValue : '')
           } else {
-            setTokenInAmount(BigNumber.from(String(outputJsbi)));
+            setTokenInAmount(outputBn);
             setTokenOutAmount(inputBn);
             setDisplayIn(parseFloat(ethers.utils.formatUnits(outputBn, tokenIn.decimals)).toPrecision(6))
           }
@@ -435,7 +435,7 @@ export default function AddLiquidity({}) {
               <span>
                 ~$
                 {(
-                  tokenIn.rangeUSDPrice *
+                  tokenIn.USDPrice *
                   Number(ethers.utils.formatUnits(rangeMintParams.tokenInAmount, tokenIn.decimals))
                 ).toFixed(2)}
               </span>
