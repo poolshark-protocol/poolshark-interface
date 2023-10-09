@@ -91,6 +91,8 @@ export const getRangePoolFromFactory = (
             poolPrice
             tickAtPrice
             feeTier {
+              id
+              feeAmount
               tickSpacing
             }
             token0 {
@@ -176,9 +178,27 @@ export const getLimitPoolFromFactory = (tokenA: string, tokenB: string) => {
               orderDirection: desc
             ) {
               id
-              feeTier {
-                feeAmount
-                tickSpacing
+              epoch
+              token0{
+                  id
+                  name
+                  symbol
+                  decimals
+                  usdPrice
+              }
+              token1{
+                  id
+                  name
+                  symbol
+                  decimals
+                  usdPrice
+              }
+              liquidity
+              liquidityGlobal
+              feeTier{
+                  id
+                  feeAmount
+                  tickSpacing
               }
               token0 {
                 usdPrice
@@ -192,6 +212,17 @@ export const getLimitPoolFromFactory = (tokenA: string, tokenB: string) => {
               pool1Price
               price0
               price1
+              poolPrice
+              feesEth
+              feesUsd
+              volumeEth
+              volumeToken0
+              volumeToken1
+              volumeUsd
+              totalValueLockedEth
+              totalValueLocked0
+              totalValueLocked1
+              totalValueLockedUsd
             }
           }
          `;
@@ -550,6 +581,7 @@ export const fetchLimitPositions = (address: string) => {
                     liquidityGlobal
                     epoch
                     feeTier{
+                      id
                       feeAmount
                       tickSpacing
                     }
@@ -591,34 +623,32 @@ export const fetchLimitPools = () => {
                   orderDirection: desc
                 ) {
                     id
-                    inputPool
-                    genesisTime
                     epoch
                     token0{
                         id
                         name
                         symbol
                         decimals
+                        usdPrice
                     }
                     token1{
                         id
                         name
                         symbol
                         decimals
+                        usdPrice
                     }
                     liquidity
                     liquidityGlobal
                     feeTier{
+                        id
                         feeAmount
                         tickSpacing
                     }
                     tickSpacing
                     price0
                     price1
-                    pool0price
-                    pool1price
-                    pool0liquidity
-                    pool1liquidity
+                    poolPrice
                     feesEth
                     feesUsd
                     volumeEth
@@ -697,6 +727,7 @@ export const fetchRangePools = () => {
                     feesEth
                     feesUsd
                     feeTier{
+                        id
                         tickSpacing
                         feeAmount
                     }
@@ -767,6 +798,7 @@ export const fetchRangePositions = (address: string) => {
               poolPrice
               liquidity
               feeTier{
+                  id
                   feeAmount
                   tickSpacing
               }

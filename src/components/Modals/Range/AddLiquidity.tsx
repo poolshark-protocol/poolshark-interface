@@ -351,7 +351,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                         ~$
                         {tokenOrder
                           ? Number(
-                              tokenOut.rangeUSDPrice *
+                              tokenOut.USDPrice *
                                 parseFloat(
                                   ethers.utils.formatUnits(
                                     amount1,
@@ -360,7 +360,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                                 )
                             ).toFixed(2)
                           : Number(
-                              tokenIn.rangeUSDPrice *
+                              tokenIn.USDPrice *
                                 parseFloat(
                                   ethers.utils.formatUnits(
                                     amount0,
@@ -396,7 +396,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                       <span>
                         ~$
                         {(
-                          Number(tokenOut.rangeUSDPrice) *
+                          Number(tokenOut.USDPrice) *
                           Number(
                             ethers.utils.formatUnits(
                               rangeMintParams.tokenOutAmount,

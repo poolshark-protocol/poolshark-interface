@@ -22,8 +22,8 @@ export function precision(price: JSBD): number {
     return stringArr[1].length
 }
 
-export function displayPoolPrice(poolPrice: any, tokenOrder: boolean): string {
-    console.log('input pool price', TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(poolPrice)))
+export function displayPoolPrice(pairSelected: boolean, poolPrice: any, tokenOrder: boolean): string {
+    if (!pairSelected || !poolPrice) return ' '
     return invertPrice(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(poolPrice)), tokenOrder)
 }
 
