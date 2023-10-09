@@ -118,31 +118,31 @@ export default function ViewRange() {
     try {
       if (rangePoolData != undefined) {
         setAmount0Usd(
-          parseFloat((amount0 * tokenIn.rangeUSDPrice).toPrecision(6))
+          parseFloat((amount0 * tokenIn.USDPrice).toPrecision(6))
         );
         setAmount1Usd(
-          parseFloat((amount1 * tokenOut.rangeUSDPrice).toPrecision(6))
+          parseFloat((amount1 * tokenOut.USDPrice).toPrecision(6))
         );
         setAmount0FeesUsd(
-          parseFloat((amount0Fees * tokenIn.rangeUSDPrice).toPrecision(3))
+          parseFloat((amount0Fees * tokenIn.USDPrice).toPrecision(3))
         );
         setAmount1FeesUsd(
-          parseFloat((amount1Fees * tokenOut.rangeUSDPrice).toPrecision(3))
+          parseFloat((amount1Fees * tokenOut.USDPrice).toPrecision(3))
         );
         setLowerInverse(
           parseFloat(
-            (tokenOut.rangeUSDPrice / parseFloat(upperPrice)).toPrecision(6)
+            (tokenOut.USDPrice / parseFloat(upperPrice)).toPrecision(6)
           )
         );
         setUpperInverse(
           parseFloat(
-            (tokenOut.rangeUSDPrice / parseFloat(lowerPrice)).toPrecision(6)
+            (tokenOut.USDPrice / parseFloat(lowerPrice)).toPrecision(6)
           )
         );
         setPriceInverse(
           parseFloat(
             (
-              tokenOut.rangeUSDPrice /
+              tokenOut.USDPrice /
               parseFloat(
                 TickMath.getPriceStringAtSqrtPrice(
                   JSBI.BigInt(String(rangePoolData.poolPrice))
