@@ -922,6 +922,9 @@ export default function Trade() {
                         if (e.target.value !== "" && e.target.value !== "0") {
                           setLimitPriceString(inputFilter(e.target.value));
                         }
+                        else {
+                          setLimitPriceString("0");
+                        }
                       }}
                     />
                   </div>
