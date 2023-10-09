@@ -1092,7 +1092,7 @@ export default function Trade() {
                             className="w-[25px] h-[25px]"
                             src={logoMap[allLimitPosition.tokenIn.symbol]}
                           />
-                          {ethers.utils.formatEther(allLimitPosition.amountIn) + " " + allLimitPosition.tokenIn.symbol}
+                          {parseFloat(ethers.utils.formatEther(allLimitPosition.amountIn)).toFixed(3) + " " + allLimitPosition.tokenIn.symbol}
                         </div>
                       </td>
                       <td className="">
@@ -1129,8 +1129,8 @@ export default function Trade() {
                       <td className="">
                         <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
                           <span className="z-50">
-                            {parseFloat(allLimitPosition.amountFilled) /
-                            parseFloat(allLimitPosition.liquidity)}% Filled
+                            {(parseFloat(allLimitPosition.amountFilled) /
+                            parseFloat(allLimitPosition.liquidity)).toFixed(2)}% Filled
                           </span>
                           <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
                         </div>

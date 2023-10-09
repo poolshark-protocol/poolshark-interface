@@ -98,7 +98,7 @@ export default function UserLimitPool({
                         className="w-[25px] h-[25px]"
                         src={logoMap[limitPosition.tokenIn.symbol]}
                     />
-                    {ethers.utils.formatEther(limitPosition.amountIn) + " " + limitPosition.tokenIn.symbol}
+                    {parseFloat(ethers.utils.formatEther(limitPosition.amountIn)).toFixed(3) + " " + limitPosition.tokenIn.symbol}
                 </div>
             </td>
             <td className="">
@@ -134,8 +134,8 @@ export default function UserLimitPool({
             <td className="">
                 <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
                     <span className="z-50">
-                        {parseFloat(limitPosition.amountFilled) /
-                            parseFloat(limitPosition.liquidity)}% Filled
+                        {(parseFloat(limitPosition.amountFilled) /
+                            parseFloat(limitPosition.liquidity)).toFixed(2)}% Filled
                     </span>
                     <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
                 </div>
