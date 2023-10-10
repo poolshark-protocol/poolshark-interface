@@ -43,17 +43,13 @@ export const countDecimals = (value: number, tokenDecimals: number) => {
   return false;
 };
 
-export const getRangePoolFromFactory = (
-  tokenA?: string,
-  tokenB?: string,
-  feeTierId?: number
-) => {
+export const getRangePoolFromFactory = (tokenA?: string, tokenB?: string) => {
   const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB;
   const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA;
   return new Promise(function (resolve) {
     const getPool = `
         {
-          limitPools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}, feeTier_: {id: "${feeTierId}"}}) {
+          limitPools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
             id
             poolPrice
             tickAtPrice
