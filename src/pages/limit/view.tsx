@@ -31,6 +31,7 @@ export default function ViewLimit() {
     needsPosRefetch,
     claimTick,
     needsSnapshot,
+    currentAmountOut,
     setNeedsSnapshot,
     setNeedsRefetch,
     setNeedsPosRefetch,
@@ -38,6 +39,7 @@ export default function ViewLimit() {
     setTokenInLimitUSDPrice,
     setTokenOutLimitUSDPrice,
     setClaimTick,
+    setCurrentAmountOut,
   ] = useRangeLimitStore((state) => [
     state.limitPoolAddress,
     state.limitPositionData,
@@ -49,6 +51,7 @@ export default function ViewLimit() {
     state.needsPosRefetch,
     state.claimTick,
     state.needsSnapshot,
+    state.currentAmountOut,
     state.setNeedsSnapshot,
     state.setNeedsRefetch,
     state.setNeedsPosRefetch,
@@ -56,6 +59,7 @@ export default function ViewLimit() {
     state.setTokenInRangeUSDPrice,
     state.setTokenOutRangeUSDPrice,
     state.setClaimTick,
+    state.setCurrentAmountOut,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -66,7 +70,6 @@ export default function ViewLimit() {
   //limit aux
   const [priceDirection, setPriceDirection] = useState(false);
   const [limitFilledAmount, setLimitFilledAmount] = useState("");
-  const [currentAmountOut, setCurrentAmountOut] = useState("");
   const [allLimitPositions, setAllLimitPositions] = useState([]);
 
   //Display and copy flags
@@ -576,7 +579,6 @@ export default function ViewLimit() {
           isOpen={isRemoveOpen}
           setIsOpen={setIsRemoveOpen}
           address={address}
-          currentAmountOut={currentAmountOut}
         />
         <AddLiquidity
           isOpen={isAddOpen}

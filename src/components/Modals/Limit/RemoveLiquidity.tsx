@@ -6,13 +6,14 @@ import { BigNumber, ethers } from "ethers";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 
-export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address, currentAmountOut }) {
+export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
   const [
     limitPoolAddress,
     limitPositionData,
     limitMintParams,
     tokenIn,
     claimTick,
+    currentAmountOut,
     setMintButtonState,
   ] = useRangeLimitStore((state) => [
     state.limitPoolAddress,
@@ -20,6 +21,7 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address, curre
     state.limitMintParams,
     state.tokenIn,
     state.claimTick,
+    state.currentAmountOut,
     state.setMintButtonState,
   ]);
 
