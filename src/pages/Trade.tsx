@@ -1089,7 +1089,7 @@ export default function Trade() {
               })}
             </tbody>
           ) : (
-            <tbody className="">
+            <tbody className="gap-y-2">
               {allLimitPositions.map((allLimitPosition) => {
                 if (allLimitPosition.positionId != undefined) {
                   return (
