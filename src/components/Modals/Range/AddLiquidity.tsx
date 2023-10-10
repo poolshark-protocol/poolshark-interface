@@ -32,6 +32,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     rangePoolData,
     rangeMintParams,
     pairSelected,
+    setPairSelected,
     tokenIn,
     setTokenInAllowance,
     setTokenInBalance,
@@ -55,6 +56,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     state.rangePoolData,
     state.rangeMintParams,
     state.pairSelected,
+    state.setPairSelected,
     state.tokenIn,
     state.setTokenInRangeAllowance,
     state.setTokenInBalance,
@@ -108,6 +110,12 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     setTokenOutAmount(BN_ZERO)
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
   }, [chainId]);
+
+  useEffect(() => {
+    if (tokenIn.address && tokenOut.address) {
+      setPairSelected(true)
+    }
+  }, [tokenIn, tokenOut]);
 
   ////////////////////////////////Allowances
 
@@ -222,15 +230,39 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
 
   ////////////////////////////////Amounts
 
+  const [amountInDisabled, setAmountInDisabled] = useState(undefined)
+  const [amountOutDisabled, setAmountOutDisabled] = useState(undefined)
+
+  useEffect(() => {
+    if (amountInDisabled == undefined) {
+      const token0Disabled = JSBI.lessThanOrEqual(upperSqrtPrice, rangeSqrtPrice)
+      const token1Disabled = JSBI.greaterThanOrEqual(lowerSqrtPrice, rangeSqrtPrice)
+      const tokenInDisabled = tokenIn.callId == 0 ? token0Disabled : token1Disabled
+      const tokenOutDisabled = tokenOut.callId == 0 ? token0Disabled : token1Disabled
+      setAmountInDisabled(tokenInDisabled)
+      setAmountOutDisabled(tokenOutDisabled)
+    }
+  }, [lowerSqrtPrice, upperSqrtPrice]);
+
   const handleInput1 = (e) => {
     const [name, value, bnValue] = inputHandler(e)
     if (name === "tokenIn") {
-      console.log()
       setDisplay(value)
-      setAmounts(true, bnValue)
+      if (!amountOutDisabled)
+        setAmounts(true, bnValue)
+      else {
+        setTokenInAmount(bnValue)
+        setDisplay2('')
+      }
+
     } else if (name === "tokenOut") {
       setDisplay2(value)
-      setAmounts(false, bnValue)
+      if (!amountInDisabled)
+        setAmounts(false, bnValue)
+      else {
+        setTokenOutAmount(bnValue)
+        setDisplay('')
+      }
     }
   };
 
@@ -314,9 +346,11 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   useEffect(() => {
     if (
       rangeMintParams.tokenInAmount &&
-      rangeMintParams.tokenInAmount != BN_ZERO &&
       rangeMintParams.tokenOutAmount &&
-      rangeMintParams.tokenOutAmount != BN_ZERO &&
+      (
+        rangeMintParams.tokenInAmount.gt(BN_ZERO) ||
+        rangeMintParams.tokenOutAmount.gt(BN_ZERO)
+      ) &&
       rangePositionData.min &&
       rangePositionData.max &&
       Number(rangePositionData.min) < Number(rangePositionData.max)
@@ -405,7 +439,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                       </span>
                     </div>
                     <div className="flex items-end justify-between mt-2 mb-3">
-                      {inputBox("0", "tokenIn", handleInput1)}
+                      {inputBox("0", "tokenIn", handleInput1, amountInDisabled)}
                       <div className="flex items-center gap-x-2">
                         {isConnected && stateChainName === "arbitrumGoerli" ? (
                           <button
@@ -443,7 +477,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                     </div>
                     <div className="flex items-end justify-between mt-2 mb-3">
                       <span className="text-3xl">
-                        {inputBox2("0", "tokenOut", handleInput1)}
+                        {inputBox2("0", "tokenOut", handleInput1, amountOutDisabled)}
                       </span>
                       <div className="flex items-center gap-x-2">
                         <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
