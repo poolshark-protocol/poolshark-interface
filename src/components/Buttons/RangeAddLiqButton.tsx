@@ -65,7 +65,6 @@ export default function RangeAddLiqButton({
         },
       ],
     ],
-    //args: [[address, lower, positionId, upper, amount0, amount1]],
     chainId: 421613,
     overrides: {
       gasLimit: gasLimit,

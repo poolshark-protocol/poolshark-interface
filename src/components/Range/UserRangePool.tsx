@@ -3,8 +3,6 @@ import { TickMath } from "../../utils/math/tickMath";
 import { fetchRangeTokenUSDPrice, logoMap } from "../../utils/tokens";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { BigNumber, ethers } from "ethers";
-import Link from "next/link";
-import { getRangePool, volatilityTiers } from "../../utils/pools";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { tokenCover } from "../../utils/types";
 import { DyDxMath } from "../../utils/math/dydxMath";
@@ -87,27 +85,29 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
       tokenInNew.address,
       tokenOutNew.address
     );
-    const dataLength = pool["data"]["limitPools"].length;
-    for (let i = 0; i < dataLength; i++) {
-      if (
-        pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] ==
-        rangePosition.pool.feeTier.feeAmount
-      ) {
-        const poolData = pool["data"]["limitPools"][i];
-        if (poolData.token0 && poolData.token1) {
-          if (rangeTokenIn.address) {
-            fetchRangeTokenUSDPrice(
-              poolData,
-              rangeTokenIn,
-              setRangeTokenInUSDPrice
-            );
-          }
-          if (rangeTokenOut.address) {
-            fetchRangeTokenUSDPrice(
-              poolData,
-              rangeTokenOut,
-              setTokenOutRangeUSDPrice
-            );
+    if (pool && pool["data"] && pool["data"]["limitPools"]) {
+      const dataLength = pool["data"]["limitPools"].length;
+      for (let i = 0; i < dataLength; i++) {
+        if (
+          pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] ==
+          rangePosition.pool.feeTier.feeAmount
+        ) {
+          const poolData = pool["data"]["limitPools"][i];
+          if (poolData.token0 && poolData.token1) {
+            if (rangeTokenIn.address) {
+              fetchRangeTokenUSDPrice(
+                poolData,
+                rangeTokenIn,
+                setRangeTokenInUSDPrice
+              );
+            }
+            if (rangeTokenOut.address) {
+              fetchRangeTokenUSDPrice(
+                poolData,
+                rangeTokenOut,
+                setTokenOutRangeUSDPrice
+              );
+            }
           }
         }
       }
