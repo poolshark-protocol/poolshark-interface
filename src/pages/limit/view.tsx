@@ -338,9 +338,13 @@ export default function ViewLimit() {
                   {Number(limitPositionData.feeTier) / 10000}%
                 </span>
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
-                  0.9 USDC
+                {TickMath.getPriceStringAtTick(
+                            Number(limitPositionData.min)
+                          )} {tokenOut.symbol}
                   <DoubleArrowIcon />
-                  1.2 USDC
+                  {TickMath.getPriceStringAtTick(
+                            Number(limitPositionData.max)
+                          )} {tokenOut.symbol}
                 </div>
               </div>
             </div>
