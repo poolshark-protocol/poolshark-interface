@@ -478,12 +478,11 @@ export default function CoverExistingPool({ goBack }) {
   }, [tokenIn, coverMintParams.tokenInAmount]);
 
   ////////////////////////////////Slider Value change
-  const [sliderDisplay, setSliderDisplay] = useState(false);
+  const [sliderDisplay, setSliderDisplay] = useState();
   const [sliderController, setSliderController] = useState(false);
   const [lastEvent, setLastEvent] = useState();
 
   const handleChange = (event: any) => {
-    console.log("event", event);
     setSliderDisplay(event.target.value);
     setLastEvent(event);
     if (!sliderController) {
