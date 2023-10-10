@@ -478,22 +478,26 @@ export default function CoverExistingPool({ goBack }) {
   }, [tokenIn, coverMintParams.tokenInAmount]);
 
   ////////////////////////////////Slider Value change
-  const [sliderDisplay, setSliderDisplay] = useState();
+  const [sliderDisplay, setSliderDisplay] = useState(50);
   const [sliderController, setSliderController] = useState(false);
-  const [lastEvent, setLastEvent] = useState();
 
   const handleChange = (event: any) => {
+    console.log("handleChange", event.target.value);
     setSliderDisplay(event.target.value);
-    setLastEvent(event);
     if (!sliderController) {
-      setSliderValue(event.target.value);
       setSliderController(true);
       setTimeout(() => {
+        console.log("changing", event.target.value);
         setSliderController(false);
-        handleChange(lastEvent);
+        setSliderValue(event.target.value);
       }, 2000);
     }
   };
+
+  /* const updateSliderValue = async () => {
+    console.log("updateSliderValue", sliderDisplay);
+    setSliderValue(sliderDisplay);
+  }; */
 
   //////////////////////////////// Switch Price denomination
 
@@ -603,10 +607,8 @@ export default function CoverExistingPool({ goBack }) {
               autoComplete="off"
               type="text"
               id="input"
-              onChange={(e) => {
-                setSliderValue(Number(inputFilter(e.target.value)));
-              }}
-              value={sliderValue}
+              onChange={handleChange}
+              value={sliderDisplay}
               className="text-right placeholder:text-grey1 text-white text-xl w-20 focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
             />
             <div className="mt-1">%</div>
