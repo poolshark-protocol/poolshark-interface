@@ -65,6 +65,8 @@ type RangeLimitState = {
   needsSnapshot: boolean;
   //Claim tick
   claimTick: number;
+  //Expected output
+  currentAmountOut: string;
 };
 
 type RangeLimitAction = {
@@ -126,6 +128,8 @@ type RangeLimitAction = {
   setNeedsSnapshot: (needsSnapshot: boolean) => void;
   //
   setClaimTick: (claimTick: number) => void;
+  //
+  setCurrentAmountOut: (currentAmountOut: string) => void;
 };
 
 const initialRangeLimitState: RangeLimitState = {
@@ -198,6 +202,8 @@ const initialRangeLimitState: RangeLimitState = {
   needsSnapshot: true,
   //
   claimTick: 0,
+  //
+  currentAmountOut: "0",
 };
 
 export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
@@ -239,6 +245,8 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     needsSnapshot: initialRangeLimitState.needsSnapshot,
     //claim tick
     claimTick: initialRangeLimitState.claimTick,
+    //expected output
+    currentAmountOut: initialRangeLimitState.currentAmountOut,
     //actions
     setPairSelected: (pairSelected: boolean) => {
       set(() => ({
@@ -593,6 +601,11 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         claimTick: claimTick,
       }));
     },
+    setCurrentAmountOut: (currentAmountOut: string) => {
+      set(() => ({
+        currentAmountOut: currentAmountOut,
+      }));
+    },
     setNeedsSnapshot: (needsSnapshot: boolean) => {
       set(() => ({
         needsSnapshot: needsSnapshot,
@@ -635,6 +648,8 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         needsSnapshot: initialRangeLimitState.needsSnapshot,
         //claim tick
         claimTick: initialRangeLimitState.claimTick,
+        //expected output
+        currentAmountOut: initialRangeLimitState.currentAmountOut,
       });
     },
   })
