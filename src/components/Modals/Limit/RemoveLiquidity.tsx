@@ -48,7 +48,7 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
         100
       ).toPrecision(6)
     );
-  }, [sliderValue]);
+  }, [currentAmountOut, sliderValue]);
 
   useEffect(() => {
     setMintButtonState();

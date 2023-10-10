@@ -217,6 +217,8 @@ export default function ViewLimit() {
       setCurrentAmountOut(
         ethers.utils.formatUnits(filledAmount[1], tokenOut.decimals)
       )
+
+      console.log("filled amount", filledAmount[1].toString());
     }
   }, [filledAmount]);
 
