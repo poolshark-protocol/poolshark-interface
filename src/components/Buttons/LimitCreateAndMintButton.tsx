@@ -48,7 +48,7 @@ import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
       functionName: "createLimitPoolAndMint",
       args: [
         {
-            poolType: poolTypeId,
+            poolTypeId: poolTypeId,
             tokenIn: token0.address,
             tokenOut: token1.address,
             startPrice: TickMath.getSqrtRatioAtTick(upper),

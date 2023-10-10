@@ -60,7 +60,7 @@ export default function RangeCreateAndMintButton({
     functionName: "createLimitPoolAndMint",
     args: [
       {
-        poolType: poolTypeId,
+        poolTypeId: poolTypeId,
         tokenIn: token0.address,
         tokenOut: token1.address,
         startPrice: startPrice,

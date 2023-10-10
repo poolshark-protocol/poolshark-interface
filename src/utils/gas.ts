@@ -168,7 +168,7 @@ export const gasEstimateCreateAndMintLimit = async (
       .connect(signer)
       .estimateGas.createLimitPoolAndMint(
         {
-          poolType: poolTypeId,
+          poolTypeId: poolTypeId,
           tokenIn: token0.address,
           tokenOut: token1.address,
           startPrice: TickMath.getSqrtRatioAtTick(Number(upperTick)),
@@ -357,7 +357,7 @@ export const gasEstimateRangeCreateAndMint = async (
       .connect(signer)
       .estimateGas.createLimitPoolAndMint(
         {
-          poolType: poolTypeId,
+          poolTypeId: poolTypeId,
           tokenIn: token0.address,
           tokenOut: token1.address,
           startPrice: TickMath.getSqrtRatioAtTick(Number(upperTick)),
