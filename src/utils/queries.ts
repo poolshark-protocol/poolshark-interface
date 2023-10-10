@@ -51,31 +51,7 @@ export const getRangePoolFromFactory = (
   const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB;
   const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA;
   return new Promise(function (resolve) {
-    const getPool = isNaN(feeTierId)
-      ? `
-        {
-          basePrices(where:{id: "eth"}){
-            USD
-          }
-          rangePools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
-            id
-            poolPrice
-            tickAtPrice
-            token0{
-              usdPrice
-            }
-            token1{
-              usdPrice
-            }
-            feeTier {
-              id
-              feeAmount
-              tickSpacing
-            }
-          }
-        }
-        `
-      : `
+    const getPool = `
         {
           limitPools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}, feeTier_: {id: "${feeTierId}"}}) {
             id
@@ -921,7 +897,7 @@ export const fetchTokenPrice = (tokenAddress: string) => {
       cache: new InMemoryCache(),
     });
     client
-      .query({ 
+      .query({
         query: gql(poolsQuery),
         variables: {
           id: tokenAddress,
@@ -936,7 +912,6 @@ export const fetchTokenPrice = (tokenAddress: string) => {
       });
   });
 };
-
 
 export const fetchEthPrice = () => {
   return new Promise(function (resolve) {
