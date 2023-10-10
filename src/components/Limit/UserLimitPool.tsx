@@ -57,7 +57,6 @@ export default function UserLimitPool({
 
     async function choosePosition() {
         setLimitPositionData(limitPosition);
-        setLimitPoolAddress(limitPosition.poolId);
         setNeedsAllowanceIn(true);
         setNeedsBalanceIn(true);
         const tokenInNew = {

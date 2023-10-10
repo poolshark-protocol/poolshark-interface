@@ -15,7 +15,6 @@ import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import JSBI from "jsbi";
-import { useTradeStore } from "../../hooks/useTradeStore";
 import { BN_ZERO } from "../../utils/math/constants";
 import { gasEstimateBurnLimit } from "../../utils/gas";
 
@@ -31,6 +30,7 @@ export default function ViewLimit() {
     needsPosRefetch,
     claimTick,
     needsSnapshot,
+    currentAmountOut,
     setNeedsSnapshot,
     setNeedsRefetch,
     setNeedsPosRefetch,
@@ -38,6 +38,7 @@ export default function ViewLimit() {
     setTokenInLimitUSDPrice,
     setTokenOutLimitUSDPrice,
     setClaimTick,
+    setCurrentAmountOut,
   ] = useRangeLimitStore((state) => [
     state.limitPoolAddress,
     state.limitPositionData,
@@ -49,6 +50,7 @@ export default function ViewLimit() {
     state.needsPosRefetch,
     state.claimTick,
     state.needsSnapshot,
+    state.currentAmountOut,
     state.setNeedsSnapshot,
     state.setNeedsRefetch,
     state.setNeedsPosRefetch,
@@ -56,6 +58,7 @@ export default function ViewLimit() {
     state.setTokenInRangeUSDPrice,
     state.setTokenOutRangeUSDPrice,
     state.setClaimTick,
+    state.setCurrentAmountOut,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -66,7 +69,6 @@ export default function ViewLimit() {
   //limit aux
   const [priceDirection, setPriceDirection] = useState(false);
   const [limitFilledAmount, setLimitFilledAmount] = useState("");
-  const [currentAmountOut, setCurrentAmountOut] = useState("");
   const [allLimitPositions, setAllLimitPositions] = useState([]);
 
   //Display and copy flags
@@ -214,6 +216,8 @@ export default function ViewLimit() {
       setCurrentAmountOut(
         ethers.utils.formatUnits(filledAmount[1], tokenOut.decimals)
       )
+
+      console.log("filled amount", filledAmount[1].toString());
     }
   }, [filledAmount]);
 
@@ -334,9 +338,13 @@ export default function ViewLimit() {
                   {Number(limitPositionData.feeTier) / 10000}%
                 </span>
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
-                  0.9 USDC
+                {TickMath.getPriceStringAtTick(
+                            Number(limitPositionData.min)
+                          )} {tokenOut.symbol}
                   <DoubleArrowIcon />
-                  1.2 USDC
+                  {TickMath.getPriceStringAtTick(
+                            Number(limitPositionData.max)
+                          )} {tokenOut.symbol}
                 </div>
               </div>
             </div>
@@ -576,7 +584,6 @@ export default function ViewLimit() {
           isOpen={isRemoveOpen}
           setIsOpen={setIsRemoveOpen}
           address={address}
-          currentAmountOut={currentAmountOut}
         />
         <AddLiquidity
           isOpen={isAddOpen}

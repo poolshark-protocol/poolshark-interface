@@ -1,9 +1,8 @@
 import { ZERO_ADDRESS } from "./math/constants";
 import { TickMath } from "./math/tickMath";
 import {
-  fetchCoverPools,
-  fetchRangePools as fetchLimitPools,
   getCoverPoolFromFactory,
+  getLimitPoolFromFactory,
   getRangePoolFromFactory,
 } from "./queries";
 import { tokenCover, tokenRangeLimit, tokenSwap } from "./types";
@@ -17,7 +16,7 @@ export const getSwapPools = async (
   setSwapPoolData
 ) => {
   try {
-    const limitPools = await fetchLimitPools();
+    const limitPools = await getLimitPoolFromFactory(tokenIn.address, tokenOut.address);
     const data = limitPools["data"];
     if (data) {
       const allPools = data["limitPools"];
@@ -274,29 +273,6 @@ export const getCoverPoolInfo = async (
     }
   } catch (error) {
     console.log(error);
-  }
-};
-
-export const getFeeTier = async (
-  rangePoolRoute: string,
-  coverPoolRoute: string,
-  setRangeSlippage,
-  setCoverSlippage
-) => {
-  const coverData = await fetchCoverPools();
-  const coverPoolAddress = coverData["data"]["coverPools"]["0"]["id"];
-
-  if (coverPoolAddress === coverPoolRoute) {
-    const feeTier =
-      coverData["data"]["coverPools"]["0"]["volatilityTier"]["feeAmount"];
-    setCoverSlippage((parseFloat(feeTier) / 10000).toString());
-  }
-  const data = await fetchLimitPools();
-  const rangePoolAddress = data["data"]["limitPools"]["0"]["id"];
-
-  if (rangePoolAddress === rangePoolRoute) {
-    const feeTier = data["data"]["limitPools"]["0"]["feeTier"]["feeAmount"];
-    setRangeSlippage((parseFloat(feeTier) / 10000).toString());
   }
 };
 
