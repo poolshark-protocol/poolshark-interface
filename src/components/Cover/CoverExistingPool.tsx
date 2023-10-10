@@ -245,8 +245,12 @@ export default function CoverExistingPool({ goBack }) {
       tokenOrder ? tickAtPrice - tickSpread * 6 : tickAtPrice + tickSpread * 18,
       tickSpread
     );
-    setLowerPrice(invertPrice(priceOrder ? priceLower : priceUpper, priceOrder));
-    setUpperPrice(invertPrice(priceOrder ? priceUpper : priceLower, priceOrder));
+    setLowerPrice(
+      invertPrice(priceOrder ? priceLower : priceUpper, priceOrder)
+    );
+    setUpperPrice(
+      invertPrice(priceOrder ? priceUpper : priceLower, priceOrder)
+    );
     setCoverPositionData({
       ...coverPositionData,
       tickAtPrice: tickAtPrice,
@@ -474,10 +478,24 @@ export default function CoverExistingPool({ goBack }) {
   }, [tokenIn, coverMintParams.tokenInAmount]);
 
   ////////////////////////////////Slider Value change
+  const [sliderDisplay, setSliderDisplay] = useState(50);
+  const [sliderController, setSliderController] = useState(false);
 
   const handleChange = (event: any) => {
-    setSliderValue(event.target.value);
+    setSliderDisplay(event.target.value);
+    if (!sliderController) {
+      setSliderController(true);
+      setTimeout(() => {
+        setSliderController(false);
+        setSliderValue(event.target.value);
+      }, 2000);
+    }
   };
+
+  /* const updateSliderValue = async () => {
+    console.log("updateSliderValue", sliderDisplay);
+    setSliderValue(sliderDisplay);
+  }; */
 
   //////////////////////////////// Switch Price denomination
 
@@ -573,7 +591,7 @@ export default function CoverExistingPool({ goBack }) {
             type="range"
             min="0"
             max="100"
-            value={sliderValue}
+            value={sliderDisplay}
             onChange={handleChange}
             className="w-full styled-slider slider-progress bg-transparent"
           />
@@ -587,10 +605,8 @@ export default function CoverExistingPool({ goBack }) {
               autoComplete="off"
               type="text"
               id="input"
-              onChange={(e) => {
-                setSliderValue(Number(inputFilter(e.target.value)));
-              }}
-              value={sliderValue}
+              onChange={handleChange}
+              value={sliderDisplay}
               className="text-right placeholder:text-grey1 text-white text-xl w-20 focus:ring-0 focus:ring-offset-0 focus:outline-none bg-black"
             />
             <div className="mt-1">%</div>
@@ -645,7 +661,7 @@ export default function CoverExistingPool({ goBack }) {
             <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
               <span className="text-grey1 text-xs">MIN. PRICE</span>
               <span className="text-white text-3xl">
-                {(
+                {
                   <input
                     autoComplete="off"
                     className="bg-black py-2 outline-none text-center w-full"
@@ -655,13 +671,13 @@ export default function CoverExistingPool({ goBack }) {
                     value={lowerPrice}
                     onChange={(e) => setLowerPrice(inputFilter(e.target.value))}
                   />
-                )}
+                }
               </span>
             </div>
             <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
               <span className="text-grey1 text-xs">MAX. PRICE</span>
               <span className="text-white text-3xl">
-                {(
+                {
                   <input
                     autoComplete="off"
                     className="bg-black py-2 outline-none text-center w-full"
@@ -671,7 +687,7 @@ export default function CoverExistingPool({ goBack }) {
                     value={upperPrice}
                     onChange={(e) => setUpperPrice(inputFilter(e.target.value))}
                   />
-                )}
+                }
               </span>
             </div>
           </div>
@@ -683,11 +699,16 @@ export default function CoverExistingPool({ goBack }) {
               <div className="flex-none text-xs uppercase text-[#C9C9C9]">
                 {1} {priceOrder ? tokenIn.symbol : tokenOut.symbol} =
                 {" " +
-                  parseFloat(priceOrder ? TickMath.getPriceStringAtTick(latestTick)
-                                        : invertPrice(TickMath.getPriceStringAtTick(latestTick), false)
-                            ).toPrecision(5) +
-                            " " +
-                            tokenOut.symbol}
+                  parseFloat(
+                    priceOrder
+                      ? TickMath.getPriceStringAtTick(latestTick)
+                      : invertPrice(
+                          TickMath.getPriceStringAtTick(latestTick),
+                          false
+                        )
+                  ).toPrecision(5) +
+                  " " +
+                  tokenOut.symbol}
               </div>
               <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
                 <button>
