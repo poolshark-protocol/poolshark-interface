@@ -482,12 +482,10 @@ export default function CoverExistingPool({ goBack }) {
   const [sliderController, setSliderController] = useState(false);
 
   const handleChange = (event: any) => {
-    console.log("handleChange", event.target.value);
     setSliderDisplay(event.target.value);
     if (!sliderController) {
       setSliderController(true);
       setTimeout(() => {
-        console.log("changing", event.target.value);
         setSliderController(false);
         setSliderValue(event.target.value);
       }, 2000);
