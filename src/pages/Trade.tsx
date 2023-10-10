@@ -36,7 +36,7 @@ import JSBI from "jsbi";
 import LimitCreateAndMintButton from "../components/Buttons/LimitCreateAndMintButton";
 import { fetchLimitPositions } from "../utils/queries";
 import { mapUserLimitPositions } from "../utils/maps";
-import { getAveragePrice, getExpectedAmountOut, getExpectedAmountOutFromInput, getMarketPriceAboveBelowString } from "../utils/math/priceMath";
+import { displayPoolPrice, getAveragePrice, getExpectedAmountOut, getExpectedAmountOutFromInput, getMarketPriceAboveBelowString } from "../utils/math/priceMath";
 import LimitSwapBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import timeDifference from "../utils/time";
 import UserLimitPool from "../components/Limit/UserLimitPool";
@@ -215,10 +215,22 @@ export default function Trade() {
     const paramsList: SwapParams[] = [];
     for (let i = 0; i < poolQuotes.length; i++) {
       if(poolQuotes[i].pool != ZERO_ADDRESS) {
+        // push pool address for swap
         poolAddresses.push(poolQuotes[i].pool);
+
+        // set base price from quote
         const basePrice: number = parseFloat(
           TickMath.getPriceStringAtSqrtPrice(poolQuotes[i].priceAfter)
         );
+        
+        // set price impact
+        if(poolQuotes[i].pool.toLowerCase() == tradePoolData.id) {
+          const currentPrice: number = parseFloat(
+            TickMath.getPriceStringAtSqrtPrice(tradePoolData.poolPrice)
+          )
+          setPriceImpact((Math.abs(basePrice - currentPrice) * 100 / currentPrice).toFixed(2))
+        }
+
         const priceDiff = basePrice * (parseFloat(slippage) / 100);
         const limitPrice = tokenIn.callId == 0 ? basePrice - priceDiff
                                                : basePrice + priceDiff;
@@ -373,6 +385,7 @@ export default function Trade() {
 
   ////////////////////////////////FeeTiers and Slippage
   const [slippage, setSlippage] = useState("0.5");
+  const [priceImpact, setPriceImpact] = useState("0.00")
 
   //i receive the price afte from the multiquote and then i will add and subtract the slippage from it
 
@@ -538,6 +551,9 @@ export default function Trade() {
         setSwapGasFee,
         setSwapGasLimit
       );
+    else {
+      setSwapGasLimit(BN_ZERO)
+    }
   }
 
   async function updateMintFee() {
@@ -580,7 +596,7 @@ export default function Trade() {
             <div className="ml-auto text-xs">
               {pairSelected
                 ? !limitTabSelected
-                  ? amountOut
+                  ? parseFloat(amountOut).toPrecision(6)
                   : !isNaN(parseFloat(
                     ethers.utils.formatUnits(bnInput, tokenIn.decimals))
                   ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
@@ -621,14 +637,11 @@ export default function Trade() {
             <div className="flex p-1">
               <div className="text-xs text-[#4C4C4C]">Price Impact</div>
               <div className="ml-auto text-xs">
-                {/* {pairSelected
-                  ? rangePriceAfter
-                    ? (
-                        Math.abs((rangePrice - rangePriceAfter) * 100) /
-                        rangePrice
-                      ).toFixed(2) + "%"
+                {pairSelected
+                  ? priceImpact
+                    ? priceImpact + "%"
                     : "0.00%"
-                  : "Select Token"} */}
+                  : "Select Token"}
               </div>
             </div>
           ) : (
@@ -778,7 +791,7 @@ export default function Trade() {
                 ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
                 && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
                   !limitTabSelected ? (
-                    <div>{Number(amountOut).toPrecision(5)}</div>
+                    <div>{Number(amountOut).toPrecision(6)}</div>
                   ) : (
                     <div>
                       {parseFloat(
@@ -789,7 +802,7 @@ export default function Trade() {
                             tokenIn.callId == 0,
                             bnInput
                           ), tokenIn.decimals
-                    )).toFixed(3)}
+                    )).toPrecision(6)}
                     </div>
                   )
                 ) : (
@@ -945,6 +958,12 @@ export default function Trade() {
                 className="flex px-2 cursor-pointer py-2 rounded-[4px]"
                 onClick={() => setExpanded(!expanded)}
               >
+                <div className="flex-none text-xs uppercase text-[#C9C9C9]">
+                  {'1 ' + tokenIn.symbol} ={" "}
+                  {displayPoolPrice(pairSelected, tradePoolData.poolPrice, tokenIn.callId == 0) +
+                      " " +
+                      tokenOut.symbol}
+                </div>
                 <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
                   <button>
                     <ChevronDownIcon className="w-4 h-4" />
@@ -975,7 +994,7 @@ export default function Trade() {
                     </div>
                   ) : (
                     <SwapRouterButton
-                      disabled={tradeParams.disabled || needsAllowanceIn}
+                      disabled={tradeParams.disabled || needsAllowanceIn || swapGasLimit.eq(BN_ZERO)}
                       routerAddress={
                         chainProperties['arbitrumGoerli']['routerAddress']
                       }
@@ -1032,7 +1051,6 @@ export default function Trade() {
                 )}
               </>
             )}
-            <button onClick={() => setIsOpen(true)} className="w-full py-4 mx-auto text-center transition rounded-full  border border-main bg-main1 uppercase text-sm cursor-pointer">Create Limit Pool</button>
           </div>
         </div>
       </div>
@@ -1129,7 +1147,7 @@ export default function Trade() {
                               getAveragePrice(
                                 parseInt(allLimitPosition.min), 
                                 parseInt(allLimitPosition.max), 
-                                allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
+                                  allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
                                 BigNumber.from(allLimitPosition.liquidity),
                                 BigNumber.from(allLimitPosition.amountIn))
                               .toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
