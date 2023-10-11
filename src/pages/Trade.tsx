@@ -259,6 +259,8 @@ export default function Trade() {
     setSwapParams(paramsList);
   }
 
+  console.log("swapParams", swapParams);
+
   //////////////////////Get Pools Data
 
   const [allLimitPositions, setAllLimitPositions] = useState([]);
