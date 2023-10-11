@@ -259,8 +259,6 @@ export default function Trade() {
     setSwapParams(paramsList);
   }
 
-  console.log("swapParams", swapParams);
-
   //////////////////////Get Pools Data
 
   const [allLimitPositions, setAllLimitPositions] = useState([]);
@@ -1271,7 +1269,7 @@ export default function Trade() {
                   </div>
                   </div>
                   </div>
-                  <button onClick={() => setIsSettingsOpen(false)} className="w-full mt-8 py-2 disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80">{!limitTabSelected ? "Confirm Slippage" : "Confirm Position Width"}</button>
+                  <button onClick={() => setIsSettingsOpen(false)} className="w-full mt-8 py-2 disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80">{"Confirm"}</button>
                 </Dialog.Panel>
               </Transition.Child>
             </div>
