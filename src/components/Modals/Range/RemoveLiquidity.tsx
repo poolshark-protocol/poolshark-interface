@@ -100,6 +100,12 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
     }
   }
 
+  //////////////////Slider
+
+  useEffect(() => {
+    setSliderValue(50);
+  }, [router.isReady]);
+
   ////////////////////////////////Gas Fees Estimation
   const [burnGasFee, setBurnGasFee] = useState("$0.00");
   const [burnGasLimit, setBurnGasLimit] = useState(BN_ZERO);
@@ -114,7 +120,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
     ) {
       updateGasFee();
     }
-  }, [sliderValue]);
+  }, [sliderValue, rangePositionData.poolId, rangePositionData.positionId]);
 
   async function updateGasFee() {
     const newBurnGasFee = await gasEstimateRangeBurn(

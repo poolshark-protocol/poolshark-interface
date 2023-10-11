@@ -77,11 +77,21 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
     setSliderValue(percent);
   };
 
+  //////////////////Slider
+
+  useEffect(() => {
+    setSliderValue(50);
+  }, [router.isReady]);
+
   ////////////////////////////////Gas Fees Estimation
   const [burnGasFee, setBurnGasFee] = useState("$0.00");
   const [burnGasLimit, setBurnGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
+    console.log("update gas fee");
+    console.log(coverPositionData);
+    console.log(coverPoolData);
+    console.log(sliderValue);
     if (
       coverPositionData.lowerTick &&
       coverPositionData.upperTick &&
