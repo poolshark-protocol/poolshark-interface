@@ -86,14 +86,12 @@ export default function RangeMintButton({
       setNeedsBalanceIn(true);
       setNeedsBalanceOut(true);
       setNeedsAllowanceIn(true);
+      setNeedsAllowanceOut(true);
+      closeModal();
       setTimeout(() => {
         setNeedsRefetch(true);
         setNeedsPosRefetch(true);
-        closeModal();
-      }, 2000);
-      if (amount1.gt(BN_ZERO)) {
-        setNeedsAllowanceOut(true);
-      }
+      }, 1000);
     },
     onError() {
       setErrorDisplay(true);
@@ -111,7 +109,13 @@ export default function RangeMintButton({
       >
         {buttonMessage}
       </button>
-      <PositionMintModal errorDisplay={errorDisplay} hash={data?.hash} isLoading={isLoading} successDisplay={successDisplay} type={"range"}/>
+      <PositionMintModal
+        errorDisplay={errorDisplay}
+        hash={data?.hash}
+        isLoading={isLoading}
+        successDisplay={successDisplay}
+        type={"range"}
+      />
     </>
   );
 }

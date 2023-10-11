@@ -82,7 +82,7 @@ export default function CoverMintButton({
       setTimeout(() => {
         setNeedsRefetch(true);
         setNeedsPosRefetch(true);
-      }, 2000);
+      }, 1000);
     },
   });
 
