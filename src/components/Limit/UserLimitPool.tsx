@@ -87,23 +87,23 @@ export default function UserLimitPool({
     }
 
     return (
-        <tr className="text-right text-xs md:text-sm"
+        <tr className="text-right text-xs md:text-sm bg-black hover:bg-dark cursor-pointer"
             key={limitPosition.positionId}
             onClick={choosePosition}
         >
-            <td className="">
-                <div className="flex items-center text-sm text-grey1 gap-x-2 text-left">
+            <td className="py-3 pl-3">
+                <div className="flex items-center text-xs text-grey1 gap-x-2 text-left">
                     <img
-                        className="w-[25px] h-[25px]"
+                        className="w-[23px] h-[23px]"
                         src={logoMap[limitPosition.tokenIn.symbol]}
                     />
                     {parseFloat(ethers.utils.formatEther(limitPosition.amountIn)).toFixed(3) + " " + limitPosition.tokenIn.symbol}
                 </div>
             </td>
             <td className="">
-                <div className="flex items-center text-sm text-white gap-x-2 text-left">
+                <div className="flex items-center text-xs text-white gap-x-2 text-left">
                     <img
-                        className="w-[25px] h-[25px]"
+                        className="w-[23px] h-[23px]"
                         src={logoMap[limitPosition.tokenOut.symbol]}
                     />
                     {parseFloat(ethers.utils.formatEther(
@@ -130,17 +130,17 @@ export default function UserLimitPool({
                     </span>
                 </div>
             </td>
-            <td className="">
+            <td className="md:table-cell hidden">
                 <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
-                    <span className="z-50">
+                    <span className="z-50 px-3">
                         {(parseFloat(limitPosition.amountFilled) /
                             parseFloat(limitPosition.liquidity)).toFixed(2)}% Filled
                     </span>
                     <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
                 </div>
             </td>
-            <td className="text-sm text-grey1">{timeDifference(limitPosition.timestamp)}</td>
-            <td className="text-sm text-grey1 pl-5">
+            <td className="text-grey1 text-left pl-3 text-xs md:table-cell hidden">{timeDifference(limitPosition.timestamp)}</td>
+            <td className="text-sm text-grey1 md:table-cell hidden">
                 <LimitSwapBurnButton
                     poolAddress={limitPosition.poolId}
                     address={address}
