@@ -27,7 +27,7 @@ import LimitSwapButton from "../components/Buttons/LimitSwapButton";
 import {
   fetchRangeTokenUSDPrice, getLimitTokenUsdPrice, logoMap,
 } from "../utils/tokens";
-import { getSwapPools } from "../utils/pools";
+import { getSwapPools, limitPoolTypeIds } from "../utils/pools";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { QuoteParams, SwapParams } from "../utils/types";
 import { useTradeStore } from "../hooks/useTradeStore";
@@ -1035,10 +1035,10 @@ export default function Trade() {
                   <LimitCreateAndMintButton
                     disabled={mintGasLimit.eq(BN_ZERO)}
                     routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
-                    poolType={'CONSTANT-PRODUCT'}
+                    poolTypeId={limitPoolTypeIds['constant-product']}
                     token0={tokenIn}
                     token1={tokenOut}
-                    feeTier={500} //TODO: handle fee tier
+                    feeTier={3000} // default 0.3% fee
                     to={address}
                     amount={bnInput}
                     mintPercent={ethers.utils.parseUnits("1", 24)}
