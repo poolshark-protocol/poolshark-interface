@@ -425,7 +425,6 @@ export default function RangePoolPreview() {
                                 ? rangeMintParams.tokenOutAmount
                                 : rangeMintParams.tokenInAmount
                             }
-                            closeModal={() => router.push("/range")}
                             gasLimit={mintGasLimit}
                           />
                         ) : (
