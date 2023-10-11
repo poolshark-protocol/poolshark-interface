@@ -100,7 +100,7 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
       signer
     )
       updateGasFee();
-  }, [burnPercent, coverPoolAddress]);
+  }, [router.isReady, sliderValue, burnPercent, coverPoolData, coverPositionData]);
 
   async function updateGasFee() {
     const newBurnGasFee = await gasEstimateCoverBurn(
