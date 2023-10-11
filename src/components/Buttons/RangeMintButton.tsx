@@ -83,7 +83,6 @@ export default function RangeMintButton({
       setNeedsAllowanceIn(true);
       setNeedsRefetch(true);
       setNeedsPosRefetch(true);
-      //closeModal();
       if (amount1.gt(BN_ZERO)) {
         setNeedsAllowanceOut(true);
       }
@@ -104,7 +103,13 @@ export default function RangeMintButton({
       >
         {buttonMessage}
       </button>
-      <PositionMintModal errorDisplay={errorDisplay} hash={data?.hash} isLoading={isLoading} successDisplay={successDisplay} type={"range"}/>
+      <PositionMintModal
+        errorDisplay={errorDisplay}
+        hash={data?.hash}
+        isLoading={isLoading}
+        successDisplay={successDisplay}
+        type={"range"}
+      />
     </>
   );
 }

@@ -320,11 +320,17 @@ export default function RangePoolPreview() {
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {invertPrice(priceOrder ? rangePositionData.lowerPrice : rangePositionData.upperPrice, priceOrder)}
+                                {invertPrice(
+                                  priceOrder
+                                    ? rangePositionData.lowerPrice
+                                    : rangePositionData.upperPrice,
+                                  priceOrder
+                                )}
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">
-                              {(priceOrder ? tokenOut : tokenIn).symbol} per {(priceOrder ? tokenIn : tokenOut).symbol}
+                              {(priceOrder ? tokenOut : tokenIn).symbol} per{" "}
+                              {(priceOrder ? tokenIn : tokenOut).symbol}
                             </span>
                           </div>
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-[4px]">
@@ -333,11 +339,17 @@ export default function RangePoolPreview() {
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {invertPrice(priceOrder ? rangePositionData.upperPrice : rangePositionData.lowerPrice, priceOrder)}
+                                {invertPrice(
+                                  priceOrder
+                                    ? rangePositionData.upperPrice
+                                    : rangePositionData.lowerPrice,
+                                  priceOrder
+                                )}
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">
-                              {(priceOrder ? tokenOut : tokenIn).symbol} per {(priceOrder ? tokenIn : tokenOut).symbol}
+                              {(priceOrder ? tokenOut : tokenIn).symbol} per{" "}
+                              {(priceOrder ? tokenIn : tokenOut).symbol}
                             </span>
                           </div>
                         </div>
@@ -484,7 +496,7 @@ export default function RangePoolPreview() {
                                 ? rangeMintParams.tokenOutAmount
                                 : rangeMintParams.tokenInAmount
                             }
-                            closeModal={() => router.push("/range")}
+                            closeModal={() => {}}
                             gasLimit={mintGasLimit}
                           />
                         )}
@@ -502,7 +514,9 @@ export default function RangePoolPreview() {
         disabled={rangeMintParams.disabled}
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
       >
-        <>{rangeMintParams.disabled ? rangeMintParams.buttonMessage : "Preview"}</>
+        <>
+          {rangeMintParams.disabled ? rangeMintParams.buttonMessage : "Preview"}
+        </>
       </button>
     </div>
   );
