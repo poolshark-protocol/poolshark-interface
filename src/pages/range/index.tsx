@@ -32,7 +32,7 @@ export default function Range() {
   //////////////////////Get Pools Data
   useEffect(() => {
     getRangePoolData();
-  }, [needsRefetch, router.isReady]);
+  }, []);
 
   async function getRangePoolData() {
     setIsPoolsLoading(true);
@@ -48,6 +48,13 @@ export default function Range() {
     if (address) {
       getUserRangePositionData();
     }
+  }, []);
+
+  useEffect(() => {
+    if (address && needsRefetch) {
+      getUserRangePositionData();
+      setNeedsRefetch(false);
+    }
   }, [address, needsRefetch]);
 
   async function getUserRangePositionData() {
@@ -60,9 +67,6 @@ export default function Range() {
         );
         setIsPositionsLoading(false);
       }
-      setTimeout(() => {
-        getUserRangePositionData();
-      }, 30000);
     } catch (error) {
       console.log(error);
       setIsPositionsLoading(false);

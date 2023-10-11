@@ -107,7 +107,7 @@ const initialCoverState: CoverState = {
     callId: 0,
     name: "Wrapped Ether",
     symbol: "WETH",
-    logoURI: "/static/images/eth_icon.png",
+    logoURI: "/static/images/eth_icon.svg",
     address: tokenZeroAddress,
     decimals: 18,
     userBalance: 0.0,
