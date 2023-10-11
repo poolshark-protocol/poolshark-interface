@@ -68,7 +68,7 @@ export default function ViewLimit() {
   const router = useRouter();
 
   //limit aux
-  const [priceDirection, setPriceDirection] = useState(true);
+  const [priceDirection, setPriceDirection] = useState(tokenIn.callId == 0);
   const [limitFilledAmount, setLimitFilledAmount] = useState("");
   const [allLimitPositions, setAllLimitPositions] = useState([]);
 
