@@ -34,7 +34,7 @@ export const ErrorToast = ({ errorDisplay, setErrorDisplay, hash }) => {
 
   return (
     <div
-      className={`bg-black py-3 px-4 rounded-xl flex gap-x-5 front ${
+      className={`bg-black py-3 px-4 rounded-xl flex gap-x-5 front border-grey border ${
         fadeOut ? "fade-out" : ""
       }`}
     >

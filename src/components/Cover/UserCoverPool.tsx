@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import { logoMap } from "../../utils/tokens";
+import { fetchCoverTokenUSDPrice, logoMap } from "../../utils/tokens";
 import { TickMath } from "../../utils/math/tickMath";
 import { getClaimTick } from "../../utils/maps";
 import { tokenCover } from "../../utils/types";
 import ArrowRightIcon from "../Icons/ArrowRightIcon";
 import router from "next/router";
+import { getCoverPoolFromFactory } from "../../utils/queries";
+import { ethers } from "ethers";
 
 export default function UserCoverPool({
   coverPosition,
@@ -14,12 +16,9 @@ export default function UserCoverPool({
   href,
 }) {
   const [
-    claimTick,
     tokenIn,
     tokenOut,
-    setCoverPoolData,
     setCoverPositionData,
-    setCoverPoolAddress,
     setTokenIn,
     setTokenOut,
     setClaimTick,
@@ -27,12 +26,9 @@ export default function UserCoverPool({
     setNeedsAllowance,
     setNeedsBalance,
   ] = useCoverStore((state) => [
-    state.claimTick,
     state.tokenIn,
     state.tokenOut,
-    state.setCoverPoolData,
     state.setCoverPositionData,
-    state.setCoverPoolAddress,
     state.setTokenIn,
     state.setTokenOut,
     state.setClaimTick,
@@ -41,19 +37,17 @@ export default function UserCoverPool({
     state.setNeedsBalance,
   ]);
 
-  const volTierMap = new Map<string, any>([
-    ['1000', { id: 0, volatility: "1" }],
-    ['3000', { id: 1, volatility: "3" }],
-    ['10000', { id: 2, volatility: "24" }]
-  ]);
+  ///////////////////////////Claim Tick and filled Percent for Tile & set position USD price
 
   const [claimPrice, setClaimPrice] = useState(0);
   // fill percent is % of range crossed based on price
   const [fillPercent, setFillPercent] = useState("0");
+  const [positionUSDPrice, setPositionUSDPrice] = useState("0");
 
   useEffect(() => {
     updateClaimTick();
-  }, []);
+    getPositionUSDValue();
+  }, [coverPosition]);
 
   const updateClaimTick = async () => {
     const tick = await getClaimTick(
@@ -76,6 +70,42 @@ export default function UserCoverPool({
     );
   };
 
+  const getPositionUSDValue = async () => {
+    const positionOutUSDPrice =
+      Number(
+        ethers.utils.formatUnits(
+          coverPosition.userFillOut,
+          coverPosition.zeroForOne
+            ? coverPosition.tokenZero.decimals
+            : coverPosition.tokenOne.decimals
+        )
+      ) *
+      Number(
+        coverPosition.zeroForOne
+          ? coverPosition.valueTokenZero
+          : coverPosition.valueTokenOne
+      );
+    const positionInUSDPrice =
+      Number(
+        ethers.utils.formatUnits(
+          coverPosition.userFillIn,
+          coverPosition.zeroForOne
+            ? coverPosition.tokenOne.decimals
+            : coverPosition.tokenZero.decimals
+        )
+      ) *
+      Number(
+        coverPosition.zeroForOne
+          ? coverPosition.valueTokenOne
+          : coverPosition.valueTokenZero
+      );
+    setPositionUSDPrice(
+      Number(positionOutUSDPrice + positionInUSDPrice).toFixed(2)
+    );
+  };
+
+  //////////////////////////Set Position when selected
+
   async function choosePosition() {
     setCoverPositionData(coverPosition);
     setNeedsAllowance(true);
@@ -94,24 +124,23 @@ export default function UserCoverPool({
     } as tokenCover;
     setTokenIn(tokenOutNew, tokenInNew);
     setTokenOut(tokenInNew, tokenOutNew);
-
     setCoverPoolFromVolatility(
       tokenInNew,
       tokenOutNew,
-      volTierMap.get(coverPosition.volatilityTier.feeAmount.toString())
+      coverPosition.volatilityTier.feeAmount.toString()
     );
     router.push({
       pathname: href,
+      query: {
+        positionId: coverPosition.positionId,
+      },
     });
   }
-
-  console.log('cover position fee amount:', coverPosition.volatilityTier.feeAmount)
-  console.log('fee amount', coverPosition.volatilityTier.feeAmount ? coverPosition.volatilityTier.feeAmount.toString() : 'test')
 
   return (
     <>
       <div className="relative" onClick={choosePosition}>
-        <div className="lg:grid lg:grid-cols-2 lg:items-center w-full items-center bg-black px-4 py-3 rounded-[4px] border-grey border">
+        <div className="lg:grid lg:grid-cols-2 lg:items-center w-full items-center bg-black px-4 py-3 rounded-[4px] border-grey border hover:bg-main1/20 cursor-pointer">
           <div className="grid sm:grid-cols-2 grid-rows-2 sm:grid-rows-1 items-center gap-y-2 w-full">
             <div className="flex items-center gap-x-6">
               <div className="flex items-center">
@@ -129,7 +158,9 @@ export default function UserCoverPool({
                 {coverPosition.tokenOne.symbol}
               </span>
               <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                {volTierMap.get(coverPosition.volatilityTier.feeAmount.toString()).volatility}
+                {(Number(coverPosition.pool.volatilityTier.tickSpread) / 100) *
+                  (60 /
+                    Number(coverPosition.pool.volatilityTier.auctionLength))}
                 %
               </span>
             </div>
@@ -150,16 +181,14 @@ export default function UserCoverPool({
           <div className="lg:grid lg:grid-cols-2 items-center lg:block hidden">
             <div className="md:flex hidden items-center justify-end w-full">
               <div className="flex relative bg-transparent items-center justify-center h-8 border-grey z-40 border rounded-[4px] gap-x-2 text-sm w-40">
-                <div
-                  className={`bg-white h-full absolute left-0 z-0 rounded-l-[4px] opacity-10 w-[${fillPercent}%]`}
-                />
+                <div className={`bg-white h-full absolute left-0 z-0 rounded-l-[4px] opacity-10 w-[${parseInt(fillPercent)}%]`}/>
                 <div className="z-20 text-white text-xs">
                   {fillPercent}% Filled
                 </div>
               </div>
             </div>
             <div className="text-right text-white text-xs lg:block hidden">
-              <span>$401 </span>
+              <span>${positionUSDPrice}</span>
             </div>
           </div>
         </div>

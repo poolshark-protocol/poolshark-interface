@@ -29,6 +29,7 @@ type TradeState = {
     disabled: boolean;
     buttonMessage: string;
   };
+  limitPriceString: string;
   //true if both tokens selected, false if only one token selected
   pairSelected: boolean;
   //TokenIn defines the token on the left/up on a swap page
@@ -84,6 +85,8 @@ type TradeLimitAction = {
 
   resetTradeLimitParams: () => void;
   //
+  setLimitPriceString: (limitPrice: string) => void;
+  //
   setMintButtonState: () => void;
   //
   setNeedsRefetch: (needsRefetch: boolean) => void;
@@ -112,7 +115,7 @@ const initialTradeState: TradeState = {
   },
   //
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
-  pairSelected: true,
+  pairSelected: false,
   //
   tokenIn: {
     callId: 0,
@@ -138,6 +141,7 @@ const initialTradeState: TradeState = {
     userRouterAllowance: BigNumber.from(0),
     USDPrice: 0.0,
   } as tokenSwap,
+  limitPriceString: '0.00',
   //
   minInput: "",
   maxInput: "",
@@ -169,6 +173,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   //input amounts
   minInput: initialTradeState.minInput,
   maxInput: initialTradeState.maxInput,
+  // limit swap
+  limitPriceString: initialTradeState.limitPriceString,
   //refresh
   needsRefetch: initialTradeState.needsRefetch,
   needsPosRefetch: initialTradeState.needsPosRefetch,
@@ -329,6 +335,11 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   setMaxInput: (maxInput: string) => {
     set(() => ({
       maxInput: maxInput,
+    }));
+  },
+  setLimitPriceString: (limitPrice: string) => {
+    set(() => ({
+      limitPriceString: !isNaN(parseFloat(limitPrice)) ? limitPrice : '0.00',
     }));
   },
   setTradePoolAddress: (tradePoolAddress: `0x${string}`) => {

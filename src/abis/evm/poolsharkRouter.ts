@@ -202,11 +202,6 @@ export const poolsharkRouterABI = [
       {
         "components": [
           {
-            "internalType": "bytes32",
-            "name": "poolType",
-            "type": "bytes32"
-          },
-          {
             "internalType": "address",
             "name": "tokenIn",
             "type": "address"
@@ -225,6 +220,11 @@ export const poolsharkRouterABI = [
             "internalType": "uint16",
             "name": "swapFee",
             "type": "uint16"
+          },
+          {
+            "internalType": "uint8",
+            "name": "poolTypeId",
+            "type": "uint8"
           }
         ],
         "internalType": "struct PoolsharkStructs.LimitPoolParams",
@@ -634,6 +634,62 @@ export const poolsharkRouterABI = [
         "internalType": "struct PoolsharkStructs.QuoteResults[]",
         "name": "results",
         "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "pools",
+        "type": "address[]"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "uint128",
+            "name": "burnPercent",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint32",
+            "name": "positionId",
+            "type": "uint32"
+          },
+          {
+            "internalType": "int24",
+            "name": "claim",
+            "type": "int24"
+          },
+          {
+            "internalType": "bool",
+            "name": "zeroForOne",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct PoolsharkStructs.SnapshotLimitParams[]",
+        "name": "params",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "multiSnapshotLimit",
+    "outputs": [
+      {
+        "internalType": "uint128[]",
+        "name": "amountIns",
+        "type": "uint128[]"
+      },
+      {
+        "internalType": "uint128[]",
+        "name": "amountOuts",
+        "type": "uint128[]"
       }
     ],
     "stateMutability": "view",

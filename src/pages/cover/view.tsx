@@ -6,7 +6,7 @@ import {
   ExclamationTriangleIcon,
 } from "@heroicons/react/20/solid";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
+import router from "next/router";
 import { useAccount, useContractRead, useSigner } from "wagmi";
 import CoverCollectButton from "../../components/Buttons/CoverCollectButton";
 import { BigNumber, ethers } from "ethers";
@@ -15,7 +15,7 @@ import { coverPoolABI } from "../../abis/evm/coverPool";
 import { getClaimTick, mapUserCoverPositions } from "../../utils/maps";
 import RemoveLiquidity from "../../components/Modals/Cover/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Cover/AddLiquidity";
-import { BN_ZERO } from "../../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { gasEstimateCoverBurn } from "../../utils/gas";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
@@ -34,12 +34,14 @@ export default function ViewCover() {
     tokenOut,
     needsRefetch,
     needsPosRefetch,
+    latestTick,
     claimTick,
     setNeedsRefetch,
     setNeedsPosRefetch,
     setCoverPositionData,
     setTokenInCoverUSDPrice,
     setTokenOutCoverUSDPrice,
+    setLatestTick,
     setClaimTick,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
@@ -50,26 +52,29 @@ export default function ViewCover() {
     state.tokenOut,
     state.needsRefetch,
     state.needsPosRefetch,
+    state.latestTick,
     state.claimTick,
     state.setNeedsRefetch,
     state.setNeedsPosRefetch,
     state.setCoverPositionData,
     state.setTokenInCoverUSDPrice,
     state.setTokenOutCoverUSDPrice,
+    state.setLatestTick,
     state.setClaimTick,
   ]);
 
   const { address, isConnected } = useAccount();
+  const [isLoading, setIsLoading] = useState(true);
 
   //cover aux
   const [priceDirection, setPriceDirection] = useState(false);
-  const [fillPercent, setFillPercent] = useState(0);
   const [coverFilledAmount, setCoverFilledAmount] = useState("");
   const [allCoverPositions, setAllCoverPositions] = useState([]);
+
   const volTierMap = new Map<string, any>([
-    ['1000', { id: 0, volatility: "1" }],
-    ['3000', { id: 1, volatility: "3" }],
-    ['10000', { id: 2, volatility: "24" }]
+    ["1000", { id: 0, volatility: "1" }],
+    ["3000", { id: 1, volatility: "3" }],
+    ["10000", { id: 2, volatility: "24" }],
   ]);
 
   //Display and copy flags
@@ -152,6 +157,16 @@ export default function ViewCover() {
     setIsPoolCopied(true);
   }
 
+  ////////////////////////////////Token Order
+  const [tokenOrder, setTokenOrder] = useState(true);
+  const [priceOrder, setPriceOrder] = useState(true);
+
+  useEffect(() => {
+    if (tokenIn.address && tokenOut.address) {
+      setTokenOrder(tokenIn.callId == 0);
+    }
+  }, [tokenIn, tokenOut]);
+
   //////////////////////////////// Pool Data
 
   useEffect(() => {
@@ -223,22 +238,36 @@ export default function ViewCover() {
 
   useEffect(() => {
     setTimeout(() => {
-      if (needsRefetch == true || needsPosRefetch == true) {
+      if (
+        needsRefetch == true ||
+        needsPosRefetch == true ||
+        coverPositionData.positionId == undefined
+      ) {
         getUserCoverPositionData();
         setNeedsRefetch(false);
         setNeedsPosRefetch(false);
       }
-    }, 2000);
-  }, [needsRefetch, needsPosRefetch]);
+    }, 1000);
+    if (
+      needsRefetch == true ||
+      needsPosRefetch == true ||
+      coverPositionData.positionId == undefined
+    ) {
+    } else {
+      setIsLoading(false);
+    }
+  }, [needsRefetch, needsPosRefetch, coverPositionData.positionId]);
 
   async function getUserCoverPositionData() {
+    setIsLoading(true);
     try {
       const data = await fetchCoverPositions(address);
       if (data["data"]) {
         const positions = data["data"].positions;
         const positionData = mapUserCoverPositions(positions);
         setAllCoverPositions(positionData);
-        const positionId = coverPositionData.positionId;
+        const positionId =
+          coverPositionData.positionId ?? router.query.positionId;
         const position = positionData.find(
           (position) => position.positionId == positionId
         );
@@ -246,6 +275,7 @@ export default function ViewCover() {
           setCoverPositionData(position);
         }
       }
+      setIsLoading(false);
     } catch (error) {
       console.log(error);
     }
@@ -274,8 +304,6 @@ export default function ViewCover() {
       coverPoolAddress != undefined &&
       address != undefined,
     onError(error) {
-      console.log("coverpool", coverPoolAddress);
-      console.log("address", address);
       console.log("Error snapshot Cover", error);
     },
   });
@@ -288,38 +316,45 @@ export default function ViewCover() {
     }
   }, [filledAmount]);
 
-  useEffect(() => {
-    if (coverFilledAmount && coverPositionData.userFillIn) {
-      setFillPercent(
-        Number(coverFilledAmount) /
-          Number(
-            ethers.utils.formatUnits(
-              coverPositionData.userFillIn.toString(),
-              18
-            )
-          )
-      );
-    }
-  }, [coverFilledAmount]);
+  ////////////////////////////////Latest Tick
+
+  const { data: newLatestTick } = useContractRead({
+    address: coverPoolAddress,
+    abi: coverPoolABI,
+    functionName: "syncLatestTick",
+    chainId: 421613,
+    enabled: coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS,
+    onSuccess(data) {
+      // setNeedsAllowance(false);
+    },
+    onError(error) {
+      console.log("Error syncLatestTick", error);
+    },
+    onSettled(data, error) {},
+  });
 
   ////////////////////////////////Claim Tick
 
   useEffect(() => {
-    setTimeout(() => {
-      updateClaimTick();
-    }, 3000);
-  }, [claimTick]);
+    if (newLatestTick) {
+      const latest = parseInt(newLatestTick.toString());
+      updateClaimTick(latest);
+      setLatestTick(latest);
+    }
+  }, [newLatestTick]);
 
-  async function updateClaimTick() {
+  ////////////////////////////////Claim Tick
+
+  async function updateClaimTick(latestTick: number) {
     const aux = await getClaimTick(
       coverPoolAddress.toString(),
       Number(coverPositionData.min),
       Number(coverPositionData.max),
       Boolean(coverPositionData.zeroForOne),
       Number(coverPositionData.epochLast),
-      true
+      true,
+      latestTick
     );
-
     setClaimTick(aux);
   }
 
@@ -361,24 +396,33 @@ export default function ViewCover() {
               </div>
               <div className="flex items-center gap-x-5">
                 <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                  {volTierMap.get(coverPoolData.volatilityTier.feeAmount.toString()).volatility}%
+                  {
+                    volTierMap.get(
+                      coverPoolData.volatilityTier?.feeAmount?.toString()
+                    )?.volatility
+                  }
+                  %
                 </span>
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
-                {coverPositionData.min === undefined
-                        ? ""
-                        : priceDirection
-                        ? lowerInverse
-                        : TickMath.getPriceStringAtTick(
-                            Number(coverPositionData.min)
-                          )}
+                  {isLoading ? (
+                    <div className="h-4 w-14 bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : coverPositionData.min === undefined ? (
+                    ""
+                  ) : priceDirection ? (
+                    lowerInverse
+                  ) : (
+                    TickMath.getPriceStringAtTick(Number(coverPositionData.min))
+                  )}
                   <DoubleArrowIcon />
-                  {coverPositionData.max === undefined
-                        ? ""
-                        : priceDirection
-                        ? upperInverse
-                        : TickMath.getPriceStringAtTick(
-                            Number(coverPositionData.max)
-                          )}
+                  {isLoading ? (
+                    <div className="h-4 w-14 bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : coverPositionData.max === undefined ? (
+                    ""
+                  ) : priceDirection ? (
+                    upperInverse
+                  ) : (
+                    TickMath.getPriceStringAtTick(Number(coverPositionData.max))
+                  )}
                 </div>
               </div>
             </div>
@@ -406,25 +450,33 @@ export default function ViewCover() {
             <div className="flex flex-col gap-y-3 mt-2">
               <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
                 <div className="flex items-end justify-between text-[11px] text-grey1">
-                  <span>
-                    ~$
-                    {(
-                      Number(
-                        ethers.utils.formatUnits(
-                          coverPositionData.userFillOut ?? 0,
-                          tokenIn.decimals
-                        )
-                      ) * tokenIn.coverUSDPrice
-                    ).toFixed(2)}
-                  </span>
+                  {isLoading ? (
+                    <div className="h-4 w-14 bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : (
+                    <span>
+                      ~$
+                      {(
+                        Number(
+                          ethers.utils.formatUnits(
+                            coverPositionData.userFillOut ?? 0,
+                            tokenOrder ? tokenIn.decimals : tokenOut.decimals
+                          )
+                        ) * tokenIn.coverUSDPrice
+                      ).toFixed(2)}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {Number(
-                    ethers.utils.formatUnits(
-                      coverPositionData.userFillOut ?? 0,
-                      tokenIn.decimals
-                    )
-                  ).toFixed(2)}
+                  {isLoading ? (
+                    <div className="h-8 w-40 bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : (
+                    Number(
+                      ethers.utils.formatUnits(
+                        coverPositionData.userFillOut ?? 0,
+                        tokenOrder ? tokenIn.decimals : tokenOut.decimals
+                      )
+                    ).toFixed(2)
+                  )}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenIn.logoURI} />
@@ -438,34 +490,40 @@ export default function ViewCover() {
                   <h1 className="uppercase text-white md:block hidden">
                     Price Range
                   </h1>
-                  {parseFloat(
-                    TickMath.getPriceStringAtTick(
-                      Number(coverPositionData.latestTick)
-                    )
-                  ) <
+                  {isLoading ? (
+                    <div className="h-6 w-28 bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : coverPositionData.min &&
+                    coverPositionData.max &&
+                    coverPositionData.latestTick ? (
                     parseFloat(
                       TickMath.getPriceStringAtTick(
-                        Number(coverPositionData.min)
+                        Number(coverPositionData.latestTick)
                       )
-                    ) ||
-                  parseFloat(
-                    TickMath.getPriceStringAtTick(
-                      Number(coverPositionData.latestTick)
-                    )
-                  ) >=
+                    ) <
+                      parseFloat(
+                        TickMath.getPriceStringAtTick(
+                          Number(coverPositionData.min)
+                        )
+                      ) ||
                     parseFloat(
                       TickMath.getPriceStringAtTick(
-                        Number(coverPositionData.max)
+                        Number(coverPositionData.latestTick)
                       )
-                    ) ? (
-                    <span className="text-yellow-600 text-xs bg-yellow-900/30 px-4 py-1 rounded-[4px]">
-                      OUT OF RANGE
-                    </span>
-                  ) : (
-                    <span className="text-green-600 text-xs bg-green-900/30 px-4 py-1 rounded-[4px]">
-                      IN RANGE
-                    </span>
-                  )}
+                    ) >=
+                      parseFloat(
+                        TickMath.getPriceStringAtTick(
+                          Number(coverPositionData.max)
+                        )
+                      ) ? (
+                      <span className="text-yellow-600 text-xs bg-yellow-900/30 px-4 py-1 rounded-[4px]">
+                        OUT OF RANGE
+                      </span>
+                    ) : (
+                      <span className="text-green-600 text-xs bg-green-900/30 px-4 py-1 rounded-[4px]">
+                        IN RANGE
+                      </span>
+                    )
+                  ) : null}
                 </div>
                 <div
                   onClick={() => setPriceDirection(!priceDirection)}
@@ -494,13 +552,17 @@ export default function ViewCover() {
                   <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                     <span className="text-grey1 text-xs">MIN. PRICE</span>
                     <span className="text-white text-2xl md:text-3xl">
-                      {coverPositionData.min === undefined
-                        ? ""
-                        : priceDirection
-                        ? lowerInverse
-                        : TickMath.getPriceStringAtTick(
-                            Number(coverPositionData.min)
-                          )}
+                      {isLoading ? (
+                        <div className="h-9 w-36 bg-grey/60 animate-pulse rounded-[4px]" />
+                      ) : coverPositionData.min === undefined ? (
+                        ""
+                      ) : priceDirection ? (
+                        lowerInverse
+                      ) : (
+                        TickMath.getPriceStringAtTick(
+                          Number(coverPositionData.min)
+                        )
+                      )}
                     </span>
                     <span className="text-grey1 text-[9px] text-center">
                       Your position will be 100%{" "}
@@ -517,13 +579,17 @@ export default function ViewCover() {
                   <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                     <span className="text-grey1 text-xs">MAX. PRICE</span>
                     <span className="text-white text-2xl md:text-3xl">
-                      {coverPositionData.max === undefined
-                        ? ""
-                        : priceDirection
-                        ? upperInverse
-                        : TickMath.getPriceStringAtTick(
-                            Number(coverPositionData.max)
-                          )}
+                      {isLoading ? (
+                        <div className="h-9 w-36 bg-grey/60 animate-pulse rounded-[4px]" />
+                      ) : coverPositionData.max === undefined ? (
+                        ""
+                      ) : priceDirection ? (
+                        upperInverse
+                      ) : (
+                        TickMath.getPriceStringAtTick(
+                          Number(coverPositionData.max)
+                        )
+                      )}
                     </span>
                     <span className="text-grey1 text-[9px] text-center">
                       Your position will be 100%{" "}
@@ -541,11 +607,19 @@ export default function ViewCover() {
                 <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                   <span className="text-grey1 text-xs">CURRENT. PRICE</span>
                   <span className="text-white text-3xl text-grey1">
-                    {priceDirection
-                      ? priceInverse
-                      : TickMath.getPriceStringAtTick(
-                          Number(coverPositionData.latestTick)
-                        )}
+                    {isLoading ? (
+                      <div className="h-9 w-36 bg-grey/60 animate-pulse rounded-[4px]" />
+                    ) : coverPositionData.latestTick ? (
+                      priceDirection ? (
+                        priceInverse
+                      ) : (
+                        TickMath.getPriceStringAtTick(
+                          Number(coverPositionData?.latestTick)
+                        )
+                      )
+                    ) : (
+                      ""
+                    )}
                   </span>
                 </div>
               </div>
@@ -554,31 +628,43 @@ export default function ViewCover() {
           <div className="border bg-dark border-grey rounded-[4px] lg:w-1/2 w-full p-5 h-min">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">Filled Liquidity</h1>
-              <span className="text-grey1">
-                ${Number(coverFilledAmount).toFixed(2)}
-                <span className="text-grey">
-                  /
-                  {Number(
-                    ethers.utils.formatUnits(
-                      coverPositionData.userFillIn.toString(),
-                      18
-                    )
-                  ).toFixed(2)}
+              {isLoading ? (
+                <div className="h-6 w-36 bg-grey/60 animate-pulse rounded-[4px]" />
+              ) : coverPositionData.userFillIn ? (
+                <span className="text-grey1">
+                  ${Number(coverFilledAmount).toFixed(2)}
+                  <span className="text-grey">
+                    /
+                    {Number(
+                      ethers.utils.formatUnits(
+                        coverPositionData.userFillIn.toString(),
+                        tokenOrder ? tokenOut.decimals : tokenIn.decimals
+                      )
+                    ).toFixed(2)}
+                  </span>
                 </span>
-              </span>
+              ) : null}
             </div>
             <div className="flex flex-col gap-y-3 mt-2">
               <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
                 <div className="flex items-end justify-between text-[11px] text-grey1">
-                  <span>
-                    ~$
-                    {(
-                      Number(coverFilledAmount) * tokenOut.coverUSDPrice
-                    ).toFixed(2)}
-                  </span>
+                  {isLoading ? (
+                    <div className="h-4 w-14 bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : (
+                    <span>
+                      ~$
+                      {(
+                        Number(coverFilledAmount) * tokenOut.coverUSDPrice
+                      ).toFixed(2)}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {Number(coverFilledAmount).toFixed(2)}
+                  {isLoading ? (
+                    <div className="h-8 w-40 bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : (
+                    Number(coverFilledAmount).toFixed(2)
+                  )}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenOut.logoURI} />
@@ -602,16 +688,20 @@ export default function ViewCover() {
           </div>
         </div>
       </div>
-      <RemoveLiquidity
-        isOpen={isRemoveOpen}
-        setIsOpen={setIsRemoveOpen}
-        address={address}
-      />
-      <AddLiquidity
-        isOpen={isAddOpen}
-        setIsOpen={setIsAddOpen}
-        address={address}
-      />
+      {coverPositionData.userFillIn ? (
+        <>
+          <RemoveLiquidity
+            isOpen={isRemoveOpen}
+            setIsOpen={setIsRemoveOpen}
+            address={address}
+          />
+          <AddLiquidity
+            isOpen={isAddOpen}
+            setIsOpen={setIsAddOpen}
+            address={address}
+          />
+        </>
+      ) : null}
     </div>
   );
 }

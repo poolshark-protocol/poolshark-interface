@@ -10,6 +10,7 @@ import { tokenCover } from "../../utils/types";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import JSBI from "jsbi";
 import { getRangePoolFromFactory } from "../../utils/queries";
+import router from "next/router";
 
 export default function UserRangePool({ rangePosition, href, isModal }) {
   const [
@@ -59,6 +60,9 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
   ]);
 
   //////////////////////////Set USD Prices
+  //Todo token in and out prices should local to the tile and not set at the store level
+  /* const [amount0, setAmount0] = useState(0);
+  const [amount1, setAmount1] = useState(0); */
 
   useEffect(() => {
     getPoolForThisTile();
@@ -117,7 +121,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
 
   useEffect(() => {
     setAmounts();
-  }, [rangePosition, rangeTokenIn.rangeUSDPrice, rangeTokenOut.rangeUSDPrice]);
+  }, [rangePosition, rangeTokenIn.USDPrice, rangeTokenOut.USDPrice]);
 
   function setAmounts() {
     try {
@@ -152,12 +156,14 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
       const token0UsdValue =
         parseFloat(
           ethers.utils.formatUnits(amount0Bn, rangePosition.tokenZero.decimals)
-        ) * rangeTokenIn.rangeUSDPrice;
+        ) * rangeTokenIn.USDPrice;
       const token1UsdValue =
         parseFloat(
           ethers.utils.formatUnits(amount1Bn, rangePosition.tokenOne.decimals)
-        ) * rangeTokenOut.rangeUSDPrice;
-      setTotalUsdValue(parseFloat((token0UsdValue + token1UsdValue).toFixed(2)));
+        ) * rangeTokenOut.USDPrice;
+      setTotalUsdValue(
+        parseFloat((token0UsdValue + token1UsdValue).toFixed(2))
+      );
     } catch (error) {
       console.log(error);
     }
@@ -186,29 +192,40 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
       setCoverTokenIn(tokenOutNew, tokenInNew);
       setCoverTokenOut(tokenInNew, tokenOutNew);
       setRangePositionData(rangePosition);
-      setCoverPoolFromVolatility(tokenInNew, tokenOutNew, volatilityTiers[0]);
+      setCoverPoolFromVolatility(tokenInNew, tokenOutNew, "1000");
     } else {
       setRangeTokenIn(tokenOutNew, tokenInNew);
       setRangeTokenOut(tokenInNew, tokenOutNew);
+      setRangePositionData(rangePosition);
+      //async setter should be last
       setRangePoolFromFeeTier(
         tokenInNew,
         tokenOutNew,
         rangePosition.pool.feeTier.feeAmount
       );
-      setRangePositionData(rangePosition);
     }
+    router.push({
+      pathname: href,
+      query: {
+        positionId: rangePosition.positionId,
+        feeTier: rangePosition.pool.feeTier.feeAmount,
+      },
+    });
   }
 
   return (
     <>
       <div onClick={choosePosition}>
-        <Link
-          href={{
-            pathname: href,
-          }}
+        <div
+          className={`${
+            isModal ? "grid-cols-3 " : "lg:grid-cols-2"
+          } lg:grid lg:items-center left bg-black px-4 py-3 rounded-[4px] border-grey border hover:bg-main1/20 cursor-pointer`}
         >
-          <div className={`${isModal ? "grid-cols-3 " : "lg:grid-cols-2"} lg:grid lg:items-center left bg-black px-4 py-3 rounded-[4px] border-grey border hover:bg-main1/20 cursor-pointer`}>
-            <div className={`grid sm:grid-cols-2 grid-rows-2 sm:grid-rows-1 items-center gap-y-2 w-full ${isModal ? "col-span-2" : "col-span-1"}`}>
+          <div
+            className={`grid sm:grid-cols-2 grid-rows-2 sm:grid-rows-1 items-center gap-y-2 w-full ${
+              isModal ? "col-span-2" : "col-span-1"
+            }`}
+          >
             <div className="flex items-center gap-x-6 w-full ">
               <div className="flex items-center">
                 <img
@@ -243,14 +260,18 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
                   : rangePosition.tokenOne.symbol}
               </span>
             </div>
-            </div>
-            <div className={`lg:grid items-center lg:block hidden ${isModal ? "grid-cols-1 " : "lg:grid-cols-2"}`}>
+          </div>
+          <div
+            className={`lg:grid items-center lg:block hidden ${
+              isModal ? "grid-cols-1 " : "lg:grid-cols-2"
+            }`}
+          >
             <div className={`text-white text-xs text-right`}>
-              {amount0.toPrecision(4)}{" "}
+              {amount0.toFixed(4)}{" "}
               <span className="text-grey1">
                 {rangePosition.tokenZero.symbol}
               </span>{" "}
-              - {amount1.toPrecision(4)}{" "}
+              - {amount1.toFixed(4)}{" "}
               <span className="text-grey1">
                 {rangePosition.tokenOne.symbol}
               </span>
@@ -258,9 +279,8 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
             <div className="text-right text-white text-xs lg:block hidden">
               {!isModal && <span>${totalUsdValue}</span>}
             </div>
-            </div>
           </div>
-        </Link>
+        </div>
       </div>
     </>
   );

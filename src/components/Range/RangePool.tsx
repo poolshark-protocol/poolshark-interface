@@ -1,6 +1,7 @@
 import { logoMap } from "../../utils/tokens";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { useRouter } from "next/router";
+import { formatUsdValue } from "../../utils/math/valueMath";
 
 export default function RangePool({ rangePool, href }) {
   const [setRangeTokenIn, setRangeTokenOut, setRangePoolFromFeeTier] =
@@ -30,6 +31,9 @@ export default function RangePool({ rangePool, href }) {
     setRangePoolFromFeeTier(tokenIn, tokenOut, rangePool.feeTier);
     router.push({
       pathname: href,
+      query: {
+        feeTier: rangePool.feeTier,
+      },
     });
   };
 
@@ -56,10 +60,10 @@ export default function RangePool({ rangePool, href }) {
             </span>
           </div>
           <div className="md:grid hidden grid-cols-3 w-full justify-end text-right items-center">
-            <div className="text-white text-right text-xs">${rangePool.volumeUsd}m</div>
-            <div className="text-right text-white text-xs">${rangePool.tvlUsd}m</div>
+            <div className="text-white text-right text-xs">${formatUsdValue(rangePool.volumeUsd)}</div>
+            <div className="text-right text-white text-xs">${formatUsdValue(rangePool.tvlUsd)}</div>
             <div className="text-right text-white text-xs">
-              <span>${rangePool.feesUsd} </span>
+              <span>${formatUsdValue(rangePool.feesUsd)} </span>
             </div>
           </div>
         </div>

@@ -10,12 +10,12 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useEffect, useState } from "react";
 import { limitPoolABI } from "../../abis/evm/limitPool";
-import { useTradeStore } from "../../hooks/useTradeStore";
 import { getClaimTick } from "../../utils/maps";
 import { gasEstimateBurnLimit } from "../../utils/gas";
 import { BN_ZERO } from "../../utils/math/constants";
+import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 
-export default function LimitSwapBurnButton({
+export default function LimitRemoveLiqButton({
   poolAddress,
   address,
   positionId,
@@ -24,14 +24,17 @@ export default function LimitSwapBurnButton({
   lower,
   upper,
   burnPercent,
+  closeModal,
+  setIsOpen,
 }) {
   const { data: signer } = useSigner();
 
-  const [setNeedsRefetch, setNeedsBalanceIn, setNeedsBalanceOut] = useTradeStore(
+  const [setNeedsRefetch, setNeedsBalanceIn, setNeedsBalanceOut, setNeedsSnapshot] = useRangeLimitStore(
     (state) => [
       state.setNeedsRefetch,
       state.setNeedsBalanceIn,
       state.setNeedsBalanceOut,
+      state.setNeedsSnapshot,
     ]
   );
   const [claimTick, setClaimTick] = useState(0);
@@ -78,7 +81,7 @@ export default function LimitSwapBurnButton({
     if(claimTick > 0 && signer) {
       getGasLimit();
     }
-  }, [claimTick, signer]);
+  }, [claimTick, signer, burnPercent]);
 
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
@@ -117,6 +120,9 @@ export default function LimitSwapBurnButton({
       setTimeout(() => {
         setNeedsBalanceIn(true);
         setNeedsBalanceOut(true);
+        setNeedsSnapshot(true);
+        setIsOpen(false);
+        closeModal();
       }, 1000);
     },
     onError() {
@@ -126,33 +132,31 @@ export default function LimitSwapBurnButton({
 
   return (
     <>
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            className="w-7 text-red-600 bg-red-900/30 p-1 rounded-full cursor-pointer -mr-5"
-            onClick={() => {
-                address ? write?.() : null;
-            }}
-        >
-          <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-        </svg>
-        <div className="fixed bottom-4 right-4 flex flex-col space-y-2">
-            {errorDisplay && (
-              <ErrorToast
-                hash={data?.hash}
-                errorDisplay={errorDisplay}
-                setErrorDisplay={setErrorDisplay}
-              />
-            )}
-            {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-            {successDisplay && (
-              <SuccessToast
-                hash={data?.hash}
-                successDisplay={successDisplay}
-                setSuccessDisplay={setSuccessDisplay}
-              />
-            )}
+      <button
+        disabled={gasFee == "$0.00"}
+        className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
+        onClick={() => {
+          address ? write?.() : null;
+        }}
+      >
+        Remove liquidity
+      </button>
+      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
+        {errorDisplay && (
+          <ErrorToast
+            hash={data?.hash}
+            errorDisplay={errorDisplay}
+            setErrorDisplay={setErrorDisplay}
+          />
+        )}
+        {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
+        {successDisplay && (
+          <SuccessToast
+            hash={data?.hash}
+            successDisplay={successDisplay}
+            setSuccessDisplay={setSuccessDisplay}
+          />
+        )}
       </div>
     </>
   );

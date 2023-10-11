@@ -11,7 +11,9 @@ import { BN_ZERO } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { ethers } from "ethers";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
+import PositionMintModal from "../Modals/PositionMint";
   
+
 export default function RangeCreateAndMintButton({
   disabled,
   buttonMessage,
@@ -31,12 +33,14 @@ export default function RangeCreateAndMintButton({
 }) {
   const [
     setNeedsRefetch,
+    setNeedsPosRefetch,
     setNeedsAllowanceIn,
     setNeedsAllowanceOut,
     setNeedsBalanceIn,
     setNeedsBalanceOut,
   ] = useRangeLimitStore((state) => [
     state.setNeedsRefetch,
+    state.setNeedsPosRefetch,
     state.setNeedsAllowanceIn,
     state.setNeedsAllowanceOut,
     state.setNeedsBalanceIn,
@@ -60,20 +64,20 @@ export default function RangeCreateAndMintButton({
         tokenIn: token0.address,
         tokenOut: token1.address,
         startPrice: startPrice,
-        swapFee: feeTier  
+        swapFee: feeTier,
       }, // pool params
       [
-          {
-              to: to,
-              lower: lower,
-              upper: upper,
-              positionId: positionId,
-              amount0: amount0,
-              amount1: amount1,
-              callbackData: ethers.utils.formatBytes32String('')
-          }
+        {
+          to: to,
+          lower: lower,
+          upper: upper,
+          positionId: positionId,
+          amount0: amount0,
+          amount1: amount1,
+          callbackData: ethers.utils.formatBytes32String(""),
+        },
       ], // range positions
-      [] // limit positions
+      [], // limit positions
     ],
     chainId: 421613,
     overrides: {
@@ -91,19 +95,23 @@ export default function RangeCreateAndMintButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
-      setTimeout(() => {
-        closeModal();
-      }, 2000);
-      setNeedsRefetch(true);
       setNeedsAllowanceIn(true);
       if (amount1.gt(BN_ZERO)) {
         setNeedsAllowanceOut(true);
       }
       setNeedsBalanceIn(true);
       setNeedsBalanceOut(true);
+      setTimeout(() => {
+        setNeedsRefetch(true);
+        setNeedsPosRefetch(true);
+        closeModal();
+      }, 2000);
     },
+
     onError() {
       setErrorDisplay(true);
+      setNeedsRefetch(false);
+      setNeedsPosRefetch(false);
     },
   });
 
@@ -116,24 +124,7 @@ export default function RangeCreateAndMintButton({
       >
         {buttonMessage}
       </button>
-      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
-        {errorDisplay && (
-          <ErrorToast
-            hash={data?.hash}
-            errorDisplay={errorDisplay}
-            setErrorDisplay={setErrorDisplay}
-          />
-        )}
-        {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-        {successDisplay && (
-          <SuccessToast
-            hash={data?.hash}
-            successDisplay={successDisplay}
-            setSuccessDisplay={setSuccessDisplay}
-          />
-        )}
-      </div>
+      <PositionMintModal errorDisplay={errorDisplay} hash={data?.hash} isLoading={isLoading} successDisplay={successDisplay} type={"range"}/>
     </>
   );
 }
-  

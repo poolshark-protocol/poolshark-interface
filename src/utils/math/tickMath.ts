@@ -35,6 +35,7 @@ export function roundTick(tick: number, tickSpacing: number): number {
 }
 
 export function invertPrice(priceString: string, zeroForOne: boolean): string {
+  if (isNaN(parseFloat(priceString)) || parseFloat(priceString) == 0) return '0.00'
   if(!zeroForOne) {
     let price = JSBD.BigDecimal(priceString)
     price = JSBD.divide(JSBD.BigDecimal('1.00'), price)
@@ -103,11 +104,13 @@ export abstract class TickMath {
   public static MAX_SQRT_RATIO: JSBI = JSBI.BigInt('1461446703485210103287273052203988822378723970342')
 
   public static getPriceStringAtTick(tick: number, tickSpacing?: number): string {
+    if (!tick) return '0.00'
     // round the tick based on tickSpacing
     let roundedTick = tick
     if (tickSpacing) roundedTick = roundTick(Number(tick), tickSpacing)
     // divide and return formatted string
-    return this.getPriceStringAtSqrtPrice(this.getSqrtRatioAtTick(roundedTick))
+    const priceString = this.getPriceStringAtSqrtPrice(this.getSqrtRatioAtTick(roundedTick))
+    return priceString
   }
 
   public static getSqrtPriceAtPriceString(priceString: string, scaleFactor?: number, tickSpacing?: number): JSBI {
@@ -155,10 +158,21 @@ export abstract class TickMath {
   }
 
   public static getTickAtPriceString(priceString: string, tickSpacing?: number): number {
-    let sqrtPrice = this.getSqrtPriceAtPriceString(priceString)
-    if (JSBI.lessThan(sqrtPrice, this.MIN_SQRT_RATIO)){ return this.MIN_TICK}
-    if (JSBI.greaterThan(sqrtPrice, this.MAX_SQRT_RATIO)) return this.MAX_TICK
-    let tick = this.getTickAtSqrtRatio(sqrtPrice)
+    const price = parseFloat(priceString)
+    if (isNaN(price)) return this.MIN_TICK
+    const minPrice = parseFloat(this.getPriceStringAtTick(this.MIN_TICK))
+    const maxPrice = parseFloat(this.getPriceStringAtTick(this.MAX_TICK))
+    let tick;
+    if (price <= minPrice) {
+      tick = this.MIN_TICK
+    } else if (price >= maxPrice) {
+      tick = this.MAX_TICK
+    } else {
+      let sqrtPrice = this.getSqrtPriceAtPriceString(priceString)
+      if (JSBI.lessThan(sqrtPrice, this.MIN_SQRT_RATIO)){ return this.MIN_TICK}
+      if (JSBI.greaterThan(sqrtPrice, this.MAX_SQRT_RATIO)) return this.MAX_TICK
+      tick = this.getTickAtSqrtRatio(sqrtPrice)
+    }
     if (tickSpacing){
       return roundTick(tick, tickSpacing)
     } 

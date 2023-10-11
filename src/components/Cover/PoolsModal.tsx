@@ -227,7 +227,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                                     //prefill('exisingPool')
                                     setParams(allLimitPosition);
                                   }}
-                                  key={allLimitPosition.id + "click"}
+                                  key={allLimitPosition.id}
                                 >
                                   <UserRangePool
                                     key={allLimitPosition.id}

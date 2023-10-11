@@ -14,20 +14,24 @@ interface NavOptions {
 
 export default function Navbar({ create, setCreate }: NavOptions) {
   const router = useRouter();
-  const homeHref = "https://poolshark.fi/";
 
   return (
     <div className="py-2 mx-auto w-full border-b border-grey">
       <div className="relative flex items-center justify-between h-16 w-full container mx-auto md:px-0 px-3">
         <div className="lg:grid flex justify-between items-center grid-cols-3 w-full mx-auto">
           <div className="flex items-center justify-start flex-shrink-0">
+          <Link href="/">
+            <div>
             <Image
               src="/static/images/logo.png"
               width={70}
               height={70}
               quality="90"
               objectFit="contain"
+              alt="Poolshark logo"
             />
+            </div>
+            </Link>
           </div>
           <div className="hidden m-auto flex justify-start md:block bg-black">
             <div className="flex gap-x-2">

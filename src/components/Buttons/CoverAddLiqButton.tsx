@@ -29,18 +29,21 @@ export default function CoverAddLiqButton({
   tokenSymbol,
   setIsOpen,
 }) {
-  const [coverPoolData, setNeedsAllowance, setNeedsBalance, setNeedsRefetch] =
-    useCoverStore((state) => [
-      state.coverPoolData,
-      state.setNeedsAllowance,
-      state.setNeedsBalance,
-      state.setNeedsRefetch,
+  const [
+    coverPoolData,
+    setNeedsAllowance,
+    setNeedsBalance,
+    setNeedsRefetch,
+    setNeedsPosRefetch,
+  ] = useCoverStore((state) => [
+    state.coverPoolData,
+    state.setNeedsAllowance,
+    state.setNeedsBalance,
+    state.setNeedsRefetch,
+    state.setNeedsPosRefetch,
   ]);
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
-
-  
-  console.log("cover add liq gas limit", gasLimit.toString());
 
   const { config } = usePrepareContractWrite({
     address: routerAddress,
@@ -48,15 +51,17 @@ export default function CoverAddLiqButton({
     functionName: "multiMintCover",
     args: [
       [poolAddress],
-      [{
-        positionId: positionId,
-        to: toAddress,
-        amount: amount,
-        lower: lower,
-        upper: upper,
-        zeroForOne: zeroForOne,
-        callbackData: ethers.utils.formatBytes32String('')
-      }],
+      [
+        {
+          positionId: positionId,
+          to: toAddress,
+          amount: amount,
+          lower: lower,
+          upper: upper,
+          zeroForOne: zeroForOne,
+          callbackData: ethers.utils.formatBytes32String(""),
+        },
+      ],
     ],
     enabled: amount.gt(BN_ZERO) && poolAddress != undefined,
     chainId: 421613,
@@ -75,6 +80,11 @@ export default function CoverAddLiqButton({
       setNeedsBalance(true);
       setIsOpen(false);
       setNeedsRefetch(true);
+      setTimeout(() => {
+        setNeedsRefetch(true);
+        setNeedsPosRefetch(true);
+        setIsOpen(false);
+      }, 1000);
     },
     onError() {
       setErrorDisplay(true);
@@ -84,8 +94,8 @@ export default function CoverAddLiqButton({
   return (
     <>
       <button
-        disabled={disabled}
-        className="disabled:opacity-50 text-sm md:text-base disabled:cursor-not-allowed w-full py-4 mx-auto  text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        disabled={disabled || gasLimit.lte(BN_ZERO)}
+        className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
         onClick={() => write?.()}
       >
         {disabled ? (

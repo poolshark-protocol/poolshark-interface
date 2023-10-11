@@ -3,17 +3,23 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
 import useInputBox from "../../hooks/useInputBox";
-import { erc20ABI, useAccount, useBalance, useContractRead, useProvider } from "wagmi";
+import {
+  erc20ABI,
+  useAccount,
+  useBalance,
+  useContractRead,
+  useProvider,
+} from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ZERO } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import inputFilter from "../../utils/inputFilter";
 import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
-import { feeTiers } from "../../utils/pools";
 import Navbar from "../../components/Navbar";
 import RangePoolPreview from "../../components/Range/RangePoolPreview";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import { chainProperties } from "../../utils/chains";
+import router from "next/router";
 
 export default function AddLiquidity({}) {
   const [
@@ -36,6 +42,8 @@ export default function AddLiquidity({}) {
     pairSelected,
     setMintButtonState,
     setRangePoolFromFeeTier,
+    priceOrder,
+    setPriceOrder,
     needsAllowanceIn,
     needsBalanceIn,
     needsAllowanceOut,
@@ -62,6 +70,8 @@ export default function AddLiquidity({}) {
     state.pairSelected,
     state.setMintButtonState,
     state.setRangePoolFromFeeTier,
+    state.priceOrder,
+    state.setPriceOrder,
     state.needsAllowanceIn,
     state.needsBalanceIn,
     state.needsAllowanceOut,
@@ -86,8 +96,9 @@ export default function AddLiquidity({}) {
   useEffect(() => {
     if (tokenIn.address && tokenOut.address) {
       setTokenOrder(tokenIn.callId == 0);
+      setPriceOrder(tokenIn.callId == 0)
     }
-  }, [tokenIn]);
+  }, [tokenIn.address, tokenOut.address]);
 
   ////////////////////////////////Pools
 
@@ -105,6 +116,15 @@ export default function AddLiquidity({}) {
     setSelectedFeeTier(volatility);
   }; */
 
+  useEffect(() => {
+    if (
+      !rangePoolData.poolPrice ||
+      Number(rangePoolData.feeTier.feeAmount) != Number(router.query.feeTier)
+    ) {
+      setRangePoolFromFeeTier(tokenIn, tokenOut, router.query.feeTier);
+    }
+  }, [router.query.feeTier, rangePoolData]);
+
   //this sets the default position price delta
   useEffect(() => {
     if (rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
@@ -112,14 +132,8 @@ export default function AddLiquidity({}) {
       const tickAtPrice = rangePoolData.tickAtPrice;
       setRangePrice(TickMath.getPriceStringAtSqrtPrice(price));
       setRangeSqrtPrice(price);
-      const positionData = rangePositionData;
-      if (isNaN(parseFloat(minInput)) || parseFloat(minInput) <= 0) {
-        setMinInput(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
-      }
-      if (isNaN(parseFloat(maxInput)) || parseFloat(maxInput) <= 0) {
-        setMaxInput(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
-      }
-      setRangePositionData(positionData);
+      setMinInput(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
+      setMaxInput(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
     }
   }, [rangePoolData]);
 
@@ -128,12 +142,9 @@ export default function AddLiquidity({}) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [
-      address,
-      chainProperties['arbitrumGoerli']['routerAddress']
-    ],
+    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
     chainId: 421613,
-    //watch: needsAllowanceIn,
+    watch: needsAllowanceIn,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
       //setNeedsAllowanceIn(false);
@@ -147,12 +158,9 @@ export default function AddLiquidity({}) {
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [
-      address,
-      chainProperties['arbitrumGoerli']['routerAddress']
-    ],
+    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
     chainId: 421613,
-    //watch: needsAllowanceOut,
+    watch: needsAllowanceOut,
     enabled: tokenOut.address != undefined,
     onSuccess(data) {
       //setNeedsAllowanceOut(false);
@@ -247,7 +255,7 @@ export default function AddLiquidity({}) {
     ) {
       tokenOutAmountMath();
     }
-  }, [bnInput, rangePoolAddress, tokenOrder]);
+  }, [bnInput, tokenOrder, lowerPrice, upperPrice]);
 
   function tokenOutAmountMath() {
     try {
@@ -325,14 +333,15 @@ export default function AddLiquidity({}) {
   const [maxInput, setMaxInput] = useState("");
 
   const handlePriceSwitch = () => {
-    setTokenOrder(!tokenOrder);
-    setMaxInput(invertPrice(maxInput, false));
-    setMinInput(invertPrice(minInput, false));
+    setPriceOrder(!priceOrder);
+    setMaxInput(invertPrice(minInput, false));
+    setMinInput(invertPrice(maxInput, false));
   };
 
   useEffect(() => {
-    setUpperPrice(invertPrice(maxInput, tokenOrder));
-    setLowerPrice(invertPrice(minInput, tokenOrder));
+    setLowerPrice(invertPrice(priceOrder ? minInput : maxInput, priceOrder));
+    setUpperPrice(invertPrice(priceOrder ? maxInput : minInput, priceOrder));
+
   }, [maxInput, minInput]);
 
   ////////////////////////////////Mint Button State
@@ -346,7 +355,34 @@ export default function AddLiquidity({}) {
 
   useEffect(() => {
     setMintButtonState();
-  }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount]);
+  }, [
+    tokenIn,
+    tokenOut,
+    rangeMintParams.tokenInAmount,
+    rangeMintParams.tokenOutAmount,
+  ]);
+
+  ////////////////////////////////
+
+  const [rangeWarning, setRangeWarning] = useState(false);
+
+  useEffect(() => {
+    const priceLower = parseFloat(lowerPrice)
+    const priceUpper = parseFloat(upperPrice)
+    const priceRange = parseFloat(rangePrice)
+    if (!isNaN(priceLower) && !isNaN(priceUpper) && !isNaN(priceRange) ) {
+      if (priceLower > 0 && priceUpper > 0) {
+        if ( (priceLower <= priceRange && priceUpper <= priceRange) ||
+             (priceLower >= priceRange && priceUpper >= priceRange)
+        ) {
+          setRangeWarning(true);
+        } else {
+          setRangeWarning(false)
+        }
+      }
+    }
+  }, [lowerPrice, rangePrice, upperPrice]);
+  
 
   ////////////////////////////////
 
@@ -362,10 +398,9 @@ export default function AddLiquidity({}) {
                 <img className="md:w-6 w-6" src={tokenIn?.logoURI} />
                 <img className="md:w-6 w-6 -ml-2" src={tokenOut?.logoURI} />
               </div>
-
               <span className="text-white text-xs">
-                {tokenOrder ? tokenOut.symbol : tokenIn.symbol} -{" "}
-                {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
+                {tokenOrder ? tokenIn.symbol : tokenOut.symbol} -{" "}
+                {tokenOrder ? tokenOut.symbol : tokenIn.symbol}
               </span>
               <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
                 {(rangePoolData?.feeTier?.feeAmount / 10000).toFixed(2)}%
@@ -380,7 +415,7 @@ export default function AddLiquidity({}) {
               <span>
                 ~$
                 {(
-                  tokenIn.rangeUSDPrice *
+                  tokenIn.USDPrice *
                   Number(ethers.utils.formatUnits(bnInput, tokenIn.decimals))
                 ).toFixed(2)}
               </span>
@@ -412,7 +447,7 @@ export default function AddLiquidity({}) {
               <span>
                 ~$
                 {(
-                  Number(tokenOut.rangeUSDPrice) *
+                  Number(tokenOut.USDPrice) *
                   Number(
                     ethers.utils.formatUnits(rangeMintParams.tokenOutAmount, 18)
                   )
@@ -439,8 +474,8 @@ export default function AddLiquidity({}) {
               </div>
             </div>
           </div>
-          <div className="flex justify-between items-center mb-4 mt-10">
-            <div className="flex items-center gap-x-3">
+          <div className="flex justify-between md:items-center items-start mb-4 mt-10">
+            <div className="flex  md:flex-row flex-col md:items-center  gap-3">
               <h1>SET A PRICE RANGE</h1>
               <button
                 className="text-grey1 text-xs bg-black border border-grey px-4 py-0.5 rounded-[4px] whitespace-nowrap"
@@ -470,8 +505,8 @@ export default function AddLiquidity({}) {
               onClick={handlePriceSwitch}
               className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
             >
-              {tokenOrder ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>} per{" "}
-              {tokenOrder ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>}{" "}
+              <span className="whitespace-nowrap">{priceOrder ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>} per{" "}
+              {priceOrder ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>}</span>{" "}
               <DoubleArrowIcon />
             </div>
           </div>
@@ -530,18 +565,38 @@ export default function AddLiquidity({}) {
                 </span>
               </div>
             </div>
-            <div className="flex items-center justify-between w-full text-xs  text-[#C9C9C9] mb-8">
-              <div className="text-xs text-[#4C4C4C]">Market Price</div>
-              <div className="uppercase">
-                1 {tokenIn.symbol} ={" "}
-                {!isNaN(parseFloat(rangePrice))
-                  ? parseFloat(invertPrice(rangePrice, tokenOrder)).toPrecision(
-                      5
-                    ) +
-                    " " +
-                    tokenOut.symbol
-                  : "?" + " " + tokenOut.symbol}
+            <div className="mb-8 flex-col flex gap-y-8">
+              <div className="flex items-center justify-between w-full text-xs  text-[#C9C9C9]">
+                <div className="text-xs text-[#4C4C4C]">Market Price</div>
+                <div className="uppercase">
+                  1 {(priceOrder ? tokenIn : tokenOut).symbol} ={" "}
+                  {!isNaN(parseFloat(rangePrice))
+                    ? parseFloat(
+                        invertPrice(rangePrice, priceOrder)
+                      ).toPrecision(5) +
+                      " " +
+                      (priceOrder ? tokenOut : tokenIn).symbol
+                    : "?" + " " + tokenOut.symbol}
+                </div>
               </div>
+              {rangeWarning && (
+                <div className=" text-yellow-600 bg-yellow-900/30 text-[10px] md:text-[11px] flex items-center md:gap-x-5 gap-x-3 p-2 rounded-[8px]">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="md:w-9 w-12"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                  Your position will not earn fees or be used in trades until the
+                  market price moves into your range.
+                </div>
+              )}
             </div>
           </div>
           <RangePoolPreview />

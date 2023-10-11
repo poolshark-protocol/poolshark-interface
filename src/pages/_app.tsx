@@ -21,7 +21,7 @@ const { chains, provider } = configureChains(
   [
     jsonRpcProvider({
       rpc: (chain) => ({
-        http: `https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594`,
+        http: `https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/`,
       }),
     }),
   ],
@@ -40,7 +40,7 @@ const wagmiClient = createClient({
 
 const apolloClient = new ApolloClient({
   cache: new InMemoryCache(),
-  uri: "https://arbitrum-goerli.graph-eu.p2pify.com/d2323ed03f18f473fc02c54f8e38a3a5/cover-arbitrumGoerli-beta2",
+  uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
 })
 
 const whitelist = [
@@ -392,11 +392,11 @@ function MyApp({ Component, pageProps }) {
               <div className="font-Jetbrains"><Component  {...pageProps} /></div>
             )
             : 
-            <div className="min-h-screen font-Jetbrains">
-            <div className="max-w-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <div className="min-h-screen flex items-center justify-center px-5 font-Jetbrains">
+            <div className="md:max-w-lg">
                 <img src="/static/images/logo.png" className="mx-auto mb-10 w-56" />
                 <div className="text-white text-center mb-10 text-sm">
-                Poolshark is currently under a closed testnet beta. You must be whitelisted in order to access the platform.
+                Poolshark is currently under a closed testnet beta. You must be whitelisted in order to access the platform.  <a href="https://27m2bjslfwm.typeform.com/to/mJZBpT2x" className="text-main2 underline flex items-center justify-center mt-4 gap-x-2">Click here to join the waitlist<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a>
                 </div>
                 <div className="mx-auto text-white text-center">
                 <ConnectWalletButton center={true}/>
@@ -408,13 +408,16 @@ function MyApp({ Component, pageProps }) {
             </div>
           ) 
             : 
-            (<div className="min-h-screen font-Jetbrains">
-              <div className="max-w-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            (<div className="min-h-screen flex items-center justify-center px-5 font-Jetbrains">
+              <div className="md:max-w-lg ">
                 <img src="/static/images/logo.png" className="mx-auto mb-10 w-60" />
                 <div className="text-white text-center mb-10 text-sm">
-                Poolshark is currently under a closed testnet beta. You must be whitelisted in order to access the platform.
+                Poolshark is currently under a closed testnet beta. You must be whitelisted in order to access the platform. <a href="https://27m2bjslfwm.typeform.com/to/mJZBpT2x" className="text-main2 underline flex items-center justify-center mt-4 gap-x-2">Click here to join the waitlist<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+</svg>
+</a>
                 </div>
-                <div className="mx-32">
+                <div className="mx-10">
                 <ConnectWalletButton/>
                 </div>
                 </div>
