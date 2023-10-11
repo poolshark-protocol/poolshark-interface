@@ -151,6 +151,9 @@ export default function Trade() {
   //display variable
   const [amountOut, setAmountOut] = useState(undefined);
 
+  //log addresses and ids
+  const [limitPoolsAddressId, setLimitPoolsAddressId] = useState([]);
+
   useEffect(() => {
     if (tokenIn.address != ZERO_ADDRESS && tokenOut.address === ZERO_ADDRESS) {
       getLimitTokenUsdPrice(tokenIn.address, setTokenInTradeUSDPrice);
@@ -253,6 +256,49 @@ export default function Trade() {
     setSwapParams(paramsList);
   }
 
+  ////////////////////////////////Filled Amount
+  /*const { data: filledAmounts } = useContractRead({
+    address: chainProperties['arbitrumGoerli']['routerAddress'],
+    abi: poolsharkRouterABI,
+    functionName: "multiSnapshotLimit",
+    args: [
+      [
+        address,
+        ethers.utils.parseUnits("1", 38),
+        Number(limitPositionData.positionId),
+        BigNumber.from(claimTick),
+        tokenIn.callId == 0,
+      ],
+    ],
+    chainId: 421613,
+    watch: needsSnapshot,
+    enabled:
+      BigNumber.from(claimTick).lt(BigNumber.from("887272")) &&
+      isConnected &&
+      limitPoolAddress.toString() != "" &&
+      needsSnapshot == true,
+    onSuccess(data) {
+      console.log("Success price filled amount", data);
+      setNeedsSnapshot(false)
+    },
+    onError(error) {
+      console.log("Error price Limit", error);
+      console.log(
+        "claim tick snapshot args",
+        address,
+        BigNumber.from("0").toString(),
+        limitPositionData.min.toString(),
+        limitPositionData.max.toString(),
+        claimTick.toString(),
+        tokenIn.callId == 0,
+        router.isReady
+      );
+    },
+    onSettled(data, error) {
+      //console.log('Settled price Limit', { data, error })
+    },
+  });*/
+
   //////////////////////Get Pools Data
 
   const [allLimitPositions, setAllLimitPositions] = useState([]);
@@ -271,6 +317,12 @@ export default function Trade() {
     }
   }, [needsRefetch]);
 
+  useEffect(() => {
+    if (allLimitPositions.length > 0) {
+      mapUserLimitPositionAddressAndId();
+    }
+  }, [allLimitPositions]);
+
   async function getUserLimitPositionData() {
     try {
       const data = await fetchLimitPositions(address.toLowerCase());
@@ -278,6 +330,22 @@ export default function Trade() {
         setAllLimitPositions(
           mapUserLimitPositions(data["data"].limitPositions)
         );
+      }
+    } catch (error) {
+      console.log('limit error', error);
+    }
+  }
+
+  async function mapUserLimitPositionAddressAndId() {
+    try {
+      let mappedLimitPoolAddressId = [];
+      if (allLimitPositions.length > 0) {
+        for (let i = 0; i < allLimitPositions.length; i++) {
+          mappedLimitPoolAddressId[i].address = allLimitPositions[i].address;
+          mappedLimitPoolAddressId[i].positionId = allLimitPositions[i].positionId;
+        }
+
+        setLimitPoolsAddressId(mappedLimitPoolAddressId)
       }
     } catch (error) {
       console.log('limit error', error);
