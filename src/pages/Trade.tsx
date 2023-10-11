@@ -652,7 +652,7 @@ export default function Trade() {
     }
   };
   return (
-    <div className="min-h-[calc(100vh-160px)] w-[43rem] px-3 md:px-0">
+    <div className="min-h-[calc(100vh-160px)] w-[48rem] px-3 md:px-0">
       <div className="flex w-full mt-[10vh] justify-center mb-20 ">
         <div className="bg-black font-regular border border-grey rounded-[4px]">
           <div className="flex text-xs">
@@ -1054,8 +1054,8 @@ export default function Trade() {
           </div>
         </div>
       </div>
-      <div className="mb-20">
-        <div className="flex md:flex-row flex-col gap-y-3 item-end justify-between">
+      <div className="md:mb-20 mb-32 w-full">
+        <div className="flex md:flex-row flex-col gap-y-3 item-end justify-between w-full">
           <h1 className="mt-1.5">Limit Orders</h1>
           <div className="text-xs w-full md:w-auto flex">
             <button
@@ -1080,19 +1080,34 @@ export default function Trade() {
             </button>
           </div>
         </div>
-        <div className="w-full h-[1px] bg-grey mt-3" />
-        <table className="w-full table-auto">
-          <thead className="pb-4 border-b-10 border-black h-12">
-            <tr className="text-xs text-grey1/60 mb-3 leading-normal">
-              <th className="text-left ">Sell</th>
-              <th className="text-left ">Buy</th>
-              <th className="text-left">Avg. Price</th>
-              <th className="text-left md:grid-cell hidden">Status</th>
-              <th className="text-right md:grid-cell hidden">Age</th>
+        <div className="overflow-hidden rounded-[4px] mt-3 bg-dark  border border-grey">
+        <table className="w-full table-auto rounded-[4px]">
+          <thead className={`h-10 ${allLimitPositions.length === 0 && "hidden"}`}>
+            <tr className="text-[11px] text-grey1/90 mb-3 leading-normal">
+              <th className="text-left pl-3 uppercase">Sell</th>
+              <th className="text-left uppercase">Buy</th>
+              <th className="text-left uppercase">Avg. Price</th>
+              <th className="text-left md:table-cell hidden uppercase">Status</th>
+              <th className="text-left md:table-cell hidden pl-2 uppercase">Age</th>
             </tr>
           </thead>
-          {activeOrdersSelected ? (
-            <tbody className="">
+          {allLimitPositions.length === 0  ? (<td className="text-grey1 text-xs w-full  py-10 text-center col-span-5">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="w-10 py-4 mx-auto"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Your limit orders will appear here.
+                </td>) : (
+          activeOrdersSelected ? (
+            <tbody className="divide-y divide-grey/70">
               {allLimitPositions.map((allLimitPosition) => {
                 if (allLimitPosition.positionId != undefined) {
                   return (
@@ -1107,26 +1122,26 @@ export default function Trade() {
               })}
             </tbody>
           ) : (
-            <tbody className="gap-y-2">
+            <tbody className="divide-y divide-grey/70">
               {allLimitPositions.map((allLimitPosition) => {
                 if (allLimitPosition.positionId != undefined) {
                   return (
-                    <tr className="text-right text-xs md:text-sm"
+                    <tr className="text-right text-xs md:text-sm bg-black hover:bg-dark cursor-pointer"
                         key={allLimitPosition.positionId}
                     >
-                      <td className="">
-                        <div className="flex items-center text-sm text-grey1 gap-x-2 text-left">
+                      <td className="py-3 pl-3">
+                        <div className="flex items-center text-xs text-grey1 gap-x-2 text-left">
                           <img
-                            className="w-[25px] h-[25px]"
+                            className="w-[23px] h-[23px]"
                             src={logoMap[allLimitPosition.tokenIn.symbol]}
                           />
                           {parseFloat(ethers.utils.formatEther(allLimitPosition.amountIn)).toFixed(3) + " " + allLimitPosition.tokenIn.symbol}
                         </div>
                       </td>
                       <td className="">
-                        <div className="flex items-center text-sm text-white gap-x-2 text-left">
+                        <div className="flex items-center text-xs text-white gap-x-2 text-left">
                           <img
-                            className="w-[25px] h-[25px]"
+                            className="w-[23px] h-[23px]"
                             src={logoMap[allLimitPosition.tokenOut.symbol]}
                           />
                           {parseFloat(ethers.utils.formatEther(
@@ -1154,23 +1169,26 @@ export default function Trade() {
                           </span>          
                         </div>
                       </td>
-                      <td className="">
+                      <td className="md:table-cell hidden">
                         <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
-                          <span className="z-50">
+                          <span className="z-50 px-3">
                             {(parseFloat(allLimitPosition.amountFilled) /
                             parseFloat(allLimitPosition.liquidity)).toFixed(2)}% Filled
                           </span>
                           <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
                         </div>
                       </td>
-                      <td className="text-sm text-grey1">{timeDifference(allLimitPosition.timestamp)}</td>
+                      <td className="text-grey1 text-left pl-3 text-xs md:table-cell hidden">{timeDifference(allLimitPosition.timestamp)}</td>
+                      <td className="w-[39px] h-1 md:table-cell hidden"></td>
                     </tr>
                   );
                 }
               })}
             </tbody>
+          )
           )}
         </table>
+        </div>
       </div>
     </div>
   );

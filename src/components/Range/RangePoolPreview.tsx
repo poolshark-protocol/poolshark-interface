@@ -437,7 +437,6 @@ export default function RangePoolPreview() {
                                 ? rangeMintParams.tokenOutAmount
                                 : rangeMintParams.tokenInAmount
                             }
-                            closeModal={() => {}}
                             gasLimit={mintGasLimit}
                           />
                         ) : (

@@ -40,7 +40,16 @@ export default function Cover() {
   ///////////////////////////Positions
 
   useEffect(() => {
-    getUserCoverPositionData();
+    if (address) {
+      getUserCoverPositionData();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (address && needsRefetch) {
+      getUserCoverPositionData();
+      setNeedsRefetch(false);
+    }
   }, [needsRefetch, router.isReady]);
 
   async function getUserCoverPositionData() {
@@ -52,9 +61,6 @@ export default function Cover() {
       setAllCoverPositions(positionData);
       setIsPositionsLoading(false);
     }
-    setTimeout(() => {
-      getUserCoverPositionData();
-    }, 30000);
   }
 
   ///////////////////////////Pools

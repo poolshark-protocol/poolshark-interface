@@ -3,10 +3,6 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { rangePoolABI } from "../../abis/evm/rangePool";
-import { SuccessToast } from "../Toasts/Success";
-import { ErrorToast } from "../Toasts/Error";
-import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
 import { BN_ZERO } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
@@ -24,7 +20,6 @@ export default function RangeMintButton({
   upper,
   amount0,
   amount1,
-  closeModal,
   gasLimit,
 }) {
   const [
@@ -86,12 +81,11 @@ export default function RangeMintButton({
       setNeedsBalanceIn(true);
       setNeedsBalanceOut(true);
       setNeedsAllowanceIn(true);
-      setNeedsAllowanceOut(true);
-      closeModal();
-      setTimeout(() => {
-        setNeedsRefetch(true);
-        setNeedsPosRefetch(true);
-      }, 1000);
+      setNeedsRefetch(true);
+      setNeedsPosRefetch(true);
+      if (amount1.gt(BN_ZERO)) {
+        setNeedsAllowanceOut(true);
+      }
     },
     onError() {
       setErrorDisplay(true);
