@@ -1244,7 +1244,7 @@ export default function Trade() {
                   </div>
                   <div className="flex md:flex-row flex-col items-center gap-3">
                     <div className="relative">
-                  <input value={slippage} onChange={(e) => setSlippage(e.target.value)} className="bg-dark md:w-auto w-full border-grey border h-10 outline-none px-2 text-sm" placeholder="0.05"/>
+                  <input value={slippage} onChange={(e) => setSlippage(inputFilter(e.target.value))} className="bg-dark md:w-auto w-full border-grey border h-10 outline-none px-2 text-sm" placeholder="0.05"/>
                   <span className="absolute mt-2 -ml-8">%</span>
                   </div>
                   <div className="flex flex-row items-center gap-x-3 w-full">
