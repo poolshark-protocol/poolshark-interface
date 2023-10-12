@@ -352,14 +352,14 @@ export default function Trade() {
           mappedLimitSnapshotParams[i][0] = address;
           mappedLimitSnapshotParams[i][1] = ethers.utils.parseUnits("1", 38);
           mappedLimitSnapshotParams[i][2] = allLimitPositions[i].positionId;
-          mappedLimitSnapshotParams[i][3] = await getClaimTick(
+          mappedLimitSnapshotParams[i][3] = BigNumber.from(await getClaimTick(
             allLimitPositions[i].poolId.toString(),
             Number(allLimitPositions[i].min),
             Number(allLimitPositions[i].max),
             tokenIn.callId == 0,
             Number(allLimitPositions[i].epochLast),
             false
-          );
+          ));
           mappedLimitSnapshotParams[i][4] = allLimitPositions[i].tokenIn.id
             .localeCompare(allLimitPositions[i].tokenOut.id) < 0;
         }
