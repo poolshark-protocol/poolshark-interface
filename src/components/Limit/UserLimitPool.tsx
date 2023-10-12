@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { getClaimTick } from "../../utils/maps";
 import { BigNumber, ethers } from "ethers";
-import { getAveragePrice, getExpectedAmountOut } from "../../utils/math/priceMath";
+import { getAveragePrice, getExpectedAmountOut, getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
 import LimitSwapBurnButton from "../Buttons/LimitSwapBurnButton";
 import { tokenRangeLimit } from "../../utils/types";
 import router from "next/router";
@@ -133,8 +133,16 @@ export default function UserLimitPool({
             <td className="md:table-cell hidden">
                 <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
                     <span className="z-50 px-3">
-                        {(parseFloat(limitPosition.amountFilled) /
-                            parseFloat(limitPosition.liquidity)).toFixed(2)}% Filled
+                    {(parseFloat(limitPosition.amountFilled) /
+                         parseFloat(
+                           ethers.utils.formatUnits(
+                             getExpectedAmountOutFromInput(
+                               parseInt(limitPosition.min),
+                               parseInt(limitPosition.max),
+                               limitPosition.tokenIn.id.localeCompare(limitPosition.tokenOut.id) < 0,
+                               BigNumber.from(limitPosition.amountIn)
+                           ), limitPosition.tokenOut.decimals
+                         ))).toFixed(2)}% Filled
                     </span>
                     <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
                 </div>

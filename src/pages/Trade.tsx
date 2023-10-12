@@ -360,7 +360,8 @@ export default function Trade() {
             Number(allLimitPositions[i].epochLast),
             false
           );
-          mappedLimitSnapshotParams[i][4] = allLimitPositions[i].tokenIn.callId == 0;
+          mappedLimitSnapshotParams[i][4] = allLimitPositions[i].tokenIn.id
+            .localeCompare(allLimitPositions[i].tokenOut.id) < 0;
         }
 
         setLimitPoolAddressList(mappedLimitPoolAddresses)
@@ -1260,7 +1261,15 @@ export default function Trade() {
                         <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
                           <span className="z-50 px-3">
                             {(parseFloat(allLimitPosition.amountFilled) /
-                            parseFloat(allLimitPosition.liquidity)).toFixed(2)}% Filled
+                              parseFloat(
+                                ethers.utils.formatUnits(
+                                  getExpectedAmountOutFromInput(
+                                    parseInt(allLimitPosition.min),
+                                    parseInt(allLimitPosition.max),
+                                    allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0,
+                                    BigNumber.from(allLimitPosition.amountIn)
+                                ), tokenOut.decimals
+                              ))).toFixed(2)}% Filled
                           </span>
                           <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
                         </div>
