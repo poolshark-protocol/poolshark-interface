@@ -279,9 +279,11 @@ export default function Trade() {
     enabled:
       isConnected &&
       limitPoolAddressList.length > 0 &&
-      needsSnapshot == true,
+      needsSnapshot,
     onSuccess(data) {
       console.log("Success price filled amount", data);
+      console.log("snapshot address list", limitPoolAddressList);
+      console.log("snapshot params list", limitPositionSnapshotList);
       setNeedsSnapshot(false)
     },
     onError(error) {
@@ -298,9 +300,6 @@ export default function Trade() {
       setCurrentAmountOutList(
         filledAmountList[1]
       )
-      
-      console.log("amount in list", filledAmountList[0].toString());
-      console.log("amount out list", filledAmountList[1].toString());
     }
   }, [filledAmountList]);
 
@@ -353,12 +352,12 @@ export default function Trade() {
 
           mappedLimitSnapshotParams[i][0] = address;
           mappedLimitSnapshotParams[i][1] = ethers.utils.parseUnits("1", 38);
-          mappedLimitSnapshotParams[i][2] = allLimitPositions[i].positionId;
+          mappedLimitSnapshotParams[i][2] = BigNumber.from(allLimitPositions[i].positionId);
           mappedLimitSnapshotParams[i][3] = BigNumber.from(await getClaimTick(
             allLimitPositions[i].poolId.toString(),
             Number(allLimitPositions[i].min),
             Number(allLimitPositions[i].max),
-            tokenIn.callId == 0,
+            allLimitPositions[i].tokenIn.id.localeCompare(allLimitPositions[i].tokenOut.id) < 0,
             Number(allLimitPositions[i].epochLast),
             false
           ));
@@ -1208,7 +1207,7 @@ export default function Trade() {
                   return (
                     <UserLimitPool
                       limitPosition={allLimitPosition}
-                      limitFilledAmount={parseFloat(/*ethers.utils.formatEther(limitFilledAmountList[index])*/0)}
+                      limitFilledAmount={/*parseFloat(ethers.utils.formatEther(limitFilledAmountList[index])*/"0"}
                       address={address}
                       href={"/limit/view"}
                       key={allLimitPosition.positionId}
