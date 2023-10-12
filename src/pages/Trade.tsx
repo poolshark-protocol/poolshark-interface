@@ -324,7 +324,7 @@ export default function Trade() {
 
   useEffect(() => {
     if (allLimitPositions.length > 0) {
-      mapUserLimitPositionAddressAndId();
+      mapUserLimitSnapshotList();
     }
   }, [allLimitPositions]);
 
@@ -341,7 +341,7 @@ export default function Trade() {
     }
   }
 
-  async function mapUserLimitPositionAddressAndId() {
+  async function mapUserLimitSnapshotList() {
     try {
       let mappedLimitPoolAddresses = [];
       let mappedLimitSnapshotParams = [];
