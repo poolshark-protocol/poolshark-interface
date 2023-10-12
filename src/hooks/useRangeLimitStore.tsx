@@ -53,6 +53,8 @@ type RangeLimitState = {
   //min and max price input
   minInput: string;
   maxInput: string;
+  //price order
+  priceOrder: boolean;
   //refresh
   needsRefetch: boolean;
   needsPosRefetch: boolean;
@@ -63,6 +65,8 @@ type RangeLimitState = {
   needsSnapshot: boolean;
   //Claim tick
   claimTick: number;
+  //Expected output
+  currentAmountOut: string;
 };
 
 type RangeLimitAction = {
@@ -114,6 +118,7 @@ type RangeLimitAction = {
   //
   setMintButtonState: () => void;
   //
+  setPriceOrder: (priceOrder: boolean) => void;
   setNeedsRefetch: (needsRefetch: boolean) => void;
   setNeedsPosRefetch: (needsPosRefetch: boolean) => void;
   setNeedsAllowanceIn: (needsAllowance: boolean) => void;
@@ -123,6 +128,8 @@ type RangeLimitAction = {
   setNeedsSnapshot: (needsSnapshot: boolean) => void;
   //
   setClaimTick: (claimTick: number) => void;
+  //
+  setCurrentAmountOut: (currentAmountOut: string) => void;
 };
 
 const initialRangeLimitState: RangeLimitState = {
@@ -162,7 +169,7 @@ const initialRangeLimitState: RangeLimitState = {
     callId: 0,
     name: "Wrapped Ether",
     symbol: "WETH",
-    logoURI: "/static/images/eth_icon.png",
+    logoURI: "/static/images/eth_icon.svg",
     address: tokenZeroAddress,
     decimals: 18,
     userBalance: 0.0,
@@ -184,6 +191,7 @@ const initialRangeLimitState: RangeLimitState = {
   //
   minInput: "",
   maxInput: "",
+  priceOrder: true,
   //
   needsRefetch: false,
   needsPosRefetch: false,
@@ -194,6 +202,8 @@ const initialRangeLimitState: RangeLimitState = {
   needsSnapshot: true,
   //
   claimTick: 0,
+  //
+  currentAmountOut: "0",
 };
 
 export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
@@ -223,6 +233,8 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     //input amounts
     minInput: initialRangeLimitState.minInput,
     maxInput: initialRangeLimitState.maxInput,
+    //price order
+    priceOrder: initialRangeLimitState.priceOrder,
     //refresh
     needsRefetch: initialRangeLimitState.needsRefetch,
     needsPosRefetch: initialRangeLimitState.needsPosRefetch,
@@ -233,6 +245,8 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     needsSnapshot: initialRangeLimitState.needsSnapshot,
     //claim tick
     claimTick: initialRangeLimitState.claimTick,
+    //expected output
+    currentAmountOut: initialRangeLimitState.currentAmountOut,
     //actions
     setPairSelected: (pairSelected: boolean) => {
       set(() => ({
@@ -363,6 +377,11 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     setMaxInput: (maxInput: string) => {
       set(() => ({
         maxInput: maxInput,
+      }));
+    },
+    setPriceOrder: (priceOrder: boolean) => {
+      set(() => ({
+        priceOrder: priceOrder,
       }));
     },
     setRangePoolAddress: (rangePoolAddress: `0x${string}`) => {
@@ -582,6 +601,11 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         claimTick: claimTick,
       }));
     },
+    setCurrentAmountOut: (currentAmountOut: string) => {
+      set(() => ({
+        currentAmountOut: currentAmountOut,
+      }));
+    },
     setNeedsSnapshot: (needsSnapshot: boolean) => {
       set(() => ({
         needsSnapshot: needsSnapshot,
@@ -624,6 +648,8 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         needsSnapshot: initialRangeLimitState.needsSnapshot,
         //claim tick
         claimTick: initialRangeLimitState.claimTick,
+        //expected output
+        currentAmountOut: initialRangeLimitState.currentAmountOut,
       });
     },
   })

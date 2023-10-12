@@ -3,19 +3,18 @@ import { Transition, Dialog } from "@headlessui/react";
 import RangeMintButton from "../Buttons/RangeMintButton";
 import { BigNumber, ethers } from "ethers";
 import { erc20ABI, useAccount, useContractRead, useProvider } from "wagmi";
-import { TickMath } from "../../utils/math/tickMath";
+import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import RangeMintDoubleApproveButton from "../Buttons/RangeMintDoubleApproveButton";
 import { useRouter } from "next/router";
 import RangeMintApproveButton from "../Buttons/RangeMintApproveButton";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
-import { gasEstimateRangeMint } from "../../utils/gas";
+import { gasEstimateRangeCreateAndMint, gasEstimateRangeMint } from "../../utils/gas";
 import RangeCreateAndMintButton from "../Buttons/RangeCreateAndMintButton";
 import {
-  chainIdsToNamesForGitTokenList,
   chainProperties,
 } from "../../utils/chains";
-import { feeTiers } from "../../utils/pools";
+import { limitPoolTypeIds } from "../../utils/pools";
 
 export default function RangePoolPreview() {
   const [
@@ -26,6 +25,7 @@ export default function RangePoolPreview() {
     tokenIn,
     setTokenInAllowance,
     tokenOut,
+    priceOrder,
     setTokenOutAllowance,
     needsAllowanceIn,
     needsAllowanceOut,
@@ -39,6 +39,7 @@ export default function RangePoolPreview() {
     state.tokenIn,
     state.setTokenInRangeAllowance,
     state.tokenOut,
+    state.priceOrder,
     state.setTokenOutRangeAllowance,
     state.needsAllowanceIn,
     state.needsAllowanceOut,
@@ -47,6 +48,7 @@ export default function RangePoolPreview() {
   ]);
 
   const { address } = useAccount();
+  const [ tokenOrder, setTokenOrder ] = useState(tokenIn.address.localeCompare(tokenOut.address) < 0)
   const {
     network: { chainId },
   } = useProvider();
@@ -118,25 +120,49 @@ export default function RangePoolPreview() {
   }, [rangeMintParams.tokenInAmount, tokenOut, rangePositionData]);
 
   async function updateGasFee() {
-    const newGasFee = await gasEstimateRangeMint(
-      rangePoolAddress,
-      address,
-      BigNumber.from(
-        TickMath.getTickAtPriceString(
-          rangePositionData.lowerPrice,
-          parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
+    const newGasFee = rangePoolAddress == ZERO_ADDRESS ?
+        await gasEstimateRangeMint(
+          rangePoolAddress,
+          address,
+          BigNumber.from(
+            TickMath.getTickAtPriceString(
+              rangePositionData.lowerPrice,
+              parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
+            )
+          ),
+          BigNumber.from(
+            TickMath.getTickAtPriceString(
+              rangePositionData.upperPrice,
+              parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
+            )
+          ),
+          rangeMintParams.tokenInAmount,
+          rangeMintParams.tokenOutAmount,
+          signer
         )
-      ),
-      BigNumber.from(
-        TickMath.getTickAtPriceString(
-          rangePositionData.upperPrice,
-          parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
-        )
-      ),
-      rangeMintParams.tokenInAmount,
-      rangeMintParams.tokenOutAmount,
-      signer
-    );
+      : await gasEstimateRangeCreateAndMint(
+        limitPoolTypeIds['constant-product'],
+        rangePoolData.feeTier?.feeAmount,
+        address,
+
+        BigNumber.from(
+          TickMath.getTickAtPriceString(
+            rangePositionData.lowerPrice,
+            parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
+          )
+        ),
+        BigNumber.from(
+          TickMath.getTickAtPriceString(
+            rangePositionData.upperPrice,
+            parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
+          )
+        ),
+        tokenOrder ? tokenIn : tokenOut,
+        tokenOrder ? tokenOut : tokenIn,
+        rangeMintParams.tokenInAmount,
+        rangeMintParams.tokenOutAmount,
+        signer
+      );
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
   }
 
@@ -318,11 +344,17 @@ export default function RangePoolPreview() {
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {rangePositionData.lowerPrice}
+                                {invertPrice(
+                                  priceOrder
+                                    ? rangePositionData.lowerPrice
+                                    : rangePositionData.upperPrice,
+                                  priceOrder
+                                )}
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">
-                              {tokenOut.symbol} per {tokenIn.symbol}
+                              {(priceOrder ? tokenOut : tokenIn).symbol} per{" "}
+                              {(priceOrder ? tokenIn : tokenOut).symbol}
                             </span>
                           </div>
                           <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-[4px]">
@@ -331,11 +363,17 @@ export default function RangePoolPreview() {
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {rangePositionData.upperPrice}
+                                {invertPrice(
+                                  priceOrder
+                                    ? rangePositionData.upperPrice
+                                    : rangePositionData.lowerPrice,
+                                  priceOrder
+                                )}
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">
-                              {tokenOut.symbol} per {tokenIn.symbol}
+                              {(priceOrder ? tokenOut : tokenIn).symbol} per{" "}
+                              {(priceOrder ? tokenIn : tokenOut).symbol}
                             </span>
                           </div>
                         </div>
@@ -423,7 +461,6 @@ export default function RangePoolPreview() {
                                 ? rangeMintParams.tokenOutAmount
                                 : rangeMintParams.tokenInAmount
                             }
-                            closeModal={() => router.push("/range")}
                             gasLimit={mintGasLimit}
                           />
                         ) : (
@@ -431,7 +468,7 @@ export default function RangePoolPreview() {
                             routerAddress={
                               chainProperties["arbitrumGoerli"]["routerAddress"]
                             }
-                            poolType={"CONSTANT-PRODUCT"}
+                            poolTypeId={limitPoolTypeIds['constant-product']}
                             token0={tokenIn}
                             token1={tokenOut}
                             startPrice={BigNumber.from(
@@ -483,7 +520,7 @@ export default function RangePoolPreview() {
                                 ? rangeMintParams.tokenOutAmount
                                 : rangeMintParams.tokenInAmount
                             }
-                            closeModal={() => router.push("/range")}
+                            closeModal={() => {}}
                             gasLimit={mintGasLimit}
                           />
                         )}
@@ -501,7 +538,9 @@ export default function RangePoolPreview() {
         disabled={rangeMintParams.disabled}
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
       >
-        <>{rangeMintParams.disabled ? rangeMintParams.buttonMessage : "Preview"}</>
+        <>
+          {rangeMintParams.disabled ? rangeMintParams.buttonMessage : "Preview"}
+        </>
       </button>
     </div>
   );

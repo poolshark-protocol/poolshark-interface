@@ -27,7 +27,7 @@ import LimitSwapButton from "../components/Buttons/LimitSwapButton";
 import {
   fetchRangeTokenUSDPrice, getLimitTokenUsdPrice, logoMap,
 } from "../utils/tokens";
-import { getSwapPools } from "../utils/pools";
+import { getSwapPools, limitPoolTypeIds } from "../utils/pools";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { QuoteParams, SwapParams } from "../utils/types";
 import { useTradeStore } from "../hooks/useTradeStore";
@@ -36,7 +36,7 @@ import JSBI from "jsbi";
 import LimitCreateAndMintButton from "../components/Buttons/LimitCreateAndMintButton";
 import { fetchLimitPositions } from "../utils/queries";
 import { mapUserLimitPositions } from "../utils/maps";
-import { getAveragePrice, getExpectedAmountOut, getExpectedAmountOutFromInput, getMarketPriceAboveBelowString } from "../utils/math/priceMath";
+import { displayPoolPrice, getAveragePrice, getExpectedAmountOut, getExpectedAmountOutFromInput, getMarketPriceAboveBelowString } from "../utils/math/priceMath";
 import LimitSwapBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import timeDifference from "../utils/time";
 import UserLimitPool from "../components/Limit/UserLimitPool";
@@ -215,10 +215,22 @@ export default function Trade() {
     const paramsList: SwapParams[] = [];
     for (let i = 0; i < poolQuotes.length; i++) {
       if(poolQuotes[i].pool != ZERO_ADDRESS) {
+        // push pool address for swap
         poolAddresses.push(poolQuotes[i].pool);
+
+        // set base price from quote
         const basePrice: number = parseFloat(
           TickMath.getPriceStringAtSqrtPrice(poolQuotes[i].priceAfter)
         );
+        
+        // set price impact
+        if(poolQuotes[i].pool.toLowerCase() == tradePoolData.id) {
+          const currentPrice: number = parseFloat(
+            TickMath.getPriceStringAtSqrtPrice(tradePoolData.poolPrice)
+          )
+          setPriceImpact((Math.abs(basePrice - currentPrice) * 100 / currentPrice).toFixed(2))
+        }
+
         const priceDiff = basePrice * (parseFloat(slippage) / 100);
         const limitPrice = tokenIn.callId == 0 ? basePrice - priceDiff
                                                : basePrice + priceDiff;
@@ -373,6 +385,7 @@ export default function Trade() {
 
   ////////////////////////////////FeeTiers and Slippage
   const [slippage, setSlippage] = useState("0.5");
+  const [priceImpact, setPriceImpact] = useState("0.00")
 
   //i receive the price afte from the multiquote and then i will add and subtract the slippage from it
 
@@ -516,14 +529,14 @@ export default function Trade() {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    if (!bnInput.eq(BN_ZERO)) {
+    if (!bnInput.eq(BN_ZERO) && !needsAllowanceIn) {
       if (!limitTabSelected) {
         updateGasFee();
       } else {
         updateMintFee();
       }
     }
-  }, [swapParams, tokenIn, tokenOut, bnInput, lowerTick, upperTick]);
+  }, [swapParams, tokenIn, tokenOut, bnInput, lowerTick, upperTick, needsAllowanceIn]);
 
   async function updateGasFee() {
     if (tokenIn.userRouterAllowance?.gte(bnInput))
@@ -538,6 +551,9 @@ export default function Trade() {
         setSwapGasFee,
         setSwapGasLimit
       );
+    else {
+      setSwapGasLimit(BN_ZERO)
+    }
   }
 
   async function updateMintFee() {
@@ -580,7 +596,7 @@ export default function Trade() {
             <div className="ml-auto text-xs">
               {pairSelected
                 ? !limitTabSelected
-                  ? amountOut
+                  ? parseFloat(amountOut).toPrecision(6)
                   : !isNaN(parseFloat(
                     ethers.utils.formatUnits(bnInput, tokenIn.decimals))
                   ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
@@ -621,14 +637,11 @@ export default function Trade() {
             <div className="flex p-1">
               <div className="text-xs text-[#4C4C4C]">Price Impact</div>
               <div className="ml-auto text-xs">
-                {/* {pairSelected
-                  ? rangePriceAfter
-                    ? (
-                        Math.abs((rangePrice - rangePriceAfter) * 100) /
-                        rangePrice
-                      ).toFixed(2) + "%"
+                {pairSelected
+                  ? priceImpact
+                    ? priceImpact + "%"
                     : "0.00%"
-                  : "Select Token"} */}
+                  : "Select Token"}
               </div>
             </div>
           ) : (
@@ -639,7 +652,7 @@ export default function Trade() {
     }
   };
   return (
-    <div className="min-h-[calc(100vh-160px)] w-[43rem] px-3 md:px-0">
+    <div className="min-h-[calc(100vh-160px)] w-[48rem] px-3 md:px-0">
       <div className="flex w-full mt-[10vh] justify-center mb-20 ">
         <div className="bg-black font-regular border border-grey rounded-[4px]">
           <div className="flex text-xs">
@@ -778,7 +791,7 @@ export default function Trade() {
                 ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
                 && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
                   !limitTabSelected ? (
-                    <div>{Number(amountOut).toPrecision(5)}</div>
+                    <div>{Number(amountOut).toPrecision(6)}</div>
                   ) : (
                     <div>
                       {parseFloat(
@@ -789,7 +802,7 @@ export default function Trade() {
                             tokenIn.callId == 0,
                             bnInput
                           ), tokenIn.decimals
-                    )).toFixed(3)}
+                    )).toPrecision(6)}
                     </div>
                   )
                 ) : (
@@ -945,6 +958,12 @@ export default function Trade() {
                 className="flex px-2 cursor-pointer py-2 rounded-[4px]"
                 onClick={() => setExpanded(!expanded)}
               >
+                <div className="flex-none text-xs uppercase text-[#C9C9C9]">
+                  {'1 ' + tokenIn.symbol} ={" "}
+                  {displayPoolPrice(pairSelected, tradePoolData.poolPrice, tokenIn.callId == 0) +
+                      " " +
+                      tokenOut.symbol}
+                </div>
                 <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
                   <button>
                     <ChevronDownIcon className="w-4 h-4" />
@@ -975,7 +994,7 @@ export default function Trade() {
                     </div>
                   ) : (
                     <SwapRouterButton
-                      disabled={tradeParams.disabled || needsAllowanceIn}
+                      disabled={tradeParams.disabled || needsAllowanceIn || swapGasLimit.eq(BN_ZERO)}
                       routerAddress={
                         chainProperties['arbitrumGoerli']['routerAddress']
                       }
@@ -1016,10 +1035,10 @@ export default function Trade() {
                   <LimitCreateAndMintButton
                     disabled={mintGasLimit.eq(BN_ZERO)}
                     routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
-                    poolType={'CONSTANT-PRODUCT'}
+                    poolTypeId={limitPoolTypeIds['constant-product']}
                     token0={tokenIn}
                     token1={tokenOut}
-                    feeTier={500} //TODO: handle fee tier
+                    feeTier={3000} // default 0.3% fee
                     to={address}
                     amount={bnInput}
                     mintPercent={ethers.utils.parseUnits("1", 24)}
@@ -1032,12 +1051,11 @@ export default function Trade() {
                 )}
               </>
             )}
-            <button onClick={() => setIsOpen(true)} className="w-full py-4 mx-auto text-center transition rounded-full  border border-main bg-main1 uppercase text-sm cursor-pointer">Create Limit Pool</button>
           </div>
         </div>
       </div>
-      <div className="mb-20">
-        <div className="flex md:flex-row flex-col gap-y-3 item-end justify-between">
+      <div className="md:mb-20 mb-32 w-full">
+        <div className="flex md:flex-row flex-col gap-y-3 item-end justify-between w-full">
           <h1 className="mt-1.5">Limit Orders</h1>
           <div className="text-xs w-full md:w-auto flex">
             <button
@@ -1062,19 +1080,34 @@ export default function Trade() {
             </button>
           </div>
         </div>
-        <div className="w-full h-[1px] bg-grey mt-3" />
-        <table className="w-full table-auto">
-          <thead className="pb-4 border-b-10 border-black h-12">
-            <tr className="text-xs text-grey1/60 mb-3 leading-normal">
-              <th className="text-left ">Sell</th>
-              <th className="text-left ">Buy</th>
-              <th className="text-left">Avg. Price</th>
-              <th className="text-left md:grid-cell hidden">Status</th>
-              <th className="text-right md:grid-cell hidden">Age</th>
+        <div className="overflow-hidden rounded-[4px] mt-3 bg-dark  border border-grey">
+        <table className="w-full table-auto rounded-[4px]">
+          <thead className={`h-10 ${allLimitPositions.length === 0 && "hidden"}`}>
+            <tr className="text-[11px] text-grey1/90 mb-3 leading-normal">
+              <th className="text-left pl-3 uppercase">Sell</th>
+              <th className="text-left uppercase">Buy</th>
+              <th className="text-left uppercase">Avg. Price</th>
+              <th className="text-left md:table-cell hidden uppercase">Status</th>
+              <th className="text-left md:table-cell hidden pl-2 uppercase">Age</th>
             </tr>
           </thead>
-          {activeOrdersSelected ? (
-            <tbody className="">
+          {allLimitPositions.length === 0  ? (<td className="text-grey1 text-xs w-full  py-10 text-center col-span-5">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="w-10 py-4 mx-auto"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Your limit orders will appear here.
+                </td>) : (
+          activeOrdersSelected ? (
+            <tbody className="divide-y divide-grey/70">
               {allLimitPositions.map((allLimitPosition) => {
                 if (allLimitPosition.positionId != undefined) {
                   return (
@@ -1089,26 +1122,26 @@ export default function Trade() {
               })}
             </tbody>
           ) : (
-            <tbody className="">
+            <tbody className="divide-y divide-grey/70">
               {allLimitPositions.map((allLimitPosition) => {
                 if (allLimitPosition.positionId != undefined) {
                   return (
-                    <tr className="text-right text-xs md:text-sm"
+                    <tr className="text-right text-xs md:text-sm bg-black hover:bg-dark cursor-pointer"
                         key={allLimitPosition.positionId}
                     >
-                      <td className="">
-                        <div className="flex items-center text-sm text-grey1 gap-x-2 text-left">
+                      <td className="py-3 pl-3">
+                        <div className="flex items-center text-xs text-grey1 gap-x-2 text-left">
                           <img
-                            className="w-[25px] h-[25px]"
+                            className="w-[23px] h-[23px]"
                             src={logoMap[allLimitPosition.tokenIn.symbol]}
                           />
                           {parseFloat(ethers.utils.formatEther(allLimitPosition.amountIn)).toFixed(3) + " " + allLimitPosition.tokenIn.symbol}
                         </div>
                       </td>
                       <td className="">
-                        <div className="flex items-center text-sm text-white gap-x-2 text-left">
+                        <div className="flex items-center text-xs text-white gap-x-2 text-left">
                           <img
-                            className="w-[25px] h-[25px]"
+                            className="w-[23px] h-[23px]"
                             src={logoMap[allLimitPosition.tokenOut.symbol]}
                           />
                           {parseFloat(ethers.utils.formatEther(
@@ -1129,30 +1162,33 @@ export default function Trade() {
                               getAveragePrice(
                                 parseInt(allLimitPosition.min), 
                                 parseInt(allLimitPosition.max), 
-                                allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
+                                  allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
                                 BigNumber.from(allLimitPosition.liquidity),
                                 BigNumber.from(allLimitPosition.amountIn))
                               .toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
                           </span>          
                         </div>
                       </td>
-                      <td className="">
+                      <td className="md:table-cell hidden">
                         <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
-                          <span className="z-50">
+                          <span className="z-50 px-3">
                             {(parseFloat(allLimitPosition.amountFilled) /
                             parseFloat(allLimitPosition.liquidity)).toFixed(2)}% Filled
                           </span>
                           <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
                         </div>
                       </td>
-                      <td className="text-sm text-grey1">{timeDifference(allLimitPosition.timestamp)}</td>
+                      <td className="text-grey1 text-left pl-3 text-xs md:table-cell hidden">{timeDifference(allLimitPosition.timestamp)}</td>
+                      <td className="w-[39px] h-1 md:table-cell hidden"></td>
                     </tr>
                   );
                 }
               })}
             </tbody>
+          )
           )}
         </table>
+        </div>
       </div>
     </div>
   );
