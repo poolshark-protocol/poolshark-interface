@@ -100,7 +100,6 @@ export function getExpectedAmountOutFromInput(lowerTick: number, upperTick: numb
         return BN_ZERO
     }
     if (!amountIn || amountIn.eq(BN_ZERO)) return BN_ZERO
-    console.log('input data', lowerTick, upperTick, zeroForOne, amountIn.toString())
     const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(lowerTick))
     const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(upperTick))
     const liquidityAmount = BigNumber.from(String(DyDxMath.getLiquidityForAmounts(
