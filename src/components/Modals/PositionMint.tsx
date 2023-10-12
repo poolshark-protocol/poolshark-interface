@@ -1,5 +1,6 @@
 import { Transition, Dialog } from "@headlessui/react";
 import Link from "next/link";
+import router, { useRouter } from "next/router";
 import { Fragment, useState, useEffect } from "react";
 
 export default function PositionMintModal({
@@ -16,6 +17,8 @@ export default function PositionMintModal({
       setIsOpen(true);
     }
   }, [successDisplay, isLoading, errorDisplay]);
+
+  const router = useRouter();
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -129,25 +132,28 @@ export default function PositionMintModal({
                     isLoading && "opacity-20 cursor-not-allowed"
                   }`}
                 >
-                  <Link href={type === "range" ? "/range" : "/cover"}>
-                    <button className="whitespace-nowrap text-xs flex items-center gap-x-2 text-grey1 hover:text-white hover:underline transition-all">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth="1.5"
-                        stroke="currentColor"
-                        className="w-6 h-6"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18"
-                        />
-                      </svg>
-                      Go back
-                    </button>
-                  </Link>
+                  <button
+                    className="whitespace-nowrap text-xs flex items-center gap-x-2 text-grey1 hover:text-white hover:underline transition-all"
+                    onClick={() =>
+                      router.push(type === "range" ? "/range" : "/cover")
+                    }
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                      className="w-6 h-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18"
+                      />
+                    </svg>
+                    Go back
+                  </button>
                   <a
                     target="_blank"
                     rel="noreferrer"

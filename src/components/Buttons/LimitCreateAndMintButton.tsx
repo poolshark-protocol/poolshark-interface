@@ -15,7 +15,7 @@ import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
   export default function LimitCreateAndMintButton({
     disabled,
     routerAddress,
-    poolType,
+    poolTypeId,
     token0,
     token1,
     feeTier,
@@ -50,11 +50,11 @@ import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
       functionName: "createLimitPoolAndMint",
       args: [
         {
-            poolType: ethers.utils.formatBytes32String(poolType),
+            poolTypeId: poolTypeId,
             tokenIn: token0.address,
             tokenOut: token1.address,
             startPrice: TickMath.getSqrtRatioAtTick(upper),
-            swapFee: feeTier
+            swapFee: feeTier ?? 3000
         }, // pool params
         [], // range positions
         [
