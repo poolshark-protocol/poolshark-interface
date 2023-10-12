@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useAccount, useContractRead, useSigner } from "wagmi";
 import LimitCollectButton from "../../components/Buttons/LimitCollectButton";
 import { BigNumber, ethers } from "ethers";
-import { TickMath } from "../../utils/math/tickMath";
+import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import { limitPoolABI } from "../../abis/evm/limitPool";
 import { getClaimTick, mapUserLimitPositions } from "../../utils/maps";
 import RemoveLiquidity from "../../components/Modals/Limit/RemoveLiquidity";
@@ -17,6 +17,7 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import JSBI from "jsbi";
 import { BN_ZERO } from "../../utils/math/constants";
 import { gasEstimateBurnLimit } from "../../utils/gas";
+import { getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
 
 export default function ViewLimit() {
   const [
@@ -69,7 +70,7 @@ export default function ViewLimit() {
   const [isLoading, setIsLoading] = useState(true);
 
   //limit aux
-  const [priceDirection, setPriceDirection] = useState(false);
+  const [priceDirection, setPriceDirection] = useState(tokenIn.callId == 0);
   const [limitFilledAmount, setLimitFilledAmount] = useState("");
   const [allLimitPositions, setAllLimitPositions] = useState([]);
 
@@ -89,10 +90,6 @@ export default function ViewLimit() {
             )
       : undefined
   );
-
-  const [lowerInverse, setLowerInverse] = useState(0);
-  const [upperInverse, setUpperInverse] = useState(0);
-  const [priceInverse, setPriceInverse] = useState(0);
 
   const [collectGasLimit, setCollectGasLimit] = useState(BN_ZERO);
   const [collectGasFee, setCollectGasFee] = useState("$0.00");
@@ -116,55 +113,6 @@ export default function ViewLimit() {
       }
     }
   }, []);
-
-  useEffect(() => {
-    getLimitPoolRatios();
-  }, [tokenIn.USDPrice, tokenOut.USDPrice]);
-
-  //TODO need to be set to utils
-  const getLimitPoolRatios = () => {
-    console.log("limit pool data", limitPoolData);
-    console.log("token in USD price", tokenIn.USDPrice);
-    console.log("token out USD price", tokenOut.USDPrice);
-    try {
-      if (limitPoolData != undefined) {
-        setLowerInverse(
-          parseFloat(
-            (
-              tokenOut.USDPrice /
-              Number(
-                TickMath.getPriceStringAtTick(Number(limitPositionData.max))
-              )
-            ).toPrecision(6)
-          )
-        );
-        setUpperInverse(
-          parseFloat(
-            (
-              tokenOut.USDPrice /
-              Number(
-                TickMath.getPriceStringAtTick(Number(limitPositionData.min))
-              )
-            ).toPrecision(6)
-          )
-        );
-        setPriceInverse(
-          parseFloat(
-            (
-              tokenOut.USDPrice /
-              Number(
-                TickMath.getPriceStringAtSqrtPrice(
-                  JSBI.BigInt(Number(limitPoolData.poolPrice))
-                )
-              )
-            ).toPrecision(6)
-          )
-        );
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   ////////////////////////////////Filled Amount
   const { data: filledAmount } = useContractRead({
@@ -436,21 +384,13 @@ export default function ViewLimit() {
                   onClick={() => setPriceDirection(!priceDirection)}
                   className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
                 >
-                  {tokenIn.callId == 0
-                    ? priceDirection
+                  {(tokenIn.callId == 0) == priceDirection
                       ? tokenOut.symbol
-                      : tokenIn.symbol
-                    : priceDirection
-                    ? tokenIn.symbol
-                    : tokenOut.symbol}{" "}
+                      : tokenIn.symbol}{" "}
                   per{" "}
-                  {tokenIn.callId == 0
-                    ? priceDirection
+                  {(tokenIn.callId == 0) == priceDirection
                       ? tokenIn.symbol
-                      : tokenOut.symbol
-                    : priceDirection
-                    ? tokenOut.symbol
-                    : tokenIn.symbol}
+                      : tokenOut.symbol}
                   <DoubleArrowIcon />
                 </div>
               </div>
@@ -461,11 +401,9 @@ export default function ViewLimit() {
                     <span className="text-white text-2xl md:text-3xl">
                       {limitPositionData.min === undefined
                         ? ""
-                        : priceDirection
-                        ? lowerInverse
-                        : TickMath.getPriceStringAtTick(
-                            Number(limitPositionData.min)
-                          )}
+                        : invertPrice(TickMath.getPriceStringAtTick(
+                            Number(priceDirection ? limitPositionData.min : limitPositionData.max)
+                          ), priceDirection)}
                     </span>
                     <span className="text-grey1 text-[9px] text-center">
                       Your position will be 100%{" "}
@@ -484,21 +422,15 @@ export default function ViewLimit() {
                     <span className="text-white text-2xl md:text-3xl">
                       {limitPositionData.max === undefined
                         ? ""
-                        : priceDirection
-                        ? upperInverse
-                        : TickMath.getPriceStringAtTick(
-                            Number(limitPositionData.max)
-                          )}
+                        : invertPrice(TickMath.getPriceStringAtTick(
+                          Number(priceDirection ? limitPositionData.max : limitPositionData.min)
+                        ), priceDirection)}
                     </span>
                     <span className="text-grey1 text-[9px] text-center">
                       Your position will be 100%{" "}
-                      {tokenIn.callId == 0
-                        ? priceDirection
-                          ? tokenOut.symbol
-                          : tokenIn.symbol
-                        : priceDirection
-                        ? tokenIn.symbol
-                        : tokenOut.symbol}{" "}
+                      {(tokenIn.callId == 0) == priceDirection
+                        ? tokenOut.symbol
+                        : tokenIn.symbol}{" "}
                       at this price.
                     </span>
                   </div>
@@ -507,11 +439,9 @@ export default function ViewLimit() {
                   <span className="text-grey1 text-xs">CURRENT PRICE</span>
                   <span className="text-white text-3xl text-grey1">
                     {limitPoolData?.poolPrice ?
-                      priceDirection
-                        ? priceInverse
-                        : TickMath.getPriceStringAtSqrtPrice(
+                      invertPrice(TickMath.getPriceStringAtSqrtPrice(
                             JSBI.BigInt(Number(limitPoolData.poolPrice))
-                          )
+                          ), priceDirection)
                         : "0.00"}
                   </span>
                 </div>
@@ -525,12 +455,14 @@ export default function ViewLimit() {
                 <span className="text-grey1">${Number(limitFilledAmount).toFixed(2)}
                   <span className="text-grey">
                     /
-                    {Number(
-                      ethers.utils.formatUnits(
-                        limitPositionData.amountIn.toString(),
-                        18
+                    {(parseFloat(ethers.utils.formatUnits(
+                      getExpectedAmountOutFromInput(
+                        limitPositionData.min,
+                        limitPositionData.max,
+                        tokenIn.callId == 0,
+                        BigNumber.from(limitPositionData.amountIn)
                       )
-                    ).toFixed(2)}
+                    )) * tokenOut.USDPrice).toFixed(2)}
                   </span>
                 </span>) : (
                   <span className="text-grey1">$0.00
