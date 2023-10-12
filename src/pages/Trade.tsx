@@ -35,7 +35,7 @@ import SwapRouterButton from "../components/Buttons/SwapRouterButton";
 import JSBI from "jsbi";
 import LimitCreateAndMintButton from "../components/Buttons/LimitCreateAndMintButton";
 import { fetchLimitPositions } from "../utils/queries";
-import { mapUserLimitPositions } from "../utils/maps";
+import { getClaimTick, mapUserLimitPositions } from "../utils/maps";
 import { displayPoolPrice, getAveragePrice, getExpectedAmountOut, getExpectedAmountOutFromInput, getMarketPriceAboveBelowString } from "../utils/math/priceMath";
 import LimitSwapBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import timeDifference from "../utils/time";
@@ -157,7 +157,7 @@ export default function Trade() {
 
   //log addresses and ids
   const [limitPoolAddressList, setLimitPoolAddressList] = useState([]);
-  const [limitPositionList, setLimitPositionList] = useState([]);
+  const [limitPositionSnapshotList, setLimitPositionSnapshotList] = useState([]);
 
   //log amount in and out
   const [limitFilledAmountList, setLimitFilledAmountList] = useState([]);
@@ -272,18 +272,11 @@ export default function Trade() {
     functionName: "multiSnapshotLimit",
     args: [
       limitPoolAddressList,
-      [
-        address,
-        ethers.utils.parseUnits("1", 38),
-        Number(limitPositionData.positionId),
-        BigNumber.from(claimTick),
-        tokenIn.callId == 0,
-      ],
+      limitPositionSnapshotList,
     ],
     chainId: 421613,
     watch: needsSnapshot,
     enabled:
-      BigNumber.from(claimTick).lt(BigNumber.from("887272")) &&
       isConnected &&
       limitPoolAddressList.length > 0 &&
       needsSnapshot == true,
@@ -351,15 +344,27 @@ export default function Trade() {
   async function mapUserLimitPositionAddressAndId() {
     try {
       let mappedLimitPoolAddresses = [];
-      let mappedLimitPositionIds = [];
+      let mappedLimitSnapshotParams = [];
       if (allLimitPositions.length > 0) {
         for (let i = 0; i < allLimitPositions.length; i++) {
           mappedLimitPoolAddresses[i] = allLimitPositions[i].poolId;
-          mappedLimitPositionIds[i] = allLimitPositions[i].positionId;
+
+          mappedLimitSnapshotParams[i][0] = address;
+          mappedLimitSnapshotParams[i][1] = ethers.utils.parseUnits("1", 38);
+          mappedLimitSnapshotParams[i][2] = allLimitPositions[i].positionId;
+          mappedLimitSnapshotParams[i][3] = await getClaimTick(
+            allLimitPositions[i].poolId.toString(),
+            Number(allLimitPositions[i].min),
+            Number(allLimitPositions[i].max),
+            tokenIn.callId == 0,
+            Number(allLimitPositions[i].epochLast),
+            false
+          );
+          mappedLimitSnapshotParams[i][4] = allLimitPositions[i].tokenIn.callId == 0;
         }
 
         setLimitPoolAddressList(mappedLimitPoolAddresses)
-        setLimitPositionList(mappedLimitPositionIds)
+        setLimitPositionSnapshotList(mappedLimitSnapshotParams)
       }
     } catch (error) {
       console.log('limit error', error);
