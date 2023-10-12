@@ -1196,11 +1196,12 @@ export default function Trade() {
                 </td>) : (
           activeOrdersSelected ? (
             <tbody className="divide-y divide-grey/70">
-              {allLimitPositions.map((allLimitPosition) => {
+              {allLimitPositions.map((allLimitPosition, index) => {
                 if (allLimitPosition.positionId != undefined) {
                   return (
                     <UserLimitPool
                       limitPosition={allLimitPosition}
+                      limitFilledAmount={parseFloat(ethers.utils.formatEther(limitFilledAmountList[index]))}
                       address={address}
                       href={"/limit/view"}
                       key={allLimitPosition.positionId}
@@ -1211,7 +1212,7 @@ export default function Trade() {
             </tbody>
           ) : (
             <tbody className="divide-y divide-grey/70">
-              {allLimitPositions.map((allLimitPosition) => {
+              {allLimitPositions.map((allLimitPosition, index) => {
                 if (allLimitPosition.positionId != undefined) {
                   return (
                     <tr className="text-right text-xs md:text-sm bg-black hover:bg-dark cursor-pointer"
@@ -1260,7 +1261,7 @@ export default function Trade() {
                       <td className="md:table-cell hidden">
                         <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
                           <span className="z-50 px-3">
-                            {(parseFloat(allLimitPosition.amountFilled) /
+                            {(parseFloat(ethers.utils.formatEther(limitFilledAmountList[index])) /
                               parseFloat(
                                 ethers.utils.formatUnits(
                                   getExpectedAmountOutFromInput(

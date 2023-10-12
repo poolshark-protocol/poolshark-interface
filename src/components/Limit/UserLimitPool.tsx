@@ -11,6 +11,7 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 
 export default function UserLimitPool({
     limitPosition,
+    limitFilledAmount,
     address,
     href,
 }) {
@@ -133,7 +134,7 @@ export default function UserLimitPool({
             <td className="md:table-cell hidden">
                 <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
                     <span className="z-50 px-3">
-                    {(parseFloat(limitPosition.amountFilled) /
+                    {(limitFilledAmount /
                          parseFloat(
                            ethers.utils.formatUnits(
                              getExpectedAmountOutFromInput(
