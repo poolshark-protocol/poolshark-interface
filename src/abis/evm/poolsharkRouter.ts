@@ -202,11 +202,6 @@ export const poolsharkRouterABI = [
       {
         "components": [
           {
-            "internalType": "bytes32",
-            "name": "poolType",
-            "type": "bytes32"
-          },
-          {
             "internalType": "address",
             "name": "tokenIn",
             "type": "address"
@@ -225,6 +220,11 @@ export const poolsharkRouterABI = [
             "internalType": "uint16",
             "name": "swapFee",
             "type": "uint16"
+          },
+          {
+            "internalType": "uint8",
+            "name": "poolTypeId",
+            "type": "uint8"
           }
         ],
         "internalType": "struct PoolsharkStructs.LimitPoolParams",

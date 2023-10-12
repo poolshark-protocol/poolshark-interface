@@ -26,6 +26,10 @@ export default function SwapRouterApproveButton({
     state.setNeedsAllowanceIn,
   ]);
 
+  const [setNeedsAllowanceInLimit] = useRangeLimitStore((state) => [
+    state.setNeedsAllowanceIn,
+  ]);
+
   const { config } = usePrepareContractWrite({
     address: approveToken,
     abi: erc20ABI,
@@ -44,6 +48,7 @@ export default function SwapRouterApproveButton({
     onSuccess() {
       setSuccessDisplay(true);
       setNeedsAllowanceIn(true);
+      setNeedsAllowanceInLimit(true);
     },
     onError() {
       setErrorDisplay(true);

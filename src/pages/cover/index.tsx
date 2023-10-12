@@ -40,7 +40,16 @@ export default function Cover() {
   ///////////////////////////Positions
 
   useEffect(() => {
-    getUserCoverPositionData();
+    if (address) {
+      getUserCoverPositionData();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (address && needsRefetch) {
+      getUserCoverPositionData();
+      setNeedsRefetch(false);
+    }
   }, [needsRefetch, router.isReady]);
 
   async function getUserCoverPositionData() {
@@ -52,9 +61,6 @@ export default function Cover() {
       setAllCoverPositions(positionData);
       setIsPositionsLoading(false);
     }
-    setTimeout(() => {
-      getUserCoverPositionData();
-    }, 30000);
   }
 
   ///////////////////////////Pools
@@ -107,14 +113,13 @@ export default function Cover() {
                 <br />
               </p>
             </div>
-            <Link href="/cover/create">
               <button
+              onClick={() => router.push({pathname: "/cover/create", query: { state: "select"}})} 
                 className="px-12 py-3 text-white w-min whitespace-nowrap cursor-pointer text-center transition border border-main bg-main1 uppercase text-sm
                 hover:opacity-80"
               >
                 CREATE COVER POSITION
               </button>
-            </Link>
           </div>
           <div className="lg:h-[300px] h-full w-full lg:w-[80%] xl:w-[40%] border border-grey p-7 flex flex-col justify-between">
             <div className="flex flex-col gap-y-3 ">

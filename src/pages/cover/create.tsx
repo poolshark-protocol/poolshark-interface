@@ -17,7 +17,7 @@ export default function CoverCreate() {
   const [pool, setPool] = useState(router.query ?? undefined);
   const [shifted, setIsShifted] = useState("initial");
   const [selectedPool, setSelectedPool] = useState(router.query ?? undefined);
-  const [state, setState] = useState(router.query.state ?? "initial");
+  const [state, setState] = useState(router.query.state);
   const [allCoverPositions, setAllCoverPositions] = useState([]);
 
   useEffect(() => {
@@ -46,6 +46,10 @@ export default function CoverCreate() {
     }
   }
 
+  useEffect(() => {
+    setState(router.query.state)
+  }, [router.query.state]);
+
   const handleDiselectPool = (state) => {
     setState(state);
     setSelectedPool(undefined);
@@ -61,20 +65,18 @@ export default function CoverCreate() {
             ? "Create Custom Cover Position"
             : "Select an Option"}
         </h1>
-        {shifted === "initial" ? (
+        {state === "select" ? (
           <div className="mt-6 rounded-[4px] overflow-hidden border border-grey/70">
             <div className="bg-[url('/static/images/bg/shark2.png')] bg-no-repeat bg-cover w-full flex items-center justify-center">
-              <a href="#create">
                 <button
                   onClick={() => setIsOpen(true)}
                   className="px-24 py-6 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition mx-auto my-12 border border-main bg-main1/50 uppercase backdrop-blur shadow-lg text-sm disabled:opacity-50 hover:opacity-80"
                 >
                   COVER A RANGE POSITION
                 </button>
-              </a>
             </div>
             <div className="bg-[url('/static/images/bg/shark3.png')] bg-no-repeat bg-cover w-full flex items-center justify-center">
-              <a href="#create">
+              <a onClick={() => router.push({query: { state: "custom"}})} href="#create">
                 <button
                   onClick={() => setIsShifted("createCover")}
                   className="px-24 py-6 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition mx-auto my-12 border border-grey bg-black/50 backdrop-blur uppercase shadow-lg text-sm disabled:opacity-50 hover:opacity-80"
@@ -86,25 +88,34 @@ export default function CoverCreate() {
           </div>
         ):
         <div className="rounded-[4px] flex overflow-hidden w-full mt-6">
-          <a href="#create" className="w-full">
                 <button
                   onClick={() => setIsOpen(true)}
-                  className={`px-10 w-full py-2 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition mx-auto uppercase backdrop-blur shadow-lg text-sm disabled:opacity-50 hover:opacity-80 ${shifted === "createCover" ? "bg-black/50 border-grey border" : "bg-main1/50 border border-main"}`}
+                  className={`px-10 w-full py-2 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition mx-auto uppercase backdrop-blur shadow-lg text-sm disabled:opacity-50 hover:opacity-80 ${state === "custom" ? "bg-black/50 border-grey border" : "bg-main1/50 border border-main"}`}
                 >
                   COVER A RANGE POSITION
                 </button>
-                </a>
-                <a href="#create" className="w-full">
                 <button
-                  onClick={() => setIsShifted("createCover")}
-                  className={`px-10 w-full py-2 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition mx-auto uppercase backdrop-blur shadow-lg text-sm disabled:opacity-50 hover:opacity-80 ${shifted === "createCover" ? "bg-main1/50 border border-main" : "bg-black/50 border-grey border"}`}
+                onClick={() => router.push({query: { state: "custom"}})}
+                  className={`px-10 w-full py-2 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition mx-auto uppercase backdrop-blur shadow-lg text-sm disabled:opacity-50 hover:opacity-80 ${state === "custom" ? "bg-main1/50 border border-main" : "bg-black/50 border-grey border"}`}
                 >
                   CREATE CUSTOM COVER POOL
                 </button>
-                </a>
           </div>
         }
         <div id="create">
+          {state === "select" && (
+            <div className="text-white relative">
+              <div className="absolute opacity-50 w-full h-full bg-black top-0 left-0" />
+              <CreateCover goBack={setIsShifted} />
+            </div>
+          )}
+          {state === "custom" && (
+            <CreateCover query={router.query} goBack={handleDiselectPool} />
+          )}
+          {state === "range-cover" && (
+            <CoverExistingPool goBack={setIsShifted} />
+          )}
+          {/*}
           {selectedPool != undefined && state == "existing" ? (
             <CreateCover query={router.query} goBack={handleDiselectPool} />
           ) : shifted === "initial" ? (
@@ -116,7 +127,7 @@ export default function CoverCreate() {
             <CreateCover goBack={setIsShifted} />
           ) : (
             <CoverExistingPool goBack={setIsShifted} />
-          )}
+          )}*/}
         </div>
       </div>
       <PoolsModal

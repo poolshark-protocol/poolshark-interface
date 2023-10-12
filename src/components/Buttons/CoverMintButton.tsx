@@ -79,12 +79,9 @@ export default function CoverMintButton({
       setSuccessDisplay(true);
       setNeedsAllowance(true);
       setNeedsBalance(true);
-      setTimeout(() => {
-        setNeedsRefetch(true);
-        setNeedsPosRefetch(true);
-      }, 1000);
-    },
-  });
+      setNeedsRefetch(true);
+      setNeedsPosRefetch(true);
+  }});
 
 
   return (

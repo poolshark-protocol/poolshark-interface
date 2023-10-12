@@ -37,7 +37,7 @@ export default function CoverPool({ pool, href }) {
     );
     router.push({
       pathname: href,
-      query: { state: "existing", tickSpacing: pool.tickSpacing },
+      query: { state: "custom", tickSpacing: pool.tickSpacing },
     });
   };
 

@@ -43,6 +43,8 @@ export default function AddLiquidity({}) {
     pairSelected,
     setMintButtonState,
     setRangePoolFromFeeTier,
+    priceOrder,
+    setPriceOrder,
     needsAllowanceIn,
     needsBalanceIn,
     needsAllowanceOut,
@@ -69,6 +71,8 @@ export default function AddLiquidity({}) {
     state.pairSelected,
     state.setMintButtonState,
     state.setRangePoolFromFeeTier,
+    state.priceOrder,
+    state.setPriceOrder,
     state.needsAllowanceIn,
     state.needsBalanceIn,
     state.needsAllowanceOut,
@@ -94,8 +98,9 @@ export default function AddLiquidity({}) {
   useEffect(() => {
     if (tokenIn.address && tokenOut.address) {
       setTokenOrder(tokenIn.callId == 0);
+      setPriceOrder(tokenIn.callId == 0)
     }
-  }, [tokenIn]);
+  }, [tokenIn.address, tokenOut.address]);
 
   ////////////////////////////////Pools
 
@@ -338,7 +343,7 @@ export default function AddLiquidity({}) {
             const displayValue = parseFloat(ethers.utils.formatUnits(outputBn, tokenOut.decimals)).toPrecision(6)
             setDisplayOut(parseFloat(displayValue) > 0 ? displayValue : '')
           } else {
-            setTokenInAmount(BigNumber.from(String(outputJsbi)));
+            setTokenInAmount(outputBn);
             setTokenOutAmount(inputBn);
             setDisplayIn(parseFloat(ethers.utils.formatUnits(outputBn, tokenIn.decimals)).toPrecision(6))
           }
@@ -362,14 +367,15 @@ export default function AddLiquidity({}) {
   const [maxInput, setMaxInput] = useState("");
 
   const handlePriceSwitch = () => {
-    setTokenOrder(!tokenOrder);
-    setMaxInput(invertPrice(maxInput, false));
-    setMinInput(invertPrice(minInput, false));
+    setPriceOrder(!priceOrder);
+    setMaxInput(invertPrice(minInput, false));
+    setMinInput(invertPrice(maxInput, false));
   };
 
   useEffect(() => {
-    setUpperPrice(invertPrice(maxInput, tokenOrder));
-    setLowerPrice(invertPrice(minInput, tokenOrder));
+    setLowerPrice(invertPrice(priceOrder ? minInput : maxInput, priceOrder));
+    setUpperPrice(invertPrice(priceOrder ? maxInput : minInput, priceOrder));
+
   }, [maxInput, minInput]);
 
   ////////////////////////////////Mint Button State
@@ -390,18 +396,21 @@ export default function AddLiquidity({}) {
   const [rangeWarning, setRangeWarning] = useState(false);
 
   useEffect(() => {
-    if ( tokenOrder ?
-      (Number(minInput) > Number(rangePrice) ||
-      Number(maxInput) < Number(rangePrice)) : (
-        Number(minInput) < Number(invertPrice(rangePrice, tokenOrder)) ||
-      Number(maxInput) > Number(invertPrice(rangePrice, tokenOrder)))
-      )
-     {
-      setRangeWarning(true);
-    } else {
-      setRangeWarning(false)
+    const priceLower = parseFloat(lowerPrice)
+    const priceUpper = parseFloat(upperPrice)
+    const priceRange = parseFloat(rangePrice)
+    if (!isNaN(priceLower) && !isNaN(priceUpper) && !isNaN(priceRange) ) {
+      if (priceLower > 0 && priceUpper > 0) {
+        if ( (priceLower <= priceRange && priceUpper <= priceRange) ||
+             (priceLower >= priceRange && priceUpper >= priceRange)
+        ) {
+          setRangeWarning(true);
+        } else {
+          setRangeWarning(false)
+        }
+      }
     }
-  }, [minInput, rangePrice, maxInput]);
+  }, [lowerPrice, rangePrice, upperPrice]);
   
 
   ////////////////////////////////
@@ -419,8 +428,8 @@ export default function AddLiquidity({}) {
                 <img className="md:w-6 w-6 -ml-2" src={tokenOut?.logoURI} />
               </div>
               <span className="text-white text-xs">
-                {tokenOrder ? tokenOut.symbol : tokenIn.symbol} -{" "}
-                {tokenOrder ? tokenIn.symbol : tokenOut.symbol}
+                {tokenOrder ? tokenIn.symbol : tokenOut.symbol} -{" "}
+                {tokenOrder ? tokenOut.symbol : tokenIn.symbol}
               </span>
               <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
                 {(rangePoolData?.feeTier?.feeAmount / 10000).toFixed(2)}%
@@ -435,7 +444,7 @@ export default function AddLiquidity({}) {
               <span>
                 ~$
                 {(
-                  tokenIn.rangeUSDPrice *
+                  tokenIn.USDPrice *
                   Number(ethers.utils.formatUnits(rangeMintParams.tokenInAmount, tokenIn.decimals))
                 ).toFixed(2)}
               </span>
@@ -467,7 +476,7 @@ export default function AddLiquidity({}) {
               <span>
                 ~$
                 {(
-                  Number(tokenOut.rangeUSDPrice) *
+                  Number(tokenOut.USDPrice) *
                   Number(
                     ethers.utils.formatUnits(rangeMintParams.tokenOutAmount, 18)
                   )
@@ -526,8 +535,8 @@ export default function AddLiquidity({}) {
               onClick={handlePriceSwitch}
               className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
             >
-              <span className="whitespace-nowrap">{tokenOrder ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>} per{" "}
-              {tokenOrder ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>}</span>{" "}
+              <span className="whitespace-nowrap">{priceOrder ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>} per{" "}
+              {priceOrder ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>}</span>{" "}
               <DoubleArrowIcon />
             </div>
           </div>
@@ -590,13 +599,13 @@ export default function AddLiquidity({}) {
               <div className="flex items-center justify-between w-full text-xs  text-[#C9C9C9]">
                 <div className="text-xs text-[#4C4C4C]">Market Price</div>
                 <div className="uppercase">
-                  1 {tokenIn.symbol} ={" "}
+                  1 {(priceOrder ? tokenIn : tokenOut).symbol} ={" "}
                   {!isNaN(parseFloat(rangePrice))
                     ? parseFloat(
-                        invertPrice(rangePrice, tokenOrder)
+                        invertPrice(rangePrice, priceOrder)
                       ).toPrecision(5) +
                       " " +
-                      tokenOut.symbol
+                      (priceOrder ? tokenOut : tokenIn).symbol
                     : "?" + " " + tokenOut.symbol}
                 </div>
               </div>

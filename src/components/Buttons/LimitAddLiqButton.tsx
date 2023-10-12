@@ -7,12 +7,11 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
-import { limitPoolABI } from "../../abis/evm/limitPool";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { ethers } from "ethers";
   
-  export default function LimitMintButton({
+  export default function LimitAddLiqButton({
     disabled,
     routerAddress,
     poolAddress,
@@ -21,18 +20,23 @@ import { ethers } from "ethers";
     mintPercent,
     lower,
     upper,
+    positionId,
     zeroForOne,
-    closeModal,
     gasLimit,
+    setIsOpen,
+    buttonState,
+    tokenSymbol,
   }) {
     const [
       setNeedsRefetch,
       setNeedsAllowanceIn,
       setNeedsBalanceIn,
+      setNeedsSnapshot,
     ] = useRangeLimitStore((state) => [
       state.setNeedsRefetch,
       state.setNeedsAllowanceIn,
       state.setNeedsBalanceIn,
+      state.setNeedsSnapshot,
     ]);
     const [errorDisplay, setErrorDisplay] = useState(false);
     const [successDisplay, setSuccessDisplay] = useState(false);
@@ -49,6 +53,7 @@ import { ethers } from "ethers";
           to: to,
           amount: amount,
           mintPercent: mintPercent,
+          positionId: positionId,
           lower: lower,
           upper: upper,
           zeroForOne: zeroForOne,
@@ -71,15 +76,13 @@ import { ethers } from "ethers";
       hash: data?.hash,
       onSuccess() {
         setSuccessDisplay(true);
-        setTimeout(() => {
-          closeModal();
-        }, 2000);
-        setNeedsRefetch(true);
+        setNeedsSnapshot(true);
         setNeedsAllowanceIn(true);
-        // if (amount1.gt(BN_ZERO)) {
-        //   setNeedsAllowanceOut(true);
-        // }
         setNeedsBalanceIn(true);
+        setTimeout(() => {
+          setNeedsRefetch(true);
+          setIsOpen(false);
+        }, 2000);
       },
       onError() {
         setErrorDisplay(true);
@@ -88,13 +91,24 @@ import { ethers } from "ethers";
   
     return (
       <>
-        <button
-          disabled={disabled /* || gasLimit.lte(BN_ZERO) */}
-          className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
-          onClick={() => write?.()}
-        >
-          Mint Position
-        </button>
+      <button
+        disabled={/*disabled*/true}
+        className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
+        onClick={() => write?.()}
+      >
+        {disabled ? (
+          <>
+            {buttonState === "amount" ? <>Input Amount</> : <></>}
+            {buttonState === "balance" ? (
+              <>Insufficient {tokenSymbol} Balance</>
+            ) : (
+              <></>
+            )}
+          </>
+        ) : (
+          <> Add Liquidity</>
+        )}
+      </button>
         <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
           {errorDisplay && (
             <ErrorToast
