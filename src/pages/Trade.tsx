@@ -167,6 +167,7 @@ export default function Trade() {
   const [limitAmountOut, setLimitAmountOut] = useState(BN_ZERO);
 
   const handleInputBox = (e) => {
+    console.log('event triggered')
     const [name, value, bnValue] = inputHandler(e)
     if (name === "tokenIn") {
       if (!pairSelected) {
@@ -181,14 +182,19 @@ export default function Trade() {
           if (!limitTabSelected)
             updatePools(bnValue, true)
           else {
-            setAmountOut(
-              getExpectedAmountOutFromInput(
-                Number(lowerTick),
-                Number(upperTick),
-                tokenIn.callId == 0,
-                bnValue
-              )
+            const tokenOutAmount = getExpectedAmountOutFromInput(
+              Number(lowerTick),
+              Number(upperTick),
+              tokenIn.callId == 0,
+              bnValue
             )
+            const tokenOutAmountDisplay = parseFloat(
+              ethers.utils.formatUnits(
+                tokenOutAmount.toString(),
+                tokenOut.decimals)
+            ).toPrecision(6)
+            setDisplayOut(tokenOutAmountDisplay)
+            setAmountOut(tokenOutAmount)
           }
         } else {
           setDisplayOut('')
@@ -525,6 +531,7 @@ export default function Trade() {
         const priceLower = invertPrice(limitPriceOrder ? lowerPriceString 
                                                       : upperPriceString,
                                       limitPriceOrder)
+        
         setLowerTick(
           BigNumber.from(
             TickMath.getTickAtPriceString(priceLower, tickSpacing)
@@ -559,6 +566,53 @@ export default function Trade() {
       updateLimitTicks();
     }
   }, [limitPriceString, tradeSlippage, priceRangeSelected]);
+
+  useEffect(() => {
+    if (
+      limitTabSelected &&
+      tradeSlippage
+    ) {
+        if (exactIn) {
+          if (!isNaN(parseFloat(limitPriceString))) {
+            const tokenOutAmount = getExpectedAmountOutFromInput(
+              Number(lowerTick),
+              Number(upperTick),
+              tokenIn.callId == 0,
+              amountIn
+            )
+            const tokenOutAmountDisplay = parseFloat(
+              ethers.utils.formatUnits(
+                tokenOutAmount.toString(),
+                tokenOut.decimals)
+            ).toPrecision(6)
+            setDisplayOut(tokenOutAmountDisplay)
+            setAmountOut(tokenOutAmount)
+          } else {
+            setDisplayOut('')
+            setAmountOut(BN_ZERO)
+          }
+        } else {
+          if (!isNaN(parseFloat(limitPriceString))) {
+            const tokenInAmount = getExpectedAmountInFromOutput(
+              Number(lowerTick),
+              Number(upperTick),
+              tokenIn.callId == 0,
+              amountOut
+            )
+            const tokenInAmountDisplay = parseFloat(
+              ethers.utils.formatUnits(
+                tokenInAmount.toString(),
+                tokenIn.decimals)
+            ).toPrecision(6)
+            setDisplayIn(tokenInAmountDisplay)
+            setAmountIn(tokenInAmount)
+          } else {
+            setDisplayIn('')
+            setAmountIn(BN_ZERO)
+          }
+        }
+    }
+  }, [lowerTick, upperTick]);
 
   function updateLimitTicks() {
     const tickSpacing = tradePoolData.feeTier.tickSpacing;
@@ -861,10 +915,9 @@ export default function Trade() {
                   {pairSelected &&
                   !amountIn.eq(BN_ZERO) &&
                   tokenOut.address != ZERO_ADDRESS &&
-                  !isNaN(parseFloat(
-                    ethers.utils.formatUnits(amountIn, tokenIn.decimals))
-                  ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
-                  && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
+                  amountIn != undefined &&
+                  lowerTick != undefined &&
+                  upperTick != undefined ? (
                     (
                       parseFloat(
                         ethers.utils.formatUnits(amountOut ?? BN_ZERO, tokenOut.decimals)
