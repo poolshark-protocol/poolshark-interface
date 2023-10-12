@@ -100,18 +100,7 @@ export default function CoverRemoveLiquidity({
       signer &&
       claimTick
     ) {
-      console.log("update gas fee");
-      console.log("coverPositionData", coverPositionData);
-      console.log("coverPoolData", coverPoolData);
-      console.log("sliderValue", sliderValue);
-      console.log("signer", signer);
       updateGasFee();
-    } else {
-      console.log("no gas fee");
-      console.log("coverPositionData", coverPositionData);
-      console.log("coverPoolData", coverPoolData);
-      console.log("sliderValue", sliderValue);
-      console.log("signer", signer);
     }
   }, [
     router.isReady,

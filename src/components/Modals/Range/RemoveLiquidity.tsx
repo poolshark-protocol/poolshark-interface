@@ -110,9 +110,6 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
   const [burnGasLimit, setBurnGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    console.log("update gas fee");
-    console.log("rangePositionData", rangePositionData);
-    console.log("sliderValue", sliderValue);
     if (
       signer &&
       address &&
