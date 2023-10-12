@@ -1207,7 +1207,9 @@ export default function Trade() {
                   return (
                     <UserLimitPool
                       limitPosition={allLimitPosition}
-                      limitFilledAmount={/*parseFloat(ethers.utils.formatEther(limitFilledAmountList[index])*/"0"}
+                      limitFilledAmount={limitFilledAmountList.length > 0 ?
+                        parseFloat(ethers.utils.formatEther(limitFilledAmountList[index])) :
+                        parseFloat("0.00")}
                       address={address}
                       href={"/limit/view"}
                       key={allLimitPosition.positionId}
