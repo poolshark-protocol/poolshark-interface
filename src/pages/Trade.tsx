@@ -666,7 +666,7 @@ export default function Trade() {
             <div className="ml-auto text-xs">
               {pairSelected
                 ? !limitTabSelected
-                  ? parseFloat(ethers.utils.formatUnits(amountOut, tokenOut.decimals)).toPrecision(6)
+                  ? parseFloat(ethers.utils.formatUnits(amountOut ?? BN_ZERO, tokenOut.decimals)).toPrecision(6)
                   : !isNaN(parseFloat(
                     ethers.utils.formatUnits(amountIn, tokenIn.decimals))
                   ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
@@ -778,8 +778,8 @@ export default function Trade() {
                   ~$
                   {!isNaN(parseInt(amountIn.toString())) ? (
                     (
-                      Number(
-                        ethers.utils.formatUnits(amountIn, tokenIn.decimals)
+                      parseFloat(
+                        ethers.utils.formatUnits(amountIn ?? BN_ZERO, tokenIn.decimals)
                       ) * tokenIn.USDPrice
                     ).toFixed(2)
                   ) : (
@@ -847,7 +847,10 @@ export default function Trade() {
                   && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
                     !limitTabSelected ? (
                       //swap page
-                      (parseFloat(displayOut) * tokenOut.USDPrice).toFixed(2)
+                      (
+                        parseFloat(
+                          ethers.utils.formatUnits(amountOut ?? BN_ZERO, tokenOut.decimals)
+                        ) * tokenOut.USDPrice).toFixed(2)
                     ) : //limit page
                     (
                       parseFloat(
