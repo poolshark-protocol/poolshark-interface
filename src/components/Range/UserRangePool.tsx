@@ -209,6 +209,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
       query: {
         positionId: rangePosition.positionId,
         feeTier: rangePosition.pool.feeTier.feeAmount,
+        state: (router.pathname.includes("/cover") && "range-cover")
       },
     });
   }
