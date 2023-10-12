@@ -152,7 +152,8 @@ export default function Trade() {
   const [amountOut, setAmountOut] = useState(undefined);
 
   //log addresses and ids
-  const [limitPoolsAddressId, setLimitPoolsAddressId] = useState([]);
+  const [limitPoolAddressList, setLimitPoolAddressList] = useState([]);
+  const [limitPositionList, setLimitPositionList] = useState([]);
 
   useEffect(() => {
     if (tokenIn.address != ZERO_ADDRESS && tokenOut.address === ZERO_ADDRESS) {
@@ -338,14 +339,16 @@ export default function Trade() {
 
   async function mapUserLimitPositionAddressAndId() {
     try {
-      let mappedLimitPoolAddressId = [];
+      let mappedLimitPoolAddresses = [];
+      let mappedLimitPositionIds = [];
       if (allLimitPositions.length > 0) {
         for (let i = 0; i < allLimitPositions.length; i++) {
-          mappedLimitPoolAddressId[i].address = allLimitPositions[i].address;
-          mappedLimitPoolAddressId[i].positionId = allLimitPositions[i].positionId;
+          mappedLimitPoolAddresses[i] = allLimitPositions[i].poolId;
+          mappedLimitPositionIds[i] = allLimitPositions[i].positionId;
         }
 
-        setLimitPoolsAddressId(mappedLimitPoolAddressId)
+        setLimitPoolAddressList(mappedLimitPoolAddresses)
+        setLimitPositionList(mappedLimitPositionIds)
       }
     } catch (error) {
       console.log('limit error', error);
