@@ -32,6 +32,7 @@ import {
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { volatilityTiers } from "../../utils/pools";
 import { coverPoolABI } from "../../abis/evm/coverPool";
+import { useRouter } from "next/router";
 
 export default function CoverExistingPool({ goBack }) {
   const [
@@ -478,8 +479,14 @@ export default function CoverExistingPool({ goBack }) {
   }, [tokenIn, coverMintParams.tokenInAmount]);
 
   ////////////////////////////////Slider Value change
-  const [sliderDisplay, setSliderDisplay] = useState(50);
+  const [sliderDisplay, setSliderDisplay] = useState(0);
   const [sliderController, setSliderController] = useState(false);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    setSliderDisplay(50);
+  }, [router.isReady]);
 
   const handleChange = (event: any) => {
     setSliderDisplay(event.target.value);

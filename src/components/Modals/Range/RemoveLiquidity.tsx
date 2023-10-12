@@ -12,7 +12,7 @@ import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { useAccount, useSigner } from "wagmi";
 import { gasEstimateRangeBurn } from "../../../utils/gas";
 
-export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
+export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
   const [
     rangePoolAddress,
     rangePositionData,
@@ -31,7 +31,6 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
 
   const router = useRouter();
   const { address } = useAccount();
-  const { data: signer } = useSigner();
 
   const [sliderValue, setSliderValue] = useState(50);
   const [sliderOutput, setSliderOutput] = useState("1");
@@ -100,6 +99,12 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
     }
   }
 
+  //////////////////Slider
+
+  useEffect(() => {
+    setSliderValue(50);
+  }, [router.isReady]);
+
   ////////////////////////////////Gas Fees Estimation
   const [burnGasFee, setBurnGasFee] = useState("$0.00");
   const [burnGasLimit, setBurnGasLimit] = useState(BN_ZERO);
@@ -114,7 +119,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen }) {
     ) {
       updateGasFee();
     }
-  }, [sliderValue]);
+  }, [sliderValue, rangePositionData.poolId, rangePositionData.positionId, signer, address]);
 
   async function updateGasFee() {
     const newBurnGasFee = await gasEstimateRangeBurn(
