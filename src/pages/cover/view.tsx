@@ -65,6 +65,7 @@ export default function ViewCover() {
 
   const { address, isConnected } = useAccount();
   const [isLoading, setIsLoading] = useState(true);
+  const { data: signer } = useSigner();
 
   //cover aux
   const [priceDirection, setPriceDirection] = useState(false);
@@ -694,6 +695,7 @@ export default function ViewCover() {
             isOpen={isRemoveOpen}
             setIsOpen={setIsRemoveOpen}
             address={address}
+            signer={signer}
           />
           <AddLiquidity
             isOpen={isAddOpen}

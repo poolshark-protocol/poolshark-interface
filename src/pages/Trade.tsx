@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
-import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import { useState, useEffect, Fragment } from "react";
+import { ChevronDownIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import SelectToken from "../components/SelectToken";
 import useInputBox from "../hooks/useInputBox";
+import { Transition, Dialog } from "@headlessui/react";
 import { ConnectWalletButton } from "../components/Buttons/ConnectWalletButton";
 import {
   erc20ABI,
@@ -12,7 +13,10 @@ import {
   useBalance,
 } from "wagmi";
 import { BigNumber, ethers } from "ethers";
-import { chainIdsToNamesForGitTokenList, chainProperties } from "../utils/chains";
+import {
+  chainIdsToNamesForGitTokenList,
+  chainProperties,
+} from "../utils/chains";
 import SwapRouterApproveButton from "../components/Buttons/SwapRouterApproveButton";
 import {
   TickMath,
@@ -25,7 +29,9 @@ import { gasEstimateMintLimit, gasEstimateSwap } from "../utils/gas";
 import inputFilter from "../utils/inputFilter";
 import LimitSwapButton from "../components/Buttons/LimitSwapButton";
 import {
-  fetchRangeTokenUSDPrice, getLimitTokenUsdPrice, logoMap,
+  fetchRangeTokenUSDPrice,
+  getLimitTokenUsdPrice,
+  logoMap,
 } from "../utils/tokens";
 import { getSwapPools, limitPoolTypeIds } from "../utils/pools";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
@@ -184,7 +190,7 @@ export default function Trade() {
   }
 
   const { data: poolQuotes } = useContractRead({
-    address: chainProperties['arbitrumGoerli']['routerAddress'], //contract address,
+    address: chainProperties["arbitrumGoerli"]["routerAddress"], //contract address,
     abi: poolsharkRouterABI, // contract abi,
     functionName: "multiQuote",
     args: [availablePools, quoteParams, true],
@@ -208,7 +214,7 @@ export default function Trade() {
       );
       updateSwapParams(poolQuotes);
     }
-  }, [poolQuotes]);
+  }, [poolQuotes, tradeSlippage]);
 
   function updateSwapParams(poolQuotes: any) {
     const poolAddresses: string[] = [];
@@ -231,7 +237,7 @@ export default function Trade() {
           setPriceImpact((Math.abs(basePrice - currentPrice) * 100 / currentPrice).toFixed(2))
         }
 
-        const priceDiff = basePrice * (parseFloat(slippage) / 100);
+        const priceDiff = basePrice * (parseFloat(tradeSlippage) / 100);
         const limitPrice = tokenIn.callId == 0 ? basePrice - priceDiff
                                                : basePrice + priceDiff;
         const limitPriceJsbi: JSBI = TickMath.getSqrtPriceAtPriceString(
@@ -267,7 +273,7 @@ export default function Trade() {
   useEffect(() => {
     if (address && needsRefetch === true) {
       getUserLimitPositionData();
-      setNeedsRefetch(false)
+      setNeedsRefetch(false);
     }
   }, [needsRefetch]);
 
@@ -361,10 +367,7 @@ export default function Trade() {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [
-      address,
-      chainProperties['arbitrumGoerli']['routerAddress'],
-    ],
+    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
     chainId: 421613,
     watch: needsAllowanceIn,
     enabled: tokenIn.address != ZERO_ADDRESS,
@@ -384,7 +387,6 @@ export default function Trade() {
   }, [allowanceInRouter]);
 
   ////////////////////////////////FeeTiers and Slippage
-  const [slippage, setSlippage] = useState("0.5");
   const [priceImpact, setPriceImpact] = useState("0.00")
 
   //i receive the price afte from the multiquote and then i will add and subtract the slippage from it
@@ -446,14 +448,15 @@ export default function Trade() {
 
   useEffect(() => {
     if (
+      limitTabSelected &&
       !priceRangeSelected &&
-      slippage &&
+      tradeSlippage &&
       limitPriceString &&
       tradePoolData?.feeTier?.tickSpacing
     ) {
       updateLimitTicks();
     }
-  }, [limitPriceString, slippage, priceRangeSelected]);
+  }, [limitPriceString, tradeSlippage, priceRangeSelected]);
 
   function updateLimitTicks() {
     const tickSpacing = tradePoolData.feeTier.tickSpacing;
@@ -463,12 +466,12 @@ export default function Trade() {
       parseFloat(priceString) > 0
     ) {
       if (
-        parseFloat(slippage) * 100 > tickSpacing &&
+        parseFloat(tradeSlippage) * 100 > tickSpacing &&
         parseFloat(priceString) > 0
       ) {
         const limitPriceTolerance =
           (parseFloat(priceString) *
-            parseFloat((parseFloat(slippage) * 100).toFixed(6))) /
+            parseFloat((parseFloat(tradeSlippage) * 100).toFixed(6))) /
           10000;
         if (tokenIn.callId == 0) {
           const endPrice =
@@ -541,7 +544,7 @@ export default function Trade() {
   async function updateGasFee() {
     if (tokenIn.userRouterAllowance?.gte(bnInput))
       await gasEstimateSwap(
-        chainProperties['arbitrumGoerli']['routerAddress'],
+        chainProperties["arbitrumGoerli"]["routerAddress"],
         swapPoolAddresses,
         swapParams,
         tokenIn,
@@ -625,10 +628,9 @@ export default function Trade() {
           {!limitTabSelected ? (
             <div className="flex p-1">
               <div className="text-xs text-[#4C4C4C]">
-                Minimum received after slippage ({slippage}%)
+                Minimum received after slippage ({tradeSlippage}%)
               </div>
-              <div className="ml-auto text-xs">
-              </div>
+              <div className="ml-auto text-xs">{(parseFloat(amountOut) * (100 - parseFloat(tradeSlippage)) / 100).toPrecision(6)}</div>
             </div>
           ) : (
             <></>
@@ -651,6 +653,10 @@ export default function Trade() {
       );
     }
   };
+
+  ///////////////////////
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
   return (
     <div className="min-h-[calc(100vh-160px)] w-[48rem] px-3 md:px-0">
       <div className="flex w-full mt-[10vh] justify-center mb-20 ">
@@ -684,21 +690,32 @@ export default function Trade() {
             </button>
           </div>
           <div className="p-4">
-            <span className="text-[11px] text-grey1">FROM</span>
+            <div className="flex items-center justify-between w-full">
+              <span className="text-[11px] text-grey1">FROM</span>
+              <div className="cursor-pointer" onClick={() => setIsSettingsOpen(true)}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className="w-5 h-5 hover:opacity-60"
+              >
+                <path d="M10 3.75a2 2 0 10-4 0 2 2 0 004 0zM17.25 4.5a.75.75 0 000-1.5h-5.5a.75.75 0 000 1.5h5.5zM5 3.75a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5a.75.75 0 01.75.75zM4.25 17a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5zM17.25 17a.75.75 0 000-1.5h-5.5a.75.75 0 000 1.5h5.5zM9 10a.75.75 0 01-.75.75h-5.5a.75.75 0 010-1.5h5.5A.75.75 0 019 10zM17.25 10.75a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5h1.5zM14 10a2 2 0 10-4 0 2 2 0 004 0zM10 16.25a2 2 0 10-4 0 2 2 0 004 0z" />
+              </svg>
+              </div>
+            </div>
+
             <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
               <div className="flex items-end justify-between text-[11px] text-grey1">
                 <span>
                   {" "}
                   ~$
-                  {bnInput.gt(0) ? (
-                    (
-                      Number(
-                        ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                      ) * tokenIn.USDPrice
-                    ).toFixed(2)
-                  ) : (
-                    (1 * tokenIn.USDPrice).toFixed(2)
-                  )}
+                  {bnInput.gt(0)
+                    ? (
+                        Number(
+                          ethers.utils.formatUnits(bnInput, tokenIn.decimals)
+                        ) * tokenIn.USDPrice
+                      ).toFixed(2)
+                    : (1 * tokenIn.USDPrice).toFixed(2)}
                 </span>
                 <span>BALANCE: {tokenIn.userBalance}</span>
               </div>
@@ -755,10 +772,13 @@ export default function Trade() {
                   {pairSelected &&
                   !bnInput.eq(BN_ZERO) &&
                   tokenOut.address != ZERO_ADDRESS &&
-                  !isNaN(parseFloat(
-                    ethers.utils.formatUnits(bnInput, tokenIn.decimals))
-                  ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
-                  && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
+                  !isNaN(
+                    parseFloat(
+                      ethers.utils.formatUnits(bnInput, tokenIn.decimals)
+                    )
+                  ) &&
+                  !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0))) &&
+                  !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0))) ? (
                     !limitTabSelected ? (
                       //swap page
                       (amountOut * tokenOut.USDPrice).toFixed(2)
@@ -786,10 +806,13 @@ export default function Trade() {
                 {pairSelected &&
                 !bnInput.eq(BN_ZERO) &&
                 tokenOut.address != ZERO_ADDRESS &&
-                !isNaN(parseFloat(
-                  ethers.utils.formatUnits(bnInput, tokenIn.decimals))
-                ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
-                && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
+                !isNaN(
+                  parseFloat(
+                    ethers.utils.formatUnits(bnInput, tokenIn.decimals)
+                  )
+                ) &&
+                !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0))) &&
+                !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0))) ? (
                   !limitTabSelected ? (
                     <div>{Number(amountOut).toPrecision(6)}</div>
                   ) : (
@@ -918,7 +941,7 @@ export default function Trade() {
                           type="text"
                           onChange={(e) => {
                             setUpperPriceString(inputFilter(e.target.value));
-                          }} 
+                          }}
                         />
                       </div>
                     </div>
@@ -985,7 +1008,7 @@ export default function Trade() {
                     <div>
                       <SwapRouterApproveButton
                         routerAddress={
-                          chainProperties['arbitrumGoerli']['routerAddress']
+                          chainProperties["arbitrumGoerli"]["routerAddress"]
                         }
                         approveToken={tokenIn.address}
                         tokenSymbol={tokenIn.symbol}
@@ -996,7 +1019,7 @@ export default function Trade() {
                     <SwapRouterButton
                       disabled={tradeParams.disabled || needsAllowanceIn || swapGasLimit.eq(BN_ZERO)}
                       routerAddress={
-                        chainProperties['arbitrumGoerli']['routerAddress']
+                        chainProperties["arbitrumGoerli"]["routerAddress"]
                       }
                       poolAddresses={swapPoolAddresses}
                       swapParams={swapParams ?? {}}
@@ -1011,15 +1034,17 @@ export default function Trade() {
                 {tokenIn.userRouterAllowance?.lt(bnInput) ? (
                   <SwapRouterApproveButton
                     routerAddress={
-                      chainProperties['arbitrumGoerli']['routerAddress']
+                      chainProperties["arbitrumGoerli"]["routerAddress"]
                     }
                     approveToken={tokenIn.address}
                     tokenSymbol={tokenIn.symbol}
                     amount={bnInput}
                   />
-                ) : ( tradePoolData.id != ZERO_ADDRESS ?
+                ) : tradePoolData.id != ZERO_ADDRESS ? (
                   <LimitSwapButton
-                    routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
+                    routerAddress={
+                      chainProperties["arbitrumGoerli"]["routerAddress"]
+                    }
                     disabled={mintGasLimit.eq(BN_ZERO)}
                     poolAddress={tradePoolData.id}
                     to={address}
@@ -1031,7 +1056,7 @@ export default function Trade() {
                     zeroForOne={tokenIn.callId == 0}
                     gasLimit={mintGasLimit}
                   />
-                :
+                ) : (
                   <LimitCreateAndMintButton
                     disabled={mintGasLimit.eq(BN_ZERO)}
                     routerAddress={chainProperties['arbitrumGoerli']['routerAddress']}
@@ -1190,6 +1215,67 @@ export default function Trade() {
         </table>
         </div>
       </div>
+      <Transition appear show={isSettingsOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-50"
+          onClose={() => setIsSettingsOpen(false)}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-50" />
+          </Transition.Child>
+  
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-[4px] bg-black text-white border border-grey text-left align-middle shadow-xl px-5 py-5 transition-all">
+                  <div className="flex items-center justify-between px-2 mb-5">
+                    <h1 className="text-lg">Change Slippage</h1>
+                    <XMarkIcon
+                      onClick={() => setIsSettingsOpen(false)}
+                      className="w-7 cursor-pointer"
+                    />
+                  </div>
+                  <div className="flex md:flex-row flex-col items-center gap-3">
+                    <div className="relative">
+                  <input value={tradeSlippage} onChange={(e) => setTradeSlippage(inputFilter(e.target.value))} className="bg-dark md:w-auto w-full border-grey border h-10 outline-none px-2 text-sm" placeholder="0.1"/>
+                  <span className="absolute mt-2 -ml-8">%</span>
+                  </div>
+                  <div className="flex flex-row items-center gap-x-3 w-full">
+                  <div onClick={() => {setTradeSlippage("0.1"); setIsSettingsOpen(false)}} className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full cursor-pointer">
+                    0.1%
+                  </div>
+                  <div onClick={() => {setTradeSlippage("0.5"); setIsSettingsOpen(false)}} className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full cursor-pointer">
+                    0.5%
+                  </div>
+                  <div onClick={() => {setTradeSlippage("1"); setIsSettingsOpen(false)}} className="text-sm bg-dark border-grey/50 border h-10 flex items-center justify-center w-full cursor-pointer">
+                    1%
+                  </div>
+                  </div>
+                  </div>
+                  <button onClick={() => setIsSettingsOpen(false)} className="w-full mt-8 py-2 disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80">{"Confirm"}</button>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import RangeCompoundButton from "../../components/Buttons/RangeCompoundButton";
-import { useAccount } from "wagmi";
+import { useAccount, useSigner } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { TickMath } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
@@ -56,6 +56,8 @@ export default function ViewRange() {
   ]);
 
   const { address, isConnected } = useAccount();
+  const { data: signer } = useSigner();
+
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
@@ -616,7 +618,7 @@ export default function ViewRange() {
       </div>
       {rangePositionData.price ? (
         <>
-          <RemoveLiquidity isOpen={isRemoveOpen} setIsOpen={setIsRemoveOpen} />
+          <RemoveLiquidity isOpen={isRemoveOpen} setIsOpen={setIsRemoveOpen} signer={signer} />
           <AddLiquidity isOpen={isAddOpen} setIsOpen={setIsAddOpen} />
         </>
       ) : null}
