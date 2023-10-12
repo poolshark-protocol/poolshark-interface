@@ -9,7 +9,12 @@ import { useCoverStore } from "../../../hooks/useCoverStore";
 import { gasEstimateCoverBurn } from "../../../utils/gas";
 import { useSigner } from "wagmi";
 
-export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
+export default function CoverRemoveLiquidity({
+  isOpen,
+  setIsOpen,
+  address,
+  signer,
+}) {
   const [
     coverPoolAddress,
     coverPoolData,
@@ -31,7 +36,6 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
   ]);
 
   const router = useRouter();
-  const { data: signer } = useSigner();
 
   const [burnPercent, setBurnPercent] = useState(
     ethers.utils.parseUnits("5", 37)
@@ -88,19 +92,36 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
   const [burnGasLimit, setBurnGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    console.log("update gas fee");
-    console.log(coverPositionData);
-    console.log(coverPoolData);
-    console.log(sliderValue);
     if (
       coverPositionData.lowerTick &&
       coverPositionData.upperTick &&
       coverPoolData.volatilityTier &&
       sliderValue &&
-      signer
-    )
+      signer &&
+      claimTick
+    ) {
+      console.log("update gas fee");
+      console.log("coverPositionData", coverPositionData);
+      console.log("coverPoolData", coverPoolData);
+      console.log("sliderValue", sliderValue);
+      console.log("signer", signer);
       updateGasFee();
-  }, [router.isReady, sliderValue, burnPercent, coverPoolData, coverPositionData]);
+    } else {
+      console.log("no gas fee");
+      console.log("coverPositionData", coverPositionData);
+      console.log("coverPoolData", coverPoolData);
+      console.log("sliderValue", sliderValue);
+      console.log("signer", signer);
+    }
+  }, [
+    router.isReady,
+    signer,
+    sliderValue,
+    burnPercent,
+    coverPoolData,
+    coverPositionData,
+    claimTick,
+  ]);
 
   async function updateGasFee() {
     const newBurnGasFee = await gasEstimateCoverBurn(
