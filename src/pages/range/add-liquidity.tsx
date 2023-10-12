@@ -20,6 +20,7 @@ import RangePoolPreview from "../../components/Range/RangePoolPreview";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import { chainProperties } from "../../utils/chains";
 import router from "next/router";
+import { inputHandler } from "../../utils/math/valueMath";
 
 export default function AddLiquidity({}) {
   const [
@@ -86,9 +87,10 @@ export default function AddLiquidity({}) {
     network: { chainId },
   } = useProvider();
 
-  const { bnInput, inputBox, maxBalance } = useInputBox();
-
+  const { inputBox: inputBoxIn, setDisplay: setDisplayIn } = useInputBox();
+  const { inputBox: inputBoxOut, setDisplay: setDisplayOut } = useInputBox();
   const [showTooltip, setShowTooltip] = useState(false);
+  const [amountInSetLast, setAmountInSetLast] = useState(true)
 
   ////////////////////////////////TokenOrder
   const [tokenOrder, setTokenOrder] = useState(true);
@@ -127,13 +129,15 @@ export default function AddLiquidity({}) {
 
   //this sets the default position price delta
   useEffect(() => {
-    if (rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
+    if (!rangeSqrtPrice && rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
       const price = JSBI.BigInt(rangePoolData.poolPrice);
       const tickAtPrice = rangePoolData.tickAtPrice;
       setRangePrice(TickMath.getPriceStringAtSqrtPrice(price));
       setRangeSqrtPrice(price);
       setMinInput(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
       setMaxInput(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
+      setTokenInAmount(BN_ZERO)
+      setTokenOutAmount(BN_ZERO)
     }
   }, [rangePoolData]);
 
@@ -245,89 +249,119 @@ export default function AddLiquidity({}) {
       lowerPrice: lowerPrice,
       upperPrice: upperPrice,
     });
+    setAmounts(
+      amountInSetLast,
+      amountInSetLast ? rangeMintParams.tokenInAmount
+                      : rangeMintParams.tokenOutAmount
+    )
   }, [lowerPrice, upperPrice]);
 
-  useEffect(() => {
-    if (
-      rangePositionData.lowerPrice &&
-      rangePositionData.upperPrice &&
-      rangePoolData.feeTier
-    ) {
-      tokenOutAmountMath();
+  const handleInputBox = (e) => {
+    const [name, value, bnValue] = inputHandler(e)
+    if (name === "tokenIn") {
+      setDisplayIn(value)
+      setAmounts(true, bnValue)
+      setAmountInSetLast(true)
+    } else if (name === "tokenOut") {
+      setDisplayOut(value)
+      setAmounts(false, bnValue)
+      setAmountInSetLast(false)
     }
-  }, [bnInput, tokenOrder, lowerPrice, upperPrice]);
+  };
 
-  function tokenOutAmountMath() {
+  const handleBalanceMax = (isTokenIn: boolean) => {
+    const token = isTokenIn ? tokenIn : tokenOut
+    const value = token.userBalance.toString()
+    const bnValue = ethers.utils.parseUnits(value, token.decimals)
+    isTokenIn ? setDisplayIn(value) : setDisplayOut(value)
+    setAmounts(isTokenIn, bnValue)
+    setAmountInSetLast(isTokenIn)
+  }
+
+  function setAmounts(amountInSet: boolean, amountSet: BigNumber) {
     try {
-      const lower = TickMath.getTickAtPriceString(
-        lowerPrice,
-        parseInt(rangePoolData.feeTier.tickSpacing)
-      );
-      const upper = TickMath.getTickAtPriceString(
-        upperPrice,
-        parseInt(rangePoolData.feeTier.tickSpacing)
-      );
-      const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lower);
-      const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upper);
-      const liquidity =
-        parseFloat(rangePrice) >= parseFloat(lowerPrice) &&
-        parseFloat(rangePrice) <= parseFloat(upperPrice)
-          ? DyDxMath.getLiquidityForAmounts(
-              tokenOrder ? rangeSqrtPrice : lowerSqrtPrice,
-              tokenOrder ? upperSqrtPrice : rangeSqrtPrice,
-              rangeSqrtPrice,
-              tokenOrder ? BN_ZERO : bnInput,
-              tokenOrder ? bnInput : BN_ZERO
-            )
-          : DyDxMath.getLiquidityForAmounts(
-              lowerSqrtPrice,
-              upperSqrtPrice,
-              rangeSqrtPrice,
-              tokenOrder ? BN_ZERO : bnInput,
-              tokenOrder ? bnInput : BN_ZERO
-            );
-      const tokenOutAmount = JSBI.greaterThan(liquidity, ZERO)
-        ? tokenOrder
-          ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
-          : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
-        : ZERO;
-      setTokenInAmount(bnInput);
-      setTokenOutAmount(BigNumber.from(String(tokenOutAmount)));
+        const isToken0 = amountInSet ? tokenIn.callId == 0
+                                     : tokenOut.callId == 0
+        const inputBn = amountSet
+        const lower = TickMath.getTickAtPriceString(
+          lowerPrice,
+          parseInt(rangePoolData.feeTier.tickSpacing)
+        );
+        const upper = TickMath.getTickAtPriceString(
+          upperPrice,
+          parseInt(rangePoolData.feeTier.tickSpacing)
+        );
+        const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lower);
+        const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upper);
+        if (amountSet.gt(BN_ZERO)) {
+          let liquidity = ZERO;
+          if(JSBI.greaterThanOrEqual(rangeSqrtPrice, lowerSqrtPrice) &&
+             JSBI.lessThan(rangeSqrtPrice, upperSqrtPrice)) {
+              liquidity = DyDxMath.getLiquidityForAmounts(
+                isToken0 ? rangeSqrtPrice : lowerSqrtPrice,
+                isToken0 ? upperSqrtPrice : rangeSqrtPrice,
+                rangeSqrtPrice,
+                isToken0 ? BN_ZERO : inputBn,
+                isToken0 ? inputBn : BN_ZERO
+              )
+          } else if (JSBI.lessThan(rangeSqrtPrice, lowerSqrtPrice)) {
+              // only token0 input allowed
+              if (isToken0) {
+                liquidity = DyDxMath.getLiquidityForAmounts(
+                  lowerSqrtPrice,
+                  upperSqrtPrice,
+                  rangeSqrtPrice,
+                  BN_ZERO,
+                  inputBn
+                )
+              } else {
+                // warn the user the input is invalid
+              }
+          } else if (JSBI.greaterThanOrEqual(rangeSqrtPrice, upperSqrtPrice)) {
+              if (!isToken0) {
+                liquidity = DyDxMath.getLiquidityForAmounts(
+                  lowerSqrtPrice,
+                  upperSqrtPrice,
+                  rangeSqrtPrice,
+                  inputBn,
+                  BN_ZERO
+                )
+              } else {
+                // warn the user the input is invalid
+              }
+          }
+          const outputJsbi = JSBI.greaterThan(liquidity, ZERO)
+            ? isToken0
+              ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
+              : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
+            : ZERO;
+          const outputBn = BigNumber.from(String(outputJsbi))
+          // set amount based on inputBn
+          if (amountInSet) {
+            setTokenInAmount(inputBn);
+            setTokenOutAmount(outputBn);
+            const displayValue = parseFloat(ethers.utils.formatUnits(outputBn, tokenOut.decimals)).toPrecision(6)
+            setDisplayOut(parseFloat(displayValue) > 0 ? displayValue : '')
+          } else {
+            setTokenInAmount(outputBn);
+            setTokenOutAmount(inputBn);
+            setDisplayIn(parseFloat(ethers.utils.formatUnits(outputBn, tokenIn.decimals)).toPrecision(6))
+          }
+        } else {
+          setTokenInAmount(BN_ZERO);
+          setTokenOutAmount(BN_ZERO);
+          if (amountInSet) {
+            setDisplayOut('')
+          } else {
+            setDisplayIn('')
+          }
+        }
     } catch (error) {
       console.log(error);
-      setTokenOutAmount(BigNumber.from("0"));
     }
   }
 
   ////////////////////////////////Gas Fee
-
-  //set lower and upper price
-  /* const changePrice = (direction: string, inputId: string) => {
-    if (!rangePoolData.feeTier.tickSpacing) return;
-    const currentTick =
-      inputId == "minInput"
-        ? TickMath.getTickAtPriceString(rangePositionData.lowerPrice)
-        : TickMath.getTickAtPriceString(rangePositionData.upperPrice);
-    const increment = parseInt(rangePoolData.feeTier.tickSpacing);
-    const adjustment =
-      direction == "plus" || direction == "minus"
-        ? direction == "plus"
-          ? -increment
-          : increment
-        : 0;
-    const newTick = roundTick(currentTick - adjustment, increment);
-    const newPriceString = TickMath.getPriceStringAtTick(
-      parseFloat(newTick.toString())
-    );
-    (document.getElementById(inputId) as HTMLInputElement).value =
-      parseFloat(newPriceString).toFixed(6);
-    if (inputId === "minInput") {
-      setLowerPrice(newPriceString);
-    }
-    if (inputId === "maxInput") {
-      setUpperPrice(newPriceString);
-    }
-  }; */
 
   const [minInput, setMinInput] = useState("");
   const [maxInput, setMaxInput] = useState("");
@@ -347,11 +381,6 @@ export default function AddLiquidity({}) {
   ////////////////////////////////Mint Button State
 
   // set amount in
-  useEffect(() => {
-    if (!bnInput.eq(BN_ZERO)) {
-      setTokenInAmount(bnInput);
-    }
-  }, [bnInput]);
 
   useEffect(() => {
     setMintButtonState();
@@ -416,17 +445,17 @@ export default function AddLiquidity({}) {
                 ~$
                 {(
                   tokenIn.USDPrice *
-                  Number(ethers.utils.formatUnits(bnInput, tokenIn.decimals))
+                  Number(ethers.utils.formatUnits(rangeMintParams.tokenInAmount, tokenIn.decimals))
                 ).toFixed(2)}
               </span>
               <span>BALANCE: {tokenIn.userBalance ?? 0}</span>
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-              {inputBox("0")}
+              {inputBoxIn("0", "tokenIn", handleInputBox)}
               <div className="flex items-center gap-x-2">
                 <button
                   onClick={() =>
-                    maxBalance(tokenIn.userBalance.toString(), "0")
+                    handleBalanceMax(true)
                   }
                   className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border md:block hidden"
                 >
@@ -456,15 +485,16 @@ export default function AddLiquidity({}) {
               <span>BALANCE: {tokenOut.userBalance ?? 0}</span>
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-              {Number(rangeMintParams.tokenOutAmount) != 0
-                ? Number(
-                    ethers.utils.formatUnits(
-                      rangeMintParams.tokenOutAmount,
-                      tokenIn.decimals
-                    )
-                  ).toPrecision(5)
-                : 0}
+              {inputBoxOut("0", "tokenOut", handleInputBox)}
               <div className="flex items-center gap-x-2 ">
+                <button
+                  onClick={() =>
+                    handleBalanceMax(false)
+                  }
+                  className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border md:block hidden"
+                >
+                  MAX
+                </button>
                 <button className="flex w-full items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
                   <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
                     <img className="md:w-7 w-6" src={tokenOut.logoURI} />
