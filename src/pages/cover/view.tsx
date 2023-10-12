@@ -282,8 +282,6 @@ export default function ViewCover() {
     }
   }
 
-  useEffect(() => {}, [signer]);
-
   ////////////////////////////////Filled Amount
 
   const { data: filledAmount } = useContractRead({
