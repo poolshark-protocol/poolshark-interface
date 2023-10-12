@@ -84,6 +84,8 @@ export default function Trade() {
     setMintButtonState,
     needsRefetch,
     setNeedsRefetch,
+    needsSnapshot,
+    setNeedsSnapshot,
   ] = useTradeStore((s) => [
     s.tradePoolAddress,
     s.setTradePoolAddress,
@@ -118,6 +120,8 @@ export default function Trade() {
     s.setMintButtonState,
     s.needsRefetch,
     s.setNeedsRefetch,
+    s.needsSnapshot,
+    s.setNeedsSnapshot,
   ]);
 
   //set Limit Fee tier Modal
@@ -154,6 +158,10 @@ export default function Trade() {
   //log addresses and ids
   const [limitPoolAddressList, setLimitPoolAddressList] = useState([]);
   const [limitPositionList, setLimitPositionList] = useState([]);
+
+  //log amount in and out
+  const [limitFilledAmountList, setLimitFilledAmountList] = useState([]);
+  const [currentAmountOutList, setCurrentAmountOutList] = useState([]);
 
   useEffect(() => {
     if (tokenIn.address != ZERO_ADDRESS && tokenOut.address === ZERO_ADDRESS) {
@@ -258,11 +266,12 @@ export default function Trade() {
   }
 
   ////////////////////////////////Filled Amount
-  /*const { data: filledAmounts } = useContractRead({
+  const { data: filledAmountList } = useContractRead({
     address: chainProperties['arbitrumGoerli']['routerAddress'],
     abi: poolsharkRouterABI,
     functionName: "multiSnapshotLimit",
     args: [
+      limitPoolAddressList,
       [
         address,
         ethers.utils.parseUnits("1", 38),
@@ -276,7 +285,7 @@ export default function Trade() {
     enabled:
       BigNumber.from(claimTick).lt(BigNumber.from("887272")) &&
       isConnected &&
-      limitPoolAddress.toString() != "" &&
+      limitPoolAddressList.length > 0 &&
       needsSnapshot == true,
     onSuccess(data) {
       console.log("Success price filled amount", data);
@@ -284,21 +293,23 @@ export default function Trade() {
     },
     onError(error) {
       console.log("Error price Limit", error);
-      console.log(
-        "claim tick snapshot args",
-        address,
-        BigNumber.from("0").toString(),
-        limitPositionData.min.toString(),
-        limitPositionData.max.toString(),
-        claimTick.toString(),
-        tokenIn.callId == 0,
-        router.isReady
+    },
+  });
+
+  useEffect(() => {
+    if (filledAmountList) {
+      setLimitFilledAmountList(
+        filledAmountList[0]
       );
-    },
-    onSettled(data, error) {
-      //console.log('Settled price Limit', { data, error })
-    },
-  });*/
+
+      setCurrentAmountOutList(
+        filledAmountList[1]
+      )
+      
+      console.log("amount in list", filledAmountList[0].toString());
+      console.log("amount out list", filledAmountList[1].toString());
+    }
+  }, [filledAmountList]);
 
   //////////////////////Get Pools Data
 
