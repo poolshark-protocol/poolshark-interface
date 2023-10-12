@@ -130,7 +130,7 @@ export default function LimitSwapBurnButton({
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
-            className="w-7 text-red-600 bg-red-900/30 p-1 rounded-full cursor-pointer -mr-5"
+            className="w-7 text-red-600 bg-red-900/30 p-1 rounded-full cursor-pointer "
             onClick={() => {
                 address ? write?.() : null;
             }}
