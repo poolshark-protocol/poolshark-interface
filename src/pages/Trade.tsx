@@ -850,7 +850,8 @@ export default function Trade() {
                       (
                         parseFloat(
                           ethers.utils.formatUnits(amountOut ?? BN_ZERO, tokenOut.decimals)
-                        ) * tokenOut.USDPrice).toFixed(2)
+                        ) * tokenOut.USDPrice
+                      ).toFixed(2)
                     ) : //limit page
                     (
                       parseFloat(
