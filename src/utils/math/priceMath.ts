@@ -89,6 +89,44 @@ export function getAveragePrice(lowerTick: number, upperTick: number, zeroForOne
  * @param zeroForOne true if token0 => token1; false if token1 => token0
  * @param amountIn the amount of token deposited into the LP position
  */
+export function getExpectedAmountInFromOutput(lowerTick: number, upperTick: number, zeroForOne: boolean, amountOut: BigNumber): BigNumber {
+    if(
+        lowerTick >= upperTick ||
+        TickMath.MIN_TICK > lowerTick ||
+        TickMath.MAX_TICK < lowerTick ||
+        TickMath.MIN_TICK > upperTick || 
+        TickMath.MAX_TICK < upperTick
+    ) {
+        return BN_ZERO
+    }
+    if (!amountOut || amountOut.eq(BN_ZERO)) return BN_ZERO
+    const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(Number(lowerTick))
+    const upperSqrtPrice = TickMath.getSqrtRatioAtTick(Number(upperTick))
+    const liquidityAmount = BigNumber.from(String(DyDxMath.getLiquidityForAmounts(
+        lowerSqrtPrice,
+        upperSqrtPrice,
+        zeroForOne ? upperSqrtPrice
+                   : lowerSqrtPrice,
+        zeroForOne ? amountOut
+                   : BN_ZERO,
+        zeroForOne ? BN_ZERO 
+                   : amountOut
+    )))
+    return getExpectedAmountIn(
+        lowerTick,
+        upperTick,
+        zeroForOne,
+        liquidityAmount
+    )
+}
+
+/**
+ * Returns the expected amount out when the range is 100% crossed
+ * @param lowerTick the lower tick of the price range
+ * @param upperTick the upper tick of the price range
+ * @param zeroForOne true if token0 => token1; false if token1 => token0
+ * @param amountIn the amount of token deposited into the LP position
+ */
 export function getExpectedAmountOutFromInput(lowerTick: number, upperTick: number, zeroForOne: boolean, amountIn: BigNumber): BigNumber {
     if(
         lowerTick >= upperTick ||
@@ -118,6 +156,37 @@ export function getExpectedAmountOutFromInput(lowerTick: number, upperTick: numb
         zeroForOne,
         liquidityAmount
     )
+}
+
+/**
+ * Returns the expected amount out when the range is 100% crossed
+ * @param lowerTick the lower tick of the price range
+ * @param upperTick the upper tick of the price range
+ * @param zeroForOne true if token0 => token1; false if token1 => token0
+ * @param amountIn the amount of token deposited into the LP position
+ */
+export function getExpectedAmountIn(lowerTick: number, upperTick: number, zeroForOne: boolean, liquidity: BigNumber): BigNumber {
+    if(
+        lowerTick >= upperTick ||
+        lowerTick < TickMath.MIN_TICK ||
+        lowerTick > TickMath.MAX_TICK ||
+        upperTick < TickMath.MIN_TICK ||
+        upperTick > TickMath.MAX_TICK
+    ) {
+        return BN_ZERO;
+    }
+    const liquidityAmount = JSBI.BigInt(liquidity.toString())
+    const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
+    const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
+
+    let newSqrtPrice
+    if (zeroForOne) {
+        // get amount0 at lower price
+        return BigNumber.from(String(DyDxMath.getDx(liquidityAmount, lowerSqrtPrice, upperSqrtPrice, true)))
+    } else {
+        // get amount1 at upper price
+        return BigNumber.from(String(DyDxMath.getDy(liquidityAmount, lowerSqrtPrice, upperSqrtPrice, true)))
+    }
 }
 
 /**
