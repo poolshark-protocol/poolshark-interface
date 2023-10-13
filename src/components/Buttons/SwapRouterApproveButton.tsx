@@ -9,9 +9,11 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import {
-  useTradeStore as useRangeLimitStore,
   useTradeStore,
 } from "../../hooks/useTradeStore";
+import {
+  useRangeLimitStore,
+} from "../../hooks/useRangeLimitStore";
 
 export default function SwapRouterApproveButton({
   routerAddress,
