@@ -41,6 +41,7 @@ export default function AddLiquidity({}) {
     setTokenOutRangeUSDPrice,
     setTokenOutBalance,
     pairSelected,
+    setPairSelected,
     setMintButtonState,
     setRangePoolFromFeeTier,
     priceOrder,
@@ -69,6 +70,7 @@ export default function AddLiquidity({}) {
     state.setTokenOutRangeUSDPrice,
     state.setTokenOutBalance,
     state.pairSelected,
+    state.setPairSelected,
     state.setMintButtonState,
     state.setRangePoolFromFeeTier,
     state.priceOrder,
@@ -91,6 +93,8 @@ export default function AddLiquidity({}) {
   const { inputBox: inputBoxOut, setDisplay: setDisplayOut } = useInputBox();
   const [showTooltip, setShowTooltip] = useState(false);
   const [amountInSetLast, setAmountInSetLast] = useState(true)
+  const [amountInDisabled, setAmountInDisabled] = useState(false)
+  const [amountOutDisabled, setAmountOutDisabled] = useState(false)
 
   ////////////////////////////////TokenOrder
   const [tokenOrder, setTokenOrder] = useState(true);
@@ -98,9 +102,12 @@ export default function AddLiquidity({}) {
   useEffect(() => {
     if (tokenIn.address && tokenOut.address) {
       setTokenOrder(tokenIn.callId == 0);
-      setPriceOrder(tokenIn.callId == 0)
+      setPriceOrder(tokenIn.callId == 0);
+      setPairSelected(true);
+    } else {
+      setPairSelected(false)
     }
-  }, [tokenIn.address, tokenOut.address]);
+  }, [tokenIn, tokenOut]);
 
   ////////////////////////////////Pools
 
@@ -129,15 +136,18 @@ export default function AddLiquidity({}) {
 
   //this sets the default position price delta
   useEffect(() => {
-    if (!rangeSqrtPrice && rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
-      const price = JSBI.BigInt(rangePoolData.poolPrice);
-      const tickAtPrice = rangePoolData.tickAtPrice;
-      setRangePrice(TickMath.getPriceStringAtSqrtPrice(price));
-      setRangeSqrtPrice(price);
-      setMinInput(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
-      setMaxInput(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
-      setTokenInAmount(BN_ZERO)
-      setTokenOutAmount(BN_ZERO)
+    if (rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
+      if (!rangeSqrtPrice) {
+        const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
+        const price = TickMath.getPriceStringAtSqrtPrice(sqrtPrice)
+        const tickAtPrice = rangePoolData.tickAtPrice;
+        setRangePrice(TickMath.getPriceStringAtSqrtPrice(sqrtPrice));
+        setRangeSqrtPrice(sqrtPrice);
+        setMinInput(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
+        setMaxInput(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
+        setTokenInAmount(BN_ZERO)
+        setTokenOutAmount(BN_ZERO)
+      }
     }
   }, [rangePoolData]);
 
@@ -254,6 +264,22 @@ export default function AddLiquidity({}) {
       amountInSetLast ? rangeMintParams.tokenInAmount
                       : rangeMintParams.tokenOutAmount
     )
+    console.log('upper and lower:', upperPrice, lowerPrice, rangePrice)
+    const token0Disabled = parseFloat(upperPrice) <= parseFloat(rangePrice)
+    const token1Disabled = parseFloat(lowerPrice) >= parseFloat(rangePrice)
+    const tokenInDisabled = tokenIn.callId == 0 ? token0Disabled : token1Disabled
+    const tokenOutDisabled = tokenOut.callId == 0 ? token0Disabled : token1Disabled
+    setAmountInDisabled(tokenInDisabled)
+    setAmountOutDisabled(tokenOutDisabled)
+    if (tokenInDisabled && rangeMintParams.tokenInAmount.gt(BN_ZERO)) {
+      setDisplayIn('')
+      setAmounts(true, BN_ZERO)
+      setAmountInSetLast(true)
+    } else if (tokenOutDisabled && rangeMintParams.tokenOutAmount.gt(BN_ZERO)) {
+      setDisplayOut('')
+      setAmounts(false, BN_ZERO)
+      setAmountInSetLast(false)
+    }
   }, [lowerPrice, upperPrice]);
 
   const handleInputBox = (e) => {
@@ -345,7 +371,8 @@ export default function AddLiquidity({}) {
           } else {
             setTokenInAmount(outputBn);
             setTokenOutAmount(inputBn);
-            setDisplayIn(parseFloat(ethers.utils.formatUnits(outputBn, tokenIn.decimals)).toPrecision(6))
+            const displayValue = parseFloat(ethers.utils.formatUnits(outputBn, tokenOut.decimals)).toPrecision(6)
+            setDisplayIn(parseFloat(displayValue) > 0 ? displayValue : '')
           }
         } else {
           setTokenInAmount(BN_ZERO);
@@ -451,7 +478,7 @@ export default function AddLiquidity({}) {
               <span>BALANCE: {tokenIn.userBalance ?? 0}</span>
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-              {inputBoxIn("0", "tokenIn", handleInputBox)}
+              {inputBoxIn("0", "tokenIn", handleInputBox, amountInDisabled)}
               <div className="flex items-center gap-x-2">
                 <button
                   onClick={() =>
@@ -485,7 +512,7 @@ export default function AddLiquidity({}) {
               <span>BALANCE: {tokenOut.userBalance ?? 0}</span>
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-              {inputBoxOut("0", "tokenOut", handleInputBox)}
+              {inputBoxOut("0", "tokenOut", handleInputBox, amountOutDisabled)}
               <div className="flex items-center gap-x-2 ">
                 <button
                   onClick={() =>

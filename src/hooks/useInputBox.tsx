@@ -109,7 +109,7 @@ export default function useInputBox() {
   }
 
   //TODO: add an optional param for changing value
-  const inputBox = (placeholder: string, inputName?: string, handler?: any) => {
+  const inputBox = (placeholder: string, inputName?: string, handler?: any, disabled?: boolean) => {
     return (
       <div className="">
         <input
@@ -117,6 +117,7 @@ export default function useInputBox() {
           type="text"
           id="input"
           name={inputName ?? "input"}
+          disabled={disabled ?? false}
           onChange={(e) => handler ? handler(e) : handleChange(e, undefined)}
           value={display}
           placeholder={placeholder}
