@@ -7,6 +7,7 @@ import { priceToString, scale } from './priceMath'
 import { BigNumber } from 'ethers'
 import { PrecisionMath } from './precisionMath'
 import { DyDxMath } from './dydxMath'
+import { token, tokenCover, tokenRangeLimit, tokenSwap } from '../types'
 
 function mulShift(val: JSBI, mulBy: string): JSBI {
   return JSBI.signedRightShift(JSBI.multiply(val, JSBI.BigInt(mulBy)), JSBI.BigInt(128))
