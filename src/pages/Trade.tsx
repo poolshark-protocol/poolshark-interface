@@ -168,7 +168,9 @@ export default function Trade() {
 
   const handleInputBox = (e) => {
     if (e.target.name === "tokenIn") {
+
       const [value, bnValue] = inputHandler(e, tokenIn)
+      console.log('setting token out amount', value, bnValue.toString(), pairSelected)
       if (!pairSelected) {
         setDisplayIn(value)
         setDisplayOut('')
@@ -187,6 +189,8 @@ export default function Trade() {
       setExactIn(true)
     } else if (e.target.name === "tokenOut") {
       const [value, bnValue] = inputHandler(e, tokenOut)
+      console.log('setting token out amount', value, bnValue.toString(), pairSelected)
+      console.log('amounts out', bnValue.eq(amountOut))
       if (!pairSelected) {
         setDisplayOut(value)
         setDisplayIn('')
@@ -234,6 +238,7 @@ export default function Trade() {
         if (!limitTabSelected)
           updatePools(bnValue, false)
         else {
+
           const tokenInAmount = getExpectedAmountInFromOutput(
             Number(lowerTick),
             Number(upperTick),
@@ -245,6 +250,7 @@ export default function Trade() {
               tokenInAmount.toString(),
               tokenIn.decimals)
           ).toPrecision(6)
+          console.log('setting amount in', lowerTick.toString(), upperTick.toString(), tokenInAmount.toString(), tokenInAmountDisplay)
           setDisplayIn(tokenInAmountDisplay)
           setAmountIn(tokenInAmount)
         }
@@ -320,7 +326,7 @@ export default function Trade() {
       console.log("Error multiquote", error);
     },
     onSuccess(data) {
-      // console.log("Success multiquote", data);
+      console.log("Success multiquote", data);
     },
   });
 
@@ -351,7 +357,7 @@ export default function Trade() {
         updateSwapParams(poolQuotes);
       }
     }
-  }, [poolQuotes, quoteParams, tradeSlippage]);
+  }, [poolQuotes, quoteParams, tradeSlippage, limitTabSelected]);
 
   function updateSwapParams(poolQuotes: any) {
     const poolAddresses: string[] = [];
@@ -478,9 +484,7 @@ export default function Trade() {
       if (allLimitPositions.length > 0) {
         for (let i = 0; i < allLimitPositions.length; i++) {
           mappedLimitPoolAddresses[i] = allLimitPositions[i].poolId;
-
           mappedLimitSnapshotParams[i] = [];
-
           mappedLimitSnapshotParams[i][0] = address;
           mappedLimitSnapshotParams[i][1] = ethers.utils.parseUnits("1", 38);
           mappedLimitSnapshotParams[i][2] = BigNumber.from(allLimitPositions[i].positionId);
@@ -655,7 +659,7 @@ export default function Trade() {
         );
       }
     }
-  }, [lowerPriceString, upperPriceString, priceRangeSelected]);
+  }, [lowerPriceString, upperPriceString, priceRangeSelected, limitTabSelected]);
 
   ////////////////////////////////Limit Ticks
   const [lowerTick, setLowerTick] = useState(BN_ZERO);
@@ -671,7 +675,7 @@ export default function Trade() {
     ) {
       updateLimitTicks();
     }
-  }, [limitPriceString, tradeSlippage, priceRangeSelected]);
+  }, [limitPriceString, tradeSlippage, priceRangeSelected, limitTabSelected]);
 
   useEffect(() => {
     if (
@@ -823,7 +827,7 @@ export default function Trade() {
 
   async function updateMintFee() {
     if (tokenIn.userRouterAllowance?.gte(amountIn) &&
-        lowerTick.lt(upperTick))
+        lowerTick?.lt(upperTick))
       await gasEstimateMintLimit(
         tradePoolData.id,
         address,
