@@ -612,7 +612,7 @@ export default function Trade() {
           }
         }
     }
-  }, [lowerTick, upperTick]);
+  }, [lowerTick, upperTick, tokenIn.address, tokenOut.address]);
 
   function updateLimitTicks() {
     const tickSpacing = tradePoolData.feeTier.tickSpacing;
