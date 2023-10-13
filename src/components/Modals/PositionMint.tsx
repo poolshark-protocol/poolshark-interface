@@ -1,5 +1,6 @@
 import { Transition, Dialog } from "@headlessui/react";
 import Link from "next/link";
+import router, { useRouter } from "next/router";
 import { Fragment, useState, useEffect } from "react";
 
 export default function PositionMintModal({
@@ -16,6 +17,8 @@ export default function PositionMintModal({
       setIsOpen(true);
     }
   }, [successDisplay, isLoading, errorDisplay]);
+
+  const router = useRouter();
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -80,14 +83,14 @@ export default function PositionMintModal({
                       r="47.0122"
                       fill="#091910"
                       stroke="#2ECC71"
-                      stroke-width="5"
+                      strokeWidth="5"
                     />
                     <path
                       d="M38.5254 51.3256L47.7051 60.7048L61.4746 39.6016"
                       stroke="#2ECC71"
-                      stroke-width="4"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+                      strokeWidth="4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                     />
                   </svg>
                 ) : (
@@ -106,7 +109,7 @@ export default function PositionMintModal({
                         r="47.0122"
                         fill="#1C0B0A"
                         stroke="#E74C3C"
-                        stroke-width="5"
+                        strokeWidth="5"
                       />
                       <path
                         d="M41.4441 39.0059C41.1171 38.7012 40.6846 38.5354 40.2377 38.5432C39.7908 38.5511 39.3644 38.7322 39.0483 39.0482C38.7323 39.3643 38.5512 39.7906 38.5434 40.2375C38.5355 40.6844 38.7014 41.1169 39.0061 41.4439L47.5621 49.9999L39.0061 58.5559C38.8366 58.7139 38.7006 58.9043 38.6064 59.1159C38.5121 59.3275 38.4614 59.5559 38.4573 59.7875C38.4532 60.0192 38.4958 60.2492 38.5826 60.464C38.6693 60.6788 38.7985 60.8739 38.9623 61.0377C39.1261 61.2015 39.3212 61.3307 39.536 61.4174C39.7508 61.5042 39.9808 61.5468 40.2125 61.5427C40.4441 61.5386 40.6725 61.4879 40.8841 61.3936C41.0957 61.2994 41.2861 61.1634 41.4441 60.9939L50.0001 52.4379L58.5561 60.9939C58.714 61.1634 58.9044 61.2994 59.116 61.3936C59.3276 61.4879 59.556 61.5386 59.7877 61.5427C60.0193 61.5468 60.2493 61.5042 60.4641 61.4174C60.6789 61.3307 60.874 61.2015 61.0378 61.0377C61.2017 60.8739 61.3308 60.6788 61.4175 60.464C61.5043 60.2492 61.5469 60.0192 61.5428 59.7875C61.5387 59.5559 61.488 59.3275 61.3938 59.1159C61.2995 58.9043 61.1635 58.7139 60.9941 58.5559L52.4381 49.9999L60.9941 41.4439C61.2988 41.1169 61.4646 40.6844 61.4568 40.2375C61.4489 39.7906 61.2678 39.3643 60.9518 39.0482C60.6357 38.7322 60.2094 38.5511 59.7625 38.5432C59.3156 38.5354 58.8831 38.7012 58.5561 39.0059L50.0001 47.5619L41.4441 39.0059Z"
@@ -129,25 +132,28 @@ export default function PositionMintModal({
                     isLoading && "opacity-20 cursor-not-allowed"
                   }`}
                 >
-                  <Link href={type === "range" ? "/range" : "/cover"}>
-                    <button className="whitespace-nowrap text-xs flex items-center gap-x-2 text-grey1 hover:text-white hover:underline transition-all">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        className="w-6 h-6"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18"
-                        />
-                      </svg>
-                      Go back
-                    </button>
-                  </Link>
+                  <button
+                    className="whitespace-nowrap text-xs flex items-center gap-x-2 text-grey1 hover:text-white hover:underline transition-all"
+                    onClick={() =>
+                      router.push(type === "range" ? "/range" : "/cover")
+                    }
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                      className="w-6 h-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18"
+                      />
+                    </svg>
+                    Go back
+                  </button>
                   <a
                     target="_blank"
                     rel="noreferrer"
@@ -159,13 +165,13 @@ export default function PositionMintModal({
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
-                      stroke-width="1.5"
+                      strokeWidth="1.5"
                       stroke="currentColor"
                       className="w-4 h-4 -mt-0.5"
                     >
                       <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
                       />
                     </svg>

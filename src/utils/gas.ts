@@ -131,7 +131,7 @@ export const gasEstimateMintLimit = async (
 };
 
 export const gasEstimateCreateAndMintLimit = async (
-  poolType: string,
+  poolTypeId: number,
   feeTier: number,
   address: string,
   lowerTick: BigNumber,
@@ -168,7 +168,7 @@ export const gasEstimateCreateAndMintLimit = async (
       .connect(signer)
       .estimateGas.createLimitPoolAndMint(
         {
-          poolType: ethers.utils.formatBytes32String(poolType),
+          poolTypeId: poolTypeId,
           tokenIn: token0.address,
           tokenOut: token1.address,
           startPrice: TickMath.getSqrtRatioAtTick(Number(upperTick)),
@@ -328,7 +328,7 @@ export const gasEstimateRangeMint = async (
 };
 
 export const gasEstimateRangeCreateAndMint = async (
-  poolType: string,
+  poolTypeId: number,
   feeTier: number,
   address: string,
   lowerTick: BigNumber,
@@ -357,7 +357,7 @@ export const gasEstimateRangeCreateAndMint = async (
       .connect(signer)
       .estimateGas.createLimitPoolAndMint(
         {
-          poolType: ethers.utils.formatBytes32String(poolType),
+          poolTypeId: poolTypeId,
           tokenIn: token0.address,
           tokenOut: token1.address,
           startPrice: TickMath.getSqrtRatioAtTick(Number(upperTick)),

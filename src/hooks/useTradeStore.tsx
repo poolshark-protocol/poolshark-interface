@@ -103,7 +103,7 @@ const initialTradeState: TradeState = {
   tradePoolData: {},
   tradePositionData: {},
   feeTierTradeId: 0,
-  tradeSlippage: "0.5",
+  tradeSlippage: "0.1",
   //
   tradeParams: {
     tokenInAmount: BN_ZERO,

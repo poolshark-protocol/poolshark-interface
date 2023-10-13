@@ -35,7 +35,7 @@ export function roundTick(tick: number, tickSpacing: number): number {
 }
 
 export function invertPrice(priceString: string, zeroForOne: boolean): string {
-  if (parseFloat(priceString) == 0) return '0.00'
+  if (isNaN(parseFloat(priceString)) || parseFloat(priceString) == 0) return '0.00'
   if(!zeroForOne) {
     let price = JSBD.BigDecimal(priceString)
     price = JSBD.divide(JSBD.BigDecimal('1.00'), price)
@@ -104,7 +104,7 @@ export abstract class TickMath {
   public static MAX_SQRT_RATIO: JSBI = JSBI.BigInt('1461446703485210103287273052203988822378723970342')
 
   public static getPriceStringAtTick(tick: number, tickSpacing?: number): string {
-    if (!tick) return '0.00'
+    if (isNaN(tick)) return '0.00'
     // round the tick based on tickSpacing
     let roundedTick = tick
     if (tickSpacing) roundedTick = roundTick(Number(tick), tickSpacing)

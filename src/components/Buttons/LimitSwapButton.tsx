@@ -7,7 +7,6 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
-import { limitPoolABI } from "../../abis/evm/limitPool";
 import { useTradeStore } from "../../hooks/useTradeStore";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
