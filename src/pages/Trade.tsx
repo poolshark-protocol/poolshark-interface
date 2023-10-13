@@ -41,7 +41,7 @@ import SwapRouterButton from "../components/Buttons/SwapRouterButton";
 import JSBI from "jsbi";
 import LimitCreateAndMintButton from "../components/Buttons/LimitCreateAndMintButton";
 import { fetchLimitPositions } from "../utils/queries";
-import { mapUserLimitPositions } from "../utils/maps";
+import { getClaimTick, mapUserLimitPositions } from "../utils/maps";
 import { displayPoolPrice, getAveragePrice, getExpectedAmountInFromOutput, getExpectedAmountOut, getExpectedAmountOutFromInput, getMarketPriceAboveBelowString } from "../utils/math/priceMath";
 import LimitSwapBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import timeDifference from "../utils/time";
@@ -93,6 +93,8 @@ export default function Trade() {
     setMintButtonState,
     needsRefetch,
     setNeedsRefetch,
+    needsSnapshot,
+    setNeedsSnapshot,
   ] = useTradeStore((s) => [
     s.tradePoolAddress,
     s.setTradePoolAddress,
@@ -127,6 +129,8 @@ export default function Trade() {
     s.setMintButtonState,
     s.needsRefetch,
     s.setNeedsRefetch,
+    s.needsSnapshot,
+    s.setNeedsSnapshot,
   ]);
 
   //set Limit Fee tier Modal
@@ -246,6 +250,14 @@ export default function Trade() {
       }
     }
   };
+
+  //log addresses and ids
+  const [limitPoolAddressList, setLimitPoolAddressList] = useState([]);
+  const [limitPositionSnapshotList, setLimitPositionSnapshotList] = useState<any[]>([]);
+
+  //log amount in and out
+  const [limitFilledAmountList, setLimitFilledAmountList] = useState([]);
+  const [currentAmountOutList, setCurrentAmountOutList] = useState([]);
 
   useEffect(() => {
     if (tokenIn.address != ZERO_ADDRESS && tokenOut.address === ZERO_ADDRESS) {
@@ -367,6 +379,44 @@ export default function Trade() {
     setSwapParams(paramsList);
   }
 
+  ////////////////////////////////Filled Amount
+  const { data: filledAmountList } = useContractRead({
+    address: chainProperties['arbitrumGoerli']['routerAddress'],
+    abi: poolsharkRouterABI,
+    functionName: "multiSnapshotLimit",
+    args: [
+      limitPoolAddressList,
+      limitPositionSnapshotList,
+    ],
+    chainId: 421613,
+    watch: needsSnapshot,
+    enabled:
+      isConnected &&
+      limitPoolAddressList.length > 0 &&
+      needsSnapshot,
+    onSuccess(data) {
+      console.log("Success price filled amount", data);
+      console.log("snapshot address list", limitPoolAddressList);
+      console.log("snapshot params list", limitPositionSnapshotList);
+      setNeedsSnapshot(false)
+    },
+    onError(error) {
+      console.log("Error price Limit", error);
+    },
+  });
+
+  useEffect(() => {
+    if (filledAmountList) {
+      setLimitFilledAmountList(
+        filledAmountList[0]
+      );
+
+      setCurrentAmountOutList(
+        filledAmountList[1]
+      )
+    }
+  }, [filledAmountList]);
+
   //////////////////////Get Pools Data
 
   const [allLimitPositions, setAllLimitPositions] = useState([]);
@@ -385,6 +435,12 @@ export default function Trade() {
     }
   }, [needsRefetch]);
 
+  useEffect(() => {
+    if (allLimitPositions.length > 0) {
+      mapUserLimitSnapshotList();
+    }
+  }, [allLimitPositions]);
+
   async function getUserLimitPositionData() {
     try {
       const data = await fetchLimitPositions(address.toLowerCase());
@@ -392,6 +448,39 @@ export default function Trade() {
         setAllLimitPositions(
           mapUserLimitPositions(data["data"].limitPositions)
         );
+      }
+    } catch (error) {
+      console.log('limit error', error);
+    }
+  }
+
+  async function mapUserLimitSnapshotList() {
+    try {
+      let mappedLimitPoolAddresses = [];
+      let mappedLimitSnapshotParams = [];
+      if (allLimitPositions.length > 0) {
+        for (let i = 0; i < allLimitPositions.length; i++) {
+          mappedLimitPoolAddresses[i] = allLimitPositions[i].poolId;
+
+          mappedLimitSnapshotParams[i] = [];
+
+          mappedLimitSnapshotParams[i][0] = address;
+          mappedLimitSnapshotParams[i][1] = ethers.utils.parseUnits("1", 38);
+          mappedLimitSnapshotParams[i][2] = BigNumber.from(allLimitPositions[i].positionId);
+          mappedLimitSnapshotParams[i][3] = BigNumber.from(await getClaimTick(
+            allLimitPositions[i].poolId.toString(),
+            Number(allLimitPositions[i].min),
+            Number(allLimitPositions[i].max),
+            allLimitPositions[i].tokenIn.id.localeCompare(allLimitPositions[i].tokenOut.id) < 0,
+            Number(allLimitPositions[i].epochLast),
+            false
+          ));
+          mappedLimitSnapshotParams[i][4] = allLimitPositions[i].tokenIn.id
+            .localeCompare(allLimitPositions[i].tokenOut.id) < 0;
+        }
+        
+        setLimitPoolAddressList(mappedLimitPoolAddresses)
+        setLimitPositionSnapshotList(mappedLimitSnapshotParams)
       }
     } catch (error) {
       console.log('limit error', error);
@@ -1220,28 +1309,36 @@ export default function Trade() {
               <th className="text-left md:table-cell hidden pl-2 uppercase">Age</th>
             </tr>
           </thead>
-          {allLimitPositions.length === 0  ? (<td className="text-grey1 text-xs w-full  py-10 text-center col-span-5">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    className="w-10 py-4 mx-auto"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Your limit orders will appear here.
-                </td>) : (
+          {allLimitPositions.length === 0  ? (
+          <tbody>
+            <tr>
+              <td className="text-grey1 text-xs w-full  py-10 text-center col-span-5">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="w-10 py-4 mx-auto"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 015.273 3h9.454a2.75 2.75 0 012.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 01-2 2H3a2 2 0 01-2-2v-3.73zm3.068-5.852A1.25 1.25 0 015.273 4.5h9.454a1.25 1.25 0 011.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 00-.86.49l-.606 1.02a1 1 0 01-.86.49H8.236a1 1 0 01-.894-.553l-.448-.894A1 1 0 006 11H2.53l.015-.062 1.523-5.52z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Your limit orders will appear here.
+              </td>
+            </tr>
+          </tbody>) : (
           activeOrdersSelected ? (
             <tbody className="divide-y divide-grey/70">
-              {allLimitPositions.map((allLimitPosition) => {
+              {allLimitPositions.map((allLimitPosition, index) => {
                 if (allLimitPosition.positionId != undefined) {
                   return (
                     <UserLimitPool
                       limitPosition={allLimitPosition}
+                      limitFilledAmount={limitFilledAmountList.length > 0 ?
+                        parseFloat(ethers.utils.formatEther(limitFilledAmountList[index])) :
+                        parseFloat("0.00")}
                       address={address}
                       href={"/limit/view"}
                       key={allLimitPosition.positionId}
@@ -1252,7 +1349,7 @@ export default function Trade() {
             </tbody>
           ) : (
             <tbody className="divide-y divide-grey/70">
-              {allLimitPositions.map((allLimitPosition) => {
+              {allLimitPositions.map((allLimitPosition, index) => {
                 if (allLimitPosition.positionId != undefined) {
                   return (
                     <tr className="text-right text-xs md:text-sm bg-black hover:bg-dark cursor-pointer"
@@ -1301,8 +1398,16 @@ export default function Trade() {
                       <td className="md:table-cell hidden">
                         <div className="text-white bg-black border border-grey relative flex items-center justify-center h-7 rounded-[4px] text-center text-[10px]">
                           <span className="z-50 px-3">
-                            {(parseFloat(allLimitPosition.amountFilled) /
-                            parseFloat(allLimitPosition.liquidity)).toFixed(2)}% Filled
+                            {(parseFloat(ethers.utils.formatEther(limitFilledAmountList[index])) /
+                              parseFloat(
+                                ethers.utils.formatUnits(
+                                  getExpectedAmountOutFromInput(
+                                    parseInt(allLimitPosition.min),
+                                    parseInt(allLimitPosition.max),
+                                    allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0,
+                                    BigNumber.from(allLimitPosition.amountIn)
+                                ), tokenOut.decimals
+                              ))).toFixed(2)}% Filled
                           </span>
                           <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
                         </div>

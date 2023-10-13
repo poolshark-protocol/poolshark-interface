@@ -32,6 +32,7 @@ import { volatilityTiers } from "../../utils/pools";
 import router from "next/router";
 import CoverCreateAndMintButton from "../Buttons/CoverCreateAndMintButton";
 import { coverPoolABI } from "../../abis/evm/coverPool";
+import { getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
 
 export default function CreateCover(props: any) {
   const [
@@ -559,19 +560,28 @@ export default function CreateCover(props: any) {
             <span>
               ~$
               {(
-                parseFloat(
-                  ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                ) * tokenIn.coverUSDPrice
+                parseFloat(ethers.utils.formatUnits(
+                  getExpectedAmountOutFromInput(
+                    TickMath.getTickAtPriceString(coverPositionData.lowerPrice),
+                    TickMath.getTickAtPriceString(coverPositionData.upperPrice),
+                    tokenIn.callId == 0, // direction is reversed for cover
+                    bnInput
+                  ), tokenOut.decimals)) * tokenOut.coverUSDPrice
               ).toPrecision(6)}
             </span>
           </div>
           <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
             {parseFloat(coverPositionData.lowerPrice) <
               parseFloat(coverPositionData.upperPrice) &&
-            bnInput.toString() != "0" ? (
-              (
-                (tokenIn.coverUSDPrice / tokenOut.coverUSDPrice) *
-                parseFloat(ethers.utils.formatUnits(bnInput, tokenIn.decimals))
+            bnInput.toString() != "0" && coverPoolAddress != ZERO_ADDRESS ? (
+              // 1
+              (parseFloat(ethers.utils.formatUnits(
+                getExpectedAmountOutFromInput(
+                  TickMath.getTickAtPriceString(coverPositionData.lowerPrice),
+                  TickMath.getTickAtPriceString(coverPositionData.upperPrice),
+                  tokenIn.callId == 0, // direction is reversed for cover
+                  bnInput
+                ), tokenOut.decimals))
               ).toPrecision(6)
             ) : (
               <>0</>

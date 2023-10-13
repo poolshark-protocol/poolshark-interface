@@ -25,10 +25,16 @@ export default function LimitSwapButton({
   closeModal,
   gasLimit,
 }) {
-  const [setNeedsRefetch,setNeedsAllowanceIn, setNeedsBalanceIn] = useTradeStore((state) => [
+  const [
+    setNeedsRefetch,
+    setNeedsAllowanceIn, 
+    setNeedsBalanceIn,
+    setNeedsSnapshot,
+  ] = useTradeStore((state) => [
     state.setNeedsRefetch,
     state.setNeedsAllowanceIn,
     state.setNeedsBalanceIn,
+    state.setNeedsSnapshot,
   ]);
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
@@ -69,18 +75,13 @@ export default function LimitSwapButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
+      setNeedsAllowanceIn(true);
+      setNeedsBalanceIn(true);
+      setNeedsSnapshot(true);
       setTimeout(() => {
         setNeedsRefetch(true);
         closeModal();
-      }, 2000);
-      
-      setTimeout(() => {
-        setNeedsAllowanceIn(true);
-        setNeedsBalanceIn(true);
       }, 1000);
-      // if (amount1.gt(BN_ZERO)) {
-      //   setNeedsAllowanceOut(true);
-      // }
     },
     onError() {
       setErrorDisplay(true);
