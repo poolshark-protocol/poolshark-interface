@@ -68,19 +68,13 @@ export default function LimitSwapButton({
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
+      setNeedsRefetch(true);
+      setNeedsAllowanceIn(true);
+      setNeedsBalanceIn(true);
       setSuccessDisplay(true);
       setTimeout(() => {
-        setNeedsRefetch(true);
         closeModal();
       }, 2000);
-      
-      setTimeout(() => {
-        setNeedsAllowanceIn(true);
-        setNeedsBalanceIn(true);
-      }, 1000);
-      // if (amount1.gt(BN_ZERO)) {
-      //   setNeedsAllowanceOut(true);
-      // }
     },
     onError() {
       setErrorDisplay(true);
