@@ -82,16 +82,13 @@ import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
     const { isLoading } = useWaitForTransaction({
       hash: data?.hash,
       onSuccess() {
+        setNeedsRefetch(true);
+        setNeedsAllowanceIn(true);
+        setNeedsBalanceIn(true);
         setSuccessDisplay(true);
         setTimeout(() => {
           closeModal();
         }, 2000);
-        setNeedsRefetch(true);
-        setNeedsAllowanceIn(true);
-        // if (amount1.gt(BN_ZERO)) {
-        //   setNeedsAllowanceOut(true);
-        // }
-        setNeedsBalanceIn(true);
       },
       onError() {
         setErrorDisplay(true);
