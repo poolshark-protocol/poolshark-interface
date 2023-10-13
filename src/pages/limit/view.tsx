@@ -234,6 +234,8 @@ export default function ViewLimit() {
 
   ////////////////////////////////Collect Gas
   async function updateCollectFee() {
+    console.log("collect zeroForOne", tokenIn.callId == 0);
+    
     if (signer && (claimTick != (tokenIn.callId == 0 ? Number(limitPositionData.min) : Number(limitPositionData.max)))) {
       await gasEstimateBurnLimit(
         limitPoolAddress,
