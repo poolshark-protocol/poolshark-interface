@@ -49,8 +49,10 @@ export default function SwapRouterApproveButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
-      setNeedsAllowanceIn(true);
-      setNeedsAllowanceInLimit(true);
+      setTimeout(() => {
+        setNeedsAllowanceIn(true);
+        setNeedsAllowanceInLimit(true);
+      }, 500);
     },
     onError() {
       setErrorDisplay(true);
