@@ -9,11 +9,12 @@ import { useRouter } from "next/router";
 import RangeMintApproveButton from "../Buttons/RangeMintApproveButton";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
-import { gasEstimateRangeCreateAndMint, gasEstimateRangeMint } from "../../utils/gas";
-import RangeCreateAndMintButton from "../Buttons/RangeCreateAndMintButton";
 import {
-  chainProperties,
-} from "../../utils/chains";
+  gasEstimateRangeCreateAndMint,
+  gasEstimateRangeMint,
+} from "../../utils/gas";
+import RangeCreateAndMintButton from "../Buttons/RangeCreateAndMintButton";
+import { chainProperties } from "../../utils/chains";
 import { limitPoolTypeIds } from "../../utils/pools";
 
 export default function RangePoolPreview() {
@@ -48,7 +49,9 @@ export default function RangePoolPreview() {
   ]);
 
   const { address } = useAccount();
-  const [ tokenOrder, setTokenOrder ] = useState(tokenIn.address.localeCompare(tokenOut.address) < 0)
+  const [tokenOrder, setTokenOrder] = useState(
+    tokenIn.address.localeCompare(tokenOut.address) < 0
+  );
   const {
     network: { chainId },
   } = useProvider();
@@ -120,49 +123,50 @@ export default function RangePoolPreview() {
   }, [rangeMintParams.tokenInAmount, tokenOut, rangePositionData]);
 
   async function updateGasFee() {
-    const newGasFee = rangePoolAddress == ZERO_ADDRESS ?
-        await gasEstimateRangeMint(
-          rangePoolAddress,
-          address,
-          BigNumber.from(
-            TickMath.getTickAtPriceString(
-              rangePositionData.lowerPrice,
-              parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
-            )
-          ),
-          BigNumber.from(
-            TickMath.getTickAtPriceString(
-              rangePositionData.upperPrice,
-              parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
-            )
-          ),
-          rangeMintParams.tokenInAmount,
-          rangeMintParams.tokenOutAmount,
-          signer
-        )
-      : await gasEstimateRangeCreateAndMint(
-        limitPoolTypeIds['constant-product'],
-        rangePoolData.feeTier?.feeAmount,
-        address,
+    const newGasFee =
+      rangePoolAddress != ZERO_ADDRESS
+        ? await gasEstimateRangeMint(
+            rangePoolAddress,
+            address,
+            BigNumber.from(
+              TickMath.getTickAtPriceString(
+                rangePositionData.lowerPrice,
+                parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
+              )
+            ),
+            BigNumber.from(
+              TickMath.getTickAtPriceString(
+                rangePositionData.upperPrice,
+                parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
+              )
+            ),
+            rangeMintParams.tokenInAmount,
+            rangeMintParams.tokenOutAmount,
+            signer
+          )
+        : await gasEstimateRangeCreateAndMint(
+            limitPoolTypeIds["constant-product"],
+            rangePoolData.feeTier?.feeAmount,
+            address,
 
-        BigNumber.from(
-          TickMath.getTickAtPriceString(
-            rangePositionData.lowerPrice,
-            parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
-          )
-        ),
-        BigNumber.from(
-          TickMath.getTickAtPriceString(
-            rangePositionData.upperPrice,
-            parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
-          )
-        ),
-        tokenOrder ? tokenIn : tokenOut,
-        tokenOrder ? tokenOut : tokenIn,
-        rangeMintParams.tokenInAmount,
-        rangeMintParams.tokenOutAmount,
-        signer
-      );
+            BigNumber.from(
+              TickMath.getTickAtPriceString(
+                rangePositionData.lowerPrice,
+                parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
+              )
+            ),
+            BigNumber.from(
+              TickMath.getTickAtPriceString(
+                rangePositionData.upperPrice,
+                parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
+              )
+            ),
+            tokenOrder ? tokenIn : tokenOut,
+            tokenOrder ? tokenOut : tokenIn,
+            rangeMintParams.tokenInAmount,
+            rangeMintParams.tokenOutAmount,
+            signer
+          );
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
   }
 
@@ -468,7 +472,7 @@ export default function RangePoolPreview() {
                             routerAddress={
                               chainProperties["arbitrumGoerli"]["routerAddress"]
                             }
-                            poolTypeId={limitPoolTypeIds['constant-product']}
+                            poolTypeId={limitPoolTypeIds["constant-product"]}
                             token0={tokenIn}
                             token1={tokenOut}
                             startPrice={BigNumber.from(

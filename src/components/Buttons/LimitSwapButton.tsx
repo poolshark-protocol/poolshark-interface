@@ -82,9 +82,6 @@ export default function LimitSwapButton({
         setNeedsRefetch(true);
         closeModal();
       }, 1000);
-      // if (amount1.gt(BN_ZERO)) {
-      //   setNeedsAllowanceOut(true);
-      // }
     },
     onError() {
       setErrorDisplay(true);

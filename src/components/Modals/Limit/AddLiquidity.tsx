@@ -16,7 +16,6 @@ import { BN_ZERO } from "../../../utils/math/constants";
 import SwapRouterApproveButton from "../../Buttons/SwapRouterApproveButton";
 import { chainIdsToNamesForGitTokenList, chainProperties } from "../../../utils/chains";
 import { gasEstimateMintLimit } from "../../../utils/gas";
-import JSBI from "jsbi";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {

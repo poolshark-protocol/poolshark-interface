@@ -104,7 +104,7 @@ export abstract class TickMath {
   public static MAX_SQRT_RATIO: JSBI = JSBI.BigInt('1461446703485210103287273052203988822378723970342')
 
   public static getPriceStringAtTick(tick: number, tickSpacing?: number): string {
-    if (!tick) return '0.00'
+    if (isNaN(tick)) return '0.00'
     // round the tick based on tickSpacing
     let roundedTick = tick
     if (tickSpacing) roundedTick = roundTick(Number(tick), tickSpacing)
