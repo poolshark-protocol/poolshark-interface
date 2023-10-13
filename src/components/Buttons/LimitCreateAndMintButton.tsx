@@ -7,7 +7,7 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState, useEffect } from "react";
-import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
+import { useTradeStore } from "../../hooks/useTradeStore";
 import { TickMath } from "../../utils/math/tickMath";
 import { ethers } from "ethers";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
@@ -32,10 +32,12 @@ import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
       setNeedsRefetch,
       setNeedsAllowanceIn,
       setNeedsBalanceIn,
-    ] = useRangeLimitStore((state) => [
+      setNeedsSnapshot,
+    ] = useTradeStore((state) => [
       state.setNeedsRefetch,
       state.setNeedsAllowanceIn,
       state.setNeedsBalanceIn,
+      state.setNeedsSnapshot,
     ]);
     const [errorDisplay, setErrorDisplay] = useState(false);
     const [successDisplay, setSuccessDisplay] = useState(false);
@@ -82,13 +84,14 @@ import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
     const { isLoading } = useWaitForTransaction({
       hash: data?.hash,
       onSuccess() {
-        setNeedsRefetch(true);
-        setNeedsAllowanceIn(true);
-        setNeedsBalanceIn(true);
         setSuccessDisplay(true);
+        setNeedsBalanceIn(true);
+        setNeedsAllowanceIn(true);
+        setNeedsSnapshot(true);
         setTimeout(() => {
+          setNeedsRefetch(true);
           closeModal();
-        }, 2000);
+        }, 1000);
       },
       onError() {
         setErrorDisplay(true);

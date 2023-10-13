@@ -46,6 +46,7 @@ type TradeState = {
   needsAllowanceOut: boolean;
   needsBalanceIn: boolean;
   needsBalanceOut: boolean;
+  needsSnapshot: boolean;
 };
 
 type TradeLimitAction = {
@@ -95,6 +96,7 @@ type TradeLimitAction = {
   setNeedsAllowanceOut: (needsAllowance: boolean) => void;
   setNeedsBalanceIn: (needsBalance: boolean) => void;
   setNeedsBalanceOut: (needsBalance: boolean) => void;
+  setNeedsSnapshot: (needsSnapshot: boolean) => void;
 };
 
 const initialTradeState: TradeState = {
@@ -152,6 +154,7 @@ const initialTradeState: TradeState = {
   needsAllowanceOut: true,
   needsBalanceIn: true,
   needsBalanceOut: false,
+  needsSnapshot: true,
 };
 
 export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
@@ -182,6 +185,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   needsAllowanceOut: initialTradeState.needsAllowanceOut,
   needsBalanceIn: initialTradeState.needsBalanceIn,
   needsBalanceOut: initialTradeState.needsBalanceOut,
+  needsSnapshot: initialTradeState.needsSnapshot,
   //actions
   setPairSelected: (pairSelected: boolean) => {
     set(() => ({
@@ -450,6 +454,11 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       needsBalanceOut: needsBalanceOut,
     }));
   },
+  setNeedsSnapshot: (needsSnapshot: boolean) => {
+    set(() => ({
+      needsSnapshot: needsSnapshot,
+    }));
+  },
   switchDirection: () => {
     set((state) => ({
       tokenIn: {
@@ -532,6 +541,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       needsBalanceOut: initialTradeState.needsBalanceOut,
       needsRefetch: initialTradeState.needsRefetch,
       needsPosRefetch: initialTradeState.needsPosRefetch,
+      needsSnapshot: initialTradeState.needsSnapshot,
     });
   },
 }));

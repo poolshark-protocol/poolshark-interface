@@ -27,11 +27,17 @@ export default function LimitSwapBurnButton({
 }) {
   const { data: signer } = useSigner();
 
-  const [setNeedsRefetch, setNeedsBalanceIn, setNeedsBalanceOut] = useTradeStore(
+  const [
+    setNeedsRefetch, 
+    setNeedsBalanceIn, 
+    setNeedsBalanceOut,
+    setNeedsSnapshot,
+  ] = useTradeStore(
     (state) => [
       state.setNeedsRefetch,
       state.setNeedsBalanceIn,
       state.setNeedsBalanceOut,
+      state.setNeedsSnapshot,
     ]
   );
   const [claimTick, setClaimTick] = useState(0);
@@ -109,15 +115,14 @@ export default function LimitSwapBurnButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
+      setNeedsSnapshot(true);
+      setNeedsBalanceIn(true);
+      setNeedsBalanceOut(true);
       if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
         setTimeout(() => {
           setNeedsRefetch(true);
         }, 1000);
       }
-      setTimeout(() => {
-        setNeedsBalanceIn(true);
-        setNeedsBalanceOut(true);
-      }, 1000);
     },
     onError() {
       setErrorDisplay(true);
