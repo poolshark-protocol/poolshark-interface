@@ -240,10 +240,14 @@ export default function CoverExistingPool({ goBack }) {
       tokenOrder
         ? tickAtPrice + -tickSpread * 16
         : tickAtPrice + tickSpread * 8,
+      tokenIn,
+      tokenOut,
       tickSpread
     );
     const priceUpper = TickMath.getPriceStringAtTick(
       tokenOrder ? tickAtPrice - tickSpread * 6 : tickAtPrice + tickSpread * 18,
+      tokenIn,
+      tokenOut,
       tickSpread
     );
     setLowerPrice(
@@ -328,10 +332,10 @@ export default function CoverExistingPool({ goBack }) {
         parseFloat(coverPositionData.upperPrice)
     ) {
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
-        TickMath.getTickAtPriceString(coverPositionData.lowerPrice)
+        TickMath.getTickAtPriceString(coverPositionData.lowerPrice, tokenIn, tokenOut)
       );
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(
-        TickMath.getTickAtPriceString(coverPositionData.upperPrice)
+        TickMath.getTickAtPriceString(coverPositionData.upperPrice, tokenIn, tokenOut)
       );
       const liquidityAmount = JSBI.divide(
         JSBI.multiply(
@@ -436,10 +440,12 @@ export default function CoverExistingPool({ goBack }) {
             address,
             TickMath.getTickAtPriceString(
               coverPositionData.upperPrice,
+              tokenIn, tokenOut,
               parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
             ),
             TickMath.getTickAtPriceString(
               coverPositionData.lowerPrice,
+              tokenIn, tokenOut,
               parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
             ),
             tokenIn,
@@ -455,10 +461,12 @@ export default function CoverExistingPool({ goBack }) {
             address,
             TickMath.getTickAtPriceString(
               coverPositionData.upperPrice,
+              tokenIn, tokenOut,
               parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
             ),
             TickMath.getTickAtPriceString(
               coverPositionData.lowerPrice,
+              tokenIn, tokenOut,
               parseInt(coverPoolData.volatilityTier.tickSpread ?? 20)
             ),
             tokenIn,
@@ -708,9 +716,9 @@ export default function CoverExistingPool({ goBack }) {
                 {" " +
                   parseFloat(
                     priceOrder
-                      ? TickMath.getPriceStringAtTick(latestTick)
+                      ? TickMath.getPriceStringAtTick(latestTick, tokenIn, tokenOut)
                       : invertPrice(
-                          TickMath.getPriceStringAtTick(latestTick),
+                          TickMath.getPriceStringAtTick(latestTick, tokenIn, tokenOut),
                           false
                         )
                   ).toPrecision(5) +
@@ -774,6 +782,7 @@ export default function CoverExistingPool({ goBack }) {
               coverPositionData.lowerPrice
                 ? TickMath.getTickAtPriceString(
                     coverPositionData.lowerPrice ?? "0",
+                    tokenIn, tokenOut,
                     coverPoolData.volatilityTier
                       ? parseInt(coverPoolData.volatilityTier.tickSpread)
                       : 20
@@ -784,6 +793,7 @@ export default function CoverExistingPool({ goBack }) {
               coverPositionData.upperPrice
                 ? TickMath.getTickAtPriceString(
                     coverPositionData.upperPrice ?? "0",
+                    tokenIn, tokenOut,
                     coverPoolData.volatilityTier
                       ? parseInt(coverPoolData.volatilityTier.tickSpread)
                       : 20
@@ -817,6 +827,7 @@ export default function CoverExistingPool({ goBack }) {
               coverPositionData.lowerPrice
                 ? TickMath.getTickAtPriceString(
                     coverPositionData.lowerPrice ?? "0",
+                    tokenIn, tokenOut,
                     coverPoolData.volatilityTier
                       ? parseInt(coverPoolData.volatilityTier.tickSpread)
                       : 20
@@ -827,6 +838,7 @@ export default function CoverExistingPool({ goBack }) {
               coverPositionData.upperPrice
                 ? TickMath.getTickAtPriceString(
                     coverPositionData.upperPrice ?? "0",
+                    tokenIn, tokenOut,
                     coverPoolData.volatilityTier
                       ? parseInt(coverPoolData.volatilityTier.tickSpread)
                       : 20

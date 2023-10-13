@@ -139,12 +139,12 @@ export default function AddLiquidity({}) {
     if (rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
       if (!rangeSqrtPrice) {
         const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
-        const price = TickMath.getPriceStringAtSqrtPrice(sqrtPrice)
+        const price = TickMath.getPriceStringAtSqrtPrice(sqrtPrice, tokenIn, tokenOut)
         const tickAtPrice = rangePoolData.tickAtPrice;
-        setRangePrice(TickMath.getPriceStringAtSqrtPrice(sqrtPrice));
+        setRangePrice(TickMath.getPriceStringAtSqrtPrice(sqrtPrice, tokenIn, tokenOut));
         setRangeSqrtPrice(sqrtPrice);
-        setMinInput(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
-        setMaxInput(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
+        setMinInput(TickMath.getPriceStringAtTick(tickAtPrice - 7000, tokenIn, tokenOut));
+        setMaxInput(TickMath.getPriceStringAtTick(tickAtPrice - -7000, tokenIn, tokenOut));
         setTokenInAmount(BN_ZERO)
         setTokenOutAmount(BN_ZERO)
       }
@@ -313,10 +313,12 @@ export default function AddLiquidity({}) {
         const inputBn = amountSet
         const lower = TickMath.getTickAtPriceString(
           lowerPrice,
+          tokenIn, tokenOut,
           parseInt(rangePoolData.feeTier.tickSpacing)
         );
         const upper = TickMath.getTickAtPriceString(
           upperPrice,
+          tokenIn, tokenOut,
           parseInt(rangePoolData.feeTier.tickSpacing)
         );
         const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lower);
@@ -544,7 +546,8 @@ export default function AddLiquidity({}) {
                       roundTick(
                         -887272,
                         parseInt(rangePoolData.feeTier.tickSpacing)
-                      )
+                      ),
+                      tokenIn, tokenOut
                     )
                   );
                   setMaxInput(
@@ -552,7 +555,8 @@ export default function AddLiquidity({}) {
                       roundTick(
                         887272,
                         parseInt(rangePoolData.feeTier.tickSpacing)
-                      )
+                      ),
+                      tokenIn, tokenOut
                     )
                   );
                 }}

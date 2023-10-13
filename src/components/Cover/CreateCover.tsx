@@ -224,11 +224,13 @@ export default function CreateCover(props: any) {
       tokenOrder
         ? tickAtPrice + -tickSpread * 16
         : tickAtPrice + tickSpread * 8,
+      tokenIn, tokenOut,
       tickSpread
     );
     const priceUpper = TickMath.getPriceStringAtTick(
       tokenOrder ? tickAtPrice - tickSpread * 6 
                  : tickAtPrice + tickSpread * 18,
+      tokenIn, tokenOut,
       tickSpread
     );
     console.log('updating position data')
@@ -307,10 +309,10 @@ export default function CreateCover(props: any) {
         parseFloat(coverPositionData.upperPrice)
     ) {
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
-        TickMath.getTickAtPriceString(coverPositionData.lowerPrice)
+        TickMath.getTickAtPriceString(coverPositionData.lowerPrice, tokenIn, tokenOut)
       );
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(
-        TickMath.getTickAtPriceString(coverPositionData.upperPrice)
+        TickMath.getTickAtPriceString(coverPositionData.upperPrice, tokenIn, tokenOut)
       );
       const liquidityAmount = DyDxMath.getLiquidityForAmounts(
         lowerSqrtPrice,
@@ -401,10 +403,12 @@ export default function CreateCover(props: any) {
             address,
             TickMath.getTickAtPriceString(
               coverPositionData.upperPrice,
+              tokenIn, tokenOut,
               parseInt(coverPoolData.volatilityTier.tickSpread)
             ),
             TickMath.getTickAtPriceString(
               coverPositionData.lowerPrice,
+              tokenIn, tokenOut,
               parseInt(coverPoolData.volatilityTier.tickSpread)
             ),
             tokenIn,
@@ -420,10 +424,12 @@ export default function CreateCover(props: any) {
             address,
             TickMath.getTickAtPriceString(
               coverPositionData.upperPrice,
+              tokenIn, tokenOut,
               parseInt(coverPoolData.volatilityTier.tickSpread)
             ),
             TickMath.getTickAtPriceString(
               coverPositionData.lowerPrice,
+              tokenIn, tokenOut,
               parseInt(coverPoolData.volatilityTier.tickSpread)
             ),
             tokenIn,
@@ -562,8 +568,8 @@ export default function CreateCover(props: any) {
               {(
                 parseFloat(ethers.utils.formatUnits(
                   getExpectedAmountOutFromInput(
-                    TickMath.getTickAtPriceString(coverPositionData.lowerPrice),
-                    TickMath.getTickAtPriceString(coverPositionData.upperPrice),
+                    TickMath.getTickAtPriceString(coverPositionData.lowerPrice, tokenIn, tokenOut),
+                    TickMath.getTickAtPriceString(coverPositionData.upperPrice, tokenIn, tokenOut),
                     tokenIn.callId == 0, // direction is reversed for cover
                     bnInput
                   ), tokenOut.decimals)) * tokenOut.coverUSDPrice
@@ -577,8 +583,8 @@ export default function CreateCover(props: any) {
               // 1
               (parseFloat(ethers.utils.formatUnits(
                 getExpectedAmountOutFromInput(
-                  TickMath.getTickAtPriceString(coverPositionData.lowerPrice),
-                  TickMath.getTickAtPriceString(coverPositionData.upperPrice),
+                  TickMath.getTickAtPriceString(coverPositionData.lowerPrice, tokenIn, tokenOut),
+                  TickMath.getTickAtPriceString(coverPositionData.upperPrice, tokenIn, tokenOut),
                   tokenIn.callId == 0, // direction is reversed for cover
                   bnInput
                 ), tokenOut.decimals))
@@ -655,8 +661,8 @@ export default function CreateCover(props: any) {
               <div className="flex-none text-xs uppercase text-[#C9C9C9]">
                 {1} {priceOrder ? tokenIn.symbol : tokenOut.symbol} =
                 {" " +
-                  parseFloat(priceOrder ? TickMath.getPriceStringAtTick(latestTick)
-                              : invertPrice(TickMath.getPriceStringAtTick(latestTick), false)).toPrecision(
+                  parseFloat(priceOrder ? TickMath.getPriceStringAtTick(latestTick, tokenIn, tokenOut)
+                              : invertPrice(TickMath.getPriceStringAtTick(latestTick, tokenIn, tokenOut), false)).toPrecision(
                     5
                   ) +
                   " " +
@@ -732,12 +738,14 @@ export default function CreateCover(props: any) {
             to={address}
             lower={TickMath.getTickAtPriceString(
               coverPositionData.lowerPrice ?? "0",
+              tokenIn, tokenOut,
               coverPoolData.volatilityTier
                 ? parseInt(coverPoolData.volatilityTier.tickSpread)
                 : 20
             )}
             upper={TickMath.getTickAtPriceString(
               coverPositionData.upperPrice ?? "0",
+              tokenIn, tokenOut,
               coverPoolData.volatilityTier
                 ? parseInt(coverPoolData.volatilityTier.tickSpread)
                 : 20
@@ -767,12 +775,14 @@ export default function CreateCover(props: any) {
             to={address}
             lower={TickMath.getTickAtPriceString(
               coverPositionData.lowerPrice ?? "0",
+              tokenIn, tokenOut,
               coverPoolData.volatilityTier
                 ? parseInt(coverPoolData.volatilityTier.tickSpread)
                 : 20
             )}
             upper={TickMath.getTickAtPriceString(
               coverPositionData.upperPrice ?? "0",
+              tokenIn, tokenOut,
               coverPoolData.volatilityTier
                 ? parseInt(coverPoolData.volatilityTier.tickSpread)
                 : 20

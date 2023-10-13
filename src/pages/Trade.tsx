@@ -369,13 +369,13 @@ export default function Trade() {
 
         // set base price from quote
         const basePrice: number = parseFloat(
-          TickMath.getPriceStringAtSqrtPrice(poolQuotes[i].priceAfter)
+          TickMath.getPriceStringAtSqrtPrice(poolQuotes[i].priceAfter, tokenIn, tokenOut)
         );
         
         // set price impact
         if(poolQuotes[i].pool.toLowerCase() == tradePoolData.id) {
           const currentPrice: number = parseFloat(
-            TickMath.getPriceStringAtSqrtPrice(tradePoolData.poolPrice)
+            TickMath.getPriceStringAtSqrtPrice(tradePoolData.poolPrice, tokenIn, tokenOut)
           )
           setPriceImpact((Math.abs(basePrice - currentPrice) * 100 / currentPrice).toFixed(2))
         }
@@ -384,7 +384,8 @@ export default function Trade() {
         const limitPrice = tokenIn.callId == 0 ? basePrice - priceDiff
                                                : basePrice + priceDiff;
         const limitPriceJsbi: JSBI = TickMath.getSqrtPriceAtPriceString(
-          limitPrice.toString()
+          limitPrice.toString(),
+          tokenIn, tokenOut
         );
         const priceLimitBn = BigNumber.from(String(limitPriceJsbi));
         const params: SwapParams = {
@@ -644,7 +645,7 @@ export default function Trade() {
         
         setLowerTick(
           BigNumber.from(
-            TickMath.getTickAtPriceString(priceLower, tickSpacing)
+            TickMath.getTickAtPriceString(priceLower, tokenIn, tokenOut, tickSpacing)
           )
         );
       }
@@ -654,7 +655,7 @@ export default function Trade() {
                                       limitPriceOrder)
         setUpperTick(
           BigNumber.from(
-            TickMath.getTickAtPriceString(priceUpper, tickSpacing)
+            TickMath.getTickAtPriceString(priceUpper, tokenIn, tokenOut, tickSpacing)
           )
         );
       }
@@ -744,12 +745,12 @@ export default function Trade() {
             parseFloat(priceString) - -limitPriceTolerance;
           setLowerTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(priceString, tickSpacing)
+              TickMath.getTickAtPriceString(priceString, tokenIn, tokenOut, tickSpacing)
             )
           );
           setUpperTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(String(endPrice), tickSpacing)
+              TickMath.getTickAtPriceString(String(endPrice), tokenIn, tokenOut, tickSpacing)
             )
           );
         } else {
@@ -757,34 +758,34 @@ export default function Trade() {
             parseFloat(priceString) - limitPriceTolerance;
           setLowerTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(String(endPrice), tickSpacing)
+              TickMath.getTickAtPriceString(String(endPrice), tokenIn, tokenOut, tickSpacing)
             )
           );
           setUpperTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(priceString, tickSpacing)
+              TickMath.getTickAtPriceString(priceString, tokenIn, tokenOut, tickSpacing)
             )
           );
         }
       } else {
         if (tokenIn.callId == 0) {
           const endTick =
-            TickMath.getTickAtPriceString(priceString, tickSpacing) -
+            TickMath.getTickAtPriceString(priceString, tokenIn, tokenOut, tickSpacing) -
             -tickSpacing;
           setLowerTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(priceString, tickSpacing)
+              TickMath.getTickAtPriceString(priceString, tokenIn, tokenOut, tickSpacing)
             )
           );
           setUpperTick(BigNumber.from(String(endTick)));
         } else {
           const endTick =
-            TickMath.getTickAtPriceString(priceString, tickSpacing) -
+            TickMath.getTickAtPriceString(priceString, tokenIn, tokenOut, tickSpacing) -
             tickSpacing;
           setLowerTick(BigNumber.from(String(endTick)));
           setUpperTick(
             BigNumber.from(
-              TickMath.getTickAtPriceString(priceString, tickSpacing)
+              TickMath.getTickAtPriceString(priceString, tokenIn, tokenOut, tickSpacing)
             )
           );
         }
@@ -1198,7 +1199,7 @@ export default function Trade() {
               >
                 <div className="flex-none text-xs uppercase text-[#C9C9C9]">
                   {'1 ' + tokenIn.symbol} ={" "}
-                  {displayPoolPrice(pairSelected, tradePoolData?.poolPrice, tokenIn.callId == 0) +
+                  {displayPoolPrice(pairSelected, tradePoolData?.poolPrice, tokenIn, tokenOut) +
                       " " +
                       tokenOut.symbol}
                 </div>
@@ -1408,12 +1409,14 @@ export default function Trade() {
                           <span className="text-grey1">1 {allLimitPosition.tokenIn.symbol} = </span> 
                             {
                               getAveragePrice(
+                                tokenIn,
+                                tokenOut,
                                 parseInt(allLimitPosition.min), 
                                 parseInt(allLimitPosition.max), 
-                                  allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
+                                allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
                                 BigNumber.from(allLimitPosition.liquidity),
-                                BigNumber.from(allLimitPosition.amountIn))
-                              .toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
+                                BigNumber.from(allLimitPosition.amountIn)
+                              ).toFixed(3) + " " + allLimitPosition.tokenOut.symbol}
                           </span>          
                         </div>
                       </td>

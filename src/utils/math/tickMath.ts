@@ -69,12 +69,12 @@ export function getDefaultUpperTick(minLimit, maxLimit, zeroForOne, latestTick =
   }
 }
 
-export function getDefaultLowerPrice(minLimit, maxLimit, zeroForOne, latestTick = 0): string {
-  return TickMath.getPriceStringAtTick(getDefaultLowerTick(minLimit, maxLimit, zeroForOne, latestTick))
+export function getDefaultLowerPrice(minLimit, maxLimit, zeroForOne, tokenA: token, tokenB: token, latestTick = 0): string {
+  return TickMath.getPriceStringAtTick(getDefaultLowerTick(minLimit, maxLimit, zeroForOne, latestTick), tokenA, tokenB)
 }
 
-export function getDefaultUpperPrice(minLimit, maxLimit, zeroForOne, latestTick = 0): string {
-  return TickMath.getPriceStringAtTick(getDefaultUpperTick(minLimit, maxLimit, zeroForOne, latestTick))
+export function getDefaultUpperPrice(minLimit, maxLimit, zeroForOne, tokenA: token, tokenB: token, latestTick = 0): string {
+  return TickMath.getPriceStringAtTick(getDefaultUpperTick(minLimit, maxLimit, zeroForOne, latestTick), tokenA, tokenB)
 }
 
 export const minPriceBn: BigNumber = BigNumber.from('4295128739')
@@ -104,21 +104,23 @@ export abstract class TickMath {
    */
   public static MAX_SQRT_RATIO: JSBI = JSBI.BigInt('1461446703485210103287273052203988822378723970342')
 
-  public static getPriceStringAtTick(tick: number, tickSpacing?: number): string {
+  public static getPriceStringAtTick(tick: number, tokenA: token, tokenB: token, tickSpacing?: number): string {
     if (isNaN(tick)) return '0.00'
+
     // round the tick based on tickSpacing
     let roundedTick = tick
     if (tickSpacing) roundedTick = roundTick(Number(tick), tickSpacing)
     // divide and return formatted string
-    const priceString = this.getPriceStringAtSqrtPrice(this.getSqrtRatioAtTick(roundedTick))
+    const priceString = this.getPriceStringAtSqrtPrice(this.getSqrtRatioAtTick(roundedTick), tokenA, tokenB)
     return priceString
   }
 
-  public static getSqrtPriceAtPriceString(priceString: string, scaleFactor?: number, tickSpacing?: number): JSBI {
+  public static getSqrtPriceAtPriceString(priceString: string, tokenA: token, tokenB: token, tickSpacing?: number): JSBI {
     let price = Number(parseFloat(priceString).toFixed(30))
-    if (scaleFactor) {
-      price = price / (10 ** scaleFactor)
-    }
+    // scale price based on token decimals
+    const token0 = tokenA.address.localeCompare(tokenB.address) < 0 ? tokenA : tokenB
+    const token1 = token0.address == tokenA.address ? tokenB : tokenA
+    price = price / (10 ** (token0.decimals - token1.decimals))
     let sqrtPrice = JSBI.divide(
       JSBI.multiply(
         JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
@@ -139,14 +141,19 @@ export abstract class TickMath {
     return sqrtPrice
   }
 
-  public static getPriceStringAtSqrtPrice(sqrtPrice: JSBI): string {
+  public static getPriceStringAtSqrtPrice(sqrtPrice: JSBI, tokenA: token, tokenB: token): string {
     let sqrtPriceBD = JSBD.BigDecimal(sqrtPrice.toString())
     // square sqrtPrice
     let sqrtPriceExp = JSBD.pow(sqrtPriceBD, 2)
     // square Q96 value
     let Q96Exp = JSBD.pow(Q96_BD, 2)
-    // divide and return formatted string
+    // divide by Q96
     let price = JSBD.divide(sqrtPriceExp, Q96Exp)
+    // scale based on decimal difference
+    const token0 = tokenA.address.localeCompare(tokenB.address) < 0 ? tokenA : tokenB
+    const token1 = token0.address == tokenA.address ? tokenB : tokenA
+    let decimalFactor = JSBD.pow(JSBD.BigDecimal(10), token0.decimals - token1.decimals)
+    price = JSBD.multiply(price, decimalFactor)
     // prices greater than 100k use scientific notation
     if (JSBD.greaterThanOrEqual(price, JSBD.BigDecimal(100000)))
       return price.toExponential(3).toString()
@@ -158,18 +165,18 @@ export abstract class TickMath {
       return priceToString(price)
   }
 
-  public static getTickAtPriceString(priceString: string, tickSpacing?: number): number {
+  public static getTickAtPriceString(priceString: string, tokenA: token, tokenB: token, tickSpacing?: number): number {
     const price = parseFloat(priceString)
     if (isNaN(price)) return this.MIN_TICK
-    const minPrice = parseFloat(this.getPriceStringAtTick(this.MIN_TICK))
-    const maxPrice = parseFloat(this.getPriceStringAtTick(this.MAX_TICK))
+    const minPrice = parseFloat(this.getPriceStringAtTick(this.MIN_TICK, tokenA, tokenB))
+    const maxPrice = parseFloat(this.getPriceStringAtTick(this.MAX_TICK, tokenA, tokenB))
     let tick;
     if (price <= minPrice) {
       tick = this.MIN_TICK
     } else if (price >= maxPrice) {
       tick = this.MAX_TICK
     } else {
-      let sqrtPrice = this.getSqrtPriceAtPriceString(priceString)
+      let sqrtPrice = this.getSqrtPriceAtPriceString(priceString, tokenA, tokenB)
       if (JSBI.lessThan(sqrtPrice, this.MIN_SQRT_RATIO)){ return this.MIN_TICK}
       if (JSBI.greaterThan(sqrtPrice, this.MAX_SQRT_RATIO)) return this.MAX_TICK
       tick = this.getTickAtSqrtRatio(sqrtPrice)

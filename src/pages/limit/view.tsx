@@ -292,11 +292,13 @@ export default function ViewLimit() {
                 </span>
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
                 {TickMath.getPriceStringAtTick(
-                            Number(limitPositionData.min)
+                            Number(limitPositionData.min),
+                            tokenIn, tokenOut
                           )} {tokenOut.symbol}
                   <DoubleArrowIcon />
                   {TickMath.getPriceStringAtTick(
-                            Number(limitPositionData.max)
+                            Number(limitPositionData.max),
+                            tokenIn, tokenOut
                           )} {tokenOut.symbol}
                 </div>
               </div>
@@ -356,22 +358,26 @@ export default function ViewLimit() {
                   limitPoolData.poolPrice ? (
                     parseFloat(
                     TickMath.getPriceStringAtSqrtPrice(
-                      JSBI.BigInt(Number(limitPoolData.poolPrice))
+                      JSBI.BigInt(Number(limitPoolData.poolPrice)),
+                      tokenIn, tokenOut
                     )
                   ) <
                     parseFloat(
                       TickMath.getPriceStringAtTick(
-                        Number(limitPositionData.min)
+                        Number(limitPositionData.min),
+                        tokenIn, tokenOut
                       )
                     ) ||
                   parseFloat(
                     TickMath.getPriceStringAtSqrtPrice(
-                      JSBI.BigInt(Number(limitPoolData.poolPrice))
+                      JSBI.BigInt(Number(limitPoolData.poolPrice)),
+                      tokenIn, tokenOut
                     )
                   ) >=
                     parseFloat(
                       TickMath.getPriceStringAtTick(
-                        Number(limitPositionData.max)
+                        Number(limitPositionData.max),
+                        tokenIn, tokenOut
                       )
                     ) ? (
                     <span className="text-yellow-600 text-xs bg-yellow-900/30 px-4 py-1 rounded-[4px]">
@@ -405,7 +411,8 @@ export default function ViewLimit() {
                       {limitPositionData.min === undefined
                         ? ""
                         : invertPrice(TickMath.getPriceStringAtTick(
-                            Number(priceDirection ? limitPositionData.min : limitPositionData.max)
+                            Number(priceDirection ? limitPositionData.min : limitPositionData.max),
+                            tokenIn, tokenOut
                           ), priceDirection)}
                     </span>
                     <span className="text-grey1 text-[9px] text-center">
@@ -426,7 +433,8 @@ export default function ViewLimit() {
                       {limitPositionData.max === undefined
                         ? ""
                         : invertPrice(TickMath.getPriceStringAtTick(
-                          Number(priceDirection ? limitPositionData.max : limitPositionData.min)
+                          Number(priceDirection ? limitPositionData.max : limitPositionData.min),
+                          tokenIn, tokenOut
                         ), priceDirection)}
                     </span>
                     <span className="text-grey1 text-[9px] text-center">
@@ -443,7 +451,8 @@ export default function ViewLimit() {
                   <span className="text-white text-3xl text-grey1">
                     {limitPoolData?.poolPrice ?
                       invertPrice(TickMath.getPriceStringAtSqrtPrice(
-                            JSBI.BigInt(Number(limitPoolData.poolPrice))
+                            JSBI.BigInt(Number(limitPoolData.poolPrice)),
+                            tokenIn, tokenOut
                           ), priceDirection)
                         : "0.00"}
                   </span>

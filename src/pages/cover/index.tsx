@@ -17,9 +17,16 @@ import { fetchCoverPools } from "../../utils/queries";
 import { mapCoverPools } from "../../utils/maps";
 
 export default function Cover() {
-  const [needsRefetch, setNeedsRefetch] = useCoverStore((state) => [
+  const [
+    needsRefetch,
+    setNeedsRefetch,
+    tokenIn,
+    tokenOut
+  ] = useCoverStore((state) => [
     state.needsRefetch,
     state.setNeedsRefetch,
+    state.tokenIn,
+    state.tokenOut
   ]);
 
   const {
@@ -240,12 +247,14 @@ export default function Cover() {
                                 coverPosition={allCoverPosition}
                                 lowerPrice={parseFloat(
                                   TickMath.getPriceStringAtTick(
-                                    allCoverPosition.lowerTick
+                                    allCoverPosition.lowerTick,
+                                    tokenIn, tokenOut
                                   )
                                 )}
                                 upperPrice={parseFloat(
                                   TickMath.getPriceStringAtTick(
-                                    allCoverPosition.upperTick
+                                    allCoverPosition.upperTick,
+                                    tokenIn, tokenOut
                                   )
                                 )}
                                 href={"/cover/view"}
