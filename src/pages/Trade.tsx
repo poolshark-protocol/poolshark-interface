@@ -24,7 +24,7 @@ import {
   maxPriceBn,
   minPriceBn,
 } from "../utils/math/tickMath";
-import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import { gasEstimateMintLimit, gasEstimateSwap } from "../utils/gas";
 import inputFilter from "../utils/inputFilter";
 import LimitSwapButton from "../components/Buttons/LimitSwapButton";
@@ -45,6 +45,7 @@ import { getClaimTick, mapUserLimitPositions } from "../utils/maps";
 import { displayPoolPrice, getAveragePrice, getExpectedAmountOut, getExpectedAmountOutFromInput, getMarketPriceAboveBelowString } from "../utils/math/priceMath";
 import LimitSwapBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import timeDifference from "../utils/time";
+import { inputHandler } from "../utils/math/valueMath";
 import UserLimitPool from "../components/Limit/UserLimitPool";
 
 export default function Trade() {
@@ -53,7 +54,9 @@ export default function Trade() {
   const {
     network: { chainId },
   } = useProvider();
-  const { bnInput, display, inputBox, maxBalance, setBnInput, setDisplay } =
+  const { inputBox: inputBoxIn, display: displayIn, setDisplay: setDisplayIn, maxBalance } =
+    useInputBox();
+  const { inputBox: inputBoxOut, display: displayOut, setDisplay: setDisplayOut } =
     useInputBox();
 
   const [
@@ -159,7 +162,56 @@ export default function Trade() {
   const [swapParams, setSwapParams] = useState<any[]>([]);
 
   //display variable
-  const [amountOut, setAmountOut] = useState(undefined);
+  const [amountIn, setAmountIn] = useState(BN_ZERO);
+  const [amountOut, setAmountOut] = useState(BN_ZERO);
+  const [exactIn, setExactIn] = useState(true)
+
+  const handleInputBox = (e) => {
+    const [name, value, bnValue] = inputHandler(e)
+    if (name === "tokenIn") {
+      if (!pairSelected) {
+        setDisplayIn(value)
+        setDisplayOut('')
+        setAmountIn(bnValue)
+      } else if (!bnValue.eq(amountIn)) {
+        setDisplayIn(value)
+        setAmountIn(bnValue)
+        if (bnValue.gt(BN_ZERO)) {
+          updatePools(bnValue, true)
+        } else {
+          setDisplayOut('')
+          setAmountOut(BN_ZERO)
+        }
+        setExactIn(true)
+      } else {
+        setDisplayIn(value)
+        if (bnValue.eq(BN_ZERO)) {
+          setDisplayOut(value)
+        }
+      }
+    } else if (name === "tokenOut") {
+      if (!pairSelected) {
+        setDisplayOut(value)
+        setDisplayIn('')
+        setAmountOut(bnValue)
+      }else if (!bnValue.eq(amountOut)) {
+        setDisplayOut(value)
+        setAmountOut(bnValue)
+        if (bnValue.gt(BN_ZERO)) {
+          updatePools(bnValue, false)
+        } else {
+          setDisplayIn('')
+          setAmountIn(BN_ZERO)
+        }
+        setExactIn(false)
+      } else {
+        setDisplayOut(value)
+        if (bnValue.eq(BN_ZERO)) {
+          setDisplayIn(value)
+        }
+      }
+    }
+  };
 
   //log addresses and ids
   const [limitPoolAddressList, setLimitPoolAddressList] = useState([]);
@@ -177,11 +229,11 @@ export default function Trade() {
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
-      updatePools();
+      updatePools(exactIn ? amountIn : amountOut, exactIn);
     }
-  }, [tokenIn.address, tokenOut.address, bnInput]);
+  }, [tokenIn.address, tokenOut.address]);
 
-  async function updatePools() {
+  async function updatePools(amount: BigNumber, isAmountIn: boolean) {
     const pools = await getSwapPools(tokenIn, tokenOut, setTradePoolData);
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
@@ -189,8 +241,8 @@ export default function Trade() {
       for (let i = 0; i < pools.length; i++) {
         const params: QuoteParams = {
           priceLimit: tokenIn.callId == 0 ? minPriceBn : maxPriceBn,
-          amount: bnInput,
-          exactIn: true,
+          amount: amount,
+          exactIn: isAmountIn,
           zeroForOne: tokenIn.callId == 0,
         };
         quoteList[i] = params;
@@ -218,15 +270,30 @@ export default function Trade() {
 
   useEffect(() => {
     if (poolQuotes && poolQuotes[0]) {
-      setAmountOut(
-        ethers.utils.formatUnits(
-          poolQuotes[0].amountOut.toString(),
-          tokenOut.decimals
+      if (exactIn) {
+        setAmountOut(
+          poolQuotes[0].amountOut
+        );
+        setDisplayOut(
+          parseFloat(ethers.utils.formatUnits(
+            poolQuotes[0].amountOut.toString(),
+            tokenOut.decimals
+          )).toPrecision(6)
         )
-      );
+      } else {
+        setAmountIn(
+          poolQuotes[0].amountIn
+        )
+        setDisplayIn(
+          parseFloat(ethers.utils.formatUnits(
+            poolQuotes[0].amountIn.toString(),
+            tokenOut.decimals
+          )).toPrecision(6)
+        )
+      }
       updateSwapParams(poolQuotes);
     }
-  }, [poolQuotes, tradeSlippage]);
+  }, [poolQuotes, quoteParams, tradeSlippage]);
 
   function updateSwapParams(poolQuotes: any) {
     const poolAddresses: string[] = [];
@@ -259,8 +326,8 @@ export default function Trade() {
         const params: SwapParams = {
           to: address,
           priceLimit: priceLimitBn,
-          amount: bnInput,
-          exactIn: true,
+          amount: exactIn ? amountIn : amountOut,
+          exactIn: exactIn,
           zeroForOne: tokenIn.callId == 0,
           callbackData: ethers.utils.formatBytes32String(""),
         };
@@ -465,7 +532,7 @@ export default function Trade() {
     },
     onSuccess(data) {
       setNeedsAllowanceIn(false);
-      //console.log("Success allowance", data);
+      // console.log("Success allowance", tokenIn.symbol, tokenIn.address, data.toString());
     },
   });
 
@@ -621,17 +688,17 @@ export default function Trade() {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    if (!bnInput.eq(BN_ZERO) && !needsAllowanceIn) {
+    if (!amountIn.eq(BN_ZERO) && !needsAllowanceIn) {
       if (!limitTabSelected) {
         updateGasFee();
       } else {
         updateMintFee();
       }
     }
-  }, [swapParams, tokenIn, tokenOut, bnInput, lowerTick, upperTick, needsAllowanceIn]);
+  }, [swapParams, tokenIn, tokenOut, lowerTick, upperTick, needsAllowanceIn]);
 
   async function updateGasFee() {
-    if (tokenIn.userRouterAllowance?.gte(bnInput))
+    if (tokenIn.userRouterAllowance?.gte(amountIn))
       await gasEstimateSwap(
         chainProperties["arbitrumGoerli"]["routerAddress"],
         swapPoolAddresses,
@@ -649,7 +716,7 @@ export default function Trade() {
   }
 
   async function updateMintFee() {
-    if (tokenIn.userRouterAllowance?.gte(bnInput))
+    if (tokenIn.userRouterAllowance?.gte(amountIn))
       await gasEstimateMintLimit(
         tradePoolData.id,
         address,
@@ -657,7 +724,7 @@ export default function Trade() {
         upperTick,
         tokenIn,
         tokenOut,
-        bnInput,
+        amountIn,
         signer,
         setMintFee,
         setMintGasLimit
@@ -667,10 +734,10 @@ export default function Trade() {
   ////////////////////////////////Mint Button State
 
   useEffect(() => {
-    if (bnInput) {
-      setTokenInAmount(bnInput);
+    if (amountIn) {
+      setTokenInAmount(amountIn);
     }
-  }, [bnInput]);
+  }, [amountIn]);
 
   useEffect(() => {
     setMintButtonState();
@@ -688,9 +755,9 @@ export default function Trade() {
             <div className="ml-auto text-xs">
               {pairSelected
                 ? !limitTabSelected
-                  ? parseFloat(amountOut).toPrecision(6)
+                  ? parseFloat(ethers.utils.formatUnits(amountOut ?? BN_ZERO, tokenOut.decimals)).toPrecision(6)
                   : !isNaN(parseFloat(
-                    ethers.utils.formatUnits(bnInput, tokenIn.decimals))
+                    ethers.utils.formatUnits(amountIn, tokenIn.decimals))
                   ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
                   && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
                       parseFloat(
@@ -699,7 +766,7 @@ export default function Trade() {
                             Number(lowerTick),
                             Number(upperTick),
                             tokenIn.callId == 0,
-                            bnInput
+                            amountIn
                           ), tokenIn.decimals
                     )).toFixed(2)) :
                     "$0.00"
@@ -719,7 +786,7 @@ export default function Trade() {
               <div className="text-xs text-[#4C4C4C]">
                 Minimum received after slippage ({tradeSlippage}%)
               </div>
-              <div className="ml-auto text-xs">{(parseFloat(amountOut) * (100 - parseFloat(tradeSlippage)) / 100).toPrecision(6)}</div>
+              <div className="ml-auto text-xs">{(parseFloat(ethers.utils.formatUnits(amountOut, tokenOut.decimals)) * (100 - parseFloat(tradeSlippage)) / 100).toPrecision(6)}</div>
             </div>
           ) : (
             <></>
@@ -798,18 +865,20 @@ export default function Trade() {
                 <span>
                   {" "}
                   ~$
-                  {bnInput.gt(0)
-                    ? (
-                        Number(
-                          ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                        ) * tokenIn.USDPrice
-                      ).toFixed(2)
-                    : (1 * tokenIn.USDPrice).toFixed(2)}
+                  {!isNaN(parseInt(amountIn.toString())) ? (
+                    (
+                      parseFloat(
+                        ethers.utils.formatUnits(amountIn ?? BN_ZERO, tokenIn.decimals)
+                      ) * tokenIn.USDPrice
+                    ).toFixed(2)
+                  ) : (
+                    (0).toFixed(2)
+                  )}
                 </span>
                 <span>BALANCE: {tokenIn.userBalance}</span>
               </div>
               <div className="flex items-end justify-between mt-2 mb-3">
-                {inputBox("0")}
+                {inputBoxIn("0", "tokenIn", handleInputBox)}
                 <div className="flex items-center gap-x-2">
                   {isConnected && stateChainName === "arbitrumGoerli" ? (
                     <button
@@ -859,18 +928,19 @@ export default function Trade() {
                 <span>
                   ~$
                   {pairSelected &&
-                  !bnInput.eq(BN_ZERO) &&
+                  !amountIn.eq(BN_ZERO) &&
                   tokenOut.address != ZERO_ADDRESS &&
-                  !isNaN(
-                    parseFloat(
-                      ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                    )
-                  ) &&
-                  !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0))) &&
-                  !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0))) ? (
+                  !isNaN(parseFloat(
+                    ethers.utils.formatUnits(amountIn, tokenIn.decimals))
+                  ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
+                  && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0)))  ? (
                     !limitTabSelected ? (
                       //swap page
-                      (amountOut * tokenOut.USDPrice).toFixed(2)
+                      (
+                        parseFloat(
+                          ethers.utils.formatUnits(amountOut ?? BN_ZERO, tokenOut.decimals)
+                        ) * tokenOut.USDPrice
+                      ).toFixed(2)
                     ) : //limit page
                     (
                       parseFloat(
@@ -879,7 +949,7 @@ export default function Trade() {
                             Number(lowerTick),
                             Number(upperTick),
                             tokenIn.callId == 0,
-                            bnInput
+                            amountIn
                           )
                           , tokenIn.decimals
                     )) * tokenOut.USDPrice).toFixed(2)
@@ -892,19 +962,18 @@ export default function Trade() {
                 </span>
               </div>
               <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                {pairSelected &&
-                !bnInput.eq(BN_ZERO) &&
-                tokenOut.address != ZERO_ADDRESS &&
-                !isNaN(
-                  parseFloat(
-                    ethers.utils.formatUnits(bnInput, tokenIn.decimals)
-                  )
-                ) &&
-                !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0))) &&
-                !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0))) ? (
+                {
                   !limitTabSelected ? (
-                    <div>{Number(amountOut).toPrecision(6)}</div>
-                  ) : (
+                    <div>{inputBoxOut("0", "tokenOut", handleInputBox)}</div>
+                  ) : 
+                  pairSelected &&
+                !amountIn.eq(BN_ZERO) &&
+                tokenOut.address != ZERO_ADDRESS &&
+                !isNaN(parseFloat(
+                  ethers.utils.formatUnits(amountIn, tokenIn.decimals))
+                ) && !isNaN(parseInt(ethers.utils.formatUnits(lowerTick, 0)))
+                && !isNaN(parseInt(ethers.utils.formatUnits(upperTick, 0))) ?
+                  (
                     <div>
                       {parseFloat(
                         ethers.utils.formatUnits(
@@ -912,14 +981,14 @@ export default function Trade() {
                             Number(lowerTick),
                             Number(upperTick),
                             tokenIn.callId == 0,
-                            bnInput
+                            amountIn,
                           ), tokenIn.decimals
                     )).toPrecision(6)}
                     </div>
+                  ) : (
+                    <div>0</div>
                   )
-                ) : (
-                  <div>0</div>
-                )}
+                }
                 <div className="flex items-center gap-x-2">
                   <SelectToken
                     key={"out"}
@@ -1093,7 +1162,7 @@ export default function Trade() {
               <>
                 {
                   //range buttons
-                  tokenIn.userRouterAllowance?.lt(bnInput) ? (
+                  tokenIn.userRouterAllowance?.lt(amountIn) ? (
                     <div>
                       <SwapRouterApproveButton
                         routerAddress={
@@ -1101,7 +1170,7 @@ export default function Trade() {
                         }
                         approveToken={tokenIn.address}
                         tokenSymbol={tokenIn.symbol}
-                        amount={bnInput}
+                        amount={amountIn}
                       />
                     </div>
                   ) : (
@@ -1120,14 +1189,14 @@ export default function Trade() {
             ) : (
               //limit tab
               <>
-                {tokenIn.userRouterAllowance?.lt(bnInput) ? (
+                {tokenIn.userRouterAllowance?.lt(amountIn) ? (
                   <SwapRouterApproveButton
                     routerAddress={
                       chainProperties["arbitrumGoerli"]["routerAddress"]
                     }
                     approveToken={tokenIn.address}
                     tokenSymbol={tokenIn.symbol}
-                    amount={bnInput}
+                    amount={amountIn}
                   />
                 ) : tradePoolData.id != ZERO_ADDRESS ? (
                   <LimitSwapButton
@@ -1137,7 +1206,7 @@ export default function Trade() {
                     disabled={mintGasLimit.eq(BN_ZERO)}
                     poolAddress={tradePoolData.id}
                     to={address}
-                    amount={bnInput}
+                    amount={amountIn}
                     mintPercent={ethers.utils.parseUnits("1", 24)}
                     lower={lowerTick}
                     upper={upperTick}
@@ -1154,7 +1223,7 @@ export default function Trade() {
                     token1={tokenOut}
                     feeTier={3000} // default 0.3% fee
                     to={address}
-                    amount={bnInput}
+                    amount={amountIn}
                     mintPercent={ethers.utils.parseUnits("1", 24)}
                     lower={lowerTick}
                     upper={upperTick}
