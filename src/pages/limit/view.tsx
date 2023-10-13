@@ -196,6 +196,7 @@ export default function ViewLimit() {
     );
 
     setClaimTick(aux);
+    console.log("claim tick", aux);
   }
 
   async function getUserLimitPositionData() {
@@ -235,8 +236,8 @@ export default function ViewLimit() {
   ////////////////////////////////Collect Gas
   async function updateCollectFee() {
     console.log("collect zeroForOne", tokenIn.callId == 0);
-    
-    if (signer && (claimTick != (tokenIn.callId == 0 ? Number(limitPositionData.min) : Number(limitPositionData.max)))) {
+
+    if (signer && (claimTick != (tokenIn.callId == 0 ? Number(limitPositionData.max) : Number(limitPositionData.min)))) {
       await gasEstimateBurnLimit(
         limitPoolAddress,
         address,
