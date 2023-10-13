@@ -467,7 +467,13 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               : parseFloat(
                   ethers.utils.formatUnits(
                     String(state.rangeMintParams.tokenInAmount),
-                    18
+                    state.tokenIn.decimals
+                  )
+                ) == 0 &&
+                parseFloat(
+                  ethers.utils.formatUnits(
+                    String(state.rangeMintParams.tokenOutAmount),
+                    state.tokenOut.decimals
                   )
                 ) == 0
               ? "Enter Amount"
@@ -485,6 +491,12 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
                   ethers.utils.formatUnits(
                     String(state.rangeMintParams.tokenInAmount),
                     state.tokenIn.decimals
+                  )
+                ) == 0 &&
+                parseFloat(
+                  ethers.utils.formatUnits(
+                    String(state.rangeMintParams.tokenOutAmount),
+                    state.tokenOut.decimals
                   )
                 ) == 0
               ? true

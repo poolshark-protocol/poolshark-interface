@@ -29,8 +29,17 @@ export default function LimitRemoveLiqButton({
 }) {
   const { data: signer } = useSigner();
 
-  const [setNeedsRefetch, setNeedsBalanceIn, setNeedsBalanceOut, setNeedsSnapshot] = useRangeLimitStore(
+  const [
+    limitPositionData,
+    tokenIn,
+    setNeedsRefetch, 
+    setNeedsBalanceIn, 
+    setNeedsBalanceOut, 
+    setNeedsSnapshot
+  ] = useRangeLimitStore(
     (state) => [
+      state.limitPositionData,
+      state.tokenIn,
       state.setNeedsRefetch,
       state.setNeedsBalanceIn,
       state.setNeedsBalanceOut,
@@ -57,18 +66,20 @@ export default function LimitRemoveLiqButton({
     setClaimTick(tick);
   };
 
-  const getGasLimit = async () => {
-    await gasEstimateBurnLimit(
-      poolAddress,
-      address,
-      burnPercent,
-      positionId,
-      BigNumber.from(claimTick),
-      zeroForOne,
-      signer,
-      setGasFee,
-      setGasLimit,
-    );
+  async function getGasLimit() {
+    if (signer && (claimTick != (tokenIn.callId == 0 ? Number(limitPositionData.max) : Number(limitPositionData.min)))) {
+      await gasEstimateBurnLimit(
+        poolAddress,
+        address,
+        burnPercent,
+        positionId,
+        BigNumber.from(claimTick),
+        zeroForOne,
+        signer,
+        setGasFee,
+        setGasLimit,
+      );
+    }
   };
 
   useEffect(() => {
