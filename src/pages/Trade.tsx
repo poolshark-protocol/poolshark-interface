@@ -172,8 +172,8 @@ export default function Trade() {
 
   const handleInputBox = (e) => {
     console.log('event triggered')
-    const [name, value, bnValue] = inputHandler(e)
-    if (name === "tokenIn") {
+    if (e.target.name === "tokenIn") {
+      const [name, value, bnValue] = inputHandler(e, tokenIn)
       if (!pairSelected) {
         setDisplayIn(value)
         setDisplayOut('')
@@ -182,36 +182,16 @@ export default function Trade() {
       if (!bnValue.eq(amountIn)) {
         setDisplayIn(value)
         setAmountIn(bnValue)
-        if (bnValue.gt(BN_ZERO)) {
-          if (!limitTabSelected)
-            updatePools(bnValue, true)
-          else {
-            const tokenOutAmount = getExpectedAmountOutFromInput(
-              Number(lowerTick),
-              Number(upperTick),
-              tokenIn.callId == 0,
-              bnValue
-            )
-            const tokenOutAmountDisplay = parseFloat(
-              ethers.utils.formatUnits(
-                tokenOutAmount.toString(),
-                tokenOut.decimals)
-            ).toPrecision(6)
-            setDisplayOut(tokenOutAmountDisplay)
-            setAmountOut(tokenOutAmount)
-          }
-        } else {
-          setDisplayOut('')
-          setAmountOut(BN_ZERO)
-        }
-        setExactIn(true)
+        setAmounts(bnValue, true)
       } else {
         setDisplayIn(value)
         if (bnValue.eq(BN_ZERO)) {
           setDisplayOut(value)
         }
       }
-    } else if (name === "tokenOut") {
+      setExactIn(true)
+    } else if (e.target.name === "tokenOut") {
+      const [name, value, bnValue] = inputHandler(e, tokenOut)
       if (!pairSelected) {
         setDisplayOut(value)
         setDisplayIn('')
@@ -219,37 +199,66 @@ export default function Trade() {
       } else if (!bnValue.eq(amountOut)) {
         setDisplayOut(value)
         setAmountOut(bnValue)
-        if (bnValue.gt(BN_ZERO)) {
-          if (!limitTabSelected)
-            updatePools(bnValue, false)
-          else {
-            const tokenInAmount = getExpectedAmountInFromOutput(
-              Number(lowerTick),
-              Number(upperTick),
-              tokenIn.callId == 0,
-              bnValue
-            )
-            const tokenInAmountDisplay = parseFloat(
-              ethers.utils.formatUnits(
-                tokenInAmount.toString(),
-                tokenIn.decimals)
-            ).toPrecision(6)
-            setDisplayIn(tokenInAmountDisplay)
-            setAmountIn(tokenInAmount)
-          }
-        } else {
-          setDisplayIn('')
-          setAmountIn(BN_ZERO)
-        }
-        setExactIn(false)
+        setAmounts(bnValue, false)
       } else {
         setDisplayOut(value)
         if (bnValue.eq(BN_ZERO)) {
           setDisplayIn(value)
         }
       }
+      setExactIn(false)
     }
   };
+
+  const setAmounts = (bnValue: BigNumber, isAmountIn: boolean) =>  {
+    if (isAmountIn) {
+      if (bnValue.gt(BN_ZERO)) {
+        if (!limitTabSelected)
+          updatePools(bnValue, true)
+        else {
+          const tokenOutAmount = getExpectedAmountOutFromInput(
+            Number(lowerTick),
+            Number(upperTick),
+            tokenIn.callId == 0,
+            bnValue
+          )
+          const tokenOutAmountDisplay = parseFloat(
+            ethers.utils.formatUnits(
+              tokenOutAmount.toString(),
+              tokenOut.decimals)
+          ).toPrecision(6)
+          setDisplayOut(tokenOutAmountDisplay)
+          setAmountOut(tokenOutAmount)
+        }
+      } else {
+        setDisplayOut('')
+        setAmountOut(BN_ZERO)
+      }
+    } else {
+      if (bnValue.gt(BN_ZERO)) {
+        if (!limitTabSelected)
+          updatePools(bnValue, false)
+        else {
+          const tokenInAmount = getExpectedAmountInFromOutput(
+            Number(lowerTick),
+            Number(upperTick),
+            tokenIn.callId == 0,
+            bnValue
+          )
+          const tokenInAmountDisplay = parseFloat(
+            ethers.utils.formatUnits(
+              tokenInAmount.toString(),
+              tokenIn.decimals)
+          ).toPrecision(6)
+          setDisplayIn(tokenInAmountDisplay)
+          setAmountIn(tokenInAmount)
+        }
+      } else {
+        setDisplayIn('')
+        setAmountIn(BN_ZERO)
+      }
+    }
+  }
 
   //log addresses and ids
   const [limitPoolAddressList, setLimitPoolAddressList] = useState([]);
@@ -267,6 +276,20 @@ export default function Trade() {
 
   useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
+      // adjust decimals when switching directions
+      if (exactIn) {
+        if (!isNaN(parseFloat(displayIn))) {
+          const bnValue = ethers.utils.parseUnits(displayIn, tokenIn.decimals)
+          setAmountIn(bnValue)
+          setAmounts(bnValue, true)
+        }
+      } else {
+        if (!isNaN(parseFloat(displayOut))) {
+          const bnValue = ethers.utils.parseUnits(displayOut, tokenOut.decimals)
+          setAmountOut(bnValue)
+          setAmounts(bnValue, false)
+        }
+      }
       updatePools(exactIn ? amountIn : amountOut, exactIn);
     }
   }, [tokenIn.address, tokenOut.address]);
@@ -952,12 +975,12 @@ export default function Trade() {
                 <span>BALANCE: {tokenIn.userBalance}</span>
               </div>
               <div className="flex items-end justify-between mt-2 mb-3">
-                {inputBoxIn("0", "tokenIn", handleInputBox)}
+                {inputBoxIn("0", tokenIn, "tokenIn", handleInputBox)}
                 <div className="flex items-center gap-x-2">
                   {isConnected && stateChainName === "arbitrumGoerli" ? (
                     <button
                       onClick={() => {
-                        maxBalance(tokenIn.userBalance, "1");
+                        maxBalance(tokenIn.userBalance, "1", tokenIn);
                       }}
                       className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
                     >
@@ -1022,7 +1045,7 @@ export default function Trade() {
               </div>
               <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
                 {(
-                    <div>{inputBoxOut("0", "tokenOut", handleInputBox)}</div>
+                    <div>{inputBoxOut("0", tokenOut, "tokenOut", handleInputBox)}</div>
                   )}
                 <div className="flex items-center gap-x-2">
                   <SelectToken

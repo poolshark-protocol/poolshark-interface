@@ -283,12 +283,14 @@ export default function AddLiquidity({}) {
   }, [lowerPrice, upperPrice]);
 
   const handleInputBox = (e) => {
-    const [name, value, bnValue] = inputHandler(e)
-    if (name === "tokenIn") {
+
+    if (e.target.name === "tokenIn") {
+      const [name, value, bnValue] = inputHandler(e, tokenIn)
       setDisplayIn(value)
       setAmounts(true, bnValue)
       setAmountInSetLast(true)
-    } else if (name === "tokenOut") {
+    } else if (e.target.name === "tokenOut") {
+      const [name, value, bnValue] = inputHandler(e, tokenOut)
       setDisplayOut(value)
       setAmounts(false, bnValue)
       setAmountInSetLast(false)
@@ -478,7 +480,7 @@ export default function AddLiquidity({}) {
               <span>BALANCE: {tokenIn.userBalance ?? 0}</span>
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-              {inputBoxIn("0", "tokenIn", handleInputBox, amountInDisabled)}
+              {inputBoxIn("0", tokenIn, "tokenIn", handleInputBox, amountInDisabled)}
               <div className="flex items-center gap-x-2">
                 <button
                   onClick={() =>
@@ -512,7 +514,7 @@ export default function AddLiquidity({}) {
               <span>BALANCE: {tokenOut.userBalance ?? 0}</span>
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-              {inputBoxOut("0", "tokenOut", handleInputBox, amountOutDisabled)}
+              {inputBoxOut("0", tokenOut, "tokenOut", handleInputBox, amountOutDisabled)}
               <div className="flex items-center gap-x-2 ">
                 <button
                   onClick={() =>

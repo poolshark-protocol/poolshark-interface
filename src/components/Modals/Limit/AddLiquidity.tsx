@@ -199,7 +199,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                 <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-6 mb-6">
                   <div className=" p-2 w-32">
                     <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-1 rounded-xl">
-                      {inputBox("0")}
+                      {inputBox("0", tokenIn)}
                     </div>
                     <div className="flex">
                       <div className="flex text-xs text-[#4C4C4C]">
@@ -238,7 +238,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                             className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
                             onClick={() => {
                               console.log("max", tokenIn.userBalance);
-                              maxBalance(tokenIn.userBalance.toString(), "0");
+                              maxBalance(tokenIn.userBalance.toString(), "0", tokenIn);
                             }}
                           >
                             Max

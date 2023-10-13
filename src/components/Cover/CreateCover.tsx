@@ -531,7 +531,7 @@ export default function CreateCover(props: any) {
             <span>BALANCE: {tokenIn.userBalance ?? 0}</span>
           </div>
           <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-            {inputBox("0")}
+            {inputBox("0", tokenIn)}
             <div className="flex items-center gap-x-2">
               <SelectToken
                 index="0"

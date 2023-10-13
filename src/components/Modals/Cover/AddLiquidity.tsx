@@ -233,12 +233,12 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                       </span>
                     </div>
                     <div className="flex items-end justify-between mt-2 mb-3">
-                      {inputBox("0")}
+                      {inputBox("0", tokenIn)}
                       <div className="flex items-center gap-x-2">
                         {isConnected && stateChainName === "arbitrumGoerli" ? (
                           <button
                           onClick={() => {
-                            maxBalance(tokenIn.userBalance.toString(), "0");
+                            maxBalance(tokenIn.userBalance.toString(), "0", tokenIn.decimals);
                           }}
                             className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
                           >

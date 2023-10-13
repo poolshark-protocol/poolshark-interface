@@ -1,6 +1,7 @@
 import { BigNumber, ethers } from "ethers"
 import inputFilter from "../inputFilter"
 import { BN_ZERO } from "./constants"
+import { token } from "../types"
 
 export function formatUsdValue(usdValueString: string): string {
     const usdValue = parseFloat(usdValueString)
@@ -16,7 +17,7 @@ export function formatUsdValue(usdValueString: string): string {
     return usdValue.toFixed(2)
 }
 
-export function inputHandler(e): [string, string, BigNumber] {
+export function inputHandler(e, token: token): [string, string, BigNumber] {
     const result = inputFilter(e.target.value);
 
     if (result == '') {
@@ -26,7 +27,7 @@ export function inputHandler(e): [string, string, BigNumber] {
         return [
             e.target.name,
             result,
-            ethers.utils.parseUnits(result, 18)
+            ethers.utils.parseUnits(result, token.decimals)
         ];
     }
 }
