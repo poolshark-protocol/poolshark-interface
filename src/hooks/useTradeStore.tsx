@@ -154,7 +154,7 @@ const initialTradeState: TradeState = {
   needsAllowanceOut: true,
   needsBalanceIn: true,
   needsBalanceOut: false,
-  needsSnapshot: false,
+  needsSnapshot: true,
 };
 
 export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({

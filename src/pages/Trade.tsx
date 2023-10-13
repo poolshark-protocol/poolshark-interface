@@ -370,7 +370,7 @@ export default function Trade() {
           mappedLimitSnapshotParams[i][4] = allLimitPositions[i].tokenIn.id
             .localeCompare(allLimitPositions[i].tokenOut.id) < 0;
         }
-
+        
         setLimitPoolAddressList(mappedLimitPoolAddresses)
         setLimitPositionSnapshotList(mappedLimitSnapshotParams)
       }
