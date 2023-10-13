@@ -45,8 +45,6 @@ export const getLimitTokenUsdPrice = async (
   try {
     const tokenData = await fetchTokenPrice(tokenAddress);
     const tokenUsdPrice = tokenData["data"]["tokens"]["0"]["usdPrice"];
-    console.log("tokenUsdPrice", tokenUsdPrice);
-
     setTokenUSDPrice(tokenUsdPrice);
   } catch (error) {
     console.log(error);
