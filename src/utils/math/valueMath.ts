@@ -17,15 +17,14 @@ export function formatUsdValue(usdValueString: string): string {
     return usdValue.toFixed(2)
 }
 
-export function inputHandler(e, token: token): [string, string, BigNumber] {
+export function inputHandler(e, token: token): [string, BigNumber] {
     const result = inputFilter(e.target.value);
 
     if (result == '') {
         // handle empty value
-        return [e.target.name, e.target.value, BN_ZERO];
+        return [e.target.value, BN_ZERO];
     } else {
         return [
-            e.target.name,
             result,
             ethers.utils.parseUnits(result, token.decimals)
         ];

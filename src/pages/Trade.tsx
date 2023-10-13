@@ -166,14 +166,9 @@ export default function Trade() {
   const [amountOut, setAmountOut] = useState(BN_ZERO);
   const [exactIn, setExactIn] = useState(true)
 
-  //limit display variables
-  const [limitAmountIn, setLimitAmountIn] = useState(BN_ZERO);
-  const [limitAmountOut, setLimitAmountOut] = useState(BN_ZERO);
-
   const handleInputBox = (e) => {
-    console.log('event triggered')
     if (e.target.name === "tokenIn") {
-      const [name, value, bnValue] = inputHandler(e, tokenIn)
+      const [value, bnValue] = inputHandler(e, tokenIn)
       if (!pairSelected) {
         setDisplayIn(value)
         setDisplayOut('')
@@ -191,7 +186,7 @@ export default function Trade() {
       }
       setExactIn(true)
     } else if (e.target.name === "tokenOut") {
-      const [name, value, bnValue] = inputHandler(e, tokenOut)
+      const [value, bnValue] = inputHandler(e, tokenOut)
       if (!pairSelected) {
         setDisplayOut(value)
         setDisplayIn('')
@@ -277,21 +272,18 @@ export default function Trade() {
   useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       // adjust decimals when switching directions
+      updatePools(exactIn ? amountIn : amountOut, exactIn);
       if (exactIn) {
         if (!isNaN(parseFloat(displayIn))) {
           const bnValue = ethers.utils.parseUnits(displayIn, tokenIn.decimals)
           setAmountIn(bnValue)
           setAmounts(bnValue, true)
-        } else {
-          updatePools(amountIn, exactIn);
         }
       } else {
         if (!isNaN(parseFloat(displayOut))) {
           const bnValue = ethers.utils.parseUnits(displayOut, tokenOut.decimals)
           setAmountOut(bnValue)
           setAmounts(bnValue, false)
-        } else {
-          updatePools(amountOut, exactIn);
         }
       }
     }
@@ -346,7 +338,6 @@ export default function Trade() {
             )).toPrecision(6)
           )
         } else {
-          console.log('setting fro quote')
           setAmountIn(
             poolQuotes[0].amountIn
           )
@@ -421,9 +412,9 @@ export default function Trade() {
       limitPoolAddressList.length > 0 &&
       needsSnapshot,
     onSuccess(data) {
-      console.log("Success price filled amount", data);
-      console.log("snapshot address list", limitPoolAddressList);
-      console.log("snapshot params list", limitPositionSnapshotList);
+      // console.log("Success price filled amount", data);
+      // console.log("snapshot address list", limitPoolAddressList);
+      // console.log("snapshot params list", limitPositionSnapshotList);
       setNeedsSnapshot(false)
     },
     onError(error) {
@@ -831,7 +822,8 @@ export default function Trade() {
   }
 
   async function updateMintFee() {
-    if (tokenIn.userRouterAllowance?.gte(amountIn))
+    if (tokenIn.userRouterAllowance?.gte(amountIn) &&
+        lowerTick.lt(upperTick))
       await gasEstimateMintLimit(
         tradePoolData.id,
         address,

@@ -285,12 +285,12 @@ export default function AddLiquidity({}) {
   const handleInputBox = (e) => {
 
     if (e.target.name === "tokenIn") {
-      const [name, value, bnValue] = inputHandler(e, tokenIn)
+      const [value, bnValue] = inputHandler(e, tokenIn)
       setDisplayIn(value)
       setAmounts(true, bnValue)
       setAmountInSetLast(true)
     } else if (e.target.name === "tokenOut") {
-      const [name, value, bnValue] = inputHandler(e, tokenOut)
+      const [value, bnValue] = inputHandler(e, tokenOut)
       setDisplayOut(value)
       setAmounts(false, bnValue)
       setAmountInSetLast(false)

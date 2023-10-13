@@ -246,7 +246,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
 
   const handleInput1 = (e) => {
     if (e.target.name === "tokenIn") {
-      const [name, value, bnValue] = inputHandler(e, tokenIn)
+      const [value, bnValue] = inputHandler(e, tokenIn)
       setDisplay(value)
       if (!amountOutDisabled)
         setAmounts(true, bnValue)
@@ -255,7 +255,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
         setDisplay2('')
       }
     } else if (e.target.name === "tokenOut") {
-      const [name, value, bnValue] = inputHandler(e, tokenOut)
+      const [value, bnValue] = inputHandler(e, tokenOut)
       setDisplay2(value)
       if (!amountInDisabled)
         setAmounts(false, bnValue)
