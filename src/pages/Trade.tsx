@@ -282,15 +282,18 @@ export default function Trade() {
           const bnValue = ethers.utils.parseUnits(displayIn, tokenIn.decimals)
           setAmountIn(bnValue)
           setAmounts(bnValue, true)
+        } else {
+          updatePools(amountIn, exactIn);
         }
       } else {
         if (!isNaN(parseFloat(displayOut))) {
           const bnValue = ethers.utils.parseUnits(displayOut, tokenOut.decimals)
           setAmountOut(bnValue)
           setAmounts(bnValue, false)
+        } else {
+          updatePools(amountOut, exactIn);
         }
       }
-      updatePools(exactIn ? amountIn : amountOut, exactIn);
     }
   }, [tokenIn.address, tokenOut.address]);
 
