@@ -226,6 +226,7 @@ export default function CoverExistingPool({ goBack }) {
   }, [tokenIn.address, tokenOut.address, coverPoolData, latestTick]);
 
   async function updatePositionData() {
+
     const tickAtPrice = Number(latestTick);
     const tickSpread = Number(coverPoolData.volatilityTier.tickSpread);
     const priceLower = TickMath.getPriceStringAtTick(
@@ -244,6 +245,7 @@ export default function CoverExistingPool({ goBack }) {
     setUpperPrice(
       invertPrice(priceOrder ? priceUpper : priceLower, priceOrder)
     );
+    console.log('updating position data', priceLower, priceUpper)
     setCoverPositionData({
       ...coverPositionData,
       tickAtPrice: tickAtPrice,
@@ -650,8 +652,8 @@ export default function CoverExistingPool({ goBack }) {
             onClick={handlePriceSwitch}
             className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
           >
-            {priceOrder ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>} per{" "}
-            {priceOrder ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>}{" "}
+            {priceOrder == (tokenIn.callId == 0) ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>} per{" "}
+            {priceOrder == (tokenIn.callId == 0) ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>}{" "}
             <DoubleArrowIcon />
           </div>
         </div>
@@ -696,18 +698,16 @@ export default function CoverExistingPool({ goBack }) {
               onClick={() => setExpanded(!expanded)}
             >
               <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                {1} {priceOrder ? tokenIn.symbol : tokenOut.symbol} =
+                {1} {priceOrder == (tokenIn.callId == 0) ? tokenIn.symbol : tokenOut.symbol} =
                 {" " +
                   parseFloat(
-                    priceOrder
-                      ? TickMath.getPriceStringAtTick(latestTick)
-                      : invertPrice(
-                          TickMath.getPriceStringAtTick(latestTick),
-                          false
-                        )
+                    invertPrice(
+                      TickMath.getPriceStringAtTick(latestTick),
+                      priceOrder
+                    )
                   ).toPrecision(5) +
                   " " +
-                  tokenOut.symbol}
+                  (priceOrder == (tokenIn.callId == 0) ? tokenOut.symbol : tokenIn.symbol)}
               </div>
               <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
                 <button>
