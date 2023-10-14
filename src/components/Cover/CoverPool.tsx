@@ -21,12 +21,16 @@ export default function CoverPool({ pool, href }) {
       address: pool.tokenZero.id,
       logoURI: logoMap[pool.tokenZero.symbol],
       symbol: pool.tokenZero.symbol,
+      decimals: pool.tokenZero.decimals,
+      coverUSDPrice: pool.tokenZero.usdPrice
     } as tokenCover;
     const tokenOut = {
       name: pool.tokenOne.symbol,
       address: pool.tokenOne.id,
       logoURI: logoMap[pool.tokenOne.symbol],
       symbol: pool.tokenOne.symbol,
+      decimals: pool.tokenOne.decimals,
+      coverUSDPrice: pool.tokenOne.usdPrice
     } as tokenCover;
     setCoverTokenIn(tokenOut, tokenIn);
     setCoverTokenOut(tokenIn, tokenOut);

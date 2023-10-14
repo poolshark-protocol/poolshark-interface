@@ -104,9 +104,17 @@ export const getCoverPoolFromFactory = (tokenA: string, tokenB: string) => {
                 feeAmount
               }
               token0 {
+                id
+                name
+                symbol
+                decimals
                 usdPrice
               }
               token1 {
+                id
+                name
+                symbol
+                decimals
                 usdPrice
               }
             }
@@ -167,12 +175,6 @@ export const getLimitPoolFromFactory = (tokenA: string, tokenB: string) => {
                   id
                   feeAmount
                   tickSpacing
-              }
-              token0 {
-                usdPrice
-              }
-              token1 {
-                usdPrice
               }
               tickSpacing
               poolPrice
@@ -445,12 +447,14 @@ export const fetchCoverPools = () => {
                         name
                         symbol
                         decimals
+                        usdPrice
                     }
                     token1{
                         id
                         name
                         symbol
                         decimals
+                        usdPrice
                     }
                     liquidity
                     volatilityTier{

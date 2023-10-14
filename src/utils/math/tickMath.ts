@@ -120,7 +120,8 @@ export abstract class TickMath {
     // scale price based on token decimals
     const token0 = tokenA.address.localeCompare(tokenB.address) < 0 ? tokenA : tokenB
     const token1 = token0.address == tokenA.address ? tokenB : tokenA
-    price = price / (10 ** (token0.decimals - token1.decimals))
+    const decimalDiff = !isNaN(token0.decimals) && !isNaN(token1.decimals) ? token0.decimals - token1.decimals : 0;
+    price = price / (10 ** (decimalDiff))
     let sqrtPrice = JSBI.divide(
       JSBI.multiply(
         JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)),
@@ -142,18 +143,26 @@ export abstract class TickMath {
   }
 
   public static getPriceStringAtSqrtPrice(sqrtPrice: JSBI, tokenA: token, tokenB: token): string {
-    let sqrtPriceBD = JSBD.BigDecimal(sqrtPrice.toString())
+    const sqrtPriceBD = JSBD.BigDecimal(sqrtPrice.toString())
     // square sqrtPrice
-    let sqrtPriceExp = JSBD.pow(sqrtPriceBD, 2)
+    const sqrtPriceExp = JSBD.pow(sqrtPriceBD, 2)
     // square Q96 value
-    let Q96Exp = JSBD.pow(Q96_BD, 2)
+    const Q96Exp = JSBD.pow(Q96_BD, 2)
     // divide by Q96
     let price = JSBD.divide(sqrtPriceExp, Q96Exp)
     // scale based on decimal difference
     const token0 = tokenA.address.localeCompare(tokenB.address) < 0 ? tokenA : tokenB
     const token1 = token0.address == tokenA.address ? tokenB : tokenA
-    let decimalFactor = JSBD.pow(JSBD.BigDecimal(10), token0.decimals - token1.decimals)
-    price = JSBD.multiply(price, decimalFactor)
+    const decimalDiff = !isNaN(token0.decimals) && !isNaN(token1.decimals) ? token0.decimals - token1.decimals : 0;
+    if (decimalDiff > 0) {
+      // multiply for positive diff
+      const decimalFactor = JSBD.pow(JSBD.BigDecimal(10), decimalDiff)
+      price = JSBD.multiply(price, decimalFactor)
+    } else if (decimalDiff < 0) {
+      // divide for negative diff
+      const decimalFactor = JSBD.pow(JSBD.BigDecimal(10), -decimalDiff)
+      price = JSBD.divide(price, decimalFactor)
+    }
     // prices greater than 100k use scientific notation
     if (JSBD.greaterThanOrEqual(price, JSBD.BigDecimal(100000)))
       return price.toExponential(3).toString()
