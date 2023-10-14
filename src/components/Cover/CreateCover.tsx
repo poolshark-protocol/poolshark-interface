@@ -180,6 +180,7 @@ export default function CreateCover(props: any) {
     enabled: coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS,
     onSuccess(data) {
       setNeedsLatestTick(false);
+      console.log('got latest tick', newLatestTick.toString())
     },
     onError(error) {
       console.log("Error syncLatestTick", error);
@@ -202,6 +203,7 @@ export default function CreateCover(props: any) {
       !coverPoolData
     ) {
       updatePools("1000");
+      setNeedsLatestTick(true)
     }
   }, [tokenIn.name, tokenOut.name]);
 
@@ -211,14 +213,14 @@ export default function CreateCover(props: any) {
 
   //sames as updatePools but triggered from the html
   const handleManualVolatilityChange = async (feeAmount: string) => {
-    setNeedsLatestTick(true)
     updatePools(feeAmount);
+    setNeedsLatestTick(true)
   };
 
   ////////////////////////////////Init Position Data
 
   useEffect(() => {
-    if (latestTick && coverPoolData.volatilityTier) {
+    if (latestTick != undefined && coverPoolData.volatilityTier) {
       updatePositionData();
     }
   }, [tokenIn.address, tokenOut.address, coverPoolData, latestTick]);
@@ -353,10 +355,10 @@ export default function CreateCover(props: any) {
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
       coverPoolData.volatilityTier &&
-      latestTick
+      latestTick != undefined
     )
       changeValidBounds();
-  }, [coverPositionData.lowerPrice, coverPositionData.upperPrice]);
+  }, [coverPositionData.lowerPrice, coverPositionData.upperPrice, latestTick]);
 
   const changeValidBounds = () => {
     if (coverPositionData.lowerPrice && coverPositionData.upperPrice) {
@@ -386,8 +388,8 @@ export default function CreateCover(props: any) {
       coverPoolData.volatilityTier &&
       coverMintParams.tokenInAmount &&
       tokenIn.userRouterAllowance &&
-      tokenIn.userRouterAllowance >= parseInt(bnInput.toString()) &&
-      !needsLatestTick
+      tokenIn.userRouterAllowance >=
+        parseInt(bnInput.toString())
     )
       updateGasFee();
   }, [
