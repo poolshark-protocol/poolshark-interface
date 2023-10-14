@@ -152,10 +152,6 @@ export default function CoverExistingPool({ goBack }) {
     }
   }, [tokenInBal]);
 
-  useEffect(() => {
-    console.log('token order', tokenIn.callId, tokenOut.callId, tokenIn.symbol, tokenOut.symbol)
-  }, [tokenIn.callId == 0]);
-
   ////////////////////////////////Latest Tick
   const { data: newLatestTick } = useContractRead({
     address: coverPoolAddress,
