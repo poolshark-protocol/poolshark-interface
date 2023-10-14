@@ -467,6 +467,7 @@ export const gasEstimateCoverMint = async (
       provider
     );
     const zeroForOne = tokenIn.address.localeCompare(tokenOut.address) < 0;
+    console.log('zeroForOne', zeroForOne)
     const amountIn = BigNumber.from(String(inAmount));
     const gasUnits: BigNumber = await routerContract
       .connect(signer)
