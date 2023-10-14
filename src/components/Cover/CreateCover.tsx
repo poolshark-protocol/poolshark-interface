@@ -63,6 +63,8 @@ export default function CreateCover(props: any) {
     setTokenInBalance,
     needsBalance,
     setNeedsBalance,
+    needsLatestTick,
+    setNeedsLatestTick
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPoolData,
@@ -91,6 +93,8 @@ export default function CreateCover(props: any) {
     state.setTokenInBalance,
     state.needsBalance,
     state.setNeedsBalance,
+    state.needsLatestTick,
+    state.setNeedsLatestTick
   ]);
 
   const { data: signer } = useSigner();
@@ -116,6 +120,7 @@ export default function CreateCover(props: any) {
   useEffect(() => {
     if (tokenIn.address && tokenOut.address) {
       setTokenOrder(tokenIn.callId == 0);
+      setNeedsLatestTick(true);
     }
   }, [tokenIn, tokenOut]);
 
@@ -174,7 +179,7 @@ export default function CreateCover(props: any) {
     chainId: 421613,
     enabled: coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS,
     onSuccess(data) {
-      // setNeedsAllowance(false);
+      setNeedsLatestTick(false);
     },
     onError(error) {
       console.log("Error syncLatestTick", error);
@@ -206,6 +211,7 @@ export default function CreateCover(props: any) {
 
   //sames as updatePools but triggered from the html
   const handleManualVolatilityChange = async (feeAmount: string) => {
+    setNeedsLatestTick(true)
     updatePools(feeAmount);
   };
 
@@ -372,6 +378,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     if (
+      !needsLatestTick &&
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
       coverPositionData.lowerPrice > 0 &&
@@ -379,7 +386,8 @@ export default function CreateCover(props: any) {
       coverPoolData.volatilityTier &&
       coverMintParams.tokenInAmount &&
       tokenIn.userRouterAllowance &&
-      tokenIn.userRouterAllowance >= parseInt(bnInput.toString())
+      tokenIn.userRouterAllowance >= parseInt(bnInput.toString()) &&
+      !needsLatestTick
     )
       updateGasFee();
   }, [
@@ -391,9 +399,13 @@ export default function CreateCover(props: any) {
     tokenIn.userRouterAllowance,
     tokenIn,
     tokenOut,
+    latestTick,
+    needsLatestTick
   ]);
 
   async function updateGasFee() {
+    // if (needsLatestTick) return
+    console.log('updating gas fee')
     const newMintGasFee =
       coverPoolAddress != ZERO_ADDRESS
         ? await gasEstimateCoverMint(
@@ -431,9 +443,11 @@ export default function CreateCover(props: any) {
             coverMintParams.tokenInAmount,
             signer
           );
-    if (newMintGasFee.formattedPrice != mintGasFee) {
+
+    if (!newMintGasFee.gasUnits.mul(120).div(100).eq(mintGasLimit)) {
       setMintGasFee(newMintGasFee.formattedPrice);
       setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
+      console.log('new gas limit set', mintGasLimit.toString())
     }
   }
 
