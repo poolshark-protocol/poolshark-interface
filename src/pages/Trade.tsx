@@ -168,9 +168,7 @@ export default function Trade() {
 
   const handleInputBox = (e) => {
     if (e.target.name === "tokenIn") {
-
       const [value, bnValue] = inputHandler(e, tokenIn)
-      console.log('setting token out amount', value, bnValue.toString(), pairSelected)
       if (!pairSelected) {
         setDisplayIn(value)
         setDisplayOut('')
@@ -189,8 +187,6 @@ export default function Trade() {
       setExactIn(true)
     } else if (e.target.name === "tokenOut") {
       const [value, bnValue] = inputHandler(e, tokenOut)
-      console.log('setting token out amount', value, bnValue.toString(), pairSelected)
-      console.log('amounts out', bnValue.eq(amountOut))
       if (!pairSelected) {
         setDisplayOut(value)
         setDisplayIn('')
@@ -250,7 +246,6 @@ export default function Trade() {
               tokenInAmount.toString(),
               tokenIn.decimals)
           ).toPrecision(6)
-          console.log('setting amount in', lowerTick.toString(), upperTick.toString(), tokenInAmount.toString(), tokenInAmountDisplay)
           setDisplayIn(tokenInAmountDisplay)
           setAmountIn(tokenInAmount)
         }
@@ -326,7 +321,7 @@ export default function Trade() {
       console.log("Error multiquote", error);
     },
     onSuccess(data) {
-      console.log("Success multiquote", data);
+      // console.log("Success multiquote", data);
     },
   });
 
@@ -962,7 +957,9 @@ export default function Trade() {
                 <span>
                   {" "}
                   ~$
-                  {!isNaN(parseInt(amountIn.toString())) ? (
+                  {!isNaN(parseInt(amountIn.toString())) && 
+                   !isNaN(tokenIn.decimals) &&
+                   !isNaN(tokenOut.USDPrice) ? (
                     (
                       parseFloat(
                         ethers.utils.formatUnits(amountIn ?? BN_ZERO, tokenIn.decimals)
@@ -1026,10 +1023,13 @@ export default function Trade() {
                   ~$
                   {pairSelected &&
                   !amountIn.eq(BN_ZERO) &&
-                  tokenOut.address != ZERO_ADDRESS &&
                   amountIn != undefined &&
                   lowerTick != undefined &&
-                  upperTick != undefined ? (
+                  upperTick != undefined &&
+                  tokenOut.address != ZERO_ADDRESS &&
+                  !isNaN(tokenOut.decimals) &&
+                  !isNaN(parseInt(amountOut.toString())) &&
+                  !isNaN(tokenOut.USDPrice) ? (
                     (
                       parseFloat(
                         ethers.utils.formatUnits(amountOut ?? BN_ZERO, tokenOut.decimals)
