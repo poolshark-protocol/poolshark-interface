@@ -494,8 +494,6 @@ export const gasEstimateCoverMint = async (
       style: "currency",
       currency: "USD",
     });
-    console.log('estimating cover mint', gasUnits.toString())
-
     return { formattedPrice, gasUnits };
   } catch (error) {
     console.log("gas error", error);

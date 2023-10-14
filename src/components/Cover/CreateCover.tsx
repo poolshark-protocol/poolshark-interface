@@ -180,7 +180,6 @@ export default function CreateCover(props: any) {
     enabled: coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS,
     onSuccess(data) {
       setNeedsLatestTick(false);
-      console.log('got latest tick', newLatestTick.toString())
     },
     onError(error) {
       console.log("Error syncLatestTick", error);
@@ -406,8 +405,6 @@ export default function CreateCover(props: any) {
   ]);
 
   async function updateGasFee() {
-    // if (needsLatestTick) return
-    console.log('updating gas fee')
     const newMintGasFee =
       coverPoolAddress != ZERO_ADDRESS
         ? await gasEstimateCoverMint(
