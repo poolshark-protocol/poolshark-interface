@@ -397,10 +397,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   switchDirection: () => {
     set((state) => ({
       tokenIn: {
-        callId:
-          state.tokenOut.address.localeCompare(state.tokenIn.address) < 0
-            ? 0
-            : 1,
+        callId: state.tokenOut.callId,
         name: state.tokenOut.name,
         symbol: state.tokenOut.symbol,
         logoURI: state.tokenOut.logoURI,
@@ -411,10 +408,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         coverUSDPrice: state.tokenOut.coverUSDPrice,
       },
       tokenOut: {
-        callId:
-          state.tokenOut.address.localeCompare(state.tokenIn.address) < 0
-            ? 1
-            : 0,
+        callId: state.tokenIn.callId,
         name: state.tokenIn.name,
         symbol: state.tokenIn.symbol,
         logoURI: state.tokenIn.logoURI,
