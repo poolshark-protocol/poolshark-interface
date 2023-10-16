@@ -21,6 +21,7 @@ import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import { chainProperties } from "../../utils/chains";
 import router from "next/router";
 import { inputHandler } from "../../utils/math/valueMath";
+import SelectToken from "../../components/SelectToken";
 
 export default function AddLiquidity({}) {
   const [
@@ -30,6 +31,7 @@ export default function AddLiquidity({}) {
     rangeMintParams,
     setRangePositionData,
     tokenIn,
+    setTokenIn,
     setTokenInAmount,
     setTokenInAllowance,
     setTokenInRangeUSDPrice,
@@ -59,6 +61,7 @@ export default function AddLiquidity({}) {
     state.rangeMintParams,
     state.setRangePositionData,
     state.tokenIn,
+    state.setTokenIn,
     state.setTokenInAmount,
     state.setTokenInRangeAllowance,
     state.setTokenInRangeUSDPrice,
@@ -132,7 +135,7 @@ export default function AddLiquidity({}) {
     ) {
       setRangePoolFromFeeTier(tokenIn, tokenOut, router.query.feeTier);
     }
-  }, [router.query.feeTier, rangePoolData]);
+  }, [router.query.feeTier, rangePoolData, pairSelected]);
 
   //this sets the default position price delta
   useEffect(() => {
@@ -254,6 +257,7 @@ export default function AddLiquidity({}) {
   const [upperPrice, setUpperPrice] = useState("0");
 
   useEffect(() => {
+    if (upperPrice == lowerPrice || rangePrice == undefined) return
     setRangePositionData({
       ...rangePositionData,
       lowerPrice: lowerPrice,
@@ -264,7 +268,6 @@ export default function AddLiquidity({}) {
       amountInSetLast ? rangeMintParams.tokenInAmount
                       : rangeMintParams.tokenOutAmount
     )
-    console.log('upper and lower:', upperPrice, lowerPrice, rangePrice)
     const token0Disabled = parseFloat(upperPrice) <= parseFloat(rangePrice)
     const token1Disabled = parseFloat(lowerPrice) >= parseFloat(rangePrice)
     const tokenInDisabled = tokenIn.callId == 0 ? token0Disabled : token1Disabled
@@ -280,7 +283,7 @@ export default function AddLiquidity({}) {
       setAmounts(false, BN_ZERO)
       setAmountInSetLast(false)
     }
-  }, [lowerPrice, upperPrice]);
+  }, [lowerPrice, upperPrice, rangePrice]);
 
   const handleInputBox = (e) => {
 
@@ -492,12 +495,18 @@ export default function AddLiquidity({}) {
                 >
                   MAX
                 </button>
-                <button className="flex w-full items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
-                  <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
-                    <img className="md:w-7 w-6" src={tokenIn.logoURI} />
-                    {tokenIn.symbol}
-                  </div>
-                </button>
+                <div className="flex items-center gap-x-2">
+                  <SelectToken
+                    index="0"
+                    key="in"
+                    type="in"
+                    tokenIn={tokenIn}
+                    setTokenIn={setTokenIn}
+                    tokenOut={tokenOut}
+                    setTokenOut={setTokenOut}
+                    displayToken={tokenIn}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -526,12 +535,18 @@ export default function AddLiquidity({}) {
                 >
                   MAX
                 </button>
-                <button className="flex w-full items-center gap-x-3 bg-black border border-grey md:px-4 px-2 py-1.5 rounded-[4px]">
-                  <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
-                    <img className="md:w-7 w-6" src={tokenOut.logoURI} />
-                    {tokenOut.symbol}
-                  </div>
-                </button>
+                <div className="flex items-center gap-x-2">
+                  <SelectToken
+                    key={"out"}
+                    type="out"
+                    tokenIn={tokenIn}
+                    setTokenIn={setTokenIn}
+                    tokenOut={tokenOut}
+                    setTokenOut={setTokenOut}
+                    setPairSelected={setPairSelected}
+                    displayToken={tokenOut}
+                  />
+                </div>
               </div>
             </div>
           </div>

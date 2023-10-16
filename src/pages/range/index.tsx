@@ -96,7 +96,7 @@ export default function Range() {
                 One of the main advantages of providing liquidity to an AMM is the capital efficiency it offers. Preventing idle money allows LPs bootstrapping liquidity for a token pair to be able to earn fees.
               </p>
             </div>
-            <Link href="/range/create">
+            <Link href="/range/add-liquidity">
             <button
               className="px-12 py-3 text-white w-min whitespace-nowrap cursor-pointer text-center transition border border-main bg-main1 uppercase text-sm
                 hover:opacity-80"
