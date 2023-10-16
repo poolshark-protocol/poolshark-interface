@@ -33,6 +33,7 @@ import router from "next/router";
 import CoverCreateAndMintButton from "../Buttons/CoverCreateAndMintButton";
 import { coverPoolABI } from "../../abis/evm/coverPool";
 import { getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
+import PositionMintModal from "../Modals/PositionMint";
 
 export default function CreateCover(props: any) {
   const [
@@ -96,11 +97,19 @@ export default function CreateCover(props: any) {
     state.needsLatestTick,
     state.setNeedsLatestTick
   ]);
+  
 
   const { data: signer } = useSigner();
   const { address, isConnected, isDisconnected } = useAccount();
   const { bnInput, inputBox, maxBalance } = useInputBox();
   const [loadingPrices, setLoadingPrices] = useState(true);
+
+
+  // for mint modal
+  const [successDisplay, setSuccessDisplay] = useState(false);
+  const [errorDisplay, setErrorDisplay] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [txHash, setTxHash] = useState();
 
   ////////////////////////////////Chain
   const [stateChainName, setStateChainName] = useState();
@@ -114,15 +123,13 @@ export default function CreateCover(props: any) {
   }, [chainId]);
 
   ////////////////////////////////TokenOrder
-  const [tokenOrder, setTokenOrder] = useState(true);
   const [priceOrder, setPriceOrder] = useState(true);
 
   useEffect(() => {
-    if (tokenIn.address && tokenOut.address) {
-      setTokenOrder(tokenIn.callId == 0);
+    if (coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS) {
       setNeedsLatestTick(true);
     }
-  }, [tokenIn, tokenOut]);
+  }, [coverPoolAddress]);
 
   ////////////////////////////////Token Allowances
 
@@ -168,7 +175,7 @@ export default function CreateCover(props: any) {
         );
       }
     }
-  }, [coverPoolData, tokenOrder]);
+  }, [coverPoolData, tokenIn.callId == 0]);
 
   ////////////////////////////////Latest Tick
 
@@ -228,17 +235,16 @@ export default function CreateCover(props: any) {
     const tickAtPrice = Number(latestTick);
     const tickSpread = Number(coverPoolData.volatilityTier.tickSpread);
     const priceLower = TickMath.getPriceStringAtTick(
-      tokenOrder
+      tokenIn.callId == 0
         ? tickAtPrice + -tickSpread * 16
         : tickAtPrice + tickSpread * 8,
       tickSpread
     );
     const priceUpper = TickMath.getPriceStringAtTick(
-      tokenOrder ? tickAtPrice - tickSpread * 6 
+      tokenIn.callId == 0 ? tickAtPrice - tickSpread * 6 
                  : tickAtPrice + tickSpread * 18,
       tickSpread
     );
-    console.log('updating position data')
     setLowerPrice(invertPrice(priceOrder ? priceLower : priceUpper, priceOrder));
     setUpperPrice(invertPrice(priceOrder ? priceUpper : priceLower, priceOrder));
     setCoverPositionData({
@@ -254,9 +260,6 @@ export default function CreateCover(props: any) {
   const [upperPrice, setUpperPrice] = useState("0");
 
   useEffect(() => {
-    console.log('setting position data')
-    console.log('lower price', invertPrice(priceOrder ? lowerPrice : upperPrice, priceOrder))
-    console.log('upper price', invertPrice(priceOrder ? upperPrice : lowerPrice, priceOrder))
     setCoverPositionData({
       ...coverPositionData,
       lowerPrice: invertPrice(priceOrder ? lowerPrice : upperPrice, priceOrder),
@@ -302,7 +305,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     changeCoverAmounts();
-  }, [tokenOrder, coverPositionData]);
+  }, [tokenIn.callId == 0, coverPositionData]);
 
   function changeCoverAmounts() {
     if (
@@ -328,7 +331,7 @@ export default function CreateCover(props: any) {
       );
       setTokenOutAmount(
         BigNumber.from(
-          tokenOrder
+          tokenIn.callId == 0
             ? DyDxMath.getDy(
                 liquidityAmount,
                 lowerSqrtPrice,
@@ -509,7 +512,6 @@ export default function CreateCover(props: any) {
   ///////////////////// Switch Price denomination
 
   const handlePriceSwitch = () => {
-    console.log('handle price switch')
     setPriceOrder(!priceOrder);
     setLowerPrice(invertPrice(upperPrice, false));
     setUpperPrice(invertPrice(lowerPrice, false));
@@ -620,8 +622,8 @@ export default function CreateCover(props: any) {
             onClick={handlePriceSwitch}
             className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
           >
-            {priceOrder ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>} per{" "}
-            {priceOrder ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>}{" "}
+            {priceOrder == (tokenIn.callId == 0) ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>} per{" "}
+            {priceOrder == (tokenIn.callId == 0) ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>}{" "}
             <DoubleArrowIcon />
           </div>
         </div>
@@ -666,17 +668,19 @@ export default function CreateCover(props: any) {
               onClick={() => setExpanded(!expanded)}
             >
               <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                {1} {priceOrder ? tokenIn.symbol : tokenOut.symbol} =
+                {1} {priceOrder == (tokenIn.callId == 0) ? tokenIn.symbol : tokenOut.symbol} =
                 {" " +
-                  parseFloat(priceOrder ? TickMath.getPriceStringAtTick(latestTick)
-                              : invertPrice(TickMath.getPriceStringAtTick(latestTick), false)).toPrecision(
-                    5
-                  ) +
+                  parseFloat(
+                    invertPrice(
+                      TickMath.getPriceStringAtTick(latestTick),
+                      priceOrder
+                    )
+                  ).toPrecision(5) +
                   " " +
-                  (priceOrder ? tokenOut.symbol : tokenIn.symbol)}
+                  (priceOrder == (tokenIn.callId == 0) ? tokenOut.symbol : tokenIn.symbol)}
                 {/* {!tokenIn.coverUSDPrice
                   ? "?" + " " + tokenOut.symbol
-                  : (tokenOrder
+                  : (tokenIn.callId == 0
                       ? TickMath.getPriceStringAtTick(
                           parseInt(latestTick),
                           parseInt(coverPoolData.volatilityTier.tickSpread)
@@ -756,7 +760,7 @@ export default function CreateCover(props: any) {
                 : 20
             )}
             amount={bnInput}
-            zeroForOne={tokenOrder}
+            zeroForOne={tokenIn.callId == 0}
             tickSpacing={
               coverPoolData.volatilityTier
                 ? coverPoolData.volatilityTier.tickSpread
@@ -764,6 +768,10 @@ export default function CreateCover(props: any) {
             }
             buttonMessage={coverMintParams.buttonMessage}
             gasLimit={mintGasLimit}
+            setSuccessDisplay={setSuccessDisplay}
+            setErrorDisplay={setErrorDisplay}
+            setIsLoading={setIsLoading}
+            setTxHash={setTxHash}
           />
         ) : (
           <CoverCreateAndMintButton
@@ -791,7 +799,7 @@ export default function CreateCover(props: any) {
                 : 20
             )}
             amount={bnInput}
-            zeroForOne={tokenOrder}
+            zeroForOne={tokenIn.callId == 0}
             tickSpacing={
               coverPoolData.volatilityTier
                 ? coverPoolData.volatilityTier.tickSpread
@@ -799,11 +807,22 @@ export default function CreateCover(props: any) {
             }
             buttonMessage={coverMintParams.buttonMessage}
             gasLimit={mintGasLimit}
+            setSuccessDisplay={setSuccessDisplay}
+            setErrorDisplay={setErrorDisplay}
+            setIsLoading={setIsLoading}
+            setTxHash={setTxHash}
           />
         )
       ) : (
         <> </>
       )}
+      <PositionMintModal
+        hash={txHash}
+        type={"cover"}
+        errorDisplay={errorDisplay}
+        successDisplay={successDisplay}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

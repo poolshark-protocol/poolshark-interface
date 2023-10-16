@@ -9,11 +9,10 @@ import {
 } from "wagmi";
 import DoubleArrowIcon from "../Icons/DoubleArrowIcon";
 import CoverMintButton from "../Buttons/CoverMintButton";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
 import JSBI from "jsbi";
-import { Listbox, Transition } from "@headlessui/react";
-import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
+import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import CoverMintApproveButton from "../Buttons/CoverMintApproveButton";
@@ -33,6 +32,7 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { volatilityTiers } from "../../utils/pools";
 import { coverPoolABI } from "../../abis/evm/coverPool";
 import { useRouter } from "next/router";
+import PositionMintModal from "../Modals/PositionMint";
 
 export default function CoverExistingPool({ goBack }) {
   const [
@@ -93,6 +93,14 @@ export default function CoverExistingPool({ goBack }) {
     state.setNeedsLatestTick
   ]);
 
+
+  // for mint modal
+  const [successDisplay, setSuccessDisplay] = useState(false);
+  const [errorDisplay, setErrorDisplay] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [txHash, setTxHash] = useState();
+
+
   const [rangePositionData] = useRangeLimitStore((state) => [
     state.rangePositionData,
   ]);
@@ -112,15 +120,13 @@ export default function CoverExistingPool({ goBack }) {
   }, [chainId]);
 
   ////////////////////////////////Token Order
-  const [tokenOrder, setTokenOrder] = useState(true);
   const [priceOrder, setPriceOrder] = useState(true);
 
   useEffect(() => {
-    if (tokenIn.address && tokenOut.address) {
-      setTokenOrder(tokenIn.callId == 0);
+    if (coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS) {
       setNeedsLatestTick(true);
     }
-  }, [tokenIn, tokenOut]);
+  }, [coverPoolAddress]);
 
   ////////////////////////////////Token Allowances
 
@@ -206,7 +212,7 @@ export default function CoverExistingPool({ goBack }) {
         );
       }
     }
-  }, [coverPoolData, tokenOrder]);
+  }, [coverPoolData, tokenIn.callId == 0]);
 
   //////////////////////////////Cover Pool Data
 
@@ -241,16 +247,17 @@ export default function CoverExistingPool({ goBack }) {
   }, [tokenIn.address, tokenOut.address, coverPoolData, latestTick]);
 
   async function updatePositionData() {
+
     const tickAtPrice = Number(latestTick);
     const tickSpread = Number(coverPoolData.volatilityTier.tickSpread);
     const priceLower = TickMath.getPriceStringAtTick(
-      tokenOrder
+      tokenIn.callId == 0
         ? tickAtPrice + -tickSpread * 16
         : tickAtPrice + tickSpread * 8,
       tickSpread
     );
     const priceUpper = TickMath.getPriceStringAtTick(
-      tokenOrder ? tickAtPrice - tickSpread * 6 : tickAtPrice + tickSpread * 18,
+      tokenIn.callId == 0 ? tickAtPrice - tickSpread * 6 : tickAtPrice + tickSpread * 18,
       tickSpread
     );
     setLowerPrice(
@@ -259,6 +266,7 @@ export default function CoverExistingPool({ goBack }) {
     setUpperPrice(
       invertPrice(priceOrder ? priceUpper : priceLower, priceOrder)
     );
+    console.log('updating position data', priceLower, priceUpper)
     setCoverPositionData({
       ...coverPositionData,
       tickAtPrice: tickAtPrice,
@@ -312,7 +320,7 @@ export default function CoverExistingPool({ goBack }) {
   // set amount in
   /* useEffect(() => {
     setCoverAmountIn(JSBI.BigInt(coverMintParams.tokenInAmount.toString()));
-  }, [coverPositionData.lowerPrice, coverPositionData.upperPrice, tokenOrder]); */
+  }, [coverPositionData.lowerPrice, coverPositionData.upperPrice, tokenIn.callId == 0]); */
 
   useEffect(() => {
     updateCoverAmounts();
@@ -322,7 +330,7 @@ export default function CoverExistingPool({ goBack }) {
     sliderValue,
     lowerPrice,
     upperPrice,
-    tokenOrder,
+    tokenIn.callId == 0,
   ]);
 
   function updateCoverAmounts() {
@@ -349,7 +357,7 @@ export default function CoverExistingPool({ goBack }) {
       );
       setTokenInAmount(
         BigNumber.from(
-          tokenOrder
+          tokenIn.callId == 0
             ? DyDxMath.getDx(
                 liquidityAmount,
                 lowerSqrtPrice,
@@ -366,7 +374,7 @@ export default function CoverExistingPool({ goBack }) {
       );
       setTokenOutAmount(
         BigNumber.from(
-          tokenOrder
+          tokenIn.callId == 0
             ? DyDxMath.getDy(
                 liquidityAmount,
                 lowerSqrtPrice,
@@ -558,7 +566,7 @@ export default function CoverExistingPool({ goBack }) {
     <div className="flex flex-col space-y-8">
       <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
         <div className="flex mb-4 items-center justify-between">
-          <h1 className="">SET A PRICE RANGE</h1>
+          <h1 className="">SELECT TOKENS</h1>
           <div
             onClick={() => {
               switchDirection();
@@ -575,9 +583,9 @@ export default function CoverExistingPool({ goBack }) {
             <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
               <img
                 className="md:w-7 w-6"
-                src={(tokenOrder ? tokenOut : tokenIn).logoURI}
+                src={tokenIn.logoURI}
               />
-              {(tokenOrder ? tokenOut : tokenIn).symbol}
+              {tokenIn.symbol}
             </div>
           </button>
           <ArrowLongRightIcon
@@ -590,9 +598,9 @@ export default function CoverExistingPool({ goBack }) {
             <div className="flex md:text-base text-sm items-center gap-x-2 w-full">
               <img
                 className="md:w-7 w-6"
-                src={(tokenOrder ? tokenIn : tokenOut).logoURI}
+                src={tokenOut.logoURI}
               />
-              {(tokenOrder ? tokenIn : tokenOut).symbol}
+              {tokenOut.symbol}
             </div>
           </button>
         </div>
@@ -669,8 +677,8 @@ export default function CoverExistingPool({ goBack }) {
             onClick={handlePriceSwitch}
             className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
           >
-            {priceOrder ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>} per{" "}
-            {priceOrder ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>}{" "}
+            {priceOrder == (tokenIn.callId == 0) ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>} per{" "}
+            {priceOrder == (tokenIn.callId == 0) ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>}{" "}
             <DoubleArrowIcon />
           </div>
         </div>
@@ -715,18 +723,16 @@ export default function CoverExistingPool({ goBack }) {
               onClick={() => setExpanded(!expanded)}
             >
               <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                {1} {priceOrder ? tokenIn.symbol : tokenOut.symbol} =
+                {1} {priceOrder == (tokenIn.callId == 0) ? tokenIn.symbol : tokenOut.symbol} =
                 {" " +
                   parseFloat(
-                    priceOrder
-                      ? TickMath.getPriceStringAtTick(latestTick)
-                      : invertPrice(
-                          TickMath.getPriceStringAtTick(latestTick),
-                          false
-                        )
+                    invertPrice(
+                      TickMath.getPriceStringAtTick(latestTick),
+                      priceOrder
+                    )
                   ).toPrecision(5) +
                   " " +
-                  tokenOut.symbol}
+                  (priceOrder == (tokenIn.callId == 0) ? tokenOut.symbol : tokenIn.symbol)}
               </div>
               <div className="ml-auto text-xs uppercase text-[#C9C9C9]">
                 <button>
@@ -802,13 +808,17 @@ export default function CoverExistingPool({ goBack }) {
                 : 0
             }
             amount={String(coverMintParams.tokenInAmount)}
-            zeroForOne={tokenOrder}
+            zeroForOne={tokenIn.callId == 0}
             tickSpacing={
               coverPoolData.volatilityTier
                 ? coverPoolData.volatilityTier.tickSpread
                 : 20
             }
             gasLimit={mintGasLimit}
+            setSuccessDisplay={setSuccessDisplay}
+            setErrorDisplay={setErrorDisplay}
+            setIsLoading={setIsLoading}
+            setTxHash={setTxHash}
           />
         ) : (
           <CoverCreateAndMintButton
@@ -845,18 +855,29 @@ export default function CoverExistingPool({ goBack }) {
                 : 0
             }
             amount={String(coverMintParams.tokenInAmount)}
-            zeroForOne={tokenOrder}
+            zeroForOne={tokenIn.callId == 0}
             tickSpacing={
               coverPoolData.volatilityTier
                 ? coverPoolData.volatilityTier.tickSpread
                 : 20
             }
             gasLimit={mintGasLimit}
+            setSuccessDisplay={setSuccessDisplay}
+            setErrorDisplay={setErrorDisplay}
+            setIsLoading={setIsLoading}
+            setTxHash={setTxHash}
           />
         )
       ) : (
         <></>
       )}
+      <PositionMintModal
+        hash={txHash}
+        type={"cover"}
+        errorDisplay={errorDisplay}
+        successDisplay={successDisplay}
+        isLoading={isLoading}
+      />
     </div>
   );
 }
