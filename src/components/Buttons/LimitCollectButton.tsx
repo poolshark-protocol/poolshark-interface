@@ -11,6 +11,7 @@ import React, { useState } from "react";
 import { BigNumber } from "ethers";
 import { useRangeLimitStore } from '../../hooks/useRangeLimitStore';
 import { BN_ZERO } from '../../utils/math/constants';
+import Loader from '../Icons/Loader';
 
 export default function LimitCollectButton({ poolAddress, address, positionId, claim, zeroForOne, gasLimit, gasFee }) {
 
@@ -58,13 +59,14 @@ export default function LimitCollectButton({ poolAddress, address, positionId, c
     
   return (
       <>
-      <button className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
+      <button className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer flex items-center justify-center text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
           disabled={gasFee == '$0.00'}
           onClick={() => {
             address ?  write?.() : null
           }}
               >
-              Collect position
+                {gasFee == '$0.00' ? <Loader/> : "Collect position"}
+              
       </button>
       <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
     {errorDisplay && (

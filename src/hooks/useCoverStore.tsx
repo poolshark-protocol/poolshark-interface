@@ -34,6 +34,7 @@ type CoverState = {
   };
   needsRefetch: boolean;
   needsPosRefetch: boolean;
+  needsLatestTick: boolean;
   needsAllowance: boolean;
   needsBalance: boolean;
   //Claim tick
@@ -73,6 +74,7 @@ type CoverAction = {
   //refetch
   setNeedsRefetch: (needsRefetch: boolean) => void;
   setNeedsPosRefetch: (needsPosRefetch: boolean) => void;
+  setNeedsLatestTick: (needsLatestTick: boolean) => void;
   //allowance
   setNeedsAllowance: (needsAllowance: boolean) => void;
   //balance
@@ -140,6 +142,7 @@ const initialCoverState: CoverState = {
   },
   needsRefetch: false,
   needsPosRefetch: false,
+  needsLatestTick: true,
   needsAllowance: true,
   needsBalance: true,
   //
@@ -162,6 +165,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   coverMintParams: initialCoverState.coverMintParams,
   needsRefetch: initialCoverState.needsRefetch,
   needsPosRefetch: initialCoverState.needsPosRefetch,
+  needsLatestTick: initialCoverState.needsLatestTick,
   needsAllowance: initialCoverState.needsAllowance,
   needsBalance: initialCoverState.needsBalance,
   setTokenIn: (tokenOut, newToken: tokenCover) => {
@@ -384,6 +388,11 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       needsPosRefetch: needsPosRefetch,
     }));
   },
+  setNeedsLatestTick: (needsLatestTick: boolean) => {
+    set(() => ({
+      needsLatestTick: needsLatestTick,
+    }));
+  },
   setNeedsAllowance: (needsAllowance: boolean) => {
     set(() => ({
       needsAllowance: needsAllowance,
@@ -397,10 +406,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   switchDirection: () => {
     set((state) => ({
       tokenIn: {
-        callId:
-          state.tokenOut.address.localeCompare(state.tokenIn.address) < 0
-            ? 0
-            : 1,
+        callId: state.tokenOut.callId,
         name: state.tokenOut.name,
         symbol: state.tokenOut.symbol,
         logoURI: state.tokenOut.logoURI,
@@ -411,10 +417,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         coverUSDPrice: state.tokenOut.coverUSDPrice,
       },
       tokenOut: {
-        callId:
-          state.tokenOut.address.localeCompare(state.tokenIn.address) < 0
-            ? 1
-            : 0,
+        callId: state.tokenIn.callId,
         name: state.tokenIn.name,
         symbol: state.tokenIn.symbol,
         logoURI: state.tokenIn.logoURI,
