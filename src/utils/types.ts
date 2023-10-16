@@ -66,3 +66,5 @@ export type tokenCover = {
   userRouterAllowance: number;
   coverUSDPrice: number;
 };
+
+export type token = tokenCover | tokenRangeLimit | tokenSwap;

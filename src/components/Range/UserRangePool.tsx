@@ -249,8 +249,8 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
             <div
               className={`text-white text-xs lg:text-right text-left whitespace-nowrap`}
             >
-              {TickMath.getPriceStringAtTick(Number(rangePosition.min))} -{" "}
-              {TickMath.getPriceStringAtTick(Number(rangePosition.max))}{" "}
+              {TickMath.getPriceStringAtTick(Number(rangePosition.min), rangeTokenIn, rangeTokenOut)} -{" "}
+              {TickMath.getPriceStringAtTick(Number(rangePosition.max), rangeTokenIn, rangeTokenOut)}{" "}
               <span className="text-grey1">
                 {rangePosition.zeroForOne
                   ? rangePosition.tokenOne.symbol

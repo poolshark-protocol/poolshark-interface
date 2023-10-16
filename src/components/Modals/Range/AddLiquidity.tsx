@@ -245,8 +245,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   }, [lowerSqrtPrice, upperSqrtPrice]);
 
   const handleInput1 = (e) => {
-    const [name, value, bnValue] = inputHandler(e)
-    if (name === "tokenIn") {
+    if (e.target.name === "tokenIn") {
+      const [value, bnValue] = inputHandler(e, tokenIn)
       setDisplay(value)
       if (!amountOutDisabled)
         setAmounts(true, bnValue)
@@ -254,8 +254,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
         setTokenInAmount(bnValue)
         setDisplay2('')
       }
-
-    } else if (name === "tokenOut") {
+    } else if (e.target.name === "tokenOut") {
+      const [value, bnValue] = inputHandler(e, tokenOut)
       setDisplay2(value)
       if (!amountInDisabled)
         setAmounts(false, bnValue)
@@ -439,11 +439,11 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                       </span>
                     </div>
                     <div className="flex items-end justify-between mt-2 mb-3">
-                      {inputBox("0", "tokenIn", handleInput1, amountInDisabled)}
+                      {inputBox("0", tokenIn, "tokenIn", handleInput1, amountInDisabled)}
                       <div className="flex items-center gap-x-2">
                         {isConnected && stateChainName === "arbitrumGoerli" ? (
                           <button
-                            onClick={() => maxBalance(tokenIn.userBalance, "0")}
+                            onClick={() => maxBalance(tokenIn.userBalance, "0", tokenIn)}
                             className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
                           >
                             MAX
@@ -477,7 +477,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
                     </div>
                     <div className="flex items-end justify-between mt-2 mb-3">
                       <span className="text-3xl">
-                        {inputBox2("0", "tokenOut", handleInput1, amountOutDisabled)}
+                        {inputBox2("0", tokenOut, "tokenOut", handleInput1, amountOutDisabled)}
                       </span>
                       <div className="flex items-center gap-x-2">
                         <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">

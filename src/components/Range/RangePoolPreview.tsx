@@ -138,12 +138,14 @@ export default function RangePoolPreview() {
             BigNumber.from(
               TickMath.getTickAtPriceString(
                 rangePositionData.lowerPrice,
+                tokenIn, tokenOut,
                 parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
               )
             ),
             BigNumber.from(
               TickMath.getTickAtPriceString(
                 rangePositionData.upperPrice,
+                tokenIn, tokenOut,
                 parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
               )
             ),
@@ -159,12 +161,14 @@ export default function RangePoolPreview() {
             BigNumber.from(
               TickMath.getTickAtPriceString(
                 rangePositionData.lowerPrice,
+                tokenIn, tokenOut,
                 parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
               )
             ),
             BigNumber.from(
               TickMath.getTickAtPriceString(
                 rangePositionData.upperPrice,
+                tokenIn, tokenOut,
                 parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
               )
             ),
@@ -437,6 +441,7 @@ export default function RangePoolPreview() {
                                 ? BigNumber.from(
                                     TickMath.getTickAtPriceString(
                                       rangePositionData.lowerPrice,
+                                      tokenIn, tokenOut,
                                       parseInt(
                                         rangePoolData.feeTier
                                           ? rangePoolData.feeTier.tickSpacing
@@ -451,6 +456,7 @@ export default function RangePoolPreview() {
                                 ? BigNumber.from(
                                     TickMath.getTickAtPriceString(
                                       rangePositionData.upperPrice,
+                                      tokenIn, tokenOut,
                                       parseInt(
                                         rangePoolData.feeTier
                                           ? rangePoolData.feeTier.tickSpacing
@@ -500,6 +506,7 @@ export default function RangePoolPreview() {
                                 ? BigNumber.from(
                                     TickMath.getTickAtPriceString(
                                       rangePositionData.lowerPrice,
+                                      tokenIn, tokenOut,
                                       parseInt(
                                         rangePoolData.feeTier
                                           ? rangePoolData.feeTier.tickSpacing
@@ -514,6 +521,7 @@ export default function RangePoolPreview() {
                                 ? BigNumber.from(
                                     TickMath.getTickAtPriceString(
                                       rangePositionData.upperPrice,
+                                      tokenIn, tokenOut,
                                       parseInt(
                                         rangePoolData.feeTier
                                           ? rangePoolData.feeTier.tickSpacing

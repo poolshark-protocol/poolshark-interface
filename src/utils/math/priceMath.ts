@@ -5,7 +5,7 @@ import invariant from "tiny-invariant";
 import { DyDxMath } from "./dydxMath";
 import { TickMath, invertPrice } from "./tickMath";
 import { BN_ZERO } from "./constants";
-import { tokenSwap } from "../types";
+import { token, tokenSwap } from "../types";
 
 export function priceToString(price: Decimal): string {
     if (scale(price) < 3) return Number.parseFloat(price.toPrecision(5)).toString()
@@ -22,9 +22,11 @@ export function precision(price: JSBD): number {
     return stringArr[1].length
 }
 
-export function displayPoolPrice(pairSelected: boolean, poolPrice: any, tokenOrder: boolean): string {
+export function displayPoolPrice(pairSelected: boolean, poolPrice: any, tokenA: token, tokenB: token): string {
     if (!pairSelected || !poolPrice) return ' '
-    return invertPrice(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(poolPrice)), tokenOrder)
+    const token0 = tokenA.address.localeCompare(tokenB.address) < 0 ? tokenA : tokenB
+    const tokenOrder = token0.address == tokenA.address ? true : false
+    return invertPrice(TickMath.getPriceStringAtSqrtPrice(JSBI.BigInt(poolPrice), tokenA, tokenB), tokenOrder)
 }
 
 export function getMarketPriceAboveBelowString(limitStringPriceQuote: string, pairSelected: boolean, limitPriceOrder: boolean, tokenIn: tokenSwap, tokenOut: tokenSwap): string {
@@ -54,7 +56,7 @@ export function getMarketPriceAboveBelowString(limitStringPriceQuote: string, pa
  * @param zeroForOne true if token0 => token1; false if token1 => token0
  * @param amountIn the amount of token deposited into the LP position
  */
-export function getAveragePrice(lowerTick: number, upperTick: number, zeroForOne: boolean, liquidity: BigNumber, amountIn: BigNumber): number {
+export function getAveragePrice(tokenA: token, tokenB: token, lowerTick: number, upperTick: number, zeroForOne: boolean, liquidity: BigNumber, amountIn: BigNumber, ): number {
     if(
         lowerTick >= upperTick ||
         lowerTick < TickMath.MIN_TICK ||
@@ -79,7 +81,7 @@ export function getAveragePrice(lowerTick: number, upperTick: number, zeroForOne
         newSqrtPrice = TickMath.getNewSqrtPrice(upperSqrtPrice, liquidityAmount, amount, !zeroForOne, true)
     }
     // convert sqrt price to price string
-    return parseFloat(TickMath.getPriceStringAtSqrtPrice(newSqrtPrice))
+    return parseFloat(TickMath.getPriceStringAtSqrtPrice(newSqrtPrice, tokenA, tokenB))
 }
 
 /**

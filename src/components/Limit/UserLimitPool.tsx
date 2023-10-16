@@ -17,6 +17,7 @@ export default function UserLimitPool({
 }) {
     const [
         tokenIn,
+        tokenOut,
         setLimitPositionData,
         setLimitPoolAddress,
         setTokenIn,
@@ -27,6 +28,7 @@ export default function UserLimitPool({
         setNeedsBalanceIn,
     ] = useRangeLimitStore((state) => [
         state.tokenIn,
+        state.tokenOut,
         state.setLimitPositionData,
         state.setLimitPoolAddress,
         state.setTokenIn,
@@ -122,12 +124,14 @@ export default function UserLimitPool({
                         <span className="text-grey1">1 {limitPosition.tokenIn.symbol} = </span>
                         {
                             getAveragePrice(
+                                tokenIn,
+                                tokenOut,
                                 parseInt(limitPosition.min),
                                 parseInt(limitPosition.max),
                                 limitPosition.tokenIn.id.localeCompare(limitPosition.tokenOut.id) < 0,
                                 BigNumber.from(limitPosition.liquidity),
-                                BigNumber.from(limitPosition.amountIn))
-                                .toFixed(3) + " " + limitPosition.tokenOut.symbol}
+                                BigNumber.from(limitPosition.amountIn)
+                            ).toFixed(3) + " " + limitPosition.tokenOut.symbol}
                     </span>
                 </div>
             </td>

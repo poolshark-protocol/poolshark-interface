@@ -25,12 +25,16 @@ export default function Cover() {
     setCoverPoolFromVolatility,
     needsRefetch,
     setNeedsRefetch,
+    tokenIn,
+    tokenOut
   ] = useCoverStore((state) => [
     state.setTokenIn,
     state.setTokenOut,
     state.setCoverPoolFromVolatility,
     state.needsRefetch,
     state.setNeedsRefetch,
+    state.tokenIn,
+    state.tokenOut
   ]);
 
   const {
@@ -275,12 +279,14 @@ export default function Cover() {
                                 coverPosition={allCoverPosition}
                                 lowerPrice={parseFloat(
                                   TickMath.getPriceStringAtTick(
-                                    allCoverPosition.lowerTick
+                                    allCoverPosition.lowerTick,
+                                    tokenIn, tokenOut
                                   )
                                 )}
                                 upperPrice={parseFloat(
                                   TickMath.getPriceStringAtTick(
-                                    allCoverPosition.upperTick
+                                    allCoverPosition.upperTick,
+                                    tokenIn, tokenOut
                                   )
                                 )}
                                 href={"/cover/view"}

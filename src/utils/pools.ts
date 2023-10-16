@@ -208,10 +208,10 @@ export const getCoverPoolInfo = async (
           if (setCoverPrice) {
             console.log(
               "getting cover price",
-              TickMath.getPriceStringAtTick(newLatestTick),
+              TickMath.getPriceStringAtTick(newLatestTick, tokenIn, tokenOut),
               tickSpread
             );
-            setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick));
+            setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick, tokenIn, tokenOut));
           }
 
           if (setTokenInUsdPrice) {
@@ -246,6 +246,7 @@ export const getCoverPoolInfo = async (
                   tokenOrder
                     ? newLatestTick + -tickSpread * 16
                     : newLatestTick + tickSpread * 8,
+                  tokenIn, tokenOut,
                   tickSpread
                 )
               );
@@ -259,6 +260,7 @@ export const getCoverPoolInfo = async (
                   tokenOrder
                     ? newLatestTick - tickSpread * 6
                     : newLatestTick + tickSpread * 18,
+                  tokenIn, tokenOut,
                   tickSpread
                 )
               );

@@ -59,7 +59,7 @@ export default function UserCoverPool({
       true
     );
     setClaimTick(tick);
-    setClaimPrice(parseFloat(TickMath.getPriceStringAtTick(tick)));
+    setClaimPrice(parseFloat(TickMath.getPriceStringAtTick(tick, tokenIn, tokenOut)));
     setFillPercent(
       (
         Math.abs(
@@ -165,8 +165,8 @@ export default function UserCoverPool({
               </span>
             </div>
             <div className="text-white lg:text-right text-left  text-xs">
-              {TickMath.getPriceStringAtTick(Number(coverPosition.min))} -{" "}
-              {TickMath.getPriceStringAtTick(Number(coverPosition.max))}{" "}
+              {TickMath.getPriceStringAtTick(Number(coverPosition.min), tokenIn, tokenOut)} -{" "}
+              {TickMath.getPriceStringAtTick(Number(coverPosition.max), tokenIn, tokenOut)}{" "}
               <span className="text-grey1">
                 {coverPosition.zeroForOne
                   ? coverPosition.tokenOne.symbol
