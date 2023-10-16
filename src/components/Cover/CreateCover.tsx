@@ -64,6 +64,8 @@ export default function CreateCover(props: any) {
     setTokenInBalance,
     needsBalance,
     setNeedsBalance,
+    needsLatestTick,
+    setNeedsLatestTick
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPoolData,
@@ -92,6 +94,8 @@ export default function CreateCover(props: any) {
     state.setTokenInBalance,
     state.needsBalance,
     state.setNeedsBalance,
+    state.needsLatestTick,
+    state.setNeedsLatestTick
   ]);
   
 
@@ -120,6 +124,12 @@ export default function CreateCover(props: any) {
 
   ////////////////////////////////TokenOrder
   const [priceOrder, setPriceOrder] = useState(true);
+
+  useEffect(() => {
+    if (coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS) {
+      setNeedsLatestTick(true);
+    }
+  }, [coverPoolAddress]);
 
   ////////////////////////////////Token Allowances
 
@@ -176,7 +186,7 @@ export default function CreateCover(props: any) {
     chainId: 421613,
     enabled: coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS,
     onSuccess(data) {
-      // setNeedsAllowance(false);
+      setNeedsLatestTick(false);
     },
     onError(error) {
       console.log("Error syncLatestTick", error);
@@ -199,6 +209,7 @@ export default function CreateCover(props: any) {
       !coverPoolData
     ) {
       updatePools("1000");
+      setNeedsLatestTick(true)
     }
   }, [tokenIn.name, tokenOut.name]);
 
@@ -209,12 +220,13 @@ export default function CreateCover(props: any) {
   //sames as updatePools but triggered from the html
   const handleManualVolatilityChange = async (feeAmount: string) => {
     updatePools(feeAmount);
+    setNeedsLatestTick(true)
   };
 
   ////////////////////////////////Init Position Data
 
   useEffect(() => {
-    if (latestTick && coverPoolData.volatilityTier) {
+    if (latestTick != undefined && coverPoolData.volatilityTier) {
       updatePositionData();
     }
   }, [tokenIn.address, tokenOut.address, coverPoolData, latestTick]);
@@ -345,10 +357,10 @@ export default function CreateCover(props: any) {
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
       coverPoolData.volatilityTier &&
-      latestTick
+      latestTick != undefined
     )
       changeValidBounds();
-  }, [coverPositionData.lowerPrice, coverPositionData.upperPrice]);
+  }, [coverPositionData.lowerPrice, coverPositionData.upperPrice, latestTick]);
 
   const changeValidBounds = () => {
     if (coverPositionData.lowerPrice && coverPositionData.upperPrice) {
@@ -370,6 +382,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     if (
+      !needsLatestTick &&
       coverPositionData.lowerPrice &&
       coverPositionData.upperPrice &&
       coverPositionData.lowerPrice > 0 &&
@@ -377,7 +390,8 @@ export default function CreateCover(props: any) {
       coverPoolData.volatilityTier &&
       coverMintParams.tokenInAmount &&
       tokenIn.userRouterAllowance &&
-      tokenIn.userRouterAllowance >= parseInt(bnInput.toString())
+      tokenIn.userRouterAllowance >=
+        parseInt(bnInput.toString())
     )
       updateGasFee();
   }, [
@@ -389,6 +403,8 @@ export default function CreateCover(props: any) {
     tokenIn.userRouterAllowance,
     tokenIn,
     tokenOut,
+    latestTick,
+    needsLatestTick
   ]);
 
   async function updateGasFee() {
@@ -429,9 +445,11 @@ export default function CreateCover(props: any) {
             coverMintParams.tokenInAmount,
             signer
           );
-    if (newMintGasFee.formattedPrice != mintGasFee) {
+
+    if (!newMintGasFee.gasUnits.mul(120).div(100).eq(mintGasLimit)) {
       setMintGasFee(newMintGasFee.formattedPrice);
       setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
+      console.log('new gas limit set', mintGasLimit.toString())
     }
   }
 
