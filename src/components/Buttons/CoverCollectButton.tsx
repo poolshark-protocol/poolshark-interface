@@ -53,7 +53,7 @@ export default function CoverCollectButton({
   return (
     <>
       <button
-        className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
+        className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full flex items-center justify-center border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
         disabled={gasFee == "$0.00"}
         onClick={() => {
           address ? write?.() : null;
