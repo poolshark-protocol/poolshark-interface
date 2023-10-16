@@ -80,6 +80,11 @@ export default function CoverCreate() {
       const { address, isConnected, isDisconnected } = useAccount();
       const { bnInput, inputBox, maxBalance } = useInputBox();
       const [loadingPrices, setLoadingPrices] = useState(true);
+
+      const [successDisplay, setSuccessDisplay] = useState(false);
+      const [errorDisplay, setErrorDisplay] = useState(false);
+      const [isLoading, setIsLoading] = useState(false);
+      const [txHash, setTxHash] = useState<string>();
     
       ////////////////////////////////Chain
       const [stateChainName, setStateChainName] = useState();
@@ -759,10 +764,10 @@ export default function CoverCreate() {
                   : 20}
                 buttonMessage={coverMintParams.buttonMessage}
                 gasLimit={mintGasLimit} 
-                setSuccessDisplay={undefined} 
-                setErrorDisplay={undefined} 
-                setIsLoading={undefined} 
-                setTxHash={undefined}          />
+                setSuccessDisplay={setSuccessDisplay} 
+                setErrorDisplay={setErrorDisplay} 
+                setIsLoading={setIsLoading} 
+                setTxHash={setTxHash}          />
         )
       ) : (
         <> </>
