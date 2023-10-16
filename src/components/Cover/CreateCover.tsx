@@ -33,6 +33,7 @@ import router from "next/router";
 import CoverCreateAndMintButton from "../Buttons/CoverCreateAndMintButton";
 import { coverPoolABI } from "../../abis/evm/coverPool";
 import { getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
+import PositionMintModal from "../Modals/PositionMint";
 
 export default function CreateCover(props: any) {
   const [
@@ -92,11 +93,19 @@ export default function CreateCover(props: any) {
     state.needsBalance,
     state.setNeedsBalance,
   ]);
+  
 
   const { data: signer } = useSigner();
   const { address, isConnected, isDisconnected } = useAccount();
   const { bnInput, inputBox, maxBalance } = useInputBox();
   const [loadingPrices, setLoadingPrices] = useState(true);
+
+
+  // for mint modal
+  const [successDisplay, setSuccessDisplay] = useState(false);
+  const [errorDisplay, setErrorDisplay] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [txHash, setTxHash] = useState();
 
   ////////////////////////////////Chain
   const [stateChainName, setStateChainName] = useState();
@@ -751,6 +760,10 @@ export default function CreateCover(props: any) {
             }
             buttonMessage={coverMintParams.buttonMessage}
             gasLimit={mintGasLimit}
+            setSuccessDisplay={setSuccessDisplay}
+            setErrorDisplay={setErrorDisplay}
+            setIsLoading={setIsLoading}
+            setTxHash={setTxHash}
           />
         ) : (
           <CoverCreateAndMintButton
@@ -786,11 +799,22 @@ export default function CreateCover(props: any) {
             }
             buttonMessage={coverMintParams.buttonMessage}
             gasLimit={mintGasLimit}
+            setSuccessDisplay={setSuccessDisplay}
+            setErrorDisplay={setErrorDisplay}
+            setIsLoading={setIsLoading}
+            setTxHash={setTxHash}
           />
         )
       ) : (
         <> </>
       )}
+      <PositionMintModal
+        hash={txHash}
+        type={"cover"}
+        errorDisplay={errorDisplay}
+        successDisplay={successDisplay}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

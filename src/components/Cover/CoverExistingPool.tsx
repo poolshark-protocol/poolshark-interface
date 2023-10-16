@@ -33,6 +33,7 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { volatilityTiers } from "../../utils/pools";
 import { coverPoolABI } from "../../abis/evm/coverPool";
 import { useRouter } from "next/router";
+import PositionMintModal from "../Modals/PositionMint";
 
 export default function CoverExistingPool({ goBack }) {
   const [
@@ -88,6 +89,14 @@ export default function CoverExistingPool({ goBack }) {
     state.needsBalance,
     state.setNeedsBalance,
   ]);
+
+
+  // for mint modal
+  const [successDisplay, setSuccessDisplay] = useState(false);
+  const [errorDisplay, setErrorDisplay] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [txHash, setTxHash] = useState();
+
 
   const [rangePositionData] = useRangeLimitStore((state) => [
     state.rangePositionData,
@@ -798,6 +807,10 @@ export default function CoverExistingPool({ goBack }) {
                 : 20
             }
             gasLimit={mintGasLimit}
+            setSuccessDisplay={setSuccessDisplay}
+            setErrorDisplay={setErrorDisplay}
+            setIsLoading={setIsLoading}
+            setTxHash={setTxHash}
           />
         ) : (
           <CoverCreateAndMintButton
@@ -841,11 +854,22 @@ export default function CoverExistingPool({ goBack }) {
                 : 20
             }
             gasLimit={mintGasLimit}
+            setSuccessDisplay={setSuccessDisplay}
+            setErrorDisplay={setErrorDisplay}
+            setIsLoading={setIsLoading}
+            setTxHash={setTxHash}
           />
         )
       ) : (
         <></>
       )}
+      <PositionMintModal
+        hash={txHash}
+        type={"cover"}
+        errorDisplay={errorDisplay}
+        successDisplay={successDisplay}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

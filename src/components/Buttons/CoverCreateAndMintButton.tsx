@@ -14,6 +14,7 @@ import router from "next/router";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import PositionMintModal from "../Modals/PositionMint";
 import { BN_ZERO } from "../../utils/math/constants";
+import { useEffect } from "react";
 
 export default function CoverCreateAndMintButton({
   routerAddress,
@@ -30,9 +31,11 @@ export default function CoverCreateAndMintButton({
   tickSpacing,
   buttonMessage,
   gasLimit,
+  setSuccessDisplay,
+  setErrorDisplay,
+  setIsLoading,
+  setTxHash
 }) {
-  const [errorDisplay, setErrorDisplay] = useState(false);
-  const [successDisplay, setSuccessDisplay] = useState(false);
 
   const [setNeedsRefetch, setNeedsAllowance, setNeedsBalance] = useCoverStore(
     (state) => [
@@ -93,6 +96,18 @@ export default function CoverCreateAndMintButton({
     },
   });
 
+  useEffect(() => {
+    if(isLoading) {
+      setIsLoading(true)
+    } else {
+      setIsLoading(false)
+    }
+  }, [isLoading]);
+  
+  useEffect(() => {
+    setTxHash(data?.hash)
+  }, [data]);
+
   return (
     <>
       <button
@@ -102,13 +117,6 @@ export default function CoverCreateAndMintButton({
       >
         {buttonMessage}
       </button>
-      <PositionMintModal
-        errorDisplay={errorDisplay}
-        hash={data?.hash}
-        isLoading={isLoading}
-        successDisplay={successDisplay}
-        type={"cover"}
-      />
     </>
   );
 }
