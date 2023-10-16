@@ -13,6 +13,8 @@ import PoolIcon from "../../components/Icons/PoolIcon";
 import RangePool from "../../components/Range/RangePool";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { logoMap } from "../../utils/tokens";
+import { tokenRangeLimit } from "../../utils/types";
 
 export default function Range() {
   const { address, isDisconnected } = useAccount();
@@ -23,7 +25,16 @@ export default function Range() {
   const [isPositionsLoading, setIsPositionsLoading] = useState(false);
   const [isPoolsLoading, setIsPoolsLoading] = useState(false);
 
-  const [needsRefetch, setNeedsRefetch] = useRangeLimitStore((state) => [
+  const [
+    setTokenIn,
+    setTokenOut,
+    setRangePoolFromFeeTier,
+    needsRefetch,
+    setNeedsRefetch
+  ] = useRangeLimitStore((state) => [
+    state.setTokenIn,
+    state.setTokenOut,
+    state.setRangePoolFromFeeTier,
     state.needsRefetch,
     state.setNeedsRefetch,
   ]);
@@ -96,14 +107,38 @@ export default function Range() {
                 One of the main advantages of providing liquidity to an AMM is the capital efficiency it offers. Preventing idle money allows LPs bootstrapping liquidity for a token pair to be able to earn fees.
               </p>
             </div>
-            <Link href="/range/add-liquidity">
             <button
+            onClick={() => {
+              const tokenIn = {
+                name: allRangePools[0].tokenZero.symbol,
+                address: allRangePools[0].tokenZero.id,
+                logoURI: logoMap[allRangePools[0].tokenZero.symbol],
+                symbol: allRangePools[0].tokenZero.symbol,
+                decimals: allRangePools[0].tokenZero.decimals
+              } as tokenRangeLimit;
+              const tokenOut = {
+                name: allRangePools[0].tokenOne.symbol,
+                address: allRangePools[0].tokenOne.id,
+                logoURI: logoMap[allRangePools[0].tokenOne.symbol],
+                symbol: allRangePools[0].tokenOne.symbol,
+              } as tokenRangeLimit;
+              setTokenIn(tokenOut, tokenIn);
+              setTokenOut(tokenIn, tokenOut);
+              setRangePoolFromFeeTier(
+                tokenIn,
+                tokenOut,
+                allRangePools[0].feeTier.toString()
+              );
+              router.push({
+                pathname: "/range/add-liquidity",
+                query: { state: "select" },
+              });
+            }}
               className="px-12 py-3 text-white w-min whitespace-nowrap cursor-pointer text-center transition border border-main bg-main1 uppercase text-sm
                 hover:opacity-80"
             >
               CREATE RANGE POOL
             </button>
-            </Link>
           </div>
           <div className="lg:h-[300px] h-full w-full lg:w-[80%] xl:w-[40%] border border-grey p-7 flex flex-col justify-between">
             <div className="flex flex-col gap-y-3 ">
