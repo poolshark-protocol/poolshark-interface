@@ -29,9 +29,11 @@ export default function CoverMintButton({
   tickSpacing,
   buttonMessage,
   gasLimit,
+  setSuccessDisplay,
+  setErrorDisplay,
+  setIsLoading,
+  setTxHash
 }) {
-  const [errorDisplay, setErrorDisplay] = useState(false);
-  const [successDisplay, setSuccessDisplay] = useState(false);
 
   const [
     setNeedsRefetch,
@@ -84,6 +86,17 @@ export default function CoverMintButton({
       setNeedsPosRefetch(true);
   }});
 
+  useEffect(() => {
+    if(isLoading) {
+      setIsLoading(true)
+    } else {
+      setIsLoading(false)
+    }
+  }, [isLoading]);
+  
+  useEffect(() => {
+    setTxHash(data?.hash)
+  }, [data]);
 
   return (
     <>
@@ -94,13 +107,6 @@ export default function CoverMintButton({
       >
        {gasLimit.lte(BN_ZERO) ? <Loader/> : buttonMessage}
       </button>
-      <PositionMintModal
-        errorDisplay={errorDisplay}
-        hash={data?.hash}
-        isLoading={isLoading}
-        successDisplay={successDisplay}
-        type={"cover"}
-      />
     </>
   );
 }
