@@ -15,7 +15,7 @@ import {
   } from "wagmi";
   import CoverMintButton from "../../components/Buttons/CoverMintButton";
   import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
-  import { chainIdsToNamesForGitTokenList } from "../../utils/chains";
+  import { chainIdsToNamesForGitTokenList, chainProperties } from "../../utils/chains";
   import useInputBox from "../../hooks/useInputBox";
   import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
   import { BigNumber, ethers } from "ethers";
@@ -35,16 +35,13 @@ export default function CoverCreate() {
         coverPoolData,
         coverPositionData,
         coverMintParams,
-        volatilityTierId,
         setCoverPositionData,
         tokenIn,
         setTokenIn,
         setTokenInCoverAllowance,
-        setCoverAmountIn,
         tokenOut,
         setTokenOut,
         setTokenOutCoverUSDPrice,
-        setCoverAmountOut,
         pairSelected,
         switchDirection,
         setCoverPoolFromVolatility,
@@ -60,16 +57,13 @@ export default function CoverCreate() {
         state.coverPoolData,
         state.coverPositionData,
         state.coverMintParams,
-        state.volatilityTierId,
         state.setCoverPositionData,
         state.tokenIn,
         state.setTokenIn,
         state.setTokenInCoverAllowance,
-        state.setCoverAmountIn,
         state.tokenOut,
         state.setTokenOut,
         state.setTokenOutCoverUSDPrice,
-        state.setCoverAmountOut,
         state.pairSelected,
         state.switchDirection,
         state.setCoverPoolFromVolatility,
@@ -164,8 +158,8 @@ export default function CoverCreate() {
       useEffect(() => {
         if (
           //updating feeTiers
-          (selectedVolatility.tickSpread == 20 && volatilityTierId != 0) ||
-          (selectedVolatility.tickSpread == 40 && volatilityTierId != 1) ||
+          (selectedVolatility.tickSpread == 20) ||
+          (selectedVolatility.tickSpread == 40) ||
           //updating from empty selected token
           (tokenOut.name != "Select Token" && selectFromEmptyFlag)
         ) {
@@ -260,7 +254,7 @@ export default function CoverCreate() {
       useEffect(() => {
         if (!bnInput.eq(BN_ZERO)) {
           console.log("bnInput", bnInput.toString());
-          setCoverAmountIn(JSBI.BigInt(bnInput.toString()));
+          //setCoverAmountIn(JSBI.BigInt(bnInput.toString()));
         }
       }, [bnInput]);
     
@@ -290,7 +284,7 @@ export default function CoverCreate() {
             bnInput,
             BigNumber.from(String(coverMintParams.tokenInAmount))
           );
-          setCoverAmountOut(
+          /*setCoverAmountOut(
             tokenOrder
               ? DyDxMath.getDy(
                   liquidityAmount,
@@ -304,7 +298,7 @@ export default function CoverCreate() {
                   upperSqrtPrice,
                   true
                 )
-          );
+          );*/
         }
       }
     
@@ -343,8 +337,7 @@ export default function CoverCreate() {
         if (
           coverPositionData.lowerPrice &&
           coverPositionData.upperPrice &&
-          coverPoolData.volatilityTier &&
-          coverMintParams.tokenInAmount.length > 0
+          coverPoolData.volatilityTier
         )
           updateGasFee();
       }, [
@@ -704,13 +697,14 @@ export default function CoverCreate() {
           BigNumber.from(coverMintParams.tokenInAmount.toString())
         ) ? (
           <CoverMintApproveButton
-            poolAddress={coverPoolAddress}
+            routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
             approveToken={tokenIn.address}
             amount={bnInput}
             tokenSymbol={tokenIn.symbol}
           />
         ) : (
           <CoverMintButton
+            routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
             poolAddress={coverPoolAddress}
             disabled={coverMintParams.disabled}
             to={address}
