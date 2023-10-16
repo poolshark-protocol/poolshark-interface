@@ -100,7 +100,6 @@ export default function CoverExistingPool({ goBack }) {
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState();
 
-
   const [rangePositionData] = useRangeLimitStore((state) => [
     state.rangePositionData,
   ]);
@@ -270,7 +269,6 @@ export default function CoverExistingPool({ goBack }) {
     setUpperPrice(
       invertPrice(priceOrder ? priceUpper : priceLower, priceOrder)
     );
-    console.log('updating position data', priceLower, priceUpper)
     setCoverPositionData({
       ...coverPositionData,
       tickAtPrice: tickAtPrice,
@@ -344,7 +342,7 @@ export default function CoverExistingPool({ goBack }) {
       parseFloat(coverPositionData.lowerPrice) > 0 &&
       parseFloat(coverPositionData.upperPrice) > 0 &&
       parseFloat(coverPositionData.lowerPrice) <
-        parseFloat(coverPositionData.upperPrice)
+      parseFloat(coverPositionData.upperPrice)
     ) {
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
         TickMath.getTickAtPriceString(coverPositionData.lowerPrice, tokenIn, tokenOut)
@@ -352,6 +350,12 @@ export default function CoverExistingPool({ goBack }) {
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(
         TickMath.getTickAtPriceString(coverPositionData.upperPrice, tokenIn, tokenOut)
       );
+      if (rangePositionData?.userLiquidity == undefined) {
+        setTokenInAmount(BN_ZERO)
+        setTokenOutAmount(BN_ZERO)
+        return
+      }
+      console.log('range liquidity', rangePositionData.userLiquidity)
       const liquidityAmount = JSBI.divide(
         JSBI.multiply(
           JSBI.BigInt(Math.round(rangePositionData.userLiquidity)),
