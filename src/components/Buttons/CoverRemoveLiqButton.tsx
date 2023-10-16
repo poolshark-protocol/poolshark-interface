@@ -11,6 +11,7 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { BN_ZERO } from "../../utils/math/constants";
+import Loader from "../Icons/Loader";
 
 export default function CoverRemoveLiqButton({
   disabled,
@@ -88,7 +89,7 @@ export default function CoverRemoveLiqButton({
           address ? write?.() : null;
         }}
       >
-        Remove liquidity
+       {gasLimit.lte(BN_ZERO) ? <Loader/> : "Remove Liquidity"}
       </button>
       <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
         {errorDisplay && (

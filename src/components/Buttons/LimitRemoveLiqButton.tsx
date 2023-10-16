@@ -14,6 +14,7 @@ import { getClaimTick } from "../../utils/maps";
 import { gasEstimateBurnLimit } from "../../utils/gas";
 import { BN_ZERO } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
+import Loader from "../Icons/Loader";
 
 export default function LimitRemoveLiqButton({
   poolAddress,
@@ -150,7 +151,8 @@ export default function LimitRemoveLiqButton({
           address ? write?.() : null;
         }}
       >
-        Remove liquidity
+        {gasFee == "$0.00" ? <Loader/> :"Remove liquidity"}
+        
       </button>
       <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
         {errorDisplay && (

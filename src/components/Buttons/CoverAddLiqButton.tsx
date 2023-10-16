@@ -12,6 +12,7 @@ import { BN_ZERO } from "../../utils/math/constants";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { ethers } from "ethers";
+import Loader from "../Icons/Loader";
 
 export default function CoverAddLiqButton({
   poolAddress,
@@ -98,7 +99,9 @@ export default function CoverAddLiqButton({
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
         onClick={() => write?.()}
       >
-        {disabled ? (
+        {gasLimit.lte(BN_ZERO) ? (
+          <Loader />
+        ) : disabled ? (
           <>
             {buttonState === "amount" ? <>Input Amount</> : <></>}
             {buttonState === "balance" ? (

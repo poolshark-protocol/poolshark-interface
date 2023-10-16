@@ -12,6 +12,7 @@ import { BN_ZERO } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { BigNumber, ethers } from "ethers";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
+import Loader from "../Icons/Loader";
 
 export default function RangeAddLiqButton({
   routerAddress,
@@ -105,7 +106,7 @@ export default function RangeAddLiqButton({
           address ? write?.() : null;
         }}
       >
-        Add liquidity
+        {gasLimit.lte(BN_ZERO) ? <Loader/> : "Add liquidity"}
       </button>
       <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
         {errorDisplay && (

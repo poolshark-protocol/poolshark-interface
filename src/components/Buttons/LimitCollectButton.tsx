@@ -11,6 +11,7 @@ import React, { useState } from "react";
 import { BigNumber } from "ethers";
 import { useRangeLimitStore } from '../../hooks/useRangeLimitStore';
 import { BN_ZERO } from '../../utils/math/constants';
+import Loader from '../Icons/Loader';
 
 export default function LimitCollectButton({ poolAddress, address, positionId, claim, zeroForOne, gasLimit, gasFee }) {
 
@@ -64,7 +65,8 @@ export default function LimitCollectButton({ poolAddress, address, positionId, c
             address ?  write?.() : null
           }}
               >
-              Collect position
+                {gasFee == '$0.00' ? <Loader/> : "Collect position"}
+              
       </button>
       <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
     {errorDisplay && (

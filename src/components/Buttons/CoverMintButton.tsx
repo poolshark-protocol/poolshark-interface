@@ -15,6 +15,7 @@ import router from "next/router";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import PositionMintModal from "../Modals/PositionMint";
 import { BN_ZERO } from "../../utils/math/constants";
+import Loader from "../Icons/Loader";
 
 export default function CoverMintButton({
   routerAddress,
@@ -88,10 +89,10 @@ export default function CoverMintButton({
     <>
       <button
         disabled={gasLimit.lte(BN_ZERO) || disabled}
-        className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
+        className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer flex items-center justify-center text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
         onClick={() => write?.()}
       >
-        {buttonMessage}
+       {gasLimit.lte(BN_ZERO) ? <Loader/> : buttonMessage}
       </button>
       <PositionMintModal
         errorDisplay={errorDisplay}
