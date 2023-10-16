@@ -676,27 +676,13 @@ export default function CoverCreate() {
               <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                 <span className="text-grey1 text-xs">STARTING PRICE</span>
                 <span className="text-white text-3xl">
-                  {priceOrder ? (
                     <input
                       autoComplete="off"
                       className="bg-black py-2 outline-none text-center w-full"
                       placeholder="0"
-                      id="minInput"
+                      id="startPrice"
                       type="text"
-                      value={maxInput}
-                      onChange={(e) => setMaxInput(inputFilter(e.target.value))}
                     />
-                  ) : (
-                    <input
-                      autoComplete="off"
-                      className="bg-black py-2 outline-none text-center w-full"
-                      placeholder="0"
-                      id="minInput"
-                      type="text"
-                      value={minInput}
-                      onChange={(e) => setMinInput(inputFilter(e.target.value))}
-                    />
-                  )}
                 </span>
               </div>
             </div>
@@ -741,6 +727,7 @@ export default function CoverCreate() {
             </div>
           </div>
         </div>
+        {/*
       {allowanceInCover ? (
         allowanceInCover.lt(
           BigNumber.from(coverMintParams.tokenInAmount.toString())
@@ -787,7 +774,7 @@ export default function CoverCreate() {
         )
       ) : (
         <> </>
-      )}
+      )} */}
       </div>
     </div>
   );
