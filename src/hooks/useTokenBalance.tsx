@@ -29,7 +29,7 @@ export default function useTokenBalance(tokenAddress: string) {
   const tokenBalanceBox = () => {
     return (
       <div className="md:text-xs text-[10px] whitespace-nowrap text-[#4C4C4C]">
-        Balance: {Number(tokenBalanceInfo?.formatted).toFixed(3)}
+        Balance: {!isNaN(Number(tokenBalanceInfo?.formatted)) ? Number(tokenBalanceInfo?.formatted).toFixed(3) : '0.00'}
       </div>
     );
   };

@@ -202,7 +202,7 @@ export default function ViewCover() {
             (
               tokenOut.coverUSDPrice /
               Number(
-                TickMath.getPriceStringAtTick(Number(coverPositionData.max))
+                TickMath.getPriceStringAtTick(Number(coverPositionData.max), tokenIn, tokenOut)
               )
             ).toPrecision(6)
           )
@@ -212,7 +212,7 @@ export default function ViewCover() {
             (
               tokenOut.coverUSDPrice /
               Number(
-                TickMath.getPriceStringAtTick(Number(coverPositionData.min))
+                TickMath.getPriceStringAtTick(Number(coverPositionData.min), tokenIn, tokenOut)
               )
             ).toPrecision(6)
           )
@@ -223,7 +223,8 @@ export default function ViewCover() {
               tokenOut.coverUSDPrice /
               Number(
                 TickMath.getPriceStringAtTick(
-                  Number(coverPositionData.latestTick)
+                  Number(coverPositionData.latestTick),
+                  tokenIn, tokenOut
                 )
               )
             ).toPrecision(6)
@@ -412,7 +413,7 @@ export default function ViewCover() {
                   ) : priceDirection ? (
                     lowerInverse
                   ) : (
-                    TickMath.getPriceStringAtTick(Number(coverPositionData.min))
+                    TickMath.getPriceStringAtTick(Number(coverPositionData.min), tokenIn, tokenOut)
                   )}
                   <DoubleArrowIcon />
                   {isLoading ? (
@@ -422,7 +423,7 @@ export default function ViewCover() {
                   ) : priceDirection ? (
                     upperInverse
                   ) : (
-                    TickMath.getPriceStringAtTick(Number(coverPositionData.max))
+                    TickMath.getPriceStringAtTick(Number(coverPositionData.max), tokenIn, tokenOut)
                   )}
                 </div>
               </div>
@@ -498,22 +499,26 @@ export default function ViewCover() {
                     coverPositionData.latestTick ? (
                     parseFloat(
                       TickMath.getPriceStringAtTick(
-                        Number(coverPositionData.latestTick)
+                        Number(coverPositionData.latestTick),
+                        tokenIn, tokenOut
                       )
                     ) <
                       parseFloat(
                         TickMath.getPriceStringAtTick(
-                          Number(coverPositionData.min)
+                          Number(coverPositionData.min),
+                          tokenIn, tokenOut
                         )
                       ) ||
                     parseFloat(
                       TickMath.getPriceStringAtTick(
-                        Number(coverPositionData.latestTick)
+                        Number(coverPositionData.latestTick),
+                        tokenIn, tokenOut
                       )
                     ) >=
                       parseFloat(
                         TickMath.getPriceStringAtTick(
-                          Number(coverPositionData.max)
+                          Number(coverPositionData.max),
+                          tokenIn, tokenOut
                         )
                       ) ? (
                       <span className="text-yellow-600 text-xs bg-yellow-900/30 px-4 py-1 rounded-[4px]">
@@ -561,7 +566,8 @@ export default function ViewCover() {
                         lowerInverse
                       ) : (
                         TickMath.getPriceStringAtTick(
-                          Number(coverPositionData.min)
+                          Number(coverPositionData.min),
+                          tokenIn, tokenOut
                         )
                       )}
                     </span>
@@ -588,7 +594,8 @@ export default function ViewCover() {
                         upperInverse
                       ) : (
                         TickMath.getPriceStringAtTick(
-                          Number(coverPositionData.max)
+                          Number(coverPositionData.max),
+                          tokenIn, tokenOut
                         )
                       )}
                     </span>
@@ -615,7 +622,8 @@ export default function ViewCover() {
                         priceInverse
                       ) : (
                         TickMath.getPriceStringAtTick(
-                          Number(coverPositionData?.latestTick)
+                          Number(coverPositionData?.latestTick),
+                          tokenIn, tokenOut
                         )
                       )
                     ) : (

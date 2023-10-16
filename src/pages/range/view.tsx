@@ -144,7 +144,8 @@ export default function ViewRange() {
               tokenOut.USDPrice /
               parseFloat(
                 TickMath.getPriceStringAtSqrtPrice(
-                  JSBI.BigInt(String(rangePoolData.poolPrice))
+                  JSBI.BigInt(String(rangePoolData.poolPrice)),
+                  tokenIn, tokenOut
                 )
               )
             ).toPrecision(6)
@@ -225,10 +226,10 @@ export default function ViewRange() {
   useEffect(() => {
     if (rangePositionData.min && rangePositionData.max) {
       setLowerPrice(
-        TickMath.getPriceStringAtTick(Number(rangePositionData.min))
+        TickMath.getPriceStringAtTick(Number(rangePositionData.min), tokenIn, tokenOut)
       );
       setUpperPrice(
-        TickMath.getPriceStringAtTick(Number(rangePositionData.max))
+        TickMath.getPriceStringAtTick(Number(rangePositionData.max), tokenIn, tokenOut)
       );
     }
   }, [tokenIn, tokenOut, rangePositionData.min, rangePositionData.max]);
@@ -537,7 +538,8 @@ export default function ViewRange() {
                         priceInverse
                       ) : (
                         TickMath.getPriceStringAtSqrtPrice(
-                          JSBI.BigInt(rangePositionData.price)
+                          JSBI.BigInt(rangePositionData.price),
+                          tokenIn, tokenOut
                         )
                       )
                     ) : null}

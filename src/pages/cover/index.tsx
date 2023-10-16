@@ -15,11 +15,26 @@ import PoolIcon from "../../components/Icons/PoolIcon";
 import CoverPool from "../../components/Cover/CoverPool";
 import { fetchCoverPools } from "../../utils/queries";
 import { mapCoverPools } from "../../utils/maps";
+import { logoMap } from "../../utils/tokens";
+import { tokenCover } from "../../utils/types";
 
 export default function Cover() {
-  const [needsRefetch, setNeedsRefetch] = useCoverStore((state) => [
+  const [
+    setCoverTokenIn,
+    setCoverTokenOut,
+    setCoverPoolFromVolatility,
+    needsRefetch,
+    setNeedsRefetch,
+    tokenIn,
+    tokenOut
+  ] = useCoverStore((state) => [
+    state.setTokenIn,
+    state.setTokenOut,
+    state.setCoverPoolFromVolatility,
     state.needsRefetch,
     state.setNeedsRefetch,
+    state.tokenIn,
+    state.tokenOut
   ]);
 
   const {
@@ -113,13 +128,37 @@ export default function Cover() {
                 <br />
               </p>
             </div>
-              <button
-              onClick={() => router.push({pathname: "/cover/create", query: { state: "select"}})} 
-                className="px-12 py-3 text-white w-min whitespace-nowrap cursor-pointer text-center transition border border-main bg-main1 uppercase text-sm
+            <button
+              onClick={() => {
+                const tokenIn = {
+                  name: allCoverPools[0].tokenZero.symbol,
+                  address: allCoverPools[0].tokenZero.id,
+                  logoURI: logoMap[allCoverPools[0].tokenZero.symbol],
+                  symbol: allCoverPools[0].tokenZero.symbol,
+                } as tokenCover;
+                const tokenOut = {
+                  name: allCoverPools[0].tokenOne.symbol,
+                  address: allCoverPools[0].tokenOne.id,
+                  logoURI: logoMap[allCoverPools[0].tokenOne.symbol],
+                  symbol: allCoverPools[0].tokenOne.symbol,
+                } as tokenCover;
+                setCoverTokenIn(tokenOut, tokenIn);
+                setCoverTokenOut(tokenIn, tokenOut);
+                setCoverPoolFromVolatility(
+                  tokenIn,
+                  tokenOut,
+                  allCoverPools[0].volatilityTier.feeAmount.toString()
+                );
+                router.push({
+                  pathname: "/cover/create",
+                  query: { state: "select" },
+                });
+              }}
+              className="px-12 py-3 text-white w-min whitespace-nowrap cursor-pointer text-center transition border border-main bg-main1 uppercase text-sm
                 hover:opacity-80"
-              >
-                CREATE COVER POSITION
-              </button>
+            >
+              CREATE COVER POSITION
+            </button>
           </div>
           <div className="lg:h-[300px] h-full w-full lg:w-[80%] xl:w-[40%] border border-grey p-7 flex flex-col justify-between">
             <div className="flex flex-col gap-y-3 ">
@@ -240,12 +279,14 @@ export default function Cover() {
                                 coverPosition={allCoverPosition}
                                 lowerPrice={parseFloat(
                                   TickMath.getPriceStringAtTick(
-                                    allCoverPosition.lowerTick
+                                    allCoverPosition.lowerTick,
+                                    tokenIn, tokenOut
                                   )
                                 )}
                                 upperPrice={parseFloat(
                                   TickMath.getPriceStringAtTick(
-                                    allCoverPosition.upperTick
+                                    allCoverPosition.upperTick,
+                                    tokenIn, tokenOut
                                   )
                                 )}
                                 href={"/cover/view"}

@@ -16,6 +16,7 @@ import {
 import RangeCreateAndMintButton from "../Buttons/RangeCreateAndMintButton";
 import { chainProperties } from "../../utils/chains";
 import { limitPoolTypeIds } from "../../utils/pools";
+import PositionMintModal from "../Modals/PositionMint";
 
 export default function RangePoolPreview() {
   const [
@@ -47,6 +48,12 @@ export default function RangePoolPreview() {
     state.setNeedsAllowanceIn,
     state.setNeedsAllowanceOut,
   ]);
+
+  // for mint modal
+  const [successDisplay, setSuccessDisplay] = useState(false);
+  const [errorDisplay, setErrorDisplay] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [txHash, setTxHash] = useState();
 
   const { address } = useAccount();
   const [tokenOrder, setTokenOrder] = useState(
@@ -131,12 +138,14 @@ export default function RangePoolPreview() {
             BigNumber.from(
               TickMath.getTickAtPriceString(
                 rangePositionData.lowerPrice,
+                tokenIn, tokenOut,
                 parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
               )
             ),
             BigNumber.from(
               TickMath.getTickAtPriceString(
                 rangePositionData.upperPrice,
+                tokenIn, tokenOut,
                 parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
               )
             ),
@@ -152,12 +161,14 @@ export default function RangePoolPreview() {
             BigNumber.from(
               TickMath.getTickAtPriceString(
                 rangePositionData.lowerPrice,
+                tokenIn, tokenOut,
                 parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
               )
             ),
             BigNumber.from(
               TickMath.getTickAtPriceString(
                 rangePositionData.upperPrice,
+                tokenIn, tokenOut,
                 parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
               )
             ),
@@ -430,6 +441,7 @@ export default function RangePoolPreview() {
                                 ? BigNumber.from(
                                     TickMath.getTickAtPriceString(
                                       rangePositionData.lowerPrice,
+                                      tokenIn, tokenOut,
                                       parseInt(
                                         rangePoolData.feeTier
                                           ? rangePoolData.feeTier.tickSpacing
@@ -444,6 +456,7 @@ export default function RangePoolPreview() {
                                 ? BigNumber.from(
                                     TickMath.getTickAtPriceString(
                                       rangePositionData.upperPrice,
+                                      tokenIn, tokenOut,
                                       parseInt(
                                         rangePoolData.feeTier
                                           ? rangePoolData.feeTier.tickSpacing
@@ -466,6 +479,10 @@ export default function RangePoolPreview() {
                                 : rangeMintParams.tokenInAmount
                             }
                             gasLimit={mintGasLimit}
+                            setSuccessDisplay={setSuccessDisplay}
+                            setErrorDisplay={setErrorDisplay}
+                            setIsLoading={setIsLoading}
+                            setTxHash={setTxHash}
                           />
                         ) : (
                           <RangeCreateAndMintButton
@@ -489,6 +506,7 @@ export default function RangePoolPreview() {
                                 ? BigNumber.from(
                                     TickMath.getTickAtPriceString(
                                       rangePositionData.lowerPrice,
+                                      tokenIn, tokenOut,
                                       parseInt(
                                         rangePoolData.feeTier
                                           ? rangePoolData.feeTier.tickSpacing
@@ -503,6 +521,7 @@ export default function RangePoolPreview() {
                                 ? BigNumber.from(
                                     TickMath.getTickAtPriceString(
                                       rangePositionData.upperPrice,
+                                      tokenIn, tokenOut,
                                       parseInt(
                                         rangePoolData.feeTier
                                           ? rangePoolData.feeTier.tickSpacing
@@ -526,6 +545,10 @@ export default function RangePoolPreview() {
                             }
                             closeModal={() => {}}
                             gasLimit={mintGasLimit}
+                            setSuccessDisplay={setSuccessDisplay}
+                            setErrorDisplay={setErrorDisplay}
+                            setIsLoading={setIsLoading}
+                            setTxHash={setTxHash}
                           />
                         )}
                       </div>
@@ -537,6 +560,13 @@ export default function RangePoolPreview() {
           </div>
         </Dialog>
       </Transition>
+      <PositionMintModal
+        hash={txHash}
+        type={"range"}
+        errorDisplay={errorDisplay}
+        successDisplay={successDisplay}
+        isLoading={isLoading}
+      />
       <button
         onClick={() => setIsOpen(true)}
         disabled={rangeMintParams.disabled}

@@ -139,12 +139,12 @@ export default function AddLiquidity({}) {
     if (rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
       if (!rangeSqrtPrice) {
         const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
-        const price = TickMath.getPriceStringAtSqrtPrice(sqrtPrice)
+        const price = TickMath.getPriceStringAtSqrtPrice(sqrtPrice, tokenIn, tokenOut)
         const tickAtPrice = rangePoolData.tickAtPrice;
-        setRangePrice(TickMath.getPriceStringAtSqrtPrice(sqrtPrice));
+        setRangePrice(TickMath.getPriceStringAtSqrtPrice(sqrtPrice, tokenIn, tokenOut));
         setRangeSqrtPrice(sqrtPrice);
-        setMinInput(TickMath.getPriceStringAtTick(tickAtPrice - 7000));
-        setMaxInput(TickMath.getPriceStringAtTick(tickAtPrice - -7000));
+        setMinInput(TickMath.getPriceStringAtTick(tickAtPrice - 7000, tokenIn, tokenOut));
+        setMaxInput(TickMath.getPriceStringAtTick(tickAtPrice - -7000, tokenIn, tokenOut));
         setTokenInAmount(BN_ZERO)
         setTokenOutAmount(BN_ZERO)
       }
@@ -283,12 +283,14 @@ export default function AddLiquidity({}) {
   }, [lowerPrice, upperPrice]);
 
   const handleInputBox = (e) => {
-    const [name, value, bnValue] = inputHandler(e)
-    if (name === "tokenIn") {
+
+    if (e.target.name === "tokenIn") {
+      const [value, bnValue] = inputHandler(e, tokenIn)
       setDisplayIn(value)
       setAmounts(true, bnValue)
       setAmountInSetLast(true)
-    } else if (name === "tokenOut") {
+    } else if (e.target.name === "tokenOut") {
+      const [value, bnValue] = inputHandler(e, tokenOut)
       setDisplayOut(value)
       setAmounts(false, bnValue)
       setAmountInSetLast(false)
@@ -311,10 +313,12 @@ export default function AddLiquidity({}) {
         const inputBn = amountSet
         const lower = TickMath.getTickAtPriceString(
           lowerPrice,
+          tokenIn, tokenOut,
           parseInt(rangePoolData.feeTier.tickSpacing)
         );
         const upper = TickMath.getTickAtPriceString(
           upperPrice,
+          tokenIn, tokenOut,
           parseInt(rangePoolData.feeTier.tickSpacing)
         );
         const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lower);
@@ -478,7 +482,7 @@ export default function AddLiquidity({}) {
               <span>BALANCE: {tokenIn.userBalance ?? 0}</span>
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-              {inputBoxIn("0", "tokenIn", handleInputBox, amountInDisabled)}
+              {inputBoxIn("0", tokenIn, "tokenIn", handleInputBox, amountInDisabled)}
               <div className="flex items-center gap-x-2">
                 <button
                   onClick={() =>
@@ -512,7 +516,7 @@ export default function AddLiquidity({}) {
               <span>BALANCE: {tokenOut.userBalance ?? 0}</span>
             </div>
             <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-              {inputBoxOut("0", "tokenOut", handleInputBox, amountOutDisabled)}
+              {inputBoxOut("0", tokenOut, "tokenOut", handleInputBox, amountOutDisabled)}
               <div className="flex items-center gap-x-2 ">
                 <button
                   onClick={() =>
@@ -542,7 +546,8 @@ export default function AddLiquidity({}) {
                       roundTick(
                         -887272,
                         parseInt(rangePoolData.feeTier.tickSpacing)
-                      )
+                      ),
+                      tokenIn, tokenOut
                     )
                   );
                   setMaxInput(
@@ -550,7 +555,8 @@ export default function AddLiquidity({}) {
                       roundTick(
                         887272,
                         parseInt(rangePoolData.feeTier.tickSpacing)
-                      )
+                      ),
+                      tokenIn, tokenOut
                     )
                   );
                 }}
