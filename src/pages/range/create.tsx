@@ -193,10 +193,14 @@ export default function CoverCreate() {
           tokenOrder
             ? tickAtPrice + -tickSpread * 16
             : tickAtPrice + tickSpread * 8,
+          tokenIn,
+          tokenOut,
           tickSpread
         );
         const upperPrice = TickMath.getPriceStringAtTick(
           tokenOrder ? tickAtPrice - tickSpread * 6 : tickAtPrice + tickSpread * 18,
+          tokenIn,
+          tokenOut,
           tickSpread
         );
         setLowerPrice(lowerPrice);
@@ -225,8 +229,16 @@ export default function CoverCreate() {
         if (!coverPoolData.volatilityTier.tickSpread) return;
         const currentTick =
           inputId == "minInput"
-            ? TickMath.getTickAtPriceString(coverPositionData.lowerPrice)
-            : TickMath.getTickAtPriceString(coverPositionData.upperPrice);
+            ? TickMath.getTickAtPriceString(
+              coverPositionData.lowerPrice,
+              tokenIn,
+              tokenOut,
+              coverPoolData.volatilityTier.tickSpread)
+            : TickMath.getTickAtPriceString(
+              coverPositionData.upperPrice,
+              tokenIn,
+              tokenOut,
+              coverPoolData.volatilityTier.tickSpread);
         const increment = parseInt(coverPoolData.volatilityTier.tickSpread);
         const adjustment =
           direction == "plus" || direction == "minus"
@@ -236,7 +248,10 @@ export default function CoverCreate() {
             : 0;
         const newTick = roundTick(currentTick - adjustment, increment);
         const newPriceString = TickMath.getPriceStringAtTick(
-          parseFloat(newTick.toString())
+          parseFloat(newTick.toString()),
+          tokenIn,
+          tokenOut,
+          coverPoolData.volatilityTier.tickSpread
         );
         (document.getElementById(inputId) as HTMLInputElement).value =
           parseFloat(newPriceString).toFixed(6);
@@ -272,10 +287,18 @@ export default function CoverCreate() {
             parseFloat(coverPositionData.upperPrice)
         ) {
           const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
-            TickMath.getTickAtPriceString(coverPositionData.lowerPrice)
+            TickMath.getTickAtPriceString(
+              coverPositionData.lowerPrice,
+              tokenIn,
+              tokenOut,
+              coverPoolData.volatilityTier.tickSpread)
           );
           const upperSqrtPrice = TickMath.getSqrtRatioAtTick(
-            TickMath.getTickAtPriceString(coverPositionData.upperPrice)
+            TickMath.getTickAtPriceString(
+              coverPositionData.upperPrice,
+              tokenIn,
+              tokenOut,
+              coverPoolData.volatilityTier.tickSpread)
           );
           const liquidityAmount = DyDxMath.getLiquidityForAmounts(
             lowerSqrtPrice,
@@ -355,12 +378,14 @@ export default function CoverCreate() {
           address,
           TickMath.getTickAtPriceString(
             coverPositionData.upperPrice,
-            parseInt(coverPoolData.volatilityTier.tickSpread)
-          ),
+            tokenIn,
+            tokenOut,
+            coverPoolData.volatilityTier.tickSpread),
           TickMath.getTickAtPriceString(
             coverPositionData.lowerPrice,
-            parseInt(coverPoolData.volatilityTier.tickSpread)
-          ),
+            tokenIn,
+            tokenOut,
+            coverPoolData.volatilityTier.tickSpread),
           tokenIn,
           tokenOut,
           coverMintParams.tokenInAmount,
@@ -476,7 +501,7 @@ export default function CoverCreate() {
             <span>BALANCE: {tokenIn.userBalance ?? 0}</span>
           </div>
           <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-            {inputBox("0")}
+            {inputBox("0", tokenIn)}
             <div className="flex items-center gap-x-2">
               <SelectToken
                 index="0"
@@ -667,14 +692,17 @@ export default function CoverCreate() {
                   ? "?" + " " + tokenOut.symbol
                   : (tokenOrder
                       ? TickMath.getPriceStringAtTick(
-                          parseInt(coverPoolData.latestTick),
-                          parseInt(coverPoolData.volatilityTier.tickSpread)
-                        )
+                        coverPositionData.latestPrice,
+                        tokenIn,
+                        tokenOut,
+                        coverPoolData.volatilityTier.tickSpread)
                       : invertPrice(
-                          TickMath.getPriceStringAtTick(
-                            parseInt(coverPoolData.latestTick),
-                            parseInt(coverPoolData.volatilityTier.tickSpread)
-                          ),
+                        TickMath.getPriceStringAtTick(
+                          coverPositionData.latestPrice,
+                          tokenIn,
+                          tokenOut,
+                          coverPoolData.volatilityTier.tickSpread)
+                        ,
                           false
                         )) +
                     " " +
@@ -704,32 +732,37 @@ export default function CoverCreate() {
           />
         ) : (
           <CoverMintButton
-            routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
-            poolAddress={coverPoolAddress}
-            disabled={coverMintParams.disabled}
-            to={address}
-            lower={TickMath.getTickAtPriceString(
-              coverPositionData.lowerPrice ?? "0",
-              coverPoolData.volatilityTier
-                ? parseInt(coverPoolData.volatilityTier.tickSpread)
-                : 20
-            )}
-            upper={TickMath.getTickAtPriceString(
-              coverPositionData.upperPrice ?? "0",
-              coverPoolData.volatilityTier
-                ? parseInt(coverPoolData.volatilityTier.tickSpread)
-                : 20
-            )}
-            amount={bnInput}
-            zeroForOne={tokenOrder}
-            tickSpacing={
-              coverPoolData.volatilityTier
-                ? coverPoolData.volatilityTier.tickSpread
-                : 20
-            }
-            buttonMessage={coverMintParams.buttonMessage}
-            gasLimit={mintGasLimit}
-          />
+                routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
+                poolAddress={coverPoolAddress}
+                disabled={coverMintParams.disabled}
+                to={address}
+                lower={TickMath.getTickAtPriceString(
+                  coverPositionData.lowerPrice ?? "0",
+                  tokenIn,
+                  tokenOut,
+                  coverPoolData.volatilityTier
+                    ? parseInt(coverPoolData.volatilityTier.tickSpread)
+                    : 20
+                )}
+                upper={TickMath.getTickAtPriceString(
+                  coverPositionData.upperPrice ?? "0",
+                  tokenIn,
+                  tokenOut,
+                  coverPoolData.volatilityTier
+                    ? parseInt(coverPoolData.volatilityTier.tickSpread)
+                    : 20
+                )}
+                amount={bnInput}
+                zeroForOne={tokenOrder}
+                tickSpacing={coverPoolData.volatilityTier
+                  ? coverPoolData.volatilityTier.tickSpread
+                  : 20}
+                buttonMessage={coverMintParams.buttonMessage}
+                gasLimit={mintGasLimit} 
+                setSuccessDisplay={undefined} 
+                setErrorDisplay={undefined} 
+                setIsLoading={undefined} 
+                setTxHash={undefined}          />
         )
       ) : (
         <> </>
