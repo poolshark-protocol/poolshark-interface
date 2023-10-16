@@ -1,6 +1,6 @@
 import { BigNumber, ethers } from "ethers";
 import { tokenRangeLimit } from "../utils/types";
-import { BN_ZERO } from "../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import {
   tokenOneAddress,
   tokenZeroAddress,
@@ -16,7 +16,6 @@ type RangeLimitState = {
   rangePoolAddress: `0x${string}`;
   //rangePoolData contains all the info about the pool
   rangePoolData: any;
-  feeTierRangeId: number;
   rangeSlippage: string;
   //Range position data containing all the info about the position
   rangePositionData: any;
@@ -54,6 +53,8 @@ type RangeLimitState = {
   //min and max price input
   minInput: string;
   maxInput: string;
+  //price order
+  priceOrder: boolean;
   //refresh
   needsRefetch: boolean;
   needsPosRefetch: boolean;
@@ -61,6 +62,11 @@ type RangeLimitState = {
   needsAllowanceOut: boolean;
   needsBalanceIn: boolean;
   needsBalanceOut: boolean;
+  needsSnapshot: boolean;
+  //Claim tick
+  claimTick: number;
+  //Expected output
+  currentAmountOut: string;
 };
 
 type RangeLimitAction = {
@@ -98,7 +104,7 @@ type RangeLimitAction = {
   setLimitGasLimit: (gasLimit: BigNumber) => void;
   //
   switchDirection: () => void;
-  setRangePoolFromVolatility: (
+  setRangePoolFromFeeTier: (
     tokenIn: any,
     tokenOut: any,
     volatility: any
@@ -112,20 +118,25 @@ type RangeLimitAction = {
   //
   setMintButtonState: () => void;
   //
+  setPriceOrder: (priceOrder: boolean) => void;
   setNeedsRefetch: (needsRefetch: boolean) => void;
   setNeedsPosRefetch: (needsPosRefetch: boolean) => void;
   setNeedsAllowanceIn: (needsAllowance: boolean) => void;
   setNeedsAllowanceOut: (needsAllowance: boolean) => void;
   setNeedsBalanceIn: (needsBalance: boolean) => void;
   setNeedsBalanceOut: (needsBalance: boolean) => void;
+  setNeedsSnapshot: (needsSnapshot: boolean) => void;
+  //
+  setClaimTick: (claimTick: number) => void;
+  //
+  setCurrentAmountOut: (currentAmountOut: string) => void;
 };
 
 const initialRangeLimitState: RangeLimitState = {
   //range pools
-  rangePoolAddress: "0x000",
+  rangePoolAddress: ZERO_ADDRESS as `0x${string}`,
   rangePoolData: {},
   rangePositionData: {},
-  feeTierRangeId: 0,
   rangeSlippage: "0.5",
   //
   rangeMintParams: {
@@ -137,7 +148,7 @@ const initialRangeLimitState: RangeLimitState = {
     buttonMessage: "",
   },
   //limit pools
-  limitPoolAddress: "0x000",
+  limitPoolAddress: ZERO_ADDRESS as `0x${string}`,
   limitPoolData: {},
   limitPositionData: {},
   feeTierLimitId: 0,
@@ -158,12 +169,12 @@ const initialRangeLimitState: RangeLimitState = {
     callId: 0,
     name: "Wrapped Ether",
     symbol: "WETH",
-    logoURI: "/static/images/eth_icon.png",
+    logoURI: "/static/images/eth_icon.svg",
     address: tokenZeroAddress,
     decimals: 18,
     userBalance: 0.0,
-    userPoolAllowance: BigNumber.from(0),
-    rangeUSDPrice: 0.0,
+    userRouterAllowance: BigNumber.from(0),
+    USDPrice: 0.0,
   } as tokenRangeLimit,
   //
   tokenOut: {
@@ -174,12 +185,13 @@ const initialRangeLimitState: RangeLimitState = {
     address: tokenOneAddress,
     decimals: 18,
     userBalance: 0.0,
-    userPoolAllowance: BigNumber.from(0),
-    rangeUSDPrice: 0.0,
+    userRouterAllowance: BigNumber.from(0),
+    USDPrice: 0.0,
   } as tokenRangeLimit,
   //
   minInput: "",
   maxInput: "",
+  priceOrder: true,
   //
   needsRefetch: false,
   needsPosRefetch: false,
@@ -187,6 +199,11 @@ const initialRangeLimitState: RangeLimitState = {
   needsAllowanceOut: true,
   needsBalanceIn: true,
   needsBalanceOut: true,
+  needsSnapshot: true,
+  //
+  claimTick: 0,
+  //
+  currentAmountOut: "0",
 };
 
 export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
@@ -194,7 +211,6 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     //range pool
     rangePoolAddress: initialRangeLimitState.rangePoolAddress,
     rangePoolData: initialRangeLimitState.rangePoolData,
-    feeTierRangeId: initialRangeLimitState.feeTierRangeId,
     rangeSlippage: initialRangeLimitState.rangeSlippage,
     //range position data
     rangePositionData: initialRangeLimitState.rangePositionData,
@@ -217,6 +233,8 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     //input amounts
     minInput: initialRangeLimitState.minInput,
     maxInput: initialRangeLimitState.maxInput,
+    //price order
+    priceOrder: initialRangeLimitState.priceOrder,
     //refresh
     needsRefetch: initialRangeLimitState.needsRefetch,
     needsPosRefetch: initialRangeLimitState.needsPosRefetch,
@@ -224,6 +242,11 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     needsAllowanceOut: initialRangeLimitState.needsAllowanceOut,
     needsBalanceIn: initialRangeLimitState.needsBalanceIn,
     needsBalanceOut: initialRangeLimitState.needsBalanceOut,
+    needsSnapshot: initialRangeLimitState.needsSnapshot,
+    //claim tick
+    claimTick: initialRangeLimitState.claimTick,
+    //expected output
+    currentAmountOut: initialRangeLimitState.currentAmountOut,
     //actions
     setPairSelected: (pairSelected: boolean) => {
       set(() => ({
@@ -278,12 +301,12 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     },
     setTokenInRangeUSDPrice: (newPrice: number) => {
       set((state) => ({
-        tokenIn: { ...state.tokenIn, rangeUSDPrice: newPrice },
+        tokenIn: { ...state.tokenIn, USDPrice: newPrice },
       }));
     },
     setTokenInRangeAllowance: (newAllowance: BigNumber) => {
       set((state) => ({
-        tokenIn: { ...state.tokenIn, userPoolAllowance: newAllowance },
+        tokenIn: { ...state.tokenIn, userRouterAllowance: newAllowance },
       }));
     },
     setTokenInBalance: (newBalance: string) => {
@@ -293,7 +316,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     },
     setTokenOutRangeUSDPrice: (newPrice: number) => {
       set((state) => ({
-        tokenOut: { ...state.tokenOut, rangeUSDPrice: newPrice },
+        tokenOut: { ...state.tokenOut, USDPrice: newPrice },
       }));
     },
     setTokenOut: (tokenIn, newToken: tokenRangeLimit) => {
@@ -343,7 +366,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     },
     setTokenOutRangeAllowance: (newAllowance: BigNumber) => {
       set((state) => ({
-        tokenOut: { ...state.tokenOut, userPoolAllowance: newAllowance },
+        tokenOut: { ...state.tokenOut, userRouterAllowance: newAllowance },
       }));
     },
     setMinInput: (minInput: string) => {
@@ -354,6 +377,11 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     setMaxInput: (maxInput: string) => {
       set(() => ({
         maxInput: maxInput,
+      }));
+    },
+    setPriceOrder: (priceOrder: boolean) => {
+      set(() => ({
+        priceOrder: priceOrder,
       }));
     },
     setRangePoolAddress: (rangePoolAddress: `0x${string}`) => {
@@ -439,7 +467,13 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               : parseFloat(
                   ethers.utils.formatUnits(
                     String(state.rangeMintParams.tokenInAmount),
-                    18
+                    state.tokenIn.decimals
+                  )
+                ) == 0 &&
+                parseFloat(
+                  ethers.utils.formatUnits(
+                    String(state.rangeMintParams.tokenOutAmount),
+                    state.tokenOut.decimals
                   )
                 ) == 0
               ? "Enter Amount"
@@ -457,6 +491,12 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
                   ethers.utils.formatUnits(
                     String(state.rangeMintParams.tokenInAmount),
                     state.tokenIn.decimals
+                  )
+                ) == 0 &&
+                parseFloat(
+                  ethers.utils.formatUnits(
+                    String(state.rangeMintParams.tokenOutAmount),
+                    state.tokenOut.decimals
                   )
                 ) == 0
               ? true
@@ -506,9 +546,9 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           logoURI: state.tokenOut.logoURI,
           address: state.tokenOut.address,
           decimals: state.tokenOut.decimals,
-          rangeUSDPrice: state.tokenOut.rangeUSDPrice,
+          USDPrice: state.tokenOut.USDPrice,
           userBalance: state.tokenOut.userBalance,
-          userPoolAllowance: state.tokenOut.userPoolAllowance,
+          userRouterAllowance: state.tokenOut.userRouterAllowance,
         },
         tokenOut: {
           callId:
@@ -520,34 +560,26 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           logoURI: state.tokenIn.logoURI,
           address: state.tokenIn.address,
           decimals: state.tokenIn.decimals,
-          rangeUSDPrice: state.tokenIn.rangeUSDPrice,
+          USDPrice: state.tokenIn.USDPrice,
           userBalance: state.tokenIn.userBalance,
-          userPoolAllowance: state.tokenIn.userPoolAllowance,
+          userRouterAllowance: state.tokenIn.userRouterAllowance,
         },
       }));
     },
-    setRangePoolFromVolatility: async (tokenIn, tokenOut, volatility: any) => {
+    setRangePoolFromFeeTier: async (tokenIn, tokenOut, volatility: any) => {
       try {
         const pool = await getRangePoolFromFactory(
           tokenIn.address,
           tokenOut.address
         );
-        const volatilityId = volatility.id;
         const dataLength = pool["data"]["limitPools"].length;
         for (let i = 0; i < dataLength; i++) {
           if (
-            (volatilityId == 0 &&
-              pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == "500") ||
-            (volatilityId == 1 &&
-              pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] ==
-                "3000") ||
-            (volatilityId == 2 &&
-              pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == "10000")
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility
           ) {
             set(() => ({
               rangePoolAddress: pool["data"]["limitPools"][i]["id"],
               rangePoolData: pool["data"]["limitPools"][i],
-              feeTierId: volatilityId,
             }));
           }
         }
@@ -561,22 +593,14 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           tokenIn.address,
           tokenOut.address
         );
-        const volatilityId = volatility.id;
         const dataLength = pool["data"]["limitPools"].length;
         for (let i = 0; i < dataLength; i++) {
           if (
-            (volatilityId == 0 &&
-              pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == "500") ||
-            (volatilityId == 1 &&
-              pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] ==
-                "3000") ||
-            (volatilityId == 2 &&
-              pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == "10000")
+            (pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility) 
           ) {
             set(() => ({
               limitPoolAddress: pool["data"]["limitPools"][i]["id"],
               limitPoolData: pool["data"]["limitPools"][i],
-              feeTierId: volatilityId,
             }));
           }
         }
@@ -584,13 +608,27 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         console.log(error);
       }
     },
+    setClaimTick: (claimTick: number) => {
+      set(() => ({
+        claimTick: claimTick,
+      }));
+    },
+    setCurrentAmountOut: (currentAmountOut: string) => {
+      set(() => ({
+        currentAmountOut: currentAmountOut,
+      }));
+    },
+    setNeedsSnapshot: (needsSnapshot: boolean) => {
+      set(() => ({
+        needsSnapshot: needsSnapshot,
+      }));
+    },
     resetRangeLimitParams: () => {
       set({
         //range pool & pair
         rangePoolAddress: initialRangeLimitState.rangePoolAddress,
         rangePoolData: initialRangeLimitState.rangePoolData,
         rangeSlippage: initialRangeLimitState.rangeSlippage,
-        feeTierRangeId: initialRangeLimitState.feeTierRangeId,
         //range position data
         rangePositionData: initialRangeLimitState.rangePositionData,
         //range mint
@@ -619,6 +657,11 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         needsBalanceOut: initialRangeLimitState.needsBalanceOut,
         needsRefetch: initialRangeLimitState.needsRefetch,
         needsPosRefetch: initialRangeLimitState.needsPosRefetch,
+        needsSnapshot: initialRangeLimitState.needsSnapshot,
+        //claim tick
+        claimTick: initialRangeLimitState.claimTick,
+        //expected output
+        currentAmountOut: initialRangeLimitState.currentAmountOut,
       });
     },
   })

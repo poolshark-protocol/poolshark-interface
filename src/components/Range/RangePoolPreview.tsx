@@ -3,15 +3,21 @@ import { Transition, Dialog } from "@headlessui/react";
 import RangeMintButton from "../Buttons/RangeMintButton";
 import { BigNumber, ethers } from "ethers";
 import { erc20ABI, useAccount, useContractRead, useProvider } from "wagmi";
-import { TickMath } from "../../utils/math/tickMath";
+import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import RangeMintDoubleApproveButton from "../Buttons/RangeMintDoubleApproveButton";
 import { useRouter } from "next/router";
 import RangeMintApproveButton from "../Buttons/RangeMintApproveButton";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { BN_ZERO } from "../../utils/math/constants";
-import { gasEstimateRangeMint } from "../../utils/gas";
+import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
+import {
+  gasEstimateRangeCreateAndMint,
+  gasEstimateRangeMint,
+} from "../../utils/gas";
+import RangeCreateAndMintButton from "../Buttons/RangeCreateAndMintButton";
+import { chainProperties } from "../../utils/chains";
+import { limitPoolTypeIds } from "../../utils/pools";
 
-export default function RangePoolPreview({ fee }) {
+export default function RangePoolPreview() {
   const [
     rangePoolAddress,
     rangePoolData,
@@ -20,6 +26,7 @@ export default function RangePoolPreview({ fee }) {
     tokenIn,
     setTokenInAllowance,
     tokenOut,
+    priceOrder,
     setTokenOutAllowance,
     needsAllowanceIn,
     needsAllowanceOut,
@@ -33,6 +40,7 @@ export default function RangePoolPreview({ fee }) {
     state.tokenIn,
     state.setTokenInRangeAllowance,
     state.tokenOut,
+    state.priceOrder,
     state.setTokenOutRangeAllowance,
     state.needsAllowanceIn,
     state.needsAllowanceOut,
@@ -41,6 +49,12 @@ export default function RangePoolPreview({ fee }) {
   ]);
 
   const { address } = useAccount();
+  const [tokenOrder, setTokenOrder] = useState(
+    tokenIn.address.localeCompare(tokenOut.address) < 0
+  );
+  const {
+    network: { chainId },
+  } = useProvider();
   const router = useRouter();
   const provider = useProvider();
   const signer = new ethers.VoidSigner(address, provider);
@@ -50,9 +64,9 @@ export default function RangePoolPreview({ fee }) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolAddress],
+    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
     chainId: 421613,
-    watch: needsAllowanceIn,
+    watch: needsAllowanceIn && router.isReady,
     //enabled: tokenIn.address,
     onSuccess(data) {
       //setNeedsAllowanceIn(false);
@@ -66,9 +80,9 @@ export default function RangePoolPreview({ fee }) {
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolAddress],
+    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
     chainId: 421613,
-    watch: needsAllowanceOut,
+    watch: needsAllowanceOut && router.isReady,
     //enabled: pairSelected && rangePoolAddress != ZERO_ADDRESS,
     onSuccess(data) {
       //setNeedsAllowanceOut(false);
@@ -100,35 +114,61 @@ export default function RangePoolPreview({ fee }) {
       rangePositionData.lowerPrice &&
       rangePositionData.upperPrice &&
       Number(rangePositionData.lowerPrice) <
-        Number(rangePositionData.upperPrice)
+        Number(rangePositionData.upperPrice) &&
+      allowanceInRange?.gte(rangeMintParams.tokenInAmount) &&
+      allowanceOutRange?.gte(rangeMintParams.tokenOutAmount)
     ) {
       updateGasFee();
     }
   }, [rangeMintParams.tokenInAmount, tokenOut, rangePositionData]);
 
   async function updateGasFee() {
-    const newGasFee = await gasEstimateRangeMint(
-      rangePoolAddress,
-      address,
-      BigNumber.from(
-        TickMath.getTickAtPriceString(
-          rangePositionData.lowerPrice,
-          parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
-        )
-      ),
-      BigNumber.from(
-        TickMath.getTickAtPriceString(
-          rangePositionData.upperPrice,
-          parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
-        )
-      ),
-      rangeMintParams.tokenInAmount,
-      rangeMintParams.tokenOutAmount,
-      signer
-    );
+    const newGasFee =
+      rangePoolAddress != ZERO_ADDRESS
+        ? await gasEstimateRangeMint(
+            rangePoolAddress,
+            address,
+            BigNumber.from(
+              TickMath.getTickAtPriceString(
+                rangePositionData.lowerPrice,
+                parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
+              )
+            ),
+            BigNumber.from(
+              TickMath.getTickAtPriceString(
+                rangePositionData.upperPrice,
+                parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
+              )
+            ),
+            rangeMintParams.tokenInAmount,
+            rangeMintParams.tokenOutAmount,
+            signer
+          )
+        : await gasEstimateRangeCreateAndMint(
+            limitPoolTypeIds["constant-product"],
+            rangePoolData.feeTier?.feeAmount,
+            address,
+
+            BigNumber.from(
+              TickMath.getTickAtPriceString(
+                rangePositionData.lowerPrice,
+                parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
+              )
+            ),
+            BigNumber.from(
+              TickMath.getTickAtPriceString(
+                rangePositionData.upperPrice,
+                parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
+              )
+            ),
+            tokenOrder ? tokenIn : tokenOut,
+            tokenOrder ? tokenOut : tokenIn,
+            rangeMintParams.tokenInAmount,
+            rangeMintParams.tokenOutAmount,
+            signer
+          );
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
   }
-
 
   return (
     <div>
@@ -165,11 +205,11 @@ export default function RangePoolPreview({ fee }) {
                           <h1>Pair</h1>
                         </div>
                         <div className="flex flex-col md:flex-row items-center gap-x-5 gap-y-3 mt-3 w-full">
-                          <button className="flex w-full items-center gap-x-3 bg-black border border-grey px-4 py-1.5 rounded-[4px]">
+                          <button className="flex w-full items-center gap-x-3 bg-dark border border-grey px-4 py-1.5 rounded-[4px]">
                             <img className="w-7" src={tokenIn.logoURI} />
                             {tokenIn.symbol}
                           </button>
-                          <button className="flex w-full items-center gap-x-3 bg-black border border-grey px-4 py-1.5 rounded-[4px]">
+                          <button className="flex w-full items-center gap-x-3 bg-dark border border-grey px-4 py-1.5 rounded-[4px]">
                             <img
                               className="w-7 w-full"
                               src={tokenOut.logoURI}
@@ -183,10 +223,15 @@ export default function RangePoolPreview({ fee }) {
                           <h1>Fee tier</h1>
                         </div>
                         <div className="mt-3">
-                          <button className="relative cursor-default rounded-lg bg-black text-white cursor-pointer border border-grey1 py-2 pl-3 w-full text-left shadow-md focus:outline-none">
-                            <span className="block truncate">{fee.tier}</span>
-                            <span className="block truncate text-xs text-grey mt-1">
-                              {fee.text}
+                          <button className="relative cursor-default rounded-[4px] bg-black text-white cursor-pointer bg-dark border border-grey py-2 pl-3 w-full text-left shadow-md focus:outline-none">
+                            <span className="block truncate">
+                              {(
+                                rangePoolData?.feeTier?.feeAmount / 10000
+                              ).toFixed(2)}
+                              %
+                            </span>
+                            <span className="block truncate text-xs text-grey">
+                              {/* {fee.text} */}
                             </span>
                           </button>
                         </div>
@@ -196,9 +241,9 @@ export default function RangePoolPreview({ fee }) {
                           <h1>Deposited amounts</h1>
                         </div>
                         <div className="mt-3 space-y-3">
-                          <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
+                          <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-[4px]">
                             <div className=" p-2 ">
-                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
+                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-[4px]">
                                 {parseFloat(
                                   ethers.utils.formatUnits(
                                     rangeMintParams.tokenInAmount,
@@ -210,7 +255,7 @@ export default function RangePoolPreview({ fee }) {
                                 <div className="flex text-xs text-[#4C4C4C]">
                                   $
                                   {(
-                                    Number(tokenIn.rangeUSDPrice) *
+                                    Number(tokenIn.USDPrice) *
                                     Number(
                                       ethers.utils.formatUnits(
                                         rangeMintParams.tokenInAmount,
@@ -225,7 +270,7 @@ export default function RangePoolPreview({ fee }) {
                               <div className=" ml-auto">
                                 <div>
                                   <div className="flex justify-end">
-                                    <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
+                                    <button className="flex items-center gap-x-3 bg-black border border-grey px-3 py-1.5 rounded-[4px]">
                                       <div className="flex items-center gap-x-2 w-full">
                                         <img
                                           className="w-7"
@@ -242,9 +287,9 @@ export default function RangePoolPreview({ fee }) {
                               </div>
                             </div>
                           </div>
-                          <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
+                          <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-[4px]">
                             <div className=" p-2 ">
-                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
+                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-[4px]">
                                 {parseFloat(
                                   ethers.utils.formatUnits(
                                     rangeMintParams.tokenOutAmount,
@@ -256,7 +301,7 @@ export default function RangePoolPreview({ fee }) {
                                 <div className="flex text-xs text-[#4C4C4C]">
                                   $
                                   {(
-                                    Number(tokenOut.rangeUSDPrice) *
+                                    Number(tokenOut.USDPrice) *
                                     Number(
                                       ethers.utils.formatUnits(
                                         rangeMintParams.tokenOutAmount,
@@ -271,7 +316,7 @@ export default function RangePoolPreview({ fee }) {
                               <div className=" ml-auto">
                                 <div>
                                   <div className="flex justify-end">
-                                    <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
+                                    <button className="flex items-center gap-x-3 bg-black border border-grey px-3 py-1.5 rounded-[4px]">
                                       <div className="flex items-center gap-x-2 w-full">
                                         <img
                                           className="w-7"
@@ -291,72 +336,93 @@ export default function RangePoolPreview({ fee }) {
                         </div>
                       </div>
                     </div>
-                    <div className="md:w-1/2 mt-10">
+                    <div className="md:w-1/2">
                       <div>
                         <div className="flex justify-between items-center">
                           <h1>Price range</h1>
                         </div>
                         <div className="mt-3 space-y-3">
-                          <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
+                          <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-[4px]">
                             <span className="md:text-xs text-[10px] text-grey">
                               Min. Price
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {rangePositionData.lowerPrice}
+                                {invertPrice(
+                                  priceOrder
+                                    ? rangePositionData.lowerPrice
+                                    : rangePositionData.upperPrice,
+                                  priceOrder
+                                )}
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">
-                              {tokenOut.symbol} per {tokenIn.symbol}
+                              {(priceOrder ? tokenOut : tokenIn).symbol} per{" "}
+                              {(priceOrder ? tokenIn : tokenOut).symbol}
                             </span>
                           </div>
-                          <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-lg">
+                          <div className="bg-[#0C0C0C] border border-[#1C1C1C] flex-col flex text-center p-3 rounded-[4px]">
                             <span className="md:text-xs text-[10px] text-grey">
                               Max. Price
                             </span>
                             <div className="flex justify-center items-center">
                               <span className="text-lg py-2 outline-none text-center">
-                                {rangePositionData.upperPrice}
+                                {invertPrice(
+                                  priceOrder
+                                    ? rangePositionData.upperPrice
+                                    : rangePositionData.lowerPrice,
+                                  priceOrder
+                                )}
                               </span>
                             </div>
                             <span className="md:text-xs text-[10px] text-grey">
-                              {tokenOut.symbol} per {tokenIn.symbol}
+                              {(priceOrder ? tokenOut : tokenIn).symbol} per{" "}
+                              {(priceOrder ? tokenIn : tokenOut).symbol}
                             </span>
                           </div>
                         </div>
                       </div>
                       <div className="mt-4">
-                        {tokenIn.userPoolAllowance?.lt(
+                        {tokenIn.userRouterAllowance?.lt(
                           rangeMintParams.tokenInAmount
                         ) &&
-                        tokenOut.userPoolAllowance?.lt(
+                        tokenOut.userRouterAllowance?.lt(
                           rangeMintParams.tokenOutAmount
                         ) ? (
                           <RangeMintDoubleApproveButton
-                            poolAddress={rangePoolAddress}
+                            routerAddress={
+                              chainProperties["arbitrumGoerli"]["routerAddress"]
+                            }
                             tokenIn={tokenIn}
                             tokenOut={tokenOut}
                             amount0={rangeMintParams.tokenInAmount}
                             amount1={rangeMintParams.tokenOutAmount}
                           />
-                        ) : tokenIn.userPoolAllowance?.lt(
+                        ) : tokenIn.userRouterAllowance?.lt(
                             rangeMintParams.tokenInAmount
                           ) ? (
                           <RangeMintApproveButton
-                            poolAddress={rangePoolAddress}
+                            routerAddress={
+                              chainProperties["arbitrumGoerli"]["routerAddress"]
+                            }
                             approveToken={tokenIn}
                             amount={rangeMintParams.tokenInAmount}
                           />
-                        ) : tokenOut.userPoolAllowance?.lt(
+                        ) : tokenOut.userRouterAllowance?.lt(
                             rangeMintParams.tokenOutAmount
                           ) ? (
                           <RangeMintApproveButton
-                            poolAddress={rangePoolAddress}
+                            routerAddress={
+                              chainProperties["arbitrumGoerli"]["routerAddress"]
+                            }
                             approveToken={tokenOut}
                             amount={rangeMintParams.tokenOutAmount}
                           />
-                        ) : (
+                        ) : rangePoolAddress != ZERO_ADDRESS ? (
                           <RangeMintButton
+                            routerAddress={
+                              chainProperties["arbitrumGoerli"]["routerAddress"]
+                            }
                             to={address}
                             poolAddress={rangePoolAddress}
                             lower={
@@ -399,7 +465,66 @@ export default function RangePoolPreview({ fee }) {
                                 ? rangeMintParams.tokenOutAmount
                                 : rangeMintParams.tokenInAmount
                             }
-                            closeModal={() => router.push("/range")}
+                            gasLimit={mintGasLimit}
+                          />
+                        ) : (
+                          <RangeCreateAndMintButton
+                            routerAddress={
+                              chainProperties["arbitrumGoerli"]["routerAddress"]
+                            }
+                            poolTypeId={limitPoolTypeIds["constant-product"]}
+                            token0={tokenIn}
+                            token1={tokenOut}
+                            startPrice={BigNumber.from(
+                              "3543191142285914205922034323214"
+                            )} //TODO: for lucas; need input box for this
+                            feeTier={
+                              rangePoolData.feeTier
+                                ? rangePoolData.feeTier.feeAmount
+                                : 3000
+                            }
+                            to={address}
+                            lower={
+                              rangePositionData.lowerPrice
+                                ? BigNumber.from(
+                                    TickMath.getTickAtPriceString(
+                                      rangePositionData.lowerPrice,
+                                      parseInt(
+                                        rangePoolData.feeTier
+                                          ? rangePoolData.feeTier.tickSpacing
+                                          : 20
+                                      )
+                                    )
+                                  )
+                                : BN_ZERO
+                            }
+                            upper={
+                              rangePositionData.upperPrice
+                                ? BigNumber.from(
+                                    TickMath.getTickAtPriceString(
+                                      rangePositionData.upperPrice,
+                                      parseInt(
+                                        rangePoolData.feeTier
+                                          ? rangePoolData.feeTier.tickSpacing
+                                          : 20
+                                      )
+                                    )
+                                  )
+                                : BN_ZERO
+                            }
+                            disabled={rangeMintParams.disabled}
+                            buttonMessage={rangeMintParams.buttonMessage}
+                            amount0={
+                              tokenIn.callId === 0
+                                ? rangeMintParams.tokenInAmount
+                                : rangeMintParams.tokenOutAmount
+                            }
+                            amount1={
+                              tokenIn.callId === 0
+                                ? rangeMintParams.tokenOutAmount
+                                : rangeMintParams.tokenInAmount
+                            }
+                            closeModal={() => {}}
                             gasLimit={mintGasLimit}
                           />
                         )}
@@ -414,10 +539,12 @@ export default function RangePoolPreview({ fee }) {
       </Transition>
       <button
         onClick={() => setIsOpen(true)}
-        //disabled={rangeMintParams.disabled}
+        disabled={rangeMintParams.disabled}
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
       >
-        <>Preview</>
+        <>
+          {rangeMintParams.disabled ? rangeMintParams.buttonMessage : "Preview"}
+        </>
       </button>
     </div>
   );

@@ -1,7 +1,7 @@
 export const ConfirmingToast = ({hash}) => {
 
   return (
-    <div className="bg-black py-3 px-4 rounded-xl flex gap-x-5 pr-7 front">
+    <div className="bg-black py-3 px-4 rounded-xl flex gap-x-5 pr-7 front border-grey border">
       <div>
         <div className="flex gap-x-2 pb-1">
           <div role="status">

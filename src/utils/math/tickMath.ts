@@ -5,6 +5,8 @@ import { mostSignificantBit } from "./mostSignificantBit"
 import JSBD from 'jsbd'
 import { priceToString, scale } from './priceMath'
 import { BigNumber } from 'ethers'
+import { PrecisionMath } from './precisionMath'
+import { DyDxMath } from './dydxMath'
 
 function mulShift(val: JSBI, mulBy: string): JSBI {
   return JSBI.signedRightShift(JSBI.multiply(val, JSBI.BigInt(mulBy)), JSBI.BigInt(128))
@@ -33,6 +35,7 @@ export function roundTick(tick: number, tickSpacing: number): number {
 }
 
 export function invertPrice(priceString: string, zeroForOne: boolean): string {
+  if (isNaN(parseFloat(priceString)) || parseFloat(priceString) == 0) return '0.00'
   if(!zeroForOne) {
     let price = JSBD.BigDecimal(priceString)
     price = JSBD.divide(JSBD.BigDecimal('1.00'), price)
@@ -101,11 +104,13 @@ export abstract class TickMath {
   public static MAX_SQRT_RATIO: JSBI = JSBI.BigInt('1461446703485210103287273052203988822378723970342')
 
   public static getPriceStringAtTick(tick: number, tickSpacing?: number): string {
+    if (isNaN(tick)) return '0.00'
     // round the tick based on tickSpacing
     let roundedTick = tick
     if (tickSpacing) roundedTick = roundTick(Number(tick), tickSpacing)
     // divide and return formatted string
-    return this.getPriceStringAtSqrtPrice(this.getSqrtRatioAtTick(roundedTick))
+    const priceString = this.getPriceStringAtSqrtPrice(this.getSqrtRatioAtTick(roundedTick))
+    return priceString
   }
 
   public static getSqrtPriceAtPriceString(priceString: string, scaleFactor?: number, tickSpacing?: number): JSBI {
@@ -153,10 +158,21 @@ export abstract class TickMath {
   }
 
   public static getTickAtPriceString(priceString: string, tickSpacing?: number): number {
-    let sqrtPrice = this.getSqrtPriceAtPriceString(priceString)
-    if (JSBI.lessThan(sqrtPrice, this.MIN_SQRT_RATIO)){ return this.MIN_TICK}
-    if (JSBI.greaterThan(sqrtPrice, this.MAX_SQRT_RATIO)) return this.MAX_TICK
-    let tick = this.getTickAtSqrtRatio(sqrtPrice)
+    const price = parseFloat(priceString)
+    if (isNaN(price)) return this.MIN_TICK
+    const minPrice = parseFloat(this.getPriceStringAtTick(this.MIN_TICK))
+    const maxPrice = parseFloat(this.getPriceStringAtTick(this.MAX_TICK))
+    let tick;
+    if (price <= minPrice) {
+      tick = this.MIN_TICK
+    } else if (price >= maxPrice) {
+      tick = this.MAX_TICK
+    } else {
+      let sqrtPrice = this.getSqrtPriceAtPriceString(priceString)
+      if (JSBI.lessThan(sqrtPrice, this.MIN_SQRT_RATIO)){ return this.MIN_TICK}
+      if (JSBI.greaterThan(sqrtPrice, this.MAX_SQRT_RATIO)) return this.MAX_TICK
+      tick = this.getTickAtSqrtRatio(sqrtPrice)
+    }
     if (tickSpacing){
       return roundTick(tick, tickSpacing)
     } 
@@ -209,12 +225,10 @@ export abstract class TickMath {
    * @param sqrtRatioX96 the sqrt ratio as a Q64.96 for which to compute the tick
    */
   public static getTickAtSqrtRatio(sqrtRatioX96: JSBI): number {
-    invariant(
-      JSBI.greaterThanOrEqual(sqrtRatioX96, TickMath.MIN_SQRT_RATIO) &&
-        JSBI.lessThan(sqrtRatioX96, TickMath.MAX_SQRT_RATIO),
-      'SQRT_RATIO'
-    )
-
+    if(JSBI.lessThan(sqrtRatioX96, TickMath.MIN_SQRT_RATIO))
+      sqrtRatioX96 = TickMath.MIN_SQRT_RATIO
+    else if(JSBI.greaterThan(sqrtRatioX96, TickMath.MAX_SQRT_RATIO))
+      sqrtRatioX96 = TickMath.MAX_SQRT_RATIO
     const sqrtRatioX128 = JSBI.leftShift(sqrtRatioX96, JSBI.BigInt(32))
 
     const msb = mostSignificantBit(sqrtRatioX128)
@@ -256,4 +270,32 @@ export abstract class TickMath {
       ? tickHigh
       : tickLow
   }
+
+  public static getNewSqrtPrice(sqrtPrice: JSBI, liquidity: JSBI, amount: JSBI, zeroForOne: boolean, exactIn: boolean): JSBI {
+    if (exactIn) {
+      if (zeroForOne) {
+        const liquidityPadded = JSBI.leftShift(liquidity, JSBI.BigInt(96))
+        return PrecisionMath.mulDivRoundingUp(
+          liquidityPadded,
+          sqrtPrice,
+          JSBI.add(liquidityPadded, JSBI.multiply(sqrtPrice, amount))
+        )
+      } else {
+        return JSBI.add(sqrtPrice, JSBI.divide(JSBI.leftShift(amount, JSBI.BigInt(96)), liquidity))
+      }
+    } else {
+      if (zeroForOne) {
+        return JSBI.subtract(sqrtPrice, PrecisionMath.divRoundingUp(JSBI.leftShift(amount, JSBI.BigInt(96)), liquidity))
+      } else {
+        const liquidityPadded = JSBI.leftShift(liquidity, JSBI.BigInt(96))
+        return PrecisionMath.mulDivRoundingUp(
+          liquidityPadded,
+          sqrtPrice,
+          JSBI.subtract(liquidityPadded, JSBI.multiply(sqrtPrice, amount))
+        )
+      }
+    }
+  }
+
+
 }

@@ -11,7 +11,7 @@ import React, { useState } from "react";
 import { BN_ONE } from '../../utils/math/constants';
 import { useRangeLimitStore } from '../../hooks/useRangeLimitStore';
 
-export default function RangeCollectButton({ poolAddress, address, positionId, gasLimit }) {
+export default function RangeCollectButton({ poolAddress, address, positionId }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
@@ -27,16 +27,13 @@ export default function RangeCollectButton({ poolAddress, address, positionId, g
   const { config } = usePrepareContractWrite({
       address: poolAddress,
       abi: rangePoolABI,
-      functionName: "burn",
+      functionName: "burnRange",
       args:[[
           address,
           positionId,
           BN_ONE
         ]],
       chainId: 421613,
-      overrides:{
-          gasLimit: gasLimit
-      },
   })
 
   const { data, isSuccess, write } = useContractWrite(config)
@@ -55,14 +52,14 @@ export default function RangeCollectButton({ poolAddress, address, positionId, g
     
   return (
       <>
-      <div className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
+      <div className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-grey2 bg-grey3/30 uppercase text-sm disabled:opacity-50 hover:opacity-80"
           onClick={() => {
             address ?  write?.() : null
           }}
               >
               Collect position
       </div>
-      <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
+      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
     {errorDisplay && (
       <ErrorToast
         hash={data?.hash}

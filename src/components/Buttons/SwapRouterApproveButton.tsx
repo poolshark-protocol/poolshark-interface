@@ -2,49 +2,62 @@ import {
   useWaitForTransaction,
   usePrepareContractWrite,
   useContractWrite,
-} from 'wagmi'
-import { erc20ABI } from 'wagmi'
-import { SuccessToast } from '../Toasts/Success'
-import { ErrorToast } from '../Toasts/Error'
-import { ConfirmingToast } from '../Toasts/Confirming'
-import React, { useState } from 'react'
-import { useSwapStore as useRangeLimitStore } from '../../hooks/useSwapStore'
+} from "wagmi";
+import { erc20ABI } from "wagmi";
+import { SuccessToast } from "../Toasts/Success";
+import { ErrorToast } from "../Toasts/Error";
+import { ConfirmingToast } from "../Toasts/Confirming";
+import React, { useState } from "react";
+import {
+  useTradeStore,
+} from "../../hooks/useTradeStore";
+import {
+  useRangeLimitStore,
+} from "../../hooks/useRangeLimitStore";
 
-export default function SwapRangeApproveButton({
-  poolAddress,
+export default function SwapRouterApproveButton({
+  routerAddress,
   approveToken,
   tokenSymbol,
   amount,
 }) {
-  const [errorDisplay, setErrorDisplay] = useState(false)
-  const [successDisplay, setSuccessDisplay] = useState(false)
+  const [errorDisplay, setErrorDisplay] = useState(false);
+  const [successDisplay, setSuccessDisplay] = useState(false);
 
-  const [
-    setNeedsRangeAllowanceIn,
-  ] = useRangeLimitStore((state) => [
-    state.setNeedsRangeAllowanceIn,
-  ])
+  const [setNeedsAllowanceIn] = useTradeStore((state) => [
+    state.setNeedsAllowanceIn,
+  ]);
+
+  const [setNeedsAllowanceInLimit] = useRangeLimitStore((state) => [
+    state.setNeedsAllowanceIn,
+  ]);
 
   const { config } = usePrepareContractWrite({
     address: approveToken,
     abi: erc20ABI,
-    functionName: 'approve',
-    args: [poolAddress, amount],
+    functionName: "approve",
+    args: [
+      routerAddress,
+      amount
+    ],
     chainId: 421613,
-  })
+  });
 
-  const { data, isSuccess, write } = useContractWrite(config)
+  const { data, isSuccess, write } = useContractWrite(config);
 
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      setSuccessDisplay(true)
-      setNeedsRangeAllowanceIn(true)
+      setSuccessDisplay(true);
+      setTimeout(() => {
+        setNeedsAllowanceIn(true);
+        setNeedsAllowanceInLimit(true);
+      }, 500);
     },
     onError() {
-      setErrorDisplay(true)
+      setErrorDisplay(true);
     },
-  })
+  });
 
   return (
     <>
@@ -54,7 +67,7 @@ export default function SwapRangeApproveButton({
       >
         Approve {tokenSymbol}
       </div>
-      <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
+      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
         {errorDisplay && (
           <ErrorToast
             hash={data?.hash}
@@ -72,5 +85,5 @@ export default function SwapRangeApproveButton({
         )}
       </div>
     </>
-  )
+  );
 }

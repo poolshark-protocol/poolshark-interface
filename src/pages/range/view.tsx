@@ -1,11 +1,11 @@
 import Navbar from "../../components/Navbar";
 import { useState, useEffect } from "react";
 import RangeCompoundButton from "../../components/Buttons/RangeCompoundButton";
-import { useAccount } from "wagmi";
+import { useAccount, useSigner } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { TickMath } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
-import { copyElementUseEffect } from "../../utils/misc";
+import { useCopyElementUseEffect } from "../../utils/misc";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import { rangePoolABI } from "../../abis/evm/rangePool";
 import { useContractRead } from "wagmi";
@@ -17,6 +17,8 @@ import { fetchRangePositions } from "../../utils/queries";
 import { mapUserRangePositions } from "../../utils/maps";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
+import RangeCollectButton from "../../components/Buttons/RangeCollectButton";
+import router from "next/router";
 
 export default function ViewRange() {
   const [
@@ -32,6 +34,7 @@ export default function ViewRange() {
     needsPosRefetch,
     setNeedsRefetch,
     setNeedsPosRefetch,
+    setRangePoolFromFeeTier,
     setRangePositionData,
     setMintButtonState,
   ] = useRangeLimitStore((state) => [
@@ -47,13 +50,15 @@ export default function ViewRange() {
     state.needsPosRefetch,
     state.setNeedsRefetch,
     state.setNeedsPosRefetch,
+    state.setRangePoolFromFeeTier,
     state.setRangePositionData,
     state.setMintButtonState,
   ]);
 
   const { address, isConnected } = useAccount();
+  const { data: signer } = useSigner();
 
-  const [snapshot, setSnapshot] = useState(undefined);
+
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
   const [priceDirection, setPriceDirection] = useState(false);
@@ -69,32 +74,12 @@ export default function ViewRange() {
   const [amount1Fees, setAmount1Fees] = useState(0.0);
   const [amount0FeesUsd, setAmount0FeesUsd] = useState(0.0);
   const [amount1FeesUsd, setAmount1FeesUsd] = useState(0.0);
-  const [is0Copied, setIs0Copied] = useState(false);
-  const [is1Copied, setIs1Copied] = useState(false);
   const [isPoolCopied, setIsPoolCopied] = useState(false);
   const [lowerInverse, setLowerInverse] = useState(0);
   const [upperInverse, setUpperInverse] = useState(0);
   const [priceInverse, setPriceInverse] = useState(0);
-  const [tokenZeroDisplay, setTokenZeroDisplay] = useState(
-    tokenIn.address != ("" as string)
-      ? tokenIn.address.substring(0, 6) +
-          "..." +
-          tokenIn.address.substring(
-            tokenIn.address.length - 4,
-            tokenIn.address.length
-          )
-      : undefined
-  );
-  const [tokenOneDisplay, setTokenOneDisplay] = useState(
-    tokenOut.address != ("" as string)
-      ? tokenOut.address.substring(0, 6) +
-          "..." +
-          tokenOut.address.substring(
-            tokenOut.address.length - 4,
-            tokenOut.address.length
-          )
-      : undefined
-  );
+  const [isLoading, setIsLoading] = useState(true);
+
   const [poolDisplay, setPoolDisplay] = useState(
     rangePoolAddress != ("" as string)
       ? rangePoolAddress.substring(0, 6) +
@@ -109,27 +94,24 @@ export default function ViewRange() {
   ////////////////////////Addresses
 
   useEffect(() => {
-    copyElementUseEffect(copyAddress0, setIs0Copied);
-    copyElementUseEffect(copyAddress1, setIs1Copied);
-    copyElementUseEffect(copyRangePoolAddress, setIsPoolCopied);
+    if (copyRangePoolAddress) {
+      const timer = setTimeout(() => {
+        setIsPoolCopied(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
   }, []);
-
-  function copyAddress0() {
-    navigator.clipboard.writeText(tokenIn.address.toString());
-    setIs0Copied(true);
-  }
-
-  function copyAddress1() {
-    navigator.clipboard.writeText(tokenOut.address.toString());
-    setIs1Copied(true);
-  }
 
   function copyRangePoolAddress() {
     navigator.clipboard.writeText(rangePoolAddress.toString());
     setIsPoolCopied(true);
   }
 
-  ////////////////////////Pool
+  ////////////////////////Pool Data
+
+  useEffect(() => {
+    setRangePoolFromFeeTier(tokenIn, tokenOut, router.query.feeTier);
+  }, [router.query.feeTier]);
 
   useEffect(() => {
     getRangePoolRatios();
@@ -138,32 +120,28 @@ export default function ViewRange() {
   const getRangePoolRatios = () => {
     try {
       if (rangePoolData != undefined) {
-        setAmount0Usd(
-          parseFloat((amount0 * tokenIn.rangeUSDPrice).toPrecision(6))
-        );
-        setAmount1Usd(
-          parseFloat((amount1 * tokenOut.rangeUSDPrice).toPrecision(6))
-        );
+        setAmount0Usd(parseFloat((amount0 * tokenIn.USDPrice).toPrecision(6)));
+        setAmount1Usd(parseFloat((amount1 * tokenOut.USDPrice).toPrecision(6)));
         setAmount0FeesUsd(
-          parseFloat((amount0Fees * tokenIn.rangeUSDPrice).toPrecision(3))
+          parseFloat((amount0Fees * tokenIn.USDPrice).toPrecision(3))
         );
         setAmount1FeesUsd(
-          parseFloat((amount1Fees * tokenOut.rangeUSDPrice).toPrecision(3))
+          parseFloat((amount1Fees * tokenOut.USDPrice).toPrecision(3))
         );
         setLowerInverse(
           parseFloat(
-            (tokenOut.rangeUSDPrice / parseFloat(upperPrice)).toPrecision(6)
+            (tokenOut.USDPrice / parseFloat(upperPrice)).toPrecision(6)
           )
         );
         setUpperInverse(
           parseFloat(
-            (tokenOut.rangeUSDPrice / parseFloat(lowerPrice)).toPrecision(6)
+            (tokenOut.USDPrice / parseFloat(lowerPrice)).toPrecision(6)
           )
         );
         setPriceInverse(
           parseFloat(
             (
-              tokenOut.rangeUSDPrice /
+              tokenOut.USDPrice /
               parseFloat(
                 TickMath.getPriceStringAtSqrtPrice(
                   JSBI.BigInt(String(rangePoolData.poolPrice))
@@ -178,7 +156,52 @@ export default function ViewRange() {
     }
   };
 
-  ////////////////////////Liquidity
+  ////////////////////////////////Position Data
+  useEffect(() => {
+    if (
+      rangePositionData.positionId == undefined ||
+      needsPosRefetch ||
+      needsRefetch
+    ) {
+      getUserRangePositionData();
+      setNeedsRefetch(false);
+      setNeedsPosRefetch(false);
+    }
+    if (
+      rangePositionData.positionId == undefined ||
+      needsPosRefetch ||
+      needsRefetch
+    ) {
+    } else {
+      setIsLoading(false);
+    }
+  }, [needsRefetch, needsPosRefetch, rangePositionData.positionId]);
+
+  async function getUserRangePositionData() {
+    setIsLoading(true);
+    try {
+      const data = await fetchRangePositions(address);
+      if (data["data"].rangePositions) {
+        const mappedPositions = mapUserRangePositions(
+          data["data"].rangePositions
+        );
+        setAllRangePositions(mappedPositions);
+        const positionId =
+          rangePositionData.positionId ?? router.query.positionId;
+        const position = mappedPositions.find(
+          (position) => position.positionId == positionId
+        );
+        if (position != undefined) {
+          setRangePositionData(position);
+        }
+      }
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  ////////////////////////Prices
 
   useEffect(() => {
     if (rangePoolData.token0 && rangePoolData.token1) {
@@ -200,13 +223,21 @@ export default function ViewRange() {
   }, []);
 
   useEffect(() => {
-    setLowerPrice(TickMath.getPriceStringAtTick(Number(rangePositionData.min)));
-    setUpperPrice(TickMath.getPriceStringAtTick(Number(rangePositionData.max)));
-  }, [tokenIn, tokenOut]);
+    if (rangePositionData.min && rangePositionData.max) {
+      setLowerPrice(
+        TickMath.getPriceStringAtTick(Number(rangePositionData.min))
+      );
+      setUpperPrice(
+        TickMath.getPriceStringAtTick(Number(rangePositionData.max))
+      );
+    }
+  }, [tokenIn, tokenOut, rangePositionData.min, rangePositionData.max]);
+
+  ////////////////////////////////Amounts
 
   useEffect(() => {
     setAmounts();
-  }, [lowerPrice, upperPrice]);
+  }, [lowerPrice, upperPrice, rangePositionData, rangePoolData]);
 
   function setAmounts() {
     try {
@@ -251,82 +282,35 @@ export default function ViewRange() {
     setUserLiquidityUsd(amount0Usd + amount1Usd);
   }, [amount0Usd, amount1Usd]);
 
-  async function getUserRangePositionData() {
-    try {
-      const data = await fetchRangePositions(address);
-      if (data["data"])
-        setAllRangePositions(
-          mapUserRangePositions(data["data"].positionFractions)
-        );
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  useEffect(() => {
-    setTimeout(() => {
-      if (needsRefetch == true || needsPosRefetch == true) {
-        getUserRangePositionData();
-
-        const positionId = rangePositionData.id;
-        const position = allRangePositions.find(
-          (position) => position.id == positionId
-        );
-        console.log("new position", position);
-
-        if (position != undefined) {
-          setRangePositionData(position);
-        }
-
-        setNeedsRefetch(false);
-        setNeedsPosRefetch(false);
-      }
-    }, 5000);
-  }, [needsRefetch, needsPosRefetch]);
-
-  ////////////////////////Fees
+  ////////////////////////////////Snapshot
 
   const { refetch: refetchSnapshot, data: feesOwed } = useContractRead({
     address: rangePoolAddress,
     abi: rangePoolABI,
-    functionName: "snapshot",
-    args: [[address, rangePositionData.min, rangePositionData.max]],
+    functionName: "snapshotRange",
+    args: [rangePositionData.positionId],
     chainId: 421613,
     watch: true,
-    enabled: isConnected && rangePoolAddress != ("" as string),
-    onSuccess(data) {
-      setSnapshot(data);
-      console.log("Success snapshot Range", data);
-    },
+    enabled: isConnected && rangePositionData.positionId != undefined,
     onError(error) {
-      console.log(
-        "snapshot args",
-        address,
-        rangePositionData.min.toString(),
-        rangePositionData.max.toString()
-      );
-      console.log("Error snapshot Range", error);
+      //console.log("Error snapshot Range", error);
     },
   });
 
   useEffect(() => {
     setFeesOwed();
-  }, [snapshot]);
+  }, [feesOwed]);
 
   function setFeesOwed() {
     try {
-      if (snapshot) {
-        console.log("snapshot", snapshot.toString());
+      if (feesOwed) {
         const fees0 = parseFloat(
-          ethers.utils.formatUnits(snapshot[2], tokenIn.decimals)
+          ethers.utils.formatUnits(feesOwed[2], tokenIn.decimals)
         );
         const fees1 = parseFloat(
-          ethers.utils.formatUnits(snapshot[3], tokenIn.decimals)
+          ethers.utils.formatUnits(feesOwed[3], tokenIn.decimals)
         );
-        console.log(
-          "fees owed 1",
-          ethers.utils.formatUnits(snapshot[3], tokenIn.decimals)
-        );
+
         setAmount0Fees(fees0);
         setAmount1Fees(fees1);
       }
@@ -378,26 +362,32 @@ export default function ViewRange() {
                 </a>
               </div>
               <div className="flex items-center gap-x-5">
-                <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                  {Number(rangePositionData.feeTier) / 10000}%
-                </span>
+                {isLoading ? (
+                  <div className="h-5 w-14 bg-grey/60 animate-pulse rounded-[4px]" />
+                ) : (
+                  <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
+                    {(Number(rangePositionData.feeTier) / 10000).toFixed(2)}%
+                  </span>
+                )}
                 <div className="flex items-center gap-x-2 text-grey1 text-xs">
-                  0.9 USDC
-                  <DoubleArrowIcon />
-                  1.2 USDC
+                  {isLoading ? (
+                    <div className="h-4 w-24 bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : (
+                    `Position ID: ${rangePositionData.positionId}`
+                  )}
                 </div>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-x-4">
+          <div className="flex items-center gap-x-4 w-full md:w-auto">
             <button
-              className="bg-main1 border border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
+              className="bg-main1 border w-full border-main text-main2 transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px]"
               onClick={() => setIsAddOpen(true)}
             >
               Add Liquidity
             </button>
             <button
-              className="bg-black border border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
+              className="bg-black border whitespace-nowrap w-full border-grey transition-all py-1.5 px-5 text-sm uppercase cursor-pointer text-[13px] text-grey1"
               onClick={() => setIsRemoveOpen(true)}
             >
               Remove Liquidity
@@ -408,15 +398,30 @@ export default function ViewRange() {
           <div className="border border-grey rounded-[4px] lg:w-1/2 w-full p-5">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">Liquidity</h1>
-              <span className="text-grey1">${userLiquidityUsd.toFixed(2)}</span>
+              {isLoading ? (
+                <div className="h-6 w-36 bg-grey/60 animate-pulse rounded-[4px]" />
+              ) : (
+                <span className="text-grey1">
+                  ${userLiquidityUsd.toFixed(2)}
+                </span>
+              )}
             </div>
             <div className="flex flex-col gap-y-3 mt-2">
               <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
                 <div className="flex items-end justify-between text-[11px] text-grey1">
-                  <span>~${amount0Usd}</span>
+                  {isLoading ? (
+                    <div className="h-4 w-14 bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : (
+                    <span>~${amount0Usd}</span>
+                  )}
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {amount0.toFixed(2)}
+                  {isLoading ? (
+                    <div className="h-8 w-40 bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : (
+                    amount0.toFixed(2)
+                  )}
+
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenIn.logoURI} />
@@ -427,10 +432,18 @@ export default function ViewRange() {
               </div>
               <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
                 <div className="flex items-end justify-between text-[11px] text-grey1">
-                  <span>~${amount1Usd}</span>
+                  {isLoading ? (
+                    <div className="h-4 w-14 bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : (
+                    <span>~${amount1Usd}</span>
+                  )}
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {amount1.toFixed(2)}
+                  {isLoading ? (
+                    <div className="h-8 w-40 bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : (
+                    amount1.toFixed(2)
+                  )}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenOut.logoURI} />
@@ -444,10 +457,12 @@ export default function ViewRange() {
                   <h1 className="uppercase text-white md:block hidden">
                     Price Range
                   </h1>
-                  {Number(rangePoolData.tickAtPrice) <
-                    Number(rangePositionData.min) ||
-                  Number(rangePoolData.tickAtPrice) >=
-                    Number(rangePositionData.max) ? (
+                  {isLoading ? (
+                    <div className="h-6 w-28 bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : Number(rangePoolData.tickAtPrice) <
+                      Number(rangePositionData.min) ||
+                    Number(rangePoolData.tickAtPrice) >=
+                      Number(rangePositionData.max) ? (
                     <span className="text-yellow-600 text-xs bg-yellow-900/30 px-4 py-1 rounded-[4px]">
                       OUT OF RANGE
                     </span>
@@ -479,8 +494,14 @@ export default function ViewRange() {
                 <div className="flex items-center gap-x-5 mt-3">
                   <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                     <span className="text-grey1 text-xs">MIN. PRICE</span>
-                    <span className="text-white text-3xl">
-                      {priceDirection ? <>{lowerInverse}</> : <>{lowerPrice}</>}
+                    <span className="text-white text-2xl md:text-3xl">
+                      {isLoading ? (
+                        <div className="h-9 w-36 bg-grey/60 animate-pulse rounded-[4px]" />
+                      ) : priceDirection ? (
+                        <>{lowerInverse}</>
+                      ) : (
+                        <>{lowerPrice}</>
+                      )}
                     </span>
                     <span className="text-grey1 text-[9px] text-center">
                       Your position will be 100%{" "}
@@ -490,8 +511,14 @@ export default function ViewRange() {
                   </div>
                   <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                     <span className="text-grey1 text-xs">MAX. PRICE</span>
-                    <span className="text-white text-3xl">
-                      {priceDirection ? <>{upperInverse}</> : <>{upperPrice}</>}
+                    <span className="text-white text-2xl md:text-3xl">
+                      {isLoading ? (
+                        <div className="h-9 w-36 bg-grey/60 animate-pulse rounded-[4px]" />
+                      ) : priceDirection ? (
+                        <>{upperInverse}</>
+                      ) : (
+                        <>{upperPrice}</>
+                      )}
                     </span>
                     <span className="text-grey1 text-[9px] text-center">
                       Your position will be 100%{" "}
@@ -503,11 +530,17 @@ export default function ViewRange() {
                 <div className="border border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                   <span className="text-grey1 text-xs">CURRENT. PRICE</span>
                   <span className="text-white text-3xl text-grey1">
-                    {rangePositionData.price != undefined && priceDirection
-                      ? priceInverse
-                      : TickMath.getPriceStringAtSqrtPrice(
+                    {isLoading ? (
+                      <div className="h-9 w-36 bg-grey/60 animate-pulse rounded-[4px]" />
+                    ) : rangePositionData.price ? (
+                      priceDirection ? (
+                        priceInverse
+                      ) : (
+                        TickMath.getPriceStringAtSqrtPrice(
                           JSBI.BigInt(rangePositionData.price)
-                        )}
+                        )
+                      )
+                    ) : null}
                   </span>
                 </div>
               </div>
@@ -516,15 +549,29 @@ export default function ViewRange() {
           <div className="border bg-dark border-grey rounded-[4px] lg:w-1/2 w-full p-5 h-min">
             <div className="flex justify-between">
               <h1 className="uppercase text-white">Earned Fees</h1>
-              <span className="text-grey1">${userLiquidityUsd.toFixed(2)}</span>
+              {isLoading ? (
+                <div className="h-6 w-36 bg-grey/60 animate-pulse rounded-[4px]" />
+              ) : (
+                <span className="text-grey1">
+                  ${(amount0FeesUsd + amount1FeesUsd).toFixed(2)}
+                </span>
+              )}
             </div>
             <div className="flex flex-col gap-y-3 mt-2">
               <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
                 <div className="flex items-end justify-between text-[11px] text-grey1">
-                  <span>~${amount0Usd}</span>
+                  {isLoading ? (
+                    <div className="h-4 w-14 bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : (
+                    <span>~${amount0FeesUsd.toFixed(2)}</span>
+                  )}
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {amount0.toFixed(2)}
+                  {isLoading ? (
+                    <div className="h-8 w-40 bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : (
+                    amount0Fees.toFixed(2)
+                  )}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenIn.logoURI} />
@@ -535,10 +582,18 @@ export default function ViewRange() {
               </div>
               <div className="border bg-black border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2 mb-5">
                 <div className="flex items-end justify-between text-[11px] text-grey1">
-                  <span>~${amount1Usd}</span>
+                  {isLoading ? (
+                    <div className="h-4 w-14 bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : (
+                    <span>~${amount1FeesUsd.toFixed(2)}</span>
+                  )}
                 </div>
                 <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
-                  {amount1.toFixed(2)}
+                  {isLoading ? (
+                    <div className="h-8 w-40 bg-grey/60 animate-pulse rounded-[4px]" />
+                  ) : (
+                    amount1Fees.toFixed(2)
+                  )}
                   <div className="flex items-center gap-x-2">
                     <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] md:min-w-[160px]">
                       <img height="28" width="25" src={tokenOut.logoURI} />
@@ -550,22 +605,23 @@ export default function ViewRange() {
               <RangeCompoundButton
                 poolAddress={rangePoolAddress}
                 address={address}
-                positionId={rangePositionData.id}
+                positionId={rangePositionData.positionId}
+              />
+              <RangeCollectButton
+                poolAddress={rangePoolAddress}
+                address={address}
+                positionId={rangePositionData.positionId}
               />
             </div>
           </div>
         </div>
       </div>
-      <RemoveLiquidity
-        isOpen={isRemoveOpen}
-        setIsOpen={setIsRemoveOpen}
-        address={address}
-      />
-      <AddLiquidity
-        isOpen={isAddOpen}
-        setIsOpen={setIsAddOpen}
-        address={address}
-      />
+      {rangePositionData.price ? (
+        <>
+          <RemoveLiquidity isOpen={isRemoveOpen} setIsOpen={setIsRemoveOpen} signer={signer} />
+          <AddLiquidity isOpen={isAddOpen} setIsOpen={setIsAddOpen} />
+        </>
+      ) : null}
     </div>
   );
 }

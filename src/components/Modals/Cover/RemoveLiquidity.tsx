@@ -6,21 +6,32 @@ import { BigNumber, ethers } from "ethers";
 import { BN_ZERO } from "../../../utils/math/constants";
 import { useRouter } from "next/router";
 import { useCoverStore } from "../../../hooks/useCoverStore";
+import { gasEstimateCoverBurn } from "../../../utils/gas";
+import { useSigner } from "wagmi";
 
-export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
+export default function CoverRemoveLiquidity({
+  isOpen,
+  setIsOpen,
+  address,
+  signer,
+}) {
   const [
     coverPoolAddress,
+    coverPoolData,
     coverPositionData,
     coverMintParams,
     tokenIn,
     claimTick,
+    setTokenInAmount,
     setMintButtonState,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
+    state.coverPoolData,
     state.coverPositionData,
     state.coverMintParams,
     state.tokenIn,
     state.claimTick,
+    state.setTokenInAmount,
     state.setMintButtonState,
   ]);
 
@@ -31,44 +42,97 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
   );
   const [sliderValue, setSliderValue] = useState(1);
   const [sliderOutput, setSliderOutput] = useState("1");
-  const [amountInDisplay, setAmountInDisplay] = useState(
-    ethers.utils.formatUnits(
-      BigNumber.from(coverPositionData.userFillOut) ?? BN_ZERO,
-      18
-    )
-  );
 
   useEffect(() => {
-    if (sliderValue == 0) {
-      setSliderOutput("");
-      return;
-    }
+    setTokenInAmount(
+      ethers.utils.parseUnits(String(sliderOutput), tokenIn.decimals)
+    );
+  }, [sliderOutput]);
+
+  useEffect(() => {
     setBurnPercent(ethers.utils.parseUnits(String(sliderValue), 36));
-    console.log(
-      "setting burn percent",
-      ethers.utils.parseUnits(String(sliderValue), 36).toString()
-    );
     setSliderOutput(
-      ((parseFloat(amountInDisplay) * sliderValue) / 100).toPrecision(6)
+      (
+        (parseFloat(
+          ethers.utils.formatUnits(
+            BigNumber.from(coverPositionData.userFillOut) ?? BN_ZERO,
+            tokenIn.decimals
+          )
+        ) *
+          sliderValue) /
+        100
+      ).toPrecision(6)
     );
-  }, [sliderValue]);
+  }, [sliderValue, coverPositionData.userFillOut]);
 
   useEffect(() => {
     setMintButtonState();
-    console.log(coverMintParams.disabled, "disabled");
   }, [burnPercent]);
 
   const handleChange = (event: any) => {
     if (Number(event.target.value) != 0) {
       setSliderValue(event.target.value);
     } else {
-      setSliderValue(0);
+      setSliderValue(1);
     }
   };
 
   const handleSliderButton = (percent: number) => {
     setSliderValue(percent);
   };
+
+  //////////////////Slider
+
+  useEffect(() => {
+    setSliderValue(50);
+  }, [router.isReady]);
+
+  ////////////////////////////////Gas Fees Estimation
+  const [burnGasFee, setBurnGasFee] = useState("$0.00");
+  const [burnGasLimit, setBurnGasLimit] = useState(BN_ZERO);
+
+  useEffect(() => {
+    if (
+      coverPositionData.lowerTick &&
+      coverPositionData.upperTick &&
+      coverPoolData.volatilityTier &&
+      sliderValue &&
+      signer &&
+      claimTick
+    ) {
+      updateGasFee();
+    }
+  }, [
+    router.isReady,
+    signer,
+    sliderValue,
+    burnPercent,
+    coverPoolData,
+    coverPositionData,
+    claimTick,
+  ]);
+
+  async function updateGasFee() {
+    const newBurnGasFee = await gasEstimateCoverBurn(
+      coverPoolAddress,
+      address,
+      coverPositionData.positionId,
+      burnPercent,
+      BigNumber.from(claimTick),
+      coverPositionData.zeroForOne,
+      signer
+    );
+    setBurnGasFee(newBurnGasFee.formattedPrice);
+    setBurnGasLimit(newBurnGasFee.gasUnits.mul(250).div(100));
+  }
+
+  ////////////////////////////////Mint Button Handler
+
+  useEffect(() => {
+    setMintButtonState();
+  }, [coverMintParams.tokenInAmount]);
+
+  ////////////////////////////////
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -88,7 +152,6 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
         >
           <div className="fixed inset-0 bg-black bg-opacity-50" />
         </Transition.Child>
-
         <div className="fixed inset-0 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
             <Transition.Child
@@ -195,13 +258,13 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
                   poolAddress={coverPoolAddress}
                   address={address}
                   positionId={Number(coverPositionData.positionId)}
-                  claim={BigNumber.from(claimTick)}
+                  claim={BigNumber.from(claimTick ?? 0)}
                   zeroForOne={Boolean(coverPositionData.zeroForOne)}
-                  burnPercent={burnPercent}
-                  gasLimit={coverMintParams.gasLimit.mul(250).div(100)}
+                  burnPercent={burnPercent ?? BN_ZERO}
+                  gasLimit={burnGasLimit}
                   closeModal={() => {
                     if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
-                      router.push("/pool");
+                      router.push("/cover");
                     }
                   }}
                   setIsOpen={setIsOpen}
@@ -214,5 +277,3 @@ export default function CoverRemoveLiquidity({ isOpen, setIsOpen, address }) {
     </Transition>
   );
 }
-
-

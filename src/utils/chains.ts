@@ -1,9 +1,10 @@
+import { ZERO_ADDRESS } from "./math/constants";
+
 export const chainIdsToNamesForGitTokenList = {
     1: 'ethereum',
     5: 'goerli',
     421613: 'arbitrumGoerli'
 };
-
 
 export const decToHex = {
     1: '0x1',
@@ -11,13 +12,11 @@ export const decToHex = {
     421613: '0x66EED'
 };
 
-
 export const supportedChainIds = {
     1: 'mainnet',
     5: 'goerli',
     421613: 'arbitrumGoerli'
 };
-
 
 export const chainProperties = {
     mainnet: {
@@ -31,6 +30,7 @@ export const chainProperties = {
             decimals: 18,
         },
         chainId: '0x1',
+        routerAddress: ZERO_ADDRESS as `0x${string}`
     },
     goerli: {
         chainName: 'Goerli Test Network',
@@ -43,11 +43,12 @@ export const chainProperties = {
             decimals: 18,
         },
         chainId: '0x5',
+        routerAddress: ZERO_ADDRESS as `0x${string}`
     },
     arbitrumGoerli: {
         chainName: 'Arbitrum Goerli Test Network',
         logo:"https://assets.trustwalletapp.com/blockchains/polygon/assets/0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619/logo.png",
-        rpcUrls: ['https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594/'],
+        rpcUrls: ['https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/'],
         blockExplorerUrls: ['https://goerli.arbiscan.io/'],
         nativeCurrency: {
             name: 'ETH',
@@ -55,6 +56,9 @@ export const chainProperties = {
             decimals: 18,
         },
         chainId: '0x66EED',
-    },
+        routerAddress: '0xf280eacfe87ac2d63d6c1af28ed1651f5eec3853' as `0x${string}`,
+        coverPoolFactory: '0x479C2Df7eD63ea26146Ac2092C55047C3928A5A6',
+        limitPoolFactory: '0xbd6d010bcecc7440a72889546411e0edbb333ea2',
 
+    },
 };

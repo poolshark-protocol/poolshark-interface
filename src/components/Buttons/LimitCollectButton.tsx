@@ -1,78 +1,72 @@
 import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-  useAccount
+    usePrepareContractWrite,
+    useContractWrite,
+    useWaitForTransaction,
 } from 'wagmi';
+import { limitPoolABI } from "../../abis/evm/limitPool";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import { rangePoolABI } from "../../abis/evm/rangePool";
-import { useSwapStore as useRangeLimitStore } from "../../hooks/useSwapStore"
+import { BigNumber } from "ethers";
+import { useRangeLimitStore } from '../../hooks/useRangeLimitStore';
+import { BN_ZERO } from '../../utils/math/constants';
 
-export default function SwapRangeButton({disabled, poolAddress, amount, zeroForOne, priceLimit, gasLimit}) {
-
-  /*const [Limit] = useSwapStore((state: any) => [
-    state.Limit
-  ]);*/
-
-  const [
-    setNeedsRangeAllowanceIn,
-    setNeedsRangeBalanceIn,
-  ] = useRangeLimitStore((state) => [
-    state.setNeedsRangeAllowanceIn,
-    state.setNeedsRangeBalanceIn,
-  ]);
+export default function LimitCollectButton({ poolAddress, address, positionId, claim, zeroForOne, gasLimit, gasFee }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
 
-  console.log('gas limit swap range', gasLimit.toString())
-
-  const { address } = useAccount()
-  const userAddress = address;
+  const [
+    setNeedsBalanceIn,
+    setNeedsSnapshot,
+  ] = useRangeLimitStore((state) => [
+    state.setNeedsBalanceIn,
+    state.setNeedsSnapshot,
+  ])
 
   const { config } = usePrepareContractWrite({
       address: poolAddress,
-      abi: rangePoolABI,
-      functionName: "swap",
+      abi: limitPoolABI,
+      functionName: "burnLimit",
       args:[[
-          userAddress,
-          userAddress,
-          priceLimit,
-          amount,
+          address,
+          BigNumber.from(0),
+          positionId,
+          claim,
           zeroForOne
       ]],
       chainId: 421613,
-      overrides:{
-        gasLimit: gasLimit,
-      }
+      overrides: {
+          gasLimit: gasLimit
+      },
   })
 
-  const { data, write } = useContractWrite(config)
+  const { data, isSuccess, write } = useContractWrite(config)
 
   const {isLoading} = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
-      setNeedsRangeAllowanceIn(true);
-      setNeedsRangeBalanceIn(true);
+      setNeedsBalanceIn(true);
+      setNeedsSnapshot(true);
     },
     onError() {
       setErrorDisplay(true);
     },
   });
-  
+    
   return (
-    <>
+      <>
       <button className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
-          disabled={disabled} 
-          onClick={() => address ?  write?.() : null}
-            >
-              Swap
+          disabled={gasFee == '$0.00'}
+          onClick={() => {
+            address ?  write?.() : null
+          }}
+              >
+              Collect position
       </button>
-      <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
+      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
     {errorDisplay && (
       <ErrorToast
         hash={data?.hash}
@@ -89,6 +83,6 @@ export default function SwapRangeButton({disabled, poolAddress, amount, zeroForO
       />
     )}
     </div>
-    </>
+      </>
   );
 }

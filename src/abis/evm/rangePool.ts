@@ -160,7 +160,7 @@ export const rangePoolABI = [
             "type": "bool"
           }
         ],
-        "internalType": "struct LimitPoolStructs.BurnLimitParams",
+        "internalType": "struct PoolsharkStructs.BurnLimitParams",
         "name": "params",
         "type": "tuple"
       }
@@ -190,7 +190,7 @@ export const rangePoolABI = [
             "type": "uint128"
           }
         ],
-        "internalType": "struct RangePoolStructs.BurnRangeParams",
+        "internalType": "struct PoolsharkStructs.BurnRangeParams",
         "name": "params",
         "type": "tuple"
       }
@@ -292,12 +292,12 @@ export const rangePoolABI = [
               },
               {
                 "internalType": "uint16",
-                "name": "length",
+                "name": "count",
                 "type": "uint16"
               },
               {
                 "internalType": "uint16",
-                "name": "lengthNext",
+                "name": "countMax",
                 "type": "uint16"
               }
             ],
@@ -512,7 +512,7 @@ export const rangePoolABI = [
             "type": "uint16"
           }
         ],
-        "internalType": "struct PoolsharkStructs.Immutables",
+        "internalType": "struct PoolsharkStructs.LimitImmutables",
         "name": "",
         "type": "tuple"
       }
@@ -524,11 +524,11 @@ export const rangePoolABI = [
     "inputs": [
       {
         "internalType": "uint16",
-        "name": "sampleLengthNext",
+        "name": "newSampleCountMax",
         "type": "uint16"
       }
     ],
-    "name": "increaseSampleLength",
+    "name": "increaseSampleCount",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -623,9 +623,14 @@ export const rangePoolABI = [
             "internalType": "bool",
             "name": "zeroForOne",
             "type": "bool"
+          },
+          {
+            "internalType": "bytes",
+            "name": "callbackData",
+            "type": "bytes"
           }
         ],
-        "internalType": "struct LimitPoolStructs.MintLimitParams",
+        "internalType": "struct PoolsharkStructs.MintLimitParams",
         "name": "params",
         "type": "tuple"
       }
@@ -668,9 +673,14 @@ export const rangePoolABI = [
             "internalType": "uint128",
             "name": "amount1",
             "type": "uint128"
+          },
+          {
+            "internalType": "bytes",
+            "name": "callbackData",
+            "type": "bytes"
           }
         ],
-        "internalType": "struct RangePoolStructs.MintRangeParams",
+        "internalType": "struct PoolsharkStructs.MintRangeParams",
         "name": "params",
         "type": "tuple"
       }

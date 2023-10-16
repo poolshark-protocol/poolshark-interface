@@ -1,4 +1,4 @@
-export function copyElementUseEffect(event, setCopied) {
+export function useCopyElementUseEffect(event, setCopied) {
   if (event) {
     const timer = setTimeout(() => {
       setCopied(false)

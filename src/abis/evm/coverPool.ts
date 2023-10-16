@@ -87,6 +87,21 @@ export const coverPoolABI = [
   },
   {
     "inputs": [],
+    "name": "ReentrancyGuardInvalidState",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ReentrancyGuardReadOnlyReentrantCall",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ReentrancyGuardReentrantCall",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "Token0Missing",
     "type": "error"
   },
@@ -102,25 +117,12 @@ export const coverPoolABI = [
   },
   {
     "inputs": [],
-    "name": "WaitUntilEnoughObservations",
+    "name": "WaitUntilTwapLengthSufficient",
     "type": "error"
   },
   {
     "inputs": [],
     "name": "auctionLength",
-    "outputs": [
-      {
-        "internalType": "uint16",
-        "name": "",
-        "type": "uint16"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "blockTime",
     "outputs": [
       {
         "internalType": "uint16",
@@ -166,7 +168,7 @@ export const coverPoolABI = [
             "type": "bool"
           }
         ],
-        "internalType": "struct ICoverPool.BurnParams",
+        "internalType": "struct PoolsharkStructs.BurnCoverParams",
         "name": "params",
         "type": "tuple"
       }
@@ -361,6 +363,11 @@ export const coverPoolABI = [
           },
           {
             "internalType": "address",
+            "name": "poolToken",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
             "name": "inputPool",
             "type": "address"
           },
@@ -396,7 +403,7 @@ export const coverPoolABI = [
           },
           {
             "internalType": "uint16",
-            "name": "blockTime",
+            "name": "sampleInterval",
             "type": "uint16"
           },
           {
@@ -421,6 +428,13 @@ export const coverPoolABI = [
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -534,9 +548,14 @@ export const coverPoolABI = [
             "internalType": "bool",
             "name": "zeroForOne",
             "type": "bool"
+          },
+          {
+            "internalType": "bytes",
+            "name": "callbackData",
+            "type": "bytes"
           }
         ],
-        "internalType": "struct ICoverPool.MintParams",
+        "internalType": "struct PoolsharkStructs.MintCoverParams",
         "name": "params",
         "type": "tuple"
       }
@@ -639,6 +658,19 @@ export const coverPoolABI = [
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "poolToken",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -648,11 +680,6 @@ export const coverPoolABI = [
     ],
     "name": "positions0",
     "outputs": [
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
       {
         "internalType": "uint160",
         "name": "claimPriceLast",
@@ -702,11 +729,6 @@ export const coverPoolABI = [
     ],
     "name": "positions1",
     "outputs": [
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
       {
         "internalType": "uint160",
         "name": "claimPriceLast",
@@ -822,6 +844,19 @@ export const coverPoolABI = [
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "sampleInterval",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "components": [
@@ -851,7 +886,7 @@ export const coverPoolABI = [
             "type": "bool"
           }
         ],
-        "internalType": "struct ICoverPool.SnapshotParams",
+        "internalType": "struct PoolsharkStructs.SnapshotCoverParams",
         "name": "params",
         "type": "tuple"
       }
@@ -860,11 +895,6 @@ export const coverPoolABI = [
     "outputs": [
       {
         "components": [
-          {
-            "internalType": "address",
-            "name": "owner",
-            "type": "address"
-          },
           {
             "internalType": "uint160",
             "name": "claimPriceLast",
@@ -963,6 +993,19 @@ export const coverPoolABI = [
       }
     ],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "syncLatestTick",
+    "outputs": [
+      {
+        "internalType": "int24",
+        "name": "",
+        "type": "int24"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {

@@ -9,19 +9,30 @@ import { DyDxMath } from "../../../utils/math/dydxMath";
 import { TickMath } from "../../../utils/math/tickMath";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
+import { useAccount, useSigner } from "wagmi";
+import { gasEstimateRangeBurn } from "../../../utils/gas";
 
-export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
-  const [rangePoolAddress, rangePositionData, tokenIn, tokenOut] =
-    useRangeLimitStore((state) => [
-      state.rangePoolAddress,
-      state.rangePositionData,
-      state.tokenIn,
-      state.tokenOut,
-    ]);
+export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
+  const [
+    rangePoolAddress,
+    rangePositionData,
+    rangeMintParams,
+    tokenIn,
+    tokenOut,
+    setMintButtonState,
+  ] = useRangeLimitStore((state) => [
+    state.rangePoolAddress,
+    state.rangePositionData,
+    state.rangeMintParams,
+    state.tokenIn,
+    state.tokenOut,
+    state.setMintButtonState,
+  ]);
 
   const router = useRouter();
+  const { address } = useAccount();
 
-  const [sliderValue, setSliderValue] = useState(1);
+  const [sliderValue, setSliderValue] = useState(50);
   const [sliderOutput, setSliderOutput] = useState("1");
   const [burnPercent, setBurnPercent] = useState(BN_ZERO);
   const [amount0, setAmount0] = useState(BN_ZERO);
@@ -38,17 +49,12 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
   );
 
   useEffect(() => {
-    const percentInput = sliderValue;
-    const tokenAmountToBurn = BigNumber.from(percentInput)
-      .mul(BigNumber.from(rangePositionData.liquidity))
+    const tokenAmountToBurn = BigNumber.from(sliderValue)
+      .mul(BigNumber.from(rangePositionData.userLiquidity))
       .div(BigNumber.from(100));
     setBurnPercent(ethers.utils.parseUnits(sliderValue.toString(), 36));
-    console.log(
-      "new burn percent",
-      ethers.utils.parseUnits(sliderValue.toString(), 36).toString()
-    );
     setAmounts(JSBI.BigInt(tokenAmountToBurn), true);
-  }, [sliderValue]);
+  }, [sliderValue, rangePositionData.liquidity]);
 
   const handleChange = (event: any) => {
     if (Number(event.target.value) != 0) {
@@ -93,6 +99,46 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
     }
   }
 
+  //////////////////Slider
+
+  useEffect(() => {
+    setSliderValue(50);
+  }, [router.isReady]);
+
+  ////////////////////////////////Gas Fees Estimation
+  const [burnGasFee, setBurnGasFee] = useState("$0.00");
+  const [burnGasLimit, setBurnGasLimit] = useState(BN_ZERO);
+
+  useEffect(() => {
+    if (
+      signer &&
+      address &&
+      rangePositionData.poolId &&
+      rangePositionData.positionId &&
+      burnPercent != BN_ZERO
+    ) {
+      updateGasFee();
+    }
+  }, [sliderValue, rangePositionData.poolId, rangePositionData.positionId, signer, address]);
+
+  async function updateGasFee() {
+    const newBurnGasFee = await gasEstimateRangeBurn(
+      rangePositionData.poolId,
+      address,
+      rangePositionData.positionId,
+      burnPercent,
+      signer
+    );
+    setBurnGasFee(newBurnGasFee.formattedPrice);
+    setBurnGasLimit(newBurnGasFee.gasUnits.mul(250).div(100));
+  }
+
+  ////////////////////////////////Mint Button Handler
+
+  useEffect(() => {
+    setMintButtonState();
+  }, [rangeMintParams.tokenInAmount]);
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
@@ -131,7 +177,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                     className="w-7 cursor-pointer"
                   />
                 </div>
-                <div className="w-full  bg-[#0C0C0C] border border-[#1C1C1C] gap-4 px-4 py-4 rounded-xl mt-6 mb-6">
+                <div className="w-full  bg-[#0C0C0C] border border-[#1C1C1C] gap-4 px-4 py-4 rounded-[4px] mt-6 mb-6">
                   <div className="flex justify-between items-center">
                     <div className="text-3xl ">{sliderValue}%</div>
                     <div className="md:flex items-center hidden md:text-base text-sm gap-x-4">
@@ -177,7 +223,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                       ~$
                       {tokenOrder
                         ? Number(
-                            tokenIn.rangeUSDPrice *
+                            tokenIn.USDPrice *
                               parseFloat(
                                 ethers.utils.formatUnits(
                                   amount0,
@@ -186,7 +232,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                               )
                           ).toFixed(2)
                         : Number(
-                            tokenOut.rangeUSDPrice *
+                            tokenOut.USDPrice *
                               parseFloat(
                                 ethers.utils.formatUnits(
                                   amount1,
@@ -197,7 +243,9 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                     </span>
                   </div>
                   <div className="flex items-end justify-between mt-2 mb-3">
-                    <span className="text-3xl">{sliderOutput}</span>
+                    <span className="text-3xl">
+                      {Number(sliderOutput).toPrecision()}
+                    </span>
                     <div className="flex items-center gap-x-2">
                       <button
                         onClick={() => handleSliderButton(100)}
@@ -218,7 +266,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                       ~$
                       {tokenOrder
                         ? Number(
-                            tokenOut.rangeUSDPrice *
+                            tokenOut.USDPrice *
                               parseFloat(
                                 ethers.utils.formatUnits(
                                   amount1,
@@ -227,7 +275,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                               )
                           ).toFixed(2)
                         : Number(
-                            tokenIn.rangeUSDPrice *
+                            tokenIn.USDPrice *
                               parseFloat(
                                 ethers.utils.formatUnits(
                                   amount0,
@@ -243,7 +291,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                         tokenOrder
                           ? ethers.utils.formatUnits(amount1, tokenIn.decimals)
                           : ethers.utils.formatUnits(amount0, tokenIn.decimals)
-                      ).toFixed(2)}
+                      ).toPrecision(5)}
                     </span>
                     <div className="flex items-center gap-x-2">
                       <button
@@ -262,14 +310,17 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, address }) {
                 <RangeRemoveLiqButton
                   poolAddress={rangePoolAddress}
                   address={address}
-                  positionId={rangePositionData.id}
+                  positionId={rangePositionData.positionId}
                   burnPercent={burnPercent}
                   closeModal={() => {
+                    //if (burnPercent==BigNumber.from('0x4b3b4ca85a86c47a098a224000000000')) {
                     if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
-                      router.push("/pool");
+                      router.push("/range");
                     }
                   }}
+                  gasLimit={burnGasLimit}
                   setIsOpen={setIsOpen}
+                  disabled={burnGasFee === "$0.00"}
                 />
               </Dialog.Panel>
             </Transition.Child>

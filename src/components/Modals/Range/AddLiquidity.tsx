@@ -15,20 +15,30 @@ import { TickMath } from "../../../utils/math/tickMath";
 import { ethers, BigNumber } from "ethers";
 import JSBI from "jsbi";
 import { DyDxMath } from "../../../utils/math/dydxMath";
-import { chainIdsToNamesForGitTokenList } from "../../../utils/chains";
+import {
+  chainIdsToNamesForGitTokenList,
+  chainProperties,
+} from "../../../utils/chains";
 import RangeMintDoubleApproveButton from "../../Buttons/RangeMintDoubleApproveButton";
 import RangeMintApproveButton from "../../Buttons/RangeMintApproveButton";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
+import { gasEstimateRangeMint } from "../../../utils/gas";
+import { useRouter } from "next/router";
+import { inputHandler } from "../../../utils/math/valueMath";
 
-export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
+export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const [
     rangePoolAddress,
+    rangePoolData,
     rangeMintParams,
     pairSelected,
+    setPairSelected,
     tokenIn,
+    setTokenInAllowance,
     setTokenInBalance,
     setTokenInAmount,
     tokenOut,
+    setTokenOutAllowance,
     setTokenOutBalance,
     setTokenOutAmount,
     rangePositionData,
@@ -40,14 +50,19 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     setNeedsBalanceIn,
     needsBalanceOut,
     setNeedsBalanceOut,
+    setMintButtonState,
   ] = useRangeLimitStore((state) => [
     state.rangePoolAddress,
+    state.rangePoolData,
     state.rangeMintParams,
     state.pairSelected,
+    state.setPairSelected,
     state.tokenIn,
+    state.setTokenInRangeAllowance,
     state.setTokenInBalance,
     state.setTokenInAmount,
     state.tokenOut,
+    state.setTokenOutRangeAllowance,
     state.setTokenOutBalance,
     state.setTokenOutAmount,
     state.rangePositionData,
@@ -59,14 +74,17 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     state.setNeedsBalanceIn,
     state.needsBalanceOut,
     state.setNeedsBalanceOut,
+    state.setMintButtonState,
   ]);
 
-  const { bnInput, maxBalance, inputBox } = useInputBox();
-  const [amount0, setAmount0] = useState(BN_ZERO);
-  const [amount1, setAmount1] = useState(BN_ZERO);
+  const { bnInput, maxBalance, inputBox, setDisplay } = useInputBox();
+  const { bnInput: bnInput2, maxBalance: maxBalance2, inputBox: inputBox2, setDisplay: setDisplay2 } = useInputBox();
+  const router = useRouter();
+  const provider = useProvider();
+  const { address } = useAccount();
+  const signer = new ethers.VoidSigner(address, provider);
+
   const [disabled, setDisabled] = useState(false);
-  const [allowanceIn, setAllowanceIn] = useState(BN_ZERO);
-  const [allowanceOut, setAllowanceOut] = useState(BN_ZERO);
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
     Number(rangePositionData.min)
   );
@@ -87,100 +105,67 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     network: { chainId },
   } = useProvider();
 
+  useEffect(() => {
+    setTokenInAmount(BN_ZERO)
+    setTokenOutAmount(BN_ZERO)
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
+  }, [chainId]);
+
+  useEffect(() => {
+    if (tokenIn.address && tokenOut.address) {
+      setPairSelected(true)
+    }
+  }, [tokenIn, tokenOut]);
+
+  ////////////////////////////////Allowances
+
   const { data: tokenInAllowance } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolAddress],
+    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
     chainId: 421613,
-    watch: needsAllowanceIn,
-    enabled:
-      isConnected &&
-      rangePoolAddress != undefined &&
-      tokenIn.address != undefined &&
-      needsAllowanceIn,
+    watch: needsAllowanceIn && router.isReady,
+    enabled: isConnected,
     onSuccess(data) {
-      console.log("Success");
+      //console.log("Success");
       setNeedsAllowanceIn(false);
     },
     onError(error) {
       console.log("Error", error);
     },
-    onSettled(data, error) {
-      console.log(
-        "allowance check",
-        allowanceIn.lt(bnInput),
-        allowanceIn.toString()
-      );
-      console.log("Allowance Settled", {
-        data,
-        error,
-        rangePoolAddress,
-        tokenIn,
-      });
-    },
   });
-
-  useEffect(() => {
-    if (tokenInAllowance) setAllowanceIn(tokenInAllowance);
-  }, [tokenInAllowance]);
 
   const { data: tokenOutAllowance } = useContractRead({
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, rangePoolAddress],
+    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
     chainId: 421613,
-    watch: needsAllowanceOut,
-    enabled:
-      isConnected &&
-      rangePoolAddress != undefined &&
-      tokenOut.address != undefined &&
-      needsAllowanceOut,
+    watch: needsAllowanceOut && router.isReady,
+    enabled: isConnected,
     onSuccess(data) {
-      console.log("Success");
+      //console.log("Success");
       setNeedsAllowanceOut(false);
     },
     onError(error) {
       console.log("Error", error);
     },
-    onSettled(data, error) {
-      console.log(
-        "allowance check out",
-        allowanceOut.lt(amount1),
-        allowanceOut.toString()
-      );
-      console.log("Allowance Settled", {
-        data,
-        error,
-        rangePoolAddress,
-        tokenIn,
-      });
-    },
   });
 
   useEffect(() => {
-    if (tokenOutAllowance) {
-      console.log("token out allowance check", tokenOutAllowance.toString());
-      setAllowanceOut(tokenOutAllowance);
-    }
-  }, [tokenOutAllowance]);
-
-  useEffect(() => {
-    setAmounts();
-  }, [bnInput]);
-
-  useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
-  }, [chainId]);
+    setTokenInAllowance(tokenInAllowance);
+    setTokenOutAllowance(tokenOutAllowance);
+  }, [tokenInAllowance, tokenOutAllowance]);
 
   ////////////////////////////////Balances
 
   const { data: tokenInBal } = useBalance({
     address: address,
     token: tokenIn.address,
-    enabled: tokenIn.address != undefined && needsBalanceIn,
+    enabled: tokenIn.address != undefined,
     watch: needsBalanceIn,
+    chainId: 421613,
     onSuccess(data) {
       setNeedsBalanceIn(false);
     },
@@ -191,6 +176,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     token: tokenOut.address,
     enabled: tokenOut.address != undefined && needsBalanceOut,
     watch: needsBalanceOut,
+    chainId: 421613,
     onSuccess(data) {
       setNeedsBalanceOut(false);
     },
@@ -209,30 +195,31 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     }
   }, [tokenInBal, tokenOutBal]);
 
-  //////////////////////////////
+  //////////////////////////////Button states -> to be removed (on store)
 
   // disabled messages
   useEffect(() => {
     if (
-      Number(ethers.utils.formatUnits(bnInput, tokenIn.decimals)) >
+      Number(ethers.utils.formatUnits(rangeMintParams.tokenInAmount, tokenIn.decimals)) >
       Number(tokenIn.userBalance)
     ) {
       setButtonState("balance0");
     }
     if (
-      Number(ethers.utils.formatUnits(amount1, tokenIn.decimals)) >
+      Number(ethers.utils.formatUnits(rangeMintParams.tokenOutAmount, tokenIn.decimals)) >
       Number(tokenOut.userBalance)
     ) {
       setButtonState("balance1");
     }
-    if (Number(ethers.utils.formatUnits(bnInput, tokenIn.decimals)) === 0) {
+    if (rangeMintParams.tokenInAmount.eq(BN_ZERO) &&
+        rangeMintParams.tokenOutAmount.eq(BN_ZERO)) {
       setButtonState("amount");
     }
     if (
-      Number(ethers.utils.formatUnits(bnInput, tokenIn.decimals)) === 0 ||
-      Number(ethers.utils.formatUnits(bnInput, tokenIn.decimals)) >
+      rangeMintParams.tokenInAmount.eq(BN_ZERO) ||
+      Number(ethers.utils.formatUnits(rangeMintParams.tokenInAmount, tokenIn.decimals)) >
         Number(tokenIn.userBalance) ||
-      Number(ethers.utils.formatUnits(amount1, tokenIn.decimals)) >
+      Number(ethers.utils.formatUnits(rangeMintParams.tokenOutAmount, tokenOut.decimals)) >
         Number(tokenOut.userBalance)
     ) {
       setDisabled(true);
@@ -241,45 +228,158 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
     }
   }, [bnInput, tokenIn.userBalance, tokenOut.userBalance, disabled]);
 
-  function setAmounts() {
-    try {
-      if (Number(ethers.utils.formatUnits(bnInput)) !== 0) {
-        const liquidity =
-          JSBI.greaterThanOrEqual(rangeSqrtPrice, lowerSqrtPrice) &&
-          JSBI.lessThanOrEqual(rangeSqrtPrice, upperSqrtPrice)
-            ? DyDxMath.getLiquidityForAmounts(
-                tokenOrder ? rangeSqrtPrice : lowerSqrtPrice,
-                tokenOrder ? upperSqrtPrice : rangeSqrtPrice,
-                rangeSqrtPrice,
-                tokenOrder ? BN_ZERO : bnInput,
-                tokenOrder ? bnInput : BN_ZERO
-              )
-            : DyDxMath.getLiquidityForAmounts(
-                lowerSqrtPrice,
-                upperSqrtPrice,
-                rangeSqrtPrice,
-                tokenOrder ? BN_ZERO : bnInput,
-                tokenOrder ? bnInput : BN_ZERO
-              );
-        console.log("liquidity check", liquidity);
-        const tokenOutAmount = JSBI.greaterThan(liquidity, ZERO)
-          ? tokenOrder
-            ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
-            : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
-          : ZERO;
-        // set amount based on bnInput
-        setTokenInAmount(bnInput);
-        setTokenOutAmount(BigNumber.from(String(tokenOutAmount)));
-        setDisabled(false);
-      } else {
-        setAmount1(BN_ZERO);
-        setAmount0(BN_ZERO);
-        setDisabled(true);
+  ////////////////////////////////Amounts
+
+  const [amountInDisabled, setAmountInDisabled] = useState(undefined)
+  const [amountOutDisabled, setAmountOutDisabled] = useState(undefined)
+
+  useEffect(() => {
+    if (amountInDisabled == undefined) {
+      const token0Disabled = JSBI.lessThanOrEqual(upperSqrtPrice, rangeSqrtPrice)
+      const token1Disabled = JSBI.greaterThanOrEqual(lowerSqrtPrice, rangeSqrtPrice)
+      const tokenInDisabled = tokenIn.callId == 0 ? token0Disabled : token1Disabled
+      const tokenOutDisabled = tokenOut.callId == 0 ? token0Disabled : token1Disabled
+      setAmountInDisabled(tokenInDisabled)
+      setAmountOutDisabled(tokenOutDisabled)
+    }
+  }, [lowerSqrtPrice, upperSqrtPrice]);
+
+  const handleInput1 = (e) => {
+    const [name, value, bnValue] = inputHandler(e)
+    if (name === "tokenIn") {
+      setDisplay(value)
+      if (!amountOutDisabled)
+        setAmounts(true, bnValue)
+      else {
+        setTokenInAmount(bnValue)
+        setDisplay2('')
       }
+
+    } else if (name === "tokenOut") {
+      setDisplay2(value)
+      if (!amountInDisabled)
+        setAmounts(false, bnValue)
+      else {
+        setTokenOutAmount(bnValue)
+        setDisplay('')
+      }
+    }
+  };
+
+  function setAmounts(amountInSet: boolean, amountSet: BigNumber) {
+    try {
+        const isToken0 = amountInSet ? tokenIn.callId == 0
+                                     : tokenOut.callId == 0
+        const inputBn = amountSet
+        if (amountSet.gt(BN_ZERO)) {
+          let liquidity = ZERO;
+          if(JSBI.greaterThanOrEqual(rangeSqrtPrice, lowerSqrtPrice) &&
+             JSBI.lessThan(rangeSqrtPrice, upperSqrtPrice)) {
+              liquidity = DyDxMath.getLiquidityForAmounts(
+                isToken0 ? rangeSqrtPrice : lowerSqrtPrice,
+                isToken0 ? upperSqrtPrice : rangeSqrtPrice,
+                rangeSqrtPrice,
+                isToken0 ? BN_ZERO : inputBn,
+                isToken0 ? inputBn : BN_ZERO
+              )
+          } else if (JSBI.lessThan(rangeSqrtPrice, lowerSqrtPrice)) {
+              // only token0 input allowed
+              if (isToken0) {
+                liquidity = DyDxMath.getLiquidityForAmounts(
+                  lowerSqrtPrice,
+                  upperSqrtPrice,
+                  rangeSqrtPrice,
+                  BN_ZERO,
+                  inputBn
+                )
+              } else {
+                // warn the user the input is invalid
+              }
+          } else if (JSBI.greaterThanOrEqual(rangeSqrtPrice, upperSqrtPrice)) {
+              if (!isToken0) {
+                liquidity = DyDxMath.getLiquidityForAmounts(
+                  lowerSqrtPrice,
+                  upperSqrtPrice,
+                  rangeSqrtPrice,
+                  inputBn,
+                  BN_ZERO
+                )
+              } else {
+                // warn the user the input is invalid
+              }
+          }
+          const outputJsbi = JSBI.greaterThan(liquidity, ZERO)
+            ? isToken0
+              ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
+              : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
+            : ZERO;
+          const outputBn = BigNumber.from(String(outputJsbi))
+          // set amount based on inputBn
+          if (amountInSet) {
+            setTokenInAmount(inputBn);
+            setTokenOutAmount(outputBn);
+            setDisplay2(parseFloat(ethers.utils.formatUnits(outputBn, tokenOut.decimals)).toPrecision(6))
+          } else {
+            setTokenInAmount(BigNumber.from(String(outputJsbi)));
+            setTokenOutAmount(inputBn);
+            setDisplay(parseFloat(ethers.utils.formatUnits(outputBn, tokenIn.decimals)).toPrecision(6))
+          }
+          setDisabled(false);
+        } else {
+          setTokenInAmount(BN_ZERO);
+          setTokenOutAmount(BN_ZERO);
+          if (amountInSet) {
+            setDisplay2('')
+          } else {
+            setDisplay('')
+          }
+          setDisabled(true);
+        }
     } catch (error) {
       console.log(error);
     }
   }
+
+  ////////////////////////////////Mint Gas Fee
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
+
+  useEffect(() => {
+    if (
+      rangeMintParams.tokenInAmount &&
+      rangeMintParams.tokenOutAmount &&
+      (
+        rangeMintParams.tokenInAmount.gt(BN_ZERO) ||
+        rangeMintParams.tokenOutAmount.gt(BN_ZERO)
+      ) &&
+      rangePositionData.min &&
+      rangePositionData.max &&
+      Number(rangePositionData.min) < Number(rangePositionData.max)
+    ) {
+      updateGasFee();
+    }
+  }, [tokenInAllowance, tokenOutAllowance, rangeMintParams, bnInput]);
+
+  async function updateGasFee() {
+    const newGasFee = await gasEstimateRangeMint(
+      rangePoolAddress,
+      address,
+      rangePositionData.min,
+      rangePositionData.max,
+      rangeMintParams.tokenInAmount,
+      rangeMintParams.tokenOutAmount,
+      signer,
+      rangePositionData.positionId
+    );
+    setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
+  }
+
+  ////////////////////////////////Mint Button State
+
+  useEffect(() => {
+    setMintButtonState();
+  }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount]);
+
+  ////////////////////////////////
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -324,32 +424,22 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                     <div className="flex items-end justify-between text-[11px] text-grey1">
                       <span>
                         ~$
-                        {tokenOrder
-                          ? Number(
-                              tokenOut.rangeUSDPrice *
+                        {Number(
+                              tokenIn.USDPrice *
                                 parseFloat(
                                   ethers.utils.formatUnits(
-                                    amount1,
-                                    tokenIn.decimals
-                                  )
-                                )
-                            ).toFixed(2)
-                          : Number(
-                              tokenIn.rangeUSDPrice *
-                                parseFloat(
-                                  ethers.utils.formatUnits(
-                                    amount0,
+                                    rangeMintParams.tokenInAmount,
                                     tokenIn.decimals
                                   )
                                 )
                             ).toFixed(2)}
                       </span>
                       <span>
-                        BALANCE: {tokenIn.userBalance ? 0 : tokenIn.userBalance}
+                        BALANCE: {tokenIn.userBalance ? tokenIn.userBalance : 0}
                       </span>
                     </div>
                     <div className="flex items-end justify-between mt-2 mb-3">
-                      {inputBox("0")}
+                      {inputBox("0", "tokenIn", handleInput1, amountInDisabled)}
                       <div className="flex items-center gap-x-2">
                         {isConnected && stateChainName === "arbitrumGoerli" ? (
                           <button
@@ -371,7 +461,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                       <span>
                         ~$
                         {(
-                          Number(tokenOut.rangeUSDPrice) *
+                          Number(tokenOut.USDPrice) *
                           Number(
                             ethers.utils.formatUnits(
                               rangeMintParams.tokenOutAmount,
@@ -382,19 +472,12 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                       </span>
                       <span>
                         BALANCE:{" "}
-                        {tokenOut.userBalance ? 0 : tokenOut.userBalance}
+                        {tokenOut.userBalance ? tokenOut.userBalance : 0}
                       </span>
                     </div>
                     <div className="flex items-end justify-between mt-2 mb-3">
                       <span className="text-3xl">
-                        {Number(rangeMintParams.tokenOutAmount) != 0
-                          ? Number(
-                              ethers.utils.formatUnits(
-                                rangeMintParams.tokenOutAmount,
-                                tokenIn.decimals
-                              )
-                            ).toPrecision(5)
-                          : 0}
+                        {inputBox2("0", "tokenOut", handleInput1, amountOutDisabled)}
                       </span>
                       <div className="flex items-center gap-x-2">
                         <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
@@ -404,8 +487,11 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                       </div>
                     </div>
                   </div>
-                  {disabled === true ? (
-                    <button disabled={disabled} className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80">
+                  {!tokenInAllowance || !tokenOutAllowance ? (
+                    <button
+                      disabled={disabled}
+                      className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
+                    >
                       {buttonState === "amount" ? <>Input Amount</> : <></>}
                       {buttonState === "balance0" ? (
                         <>Insufficient {tokenIn.symbol} Balance</>
@@ -420,39 +506,54 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen, address }) {
                     </button>
                   ) : (
                     <>
-                      {allowanceIn.gte(amount0) && allowanceOut.gte(amount1) ? (
+                      {tokenInAllowance?.gte(rangeMintParams.tokenInAmount) &&
+                      tokenOutAllowance?.gte(rangeMintParams.tokenOutAmount) ? (
                         <RangeAddLiqButton
+                          routerAddress={
+                            chainProperties["arbitrumGoerli"]["routerAddress"]
+                          }
                           poolAddress={rangePoolAddress}
                           address={address}
-                          lower={BigNumber.from(rangePositionData.min)}
-                          upper={BigNumber.from(rangePositionData.max)}
-                          amount0={amount0}
-                          amount1={amount1}
-                          disabled={disabled}
+                          lower={rangePositionData.min}
+                          upper={rangePositionData.max}
+                          amount0={rangeMintParams.tokenInAmount}
+                          amount1={rangeMintParams.tokenOutAmount}
+                          disabled={rangeMintParams.disabled}
                           setIsOpen={setIsOpen}
-                          positionId={rangePositionData.id}
+                          positionId={rangePositionData.positionId}
+                          gasLimit={mintGasLimit}
                         />
-                      ) : (allowanceIn.lt(amount0) &&
-                          allowanceOut.lt(amount1)) ||
+                      ) : (tokenInAllowance.lt(rangeMintParams.tokenInAmount) &&
+                          tokenOutAllowance.lt(
+                            rangeMintParams.tokenOutAmount
+                          )) ||
                         doubleApprove ? (
                         <RangeMintDoubleApproveButton
-                          poolAddress={rangePoolAddress}
+                          routerAddress={
+                            chainProperties["arbitrumGoerli"]["routerAddress"]
+                          }
                           tokenIn={tokenIn}
                           tokenOut={tokenOut}
-                          amount0={amount0}
-                          amount1={amount1}
+                          amount0={rangeMintParams.tokenInAmount}
+                          amount1={rangeMintParams.tokenOutAmount}
                         />
-                      ) : !doubleApprove && allowanceIn.lt(amount0) ? (
+                      ) : !doubleApprove &&
+                        tokenInAllowance.lt(rangeMintParams.tokenInAmount) ? (
                         <RangeMintApproveButton
-                          poolAddress={rangePoolAddress}
+                          routerAddress={
+                            chainProperties["arbitrumGoerli"]["routerAddress"]
+                          }
                           approveToken={tokenIn}
-                          amount={amount0}
+                          amount={rangeMintParams.tokenInAmount}
                         />
-                      ) : !doubleApprove && allowanceOut.lt(amount1) ? (
+                      ) : !doubleApprove &&
+                        tokenOutAllowance.lt(rangeMintParams.tokenOutAmount) ? (
                         <RangeMintApproveButton
-                          poolAddress={rangePoolAddress}
+                          routerAddress={
+                            chainProperties["arbitrumGoerli"]["routerAddress"]
+                          }
                           approveToken={tokenOut}
-                          amount={amount1}
+                          amount={rangeMintParams.tokenOutAmount}
                         />
                       ) : null}
                     </>

@@ -1,18 +1,17 @@
 import { BigNumber, ethers } from "ethers";
 import { tokenCover } from "../utils/types";
-import { BN_ZERO, ZERO } from "../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import {
   tokenOneAddress,
   tokenZeroAddress,
 } from "../constants/contractAddresses";
 import { create } from "zustand";
 import { getCoverPoolFromFactory } from "../utils/queries";
-import JSBI from "jsbi";
+import { volatilityTiers } from "../utils/pools";
 
 type CoverState = {
   //poolAddress for current token pairs
   coverPoolAddress: `0x${string}`;
-  volatilityTierId: number;
   coverPoolData: any;
   //tickSpacing
   //claimTick
@@ -24,9 +23,10 @@ type CoverState = {
   tokenOut: tokenCover;
   //true if both tokens selected, false if only one token selected
   pairSelected: boolean;
+  latestTick: number;
   coverMintParams: {
-    tokenInAmount: JSBI;
-    tokenOutAmount: JSBI;
+    tokenInAmount: BigNumber;
+    tokenOutAmount: BigNumber;
     gasFee: string;
     gasLimit: BigNumber;
     disabled: boolean;
@@ -49,17 +49,20 @@ type CoverAction = {
   //setPairSelected: (pairSelected: boolean) => void;
   //tokenIn
   setTokenIn: (tokenOut: tokenCover, newToken: tokenCover) => void;
-  setTokenInAmount: (amount: string) => void;
+  setTokenInAmount: (amount: BigNumber) => void;
   setTokenInCoverUSDPrice: (price: number) => void;
   setTokenInCoverAllowance: (allowance: string) => void;
   setTokenInBalance: (balance: string) => void;
-  setCoverAmountIn: (amount: JSBI) => void;
+  //setCoverAmountIn: (amount: BigNumber) => void;
   //tokenOut
   setTokenOut: (tokenOut: tokenCover, newToken: tokenCover) => void;
+  setTokenOutAmount: (amount: BigNumber) => void;
   setTokenOutCoverUSDPrice: (price: number) => void;
   setTokenOutBalance: (balance: string) => void;
   setTokenOutCoverAllowance: (allowance: string) => void;
-  setCoverAmountOut: (amount: JSBI) => void;
+  //setCoverAmountOut: (amount: JSBI) => void;
+  //Latest tick
+  setLatestTick: (tick: number) => void;
   //Claim tick
   setClaimTick: (tick: number) => void;
   setMinTick: (coverPositionData, tick: BigNumber) => void;
@@ -86,9 +89,15 @@ type CoverAction = {
 
 const initialCoverState: CoverState = {
   //pools
-  coverPoolAddress: "0x00",
-  volatilityTierId: 0,
-  coverPoolData: {},
+  coverPoolAddress: ZERO_ADDRESS as `0x${string}`,
+  coverPoolData: {
+    volatilityTier: {
+      feeAmount: 1000,
+      tickSpread: 20,
+      twapLength: 12,
+      auctionLength: 12
+    }
+  },
   coverPositionData: {},
   coverSwapSlippage: "0.5",
   //this should be false in production, initial value is true because tokenAddresses are hardcoded for testing
@@ -98,11 +107,11 @@ const initialCoverState: CoverState = {
     callId: 0,
     name: "Wrapped Ether",
     symbol: "WETH",
-    logoURI: "/static/images/eth_icon.png",
+    logoURI: "/static/images/eth_icon.svg",
     address: tokenZeroAddress,
     decimals: 18,
     userBalance: 0.0,
-    userPoolAllowance: 0.0,
+    userRouterAllowance: 0.0,
     coverUSDPrice: 0.0,
   } as tokenCover,
   //
@@ -114,15 +123,16 @@ const initialCoverState: CoverState = {
     address: tokenOneAddress,
     decimals: 18,
     userBalance: 0.0,
-    userPoolAllowance: 0.0,
+    userRouterAllowance: 0.0,
     coverUSDPrice: 0.0,
   } as tokenCover,
+  latestTick: 0,
   //
   claimTick: 0,
   //
   coverMintParams: {
-    tokenInAmount: ZERO,
-    tokenOutAmount: ZERO,
+    tokenInAmount: BN_ZERO,
+    tokenOutAmount: BN_ZERO,
     gasFee: "$0.00",
     gasLimit: BN_ZERO,
     disabled: true,
@@ -141,13 +151,13 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   coverPoolData: initialCoverState.coverPoolData,
   coverPositionData: initialCoverState.coverPositionData,
   coverSwapSlippage: initialCoverState.coverSwapSlippage,
-  volatilityTierId: initialCoverState.volatilityTierId,
   pairSelected: initialCoverState.pairSelected,
   //tokenIn
   tokenIn: initialCoverState.tokenIn,
   //tokenOut
   tokenOut: initialCoverState.tokenOut,
   //tick
+  latestTick: initialCoverState.latestTick,
   claimTick: initialCoverState.claimTick,
   coverMintParams: initialCoverState.coverMintParams,
   needsRefetch: initialCoverState.needsRefetch,
@@ -192,16 +202,14 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       }));
     }
   },
-  setTokenInAmount: (newAmount: string) => {
-    //TODO this is wrong -> should update mintparams and not tokenIn
+  setTokenInAmount: (newAmount: BigNumber) => {
     set((state) => ({
-      tokenIn: {
-        ...state.tokenIn,
-        userBalance: Number(newAmount),
+      coverMintParams: {
+        ...state.coverMintParams,
+        tokenInAmount: newAmount,
       },
     }));
   },
-
   setTokenInCoverUSDPrice: (newPrice: number) => {
     set((state) => ({
       tokenIn: {
@@ -215,7 +223,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     set((state) => ({
       tokenIn: {
         ...state.tokenIn,
-        userPoolAllowance: Number(newAllowance),
+        userRouterAllowance: Number(newAllowance),
       },
     }));
   },
@@ -227,14 +235,14 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       },
     }));
   },
-  setCoverAmountIn: (newAmount: JSBI) => {
+  /* setCoverAmountIn: (newAmount: BigNumber) => {
     set((state) => ({
       coverMintParams: {
         ...state.coverMintParams,
         tokenInAmount: newAmount,
       },
     }));
-  },
+  }, */
   setTokenOutCoverUSDPrice: (newPrice: number) => {
     set((state) => ({
       tokenOut: {
@@ -274,6 +282,14 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       }));
     }
   },
+  setTokenOutAmount: (newAmount: BigNumber) => {
+    set((state) => ({
+      coverMintParams: {
+        ...state.coverMintParams,
+        tokenOutAmount: newAmount,
+      },
+    }));
+  },
   setTokenOutBalance: (newBalance: string) => {
     set((state) => ({
       tokenOut: {
@@ -286,18 +302,18 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     set((state) => ({
       tokenOut: {
         ...state.tokenOut,
-        userPoolAllowance: Number(newAllowance),
+        userRouterAllowance: Number(newAllowance),
       },
     }));
   },
-  setCoverAmountOut: (newAmount: JSBI) => {
+  /* setCoverAmountOut: (newAmount: JSBI) => {
     set((state) => ({
       coverMintParams: {
         ...state.coverMintParams,
         tokenOutAmount: newAmount,
       },
     }));
-  },
+  }, */
   setCoverPoolAddress: (coverPoolAddress: `0x${string}`) => {
     set(() => ({
       coverPoolAddress: coverPoolAddress,
@@ -316,6 +332,11 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   setCoverSlippage: (coverSlippage: string) => {
     set(() => ({
       coverSwapSlippage: coverSlippage,
+    }));
+  },
+  setLatestTick: (latestTick: number) => {
+    set(() => ({
+      latestTick: latestTick,
     }));
   },
   setClaimTick: (claimTick: number) => {
@@ -386,7 +407,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         address: state.tokenOut.address,
         decimals: state.tokenOut.decimals,
         userBalance: state.tokenOut.userBalance,
-        userPoolAllowance: state.tokenOut.userPoolAllowance,
+        userRouterAllowance: state.tokenOut.userRouterAllowance,
         coverUSDPrice: state.tokenOut.coverUSDPrice,
       },
       tokenOut: {
@@ -400,7 +421,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         address: state.tokenIn.address,
         decimals: state.tokenIn.decimals,
         userBalance: state.tokenIn.userBalance,
-        userPoolAllowance: state.tokenIn.userPoolAllowance,
+        userRouterAllowance: state.tokenIn.userRouterAllowance,
         coverUSDPrice: state.tokenIn.coverUSDPrice,
       },
       needsAllowance: true,
@@ -412,23 +433,36 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         tokenIn.address,
         tokenOut.address
       );
-      const volatilityId = volatility.id;
-      const dataLength = pool["data"]["coverPools"].length;
+      let dataLength = pool["data"]["coverPools"].length;
+      let matchedVolatility = false;
       for (let i = 0; i < dataLength; i++) {
         if (
-          (volatilityId == 0 &&
-            pool["data"]["coverPools"][i]["volatilityTier"]["tickSpread"] ==
-              20) ||
-          (volatilityId == 1 &&
-            pool["data"]["coverPools"][i]["volatilityTier"]["tickSpread"] == 40)
+          pool["data"]["coverPools"][i]["volatilityTier"]["feeAmount"] ==
+          volatility
         ) {
+          matchedVolatility = true;
           set(() => ({
             coverPoolAddress: pool["data"]["coverPools"][i]["id"],
             coverPoolData: pool["data"]["coverPools"][i],
-            volatilityTierId: volatilityId,
           }));
         }
       }
+      dataLength = pool["data"]["volatilityTiers"].length
+      if (!matchedVolatility && dataLength > 0)
+        for (let idx=0; idx < dataLength; idx++) {
+          if (pool["data"]["volatilityTiers"]["feeAmount"] == Number(volatility)) {
+            set(() => ({
+              coverPoolAddress: ZERO_ADDRESS as `0x${string}`,
+              coverPoolData: {
+                volatilityTier: {
+                  feeAmount: pool["data"]["volatilityTiers"]["feeAmount"],
+                  tickSpread: pool["data"]["volatilityTiers"]["tickSpread"],
+                  twapLength: pool["data"]["volatilityTiers"]["twapLength"]
+                },
+              }
+            }));
+          }
+        }
     } catch (error) {
       console.log(error);
     }
@@ -442,31 +476,31 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
           parseFloat(
             ethers.utils.formatUnits(
               String(state.coverMintParams.tokenInAmount),
-              18
+              state.tokenIn.decimals
             )
           )
             ? "Insufficient Token Balance"
             : parseFloat(
                 ethers.utils.formatUnits(
                   String(state.coverMintParams.tokenInAmount),
-                  18
+                  state.tokenIn.decimals
                 )
               ) == 0
             ? "Enter Amount"
-            : "Create Cover",
+            : "Mint Cover Position",
         disabled:
           state.tokenIn.userBalance <
           parseFloat(
             ethers.utils.formatUnits(
               String(state.coverMintParams.tokenInAmount),
-              18
+              state.tokenIn.decimals
             )
           )
             ? true
             : parseFloat(
                 ethers.utils.formatUnits(
                   String(state.coverMintParams.tokenInAmount),
-                  18
+                  state.tokenIn.decimals
                 )
               ) == 0
             ? true
