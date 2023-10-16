@@ -21,6 +21,10 @@ export default function RangeMintButton({
   amount0,
   amount1,
   gasLimit,
+  setSuccessDisplay,
+  setErrorDisplay,
+  setIsLoading,
+  setTxHash
 }) {
   const [
     setNeedsRefetch,
@@ -37,8 +41,6 @@ export default function RangeMintButton({
     state.setNeedsBalanceIn,
     state.setNeedsBalanceOut,
   ]);
-  const [errorDisplay, setErrorDisplay] = useState(false);
-  const [successDisplay, setSuccessDisplay] = useState(false);
 
   useEffect(() => {}, [disabled]);
 
@@ -94,6 +96,18 @@ export default function RangeMintButton({
     },
   });
 
+  useEffect(() => {
+    if(isLoading) {
+      setIsLoading(true)
+    } else {
+      setIsLoading(false)
+    }
+  }, [isLoading]);
+  
+  useEffect(() => {
+    setTxHash(data?.hash)
+  }, [data]);
+
   return (
     <>
       <button
@@ -103,13 +117,6 @@ export default function RangeMintButton({
       >
         {buttonMessage}
       </button>
-      <PositionMintModal
-        errorDisplay={errorDisplay}
-        hash={data?.hash}
-        isLoading={isLoading}
-        successDisplay={successDisplay}
-        type={"range"}
-      />
     </>
   );
 }
