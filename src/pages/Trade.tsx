@@ -1286,7 +1286,7 @@ export default function Trade() {
             >
               ACTIVE ORDERS
             </button>
-            <button
+            {/*<button
               className={`px-5 py-2 w-full md:w-auto ${
                 !activeOrdersSelected
                   ? "bg-main1 border border-main"
@@ -1295,7 +1295,7 @@ export default function Trade() {
               onClick={() => setActiveOrdersSelected(false)}
             >
               ORDER HISTORY
-            </button>
+            </button>*/}
           </div>
         </div>
         <div className="overflow-hidden rounded-[4px] mt-3 bg-dark  border border-grey">
@@ -1381,7 +1381,6 @@ export default function Trade() {
                       </td>
                       <td className="text-left text-xs">
                         <div className="flex flex-col">
-                          {/* FOR EXACT PRICE   */}
                           <span>
                           <span className="text-grey1">1 {allLimitPosition.tokenIn.symbol} = </span> 
                             {
