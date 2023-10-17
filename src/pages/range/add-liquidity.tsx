@@ -11,7 +11,7 @@ import {
   useProvider,
 } from "wagmi";
 import { BigNumber, ethers } from "ethers";
-import { BN_ZERO, ZERO } from "../../utils/math/constants";
+import { BN_ZERO, ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import inputFilter from "../../utils/inputFilter";
 import { fetchRangeTokenUSDPrice } from "../../utils/tokens";
@@ -22,6 +22,7 @@ import { chainProperties } from "../../utils/chains";
 import router from "next/router";
 import { inputHandler } from "../../utils/math/valueMath";
 import SelectToken from "../../components/SelectToken";
+import { feeTiers } from "../../utils/pools";
 
 export default function AddLiquidity({}) {
   const [
@@ -113,6 +114,10 @@ export default function AddLiquidity({}) {
   }, [tokenIn, tokenOut]);
 
   ////////////////////////////////Pools
+
+  const [selectedFeeTier, setSelectedFeeTier] = useState(
+    feeTiers[0]
+  );
 
   /* useEffect(() => {
     updatePoolsFromStore();
@@ -677,9 +682,51 @@ export default function AddLiquidity({}) {
               )}
             </div>
           </div>
+          </div>
+        <div className="bg-dark w-full p-6 border border-grey mt-8 rounded-[4px]">
+        <h1 className="mb-4">SELECT A FEE TIER</h1>
+        <div className="flex md:flex-row flex-col justify-between mt-8 gap-x-16 gap-y-4">
+            {feeTiers.map((feeTier, feeTierIdx) => (
+              <div
+                onClick={() => setSelectedFeeTier(feeTier)}
+                key={feeTierIdx}
+                className={`bg-black p-4 w-full rounded-[4px] cursor-pointer transition-all ${
+                  selectedFeeTier === feeTier
+                    ? "border-grey1 border bg-grey/20"
+                    : "border border-grey"
+                }`}
+              >
+                <h1>{feeTier.tier} FEE</h1>
+                <h2 className="text-[11px] uppercase text-grey1 mt-2">
+                  {feeTier.text}
+                </h2>
+              </div>
+            ))}
+          </div>
+        </div>
+        {rangePoolAddress != ZERO_ADDRESS && (
+            <div className="bg-black border rounded-[4px] border-grey/50 p-5">
+              <p className="text-xs text-grey1 flex items-center gap-x-4 mb-5">
+                This pool does not exist so a starting price must be set in order to add liquidity.
+              </p>
+              <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
+                <span className="text-grey1 text-xs">STARTING PRICE</span>
+                <span className="text-white text-3xl">
+                    <input
+                      autoComplete="off"
+                      className="bg-black py-2 outline-none text-center w-full"
+                      placeholder="0"
+                      id="startPrice"
+                      type="text"
+                    />
+                </span>
+              </div>
+            </div>
+          )}
+        <div className="bg-dark mt-8">
+        </div>
           <RangePoolPreview />
         </div>
       </div>
-    </div>
   );
 }
