@@ -9,11 +9,18 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BN_ZERO } from '../../utils/math/constants';
+import { useConfigStore } from '../../hooks/useConfigStore';
 
 export default function RangeCompoundButton({ poolAddress, address, positionId }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
+
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
 
   //TO-DO: assess if collectFees() or collect true in burn
   const { config } = usePrepareContractWrite({
@@ -25,7 +32,7 @@ export default function RangeCompoundButton({ poolAddress, address, positionId }
           positionId,
           BN_ZERO
         ]],
-      chainId: 421613,
+      chainId: chainId,
   })
 
   const { data, isSuccess, write } = useContractWrite(config)

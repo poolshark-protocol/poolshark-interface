@@ -12,6 +12,7 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { ethers } from "ethers";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import PositionMintModal from "../Modals/PositionMint";
+import { useConfigStore } from "../../hooks/useConfigStore";
   
 
 export default function RangeCreateAndMintButton({
@@ -35,6 +36,12 @@ export default function RangeCreateAndMintButton({
   setIsLoading,
   setTxHash
 }) {
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
+
   const [
     setNeedsRefetch,
     setNeedsPosRefetch,
@@ -81,7 +88,7 @@ export default function RangeCreateAndMintButton({
       ], // range positions
       [], // limit positions
     ],
-    chainId: 421613,
+    chainId: chainId,
     overrides: {
       gasLimit: gasLimit,
     },

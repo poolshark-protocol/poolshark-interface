@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react";
-import { useBalance, useAccount, useProvider } from "wagmi";
+import { useBalance, useAccount } from "wagmi";
 import { tokenOneAddress } from "../constants/contractAddresses";
+import { useConfigStore } from "./useConfigStore";
 
 export default function useTokenBalance(tokenAddress: string) {
   const { address } = useAccount();
   const [tokenBalanceInfo, setTokenBalanceInfo] = useState({} as any);
   const [queryToken, setQueryToken] = useState(tokenOneAddress as any);
+
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
 
   const tokenBalanceSetting = () => {
     setQueryToken(tokenAddress);
@@ -18,7 +25,7 @@ export default function useTokenBalance(tokenAddress: string) {
   const { data } = useBalance({
     address: address,
     token: queryToken,
-    chainId: 421613,
+    chainId: chainId,
     watch: true,
 
     onSuccess(data) {

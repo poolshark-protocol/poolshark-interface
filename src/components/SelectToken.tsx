@@ -7,20 +7,23 @@ import {
 import { Transition, Dialog } from "@headlessui/react";
 import CoinListButton from "./Buttons/CoinListButton";
 import CoinListItem from "./CoinListItem";
-import { useAccount, useBalance, useProvider } from "wagmi";
+import { useAccount } from "wagmi";
 import { chainIdsToNamesForGitTokenList } from "../utils/chains";
 import axios from "axios";
 import { coinsList } from "../utils/types";
+import { useConfigStore } from "../hooks/useConfigStore";
 
 export default function SelectToken(props) {
   const { address } = useAccount();
-  const {
-    network: { chainId },
-  } = useProvider();
-
   const [isOpen, setIsOpen] = useState(false);
   const [inputVal, setInputVal] = useState("");
   const [rawCoinList, setRawCoinList] = useState([]);
+
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
 
   useEffect(() => {
     const fetch = async () => {

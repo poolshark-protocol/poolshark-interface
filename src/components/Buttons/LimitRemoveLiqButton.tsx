@@ -15,6 +15,7 @@ import { gasEstimateBurnLimit } from "../../utils/gas";
 import { BN_ZERO } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import Loader from "../Icons/Loader";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function LimitRemoveLiqButton({
   poolAddress,
@@ -29,6 +30,12 @@ export default function LimitRemoveLiqButton({
   setIsOpen,
 }) {
   const { data: signer } = useSigner();
+
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
 
   const [
     limitPositionData,
@@ -112,7 +119,7 @@ export default function LimitRemoveLiqButton({
         sync: true,
       },
     ],
-    chainId: 421613,
+    chainId: chainId,
     overrides: {
       gasLimit: gasLimit,
     },

@@ -4,7 +4,6 @@ import {
   useAccount,
   useContractRead,
   useSigner,
-  useProvider,
   useBalance,
 } from "wagmi";
 import DoubleArrowIcon from "../Icons/DoubleArrowIcon";
@@ -33,8 +32,15 @@ import { volatilityTiers } from "../../utils/pools";
 import { coverPoolABI } from "../../abis/evm/coverPool";
 import { useRouter } from "next/router";
 import PositionMintModal from "../Modals/PositionMint";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function CoverExistingPool({ goBack }) {
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
+
   const [
     coverPoolAddress,
     coverPoolData,
@@ -93,13 +99,11 @@ export default function CoverExistingPool({ goBack }) {
     state.setNeedsLatestTick
   ]);
 
-
   // for mint modal
   const [successDisplay, setSuccessDisplay] = useState(false);
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState();
-
 
   const [rangePositionData] = useRangeLimitStore((state) => [
     state.rangePositionData,
@@ -110,10 +114,6 @@ export default function CoverExistingPool({ goBack }) {
 
   ////////////////////////////////Chain
   const [stateChainName, setStateChainName] = useState();
-
-  const {
-    network: { chainId },
-  } = useProvider();
 
   useEffect(() => {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
@@ -135,7 +135,7 @@ export default function CoverExistingPool({ goBack }) {
     abi: erc20ABI,
     functionName: "allowance",
     args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
-    chainId: 421613,
+    chainId: chainId,
     watch: needsAllowance,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
@@ -176,7 +176,7 @@ export default function CoverExistingPool({ goBack }) {
     address: coverPoolAddress,
     abi: coverPoolABI,
     functionName: "syncLatestTick",
-    chainId: 421613,
+    chainId: chainId,
     enabled: coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS,
     onSuccess(data) {
       setNeedsLatestTick(false);
@@ -270,7 +270,6 @@ export default function CoverExistingPool({ goBack }) {
     setUpperPrice(
       invertPrice(priceOrder ? priceUpper : priceLower, priceOrder)
     );
-    console.log('updating position data', priceLower, priceUpper)
     setCoverPositionData({
       ...coverPositionData,
       tickAtPrice: tickAtPrice,
@@ -344,7 +343,7 @@ export default function CoverExistingPool({ goBack }) {
       parseFloat(coverPositionData.lowerPrice) > 0 &&
       parseFloat(coverPositionData.upperPrice) > 0 &&
       parseFloat(coverPositionData.lowerPrice) <
-        parseFloat(coverPositionData.upperPrice)
+      parseFloat(coverPositionData.upperPrice)
     ) {
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
         TickMath.getTickAtPriceString(coverPositionData.lowerPrice, tokenIn, tokenOut)
@@ -352,6 +351,11 @@ export default function CoverExistingPool({ goBack }) {
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(
         TickMath.getTickAtPriceString(coverPositionData.upperPrice, tokenIn, tokenOut)
       );
+      if (rangePositionData?.userLiquidity == undefined) {
+        setTokenInAmount(BN_ZERO)
+        setTokenOutAmount(BN_ZERO)
+        return
+      }
       const liquidityAmount = JSBI.divide(
         JSBI.multiply(
           JSBI.BigInt(Math.round(rangePositionData.userLiquidity)),

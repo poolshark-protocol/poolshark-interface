@@ -1,10 +1,4 @@
 import Navbar from "../../components/Navbar";
-import {
-  ArrowTopRightOnSquareIcon,
-  ArrowsRightLeftIcon,
-  ArrowLongRightIcon,
-  ExclamationTriangleIcon,
-} from "@heroicons/react/20/solid";
 import { useState, useEffect } from "react";
 import router from "next/router";
 import { useAccount, useContractRead, useSigner } from "wagmi";
@@ -16,15 +10,21 @@ import { getClaimTick, mapUserCoverPositions } from "../../utils/maps";
 import RemoveLiquidity from "../../components/Modals/Cover/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Cover/AddLiquidity";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
-import { gasEstimateCoverBurn } from "../../utils/gas";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import { fetchCoverPositions } from "../../utils/queries";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import { useCopyElementUseEffect } from "../../utils/misc";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function ViewCover() {
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
+
   const [
     coverPoolAddress,
     coverPoolData,
@@ -298,10 +298,11 @@ export default function ViewCover() {
         zeroForOne: Boolean(coverPositionData.zeroForOne),
       },
     ],
-    chainId: 421613,
+    chainId: chainId,
     watch: true,
     enabled:
-      BigNumber.from(claimTick).lt(BigNumber.from("887272")) &&
+      BigNumber.from(claimTick).gte(coverPositionData.lowerTick) &&
+      BigNumber.from(claimTick).lte(coverPositionData.upperTick) &&
       isConnected &&
       coverPoolAddress != undefined &&
       address != undefined,
@@ -324,7 +325,7 @@ export default function ViewCover() {
     address: coverPoolAddress,
     abi: coverPoolABI,
     functionName: "syncLatestTick",
-    chainId: 421613,
+    chainId: chainId,
     enabled: coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS,
     onSuccess(data) {
       // setNeedsAllowance(false);
@@ -687,10 +688,11 @@ export default function ViewCover() {
                 poolAddress={coverPoolAddress}
                 address={address}
                 positionId={coverPositionData.positionId}
-                claim={BigNumber.from(claimTick)}
+                claim={claimTick}
                 zeroForOne={Boolean(coverPositionData.zeroForOne)}
-                gasLimit={coverMintParams.gasLimit.mul(150).div(100)}
                 gasFee={coverMintParams.gasFee}
+                signer={signer}
+                snapshotAmount={filledAmount ? filledAmount[0].add(filledAmount[1]) : BN_ZERO}
               />
               {/*TO-DO: add positionOwner ternary again*/}
             </div>
