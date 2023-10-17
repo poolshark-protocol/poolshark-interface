@@ -1,10 +1,4 @@
 import Navbar from "../../components/Navbar";
-import {
-  ArrowTopRightOnSquareIcon,
-  ArrowsRightLeftIcon,
-  ArrowLongRightIcon,
-  ExclamationTriangleIcon,
-} from "@heroicons/react/20/solid";
 import { useState, useEffect } from "react";
 import router from "next/router";
 import { useAccount, useContractRead, useSigner } from "wagmi";
@@ -15,8 +9,7 @@ import { coverPoolABI } from "../../abis/evm/coverPool";
 import { getClaimTick, mapUserCoverPositions } from "../../utils/maps";
 import RemoveLiquidity from "../../components/Modals/Cover/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Cover/AddLiquidity";
-import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
-import { gasEstimateCoverBurn } from "../../utils/gas";
+import { ZERO_ADDRESS } from "../../utils/math/constants";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import { fetchCoverPositions } from "../../utils/queries";
@@ -687,10 +680,11 @@ export default function ViewCover() {
                 poolAddress={coverPoolAddress}
                 address={address}
                 positionId={coverPositionData.positionId}
-                claim={BigNumber.from(claimTick)}
+                claim={claimTick}
                 zeroForOne={Boolean(coverPositionData.zeroForOne)}
-                gasLimit={coverMintParams.gasLimit.mul(150).div(100)}
                 gasFee={coverMintParams.gasFee}
+                signer={signer}
+                snapshotAmount={filledAmount[0]}
               />
               {/*TO-DO: add positionOwner ternary again*/}
             </div>
