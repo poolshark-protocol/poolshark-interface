@@ -19,8 +19,15 @@ import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import RangeCollectButton from "../../components/Buttons/RangeCollectButton";
 import router from "next/router";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function ViewRange() {
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
+
   const [
     rangePoolAddress,
     rangePoolData,
@@ -290,7 +297,7 @@ export default function ViewRange() {
     abi: rangePoolABI,
     functionName: "snapshotRange",
     args: [rangePositionData.positionId],
-    chainId: 421613,
+    chainId: chainId,
     watch: true,
     enabled: isConnected && rangePositionData.positionId != undefined,
     onError(error) {

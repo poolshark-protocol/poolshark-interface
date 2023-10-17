@@ -64,7 +64,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
     abi: erc20ABI,
     functionName: "allowance",
     args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
-    chainId: 421613,
+    chainId: chainId,
     watch: needsAllowance,
     enabled:
       isConnected &&

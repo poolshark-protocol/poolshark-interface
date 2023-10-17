@@ -16,6 +16,7 @@ import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import PositionMintModal from "../Modals/PositionMint";
 import { BN_ZERO } from "../../utils/math/constants";
 import Loader from "../Icons/Loader";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function CoverMintButton({
   routerAddress,
@@ -34,6 +35,12 @@ export default function CoverMintButton({
   setIsLoading,
   setTxHash
 }) {
+
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
 
   const [
     setNeedsRefetch,
@@ -71,7 +78,7 @@ export default function CoverMintButton({
       gasLimit: gasLimit,
     },
     enabled: !disabled,
-    chainId: 421613,
+    chainId: chainId,
   });
 
   const { data, write } = useContractWrite(config);

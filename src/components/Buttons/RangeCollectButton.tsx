@@ -10,11 +10,18 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BN_ONE } from '../../utils/math/constants';
 import { useRangeLimitStore } from '../../hooks/useRangeLimitStore';
+import { useConfigStore } from '../../hooks/useConfigStore';
 
 export default function RangeCollectButton({ poolAddress, address, positionId }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
+
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
 
   const [
     setNeedsBalanceIn,
@@ -33,7 +40,7 @@ export default function RangeCollectButton({ poolAddress, address, positionId })
           positionId,
           BN_ONE
         ]],
-      chainId: 421613,
+      chainId: chainId,
   })
 
   const { data, isSuccess, write } = useContractWrite(config)

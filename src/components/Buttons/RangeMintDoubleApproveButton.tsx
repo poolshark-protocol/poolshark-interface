@@ -10,6 +10,7 @@ import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useEffect, useState } from 'react'
 import { BigNumber } from 'ethers'
 import { useRangeLimitStore } from '../../hooks/useRangeLimitStore'
+import { useConfigStore } from '../../hooks/useConfigStore'
 
 export default function RangeMintDoubleApproveButton({
   routerAddress,
@@ -22,6 +23,12 @@ export default function RangeMintDoubleApproveButton({
   const [successDisplay0, setSuccessDisplay0] = useState(false)
   const [errorDisplay1, setErrorDisplay1] = useState(false)
   const [successDisplay1, setSuccessDisplay1] = useState(false)
+
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
 
   const [
     setNeedsAllowanceIn,
@@ -38,7 +45,7 @@ export default function RangeMintDoubleApproveButton({
     abi: erc20ABI,
     functionName: 'approve',
     args: [routerAddress, amount0],
-    chainId: 421613,
+    chainId: chainId,
     overrides: {
       gasLimit: gasLimit
     },
@@ -49,7 +56,7 @@ export default function RangeMintDoubleApproveButton({
     abi: erc20ABI,
     functionName: 'approve',
     args: [routerAddress, amount1],
-    chainId: 421613,
+    chainId: chainId,
     overrides: {
       gasLimit: gasLimit
     },

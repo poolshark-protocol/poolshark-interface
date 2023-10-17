@@ -16,6 +16,7 @@ import PositionMintModal from "../Modals/PositionMint";
 import { BN_ZERO } from "../../utils/math/constants";
 import Loader from "../Icons/Loader";
 import { useEffect } from "react";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function CoverCreateAndMintButton({
   routerAddress,
@@ -37,6 +38,12 @@ export default function CoverCreateAndMintButton({
   setIsLoading,
   setTxHash
 }) {
+
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
 
   const [setNeedsRefetch, setNeedsAllowance, setNeedsBalance] = useCoverStore(
     (state) => [
@@ -77,7 +84,7 @@ export default function CoverCreateAndMintButton({
       gasLimit: gasLimit,
     },
     enabled: !disabled,
-    chainId: 421613,
+    chainId: chainId,
   });
 
   const { data, write } = useContractWrite(config);

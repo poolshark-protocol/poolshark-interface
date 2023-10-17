@@ -11,6 +11,7 @@ import React, { useState } from "react";
 import { BigNumber, ethers } from "ethers";
 import Loader from "../Icons/Loader";
 import { useCoverStore } from "../../hooks/useCoverStore";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function CoverCollectButton({
   poolAddress,
@@ -21,6 +22,11 @@ export default function CoverCollectButton({
   gasLimit,
   gasFee,
 }) {
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
 
@@ -31,7 +37,7 @@ export default function CoverCollectButton({
     abi: coverPoolABI,
     functionName: "burn",
     args: [[address, BigNumber.from(0), positionId, claim, zeroForOne, true]],
-    chainId: 421613,
+    chainId: chainId,
     overrides: {
       gasLimit: gasLimit,
     },

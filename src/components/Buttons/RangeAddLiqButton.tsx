@@ -13,6 +13,7 @@ import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { BigNumber, ethers } from "ethers";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import Loader from "../Icons/Loader";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function RangeAddLiqButton({
   routerAddress,
@@ -27,6 +28,12 @@ export default function RangeAddLiqButton({
   setIsOpen,
   gasLimit,
 }) {
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
+
   const [
     setNeedsAllowanceIn,
     setNeedsAllowanceOut,
@@ -66,7 +73,7 @@ export default function RangeAddLiqButton({
         },
       ],
     ],
-    chainId: 421613,
+    chainId: chainId,
     overrides: {
       gasLimit: gasLimit,
     },

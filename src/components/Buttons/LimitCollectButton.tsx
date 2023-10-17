@@ -10,13 +10,19 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { BigNumber } from "ethers";
 import { useRangeLimitStore } from '../../hooks/useRangeLimitStore';
-import { BN_ZERO } from '../../utils/math/constants';
 import Loader from '../Icons/Loader';
+import { useConfigStore } from '../../hooks/useConfigStore';
 
 export default function LimitCollectButton({ poolAddress, address, positionId, claim, zeroForOne, gasLimit, gasFee }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
+
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
 
   const [
     setNeedsBalanceIn,
@@ -37,7 +43,7 @@ export default function LimitCollectButton({ poolAddress, address, positionId, c
           claim,
           zeroForOne
       ]],
-      chainId: 421613,
+      chainId: chainId,
       overrides: {
           gasLimit: gasLimit
       },

@@ -9,6 +9,7 @@ import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { useTradeStore as useRangeLimitStore } from "../../hooks/useTradeStore";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function RangeMintApproveButton({
   routerAddress,
@@ -17,6 +18,12 @@ export default function RangeMintApproveButton({
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
+
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
 
   const [setNeedsAllowanceIn] = useRangeLimitStore((state) => [
     state.setNeedsAllowanceIn,
@@ -30,7 +37,7 @@ export default function RangeMintApproveButton({
       routerAddress,
       amount
     ],
-    chainId: 421613,
+    chainId: chainId,
   });
 
   const {

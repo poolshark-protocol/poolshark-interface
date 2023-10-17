@@ -138,7 +138,7 @@ export default function CreateCover(props: any) {
     abi: erc20ABI,
     functionName: "allowance",
     args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
-    chainId: 421613,
+    chainId: chainId,
     watch: needsAllowance,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
@@ -183,7 +183,7 @@ export default function CreateCover(props: any) {
     address: coverPoolAddress,
     abi: coverPoolABI,
     functionName: "syncLatestTick",
-    chainId: 421613,
+    chainId: chainId,
     enabled: coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS,
     onSuccess(data) {
       setNeedsLatestTick(false);

@@ -17,8 +17,15 @@ import RangeCreateAndMintButton from "../Buttons/RangeCreateAndMintButton";
 import { chainProperties } from "../../utils/chains";
 import { limitPoolTypeIds } from "../../utils/pools";
 import PositionMintModal from "../Modals/PositionMint";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function RangePoolPreview() {
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
+
   const [
     rangePoolAddress,
     rangePoolData,
@@ -59,9 +66,6 @@ export default function RangePoolPreview() {
   const [tokenOrder, setTokenOrder] = useState(
     tokenIn.address.localeCompare(tokenOut.address) < 0
   );
-  const {
-    network: { chainId },
-  } = useProvider();
   const router = useRouter();
   const provider = useProvider();
   const signer = new ethers.VoidSigner(address, provider);
@@ -72,7 +76,7 @@ export default function RangePoolPreview() {
     abi: erc20ABI,
     functionName: "allowance",
     args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
-    chainId: 421613,
+    chainId: chainId,
     watch: needsAllowanceIn && router.isReady,
     //enabled: tokenIn.address,
     onSuccess(data) {
@@ -88,7 +92,7 @@ export default function RangePoolPreview() {
     abi: erc20ABI,
     functionName: "allowance",
     args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
-    chainId: 421613,
+    chainId: chainId,
     watch: needsAllowanceOut && router.isReady,
     //enabled: pairSelected && rangePoolAddress != ZERO_ADDRESS,
     onSuccess(data) {

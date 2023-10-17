@@ -25,8 +25,15 @@ import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { gasEstimateRangeMint } from "../../../utils/gas";
 import { useRouter } from "next/router";
 import { inputHandler } from "../../../utils/math/valueMath";
+import { useConfigStore } from "../../../hooks/useConfigStore";
 
 export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
+
   const [
     rangePoolAddress,
     rangePoolData,
@@ -101,9 +108,6 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   );
   const [doubleApprove, setdoubleApprove] = useState(false);
   const [buttonState, setButtonState] = useState("");
-  const {
-    network: { chainId },
-  } = useProvider();
 
   useEffect(() => {
     setTokenInAmount(BN_ZERO)
@@ -124,7 +128,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     abi: erc20ABI,
     functionName: "allowance",
     args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
-    chainId: 421613,
+    chainId: chainId,
     watch: needsAllowanceIn && router.isReady,
     enabled: isConnected,
     onSuccess(data) {
@@ -141,7 +145,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     abi: erc20ABI,
     functionName: "allowance",
     args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
-    chainId: 421613,
+    chainId: chainId,
     watch: needsAllowanceOut && router.isReady,
     enabled: isConnected,
     onSuccess(data) {
@@ -165,7 +169,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     token: tokenIn.address,
     enabled: tokenIn.address != undefined,
     watch: needsBalanceIn,
-    chainId: 421613,
+    chainId: chainId,
     onSuccess(data) {
       setNeedsBalanceIn(false);
     },
@@ -176,7 +180,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
     token: tokenOut.address,
     enabled: tokenOut.address != undefined && needsBalanceOut,
     watch: needsBalanceOut,
-    chainId: 421613,
+    chainId: chainId,
     onSuccess(data) {
       setNeedsBalanceOut(false);
     },

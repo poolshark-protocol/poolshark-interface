@@ -33,8 +33,15 @@ import { volatilityTiers } from "../../utils/pools";
 import { coverPoolABI } from "../../abis/evm/coverPool";
 import { useRouter } from "next/router";
 import PositionMintModal from "../Modals/PositionMint";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function CoverExistingPool({ goBack }) {
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
+
   const [
     coverPoolAddress,
     coverPoolData,
@@ -93,13 +100,11 @@ export default function CoverExistingPool({ goBack }) {
     state.setNeedsLatestTick
   ]);
 
-
   // for mint modal
   const [successDisplay, setSuccessDisplay] = useState(false);
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState();
-
 
   const [rangePositionData] = useRangeLimitStore((state) => [
     state.rangePositionData,
@@ -110,10 +115,6 @@ export default function CoverExistingPool({ goBack }) {
 
   ////////////////////////////////Chain
   const [stateChainName, setStateChainName] = useState();
-
-  const {
-    network: { chainId },
-  } = useProvider();
 
   useEffect(() => {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
@@ -135,7 +136,7 @@ export default function CoverExistingPool({ goBack }) {
     abi: erc20ABI,
     functionName: "allowance",
     args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
-    chainId: 421613,
+    chainId: chainId,
     watch: needsAllowance,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
@@ -176,7 +177,7 @@ export default function CoverExistingPool({ goBack }) {
     address: coverPoolAddress,
     abi: coverPoolABI,
     functionName: "syncLatestTick",
-    chainId: 421613,
+    chainId: chainId,
     enabled: coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS,
     onSuccess(data) {
       setNeedsLatestTick(false);

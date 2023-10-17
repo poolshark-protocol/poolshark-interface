@@ -13,6 +13,7 @@ import { useCoverStore } from "../../hooks/useCoverStore";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { ethers } from "ethers";
 import Loader from "../Icons/Loader";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function CoverAddLiqButton({
   poolAddress,
@@ -30,6 +31,11 @@ export default function CoverAddLiqButton({
   tokenSymbol,
   setIsOpen,
 }) {
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
   const [
     coverPoolData,
     setNeedsAllowance,
@@ -65,7 +71,7 @@ export default function CoverAddLiqButton({
       ],
     ],
     enabled: amount.gt(BN_ZERO) && poolAddress != undefined,
-    chainId: 421613,
+    chainId: chainId,
     overrides: {
       gasLimit: gasLimit,
     },

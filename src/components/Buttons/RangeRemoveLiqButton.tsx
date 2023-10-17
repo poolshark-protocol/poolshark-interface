@@ -14,6 +14,7 @@ import { gasEstimateRangeBurn } from "../../utils/gas";
 import { BN_ZERO } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import Loader from "../Icons/Loader";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function RangeRemoveLiqButton({
   poolAddress,
@@ -25,6 +26,12 @@ export default function RangeRemoveLiqButton({
   gasLimit,
   disabled,
 }) {
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
+
   const [
     setNeedsRefetch,
     setNeedsBalanceIn,
@@ -45,7 +52,7 @@ export default function RangeRemoveLiqButton({
     abi: rangePoolABI,
     functionName: "burnRange",
     args: [{ to: address, positionId: positionId, burnPercent: burnPercent }],
-    chainId: 421613,
+    chainId: chainId,
     overrides: {
       gasLimit: gasLimit,
     },

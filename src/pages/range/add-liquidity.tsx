@@ -21,8 +21,15 @@ import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import { chainProperties } from "../../utils/chains";
 import router from "next/router";
 import { inputHandler } from "../../utils/math/valueMath";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function AddLiquidity({}) {
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
+
   const [
     rangePoolAddress,
     rangePoolData,
@@ -84,11 +91,6 @@ export default function AddLiquidity({}) {
   ]);
 
   const { address, isConnected } = useAccount();
-
-  const {
-    network: { chainId },
-  } = useProvider();
-
   const { inputBox: inputBoxIn, setDisplay: setDisplayIn } = useInputBox();
   const { inputBox: inputBoxOut, setDisplay: setDisplayOut } = useInputBox();
   const [showTooltip, setShowTooltip] = useState(false);
@@ -157,7 +159,7 @@ export default function AddLiquidity({}) {
     abi: erc20ABI,
     functionName: "allowance",
     args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
-    chainId: 421613,
+    chainId: chainId,
     watch: needsAllowanceIn,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {
@@ -173,7 +175,7 @@ export default function AddLiquidity({}) {
     abi: erc20ABI,
     functionName: "allowance",
     args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
-    chainId: 421613,
+    chainId: chainId,
     watch: needsAllowanceOut,
     enabled: tokenOut.address != undefined,
     onSuccess(data) {
