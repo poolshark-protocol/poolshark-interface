@@ -4,7 +4,6 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import {
   useAccount,
   erc20ABI,
-  useProvider,
   useSigner,
   useBalance,
 } from "wagmi";

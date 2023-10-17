@@ -4,7 +4,6 @@ import {
   useAccount,
   useContractRead,
   useSigner,
-  useProvider,
   useBalance,
 } from "wagmi";
 import DoubleArrowIcon from "../Icons/DoubleArrowIcon";

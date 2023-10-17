@@ -5,8 +5,8 @@ import {
   useAccount,
   erc20ABI,
   useContractRead,
-  useProvider,
   useBalance,
+  useSigner,
 } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import RangeAddLiqButton from "../../Buttons/RangeAddLiqButton";
@@ -87,9 +87,8 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const { bnInput, maxBalance, inputBox, setDisplay } = useInputBox();
   const { bnInput: bnInput2, maxBalance: maxBalance2, inputBox: inputBox2, setDisplay: setDisplay2 } = useInputBox();
   const router = useRouter();
-  const provider = useProvider();
   const { address } = useAccount();
-  const signer = new ethers.VoidSigner(address, provider);
+  const signer = useSigner();
 
   const [disabled, setDisabled] = useState(false);
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(

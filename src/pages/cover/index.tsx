@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useAccount, useProvider } from "wagmi";
+import { useAccount } from "wagmi";
 import { useRouter } from "next/router";
 import Navbar from "../../components/Navbar";
 import { fetchCoverPositions } from "../../utils/queries";
@@ -10,7 +10,6 @@ import Info from "../../components/Icons/InfoIcon";
 import SearchIcon from "../../components/Icons/SearchIcon";
 import UserIcon from "../../components/Icons/UserIcon";
 import UserCoverPool from "../../components/Cover/UserCoverPool";
-import Link from "next/link";
 import PoolIcon from "../../components/Icons/PoolIcon";
 import CoverPool from "../../components/Cover/CoverPool";
 import { fetchCoverPools } from "../../utils/queries";
@@ -37,9 +36,6 @@ export default function Cover() {
     state.tokenOut
   ]);
 
-  const {
-    network: { chainId },
-  } = useProvider();
   const router = useRouter();
   const { address, isDisconnected } = useAccount();
 

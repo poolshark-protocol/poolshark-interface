@@ -8,7 +8,6 @@ import {
   useAccount,
   useBalance,
   useContractRead,
-  useProvider,
 } from "wagmi";
 import { BigNumber, ethers } from "ethers";
 import { BN_ZERO, ZERO } from "../../utils/math/constants";

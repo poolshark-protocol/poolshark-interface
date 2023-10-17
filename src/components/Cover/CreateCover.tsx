@@ -3,7 +3,6 @@ import SelectToken from "../SelectToken";
 import {
   erc20ABI,
   useAccount,
-  useProvider,
   useContractRead,
   useSigner,
   useBalance,
@@ -34,8 +33,15 @@ import CoverCreateAndMintButton from "../Buttons/CoverCreateAndMintButton";
 import { coverPoolABI } from "../../abis/evm/coverPool";
 import { getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
 import PositionMintModal from "../Modals/PositionMint";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function CreateCover(props: any) {
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
+
   const [
     coverPoolAddress,
     coverPoolData,
@@ -113,10 +119,6 @@ export default function CreateCover(props: any) {
 
   ////////////////////////////////Chain
   const [stateChainName, setStateChainName] = useState();
-
-  const {
-    network: { chainId },
-  } = useProvider();
 
   useEffect(() => {
     setStateChainName(chainIdsToNamesForGitTokenList[chainId]);

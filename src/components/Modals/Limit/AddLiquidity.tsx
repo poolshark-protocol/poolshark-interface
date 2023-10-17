@@ -4,7 +4,6 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import {
   useAccount,
   erc20ABI,
-  useProvider,
   useSigner,
   useBalance,
 } from "wagmi";
@@ -17,8 +16,15 @@ import SwapRouterApproveButton from "../../Buttons/SwapRouterApproveButton";
 import { chainIdsToNamesForGitTokenList, chainProperties } from "../../../utils/chains";
 import { gasEstimateMintLimit } from "../../../utils/gas";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
+import { useConfigStore } from "../../../hooks/useConfigStore";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
+
   const [
     limitPoolAddress,
     limitPositionData,
@@ -42,10 +48,6 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   ]);
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
-
-  const {
-    network: { chainId },
-  } = useProvider();
   const { data: signer } = useSigner();
 
   const [allowanceIn, setAllowanceIn] = useState(BN_ZERO);

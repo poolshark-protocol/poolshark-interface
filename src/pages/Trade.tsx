@@ -8,7 +8,6 @@ import {
   erc20ABI,
   useAccount,
   useSigner,
-  useProvider,
   useContractRead,
   useBalance,
 } from "wagmi";

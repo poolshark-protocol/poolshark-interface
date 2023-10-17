@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useBalance, useAccount, useProvider } from "wagmi";
+import { useBalance, useAccount } from "wagmi";
 import { tokenOneAddress } from "../constants/contractAddresses";
 import { useConfigStore } from "./useConfigStore";
 

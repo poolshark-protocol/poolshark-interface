@@ -2,7 +2,7 @@ import { Fragment, useEffect, useState } from "react";
 import { Transition, Dialog } from "@headlessui/react";
 import RangeMintButton from "../Buttons/RangeMintButton";
 import { BigNumber, ethers } from "ethers";
-import { erc20ABI, useAccount, useContractRead, useProvider } from "wagmi";
+import { erc20ABI, useAccount, useContractRead, useSigner } from "wagmi";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import RangeMintDoubleApproveButton from "../Buttons/RangeMintDoubleApproveButton";
 import { useRouter } from "next/router";
@@ -67,8 +67,7 @@ export default function RangePoolPreview() {
     tokenIn.address.localeCompare(tokenOut.address) < 0
   );
   const router = useRouter();
-  const provider = useProvider();
-  const signer = new ethers.VoidSigner(address, provider);
+  const signer = useSigner();
 
   ////////////////////////////////Allowances
   const { data: allowanceInRange } = useContractRead({
