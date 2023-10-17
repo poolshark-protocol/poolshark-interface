@@ -692,7 +692,7 @@ export default function ViewCover() {
                 zeroForOne={Boolean(coverPositionData.zeroForOne)}
                 gasFee={coverMintParams.gasFee}
                 signer={signer}
-                snapshotAmount={filledAmount ? filledAmount[0] : BN_ZERO}
+                snapshotAmount={filledAmount ? filledAmount[0].add(filledAmount[1]) : BN_ZERO}
               />
               {/*TO-DO: add positionOwner ternary again*/}
             </div>

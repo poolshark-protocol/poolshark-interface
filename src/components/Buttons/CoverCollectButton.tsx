@@ -36,7 +36,7 @@ export default function CoverCollectButton({
   const [setNeedsBalance] = useCoverStore((state) => [state.setNeedsBalance]);
   const [gasLimit, setGasLimit] = useState(BN_ZERO);
 
-  console.log('snapshot amount', snapshotAmount, snapshotAmount.gt(BN_ZERO))
+  console.log('snapshot amount', snapshotAmount.toString(), snapshotAmount.gt(BN_ZERO))
 
   useEffect(() => {
     if (
