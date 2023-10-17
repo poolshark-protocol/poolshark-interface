@@ -9,7 +9,7 @@ export default function Network({ isOpen, setIsOpen, chainUnsupported, chainId }
       onSuccess(data) {
         setIsOpen(false)
       }
-      })
+    })
 
   return (
     <Transition appear show={isOpen} as={Fragment}>

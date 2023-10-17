@@ -10,6 +10,7 @@ import React, { useState, useEffect } from "react";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { ethers } from "ethers";
+import { useConfigStore } from "../../hooks/useConfigStore";
   
   export default function LimitAddLiqButton({
     disabled,
@@ -27,6 +28,12 @@ import { ethers } from "ethers";
     buttonState,
     tokenSymbol,
   }) {
+    const [
+      chainId
+    ] = useConfigStore((state) => [
+      state.chainId,
+    ]);
+
     const [
       setNeedsRefetch,
       setNeedsAllowanceIn,
@@ -60,7 +67,7 @@ import { ethers } from "ethers";
           callbackData: ethers.utils.formatBytes32String('')
         }]
       ],
-      chainId: 421613,
+      chainId: chainId,
       overrides: {
         gasLimit: gasLimit,
       },

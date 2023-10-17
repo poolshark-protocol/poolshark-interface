@@ -14,6 +14,7 @@ import { useTradeStore } from "../../hooks/useTradeStore";
 import { getClaimTick } from "../../utils/maps";
 import { gasEstimateBurnLimit } from "../../utils/gas";
 import { BN_ZERO } from "../../utils/math/constants";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function LimitSwapBurnButton({
   poolAddress,
@@ -26,6 +27,12 @@ export default function LimitSwapBurnButton({
   burnPercent,
 }) {
   const { data: signer } = useSigner();
+
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
 
   const [
     setNeedsRefetch, 
@@ -103,7 +110,7 @@ export default function LimitSwapBurnButton({
         sync: true,
       },
     ],
-    chainId: 421613,
+    chainId: chainId,
     overrides: {
       gasLimit: gasLimit,
     },

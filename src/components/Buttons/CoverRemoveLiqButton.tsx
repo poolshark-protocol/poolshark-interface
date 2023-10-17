@@ -12,6 +12,7 @@ import React, { useState } from "react";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { BN_ZERO } from "../../utils/math/constants";
 import Loader from "../Icons/Loader";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function CoverRemoveLiqButton({
   disabled,
@@ -33,6 +34,12 @@ export default function CoverRemoveLiqButton({
     ]
   );
 
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
+
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
 
@@ -50,7 +57,7 @@ export default function CoverRemoveLiqButton({
         sync: true,
       },
     ],
-    chainId: 421613,
+    chainId: chainId,
     overrides: {
       gasLimit: gasLimit,
     },

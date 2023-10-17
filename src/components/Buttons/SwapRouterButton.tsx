@@ -10,6 +10,7 @@ import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
 import { useTradeStore as useRangeLimitStore } from "../../hooks/useTradeStore";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function SwapRouterButton({
   disabled,
@@ -18,7 +19,12 @@ export default function SwapRouterButton({
   swapParams,
   gasLimit,
 }) {
-  //TODO: only use allowance for router
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
+
   const [setNeedsAllowanceIn, setNeedsBalanceIn] = useRangeLimitStore(
     (state) => [state.setNeedsAllowanceIn, state.setNeedsBalanceIn]
   );
@@ -35,7 +41,7 @@ export default function SwapRouterButton({
     functionName: "multiSwapSplit",
     args: [poolAddresses, swapParams],
     enabled: poolAddresses.length > 0 && swapParams.length > 0,
-    chainId: 421613,
+    chainId: chainId,
     overrides: {
       gasLimit: gasLimit,
     },

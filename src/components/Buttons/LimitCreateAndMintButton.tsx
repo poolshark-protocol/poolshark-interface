@@ -11,6 +11,7 @@ import { useTradeStore } from "../../hooks/useTradeStore";
 import { TickMath } from "../../utils/math/tickMath";
 import { ethers } from "ethers";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
+import { useConfigStore } from "../../hooks/useConfigStore";
   
   export default function LimitCreateAndMintButton({
     disabled,
@@ -28,6 +29,12 @@ import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
     closeModal,
     gasLimit,
   }) {
+    const [
+      chainId
+    ] = useConfigStore((state) => [
+      state.chainId,
+    ]);
+
     const [
       setNeedsRefetch,
       setNeedsAllowanceIn,
@@ -69,7 +76,7 @@ import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
             }
         ] // limit positions
       ],
-      chainId: 421613,
+      chainId: chainId,
       overrides: {
         gasLimit: gasLimit,
       },

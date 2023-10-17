@@ -11,6 +11,7 @@ import { useTradeStore } from "../../hooks/useTradeStore";
 import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
 import { ethers } from "ethers";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function LimitSwapButton({
   disabled,
@@ -25,6 +26,12 @@ export default function LimitSwapButton({
   closeModal,
   gasLimit,
 }) {
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
+
   const [
     setNeedsRefetch,
     setNeedsAllowanceIn, 
@@ -58,7 +65,7 @@ export default function LimitSwapButton({
         callbackData: ethers.utils.formatBytes32String('')
       }]
     ],
-    chainId: 421613,
+    chainId: chainId,
     enabled: poolAddress != undefined && poolAddress != ZERO_ADDRESS,
     overrides: {
       gasLimit: gasLimit,

@@ -14,6 +14,7 @@ import {
 import {
   useRangeLimitStore,
 } from "../../hooks/useRangeLimitStore";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function SwapRouterApproveButton({
   routerAddress,
@@ -23,6 +24,12 @@ export default function SwapRouterApproveButton({
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
+
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
 
   const [setNeedsAllowanceIn] = useTradeStore((state) => [
     state.setNeedsAllowanceIn,
@@ -40,7 +47,7 @@ export default function SwapRouterApproveButton({
       routerAddress,
       amount
     ],
-    chainId: 421613,
+    chainId: chainId,
   });
 
   const { data, isSuccess, write } = useContractWrite(config);

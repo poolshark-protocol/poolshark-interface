@@ -16,8 +16,15 @@ import { fetchCoverPositions } from "../../utils/queries";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import { useCopyElementUseEffect } from "../../utils/misc";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function ViewCover() {
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
+
   const [
     coverPoolAddress,
     coverPoolData,
@@ -291,7 +298,7 @@ export default function ViewCover() {
         zeroForOne: Boolean(coverPositionData.zeroForOne),
       },
     ],
-    chainId: 421613,
+    chainId: chainId,
     watch: true,
     enabled:
       BigNumber.from(claimTick).gte(coverPositionData.lowerTick) &&
@@ -318,7 +325,7 @@ export default function ViewCover() {
     address: coverPoolAddress,
     abi: coverPoolABI,
     functionName: "syncLatestTick",
-    chainId: 421613,
+    chainId: chainId,
     enabled: coverPoolAddress != undefined && coverPoolAddress != ZERO_ADDRESS,
     onSuccess(data) {
       // setNeedsAllowance(false);

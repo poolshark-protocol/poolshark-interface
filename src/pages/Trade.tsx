@@ -8,7 +8,6 @@ import {
   erc20ABI,
   useAccount,
   useSigner,
-  useProvider,
   useContractRead,
   useBalance,
 } from "wagmi";
@@ -47,17 +46,21 @@ import LimitSwapBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import timeDifference from "../utils/time";
 import { inputHandler } from "../utils/math/valueMath";
 import UserLimitPool from "../components/Limit/UserLimitPool";
+import { useConfigStore } from "../hooks/useConfigStore";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
   const { data: signer } = useSigner();
-  const {
-    network: { chainId },
-  } = useProvider();
   const { inputBox: inputBoxIn, display: displayIn, setDisplay: setDisplayIn, maxBalance } =
     useInputBox();
   const { inputBox: inputBoxOut, display: displayOut, setDisplay: setDisplayOut } =
     useInputBox();
+
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
 
   const [
     tradePoolAddress,
@@ -315,7 +318,7 @@ export default function Trade() {
     abi: poolsharkRouterABI, // contract abi,
     functionName: "multiQuote",
     args: [availablePools, quoteParams, true],
-    chainId: 421613,
+    chainId: chainId,
     enabled: availablePools != undefined && quoteParams != undefined,
     onError(error) {
       console.log("Error multiquote", error);
@@ -407,7 +410,7 @@ export default function Trade() {
       limitPoolAddressList,
       limitPositionSnapshotList,
     ],
-    chainId: 421613,
+    chainId: chainId,
     watch: needsSnapshot,
     enabled:
       isConnected &&
@@ -582,7 +585,7 @@ export default function Trade() {
     abi: erc20ABI,
     functionName: "allowance",
     args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
-    chainId: 421613,
+    chainId: chainId,
     watch: needsAllowanceIn,
     enabled: tokenIn.address != ZERO_ADDRESS,
     onError(error) {

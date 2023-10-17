@@ -4,7 +4,6 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import {
   useAccount,
   erc20ABI,
-  useProvider,
   useSigner,
   useBalance,
 } from "wagmi";
@@ -20,8 +19,15 @@ import {
 } from "../../../utils/chains";
 import { gasEstimateCoverMint } from "../../../utils/gas";
 import { useCoverStore } from "../../../hooks/useCoverStore";
+import { useConfigStore } from "../../../hooks/useConfigStore";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
+
   const [
     coverPoolAddress,
     coverPoolData,
@@ -53,12 +59,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   ]);
 
   const { bnInput, inputBox, maxBalance } = useInputBox();
-
-  const {
-    network: { chainId },
-  } = useProvider();
   const { data: signer } = useSigner();
-
   const { isConnected } = useAccount();
   const [stateChainName, setStateChainName] = useState();
   const [buttonState, setButtonState] = useState("");
@@ -71,7 +72,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     abi: erc20ABI,
     functionName: "allowance",
     args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
-    chainId: 421613,
+    chainId: chainId,
     watch: needsAllowance,
     enabled: tokenIn.address != undefined,
     onSuccess(data) {

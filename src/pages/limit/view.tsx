@@ -18,8 +18,15 @@ import JSBI from "jsbi";
 import { BN_ZERO } from "../../utils/math/constants";
 import { gasEstimateBurnLimit } from "../../utils/gas";
 import { getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function ViewLimit() {
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
+
   const [
     limitPoolAddress,
     limitPositionData,
@@ -128,7 +135,7 @@ export default function ViewLimit() {
         tokenIn.callId == 0,
       ],
     ],
-    chainId: 421613,
+    chainId: chainId,
     watch: needsSnapshot,
     enabled:
       BigNumber.from(claimTick).lt(BigNumber.from("887272")) &&

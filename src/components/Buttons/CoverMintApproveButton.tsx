@@ -9,6 +9,7 @@ import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useState } from 'react'
 import { useCoverStore } from '../../hooks/useCoverStore'
+import { useConfigStore } from '../../hooks/useConfigStore'
 
 export default function CoverMintApproveButton({
   routerAddress,
@@ -18,6 +19,12 @@ export default function CoverMintApproveButton({
 }) {
   const [errorDisplay, setErrorDisplay] = useState(false)
   const [successDisplay, setSuccessDisplay] = useState(false)
+
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
 
   const [setNeedsAllowance] = useCoverStore((state) => [
     state.setNeedsAllowance,
@@ -29,7 +36,7 @@ export default function CoverMintApproveButton({
     functionName: 'approve',
     args: [routerAddress, amount],
     enabled: approveToken != undefined && routerAddress != undefined,
-    chainId: 421613,
+    chainId: chainId,
   })
 
   const { data, isSuccess, write } = useContractWrite(config)

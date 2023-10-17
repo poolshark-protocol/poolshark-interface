@@ -4,16 +4,17 @@ import {
   getDefaultWallets,
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
-import { configureChains, createClient, WagmiConfig } from 'wagmi';
+import { configureChains, createClient, useProvider, WagmiConfig } from 'wagmi';
 import { arbitrumGoerli } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import Head from 'next/head'
-import { useState, useEffect, Fragment } from 'react'
+import { useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
 import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton';
 import { isMobile } from "react-device-detect";
 import { Analytics } from '@vercel/analytics/react'
+import { useConfigStore } from '../hooks/useConfigStore';
 
 
 const { chains, provider } = configureChains(
@@ -371,6 +372,20 @@ function MyApp({ Component, pageProps }) {
 
   const [_isConnected, _setIsConnected] = useState(false);
   const [_isMobile, _setIsMobile] = useState(false);
+
+  const [
+    setChainId
+  ] = useConfigStore((state) => [
+    state.setChainId,
+  ]);
+
+  const {
+    network: { chainId },
+  } = useProvider();
+
+  useEffect(() => {
+    setChainId(chainId)
+  }, [chainId]);
 
   useEffect(() => {
     _setIsConnected(isConnected);
