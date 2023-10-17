@@ -124,14 +124,14 @@ export default function AddLiquidity({}) {
     ) {
       updatePools(router.query.feeTier.toString());
     }
-  }, [router.query.feeTier]);
+  }, [router.query.feeTier, tokenIn.address, tokenOut.address]);
 
   async function updatePools(feeAmount: string) {
     setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount);
   }
 
   //sames as updatePools but triggered from the html
-  const handleManualVolatilityChange = async (feeAmount: string) => {
+  const handleManualFeeTierChange = async (feeAmount: string) => {
     updatePools(feeAmount);
   };
 
@@ -242,6 +242,7 @@ export default function AddLiquidity({}) {
         );
       }
       if (tokenOut.address) {
+        console.log('fetching token out usd price', tokenOut.symbol)
         fetchRangeTokenUSDPrice(
           rangePoolData,
           tokenOut,
@@ -713,11 +714,11 @@ export default function AddLiquidity({}) {
             {feeTiers.map((feeTier, feeTierIdx) => (
               <div
                 onClick={() => {
-                  handleManualVolatilityChange(feeTier.tierId.toString());
+                  handleManualFeeTierChange(feeTier.tierId.toString());
                 }}
                 key={feeTierIdx}
                 className={`bg-black p-4 w-full rounded-[4px] cursor-pointer transition-all ${
-                  rangePoolData.feeTier.feeAmount.toString() ===
+                  rangePoolData?.feeTier?.feeAmount?.toString() ===
                   feeTier.tierId.toString()
                     ? "border-grey1 border bg-grey/20"
                     : "border border-grey"
@@ -731,7 +732,7 @@ export default function AddLiquidity({}) {
             ))}
           </div>
         </div>
-        {rangePoolAddress == ZERO_ADDRESS && (
+        {rangePoolAddress != ZERO_ADDRESS && (
           <div className="bg-black border rounded-[4px] border-grey/50 p-5">
             <p className="text-xs text-grey1 flex items-center gap-x-4 mb-5">
               This pool does not exist so a starting price must be set in order

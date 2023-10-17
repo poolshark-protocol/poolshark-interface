@@ -30,13 +30,15 @@ export default function Range() {
     setTokenOut,
     setRangePoolFromFeeTier,
     needsRefetch,
-    setNeedsRefetch
+    setNeedsRefetch,
+    resetRangeLimitParams
   ] = useRangeLimitStore((state) => [
     state.setTokenIn,
     state.setTokenOut,
     state.setRangePoolFromFeeTier,
     state.needsRefetch,
     state.setNeedsRefetch,
+    state.resetRangeLimitParams
   ]);
 
   const router = useRouter();
@@ -109,6 +111,7 @@ export default function Range() {
             </div>
             <button
             onClick={() => {
+              resetRangeLimitParams()
               const tokenIn = {
                 name: allRangePools[0].tokenZero.symbol,
                 address: allRangePools[0].tokenZero.id,
@@ -130,14 +133,14 @@ export default function Range() {
                 allRangePools[0].feeTier.toString()
               );
               router.push({
-                pathname: "/range/create",
+                pathname: "/range/add-liquidity",
                 query: { state: "select" },
               });
             }}
               className="px-12 py-3 text-white w-min whitespace-nowrap cursor-pointer text-center transition border border-main bg-main1 uppercase text-sm
                 hover:opacity-80"
             >
-              CREATE RANGE POOL
+              CREATE RANGE POSITION
             </button>
           </div>
           <div className="lg:h-[300px] h-full w-full lg:w-[80%] xl:w-[40%] border border-grey p-7 flex flex-col justify-between">

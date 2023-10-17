@@ -10,6 +10,7 @@ export const logoMap = {
 
 export const fetchRangeTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
   try {
+    console.log('token usd price:', token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice)
     setTokenUSDPrice(
       token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice
     );
