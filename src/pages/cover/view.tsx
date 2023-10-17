@@ -294,7 +294,8 @@ export default function ViewCover() {
     chainId: 421613,
     watch: true,
     enabled:
-      BigNumber.from(claimTick).lt(BigNumber.from("887272")) &&
+      BigNumber.from(claimTick).gte(coverPositionData.lowerTick) &&
+      BigNumber.from(claimTick).lte(coverPositionData.upperTick) &&
       isConnected &&
       coverPoolAddress != undefined &&
       address != undefined,
