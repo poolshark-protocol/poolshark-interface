@@ -98,7 +98,9 @@ export default function CoverRemoveLiquidity({
       coverPoolData.volatilityTier &&
       sliderValue &&
       signer &&
-      claimTick
+      claimTick &&
+      claimTick >= coverPositionData.lowerTick && 
+      claimTick <= coverPositionData.upperTick
     ) {
       updateGasFee();
     }
