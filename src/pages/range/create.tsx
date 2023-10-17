@@ -28,6 +28,7 @@ import {
   import CoverMintApproveButton from "../../components/Buttons/CoverMintApproveButton";
   import { gasEstimateCoverMint } from "../../utils/gas";
   import { volatilityTiers } from "../../utils/pools";
+  import { ZERO_ADDRESS } from "../../utils/math/constants";
 
 export default function CoverCreate() {
     const [
@@ -686,6 +687,25 @@ export default function CoverCreate() {
               </span>
             </div>
           </div>
+          {coverPoolAddress === ZERO_ADDRESS && (
+            <div className="bg-black border rounded-[4px] border-grey/50 p-5">
+              <p className="text-xs text-grey1 flex items-center gap-x-4 mb-5">
+                This pool does not exist so you must set a starting price in order to initialize the pool before being able to add liquidity to it.
+              </p>
+              <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
+                <span className="text-grey1 text-xs">STARTING PRICE</span>
+                <span className="text-white text-3xl">
+                    <input
+                      autoComplete="off"
+                      className="bg-black py-2 outline-none text-center w-full"
+                      placeholder="0"
+                      id="startPrice"
+                      type="text"
+                    />
+                </span>
+              </div>
+            </div>
+            )}
           <div className="py-2">
             <div
               className="flex px-2 cursor-pointer"
