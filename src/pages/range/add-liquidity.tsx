@@ -22,7 +22,7 @@ import { chainProperties } from "../../utils/chains";
 import router from "next/router";
 import { inputHandler } from "../../utils/math/valueMath";
 import SelectToken from "../../components/SelectToken";
-import { feeTiers } from "../../utils/pools";
+import { feeTierMap, feeTiers } from "../../utils/pools";
 
 export default function AddLiquidity({}) {
   const [
@@ -55,6 +55,7 @@ export default function AddLiquidity({}) {
     needsBalanceOut,
     setNeedsBalanceIn,
     setNeedsBalanceOut,
+    setRangePoolData
   ] = useRangeLimitStore((state) => [
     state.rangePoolAddress,
     state.rangePoolData,
@@ -85,6 +86,7 @@ export default function AddLiquidity({}) {
     state.needsBalanceOut,
     state.setNeedsBalanceIn,
     state.setNeedsBalanceOut,
+    state.setRangePoolData
   ]);
 
   const { address, isConnected } = useAccount();
@@ -138,9 +140,37 @@ export default function AddLiquidity({}) {
       !rangePoolData.poolPrice ||
       Number(rangePoolData.feeTier.feeAmount) != Number(router.query.feeTier)
     ) {
-      setRangePoolFromFeeTier(tokenIn, tokenOut, router.query.feeTier);
+      setRangePoolFromFeeTier(tokenIn, tokenOut, rangePoolData?.feeTier?.feeAmount);
     }
-  }, [router.query.feeTier, rangePoolData, pairSelected]);
+  }, [rangePoolData?.feeTier?.feeAmount, pairSelected]);
+
+  useEffect(() => {
+    if (
+      router.query.feeTier &&
+      !isNaN(parseInt(router.query.feeTier.toString()))
+    ) {
+      setRangePoolData({
+        ...rangePoolData,
+        feeTier :{
+          feeAmount: Number(router.query.feeTier)
+        }
+      });
+      setSelectedFeeTier(feeTierMap[Number(router.query.feeTier)])
+    }
+  }, [router.query.feeTier]);
+
+  useEffect(() => {
+    if (
+      !isNaN(selectedFeeTier.tierId)
+    ) {
+      setRangePoolData({
+        ...rangePoolData,
+        feeTier :{
+          feeAmount: selectedFeeTier.tierId
+        }
+      });
+    }
+  }, [selectedFeeTier.tierId]);
 
   //this sets the default position price delta
   useEffect(() => {
@@ -691,7 +721,7 @@ export default function AddLiquidity({}) {
                 onClick={() => setSelectedFeeTier(feeTier)}
                 key={feeTierIdx}
                 className={`bg-black p-4 w-full rounded-[4px] cursor-pointer transition-all ${
-                  selectedFeeTier === feeTier
+                  selectedFeeTier.tierId === feeTier.tierId
                     ? "border-grey1 border bg-grey/20"
                     : "border border-grey"
                 }`}
@@ -704,7 +734,7 @@ export default function AddLiquidity({}) {
             ))}
           </div>
         </div>
-        {rangePoolAddress != ZERO_ADDRESS && (
+        {rangePoolAddress == ZERO_ADDRESS && (
             <div className="bg-black border rounded-[4px] border-grey/50 p-5">
               <p className="text-xs text-grey1 flex items-center gap-x-4 mb-5">
                 This pool does not exist so a starting price must be set in order to add liquidity.

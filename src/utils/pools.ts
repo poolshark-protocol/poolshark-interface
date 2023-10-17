@@ -302,6 +302,30 @@ export const feeTiers = [
   },
 ];
 
+export const feeTierMap = {
+  1000: {
+    id: 0,
+    tier: "0.1%",
+    tierId: 1000,
+    text: "Best for stable pairs",
+    unavailable: false,
+  },
+  3000: {
+    id: 1,
+    tier: "0.3%",
+    tierId: 3000,
+    text: "Best for most pairs",
+    unavailable: false,
+  },
+  10000: {
+    id: 2,
+    tier: "1%",
+    tierId: 10000,
+    text: "Best for exotic pairs",
+    unavailable: false,
+  },
+};
+
 export const volatilityTiers = [
   {
     id: 0,
