@@ -9,7 +9,7 @@ import { coverPoolABI } from "../../abis/evm/coverPool";
 import { getClaimTick, mapUserCoverPositions } from "../../utils/maps";
 import RemoveLiquidity from "../../components/Modals/Cover/RemoveLiquidity";
 import AddLiquidity from "../../components/Modals/Cover/AddLiquidity";
-import { ZERO_ADDRESS } from "../../utils/math/constants";
+import { BN_ZERO, ZERO_ADDRESS } from "../../utils/math/constants";
 import { useCoverStore } from "../../hooks/useCoverStore";
 import { fetchCoverTokenUSDPrice } from "../../utils/tokens";
 import { fetchCoverPositions } from "../../utils/queries";
@@ -684,7 +684,7 @@ export default function ViewCover() {
                 zeroForOne={Boolean(coverPositionData.zeroForOne)}
                 gasFee={coverMintParams.gasFee}
                 signer={signer}
-                snapshotAmount={filledAmount[0]}
+                snapshotAmount={filledAmount ? filledAmount[0] : BN_ZERO}
               />
               {/*TO-DO: add positionOwner ternary again*/}
             </div>
