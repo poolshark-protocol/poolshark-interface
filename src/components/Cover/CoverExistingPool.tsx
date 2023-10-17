@@ -355,7 +355,6 @@ export default function CoverExistingPool({ goBack }) {
         setTokenOutAmount(BN_ZERO)
         return
       }
-      console.log('range liquidity', rangePositionData.userLiquidity)
       const liquidityAmount = JSBI.divide(
         JSBI.multiply(
           JSBI.BigInt(Math.round(rangePositionData.userLiquidity)),
