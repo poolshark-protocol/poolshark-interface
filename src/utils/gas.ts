@@ -284,7 +284,8 @@ export const gasEstimateRangeMint = async (
     if (
       !rangePoolRoute ||
       !provider ||
-      (amount0.eq(BN_ZERO) && amount1.eq(BN_ZERO))
+      (amount0.eq(BN_ZERO) && amount1.eq(BN_ZERO)) ||
+      !signer
     ) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
@@ -320,9 +321,11 @@ export const gasEstimateRangeMint = async (
       style: "currency",
       currency: "USD",
     });
+    console.log('new gas limit', gasUnits.toString())
     return { formattedPrice, gasUnits };
   } catch (error) {
-    console.log("gas error", error);
+    console.log('signer check', signer, signer != undefined)
+    console.log("range mint gas error", error);
     return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
   }
 };
@@ -388,7 +391,7 @@ export const gasEstimateRangeCreateAndMint = async (
     });
     return { formattedPrice, gasUnits };
   } catch (error) {
-    console.log("gas error", error);
+    console.log("range mint gas error", error);
     return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
   }
 };

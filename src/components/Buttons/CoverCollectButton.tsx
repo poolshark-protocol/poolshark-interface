@@ -97,7 +97,7 @@ export default function CoverCollectButton({
           address ? write?.() : null;
         }}
       >
-        {gasLimit.lte(BN_ZERO) && snapshotAmount.gt(BN_ZERO) ? <Loader /> : "Collect position"}
+        {gasLimit.lte(BN_ZERO) && snapshotAmount.gt(BN_ZERO) ? <Loader /> : snapshotAmount.gt(BN_ZERO) ? "Collect position" : "Nothing to collect"}
       </button>
       <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
         {errorDisplay && (
