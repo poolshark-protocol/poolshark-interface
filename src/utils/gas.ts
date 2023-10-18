@@ -9,6 +9,7 @@ import { limitPoolABI } from "../abis/evm/limitPool";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { chainProperties } from "./chains";
 import JSBI from "jsbi";
+import { parseUnits } from "./math/valueMath";
 
 export interface gasEstimateResult {
   formattedPrice: string;
@@ -101,7 +102,7 @@ export const gasEstimateMintLimit = async (
         {
           to: address,
           amount: bnInput,
-          mintPercent: ethers.utils.parseUnits("1", 24), // skip mint under 1% left after swap
+          mintPercent: parseUnits("1", 24), // skip mint under 1% left after swap
           positionId: BN_ZERO,
           lower: lowerTick,
           upper: upperTick,
@@ -177,7 +178,7 @@ export const gasEstimateCreateAndMintLimit = async (
           {
             to: recipient,
             amount: bnInput,
-            mintPercent: ethers.utils.parseUnits("1", 24), // skip mint under 1% left after swap
+            mintPercent: parseUnits("1", 24), // skip mint under 1% left after swap
             positionId: BN_ZERO,
             lower: lowerTick,
             upper: upperTick,

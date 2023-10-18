@@ -17,6 +17,7 @@ import { chainIdsToNamesForGitTokenList, chainProperties } from "../../../utils/
 import { gasEstimateMintLimit } from "../../../utils/gas";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { useConfigStore } from "../../../hooks/useConfigStore";
+import { parseUnits } from "../../../utils/math/valueMath";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
@@ -265,7 +266,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                       lower={Number(limitPositionData.min)}
                       upper={Number(limitPositionData.max)}
                       positionId={BigNumber.from(limitPositionData.positionId)}
-                      mintPercent={ethers.utils.parseUnits("1", 24)}
+                      mintPercent={parseUnits("1", 24)}
                       zeroForOne={tokenIn.callId == 0}
                       amount={bnInput}
                       gasLimit={mintGasLimit}

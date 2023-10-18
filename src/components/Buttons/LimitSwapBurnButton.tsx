@@ -15,6 +15,7 @@ import { getClaimTick } from "../../utils/maps";
 import { gasEstimateBurnLimit } from "../../utils/gas";
 import { BN_ZERO } from "../../utils/math/constants";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { parseUnits } from "ethers/lib/utils.js";
 
 export default function LimitSwapBurnButton({
   poolAddress,
@@ -125,7 +126,7 @@ export default function LimitSwapBurnButton({
       setNeedsSnapshot(true);
       setNeedsBalanceIn(true);
       setNeedsBalanceOut(true);
-      if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
+      if (burnPercent.eq(parseUnits("1", 38))) {
         setTimeout(() => {
           setNeedsRefetch(true);
         }, 1000);

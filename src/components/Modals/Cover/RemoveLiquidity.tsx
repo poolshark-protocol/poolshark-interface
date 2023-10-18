@@ -8,6 +8,7 @@ import { useRouter } from "next/router";
 import { useCoverStore } from "../../../hooks/useCoverStore";
 import { gasEstimateCoverBurn } from "../../../utils/gas";
 import { useSigner } from "wagmi";
+import { parseUnits } from "../../../utils/math/valueMath";
 
 export default function CoverRemoveLiquidity({
   isOpen,
@@ -38,19 +39,19 @@ export default function CoverRemoveLiquidity({
   const router = useRouter();
 
   const [burnPercent, setBurnPercent] = useState(
-    ethers.utils.parseUnits("5", 37)
+    parseUnits("5", 37)
   );
   const [sliderValue, setSliderValue] = useState(1);
   const [sliderOutput, setSliderOutput] = useState("1");
 
   useEffect(() => {
     setTokenInAmount(
-      ethers.utils.parseUnits(String(sliderOutput), tokenIn.decimals)
+      parseUnits(String(sliderOutput), tokenIn.decimals)
     );
   }, [sliderOutput]);
 
   useEffect(() => {
-    setBurnPercent(ethers.utils.parseUnits(String(sliderValue), 36));
+    setBurnPercent(parseUnits(String(sliderValue), 36));
     setSliderOutput(
       (
         (parseFloat(
@@ -265,7 +266,7 @@ export default function CoverRemoveLiquidity({
                   burnPercent={burnPercent ?? BN_ZERO}
                   gasLimit={burnGasLimit}
                   closeModal={() => {
-                    if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
+                    if (burnPercent.eq(parseUnits("1", 38))) {
                       router.push("/cover");
                     }
                   }}

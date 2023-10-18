@@ -26,7 +26,17 @@ export function inputHandler(e, token: token): [string, BigNumber] {
     } else {
         return [
             result,
-            ethers.utils.parseUnits(result, token.decimals)
+            parseUnits(result, token.decimals)
         ];
     }
 }
+
+export function parseUnits(value: string, decimals: number): BigNumber {
+  const floatValue = parseFloat(value)
+  if (isNaN(floatValue)) return BN_ZERO
+  if (floatValue.toString().indexOf('.') != -1) {
+    const decimalPlaces = floatValue.toString().split('.')[1].length
+    if (decimalPlaces > decimals || decimalPlaces >= 16) value = floatValue.toFixed(decimals)
+  }
+  return ethers.utils.parseUnits(value, decimals)
+} 

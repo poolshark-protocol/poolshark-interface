@@ -16,6 +16,7 @@ import { BN_ZERO } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { parseUnits } from "ethers/lib/utils.js";
 
 export default function LimitRemoveLiqButton({
   poolAddress,
@@ -131,7 +132,7 @@ export default function LimitRemoveLiqButton({
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
-      if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
+      if (burnPercent.eq(parseUnits("1", 38))) {
         setTimeout(() => {
           setNeedsRefetch(true);
         }, 1000);

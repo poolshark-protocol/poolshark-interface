@@ -20,11 +20,11 @@ export default function useDoubleInputBox() {
       setBnInputUpper(BigNumber.from('0'))
     }
     setInputUpper(
-      result == '' ? BigNumber.from('0') : ethers.utils.parseUnits(result, 18),
+      result == '' ? BigNumber.from('0') : parseUnits(result, 18),
     )
 
     if (result !== '') {
-      const valueToBn = ethers.utils.parseUnits(result, 18)
+      const valueToBn = parseUnits(result, 18)
 
       setBnInputUpper(valueToBn)
     }
@@ -40,10 +40,10 @@ export default function useDoubleInputBox() {
     }
 
     setInputLower(
-      result == '' ? BigNumber.from('0') : ethers.utils.parseUnits(result, 18),
+      result == '' ? BigNumber.from('0') : parseUnits(result, 18),
     )
     if (result !== '') {
-      const valueToBn = ethers.utils.parseUnits(result, 18)
+      const valueToBn = parseUnits(result, 18)
 
       setBnInputLower(valueToBn)
     }
@@ -51,9 +51,9 @@ export default function useDoubleInputBox() {
 
   const upperMaxBalance = (balance, placeholder) => {
     setDisplayUpper(balance)
-    setInputUpper(ethers.utils.parseUnits(balance, 18))
+    setInputUpper(parseUnits(balance, 18))
     if (balance != '') {
-      const valueToBn = ethers.utils.parseUnits(balance, 18)
+      const valueToBn = parseUnits(balance, 18)
       setBnInputUpper(valueToBn)
     }
     upperInputBox(placeholder)
@@ -61,9 +61,9 @@ export default function useDoubleInputBox() {
 
   const lowerMaxBalance = (balance, placeholder) => {
     setDisplayLower(balance)
-    setInputLower(ethers.utils.parseUnits(balance, 18))
+    setInputLower(parseUnits(balance, 18))
     if (balance != '') {
-      const valueToBn = ethers.utils.parseUnits(balance, 18)
+      const valueToBn = parseUnits(balance, 18)
       setBnInputLower(valueToBn)
     }
     lowerInputBox(placeholder)

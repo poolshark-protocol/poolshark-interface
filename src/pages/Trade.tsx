@@ -44,7 +44,7 @@ import { getClaimTick, mapUserLimitPositions } from "../utils/maps";
 import { displayPoolPrice, getAveragePrice, getExpectedAmountInFromOutput, getExpectedAmountOut, getExpectedAmountOutFromInput, getMarketPriceAboveBelowString } from "../utils/math/priceMath";
 import LimitSwapBurnButton from "../components/Buttons/LimitSwapBurnButton";
 import timeDifference from "../utils/time";
-import { inputHandler } from "../utils/math/valueMath";
+import { inputHandler, parseUnits } from "../utils/math/valueMath";
 import UserLimitPool from "../components/Limit/UserLimitPool";
 import { useConfigStore } from "../hooks/useConfigStore";
 
@@ -275,21 +275,21 @@ export default function Trade() {
   useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       // adjust decimals when switching directions
-
       updatePools(exactIn ? amountIn : amountOut, exactIn);
       if (exactIn) {
         if (!isNaN(parseFloat(displayIn))) {
-          const bnValue = ethers.utils.parseUnits(displayIn, tokenIn.decimals)
+          const bnValue = parseUnits(displayIn, tokenIn.decimals)
           setAmountIn(bnValue)
           setAmounts(bnValue, true)
         }
       } else {
         if (!isNaN(parseFloat(displayOut))) {
-          const bnValue = ethers.utils.parseUnits(displayOut, tokenOut.decimals)
+          const bnValue = parseUnits(displayOut, tokenOut.decimals)
           setAmountOut(bnValue)
           setAmounts(bnValue, false)
         }
       }
+      setNeedsAllowanceIn(true)
     }
   }, [tokenIn.address, tokenOut.address, tokenIn.decimals, tokenOut.decimals]);
 
@@ -482,10 +482,11 @@ export default function Trade() {
       let mappedLimitSnapshotParams = [];
       if (allLimitPositions.length > 0) {
         for (let i = 0; i < allLimitPositions.length; i++) {
+          console.log('map user snapshot list')
           mappedLimitPoolAddresses[i] = allLimitPositions[i].poolId;
           mappedLimitSnapshotParams[i] = [];
           mappedLimitSnapshotParams[i][0] = address;
-          mappedLimitSnapshotParams[i][1] = ethers.utils.parseUnits("1", 38);
+          mappedLimitSnapshotParams[i][1] = parseUnits("1", 38);
           mappedLimitSnapshotParams[i][2] = BigNumber.from(allLimitPositions[i].positionId);
           mappedLimitSnapshotParams[i][3] = BigNumber.from(await getClaimTick(
             allLimitPositions[i].poolId.toString(),
@@ -797,6 +798,7 @@ export default function Trade() {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
+    console.log('doing gas estimate', tokenIn.symbol, tokenOut.symbol, needsAllowanceIn)
     if (!amountIn.eq(BN_ZERO) && !needsAllowanceIn) {
       if (!limitTabSelected) {
         updateGasFee();
@@ -807,7 +809,8 @@ export default function Trade() {
   }, [swapParams, tokenIn, tokenOut, lowerTick, upperTick, needsAllowanceIn]);
 
   async function updateGasFee() {
-    if (tokenIn.userRouterAllowance?.gte(amountIn))
+    if (tokenIn.userRouterAllowance?.gte(amountIn)) {
+
       await gasEstimateSwap(
         chainProperties["arbitrumGoerli"]["routerAddress"],
         swapPoolAddresses,
@@ -819,6 +822,7 @@ export default function Trade() {
         setSwapGasFee,
         setSwapGasLimit
       );
+    }
     else {
       setSwapGasLimit(BN_ZERO)
     }
@@ -1268,7 +1272,7 @@ export default function Trade() {
                     poolAddress={tradePoolData.id}
                     to={address}
                     amount={amountIn}
-                    mintPercent={ethers.utils.parseUnits("1", 24)}
+                    mintPercent={parseUnits("1", 24)}
                     lower={lowerTick}
                     upper={upperTick}
                     closeModal={() => {}}
@@ -1285,7 +1289,7 @@ export default function Trade() {
                     feeTier={3000} // default 0.3% fee
                     to={address}
                     amount={amountIn}
-                    mintPercent={ethers.utils.parseUnits("1", 24)}
+                    mintPercent={parseUnits("1", 24)}
                     lower={lowerTick}
                     upper={upperTick}
                     closeModal={() => {}}

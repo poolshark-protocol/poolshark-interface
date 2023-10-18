@@ -3,6 +3,7 @@ import { BigNumber, ethers } from 'ethers'
 import inputFilter from '../utils/inputFilter'
 import { BN_ZERO } from '../utils/math/constants'
 import { token } from '../utils/types'
+import { parseUnits } from '../utils/math/valueMath'
 
 export default function useInputBox() {
   const [display, setDisplay] = useState('')
@@ -17,7 +18,7 @@ export default function useInputBox() {
       setBnInput(BN_ZERO)
     }
     if (result !== '') {
-      const valueToBn = ethers.utils.parseUnits(result, tokenDecimals)
+      const valueToBn = parseUnits(result, tokenDecimals)
       setBnInput(valueToBn)
     }
   }
@@ -25,7 +26,7 @@ export default function useInputBox() {
   const maxBalance = (balance, placeholder, tokenDecimals) => {
     setDisplay(balance)
     if (balance != '') {
-      const valueToBn = ethers.utils.parseUnits(balance.toString(), tokenDecimals)
+      const valueToBn = parseUnits(balance.toString(), tokenDecimals)
       setBnInput(valueToBn)
     }
     inputBox(placeholder, tokenDecimals)

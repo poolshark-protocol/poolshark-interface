@@ -129,7 +129,7 @@ export default function ViewLimit() {
     args: [
       [
         address,
-        ethers.utils.parseUnits("1", 38),
+        parseUnits("1", 38),
         Number(limitPositionData.positionId),
         BigNumber.from(claimTick),
         tokenIn.callId == 0,
