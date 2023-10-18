@@ -586,7 +586,6 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
             pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility
           ) {
             poolFound = true
-            console.log("fee tier pool data found", volatility);
             set(() => ({
               rangePoolAddress: pool["data"]["limitPools"][i]["id"],
               rangePoolData: pool["data"]["limitPools"][i],
@@ -594,7 +593,6 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           }
         }
         if (!poolFound) {
-          console.log("fee tier pool data not found");
           set((state) => ({
             rangePoolAddress: ZERO_ADDRESS as `0x${string}`,
             rangePoolData: {

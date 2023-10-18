@@ -93,7 +93,6 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
       tokenInNew.address,
       tokenOutNew.address
     );
-    if (rangePosition.min < 0 && rangePosition.max < 0)console.log('token out new', tokenOutNew.decimals)
     if (pool && pool["data"] && pool["data"]["limitPools"]) {
       const dataLength = pool["data"]["limitPools"].length;
       for (let i = 0; i < dataLength; i++) {

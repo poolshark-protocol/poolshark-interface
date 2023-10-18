@@ -107,8 +107,6 @@ export abstract class TickMath {
   public static getPriceStringAtTick(tick: number, tokenA: token, tokenB: token, tickSpacing?: number): string {
     if (isNaN(tick)) return '0.00'
 
-    if (tick < 0) console.log('found USDC tick', tick, tokenA?.decimals, tokenB?.decimals)
-
     // round the tick based on tickSpacing
     let roundedTick = tick
     if (tickSpacing) roundedTick = roundTick(Number(tick), tickSpacing)
