@@ -152,13 +152,13 @@ export default function LimitRemoveLiqButton({
   return (
     <>
       <button
-        disabled={gasFee == "$0.00"}
+        disabled={gasLimit.lte(BN_ZERO)}
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center flex items-center justify-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
         onClick={() => {
           address ? write?.() : null;
         }}
       >
-        {gasFee == "$0.00" ? <Loader/> :"Remove liquidity"}
+        {gasLimit.lte(BN_ZERO) ? <Loader/> :"Remove liquidity"}
         
       </button>
       <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">

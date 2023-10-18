@@ -165,6 +165,7 @@ export default function ViewCover() {
   useEffect(() => {
     if (tokenIn.address && tokenOut.address) {
       setTokenOrder(tokenIn.callId == 0);
+      setPriceOrder(tokenIn.callId == 0);
     }
   }, [tokenIn, tokenOut]);
 
@@ -301,6 +302,7 @@ export default function ViewCover() {
     chainId: chainId,
     watch: true,
     enabled:
+      claimTick &&
       BigNumber.from(claimTick).gte(coverPositionData.lowerTick) &&
       BigNumber.from(claimTick).lte(coverPositionData.upperTick) &&
       isConnected &&
@@ -536,19 +538,11 @@ export default function ViewCover() {
                   onClick={() => setPriceDirection(!priceDirection)}
                   className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
                 >
-                  {Boolean(coverPositionData.zeroForOne)
-                    ? priceDirection
-                      ? tokenOut.symbol
-                      : tokenIn.symbol
-                    : priceDirection
+                  {Boolean(coverPositionData.zeroForOne) == priceDirection
                     ? tokenIn.symbol
                     : tokenOut.symbol}{" "}
                   per{" "}
-                  {Boolean(coverPositionData.zeroForOne)
-                    ? priceDirection
-                      ? tokenIn.symbol
-                      : tokenOut.symbol
-                    : priceDirection
+                  {Boolean(coverPositionData.zeroForOne) == priceDirection
                     ? tokenOut.symbol
                     : tokenIn.symbol}
                   <DoubleArrowIcon />
@@ -692,7 +686,7 @@ export default function ViewCover() {
                 zeroForOne={Boolean(coverPositionData.zeroForOne)}
                 gasFee={coverMintParams.gasFee}
                 signer={signer}
-                snapshotAmount={filledAmount ? filledAmount[0].add(filledAmount[1]) : BN_ZERO}
+                snapshotAmount={filledAmount ? filledAmount[2].add(filledAmount[3]) : BN_ZERO}
               />
               {/*TO-DO: add positionOwner ternary again*/}
             </div>

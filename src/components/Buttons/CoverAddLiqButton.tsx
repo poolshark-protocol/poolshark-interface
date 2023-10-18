@@ -98,6 +98,8 @@ export default function CoverAddLiqButton({
     },
   });
 
+  console.log('button state', buttonState)
+
   return (
     <>
       <button
@@ -105,7 +107,7 @@ export default function CoverAddLiqButton({
         className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full flex items-center justify-center border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
         onClick={() => write?.()}
       >
-        {gasLimit.lte(BN_ZERO) ? (
+        {gasLimit.lte(BN_ZERO) && amount?.gt(BN_ZERO) ? (
           <Loader />
         ) : disabled ? (
           <>

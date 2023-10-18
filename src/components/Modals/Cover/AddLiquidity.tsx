@@ -216,7 +216,6 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                     <div className="flex items-end justify-between text-[11px] text-grey1">
                       <span>
                         ~$
-                        {" "}
                         {Number(
                           tokenIn.coverUSDPrice *
                             parseFloat(
