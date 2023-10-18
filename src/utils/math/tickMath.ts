@@ -107,6 +107,8 @@ export abstract class TickMath {
   public static getPriceStringAtTick(tick: number, tokenA: token, tokenB: token, tickSpacing?: number): string {
     if (isNaN(tick)) return '0.00'
 
+    if (tick < 0) console.log('found USDC tick', tick, tokenA?.decimals, tokenB?.decimals)
+
     // round the tick based on tickSpacing
     let roundedTick = tick
     if (tickSpacing) roundedTick = roundTick(Number(tick), tickSpacing)
@@ -151,9 +153,9 @@ export abstract class TickMath {
     // divide by Q96
     let price = JSBD.divide(sqrtPriceExp, Q96Exp)
     // scale based on decimal difference
-    const token0 = tokenA.address.localeCompare(tokenB.address) < 0 ? tokenA : tokenB
-    const token1 = token0.address == tokenA.address ? tokenB : tokenA
-    const decimalDiff = !isNaN(token0.decimals) && !isNaN(token1.decimals) ? token0.decimals - token1.decimals : 0;
+    const token0 = tokenA?.address.localeCompare(tokenB?.address) < 0 ? tokenA : tokenB
+    const token1 = token0?.address == tokenA?.address ? tokenB : tokenA
+    const decimalDiff = !isNaN(token0?.decimals) && !isNaN(token1?.decimals) ? token0.decimals - token1.decimals : 0;
     if (decimalDiff > 0) {
       // multiply for positive diff
       const decimalFactor = JSBD.pow(JSBD.BigDecimal(10), decimalDiff)
