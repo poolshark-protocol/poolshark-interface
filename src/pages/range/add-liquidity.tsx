@@ -138,7 +138,6 @@ export default function AddLiquidity({}) {
 
   //sames as updatePools but triggered from the html
   const handleManualFeeTierChange = async (feeAmount: number) => {
-    console.log('fee tier change')
     updatePools(feeAmount)
     setRangePoolData({
       ...rangePoolData,
@@ -155,7 +154,6 @@ export default function AddLiquidity({}) {
     if (rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
       const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
       const tickAtPrice = rangePoolData.tickAtPrice;
-      console.log('setting range price', tokenIn.decimals, tokenOut.decimals)
       setRangePrice(
         TickMath.getPriceStringAtSqrtPrice(sqrtPrice, tokenIn, tokenOut)
       );
@@ -437,6 +435,9 @@ export default function AddLiquidity({}) {
     setPriceOrder(!priceOrder);
     setMaxInput(invertPrice(minInput, false));
     setMinInput(invertPrice(maxInput, false));
+    if (rangePoolAddress == ZERO_ADDRESS) {
+      setStartPrice(invertPrice(startPrice, false))
+    }
   };
 
   useEffect(() => {
@@ -788,6 +789,7 @@ export default function AddLiquidity({}) {
                   placeholder="0"
                   id="startPrice"
                   type="text"
+                  value={startPrice}
                   onChange={(e) => {
                     setStartPrice(inputFilter(e.target.value))
                   }
