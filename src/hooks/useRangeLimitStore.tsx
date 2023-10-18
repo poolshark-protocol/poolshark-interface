@@ -580,19 +580,21 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           tokenOut.address
         );
         const dataLength = pool["data"]["limitPools"].length;
+        let poolFound = false
         for (let i = 0; i < dataLength; i++) {
           if (
             pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility
           ) {
-            console.log("pool data found");
+            poolFound = true
+            console.log("fee tier pool data found", volatility);
             set(() => ({
               rangePoolAddress: pool["data"]["limitPools"][i]["id"],
               rangePoolData: pool["data"]["limitPools"][i],
             }));
           }
         }
-        if (dataLength == 0) {
-          console.log("pool data not found");
+        if (!poolFound) {
+          console.log("fee tier pool data not found");
           set((state) => ({
             rangePoolAddress: ZERO_ADDRESS as `0x${string}`,
             rangePoolData: {

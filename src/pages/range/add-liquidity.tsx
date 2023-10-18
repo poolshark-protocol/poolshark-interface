@@ -121,7 +121,7 @@ export default function AddLiquidity({}) {
     ) {
       updatePools(parseInt(rangePoolData.feeTier?.feeAmount));
     }
-  }, [tokenIn.address, tokenOut.address]);
+  }, [tokenIn.address, tokenOut.address, rangePoolData?.feeTier?.feeAmount]);
 
   useEffect(() => {
     if (
@@ -138,6 +138,7 @@ export default function AddLiquidity({}) {
 
   //sames as updatePools but triggered from the html
   const handleManualFeeTierChange = async (feeAmount: number) => {
+    console.log('fee tier change')
     updatePools(feeAmount)
     setRangePoolData({
       ...rangePoolData,
@@ -154,6 +155,7 @@ export default function AddLiquidity({}) {
     if (rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
       const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
       const tickAtPrice = rangePoolData.tickAtPrice;
+      console.log('setting range price', tokenIn.decimals, tokenOut.decimals)
       setRangePrice(
         TickMath.getPriceStringAtSqrtPrice(sqrtPrice, tokenIn, tokenOut)
       );
@@ -331,6 +333,7 @@ export default function AddLiquidity({}) {
   };
 
   function setAmounts(amountInSet: boolean, amountSet: BigNumber) {
+    console.log('set amounts', amountInSet, amountSet.toString())
     try {
       const isToken0 = amountInSet ? tokenIn.callId == 0 : tokenOut.callId == 0;
       const inputBn = amountSet;
@@ -402,10 +405,11 @@ export default function AddLiquidity({}) {
           ).toPrecision(6);
           setDisplayOut(parseFloat(displayValue) > 0 ? displayValue : "");
         } else {
+          console.log('set amounts token in amount', outputBn.toString())
           setTokenInAmount(outputBn);
           setTokenOutAmount(inputBn);
           const displayValue = parseFloat(
-            ethers.utils.formatUnits(outputBn, tokenOut.decimals)
+            ethers.utils.formatUnits(outputBn, tokenIn.decimals)
           ).toPrecision(6);
           setDisplayIn(parseFloat(displayValue) > 0 ? displayValue : "");
         }

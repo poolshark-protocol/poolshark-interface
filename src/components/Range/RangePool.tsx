@@ -25,12 +25,14 @@ export default function RangePool({ rangePool, href }) {
       address: rangePool.tokenZero.id,
       logoURI: logoMap[rangePool.tokenZero.symbol],
       symbol: rangePool.tokenZero.symbol,
+      decimals: rangePool.tokenZero.decimals
     };
     const tokenOut = {
       name: rangePool.tokenOne.symbol,
       address: rangePool.tokenOne.id,
       logoURI: logoMap[rangePool.tokenOne.symbol],
       symbol: rangePool.tokenOne.symbol,
+      decimals: rangePool.tokenOne.decimals
     };
     setRangeTokenIn(tokenOut, tokenIn);
     setRangeTokenOut(tokenIn, tokenOut);
