@@ -80,6 +80,7 @@ export default function RangePoolPreview() {
     watch: needsAllowanceIn && router.isReady,
     //enabled: tokenIn.address,
     onSuccess(data) {
+      console.log('allowance in comparison', allowanceInRange.toString(), rangeMintParams.tokenInAmount.toString())
       //setNeedsAllowanceIn(false);
     },
     onError(error) {
@@ -96,6 +97,8 @@ export default function RangePoolPreview() {
     watch: needsAllowanceOut && router.isReady,
     //enabled: pairSelected && rangePoolAddress != ZERO_ADDRESS,
     onSuccess(data) {
+      console.log('allowance out fetched', allowanceOutRange.toString(), tokenOut.address)
+      console.log('allowance comparison', allowanceOutRange.toString(), rangeMintParams.tokenOutAmount.toString())
       //setNeedsAllowanceOut(false);
     },
     onError(error) {
@@ -119,19 +122,20 @@ export default function RangePoolPreview() {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    if (
-      rangeMintParams.tokenInAmount &&
-      rangeMintParams.tokenOutAmount &&
-      rangePositionData.lowerPrice &&
-      rangePositionData.upperPrice &&
-      Number(rangePositionData.lowerPrice) <
-        Number(rangePositionData.upperPrice) &&
-      allowanceInRange?.gte(rangeMintParams.tokenInAmount) &&
-      allowanceOutRange?.gte(rangeMintParams.tokenOutAmount)
+    if
+    (
+        (rangeMintParams.tokenInAmount?.gt(BN_ZERO) ||
+        rangeMintParams.tokenOutAmount?.gt(BN_ZERO)) && 
+        rangePositionData.lowerPrice &&
+        rangePositionData.upperPrice &&
+        Number(rangePositionData.lowerPrice) <
+          Number(rangePositionData.upperPrice) &&
+        allowanceInRange?.gte(rangeMintParams.tokenInAmount) &&
+        allowanceOutRange?.gte(rangeMintParams.tokenOutAmount)
     ) {
       updateGasFee();
     }
-  }, [rangeMintParams.tokenInAmount, tokenOut, rangePositionData]);
+  }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount, allowanceInRange, allowanceOutRange, rangePositionData]);
 
   async function updateGasFee() {
     const newGasFee =
@@ -311,7 +315,7 @@ export default function RangePoolPreview() {
                                 {parseFloat(
                                   ethers.utils.formatUnits(
                                     rangeMintParams.tokenOutAmount,
-                                    18
+                                    tokenOut.decimals
                                   )
                                 ).toFixed(3)}
                               </div>
@@ -500,7 +504,7 @@ export default function RangePoolPreview() {
                               rangePoolData?.poolPrice ?? '0'
                             )} //TODO: for lucas; need input box for this
                             feeTier={
-                              rangePoolData.feeTier
+                              rangePoolData.feeTier?.feeAmount
                                 ?? 3000
                             }
                             to={address}

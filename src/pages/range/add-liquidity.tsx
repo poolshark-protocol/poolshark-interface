@@ -106,7 +106,10 @@ export default function AddLiquidity({}) {
   ////////////////////////////////TokenOrder
   const [tokenOrder, setTokenOrder] = useState(true);
 
+  ////////////////////////////////Pools
+
   useEffect(() => {
+    console.log('token address', !rangePoolData, rangePoolAddress)
     if (tokenIn.address && tokenOut.address) {
       setTokenOrder(tokenIn.callId == 0);
       setPriceOrder(tokenIn.callId == 0);
@@ -114,11 +117,15 @@ export default function AddLiquidity({}) {
     } else {
       setPairSelected(false);
     }
-  }, [tokenIn, tokenOut]);
-
-  ////////////////////////////////Pools
+    if (
+      rangePoolData.feeTier?.feeAmount
+    ) {
+      updatePools(parseInt(rangePoolData.feeTier?.feeAmount));
+    }
+  }, [tokenIn.address, tokenOut.address]);
 
   useEffect(() => {
+    console.log('token address', !rangePoolData, rangePoolAddress)
     if (
       router.query.feeTier &&
       !isNaN(parseInt(router.query.feeTier.toString()))
@@ -126,8 +133,6 @@ export default function AddLiquidity({}) {
       updatePools(parseInt(router.query.feeTier.toString()));
     }
   }, [router.query.feeTier]);
-
-  //TODO: @retraca set fee tier on pool when user changes tokens 
 
   async function updatePools(feeAmount: number) {
     setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount);
@@ -446,7 +451,6 @@ export default function AddLiquidity({}) {
       !isNaN(parseFloat(startPrice))) {
         console.log('this hooks triggers')
         setRangePoolData({
-          ...rangePoolData,
           poolPrice: String(TickMath.getSqrtPriceAtPriceString(
             invertPrice(startPrice, priceOrder),
             tokenIn, tokenOut
@@ -455,6 +459,7 @@ export default function AddLiquidity({}) {
             invertPrice(startPrice, priceOrder),
             tokenIn, tokenOut
           ),
+          feeTier: rangePoolData.feeTier
         })
       }
   }, [rangePoolAddress, startPrice]);
@@ -513,7 +518,9 @@ export default function AddLiquidity({}) {
                 {tokenOrder ? tokenOut.symbol : tokenIn.symbol}
               </span>
               <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                {(rangePoolData.feeTier?.feeAmount / 10000).toFixed(2)}%
+                {((!isNaN(rangePoolData.feeTier?.feeAmount) ?
+                    rangePoolData.feeTier?.feeAmount
+                    : 0) / 10000).toFixed(2)}%
               </span>
             </div>
           </div>

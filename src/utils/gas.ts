@@ -8,6 +8,7 @@ import { BN_ZERO } from "./math/constants";
 import { limitPoolABI } from "../abis/evm/limitPool";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { chainProperties } from "./chains";
+import JSBI from "jsbi";
 
 export interface gasEstimateResult {
   formattedPrice: string;
@@ -351,12 +352,18 @@ export const gasEstimateRangeCreateAndMint = async (
     if (!provider || (amount0.eq(BN_ZERO) && amount1.eq(BN_ZERO))) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
+    console.log('start price', startPrice.toString(), feeTier.toString())
+    if (JSBI.lessThan(JSBI.BigInt(startPrice.toString()), TickMath.MIN_SQRT_RATIO) ||
+        JSBI.greaterThanOrEqual(JSBI.BigInt(startPrice.toString()), TickMath.MAX_SQRT_RATIO)) {
+      return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
+    }
     const routerAddress = chainProperties["arbitrumGoerli"]["routerAddress"];
     const routerContract = new ethers.Contract(
       routerAddress,
       poolsharkRouterABI,
       provider
     );
+    console.log('estimating gas...', token1.address, amount0.toString(), amount1.toString())
     const gasUnits = await routerContract
       .connect(signer)
       .estimateGas.createLimitPoolAndMint(
@@ -390,9 +397,10 @@ export const gasEstimateRangeCreateAndMint = async (
       style: "currency",
       currency: "USD",
     });
+    console.log('gas estimated', gasUnits.toString())
     return { formattedPrice, gasUnits };
   } catch (error) {
-    console.log("range mint gas error", error);
+    console.log(startPrice.toString(), lowerTick.toString(), upperTick.toString(), "range create and mint gas error", error);
     return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
   }
 };
