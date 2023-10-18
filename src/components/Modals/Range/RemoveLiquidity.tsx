@@ -130,7 +130,6 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
       burnPercent,
       signer
     );
-    console.log('burn gas fee update', newBurnGasFee.gasUnits.mul(250).div(100).toString())
     setBurnGasFee(newBurnGasFee.formattedPrice);
     setBurnGasLimit(newBurnGasFee.gasUnits.mul(250).div(100));
   }
