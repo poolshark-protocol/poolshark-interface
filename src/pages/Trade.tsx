@@ -237,7 +237,6 @@ export default function Trade() {
         if (!limitTabSelected)
           updatePools(bnValue, false)
         else {
-
           const tokenInAmount = getExpectedAmountInFromOutput(
             Number(lowerTick),
             Number(upperTick),
@@ -276,6 +275,7 @@ export default function Trade() {
   useEffect(() => {
     if (tokenIn.address && tokenOut.address !== ZERO_ADDRESS) {
       // adjust decimals when switching directions
+
       updatePools(exactIn ? amountIn : amountOut, exactIn);
       if (exactIn) {
         if (!isNaN(parseFloat(displayIn))) {
@@ -291,7 +291,7 @@ export default function Trade() {
         }
       }
     }
-  }, [tokenIn.address, tokenOut.address]);
+  }, [tokenIn.address, tokenOut.address, tokenIn.decimals, tokenOut.decimals]);
 
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {
     const pools = await getSwapPools(tokenIn, tokenOut, setTradePoolData);
@@ -348,7 +348,7 @@ export default function Trade() {
           setDisplayIn(
             parseFloat(ethers.utils.formatUnits(
               poolQuotes[0].amountIn.toString(),
-              tokenOut.decimals
+              tokenIn.decimals
             )).toPrecision(6)
           )
         }
