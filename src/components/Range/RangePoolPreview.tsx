@@ -2,7 +2,7 @@ import { Fragment, useEffect, useState } from "react";
 import { Transition, Dialog } from "@headlessui/react";
 import RangeMintButton from "../Buttons/RangeMintButton";
 import { BigNumber, ethers } from "ethers";
-import { erc20ABI, useAccount, useContractRead, useSigner } from "wagmi";
+import { erc20ABI, useAccount, useContractRead, useProvider, useSigner } from "wagmi";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import RangeMintDoubleApproveButton from "../Buttons/RangeMintDoubleApproveButton";
 import { useRouter } from "next/router";
@@ -61,13 +61,13 @@ export default function RangePoolPreview() {
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState();
-
-  const { address } = useAccount();
   const [tokenOrder, setTokenOrder] = useState(
     tokenIn.address.localeCompare(tokenOut.address) < 0
   );
   const router = useRouter();
-  const signer = useSigner();
+  const provider = useProvider();
+  const { address } = useAccount();
+  const signer = new ethers.VoidSigner(address, provider);
 
   ////////////////////////////////Allowances
   const { data: allowanceInRange } = useContractRead({
