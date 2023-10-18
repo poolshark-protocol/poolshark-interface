@@ -7,6 +7,7 @@ import {
   useContractRead,
   useBalance,
   useSigner,
+  useProvider,
 } from "wagmi";
 import useInputBox from "../../../hooks/useInputBox";
 import RangeAddLiqButton from "../../Buttons/RangeAddLiqButton";
@@ -87,8 +88,9 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
   const { bnInput, maxBalance, inputBox, setDisplay } = useInputBox();
   const { bnInput: bnInput2, maxBalance: maxBalance2, inputBox: inputBox2, setDisplay: setDisplay2 } = useInputBox();
   const router = useRouter();
+  const provider = useProvider();
   const { address } = useAccount();
-  const signer = useSigner();
+  const signer = new ethers.VoidSigner(address, provider);
 
   const [disabled, setDisabled] = useState(false);
   const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
@@ -356,11 +358,13 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
       ) &&
       rangePositionData.min &&
       rangePositionData.max &&
-      Number(rangePositionData.min) < Number(rangePositionData.max)
+      Number(rangePositionData.min) < Number(rangePositionData.max) &&
+      tokenInAllowance.gte(rangeMintParams.tokenInAmount) &&
+      tokenOutAllowance.gte(rangeMintParams.tokenOutAmount)
     ) {
       updateGasFee();
     }
-  }, [tokenInAllowance, tokenOutAllowance, rangeMintParams, bnInput]);
+  }, [tokenInAllowance, tokenOutAllowance, rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount, rangePositionData]);
 
   async function updateGasFee() {
     const newGasFee = await gasEstimateRangeMint(

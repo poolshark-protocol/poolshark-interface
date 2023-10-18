@@ -115,8 +115,9 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
       address &&
       rangePositionData.poolId &&
       rangePositionData.positionId &&
-      burnPercent != BN_ZERO
+      burnPercent.gt(BN_ZERO)
     ) {
+
       updateGasFee();
     }
   }, [sliderValue, rangePositionData.poolId, rangePositionData.positionId, signer, address]);
@@ -320,7 +321,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
                   }}
                   gasLimit={burnGasLimit}
                   setIsOpen={setIsOpen}
-                  disabled={burnGasFee === "$0.00"}
+                  disabled={burnGasLimit.eq(BN_ZERO)}
                 />
               </Dialog.Panel>
             </Transition.Child>
