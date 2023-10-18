@@ -102,6 +102,7 @@ export default function AddLiquidity({}) {
   const [amountInSetLast, setAmountInSetLast] = useState(true);
   const [amountInDisabled, setAmountInDisabled] = useState(false);
   const [amountOutDisabled, setAmountOutDisabled] = useState(false);
+  const [feeAmount, setFeeAmount] = useState(undefined);
 
   ////////////////////////////////TokenOrder
   const [tokenOrder, setTokenOrder] = useState(true);
@@ -123,9 +124,22 @@ export default function AddLiquidity({}) {
       router.query.feeTier &&
       !isNaN(parseInt(router.query.feeTier.toString()))
     ) {
+      console.log('fee tier value', parseInt(router.query.feeTier.toString()))
+      setFeeAmount(parseInt(router.query.feeTier.toString()))
       updatePools(router.query.feeTier.toString());
+    } else {
+      console.log('fee tier value')
     }
-  }, [router.query.feeTier, tokenIn.address, tokenOut.address]);
+  }, [router.query.feeTier]);
+
+  useEffect(() => {
+    if (
+      feeAmount &&
+      !isNaN(parseInt(feeAmount))
+    ) {
+      updatePools(feeAmount);
+    }
+  }, [tokenIn.address, tokenOut.address]);
 
   async function updatePools(feeAmount: string) {
     setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount);
@@ -133,11 +147,13 @@ export default function AddLiquidity({}) {
 
   //sames as updatePools but triggered from the html
   const handleManualFeeTierChange = async (feeAmount: string) => {
-    updatePools(feeAmount);
+    setFeeAmount(feeAmount)
+    updatePools(feeAmount)
   };
 
   //this sets the default position price delta
   useEffect(() => {
+    console.log('range pool data', rangePoolData)
     if (rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
       const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
       const tickAtPrice = rangePoolData.tickAtPrice;
@@ -145,12 +161,14 @@ export default function AddLiquidity({}) {
         TickMath.getPriceStringAtSqrtPrice(sqrtPrice, tokenIn, tokenOut)
       );
       setRangeSqrtPrice(sqrtPrice);
-      setMinInput(
-        TickMath.getPriceStringAtTick(tickAtPrice - 7000, tokenIn, tokenOut)
-      );
-      setMaxInput(
-        TickMath.getPriceStringAtTick(tickAtPrice - -7000, tokenIn, tokenOut)
-      );
+      if (rangePoolAddress != ZERO_ADDRESS) {
+        setMinInput(
+          TickMath.getPriceStringAtTick(tickAtPrice - 7000, tokenIn, tokenOut)
+        );
+        setMaxInput(
+          TickMath.getPriceStringAtTick(tickAtPrice - -7000, tokenIn, tokenOut)
+        );
+      }
     }
   }, [
     rangePoolData.feeTier,
@@ -324,13 +342,13 @@ export default function AddLiquidity({}) {
         lowerPrice,
         tokenIn,
         tokenOut,
-        parseInt(rangePoolData.feeTier.tickSpacing)
+        parseInt(rangePoolData.feeTier?.tickSpacing ?? '100')
       );
       const upper = TickMath.getTickAtPriceString(
         upperPrice,
         tokenIn,
         tokenOut,
-        parseInt(rangePoolData.feeTier.tickSpacing)
+        parseInt(rangePoolData.feeTier?.tickSpacing ?? '100')
       );
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lower);
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upper);
@@ -413,6 +431,7 @@ export default function AddLiquidity({}) {
 
   const [minInput, setMinInput] = useState("");
   const [maxInput, setMaxInput] = useState("");
+  const [startPrice, setStartPrice] = useState("")
 
   const handlePriceSwitch = () => {
     setPriceOrder(!priceOrder);
@@ -424,6 +443,25 @@ export default function AddLiquidity({}) {
     setLowerPrice(invertPrice(priceOrder ? minInput : maxInput, priceOrder));
     setUpperPrice(invertPrice(priceOrder ? maxInput : minInput, priceOrder));
   }, [maxInput, minInput]);
+
+  useEffect(() => {
+    if (
+      rangePoolAddress == ZERO_ADDRESS &&
+      startPrice &&
+      !isNaN(parseFloat(startPrice))) {
+        setRangePoolData({
+          ...rangePoolData,
+          poolPrice: TickMath.getSqrtPriceAtPriceString(
+            invertPrice(startPrice, priceOrder),
+            tokenIn, tokenOut
+          ),
+          tickAtPrice: TickMath.getTickAtPriceString(
+            invertPrice(startPrice, priceOrder),
+            tokenIn, tokenOut
+          ),
+        })
+      }
+  }, [rangePoolAddress, startPrice]);
 
   ////////////////////////////////Mint Button State
 
@@ -479,7 +517,7 @@ export default function AddLiquidity({}) {
                 {tokenOrder ? tokenOut.symbol : tokenIn.symbol}
               </span>
               <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                {(rangePoolData?.feeTier?.feeAmount / 10000).toFixed(2)}%
+                {(feeAmount / 10000).toFixed(2)}%
               </span>
             </div>
           </div>
@@ -490,7 +528,7 @@ export default function AddLiquidity({}) {
             <div className="flex items-end justify-between text-[11px] text-grey1">
               <span>
                 ~$
-                {(
+                {!isNaN(tokenIn.USDPrice) ? (
                   tokenIn.USDPrice *
                   Number(
                     ethers.utils.formatUnits(
@@ -498,7 +536,7 @@ export default function AddLiquidity({}) {
                       tokenIn.decimals
                     )
                   )
-                ).toFixed(2)}
+                ).toFixed(2) : '?.??'}
               </span>
               <span>BALANCE: {tokenIn.userBalance ?? 0}</span>
             </div>
@@ -537,12 +575,12 @@ export default function AddLiquidity({}) {
             <div className="flex items-end justify-between text-[11px] text-grey1">
               <span>
                 ~$
-                {(
+                {!isNaN(tokenOut.USDPrice) ? ((
                   Number(tokenOut.USDPrice) *
                   Number(
                     ethers.utils.formatUnits(rangeMintParams.tokenOutAmount, 18)
                   )
-                ).toFixed(2)}
+                ).toFixed(2)) : '?.??'}
               </span>
               <span>BALANCE: {tokenOut.userBalance ?? 0}</span>
             </div>
@@ -719,7 +757,7 @@ export default function AddLiquidity({}) {
                 }}
                 key={feeTierIdx}
                 className={`bg-black p-4 w-full rounded-[4px] cursor-pointer transition-all ${
-                  rangePoolData?.feeTier?.feeAmount?.toString() ===
+                  feeAmount ===
                   feeTier.tierId.toString()
                     ? "border-grey1 border bg-grey/20"
                     : "border border-grey"
@@ -733,7 +771,7 @@ export default function AddLiquidity({}) {
             ))}
           </div>
         </div>
-        {rangePoolAddress != ZERO_ADDRESS && (
+        {rangePoolAddress == ZERO_ADDRESS && (
           <div className="bg-black border rounded-[4px] border-grey/50 p-5">
             <p className="text-xs text-grey1 flex items-center gap-x-4 mb-5">
               This pool does not exist so a starting price must be set in order
@@ -748,6 +786,10 @@ export default function AddLiquidity({}) {
                   placeholder="0"
                   id="startPrice"
                   type="text"
+                  onChange={(e) => {
+                    setStartPrice(inputFilter(e.target.value))
+                  }
+                }
                 />
               </span>
             </div>

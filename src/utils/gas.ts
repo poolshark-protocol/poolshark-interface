@@ -336,6 +336,7 @@ export const gasEstimateRangeCreateAndMint = async (
   address: string,
   lowerTick: BigNumber,
   upperTick: BigNumber,
+  startPrice: BigNumber,
   token0: tokenRangeLimit,
   token1: tokenRangeLimit,
   amount0: BigNumber,
@@ -363,7 +364,7 @@ export const gasEstimateRangeCreateAndMint = async (
           poolTypeId: poolTypeId,
           tokenIn: token0.address,
           tokenOut: token1.address,
-          startPrice: TickMath.getSqrtRatioAtTick(Number(upperTick)),
+          startPrice: startPrice,
           swapFee: feeTier,
         }, // pool params
         [

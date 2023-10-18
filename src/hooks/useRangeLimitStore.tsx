@@ -566,8 +566,9 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         },
       }));
     },
-    setRangePoolFromFeeTier: async (tokenIn, tokenOut, volatility: any) => {
+    setRangePoolFromFeeTier: async (tokenIn, tokenOut, volatility: any, poolPrice?: any, tickAtPrice?: any) => {
       try {
+        console.log('pool data')
         const pool = await getRangePoolFromFactory(
           tokenIn.address,
           tokenOut.address
@@ -577,11 +578,19 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           if (
             pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility
           ) {
+            console.log('pool data found')
             set(() => ({
               rangePoolAddress: pool["data"]["limitPools"][i]["id"],
               rangePoolData: pool["data"]["limitPools"][i],
             }));
           }
+        }
+        if (dataLength == 0) {
+          console.log('pool data not found');
+          set(() => ({
+            rangePoolAddress: ZERO_ADDRESS as `0x${string}`,
+            rangePoolData: {},
+          }));
         }
       } catch (error) {
         console.log(error);
