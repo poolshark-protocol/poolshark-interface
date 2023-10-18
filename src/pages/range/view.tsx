@@ -22,11 +22,7 @@ import router from "next/router";
 import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function ViewRange() {
-  const [
-    chainId
-  ] = useConfigStore((state) => [
-    state.chainId,
-  ]);
+  const [chainId] = useConfigStore((state) => [state.chainId]);
 
   const [
     rangePoolAddress,
@@ -65,7 +61,6 @@ export default function ViewRange() {
   const { address, isConnected } = useAccount();
   const { data: signer } = useSigner();
 
-
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
   const [priceDirection, setPriceDirection] = useState(false);
@@ -99,6 +94,21 @@ export default function ViewRange() {
   );
 
   ////////////////////////Addresses
+
+  useEffect(() => {
+    setPoolDisplay(
+      rangePoolAddress != ("" as string)
+        ? rangePoolAddress.substring(0, 6) +
+            "..." +
+            rangePoolAddress.substring(
+              rangePoolAddress.length - 4,
+              rangePoolAddress.length
+            )
+        : undefined
+    );
+    
+    
+  }, [rangePoolAddress]);
 
   useEffect(() => {
     if (copyRangePoolAddress) {
@@ -152,7 +162,8 @@ export default function ViewRange() {
               parseFloat(
                 TickMath.getPriceStringAtSqrtPrice(
                   JSBI.BigInt(String(rangePoolData.poolPrice)),
-                  tokenIn, tokenOut
+                  tokenIn,
+                  tokenOut
                 )
               )
             ).toPrecision(6)
@@ -233,10 +244,18 @@ export default function ViewRange() {
   useEffect(() => {
     if (rangePositionData.min && rangePositionData.max) {
       setLowerPrice(
-        TickMath.getPriceStringAtTick(Number(rangePositionData.min), tokenIn, tokenOut)
+        TickMath.getPriceStringAtTick(
+          Number(rangePositionData.min),
+          tokenIn,
+          tokenOut
+        )
       );
       setUpperPrice(
-        TickMath.getPriceStringAtTick(Number(rangePositionData.max), tokenIn, tokenOut)
+        TickMath.getPriceStringAtTick(
+          Number(rangePositionData.max),
+          tokenIn,
+          tokenOut
+        )
       );
     }
   }, [tokenIn, tokenOut, rangePositionData.min, rangePositionData.max]);
@@ -546,7 +565,8 @@ export default function ViewRange() {
                       ) : (
                         TickMath.getPriceStringAtSqrtPrice(
                           JSBI.BigInt(rangePositionData.price),
-                          tokenIn, tokenOut
+                          tokenIn,
+                          tokenOut
                         )
                       )
                     ) : null}
@@ -627,7 +647,11 @@ export default function ViewRange() {
       </div>
       {rangePositionData.price ? (
         <>
-          <RemoveLiquidity isOpen={isRemoveOpen} setIsOpen={setIsRemoveOpen} signer={signer} />
+          <RemoveLiquidity
+            isOpen={isRemoveOpen}
+            setIsOpen={setIsRemoveOpen}
+            signer={signer}
+          />
           <AddLiquidity isOpen={isAddOpen} setIsOpen={setIsAddOpen} />
         </>
       ) : null}
