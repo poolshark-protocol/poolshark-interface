@@ -2,6 +2,7 @@ import { Transition, Dialog } from "@headlessui/react";
 import Link from "next/link";
 import router, { useRouter } from "next/router";
 import { Fragment, useState, useEffect } from "react";
+import Loader from "../Icons/Loader";
 
 export default function PositionMintModal({
   errorDisplay,
@@ -10,13 +11,25 @@ export default function PositionMintModal({
   successDisplay,
   type,
 }) {
+
   const [isOpen, setIsOpen] = useState(false);
+  const [buttonWait, setButtonWait] = useState(false);
 
   useEffect(() => {
     if (errorDisplay || isLoading || successDisplay) {
       setIsOpen(true);
     }
   }, [successDisplay, isLoading, errorDisplay]);
+
+  useEffect(() => {
+    if (successDisplay) {
+      setButtonWait(true)
+      setTimeout(() => {
+        setButtonWait(false)
+      }, 1000)
+    }
+  }, [successDisplay, isLoading, errorDisplay]);
+
 
   const router = useRouter();
 
@@ -132,13 +145,12 @@ export default function PositionMintModal({
                     isLoading && "opacity-20 cursor-not-allowed"
                   }`}
                 >
+                  <Link href={type === "range" ? "/range" : "/cover"}>
                   <button
-                    className="whitespace-nowrap text-xs flex items-center gap-x-2 text-grey1 hover:text-white hover:underline transition-all"
-                    onClick={() =>
-                      router.push(type === "range" ? "/range" : "/cover")
-                    }
+                  disabled={buttonWait}
+                    className="disabled:opacity-50 whitespace-nowrap text-xs flex items-center gap-x-2 text-grey1 hover:text-white hover:underline transition-all"
                   >
-                    <svg
+                    {buttonWait ? <div className="my-0.5 flex items-center gap-x-2"><Loader/> Loading...</div> : <><svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -152,8 +164,10 @@ export default function PositionMintModal({
                         d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18"
                       />
                     </svg>
-                    Go back
+                    Go back</>}
+                    
                   </button>
+                  </Link>
                   <a
                     target="_blank"
                     rel="noreferrer"
