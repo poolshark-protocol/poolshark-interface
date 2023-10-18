@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import RangeCompoundButton from "../../components/Buttons/RangeCompoundButton";
 import { useAccount, useSigner } from "wagmi";
 import { BigNumber, ethers } from "ethers";
-import { TickMath } from "../../utils/math/tickMath";
+import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
 import { useCopyElementUseEffect } from "../../utils/misc";
 import { DyDxMath } from "../../utils/math/dydxMath";
@@ -22,11 +22,7 @@ import router from "next/router";
 import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function ViewRange() {
-  const [
-    chainId
-  ] = useConfigStore((state) => [
-    state.chainId,
-  ]);
+  const [chainId] = useConfigStore((state) => [state.chainId]);
 
   const [
     rangePoolAddress,
@@ -35,6 +31,8 @@ export default function ViewRange() {
     rangeMintParams,
     tokenIn,
     tokenOut,
+    priceOrder,
+    setPriceOrder,
     setTokenInRangeUSDPrice,
     setTokenOutRangeUSDPrice,
     needsRefetch,
@@ -51,6 +49,8 @@ export default function ViewRange() {
     state.rangeMintParams,
     state.tokenIn,
     state.tokenOut,
+    state.priceOrder,
+    state.setPriceOrder,
     state.setTokenInRangeUSDPrice,
     state.setTokenOutRangeUSDPrice,
     state.needsRefetch,
@@ -65,10 +65,8 @@ export default function ViewRange() {
   const { address, isConnected } = useAccount();
   const { data: signer } = useSigner();
 
-
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
-  const [priceDirection, setPriceDirection] = useState(false);
   const [allRangePositions, setAllRangePositions] = useState([]);
   const [userLiquidityUsd, setUserLiquidityUsd] = useState(0);
   const [lowerPrice, setLowerPrice] = useState("");
@@ -82,9 +80,6 @@ export default function ViewRange() {
   const [amount0FeesUsd, setAmount0FeesUsd] = useState(0.0);
   const [amount1FeesUsd, setAmount1FeesUsd] = useState(0.0);
   const [isPoolCopied, setIsPoolCopied] = useState(false);
-  const [lowerInverse, setLowerInverse] = useState(0);
-  const [upperInverse, setUpperInverse] = useState(0);
-  const [priceInverse, setPriceInverse] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   const [poolDisplay, setPoolDisplay] = useState(
@@ -99,6 +94,22 @@ export default function ViewRange() {
   );
 
   ////////////////////////Addresses
+
+  useEffect(() => {
+    setPoolDisplay(
+      rangePoolAddress != ("" as string)
+        ? rangePoolAddress.substring(0, 6) +
+            "..." +
+            rangePoolAddress.substring(
+              rangePoolAddress.length - 4,
+              rangePoolAddress.length
+            )
+        : undefined
+    );
+    if (tokenIn.address && tokenOut.address) {
+      setPriceOrder(tokenIn.callId == 0);
+    }
+  }, [rangePoolAddress, tokenIn.address, tokenOut.address]);
 
   useEffect(() => {
     if (copyRangePoolAddress) {
@@ -134,29 +145,6 @@ export default function ViewRange() {
         );
         setAmount1FeesUsd(
           parseFloat((amount1Fees * tokenOut.USDPrice).toPrecision(3))
-        );
-        setLowerInverse(
-          parseFloat(
-            (tokenOut.USDPrice / parseFloat(upperPrice)).toPrecision(6)
-          )
-        );
-        setUpperInverse(
-          parseFloat(
-            (tokenOut.USDPrice / parseFloat(lowerPrice)).toPrecision(6)
-          )
-        );
-        setPriceInverse(
-          parseFloat(
-            (
-              tokenOut.USDPrice /
-              parseFloat(
-                TickMath.getPriceStringAtSqrtPrice(
-                  JSBI.BigInt(String(rangePoolData.poolPrice)),
-                  tokenIn, tokenOut
-                )
-              )
-            ).toPrecision(6)
-          )
         );
       }
     } catch (error) {
@@ -233,10 +221,18 @@ export default function ViewRange() {
   useEffect(() => {
     if (rangePositionData.min && rangePositionData.max) {
       setLowerPrice(
-        TickMath.getPriceStringAtTick(Number(rangePositionData.min), tokenIn, tokenOut)
+        TickMath.getPriceStringAtTick(
+          Number(rangePositionData.min),
+          tokenIn,
+          tokenOut
+        )
       );
       setUpperPrice(
-        TickMath.getPriceStringAtTick(Number(rangePositionData.max), tokenIn, tokenOut)
+        TickMath.getPriceStringAtTick(
+          Number(rangePositionData.max),
+          tokenIn,
+          tokenOut
+        )
       );
     }
   }, [tokenIn, tokenOut, rangePositionData.min, rangePositionData.max]);
@@ -278,7 +274,7 @@ export default function ViewRange() {
           parseFloat(ethers.utils.formatUnits(amount0Bn, tokenIn.decimals))
         );
         setAmount1(
-          parseFloat(ethers.utils.formatUnits(amount1Bn, tokenIn.decimals))
+          parseFloat(ethers.utils.formatUnits(amount1Bn, tokenOut.decimals))
         );
       }
     } catch (error) {
@@ -481,19 +477,19 @@ export default function ViewRange() {
                   )}
                 </div>
                 <div
-                  onClick={() => setPriceDirection(!priceDirection)}
+                  onClick={() => setPriceOrder(!priceOrder)}
                   className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
                 >
-                  {priceDirection ? (
-                    <>{tokenIn.symbol}</>
-                  ) : (
+                  {priceOrder ? (
                     <>{tokenOut.symbol}</>
+                  ) : (
+                    <>{tokenIn.symbol}</>
                   )}{" "}
                   per{" "}
-                  {priceDirection ? (
-                    <>{tokenOut.symbol}</>
-                  ) : (
+                  {priceOrder ? (
                     <>{tokenIn.symbol}</>
+                  ) : (
+                    <>{tokenOut.symbol}</>
                   )}{" "}
                   <DoubleArrowIcon />
                 </div>
@@ -505,15 +501,11 @@ export default function ViewRange() {
                     <span className="text-white text-2xl md:text-3xl">
                       {isLoading ? (
                         <div className="h-9 w-36 bg-grey/60 animate-pulse rounded-[4px]" />
-                      ) : priceDirection ? (
-                        <>{lowerInverse}</>
-                      ) : (
-                        <>{lowerPrice}</>
-                      )}
+                      ) : invertPrice(priceOrder ? lowerPrice : upperPrice, priceOrder)}
                     </span>
                     <span className="text-grey1 text-[9px] text-center">
                       Your position will be 100%{" "}
-                      {priceDirection ? tokenOut.symbol : tokenIn.symbol} at
+                      {priceOrder ? tokenIn.symbol : tokenOut.symbol} at
                       this price.
                     </span>
                   </div>
@@ -522,15 +514,11 @@ export default function ViewRange() {
                     <span className="text-white text-2xl md:text-3xl">
                       {isLoading ? (
                         <div className="h-9 w-36 bg-grey/60 animate-pulse rounded-[4px]" />
-                      ) : priceDirection ? (
-                        <>{upperInverse}</>
-                      ) : (
-                        <>{upperPrice}</>
-                      )}
+                      ) : invertPrice(priceOrder ? upperPrice : lowerPrice, priceOrder)}
                     </span>
                     <span className="text-grey1 text-[9px] text-center">
                       Your position will be 100%{" "}
-                      {priceDirection ? tokenIn.symbol : tokenOut.symbol} at
+                      {priceOrder ? tokenOut.symbol : tokenIn.symbol} at
                       this price.
                     </span>
                   </div>
@@ -541,13 +529,13 @@ export default function ViewRange() {
                     {isLoading ? (
                       <div className="h-9 w-36 bg-grey/60 animate-pulse rounded-[4px]" />
                     ) : rangePositionData.price ? (
-                      priceDirection ? (
-                        priceInverse
-                      ) : (
+                      invertPrice(
                         TickMath.getPriceStringAtSqrtPrice(
                           JSBI.BigInt(rangePositionData.price),
-                          tokenIn, tokenOut
-                        )
+                          tokenIn,
+                          tokenOut
+                        ),
+                        priceOrder
                       )
                     ) : null}
                   </span>
@@ -627,7 +615,11 @@ export default function ViewRange() {
       </div>
       {rangePositionData.price ? (
         <>
-          <RemoveLiquidity isOpen={isRemoveOpen} setIsOpen={setIsRemoveOpen} signer={signer} />
+          <RemoveLiquidity
+            isOpen={isRemoveOpen}
+            setIsOpen={setIsRemoveOpen}
+            signer={signer}
+          />
           <AddLiquidity isOpen={isAddOpen} setIsOpen={setIsAddOpen} />
         </>
       ) : null}

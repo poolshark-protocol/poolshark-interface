@@ -8,6 +8,7 @@ import { BN_ZERO } from "./math/constants";
 import { limitPoolABI } from "../abis/evm/limitPool";
 import { poolsharkRouterABI } from "../abis/evm/poolsharkRouter";
 import { chainProperties } from "./chains";
+import JSBI from "jsbi";
 
 export interface gasEstimateResult {
   formattedPrice: string;
@@ -93,8 +94,6 @@ export const gasEstimateMintLimit = async (
       poolsharkRouterABI,
       provider
     );
-    console.log("estimating mint gas");
-
     let gasUnits: BigNumber;
     gasUnits = await routerContract.connect(signer).estimateGas.multiMintLimit(
       [rangePoolRoute],
@@ -112,7 +111,6 @@ export const gasEstimateMintLimit = async (
       ]
     );
 
-    console.log("mint gas units: ", gasUnits.toString());
     const gasPrice = await provider.getGasPrice();
     const networkFeeWei = gasPrice.mul(gasUnits);
     const networkFeeEth = Number(ethers.utils.formatUnits(networkFeeWei, 18));
@@ -321,10 +319,8 @@ export const gasEstimateRangeMint = async (
       style: "currency",
       currency: "USD",
     });
-    console.log('new gas limit', gasUnits.toString())
     return { formattedPrice, gasUnits };
   } catch (error) {
-    console.log('signer check', signer, signer != undefined)
     console.log("range mint gas error", error);
     return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
   }
@@ -336,6 +332,7 @@ export const gasEstimateRangeCreateAndMint = async (
   address: string,
   lowerTick: BigNumber,
   upperTick: BigNumber,
+  startPrice: BigNumber,
   token0: tokenRangeLimit,
   token1: tokenRangeLimit,
   amount0: BigNumber,
@@ -348,6 +345,10 @@ export const gasEstimateRangeCreateAndMint = async (
       "https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/"
     );
     if (!provider || (amount0.eq(BN_ZERO) && amount1.eq(BN_ZERO))) {
+      return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
+    }
+    if (JSBI.lessThan(JSBI.BigInt(startPrice.toString()), TickMath.MIN_SQRT_RATIO) ||
+        JSBI.greaterThanOrEqual(JSBI.BigInt(startPrice.toString()), TickMath.MAX_SQRT_RATIO)) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
     }
     const routerAddress = chainProperties["arbitrumGoerli"]["routerAddress"];
@@ -363,7 +364,7 @@ export const gasEstimateRangeCreateAndMint = async (
           poolTypeId: poolTypeId,
           tokenIn: token0.address,
           tokenOut: token1.address,
-          startPrice: TickMath.getSqrtRatioAtTick(Number(upperTick)),
+          startPrice: startPrice,
           swapFee: feeTier,
         }, // pool params
         [
@@ -391,7 +392,6 @@ export const gasEstimateRangeCreateAndMint = async (
     });
     return { formattedPrice, gasUnits };
   } catch (error) {
-    console.log("range mint gas error", error);
     return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
   }
 };

@@ -457,7 +457,6 @@ export default function CreateCover(props: any) {
     if (!newMintGasFee.gasUnits.mul(120).div(100).eq(mintGasLimit)) {
       setMintGasFee(newMintGasFee.formattedPrice);
       setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
-      console.log('new gas limit set', mintGasLimit.toString())
     }
   }
 

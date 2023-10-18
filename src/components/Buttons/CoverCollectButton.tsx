@@ -23,20 +23,20 @@ export default function CoverCollectButton({
   zeroForOne,
   gasFee,
   signer,
-  snapshotAmount
+  snapshotAmount,
 }) {
-  const [
-    chainId
-  ] = useConfigStore((state) => [
-    state.chainId,
-  ]);
+  const [chainId] = useConfigStore((state) => [state.chainId]);
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [successDisplay, setSuccessDisplay] = useState(false);
 
-  const [setNeedsBalance] = useCoverStore((state) => [state.setNeedsBalance]);
+  const [setNeedsBalance, setNeedsRefetch, setNeedsPosRefetch] = useCoverStore(
+    (state) => [
+      state.setNeedsBalance,
+      state.setNeedsRefetch,
+      state.setNeedsPosRefetch,
+    ]
+  );
   const [gasLimit, setGasLimit] = useState(BN_ZERO);
-
-  console.log('snapshot amount', snapshotAmount.toString(), snapshotAmount.gt(BN_ZERO))
 
   useEffect(() => {
     if (
@@ -82,6 +82,8 @@ export default function CoverCollectButton({
     onSuccess() {
       setSuccessDisplay(true);
       setNeedsBalance(true);
+      setNeedsRefetch(true);
+      setNeedsPosRefetch(true);
     },
     onError() {
       setErrorDisplay(true);
@@ -97,7 +99,13 @@ export default function CoverCollectButton({
           address ? write?.() : null;
         }}
       >
-        {gasLimit.lte(BN_ZERO) && snapshotAmount.gt(BN_ZERO) ? <Loader /> : snapshotAmount.gt(BN_ZERO) ? "Collect position" : "Nothing to collect"}
+        {gasLimit.lte(BN_ZERO) && snapshotAmount.gt(BN_ZERO) ? (
+          <Loader />
+        ) : snapshotAmount.gt(BN_ZERO) ? (
+          "Collect position"
+        ) : (
+          "Nothing to collect"
+        )}
       </button>
       <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
         {errorDisplay && (

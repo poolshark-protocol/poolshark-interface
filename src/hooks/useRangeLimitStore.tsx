@@ -115,6 +115,7 @@ type RangeLimitAction = {
     volatility: any
   ) => void;
   resetRangeLimitParams: () => void;
+  resetMintParams: () => void;
   //
   setMintButtonState: () => void;
   //
@@ -566,22 +567,38 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         },
       }));
     },
-    setRangePoolFromFeeTier: async (tokenIn, tokenOut, volatility: any) => {
+    setRangePoolFromFeeTier: async (
+      tokenIn,
+      tokenOut,
+      volatility: any,
+      poolPrice?: any,
+      tickAtPrice?: any
+    ) => {
       try {
         const pool = await getRangePoolFromFactory(
           tokenIn.address,
           tokenOut.address
         );
         const dataLength = pool["data"]["limitPools"].length;
+        let poolFound = false
         for (let i = 0; i < dataLength; i++) {
           if (
             pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility
           ) {
+            poolFound = true
             set(() => ({
               rangePoolAddress: pool["data"]["limitPools"][i]["id"],
               rangePoolData: pool["data"]["limitPools"][i],
             }));
           }
+        }
+        if (!poolFound) {
+          set((state) => ({
+            rangePoolAddress: ZERO_ADDRESS as `0x${string}`,
+            rangePoolData: {
+              feeTier: state.rangePoolData.feeTier,
+            },
+          }));
         }
       } catch (error) {
         console.log(error);
@@ -596,7 +613,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         const dataLength = pool["data"]["limitPools"].length;
         for (let i = 0; i < dataLength; i++) {
           if (
-            (pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility) 
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility
           ) {
             set(() => ({
               limitPoolAddress: pool["data"]["limitPools"][i]["id"],
@@ -663,6 +680,12 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         //expected output
         currentAmountOut: initialRangeLimitState.currentAmountOut,
       });
+    },
+    resetMintParams: () => {
+      set((state) => ({
+        rangeMintParams: initialRangeLimitState.rangeMintParams,
+        limitMintParams: initialRangeLimitState.limitMintParams,
+      }));
     },
   })
 );

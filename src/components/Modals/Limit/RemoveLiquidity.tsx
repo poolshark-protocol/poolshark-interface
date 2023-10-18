@@ -35,10 +35,6 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
 
   useEffect(() => {
     setBurnPercent(ethers.utils.parseUnits(String(sliderValue), 36));
-    console.log(
-      "setting burn percent",
-      ethers.utils.parseUnits(String(sliderValue), 36).toString()
-    );
     setSliderOutput(
       (
         (parseFloat(

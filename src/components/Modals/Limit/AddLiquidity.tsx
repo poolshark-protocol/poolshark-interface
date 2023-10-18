@@ -81,7 +81,6 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
     },
     onSettled(data, error) {
       console.log("current allowance", allowanceIn)
-      console.log("allowance check", allowanceIn.lt(bnInput));
       console.log("Allowance Settled", {
         data,
         error,
@@ -239,7 +238,6 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                           <button
                             className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
                             onClick={() => {
-                              console.log("max", tokenIn.userBalance);
                               maxBalance(tokenIn.userBalance.toString(), "0", tokenIn);
                             }}
                           >

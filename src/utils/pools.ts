@@ -81,12 +81,10 @@ export const getCoverPool = async (
     if (coverPoolData) {
       for (let i = 0; i < dataLength; i++) {
         if (pool["data"]["coverPools"][i]["id"] == coverPoolData["id"]) {
-          console.log("found cover pool data", coverPoolData);
           coverPoolData = pool["data"]["coverPools"][i];
         }
       }
     }
-
     if (dataLength != 0) {
       id = pool["data"]["coverPools"]["0"]["id"];
       coverPoolData = pool["data"]["coverPools"]["0"];
@@ -122,7 +120,6 @@ export const getCoverPoolFromFeeTier = async (
     const dataLength = pool["data"]["coverPools"].length;
 
     if (coverPoolData) {
-      console.log("cover pool data", coverPoolData);
       for (let i = 0; i < dataLength; i++) {
         if (pool["data"]["coverPools"][i]["id"] == coverPoolData["id"]) {
           console.log("found cover pool data", coverPoolData);
@@ -172,9 +169,7 @@ export const getCoverPoolInfo = async (
       tokenIn.address,
       tokenOut.address
     );
-    console.log("getting pool info", poolRoute);
     const dataLength = pool["data"]["coverPools"].length;
-    console.log("getting data length", dataLength);
     if (dataLength) {
       for (let i = 0; i < dataLength; i++) {
         const newPoolRoute = pool["data"]["coverPools"][i]["id"];
@@ -185,9 +180,7 @@ export const getCoverPoolInfo = async (
           (poolRoute && newPoolRoute == poolRoute) ||
           (expectedTickSpread && tickSpread == expectedTickSpread)
         ) {
-          console.log("vol tier get spread", tickSpread, expectedTickSpread);
           setCoverPoolRoute(pool["data"]["coverPools"][i]["id"]);
-          console.log("vol tier pool found", newPoolRoute);
           if (tickSpread == 20) {
             if (volatility != 0) {
               console.log("change to tier 0");
@@ -301,6 +294,33 @@ export const feeTiers = [
     unavailable: false,
   },
 ];
+
+export const feeTierMap = {
+  1000: {
+    id: 0,
+    tier: "0.1%",
+    tierId: 1000,
+    tickSpacing: 10,
+    text: "Best for stable pairs",
+    unavailable: false,
+  },
+  3000: {
+    id: 1,
+    tier: "0.3%",
+    tierId: 3000,
+    tickSpacing: 30,
+    text: "Best for most pairs",
+    unavailable: false,
+  },
+  10000: {
+    id: 2,
+    tier: "1%",
+    tierId: 10000,
+    tickSpacing: 100,
+    text: "Best for exotic pairs",
+    unavailable: false,
+  },
+};
 
 export const volatilityTiers = [
   {
