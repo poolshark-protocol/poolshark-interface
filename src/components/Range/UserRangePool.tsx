@@ -4,7 +4,7 @@ import { fetchRangeTokenUSDPrice, logoMap } from "../../utils/tokens";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { BigNumber, ethers } from "ethers";
 import { useCoverStore } from "../../hooks/useCoverStore";
-import { tokenCover } from "../../utils/types";
+import { token, tokenCover } from "../../utils/types";
 import { DyDxMath } from "../../utils/math/dydxMath";
 import JSBI from "jsbi";
 import { getRangePoolFromFactory } from "../../utils/queries";
@@ -61,6 +61,14 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
   //Todo token in and out prices should local to the tile and not set at the store level
   /* const [amount0, setAmount0] = useState(0);
   const [amount1, setAmount1] = useState(0); */
+
+  function setTokenAddressFromId(token: any): token {
+    token = {
+      ...token,
+      address: token.id
+    }
+    return token
+  }
 
   useEffect(() => {
     getPoolForThisTile();
@@ -156,11 +164,11 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
       const token0UsdValue =
         parseFloat(
           ethers.utils.formatUnits(amount0Bn, rangePosition.tokenZero.decimals)
-        ) * rangeTokenIn.USDPrice;
+        ) * rangePosition.tokenZero.usdPrice;
       const token1UsdValue =
         parseFloat(
           ethers.utils.formatUnits(amount1Bn, rangePosition.tokenOne.decimals)
-        ) * rangeTokenOut.USDPrice;
+        ) * rangePosition.tokenOne.usdPrice;
       setTotalUsdValue(
         parseFloat((token0UsdValue + token1UsdValue).toFixed(2))
       );
@@ -204,6 +212,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
         rangePosition.pool.feeTier.feeAmount
       );
     }
+    
     router.push({
       pathname: href,
       query: {
@@ -249,8 +258,8 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
             <div
               className={`text-white text-xs lg:text-right text-left whitespace-nowrap`}
             >
-              {TickMath.getPriceStringAtTick(Number(rangePosition.min), rangeTokenIn, rangeTokenOut)} -{" "}
-              {TickMath.getPriceStringAtTick(Number(rangePosition.max), rangeTokenIn, rangeTokenOut)}{" "}
+              {TickMath.getPriceStringAtTick(Number(rangePosition.min), setTokenAddressFromId(rangePosition.tokenZero), setTokenAddressFromId(rangePosition.tokenOne))} -{" "}
+              {TickMath.getPriceStringAtTick(Number(rangePosition.max), setTokenAddressFromId(rangePosition.tokenZero), setTokenAddressFromId(rangePosition.tokenOne))}{" "}
               <span className="text-grey1">
                 {rangePosition.zeroForOne
                   ? rangePosition.tokenOne.symbol

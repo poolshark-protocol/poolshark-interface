@@ -113,7 +113,7 @@ export default function RangeAddLiqButton({
           address ? write?.() : null;
         }}
       >
-        {gasLimit.lte(BN_ZERO) ? <Loader/> : "Add liquidity"}
+        {gasLimit.lte(BN_ZERO) && (amount0.gt(BN_ZERO) || amount1.gt(BN_ZERO)) ? <Loader/> : "Add liquidity"}
       </button>
       <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
         {errorDisplay && (

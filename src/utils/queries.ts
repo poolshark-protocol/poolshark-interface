@@ -374,6 +374,7 @@ export const fetchCoverPositions = (address: string) => {
                     name
                     symbol
                     decimals
+                    usdPrice
                 }
                 liquidity
                 amountInDeltaMax
@@ -385,6 +386,7 @@ export const fetchCoverPositions = (address: string) => {
                     name
                     symbol
                     decimals
+                    usdPrice
                 }
                 owner
                 pool{
@@ -757,12 +759,14 @@ export const fetchRangePositions = (address: string) => {
                   name
                   symbol
                   decimals
+                  usdPrice
               }
               token1{
                   id
                   name
                   symbol
                   decimals
+                  usdPrice
               }
               factory{
                   id

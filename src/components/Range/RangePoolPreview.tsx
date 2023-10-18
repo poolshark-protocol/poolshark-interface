@@ -2,7 +2,7 @@ import { Fragment, useEffect, useState } from "react";
 import { Transition, Dialog } from "@headlessui/react";
 import RangeMintButton from "../Buttons/RangeMintButton";
 import { BigNumber, ethers } from "ethers";
-import { erc20ABI, useAccount, useContractRead, useSigner } from "wagmi";
+import { erc20ABI, useAccount, useContractRead, useProvider, useSigner } from "wagmi";
 import { TickMath, invertPrice } from "../../utils/math/tickMath";
 import RangeMintDoubleApproveButton from "../Buttons/RangeMintDoubleApproveButton";
 import { useRouter } from "next/router";
@@ -55,19 +55,20 @@ export default function RangePoolPreview() {
     state.setNeedsAllowanceIn,
     state.setNeedsAllowanceOut,
   ]);
+  // fee amount
 
   // for mint modal
   const [successDisplay, setSuccessDisplay] = useState(false);
   const [errorDisplay, setErrorDisplay] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [txHash, setTxHash] = useState();
-
-  const { address } = useAccount();
   const [tokenOrder, setTokenOrder] = useState(
     tokenIn.address.localeCompare(tokenOut.address) < 0
   );
   const router = useRouter();
-  const signer = useSigner();
+  const provider = useProvider();
+  const { address } = useAccount();
+  const signer = new ethers.VoidSigner(address, provider);
 
   ////////////////////////////////Allowances
   const { data: allowanceInRange } = useContractRead({
@@ -118,19 +119,20 @@ export default function RangePoolPreview() {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    if (
-      rangeMintParams.tokenInAmount &&
-      rangeMintParams.tokenOutAmount &&
-      rangePositionData.lowerPrice &&
-      rangePositionData.upperPrice &&
-      Number(rangePositionData.lowerPrice) <
-        Number(rangePositionData.upperPrice) &&
-      allowanceInRange?.gte(rangeMintParams.tokenInAmount) &&
-      allowanceOutRange?.gte(rangeMintParams.tokenOutAmount)
+    if
+    (
+        (rangeMintParams.tokenInAmount?.gt(BN_ZERO) ||
+        rangeMintParams.tokenOutAmount?.gt(BN_ZERO)) && 
+        rangePositionData.lowerPrice &&
+        rangePositionData.upperPrice &&
+        Number(rangePositionData.lowerPrice) <
+          Number(rangePositionData.upperPrice) &&
+        allowanceInRange?.gte(rangeMintParams.tokenInAmount) &&
+        allowanceOutRange?.gte(rangeMintParams.tokenOutAmount)
     ) {
       updateGasFee();
     }
-  }, [rangeMintParams.tokenInAmount, tokenOut, rangePositionData]);
+  }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount, allowanceInRange, allowanceOutRange, rangePositionData]);
 
   async function updateGasFee() {
     const newGasFee =
@@ -160,7 +162,6 @@ export default function RangePoolPreview() {
             limitPoolTypeIds["constant-product"],
             rangePoolData.feeTier?.feeAmount,
             address,
-
             BigNumber.from(
               TickMath.getTickAtPriceString(
                 rangePositionData.lowerPrice,
@@ -175,6 +176,10 @@ export default function RangePoolPreview() {
                 parseInt(rangePoolData.feeTier?.tickSpacing ?? 20)
               )
             ),
+            // pool price set using start price input box
+            BigNumber.from(String(
+              rangePoolData?.poolPrice ?? '0'
+            )),
             tokenOrder ? tokenIn : tokenOut,
             tokenOrder ? tokenOut : tokenIn,
             rangeMintParams.tokenInAmount,
@@ -268,15 +273,15 @@ export default function RangePoolPreview() {
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
                                   $
-                                  {(
-                                    Number(tokenIn.USDPrice) *
+                                  {!isNaN(tokenIn.USDPrice) ? (
+                                    tokenIn.USDPrice *
                                     Number(
                                       ethers.utils.formatUnits(
                                         rangeMintParams.tokenInAmount,
-                                        18
+                                        tokenIn.decimals
                                       )
                                     )
-                                  ).toFixed(2)}
+                                  ).toFixed(2) : '?.??'}
                                 </div>
                               </div>
                             </div>
@@ -307,22 +312,19 @@ export default function RangePoolPreview() {
                                 {parseFloat(
                                   ethers.utils.formatUnits(
                                     rangeMintParams.tokenOutAmount,
-                                    18
+                                    tokenOut.decimals
                                   )
                                 ).toFixed(3)}
                               </div>
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
                                   $
-                                  {(
+                                  {!isNaN(tokenOut.USDPrice) ? ((
                                     Number(tokenOut.USDPrice) *
                                     Number(
-                                      ethers.utils.formatUnits(
-                                        rangeMintParams.tokenOutAmount,
-                                        18
-                                      )
+                                      ethers.utils.formatUnits(rangeMintParams.tokenOutAmount, 18)
                                     )
-                                  ).toFixed(2)}
+                                  ).toFixed(2)) : '?.??'}
                                 </div>
                               </div>
                             </div>
@@ -496,12 +498,11 @@ export default function RangePoolPreview() {
                             token0={tokenIn}
                             token1={tokenOut}
                             startPrice={BigNumber.from(
-                              "3543191142285914205922034323214"
+                              rangePoolData?.poolPrice ?? '0'
                             )} //TODO: for lucas; need input box for this
                             feeTier={
-                              rangePoolData.feeTier
-                                ? rangePoolData.feeTier.feeAmount
-                                : 3000
+                              rangePoolData.feeTier?.feeAmount
+                                ?? 3000
                             }
                             to={address}
                             lower={

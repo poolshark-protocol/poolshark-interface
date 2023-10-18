@@ -96,7 +96,6 @@ export default function CoverCreateAndMintButton({
       setNeedsRefetch(true);
       setNeedsAllowance(true);
       setNeedsBalance(true);
-      console.log("refetch setted");
       router.push("/cover");
     },
     onError() {
