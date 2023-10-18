@@ -109,7 +109,6 @@ export default function AddLiquidity({}) {
   ////////////////////////////////Pools
 
   useEffect(() => {
-    console.log('token address', !rangePoolData, rangePoolAddress)
     if (tokenIn.address && tokenOut.address) {
       setTokenOrder(tokenIn.callId == 0);
       setPriceOrder(tokenIn.callId == 0);
@@ -125,7 +124,6 @@ export default function AddLiquidity({}) {
   }, [tokenIn.address, tokenOut.address]);
 
   useEffect(() => {
-    console.log('token address', !rangePoolData, rangePoolAddress)
     if (
       router.query.feeTier &&
       !isNaN(parseInt(router.query.feeTier.toString()))
@@ -153,7 +151,6 @@ export default function AddLiquidity({}) {
 
   //this sets the default position price delta
   useEffect(() => {
-    console.log('range pool data', rangePoolData)
     if (rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
       const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
       const tickAtPrice = rangePoolData.tickAtPrice;
@@ -261,7 +258,6 @@ export default function AddLiquidity({}) {
         );
       }
       if (tokenOut.address) {
-        console.log('fetching token out usd price', tokenOut.symbol)
         fetchRangeTokenUSDPrice(
           rangePoolData,
           tokenOut,
@@ -449,7 +445,6 @@ export default function AddLiquidity({}) {
       rangePoolAddress == ZERO_ADDRESS &&
       startPrice &&
       !isNaN(parseFloat(startPrice))) {
-        console.log('this hooks triggers')
         setRangePoolData({
           poolPrice: String(TickMath.getSqrtPriceAtPriceString(
             invertPrice(startPrice, priceOrder),

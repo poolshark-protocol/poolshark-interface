@@ -98,8 +98,6 @@ export default function CoverAddLiqButton({
     },
   });
 
-  console.log('button state', buttonState)
-
   return (
     <>
       <button

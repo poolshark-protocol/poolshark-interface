@@ -81,12 +81,10 @@ export const getCoverPool = async (
     if (coverPoolData) {
       for (let i = 0; i < dataLength; i++) {
         if (pool["data"]["coverPools"][i]["id"] == coverPoolData["id"]) {
-          console.log("found cover pool data", coverPoolData);
           coverPoolData = pool["data"]["coverPools"][i];
         }
       }
     }
-
     if (dataLength != 0) {
       id = pool["data"]["coverPools"]["0"]["id"];
       coverPoolData = pool["data"]["coverPools"]["0"];
@@ -122,7 +120,6 @@ export const getCoverPoolFromFeeTier = async (
     const dataLength = pool["data"]["coverPools"].length;
 
     if (coverPoolData) {
-      console.log("cover pool data", coverPoolData);
       for (let i = 0; i < dataLength; i++) {
         if (pool["data"]["coverPools"][i]["id"] == coverPoolData["id"]) {
           console.log("found cover pool data", coverPoolData);
@@ -172,9 +169,7 @@ export const getCoverPoolInfo = async (
       tokenIn.address,
       tokenOut.address
     );
-    console.log("getting pool info", poolRoute);
     const dataLength = pool["data"]["coverPools"].length;
-    console.log("getting data length", dataLength);
     if (dataLength) {
       for (let i = 0; i < dataLength; i++) {
         const newPoolRoute = pool["data"]["coverPools"][i]["id"];
@@ -185,9 +180,7 @@ export const getCoverPoolInfo = async (
           (poolRoute && newPoolRoute == poolRoute) ||
           (expectedTickSpread && tickSpread == expectedTickSpread)
         ) {
-          console.log("vol tier get spread", tickSpread, expectedTickSpread);
           setCoverPoolRoute(pool["data"]["coverPools"][i]["id"]);
-          console.log("vol tier pool found", newPoolRoute);
           if (tickSpread == 20) {
             if (volatility != 0) {
               console.log("change to tier 0");

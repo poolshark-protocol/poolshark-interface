@@ -68,7 +68,6 @@ export default function SelectToken(props) {
         decimals: coin?.decimals,
       });
     } else {
-      console.log('setting token out', coin?.decimals, coin?.address)
       props.setTokenOut(props.tokenIn, {
         name: coin?.name,
         address: coin?.address,

@@ -575,7 +575,6 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       tickAtPrice?: any
     ) => {
       try {
-        console.log("pool data");
         const pool = await getRangePoolFromFactory(
           tokenIn.address,
           tokenOut.address

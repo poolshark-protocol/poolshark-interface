@@ -80,7 +80,6 @@ export default function RangePoolPreview() {
     watch: needsAllowanceIn && router.isReady,
     //enabled: tokenIn.address,
     onSuccess(data) {
-      console.log('allowance in comparison', allowanceInRange.toString(), rangeMintParams.tokenInAmount.toString())
       //setNeedsAllowanceIn(false);
     },
     onError(error) {
@@ -97,8 +96,6 @@ export default function RangePoolPreview() {
     watch: needsAllowanceOut && router.isReady,
     //enabled: pairSelected && rangePoolAddress != ZERO_ADDRESS,
     onSuccess(data) {
-      console.log('allowance out fetched', allowanceOutRange.toString(), tokenOut.address)
-      console.log('allowance comparison', allowanceOutRange.toString(), rangeMintParams.tokenOutAmount.toString())
       //setNeedsAllowanceOut(false);
     },
     onError(error) {
