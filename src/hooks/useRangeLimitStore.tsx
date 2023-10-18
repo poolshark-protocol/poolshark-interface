@@ -115,6 +115,7 @@ type RangeLimitAction = {
     volatility: any
   ) => void;
   resetRangeLimitParams: () => void;
+  resetMintParams: () => void;
   //
   setMintButtonState: () => void;
   //
@@ -566,9 +567,15 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         },
       }));
     },
-    setRangePoolFromFeeTier: async (tokenIn, tokenOut, volatility: any, poolPrice?: any, tickAtPrice?: any) => {
+    setRangePoolFromFeeTier: async (
+      tokenIn,
+      tokenOut,
+      volatility: any,
+      poolPrice?: any,
+      tickAtPrice?: any
+    ) => {
       try {
-        console.log('pool data')
+        console.log("pool data");
         const pool = await getRangePoolFromFactory(
           tokenIn.address,
           tokenOut.address
@@ -578,7 +585,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           if (
             pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility
           ) {
-            console.log('pool data found')
+            console.log("pool data found");
             set(() => ({
               rangePoolAddress: pool["data"]["limitPools"][i]["id"],
               rangePoolData: pool["data"]["limitPools"][i],
@@ -586,11 +593,11 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           }
         }
         if (dataLength == 0) {
-          console.log('pool data not found');
+          console.log("pool data not found");
           set((state) => ({
             rangePoolAddress: ZERO_ADDRESS as `0x${string}`,
             rangePoolData: {
-              feeTier: state.rangePoolData.feeTier
+              feeTier: state.rangePoolData.feeTier,
             },
           }));
         }
@@ -607,7 +614,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         const dataLength = pool["data"]["limitPools"].length;
         for (let i = 0; i < dataLength; i++) {
           if (
-            (pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility) 
+            pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility
           ) {
             set(() => ({
               limitPoolAddress: pool["data"]["limitPools"][i]["id"],
@@ -674,6 +681,12 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         //expected output
         currentAmountOut: initialRangeLimitState.currentAmountOut,
       });
+    },
+    resetMintParams: () => {
+      set((state) => ({
+        rangeMintParams: initialRangeLimitState.rangeMintParams,
+        limitMintParams: initialRangeLimitState.limitMintParams,
+      }));
     },
   })
 );

@@ -4,16 +4,22 @@ import { useRouter } from "next/router";
 import { formatUsdValue } from "../../utils/math/valueMath";
 
 export default function RangePool({ rangePool, href }) {
-  const [setRangeTokenIn, setRangeTokenOut, setRangePoolFromFeeTier] =
-    useRangeLimitStore((state) => [
-      state.setTokenIn,
-      state.setTokenOut,
-      state.setRangePoolFromFeeTier,
-    ]);
+  const [
+    setRangeTokenIn,
+    setRangeTokenOut,
+    setRangePoolFromFeeTier,
+    resetMintParams,
+  ] = useRangeLimitStore((state) => [
+    state.setTokenIn,
+    state.setTokenOut,
+    state.setRangePoolFromFeeTier,
+    state.resetMintParams,
+  ]);
 
   const router = useRouter();
 
   const chooseRangePool = () => {
+    resetMintParams();
     const tokenIn = {
       name: rangePool.tokenZero.symbol,
       address: rangePool.tokenZero.id,
@@ -60,8 +66,12 @@ export default function RangePool({ rangePool, href }) {
             </span>
           </div>
           <div className="md:grid hidden grid-cols-3 w-full justify-end text-right items-center">
-            <div className="text-white text-right text-xs">${formatUsdValue(rangePool.volumeUsd)}</div>
-            <div className="text-right text-white text-xs">${formatUsdValue(rangePool.tvlUsd)}</div>
+            <div className="text-white text-right text-xs">
+              ${formatUsdValue(rangePool.volumeUsd)}
+            </div>
+            <div className="text-right text-white text-xs">
+              ${formatUsdValue(rangePool.tvlUsd)}
+            </div>
             <div className="text-right text-white text-xs">
               <span>${formatUsdValue(rangePool.feesUsd)} </span>
             </div>
