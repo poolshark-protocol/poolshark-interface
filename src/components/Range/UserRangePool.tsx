@@ -61,8 +61,6 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
   //Todo token in and out prices should local to the tile and not set at the store level
   /* const [amount0, setAmount0] = useState(0);
   const [amount1, setAmount1] = useState(0); */
-  const [token0, setToken0] = useState(undefined)
-  const [token1, setToken1] = useState(undefined)
 
   function setTokenAddressFromId(token: any): token {
     token = {
@@ -95,8 +93,6 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
       tokenInNew.address,
       tokenOutNew.address
     );
-    setToken0(tokenInNew)
-    setToken1(tokenOutNew)
     if (rangePosition.min < 0 && rangePosition.max < 0)console.log('token out new', tokenOutNew.decimals)
     if (pool && pool["data"] && pool["data"]["limitPools"]) {
       const dataLength = pool["data"]["limitPools"].length;
@@ -169,11 +165,11 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
       const token0UsdValue =
         parseFloat(
           ethers.utils.formatUnits(amount0Bn, rangePosition.tokenZero.decimals)
-        ) * rangeTokenIn.USDPrice;
+        ) * rangePosition.tokenZero.usdPrice;
       const token1UsdValue =
         parseFloat(
           ethers.utils.formatUnits(amount1Bn, rangePosition.tokenOne.decimals)
-        ) * rangeTokenOut.USDPrice;
+        ) * rangePosition.tokenOne.usdPrice;
       setTotalUsdValue(
         parseFloat((token0UsdValue + token1UsdValue).toFixed(2))
       );
