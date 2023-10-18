@@ -5,6 +5,7 @@ import LimitRemoveLiqButton from "../../Buttons/LimitRemoveLiqButton";
 import { BigNumber, ethers } from "ethers";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
+import { parseUnits } from "../../../utils/math/valueMath";
 
 export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
   const [

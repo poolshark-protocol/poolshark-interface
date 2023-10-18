@@ -19,6 +19,7 @@ import { BN_ZERO } from "../../utils/math/constants";
 import { gasEstimateBurnLimit } from "../../utils/gas";
 import { getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { parseUnits } from "../../utils/math/valueMath";
 
 export default function ViewLimit() {
   const [
