@@ -587,9 +587,11 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         }
         if (dataLength == 0) {
           console.log('pool data not found');
-          set(() => ({
+          set((state) => ({
             rangePoolAddress: ZERO_ADDRESS as `0x${string}`,
-            rangePoolData: {},
+            rangePoolData: {
+              feeTier: state.rangePoolData.feeTier
+            },
           }));
         }
       } catch (error) {

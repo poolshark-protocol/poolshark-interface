@@ -204,6 +204,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
         rangePosition.pool.feeTier.feeAmount
       );
     }
+    
     router.push({
       pathname: href,
       query: {

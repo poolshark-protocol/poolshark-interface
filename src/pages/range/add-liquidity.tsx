@@ -102,7 +102,6 @@ export default function AddLiquidity({}) {
   const [amountInSetLast, setAmountInSetLast] = useState(true);
   const [amountInDisabled, setAmountInDisabled] = useState(false);
   const [amountOutDisabled, setAmountOutDisabled] = useState(false);
-  const [feeAmount, setFeeAmount] = useState(undefined);
 
   ////////////////////////////////TokenOrder
   const [tokenOrder, setTokenOrder] = useState(true);
@@ -124,31 +123,27 @@ export default function AddLiquidity({}) {
       router.query.feeTier &&
       !isNaN(parseInt(router.query.feeTier.toString()))
     ) {
-      console.log('fee tier value', parseInt(router.query.feeTier.toString()))
-      setFeeAmount(parseInt(router.query.feeTier.toString()))
-      updatePools(router.query.feeTier.toString());
-    } else {
-      console.log('fee tier value')
+      updatePools(parseInt(router.query.feeTier.toString()));
     }
   }, [router.query.feeTier]);
 
-  useEffect(() => {
-    if (
-      feeAmount &&
-      !isNaN(parseInt(feeAmount))
-    ) {
-      updatePools(feeAmount);
-    }
-  }, [tokenIn.address, tokenOut.address]);
+  //TODO: @retraca set fee tier on pool when user changes tokens 
 
-  async function updatePools(feeAmount: string) {
+  async function updatePools(feeAmount: number) {
     setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount);
   }
 
   //sames as updatePools but triggered from the html
-  const handleManualFeeTierChange = async (feeAmount: string) => {
-    setFeeAmount(feeAmount)
+  const handleManualFeeTierChange = async (feeAmount: number) => {
     updatePools(feeAmount)
+    setRangePoolData({
+      ...rangePoolData,
+      feeTier: {
+        ...rangePoolData.feeTier,
+        feeAmount: feeAmount,
+        tickSpacing: feeTierMap[feeAmount].tickSpacing
+      }
+    })
   };
 
   //this sets the default position price delta
@@ -449,12 +444,13 @@ export default function AddLiquidity({}) {
       rangePoolAddress == ZERO_ADDRESS &&
       startPrice &&
       !isNaN(parseFloat(startPrice))) {
+        console.log('this hooks triggers')
         setRangePoolData({
           ...rangePoolData,
-          poolPrice: TickMath.getSqrtPriceAtPriceString(
+          poolPrice: String(TickMath.getSqrtPriceAtPriceString(
             invertPrice(startPrice, priceOrder),
             tokenIn, tokenOut
-          ),
+          )),
           tickAtPrice: TickMath.getTickAtPriceString(
             invertPrice(startPrice, priceOrder),
             tokenIn, tokenOut
@@ -517,7 +513,7 @@ export default function AddLiquidity({}) {
                 {tokenOrder ? tokenOut.symbol : tokenIn.symbol}
               </span>
               <span className="bg-grey/50 rounded-[4px] text-grey1 text-xs px-3 py-0.5">
-                {(feeAmount / 10000).toFixed(2)}%
+                {(rangePoolData.feeTier?.feeAmount / 10000).toFixed(2)}%
               </span>
             </div>
           </div>
@@ -753,11 +749,11 @@ export default function AddLiquidity({}) {
             {feeTiers.map((feeTier, feeTierIdx) => (
               <div
                 onClick={() => {
-                  handleManualFeeTierChange(feeTier.tierId.toString());
+                  handleManualFeeTierChange(feeTier.tierId);
                 }}
                 key={feeTierIdx}
                 className={`bg-black p-4 w-full rounded-[4px] cursor-pointer transition-all ${
-                  feeAmount ===
+                  rangePoolData.feeTier?.feeAmount.toString() ===
                   feeTier.tierId.toString()
                     ? "border-grey1 border bg-grey/20"
                     : "border border-grey"

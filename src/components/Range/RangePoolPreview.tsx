@@ -55,6 +55,7 @@ export default function RangePoolPreview() {
     state.setNeedsAllowanceIn,
     state.setNeedsAllowanceOut,
   ]);
+  // fee amount
 
   // for mint modal
   const [successDisplay, setSuccessDisplay] = useState(false);
@@ -176,9 +177,7 @@ export default function RangePoolPreview() {
             ),
             // pool price set using start price input box
             BigNumber.from(String(
-              !isNaN(parseFloat(rangePoolData.poolPrice))
-                ? rangePoolData.poolPrice
-                : '1'
+              rangePoolData?.poolPrice ?? '0'
             )),
             tokenOrder ? tokenIn : tokenOut,
             tokenOrder ? tokenOut : tokenIn,
@@ -273,15 +272,15 @@ export default function RangePoolPreview() {
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
                                   $
-                                  {(
-                                    Number(tokenIn.USDPrice) *
+                                  {!isNaN(tokenIn.USDPrice) ? (
+                                    tokenIn.USDPrice *
                                     Number(
                                       ethers.utils.formatUnits(
                                         rangeMintParams.tokenInAmount,
-                                        18
+                                        tokenIn.decimals
                                       )
                                     )
-                                  ).toFixed(2)}
+                                  ).toFixed(2) : '?.??'}
                                 </div>
                               </div>
                             </div>
@@ -319,15 +318,12 @@ export default function RangePoolPreview() {
                               <div className="flex">
                                 <div className="flex text-xs text-[#4C4C4C]">
                                   $
-                                  {(
+                                  {!isNaN(tokenOut.USDPrice) ? ((
                                     Number(tokenOut.USDPrice) *
                                     Number(
-                                      ethers.utils.formatUnits(
-                                        rangeMintParams.tokenOutAmount,
-                                        18
-                                      )
+                                      ethers.utils.formatUnits(rangeMintParams.tokenOutAmount, 18)
                                     )
-                                  ).toFixed(2)}
+                                  ).toFixed(2)) : '?.??'}
                                 </div>
                               </div>
                             </div>
@@ -501,12 +497,11 @@ export default function RangePoolPreview() {
                             token0={tokenIn}
                             token1={tokenOut}
                             startPrice={BigNumber.from(
-                              "3543191142285914205922034323214"
+                              rangePoolData?.poolPrice ?? '0'
                             )} //TODO: for lucas; need input box for this
                             feeTier={
                               rangePoolData.feeTier
-                                ? rangePoolData.feeTier.feeAmount
-                                : 3000
+                                ?? 3000
                             }
                             to={address}
                             lower={
