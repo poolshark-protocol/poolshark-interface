@@ -47,6 +47,7 @@ import timeDifference from "../utils/time";
 import { inputHandler, parseUnits } from "../utils/math/valueMath";
 import UserLimitPool from "../components/Limit/UserLimitPool";
 import { useConfigStore } from "../hooks/useConfigStore";
+import { formatUnits } from "ethers/lib/utils.js";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -82,6 +83,10 @@ export default function Trade() {
     setTokenOut,
     setTokenOutBalance,
     setTokenOutTradeUSDPrice,
+    amountIn,
+    setAmountIn,
+    amountOut,
+    setAmountOut,
     needsAllowanceIn,
     setNeedsAllowanceIn,
     needsAllowanceOut,
@@ -118,6 +123,10 @@ export default function Trade() {
     s.setTokenOut,
     s.setTokenOutBalance,
     s.setTokenOutTradeUSDPrice,
+    s.amountIn,
+    s.setAmountIn,
+    s.amountOut,
+    s.setAmountOut,
     s.needsAllowanceIn,
     s.setNeedsAllowanceIn,
     s.needsAllowanceOut,
@@ -165,8 +174,6 @@ export default function Trade() {
   const [swapParams, setSwapParams] = useState<any[]>([]);
 
   //market display variables
-  const [amountIn, setAmountIn] = useState(BN_ZERO);
-  const [amountOut, setAmountOut] = useState(BN_ZERO);
   const [exactIn, setExactIn] = useState(true)
 
   const handleInputBox = (e) => {
@@ -278,12 +285,14 @@ export default function Trade() {
       updatePools(exactIn ? amountIn : amountOut, exactIn);
       if (exactIn) {
         if (!isNaN(parseFloat(displayIn))) {
+          console.log('exact in: updating display based on decimals')
           const bnValue = parseUnits(displayIn, tokenIn.decimals)
           setAmountIn(bnValue)
           setAmounts(bnValue, true)
         }
       } else {
         if (!isNaN(parseFloat(displayOut))) {
+          console.log('exact out: updating display based on decimals')
           const bnValue = parseUnits(displayOut, tokenOut.decimals)
           setAmountOut(bnValue)
           setAmounts(bnValue, false)
@@ -291,9 +300,10 @@ export default function Trade() {
       }
       setNeedsAllowanceIn(true)
     }
-  }, [tokenIn.address, tokenOut.address, tokenIn.decimals, tokenOut.decimals]);
+  }, [tokenIn.address, tokenOut.address]);
 
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {
+    console.log('getting swap pools::', 'exactIn:', isAmountIn, 'amount', formatUnits(amount.toString(), isAmountIn ? tokenIn.decimals : tokenOut.decimals))
     const pools = await getSwapPools(tokenIn, tokenOut, setTradePoolData);
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
@@ -324,7 +334,9 @@ export default function Trade() {
       console.log("Error multiquote", error);
     },
     onSuccess(data) {
-      // console.log("Success multiquote", data);
+      if (quoteParams[0])
+        console.log("Success multiquote", quoteParams[0]?.exactIn, formatUnits(quoteParams[0]?.amount.toString(), exactIn ? tokenIn.decimals : tokenOut.decimals));
+      console.log("multiquote results:", data)
     },
   });
 
@@ -798,7 +810,6 @@ export default function Trade() {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    console.log('doing gas estimate', tokenIn.symbol, tokenOut.symbol, needsAllowanceIn)
     if (!amountIn.eq(BN_ZERO) && !needsAllowanceIn) {
       if (!limitTabSelected) {
         updateGasFee();
@@ -1013,7 +1024,11 @@ export default function Trade() {
                 stroke="currentColor"
                 className="w-5 cursor-pointer"
                 onClick={() => {
-                  switchDirection();
+                  switchDirection(
+                    exactIn,
+                    exactIn ? displayIn : displayOut,
+                    exactIn ? setAmountIn : setAmountOut
+                  );
                 }}
               >
                 <path
