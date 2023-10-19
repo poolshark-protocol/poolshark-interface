@@ -19,6 +19,7 @@ import { BN_ZERO } from "../../utils/math/constants";
 import { gasEstimateBurnLimit } from "../../utils/gas";
 import { getExpectedAmountOutFromInput } from "../../utils/math/priceMath";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { parseUnits } from "../../utils/math/valueMath";
 
 export default function ViewLimit() {
   const [
@@ -129,7 +130,7 @@ export default function ViewLimit() {
     args: [
       [
         address,
-        ethers.utils.parseUnits("1", 38),
+        parseUnits("1", 38),
         Number(limitPositionData.positionId),
         BigNumber.from(claimTick),
         tokenIn.callId == 0,

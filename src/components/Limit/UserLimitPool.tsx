@@ -8,6 +8,7 @@ import router from "next/router";
 import { logoMap } from "../../utils/tokens";
 import timeDifference from "../../utils/time";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
+import { parseUnits } from "../../utils/math/valueMath";
 
 export default function UserLimitPool({
     limitPosition,
@@ -162,7 +163,7 @@ export default function UserLimitPool({
                     zeroForOne={limitPosition.tokenIn.id.localeCompare(limitPosition.tokenOut.id) < 0}
                     lower={BigNumber.from(limitPosition.min)}
                     upper={BigNumber.from(limitPosition.max)}
-                    burnPercent={ethers.utils.parseUnits("1", 38)}
+                    burnPercent={parseUnits("1", 38)}
                 />
             </td>
         </tr>

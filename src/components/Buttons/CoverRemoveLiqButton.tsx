@@ -13,6 +13,7 @@ import { useCoverStore } from "../../hooks/useCoverStore";
 import { BN_ZERO } from "../../utils/math/constants";
 import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { parseUnits } from "../../utils/math/valueMath";
 
 export default function CoverRemoveLiqButton({
   disabled,
@@ -75,7 +76,7 @@ export default function CoverRemoveLiqButton({
         setIsOpen(false);
         closeModal();
       }, 1000);
-      if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
+      if (burnPercent.eq(parseUnits("1", 38))) {
         setNeedsRefetch(true);
       }
       setNeedsBalance(true);

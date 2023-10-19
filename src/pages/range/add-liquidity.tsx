@@ -19,7 +19,7 @@ import RangePoolPreview from "../../components/Range/RangePoolPreview";
 import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import { chainProperties } from "../../utils/chains";
 import router from "next/router";
-import { inputHandler } from "../../utils/math/valueMath";
+import { inputHandler, parseUnits } from "../../utils/math/valueMath";
 import SelectToken from "../../components/SelectToken";
 import { feeTierMap, feeTiers } from "../../utils/pools";
 import { useConfigStore } from "../../hooks/useConfigStore";
@@ -324,7 +324,7 @@ export default function AddLiquidity({}) {
   const handleBalanceMax = (isTokenIn: boolean) => {
     const token = isTokenIn ? tokenIn : tokenOut;
     const value = token.userBalance.toString();
-    const bnValue = ethers.utils.parseUnits(value, token.decimals);
+    const bnValue = parseUnits(value, token.decimals);
     isTokenIn ? setDisplayIn(value) : setDisplayOut(value);
     setAmounts(isTokenIn, bnValue);
     setAmountInSetLast(isTokenIn);

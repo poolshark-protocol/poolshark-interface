@@ -5,6 +5,7 @@ import LimitRemoveLiqButton from "../../Buttons/LimitRemoveLiqButton";
 import { BigNumber, ethers } from "ethers";
 import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
+import { parseUnits } from "../../../utils/math/valueMath";
 
 export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
   const [
@@ -28,13 +29,13 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
   const router = useRouter();
 
   const [burnPercent, setBurnPercent] = useState(
-    ethers.utils.parseUnits("5", 37)
+    parseUnits("5", 37)
   );
   const [sliderValue, setSliderValue] = useState(1);
   const [sliderOutput, setSliderOutput] = useState("1");
 
   useEffect(() => {
-    setBurnPercent(ethers.utils.parseUnits(String(sliderValue), 36));
+    setBurnPercent(parseUnits(String(sliderValue), 36));
     setSliderOutput(
       (
         (parseFloat(
@@ -195,7 +196,7 @@ export default function LimitRemoveLiquidity({ isOpen, setIsOpen, address }) {
                   lower={BigNumber.from(limitPositionData.min)}
                   upper={BigNumber.from(limitPositionData.max)}
                   closeModal={() => {
-                    if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
+                    if (burnPercent.eq(parseUnits("1", 38))) {
                       router.push("/pool");
                     }
                   }}

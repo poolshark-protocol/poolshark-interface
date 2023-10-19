@@ -66,7 +66,7 @@ describe('TickMath tests', () => {
   test('position of tick 0 to 100 zeroForOne true gives expected price', () => {
     const lowerTick = 0
     const upperTick = 100
-    const price = getAveragePrice(lowerTick, upperTick, true, BigNumber.from('20051041647900280328782'), ethers.utils.parseUnits('100', 18))
+    const price = getAveragePrice(lowerTick, upperTick, true, BigNumber.from('20051041647900280328782'), parseUnits('100', 18))
     // check price
     expect(price).toStrictEqual(1.005)
   });
@@ -74,7 +74,7 @@ describe('TickMath tests', () => {
   test('position of tick 0 to 100 zeroForOne false gives expected price', () => {
     const lowerTick = -100
     const upperTick = 0
-    const price = getAveragePrice(lowerTick, upperTick, false, BigNumber.from('20051041647900280328782'), ethers.utils.parseUnits('100', 18))
+    const price = getAveragePrice(lowerTick, upperTick, false, BigNumber.from('20051041647900280328782'), parseUnits('100', 18))
     // check price
     console.log('average price', price)
     expect(price).toStrictEqual(0.99503)

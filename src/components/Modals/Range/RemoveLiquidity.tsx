@@ -11,6 +11,7 @@ import { useRouter } from "next/router";
 import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
 import { useAccount, useSigner } from "wagmi";
 import { gasEstimateRangeBurn } from "../../../utils/gas";
+import { parseUnits } from "../../../utils/math/valueMath";
 
 export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
   const [
@@ -52,7 +53,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
     const tokenAmountToBurn = BigNumber.from(sliderValue)
       .mul(BigNumber.from(rangePositionData.userLiquidity))
       .div(BigNumber.from(100));
-    setBurnPercent(ethers.utils.parseUnits(sliderValue.toString(), 36));
+    setBurnPercent(parseUnits(sliderValue.toString(), 36));
     setAmounts(JSBI.BigInt(tokenAmountToBurn), true);
   }, [sliderValue, rangePositionData.liquidity]);
 
@@ -315,7 +316,7 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
                   burnPercent={burnPercent}
                   closeModal={() => {
                     //if (burnPercent==BigNumber.from('0x4b3b4ca85a86c47a098a224000000000')) {
-                    if (burnPercent.eq(ethers.utils.parseUnits("1", 38))) {
+                    if (burnPercent.eq(parseUnits("1", 38))) {
                       router.push("/range");
                     }
                   }}
