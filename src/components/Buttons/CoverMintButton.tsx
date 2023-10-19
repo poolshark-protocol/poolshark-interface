@@ -37,9 +37,11 @@ export default function CoverMintButton({
 }) {
 
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [

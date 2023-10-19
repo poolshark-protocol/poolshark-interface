@@ -17,9 +17,11 @@ export default function RangeCompoundButton({ poolAddress, address, positionId }
   const [ successDisplay, setSuccessDisplay ] = useState(false);
 
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   //TO-DO: assess if collectFees() or collect true in burn

@@ -36,9 +36,11 @@ export default function CoverRemoveLiqButton({
   );
 
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [errorDisplay, setErrorDisplay] = useState(false);

@@ -32,9 +32,11 @@ export default function CoverAddLiqButton({
   setIsOpen,
 }) {
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
   const [
     coverPoolData,

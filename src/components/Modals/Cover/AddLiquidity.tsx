@@ -23,9 +23,11 @@ import { useConfigStore } from "../../../hooks/useConfigStore";
 
 export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [
@@ -71,7 +73,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
+    args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
     watch: needsAllowance,
     enabled: tokenIn.address != undefined,
@@ -235,7 +237,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                     <div className="flex items-end justify-between mt-2 mb-3">
                       {inputBox("0", tokenIn)}
                       <div className="flex items-center gap-x-2">
-                        {isConnected && stateChainName === "arbitrumGoerli" ? (
+                        {isConnected && stateChainName === networkName ? (
                           <button
                           onClick={() => {
                             maxBalance(tokenIn.userBalance.toString(), "0", tokenIn.decimals);
@@ -254,22 +256,22 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
                   </div>
                 {isConnected &&
                 allowanceInCover?.lt(bnInput) &&
-                stateChainName === "arbitrumGoerli" ? (
+                stateChainName === networkName ? (
                   <CoverMintApproveButton
                     routerAddress={
-                      chainProperties["arbitrumGoerli"]["routerAddress"]
+                      chainProperties[networkName]["routerAddress"]
                     }
                     approveToken={tokenIn.address}
                     amount={bnInput}
                     tokenSymbol={tokenIn.symbol}
                   />
-                ) : stateChainName === "arbitrumGoerli" ? (
+                ) : stateChainName === networkName ? (
                   <CoverAddLiqButton
                     disabled={disabled}
                     toAddress={address}
                     poolAddress={coverPoolAddress}
                     routerAddress={
-                      chainProperties["arbitrumGoerli"]["routerAddress"]
+                      chainProperties[networkName]["routerAddress"]
                     }
                     address={address}
                     lower={Number(coverPositionData.min)}

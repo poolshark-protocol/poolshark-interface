@@ -37,9 +37,11 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function CreateCover(props: any) {
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [
@@ -139,7 +141,7 @@ export default function CreateCover(props: any) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
+    args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
     watch: needsAllowance,
     enabled: tokenIn.address != undefined,
@@ -430,7 +432,8 @@ export default function CreateCover(props: any) {
             tokenIn,
             tokenOut,
             coverMintParams.tokenInAmount,
-            signer
+            signer,
+            networkName
           )
         : await gasEstimateCoverCreateAndMint(
             "PSHARK-CPROD",
@@ -451,7 +454,8 @@ export default function CreateCover(props: any) {
             tokenIn,
             tokenOut,
             coverMintParams.tokenInAmount,
-            signer
+            signer,
+            networkName
           );
 
     if (!newMintGasFee.gasUnits.mul(120).div(100).eq(mintGasLimit)) {
@@ -743,14 +747,14 @@ export default function CreateCover(props: any) {
       {allowanceInCover ? (
         allowanceInCover.lt(coverMintParams.tokenInAmount) ? (
           <CoverMintApproveButton
-            routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
+            routerAddress={chainProperties[networkName]["routerAddress"]}
             approveToken={tokenIn.address}
             amount={bnInput}
             tokenSymbol={tokenIn.symbol}
           />
         ) : coverPoolAddress != ZERO_ADDRESS ? (
           <CoverMintButton
-            routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
+            routerAddress={chainProperties[networkName]["routerAddress"]}
             poolAddress={coverPoolAddress}
             disabled={coverMintParams.disabled}
             to={address}
@@ -784,7 +788,7 @@ export default function CreateCover(props: any) {
           />
         ) : (
           <CoverCreateAndMintButton
-            routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
+            routerAddress={chainProperties[networkName]["routerAddress"]}
             poolType={"PSHARK-CPROD"}
             tokenIn={tokenIn}
             tokenOut={tokenOut}

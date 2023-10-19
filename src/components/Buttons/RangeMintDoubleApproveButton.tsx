@@ -25,9 +25,11 @@ export default function RangeMintDoubleApproveButton({
   const [successDisplay1, setSuccessDisplay1] = useState(false)
 
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [

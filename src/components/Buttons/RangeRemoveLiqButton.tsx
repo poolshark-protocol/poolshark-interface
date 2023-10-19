@@ -27,9 +27,11 @@ export default function RangeRemoveLiqButton({
   disabled,
 }) {
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [

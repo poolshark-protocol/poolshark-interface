@@ -23,9 +23,11 @@ import { parseUnits } from "../../utils/math/valueMath";
 
 export default function ViewLimit() {
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [

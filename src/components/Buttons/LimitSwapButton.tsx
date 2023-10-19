@@ -27,9 +27,11 @@ export default function LimitSwapButton({
   gasLimit,
 }) {
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [
