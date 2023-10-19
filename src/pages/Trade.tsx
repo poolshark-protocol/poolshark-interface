@@ -331,7 +331,7 @@ export default function Trade() {
       console.log("Error multiquote", error);
     },
     onSuccess(data) {
-      if (quoteParams[0])
+      // if (quoteParams[0])
       // console.log("Success multiquote", quoteParams[0]?.exactIn, formatUnits(quoteParams[0]?.amount.toString(), exactIn ? tokenIn.decimals : tokenOut.decimals));
       // console.log("multiquote results:", data)
     },
@@ -491,7 +491,6 @@ export default function Trade() {
       let mappedLimitSnapshotParams = [];
       if (allLimitPositions.length > 0) {
         for (let i = 0; i < allLimitPositions.length; i++) {
-          console.log('map user snapshot list')
           mappedLimitPoolAddresses[i] = allLimitPositions[i].poolId;
           mappedLimitSnapshotParams[i] = [];
           mappedLimitSnapshotParams[i][0] = address;

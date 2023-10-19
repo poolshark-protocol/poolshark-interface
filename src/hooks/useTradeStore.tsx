@@ -483,7 +483,6 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     }));
   },
   switchDirection: (isAmountIn: boolean, amount: string) => {
-    console.log('switching directions', isAmountIn, amount)
     set((state) => ({
       tokenIn: {
         callId: state.tokenOut.callId,
