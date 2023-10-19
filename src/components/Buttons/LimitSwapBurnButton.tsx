@@ -15,7 +15,7 @@ import { getClaimTick } from "../../utils/maps";
 import { gasEstimateBurnLimit } from "../../utils/gas";
 import { BN_ZERO } from "../../utils/math/constants";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import { parseUnits } from "ethers/lib/utils.js";
+import { parseUnits } from "../../utils/math/valueMath";
 
 export default function LimitSwapBurnButton({
   poolAddress,

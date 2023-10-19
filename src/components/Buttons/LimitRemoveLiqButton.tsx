@@ -16,7 +16,7 @@ import { BN_ZERO } from "../../utils/math/constants";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import Loader from "../Icons/Loader";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import { parseUnits } from "ethers/lib/utils.js";
+import { parseUnits } from "../../utils/math/valueMath";
 
 export default function LimitRemoveLiqButton({
   poolAddress,
