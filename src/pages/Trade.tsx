@@ -285,14 +285,12 @@ export default function Trade() {
       updatePools(exactIn ? amountIn : amountOut, exactIn);
       if (exactIn) {
         if (!isNaN(parseFloat(displayIn))) {
-          console.log('exact in: updating display based on decimals')
           const bnValue = parseUnits(displayIn, tokenIn.decimals)
           setAmountIn(bnValue)
           setAmounts(bnValue, true)
         }
       } else {
         if (!isNaN(parseFloat(displayOut))) {
-          console.log('exact out: updating display based on decimals')
           const bnValue = parseUnits(displayOut, tokenOut.decimals)
           setAmountOut(bnValue)
           setAmounts(bnValue, false)
@@ -303,7 +301,6 @@ export default function Trade() {
   }, [tokenIn.address, tokenOut.address]);
 
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {
-    console.log('getting swap pools::', 'exactIn:', isAmountIn, 'amount', formatUnits(amount.toString(), isAmountIn ? tokenIn.decimals : tokenOut.decimals))
     const pools = await getSwapPools(tokenIn, tokenOut, setTradePoolData);
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
@@ -335,8 +332,8 @@ export default function Trade() {
     },
     onSuccess(data) {
       if (quoteParams[0])
-        console.log("Success multiquote", quoteParams[0]?.exactIn, formatUnits(quoteParams[0]?.amount.toString(), exactIn ? tokenIn.decimals : tokenOut.decimals));
-      console.log("multiquote results:", data)
+      // console.log("Success multiquote", quoteParams[0]?.exactIn, formatUnits(quoteParams[0]?.amount.toString(), exactIn ? tokenIn.decimals : tokenOut.decimals));
+      // console.log("multiquote results:", data)
     },
   });
 
