@@ -17,7 +17,6 @@ import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import { useCopyElementUseEffect } from "../../utils/misc";
 import { useConfigStore } from "../../hooks/useConfigStore";
-import { tokenCover } from "../../utils/types";
 
 export default function ViewCover() {
   const [chainId] = useConfigStore((state) => [state.chainId]);
@@ -123,8 +122,6 @@ export default function ViewCover() {
   );
 
   useEffect(() => {
-    console.log("coverPoolAddress", coverPoolAddress);
-    console.log("coverPoolData", coverPoolData);
     setPoolDisplay(
       coverPoolAddress
         ? coverPoolAddress.toString().substring(0, 6) +
@@ -137,7 +134,7 @@ export default function ViewCover() {
               )
         : undefined
     );
-  }, [coverPoolAddress, coverPositionData, router.isReady]);
+  }, [coverPoolAddress]);
 
   const [lowerInverse, setLowerInverse] = useState(0);
   const [upperInverse, setUpperInverse] = useState(0);
