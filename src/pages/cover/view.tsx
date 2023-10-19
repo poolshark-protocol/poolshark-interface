@@ -17,13 +17,10 @@ import DoubleArrowIcon from "../../components/Icons/DoubleArrowIcon";
 import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import { useCopyElementUseEffect } from "../../utils/misc";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { tokenCover } from "../../utils/types";
 
 export default function ViewCover() {
-  const [
-    chainId
-  ] = useConfigStore((state) => [
-    state.chainId,
-  ]);
+  const [chainId] = useConfigStore((state) => [state.chainId]);
 
   const [
     coverPoolAddress,
@@ -43,6 +40,7 @@ export default function ViewCover() {
     setTokenOutCoverUSDPrice,
     setLatestTick,
     setClaimTick,
+    setCoverPoolFromVolatility,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPoolData,
@@ -61,6 +59,7 @@ export default function ViewCover() {
     state.setTokenOutCoverUSDPrice,
     state.setLatestTick,
     state.setClaimTick,
+    state.setCoverPoolFromVolatility,
   ]);
 
   const { address, isConnected } = useAccount();
@@ -124,6 +123,8 @@ export default function ViewCover() {
   );
 
   useEffect(() => {
+    console.log("coverPoolAddress", coverPoolAddress);
+    console.log("coverPoolData", coverPoolData);
     setPoolDisplay(
       coverPoolAddress
         ? coverPoolAddress.toString().substring(0, 6) +
@@ -136,7 +137,7 @@ export default function ViewCover() {
               )
         : undefined
     );
-  }, [coverPoolAddress]);
+  }, [coverPoolAddress, coverPositionData, router.isReady]);
 
   const [lowerInverse, setLowerInverse] = useState(0);
   const [upperInverse, setUpperInverse] = useState(0);
@@ -203,7 +204,11 @@ export default function ViewCover() {
             (
               tokenOut.coverUSDPrice /
               Number(
-                TickMath.getPriceStringAtTick(Number(coverPositionData.max), tokenIn, tokenOut)
+                TickMath.getPriceStringAtTick(
+                  Number(coverPositionData.max),
+                  tokenIn,
+                  tokenOut
+                )
               )
             ).toPrecision(6)
           )
@@ -213,7 +218,11 @@ export default function ViewCover() {
             (
               tokenOut.coverUSDPrice /
               Number(
-                TickMath.getPriceStringAtTick(Number(coverPositionData.min), tokenIn, tokenOut)
+                TickMath.getPriceStringAtTick(
+                  Number(coverPositionData.min),
+                  tokenIn,
+                  tokenOut
+                )
               )
             ).toPrecision(6)
           )
@@ -225,7 +234,8 @@ export default function ViewCover() {
               Number(
                 TickMath.getPriceStringAtTick(
                   Number(coverPositionData.latestTick),
-                  tokenIn, tokenOut
+                  tokenIn,
+                  tokenOut
                 )
               )
             ).toPrecision(6)
@@ -273,6 +283,11 @@ export default function ViewCover() {
           coverPositionData.positionId ?? router.query.positionId;
         const position = positionData.find(
           (position) => position.positionId == positionId
+        );
+        setCoverPoolFromVolatility(
+          tokenIn,
+          tokenOut,
+          position.volatilityTier.feeAmount.toString()
         );
         if (position != undefined) {
           setCoverPositionData(position);
@@ -416,7 +431,11 @@ export default function ViewCover() {
                   ) : priceDirection ? (
                     lowerInverse
                   ) : (
-                    TickMath.getPriceStringAtTick(Number(coverPositionData.min), tokenIn, tokenOut)
+                    TickMath.getPriceStringAtTick(
+                      Number(coverPositionData.min),
+                      tokenIn,
+                      tokenOut
+                    )
                   )}
                   <DoubleArrowIcon />
                   {isLoading ? (
@@ -426,7 +445,11 @@ export default function ViewCover() {
                   ) : priceDirection ? (
                     upperInverse
                   ) : (
-                    TickMath.getPriceStringAtTick(Number(coverPositionData.max), tokenIn, tokenOut)
+                    TickMath.getPriceStringAtTick(
+                      Number(coverPositionData.max),
+                      tokenIn,
+                      tokenOut
+                    )
                   )}
                 </div>
               </div>
@@ -503,25 +526,29 @@ export default function ViewCover() {
                     parseFloat(
                       TickMath.getPriceStringAtTick(
                         Number(coverPositionData.latestTick),
-                        tokenIn, tokenOut
+                        tokenIn,
+                        tokenOut
                       )
                     ) <
                       parseFloat(
                         TickMath.getPriceStringAtTick(
                           Number(coverPositionData.min),
-                          tokenIn, tokenOut
+                          tokenIn,
+                          tokenOut
                         )
                       ) ||
                     parseFloat(
                       TickMath.getPriceStringAtTick(
                         Number(coverPositionData.latestTick),
-                        tokenIn, tokenOut
+                        tokenIn,
+                        tokenOut
                       )
                     ) >=
                       parseFloat(
                         TickMath.getPriceStringAtTick(
                           Number(coverPositionData.max),
-                          tokenIn, tokenOut
+                          tokenIn,
+                          tokenOut
                         )
                       ) ? (
                       <span className="text-yellow-600 text-xs bg-yellow-900/30 px-4 py-1 rounded-[4px]">
@@ -562,7 +589,8 @@ export default function ViewCover() {
                       ) : (
                         TickMath.getPriceStringAtTick(
                           Number(coverPositionData.min),
-                          tokenIn, tokenOut
+                          tokenIn,
+                          tokenOut
                         )
                       )}
                     </span>
@@ -590,7 +618,8 @@ export default function ViewCover() {
                       ) : (
                         TickMath.getPriceStringAtTick(
                           Number(coverPositionData.max),
-                          tokenIn, tokenOut
+                          tokenIn,
+                          tokenOut
                         )
                       )}
                     </span>
@@ -618,7 +647,8 @@ export default function ViewCover() {
                       ) : (
                         TickMath.getPriceStringAtTick(
                           Number(coverPositionData?.latestTick),
-                          tokenIn, tokenOut
+                          tokenIn,
+                          tokenOut
                         )
                       )
                     ) : (
@@ -686,7 +716,9 @@ export default function ViewCover() {
                 zeroForOne={Boolean(coverPositionData.zeroForOne)}
                 gasFee={coverMintParams.gasFee}
                 signer={signer}
-                snapshotAmount={filledAmount ? filledAmount[2].add(filledAmount[3]) : BN_ZERO}
+                snapshotAmount={
+                  filledAmount ? filledAmount[2].add(filledAmount[3]) : BN_ZERO
+                }
               />
               {/*TO-DO: add positionOwner ternary again*/}
             </div>
