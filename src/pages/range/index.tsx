@@ -133,7 +133,7 @@ export default function Range() {
                 allRangePools[0].feeTier.toString()
               );
               router.push({
-                pathname: "/range/add-liquidity",
+                pathname: "/range/create",
                 query: { state: "select" },
               });
             }}
@@ -323,7 +323,7 @@ export default function Range() {
                             <RangePool
                               key={allRangePool.poolId + "rangePool"}
                               rangePool={allRangePool}
-                              href="/range/add-liquidity"
+                              href="/range/create"
                             />
                           );
                       })}
