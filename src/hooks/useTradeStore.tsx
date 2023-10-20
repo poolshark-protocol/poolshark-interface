@@ -10,6 +10,8 @@ import {
   getLimitPoolFromFactory,
   getRangePoolFromFactory,
 } from "../utils/queries";
+import inputFilter from "../utils/inputFilter";
+import { parseUnits } from "../utils/math/valueMath";
 
 type TradeState = {
   //tradePoolAddress for current token pairs
@@ -36,6 +38,9 @@ type TradeState = {
   tokenIn: tokenSwap;
   //TokenOut defines the token on the left/up on a swap page
   tokenOut: tokenSwap;
+  //Token BigNumber amounts
+  amountIn: BigNumber;
+  amountOut: BigNumber;
   //min and max price input
   minInput: string;
   maxInput: string;
@@ -70,6 +75,9 @@ type TradeLimitAction = {
   setTokenOutTradeAllowance: (allowance: BigNumber) => void;
   setTokenOutBalance: (balance: string) => void;
   //
+  setAmountIn: (amountIn: BigNumber) => void;
+  setAmountOut: (amountOut: BigNumber) => void;
+  //
   setMinInput: (newMinTick: string) => void;
   setMaxInput: (newMaxTick: string) => void;
   //
@@ -77,7 +85,7 @@ type TradeLimitAction = {
   setTradeGasLimit: (gasLimit: BigNumber) => void;
 
   //
-  switchDirection: () => void;
+  switchDirection: (isAmountIn: boolean, amount: string, amountSetter: any) => void;
   setTradePoolFromVolatility: (
     tokenIn: any,
     tokenOut: any,
@@ -144,6 +152,8 @@ const initialTradeState: TradeState = {
     USDPrice: 0.0,
   } as tokenSwap,
   limitPriceString: '0.00',
+  amountIn: BN_ZERO,
+  amountOut: BN_ZERO,
   //
   minInput: "",
   maxInput: "",
@@ -173,6 +183,9 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
   tokenIn: initialTradeState.tokenIn,
   //tokenOut
   tokenOut: initialTradeState.tokenOut,
+  //token amounts
+  amountIn: initialTradeState.amountIn,
+  amountOut: initialTradeState.amountOut,
   //input amounts
   minInput: initialTradeState.minInput,
   maxInput: initialTradeState.maxInput,
@@ -331,6 +344,16 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       tokenOut: { ...state.tokenOut, userRouterAllowance: newAllowance },
     }));
   },
+  setAmountIn: (amountIn: BigNumber) => {
+    set((state) => ({
+      amountIn: amountIn
+    }));
+  },
+  setAmountOut: (amountOut: BigNumber) => {
+    set((state) => ({
+      amountOut: amountOut
+    }));
+  },
   setMinInput: (minInput: string) => {
     set(() => ({
       minInput: minInput,
@@ -459,7 +482,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       needsSnapshot: needsSnapshot,
     }));
   },
-  switchDirection: () => {
+  switchDirection: (isAmountIn: boolean, amount: string) => {
     set((state) => ({
       tokenIn: {
         callId: state.tokenOut.callId,
@@ -483,6 +506,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         userBalance: state.tokenIn.userBalance,
         userRouterAllowance: state.tokenIn.userRouterAllowance,
       },
+      amountIn: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.amountIn,
+      amountOut: isAmountIn ? state.amountOut : parseUnits(amount, state.tokenIn.decimals)
     }));
   },
   setTradePoolFromVolatility: async (tokenIn, tokenOut, volatility: any) => {
