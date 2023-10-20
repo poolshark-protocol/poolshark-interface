@@ -36,11 +36,7 @@ import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function CreateCover(props: any) {
-  const [
-    chainId
-  ] = useConfigStore((state) => [
-    state.chainId,
-  ]);
+  const [chainId] = useConfigStore((state) => [state.chainId]);
 
   const [
     coverPoolAddress,
@@ -71,7 +67,7 @@ export default function CreateCover(props: any) {
     needsBalance,
     setNeedsBalance,
     needsLatestTick,
-    setNeedsLatestTick
+    setNeedsLatestTick,
   ] = useCoverStore((state) => [
     state.coverPoolAddress,
     state.coverPoolData,
@@ -101,15 +97,13 @@ export default function CreateCover(props: any) {
     state.needsBalance,
     state.setNeedsBalance,
     state.needsLatestTick,
-    state.setNeedsLatestTick
+    state.setNeedsLatestTick,
   ]);
-  
 
   const { data: signer } = useSigner();
   const { address, isConnected, isDisconnected } = useAccount();
   const { bnInput, inputBox, maxBalance } = useInputBox();
   const [loadingPrices, setLoadingPrices] = useState(true);
-
 
   // for mint modal
   const [successDisplay, setSuccessDisplay] = useState(false);
@@ -211,7 +205,7 @@ export default function CreateCover(props: any) {
       !coverPoolData
     ) {
       updatePools("1000");
-      setNeedsLatestTick(true)
+      setNeedsLatestTick(true);
     }
   }, [tokenIn.name, tokenOut.name]);
 
@@ -222,7 +216,7 @@ export default function CreateCover(props: any) {
   //sames as updatePools but triggered from the html
   const handleManualVolatilityChange = async (feeAmount: string) => {
     updatePools(feeAmount);
-    setNeedsLatestTick(true)
+    setNeedsLatestTick(true);
   };
 
   ////////////////////////////////Init Position Data
@@ -240,17 +234,24 @@ export default function CreateCover(props: any) {
       tokenIn.callId == 0
         ? tickAtPrice + -tickSpread * 16
         : tickAtPrice + tickSpread * 8,
-      tokenIn, tokenOut,
+      tokenIn,
+      tokenOut,
       tickSpread
     );
     const priceUpper = TickMath.getPriceStringAtTick(
-      tokenIn.callId == 0 ? tickAtPrice - tickSpread * 6 
-                 : tickAtPrice + tickSpread * 18,
-      tokenIn, tokenOut,
+      tokenIn.callId == 0
+        ? tickAtPrice - tickSpread * 6
+        : tickAtPrice + tickSpread * 18,
+      tokenIn,
+      tokenOut,
       tickSpread
     );
-    setLowerPrice(invertPrice(priceOrder ? priceLower : priceUpper, priceOrder));
-    setUpperPrice(invertPrice(priceOrder ? priceUpper : priceLower, priceOrder));
+    setLowerPrice(
+      invertPrice(priceOrder ? priceLower : priceUpper, priceOrder)
+    );
+    setUpperPrice(
+      invertPrice(priceOrder ? priceUpper : priceLower, priceOrder)
+    );
     setCoverPositionData({
       ...coverPositionData,
       tickAtPrice: tickAtPrice,
@@ -309,7 +310,7 @@ export default function CreateCover(props: any) {
 
   useEffect(() => {
     changeCoverAmounts();
-  }, [tokenIn.callId == 0, coverPositionData]);
+  }, [tokenIn.callId, coverPositionData]);
 
   function changeCoverAmounts() {
     if (
@@ -321,10 +322,18 @@ export default function CreateCover(props: any) {
         parseFloat(coverPositionData.upperPrice)
     ) {
       const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
-        TickMath.getTickAtPriceString(coverPositionData.lowerPrice, tokenIn, tokenOut)
+        TickMath.getTickAtPriceString(
+          coverPositionData.lowerPrice,
+          tokenIn,
+          tokenOut
+        )
       );
       const upperSqrtPrice = TickMath.getSqrtRatioAtTick(
-        TickMath.getTickAtPriceString(coverPositionData.upperPrice, tokenIn, tokenOut)
+        TickMath.getTickAtPriceString(
+          coverPositionData.upperPrice,
+          tokenIn,
+          tokenOut
+        )
       );
       const liquidityAmount = DyDxMath.getLiquidityForAmounts(
         lowerSqrtPrice,
@@ -394,8 +403,7 @@ export default function CreateCover(props: any) {
       coverPoolData.volatilityTier &&
       coverMintParams.tokenInAmount &&
       tokenIn.userRouterAllowance &&
-      tokenIn.userRouterAllowance >=
-        parseInt(bnInput.toString())
+      tokenIn.userRouterAllowance >= parseInt(bnInput.toString())
     )
       updateGasFee();
   }, [
@@ -408,7 +416,7 @@ export default function CreateCover(props: any) {
     tokenIn,
     tokenOut,
     latestTick,
-    needsLatestTick
+    needsLatestTick,
   ]);
 
   async function updateGasFee() {
@@ -419,12 +427,14 @@ export default function CreateCover(props: any) {
             address,
             TickMath.getTickAtPriceString(
               coverPositionData.upperPrice,
-              tokenIn, tokenOut,
+              tokenIn,
+              tokenOut,
               parseInt(coverPoolData.volatilityTier.tickSpread)
             ),
             TickMath.getTickAtPriceString(
               coverPositionData.lowerPrice,
-              tokenIn, tokenOut,
+              tokenIn,
+              tokenOut,
               parseInt(coverPoolData.volatilityTier.tickSpread)
             ),
             tokenIn,
@@ -440,12 +450,14 @@ export default function CreateCover(props: any) {
             address,
             TickMath.getTickAtPriceString(
               coverPositionData.upperPrice,
-              tokenIn, tokenOut,
+              tokenIn,
+              tokenOut,
               parseInt(coverPoolData.volatilityTier.tickSpread)
             ),
             TickMath.getTickAtPriceString(
               coverPositionData.lowerPrice,
-              tokenIn, tokenOut,
+              tokenIn,
+              tokenOut,
               parseInt(coverPoolData.volatilityTier.tickSpread)
             ),
             tokenIn,
@@ -582,28 +594,51 @@ export default function CreateCover(props: any) {
             <span>
               ~$
               {(
-                parseFloat(ethers.utils.formatUnits(
-                  getExpectedAmountOutFromInput(
-                    TickMath.getTickAtPriceString(coverPositionData.lowerPrice, tokenIn, tokenOut),
-                    TickMath.getTickAtPriceString(coverPositionData.upperPrice, tokenIn, tokenOut),
-                    tokenIn.callId == 0, // direction is reversed for cover
-                    bnInput
-                  ), tokenOut.decimals)) * tokenOut.coverUSDPrice
+                parseFloat(
+                  ethers.utils.formatUnits(
+                    getExpectedAmountOutFromInput(
+                      TickMath.getTickAtPriceString(
+                        coverPositionData.lowerPrice,
+                        tokenIn,
+                        tokenOut
+                      ),
+                      TickMath.getTickAtPriceString(
+                        coverPositionData.upperPrice,
+                        tokenIn,
+                        tokenOut
+                      ),
+                      tokenIn.callId == 0, // direction is reversed for cover
+                      bnInput
+                    ),
+                    tokenOut.decimals
+                  )
+                ) * tokenOut.coverUSDPrice
               ).toPrecision(6)}
             </span>
           </div>
           <div className="flex items-end justify-between mt-2 mb-3 text-3xl">
             {parseFloat(coverPositionData.lowerPrice) <
               parseFloat(coverPositionData.upperPrice) &&
-            bnInput.toString() != "0" && coverPoolAddress != ZERO_ADDRESS ? (
+            bnInput.toString() != "0" ? (
               // 1
-              (parseFloat(ethers.utils.formatUnits(
-                getExpectedAmountOutFromInput(
-                  TickMath.getTickAtPriceString(coverPositionData.lowerPrice, tokenIn, tokenOut),
-                  TickMath.getTickAtPriceString(coverPositionData.upperPrice, tokenIn, tokenOut),
-                  tokenIn.callId == 0, // direction is reversed for cover
-                  bnInput
-                ), tokenOut.decimals))
+              parseFloat(
+                ethers.utils.formatUnits(
+                  getExpectedAmountOutFromInput(
+                    TickMath.getTickAtPriceString(
+                      coverPositionData.lowerPrice,
+                      tokenIn,
+                      tokenOut
+                    ),
+                    TickMath.getTickAtPriceString(
+                      coverPositionData.upperPrice,
+                      tokenIn,
+                      tokenOut
+                    ),
+                    tokenIn.callId == 0, // direction is reversed for cover
+                    bnInput
+                  ),
+                  tokenOut.decimals
+                )
               ).toPrecision(6)
             ) : (
               <>0</>
@@ -629,8 +664,17 @@ export default function CreateCover(props: any) {
             onClick={handlePriceSwitch}
             className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
           >
-            {priceOrder == (tokenIn.callId == 0) ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>} per{" "}
-            {priceOrder == (tokenIn.callId == 0) ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>}{" "}
+            {priceOrder == (tokenIn.callId == 0) ? (
+              <>{tokenOut.symbol}</>
+            ) : (
+              <>{tokenIn.symbol}</>
+            )}{" "}
+            per{" "}
+            {priceOrder == (tokenIn.callId == 0) ? (
+              <>{tokenIn.symbol}</>
+            ) : (
+              <>{tokenOut.symbol}</>
+            )}{" "}
             <DoubleArrowIcon />
           </div>
         </div>
@@ -639,7 +683,7 @@ export default function CreateCover(props: any) {
             <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
               <span className="text-grey1 text-xs">MIN. PRICE</span>
               <span className="text-white text-3xl">
-                {(
+                {
                   <input
                     autoComplete="off"
                     className="bg-black py-2 outline-none text-center w-full"
@@ -649,13 +693,13 @@ export default function CreateCover(props: any) {
                     value={lowerPrice}
                     onChange={(e) => setLowerPrice(inputFilter(e.target.value))}
                   />
-                )}
+                }
               </span>
             </div>
             <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
               <span className="text-grey1 text-xs">MAX. PRICE</span>
               <span className="text-white text-3xl">
-                {(
+                {
                   <input
                     autoComplete="off"
                     className="bg-black py-2 outline-none text-center w-full"
@@ -665,7 +709,7 @@ export default function CreateCover(props: any) {
                     value={upperPrice}
                     onChange={(e) => setUpperPrice(inputFilter(e.target.value))}
                   />
-                )}
+                }
               </span>
             </div>
           </div>
@@ -675,16 +719,26 @@ export default function CreateCover(props: any) {
               onClick={() => setExpanded(!expanded)}
             >
               <div className="flex-none text-xs uppercase text-[#C9C9C9]">
-                {1} {priceOrder == (tokenIn.callId == 0) ? tokenIn.symbol : tokenOut.symbol} =
+                {1}{" "}
+                {priceOrder == (tokenIn.callId == 0)
+                  ? tokenIn.symbol
+                  : tokenOut.symbol}{" "}
+                =
                 {" " +
                   parseFloat(
                     invertPrice(
-                      TickMath.getPriceStringAtTick(latestTick, tokenIn, tokenOut),
+                      TickMath.getPriceStringAtTick(
+                        latestTick,
+                        tokenIn,
+                        tokenOut
+                      ),
                       priceOrder
                     )
                   ).toPrecision(5) +
                   " " +
-                  (priceOrder == (tokenIn.callId == 0) ? tokenOut.symbol : tokenIn.symbol)}
+                  (priceOrder == (tokenIn.callId == 0)
+                    ? tokenOut.symbol
+                    : tokenIn.symbol)}
                 {/* {!tokenIn.coverUSDPrice
                   ? "?" + " " + tokenOut.symbol
                   : (tokenIn.callId == 0
@@ -756,14 +810,16 @@ export default function CreateCover(props: any) {
             to={address}
             lower={TickMath.getTickAtPriceString(
               coverPositionData.lowerPrice ?? "0",
-              tokenIn, tokenOut,
+              tokenIn,
+              tokenOut,
               coverPoolData.volatilityTier
                 ? parseInt(coverPoolData.volatilityTier.tickSpread)
                 : 20
             )}
             upper={TickMath.getTickAtPriceString(
               coverPositionData.upperPrice ?? "0",
-              tokenIn, tokenOut,
+              tokenIn,
+              tokenOut,
               coverPoolData.volatilityTier
                 ? parseInt(coverPoolData.volatilityTier.tickSpread)
                 : 20
@@ -797,14 +853,16 @@ export default function CreateCover(props: any) {
             to={address}
             lower={TickMath.getTickAtPriceString(
               coverPositionData.lowerPrice ?? "0",
-              tokenIn, tokenOut,
+              tokenIn,
+              tokenOut,
               coverPoolData.volatilityTier
                 ? parseInt(coverPoolData.volatilityTier.tickSpread)
                 : 20
             )}
             upper={TickMath.getTickAtPriceString(
               coverPositionData.upperPrice ?? "0",
-              tokenIn, tokenOut,
+              tokenIn,
+              tokenOut,
               coverPoolData.volatilityTier
                 ? parseInt(coverPoolData.volatilityTier.tickSpread)
                 : 20

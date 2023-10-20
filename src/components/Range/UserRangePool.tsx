@@ -65,9 +65,9 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
   function setTokenAddressFromId(token: any): token {
     token = {
       ...token,
-      address: token.id
-    }
-    return token
+      address: token.id,
+    };
+    return token;
   }
 
   useEffect(() => {
@@ -101,6 +101,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
           rangePosition.pool.feeTier.feeAmount
         ) {
           const poolData = pool["data"]["limitPools"][i];
+          setRangePoolData(poolData);
           if (poolData.token0 && poolData.token1) {
             if (rangeTokenIn.address) {
               fetchRangeTokenUSDPrice(
@@ -212,13 +213,12 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
         rangePosition.pool.feeTier.feeAmount
       );
     }
-    
     router.push({
       pathname: href,
       query: {
         positionId: rangePosition.positionId,
         feeTier: rangePosition.pool.feeTier.feeAmount,
-        state: (router.pathname.includes("/cover") && "range-cover")
+        state: router.pathname.includes("/cover") && "range-cover",
       },
     });
   }
@@ -258,8 +258,17 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
             <div
               className={`text-white text-xs lg:text-right text-left whitespace-nowrap`}
             >
-              {TickMath.getPriceStringAtTick(Number(rangePosition.min), setTokenAddressFromId(rangePosition.tokenZero), setTokenAddressFromId(rangePosition.tokenOne))} -{" "}
-              {TickMath.getPriceStringAtTick(Number(rangePosition.max), setTokenAddressFromId(rangePosition.tokenZero), setTokenAddressFromId(rangePosition.tokenOne))}{" "}
+              {TickMath.getPriceStringAtTick(
+                Number(rangePosition.min),
+                setTokenAddressFromId(rangePosition.tokenZero),
+                setTokenAddressFromId(rangePosition.tokenOne)
+              )}{" "}
+              -{" "}
+              {TickMath.getPriceStringAtTick(
+                Number(rangePosition.max),
+                setTokenAddressFromId(rangePosition.tokenZero),
+                setTokenAddressFromId(rangePosition.tokenOne)
+              )}{" "}
               <span className="text-grey1">
                 {rangePosition.zeroForOne
                   ? rangePosition.tokenOne.symbol
