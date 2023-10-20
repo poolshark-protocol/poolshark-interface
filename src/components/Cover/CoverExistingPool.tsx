@@ -34,6 +34,7 @@ import { useRouter } from "next/router";
 import PositionMintModal from "../Modals/PositionMint";
 import { useConfigStore } from "../../hooks/useConfigStore";
 import { fetchRangePositions } from "../../utils/queries";
+import { mapUserLimitPositions, mapUserRangePositions } from "../../utils/maps";
 export default function CoverExistingPool({ goBack }) {
   const [chainId] = useConfigStore((state) => [state.chainId]);
 
@@ -326,18 +327,12 @@ export default function CoverExistingPool({ goBack }) {
   }, [coverPositionData.lowerPrice, coverPositionData.upperPrice, tokenIn.callId == 0]); */
 
   useEffect(() => {
-    console.log("updateCoverAmounts");
-    console.log("coverPoolAddress", coverPoolAddress);
-    console.log("coverPoolData", coverPoolData);
-    console.log("coverPositionData", coverPositionData);
-    console.log("coverMinParams", coverMintParams);
-    console.log("rangePositionData", rangePositionData);
-    if (coverPoolData.id) {
-      refetchRangePositionData();
-      updateCoverAmounts();
-    } else {
+    if (!coverPoolData.id) {
       setCoverPoolFromVolatility(tokenIn, tokenOut, "1000");
     }
+
+    refetchRangePositionData();
+    updateCoverAmounts();
   }, [
     coverPoolData,
     coverPositionData,
@@ -353,7 +348,7 @@ export default function CoverExistingPool({ goBack }) {
     //refetch rangePositionData frm positionId in router params
     const data = await fetchRangePositions(address);
     if (data["data"]) {
-      const positions = data["data"].rangePositions;
+      const positions = mapUserRangePositions(data["data"].rangePositions);
       const positionId = router.query.positionId;
       const position = positions.find(
         (position) => position.positionId == positionId
@@ -387,14 +382,14 @@ export default function CoverExistingPool({ goBack }) {
           tokenOut
         )
       );
-      if (rangePositionData?.liquidity == undefined) {
+      if (rangePositionData?.userLiquidity == undefined) {
         setTokenInAmount(BN_ZERO);
         setTokenOutAmount(BN_ZERO);
         return;
       }
       const liquidityAmount = JSBI.divide(
         JSBI.multiply(
-          JSBI.BigInt(Math.round(rangePositionData.liquidity)),
+          JSBI.BigInt(Math.round(rangePositionData.userLiquidity)),
           JSBI.BigInt(parseFloat(sliderValue.toString()))
         ),
         JSBI.BigInt(100)
@@ -565,7 +560,7 @@ export default function CoverExistingPool({ goBack }) {
       setTimeout(() => {
         setSliderController(false);
         setSliderValue(event.target.value);
-      }, 2000);
+      }, 1000);
     }
   };
 
