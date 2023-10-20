@@ -200,7 +200,6 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
     if (href.includes("cover")) {
       setCoverTokenIn(tokenOutNew, tokenInNew);
       setCoverTokenOut(tokenInNew, tokenOutNew);
-      console.log("rangePosition", rangePosition);
       setRangePositionData(rangePosition);
       setCoverPoolFromVolatility(tokenInNew, tokenOutNew, "1000");
     } else {
@@ -214,7 +213,6 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
         rangePosition.pool.feeTier.feeAmount
       );
     }
-
     router.push({
       pathname: href,
       query: {

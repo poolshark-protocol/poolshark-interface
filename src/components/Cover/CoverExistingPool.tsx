@@ -187,7 +187,6 @@ export default function CoverExistingPool({ goBack }) {
   });
 
   useEffect(() => {
-    console.log("newLatestTick", newLatestTick);
     if (newLatestTick) {
       setLatestTick(parseInt(newLatestTick.toString()));
     }
@@ -394,7 +393,6 @@ export default function CoverExistingPool({ goBack }) {
         ),
         JSBI.BigInt(100)
       );
-      console.log("liquidityAmount", liquidityAmount.toString());
       setTokenInAmount(
         BigNumber.from(
           tokenIn.callId == 0
@@ -563,11 +561,6 @@ export default function CoverExistingPool({ goBack }) {
       }, 1000);
     }
   };
-
-  /* const updateSliderValue = async () => {
-    console.log("updateSliderValue", sliderDisplay);
-    setSliderValue(sliderDisplay);
-  }; */
 
   //////////////////////////////// Switch Price denomination
 
