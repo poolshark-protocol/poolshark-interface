@@ -1,144 +1,178 @@
 import { Transition, Dialog } from "@headlessui/react";
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { useSwitchNetwork, useAccount, erc20ABI, useProvider, useSigner  } from "wagmi";
-import useInputBox from '../../../hooks/useInputBox'
-import CoverAddLiqButton from '../../Buttons/CoverAddLiqButton'
-import { ethers, Contract } from "ethers";
+import {
+  useAccount,
+  erc20ABI,
+  useSigner,
+  useBalance,
+} from "wagmi";
+import useInputBox from "../../../hooks/useInputBox";
+import CoverAddLiqButton from "../../Buttons/CoverAddLiqButton";
+import { ethers } from "ethers";
 import { useContractRead } from "wagmi";
 import { BN_ZERO } from "../../../utils/math/constants";
 import CoverMintApproveButton from "../../Buttons/CoverMintApproveButton";
-import { chainIdsToNamesForGitTokenList } from "../../../utils/chains";
+import {
+  chainIdsToNamesForGitTokenList,
+  chainProperties,
+} from "../../../utils/chains";
 import { gasEstimateCoverMint } from "../../../utils/gas";
-import JSBI from "jsbi";
+import { useCoverStore } from "../../../hooks/useCoverStore";
+import { useConfigStore } from "../../../hooks/useConfigStore";
 
-export default function CoverAddLiquidity({ isOpen, usdPriceIn, usdPriceOut, setIsOpen, tokenIn, tokenOut, poolAdd, address, claimTick, upperTick, zeroForOne, liquidity, lowerTick, tickSpacing }) {
+export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
 
-  const {
-    bnInput,
-    inputBox,
-    maxBalance,
-    bnInputLimit,
-    LimitInputBox,
-  } = useInputBox()
+  const [
+    coverPoolAddress,
+    coverPoolData,
+    coverPositionData,
+    coverMintParams,
+    tokenIn,
+    setTokenInBalance,
+    setTokenInAllowance,
+    tokenOut,
+    needsAllowance,
+    setNeedsAllowance,
+    needsBalance,
+    setNeedsBalance,
+    setMintButtonState,
+  ] = useCoverStore((state) => [
+    state.coverPoolAddress,
+    state.coverPoolData,
+    state.coverPositionData,
+    state.coverMintParams,
+    state.tokenIn,
+    state.setTokenInBalance,
+    state.setTokenInCoverAllowance,
+    state.tokenOut,
+    state.needsAllowance,
+    state.setNeedsAllowance,
+    state.needsBalance,
+    state.setNeedsBalance,
+    state.setMintButtonState,
+  ]);
 
-  const [balance0, setBalance0] = useState('')
-  const [balance1, setBalance1] = useState('0.00')
-  const [balanceIn, setBalanceIn] = useState('')
-  const [allowanceIn, setAllowanceIn] = useState(BN_ZERO)
-  const { isDisconnected, isConnected } = useAccount()
-  const [stateChainName, setStateChainName] = useState()
-  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
-  const [mintGasFee, setMintGasFee] = useState('$0.00')
-  const [fetchDelay, setFetchDelay] = useState(false)
-  const [buttonState, setButtonState] = useState('')
-  const [disabled, setDisabled] = useState(true)
-  const {
-    network: { chainId },
-  } = useProvider()
-  const { data: signer } = useSigner()
+  const { bnInput, inputBox, maxBalance } = useInputBox();
+  const { data: signer } = useSigner();
+  const { isConnected } = useAccount();
+  const [stateChainName, setStateChainName] = useState();
+  const [buttonState, setButtonState] = useState("");
+  const [disabled, setDisabled] = useState(true);
 
-  const { data: tokenInAllowance } = useContractRead({
+  ////////////////////////////////Allowances
+
+  const { data: allowanceInCover } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
-    functionName: 'allowance',
-    args: [address, poolAdd],
-    chainId: 421613,
-    watch: true,
-    enabled:
-      isConnected &&
-      poolAdd != undefined &&
-      tokenIn.address != undefined,
+    functionName: "allowance",
+    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
+    chainId: chainId,
+    watch: needsAllowance,
+    enabled: tokenIn.address != undefined,
     onSuccess(data) {
-      console.log('Success')
+      setNeedsAllowance(false);
     },
     onError(error) {
-      console.log('Error', error)
+      console.log("Error", error);
     },
-    onSettled(data, error) {
-      console.log('allowance check', allowanceIn.lt(bnInput))
-      console.log('Allowance Settled', {
-        data,
-        error,
-        poolAdd,
-        tokenIn,
-      })
-    },
-  })
+    onSettled(data, error) {},
+  });
 
-   // disabled messages
-   useEffect(() => {
-        
-    if (Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn)) {
-      setButtonState('balance')
+  useEffect(() => {
+    if (isConnected && allowanceInCover)
+      setTokenInAllowance(allowanceInCover.toString());
+  }, [allowanceInCover]);
+
+  ////////////////////////////////Token Balances
+
+  const { data: tokenInBal } = useBalance({
+    address: address,
+    token: tokenIn.address,
+    enabled: tokenIn.address != undefined && needsBalance,
+    watch: needsBalance,
+    onSuccess(data) {
+      setNeedsBalance(false);
+    },
+  });
+
+  useEffect(() => {
+    if (isConnected && tokenInBal) {
+      setTokenInBalance(
+        parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+      );
+    }
+  }, [tokenInBal]);
+
+  ////////////////////////////////
+
+  // disabled messages
+  useEffect(() => {
+    if (
+      Number(ethers.utils.formatUnits(bnInput)) > Number(tokenIn.userBalance)
+    ) {
+      setButtonState("balance");
     }
     if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
-      setButtonState('amount')
+      setButtonState("amount");
     }
-    if (Number(ethers.utils.formatUnits(bnInput)) === 0 ||
-        Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn)
+    if (
+      Number(ethers.utils.formatUnits(bnInput)) === 0 ||
+      Number(ethers.utils.formatUnits(bnInput)) > Number(tokenIn.userBalance)
     ) {
-      setDisabled(true)
-    } else { setDisabled(false)}
-  }, [bnInput, balanceIn, disabled])
-
-  useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
-  }, [chainId])
-
-  useEffect(() => {
-    if(!fetchDelay) {
-      getBalances()
+      setDisabled(true);
     } else {
-      const interval = setInterval(() => {
-        getBalances()
-      }, 2000);
-      return () => clearInterval(interval);
+      setDisabled(false);
     }
-  }, [fetchDelay])
+  }, [bnInput, tokenIn.userBalance, disabled]);
 
   useEffect(() => {
-    setTimeout(() => {
-      if (tokenInAllowance) setAllowanceIn(tokenInAllowance)
-    }, 50)
-  }, [tokenInAllowance])
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
+  }, [chainId]);
+
+  ////////////////////////////////Gas Fees Estimation
+  const [mintGasFee, setMintGasFee] = useState("$0.00");
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    updateMintFee()
-  }, [bnInput])
+    if (
+      coverPositionData.lowerTick &&
+      coverPositionData.upperTick &&
+      coverPoolData.volatilityTier &&
+      allowanceInCover &&
+      bnInput
+    )
+      updateGasFee();
+  }, [bnInput, coverPoolAddress, allowanceInCover, coverPositionData]);
 
-  async function updateMintFee() {
-    const newMintFee = await gasEstimateCoverMint(
-      poolAdd,
+  async function updateGasFee() {
+    const newMintGasFee = await gasEstimateCoverMint(
+      coverPoolAddress,
       address,
-      upperTick,
-      lowerTick,
+      coverPositionData.upperTick,
+      coverPositionData.lowerTick,
       tokenIn,
       tokenOut,
-      JSBI.BigInt(bnInput.toString()),
-      tickSpacing,
+      bnInput,
       signer,
-    )
-    
-    setMintGasFee(newMintFee.formattedPrice)
-    setMintGasLimit(newMintFee.gasUnits.mul(130).div(100))
+      coverPositionData.positionId
+    );
+    setMintGasFee(newMintGasFee.formattedPrice);
+    setMintGasLimit(newMintGasFee.gasUnits.mul(120).div(100));
   }
 
-  const getBalances = async () => {
-    setFetchDelay(true)
-    try {
-      const provider = new ethers.providers.JsonRpcProvider(
-        'https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594',
-        421613,
-      )
-      const signer = new ethers.VoidSigner(address, provider)
-      const tokenInContract = new ethers.Contract(tokenIn.address, erc20ABI, signer)
-      const tokenInBal = await tokenInContract.balanceOf(address)
-      setBalanceIn(ethers.utils.formatUnits(tokenInBal, 18))
-    } catch (error) {
-      console.log(error)
-    }
-  }
+  ////////////////////////////////Mint Button Handler
+
+  useEffect(() => {
+    setMintButtonState();
+  }, [coverMintParams.tokenInAmount]);
+
+  ////////////////////////////////
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -170,84 +204,86 @@ export default function CoverAddLiquidity({ isOpen, usdPriceIn, usdPriceOut, set
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-xl bg-black text-white border border-grey2 text-left align-middle shadow-xl px-5 py-5 transition-all">
-                <div className="flex items-center justify-between px-2">
+              <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-[4px] bg-black text-white border border-grey text-left align-middle shadow-xl px-7 py-5 transition-all">
+                <div className="flex items-center justify-between mb-5">
                   <h1 className="text-lg">Add Liquidity</h1>
                   <XMarkIcon
                     onClick={() => setIsOpen(false)}
                     className="w-7 cursor-pointer"
                   />
                 </div>
-                <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl mt-6 mb-6">
-                <div className=" p-2 w-32">
-                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-1 rounded-xl">
-                              {inputBox("0")}
-                              </div>
-                              <div className="flex">
-                                <div className="flex text-xs text-[#4C4C4C]">
-                                 $ {Number(usdPriceOut * parseFloat(ethers.utils.formatUnits(bnInput, 18))).toFixed(2)}
-                                
-                                </div>
-                              </div>
-                            </div>
-                  <div className="">
-                    <div className=" ml-auto">
-                      <div>
-                        <div className="flex justify-end">
-                          <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
-                            <div className="flex items-center gap-x-2 w-full">
-                              <img className="w-7" src={tokenIn.logoURI} />
-                              {tokenIn.symbol}
-                            </div>
+                  <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2 mb-5">
+                    <div className="flex items-end justify-between text-[11px] text-grey1">
+                      <span>
+                        ~$
+                        {Number(
+                          tokenIn.coverUSDPrice *
+                            parseFloat(
+                              ethers.utils.formatUnits(
+                                bnInput,
+                                tokenIn.decimals
+                              )
+                            )
+                        ).toFixed(2)}
+                      </span>
+                      <span>
+                        BALANCE: {isNaN(tokenIn.userBalance)
+                              ? "0.00"
+                              : Number(tokenIn.userBalance).toPrecision(5)}
+                      </span>
+                    </div>
+                    <div className="flex items-end justify-between mt-2 mb-3">
+                      {inputBox("0", tokenIn)}
+                      <div className="flex items-center gap-x-2">
+                        {isConnected && stateChainName === "arbitrumGoerli" ? (
+                          <button
+                          onClick={() => {
+                            maxBalance(tokenIn.userBalance.toString(), "0", tokenIn.decimals);
+                          }}
+                            className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
+                          >
+                            MAX
                           </button>
+                        ) : null}
+                        <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
+                          <img height="28" width="25" src={tokenIn.logoURI} />
+                          {tokenIn.symbol}
                         </div>
-                        <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                  <div className="flex whitespace-nowrap md:text-xs text-[10px] text-[#4C4C4C]" key={balanceIn}>
-                    Balance: {balanceIn === "NaN" ? '0.00' : Number(balanceIn).toPrecision(5)}
-                  </div>
-                    <button
-                      className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
-                      onClick={() => {
-                        console.log("max", balanceIn);
-                        maxBalance(balanceIn, "0");
-                      }}
-                    >
-                      Max
-                    </button>
-                </div>
                       </div>
                     </div>
                   </div>
-                </div>
                 {isConnected &&
-                  allowanceIn.lt(bnInput) &&
-                  stateChainName === "arbitrumGoerli" ? (
-                    <CoverMintApproveButton
-                      disabled={disabled}
-                      poolAddress={poolAdd}
-                      approveToken={tokenIn.address}
-                      amount={bnInput}
-                      tokenSymbol={tokenIn.symbol}
-                      allowance={allowanceIn}
-                      buttonState={buttonState}
-                    />
-                  ) : stateChainName === "arbitrumGoerli" ? (
-                    <CoverAddLiqButton
-                      disabled={disabled || mintGasFee == '$0.00'}
-                      toAddress={address}
-                      poolAddress={poolAdd}
-                      address={address}
-                      lower={lowerTick}
-                      claim={claimTick}
-                      upper={upperTick}
-                      zeroForOne={zeroForOne}
-                      amount={bnInput}
-                      gasLimit={mintGasLimit}
-                      buttonState={buttonState}
-                      tokenSymbol={tokenIn.Symbol}
-                />
-                  ) : null}
-                
+                allowanceInCover?.lt(bnInput) &&
+                stateChainName === "arbitrumGoerli" ? (
+                  <CoverMintApproveButton
+                    routerAddress={
+                      chainProperties["arbitrumGoerli"]["routerAddress"]
+                    }
+                    approveToken={tokenIn.address}
+                    amount={bnInput}
+                    tokenSymbol={tokenIn.symbol}
+                  />
+                ) : stateChainName === "arbitrumGoerli" ? (
+                  <CoverAddLiqButton
+                    disabled={disabled}
+                    toAddress={address}
+                    poolAddress={coverPoolAddress}
+                    routerAddress={
+                      chainProperties["arbitrumGoerli"]["routerAddress"]
+                    }
+                    address={address}
+                    lower={Number(coverPositionData.min)}
+                    upper={Number(coverPositionData.max)}
+                    positionId={Number(coverPositionData.positionId)}
+                    zeroForOne={Boolean(coverPositionData.zeroForOne)}
+                    amount={bnInput}
+                    gasLimit={mintGasLimit}
+                    //todo put this to store
+                    buttonState={buttonState}
+                    tokenSymbol={tokenIn.symbol}
+                    setIsOpen={setIsOpen}
+                  />
+                ) : null}
               </Dialog.Panel>
             </Transition.Child>
           </div>

@@ -8,14 +8,16 @@ import { SuccessToast } from '../Toasts/Success'
 import { ErrorToast } from '../Toasts/Error'
 import { ConfirmingToast } from '../Toasts/Confirming'
 import React, { useEffect, useState } from 'react'
-import { useSwapStore } from '../../hooks/useStore'
 import { BigNumber } from 'ethers'
+import { useRangeLimitStore } from '../../hooks/useRangeLimitStore'
+import { useConfigStore } from '../../hooks/useConfigStore'
 
 export default function RangeMintDoubleApproveButton({
-  poolAddress,
+  routerAddress,
   tokenIn,
   tokenOut,
-  setAllowanceController,
+  amount0,
+  amount1,
 }) {
   const [errorDisplay0, setErrorDisplay0] = useState(false)
   const [successDisplay0, setSuccessDisplay0] = useState(false)
@@ -23,13 +25,17 @@ export default function RangeMintDoubleApproveButton({
   const [successDisplay1, setSuccessDisplay1] = useState(false)
 
   const [
-    Amount,
-    SwapParams,
-    updateSwapAllowance,
-  ] = useSwapStore((state: any) => [
-    state.Amount,
-    state.SwapParams,
-    state.updateSwapAllowance,
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
+
+  const [
+    setNeedsAllowanceIn,
+    setNeedsAllowanceOut
+  ] = useRangeLimitStore((state) => [
+    state.setNeedsAllowanceIn,
+    state.setNeedsAllowanceOut
   ])
 
   const gasLimit = BigNumber.from(100000)
@@ -38,8 +44,8 @@ export default function RangeMintDoubleApproveButton({
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: 'approve',
-    args: [poolAddress, Amount],
-    chainId: 421613,
+    args: [routerAddress, amount0],
+    chainId: chainId,
     overrides: {
       gasLimit: gasLimit
     },
@@ -49,8 +55,8 @@ export default function RangeMintDoubleApproveButton({
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: 'approve',
-    args: [poolAddress, Amount],
-    chainId: 421613,
+    args: [routerAddress, amount1],
+    chainId: chainId,
     overrides: {
       gasLimit: gasLimit
     },
@@ -71,8 +77,8 @@ export default function RangeMintDoubleApproveButton({
   const { isLoading: isLoadingT0 } = useWaitForTransaction({
     hash: dataT0?.hash,
     onSuccess() {
-      updateSwapAllowance(Amount)
       setSuccessDisplay0(true)
+      setNeedsAllowanceIn(true)
     },
     onError() {
       setErrorDisplay0(true)
@@ -82,8 +88,8 @@ export default function RangeMintDoubleApproveButton({
   const { isLoading: isLoadingT1 } = useWaitForTransaction({
     hash: dataT1?.hash,
     onSuccess() {
-      updateSwapAllowance(Amount)
       setSuccessDisplay0(true)
+      setNeedsAllowanceOut(true)
     },
     onError() {
       setErrorDisplay0(true)
@@ -91,35 +97,20 @@ export default function RangeMintDoubleApproveButton({
   })
 
   function approve() {
-    setAllowanceController(true)
     writeT0()
     writeT1()
   }
 
-  useEffect(() => {
-    //5seconds for waiting for toaster and resetting state in parent component
-    if (successDisplay0 && successDisplay1)
-      setTimeout(() => {
-        setAllowanceController(false)
-      }, 5000)
-    //30 seconds for second token approval, if not, parent component will render single approval component for unapproved token 
-    if (successDisplay0 || successDisplay1) {
-      setTimeout(() => {
-        setAllowanceController(false)
-      }, 30000)
-    }
-    setAllowanceController(true)
-  }, [successDisplay0, successDisplay1])
 
   return (
     <>
       <div
-        className="w-full py-4 text-sm md:text-base mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+        className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
         onClick={(address) => (address ? approve() : null)}
       >
         Approve Both Tokens
       </div>
-      <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
+      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
         {errorDisplay0 && (
           <ErrorToast
             key={dataT0?.hash + 'doubleApprove_error'}

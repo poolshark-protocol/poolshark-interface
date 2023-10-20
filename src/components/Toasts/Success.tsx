@@ -11,7 +11,7 @@ export const SuccessToast = ({ successDisplay, setSuccessDisplay, hash }) => {
     if (successDisplay) {
       const timeout = setTimeout(() => {
         setFadeOut(true);
-      }, 3000);
+      }, 1000000);
 
       return () => {
         clearTimeout(timeout);
@@ -23,7 +23,7 @@ export const SuccessToast = ({ successDisplay, setSuccessDisplay, hash }) => {
     if (fadeOut) {
       const timeout = setTimeout(() => {
         setSuccessDisplay(false);
-      }, 500);
+      }, 100000000);
 
       return () => {
         clearTimeout(timeout);
@@ -37,7 +37,7 @@ export const SuccessToast = ({ successDisplay, setSuccessDisplay, hash }) => {
 
   return (
     <div
-      className={`bg-black py-3 px-4 rounded-xl flex gap-x-5 front ${
+      className={`bg-black py-3 px-4 rounded-xl flex gap-x-5 front border-grey border ${
         fadeOut ? "fade-out" : ""
       }`}
     >

@@ -1,83 +1,66 @@
-import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
-import { BigNumber } from 'ethers'
+import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
+import { BigNumber } from "ethers";
+import { tokenSwap } from "./types";
 
 export interface PoolState {
-  unlocked: number
-  protocolFee: number
-  tickAtPrice: number
-  tickSecondsAccum: BigNumber
-  secondsPerLiquidityAccum: BigNumber
-  price: BigNumber
-  liquidity: BigNumber
-  liquidityGlobal: BigNumber
-  feeGrowthGlobal0: BigNumber
-  feeGrowthGlobal1: BigNumber
-  samples: SampleState
-  protocolFees: ProtocolFees
+  unlocked: number;
+  protocolFee: number;
+  tickAtPrice: number;
+  tickSecondsAccum: BigNumber;
+  secondsPerLiquidityAccum: BigNumber;
+  price: BigNumber;
+  liquidity: BigNumber;
+  liquidityGlobal: BigNumber;
+  feeGrowthGlobal0: BigNumber;
+  feeGrowthGlobal1: BigNumber;
+  samples: SampleState;
+  protocolFees: ProtocolFees;
 }
 
 interface SampleState {
-  index: number
-  length: number
-  lengthNext: number
+  index: number;
+  length: number;
+  lengthNext: number;
 }
 
 interface ProtocolFees {
-  token0: BigNumber
-  token1: BigNumber
+  token0: BigNumber;
+  token1: BigNumber;
 }
 
 export const cleanInputValue = (arg: string) => {
-  const re = /^[+-]?\d*(?:[.,]\d*)?$/
-  let inputVal = arg
+  const re = /^[+-]?\d*(?:[.,]\d*)?$/;
+  let inputVal = arg;
   if (re.test(inputVal)) {
-    return inputVal.replace(',', '.')
+    return inputVal.replace(",", ".");
   }
-}
+};
 
 export const countDecimals = (value: number, tokenDecimals: number) => {
   if (value % 1 != 0) {
-    let valueDecimals = value.toString().split('.')[1].length
-    return valueDecimals > tokenDecimals || valueDecimals == tokenDecimals
+    let valueDecimals = value.toString().split(".")[1].length;
+    return valueDecimals > tokenDecimals || valueDecimals == tokenDecimals;
   }
-  return false
-}
+  return false;
+};
 
-export const getRangePoolFromFactory = (tokenA?: string, tokenB?: string, feeTierId?: number) => {
-  const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB
-  const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA
+export const getRangePoolFromFactory = (tokenA?: string, tokenB?: string) => {
+  const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB;
+  const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA;
   return new Promise(function (resolve) {
-    const getPool = isNaN(feeTierId) ? 
-        `
+    const getPool = `
         {
-          basePrices(where:{id: "eth"}){
-            USD
-          }
-          rangePools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}}) {
+          limitPools(
+            where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}},
+            orderBy: poolLiquidity,
+            orderDirection: desc
+          ) {
             id
-            price
+            poolPrice
             tickAtPrice
-            token0{
-              usdPrice
-            }
-            token1{
-              usdPrice
-            }
             feeTier {
               id
               feeAmount
-              tickSpacing
-            }
-          }
-        }
-        `
-      : `
-        {
-          rangePools(where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}, feeTier_: {id: "${feeTierId}"}}) {
-            id
-            price
-            tickAtPrice
-            feeTier {
               tickSpacing
             }
             token0 {
@@ -88,27 +71,27 @@ export const getRangePoolFromFactory = (tokenA?: string, tokenB?: string, feeTie
             }
           }
         }
-        `
+        `;
     const client = new ApolloClient({
-      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/range-arbitrumGoerli/version/v0.0.7/api',
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
       cache: new InMemoryCache(),
-    })
+    });
     client
       .query({ query: gql(getPool) })
       .then((data) => {
-        resolve(data)
+        resolve(data);
         /* console.log(data) */
       })
       .catch((err) => {
-        resolve(err)
-        console.log(err)
-      })
-  })
-}
+        resolve(err);
+        console.log(err);
+      });
+  });
+};
 
 export const getCoverPoolFromFactory = (tokenA: string, tokenB: string) => {
-  const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB
-  const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA
+  const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB;
+  const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA;
   return new Promise(function (resolve) {
     const getPool = `
         {
@@ -118,100 +101,262 @@ export const getCoverPoolFromFactory = (tokenA: string, tokenB: string) => {
               volatilityTier {
                 tickSpread
                 auctionLength
+                feeAmount
               }
               token0 {
+                id
+                name
+                symbol
+                decimals
                 usdPrice
               }
               token1 {
+                id
+                name
+                symbol
+                decimals
                 usdPrice
               }
             }
+            volatilityTiers(first: 5) {
+              tickSpread
+              auctionLength
+              feeAmount
+            }
           }
-         `
-    //console.log('query:', getPool)
+         `;
     const client = new ApolloClient({
-      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/version/v0.0.3/api',
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
       cache: new InMemoryCache(),
-    })
+    });
     client
       .query({ query: gql(getPool) })
       .then((data) => {
-        resolve(data)
+        resolve(data);
         /* console.log(data) */
       })
       .catch((err) => {
-        resolve(err)
-        console.log(err)
-      })
-  })
-}
+        resolve(err);
+        console.log(err);
+      });
+  });
+};
 
-export const getTickIfZeroForOne = (
+export const getLimitPoolFromFactory = (tokenA: string, tokenB: string) => {
+  const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB;
+  const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA;
+  return new Promise(function (resolve) {
+    const getPool = `
+        {
+            limitPools(
+              where: {token0_: {id:"${token0.toLocaleLowerCase()}"}, token1_:{id:"${token1.toLocaleLowerCase()}"}},
+              orderBy: poolLiquidity,
+              orderDirection: desc
+            ) {
+              id
+              epoch
+              token0{
+                  id
+                  name
+                  symbol
+                  decimals
+                  usdPrice
+              }
+              token1{
+                  id
+                  name
+                  symbol
+                  decimals
+                  usdPrice
+              }
+              liquidity
+              liquidityGlobal
+              feeTier{
+                  id
+                  feeAmount
+                  tickSpacing
+              }
+              tickSpacing
+              poolPrice
+              pool0Price
+              pool1Price
+              price0
+              price1
+              poolPrice
+              feesEth
+              feesUsd
+              volumeEth
+              volumeToken0
+              volumeToken1
+              volumeUsd
+              totalValueLockedEth
+              totalValueLocked0
+              totalValueLocked1
+              totalValueLockedUsd
+            }
+          }
+         `;
+    //console.log('query:', getPool)
+    const client = new ApolloClient({
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
+      cache: new InMemoryCache(),
+    });
+    client
+      .query({ query: gql(getPool) })
+      .then((data) => {
+        resolve(data);
+        /* console.log(data) */
+      })
+      .catch((err) => {
+        resolve(err);
+        console.log(err);
+      });
+  });
+};
+
+export const getCoverTickIfZeroForOne = (
+  lower: number,
   upper: number,
   poolAddress: string,
-  epochLast: number,
+  epochLast: number
 ) => {
   return new Promise(function (resolve) {
     const getTicks = `
-       { 
-         ticks(
-            first: 1
-            where: {index_lte:"${upper}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
-          ) {
-            index
-          }
+      { 
+        ticks(
+          first: 1
+          where: {index_gte:"${lower}", index_lte:"${upper}", pool_:{id:"${poolAddress}"}, epochLast0_gt:"${epochLast}"}
+          orderBy: index
+          orderDirection: asc
+        ) {
+          index
         }
-        `
+      }
+        `;
     //console.log('pool address', poolAddress)
     const client = new ApolloClient({
-      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/version/v0.0.3/api',
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
       cache: new InMemoryCache(),
-    })
+    });
     client
       .query({ query: gql(getTicks) })
       .then((data) => {
-        resolve(data)
+        resolve(data);
         /* console.log(data) */
       })
       .catch((err) => {
-        resolve(err)
-      })
-  })
-}
+        resolve(err);
+      });
+  });
+};
 
-export const getTickIfNotZeroForOne = (
+export const getCoverTickIfNotZeroForOne = (
   lower: number,
+  upper: number,
   poolAddress: string,
-  epochLast: number,
+  epochLast: number
 ) => {
   return new Promise(function (resolve) {
     const getTicks = `
-       { 
-         ticks(
-            first: 1
-            where: {index_gte:"${lower}", pool_:{id:"${poolAddress}"},epochLast_gt:"${epochLast}"}
-          ) {
-            index
-          }
+      { 
+        ticks(
+          first: 1
+          where: {index_gte:"${lower}", index_lte:"${upper}", pool_:{id:"${poolAddress}"},epochLast1_gt:"${epochLast}"}
+          orderBy: index
+          orderDirection: desc
+        ) {
+          index
         }
-        `
+      }
+        `;
     //console.log(getTicks)
     //console.log('pool address', poolAddress)
     const client = new ApolloClient({
-      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/version/v0.0.3/api',
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
       cache: new InMemoryCache(),
-    })
+    });
     client
       .query({ query: gql(getTicks) })
       .then((data) => {
-        resolve(data)
+        resolve(data);
         /* console.log(data) */
       })
       .catch((err) => {
-        resolve(err)
+        resolve(err);
+      });
+  });
+};
+
+export const getLimitTickIfNotZeroForOne = (
+  lower: number,
+  upper: number,
+  poolAddress: string,
+  epochLast: number
+) => {
+  return new Promise(function (resolve) {
+    const getTicks = `
+      { 
+        limitTicks(
+          first: 1
+          where: {index_gte:"${lower}", index_lte:"${upper}", pool_:{id:"${poolAddress}"}, epochLast1_gt:"${epochLast}"}
+          orderBy: index
+          orderDirection: asc
+        ) {
+          index
+        }
+      }
+        `;
+    //console.log('pool address', poolAddress)
+    const client = new ApolloClient({
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
+      cache: new InMemoryCache(),
+    });
+    client
+      .query({ query: gql(getTicks) })
+      .then((data) => {
+        resolve(data);
+        /* console.log(data) */
       })
-  })
-}
+      .catch((err) => {
+        resolve(err);
+      });
+  });
+};
+
+export const getLimitTickIfZeroForOne = (
+  lower: number,
+  upper: number,
+  poolAddress: string,
+  epochLast: number
+) => {
+  return new Promise(function (resolve) {
+    const getTicks = `
+      { 
+        limitTicks(
+          first: 1
+          where: {index_gte:"${lower}", index_lte:"${upper}", pool_:{id:"${poolAddress}"}, epochLast0_gt:"${epochLast}"}
+          orderBy: index
+          orderDirection: desc
+        ) {
+          index
+        }
+      }
+        `;
+    const client = new ApolloClient({
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
+      cache: new InMemoryCache(),
+    });
+    client
+      .query({ query: gql(getTicks) })
+      .then((data) => {
+        resolve(data);
+        /* console.log(data) */
+      })
+      .catch((err) => {
+        resolve(err);
+      });
+  });
+};
 
 export const fetchCoverPositions = (address: string) => {
   return new Promise(function (resolve) {
@@ -219,17 +364,19 @@ export const fetchCoverPositions = (address: string) => {
       query($owner: String) {
           positions(where: {owner:"${address}"}) {
                 id
+                positionId
+                lower
+                upper
+                zeroForOne
                 inAmount
                 inToken{
                     id
                     name
                     symbol
                     decimals
+                    usdPrice
                 }
                 liquidity
-                zeroForOne
-                upper
-                lower
                 amountInDeltaMax
                 amountOutDeltaMax
                 epochLast
@@ -239,6 +386,7 @@ export const fetchCoverPositions = (address: string) => {
                     name
                     symbol
                     decimals
+                    usdPrice
                 }
                 owner
                 pool{
@@ -268,11 +416,11 @@ export const fetchCoverPositions = (address: string) => {
                 txnHash
             }
         }
-    `
+    `;
     const client = new ApolloClient({
-      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/version/v0.0.3/api',
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
       cache: new InMemoryCache(),
-    })
+    });
     client
       .query({
         query: gql(positionsQuery),
@@ -281,13 +429,13 @@ export const fetchCoverPositions = (address: string) => {
         },
       })
       .then((data) => {
-        resolve(data)
+        resolve(data);
       })
       .catch((err) => {
-        resolve(err)
-      })
-  })
-}
+        resolve(err);
+      });
+  });
+};
 
 export const fetchCoverPools = () => {
   return new Promise(function (resolve) {
@@ -301,12 +449,14 @@ export const fetchCoverPools = () => {
                         name
                         symbol
                         decimals
+                        usdPrice
                     }
                     token1{
                         id
                         name
                         symbol
                         decimals
+                        usdPrice
                     }
                     liquidity
                     volatilityTier{
@@ -328,22 +478,22 @@ export const fetchCoverPools = () => {
                     totalValueLockedUsd
                 }
             }
-        `
+        `;
     const client = new ApolloClient({
-      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/version/v0.0.3/api',
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
       cache: new InMemoryCache(),
-    })
+    });
     client
       .query({ query: gql(poolsQuery) })
       .then((data) => {
-        resolve(data)
+        resolve(data);
         /* console.log(data) */
       })
       .catch((err) => {
-        resolve(err)
-      })
-  })
-}
+        resolve(err);
+      });
+  });
+};
 
 export const fetchCoverPoolMetrics = () => {
   return new Promise(function (resolve) {
@@ -354,57 +504,210 @@ export const fetchCoverPoolMetrics = () => {
                     poolCount
                 }
             }
-        `
+        `;
     const client = new ApolloClient({
-      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/cover-arbitrumGoerli/version/v0.0.3/api',
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
       cache: new InMemoryCache(),
-    })
+    });
     client
       .query({ query: gql(poolsMetricsQuery) })
       .then((data) => {
-        resolve(data)
+        resolve(data);
         /* console.log(data) */
       })
       .catch((err) => {
-        resolve(err)
-      })
-  })
-}
+        resolve(err);
+      });
+  });
+};
 
-export const fetchRangePools = () => {
+export const fetchLimitPositions = (address: string) => {
+  return new Promise(function (resolve) {
+    const positionsQuery = `
+      query($owner: String) {
+          limitPositions(where: {owner:"${address}"}) {
+                id
+                positionId
+                createdAtTimestamp
+                amountIn
+                amountFilled
+                tokenIn{
+                    id
+                    name
+                    symbol
+                    decimals
+                }
+                tokenOut{
+                  id
+                  name
+                  symbol
+                  decimals
+                }
+                liquidity
+                lower
+                upper
+                epochLast
+                claimPriceLast
+                owner
+                pool{
+                    id
+                    liquidity
+                    liquidityGlobal
+                    epoch
+                    feeTier{
+                      id
+                      feeAmount
+                      tickSpacing
+                    }
+                    price0
+                    price1
+                    poolPrice
+                    tickSpacing
+                }
+                txnHash
+            }
+        }
+    `;
+    const client = new ApolloClient({
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
+      cache: new InMemoryCache(),
+    });
+    client
+      .query({
+        query: gql(positionsQuery),
+        variables: {
+          owner: address,
+        },
+      })
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((err) => {
+        resolve(err);
+      });
+  });
+};
+
+export const fetchLimitPools = () => {
   return new Promise(function (resolve) {
     const poolsQuery = `
             query($id: String) {
-                rangePools(id: $id) {
+                limitPools(
+                  orderBy: poolLiquidity,
+                  orderDirection: desc
+                ) {
                     id
+                    epoch
                     token0{
                         id
                         name
                         symbol
                         decimals
+                        usdPrice
                     }
                     token1{
                         id
                         name
                         symbol
                         decimals
+                        usdPrice
+                    }
+                    liquidity
+                    liquidityGlobal
+                    feeTier{
+                        id
+                        feeAmount
+                        tickSpacing
+                    }
+                    tickSpacing
+                    price0
+                    price1
+                    poolPrice
+                    feesEth
+                    feesUsd
+                    volumeEth
+                    volumeToken0
+                    volumeToken1
+                    volumeUsd
+                    totalValueLockedEth
+                    totalValueLocked0
+                    totalValueLocked1
+                    totalValueLockedUsd
+                }
+            }
+        `;
+    const client = new ApolloClient({
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
+      cache: new InMemoryCache(),
+    });
+    client
+      .query({ query: gql(poolsQuery) })
+      .then((data) => {
+        resolve(data);
+        /* console.log(data) */
+      })
+      .catch((err) => {
+        resolve(err);
+      });
+  });
+};
+
+export const fetchLimitPoolMetrics = () => {
+  return new Promise(function (resolve) {
+    const poolsMetricsQuery = `
+            query($id: String) {
+                limitPoolFactories(id: $id) {
+                    id
+                    poolCount
+                }
+            }
+        `;
+    const client = new ApolloClient({
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
+      cache: new InMemoryCache(),
+    });
+    client
+      .query({ query: gql(poolsMetricsQuery) })
+      .then((data) => {
+        resolve(data);
+        /* console.log(data) */
+      })
+      .catch((err) => {
+        resolve(err);
+      });
+  });
+};
+
+export const fetchRangePools = () => {
+  return new Promise(function (resolve) {
+    const poolsQuery = `
+            query($id: String) {
+                limitPools(id: $id, orderBy: totalValueLockedUsd, orderDirection: desc) {
+                    id
+                    token0{
+                        id
+                        name
+                        symbol
+                        decimals
+                        usdPrice
+                    }
+                    token1{
+                        id
+                        name
+                        symbol
+                        decimals
+                        usdPrice
                     }
                     feesEth
                     feesUsd
                     feeTier{
+                        id
                         tickSpacing
                         feeAmount
                     }
-                    ticks{
-                        price0
-                        price1
-                        liquidityDelta
-                        liquidityDeltaMinus
-                    }
-                    price
+                    poolPrice
                     price0
                     price1
-                    price
                     liquidity
                     feesEth
                     feesUsd
@@ -421,34 +724,31 @@ export const fetchRangePools = () => {
                     txnCount
                 }
             }
-        `
+        `;
     const client = new ApolloClient({
-      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/range-arbitrumGoerli/version/v0.0.7/api',
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
       cache: new InMemoryCache(),
-    })
+    });
     client
       .query({ query: gql(poolsQuery) })
       .then((data) => {
-        resolve(data)
+        resolve(data);
         /* console.log(data) */
       })
       .catch((err) => {
-        resolve(err)
-      })
-  })
-}
+        resolve(err);
+      });
+  });
+};
 
 export const fetchRangePositions = (address: string) => {
   return new Promise(function (resolve) {
     const positionsQuery = `
     {
-      positionFractions(where: {owner:"${address}"}) {
-        id
-        owner
-        amount
-        token{
-          totalSupply
-          position{
+      rangePositions(where: {owner:"${address}"}) {
+            id
+            positionId
+            owner
             lower
             upper
             liquidity
@@ -459,25 +759,22 @@ export const fetchRangePositions = (address: string) => {
                   name
                   symbol
                   decimals
+                  usdPrice
               }
               token1{
                   id
                   name
                   symbol
                   decimals
-              }
-              ticks{
-                  price0
-                  price1
-                  liquidityDelta
-                  liquidityDeltaMinus
+                  usdPrice
               }
               factory{
                   id
               }
-              price
+              poolPrice
               liquidity
               feeTier{
+                  id
                   feeAmount
                   tickSpacing
               }
@@ -492,15 +789,13 @@ export const fetchRangePositions = (address: string) => {
               volumeToken1
               volumeUsd
             }
-          }
-        }
       }  
   }
-    `
+    `;
     const client = new ApolloClient({
-      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/range-arbitrumGoerli/version/v0.0.7/api',
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
       cache: new InMemoryCache(),
-    })
+    });
     client
       .query({
         query: gql(positionsQuery),
@@ -509,48 +804,14 @@ export const fetchRangePositions = (address: string) => {
         },
       })
       .then((data) => {
-        resolve(data)
+        resolve(data);
         //console.log(data)
       })
       .catch((err) => {
-        resolve(err)
-      })
-  })
-}
-
-export const fetchRangeMetrics = () => {
-  return new Promise(function (resolve) {
-    const positionsQuery = `
-        query($id: String) {
-            rangePoolFactories(id: $id) {
-                id
-                txnCount
-                feesEthTotal
-                feesUsdTotal
-                poolCount
-                totalValueLockedEth
-                totalValueLockedUsd
-                volumeEthTotal
-                volumeUsdTotal
-            }  
-        }
-    `
-    const client = new ApolloClient({
-      uri: 'https://subgraph.satsuma-prod.com/3eaf484773f9/poolshark/range-arbitrumGoerli/version/v0.0.7/api',
-      cache: new InMemoryCache(),
-    })
-    client
-      .query({
-        query: gql(positionsQuery),
-      })
-      .then((data) => {
-        resolve(data)
-      })
-      .catch((err) => {
-        resolve(err)
-      })
-  })
-}
+        resolve(err);
+      });
+  });
+};
 
 export const fetchUniV3Pools = () => {
   return new Promise(function (resolve) {
@@ -579,22 +840,22 @@ export const fetchUniV3Pools = () => {
                     }
                 }
             }
-        `
+        `;
     const client = new ApolloClient({
-      uri: 'https://api.thegraph.com/subgraphs/name/liqwiz/uniswap-v3-goerli',
+      uri: "https://api.thegraph.com/subgraphs/name/liqwiz/uniswap-v3-goerli",
       cache: new InMemoryCache(),
-    })
+    });
     client
       .query({ query: gql(univ3PoolsQuery) })
       .then((data) => {
-        resolve(data)
+        resolve(data);
         /* console.log(data) */
       })
       .catch((err) => {
-        resolve(err)
-      })
-  })
-}
+        resolve(err);
+      });
+  });
+};
 
 export const fetchUniV3Positions = (address: string) => {
   return new Promise(function (resolve) {
@@ -625,11 +886,11 @@ export const fetchUniV3Positions = (address: string) => {
                     withdrawnToken1
                 }
             }
-        `
+        `;
     const client = new ApolloClient({
-      uri: 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
+      uri: "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3",
       cache: new InMemoryCache(),
-    })
+    });
     client
       .query({
         query: gql(univ3PositionsQuery),
@@ -638,16 +899,46 @@ export const fetchUniV3Positions = (address: string) => {
         },
       })
       .then((data) => {
-        resolve(data)
+        resolve(data);
         /* console.log(data) */
       })
       .catch((err) => {
-        resolve(err)
-      })
-  })
-}
+        resolve(err);
+      });
+  });
+};
 
-export const fetchPrice = (address: string) => {
+export const fetchTokenPrice = (tokenAddress: string) => {
+  return new Promise(function (resolve) {
+    const poolsQuery = `
+            query($id: String) {
+                tokens(id: $id) {
+                    usdPrice
+                }
+            }
+        `;
+    const client = new ApolloClient({
+      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
+      cache: new InMemoryCache(),
+    });
+    client
+      .query({
+        query: gql(poolsQuery),
+        variables: {
+          id: tokenAddress,
+        },
+      })
+      .then((data) => {
+        resolve(data);
+        /* console.log(data) */
+      })
+      .catch((err) => {
+        resolve(err);
+      });
+  });
+};
+
+export const fetchEthPrice = () => {
   return new Promise(function (resolve) {
     const univ3Price = `
             {
@@ -656,21 +947,21 @@ export const fetchPrice = (address: string) => {
                   ethPriceUSD
                 }
             }
-            `
+            `;
     const client = new ApolloClient({
-      uri: 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
+      uri: "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3",
       cache: new InMemoryCache(),
-    })
+    });
     client
       .query({
         query: gql(univ3Price),
       })
       .then((data) => {
-        resolve(data)
+        resolve(data);
         /* console.log(data) */
       })
       .catch((err) => {
-        resolve(err)
-      })
-  })
-}
+        resolve(err);
+      });
+  });
+};

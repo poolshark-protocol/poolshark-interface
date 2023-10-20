@@ -1,81 +1,80 @@
-import { Transition, Dialog } from '@headlessui/react'
-import { Fragment, useState, useEffect } from 'react'
-import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/20/solid'
-import UserCoverPool from '../Pools/UserCoverPool'
-import { fetchRangePositions, fetchUniV3Positions } from '../../utils/queries'
-import { useAccount } from 'wagmi'
-import UserPool from '../Pools/UserPool'
-import { BigNumber } from 'ethers'
+import { Transition, Dialog } from "@headlessui/react";
+import { Fragment, useState, useEffect } from "react";
+import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import UserRangePool from "../Range/UserRangePool";
+import {
+  fetchLimitPositions,
+  fetchRangePositions,
+  fetchUniV3Positions,
+} from "../../utils/queries";
+import { useAccount } from "wagmi";
+import { BigNumber } from "ethers";
+import { mapUserRangePositions } from "../../utils/maps";
 
 export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
-  const { address } = useAccount()
+  const { address } = useAccount();
 
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearchTermChange = (event) => {
-    setSearchTerm(event.target.value)
-  }
+    setSearchTerm(event.target.value);
+  };
 
-  const [rangePositions, setRangePositions] = useState([])
-  const [allRangePositions, setAllRangePositions] = useState([])
+  const [limitPositions, setLimitPositions] = useState([]);
+  const [allRangePositions, setAllRangePositions] = useState([]);
 
-  async function getUserRangePositionData() {
-    const data = await fetchRangePositions(address)
-    if (data['data']) {
-      const positions = data['data'].positionFractions
-      setRangePositions(positions)
+  useEffect(() => {
+    if (address != undefined) getUserLimitPositionData();
+  }, [address]);
+
+  async function getUserLimitPositionData() {
+    //this should be range positions
+    const data = await fetchRangePositions(address);
+    console.log("data", data);
+    if (data["data"]) {
+      const positions = data["data"].rangePositions;
+      setAllRangePositions(mapUserRangePositions(positions));
     }
   }
 
-  function mapUserRangePositions() {
-    const mappedRangePositions = []
-    rangePositions.map((rangePosition) => {
-      console.log('rangePosition userLiquidity', Math.round(
-        (rangePosition.amount / rangePosition.token.totalSupply) *
-          rangePosition.token.position.liquidity,
-      ))
-      const rangePositionData = {
-        id: rangePosition.id,
-        poolId: rangePosition.token.position.pool.id,
-        tokenZero: rangePosition.token.position.pool.token0,
-        valueTokenZero: rangePosition.token.position.pool.token0.usdPrice,
-        tokenOne: rangePosition.token.position.pool.token1,
-        valueTokenOne: rangePosition.token.position.pool.token1.usdPrice,
-        min: rangePosition.token.position.lower,
-        max: rangePosition.token.position.upper,
-        price: rangePosition.token.position.pool.price,
-        tickSpacing: rangePosition.token.position.pool.feeTier.tickSpacing,
-        feeTier: rangePosition.token.position.pool.feeTier.feeAmount,
-        userTokenAmount: rangePosition.amount,
+  /* function mapUserLimitPositions() {
+    const mappedLimitPositions = [];
+    limitPositions.map((limitPosition) => {
+      const limitPositionData = {
+        id: limitPosition.id,
+        poolId: limitPosition.token.position.pool.id,
+        tokenZero: limitPosition.token.position.pool.token0,
+        valueTokenZero: limitPosition.token.position.pool.token0.usdPrice,
+        tokenOne: limitPosition.token.position.pool.token1,
+        valueTokenOne: limitPosition.token.position.pool.token1.usdPrice,
+        min: limitPosition.token.position.lower,
+        max: limitPosition.token.position.upper,
+        price: limitPosition.token.position.pool.price,
+        tickSpacing: limitPosition.token.position.pool.feeTier.tickSpacing,
+        feeTier: limitPosition.token.position.pool.feeTier.feeAmount,
+        userTokenAmount: limitPosition.amount,
         userLiquidity: Math.round(
-          (rangePosition.amount / rangePosition.token.totalSupply) *
-            rangePosition.token.position.liquidity,
+          (limitPosition.amount / limitPosition.token.totalSupply) *
+            limitPosition.token.position.liquidity
         ),
         tvlUsd: (
-          Number(rangePosition.token.position.pool.totalValueLockedUsd) /
+          Number(limitPosition.token.position.pool.totalValueLockedUsd) /
           1_000_000
         ).toFixed(2),
         volumeUsd: (
-          Number(rangePosition.token.position.pool.volumeUsd) / 1_000_000
+          Number(limitPosition.token.position.pool.volumeUsd) / 1_000_000
         ).toFixed(2),
         volumeEth: (
-          Number(rangePosition.token.position.pool.volumeEth) / 1
+          Number(limitPosition.token.position.pool.volumeEth) / 1
         ).toFixed(2),
-        userOwnerAddress: rangePosition.owner.replace(/"|'/g, ''),
-      }
-      mappedRangePositions.push(rangePositionData)
-    })
-    setAllRangePositions(mappedRangePositions)
-  }
+        userOwnerAddress: limitPosition.owner.replace(/"|'/g, ""),
+      };
+      mappedLimitPositions.push(limitPositionData);
+    });
+    setAllRangePositions(mappedLimitPositions);
+  } */
 
   //async so needs to be wrapped
-  useEffect(() => {
-    if (address != undefined) getUserRangePositionData()
-  }, [address])
-
-  useEffect(() => {
-    mapUserRangePositions()
-  }, [rangePositions])
 
   /*const [uniV3Positions, setUniV3Positions] = useState([])
   const [allUniV3Positions, setAllUniV3Positions] = useState([])
@@ -163,27 +162,29 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-3xl h-[45rem] transform overflow-y-auto rounded-xl bg-black text-white border border-grey2 text-left align-middle shadow-xl px-6 py-5 transition-all">
+              <Dialog.Panel className="w-full max-w-5xl h-[45rem] transform overflow-y-auto rounded-[4px] bg-black text-white border border-grey text-left align-middle shadow-xl px-6 py-5 transition-all">
                 <div className="flex justify-between items-center mb-5">
-                  <h1 className="text-xl">Select a Pool to Cover</h1>
+                  <h1 className="">Select a Pool to Cover</h1>
                   <XMarkIcon
                     onClick={() => setIsOpen(false)}
                     className="w-7 cursor-pointer"
                   />
                 </div>
                 <div className="relative mb-4">
-                  <MagnifyingGlassIcon className="w-5 text-grey absolute ml-[14px] mt-[13px]" />
+                  <MagnifyingGlassIcon className="w-4 text-grey1 absolute ml-[14px] mt-[10px]" />
                   <input
                     autoComplete="off"
-                    className="border border-grey2 bg-dark rounded-xl py-2.5 w-full placeholder:text-grey outline-none pl-12 md:text-base text-sm"
+                    className="border border-grey bg-dark rounded-[4px] py-2.5 w-full placeholder:text-grey outline-none pl-12 text-xs uppercase placeholder:text-grey1"
                     placeholder="Search name, symbol or address"
                     value={searchTerm}
                     onChange={handleSearchTermChange}
                   />
                 </div>
                 <div>
-                  <h1 className="mb-3">Poolshark Positions</h1>
-                  <div className="space-y-2">
+                  <h1 className="mb-3 text-xs uppercase">
+                    Poolshark Positions
+                  </h1>
+                  <div>
                     {allRangePositions.length === 0 ? (
                       <div className="space-y-2">
                         <div className="text-grey text-sm border-grey2 border bg-dark rounded-lg py-10 text-center">
@@ -203,58 +204,43 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
                         </div>
                       </div>
                     ) : (
-                      <>
-                        {allRangePositions.map((allRangePosition) => {
-                          if (
-                            allRangePosition.userOwnerAddress ===
-                              address?.toLowerCase() &&
-                            (allRangePosition.tokenZero.name === searchTerm ||
-                              allRangePosition.tokenOne.name === searchTerm ||
-                              allRangePosition.tokenZero.symbol ===
-                                searchTerm ||
-                              allRangePosition.tokenOne.symbol === searchTerm ||
-                              allRangePosition.tokenZero.id === searchTerm ||
-                              allRangePosition.tokenOne.id === searchTerm ||
-                              searchTerm === '')
-                          ) {
-                            return (
-                              <div
-                                onClick={() => {
-                                  setIsOpen(false)
-                                  //prefill('exisingPool')
-                                  setParams(allRangePosition)
-                                }}
-                                key={allRangePosition.id + 'click'}
-                              >
-                                <UserPool
-                                  key={allRangePosition.id}
-                                  account={address}
-                                  poolId={allRangePosition.poolId}
-                                  tokenZero={allRangePosition.tokenZero}
-                                  tokenOne={allRangePosition.tokenOne}
-                                  valueTokenZero={
-                                    allRangePosition.valueTokenZero
-                                  }
-                                  valueTokenOne={allRangePosition.valueTokenOne}
-                                  min={allRangePosition.min}
-                                  max={allRangePosition.max}
-                                  userLiquidity={allRangePosition.liquidity}
-                                  price={allRangePosition.price}
-                                  feeTier={allRangePosition.feeTier}
-                                  tickSpacing={allRangePosition.tickSpacing}
-                                  tvlUsd={allRangePosition.tvlUsd}
-                                  volumeUsd={allRangePosition.volumeUsd}
-                                  volumeEth={allRangePosition.volumeEth}
-                                  href={'/cover'}
-                                  userTokenAmount={
-                                    allRangePosition.userTokenAmount
-                                  }
-                                />
-                              </div>
-                            )
-                          }
-                        })}
-                      </>
+                      <div className="pb-3 lg:pb-0">
+                        <div className="w-auto space-y-2">
+                          {allRangePositions.map((allLimitPosition) => {
+                            if (
+                              allLimitPosition.userOwnerAddress ===
+                                address?.toLowerCase() &&
+                              (allLimitPosition.tokenZero.name === searchTerm ||
+                                allLimitPosition.tokenOne.name === searchTerm ||
+                                allLimitPosition.tokenZero.symbol ===
+                                  searchTerm ||
+                                allLimitPosition.tokenOne.symbol ===
+                                  searchTerm ||
+                                allLimitPosition.tokenZero.id === searchTerm ||
+                                allLimitPosition.tokenOne.id === searchTerm ||
+                                searchTerm === "")
+                            ) {
+                              return (
+                                <div
+                                  onClick={() => {
+                                    setIsOpen(false);
+                                    //prefill('exisingPool')
+                                    setParams(allLimitPosition);
+                                  }}
+                                  key={allLimitPosition.id}
+                                >
+                                  <UserRangePool
+                                    key={allLimitPosition.id}
+                                    rangePosition={allLimitPosition}
+                                    href={"/cover/create"}
+                                    isModal={true}
+                                  />
+                                </div>
+                              );
+                            }
+                          })}
+                        </div>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -342,5 +328,5 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
         </div>
       </Dialog>
     </Transition>
-  )
+  );
 }

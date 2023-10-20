@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useEffect } from "react";
+import useTokenBalance from "../../hooks/useTokenBalance";
 
 function CoinListButton({ chooseToken, coin }) {
+
   return (
     <button
       onClick={() => chooseToken(coin)}
@@ -9,12 +11,12 @@ function CoinListButton({ chooseToken, coin }) {
       data-symbol={coin.symbol}
       data-address={coin.address}
       key={coin.id}
-      className="flex items-center gap-x-2 text-sm md:text-base text-white border-grey1 border p-1.5 px-3 rounded-xl text-sm"
+      className="flex items-center gap-x-2 text-sm md:text-base text-white border-grey border p-1.5 px-3 rounded-[4px] text-sm"
     >
       <img className="w-6" src={coin.logoURI} />
       {coin.symbol}
     </button>
-  )
+  );
 }
 
-export default CoinListButton
+export default CoinListButton;

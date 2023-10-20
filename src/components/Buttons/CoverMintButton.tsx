@@ -1,148 +1,119 @@
-import { ethers, BigNumber } from 'ethers'
 import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
-} from 'wagmi'
-import { coverPoolABI } from '../../abis/evm/coverPool'
-import { SuccessToast } from '../Toasts/Success'
-import { ErrorToast } from '../Toasts/Error'
-import { ConfirmingToast } from '../Toasts/Confirming'
-import React, { useState, useEffect } from 'react'
-import { coverPoolAddress } from '../../constants/contractAddresses'
-import { useCoverStore } from '../../hooks/useStore'
-import { roundTick } from '../../utils/math/tickMath'
-import { BN_ZERO } from '../../utils/math/constants'
+} from "wagmi";
+import { coverPoolABI } from "../../abis/evm/coverPool";
+import { SuccessToast } from "../Toasts/Success";
+import { ErrorToast } from "../Toasts/Error";
+import { ConfirmingToast } from "../Toasts/Confirming";
+import React, { useState, useEffect } from "react";
+import { roundTick } from "../../utils/math/tickMath";
+import { BigNumber, ethers } from "ethers";
+import { useCoverStore } from "../../hooks/useCoverStore";
+import router from "next/router";
+import { poolsharkRouterABI } from "../../abis/evm/poolsharkRouter";
+import PositionMintModal from "../Modals/PositionMint";
+import { BN_ZERO } from "../../utils/math/constants";
+import Loader from "../Icons/Loader";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function CoverMintButton({
+  routerAddress,
   poolAddress,
   disabled,
   to,
   lower,
-  claim,
   upper,
   amount,
   zeroForOne,
   tickSpacing,
-  buttonState,
+  buttonMessage,
   gasLimit,
-  tokenSymbol,
+  setSuccessDisplay,
+  setErrorDisplay,
+  setIsLoading,
+  setTxHash
 }) {
-  const [errorDisplay, setErrorDisplay] = useState(false)
-  const [successDisplay, setSuccessDisplay] = useState(false)
-console.log('bn button state', zeroForOne, disabled, gasLimit.toString())
-  /*const [coverContractParams, setCoverContractParams] = useState({
-    to: to,
-    lower: lower,
-    claim: claim,
-    upper: upper,
-    amount: amount,
-    zeroForOne: zeroForOne,
-  })
-  console.log('cover contract', coverContractParams)
 
- 
-  useEffect(() => {
-    setCoverContractParams({
-    to: to,
-    lower: lower,
-    claim: claim,
-    upper: upper,
-    amount: amount,
-    zeroForOne: zeroForOne,
-    })
-  }, [disabled, to, lower, claim, upper, amount, zeroForOne])*/
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
 
-  /* console.log(
-    'mint params',
-    to,
-    amount.toString(),
-    roundTick(Number(lower), 40).toString(),
-    roundTick(Number(claim), 40),
-    roundTick(Number(upper), 40),
-    zeroForOne,
-  ) */
+  const [
+    setNeedsRefetch,
+    setNeedsPosRefetch,
+    setNeedsAllowance,
+    setNeedsBalance,
+  ] = useCoverStore((state) => [
+    state.setNeedsRefetch,
+    state.setNeedsPosRefetch,
+    state.setNeedsAllowance,
+    state.setNeedsBalance,
+  ]);
+
+  const newPositionId = 0;
 
   const { config } = usePrepareContractWrite({
-    address: poolAddress,
-    abi: coverPoolABI,
-    functionName: 'mint',
+    address: routerAddress,
+    abi: poolsharkRouterABI,
+    functionName: "multiMintCover",
     args: [
+      [poolAddress],
       [
-        to,
-        amount,
-        roundTick(Number(lower), tickSpacing),
-        roundTick(Number(upper), tickSpacing),
-        zeroForOne,
+        {
+          to: to,
+          amount: amount,
+          positionId: newPositionId,
+          lower: BigNumber.from(roundTick(Number(lower), tickSpacing)),
+          upper: BigNumber.from(roundTick(Number(upper), tickSpacing)),
+          zeroForOne: zeroForOne,
+          callbackData: ethers.utils.formatBytes32String(""),
+        },
       ],
     ],
-    enabled: amount.toString() != '0' && poolAddress != undefined,
-    chainId: 421613,
     overrides: {
       gasLimit: gasLimit,
     },
-  })
+    enabled: !disabled,
+    chainId: chainId,
+  });
 
-  const { data, write } = useContractWrite(config)
+  const { data, write } = useContractWrite(config);
 
   const { isLoading } = useWaitForTransaction({
     hash: data?.hash,
     onSuccess() {
-      setSuccessDisplay(true)
-    },
-    onError() {
-      setErrorDisplay(true)
-    },
-  })
+      setSuccessDisplay(true);
+      setNeedsAllowance(true);
+      setNeedsBalance(true);
+      setNeedsRefetch(true);
+      setNeedsPosRefetch(true);
+  }});
+
+  useEffect(() => {
+    if(isLoading) {
+      setIsLoading(true)
+    } else {
+      setIsLoading(false)
+    }
+  }, [isLoading]);
+  
+  useEffect(() => {
+    setTxHash(data?.hash)
+  }, [data]);
 
   return (
     <>
       <button
-        disabled={disabled}
-        className={
-          disabled
-            ? 'w-full py-4 mx-auto font-medium text-center text-sm md:text-base transition rounded-xl cursor-not-allowed bg-gradient-to-r from-[#344DBF] to-[#3098FF] opacity-50'
-            : 'w-full py-4 mx-auto font-medium text-center text-sm md:text-base transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80'
-        }
-        onClick={() => (coverPoolAddress && !disabled ? write?.() : null)}
+        disabled={gasLimit.lte(BN_ZERO) || disabled}
+        className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer flex items-center justify-center text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
+        onClick={() => write?.()}
       >
-        {disabled ? (
-          <>
-            {buttonState === 'price' ? (
-              <>Min. is greater than Max. Price</>
-            ) : (
-              <></>
-            )}
-            {buttonState === 'amount' ? <>Input Amount</> : <></>}
-            {buttonState === 'token' ? <>Output token not selected</> : <></>}
-            {buttonState === 'bounds' ? <>Invalid Price Range</> : <></>}
-            {buttonState === 'balance' ? (
-              <>Insufficient {tokenSymbol} Balance</>
-            ) : (
-              <></>
-            )}
-          </>
-        ) : (
-          <>Create Cover</>
-        )}
+       {gasLimit.lte(BN_ZERO) ? <Loader/> : buttonMessage}
       </button>
-      <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
-        {errorDisplay && (
-          <ErrorToast
-            hash={data?.hash}
-            errorDisplay={errorDisplay}
-            setErrorDisplay={setErrorDisplay}
-          />
-        )}
-        {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-        {successDisplay && (
-          <SuccessToast
-            hash={data?.hash}
-            successDisplay={successDisplay}
-            setSuccessDisplay={setSuccessDisplay}
-          />
-        )}
-      </div>
     </>
-  )
+  );
 }

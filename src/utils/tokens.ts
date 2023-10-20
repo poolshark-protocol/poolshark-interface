@@ -1,65 +1,52 @@
 //eventually this functions should merge into one
 
-import { invertPrice } from './math/tickMath'
+import { fetchTokenPrice } from "./queries";
 
-export const fetchTokenPrices = async (price: string, setMktRate) => {
+export const logoMap = {
+  USDC: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+  WETH: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
+  DAI: "https://raw.githubusercontent.com/poolsharks-protocol/token-metadata/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
+};
+
+export const fetchRangeTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
   try {
-    setMktRate({
-      TOKEN20A: Number(price).toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      }),
-      WETH:
-        '~' +
-        Number(price).toLocaleString('en-US', {
-          style: 'currency',
-          currency: 'USD',
-        }),
-      TOKEN20B: '1.00',
-      USDC: '~1.00',
-    })
+    setTokenUSDPrice(
+      token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice
+    );
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-}
+};
 
-export const fetchTokenPriceWithInvert = async (price: string, setMktRate) => {
-  if (isNaN(parseFloat(price))) return
+export const fetchLimitTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
   try {
-    const price0 = price
-    const price1: any = invertPrice(price, false)
-    setMktRate({
-      TOKEN20A: Number(price1).toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      }),
-      TOKEN20B: Number(price0).toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      }),
-    })
+    setTokenUSDPrice(
+      token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice
+    );
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-}
+};
 
-export function switchDirection(
-  tokenOrder,
-  setTokenOrder,
-  tokenIn,
-  setTokenIn,
-  tokenOut,
-  setTokenOut,
-  queryTokenIn,
-  setQueryTokenIn,
-  queryTokenOut,
-  setQueryTokenOut,
-) {
-  if (setTokenOrder) setTokenOrder(!tokenOrder)
-  const temp = tokenIn
-  setTokenIn(tokenOut)
-  setTokenOut(temp)
-  const tempBal = queryTokenIn
-  setQueryTokenIn(queryTokenOut)
-  setQueryTokenOut(tempBal)
-}
+export const fetchCoverTokenUSDPrice = (poolData, token, setTokenUSDPrice) => {
+  try {
+    setTokenUSDPrice(
+      token.callId == 0 ? poolData.token0.usdPrice : poolData.token1.usdPrice
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getLimitTokenUsdPrice = async (
+  tokenAddress: string,
+  setTokenUSDPrice
+) => {
+  try {
+    const tokenData = await fetchTokenPrice(tokenAddress);
+    const tokenUsdPrice = tokenData["data"]["tokens"]["0"]["usdPrice"];
+    setTokenUSDPrice(tokenUsdPrice);
+  } catch (error) {
+    console.log(error);
+  }
+};
