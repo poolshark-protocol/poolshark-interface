@@ -25,7 +25,7 @@ export default function Cover() {
     needsRefetch,
     setNeedsRefetch,
     tokenIn,
-    tokenOut
+    tokenOut,
   ] = useCoverStore((state) => [
     state.setTokenIn,
     state.setTokenOut,
@@ -33,7 +33,7 @@ export default function Cover() {
     state.needsRefetch,
     state.setNeedsRefetch,
     state.tokenIn,
-    state.tokenOut
+    state.tokenOut,
   ]);
 
   const router = useRouter();
@@ -276,13 +276,15 @@ export default function Cover() {
                                 lowerPrice={parseFloat(
                                   TickMath.getPriceStringAtTick(
                                     allCoverPosition.lowerTick,
-                                    tokenIn, tokenOut
+                                    tokenIn,
+                                    tokenOut
                                   )
                                 )}
                                 upperPrice={parseFloat(
                                   TickMath.getPriceStringAtTick(
                                     allCoverPosition.upperTick,
-                                    tokenIn, tokenOut
+                                    tokenIn,
+                                    tokenOut
                                   )
                                 )}
                                 href={"/cover/view"}
