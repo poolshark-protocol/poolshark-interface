@@ -8,28 +8,39 @@ import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
 import React, { useState } from "react";
-import { BigNumber } from "ethers";
-import { BN_ZERO } from '../../utils/math/constants';
+import { BN_ONE } from '../../utils/math/constants';
+import { useRangeLimitStore } from '../../hooks/useRangeLimitStore';
+import { useConfigStore } from '../../hooks/useConfigStore';
 
-export default function RangeCollectButton({ poolAddress, address, lower, upper, gasLimit }) {
+export default function RangeCollectButton({ poolAddress, address, positionId }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
 
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
+
+  const [
+    setNeedsBalanceIn,
+    setNeedsBalanceOut
+  ] = useRangeLimitStore((state) => [
+    state.setNeedsBalanceIn,
+    state.setNeedsBalanceOut
+  ]);
+
   const { config } = usePrepareContractWrite({
       address: poolAddress,
       abi: rangePoolABI,
-      functionName: "burn",
+      functionName: "burnRange",
       args:[[
           address,
-          lower,
-          upper,
-          BN_ZERO
+          positionId,
+          BN_ONE
         ]],
-      chainId: 421613,
-      overrides:{
-          gasLimit: gasLimit
-      },
+      chainId: chainId,
   })
 
   const { data, isSuccess, write } = useContractWrite(config)
@@ -38,6 +49,8 @@ export default function RangeCollectButton({ poolAddress, address, lower, upper,
     hash: data?.hash,
     onSuccess() {
       setSuccessDisplay(true);
+      setNeedsBalanceIn(true);
+      setNeedsBalanceOut(true);
     },
     onError() {
       setErrorDisplay(true);
@@ -46,14 +59,14 @@ export default function RangeCollectButton({ poolAddress, address, lower, upper,
     
   return (
       <>
-      <div className=" w-full py-4 mx-auto font-medium text-sm md:text-base text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+      <div className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-grey2 bg-grey3/30 uppercase text-sm disabled:opacity-50 hover:opacity-80"
           onClick={() => {
             address ?  write?.() : null
           }}
               >
               Collect position
       </div>
-      <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
+      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
     {errorDisplay && (
       <ErrorToast
         hash={data?.hash}

@@ -47,7 +47,7 @@ export const ConnectWalletButton = ({xl= false, center= false}: Props) => {
                 if (!connected) {
                   return (
                     <button
-                      className={`w-full mx-auto text-white px-8 font-Satoshi text-center transition rounded-lg cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80 ${xl ? `py-4 font-medium` : `py-2.5 text-sm`}`}
+                      className={`w-full mx-auto text-white px-8  text-center transition cursor-pointer bg-main1 border border-main hover:opacity-80 ${xl ? `py-4 ` : `py-2.5 text-sm`}`}
                       onClick={openConnectModal}
                       type="button"
                     >
@@ -61,7 +61,7 @@ export const ConnectWalletButton = ({xl= false, center= false}: Props) => {
                       <button
                         onClick={() => setIsOpen(true)}
                         type="button"
-                        className="w-full flex gap-x-2 items-center py-2.5 text-sm mx-auto text-white px-5 font-Satoshi text-center transition rounded-lg cursor-pointer bg-black border border-red-500 hover:opacity-80"
+                        className="w-full flex gap-x-2 items-center py-2.5 text-sm mx-auto text-white px-5  text-center transition rounded-lg cursor-pointer bg-black border border-red-500 hover:opacity-80"
                       >
                         Wrong network
                         <ChevronDownIcon className="w-5" />
@@ -76,7 +76,7 @@ export const ConnectWalletButton = ({xl= false, center= false}: Props) => {
                       <button
                         onClick={() => setIsOpen(true)}
                         type="button"
-                        className="bg-black border-grey1 border rounded-lg py-2 w-[42px] flex justify-center items-center md:w-auto h-[42px] md:px-4 px-2 gap-x-2 hover:opacity-80"
+                        className="bg-black border-grey border rounded-[4px] h-[42px] w-[35px] flex justify-center items-center md:w-auto h-[42px] md:px-4 px-2 gap-x-2 hover:opacity-80"
                       >
                         {/*
                         {chain.hasIcon && (
@@ -93,33 +93,30 @@ export const ConnectWalletButton = ({xl= false, center= false}: Props) => {
                         */}
                         {chain.id === 421613 ? (
                           <img
-                            style={{ width: 16, height: 16 }}
+                            style={{ width: 17, height: 17 }}
                             src="/static/images/arb_icon.svg"
                           />
                         ) : (
                           ""
                         )}
-                        <div className="whitespace-nowrap pr-4 hidden xl:block">
-                        {chain.name}
-                        </div>
                       </button>
                       <button
                         onClick={openAccountModal}
                         type="button"
-                        className="flex bg-dark rounded-lg 2xl:border-grey1 border-transparent border hover:opacity-80 "
+                        className="flex bg-dark rounded-[4px] 2xl:border-grey border-transparent border hover:opacity-80 "
                       >
                         {account.displayBalance ? (
-                          <div className="bg-dark py-2 px-4 rounded-l-lg whitespace-nowrap hidden 2xl:block">
-                            {account.displayBalance}
+                          <div className="bg-dark py-2.5 px-4 rounded-l-lg whitespace-nowrap hidden 2xl:block text-sm flex items-center">
+                            <span>{account.displayBalance}</span>
                           </div>
                         ) : (
                           ""
                         )}
-                        <div className="bg-black flex gap-x-2 rounded-lg border-grey1 border mt-[-1px] mr-[-1px] mb-[-1px] ">
+                        <div className="bg-black flex gap-x-2 rounded-[4px] border-grey border mt-[-1px] mr-[-1px] mb-[-1px] ">
                           <div className="py-2 pl-5 pr-3 whitespace-nowrap">
                             {account.displayName}
                           </div>
-                          <div className="border-l border-grey1 py-2.5 px-3">
+                          <div className="border-l border-grey py-2.5 px-3">
                             <ChevronDownIcon className="w-5" />
                           </div>
                         </div>

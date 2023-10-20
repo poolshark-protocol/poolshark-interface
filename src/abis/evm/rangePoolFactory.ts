@@ -3,7 +3,7 @@ export const rangePoolFactoryABI = [
     "inputs": [
       {
         "internalType": "address",
-        "name": "_owner",
+        "name": "owner_",
         "type": "address"
       }
     ],
@@ -22,12 +22,40 @@ export const rangePoolFactoryABI = [
   },
   {
     "inputs": [],
+    "name": "OwnerOnly",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "PoolAlreadyExists",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "PoolTypeNotSupported",
     "type": "error"
   },
   {
     "anonymous": false,
     "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "poolType",
+        "type": "bytes32"
+      },
       {
         "indexed": true,
         "internalType": "address",
@@ -42,22 +70,78 @@ export const rangePoolFactoryABI = [
       },
       {
         "indexed": true,
-        "internalType": "uint24",
-        "name": "fee",
-        "type": "uint24"
+        "internalType": "uint16",
+        "name": "swapFee",
+        "type": "uint16"
       },
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "pool",
-        "type": "address"
+        "internalType": "int16",
+        "name": "tickSpacing",
+        "type": "int16"
       }
     ],
-    "name": "RangePoolCreated",
+    "name": "PoolCreated",
     "type": "event"
   },
   {
     "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "poolType",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenIn",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenOut",
+            "type": "address"
+          },
+          {
+            "internalType": "uint160",
+            "name": "startPrice",
+            "type": "uint160"
+          },
+          {
+            "internalType": "uint16",
+            "name": "swapFee",
+            "type": "uint16"
+          }
+        ],
+        "internalType": "struct PoolsharkStructs.LimitPoolParams",
+        "name": "params",
+        "type": "tuple"
+      }
+    ],
+    "name": "createLimitPool",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "poolToken",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "poolType",
+        "type": "bytes32"
+      },
       {
         "internalType": "address",
         "name": "tokenIn",
@@ -72,43 +156,27 @@ export const rangePoolFactoryABI = [
         "internalType": "uint16",
         "name": "swapFee",
         "type": "uint16"
-      },
-      {
-        "internalType": "uint160",
-        "name": "startPrice",
-        "type": "uint160"
       }
     ],
-    "name": "createRangePool",
+    "name": "getLimitPool",
     "outputs": [
       {
         "internalType": "address",
         "name": "pool",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "poolToken",
+        "type": "address"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "tokenIn",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "tokenOut",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "swapFee",
-        "type": "uint256"
-      }
-    ],
-    "name": "getRangePool",
+    "inputs": [],
+    "name": "original",
     "outputs": [
       {
         "internalType": "address",
@@ -140,7 +208,7 @@ export const rangePoolFactoryABI = [
         "type": "bytes32"
       }
     ],
-    "name": "rangePools",
+    "name": "pools",
     "outputs": [
       {
         "internalType": "address",

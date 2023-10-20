@@ -1,12 +1,12 @@
-import Swap from "./Swap";
+import Trade from "./Trade";
 import Navbar from "../components/Navbar";
 
 export default function Home() {
   return (
-    <div className="bg-[url('/static/images/background.svg')] bg-no-repeat bg-cover min-h-screen font-Satoshi">
+    <div className=" bg-no-repeat bg-black min-h-screen ">
       <Navbar />
       <div className="flex justify-center w-full text-white">
-        <Swap />
+        <Trade />
       </div>
     </div>
   );

@@ -22,12 +22,17 @@ export const coverPoolFactoryABI = [
   },
   {
     "inputs": [],
-    "name": "InvalidPoolTokenAddress",
+    "name": "InvalidTickSpread",
     "type": "error"
   },
   {
     "inputs": [],
-    "name": "InvalidTickSpread",
+    "name": "InvalidTokenAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidTokenDecimals",
     "type": "error"
   },
   {
@@ -42,17 +47,17 @@ export const coverPoolFactoryABI = [
   },
   {
     "inputs": [],
+    "name": "PoolTypeNotFound",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "TickSpreadNotAtLeastDoubleTickSpread",
     "type": "error"
   },
   {
     "inputs": [],
     "name": "TickSpreadNotMultipleOfTickSpacing",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "TwapSourceNotFound",
     "type": "error"
   },
   {
@@ -70,28 +75,28 @@ export const coverPoolFactoryABI = [
         "type": "address"
       },
       {
-        "indexed": false,
-        "internalType": "address",
-        "name": "twapSource",
-        "type": "address"
-      },
-      {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "inputPool",
         "type": "address"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
         "name": "token0",
         "type": "address"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
         "name": "token1",
         "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "poolType",
+        "type": "bytes32"
       },
       {
         "indexed": false,
@@ -100,7 +105,7 @@ export const coverPoolFactoryABI = [
         "type": "uint16"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "int16",
         "name": "tickSpread",
         "type": "int16"
@@ -137,34 +142,41 @@ export const coverPoolFactoryABI = [
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "sourceName",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "tokenIn",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "tokenOut",
-        "type": "address"
-      },
-      {
-        "internalType": "uint16",
-        "name": "feeTier",
-        "type": "uint16"
-      },
-      {
-        "internalType": "int16",
-        "name": "tickSpread",
-        "type": "int16"
-      },
-      {
-        "internalType": "uint16",
-        "name": "twapLength",
-        "type": "uint16"
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "poolType",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenIn",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenOut",
+            "type": "address"
+          },
+          {
+            "internalType": "uint16",
+            "name": "feeTier",
+            "type": "uint16"
+          },
+          {
+            "internalType": "int16",
+            "name": "tickSpread",
+            "type": "int16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "twapLength",
+            "type": "uint16"
+          }
+        ],
+        "internalType": "struct ICoverPoolFactory.CoverPoolParams",
+        "name": "params",
+        "type": "tuple"
       }
     ],
     "name": "createCoverPool",
@@ -172,6 +184,11 @@ export const coverPoolFactoryABI = [
       {
         "internalType": "address",
         "name": "pool",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "poolToken",
         "type": "address"
       }
     ],
@@ -181,41 +198,53 @@ export const coverPoolFactoryABI = [
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "sourceName",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "tokenIn",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "tokenOut",
-        "type": "address"
-      },
-      {
-        "internalType": "uint16",
-        "name": "feeTier",
-        "type": "uint16"
-      },
-      {
-        "internalType": "int16",
-        "name": "tickSpread",
-        "type": "int16"
-      },
-      {
-        "internalType": "uint16",
-        "name": "twapLength",
-        "type": "uint16"
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "poolType",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenIn",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenOut",
+            "type": "address"
+          },
+          {
+            "internalType": "uint16",
+            "name": "feeTier",
+            "type": "uint16"
+          },
+          {
+            "internalType": "int16",
+            "name": "tickSpread",
+            "type": "int16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "twapLength",
+            "type": "uint16"
+          }
+        ],
+        "internalType": "struct ICoverPoolFactory.CoverPoolParams",
+        "name": "params",
+        "type": "tuple"
       }
     ],
     "name": "getCoverPool",
     "outputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "pool",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "poolToken",
         "type": "address"
       }
     ],

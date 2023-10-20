@@ -1,260 +1,393 @@
-import { Transition, Dialog } from '@headlessui/react'
-import { Fragment, useEffect, useState } from 'react'
-import { XMarkIcon } from '@heroicons/react/20/solid'
+import { Transition, Dialog } from "@headlessui/react";
+import { Fragment, useEffect, useState } from "react";
+import { XMarkIcon } from "@heroicons/react/20/solid";
 import {
-  useSwitchNetwork,
   useAccount,
   erc20ABI,
   useContractRead,
-  useProvider,
+  useBalance,
   useSigner,
-} from 'wagmi'
-import useInputBox from '../../../hooks/useInputBox'
-import RangeAddLiqButton from '../../Buttons/RangeAddLiqButton'
-import { BN_ZERO, ZERO } from '../../../utils/math/constants'
-import { TickMath } from '../../../utils/math/tickMath'
-import { ethers, BigNumber } from 'ethers'
-import JSBI from 'jsbi'
-import { DyDxMath } from '../../../utils/math/dydxMath'
-import { getBalances } from '../../../utils/balances'
-import SwapRangeDoubleApproveButton from '../../Buttons/RangeMintDoubleApproveButton'
-import { chainIdsToNamesForGitTokenList } from '../../../utils/chains'
-import RangeMintDoubleApproveButton from '../../Buttons/RangeMintDoubleApproveButton'
-import { gasEstimateRangeMint } from '../../../utils/gas'
-import RangeMintApproveButton from '../../Buttons/RangeMintApproveButton'
+  useProvider,
+} from "wagmi";
+import useInputBox from "../../../hooks/useInputBox";
+import RangeAddLiqButton from "../../Buttons/RangeAddLiqButton";
+import { BN_ZERO, ZERO } from "../../../utils/math/constants";
+import { TickMath } from "../../../utils/math/tickMath";
+import { ethers, BigNumber } from "ethers";
+import JSBI from "jsbi";
+import { DyDxMath } from "../../../utils/math/dydxMath";
+import {
+  chainIdsToNamesForGitTokenList,
+  chainProperties,
+} from "../../../utils/chains";
+import RangeMintDoubleApproveButton from "../../Buttons/RangeMintDoubleApproveButton";
+import RangeMintApproveButton from "../../Buttons/RangeMintApproveButton";
+import { useRangeLimitStore } from "../../../hooks/useRangeLimitStore";
+import { gasEstimateRangeMint } from "../../../utils/gas";
+import { useRouter } from "next/router";
+import { inputHandler } from "../../../utils/math/valueMath";
+import { useConfigStore } from "../../../hooks/useConfigStore";
 
-export default function RangeAddLiquidity({
-  isOpen,
-  setIsOpen,
-  tokenIn,
-  tokenOut,
-  poolAdd,
-  address,
-  upperTick,
-  liquidity,
-  lowerTick,
-  rangePrice,
-  token0Price,
-  token1Price
-}) {
-  const {
-    bnInput,
-    inputBox,
-    maxBalance,
-    bnInputLimit,
-    LimitInputBox,
-  } = useInputBox()
-  const { data: signer } = useSigner()
-  const [balance0, setBalance0] = useState('')
-  const [balance1, setBalance1] = useState('0.00')
-  const [balanceIn, setBalanceIn] = useState('')
-  const [balanceOut, setBalanceOut] = useState('')
-  const [amount0, setAmount0] = useState(BN_ZERO)
-  const [amount1, setAmount1] = useState(BN_ZERO)
-  const [allowanceIn, setAllowanceIn] = useState(BN_ZERO)
-  const [allowanceOut, setAllowanceOut] = useState(BN_ZERO)
-  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO)
-  const [mintGasFee, setMintGasFee] = useState('$0.00')
-  const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(lowerTick)
-  const upperSqrtPrice = TickMath.getSqrtRatioAtTick(upperTick)
-  const [stateChainName, setStateChainName] = useState()
-  const tokenOrder = tokenIn.address.localeCompare(tokenOut.address) < 0
-  const { isDisconnected, isConnected } = useAccount()
-  const [disabled, setDisabled] = useState(true)
-  const [ fetchDelay, setFetchDelay ] = useState(false)
-  const [rangeSqrtPrice, setRangeSqrtPrice] = useState(JSBI.BigInt(rangePrice))
-  const [doubleApprove, setdoubleApprove] = useState(false)
-  const [buttonState, setButtonState] = useState('')
-  const [amount0Usd, setAmount0Usd] = useState(0.0)
-  const [amount1Usd, setAmount1Usd] = useState(0.0)
-  const {
-    network: { chainId },
-  } = useProvider()
+export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
 
+  const [
+    rangePoolAddress,
+    rangePoolData,
+    rangeMintParams,
+    pairSelected,
+    setPairSelected,
+    tokenIn,
+    setTokenInAllowance,
+    setTokenInBalance,
+    setTokenInAmount,
+    tokenOut,
+    setTokenOutAllowance,
+    setTokenOutBalance,
+    setTokenOutAmount,
+    rangePositionData,
+    needsAllowanceIn,
+    setNeedsAllowanceIn,
+    needsAllowanceOut,
+    setNeedsAllowanceOut,
+    needsBalanceIn,
+    setNeedsBalanceIn,
+    needsBalanceOut,
+    setNeedsBalanceOut,
+    setMintButtonState,
+  ] = useRangeLimitStore((state) => [
+    state.rangePoolAddress,
+    state.rangePoolData,
+    state.rangeMintParams,
+    state.pairSelected,
+    state.setPairSelected,
+    state.tokenIn,
+    state.setTokenInRangeAllowance,
+    state.setTokenInBalance,
+    state.setTokenInAmount,
+    state.tokenOut,
+    state.setTokenOutRangeAllowance,
+    state.setTokenOutBalance,
+    state.setTokenOutAmount,
+    state.rangePositionData,
+    state.needsAllowanceIn,
+    state.setNeedsAllowanceIn,
+    state.needsAllowanceOut,
+    state.setNeedsAllowanceOut,
+    state.needsBalanceIn,
+    state.setNeedsBalanceIn,
+    state.needsBalanceOut,
+    state.setNeedsBalanceOut,
+    state.setMintButtonState,
+  ]);
+
+  const { bnInput, maxBalance, inputBox, setDisplay } = useInputBox();
+  const { bnInput: bnInput2, maxBalance: maxBalance2, inputBox: inputBox2, setDisplay: setDisplay2 } = useInputBox();
+  const router = useRouter();
+  const provider = useProvider();
+  const { address } = useAccount();
+  const signer = new ethers.VoidSigner(address, provider);
+
+  const [disabled, setDisabled] = useState(false);
+  const lowerSqrtPrice = TickMath.getSqrtRatioAtTick(
+    Number(rangePositionData.min)
+  );
+  const upperSqrtPrice = TickMath.getSqrtRatioAtTick(
+    Number(rangePositionData.max)
+  );
+  const [stateChainName, setStateChainName] = useState();
+  const [tokenOrder, setTokenOrder] = useState(
+    tokenIn.address.localeCompare(tokenOut.address) < 0
+  );
+  const { isConnected } = useAccount();
+  const [rangeSqrtPrice, setRangeSqrtPrice] = useState(
+    JSBI.BigInt(rangePositionData.price)
+  );
+  const [doubleApprove, setdoubleApprove] = useState(false);
+  const [buttonState, setButtonState] = useState("");
+
+  useEffect(() => {
+    setTokenInAmount(BN_ZERO)
+    setTokenOutAmount(BN_ZERO)
+    setStateChainName(chainIdsToNamesForGitTokenList[chainId]);
+  }, [chainId]);
+
+  useEffect(() => {
+    if (tokenIn.address && tokenOut.address) {
+      setPairSelected(true)
+    }
+  }, [tokenIn, tokenOut]);
+
+  ////////////////////////////////Allowances
 
   const { data: tokenInAllowance } = useContractRead({
     address: tokenIn.address,
     abi: erc20ABI,
-    functionName: 'allowance',
-    args: [address, poolAdd],
-    chainId: 421613,
-    watch: true,
-    enabled:
-      isConnected && poolAdd != undefined && tokenIn.address != undefined,
+    functionName: "allowance",
+    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
+    chainId: chainId,
+    watch: needsAllowanceIn && router.isReady,
+    enabled: isConnected,
     onSuccess(data) {
-      console.log('Success')
+      //console.log("Success");
+      setNeedsAllowanceIn(false);
     },
     onError(error) {
-      console.log('Error', error)
+      console.log("Error", error);
     },
-    onSettled(data, error) {
-      console.log(
-        'allowance check',
-        allowanceIn.lt(bnInput),
-        allowanceIn.toString(),
-      )
-      console.log('Allowance Settled', {
-        data,
-        error,
-        poolAdd,
-        tokenIn,
-      })
-    },
-  })
-
-
-  useEffect(() => {
-    setTimeout(() => {
-      if (tokenInAllowance) setAllowanceIn(tokenInAllowance)
-    }, 50)
-  }, [tokenInAllowance])
+  });
 
   const { data: tokenOutAllowance } = useContractRead({
     address: tokenOut.address,
     abi: erc20ABI,
-    functionName: 'allowance',
-    args: [address, poolAdd],
-    chainId: 421613,
-    watch: true,
-    enabled:
-      isConnected && poolAdd != undefined && tokenOut.address != undefined,
+    functionName: "allowance",
+    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
+    chainId: chainId,
+    watch: needsAllowanceOut && router.isReady,
+    enabled: isConnected,
     onSuccess(data) {
-      console.log('Success')
+      //console.log("Success");
+      setNeedsAllowanceOut(false);
     },
     onError(error) {
-      console.log('Error', error)
+      console.log("Error", error);
     },
-    onSettled(data, error) {
-      console.log(
-        'allowance check out',
-        allowanceOut.lt(amount1),
-        allowanceOut.toString(),
-      )
-      console.log('Allowance Settled', {
-        data,
-        error,
-        poolAdd,
-        tokenIn,
-      })
-    },
-  })
+  });
 
   useEffect(() => {
-    setTimeout(() => {
-      if (tokenOutAllowance) {
-        console.log('token out allowance check', tokenOutAllowance.toString())
-        setAllowanceOut(tokenOutAllowance)
+    setTokenInAllowance(tokenInAllowance);
+    setTokenOutAllowance(tokenOutAllowance);
+  }, [tokenInAllowance, tokenOutAllowance]);
+
+  ////////////////////////////////Balances
+
+  const { data: tokenInBal } = useBalance({
+    address: address,
+    token: tokenIn.address,
+    enabled: tokenIn.address != undefined,
+    watch: needsBalanceIn,
+    chainId: chainId,
+    onSuccess(data) {
+      setNeedsBalanceIn(false);
+    },
+  });
+
+  const { data: tokenOutBal } = useBalance({
+    address: address,
+    token: tokenOut.address,
+    enabled: tokenOut.address != undefined && needsBalanceOut,
+    watch: needsBalanceOut,
+    chainId: chainId,
+    onSuccess(data) {
+      setNeedsBalanceOut(false);
+    },
+  });
+
+  useEffect(() => {
+    if (isConnected) {
+      setTokenInBalance(
+        parseFloat(tokenInBal?.formatted.toString()).toFixed(2)
+      );
+      if (pairSelected) {
+        setTokenOutBalance(
+          parseFloat(tokenOutBal?.formatted.toString()).toFixed(2)
+        );
       }
-    }, 50)
-  }, [tokenOutAllowance])
+    }
+  }, [tokenInBal, tokenOutBal]);
+
+  //////////////////////////////Button states -> to be removed (on store)
+
+  // disabled messages
+  useEffect(() => {
+    if (
+      Number(ethers.utils.formatUnits(rangeMintParams.tokenInAmount, tokenIn.decimals)) >
+      Number(tokenIn.userBalance)
+    ) {
+      setButtonState("balance0");
+    }
+    if (
+      Number(ethers.utils.formatUnits(rangeMintParams.tokenOutAmount, tokenIn.decimals)) >
+      Number(tokenOut.userBalance)
+    ) {
+      setButtonState("balance1");
+    }
+    if (rangeMintParams.tokenInAmount.eq(BN_ZERO) &&
+        rangeMintParams.tokenOutAmount.eq(BN_ZERO)) {
+      setButtonState("amount");
+    }
+    if (
+      rangeMintParams.tokenInAmount.eq(BN_ZERO) ||
+      Number(ethers.utils.formatUnits(rangeMintParams.tokenInAmount, tokenIn.decimals)) >
+        Number(tokenIn.userBalance) ||
+      Number(ethers.utils.formatUnits(rangeMintParams.tokenOutAmount, tokenOut.decimals)) >
+        Number(tokenOut.userBalance)
+    ) {
+      setDisabled(true);
+    } else {
+      setDisabled(false);
+    }
+  }, [bnInput, tokenIn.userBalance, tokenOut.userBalance, disabled]);
+
+  ////////////////////////////////Amounts
+
+  const [amountInDisabled, setAmountInDisabled] = useState(undefined)
+  const [amountOutDisabled, setAmountOutDisabled] = useState(undefined)
 
   useEffect(() => {
-    console.log('mint gas updating')
-    setAmounts()
-  }, [bnInput])
+    if (amountInDisabled == undefined) {
+      const token0Disabled = JSBI.lessThanOrEqual(upperSqrtPrice, rangeSqrtPrice)
+      const token1Disabled = JSBI.greaterThanOrEqual(lowerSqrtPrice, rangeSqrtPrice)
+      const tokenInDisabled = tokenIn.callId == 0 ? token0Disabled : token1Disabled
+      const tokenOutDisabled = tokenOut.callId == 0 ? token0Disabled : token1Disabled
+      setAmountInDisabled(tokenInDisabled)
+      setAmountOutDisabled(tokenOutDisabled)
+    }
+  }, [lowerSqrtPrice, upperSqrtPrice]);
 
-  useEffect(() => {
-    updateBalances()
-  }, [])
+  const handleInput1 = (e) => {
+    if (e.target.name === "tokenIn") {
+      const [value, bnValue] = inputHandler(e, tokenIn)
+      setDisplay(value)
+      if (!amountOutDisabled)
+        setAmounts(true, bnValue)
+      else {
+        setTokenInAmount(bnValue)
+        setDisplay2('')
+      }
+    } else if (e.target.name === "tokenOut") {
+      const [value, bnValue] = inputHandler(e, tokenOut)
+      setDisplay2(value)
+      if (!amountInDisabled)
+        setAmounts(false, bnValue)
+      else {
+        setTokenOutAmount(bnValue)
+        setDisplay('')
+      }
+    }
+  };
 
-  useEffect(() => {
-    setStateChainName(chainIdsToNamesForGitTokenList[chainId])
-  }, [chainId])
-
-  async function updateBalances() {
-    await getBalances(
-      address,
-      true,
-      tokenIn,
-      tokenOut,
-      tokenOrder ? setBalanceIn : setBalanceOut,
-      tokenOrder ? setBalanceOut : setBalanceIn,
-    )
-  }
-
-  async function updateMintFee(tokenInAmount: BigNumber, tokenOutAmount: JSBI) {
-    const newGasFee = await gasEstimateRangeMint(
-      poolAdd,
-      address,
-      lowerTick,
-      upperTick,
-      tokenOrder ? tokenInAmount : BigNumber.from(String(tokenOutAmount)),
-      tokenOrder ? BigNumber.from(String(tokenOutAmount)) : tokenInAmount,
-      signer,
-    )
-    if (!fetchDelay && newGasFee.gasUnits.gt(BN_ZERO)) setFetchDelay(true)
-    setMintGasFee(newGasFee.formattedPrice)
-    setMintGasLimit(newGasFee.gasUnits.mul(130).div(100))
-    if (newGasFee.gasUnits.gt(0)) setDisabled(false)
-    else setDisabled(true)
-  }
-
-      // disabled messages
-      useEffect(() => {
-        
-        if (Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn)) {
-          setButtonState('balance0')
-        }
-        if (Number(ethers.utils.formatUnits(amount1)) > Number(balanceOut)) {
-          setButtonState('balance1')
-        }
-        if (Number(ethers.utils.formatUnits(bnInput)) === 0) {
-          setButtonState('amount')
-        }
-        if (Number(ethers.utils.formatUnits(bnInput)) === 0 ||
-            Number(ethers.utils.formatUnits(bnInput)) > Number(balanceIn) ||
-            Number(ethers.utils.formatUnits(amount1)) > Number(balanceOut)
-        ) {
-          setDisabled(true)
-        } else if (mintGasLimit.gt(BN_ZERO)) { setDisabled(false)}
-      }, [bnInput, balanceIn, balanceOut, disabled])
-
-
-  function setAmounts() {
+  function setAmounts(amountInSet: boolean, amountSet: BigNumber) {
     try {
-      if (Number(ethers.utils.formatUnits(bnInput)) !== 0) {
-        const liquidity =
-          JSBI.greaterThanOrEqual(rangeSqrtPrice, lowerSqrtPrice) &&
-          JSBI.lessThanOrEqual(rangeSqrtPrice, upperSqrtPrice)
-            ? DyDxMath.getLiquidityForAmounts(
-                tokenOrder ? rangeSqrtPrice : lowerSqrtPrice,
-                tokenOrder ? upperSqrtPrice : rangeSqrtPrice,
+        const isToken0 = amountInSet ? tokenIn.callId == 0
+                                     : tokenOut.callId == 0
+        const inputBn = amountSet
+        if (amountSet.gt(BN_ZERO)) {
+          let liquidity = ZERO;
+          if(JSBI.greaterThanOrEqual(rangeSqrtPrice, lowerSqrtPrice) &&
+             JSBI.lessThan(rangeSqrtPrice, upperSqrtPrice)) {
+              liquidity = DyDxMath.getLiquidityForAmounts(
+                isToken0 ? rangeSqrtPrice : lowerSqrtPrice,
+                isToken0 ? upperSqrtPrice : rangeSqrtPrice,
                 rangeSqrtPrice,
-                tokenOrder ? BN_ZERO : bnInput,
-                tokenOrder ? bnInput : BN_ZERO,
+                isToken0 ? BN_ZERO : inputBn,
+                isToken0 ? inputBn : BN_ZERO
               )
-            : DyDxMath.getLiquidityForAmounts(
-                lowerSqrtPrice,
-                upperSqrtPrice,
-                rangeSqrtPrice,
-                tokenOrder ? BN_ZERO : bnInput,
-                tokenOrder ? bnInput : BN_ZERO,
-              )
-        console.log('liquidity check', liquidity)
-        const tokenOutAmount = JSBI.greaterThan(liquidity, ZERO)
-          ? tokenOrder
-            ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
-            : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
-          : ZERO
-        // set amount based on bnInput
-        tokenOrder ? setAmount0(bnInput) : setAmount1(bnInput)
-        // set amount based on liquidity math
-        tokenOrder
-          ? setAmount1(BigNumber.from(String(tokenOutAmount)))
-          : setAmount0(BigNumber.from(String(tokenOutAmount)))
-        updateMintFee(
-          bnInput,
-          tokenOutAmount
-        )
-      } else {
-        setAmount1(BN_ZERO)
-        setAmount0(BN_ZERO)
-        setDisabled(true)
-      }
+          } else if (JSBI.lessThan(rangeSqrtPrice, lowerSqrtPrice)) {
+              // only token0 input allowed
+              if (isToken0) {
+                liquidity = DyDxMath.getLiquidityForAmounts(
+                  lowerSqrtPrice,
+                  upperSqrtPrice,
+                  rangeSqrtPrice,
+                  BN_ZERO,
+                  inputBn
+                )
+              } else {
+                // warn the user the input is invalid
+              }
+          } else if (JSBI.greaterThanOrEqual(rangeSqrtPrice, upperSqrtPrice)) {
+              if (!isToken0) {
+                liquidity = DyDxMath.getLiquidityForAmounts(
+                  lowerSqrtPrice,
+                  upperSqrtPrice,
+                  rangeSqrtPrice,
+                  inputBn,
+                  BN_ZERO
+                )
+              } else {
+                // warn the user the input is invalid
+              }
+          }
+          const outputJsbi = JSBI.greaterThan(liquidity, ZERO)
+            ? isToken0
+              ? DyDxMath.getDy(liquidity, lowerSqrtPrice, rangeSqrtPrice, true)
+              : DyDxMath.getDx(liquidity, rangeSqrtPrice, upperSqrtPrice, true)
+            : ZERO;
+          const outputBn = BigNumber.from(String(outputJsbi))
+          // set amount based on inputBn
+          if (amountInSet) {
+            setTokenInAmount(inputBn);
+            setTokenOutAmount(outputBn);
+            setDisplay2(parseFloat(ethers.utils.formatUnits(outputBn, tokenOut.decimals)).toPrecision(6))
+          } else {
+            setTokenInAmount(BigNumber.from(String(outputJsbi)));
+            setTokenOutAmount(inputBn);
+            setDisplay(parseFloat(ethers.utils.formatUnits(outputBn, tokenIn.decimals)).toPrecision(6))
+          }
+          setDisabled(false);
+        } else {
+          setTokenInAmount(BN_ZERO);
+          setTokenOutAmount(BN_ZERO);
+          if (amountInSet) {
+            setDisplay2('')
+          } else {
+            setDisplay('')
+          }
+          setDisabled(true);
+        }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
+
+  ////////////////////////////////Mint Gas Fee
+  const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
+
+  useEffect(() => {
+    if (
+      rangeMintParams.tokenInAmount &&
+      rangeMintParams.tokenOutAmount &&
+      (
+        rangeMintParams.tokenInAmount.gt(BN_ZERO) ||
+        rangeMintParams.tokenOutAmount.gt(BN_ZERO)
+      ) &&
+      rangePositionData.min &&
+      rangePositionData.max &&
+      Number(rangePositionData.min) < Number(rangePositionData.max) &&
+      tokenInAllowance.gte(rangeMintParams.tokenInAmount) &&
+      tokenOutAllowance.gte(rangeMintParams.tokenOutAmount)
+    ) {
+      updateGasFee();
+    }
+  }, [tokenInAllowance, tokenOutAllowance, rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount, rangePositionData]);
+
+  async function updateGasFee() {
+    const newGasFee = await gasEstimateRangeMint(
+      rangePoolAddress,
+      address,
+      rangePositionData.min,
+      rangePositionData.max,
+      rangeMintParams.tokenInAmount,
+      rangeMintParams.tokenOutAmount,
+      signer,
+      rangePositionData.positionId
+    );
+    setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
+  }
+
+  ////////////////////////////////Mint Button State
+
+  useEffect(() => {
+    setMintButtonState();
+  }, [rangeMintParams.tokenInAmount, rangeMintParams.tokenOutAmount]);
+
+  ////////////////////////////////
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
@@ -285,134 +418,159 @@ export default function RangeAddLiquidity({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-xl bg-black text-white border border-grey2 text-left align-middle shadow-xl px-5 py-5 transition-all">
+              <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-[4px] bg-black text-white border border-grey text-left align-middle shadow-xl px-5 py-5 transition-all">
                 <div className="flex items-center justify-between px-2 mb-5">
-                  <h1 className="text-lg">Add Liquidity</h1>
+                  <h1 className="">Add Liquidity</h1>
                   <XMarkIcon
                     onClick={() => setIsOpen(false)}
                     className="w-7 cursor-pointer"
                   />
                 </div>
                 <div className="flex flex-col gap-y-3 mb-5">
-                <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-                <div className=" p-2 w-32">
-                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-1 rounded-xl">
-                              {inputBox("0")}
-                              </div>
-                              <div className="flex">
-                                <div className="flex text-xs text-[#4C4C4C]">
-                                 ${tokenOrder ? (Number(token1Price * parseFloat(ethers.utils.formatUnits(amount1, 18))).toFixed(2)) : (Number(token0Price * parseFloat(ethers.utils.formatUnits(amount0, 18))).toFixed(2))}
-                                
-                                </div>
-                              </div>
-                            </div>
-              <div className="">
-                <div className=" ml-auto">
-                  <div>
-                    <div className="flex justify-end">
-                      <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl">
-                        <img className="w-7" src={tokenIn.logoURI} />
-                        {tokenIn.symbol}
-                      </button>
+                  <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2.5 flex flex-col gap-y-2">
+                    <div className="flex items-end justify-between text-[11px] text-grey1">
+                      <span>
+                        ~$
+                        {Number(
+                              tokenIn.USDPrice *
+                                parseFloat(
+                                  ethers.utils.formatUnits(
+                                    rangeMintParams.tokenInAmount,
+                                    tokenIn.decimals
+                                  )
+                                )
+                            ).toFixed(2)}
+                      </span>
+                      <span>
+                        BALANCE: {tokenIn.userBalance ? tokenIn.userBalance : 0}
+                      </span>
                     </div>
-                    <div className="flex items-center justify-end gap-2 px-1 mt-2">
-                      <div className="flex whitespace-nowrap md:text-xs text-[10px] whitespace-nowrap text-[#4C4C4C]" key={balanceIn}>
-                        Balance: {balanceIn === 'NaN' ? 0 : balanceIn}
+                    <div className="flex items-end justify-between mt-2 mb-3">
+                      {inputBox("0", tokenIn, "tokenIn", handleInput1, amountInDisabled)}
+                      <div className="flex items-center gap-x-2">
+                        {isConnected && stateChainName === "arbitrumGoerli" ? (
+                          <button
+                            onClick={() => maxBalance(tokenIn.userBalance, "0", tokenIn)}
+                            className="text-xs text-grey1 bg-dark h-10 px-3 rounded-[4px] border-grey border"
+                          >
+                            MAX
+                          </button>
+                        ) : null}
+                        <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
+                          <img height="28" width="25" src={tokenIn.logoURI} />
+                          {tokenIn.symbol}
+                        </div>
                       </div>
-                      <button
-                        className="flex md:text-xs text-[10px] uppercase text-[#C9C9C9]"
-                        onClick={() => maxBalance(balanceIn, '0')}
-                      >
-                        Max
-                      </button>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
-            <div className="w-full items-center justify-between flex bg-[#0C0C0C] border border-[#1C1C1C] gap-4 p-2 rounded-xl ">
-            <div className=" p-2 ">
-                              <div className="w-full bg-[#0C0C0C] placeholder:text-grey1 text-white text-2xl mb-2 rounded-xl">
-                              {Number(
-                  tokenOrder
-                    ? ethers.utils.formatUnits(amount1, 18)
-                    : ethers.utils.formatUnits(amount0, 18)
-                ).toFixed(2)}
-                              </div>
-                              <div className="flex">
-                                <div className="flex text-xs text-[#4C4C4C]">
-                                ${tokenOrder ? (Number(token0Price * parseFloat(ethers.utils.formatUnits(amount0, 18))).toFixed(2)) : (Number(token1Price * parseFloat(ethers.utils.formatUnits(amount1, 18))).toFixed(2))}
-                                </div>
-                              </div>
-                            </div>
-              <div className="">
-                <div className=" ml-auto">
-                  <div>
-                    <div className="flex justify-end">
-                      <button className="flex items-center gap-x-3 bg-black border border-grey1 px-3 py-1.5 rounded-xl ">
-                        <div className="flex items-center gap-x-2 w-full">
-                          <img className="w-7" src={tokenOut.logoURI} />
+                  <div className="border border-grey rounded-[4px] w-full py-3 px-5 mt-2 flex flex-col gap-y-2">
+                    <div className="flex items-end justify-between text-[11px] text-grey1">
+                      <span>
+                        ~$
+                        {(
+                          Number(tokenOut.USDPrice) *
+                          Number(
+                            ethers.utils.formatUnits(
+                              rangeMintParams.tokenOutAmount,
+                              18
+                            )
+                          )
+                        ).toFixed(2)}
+                      </span>
+                      <span>
+                        BALANCE:{" "}
+                        {tokenOut.userBalance ? tokenOut.userBalance : 0}
+                      </span>
+                    </div>
+                    <div className="flex items-end justify-between mt-2 mb-3">
+                      <span className="text-3xl">
+                        {inputBox2("0", tokenOut, "tokenOut", handleInput1, amountOutDisabled)}
+                      </span>
+                      <div className="flex items-center gap-x-2">
+                        <div className="w-full text-xs uppercase whitespace-nowrap flex items-center gap-x-3 bg-dark border border-grey px-3 h-full rounded-[4px] h-[2.5rem] min-w-[160px]">
+                          <img height="28" width="25" src={tokenOut.logoURI} />
                           {tokenOut.symbol}
                         </div>
-                      </button>
-                    </div>
-                    <div className="flex whitespace-nowrap items-center justify-end gap-x-2 px-1 mt-2">
-                      <div className="flex md:text-xs text-[10px] text-[#4C4C4C]" key={balanceIn}>
-                        Balance: {balanceOut === 'NaN' ? 0 : balanceOut}
                       </div>
                     </div>
                   </div>
+                  {!tokenInAllowance || !tokenOutAllowance ? (
+                    <button
+                      disabled={disabled}
+                      className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
+                    >
+                      {buttonState === "amount" ? <>Input Amount</> : <></>}
+                      {buttonState === "balance0" ? (
+                        <>Insufficient {tokenIn.symbol} Balance</>
+                      ) : (
+                        <></>
+                      )}
+                      {buttonState === "balance1" ? (
+                        <>Insufficient {tokenOut.symbol} Balance</>
+                      ) : (
+                        <></>
+                      )}
+                    </button>
+                  ) : (
+                    <>
+                      {tokenInAllowance?.gte(rangeMintParams.tokenInAmount) &&
+                      tokenOutAllowance?.gte(rangeMintParams.tokenOutAmount) ? (
+                        <RangeAddLiqButton
+                          routerAddress={
+                            chainProperties["arbitrumGoerli"]["routerAddress"]
+                          }
+                          poolAddress={rangePoolAddress}
+                          address={address}
+                          lower={rangePositionData.min}
+                          upper={rangePositionData.max}
+                          amount0={rangeMintParams.tokenInAmount}
+                          amount1={rangeMintParams.tokenOutAmount}
+                          disabled={rangeMintParams.disabled}
+                          setIsOpen={setIsOpen}
+                          positionId={rangePositionData.positionId}
+                          gasLimit={mintGasLimit}
+                        />
+                      ) : (tokenInAllowance.lt(rangeMintParams.tokenInAmount) &&
+                          tokenOutAllowance.lt(
+                            rangeMintParams.tokenOutAmount
+                          )) ||
+                        doubleApprove ? (
+                        <RangeMintDoubleApproveButton
+                          routerAddress={
+                            chainProperties["arbitrumGoerli"]["routerAddress"]
+                          }
+                          tokenIn={tokenIn}
+                          tokenOut={tokenOut}
+                          amount0={rangeMintParams.tokenInAmount}
+                          amount1={rangeMintParams.tokenOutAmount}
+                        />
+                      ) : !doubleApprove &&
+                        tokenInAllowance.lt(rangeMintParams.tokenInAmount) ? (
+                        <RangeMintApproveButton
+                          routerAddress={
+                            chainProperties["arbitrumGoerli"]["routerAddress"]
+                          }
+                          approveToken={tokenIn}
+                          amount={rangeMintParams.tokenInAmount}
+                        />
+                      ) : !doubleApprove &&
+                        tokenOutAllowance.lt(rangeMintParams.tokenOutAmount) ? (
+                        <RangeMintApproveButton
+                          routerAddress={
+                            chainProperties["arbitrumGoerli"]["routerAddress"]
+                          }
+                          approveToken={tokenOut}
+                          amount={rangeMintParams.tokenOutAmount}
+                        />
+                      ) : null}
+                    </>
+                  )}
                 </div>
-                </div>
-                </div>
-                {disabled === true ? 
-                <button className="opacity-50 w-full cursor-not-allowed py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF]">
-        {buttonState === 'amount' ? <>Input Amount</> : <></>}
-        {buttonState === 'balance0' ? <>Insufficient {tokenIn.symbol} Balance</> : <></>}
-        {buttonState === 'balance1' ? <>Insufficient {tokenOut.symbol} Balance</> : <></>}
-            </button>
-            :
-            <>
-                {allowanceIn.gte(amount0) && allowanceOut.gte(amount1) ? (
-                  <RangeAddLiqButton
-                    poolAddress={poolAdd}
-                    address={address}
-                    lower={lowerTick}
-                    upper={upperTick}
-                    amount0={amount0}
-                    amount1={amount1}
-                    disabled={disabled}
-                    gasLimit={mintGasLimit}
-                  />
-                  ) : (allowanceIn.lt(amount0) &&
-                  allowanceOut.lt(amount1)) ||
-                doubleApprove ? (
-                <RangeMintDoubleApproveButton
-                  poolAddress={poolAdd}
-                  tokenIn={tokenIn}
-                  tokenOut={tokenOut}
-                  setAllowanceController={setdoubleApprove}
-                />
-              ) : !doubleApprove && allowanceIn.lt(amount0) ? (
-                <RangeMintApproveButton
-                  poolAddress={poolAdd}
-                  approveToken={tokenIn}
-                />
-              ) : !doubleApprove && allowanceOut.lt(amount1) ? (
-                <RangeMintApproveButton
-                  poolAddress={poolAdd}
-                  approveToken={tokenOut}
-                />
-              ) : null}
-              </>
-            }
-            </div>
               </Dialog.Panel>
             </Transition.Child>
-          
-        </div>
+          </div>
         </div>
       </Dialog>
     </Transition>
-  )
+  );
 }

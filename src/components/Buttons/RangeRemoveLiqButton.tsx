@@ -1,79 +1,110 @@
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from "ethers";
 import {
-    usePrepareContractWrite,
-    useContractWrite,
-    useWaitForTransaction,
-} from 'wagmi';
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+  useSigner,
+} from "wagmi";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
-import React, { useState } from "react";
-import { rangePoolABI } from '../../abis/evm/rangePool';
+import React, { useEffect, useState } from "react";
+import { rangePoolABI } from "../../abis/evm/rangePool";
+import { gasEstimateRangeBurn } from "../../utils/gas";
+import { BN_ZERO } from "../../utils/math/constants";
+import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
+import Loader from "../Icons/Loader";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
-export default function RangeRemoveLiqButton({poolAddress, address, lower, upper, burnPercent, disabled, gasLimit, closeModal}) {
+export default function RangeRemoveLiqButton({
+  poolAddress,
+  address,
+  positionId,
+  burnPercent,
+  closeModal,
+  setIsOpen,
+  gasLimit,
+  disabled,
+}) {
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
 
-    const [ errorDisplay, setErrorDisplay ] = useState(false);
-    const [ successDisplay, setSuccessDisplay ] = useState(false);
+  const [
+    setNeedsRefetch,
+    setNeedsBalanceIn,
+    setNeedsBalanceOut,
+    setNeedsPosRefetch,
+  ] = useRangeLimitStore((state) => [
+    state.setNeedsRefetch,
+    state.setNeedsBalanceIn,
+    state.setNeedsBalanceOut,
+    state.setNeedsPosRefetch,
+  ]);
 
-    console.log('burn button args', burnPercent.toString(), gasLimit.toString(), lower.toString(), upper.toString())
-  
-    const { config } = usePrepareContractWrite({
-        address: poolAddress,
-        abi: rangePoolABI,
-        functionName: "burn",
-        args:[[
-            address,
-            lower,
-            upper,
-            burnPercent
-        ]],
-        chainId: 421613,
-        overrides:{
-            gasLimit: BigNumber.from('1000000')
-        },
-    })
+  const [errorDisplay, setErrorDisplay] = useState(false);
+  const [successDisplay, setSuccessDisplay] = useState(false);
 
-    const { data, isSuccess, write } = useContractWrite(config)
+  const { config } = usePrepareContractWrite({
+    address: poolAddress,
+    abi: rangePoolABI,
+    functionName: "burnRange",
+    args: [{ to: address, positionId: positionId, burnPercent: burnPercent }],
+    chainId: chainId,
+    overrides: {
+      gasLimit: gasLimit,
+    },
+  });
 
-    const {isLoading} = useWaitForTransaction({
-      hash: data?.hash,
-      onSuccess() {
-        setSuccessDisplay(true);
-        setTimeout(() => {
-          closeModal()
-        }, 2000);
-      },
-      onError() {
-        setErrorDisplay(true);
-      },
-    });
+  const { data, write } = useContractWrite(config);
 
-    return (
-        <>
-        <button disabled={disabled} className=" w-full text-sm md:text-base py-4 mx-auto font-medium text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
-            onClick={() => {
-              address ?  write?.() : null
-            }}
-                >
-                Remove liquidity
-        </button>
-        <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
-      {errorDisplay && (
-        <ErrorToast
-          hash={data?.hash}
-          errorDisplay={errorDisplay}
-          setErrorDisplay={setErrorDisplay}
-        />
-      )}
-      {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
-      {successDisplay && (
-        <SuccessToast
-          hash={data?.hash}
-          successDisplay={successDisplay}
-          setSuccessDisplay={setSuccessDisplay}
-        />
-      )}
+  const { isLoading } = useWaitForTransaction({
+    hash: data?.hash,
+    onSuccess() {
+      setSuccessDisplay(true);
+      setNeedsBalanceIn(true);
+      setTimeout(() => {
+        setNeedsRefetch(true);
+        setNeedsPosRefetch(true);
+        closeModal();
+        setIsOpen(false);
+      }, 2000);
+    },
+    onError() {
+      setErrorDisplay(true);
+    },
+  });
+
+  return (
+    <>
+      <button
+        disabled={gasLimit.lte(BN_ZERO)}
+        className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer flex items-center justify-center text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
+        onClick={() => {
+          address ? write?.() : null;
+        }}
+      >
+        {gasLimit.lte(BN_ZERO) ? <Loader/> : "Remove liquidity"}
+      </button>
+      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
+        {errorDisplay && (
+          <ErrorToast
+            hash={data?.hash}
+            errorDisplay={errorDisplay}
+            setErrorDisplay={setErrorDisplay}
+          />
+        )}
+        {isLoading ? <ConfirmingToast hash={data?.hash} /> : <></>}
+        {successDisplay && (
+          <SuccessToast
+            hash={data?.hash}
+            successDisplay={successDisplay}
+            setSuccessDisplay={setSuccessDisplay}
+          />
+        )}
       </div>
-        </>
-    );
-  }
+    </>
+  );
+}

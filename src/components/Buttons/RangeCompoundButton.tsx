@@ -2,68 +2,37 @@ import {
     usePrepareContractWrite,
     useContractWrite,
     useWaitForTransaction,
-    useSigner,
 } from 'wagmi';
 import { rangePoolABI } from "../../abis/evm/rangePool";
 import { SuccessToast } from "../Toasts/Success";
 import { ErrorToast } from "../Toasts/Error";
 import { ConfirmingToast } from "../Toasts/Confirming";
-import React, { useEffect, useState } from "react";
-import { BigNumber } from "ethers";
-import { gasEstimateCoverMint, gasEstimateRangeBurn } from '../../utils/gas';
+import React, { useState } from "react";
 import { BN_ZERO } from '../../utils/math/constants';
+import { useConfigStore } from '../../hooks/useConfigStore';
 
-export default function RangeCompoundButton({ poolAddress, address, lower, upper }) {
+export default function RangeCompoundButton({ poolAddress, address, positionId }) {
 
   const [ errorDisplay, setErrorDisplay ] = useState(false);
   const [ successDisplay, setSuccessDisplay ] = useState(false);
-  const [ fetchDelay, setFetchDelay ] = useState(false)
-  const [ gasLimit, setGasLimit ] = useState(BN_ZERO)
-  const [ gasFee, setGasFee ] = useState('$0.00')
 
-  const {data: signer} = useSigner()
-
-  useEffect(() => {
-    if (!fetchDelay) {
-      updateGasFee()
-    } else {
-      const interval = setInterval(() => {
-        updateGasFee()
-      }, 3000)
-      return () => clearInterval(interval)
-    }
-  }, [])
-
-  async function updateGasFee() {
-    const newBurnGasFee = await gasEstimateRangeBurn(
-      poolAddress,
-      address,
-      lower,
-      upper,
-      BN_ZERO,
-      signer
-    )
-    if (newBurnGasFee.gasUnits.gt(BN_ZERO)) setFetchDelay(true)
-    
-    setGasFee(newBurnGasFee.formattedPrice)
-    setGasLimit(newBurnGasFee.gasUnits.mul(130).div(100))
-  }
+  const [
+    chainId
+  ] = useConfigStore((state) => [
+    state.chainId,
+  ]);
 
   //TO-DO: assess if collectFees() or collect true in burn
   const { config } = usePrepareContractWrite({
       address: poolAddress,
       abi: rangePoolABI,
-      functionName: "burn",
+      functionName: "burnRange",
       args:[[
           address,
-          lower,
-          upper,
+          positionId,
           BN_ZERO
         ]],
-      chainId: 421613,
-      overrides:{
-          gasLimit: gasLimit
-      },
+      chainId: chainId,
   })
 
   const { data, isSuccess, write } = useContractWrite(config)
@@ -80,15 +49,15 @@ export default function RangeCompoundButton({ poolAddress, address, lower, upper
     
   return (
       <>
-      <button className=" w-full py-4 mx-auto font-medium text-sm md:text-base text-center transition rounded-xl cursor-pointer bg-gradient-to-r from-[#344DBF] to-[#3098FF] hover:opacity-80"
+      <button className="w-full py-4 mx-auto disabled:cursor-not-allowed cursor-pointer text-center transition rounded-full  border border-main bg-main1 uppercase text-sm disabled:opacity-50 hover:opacity-80"
           onClick={() => {
             address ?  write?.() : null
           }}
-          disabled={gasFee == '$0.00'}
+          disabled={false}
               >
               Compound position
       </button>
-      <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
+      <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-50">
     {errorDisplay && (
       <ErrorToast
         hash={data?.hash}
