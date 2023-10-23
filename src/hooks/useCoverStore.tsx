@@ -97,8 +97,8 @@ const initialCoverState: CoverState = {
       feeAmount: 1000,
       tickSpread: 20,
       twapLength: 12,
-      auctionLength: 12
-    }
+      auctionLength: 12,
+    },
   },
   coverPositionData: {},
   coverSwapSlippage: "0.5",
@@ -169,22 +169,32 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   needsAllowance: initialCoverState.needsAllowance,
   needsBalance: initialCoverState.needsBalance,
   setTokenIn: (tokenOut, newToken: tokenCover) => {
+    console.log("setTokenIn");
+    console.log(tokenOut.address.toLowerCase());
+    console.log(newToken.address.toLowerCase());
     //if tokenOut is selected
-    if (
-      tokenOut.address != initialCoverState.tokenOut.address ||
-      tokenOut.symbol != "Select Token"
-    ) {
+    if (tokenOut.symbol != "Select Token") {
       //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to  initialState
-      if (newToken.address == tokenOut.address) {
+      if (newToken.address.toLowerCase() == tokenOut.address.toLowerCase()) {
+        console.log("tokenOut.address == initialCoverState.tokenOut.address");
         set(() => ({
           tokenIn: {
-            callId: 0,
+            callId:
+              newToken.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
             ...newToken,
           },
-          tokenOut: initialCoverState.tokenOut,
-          pairSelected: false,
+          tokenOut: {
+            callId:
+              newToken.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
+            ...(tokenOut.address.toLowerCase() ==
+            initialCoverState.tokenOut.address.toLowerCase()
+              ? initialCoverState.tokenIn
+              : initialCoverState.tokenOut),
+          },
+          pairSelected: true,
         }));
       } else {
+        console.log("different");
         //if tokens are different
         set(() => ({
           tokenIn: {
@@ -196,6 +206,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         }));
       }
     } else {
+      console.log("tokenOut.symbol != Select Token");
       //if tokenOut its not selected
       set(() => ({
         tokenIn: {
@@ -256,19 +267,30 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     }));
   },
   setTokenOut: (tokenIn, newToken: tokenCover) => {
+    console.log("setTokenOut");
+    console.log(tokenIn.address.toLowerCase());
+    console.log(newToken.address.toLowerCase());
     //if tokenIn exists
-    if (
-      tokenIn.address != initialCoverState.tokenOut.address ||
-      tokenIn.symbol != "Select Token"
-    ) {
+    if (tokenIn.symbol != "Select Token") {
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
-      if (newToken.address == tokenIn.address) {
+      if (newToken.address.toLowerCase() == tokenIn.address.toLowerCase()) {
+        console.log("tokenIn.address == initialCoverState.tokenIn.address");
         set(() => ({
-          tokenOut: { callId: 0, ...newToken },
-          tokenIn: initialCoverState.tokenOut,
+          tokenOut: {
+            callId: newToken.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
+            ...newToken,
+          },
+          tokenIn: {
+            callId: newToken.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
+            ...(tokenIn.address.toLowerCase() ==
+            initialCoverState.tokenIn.address.toLowerCase()
+              ? initialCoverState.tokenOut
+              : initialCoverState.tokenIn),
+          },
           pairSelected: false,
         }));
       } else {
+        console.log("different");
         //if tokens are different
         set(() => ({
           tokenOut: {
@@ -279,6 +301,7 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         }));
       }
     } else {
+      console.log("tokenIn.symbol != Select Token");
       //if tokenIn its not selected
       set(() => ({
         tokenOut: { callId: 0, ...newToken },
@@ -450,19 +473,21 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
           }));
         }
       }
-      dataLength = pool["data"]["volatilityTiers"].length
+      dataLength = pool["data"]["volatilityTiers"].length;
       if (!matchedVolatility && dataLength > 0)
-        for (let idx=0; idx < dataLength; idx++) {
-          if (pool["data"]["volatilityTiers"]["feeAmount"] == Number(volatility)) {
+        for (let idx = 0; idx < dataLength; idx++) {
+          if (
+            pool["data"]["volatilityTiers"]["feeAmount"] == Number(volatility)
+          ) {
             set(() => ({
               coverPoolAddress: ZERO_ADDRESS as `0x${string}`,
               coverPoolData: {
                 volatilityTier: {
                   feeAmount: pool["data"]["volatilityTiers"]["feeAmount"],
                   tickSpread: pool["data"]["volatilityTiers"]["tickSpread"],
-                  twapLength: pool["data"]["volatilityTiers"]["twapLength"]
+                  twapLength: pool["data"]["volatilityTiers"]["twapLength"],
                 },
-              }
+              },
             }));
           }
         }
