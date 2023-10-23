@@ -18,6 +18,7 @@ import { inputHandler, parseUnits } from "../../utils/math/valueMath";
 import SelectToken from "../../components/SelectToken";
 import { feeTierMap, feeTiers } from "../../utils/pools";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { max } from "fuels";
 
 export default function AddLiquidity({}) {
   const [chainId] = useConfigStore((state) => [state.chainId]);
@@ -314,6 +315,10 @@ export default function AddLiquidity({}) {
     setAmounts(isTokenIn, bnValue);
     setAmountInSetLast(isTokenIn);
   };
+
+  useEffect(() => {
+    setAmounts(true, rangeMintParams.tokenInAmount);
+  }, [tokenIn.callId]);
 
   function setAmounts(amountInSet: boolean, amountSet: BigNumber) {
     console.log("set amounts", amountInSet, amountSet.toString());
