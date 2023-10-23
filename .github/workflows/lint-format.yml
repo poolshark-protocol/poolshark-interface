@@ -3,20 +3,21 @@ name: Format & Lint
 on:
   push:
     branches:
-      - "main"
-      - "test"
-      - "staging"
+      - 'main'
+      - 'staging'
+      - 'test'
+      
   pull_request:
     branches:
-      - "main"
-      - "test"
-      - "staging"
+      - 'main'
+      - 'staging'
+      - 'test'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install Modules
         run: npm install
       - name: Format
@@ -28,7 +29,7 @@ jobs:
           git diff --quiet || echo "Formatting changes were made"
 
       - name: Commit Formatting Changes
-        if: steps.check_format_changes.outputs.code == '0' && !cancelled()
+        if: github.event_name == 'pull_request' && steps.check_format_changes.outputs.code == '0' && !cancelled()
         run: |
           git config --local user.name 'lucasregueiroo'
           git config --local user.email 'hello@lucasregueiro.com'
