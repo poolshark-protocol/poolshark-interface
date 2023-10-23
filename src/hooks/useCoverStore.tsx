@@ -310,7 +310,6 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         }));
       }
     } else {
-      console.log("tokenIn.symbol != Select Token");
       //if tokenIn its not selected
       set(() => ({
         tokenOut: { callId: 0, ...newToken },

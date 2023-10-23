@@ -256,19 +256,38 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     },
     setTokenIn: (tokenOut, newToken: tokenRangeLimit) => {
       //if tokenOut is selected
-      if (
-        tokenOut.address != initialRangeLimitState.tokenOut.address ||
-        tokenOut.symbol != "Select Token"
-      ) {
+      if (tokenOut.symbol != "Select Token") {
         //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to  initialState
-        if (newToken.address == tokenOut.address) {
-          set(() => ({
+        if (newToken.address.toLowerCase() == tokenOut.address.toLowerCase()) {
+          set((state) => ({
             tokenIn: {
-              callId: 0,
-              ...newToken,
+              callId:
+                state.tokenOut.address.localeCompare(state.tokenIn.address) < 0
+                  ? 0
+                  : 1,
+              name: state.tokenOut.name,
+              symbol: state.tokenOut.symbol,
+              logoURI: state.tokenOut.logoURI,
+              address: state.tokenOut.address,
+              decimals: state.tokenOut.decimals,
+              USDPrice: state.tokenOut.USDPrice,
+              userBalance: state.tokenOut.userBalance,
+              userRouterAllowance: state.tokenOut.userRouterAllowance,
             },
-            tokenOut: initialRangeLimitState.tokenOut,
-            pairSelected: false,
+            tokenOut: {
+              callId:
+                state.tokenOut.address.localeCompare(state.tokenIn.address) < 0
+                  ? 1
+                  : 0,
+              name: state.tokenIn.name,
+              symbol: state.tokenIn.symbol,
+              logoURI: state.tokenIn.logoURI,
+              address: state.tokenIn.address,
+              decimals: state.tokenIn.decimals,
+              USDPrice: state.tokenIn.USDPrice,
+              userBalance: state.tokenIn.userBalance,
+              userRouterAllowance: state.tokenIn.userRouterAllowance,
+            },
           }));
         } else {
           //if tokens are different
@@ -580,12 +599,12 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           tokenOut.address
         );
         const dataLength = pool["data"]["limitPools"].length;
-        let poolFound = false
+        let poolFound = false;
         for (let i = 0; i < dataLength; i++) {
           if (
             pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility
           ) {
-            poolFound = true
+            poolFound = true;
             set(() => ({
               rangePoolAddress: pool["data"]["limitPools"][i]["id"],
               rangePoolData: pool["data"]["limitPools"][i],

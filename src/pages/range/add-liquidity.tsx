@@ -266,17 +266,6 @@ export default function AddLiquidity({}) {
 
   useEffect(() => {
     if (upperPrice == lowerPrice || rangePrice == undefined) return;
-    setRangePositionData({
-      ...rangePositionData,
-      lowerPrice: lowerPrice,
-      upperPrice: upperPrice,
-    });
-    setAmounts(
-      amountInSetLast,
-      amountInSetLast
-        ? rangeMintParams.tokenInAmount
-        : rangeMintParams.tokenOutAmount
-    );
     const token0Disabled = parseFloat(upperPrice) <= parseFloat(rangePrice);
     const token1Disabled = parseFloat(lowerPrice) >= parseFloat(rangePrice);
     const tokenInDisabled =
@@ -293,6 +282,13 @@ export default function AddLiquidity({}) {
       setDisplayOut("");
       setAmounts(false, BN_ZERO);
       setAmountInSetLast(false);
+    } else {
+      setAmounts(
+        amountInSetLast,
+        amountInSetLast
+          ? rangeMintParams.tokenInAmount
+          : rangeMintParams.tokenOutAmount
+      );
     }
   }, [lowerPrice, upperPrice, rangePrice]);
 
