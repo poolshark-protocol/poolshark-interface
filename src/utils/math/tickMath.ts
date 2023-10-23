@@ -45,6 +45,12 @@ export function invertPrice(priceString: string, zeroForOne: boolean): string {
   return priceString
 }
 
+export function roundPrice(priceString: string, tokenA: token, tokenB: token, tickSpacing: number): string {
+  if (isNaN(parseFloat(priceString)) || parseFloat(priceString) == 0 || isNaN(tickSpacing)) return '0.00'
+  const tick = TickMath.getTickAtPriceString(priceString, tokenA, tokenB, tickSpacing)
+  return TickMath.getPriceStringAtTick(tick, tokenA, tokenB, tickSpacing)
+}
+
 export function getDefaultLowerTick(minLimit, maxLimit, zeroForOne, latestTick = 0): number {
   const midTick = Math.round((Number(minLimit) + Number(maxLimit)) / 2)
   if (zeroForOne) {

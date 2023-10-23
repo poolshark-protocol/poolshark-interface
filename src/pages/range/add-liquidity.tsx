@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { TickMath, invertPrice, roundTick } from "../../utils/math/tickMath";
+import { TickMath, invertPrice, roundPrice, roundTick } from "../../utils/math/tickMath";
 import JSBI from "jsbi";
 import useInputBox from "../../hooks/useInputBox";
 import { erc20ABI, useAccount, useBalance, useContractRead } from "wagmi";
@@ -136,22 +136,13 @@ export default function AddLiquidity({}) {
 
   //this sets the default position price delta
   useEffect(() => {
-    console.log('price range', rangePositionData.lowerPrice, rangePositionData.upperPrice)
-    if(
-        (
-          rangePositionData.lowerPrice == undefined &&
-          rangePositionData.upperPrice == undefined
-        )
-    ) {
+    console.log('price range', rangePoolData.tickAtPrice, rangePositionData.lowerPrice, rangePositionData.upperPrice)
+    console.log('token decimals', tokenIn.decimals, tokenOut.decimals)
       if (rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
         const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
         const tickAtPrice = rangePoolData.tickAtPrice;
-        setRangePrice(
-          TickMath.getPriceStringAtSqrtPrice(sqrtPrice, tokenIn, tokenOut)
-        );
-        setRangeSqrtPrice(sqrtPrice);
-        if (rangePoolAddress != ZERO_ADDRESS) {
-          console.log('price range default', TickMath.getPriceStringAtTick(tickAtPrice - 7000, tokenIn, tokenOut), TickMath.getPriceStringAtTick(tickAtPrice - -7000, tokenIn, tokenOut))
+        if (rangePoolAddress != ZERO_ADDRESS && rangePrice == undefined) {
+          console.log('price range default', tickAtPrice, TickMath.getPriceStringAtTick(tickAtPrice - 7000, tokenIn, tokenOut), TickMath.getPriceStringAtTick(tickAtPrice - -7000, tokenIn, tokenOut))
           setMinInput(
             TickMath.getPriceStringAtTick(tickAtPrice - 7000, tokenIn, tokenOut)
           );
@@ -159,7 +150,10 @@ export default function AddLiquidity({}) {
             TickMath.getPriceStringAtTick(tickAtPrice - -7000, tokenIn, tokenOut)
           );
         }
-      }
+        setRangePrice(
+          TickMath.getPriceStringAtSqrtPrice(sqrtPrice, tokenIn, tokenOut)
+        );
+        setRangeSqrtPrice(sqrtPrice);
     }
   }, [
     rangePoolData.feeTier,
@@ -438,17 +432,34 @@ export default function AddLiquidity({}) {
   };
 
   useEffect(() => {
-    console.log('min input changed', minInput, maxInput, priceOrder)
-    if (!isNaN(parseFloat(minInput)) && !isNaN(parseFloat(maxInput))) {
-      setLowerPrice(invertPrice(priceOrder ? minInput : maxInput, priceOrder));
-      setUpperPrice(invertPrice(priceOrder ? maxInput : minInput, priceOrder));
+    console.log('min input changed', rangePoolData.feeTier?.tickSpacing, minInput, maxInput)
+    if (!isNaN(parseFloat(minInput)) && !isNaN(parseFloat(maxInput)) && !isNaN(parseFloat(rangePoolData.feeTier?.tickSpacing))) {
+      const priceLower = invertPrice(
+        roundPrice(
+          priceOrder ? minInput : maxInput,
+          tokenIn, tokenOut,
+          rangePoolData.feeTier.tickSpacing
+        ),
+        priceOrder
+      )
+      const priceUpper = invertPrice(
+        roundPrice(
+          priceOrder ? maxInput : minInput,
+          tokenIn, tokenOut,
+          rangePoolData.feeTier.tickSpacing
+        ),
+        priceOrder
+      )
+      setLowerPrice(priceLower);
+      setUpperPrice(priceUpper);
+      console.log('setting range position data', minInput, maxInput)
       setRangePositionData({
         ...rangePositionData,
-        lowerPrice: invertPrice(priceOrder ? minInput : maxInput, priceOrder),
-        upperPrice: invertPrice(priceOrder ? maxInput : minInput, priceOrder),
+        lowerPrice: priceLower,
+        upperPrice: priceUpper,
       })
     }
-  }, [maxInput, minInput]);
+  }, [maxInput, minInput, rangePoolData.feeTier?.tickSpacing]);
 
   useEffect(() => {
     if (

@@ -116,6 +116,7 @@ type RangeLimitAction = {
   ) => void;
   resetRangeLimitParams: () => void;
   resetMintParams: () => void;
+  resetPoolData: () => void;
   //
   setMintButtonState: () => void;
   //
@@ -707,5 +708,10 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         limitMintParams: initialRangeLimitState.limitMintParams,
       }));
     },
+    resetPoolData: () =>  {
+      set((state) => ({
+        rangePoolData: initialRangeLimitState.rangePoolData,
+      }));
+    }
   })
 );
