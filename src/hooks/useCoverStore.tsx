@@ -97,8 +97,8 @@ const initialCoverState: CoverState = {
       feeAmount: 1000,
       tickSpread: 20,
       twapLength: 12,
-      auctionLength: 12
-    }
+      auctionLength: 12,
+    },
   },
   coverPositionData: {},
   coverSwapSlippage: "0.5",
@@ -170,19 +170,33 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   needsBalance: initialCoverState.needsBalance,
   setTokenIn: (tokenOut, newToken: tokenCover) => {
     //if tokenOut is selected
-    if (
-      tokenOut.address != initialCoverState.tokenOut.address ||
-      tokenOut.symbol != "Select Token"
-    ) {
+    if (tokenOut.symbol != "Select Token") {
       //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to  initialState
-      if (newToken.address == tokenOut.address) {
-        set(() => ({
+      if (newToken.address.toLowerCase() == tokenOut.address.toLowerCase()) {
+        set((state) => ({
           tokenIn: {
-            callId: 0,
-            ...newToken,
+            callId: state.tokenOut.callId,
+            name: state.tokenOut.name,
+            symbol: state.tokenOut.symbol,
+            logoURI: state.tokenOut.logoURI,
+            address: state.tokenOut.address,
+            decimals: state.tokenOut.decimals,
+            userBalance: state.tokenOut.userBalance,
+            userRouterAllowance: state.tokenOut.userRouterAllowance,
+            coverUSDPrice: state.tokenOut.coverUSDPrice,
           },
-          tokenOut: initialCoverState.tokenOut,
-          pairSelected: false,
+          tokenOut: {
+            callId: state.tokenIn.callId,
+            name: state.tokenIn.name,
+            symbol: state.tokenIn.symbol,
+            logoURI: state.tokenIn.logoURI,
+            address: state.tokenIn.address,
+            decimals: state.tokenIn.decimals,
+            userBalance: state.tokenIn.userBalance,
+            userRouterAllowance: state.tokenIn.userRouterAllowance,
+            coverUSDPrice: state.tokenIn.coverUSDPrice,
+          },
+          needsAllowance: true,
         }));
       } else {
         //if tokens are different
@@ -257,16 +271,33 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   },
   setTokenOut: (tokenIn, newToken: tokenCover) => {
     //if tokenIn exists
-    if (
-      tokenIn.address != initialCoverState.tokenOut.address ||
-      tokenIn.symbol != "Select Token"
-    ) {
+    if (tokenIn.symbol != "Select Token") {
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
-      if (newToken.address == tokenIn.address) {
-        set(() => ({
-          tokenOut: { callId: 0, ...newToken },
-          tokenIn: initialCoverState.tokenOut,
-          pairSelected: false,
+      if (newToken.address.toLowerCase() == tokenIn.address.toLowerCase()) {
+        set((state) => ({
+          tokenIn: {
+            callId: state.tokenOut.callId,
+            name: state.tokenOut.name,
+            symbol: state.tokenOut.symbol,
+            logoURI: state.tokenOut.logoURI,
+            address: state.tokenOut.address,
+            decimals: state.tokenOut.decimals,
+            userBalance: state.tokenOut.userBalance,
+            userRouterAllowance: state.tokenOut.userRouterAllowance,
+            coverUSDPrice: state.tokenOut.coverUSDPrice,
+          },
+          tokenOut: {
+            callId: state.tokenIn.callId,
+            name: state.tokenIn.name,
+            symbol: state.tokenIn.symbol,
+            logoURI: state.tokenIn.logoURI,
+            address: state.tokenIn.address,
+            decimals: state.tokenIn.decimals,
+            userBalance: state.tokenIn.userBalance,
+            userRouterAllowance: state.tokenIn.userRouterAllowance,
+            coverUSDPrice: state.tokenIn.coverUSDPrice,
+          },
+          needsAllowance: true,
         }));
       } else {
         //if tokens are different
@@ -450,19 +481,21 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
           }));
         }
       }
-      dataLength = pool["data"]["volatilityTiers"].length
+      dataLength = pool["data"]["volatilityTiers"].length;
       if (!matchedVolatility && dataLength > 0)
-        for (let idx=0; idx < dataLength; idx++) {
-          if (pool["data"]["volatilityTiers"]["feeAmount"] == Number(volatility)) {
+        for (let idx = 0; idx < dataLength; idx++) {
+          if (
+            pool["data"]["volatilityTiers"]["feeAmount"] == Number(volatility)
+          ) {
             set(() => ({
               coverPoolAddress: ZERO_ADDRESS as `0x${string}`,
               coverPoolData: {
                 volatilityTier: {
                   feeAmount: pool["data"]["volatilityTiers"]["feeAmount"],
                   tickSpread: pool["data"]["volatilityTiers"]["tickSpread"],
-                  twapLength: pool["data"]["volatilityTiers"]["twapLength"]
+                  twapLength: pool["data"]["volatilityTiers"]["twapLength"],
                 },
-              }
+              },
             }));
           }
         }

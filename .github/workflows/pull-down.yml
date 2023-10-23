@@ -1,0 +1,37 @@
+name: Pull Main Changes into Staging and Experimental
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update_branches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # Important to fetch all branches
+
+      - name: Push changes to staging
+        run: |
+          git config --local user.name 'lucasregueiroo'
+          git config --local user.email 'hello@lucasregueiro.com'
+
+          git checkout staging
+          git merge main --no-edit
+          git push origin staging
+        env:
+          GH_TOKEN: ${{ secrets.COMMIT_KEY }}
+
+      - name: Push changes to experimental
+        run: |
+          git config --local user.name 'lucasregueiroo'
+          git config --local user.email 'hello@lucasregueiro.com'
+
+          git checkout experimental
+          git merge main --no-edit
+          git push origin experimental
+        env:
+          GH_TOKEN: ${{ secrets.COMMIT_KEY }}

@@ -47,6 +47,7 @@ import timeDifference from "../utils/time";
 import { inputHandler, parseUnits } from "../utils/math/valueMath";
 import UserLimitPool from "../components/Limit/UserLimitPool";
 import { useConfigStore } from "../hooks/useConfigStore";
+import { formatUnits } from "ethers/lib/utils.js";
 
 export default function Trade() {
   const { address, isDisconnected, isConnected } = useAccount();
@@ -84,6 +85,10 @@ export default function Trade() {
     setTokenOut,
     setTokenOutBalance,
     setTokenOutTradeUSDPrice,
+    amountIn,
+    setAmountIn,
+    amountOut,
+    setAmountOut,
     needsAllowanceIn,
     setNeedsAllowanceIn,
     needsAllowanceOut,
@@ -120,6 +125,10 @@ export default function Trade() {
     s.setTokenOut,
     s.setTokenOutBalance,
     s.setTokenOutTradeUSDPrice,
+    s.amountIn,
+    s.setAmountIn,
+    s.amountOut,
+    s.setAmountOut,
     s.needsAllowanceIn,
     s.setNeedsAllowanceIn,
     s.needsAllowanceOut,
@@ -167,8 +176,6 @@ export default function Trade() {
   const [swapParams, setSwapParams] = useState<any[]>([]);
 
   //market display variables
-  const [amountIn, setAmountIn] = useState(BN_ZERO);
-  const [amountOut, setAmountOut] = useState(BN_ZERO);
   const [exactIn, setExactIn] = useState(true)
 
   const handleInputBox = (e) => {
@@ -293,7 +300,7 @@ export default function Trade() {
       }
       setNeedsAllowanceIn(true)
     }
-  }, [tokenIn.address, tokenOut.address, tokenIn.decimals, tokenOut.decimals]);
+  }, [tokenIn.address, tokenOut.address]);
 
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {
     const pools = await getSwapPools(tokenIn, tokenOut, setTradePoolData);
@@ -326,7 +333,9 @@ export default function Trade() {
       console.log("Error multiquote", error);
     },
     onSuccess(data) {
-      // console.log("Success multiquote", data);
+      // if (quoteParams[0])
+      // console.log("Success multiquote", quoteParams[0]?.exactIn, formatUnits(quoteParams[0]?.amount.toString(), exactIn ? tokenIn.decimals : tokenOut.decimals));
+      // console.log("multiquote results:", data)
     },
   });
 
@@ -484,7 +493,6 @@ export default function Trade() {
       let mappedLimitSnapshotParams = [];
       if (allLimitPositions.length > 0) {
         for (let i = 0; i < allLimitPositions.length; i++) {
-          console.log('map user snapshot list')
           mappedLimitPoolAddresses[i] = allLimitPositions[i].poolId;
           mappedLimitSnapshotParams[i] = [];
           mappedLimitSnapshotParams[i][0] = address;
@@ -800,7 +808,6 @@ export default function Trade() {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    console.log('doing gas estimate', tokenIn.symbol, tokenOut.symbol, needsAllowanceIn)
     if (!amountIn.eq(BN_ZERO) && !needsAllowanceIn) {
       if (!limitTabSelected) {
         updateGasFee();
@@ -1016,7 +1023,11 @@ export default function Trade() {
                 stroke="currentColor"
                 className="w-5 cursor-pointer"
                 onClick={() => {
-                  switchDirection();
+                  switchDirection(
+                    exactIn,
+                    exactIn ? displayIn : displayOut,
+                    exactIn ? setAmountIn : setAmountOut
+                  );
                 }}
               >
                 <path
