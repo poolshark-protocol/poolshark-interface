@@ -101,13 +101,10 @@ export default function AddLiquidity({}) {
     if (tokenIn.address != ZERO_ADDRESS &&
         tokenOut.address != ZERO_ADDRESS) {
       setPairSelected(true);
-      // if (rangePoolData.feeTier?.feeAmount) {
-      //   updatePools(parseInt(rangePoolData.feeTier?.feeAmount));
-      // }
     } else {
       setPairSelected(false);
     }
-  }, [tokenIn.address, tokenOut.address, rangePoolData?.feeTier?.feeAmount]);
+  }, [tokenIn.address, tokenOut.address]);
 
   useEffect(() => {
     console.log('router default fee tier', router.query?.feeTier)
@@ -139,6 +136,7 @@ export default function AddLiquidity({}) {
 
   //this sets the default position price delta
   useEffect(() => {
+    console.log('price range', rangePositionData.lowerPrice, rangePositionData.upperPrice)
     if(
         (
           rangePositionData.lowerPrice == undefined &&
@@ -153,7 +151,7 @@ export default function AddLiquidity({}) {
         );
         setRangeSqrtPrice(sqrtPrice);
         if (rangePoolAddress != ZERO_ADDRESS) {
-          console.log('price range default')
+          console.log('price range default', TickMath.getPriceStringAtTick(tickAtPrice - 7000, tokenIn, tokenOut), TickMath.getPriceStringAtTick(tickAtPrice - -7000, tokenIn, tokenOut))
           setMinInput(
             TickMath.getPriceStringAtTick(tickAtPrice - 7000, tokenIn, tokenOut)
           );
@@ -440,9 +438,11 @@ export default function AddLiquidity({}) {
   };
 
   useEffect(() => {
-    console.log('min input changed')
-    setLowerPrice(invertPrice(priceOrder ? minInput : maxInput, priceOrder));
-    setUpperPrice(invertPrice(priceOrder ? maxInput : minInput, priceOrder));
+    console.log('min input changed', minInput, maxInput, priceOrder)
+    if (!isNaN(parseFloat(minInput)) && !isNaN(parseFloat(maxInput))) {
+      setLowerPrice(invertPrice(priceOrder ? minInput : maxInput, priceOrder));
+      setUpperPrice(invertPrice(priceOrder ? maxInput : minInput, priceOrder));
+    }
   }, [maxInput, minInput]);
 
   useEffect(() => {
