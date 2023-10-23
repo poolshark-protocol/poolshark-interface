@@ -162,6 +162,7 @@ export default function CoverAddLiquidity({ isOpen, setIsOpen, address }) {
       tokenOut,
       bnInput,
       signer,
+      networkName,
       coverPositionData.positionId
     );
     setMintGasFee(newMintGasFee.formattedPrice);

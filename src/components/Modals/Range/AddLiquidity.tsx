@@ -377,6 +377,7 @@ export default function RangeAddLiquidity({ isOpen, setIsOpen }) {
       rangeMintParams.tokenInAmount,
       rangeMintParams.tokenOutAmount,
       signer,
+      networkName,
       rangePositionData.positionId
     );
     setMintGasLimit(newGasFee.gasUnits.mul(130).div(100));
