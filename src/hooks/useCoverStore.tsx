@@ -169,32 +169,36 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
   needsAllowance: initialCoverState.needsAllowance,
   needsBalance: initialCoverState.needsBalance,
   setTokenIn: (tokenOut, newToken: tokenCover) => {
-    console.log("setTokenIn");
-    console.log(tokenOut.address.toLowerCase());
-    console.log(newToken.address.toLowerCase());
     //if tokenOut is selected
     if (tokenOut.symbol != "Select Token") {
       //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to  initialState
       if (newToken.address.toLowerCase() == tokenOut.address.toLowerCase()) {
-        console.log("tokenOut.address == initialCoverState.tokenOut.address");
-        set(() => ({
+        set((state) => ({
           tokenIn: {
-            callId:
-              newToken.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
-            ...newToken,
+            callId: state.tokenOut.callId,
+            name: state.tokenOut.name,
+            symbol: state.tokenOut.symbol,
+            logoURI: state.tokenOut.logoURI,
+            address: state.tokenOut.address,
+            decimals: state.tokenOut.decimals,
+            userBalance: state.tokenOut.userBalance,
+            userRouterAllowance: state.tokenOut.userRouterAllowance,
+            coverUSDPrice: state.tokenOut.coverUSDPrice,
           },
           tokenOut: {
-            callId:
-              newToken.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
-            ...(tokenOut.address.toLowerCase() ==
-            initialCoverState.tokenOut.address.toLowerCase()
-              ? initialCoverState.tokenIn
-              : initialCoverState.tokenOut),
+            callId: state.tokenIn.callId,
+            name: state.tokenIn.name,
+            symbol: state.tokenIn.symbol,
+            logoURI: state.tokenIn.logoURI,
+            address: state.tokenIn.address,
+            decimals: state.tokenIn.decimals,
+            userBalance: state.tokenIn.userBalance,
+            userRouterAllowance: state.tokenIn.userRouterAllowance,
+            coverUSDPrice: state.tokenIn.coverUSDPrice,
           },
-          pairSelected: true,
+          needsAllowance: true,
         }));
       } else {
-        console.log("different");
         //if tokens are different
         set(() => ({
           tokenIn: {
@@ -206,7 +210,6 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
         }));
       }
     } else {
-      console.log("tokenOut.symbol != Select Token");
       //if tokenOut its not selected
       set(() => ({
         tokenIn: {
@@ -267,30 +270,36 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
     }));
   },
   setTokenOut: (tokenIn, newToken: tokenCover) => {
-    console.log("setTokenOut");
-    console.log(tokenIn.address.toLowerCase());
-    console.log(newToken.address.toLowerCase());
     //if tokenIn exists
     if (tokenIn.symbol != "Select Token") {
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
       if (newToken.address.toLowerCase() == tokenIn.address.toLowerCase()) {
-        console.log("tokenIn.address == initialCoverState.tokenIn.address");
-        set(() => ({
-          tokenOut: {
-            callId: newToken.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
-            ...newToken,
-          },
+        set((state) => ({
           tokenIn: {
-            callId: newToken.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
-            ...(tokenIn.address.toLowerCase() ==
-            initialCoverState.tokenIn.address.toLowerCase()
-              ? initialCoverState.tokenOut
-              : initialCoverState.tokenIn),
+            callId: state.tokenOut.callId,
+            name: state.tokenOut.name,
+            symbol: state.tokenOut.symbol,
+            logoURI: state.tokenOut.logoURI,
+            address: state.tokenOut.address,
+            decimals: state.tokenOut.decimals,
+            userBalance: state.tokenOut.userBalance,
+            userRouterAllowance: state.tokenOut.userRouterAllowance,
+            coverUSDPrice: state.tokenOut.coverUSDPrice,
           },
-          pairSelected: false,
+          tokenOut: {
+            callId: state.tokenIn.callId,
+            name: state.tokenIn.name,
+            symbol: state.tokenIn.symbol,
+            logoURI: state.tokenIn.logoURI,
+            address: state.tokenIn.address,
+            decimals: state.tokenIn.decimals,
+            userBalance: state.tokenIn.userBalance,
+            userRouterAllowance: state.tokenIn.userRouterAllowance,
+            coverUSDPrice: state.tokenIn.coverUSDPrice,
+          },
+          needsAllowance: true,
         }));
       } else {
-        console.log("different");
         //if tokens are different
         set(() => ({
           tokenOut: {
