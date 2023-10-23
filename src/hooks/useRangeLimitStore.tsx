@@ -342,16 +342,42 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     },
     setTokenOut: (tokenIn, newToken: tokenRangeLimit) => {
       //if tokenIn exists
+      console.log('token out check', tokenIn.address, newToken.address)
       if (
         tokenIn.address != initialRangeLimitState.tokenOut.address ||
         tokenIn.symbol != "Select Token"
       ) {
         //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
-        if (newToken.address == tokenIn.address) {
-          set(() => ({
-            tokenOut: { callId: 0, ...newToken },
-            tokenIn: initialRangeLimitState.tokenOut,
-            pairSelected: false,
+        if (newToken.address.toLowerCase() == tokenIn.address.toLowerCase()) {
+          set((state) => ({
+            tokenIn: {
+              callId:
+                state.tokenOut.address.localeCompare(state.tokenIn.address) < 0
+                  ? 0
+                  : 1,
+              name: state.tokenOut.name,
+              symbol: state.tokenOut.symbol,
+              logoURI: state.tokenOut.logoURI,
+              address: state.tokenOut.address,
+              decimals: state.tokenOut.decimals,
+              USDPrice: state.tokenOut.USDPrice,
+              userBalance: state.tokenOut.userBalance,
+              userRouterAllowance: state.tokenOut.userRouterAllowance,
+            },
+            tokenOut: {
+              callId:
+                state.tokenOut.address.localeCompare(state.tokenIn.address) < 0
+                  ? 1
+                  : 0,
+              name: state.tokenIn.name,
+              symbol: state.tokenIn.symbol,
+              logoURI: state.tokenIn.logoURI,
+              address: state.tokenIn.address,
+              decimals: state.tokenIn.decimals,
+              USDPrice: state.tokenIn.USDPrice,
+              userBalance: state.tokenIn.userBalance,
+              userRouterAllowance: state.tokenIn.userRouterAllowance,
+            },
           }));
         } else {
           //if tokens are different
