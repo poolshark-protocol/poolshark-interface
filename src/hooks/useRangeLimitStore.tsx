@@ -262,10 +262,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         if (newToken.address.toLowerCase() == tokenOut.address.toLowerCase()) {
           set((state) => ({
             tokenIn: {
-              callId:
-                state.tokenOut.address.localeCompare(state.tokenIn.address) < 0
-                  ? 0
-                  : 1,
+              callId: state.tokenOut.callId,
               name: state.tokenOut.name,
               symbol: state.tokenOut.symbol,
               logoURI: state.tokenOut.logoURI,
@@ -276,10 +273,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               userRouterAllowance: state.tokenOut.userRouterAllowance,
             },
             tokenOut: {
-              callId:
-                state.tokenOut.address.localeCompare(state.tokenIn.address) < 0
-                  ? 1
-                  : 0,
+              callId: state.tokenIn.callId,
               name: state.tokenIn.name,
               symbol: state.tokenIn.symbol,
               logoURI: state.tokenIn.logoURI,
@@ -350,10 +344,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         if (newToken.address.toLowerCase() == tokenIn.address.toLowerCase()) {
           set((state) => ({
             tokenIn: {
-              callId:
-                state.tokenOut.address.localeCompare(state.tokenIn.address) < 0
-                  ? 0
-                  : 1,
+              callId: state.tokenOut.callId,
               name: state.tokenOut.name,
               symbol: state.tokenOut.symbol,
               logoURI: state.tokenOut.logoURI,
@@ -364,10 +355,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               userRouterAllowance: state.tokenOut.userRouterAllowance,
             },
             tokenOut: {
-              callId:
-                state.tokenOut.address.localeCompare(state.tokenIn.address) < 0
-                  ? 1
-                  : 0,
+              callId: state.tokenIn.callId,
               name: state.tokenIn.name,
               symbol: state.tokenIn.symbol,
               logoURI: state.tokenIn.logoURI,
