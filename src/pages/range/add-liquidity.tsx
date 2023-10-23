@@ -442,6 +442,11 @@ export default function AddLiquidity({}) {
     if (!isNaN(parseFloat(minInput)) && !isNaN(parseFloat(maxInput))) {
       setLowerPrice(invertPrice(priceOrder ? minInput : maxInput, priceOrder));
       setUpperPrice(invertPrice(priceOrder ? maxInput : minInput, priceOrder));
+      setRangePositionData({
+        ...rangePositionData,
+        lowerPrice: invertPrice(priceOrder ? minInput : maxInput, priceOrder),
+        upperPrice: invertPrice(priceOrder ? maxInput : minInput, priceOrder),
+      })
     }
   }, [maxInput, minInput]);
 
