@@ -342,7 +342,6 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
     },
     setTokenOut: (tokenIn, newToken: tokenRangeLimit) => {
       //if tokenIn exists
-      console.log('token out check', tokenIn.address, newToken.address)
       if (
         tokenIn.address != initialRangeLimitState.tokenOut.address ||
         tokenIn.symbol != "Select Token"
