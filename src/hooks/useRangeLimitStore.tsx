@@ -612,6 +612,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           }
         }
         if (!poolFound) {
+          console.log('no pool found')
           set((state) => ({
             rangePoolAddress: ZERO_ADDRESS as `0x${string}`,
             rangePoolData: {

@@ -36,7 +36,7 @@ export default function RangePool({ rangePool, href }) {
     };
     setRangeTokenIn(tokenOut, tokenIn);
     setRangeTokenOut(tokenIn, tokenOut);
-    setRangePoolFromFeeTier(tokenIn, tokenOut, rangePool.feeTier);
+    // setRangePoolFromFeeTier(tokenIn, tokenOut, rangePool.feeTier);
     router.push({
       pathname: href,
       query: {
