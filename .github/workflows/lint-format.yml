@@ -6,6 +6,7 @@ on:
       - 'main'
       - 'staging'
       - 'test'
+      
   pull_request:
     branches:
       - 'main'
@@ -16,10 +17,36 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install Modules
-        run: npm install --force
+        run: npm install
       - name: Format
-        run:  npx prettier . --write
+        run: npm run format --if-present
+
+      - name: Check for Formatting Changes
+        id: check_format_changes
+        run: |
+          git diff --quiet || echo "Formatting changes were made"
+
+      - name: Commit Formatting Changes
+        if: github.event_name == 'pull_request' && steps.check_format_changes.outputs.code == '0' && !cancelled()
+        run: |
+          git config --local user.name 'lucasregueiroo'
+          git config --local user.email 'hello@lucasregueiro.com'
+
+          if [ -n "$(git status --porcelain)" ]; then
+          git add .
+          git commit -m "Formatting: Auto-format code"
+          git config pull.rebase true
+          git pull origin ${{ github.event.pull_request.head.ref }}
+          # Use Personal Access Token for pushing changes
+          git fetch
+          git push origin HEAD:${{ github.event.pull_request.head.ref }} --follow-tags
+          else
+            echo "No formatting changes to commit."
+          fi
+        env:
+          COMMIT_KEY: ${{ secrets.COMMIT_KEY }}
+
       - name: Lint
         run: npm run lint --if-present
