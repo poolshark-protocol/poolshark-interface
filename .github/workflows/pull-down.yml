@@ -16,8 +16,8 @@ jobs:
 
       - name: Push changes to staging
         run: |
-          git config --local user.name 'softwarecurator'
-          git config --local user.email 'me@softwarecurator.dev'
+          git config --local user.name 'lucasregueiroo'
+          git config --local user.email 'hello@lucasregueiro.com'
 
           git checkout staging
           git merge main --no-edit
