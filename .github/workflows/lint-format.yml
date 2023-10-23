@@ -30,8 +30,8 @@ jobs:
       - name: Commit Formatting Changes
         if: steps.check_format_changes.outputs.code == '0' && !cancelled()
         run: |
-          git config --local user.name 'softwarecurator'
-          git config --local user.email 'me@softwarecurator.dev'
+          git config --local user.name 'lucasregueiroo'
+          git config --local user.email 'hello@lucasregueiro.com'
 
           if [ -n "$(git status --porcelain)" ]; then
           git add .
