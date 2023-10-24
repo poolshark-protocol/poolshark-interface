@@ -211,13 +211,29 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     if (tokenOut.address != initialTradeState.tokenOut.address) {
       //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to initialState
       if (newToken.address.toLowerCase() == tokenOut.address.toLowerCase()) {
-        set(() => ({
+        set((state) => ({
           tokenIn: {
-            callId: 0,
-            ...newToken,
+            callId: state.tokenOut.callId,
+            name: state.tokenOut.name,
+            symbol: state.tokenOut.symbol,
+            logoURI: state.tokenOut.logoURI,
+            address: state.tokenOut.address,
+            decimals: state.tokenOut.decimals,
+            USDPrice: state.tokenOut.USDPrice,
+            userBalance: state.tokenOut.userBalance,
+            userRouterAllowance: state.tokenOut.userRouterAllowance,
           },
-          tokenOut: initialTradeState.tokenOut,
-          pairSelected: false,
+          tokenOut: {
+            callId: state.tokenIn.callId,
+            name: state.tokenIn.name,
+            symbol: state.tokenIn.symbol,
+            logoURI: state.tokenIn.logoURI,
+            address: state.tokenIn.address,
+            decimals: state.tokenIn.decimals,
+            USDPrice: state.tokenIn.USDPrice,
+            userBalance: state.tokenIn.userBalance,
+            userRouterAllowance: state.tokenIn.userRouterAllowance,
+          },
         }));
       } else {
         //if tokens are different
@@ -286,13 +302,29 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     if (tokenIn.address != initialTradeState.tokenOut.address) {
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
       if (newToken.address.toLowerCase() == tokenIn.address.toLowerCase()) {
-        set(() => ({
-          tokenOut: {
-            callId: 0,
-            ...newToken,
+        set((state) => ({
+          tokenIn: {
+            callId: state.tokenOut.callId,
+            name: state.tokenOut.name,
+            symbol: state.tokenOut.symbol,
+            logoURI: state.tokenOut.logoURI,
+            address: state.tokenOut.address,
+            decimals: state.tokenOut.decimals,
+            USDPrice: state.tokenOut.USDPrice,
+            userBalance: state.tokenOut.userBalance,
+            userRouterAllowance: state.tokenOut.userRouterAllowance,
           },
-          tokenIn: initialTradeState.tokenOut,
-          pairSelected: false,
+          tokenOut: {
+            callId: state.tokenIn.callId,
+            name: state.tokenIn.name,
+            symbol: state.tokenIn.symbol,
+            logoURI: state.tokenIn.logoURI,
+            address: state.tokenIn.address,
+            decimals: state.tokenIn.decimals,
+            USDPrice: state.tokenIn.USDPrice,
+            userBalance: state.tokenIn.userBalance,
+            userRouterAllowance: state.tokenIn.userRouterAllowance,
+          },
         }));
       } else {
         //if tokens are different
