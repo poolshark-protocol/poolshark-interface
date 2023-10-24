@@ -119,8 +119,8 @@ export default function RangePoolPreview() {
   const [mintGasLimit, setMintGasLimit] = useState(BN_ZERO);
 
   useEffect(() => {
-    console.log('tick spacing set', rangePoolData.feeTier?.tickSpacing)
-    console.log('range position data', rangePositionData.lowerPrice, rangePositionData.upperPrice)
+    //console.log('tick spacing set', rangePoolData.feeTier?.tickSpacing)
+    //console.log('range position data', rangePositionData.lowerPrice, rangePositionData.upperPrice)
     if
     (
         (rangeMintParams.tokenInAmount?.gt(BN_ZERO) ||

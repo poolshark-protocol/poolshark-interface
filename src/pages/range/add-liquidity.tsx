@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
-import { TickMath, invertPrice, roundPrice, roundTick } from "../../utils/math/tickMath";
+import {
+  TickMath,
+  invertPrice,
+  roundPrice,
+  roundTick,
+} from "../../utils/math/tickMath";
 import JSBI from "jsbi";
 import useInputBox from "../../hooks/useInputBox";
 import { erc20ABI, useAccount, useBalance, useContractRead } from "wagmi";
@@ -97,8 +102,7 @@ export default function AddLiquidity({}) {
   ////////////////////////////////Pools
 
   useEffect(() => {
-    if (tokenIn.address != ZERO_ADDRESS &&
-        tokenOut.address != ZERO_ADDRESS) {
+    if (tokenIn.address != ZERO_ADDRESS && tokenOut.address != ZERO_ADDRESS) {
       setPairSelected(true);
     } else {
       setPairSelected(false);
@@ -133,21 +137,21 @@ export default function AddLiquidity({}) {
 
   //this sets the default position price delta
   useEffect(() => {
-      if (rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
-        const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
-        const tickAtPrice = rangePoolData.tickAtPrice;
-        if (rangePoolAddress != ZERO_ADDRESS && rangePrice == undefined) {
-          setMinInput(
-            TickMath.getPriceStringAtTick(tickAtPrice - 7000, tokenIn, tokenOut)
-          );
-          setMaxInput(
-            TickMath.getPriceStringAtTick(tickAtPrice - -7000, tokenIn, tokenOut)
-          );
-        }
-        setRangePrice(
-          TickMath.getPriceStringAtSqrtPrice(sqrtPrice, tokenIn, tokenOut)
+    if (rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
+      const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
+      const tickAtPrice = rangePoolData.tickAtPrice;
+      if (rangePoolAddress != ZERO_ADDRESS && rangePrice == undefined) {
+        setMinInput(
+          TickMath.getPriceStringAtTick(tickAtPrice - 7000, tokenIn, tokenOut)
         );
-        setRangeSqrtPrice(sqrtPrice);
+        setMaxInput(
+          TickMath.getPriceStringAtTick(tickAtPrice - -7000, tokenIn, tokenOut)
+        );
+      }
+      setRangePrice(
+        TickMath.getPriceStringAtSqrtPrice(sqrtPrice, tokenIn, tokenOut)
+      );
+      setRangeSqrtPrice(sqrtPrice);
     }
   }, [
     rangePoolData.feeTier,
@@ -299,6 +303,10 @@ export default function AddLiquidity({}) {
     }
   };
 
+  useEffect(() => {
+    setAmounts(amountInSetLast, rangeMintParams.tokenInAmount);
+  }, [tokenIn.callId]);
+
   const handleBalanceMax = (isTokenIn: boolean) => {
     const token = isTokenIn ? tokenIn : tokenOut;
     const value = token.userBalance.toString();
@@ -417,30 +425,36 @@ export default function AddLiquidity({}) {
   };
 
   useEffect(() => {
-    if (!isNaN(parseFloat(minInput)) && !isNaN(parseFloat(maxInput)) && !isNaN(parseFloat(rangePoolData.feeTier?.tickSpacing))) {
+    if (
+      !isNaN(parseFloat(minInput)) &&
+      !isNaN(parseFloat(maxInput)) &&
+      !isNaN(parseFloat(rangePoolData.feeTier?.tickSpacing))
+    ) {
       const priceLower = invertPrice(
         roundPrice(
           priceOrder ? minInput : maxInput,
-          tokenIn, tokenOut,
+          tokenIn,
+          tokenOut,
           rangePoolData.feeTier.tickSpacing
         ),
         priceOrder
-      )
+      );
       const priceUpper = invertPrice(
         roundPrice(
           priceOrder ? maxInput : minInput,
-          tokenIn, tokenOut,
+          tokenIn,
+          tokenOut,
           rangePoolData.feeTier.tickSpacing
         ),
         priceOrder
-      )
+      );
       setLowerPrice(priceLower);
       setUpperPrice(priceUpper);
       setRangePositionData({
         ...rangePositionData,
         lowerPrice: priceLower,
         upperPrice: priceUpper,
-      })
+      });
     }
   }, [maxInput, minInput, rangePoolData.feeTier?.tickSpacing]);
 
@@ -667,9 +681,17 @@ export default function AddLiquidity({}) {
               className="text-grey1 cursor-pointer flex items-center text-xs gap-x-2 uppercase"
             >
               <span className="whitespace-nowrap">
-                {(priceOrder == (tokenIn.callId == 0)) ? <>{tokenOut.symbol}</> : <>{tokenIn.symbol}</>}{" "}
+                {priceOrder == (tokenIn.callId == 0) ? (
+                  <>{tokenOut.symbol}</>
+                ) : (
+                  <>{tokenIn.symbol}</>
+                )}{" "}
                 per{" "}
-                {(priceOrder == (tokenIn.callId == 0)) ? <>{tokenIn.symbol}</> : <>{tokenOut.symbol}</>}
+                {priceOrder == (tokenIn.callId == 0) ? (
+                  <>{tokenIn.symbol}</>
+                ) : (
+                  <>{tokenOut.symbol}</>
+                )}
               </span>{" "}
               <DoubleArrowIcon />
             </div>
@@ -679,7 +701,7 @@ export default function AddLiquidity({}) {
               <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                 <span className="text-grey1 text-xs">MIN. PRICE</span>
                 <span className="text-white text-3xl">
-                  {(
+                  {
                     <input
                       autoComplete="off"
                       className="bg-black py-2 outline-none text-center w-full"
@@ -689,13 +711,13 @@ export default function AddLiquidity({}) {
                       value={minInput}
                       onChange={(e) => setMinInput(inputFilter(e.target.value))}
                     />
-                  )}
+                  }
                 </span>
               </div>
               <div className="border bg-black border-grey rounded-[4px] flex flex-col w-full items-center justify-center gap-y-3 h-32">
                 <span className="text-grey1 text-xs">MAX. PRICE</span>
                 <span className="text-white text-3xl">
-                  {(
+                  {
                     <input
                       autoComplete="off"
                       className="bg-black py-2 outline-none text-center w-full"
@@ -705,7 +727,7 @@ export default function AddLiquidity({}) {
                       value={maxInput}
                       onChange={(e) => setMaxInput(inputFilter(e.target.value))}
                     />
-                  )}
+                  }
                 </span>
               </div>
             </div>
@@ -736,13 +758,19 @@ export default function AddLiquidity({}) {
               <div className="flex items-center justify-between w-full text-xs  text-[#C9C9C9]">
                 <div className="text-xs text-[#4C4C4C]">Market Price</div>
                 <div className="uppercase">
-                  1 {((priceOrder == (tokenIn.callId == 0)) ? tokenIn : tokenOut).symbol} ={" "}
+                  1{" "}
+                  {
+                    (priceOrder == (tokenIn.callId == 0) ? tokenIn : tokenOut)
+                      .symbol
+                  }{" "}
+                  ={" "}
                   {!isNaN(parseFloat(rangePrice))
                     ? parseFloat(
                         invertPrice(rangePrice, priceOrder)
                       ).toPrecision(5) +
                       " " +
-                      ((priceOrder == (tokenIn.callId == 0)) ? tokenOut : tokenIn).symbol
+                      (priceOrder == (tokenIn.callId == 0) ? tokenOut : tokenIn)
+                        .symbol
                     : "?" + " " + tokenOut.symbol}
                 </div>
               </div>
