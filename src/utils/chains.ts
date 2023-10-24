@@ -18,6 +18,10 @@ export const supportedChainIds = {
     421613: 'arbitrumGoerli'
 };
 
+export const supportedNetworkNames = {
+    'arbitrum-goerli': 'arbitrumGoerli'
+};
+
 export const chainProperties = {
     mainnet: {
         chainName: 'Ethereum Mainnet',

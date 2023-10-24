@@ -25,7 +25,13 @@ import { feeTierMap, feeTiers } from "../../utils/pools";
 import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function AddLiquidity({}) {
-  const [chainId] = useConfigStore((state) => [state.chainId]);
+  const [
+    chainId,
+    networkName
+  ] = useConfigStore((state) => [
+    state.chainId,
+    state.networkName
+  ]);
 
   const [
     rangePoolAddress,
@@ -165,7 +171,7 @@ export default function AddLiquidity({}) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
+    args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
     watch: needsAllowanceIn,
     enabled: tokenIn.address != undefined,
@@ -181,7 +187,7 @@ export default function AddLiquidity({}) {
     address: tokenOut.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
+    args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
     watch: needsAllowanceOut,
     enabled: tokenOut.address != undefined,

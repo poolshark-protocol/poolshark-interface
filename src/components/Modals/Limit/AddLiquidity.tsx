@@ -21,9 +21,11 @@ import { parseUnits } from "../../../utils/math/valueMath";
 
 export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [
@@ -66,7 +68,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
+    args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
     watch: needsAllowance,
     enabled:
@@ -155,7 +157,8 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
         bnInput,
         signer,
         setMintGasFee,
-        setMintGasLimit
+        setMintGasLimit,
+        networkName
       );
     }
   }
@@ -249,10 +252,10 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                     </div>
                   </div>
                 </div>
-                {isConnected && stateChainName === "arbitrumGoerli" ? (
+                {isConnected && stateChainName === networkName ? (
                   allowanceIn.lt(bnInput) ? (
                     <SwapRouterApproveButton
-                      routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
+                      routerAddress={chainProperties[networkName]["routerAddress"]}
                       approveToken={tokenIn.address}
                       amount={bnInput}
                       tokenSymbol={tokenIn.symbol}
@@ -262,7 +265,7 @@ export default function LimitAddLiquidity({ isOpen, setIsOpen, address }) {
                       disabled={disabled || mintGasFee == "$0.00"}
                       to={address}
                       poolAddress={limitPoolAddress}
-                      routerAddress={chainProperties["arbitrumGoerli"]["routerAddress"]}
+                      routerAddress={chainProperties[networkName]["routerAddress"]}
                       lower={Number(limitPositionData.min)}
                       upper={Number(limitPositionData.max)}
                       positionId={BigNumber.from(limitPositionData.positionId)}

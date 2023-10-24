@@ -58,9 +58,11 @@ export default function Trade() {
     useInputBox();
 
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [
@@ -321,7 +323,7 @@ export default function Trade() {
   }
 
   const { data: poolQuotes } = useContractRead({
-    address: chainProperties["arbitrumGoerli"]["routerAddress"], //contract address,
+    address: chainProperties[networkName]["routerAddress"], //contract address,
     abi: poolsharkRouterABI, // contract abi,
     functionName: "multiQuote",
     args: [availablePools, quoteParams, true],
@@ -412,7 +414,7 @@ export default function Trade() {
 
   ////////////////////////////////Filled Amount
   const { data: filledAmountList } = useContractRead({
-    address: chainProperties['arbitrumGoerli']['routerAddress'],
+    address: chainProperties[networkName]['routerAddress'],
     abi: poolsharkRouterABI,
     functionName: "multiSnapshotLimit",
     args: [
@@ -593,7 +595,7 @@ export default function Trade() {
     address: tokenIn.address,
     abi: erc20ABI,
     functionName: "allowance",
-    args: [address, chainProperties["arbitrumGoerli"]["routerAddress"]],
+    args: [address, chainProperties[networkName]["routerAddress"]],
     chainId: chainId,
     watch: needsAllowanceIn,
     enabled: tokenIn.address != ZERO_ADDRESS,
@@ -819,7 +821,7 @@ export default function Trade() {
     if (tokenIn.userRouterAllowance?.gte(amountIn)) {
 
       await gasEstimateSwap(
-        chainProperties["arbitrumGoerli"]["routerAddress"],
+        chainProperties[networkName]["routerAddress"],
         swapPoolAddresses,
         swapParams,
         tokenIn,
@@ -848,7 +850,8 @@ export default function Trade() {
         amountIn,
         signer,
         setMintFee,
-        setMintGasLimit
+        setMintGasLimit,
+        networkName
       );
   }
 
@@ -988,7 +991,7 @@ export default function Trade() {
               <div className="flex items-end justify-between mt-2 mb-3">
                 {inputBoxIn("0", tokenIn, "tokenIn", handleInputBox)}
                 <div className="flex items-center gap-x-2">
-                  {isConnected && stateChainName === "arbitrumGoerli" ? (
+                  {isConnected && stateChainName === networkName ? (
                     <button
                       onClick={() => {
                         maxBalance(tokenIn.userBalance, "1", tokenIn);
@@ -1242,7 +1245,7 @@ export default function Trade() {
                     <div>
                       <SwapRouterApproveButton
                         routerAddress={
-                          chainProperties["arbitrumGoerli"]["routerAddress"]
+                          chainProperties[networkName]["routerAddress"]
                         }
                         approveToken={tokenIn.address}
                         tokenSymbol={tokenIn.symbol}
@@ -1253,7 +1256,7 @@ export default function Trade() {
                     <SwapRouterButton
                       disabled={tradeParams.disabled || needsAllowanceIn || swapGasLimit.eq(BN_ZERO)}
                       routerAddress={
-                        chainProperties["arbitrumGoerli"]["routerAddress"]
+                        chainProperties[networkName]["routerAddress"]
                       }
                       poolAddresses={swapPoolAddresses}
                       swapParams={swapParams ?? {}}
@@ -1268,7 +1271,7 @@ export default function Trade() {
                 {tokenIn.userRouterAllowance?.lt(amountIn) ? (
                   <SwapRouterApproveButton
                     routerAddress={
-                      chainProperties["arbitrumGoerli"]["routerAddress"]
+                      chainProperties[networkName]["routerAddress"]
                     }
                     approveToken={tokenIn.address}
                     tokenSymbol={tokenIn.symbol}
@@ -1277,7 +1280,7 @@ export default function Trade() {
                 ) : tradePoolData.id != ZERO_ADDRESS ? (
                   <LimitSwapButton
                     routerAddress={
-                      chainProperties["arbitrumGoerli"]["routerAddress"]
+                      chainProperties[networkName]["routerAddress"]
                     }
                     disabled={mintGasLimit.eq(BN_ZERO)}
                     poolAddress={tradePoolData.id}

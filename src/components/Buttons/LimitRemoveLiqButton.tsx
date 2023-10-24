@@ -33,9 +33,11 @@ export default function LimitRemoveLiqButton({
   const { data: signer } = useSigner();
 
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [

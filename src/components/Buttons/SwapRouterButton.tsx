@@ -20,9 +20,11 @@ export default function SwapRouterButton({
   gasLimit,
 }) {
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [setNeedsAllowanceIn, setNeedsBalanceIn] = useRangeLimitStore(

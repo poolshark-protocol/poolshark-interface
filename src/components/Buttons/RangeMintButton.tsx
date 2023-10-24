@@ -29,9 +29,11 @@ export default function RangeMintButton({
   setTxHash
 }) {
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   const [

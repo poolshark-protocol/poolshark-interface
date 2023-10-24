@@ -20,9 +20,11 @@ export default function SelectToken(props) {
   const [rawCoinList, setRawCoinList] = useState([]);
 
   const [
-    chainId
+    chainId,
+    networkName
   ] = useConfigStore((state) => [
     state.chainId,
+    state.networkName
   ]);
 
   useEffect(() => {

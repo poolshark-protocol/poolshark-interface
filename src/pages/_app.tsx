@@ -15,6 +15,7 @@ import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton';
 import { isMobile } from "react-device-detect";
 import { Analytics } from '@vercel/analytics/react'
 import { useConfigStore } from '../hooks/useConfigStore';
+import { supportedNetworkNames } from '../utils/chains';
 
 
 const { chains, provider } = configureChains(
@@ -60,18 +61,24 @@ function MyApp({ Component, pageProps }) {
   const [_isMobile, _setIsMobile] = useState(false);
 
   const [
-    setChainId
+    setChainId,
+    setNetworkName
   ] = useConfigStore((state) => [
     state.setChainId,
+    state.setNetworkName
   ]);
 
   const {
-    network: { chainId },
+    network: { chainId, name },
   } = useProvider();
 
   useEffect(() => {
     setChainId(chainId)
   }, [chainId]);
+
+  useEffect(() => {
+    setNetworkName(supportedNetworkNames[name] ?? 'unknownNetwork')
+  }, [name]);
 
   useEffect(() => {
     _setIsConnected(isConnected);
