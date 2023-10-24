@@ -23,7 +23,7 @@ const { chains, provider } = configureChains(
   [
     jsonRpcProvider({
       rpc: (chain) => ({
-        http: `https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/`,
+        http: `https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594`,
       }),
     }),
   ],
@@ -81,10 +81,12 @@ function MyApp({ Component, pageProps }) {
   }, [chainId]);
 
   useEffect(() => {
-    const properties = chainProperties[name] ? chainProperties[name] : chainProperties['arbitrumGoerli'];
-    setLimitSubgraph(properties['limitSubgraphUrl'])
-    setCoverSubgraph(properties['coverSubgraphUrl'])
-    setNetworkName(supportedNetworkNames[name] ?? 'unknownNetwork')
+    const networkName = supportedNetworkNames[name] ?? 'unknownNetwork'
+    const chainConstants = chainProperties[networkName] ? chainProperties[networkName]
+                                                        : chainProperties['arbitrumGoerli'];
+    setLimitSubgraph(chainConstants['limitSubgraphUrl'])
+    setCoverSubgraph(chainConstants['coverSubgraphUrl'])
+    setNetworkName(networkName)
   }, [name]);
 
   useEffect(() => {

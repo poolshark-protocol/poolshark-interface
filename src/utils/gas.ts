@@ -29,7 +29,7 @@ export const gasEstimateSwap = async (
 ): Promise<void> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/"
+      "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
     );
     const ethUsdQuery = await fetchEthPrice();
     const ethUsdPrice = ethUsdQuery["data"]["bundles"]["0"]["ethPriceUSD"];
@@ -80,7 +80,7 @@ export const gasEstimateMintLimit = async (
 ): Promise<void> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/"
+      "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
     );
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
@@ -146,7 +146,7 @@ export const gasEstimateCreateAndMintLimit = async (
 ): Promise<void> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/"
+      "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
     );
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
@@ -219,7 +219,7 @@ export const gasEstimateBurnLimit = async (
 ): Promise<void> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/"
+      "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
     );
     const price = await fetchEthPrice();
     const ethUsdPrice = price["data"]["bundles"]["0"]["ethPriceUSD"];
@@ -281,7 +281,7 @@ export const gasEstimateRangeMint = async (
 ): Promise<gasEstimateResult> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/"
+      "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
     );
     if (
       !rangePoolRoute ||
@@ -347,7 +347,7 @@ export const gasEstimateRangeCreateAndMint = async (
 ): Promise<gasEstimateResult> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/"
+      "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
     );
     if (!provider || (amount0.eq(BN_ZERO) && amount1.eq(BN_ZERO))) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
@@ -410,7 +410,7 @@ export const gasEstimateRangeBurn = async (
 ): Promise<gasEstimateResult> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/"
+      "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
     );
     if (
       !rangePoolRoute ||
@@ -462,7 +462,7 @@ export const gasEstimateCoverMint = async (
 ): Promise<gasEstimateResult> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/"
+      "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
     );
     if (!coverPoolRoute || !provider || !signer) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
@@ -525,7 +525,7 @@ export const gasEstimateCoverCreateAndMint = async (
 ): Promise<gasEstimateResult> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/"
+      "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
     );
     if (!provider || !signer) {
       return { formattedPrice: "$0.00", gasUnits: BN_ZERO };
@@ -590,7 +590,7 @@ export const gasEstimateCoverBurn = async (
 ): Promise<gasEstimateResult> => {
   try {
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/"
+      "https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594"
     );
 
     if (!coverPoolRoute || !provider) {

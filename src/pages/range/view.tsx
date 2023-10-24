@@ -20,6 +20,7 @@ import ExternalLinkIcon from "../../components/Icons/ExternalLinkIcon";
 import RangeCollectButton from "../../components/Buttons/RangeCollectButton";
 import router from "next/router";
 import { useConfigStore } from "../../hooks/useConfigStore";
+import { ZERO_ADDRESS } from "../../utils/math/constants";
 
 export default function ViewRange() {
   const [chainId] = useConfigStore((state) => [state.chainId]);
@@ -140,20 +141,24 @@ export default function ViewRange() {
   }, [router.query.feeTier]);
 
   useEffect(() => {
-    getRangePoolRatios();
-  }, [amount0, amount1, amount0Fees, amount1Fees]);
+    setUsdValues();
+  }, [amount0, amount1, amount0Fees, amount1Fees, tokenIn, tokenOut, rangePositionData]);
 
-  const getRangePoolRatios = () => {
+  const setUsdValues = () => {
     try {
       if (rangePoolData != undefined) {
-        setAmount0Usd(parseFloat((amount0 * tokenIn.USDPrice).toPrecision(6)));
-        setAmount1Usd(parseFloat((amount1 * tokenOut.USDPrice).toPrecision(6)));
-        setAmount0FeesUsd(
-          parseFloat((amount0Fees * tokenIn.USDPrice).toPrecision(3))
-        );
-        setAmount1FeesUsd(
-          parseFloat((amount1Fees * tokenOut.USDPrice).toPrecision(3))
-        );
+        if (!isNaN(tokenIn.USDPrice)) {
+          setAmount0Usd(parseFloat((amount0 * tokenIn.USDPrice).toPrecision(6)))
+          setAmount0FeesUsd(
+            parseFloat((amount0Fees * tokenIn.USDPrice).toFixed(2))
+          );
+        }
+        if (!isNaN(tokenOut.USDPrice)) {
+          setAmount1Usd(parseFloat((amount1 * tokenOut.USDPrice).toPrecision(6)))
+          setAmount1FeesUsd(
+            parseFloat((amount1Fees * tokenOut.USDPrice).toFixed(2))
+          );
+        }
       }
     } catch (error) {
       console.log(error);
@@ -224,7 +229,7 @@ export default function ViewRange() {
         );
       }
     }
-  }, []);
+  }, [rangePoolData?.token0, rangePoolData?.token1]);
 
   useEffect(() => {
     if (rangePositionData.min && rangePositionData.max) {
@@ -303,9 +308,11 @@ export default function ViewRange() {
     args: [rangePositionData.positionId],
     chainId: chainId,
     watch: true,
-    enabled: isConnected && rangePositionData.positionId != undefined,
+    enabled: isConnected && 
+             rangePositionData.positionId != undefined && 
+             rangePoolAddress != ZERO_ADDRESS,
     onError(error) {
-      //console.log("Error snapshot Range", error);
+      console.log("Error snapshot Range", error);
     },
   });
 
@@ -317,12 +324,11 @@ export default function ViewRange() {
     try {
       if (feesOwed) {
         const fees0 = parseFloat(
-          ethers.utils.formatUnits(feesOwed[2], tokenIn.decimals)
+          ethers.utils.formatUnits(feesOwed[2] ?? '0', tokenIn.decimals)
         );
         const fees1 = parseFloat(
-          ethers.utils.formatUnits(feesOwed[3], tokenIn.decimals)
+          ethers.utils.formatUnits(feesOwed[3] ?? '0', tokenOut.decimals)
         );
-
         setAmount0Fees(fees0);
         setAmount1Fees(fees1);
       }
@@ -335,7 +341,7 @@ export default function ViewRange() {
 
   useEffect(() => {
     setMintButtonState();
-  }, [tokenIn, rangeMintParams.tokenInAmount]);
+  }, [tokenIn, rangeMintParams?.tokenInAmount]);
 
   ////////////////////////////////Return
 
