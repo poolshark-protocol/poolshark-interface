@@ -22,10 +22,14 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 export default function AddLiquidity({}) {
   const [
     chainId,
-    networkName
+    networkName,
+    limitSubgraph,
+    coverSubgraph,
   ] = useConfigStore((state) => [
     state.chainId,
-    state.networkName
+    state.networkName,
+    state.limitSubgraph,
+    state.coverSubgraph,
   ]);
 
   const [
@@ -121,7 +125,7 @@ export default function AddLiquidity({}) {
   }, [router.query.feeTier]);
 
   async function updatePools(feeAmount: number) {
-    setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount);
+    setRangePoolFromFeeTier(tokenIn, tokenOut, feeAmount, limitSubgraph);
   }
 
   //sames as updatePools but triggered from the html

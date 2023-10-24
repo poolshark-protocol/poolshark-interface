@@ -5,6 +5,7 @@ import {
   getCoverTickIfNotZeroForOne,
   getCoverTickIfZeroForOne,
 } from "./queries";
+import { CoverSubgraph, LimitSubgraph } from "./types";
 
 export const getClaimTick = async (
   poolAddress: string,
@@ -13,6 +14,7 @@ export const getClaimTick = async (
   zeroForOne: boolean,
   epochLast: number,
   isCover: boolean,
+  client: LimitSubgraph | CoverSubgraph,
   latestTick?: number
 ) => {
   // default to start tick
@@ -20,8 +22,8 @@ export const getClaimTick = async (
   if (zeroForOne) {
     // run claim tick query
     const claimTickQuery = isCover
-      ? await getCoverTickIfZeroForOne(minLimit, maxLimit, poolAddress, epochLast)
-      : await getLimitTickIfZeroForOne(minLimit, maxLimit, poolAddress, epochLast);
+      ? await getCoverTickIfZeroForOne(client, minLimit, maxLimit, poolAddress, epochLast)
+      : await getLimitTickIfZeroForOne(client, minLimit, maxLimit, poolAddress, epochLast);
     // check data length
     const claimTickDataLength = isCover
       ? claimTickQuery["data"]["ticks"].length
@@ -49,8 +51,8 @@ export const getClaimTick = async (
   } else {
     // run claim tick query
     const claimTickQuery = isCover
-      ? await getCoverTickIfNotZeroForOne(minLimit, maxLimit, poolAddress, epochLast)
-      : await getLimitTickIfNotZeroForOne(minLimit, maxLimit, poolAddress, epochLast);
+      ? await getCoverTickIfNotZeroForOne(client, minLimit, maxLimit, poolAddress, epochLast)
+      : await getLimitTickIfNotZeroForOne(client, minLimit, maxLimit, poolAddress, epochLast);
     // check data length
     const claimTickDataLength = isCover
       ? claimTickQuery["data"]["ticks"].length
@@ -134,7 +136,7 @@ export function mapRangePools(rangePools) {
   return mappedRangePools;
 }
 
-export function mapUserCoverPositions(coverPositions) {
+export function mapUserCoverPositions(coverPositions, coverSubgraph: CoverSubgraph) {
   const mappedCoverPositions = [];
   coverPositions.map((coverPosition) => {
     const coverPositionData = {
@@ -175,7 +177,8 @@ export function mapUserCoverPositions(coverPositions) {
       coverPosition.max,
       coverPosition.zeroForOne,
       coverPosition.epochLast,
-      true
+      true,
+      coverSubgraph,
     );
   });
   return mappedCoverPositions;

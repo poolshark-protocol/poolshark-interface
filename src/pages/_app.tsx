@@ -15,7 +15,7 @@ import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton';
 import { isMobile } from "react-device-detect";
 import { Analytics } from '@vercel/analytics/react'
 import { useConfigStore } from '../hooks/useConfigStore';
-import { supportedNetworkNames } from '../utils/chains';
+import { chainProperties, supportedNetworkNames } from '../utils/chains';
 
 
 const { chains, provider } = configureChains(
@@ -62,10 +62,14 @@ function MyApp({ Component, pageProps }) {
 
   const [
     setChainId,
-    setNetworkName
+    setNetworkName,
+    setLimitSubgraph,
+    setCoverSubgraph,
   ] = useConfigStore((state) => [
     state.setChainId,
-    state.setNetworkName
+    state.setNetworkName,
+    state.setLimitSubgraph,
+    state.setCoverSubgraph,
   ]);
 
   const {
@@ -77,6 +81,9 @@ function MyApp({ Component, pageProps }) {
   }, [chainId]);
 
   useEffect(() => {
+    const properties = chainProperties[name] ? chainProperties[name] : chainProperties['arbitrumGoerli'];
+    setLimitSubgraph(properties['limitSubgraphUrl'])
+    setCoverSubgraph(properties['coverSubgraphUrl'])
     setNetworkName(supportedNetworkNames[name] ?? 'unknownNetwork')
   }, [name]);
 

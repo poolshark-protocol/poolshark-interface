@@ -38,10 +38,12 @@ import { useConfigStore } from "../../hooks/useConfigStore";
 export default function CreateCover(props: any) {
   const [
     chainId,
-    networkName
+    networkName,
+    coverSubgraph
   ] = useConfigStore((state) => [
     state.chainId,
-    state.networkName
+    state.networkName,
+    state.coverSubgraph
   ]);
 
   const [
@@ -216,7 +218,7 @@ export default function CreateCover(props: any) {
   }, [tokenIn.name, tokenOut.name]);
 
   async function updatePools(feeAmount: string) {
-    setCoverPoolFromVolatility(tokenIn, tokenOut, feeAmount);
+    setCoverPoolFromVolatility(tokenIn, tokenOut, feeAmount, coverSubgraph);
   }
 
   //sames as updatePools but triggered from the html

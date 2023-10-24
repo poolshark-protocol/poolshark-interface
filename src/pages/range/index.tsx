@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { logoMap } from "../../utils/tokens";
 import { tokenRangeLimit } from "../../utils/types";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function Range() {
   const { address, isDisconnected } = useAccount();
@@ -24,6 +25,14 @@ export default function Range() {
   const [allRangePools, setAllRangePools] = useState([]);
   const [isPositionsLoading, setIsPositionsLoading] = useState(false);
   const [isPoolsLoading, setIsPoolsLoading] = useState(false);
+
+  const [
+    limitSubgraph,
+    coverSubgraph
+  ] = useConfigStore((state) => [
+    state.limitSubgraph,
+    state.coverSubgraph
+  ]);
 
   const [
     setTokenIn,
@@ -50,7 +59,7 @@ export default function Range() {
 
   async function getRangePoolData() {
     setIsPoolsLoading(true);
-    const data = await fetchRangePools();
+    const data = await fetchRangePools(limitSubgraph);
     if (data["data"]) {
       const pools = data["data"].limitPools;
       setAllRangePools(mapRangePools(pools));
@@ -74,7 +83,7 @@ export default function Range() {
   async function getUserRangePositionData() {
     try {
       setIsPositionsLoading(true);
-      const data = await fetchRangePositions(address);
+      const data = await fetchRangePositions(limitSubgraph, address);
       if (data["data"].rangePositions) {
         setAllRangePositions(
           mapUserRangePositions(data["data"].rangePositions)
@@ -130,7 +139,8 @@ export default function Range() {
               setRangePoolFromFeeTier(
                 tokenIn,
                 tokenOut,
-                allRangePools[0].feeTier.toString()
+                allRangePools[0].feeTier.toString(),
+                limitSubgraph,
               );
               router.push({
                 pathname: "/range/add-liquidity",

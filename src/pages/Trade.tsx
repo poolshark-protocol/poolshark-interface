@@ -59,10 +59,12 @@ export default function Trade() {
 
   const [
     chainId,
-    networkName
+    networkName,
+    limitSubgraph
   ] = useConfigStore((state) => [
     state.chainId,
-    state.networkName
+    state.networkName,
+    state.limitSubgraph
   ]);
 
   const [
@@ -277,7 +279,7 @@ export default function Trade() {
 
   useEffect(() => {
     if (tokenIn.address != ZERO_ADDRESS && tokenOut.address === ZERO_ADDRESS) {
-      getLimitTokenUsdPrice(tokenIn.address, setTokenInTradeUSDPrice);
+      getLimitTokenUsdPrice(tokenIn.address, setTokenInTradeUSDPrice, limitSubgraph);
     }
   }, [tokenIn.address]);
 
@@ -303,7 +305,7 @@ export default function Trade() {
   }, [tokenIn.address, tokenOut.address]);
 
   async function updatePools(amount: BigNumber, isAmountIn: boolean) {
-    const pools = await getSwapPools(tokenIn, tokenOut, setTradePoolData);
+    const pools = await getSwapPools(limitSubgraph, tokenIn, tokenOut, setTradePoolData);
     const poolAdresses: string[] = [];
     const quoteList: QuoteParams[] = [];
     if (pools) {
@@ -476,7 +478,7 @@ export default function Trade() {
 
   async function getUserLimitPositionData() {
     try {
-      const data = await fetchLimitPositions(address.toLowerCase());
+      const data = await fetchLimitPositions(limitSubgraph, address.toLowerCase());
       if (data["data"]) {
         setAllLimitPositions(
           mapUserLimitPositions(data["data"].limitPositions)
@@ -504,7 +506,8 @@ export default function Trade() {
             Number(allLimitPositions[i].max),
             allLimitPositions[i].tokenIn.id.localeCompare(allLimitPositions[i].tokenOut.id) < 0,
             Number(allLimitPositions[i].epochLast),
-            false
+            false,
+            limitSubgraph
           ));
           mappedLimitSnapshotParams[i][4] = allLimitPositions[i].tokenIn.id
             .localeCompare(allLimitPositions[i].tokenOut.id) < 0;

@@ -38,10 +38,14 @@ import { mapUserLimitPositions, mapUserRangePositions } from "../../utils/maps";
 export default function CoverExistingPool({ goBack }) {
   const [
     chainId,
-    networkName
+    networkName,
+    limitSubgraph,
+    coverSubgraph,
   ] = useConfigStore((state) => [
     state.chainId,
-    state.networkName
+    state.networkName,
+    state.limitSubgraph,
+    state.coverSubgraph
   ]);
 
   const [
@@ -233,7 +237,7 @@ export default function CoverExistingPool({ goBack }) {
   }, [tokenIn.name, tokenOut.name]);
 
   async function updatePools(feeAmount: string) {
-    setCoverPoolFromVolatility(tokenIn, tokenOut, feeAmount);
+    setCoverPoolFromVolatility(tokenIn, tokenOut, feeAmount, coverSubgraph);
   }
 
   //sames as updatePools but triggered from the html
@@ -333,7 +337,7 @@ export default function CoverExistingPool({ goBack }) {
 
   useEffect(() => {
     if (!coverPoolData.id) {
-      setCoverPoolFromVolatility(tokenIn, tokenOut, "1000");
+      setCoverPoolFromVolatility(tokenIn, tokenOut, "1000", coverSubgraph);
     }
 
     refetchRangePositionData();
@@ -351,7 +355,7 @@ export default function CoverExistingPool({ goBack }) {
 
   async function refetchRangePositionData() {
     //refetch rangePositionData frm positionId in router params
-    const data = await fetchRangePositions(address);
+    const data = await fetchRangePositions(limitSubgraph, address);
     if (data["data"]) {
       const positions = mapUserRangePositions(data["data"].rangePositions);
       const positionId = router.query.positionId;

@@ -25,6 +25,14 @@ export default function ViewRange() {
   const [chainId] = useConfigStore((state) => [state.chainId]);
 
   const [
+    limitSubgraph,
+    coverSubgraph
+  ] = useConfigStore((state) => [
+    state.limitSubgraph,
+    state.coverSubgraph
+  ]);
+
+  const [
     rangePoolAddress,
     rangePoolData,
     rangePositionData,
@@ -128,7 +136,7 @@ export default function ViewRange() {
   ////////////////////////Pool Data
 
   useEffect(() => {
-    setRangePoolFromFeeTier(tokenIn, tokenOut, router.query.feeTier);
+    setRangePoolFromFeeTier(tokenIn, tokenOut, router.query.feeTier, limitSubgraph);
   }, [router.query.feeTier]);
 
   useEffect(() => {
@@ -176,7 +184,7 @@ export default function ViewRange() {
   async function getUserRangePositionData() {
     setIsLoading(true);
     try {
-      const data = await fetchRangePositions(address);
+      const data = await fetchRangePositions(limitSubgraph, address);
       if (data["data"].rangePositions) {
         const mappedPositions = mapUserRangePositions(
           data["data"].rangePositions

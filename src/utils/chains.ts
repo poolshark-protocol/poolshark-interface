@@ -63,6 +63,7 @@ export const chainProperties = {
         routerAddress: '0xa6fc46d68fc05f0b68d0f79d548391e6d6a576ef' as `0x${string}`,
         coverPoolFactory: '0x479C2Df7eD63ea26146Ac2092C55047C3928A5A6',
         limitPoolFactory: '0xbd6d010bcecc7440a72889546411e0edbb333ea2',
-
+        coverSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli',
+        limitSubgraphUrl: 'https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2'
     },
 };

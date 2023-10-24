@@ -16,8 +16,17 @@ import { fetchCoverPools } from "../../utils/queries";
 import { mapCoverPools } from "../../utils/maps";
 import { logoMap } from "../../utils/tokens";
 import { tokenCover } from "../../utils/types";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function Cover() {
+  const [
+    limitSubgraph,
+    coverSubgraph
+  ] = useConfigStore((state) => [
+    state.limitSubgraph,
+    state.coverSubgraph
+  ]);
+
   const [
     setCoverTokenIn,
     setCoverTokenOut,
@@ -65,10 +74,10 @@ export default function Cover() {
 
   async function getUserCoverPositionData() {
     setIsPositionsLoading(true);
-    const data = await fetchCoverPositions(address);
+    const data = await fetchCoverPositions(coverSubgraph, address);
     if (data["data"]) {
       const positions = data["data"].positions;
-      const positionData = mapUserCoverPositions(positions);
+      const positionData = mapUserCoverPositions(positions, coverSubgraph);
       setAllCoverPositions(positionData);
       setIsPositionsLoading(false);
     }
@@ -82,7 +91,7 @@ export default function Cover() {
 
   async function getCoverPoolData() {
     setIsPoolsLoading(true);
-    const data = await fetchCoverPools();
+    const data = await fetchCoverPools(coverSubgraph);
     if (data["data"]) {
       const pools = data["data"].coverPools;
       setAllCoverPools(mapCoverPools(pools));
@@ -143,7 +152,8 @@ export default function Cover() {
                 setCoverPoolFromVolatility(
                   tokenIn,
                   tokenOut,
-                  allCoverPools[0].volatilityTier.feeAmount.toString()
+                  allCoverPools[0].volatilityTier.feeAmount.toString(),
+                  coverSubgraph
                 );
                 router.push({
                   pathname: "/cover/create",
