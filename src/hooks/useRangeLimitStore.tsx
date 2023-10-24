@@ -618,6 +618,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           if (
             pool["data"]["limitPools"][i]["feeTier"]["feeAmount"] == volatility
           ) {
+            console.log('pool found', volatility, pool["data"]["limitPools"][i])
             poolFound = true;
             set(() => ({
               rangePoolAddress: pool["data"]["limitPools"][i]["id"],

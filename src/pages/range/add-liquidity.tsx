@@ -138,6 +138,7 @@ export default function AddLiquidity({}) {
   //this sets the default position price delta
   useEffect(() => {
     if (rangePoolData.poolPrice && rangePoolData.tickAtPrice) {
+      console.log('tick at price check', rangePoolData?.tickAtPrice, rangePoolData?.poolPrice)
       const sqrtPrice = JSBI.BigInt(rangePoolData.poolPrice);
       const tickAtPrice = rangePoolData.tickAtPrice;
       if (rangePoolAddress != ZERO_ADDRESS && rangePrice == undefined) {
@@ -464,6 +465,7 @@ export default function AddLiquidity({}) {
       startPrice &&
       !isNaN(parseFloat(startPrice))
     ) {
+      console.log('setting range pool data from empty')
       setRangePoolData({
         poolPrice: String(
           TickMath.getSqrtPriceAtPriceString(
