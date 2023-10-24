@@ -1011,6 +1011,8 @@ export default function Trade() {
                     tokenOut={tokenOut}
                     setTokenOut={setTokenOut}
                     displayToken={tokenIn}
+                    amount={exactIn ? displayIn : displayOut}
+                    isAmountIn={exactIn}
                   />
                 </div>
               </div>
@@ -1079,6 +1081,8 @@ export default function Trade() {
                     setTokenOut={setTokenOut}
                     setPairSelected={setPairSelected}
                     displayToken={tokenOut}
+                    amount={exactIn ? displayIn : displayOut}
+                    isAmountIn={exactIn}
                   />
                 </div>
               </div>

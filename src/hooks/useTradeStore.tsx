@@ -63,13 +63,13 @@ type TradeLimitAction = {
   //
   setPairSelected: (pairSelected: boolean) => void;
   //
-  setTokenIn: (tokenOut: any, newToken: any) => void;
+  setTokenIn: (tokenOut: any, newToken: any, amount: string, isAmountIn: boolean) => void;
   setTokenInAmount: (amount: BigNumber) => void;
   setTokenInTradeUSDPrice: (price: number) => void;
   setTokenInTradeAllowance: (allowance: BigNumber) => void;
   setTokenInBalance: (balance: string) => void;
   //
-  setTokenOut: (tokenIn: any, newToken: any) => void;
+  setTokenOut: (tokenIn: any, newToken: any, amount: string, isAmountIn: boolean) => void;
   setTokenOutAmount: (amount: BigNumber) => void;
   setTokenOutTradeUSDPrice: (price: number) => void;
   setTokenOutTradeAllowance: (allowance: BigNumber) => void;
@@ -206,7 +206,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       pairSelected: pairSelected,
     }));
   },
-  setTokenIn: (tokenOut, newToken: tokenSwap) => {
+  setTokenIn: (tokenOut, newToken: tokenSwap, amount: string, isAmountIn: boolean) => {
     //if tokenOut is selected
     if (tokenOut.address != initialTradeState.tokenOut.address) {
       //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to initialState
@@ -234,6 +234,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             userBalance: state.tokenIn.userBalance,
             userRouterAllowance: state.tokenIn.userRouterAllowance,
           },
+          amountIn: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.amountIn,
+          amountOut: isAmountIn ? state.amountOut : parseUnits(amount, state.tokenIn.decimals)
         }));
       } else {
         //if tokens are different
@@ -297,7 +299,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       tokenOut: { ...state.tokenOut, USDPrice: newPrice },
     }));
   },
-  setTokenOut: (tokenIn, newToken: tokenSwap) => {
+  setTokenOut: (tokenIn, newToken: tokenSwap, amount: string, isAmountIn: boolean) => {
     //if tokenIn exists
     if (tokenIn.address != initialTradeState.tokenOut.address) {
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
@@ -325,6 +327,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             userBalance: state.tokenIn.userBalance,
             userRouterAllowance: state.tokenIn.userRouterAllowance,
           },
+          amountIn: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.amountIn,
+          amountOut: isAmountIn ? state.amountOut : parseUnits(amount, state.tokenIn.decimals)
         }));
       } else {
         //if tokens are different
