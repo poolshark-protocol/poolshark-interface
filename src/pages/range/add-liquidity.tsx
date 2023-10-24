@@ -619,7 +619,7 @@ export default function AddLiquidity({}) {
                       Number(
                         ethers.utils.formatUnits(
                           rangeMintParams.tokenOutAmount,
-                          18
+                          tokenOut.decimals
                         )
                       )
                     ).toFixed(2)
