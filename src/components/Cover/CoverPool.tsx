@@ -43,8 +43,8 @@ export default function CoverPool({ pool, href }) {
       decimals: pool.tokenOne.decimals,
       coverUSDPrice: pool.tokenOne.usdPrice
     } as tokenCover;
-    setCoverTokenIn(tokenOut, tokenIn);
-    setCoverTokenOut(tokenIn, tokenOut);
+    setCoverTokenIn(tokenOut, tokenIn, '0', true);
+    setCoverTokenOut(tokenIn, tokenOut, '0', false);
     setCoverPoolFromVolatility(
       tokenIn,
       tokenOut,

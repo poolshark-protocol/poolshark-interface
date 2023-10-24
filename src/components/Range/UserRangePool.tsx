@@ -208,13 +208,13 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
       decimals: rangePosition.tokenOne.decimals,
     } as tokenCover;
     if (href.includes("cover")) {
-      setCoverTokenIn(tokenOutNew, tokenInNew);
-      setCoverTokenOut(tokenInNew, tokenOutNew);
+      setCoverTokenIn(tokenOutNew, tokenInNew, '0', true);
+      setCoverTokenOut(tokenInNew, tokenOutNew, '0', false);
       setRangePositionData(rangePosition);
       setCoverPoolFromVolatility(tokenInNew, tokenOutNew, "1000", coverSubgraph);
     } else {
-      setRangeTokenIn(tokenOutNew, tokenInNew);
-      setRangeTokenOut(tokenInNew, tokenOutNew);
+      setRangeTokenIn(tokenOutNew, tokenInNew, '0', true);
+      setRangeTokenOut(tokenInNew, tokenOutNew, '0', false);
       setRangePositionData(rangePosition);
       //async setter should be last
       setRangePoolFromFeeTier(

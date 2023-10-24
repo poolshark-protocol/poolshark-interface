@@ -134,8 +134,8 @@ export default function Range() {
                 logoURI: logoMap[allRangePools[0].tokenOne.symbol],
                 symbol: allRangePools[0].tokenOne.symbol,
               } as tokenRangeLimit;
-              setTokenIn(tokenOut, tokenIn);
-              setTokenOut(tokenIn, tokenOut);
+              setTokenIn(tokenOut, tokenIn, '0', true);
+              setTokenOut(tokenIn, tokenOut, '0', false);
               setRangePoolFromFeeTier(
                 tokenIn,
                 tokenOut,

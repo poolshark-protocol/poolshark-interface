@@ -37,8 +37,8 @@ export default function RangePool({ rangePool, href }) {
       symbol: rangePool.tokenOne.symbol,
       decimals: rangePool.tokenOne.decimals
     };
-    setRangeTokenIn(tokenOut, tokenIn);
-    setRangeTokenOut(tokenIn, tokenOut);
+    setRangeTokenIn(tokenOut, tokenIn, '0', true);
+    setRangeTokenOut(tokenIn, tokenOut, '0', false);
     // setRangePoolFromFeeTier(tokenIn, tokenOut, rangePool.feeTier);
     router.push({
       pathname: href,

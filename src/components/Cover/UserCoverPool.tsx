@@ -131,8 +131,8 @@ export default function UserCoverPool({
       logoURI: logoMap[coverPosition.tokenOne.symbol],
       address: coverPosition.tokenOne.id,
     } as tokenCover;
-    setTokenIn(tokenOutNew, tokenInNew);
-    setTokenOut(tokenInNew, tokenOutNew);
+    setTokenIn(tokenOutNew, tokenInNew, '0', true);
+    setTokenOut(tokenInNew, tokenOutNew, '0', false);
     setCoverPoolFromVolatility(
       tokenInNew,
       tokenOutNew,

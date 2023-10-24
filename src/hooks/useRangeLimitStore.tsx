@@ -10,6 +10,7 @@ import {
   getLimitPoolFromFactory,
   getRangePoolFromFactory,
 } from "../utils/queries";
+import { parseUnits } from "../utils/math/valueMath";
 
 type RangeLimitState = {
   //rangePoolAddress for current token pairs
@@ -82,13 +83,13 @@ type RangeLimitAction = {
   //
   setPairSelected: (pairSelected: boolean) => void;
   //
-  setTokenIn: (tokenOut: any, newToken: any) => void;
+  setTokenIn: (tokenOut: any, newToken: any, amount: string, isAmountIn: boolean) => void;
   setTokenInAmount: (amount: BigNumber) => void;
   setTokenInRangeUSDPrice: (price: number) => void;
   setTokenInRangeAllowance: (allowance: BigNumber) => void;
   setTokenInBalance: (balance: string) => void;
   //
-  setTokenOut: (tokenIn: any, newToken: any) => void;
+  setTokenOut: (tokenIn: any, newToken: any, amount: string, isAmountIn: boolean) => void;
   setTokenOutAmount: (amount: BigNumber) => void;
   setTokenOutRangeUSDPrice: (price: number) => void;
   setTokenOutRangeAllowance: (allowance: BigNumber) => void;
@@ -259,7 +260,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         pairSelected: pairSelected,
       }));
     },
-    setTokenIn: (tokenOut, newToken: tokenRangeLimit) => {
+    setTokenIn: (tokenOut, newToken: tokenRangeLimit, amount: string, isAmountIn: boolean) => {
       //if tokenOut is selected
       if (tokenOut.symbol != "Select Token") {
         //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to  initialState
@@ -287,16 +288,34 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               userBalance: state.tokenIn.userBalance,
               userRouterAllowance: state.tokenIn.userRouterAllowance,
             },
+            rangeMintParams: {
+              ...state.rangeMintParams,
+              tokenInAmount: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.rangeMintParams.tokenInAmount,
+              tokenOutAmount: isAmountIn ? state.rangeMintParams.tokenOutAmount : parseUnits(amount, state.tokenIn.decimals),
+            },
+            limitMintParams: {
+              ...state.limitMintParams,
+              tokenInAmount: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.limitMintParams.tokenInAmount,
+              tokenOutAmount: isAmountIn ? state.limitMintParams.tokenOutAmount : parseUnits(amount, state.tokenIn.decimals),
+            },
           }));
         } else {
           //if tokens are different
-          set(() => ({
+          set((state) => ({
             tokenIn: {
               callId:
                 newToken.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
               ...newToken,
             },
             pairSelected: true,
+            rangeMintParams: {
+              ...state.rangeMintParams,
+              tokenInAmount: isAmountIn ? parseUnits(amount, newToken.decimals) : state.rangeMintParams.tokenInAmount,
+            },
+            limitMintParams: {
+              ...state.limitMintParams,
+              tokenInAmount: isAmountIn ? parseUnits(amount, newToken.decimals) : state.limitMintParams.tokenInAmount,
+            },
           }));
         }
       } else {
@@ -338,7 +357,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         tokenOut: { ...state.tokenOut, USDPrice: newPrice },
       }));
     },
-    setTokenOut: (tokenIn, newToken: tokenRangeLimit) => {
+    setTokenOut: (tokenIn, newToken: tokenRangeLimit, amount: string, isAmountIn: boolean) => {
       //if tokenIn exists
       if (
         tokenIn.address != initialRangeLimitState.tokenOut.address ||
@@ -369,14 +388,32 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               userBalance: state.tokenIn.userBalance,
               userRouterAllowance: state.tokenIn.userRouterAllowance,
             },
+            rangeMintParams: {
+              ...state.rangeMintParams,
+              tokenInAmount: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.rangeMintParams.tokenInAmount,
+              tokenOutAmount: isAmountIn ? state.rangeMintParams.tokenOutAmount : parseUnits(amount, state.tokenIn.decimals),
+            },
+            limitMintParams: {
+              ...state.limitMintParams,
+              tokenInAmount: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.limitMintParams.tokenInAmount,
+              tokenOutAmount: isAmountIn ? state.limitMintParams.tokenOutAmount : parseUnits(amount, state.tokenIn.decimals),
+            },
           }));
         } else {
           //if tokens are different
-          set(() => ({
+          set((state) => ({
             tokenOut: {
               callId:
                 newToken.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
               ...newToken,
+            },
+            rangeMintParams: {
+              ...state.rangeMintParams,
+              tokenOutAmount: isAmountIn ? state.rangeMintParams.tokenOutAmount : parseUnits(amount, newToken.decimals),
+            },
+            limitMintParams: {
+              ...state.limitMintParams,
+              tokenOutAmount: isAmountIn ? state.limitMintParams.tokenOutAmount : parseUnits(amount, newToken.decimals),
             },
             pairSelected: true,
           }));

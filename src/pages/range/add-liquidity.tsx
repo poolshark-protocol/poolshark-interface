@@ -102,8 +102,8 @@ export default function AddLiquidity({}) {
   ]);
 
   const { address, isConnected } = useAccount();
-  const { inputBox: inputBoxIn, setDisplay: setDisplayIn } = useInputBox();
-  const { inputBox: inputBoxOut, setDisplay: setDisplayOut } = useInputBox();
+  const { inputBox: inputBoxIn, setDisplay: setDisplayIn, display: displayIn } = useInputBox();
+  const { inputBox: inputBoxOut, setDisplay: setDisplayOut, display: displayOut } = useInputBox();
   const [showTooltip, setShowTooltip] = useState(false);
   const [amountInSetLast, setAmountInSetLast] = useState(true);
   const [amountInDisabled, setAmountInDisabled] = useState(false);
@@ -603,6 +603,8 @@ export default function AddLiquidity({}) {
                     tokenOut={tokenOut}
                     setTokenOut={setTokenOut}
                     displayToken={tokenIn}
+                    amount={amountInSetLast ? displayIn : displayOut}
+                    isAmountIn={amountInSetLast}
                   />
                 </div>
               </div>
@@ -652,6 +654,8 @@ export default function AddLiquidity({}) {
                     setTokenOut={setTokenOut}
                     setPairSelected={setPairSelected}
                     displayToken={tokenOut}
+                    amount={amountInSetLast ? displayIn : displayOut}
+                    isAmountIn={amountInSetLast}
                   />
                 </div>
               </div>
