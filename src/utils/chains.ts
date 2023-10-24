@@ -52,7 +52,7 @@ export const chainProperties = {
     arbitrumGoerli: {
         chainName: 'Arbitrum Goerli Test Network',
         logo:"https://assets.trustwalletapp.com/blockchains/polygon/assets/0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619/logo.png",
-        rpcUrls: ['https://nd-646-506-606.p2pify.com/3f07e8105419a04fdd96a890251cb594'],
+        rpcUrls: ['https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/'],
         blockExplorerUrls: ['https://goerli.arbiscan.io/'],
         nativeCurrency: {
             name: 'ETH',

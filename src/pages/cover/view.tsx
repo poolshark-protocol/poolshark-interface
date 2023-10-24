@@ -186,7 +186,7 @@ export default function ViewCover() {
         );
       }
     }
-  }, []);
+  }, [coverPoolData?.token0, coverPoolData?.token1]);
 
   useEffect(() => {
     getCoverPoolRatios();
@@ -320,7 +320,8 @@ export default function ViewCover() {
       BigNumber.from(claimTick).lte(coverPositionData.upperTick) &&
       isConnected &&
       coverPoolAddress != undefined &&
-      address != undefined,
+      address != undefined && 
+      coverPositionData?.positionId != undefined,
     onError(error) {
       console.log("Error snapshot Cover", error);
     },
