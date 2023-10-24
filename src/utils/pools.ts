@@ -122,7 +122,6 @@ export const getCoverPoolFromFeeTier = async (
     if (coverPoolData) {
       for (let i = 0; i < dataLength; i++) {
         if (pool["data"]["coverPools"][i]["id"] == coverPoolData["id"]) {
-          console.log("found cover pool data", coverPoolData);
           coverPoolData = pool["data"]["coverPools"][i];
         }
       }
@@ -183,14 +182,11 @@ export const getCoverPoolInfo = async (
           setCoverPoolRoute(pool["data"]["coverPools"][i]["id"]);
           if (tickSpread == 20) {
             if (volatility != 0) {
-              console.log("change to tier 0");
               changeDefaultPrices = true;
               setVolatility(0);
             }
           } else if (tickSpread == 40) {
-            console.log("vol tier 40", volatility, poolRoute == newPoolRoute);
             if (volatility != 1) {
-              console.log("change to tier 1");
               changeDefaultPrices = true;
               setVolatility(1);
             }
@@ -199,11 +195,6 @@ export const getCoverPoolInfo = async (
             pool["data"]["coverPools"][i]["latestTick"]
           );
           if (setCoverPrice) {
-            console.log(
-              "getting cover price",
-              TickMath.getPriceStringAtTick(newLatestTick, tokenIn, tokenOut),
-              tickSpread
-            );
             setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick, tokenIn, tokenOut));
           }
 
@@ -218,18 +209,6 @@ export const getCoverPoolInfo = async (
           }
           if (setLatestTick) {
             setLatestTick(newLatestTick);
-            console.log(
-              "setting latest tick",
-              tokenOrder,
-              newLatestTick,
-              tickSpread,
-              newLatestTick + tickSpread * 6
-            );
-            console.log(
-              "setting latest lower price",
-              poolRoute != newPoolRoute,
-              changeDefaultPrices
-            );
             if (
               (poolRoute != newPoolRoute && setLowerPrice != undefined) ||
               changeDefaultPrices

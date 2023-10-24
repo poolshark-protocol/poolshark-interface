@@ -171,7 +171,7 @@ export default function CreateCover(props: any) {
         );
       }
     }
-  }, [coverPoolData, tokenIn.callId == 0]);
+  }, [coverPoolData, tokenIn.callId, tokenOut.callId]);
 
   ////////////////////////////////Latest Tick
 
@@ -306,11 +306,11 @@ export default function CreateCover(props: any) {
     if (!bnInput.eq(BN_ZERO)) {
       setTokenInAmount(bnInput);
     }
-  }, [bnInput]);
+  }, [bnInput, tokenIn.address]);
 
   useEffect(() => {
     changeCoverAmounts();
-  }, [tokenIn.callId, coverPositionData]);
+  }, [tokenIn.address, coverPositionData]);
 
   function changeCoverAmounts() {
     if (
