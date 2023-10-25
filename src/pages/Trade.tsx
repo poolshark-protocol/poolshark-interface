@@ -510,7 +510,6 @@ export default function Trade() {
           mappedLimitSnapshotParams[i][4] = allLimitPositions[i].tokenIn.id
             .localeCompare(allLimitPositions[i].tokenOut.id) < 0;
         }
-        
         setLimitPoolAddressList(mappedLimitPoolAddresses)
         setLimitPositionSnapshotList(mappedLimitSnapshotParams)
       }
@@ -1282,7 +1281,7 @@ export default function Trade() {
                     tokenSymbol={tokenIn.symbol}
                     amount={amountIn}
                   />
-                ) : tradePoolData.id != ZERO_ADDRESS ? (
+                ) : tradePoolData?.id != ZERO_ADDRESS ? (
                   <LimitSwapButton
                     routerAddress={
                       chainProperties[networkName]["routerAddress"]
@@ -1386,11 +1385,11 @@ export default function Trade() {
                     <UserLimitPool
                       limitPosition={allLimitPosition}
                       limitFilledAmount={limitFilledAmountList.length > 0 ?
-                        parseFloat(ethers.utils.formatEther(limitFilledAmountList[index])) :
+                        parseFloat(ethers.utils.formatUnits(limitFilledAmountList[index], allLimitPosition.tokenOut.decimals)) :
                         parseFloat("0.00")}
                       address={address}
                       href={"/limit/view"}
-                      key={allLimitPosition.positionId}
+                      key={allLimitPosition.id}
                     />
                   );
                 }
@@ -1402,7 +1401,7 @@ export default function Trade() {
                 if (allLimitPosition.positionId != undefined) {
                   return (
                     <tr className="text-right text-xs md:text-sm bg-black hover:bg-dark cursor-pointer"
-                        key={allLimitPosition.positionId}
+                        key={allLimitPosition.id}
                     >
                       <td className="py-3 pl-3">
                         <div className="flex items-center text-xs text-grey1 gap-x-2 text-left">
@@ -1434,8 +1433,8 @@ export default function Trade() {
                           <span className="text-grey1">1 {allLimitPosition.tokenIn.symbol} = </span> 
                             {
                               getAveragePrice(
-                                tokenIn,
-                                tokenOut,
+                                allLimitPosition.tokenOut,
+                                allLimitPosition.tokenIn,
                                 parseInt(allLimitPosition.min), 
                                 parseInt(allLimitPosition.max), 
                                 allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0, 
@@ -1456,7 +1455,7 @@ export default function Trade() {
                                     parseInt(allLimitPosition.max),
                                     allLimitPosition.tokenIn.id.localeCompare(allLimitPosition.tokenOut.id) < 0,
                                     BigNumber.from(allLimitPosition.amountIn)
-                                ), tokenOut.decimals
+                                ), allLimitPosition.tokenOut.decimals
                               ))).toFixed(2)}% Filled
                           </span>
                           <div className="h-full bg-grey/60 w-[0%] absolute left-0" />
