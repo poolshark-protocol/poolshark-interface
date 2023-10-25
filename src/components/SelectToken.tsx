@@ -95,7 +95,7 @@ export default function SelectToken(props) {
           symbol: coin?.symbol,
           logoURI: coin?.logoURI,
           decimals: coin?.decimals,
-        }, props.amount, props.isAmountIn);
+        });
       }
     }
     closeModal();
