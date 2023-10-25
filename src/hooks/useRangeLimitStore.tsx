@@ -298,6 +298,8 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               tokenInAmount: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.limitMintParams.tokenInAmount,
               tokenOutAmount: isAmountIn ? state.limitMintParams.tokenOutAmount : parseUnits(amount, state.tokenIn.decimals),
             },
+            needsAllowanceIn: true,
+            needsAllowanceOut: true,
           }));
         } else {
           //if tokens are different
@@ -316,6 +318,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               ...state.limitMintParams,
               tokenInAmount: isAmountIn ? parseUnits(amount, newToken.decimals) : state.limitMintParams.tokenInAmount,
             },
+            needsAllowanceIn: true,
           }));
         }
       } else {
@@ -398,6 +401,8 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               tokenInAmount: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.limitMintParams.tokenInAmount,
               tokenOutAmount: isAmountIn ? state.limitMintParams.tokenOutAmount : parseUnits(amount, state.tokenIn.decimals),
             },
+            needsAllowanceIn: true,
+            needsAllowanceOut: true
           }));
         } else {
           //if tokens are different
@@ -416,6 +421,7 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
               tokenOutAmount: isAmountIn ? state.limitMintParams.tokenOutAmount : parseUnits(amount, newToken.decimals),
             },
             pairSelected: true,
+            needsAllowanceOut: true
           }));
         }
       } else {

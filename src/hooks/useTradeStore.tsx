@@ -235,7 +235,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             userRouterAllowance: state.tokenIn.userRouterAllowance,
           },
           amountIn: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.amountIn,
-          amountOut: isAmountIn ? state.amountOut : parseUnits(amount, state.tokenIn.decimals)
+          amountOut: isAmountIn ? state.amountOut : parseUnits(amount, state.tokenIn.decimals),
+          needsAllowanceIn: true
         }));
       } else {
         //if tokens are different
@@ -258,6 +259,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             userRouterAllowance: tokenOut.userRouterAllowance,
           },
           pairSelected: true,
+          needsAllowanceIn: true
         }));
       }
     } else {
@@ -328,7 +330,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             userRouterAllowance: state.tokenIn.userRouterAllowance,
           },
           amountIn: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.amountIn,
-          amountOut: isAmountIn ? state.amountOut : parseUnits(amount, state.tokenIn.decimals)
+          amountOut: isAmountIn ? state.amountOut : parseUnits(amount, state.tokenIn.decimals),
+          needsAllowanceIn: true
         }));
       } else {
         //if tokens are different
