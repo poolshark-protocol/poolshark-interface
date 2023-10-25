@@ -206,11 +206,11 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       pairSelected: pairSelected,
     }));
   },
-  setTokenIn: (tokenOut, newToken: tokenSwap, amount: string, isAmountIn: boolean) => {
+  setTokenIn: (tokenOut, newTokenIn: tokenSwap, amount: string, isAmountIn: boolean) => {
     //if tokenOut is selected
     if (tokenOut.address != initialTradeState.tokenOut.address) {
       //if the new tokenIn is the same as the selected TokenOut, get TokenOut back to initialState
-      if (newToken.address.toLowerCase() == tokenOut.address.toLowerCase()) {
+      if (newTokenIn.address.toLowerCase() == tokenOut.address.toLowerCase()) {
         set((state) => ({
           tokenIn: {
             callId: state.tokenOut.callId,
@@ -243,33 +243,31 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         set(() => ({
           tokenIn: {
             callId:
-              newToken.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
-            ...newToken,
+              newTokenIn.address.localeCompare(tokenOut.address) < 0 ? 0 : 1,
+            ...newTokenIn,
           },
           tokenOut: {
             callId:
-              newToken.address.localeCompare(tokenOut.address) < 0 ? 1 : 0,
-            name: tokenOut.name,
-            symbol: tokenOut.symbol,
-            logoURI: tokenOut.logoURI,
-            address: tokenOut.address,
-            decimals: tokenOut.decimals,
-            USDPrice: tokenOut.USDPrice,
-            userBalance: tokenOut.userBalance,
-            userRouterAllowance: tokenOut.userRouterAllowance,
+              tokenOut.address.localeCompare(newTokenIn.address) < 0 ? 0 : 1,
+            ...tokenOut
           },
           pairSelected: true,
-          needsAllowanceIn: true
+          needsAllowanceIn: true,
         }));
       }
     } else {
       //if tokenOut its not selected
       set(() => ({
         tokenIn: {
+          callId: 1,
+          ...newTokenIn,
+        },
+        tokenOut: {
           callId: 0,
-          ...newToken,
+          ...tokenOut,
         },
         pairSelected: false,
+        needsAllowanceIn: true,
       }));
     }
   },
@@ -301,11 +299,11 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       tokenOut: { ...state.tokenOut, USDPrice: newPrice },
     }));
   },
-  setTokenOut: (tokenIn, newToken: tokenSwap, amount: string, isAmountIn: boolean) => {
+  setTokenOut: (tokenIn, newTokenOut: tokenSwap, amount: string, isAmountIn: boolean) => {
     //if tokenIn exists
     if (tokenIn.address != initialTradeState.tokenOut.address) {
       //if the new selected TokenOut is the same as the current tokenIn, erase the values on TokenIn
-      if (newToken.address.toLowerCase() == tokenIn.address.toLowerCase()) {
+      if (newTokenOut.address.toLowerCase() == tokenIn.address.toLowerCase()) {
         set((state) => ({
           tokenIn: {
             callId: state.tokenOut.callId,
@@ -337,7 +335,7 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         //if tokens are different
         set(() => ({
           tokenIn: {
-            callId: tokenIn.address.localeCompare(newToken.address) < 0 ? 0 : 1,
+            callId: tokenIn.address.localeCompare(newTokenOut.address) < 0 ? 0 : 1,
             symbol: tokenIn.symbol,
             name: tokenIn.name,
             logoURI: tokenIn.logoURI,
@@ -348,8 +346,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
             userRouterAllowance: tokenIn.userRouterAllowance,
           },
           tokenOut: {
-            callId: tokenIn.address.localeCompare(newToken.address) < 0 ? 1 : 0,
-            ...newToken,
+            callId: newTokenOut.address.localeCompare(tokenIn.address) < 0 ? 0 : 1,
+            ...newTokenOut,
           },
           pairSelected: true,
         }));
@@ -357,11 +355,14 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
     } else {
       //if tokenIn its not selected
       set(() => ({
-        tokenOut: {
+        tokenIn: {
           callId: 0,
-          ...newToken,
+          ...tokenIn,
         },
-        tokenIn: initialTradeState.tokenOut,
+        tokenOut: {
+          callId: 1,
+          ...newTokenOut,
+        },
         pairSelected: false,
       }));
     }
@@ -547,7 +548,8 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
         userRouterAllowance: state.tokenIn.userRouterAllowance,
       },
       amountIn: isAmountIn ? parseUnits(amount, state.tokenOut.decimals) : state.amountIn,
-      amountOut: isAmountIn ? state.amountOut : parseUnits(amount, state.tokenIn.decimals)
+      amountOut: isAmountIn ? state.amountOut : parseUnits(amount, state.tokenIn.decimals),
+      needsAllowanceIn: true
     }));
   },
   setTradePoolFromVolatility: async (tokenIn, tokenOut, volatility: any, client: LimitSubgraph) => {
