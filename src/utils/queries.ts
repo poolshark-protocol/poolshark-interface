@@ -488,7 +488,11 @@ export const fetchLimitPositions = (client: LimitSubgraph, address: string) => {
   return new Promise(function (resolve) {
     const positionsQuery = `
       query($owner: String) {
-          limitPositions(where: {owner:"${address}"}) {
+          limitPositions(
+            where: {owner:"${address}"},
+            orderBy: createdAtTimestamp,
+            orderDirection: desc
+          ) {
                 id
                 positionId
                 createdAtTimestamp
