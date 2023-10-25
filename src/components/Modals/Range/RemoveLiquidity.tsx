@@ -115,13 +115,12 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
       signer &&
       address &&
       rangePositionData.poolId &&
-      rangePositionData.positionId &&
+      rangePositionData.positionId != undefined &&
       burnPercent.gt(BN_ZERO)
     ) {
-
       updateGasFee();
     }
-  }, [sliderValue, rangePositionData.poolId, rangePositionData.positionId, signer, address]);
+  }, [sliderValue, rangePositionData.poolId, rangePositionData.positionId, signer, address, burnPercent]);
 
   async function updateGasFee() {
     const newBurnGasFee = await gasEstimateRangeBurn(
@@ -131,8 +130,11 @@ export default function RangeRemoveLiquidity({ isOpen, setIsOpen, signer }) {
       burnPercent,
       signer
     );
-    setBurnGasFee(newBurnGasFee.formattedPrice);
-    setBurnGasLimit(newBurnGasFee.gasUnits.mul(250).div(100));
+    if (newBurnGasFee.gasUnits.gt(BN_ZERO) && 
+        !newBurnGasFee.gasUnits.mul(250).div(100).eq(burnGasLimit)) {
+      setBurnGasFee(newBurnGasFee.formattedPrice);
+      setBurnGasLimit(newBurnGasFee.gasUnits.mul(250).div(100));
+    }
   }
 
   ////////////////////////////////Mint Button Handler

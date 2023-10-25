@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from "ethers";
-import { tokenCover } from "../utils/types";
+import { CoverSubgraph, LimitSubgraph, tokenCover } from "../utils/types";
 import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import {
   tokenOneAddress,
@@ -84,7 +84,8 @@ type CoverAction = {
   setCoverPoolFromVolatility: (
     tokenIn: tokenCover,
     tokenOut: tokenCover,
-    volatility: any
+    volatility: any,
+    client: CoverSubgraph
   ) => void;
   setMintButtonState: () => void;
 };
@@ -461,9 +462,10 @@ export const useCoverStore = create<CoverState & CoverAction>((set) => ({
       needsAllowance: true,
     }));
   },
-  setCoverPoolFromVolatility: async (tokenIn, tokenOut, volatility: any) => {
+  setCoverPoolFromVolatility: async (tokenIn, tokenOut, volatility: any, client: CoverSubgraph) => {
     try {
       const pool = await getCoverPoolFromFactory(
+        client,
         tokenIn.address,
         tokenOut.address
       );

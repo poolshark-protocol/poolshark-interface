@@ -29,6 +29,7 @@ export default function RangeCompoundButton({ poolAddress, address, positionId }
       address: poolAddress,
       abi: rangePoolABI,
       functionName: "burnRange",
+      enabled: positionId != undefined,
       args:[[
           address,
           positionId,

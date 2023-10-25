@@ -15,7 +15,7 @@ import { ConnectWalletButton } from '../components/Buttons/ConnectWalletButton';
 import { isMobile } from "react-device-detect";
 import { Analytics } from '@vercel/analytics/react'
 import { useConfigStore } from '../hooks/useConfigStore';
-import { supportedNetworkNames } from '../utils/chains';
+import { chainProperties, supportedNetworkNames } from '../utils/chains';
 
 
 const { chains, provider } = configureChains(
@@ -23,7 +23,7 @@ const { chains, provider } = configureChains(
   [
     jsonRpcProvider({
       rpc: (chain) => ({
-        http: `https://red-dawn-sailboat.arbitrum-goerli.quiknode.pro/560eae745e6413070c559ecee53af45f5255414b/`,
+        http: `https://aged-serene-dawn.arbitrum-goerli.quiknode.pro/13983d933555da1c9977b6c1eb036554b6393bfc/`,
       }),
     }),
   ],
@@ -62,10 +62,14 @@ function MyApp({ Component, pageProps }) {
 
   const [
     setChainId,
-    setNetworkName
+    setNetworkName,
+    setLimitSubgraph,
+    setCoverSubgraph,
   ] = useConfigStore((state) => [
     state.setChainId,
-    state.setNetworkName
+    state.setNetworkName,
+    state.setLimitSubgraph,
+    state.setCoverSubgraph,
   ]);
 
   const {
@@ -77,7 +81,12 @@ function MyApp({ Component, pageProps }) {
   }, [chainId]);
 
   useEffect(() => {
-    setNetworkName(supportedNetworkNames[name] ?? 'unknownNetwork')
+    const networkName = supportedNetworkNames[name] ?? 'unknownNetwork'
+    const chainConstants = chainProperties[networkName] ? chainProperties[networkName]
+                                                        : chainProperties['arbitrumGoerli'];
+    setLimitSubgraph(chainConstants['limitSubgraphUrl'])
+    setCoverSubgraph(chainConstants['coverSubgraphUrl'])
+    setNetworkName(networkName)
   }, [name]);
 
   useEffect(() => {

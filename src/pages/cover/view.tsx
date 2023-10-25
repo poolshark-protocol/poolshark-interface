@@ -19,7 +19,7 @@ import { useCopyElementUseEffect } from "../../utils/misc";
 import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function ViewCover() {
-  const [chainId] = useConfigStore((state) => [state.chainId]);
+  const [chainId, coverSubgraph] = useConfigStore((state) => [state.chainId, state.coverSubgraph]);
 
   const [
     coverPoolAddress,
@@ -186,7 +186,7 @@ export default function ViewCover() {
         );
       }
     }
-  }, []);
+  }, [coverPoolData?.token0, coverPoolData?.token1]);
 
   useEffect(() => {
     getCoverPoolRatios();
@@ -271,10 +271,10 @@ export default function ViewCover() {
   async function getUserCoverPositionData() {
     setIsLoading(true);
     try {
-      const data = await fetchCoverPositions(address);
+      const data = await fetchCoverPositions(coverSubgraph, address);
       if (data["data"]) {
         const positions = data["data"].positions;
-        const positionData = mapUserCoverPositions(positions);
+        const positionData = mapUserCoverPositions(positions, coverSubgraph);
         setAllCoverPositions(positionData);
         const positionId =
           coverPositionData.positionId ?? router.query.positionId;
@@ -284,7 +284,8 @@ export default function ViewCover() {
         setCoverPoolFromVolatility(
           tokenIn,
           tokenOut,
-          position.volatilityTier.feeAmount.toString()
+          position.volatilityTier.feeAmount.toString(),
+          coverSubgraph
         );
         if (position != undefined) {
           setCoverPositionData(position);
@@ -319,7 +320,8 @@ export default function ViewCover() {
       BigNumber.from(claimTick).lte(coverPositionData.upperTick) &&
       isConnected &&
       coverPoolAddress != undefined &&
-      address != undefined,
+      address != undefined && 
+      coverPositionData?.positionId != undefined,
     onError(error) {
       console.log("Error snapshot Cover", error);
     },
@@ -370,6 +372,7 @@ export default function ViewCover() {
       Boolean(coverPositionData.zeroForOne),
       Number(coverPositionData.epochLast),
       true,
+      coverSubgraph,
       latestTick
     );
     setClaimTick(aux);

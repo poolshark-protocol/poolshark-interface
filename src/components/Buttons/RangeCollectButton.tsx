@@ -37,6 +37,7 @@ export default function RangeCollectButton({ poolAddress, address, positionId })
       address: poolAddress,
       abi: rangePoolABI,
       functionName: "burnRange",
+      enabled: positionId != undefined,
       args:[[
           address,
           positionId,

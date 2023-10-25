@@ -9,6 +9,7 @@ import { logoMap } from "../../utils/tokens";
 import timeDifference from "../../utils/time";
 import { useRangeLimitStore } from "../../hooks/useRangeLimitStore";
 import { parseUnits } from "../../utils/math/valueMath";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function UserLimitPool({
     limitPosition,
@@ -16,6 +17,14 @@ export default function UserLimitPool({
     address,
     href,
 }) {
+    const [
+        limitSubgraph,
+        coverSubgraph
+      ] = useConfigStore((state) => [
+        state.limitSubgraph,
+        state.coverSubgraph
+      ]);
+
     const [
         tokenIn,
         tokenOut,
@@ -52,7 +61,8 @@ export default function UserLimitPool({
             Number(limitPosition.max),
             tokenIn.callId == 0,
             Number(limitPosition.epochLast),
-            false
+            false,
+            limitSubgraph
         );
         setClaimTick(tick);
     };
@@ -81,6 +91,7 @@ export default function UserLimitPool({
             tokenInNew,
             tokenOutNew,
             limitPosition.feeTier.toString(),
+            limitSubgraph,
         );
         router.push({
             pathname: href,

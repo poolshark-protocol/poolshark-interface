@@ -101,7 +101,8 @@ export default function CoverRemoveLiquidity({
       signer &&
       claimTick &&
       claimTick >= coverPositionData.lowerTick && 
-      claimTick <= coverPositionData.upperTick
+      claimTick <= coverPositionData.upperTick &&
+      coverPositionData.positionId != undefined
     ) {
       updateGasFee();
     }

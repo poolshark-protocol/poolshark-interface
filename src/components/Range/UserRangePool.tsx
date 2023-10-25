@@ -9,8 +9,17 @@ import { DyDxMath } from "../../utils/math/dydxMath";
 import JSBI from "jsbi";
 import { getRangePoolFromFactory } from "../../utils/queries";
 import router from "next/router";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function UserRangePool({ rangePosition, href, isModal }) {
+  const [
+    limitSubgraph,
+    coverSubgraph
+  ] = useConfigStore((state) => [
+    state.limitSubgraph,
+    state.coverSubgraph
+  ]);
+
   const [
     rangePoolData,
     rangeTokenIn,
@@ -90,6 +99,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
       decimals: rangePosition.tokenOne.decimals,
     } as tokenCover;
     const pool = await getRangePoolFromFactory(
+      limitSubgraph,
       tokenInNew.address,
       tokenOutNew.address
     );
@@ -201,7 +211,7 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
       setCoverTokenIn(tokenOutNew, tokenInNew);
       setCoverTokenOut(tokenInNew, tokenOutNew);
       setRangePositionData(rangePosition);
-      setCoverPoolFromVolatility(tokenInNew, tokenOutNew, "1000");
+      setCoverPoolFromVolatility(tokenInNew, tokenOutNew, "1000", coverSubgraph);
     } else {
       setRangeTokenIn(tokenOutNew, tokenInNew);
       setRangeTokenOut(tokenInNew, tokenOutNew);
@@ -210,7 +220,8 @@ export default function UserRangePool({ rangePosition, href, isModal }) {
       setRangePoolFromFeeTier(
         tokenInNew,
         tokenOutNew,
-        rangePosition.pool.feeTier.feeAmount
+        rangePosition.pool.feeTier.feeAmount,
+        limitSubgraph,
       );
     }
     router.push({

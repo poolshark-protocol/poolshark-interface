@@ -61,6 +61,7 @@ export default function CoverRemoveLiqButton({
       },
     ],
     chainId: chainId,
+    enabled: positionId != undefined,
     overrides: {
       gasLimit: gasLimit,
     },

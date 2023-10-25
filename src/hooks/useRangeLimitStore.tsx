@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from "ethers";
-import { tokenRangeLimit } from "../utils/types";
+import { LimitSubgraph, token, tokenRangeLimit } from "../utils/types";
 import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import {
   tokenOneAddress,
@@ -105,14 +105,18 @@ type RangeLimitAction = {
   //
   switchDirection: () => void;
   setRangePoolFromFeeTier: (
-    tokenIn: any,
-    tokenOut: any,
-    volatility: any
+    tokenIn: token,
+    tokenOut: token,
+    volatility: any,
+    client: LimitSubgraph,
+    poolPrice?: any,
+    tickAtPrice?: any
   ) => void;
   setLimitPoolFromVolatility: (
     tokenIn: any,
     tokenOut: any,
-    volatility: any
+    volatility: any,
+    client: LimitSubgraph
   ) => void;
   resetRangeLimitParams: () => void;
   resetMintParams: () => void;
@@ -601,14 +605,16 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
       }));
     },
     setRangePoolFromFeeTier: async (
-      tokenIn,
-      tokenOut,
+      tokenIn: token,
+      tokenOut: token,
       volatility: any,
+      client: LimitSubgraph,
       poolPrice?: any,
       tickAtPrice?: any
     ) => {
       try {
         const pool = await getRangePoolFromFactory(
+          client,
           tokenIn.address,
           tokenOut.address
         );
@@ -627,7 +633,6 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
           }
         }
         if (!poolFound) {
-          console.log('no pool found')
           set((state) => ({
             rangePoolAddress: ZERO_ADDRESS as `0x${string}`,
             rangePoolData: {
@@ -639,9 +644,10 @@ export const useRangeLimitStore = create<RangeLimitState & RangeLimitAction>(
         console.log(error);
       }
     },
-    setLimitPoolFromVolatility: async (tokenIn, tokenOut, volatility: any) => {
+    setLimitPoolFromVolatility: async (tokenIn, tokenOut, volatility: any, client: LimitSubgraph) => {
       try {
         const pool = await getLimitPoolFromFactory(
+          client,
           tokenIn.address,
           tokenOut.address
         );

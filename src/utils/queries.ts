@@ -1,6 +1,6 @@
-import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
+import { ApolloClient, InMemoryCache, NormalizedCacheObject, gql } from "@apollo/client";
 import { BigNumber } from "ethers";
-import { tokenSwap } from "./types";
+import { CoverSubgraph, LimitSubgraph } from "./types";
 
 export interface PoolState {
   unlocked: number;
@@ -44,7 +44,7 @@ export const countDecimals = (value: number, tokenDecimals: number) => {
   return false;
 };
 
-export const getRangePoolFromFactory = (tokenA?: string, tokenB?: string) => {
+export const getRangePoolFromFactory = (client: LimitSubgraph, tokenA?: string, tokenB?: string) => {
   const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB;
   const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA;
   return new Promise(function (resolve) {
@@ -72,10 +72,6 @@ export const getRangePoolFromFactory = (tokenA?: string, tokenB?: string) => {
           }
         }
         `;
-    const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
-      cache: new InMemoryCache(),
-    });
     client
       .query({ query: gql(getPool) })
       .then((data) => {
@@ -89,7 +85,7 @@ export const getRangePoolFromFactory = (tokenA?: string, tokenB?: string) => {
   });
 };
 
-export const getCoverPoolFromFactory = (tokenA: string, tokenB: string) => {
+export const getCoverPoolFromFactory = (client: CoverSubgraph, tokenA: string, tokenB: string) => {
   const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB;
   const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA;
   return new Promise(function (resolve) {
@@ -142,7 +138,7 @@ export const getCoverPoolFromFactory = (tokenA: string, tokenB: string) => {
   });
 };
 
-export const getLimitPoolFromFactory = (tokenA: string, tokenB: string) => {
+export const getLimitPoolFromFactory = (client: LimitSubgraph, tokenA: string, tokenB: string) => {
   const token0 = tokenA.localeCompare(tokenB) < 0 ? tokenA : tokenB;
   const token1 = tokenA.localeCompare(tokenB) < 0 ? tokenB : tokenA;
   return new Promise(function (resolve) {
@@ -196,11 +192,6 @@ export const getLimitPoolFromFactory = (tokenA: string, tokenB: string) => {
             }
           }
          `;
-    //console.log('query:', getPool)
-    const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
-      cache: new InMemoryCache(),
-    });
     client
       .query({ query: gql(getPool) })
       .then((data) => {
@@ -215,6 +206,7 @@ export const getLimitPoolFromFactory = (tokenA: string, tokenB: string) => {
 };
 
 export const getCoverTickIfZeroForOne = (
+  client: CoverSubgraph,
   lower: number,
   upper: number,
   poolAddress: string,
@@ -233,11 +225,6 @@ export const getCoverTickIfZeroForOne = (
         }
       }
         `;
-    //console.log('pool address', poolAddress)
-    const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
-      cache: new InMemoryCache(),
-    });
     client
       .query({ query: gql(getTicks) })
       .then((data) => {
@@ -251,6 +238,7 @@ export const getCoverTickIfZeroForOne = (
 };
 
 export const getCoverTickIfNotZeroForOne = (
+  client: CoverSubgraph,
   lower: number,
   upper: number,
   poolAddress: string,
@@ -269,12 +257,6 @@ export const getCoverTickIfNotZeroForOne = (
         }
       }
         `;
-    //console.log(getTicks)
-    //console.log('pool address', poolAddress)
-    const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
-      cache: new InMemoryCache(),
-    });
     client
       .query({ query: gql(getTicks) })
       .then((data) => {
@@ -288,6 +270,7 @@ export const getCoverTickIfNotZeroForOne = (
 };
 
 export const getLimitTickIfNotZeroForOne = (
+  client: LimitSubgraph,
   lower: number,
   upper: number,
   poolAddress: string,
@@ -306,11 +289,6 @@ export const getLimitTickIfNotZeroForOne = (
         }
       }
         `;
-    //console.log('pool address', poolAddress)
-    const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
-      cache: new InMemoryCache(),
-    });
     client
       .query({ query: gql(getTicks) })
       .then((data) => {
@@ -324,6 +302,7 @@ export const getLimitTickIfNotZeroForOne = (
 };
 
 export const getLimitTickIfZeroForOne = (
+  client: LimitSubgraph,
   lower: number,
   upper: number,
   poolAddress: string,
@@ -342,10 +321,6 @@ export const getLimitTickIfZeroForOne = (
         }
       }
         `;
-    const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
-      cache: new InMemoryCache(),
-    });
     client
       .query({ query: gql(getTicks) })
       .then((data) => {
@@ -358,7 +333,7 @@ export const getLimitTickIfZeroForOne = (
   });
 };
 
-export const fetchCoverPositions = (address: string) => {
+export const fetchCoverPositions = (client: CoverSubgraph, address: string) => {
   return new Promise(function (resolve) {
     const positionsQuery = `
       query($owner: String) {
@@ -417,10 +392,6 @@ export const fetchCoverPositions = (address: string) => {
             }
         }
     `;
-    const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
-      cache: new InMemoryCache(),
-    });
     client
       .query({
         query: gql(positionsQuery),
@@ -437,7 +408,7 @@ export const fetchCoverPositions = (address: string) => {
   });
 };
 
-export const fetchCoverPools = () => {
+export const fetchCoverPools = (client: CoverSubgraph) => {
   return new Promise(function (resolve) {
     const poolsQuery = `
             query($id: String) {
@@ -479,10 +450,6 @@ export const fetchCoverPools = () => {
                 }
             }
         `;
-    const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
-      cache: new InMemoryCache(),
-    });
     client
       .query({ query: gql(poolsQuery) })
       .then((data) => {
@@ -495,7 +462,7 @@ export const fetchCoverPools = () => {
   });
 };
 
-export const fetchCoverPoolMetrics = () => {
+export const fetchCoverPoolMetrics = (client: CoverSubgraph) => {
   return new Promise(function (resolve) {
     const poolsMetricsQuery = `
             query($id: String) {
@@ -505,10 +472,6 @@ export const fetchCoverPoolMetrics = () => {
                 }
             }
         `;
-    const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/e1fce33d6c91a225a19e134ec9eeff22/staging-cover-arbitrumGoerli",
-      cache: new InMemoryCache(),
-    });
     client
       .query({ query: gql(poolsMetricsQuery) })
       .then((data) => {
@@ -521,7 +484,7 @@ export const fetchCoverPoolMetrics = () => {
   });
 };
 
-export const fetchLimitPositions = (address: string) => {
+export const fetchLimitPositions = (client: LimitSubgraph, address: string) => {
   return new Promise(function (resolve) {
     const positionsQuery = `
       query($owner: String) {
@@ -568,10 +531,6 @@ export const fetchLimitPositions = (address: string) => {
             }
         }
     `;
-    const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
-      cache: new InMemoryCache(),
-    });
     client
       .query({
         query: gql(positionsQuery),
@@ -588,7 +547,7 @@ export const fetchLimitPositions = (address: string) => {
   });
 };
 
-export const fetchLimitPools = () => {
+export const fetchLimitPools = (client: LimitSubgraph) => {
   return new Promise(function (resolve) {
     const poolsQuery = `
             query($id: String) {
@@ -636,10 +595,6 @@ export const fetchLimitPools = () => {
                 }
             }
         `;
-    const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
-      cache: new InMemoryCache(),
-    });
     client
       .query({ query: gql(poolsQuery) })
       .then((data) => {
@@ -652,7 +607,7 @@ export const fetchLimitPools = () => {
   });
 };
 
-export const fetchLimitPoolMetrics = () => {
+export const fetchLimitPoolMetrics = (client: LimitSubgraph) => {
   return new Promise(function (resolve) {
     const poolsMetricsQuery = `
             query($id: String) {
@@ -662,10 +617,6 @@ export const fetchLimitPoolMetrics = () => {
                 }
             }
         `;
-    const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
-      cache: new InMemoryCache(),
-    });
     client
       .query({ query: gql(poolsMetricsQuery) })
       .then((data) => {
@@ -678,7 +629,7 @@ export const fetchLimitPoolMetrics = () => {
   });
 };
 
-export const fetchRangePools = () => {
+export const fetchRangePools = (client: LimitSubgraph) => {
   return new Promise(function (resolve) {
     const poolsQuery = `
             query($id: String) {
@@ -725,10 +676,6 @@ export const fetchRangePools = () => {
                 }
             }
         `;
-    const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
-      cache: new InMemoryCache(),
-    });
     client
       .query({ query: gql(poolsQuery) })
       .then((data) => {
@@ -741,7 +688,7 @@ export const fetchRangePools = () => {
   });
 };
 
-export const fetchRangePositions = (address: string) => {
+export const fetchRangePositions = (client: LimitSubgraph, address: string) => {
   return new Promise(function (resolve) {
     const positionsQuery = `
     {
@@ -792,10 +739,6 @@ export const fetchRangePositions = (address: string) => {
       }  
   }
     `;
-    const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
-      cache: new InMemoryCache(),
-    });
     client
       .query({
         query: gql(positionsQuery),
@@ -908,7 +851,7 @@ export const fetchUniV3Positions = (address: string) => {
   });
 };
 
-export const fetchTokenPrice = (tokenAddress: string) => {
+export const fetchTokenPrice = (client: LimitSubgraph, tokenAddress: string) => {
   return new Promise(function (resolve) {
     const poolsQuery = `
             query($id: String) {
@@ -917,10 +860,6 @@ export const fetchTokenPrice = (tokenAddress: string) => {
                 }
             }
         `;
-    const client = new ApolloClient({
-      uri: "https://arbitrum-goerli.graph-eu.p2pify.com/be2fe11b3c1319f93d21c5a3cbf4b2b6/limit-arbitrumGoerli-beta2",
-      cache: new InMemoryCache(),
-    });
     client
       .query({
         query: gql(poolsQuery),

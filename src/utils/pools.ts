@@ -1,22 +1,19 @@
-import { ZERO_ADDRESS } from "./math/constants";
-import { TickMath } from "./math/tickMath";
 import {
-  getCoverPoolFromFactory,
   getLimitPoolFromFactory,
-  getRangePoolFromFactory,
 } from "./queries";
-import { tokenCover, tokenRangeLimit, tokenSwap } from "./types";
+import { LimitSubgraph, tokenSwap } from "./types";
 
 //TODO@retraca enable this componnent to directly u0pdate zustand states
 
 //Grab pool with most liquidity
 export const getSwapPools = async (
+  client: LimitSubgraph,
   tokenIn: tokenSwap,
   tokenOut: tokenSwap,
   setSwapPoolData
 ) => {
   try {
-    const limitPools = await getLimitPoolFromFactory(tokenIn.address, tokenOut.address);
+    const limitPools = await getLimitPoolFromFactory(client, tokenIn.address, tokenOut.address);
     const data = limitPools["data"];
     if (data) {
       const allPools = data["limitPools"];
@@ -24,226 +21,6 @@ export const getSwapPools = async (
       return allPools;
     } else {
       return undefined;
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-export const getRangePool = async (
-  tokenIn: tokenRangeLimit,
-  tokenOut: tokenRangeLimit,
-  setRangePoolAddress,
-  setRangePoolData
-) => {
-  try {
-    const pool = await getRangePoolFromFactory(
-      tokenIn.address,
-      tokenOut.address
-    );
-    //TODO@retraca create here or new fucntion for choosing the right pool considering feetier
-    let id = ZERO_ADDRESS;
-    let rangePoolData = {};
-    const dataLength = pool["data"]["limitPools"].length;
-    if (dataLength != 0) {
-      id = pool["data"]["limitPools"]["0"]["id"];
-      rangePoolData = pool["data"]["limitPools"]["0"];
-    } else {
-      const fallbackPool = await getRangePoolFromFactory(
-        tokenOut.address,
-        tokenIn.address
-      );
-      id = fallbackPool["data"]["limitPools"]["0"]["id"];
-      rangePoolData = fallbackPool["data"]["limitPools"]["0"];
-    }
-    setRangePoolAddress(id);
-    setRangePoolData(rangePoolData);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-export const getCoverPool = async (
-  tokenIn: tokenCover,
-  tokenOut: tokenCover,
-  setCoverPoolAddress,
-  setCoverPoolData
-) => {
-  try {
-    const pool = await getCoverPoolFromFactory(
-      tokenIn.address,
-      tokenOut.address
-    );
-    let id = ZERO_ADDRESS;
-    let coverPoolData = {};
-    const dataLength = pool["data"]["coverPools"].length;
-
-    if (coverPoolData) {
-      for (let i = 0; i < dataLength; i++) {
-        if (pool["data"]["coverPools"][i]["id"] == coverPoolData["id"]) {
-          coverPoolData = pool["data"]["coverPools"][i];
-        }
-      }
-    }
-    if (dataLength != 0) {
-      id = pool["data"]["coverPools"]["0"]["id"];
-      coverPoolData = pool["data"]["coverPools"]["0"];
-    } else {
-      const fallbackPool = await getCoverPoolFromFactory(
-        tokenOut.address,
-        tokenIn.address
-      );
-      id = fallbackPool["data"]["coverPools"]["0"]["id"];
-      coverPoolData = fallbackPool["data"]["coverPools"]["0"];
-    }
-    setCoverPoolAddress(id);
-    setCoverPoolData(coverPoolData);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-export const getCoverPoolFromFeeTier = async (
-  tokenIn: tokenCover,
-  tokenOut: tokenCover,
-  feeTier: number,
-  setCoverPoolAddress,
-  setCoverPoolData
-) => {
-  try {
-    const pool = await getCoverPoolFromFactory(
-      tokenIn.address,
-      tokenOut.address
-    );
-    let id = ZERO_ADDRESS;
-    let coverPoolData = {};
-    const dataLength = pool["data"]["coverPools"].length;
-
-    if (coverPoolData) {
-      for (let i = 0; i < dataLength; i++) {
-        if (pool["data"]["coverPools"][i]["id"] == coverPoolData["id"]) {
-          coverPoolData = pool["data"]["coverPools"][i];
-        }
-      }
-    }
-
-    if (dataLength != 0) {
-      id = pool["data"]["coverPools"]["0"]["id"];
-      coverPoolData = pool["data"]["coverPools"]["0"];
-    } else {
-      const fallbackPool = await getCoverPoolFromFactory(
-        tokenOut.address,
-        tokenIn.address
-      );
-      id = fallbackPool["data"]["coverPools"]["0"]["id"];
-      coverPoolData = fallbackPool["data"]["coverPools"]["0"];
-    }
-    setCoverPoolAddress(id);
-    setCoverPoolData(coverPoolData);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-export const getCoverPoolInfo = async (
-  poolRoute: string,
-  tokenOrder: boolean,
-  tokenIn: tokenCover,
-  tokenOut: tokenCover,
-  setCoverPoolRoute,
-  setCoverPrice,
-  setTokenInUsdPrice,
-  volatility,
-  setVolatility,
-  setLatestTick?,
-  lowerPrice?,
-  upperPrice?,
-  setLowerPrice?,
-  setUpperPrice?,
-  expectedTickSpread?,
-  changeDefaultPrices?
-) => {
-  try {
-    const pool = await getCoverPoolFromFactory(
-      tokenIn.address,
-      tokenOut.address
-    );
-    const dataLength = pool["data"]["coverPools"].length;
-    if (dataLength) {
-      for (let i = 0; i < dataLength; i++) {
-        const newPoolRoute = pool["data"]["coverPools"][i]["id"];
-        const tickSpread = parseInt(
-          pool["data"]["coverPools"][i]["volatilityTier"]["tickSpread"]
-        );
-        if (
-          (poolRoute && newPoolRoute == poolRoute) ||
-          (expectedTickSpread && tickSpread == expectedTickSpread)
-        ) {
-          setCoverPoolRoute(pool["data"]["coverPools"][i]["id"]);
-          if (tickSpread == 20) {
-            if (volatility != 0) {
-              changeDefaultPrices = true;
-              setVolatility(0);
-            }
-          } else if (tickSpread == 40) {
-            if (volatility != 1) {
-              changeDefaultPrices = true;
-              setVolatility(1);
-            }
-          }
-          const newLatestTick = parseInt(
-            pool["data"]["coverPools"][i]["latestTick"]
-          );
-          if (setCoverPrice) {
-            setCoverPrice(TickMath.getPriceStringAtTick(newLatestTick, tokenIn, tokenOut));
-          }
-
-          if (setTokenInUsdPrice) {
-            setTokenInUsdPrice(
-              parseFloat(
-                tokenOrder
-                  ? pool["data"]["coverPools"][i]["token0"]["usdPrice"]
-                  : pool["data"]["coverPools"][i]["token1"]["usdPrice"]
-              )
-            );
-          }
-          if (setLatestTick) {
-            setLatestTick(newLatestTick);
-            if (
-              (poolRoute != newPoolRoute && setLowerPrice != undefined) ||
-              changeDefaultPrices
-            ) {
-              setLowerPrice(
-                TickMath.getPriceStringAtTick(
-                  tokenOrder
-                    ? newLatestTick + -tickSpread * 16
-                    : newLatestTick + tickSpread * 8,
-                  tokenIn, tokenOut,
-                  tickSpread
-                )
-              );
-            }
-            if (
-              (poolRoute != newPoolRoute && setUpperPrice) ||
-              changeDefaultPrices
-            ) {
-              setUpperPrice(
-                TickMath.getPriceStringAtTick(
-                  tokenOrder
-                    ? newLatestTick - tickSpread * 6
-                    : newLatestTick + tickSpread * 18,
-                  tokenIn, tokenOut,
-                  tickSpread
-                )
-              );
-            }
-          }
-        }
-      }
-    } else {
-      setCoverPoolRoute(ZERO_ADDRESS);
-      setCoverPrice("1.00");
-      setTokenInUsdPrice("1.00");
     }
   } catch (error) {
     console.log(error);

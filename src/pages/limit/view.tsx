@@ -24,10 +24,12 @@ import { parseUnits } from "../../utils/math/valueMath";
 export default function ViewLimit() {
   const [
     chainId,
-    networkName
+    networkName,
+    limitSubgraph
   ] = useConfigStore((state) => [
     state.chainId,
-    state.networkName
+    state.networkName,
+    state.limitSubgraph
   ]);
 
   const [
@@ -202,7 +204,8 @@ export default function ViewLimit() {
       Number(limitPositionData.max),
       tokenIn.callId == 0,
       Number(limitPositionData.epochLast),
-      false
+      false,
+      limitSubgraph
     );
 
     setClaimTick(aux);
@@ -211,7 +214,7 @@ export default function ViewLimit() {
 
   async function getUserLimitPositionData() {
     try {
-      const data = await fetchLimitPositions(address.toLowerCase());
+      const data = await fetchLimitPositions(limitSubgraph, address.toLowerCase());
       if (data["data"]) {
         setAllLimitPositions(
           mapUserLimitPositions(data["data"].limitPositions)

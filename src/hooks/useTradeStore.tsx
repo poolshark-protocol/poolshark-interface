@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from "ethers";
-import { tokenRangeLimit, tokenSwap } from "../utils/types";
+import { LimitSubgraph, tokenRangeLimit, tokenSwap } from "../utils/types";
 import { BN_ZERO, ZERO_ADDRESS } from "../utils/math/constants";
 import {
   tokenOneAddress,
@@ -89,7 +89,8 @@ type TradeLimitAction = {
   setTradePoolFromVolatility: (
     tokenIn: any,
     tokenOut: any,
-    volatility: any
+    volatility: any,
+    client: LimitSubgraph
   ) => void;
 
   resetTradeLimitParams: () => void;
@@ -510,9 +511,10 @@ export const useTradeStore = create<TradeState & TradeLimitAction>((set) => ({
       amountOut: isAmountIn ? state.amountOut : parseUnits(amount, state.tokenIn.decimals)
     }));
   },
-  setTradePoolFromVolatility: async (tokenIn, tokenOut, volatility: any) => {
+  setTradePoolFromVolatility: async (tokenIn, tokenOut, volatility: any, client: LimitSubgraph) => {
     try {
       const pool = await getLimitPoolFromFactory(
+        client,
         tokenIn.address,
         tokenOut.address
       );

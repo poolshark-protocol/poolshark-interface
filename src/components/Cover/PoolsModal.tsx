@@ -10,6 +10,7 @@ import {
 import { useAccount } from "wagmi";
 import { BigNumber } from "ethers";
 import { mapUserRangePositions } from "../../utils/maps";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
   const { address } = useAccount();
@@ -20,6 +21,14 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
     setSearchTerm(event.target.value);
   };
 
+  const [
+    limitSubgraph,
+    coverSubgraph
+  ] = useConfigStore((state) => [
+    state.limitSubgraph,
+    state.coverSubgraph
+  ]);
+
   const [limitPositions, setLimitPositions] = useState([]);
   const [allRangePositions, setAllRangePositions] = useState([]);
 
@@ -29,7 +38,7 @@ export default function PoolsModal({ isOpen, setIsOpen, prefill, setParams }) {
 
   async function getUserLimitPositionData() {
     //this should be range positions
-    const data = await fetchRangePositions(address);
+    const data = await fetchRangePositions(limitSubgraph, address);
     console.log("data", data);
     if (data["data"]) {
       const positions = data["data"].rangePositions;

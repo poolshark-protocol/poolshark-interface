@@ -4,9 +4,20 @@ import { useRouter } from "next/router";
 import { tokenCover } from "../../utils/types";
 import { formatUsdValue } from "../../utils/math/valueMath";
 import { TickMath } from "../../utils/math/tickMath";
+import { useConfigStore } from "../../hooks/useConfigStore";
 
 export default function CoverPool({ pool, href }) {
-  const [setCoverTokenIn, setCoverTokenOut, setCoverPoolFromVolatility] =
+  const [
+    coverSubgraph
+  ] = useConfigStore((state) => [
+    state.coverSubgraph
+  ])
+  
+  const [
+    setCoverTokenIn,
+    setCoverTokenOut,
+    setCoverPoolFromVolatility
+  ] =
     useCoverStore((state) => [
       state.setTokenIn,
       state.setTokenOut,
@@ -37,7 +48,8 @@ export default function CoverPool({ pool, href }) {
     setCoverPoolFromVolatility(
       tokenIn,
       tokenOut,
-      pool.volatilityTier.feeAmount.toString()
+      pool.volatilityTier.feeAmount.toString(),
+      coverSubgraph
     );
     router.push({
       pathname: href,
